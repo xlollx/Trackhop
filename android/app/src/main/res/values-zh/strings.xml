@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s 的 API 不允许从歌单中移除歌曲：已保留 %2$d 首歌曲。</string>
     <string name="note_removals_deferred">移除已推迟：搜索尚未完成，因此目标中暂未匹配的 %1$d 首歌曲已保留。完整运行一次后会重新检查它们。</string>
     <string name="note_removals_capped">已暂缓删除：本次运行将从目标中移除 %2$d 首中的 %1$d 首。点按同步的状态打开预览查看；如果确实应当移除，请在那里勾选“移除这些歌曲”再运行。如果来源并未真的失去这些歌曲，说明服务只读取了一部分，不应移除任何内容。</string>
+    <string name="error_target_shrunk">%1$s 只列出 %2$d 首曲目，但上次运行后有 %3$d 首：很可能是不完整的响应。没有做任何更改。请稍后再试；如果播放列表现在确实这么少，请在预览中仍然同步。</string>
+    <string name="note_target_shrunk">%1$s 只列出 %2$d 首曲目，但上次运行后有 %3$d 首：很可能是不完整的响应。现在运行会再次添加缺少的曲目。</string>
+    <string name="preview_shrunk_confirm">播放列表现在确实是 %1$d 首，而不是 %2$d 首：仍然同步</string>
     <string name="note_unchanged">自上次运行以来两边都没有变化：已跳过。</string>
     <string name="review_share">分享列表</string>
     <string name="note_search_interrupted">已搜索 %2$d 首中的 %1$d 首，随后服务要求更长的暂停（%3$s）。这是服务的限制，不是 Trackhop 的错误：已找到的结果已应用并记住。几分钟后再次运行同步即可从此处继续。</string>

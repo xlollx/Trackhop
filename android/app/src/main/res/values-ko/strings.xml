@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s API로는 플레이리스트에서 곡을 삭제할 수 없어요. %2$d곡을 그대로 두었습니다.</string>
     <string name="note_removals_deferred">삭제를 미뤘어요. 검색이 끝나지 않아, 아직 아무것과도 일치하지 않은 대상의 %1$d곡을 그대로 두었습니다. 실행이 완료되면 다시 검토해요.</string>
     <string name="note_removals_capped">삭제를 보류했어요. 이번 실행은 대상에서 %1$d곡을 삭제하게 돼요(대상 전체는 %2$d곡). 동기화 상태를 탭해 미리보기를 열고 확인하세요. 정말 삭제해야 한다면 거기서 ‘이 곡들 삭제’에 체크한 뒤 실행하세요. 원본에서 정말 사라진 게 아니라면 서비스가 목록을 불완전하게 보낸 것이니 아무것도 삭제하면 안 돼요.</string>
+    <string name="error_target_shrunk">%1$s에 %2$d곡만 보이지만 마지막 실행 후에는 %3$d곡이 있었어요. 응답이 불완전했을 가능성이 커요. 아무것도 바꾸지 않았어요. 나중에 다시 시도하고, 재생목록이 정말 이만큼 줄었다면 미리보기에서 동기화하세요.</string>
+    <string name="note_target_shrunk">%1$s에 %2$d곡만 보이지만 마지막 실행 후에는 %3$d곡이 있었어요. 응답이 불완전했을 가능성이 커요. 지금 실행하면 빠진 곡을 다시 추가해요.</string>
+    <string name="preview_shrunk_confirm">재생목록이 정말 %2$d곡이 아니라 %1$d곡이에요: 그래도 동기화</string>
     <string name="note_unchanged">마지막 실행 이후 양쪽 모두 바뀐 게 없어 건너뛰었어요.</string>
     <string name="review_share">목록 공유</string>
     <string name="note_search_interrupted">%1$d곡을 검색했어요(전체 %2$d곡). 그 뒤 서비스가 더 긴 대기를 요청했어요(%3$s). 이는 Trackhop 오류가 아니라 서비스의 제한이에요. 찾은 곡은 적용하고 기억해 두었으니, 몇 분 뒤 동기화를 다시 실행하면 거기서부터 이어집니다.</string>

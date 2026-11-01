@@ -238,9 +238,12 @@ class MemoryService(override val serviceId: String) : MusicProvider {
     override suspend fun playlists(ctx: Env): List<Playlist> = lists.map { (id, t) -> Playlist(id, id, t.size) }
     /** Thrown by [tracks] when set: a service that fails the whole run. */
     var failure: Exception? = null
+    /** Sizes the next reads stop at, one per read: a listing the service sends in part. */
+    val shortReads = ArrayDeque<Int>()
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
         failure?.let { throw it }
-        return lists[playlistId]?.toList() ?: throw ProviderException("$serviceId: no playlist $playlistId")
+        val all = lists[playlistId]?.toList() ?: throw ProviderException("$serviceId: no playlist $playlistId")
+        return shortReads.removeFirstOrNull()?.let { all.take(it) } ?: all
     }
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         val wanted = Matcher.normalizeTitle(track.title)

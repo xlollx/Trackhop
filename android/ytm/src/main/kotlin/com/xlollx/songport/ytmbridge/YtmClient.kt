@@ -326,6 +326,8 @@ class YtmClient(private val host: YtmHost) {
     fun tracks(playlistId: String): List<TrackDto> {
         val out = LinkedHashMap<String, TrackDto>()
         var resp = call("browse", mapOf("browseId" to browseIdOf(playlistId)))
+        // The size the page's header states ("2,084 songs"), to tell a listing cut short from a whole one.
+        val declared = declaredCount(resp)
         var pages = 0
         while (true) {
             var added = 0
@@ -343,7 +345,19 @@ class YtmClient(private val host: YtmHost) {
             if (added == 0 || ++pages > 300) break
             resp = continueBrowse(next)
         }
+        // Under half of what the header states: a page left out or sent in another layout. Returned as
+        // is, it would read as an emptied playlist, and a sync would write everything to it again.
+        if (declared >= SHORT_LISTING_MIN && out.size * 2 < declared) {
+            throw BridgeException("YouTube Music listed ${out.size} of the $declared songs of this playlist: try again in a while")
+        }
         return out.values.toList()
+    }
+
+    /** The song count in a playlist page's header (its second subtitle, "2,084 songs • 120+ hours"), or -1. */
+    private fun declaredCount(resp: JsonElement): Int {
+        val header = resp.findFirst("musicResponsiveHeaderRenderer") ?: resp.findFirst("musicDetailHeaderRenderer") ?: return -1
+        val text = header["secondSubtitle"].runsText() ?: return -1
+        return parseCount(text)
     }
 
     /**
@@ -649,6 +663,8 @@ class YtmClient(private val host: YtmHost) {
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
 
     companion object {
+        /** From this many songs stated in a playlist's header, a listing under half of it is refused. */
+        private const val SHORT_LISTING_MIN = 20
         /** Trackhop's id for "Liked songs"; maps to the LM playlist here. */
         const val LIKED = "__liked__"
         /** Kinds of like answers already logged, for this process. */

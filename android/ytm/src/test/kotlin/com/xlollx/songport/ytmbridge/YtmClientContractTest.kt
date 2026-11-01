@@ -79,6 +79,21 @@ class YtmClientContractTest {
         "playlistItemData":{${set?.let { "\"playlistSetVideoId\":\"$it\"," } ?: ""}"videoId":"$v"}}}"""
     private fun more(token: String) = """{"continuationItemRenderer":{"continuationEndpoint":{"continuationCommand":{"token":"$token","request":"CONTINUATION_REQUEST_TYPE_BROWSE"}}}}"""
 
+    private fun header(count: String) = """"header":{"musicResponsiveHeaderRenderer":{"title":{"runs":[{"text":"Liked Music"}]},"secondSubtitle":{"runs":[{"text":"$count songs"},{"text":" • "},{"text":"120+ hours"}]}}},"""
+
+    @Test fun aListingFarShorterThanItsHeaderIsRefused() {
+        answer("""{${header("2,084")}"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"LM",
+            "contents":[${(0 until 100).joinToString(",") { row("v$it", "S$it") }},${more("T1")}]}}]}}}}}""")
+        answer("""{"onResponseReceivedActions":[{"appendContinuationItemsAction":{"continuationItems":[]}}]}""")
+        try { client.tracks(YtmClient.LIKED); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("100 of the 2084")) }
+    }
+
+    @Test fun aListingCloseToItsHeaderPasses() {
+        answer("""{${header("110")}"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"LM",
+            "contents":[${(0 until 100).joinToString(",") { row("v$it", "S$it") }}]}}]}}}}}""")
+        assertEquals(100, client.tracks(YtmClient.LIKED).size)
+    }
+
     @Test fun playlistReadAcrossContinuationsWithDuplicatesAndGreyedEntries() {
         answer("""{"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"PL1",
             "contents":[${(0 until 100).joinToString(",") { row("v$it", "S$it") }},${more("T1")}]}}]}}}}}""")

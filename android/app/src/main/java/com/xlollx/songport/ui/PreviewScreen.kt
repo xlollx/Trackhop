@@ -73,6 +73,7 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
     var progress by remember { mutableStateOf<Progress?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var confirmRemovals by remember { mutableStateOf(false) }
+    var confirmShrink by remember { mutableStateOf(false) }
     ScreenBackHandler(onClose)
 
     LaunchedEffect(job.id) {
@@ -147,8 +148,21 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                                 HelpButton(Helps.removals)
                             }
                         }
+                        // The target lists far fewer tracks than the last run left (see the note above): a
+                        // run stops unless this is ticked, as a listing read in part would add everything again.
+                        if (p.targetShrunkFrom > 0) {
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = confirmShrink, role = Role.Checkbox, onValueChange = { confirmShrink = it }),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(checked = confirmShrink, onCheckedChange = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.preview_shrunk_confirm, p.targetCount, p.targetShrunkFrom), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                            }
+                        }
                         Button(onClick = {
                             if (p.removalsNeedConfirmation && confirmRemovals) store.confirmRemovals(job.id, p.toRemove.map { it.id })
+                            if (p.targetShrunkFrom > 0 && confirmShrink) store.confirmTargetShrink(job.id)
                             onRun(job)
                         }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.run_now)) }
                     }

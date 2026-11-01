@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s nie pozwala usuwać utworów z playlisty przez swoje API: pozostawiono %2$d utworów.</string>
     <string name="note_removals_deferred">Usunięcia odłożone: wyszukiwanie nie zostało ukończone, więc %1$d utworów w celu, które jeszcze do niczego nie pasowały, pozostawiono na miejscu. Zostaną sprawdzone, gdy jakieś uruchomienie się zakończy.</string>
     <string name="note_removals_capped">Usunięcia wstrzymane: to uruchomienie usunęłoby %1$d z %2$d utworów w celu. Stuknij status synchronizacji, aby otworzyć podgląd i je zobaczyć; jeśli naprawdę mają zniknąć, zaznacz tam „Usuń te utwory” i uruchom. Jeśli źródło naprawdę ich nie straciło, serwis podał niepełną listę i nic nie powinno zniknąć.</string>
+    <string name="error_target_shrunk">%1$s pokazuje tylko %2$d utworów, a ostatnie uruchomienie zostawiło ich %3$d: prawdopodobnie niepełna odpowiedź. Nic nie zostało zmienione. Spróbuj później; jeśli playlista naprawdę jest teraz tak mała, zsynchronizuj ją mimo to z podglądu.</string>
+    <string name="note_target_shrunk">%1$s pokazuje tylko %2$d utworów, a ostatnie uruchomienie zostawiło ich %3$d: prawdopodobnie niepełna odpowiedź. Uruchomienie teraz dodałoby brakujące ponownie.</string>
+    <string name="preview_shrunk_confirm">Playlista naprawdę ma teraz %1$d utworów, nie %2$d: synchronizuj mimo to</string>
     <string name="note_unchanged">Od ostatniego uruchomienia nic się nie zmieniło po żadnej stronie: pominięto.</string>
     <string name="review_share">Udostępnij listę</string>
     <string name="note_search_interrupted">Przeszukano %1$d z %2$d utworów, po czym serwis poprosił o dłuższą przerwę (%3$s). To ograniczenie serwisu, nie błąd Trackhop: to, co znaleziono, zostało zastosowane i zapamiętane. Uruchom synchronizację ponownie za kilka minut, aby kontynuować od tego miejsca.</string>

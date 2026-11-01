@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s, API\'si üzerinden çalma listesinden parça kaldırmaya izin vermiyor: %2$d parça yerinde bırakıldı.</string>
     <string name="note_removals_deferred">Kaldırmalar ertelendi: arama tamamlanmadığından, hedefte henüz hiçbir şeyle eşleşmeyen %1$d parça yerinde bırakıldı. Bir çalıştırma tamamlandığında yeniden değerlendirilecek.</string>
     <string name="note_removals_capped">Kaldırmalar bekletildi: bu çalıştırma hedefteki %1$d parçayı kaldıracaktı (toplam %2$d). Önizlemeyi açıp görmek için senkronizasyonun durumuna dokunun; gerçekten kaldırılmaları gerekiyorsa orada “Bu parçaları kaldır” seçeneğini işaretleyip çalıştırın. Kaynak bunları gerçekten kaybetmediyse servis listeyi eksik vermiştir ve hiçbir şey kaldırılmamalıdır.</string>
+    <string name="error_target_shrunk">%1$s yalnızca %2$d parça gösteriyor, ama son çalıştırma orada %3$d parça bırakmıştı: büyük olasılıkla eksik bir yanıt. Hiçbir şey değiştirilmedi. Daha sonra tekrar dene; çalma listesi gerçekten bu kadar küçüldüyse önizlemeden yine de eşitle.</string>
+    <string name="note_target_shrunk">%1$s yalnızca %2$d parça gösteriyor, ama son çalıştırma orada %3$d parça bırakmıştı: büyük olasılıkla eksik bir yanıt. Şimdi çalıştırmak eksik olanları yeniden ekler.</string>
+    <string name="preview_shrunk_confirm">Çalma listesinde gerçekten %2$d değil %1$d parça var: yine de eşitle</string>
     <string name="note_unchanged">Son çalıştırmadan beri iki tarafta da değişiklik yok: atlandı.</string>
     <string name="review_share">Listeyi paylaş</string>
     <string name="note_search_interrupted">%1$d / %2$d parça arandı, ardından servis daha uzun bir ara istedi (%3$s). Bu servisin bir sınırıdır, Trackhop hatası değil: bulunanlar uygulandı ve hatırlanacak. Kaldığı yerden devam etmek için senkronizasyonu birkaç dakika sonra yeniden çalıştırın.</string>

@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s ne permet pas de retirer des titres d\'une playlist via son API : %2$d titres ont été laissés en place.</string>
     <string name="note_removals_deferred">Suppressions reportées : la recherche n\'a pas été terminée, donc %1$d titres de la destination sans correspondance pour l\'instant restent en place. Ils seront réexaminés quand une exécution ira jusqu\'au bout.</string>
     <string name="note_removals_capped">Suppressions retenues : cette exécution retirerait %1$d des %2$d titres de la destination. Touchez l\'état de la sync pour ouvrir l\'aperçu et les voir ; s\'ils doivent vraiment partir, cochez-y « Retirer ces titres » et lancez-la. Si la source ne les a pas vraiment perdus, le service l\'a lue à moitié et rien ne doit partir.</string>
+    <string name="error_target_shrunk">%1$s ne liste que %2$d titres, alors que la dernière exécution en avait laissé %3$d : sans doute une réponse incomplète. Rien n’a été modifié. Réessaie plus tard ; si la playlist est vraiment aussi petite maintenant, synchronise-la quand même depuis l’aperçu.</string>
+    <string name="note_target_shrunk">%1$s ne liste que %2$d titres, alors que la dernière exécution en avait laissé %3$d : sans doute une réponse incomplète. Lancer maintenant ajouterait de nouveau ceux qui manquent.</string>
+    <string name="preview_shrunk_confirm">La playlist compte vraiment %1$d titres maintenant, pas %2$d : synchroniser quand même</string>
     <string name="note_unchanged">Rien n\'a changé d\'un côté ni de l\'autre depuis la dernière exécution : ignoré.</string>
     <string name="review_share">Partager la liste</string>
     <string name="note_search_interrupted">%1$d titres sur %2$d recherchés, puis le service a demandé une pause plus longue (%3$s). C\'est une limite du service, pas une erreur de Trackhop : ce qui a été trouvé a été appliqué et mémorisé. Relancez la sync dans quelques minutes pour continuer.</string>

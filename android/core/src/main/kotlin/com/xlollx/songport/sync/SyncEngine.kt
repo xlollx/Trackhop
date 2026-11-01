@@ -64,6 +64,13 @@ fun isTransientNetwork(msg: String?): Boolean {
 
 /** Below the match threshold but close enough to be worth proposing in the review. */
 private const val HINT_THRESHOLD = 0.45
+/** A run stopped by the target's size check ([SyncReport.targetShrunkFrom]): [expected] is what the last run left. */
+class TargetShrunkException(message: String, val expected: Int) : Exception(message)
+
+/** From this many tracks on the target, a listing under half of what the last run left is held suspect. */
+private const val SHRINK_MIN = 20
+/** The pause before reading a suspect target again. */
+internal var shrinkRereadMs = 3_000L
 /** Above this many tracks the order step is skipped: too many single moves for one run. */
 private const val MAX_REORDER = 1500
 /** Hosts of the short links music apps put in their share text. */
@@ -119,7 +126,7 @@ class SyncEngine(
         } catch (e: Exception) {
             env.log("engine", "${job.name}: ${describe(e)}")
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
-                error = e.message ?: e.javaClass.simpleName)
+                error = e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0)
         }
         store.addReport(report)
         if (report.error == null && dst0 != null) {
@@ -231,7 +238,8 @@ class SyncEngine(
         onProgress(Progress(Progress.Step.FETCH_TARGET))
         // A playlist created a moment ago is empty: skip the fetch (saves quota, and YouTube's Data API
         // may not even know the playlist yet).
-        val dstTracks = if (targetCreated) emptyList() else patient(onProgress) { dst.tracks(env, targetId) }
+        val dstTracks = if (targetCreated) emptyList() else readTarget(job, dst, targetId, onProgress, unattended, interactive, notes)
+        val shrunkFrom = if (interactive && !targetCreated) shrunkFrom(job, targetId, dstTracks.size) else 0
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
 
@@ -390,7 +398,49 @@ class SyncEngine(
             removalsNeedConfirmation = needsConfirmation,
             heldBackRemovals = heldBack,
             searchInterrupted = interrupted != null,
+            targetShrunkFrom = shrunkFrom,
         )
+    }
+
+    /**
+     * How many tracks the last good run of [job] left on [targetId], when [now] is far below it (under
+     * half, from [SHRINK_MIN] tracks up); 0 otherwise. A listing read in part (a page the service did
+     * not send, an answer in a new layout) looks like an emptied playlist: every source track would
+     * be added again, thousands of writes the service may hold against the account.
+     */
+    private fun shrunkFrom(job: SyncJob, targetId: String, now: Int): Int {
+        val last = store.data.reports.firstOrNull { it.jobId == job.id && !it.partial && it.error == null && it.targetId == targetId } ?: return 0
+        val expected = last.targetCount + last.added - last.removed
+        return if (expected >= SHRINK_MIN && now * 2 < expected) expected else 0
+    }
+
+    /**
+     * The target's tracks, read once more when the listing is far smaller than the last run left it
+     * ([shrunkFrom]). Still that small, a run stops before writing anything, unless the user saw it in
+     * the preview and ran anyway; the preview itself goes on and says it ([SyncPlan.targetShrunkFrom]).
+     */
+    private suspend fun readTarget(
+        job: SyncJob, dst: MusicProvider, targetId: String, onProgress: (Progress) -> Unit,
+        unattended: Boolean, interactive: Boolean, notes: MutableList<String>,
+    ): List<Track> {
+        val first = patient(onProgress) { dst.tracks(env, targetId) }
+        val expected = shrunkFrom(job, targetId, first.size)
+        if (expected == 0) return first
+        env.log("engine", "${job.name}: ${dst.displayName} lists ${first.size} tracks, the last run left $expected: reading it again")
+        kotlinx.coroutines.delay(shrinkRereadMs)
+        val second = patient(onProgress) { dst.tracks(env, targetId) }
+        val best = if (second.size >= first.size) second else first
+        if (shrunkFrom(job, targetId, best.size) == 0) return best
+        if (interactive) {
+            notes += str("note_target_shrunk", dst.displayName, best.size, expected)
+            return best
+        }
+        if (!unattended && store.takeTargetShrinkConfirmation(job.id)) {
+            env.log("engine", "${job.name}: ${best.size} tracks on ${dst.displayName} instead of $expected, run anyway as confirmed in the preview")
+            return best
+        }
+        env.log("engine", "${job.name}: stopped, ${dst.displayName} lists ${best.size} tracks twice, the last run left $expected; nothing written")
+        throw TargetShrunkException(str("error_target_shrunk", dst.displayName, best.size, expected), expected)
     }
 
     /** Anteprima quando la destinazione non esiste ancora: si cerca tutto, non si crea niente. */
@@ -782,7 +832,7 @@ class SyncEngine(
         return SyncReport(
             id = reportId, jobId = job.id, jobName = job.name, startedEpoch = started,
             durationMs = System.currentTimeMillis() - started,
-            sourceCount = plan.sourceCount, targetCount = plan.targetCount, added = added, removed = removed,
+            sourceCount = plan.sourceCount, targetCount = plan.targetCount, targetId = plan.targetPlaylistId, added = added, removed = removed,
             unmatched = unmatched.map { it.toString() } + failed,
             unmatchedTracks = unmatched,
             ignored = plan.ignored,

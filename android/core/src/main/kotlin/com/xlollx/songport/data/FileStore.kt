@@ -107,6 +107,8 @@ data class StoreData(
     val quota: Map<String, QuotaDay> = emptyMap(),
     /** Large removals the user confirmed in a preview, by job id: one use, by the next run started by hand. */
     val removalConfirmations: Map<String, RemovalConfirmation> = emptyMap(),
+    /** Syncs whose much smaller target the user agreed, in the preview, to sync anyway, and when. */
+    val shrinkConfirmations: Map<String, Long> = emptyMap(),
 )
 
 /**
@@ -187,7 +189,17 @@ open class FileStore(dir: File) {
         else d.copy(jobs = d.jobs + job)
     }
 
-    fun deleteJob(id: String) = update { d -> d.copy(jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id) }
+    fun deleteJob(id: String) = update { d -> d.copy(jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id) }
+
+    /** The user saw, in the preview, that the target of [jobId] lists far fewer tracks than before, and runs it anyway. */
+    fun confirmTargetShrink(jobId: String) = update { d -> d.copy(shrinkConfirmations = d.shrinkConfirmations + (jobId to System.currentTimeMillis())) }
+
+    /** True once after [confirmTargetShrink] (within the confirmation's lifetime): a confirmation serves one run. */
+    fun takeTargetShrinkConfirmation(jobId: String): Boolean {
+        val at = data.shrinkConfirmations[jobId] ?: return false
+        update { d -> d.copy(shrinkConfirmations = d.shrinkConfirmations - jobId) }
+        return System.currentTimeMillis() - at < CONFIRMATION_TTL_MS
+    }
 
     /** The user confirmed, in the preview, the removal of these target tracks by the next run of [jobId]. */
     fun confirmRemovals(jobId: String, trackIds: Collection<String>) = update { d ->

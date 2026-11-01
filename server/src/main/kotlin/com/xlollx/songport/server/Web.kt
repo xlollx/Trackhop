@@ -273,7 +273,7 @@ class Web(
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else scheduleName(job.schedule))}</span>${if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
-<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}$download</div></div></div></div>"""
+<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download</div></div></div></div>"""
     }
 
     private fun progressText(jobId: String): String {
@@ -523,6 +523,8 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
+                    // After a run stopped by the target's size check: the user says the smaller target is real.
+                    "run-anyway" -> { env.store.confirmTargetShrink(job.id); runner.start(job); redirect(r.ex, back) }
                     "stop" -> { SyncState.stop(job.id); redirect(r.ex, back) }
                     "pause" -> { SyncState.pause(job.id); redirect(r.ex, back) }
                     "resume" -> { SyncState.resume(job.id); redirect(r.ex, back) }

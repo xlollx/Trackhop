@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s não permite remover faixas de uma playlist pela API: %2$d faixas foram deixadas no lugar.</string>
     <string name="note_removals_deferred">Remoções adiadas: a busca não foi concluída, então %1$d faixas do destino que ainda não corresponderam a nada foram deixadas no lugar. Serão revistas quando uma execução terminar.</string>
     <string name="note_removals_capped">Remoções retidas: esta execução removeria %1$d das %2$d faixas do destino. Toque no status da sincronização para abrir a prévia e vê-las; se devem mesmo sair, marque lá “Remover estas faixas” e execute. Se a origem não as perdeu de verdade, o serviço a listou de forma incompleta e nada deve sair.</string>
+    <string name="error_target_shrunk">%1$s mostra só %2$d faixas, mas a última execução deixou %3$d: provavelmente uma resposta incompleta. Nada foi alterado. Tente mais tarde; se a playlist realmente está tão pequena agora, sincronize mesmo assim pela prévia.</string>
+    <string name="note_target_shrunk">%1$s mostra só %2$d faixas, mas a última execução deixou %3$d: provavelmente uma resposta incompleta. Executar agora adicionaria de novo as que faltam.</string>
+    <string name="preview_shrunk_confirm">A playlist realmente tem %1$d faixas agora, não %2$d: sincronizar mesmo assim</string>
     <string name="note_unchanged">Nada mudou de nenhum lado desde a última execução: pulada.</string>
     <string name="review_share">Compartilhar a lista</string>
     <string name="note_search_interrupted">%1$d de %2$d faixas pesquisadas, depois o serviço pediu uma pausa mais longa (%3$s). É um limite do serviço, não um erro do Trackhop: o que foi encontrado foi aplicado e memorizado. Execute a sincronização de novo em alguns minutos para continuar de onde parou.</string>

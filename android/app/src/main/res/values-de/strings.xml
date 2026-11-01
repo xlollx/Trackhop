@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s erlaubt über seine API kein Entfernen von Titeln aus einer Playlist: %2$d Titel wurden belassen.</string>
     <string name="note_removals_deferred">Entfernungen verschoben: Die Suche wurde nicht abgeschlossen, daher bleiben %1$d Titel im Ziel ohne Entsprechung vorerst stehen. Sie werden geprüft, wenn ein Lauf ganz durchläuft.</string>
     <string name="note_removals_capped">Entfernungen zurückgehalten: dieser Lauf würde %1$d der %2$d Titel im Ziel entfernen. Tippe auf den Status des Syncs, um die Vorschau zu öffnen und sie zu sehen; sollen sie wirklich weg, hake dort „Diese Titel entfernen“ an und starte ihn. Hat die Quelle sie nicht wirklich verloren, hat der Dienst sie unvollständig gelesen und nichts darf weg.</string>
+    <string name="error_target_shrunk">%1$s listet nur %2$d Titel, der letzte Lauf hat aber %3$d dort gelassen: wahrscheinlich eine unvollständige Antwort. Es wurde nichts geändert. Versuch es später erneut; ist die Playlist jetzt wirklich so klein, synchronisiere sie trotzdem aus der Vorschau.</string>
+    <string name="note_target_shrunk">%1$s listet nur %2$d Titel, der letzte Lauf hat aber %3$d dort gelassen: wahrscheinlich eine unvollständige Antwort. Ein Lauf jetzt würde die fehlenden erneut hinzufügen.</string>
+    <string name="preview_shrunk_confirm">Die Playlist hat jetzt wirklich %1$d Titel, nicht %2$d: trotzdem synchronisieren</string>
     <string name="note_unchanged">Seit dem letzten Lauf hat sich auf keiner Seite etwas geändert: übersprungen.</string>
     <string name="review_share">Liste teilen</string>
     <string name="note_search_interrupted">%1$d von %2$d Titeln gesucht, dann hat der Dienst eine längere Pause verlangt (%3$s). Das ist eine Grenze des Dienstes, kein Fehler von Trackhop: Das Gefundene wurde übernommen und gemerkt. Starte den Sync in ein paar Minuten erneut, um dort weiterzumachen.</string>

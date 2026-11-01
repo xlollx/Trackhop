@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s non permette di togliere brani da una playlist tramite API: %2$d brani sono rimasti al loro posto.</string>
     <string name="note_removals_deferred">Rimozioni rinviate: la ricerca non è stata completata, quindi %1$d brani della destinazione senza corrispondenza per ora restano al loro posto. Verranno rivalutati quando un giro arriva in fondo.</string>
     <string name="note_removals_capped">Rimozioni trattenute: questa esecuzione toglierebbe %1$d dei %2$d brani della destinazione. Tocca lo stato della sync per aprire l\'anteprima e vederli; se vanno tolti davvero, spunta lì “Rimuovi questi brani” ed esegui. Se l\'origine non li ha davvero persi, il servizio l\'ha letta a metà e non va tolto nulla.</string>
+    <string name="error_target_shrunk">%1$s elenca solo %2$d brani, ma l’ultima esecuzione ne aveva lasciati %3$d: probabilmente una risposta incompleta. Non è stato cambiato niente. Riprova più tardi; se la playlist ora è davvero così piccola, sincronizzala comunque dall’anteprima.</string>
+    <string name="note_target_shrunk">%1$s elenca solo %2$d brani, ma l’ultima esecuzione ne aveva lasciati %3$d: probabilmente una risposta incompleta. Eseguendo ora si aggiungerebbero di nuovo quelli mancanti.</string>
+    <string name="preview_shrunk_confirm">La playlist ora ha davvero %1$d brani, non %2$d: sincronizza comunque</string>
     <string name="note_unchanged">Niente è cambiato da nessuna delle due parti dall\'ultimo giro: saltato.</string>
     <string name="review_share">Condividi l\'elenco</string>
     <string name="note_search_interrupted">Cercati %1$d brani su %2$d, poi il servizio ha chiesto una pausa più lunga (%3$s). È un limite del servizio, non un errore di Trackhop: quanto trovato è stato applicato e memorizzato. Rilancia la sync tra qualche minuto per continuare da lì.</string>

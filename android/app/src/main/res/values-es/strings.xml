@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s no permite quitar canciones de una playlist a través de su API: %2$d canciones se quedaron donde estaban.</string>
     <string name="note_removals_deferred">Eliminaciones aplazadas: la búsqueda no se completó, así que %1$d canciones del destino que aún no coincidían con nada se dejaron donde estaban. Se revisarán cuando una ejecución termine por completo.</string>
     <string name="note_removals_capped">Eliminaciones retenidas: esta ejecución quitaría %1$d de las %2$d pistas del destino. Toca el estado de la sincronización para abrir la vista previa y verlas; si de verdad sobran, marca allí “Quitar estas pistas” y ejecútala. Si el origen no las ha perdido de verdad, el servicio lo leyó a medias y no debe quitarse nada.</string>
+    <string name="error_target_shrunk">%1$s solo muestra %2$d temas, pero la última ejecución dejó %3$d: probablemente una respuesta incompleta. No se ha cambiado nada. Inténtalo más tarde; si la playlist de verdad es tan pequeña ahora, sincronízala igualmente desde la vista previa.</string>
+    <string name="note_target_shrunk">%1$s solo muestra %2$d temas, pero la última ejecución dejó %3$d: probablemente una respuesta incompleta. Ejecutar ahora volvería a añadir los que faltan.</string>
+    <string name="preview_shrunk_confirm">La playlist de verdad tiene ahora %1$d temas, no %2$d: sincronizar igualmente</string>
     <string name="note_unchanged">Nada ha cambiado en ninguno de los dos lados desde la última ejecución: omitido.</string>
     <string name="review_share">Compartir la lista</string>
     <string name="note_search_interrupted">Se buscaron %1$d de %2$d canciones y luego el servicio pidió una pausa más larga (%3$s). Es un límite del servicio, no un error de Trackhop: lo encontrado ya se aplicó y queda guardado. Vuelve a ejecutar la sincronización en unos minutos para seguir desde ahí.</string>

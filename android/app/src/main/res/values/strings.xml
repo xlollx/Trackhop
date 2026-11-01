@@ -176,6 +176,9 @@
     <string name="note_no_removals">%1$s does not allow removing tracks from a playlist via its API: %2$d tracks were left in place.</string>
     <string name="note_removals_deferred">Removals postponed: the search was not completed, so %1$d tracks in the target that matched nothing yet were left in place. They will be reviewed when a run completes.</string>
     <string name="note_removals_capped">Removals held back: this run would remove %1$d of the %2$d tracks in the target. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Remove these tracks” there and run it. If the source has not really lost them, the service listed it incompletely and nothing should go.</string>
+    <string name="error_target_shrunk">%1$s lists only %2$d tracks, but the last run left %3$d there: probably an incomplete answer. Nothing was changed. Try again later; if the playlist really is that small now, sync it anyway from the preview.</string>
+    <string name="note_target_shrunk">%1$s lists only %2$d tracks, but the last run left %3$d there: probably an incomplete answer. Running now would add the missing ones again.</string>
+    <string name="preview_shrunk_confirm">The playlist really has %1$d tracks now, not %2$d: sync anyway</string>
     <string name="note_unchanged">Nothing changed on either side since the last run: skipped.</string>
     <string name="review_share">Share the list</string>
     <string name="note_search_interrupted">%1$d of %2$d tracks searched, then the service asked for a longer pause (%3$s). This is a limit of the service, not a Trackhop error: what was found has been applied and remembered. Run the sync again in a few minutes to continue from there.</string>

@@ -36,7 +36,7 @@ class ServerEnv(
     override val tokens: TokenVault = JsonTokenVault(File(dataDir, "tokens.json"))
     override val redirectUri: String get() = "$baseUrl/callback"
 
-    override fun text(name: String, vararg args: Any): String = SERVER_TEXTS[name] ?: strings.text(name, *args)
+    override fun text(name: String, vararg args: Any): String = SERVER_TEXTS[name]?.let { if (args.isEmpty()) it else String.format(it, *args) } ?: strings.text(name, *args)
     fun textArray(name: String): List<String> = strings.array(name)
     fun hasText(name: String) = strings.has(name)
 
@@ -99,4 +99,7 @@ class ServerEnv(
  */
 private val SERVER_TEXTS = mapOf(
     "note_file_target" to "Saved inside Trackhop as a CSV file: download it from Services › File.",
+    // The app says "from the preview"; here the sync's card has the button.
+    "error_target_shrunk" to "%1\$s lists only %2\$d tracks, but the last run left %3\$d there: probably an incomplete answer. Nothing was changed. " +
+        "Try again later; if the playlist really is that small now, choose Sync anyway.",
 )

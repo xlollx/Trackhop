@@ -169,6 +169,13 @@ data class SyncReport(
     val sourceCount: Int = 0,
     /** Tracks the target listed before this run (0 when not read, e.g. a target created now). */
     val targetCount: Int = 0,
+    /** The target playlist this run read and wrote, for the next run's size check (null in older reports). */
+    val targetId: String? = null,
+    /**
+     * Stopped before writing: the target listed far fewer tracks than the last run left there (that
+     * size). The preview, or "Sync anyway" on the web page, runs it once regardless.
+     */
+    val targetShrunkFrom: Int = 0,
     val added: Int = 0,
     val removed: Int = 0,
     val unmatched: List<String> = emptyList(),
@@ -231,6 +238,11 @@ data class SyncPlan(
     val heldBackRemovals: Int = 0,
     /** The search stopped before the end. */
     val searchInterrupted: Boolean = false,
+    /**
+     * The target listed far fewer tracks than the last run left there (the size then), 0 when not:
+     * set only in the preview, where running anyway is a deliberate choice.
+     */
+    val targetShrunkFrom: Int = 0,
 )
 
 /** Progresso di una sync in corso, mostrato nella UI. */
