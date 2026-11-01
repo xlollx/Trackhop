@@ -692,6 +692,7 @@
     <string name="update_pill_desc">Trackhop\'un yeni sürümü var: güncellemek için dokunun</string>
     <string name="settings_update_check">Güncellemeleri denetle</string>
     <string name="settings_update_check_summary">Günde iki kez GitHub\'a daha yeni bir Trackhop olup olmadığını sorar ve üstte bir ok gösterir; dokunmak onu indirir. Uygulamayı F-Droid veya Obtainium yüklediyse yapılmaz: onlar kendileri günceller.</string>
+    <string name="settings_update_check_elsewhere">Trackhop %1$s ile yüklendi; onu güncel tutan ve yeni sürümleri bildiren odur: burada ok yok.</string>
     <string name="pill_error">İlgilenilmeli</string>
     <string name="pill_never">Henüz çalışmadı</string>
     <string name="pill_running">Senkronize ediliyor</string>

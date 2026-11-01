@@ -686,6 +686,7 @@
     <string name="update_pill_desc">Trackhop 有新版本：点按即可更新</string>
     <string name="settings_update_check">检查更新</string>
     <string name="settings_update_check_summary">每天两次向 GitHub 查询是否有更新的 Trackhop，并在顶部显示箭头；点按即可下载。如果应用由 F-Droid 或 Obtainium 安装则不检查：它们会自行更新。</string>
+    <string name="settings_update_check_elsewhere">Trackhop 由 %1$s 安装，并由它负责更新和提醒新版本，因此这里不显示箭头。</string>
     <string name="pill_error">需要处理</string>
     <string name="pill_never">尚未运行</string>
     <string name="pill_running">正在同步</string>
