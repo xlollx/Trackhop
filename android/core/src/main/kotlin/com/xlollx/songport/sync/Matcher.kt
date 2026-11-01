@@ -21,16 +21,28 @@ object Matcher {
     const val REVIEW_THRESHOLD = 0.86
 
     private val BRACKET_NOISE = Regex(
-        """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster(ed)?|version|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
+        """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
         RegexOption.IGNORE_CASE,
     )
-    private val FEAT_TAIL = Regex("""\s+(feat\.?|ft\.?|featuring)\s+.*$""", RegexOption.IGNORE_CASE)
+    /**
+     * Credits written into the title instead of the artists: "(with Justin Bieber)", "(con Bresh)",
+     * "(w/ X)", "(prod. Metro Boomin)". Only a bracket that opens with the credit, so a subtitle that
+     * merely contains the word ("(Dancing with Myself)") stays.
+     */
+    private val CREDIT_BRACKET = Regex(
+        """\s*[(\[]\s*(with|con|w/|prod\.?|produced\s+by)\s[^)\]]*[)\]]""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val FEAT_TAIL = Regex("""\s+([-–—]\s+)?(feat\.?|ft\.?|featuring|w/|prod\.?\s+by|prod\.)\s+.*$""", RegexOption.IGNORE_CASE)
     private val DASH_TAIL = Regex(
-        """\s*[-–—]\s*((\d{4}\s+)?remaster(ed)?.*|radio edit.*|single version.*|album version.*|live.*|mono.*|stereo.*|deluxe.*|bonus track.*|extended.*|original mix.*|(from|de|dal)\s.*|\d{4}\s.*)$""",
+        """\s*[-–—]\s*((\d{4}\s+)?remaster(ed)?.*|radio edit.*|single version.*|album version.*|live.*|mono.*|stereo.*|deluxe.*|bonus track.*|extended.*|original mix.*|rimasterizzat.*|versione\s.*|[^-–—]*\bversion|(from|de|dal)\s.*|\d{4}\s.*)$""",
         RegexOption.IGNORE_CASE,
     )
     private val ARTIST_TAIL = Regex("""\s+(feat\.?|ft\.?|featuring|vs\.?)\s+.*$""", RegexOption.IGNORE_CASE)
     private val NON_ALNUM = Regex("""[^\p{L}\p{N}\s]""")
+    /** "Don't" is one word to a search engine: "dont", never "don t". */
+    private val APOSTROPHES = Regex("""[’'`´]""")
+    private val ARTIST_PARTS = Regex("""\s*(?:,|&|\+|/|\s+x\s+|\s+and\s+|\s+e\s+)\s*""", RegexOption.IGNORE_CASE)
 
     /**
      * Parole che indicano una versione diversa dallo studio: se compaiono solo nel candidato
@@ -72,9 +84,11 @@ object Matcher {
     fun normalizeTitle(s: String): String {
         var t = stripDiacritics(s).lowercase()
         t = BRACKET_NOISE.replace(t, " ")
+        t = CREDIT_BRACKET.replace(t, " ")
         t = FEAT_TAIL.replace(t, " ")
         t = DASH_TAIL.replace(t, " ")
         t = t.replace("&", " and ").replace("$", "s")
+        t = APOSTROPHES.replace(t, "")
         t = NON_ALNUM.replace(t, " ")
         return SPACES.replace(t, " ").trim()
     }
@@ -83,6 +97,7 @@ object Matcher {
         var a = stripDiacritics(s).lowercase()
         a = ARTIST_TAIL.replace(a, " ")
         a = a.replace("&", " and ").replace("$", "s")
+        a = APOSTROPHES.replace(a, "")
         a = NON_ALNUM.replace(a, " ")
         a = SPACES.replace(a, " ").trim()
         return a.removePrefix("the ").trim()
@@ -107,7 +122,18 @@ object Matcher {
      * "Café Noir" by "Café", never by "cafe").
      */
     fun plainTitle(title: String): String =
-        SPACES.replace(DASH_TAIL.replace(FEAT_TAIL.replace(BRACKET_NOISE.replace(title, " "), " "), " "), " ").trim().ifBlank { title.trim() }
+        SPACES.replace(DASH_TAIL.replace(FEAT_TAIL.replace(CREDIT_BRACKET.replace(BRACKET_NOISE.replace(title, " "), " "), " "), " "), " ")
+            .trim().trimEnd('-', '–', '—', ' ').ifBlank { title.trim() }
+
+    /**
+     * The first name of an artist field that holds several ("Calvin Harris, Dua Lipa", "Mahmood &
+     * Blanco"), or null when it holds one. It also splits real names ("Earth, Wind & Fire"), so it
+     * only feeds an extra search: what comes back is still scored against the whole original field.
+     */
+    fun primaryArtist(artist: String): String? {
+        val first = ARTIST_TAIL.replace(artist, "").split(ARTIST_PARTS).firstOrNull()?.trim().orEmpty()
+        return first.takeIf { it.isNotEmpty() && !it.equals(artist.trim(), ignoreCase = true) }
+    }
 
     fun levenshtein(a: String, b: String): Int {
         if (a == b) return 0

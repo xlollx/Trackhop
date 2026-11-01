@@ -651,8 +651,11 @@ class SyncEngine(
             val tried = hashSetOf(query(s))
             val title = Matcher.searchTitle(s.title)
             val first = s.artists.firstOrNull()?.let { Matcher.searchArtist(it) }?.takeIf { it.isNotBlank() }
-            val variants = listOf(
+            // "Calvin Harris, Dua Lipa" in one artist field: the first name alone, before the title alone.
+            val primary = s.artists.firstOrNull()?.let { Matcher.primaryArtist(it) }?.let { Matcher.searchArtist(it) }?.takeIf { it.isNotBlank() }
+            val variants = listOfNotNull(
                 s.copy(title = title, artists = listOfNotNull(first), isrc = null),
+                primary?.let { s.copy(title = title, artists = listOf(it), isrc = null) },
                 s.copy(title = title, artists = emptyList(), isrc = null),
             )
             for (v in variants) {

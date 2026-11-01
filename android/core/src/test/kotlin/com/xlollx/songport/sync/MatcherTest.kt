@@ -19,6 +19,44 @@ class MatcherTest {
         assertEquals("rock and roll", Matcher.normalizeTitle("Rock & Roll"))
     }
 
+    @Test fun creditsAndLocalisedVersionsLeaveTheTitle() {
+        assertEquals("stay", Matcher.searchTitle("Stay (with Justin Bieber)"))
+        assertEquals("tuta gold", Matcher.searchTitle("Tuta gold (con Bresh)"))
+        assertEquals("song", Matcher.searchTitle("Song (prod. Metro Boomin)"))
+        assertEquals("mockingbird", Matcher.searchTitle("Mockingbird - Prod. by Eminem"))
+        assertEquals("song", Matcher.searchTitle("Song w/ Artist"))
+        assertEquals("song", Matcher.searchTitle("Song - Remasterizzato 2012"))
+        assertEquals("song", Matcher.searchTitle("Song - Versione Remasterizzata"))
+        assertEquals("smells like teen spirit", Matcher.searchTitle("Smells Like Teen Spirit - Nevermind Version"))
+        // A subtitle that only contains "with" is part of the title.
+        assertEquals("dancing with myself", Matcher.searchTitle("(Dancing with Myself)"))
+        // What changes the recording stays.
+        assertEquals("song acoustic", Matcher.searchTitle("Song - Acoustic"))
+        assertEquals("song remix", Matcher.searchTitle("Song - Remix"))
+    }
+
+    @Test fun apostrophesJoinTheWord() {
+        assertEquals("dont stop me now", Matcher.searchTitle("Don't Stop Me Now - Remastered 2011"))
+        assertEquals("dont stop me now", Matcher.searchTitle("Don’t Stop Me Now"))
+        assertEquals("Don't Stop Me Now", Matcher.plainTitle("Don't Stop Me Now - Remastered 2011"))
+        assertEquals("I Don't Care", Matcher.plainTitle("I Don't Care (with Justin Bieber)"))
+        assertEquals("Mockingbird", Matcher.plainTitle("Mockingbird - Prod. by Eminem"))
+    }
+
+    @Test fun primaryArtistOnlyForSeveralNames() {
+        assertEquals("Calvin Harris", Matcher.primaryArtist("Calvin Harris, Dua Lipa"))
+        assertEquals("Mahmood", Matcher.primaryArtist("Mahmood & Blanco"))
+        assertEquals("Sfera Ebbasta", Matcher.primaryArtist("Sfera Ebbasta feat. Rvssian"))
+        assertNull(Matcher.primaryArtist("Lil Nas X"))
+        assertNull(Matcher.primaryArtist("Queen"))
+    }
+
+    @Test fun creditedTitleMatchesThePlainOne() {
+        val src = t("I Don't Care (with Justin Bieber)", "Ed Sheeran", dur = 219_000)
+        val cand = t("I Don't Care", "Ed Sheeran", "Justin Bieber", dur = 220_000)
+        assertTrue(Matcher.score(src, cand) >= Matcher.REVIEW_THRESHOLD)
+    }
+
     @Test fun remixIsKept() {
         assertTrue(Matcher.normalizeTitle("Song (Artist Remix)").contains("remix"))
         assertEquals("song", Matcher.normalizeTitle("Song (Extended Mix)"))

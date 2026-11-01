@@ -14,6 +14,7 @@ import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
+import com.xlollx.songport.sync.Matcher
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -148,7 +149,14 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         // The lookup wants the user token (since 2026) and its path ends with a slash (without, a 308).
         // Only a ListenBrainz target is searched, and writing its loved tracks needs the token anyway.
         val token = token(ctx) ?: throw ProviderException(ctx.text("listenbrainz_token_needed"))
-        val j = api(ctx, "/1/metadata/lookup/?artist_name=${Http.enc(artist)}&recording_name=${Http.enc(track.title)}", token = token)
+        // The lookup matches names closely: the title as written first, then without its decorations
+        // ("- Remastered 2011", "(feat. X)", "(with X)"), keeping case and apostrophes.
+        var j: JsonElement? = null
+        for (title in listOf(track.title, Matcher.plainTitle(track.title)).distinct()) {
+            j = api(ctx, "/1/metadata/lookup/?artist_name=${Http.enc(artist)}&recording_name=${Http.enc(title)}", token = token)
+            if (j["recording_mbid"].str != null) break
+        }
+        if (j == null) return emptyList()
         val mbid = j["recording_mbid"].str ?: return emptyList()
         return listOf(Track(
             id = mbid, title = j["recording_name"].str ?: track.title,
