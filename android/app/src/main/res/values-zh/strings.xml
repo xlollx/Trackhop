@@ -84,6 +84,12 @@
     <string name="followed_artists">关注的艺人</string>
     <string name="followed_podcasts">播客</string>
     <string name="recently_played">最近播放</string>
+    <string name="lastfm_loved">喜爱的曲目</string>
+    <string name="lastfm_loved_desc">你在 Last.fm 上标记 ♥ 的曲目</string>
+    <string name="lastfm_recent_desc">你在 Last.fm 上最近的 200 条播放记录</string>
+    <string name="lastfm_top_month">本月最常听</string>
+    <string name="lastfm_top_month_desc">你在 Last.fm 上最近 30 天最常听的 100 首曲目</string>
+    <string name="pill_source_empty">来源为空</string>
     <string name="transfer_unsupported">在 %1$s 上不可用</string>
     <string name="tracks_count">%1$d 首歌曲</string>
     <string name="editor_error_incomplete">请选择来源歌单和目标。</string>

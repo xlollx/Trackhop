@@ -857,6 +857,7 @@ class SyncEngine(
             absent = unmatched.filter { it.id in absent }.map { it.id },
             heldBack = plan.heldBackRemovals,
             searchInterrupted = plan.searchInterrupted,
+            sourceEmpty = plan.sourceCount == 0 && plan.ignored == 0,
         )
     }
 

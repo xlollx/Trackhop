@@ -84,6 +84,12 @@
     <string name="followed_artists">Отслеживаемые исполнители</string>
     <string name="followed_podcasts">Подкасты</string>
     <string name="recently_played">Недавно прослушанное</string>
+    <string name="lastfm_loved">Любимые треки</string>
+    <string name="lastfm_loved_desc">Треки, отмеченные ♥ на Last.fm</string>
+    <string name="lastfm_recent_desc">Ваши последние 200 скробблов на Last.fm</string>
+    <string name="lastfm_top_month">Самое слушаемое за месяц</string>
+    <string name="lastfm_top_month_desc">100 треков, которые вы слушали чаще всего за последние 30 дней на Last.fm</string>
+    <string name="pill_source_empty">Источник пуст</string>
     <string name="transfer_unsupported">недоступно на %1$s</string>
     <string name="tracks_count">Треков: %1$d</string>
     <string name="editor_error_incomplete">Выберите исходный плейлист и цель.</string>

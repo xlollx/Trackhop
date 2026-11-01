@@ -84,6 +84,12 @@
     <string name="followed_artists">Obserwowani wykonawcy</string>
     <string name="followed_podcasts">Podcasty</string>
     <string name="recently_played">Ostatnio odtwarzane</string>
+    <string name="lastfm_loved">Ulubione utwory</string>
+    <string name="lastfm_loved_desc">Utwory oznaczone ♥ na Last.fm</string>
+    <string name="lastfm_recent_desc">Twoje ostatnie 200 scrobbli na Last.fm</string>
+    <string name="lastfm_top_month">Najczęściej słuchane w tym miesiącu</string>
+    <string name="lastfm_top_month_desc">Twoje 100 najczęściej słuchanych utworów z ostatnich 30 dni na Last.fm</string>
+    <string name="pill_source_empty">Puste źródło</string>
     <string name="transfer_unsupported">niedostępne w %1$s</string>
     <string name="tracks_count">Utwory: %1$d</string>
     <string name="editor_error_incomplete">Wybierz playlistę źródłową i cel.</string>

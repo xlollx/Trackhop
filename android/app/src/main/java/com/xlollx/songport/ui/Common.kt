@@ -433,9 +433,9 @@ fun formatDate(epoch: Long): String =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(epoch))
 
 @Composable
-fun playlistDisplayName(playlistId: String?, name: String): String = when (playlistId) {
-    // The heart marks the service's own default list, the one every app has.
-    MusicProvider.LIKED_ID -> "\u2665 " + stringResource(R.string.liked_songs)
+fun playlistDisplayName(playlistId: String?, name: String, provider: String? = null): String = when (playlistId) {
+    // The heart marks the service's own default list, the one every app has; Last.fm calls it "Loved tracks".
+    MusicProvider.LIKED_ID -> "\u2665 " + stringResource(if (provider == com.xlollx.songport.providers.LastFmProvider.SERVICE) R.string.lastfm_loved else R.string.liked_songs)
     MusicProvider.ALBUMS_ID -> stringResource(R.string.saved_albums)
     MusicProvider.ARTISTS_ID -> stringResource(R.string.followed_artists)
     MusicProvider.PODCASTS_ID -> stringResource(R.string.followed_podcasts)

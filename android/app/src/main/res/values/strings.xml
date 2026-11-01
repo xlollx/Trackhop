@@ -84,6 +84,12 @@
     <string name="followed_artists">Followed artists</string>
     <string name="followed_podcasts">Podcasts</string>
     <string name="recently_played">Recently played</string>
+    <string name="lastfm_loved">Loved tracks</string>
+    <string name="lastfm_loved_desc">The tracks you loved (♥) on Last.fm</string>
+    <string name="lastfm_recent_desc">Your latest 200 scrobbles on Last.fm</string>
+    <string name="lastfm_top_month">Most played this month</string>
+    <string name="lastfm_top_month_desc">Your 100 most played tracks of the last 30 days on Last.fm</string>
+    <string name="pill_source_empty">Source empty</string>
     <string name="transfer_unsupported">not available on %1$s</string>
     <string name="tracks_count">%1$d tracks</string>
     <string name="editor_error_incomplete">Choose a source playlist and a target.</string>

@@ -84,6 +84,12 @@
     <string name="followed_artists">팔로우한 아티스트</string>
     <string name="followed_podcasts">팟캐스트</string>
     <string name="recently_played">최근 재생</string>
+    <string name="lastfm_loved">좋아한 트랙</string>
+    <string name="lastfm_loved_desc">Last.fm에서 ♥ 표시한 트랙</string>
+    <string name="lastfm_recent_desc">Last.fm에 기록된 최근 200곡</string>
+    <string name="lastfm_top_month">이번 달 많이 들은 곡</string>
+    <string name="lastfm_top_month_desc">Last.fm에서 최근 30일 동안 가장 많이 들은 100곡</string>
+    <string name="pill_source_empty">원본이 비어 있음</string>
     <string name="transfer_unsupported">%1$s에서는 사용할 수 없음</string>
     <string name="tracks_count">%1$d곡</string>
     <string name="editor_error_incomplete">원본 플레이리스트와 대상을 선택하세요.</string>

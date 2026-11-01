@@ -84,6 +84,12 @@
     <string name="followed_artists">フォロー中のアーティスト</string>
     <string name="followed_podcasts">ポッドキャスト</string>
     <string name="recently_played">最近再生した曲</string>
+    <string name="lastfm_loved">お気に入りのトラック</string>
+    <string name="lastfm_loved_desc">Last.fm で ♥ を付けたトラック</string>
+    <string name="lastfm_recent_desc">Last.fm の最新 200 件の再生記録</string>
+    <string name="lastfm_top_month">今月よく聴いた曲</string>
+    <string name="lastfm_top_month_desc">Last.fm で過去 30 日間によく聴いた上位 100 曲</string>
+    <string name="pill_source_empty">同期元が空です</string>
     <string name="transfer_unsupported">%1$s では利用できません</string>
     <string name="tracks_count">%1$d 曲</string>
     <string name="editor_error_incomplete">同期元プレイリストと同期先を選択してください。</string>

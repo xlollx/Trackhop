@@ -258,6 +258,7 @@ class Web(
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
             else -> """<span class="ok">+${last.added} −${last.removed}</span>""" +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
+                (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
                 (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "")
         }
         val next = Runner.nextRun(job)?.let { " · next ${Html.date(it)}" } ?: ""

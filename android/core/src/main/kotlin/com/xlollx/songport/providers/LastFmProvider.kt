@@ -61,7 +61,15 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
         save(ctx, Tokens(accessToken = name, userName = name))
     }
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = emptyList()
+    /** Last.fm has no playlists: what it keeps per user, named and explained as Last.fm calls it. */
+    override fun libraryEntries(ctx: Env, asTarget: Boolean): List<Playlist> = if (asTarget) emptyList() else listOf(
+        Playlist(MusicProvider.LIKED_ID, ctx.text("lastfm_loved"), description = ctx.text("lastfm_loved_desc")),
+        Playlist(MusicProvider.RECENT_ID, ctx.text("recently_played"), description = ctx.text("lastfm_recent_desc")),
+    )
+
+    /** The one "playlist": the user's most played tracks of the last month. */
+    override suspend fun playlists(ctx: Env): List<Playlist> =
+        listOf(Playlist(TOP_MONTH_ID, ctx.text("lastfm_top_month"), description = ctx.text("lastfm_top_month_desc")))
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
         val user = creds(ctx).userName
@@ -76,6 +84,14 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
                     title = title, artists = listOfNotNull(artist), album = t["album"]["#text"].str ?: "",
                     addedAt = (t["date"]["uts"].str?.toLongOrNull() ?: 0) * 1000,
                 )
+            }.distinctBy { it.id }
+        }
+        if (playlistId == TOP_MONTH_ID) {
+            val j = call(ctx, mapOf("method" to "user.gettoptracks", "user" to user, "period" to "1month", "limit" to "100"))
+            return list(j["toptracks"]["track"]).mapNotNull { t ->
+                val title = t["name"].str ?: return@mapNotNull null
+                val artist = t["artist"]["name"].str
+                Track(id = t["mbid"].str?.takeIf { it.isNotBlank() } ?: t["url"].str ?: "$title|$artist", title = title, artists = listOfNotNull(artist))
             }.distinctBy { it.id }
         }
         if (playlistId != MusicProvider.LIKED_ID) return emptyList()
@@ -107,5 +123,9 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) = unsupported(ctx)
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) = unsupported(ctx)
 
-    companion object { const val SERVICE = "lastfm" }
+    companion object {
+        const val SERVICE = "lastfm"
+        /** The most played tracks of the last month (user.gettoptracks, period 1month). */
+        const val TOP_MONTH_ID = "lastfm:top:1month"
+    }
 }

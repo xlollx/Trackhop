@@ -84,6 +84,12 @@
     <string name="followed_artists">Takip edilen sanatçılar</string>
     <string name="followed_podcasts">Podcast\'ler</string>
     <string name="recently_played">Son çalınanlar</string>
+    <string name="lastfm_loved">Sevilen parçalar</string>
+    <string name="lastfm_loved_desc">Last.fm’de ♥ verdiğin parçalar</string>
+    <string name="lastfm_recent_desc">Last.fm’deki son 200 scrobble’ın</string>
+    <string name="lastfm_top_month">Ayın en çok dinlenenleri</string>
+    <string name="lastfm_top_month_desc">Last.fm’de son 30 günde en çok dinlediğin 100 parça</string>
+    <string name="pill_source_empty">Kaynak boş</string>
     <string name="transfer_unsupported">%1$s üzerinde kullanılamaz</string>
     <string name="tracks_count">%1$d parça</string>
     <string name="editor_error_incomplete">Bir kaynak çalma listesi ve bir hedef seçin.</string>

@@ -53,4 +53,11 @@ class CardStatusTest {
         assertEquals(CardStatus.PAUSING, pill(asked = true, parked = false))
         assertEquals(CardStatus.PAUSED, pill(asked = true, parked = true))
     }
+
+    @Test fun anEmptySourceIsSaidUnlessARadioHasNothingNew() {
+        val empty = report().copy(sourceEmpty = true)
+        assertEquals(CardStatus.EMPTY_SOURCE, cardStatus(false, true, empty))
+        assertEquals(CardStatus.OK, cardStatus(false, true, empty, radio = true))
+        assertEquals(CardStatus.NOT_FOUND, cardStatus(false, true, report(notFound = 1).copy(sourceEmpty = true)))
+    }
 }

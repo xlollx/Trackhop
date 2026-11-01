@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Link
@@ -305,7 +306,7 @@ fun SyncsScreen(
 }
 
 /** What a sync card's pill says. */
-internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, OK }
+internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, EMPTY_SOURCE, OK }
 
 /**
  * The pill for a card, the most important first. Removals on hold come before "Not found: N": a few
@@ -313,7 +314,7 @@ internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERRO
  * A running sync says where it stands ([run]): "Pausing" while its step finishes, "Paused" once the
  * engine waits; a stop in progress still reads as running, the card's text says it is stopping.
  */
-internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport?, run: SyncState.Run? = null): CardStatus = when {
+internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport?, run: SyncState.Run? = null, radio: Boolean = false): CardStatus = when {
     isRunning && run == SyncState.Run.PAUSED -> CardStatus.PAUSED
     isRunning && run == SyncState.Run.PAUSING -> CardStatus.PAUSING
     isRunning -> CardStatus.RUNNING
@@ -323,6 +324,9 @@ internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport
     report.heldBack > 0 -> CardStatus.HELD_BACK
     report.searchInterrupted -> CardStatus.INCOMPLETE
     report.unmatchedTracks.isNotEmpty() -> CardStatus.NOT_FOUND
+    // The source listed nothing at all (no loved tracks yet, an emptied playlist): said, not a silent "+0".
+    // A radio sync with nothing new on air is normal.
+    !radio && report.sourceEmpty -> CardStatus.EMPTY_SOURCE
     else -> CardStatus.OK
 }
 
@@ -418,7 +422,7 @@ private fun JobCard(
     val report = data.reports.firstOrNull { it.id == job.lastReportId }
     val src = Providers.byId(job.source.provider)
     val dst = Providers.byId(job.target.provider)
-    val srcName = playlistDisplayName(job.source.playlistId, job.source.playlistName)
+    val srcName = playlistDisplayName(job.source.playlistId, job.source.playlistName, job.source.provider)
     val dstName = job.target.playlistName.ifBlank { stringResource(R.string.editor_new_playlist) }
     val haptic = rememberConfirmHaptic()
     Card(
@@ -480,7 +484,7 @@ private fun JobCard(
                 Spacer(Modifier.width(8.dp))
                 // A run without errors can still leave something for the user: the pill says what,
                 // and a tap leads where it is handled.
-                when (cardStatus(isRunning, job.enabled, report, run)) {
+                when (cardStatus(isRunning, job.enabled, report, run, radio = job.radio != null)) {
                     CardStatus.RUNNING -> StatusPill(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
                     CardStatus.PAUSING -> StatusPill(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
                     CardStatus.PAUSED -> StatusPill(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
@@ -490,6 +494,7 @@ private fun JobCard(
                     CardStatus.HELD_BACK -> ActionPill(stringResource(R.string.pill_held_back), Tone.Warning) { onPreview(job) }
                     CardStatus.INCOMPLETE -> ActionPill(stringResource(R.string.pill_incomplete), Tone.Warning, onClick = onOpenLog)
                     CardStatus.NOT_FOUND -> ActionPill(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning) { onReview(report!!.id) }
+                    CardStatus.EMPTY_SOURCE -> StatusPill(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
                     // Up to date only once checked: the source seen unchanged since the last run. Changed:
                     // a tap runs it. Not checkable (no version from the service, offline) or not checked
                     // yet: when it last ran, without the tick.
@@ -1043,10 +1048,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             linkText = text
                         }
                         srcPlaylist?.let { sp ->
-                            Text((Providers.byId(srcProvider)?.label(ctx) ?: srcProvider) + " · " + playlistDisplayName(sp.id, sp.name), style = MaterialTheme.typography.bodyMedium)
+                            Text((Providers.byId(srcProvider)?.label(ctx) ?: srcProvider) + " · " + playlistDisplayName(sp.id, sp.name, srcProvider), style = MaterialTheme.typography.bodyMedium)
                         }
                     } else {
-                        PlaylistPicker(srcLists, srcPlaylist, label = stringResource(R.string.editor_playlist)) { srcPlaylist = it }
+                        PlaylistPicker(srcLists, srcPlaylist, label = stringResource(R.string.editor_playlist), provider = srcProvider) { srcPlaylist = it }
                         // The playlist Shazam fills on Spotify or Apple Music: one tap makes this a Shazam sync.
                         val shazam = (srcLists as? Loaded.Ok)?.items?.takeIf { ShazamLibrary.canHost(Providers.byId(srcProvider)?.serviceId.orEmpty()) }?.let { ShazamLibrary.find(it) }
                         if (shazam != null) {
@@ -1349,7 +1354,7 @@ private const val RADIO_KEY = "radio:"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, onlyOwned: Boolean = false, onSelect: (Playlist) -> Unit) {
+private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, onlyOwned: Boolean = false, provider: String? = null, onSelect: (Playlist) -> Unit) {
     when (loaded) {
         Loaded.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
             CircularProgressIndicator(Modifier.width(20.dp).height(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading))
@@ -1375,7 +1380,7 @@ private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, o
             }
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
                 OutlinedTextField(
-                    value = selected?.let { playlistDisplayName(it.id, it.name) } ?: "",
+                    value = selected?.let { playlistDisplayName(it.id, it.name, provider) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(if (showLibrary) stringResource(R.string.editor_section_library) else label) },
@@ -1388,7 +1393,11 @@ private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, o
                         DropdownMenuItem(
                             text = {
                                 Column {
-                                    Text(playlistDisplayName(p.id, p.name))
+                                    Text(playlistDisplayName(p.id, p.name, provider))
+                                    // What a list of a service without playlists is (Last.fm's loved, recent, most played).
+                                    if (provider == com.xlollx.songport.providers.LastFmProvider.SERVICE && p.description.isNotBlank()) {
+                                        Text(p.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
                                     if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall)
                                 }
                             },

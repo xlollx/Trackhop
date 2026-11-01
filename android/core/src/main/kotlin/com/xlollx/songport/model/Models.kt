@@ -176,6 +176,8 @@ data class SyncReport(
      * size). The preview, or "Sync anyway" on the web page, runs it once regardless.
      */
     val targetShrunkFrom: Int = 0,
+    /** The source was read and listed nothing at all (no loved tracks yet, an emptied playlist). */
+    val sourceEmpty: Boolean = false,
     val added: Int = 0,
     val removed: Int = 0,
     val unmatched: List<String> = emptyList(),
