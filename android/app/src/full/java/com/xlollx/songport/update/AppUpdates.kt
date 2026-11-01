@@ -27,10 +27,11 @@ object AppUpdates {
     private const val RELEASES = "https://github.com/xlollx/Trackhop/releases/latest"
     private const val EVERY_MS = 12 * 60 * 60 * 1000L
 
-    /** Installers that keep Trackhop up to date on their own. */
-    private val UPDATERS = setOf(
-        "org.fdroid.fdroid", "org.fdroid.basic", "com.looker.droidify", "com.machiav3lli.fdroid",
-        "dev.imranr.obtainium", "dev.imranr.obtainium.fdroid", "in.sunilpaulmathew.izzyondroid", "com.android.vending",
+    /** Installers that keep Trackhop up to date on their own, by the name the user knows them by. */
+    private val UPDATERS = mapOf(
+        "org.fdroid.fdroid" to "F-Droid", "org.fdroid.basic" to "F-Droid", "com.looker.droidify" to "Droid-ify",
+        "com.machiav3lli.fdroid" to "Neo Store", "dev.imranr.obtainium" to "Obtainium", "dev.imranr.obtainium.fdroid" to "Obtainium",
+        "in.sunilpaulmathew.izzyondroid" to "IzzyOnDroid", "com.android.vending" to "Google Play",
     )
 
     private fun prefs(ctx: Context) = ctx.getSharedPreferences("app_updates", Context.MODE_PRIVATE)
@@ -49,7 +50,10 @@ object AppUpdates {
     }.getOrNull()
 
     /** True when an app store or updater installed Trackhop: no check, that app tells about updates. */
-    fun handledElsewhere(ctx: Context): Boolean = installer(ctx) in UPDATERS
+    fun handledElsewhere(ctx: Context): Boolean = updatedBy(ctx) != null
+
+    /** The app store or updater that installed Trackhop and updates it, or null. */
+    fun updatedBy(ctx: Context): String? = UPDATERS[installer(ctx)]
 
     /** Shows what the last check found, then asks GitHub again when the last answer is old (or [force]). */
     suspend fun check(ctx: Context, force: Boolean = false) = withContext(Dispatchers.IO) {

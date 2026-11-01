@@ -690,6 +690,7 @@
     <string name="update_pill_desc">Hay una nueva versión de Trackhop: toca para actualizar</string>
     <string name="settings_update_check">Buscar actualizaciones</string>
     <string name="settings_update_check_summary">Dos veces al día pregunta a GitHub si hay un Trackhop más reciente y muestra una flecha arriba; un toque lo descarga. No se hace si F-Droid u Obtainium instalaron la app: ellos la actualizan.</string>
+    <string name="settings_update_check_elsewhere">Trackhop se instaló con %1$s, que lo mantiene al día y avisa de las versiones nuevas: aquí no hay flecha.</string>
     <string name="pill_error">Requiere atención</string>
     <string name="pill_never">Sin ejecutar</string>
     <string name="pill_running">Sincronizando</string>

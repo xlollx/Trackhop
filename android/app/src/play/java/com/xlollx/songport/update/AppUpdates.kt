@@ -21,6 +21,7 @@ object AppUpdates {
     fun enabled(ctx: Context): Boolean = true
     fun setEnabled(ctx: Context, on: Boolean) = Unit
     fun handledElsewhere(ctx: Context): Boolean = false
+    fun updatedBy(ctx: Context): String? = null
 
     suspend fun check(ctx: Context, force: Boolean = false) {
         val info: AppUpdateInfo? = runCatching {

@@ -364,7 +364,13 @@ fun SettingsScreen(
             if (com.xlollx.songport.update.AppUpdates.configurable) {
                 var updates by remember { mutableStateOf(com.xlollx.songport.update.AppUpdates.enabled(ctx)) }
                 val updatesScope = rememberCoroutineScope()
-                PrefSwitch(Icons.Filled.Upgrade, stringResource(R.string.settings_update_check), stringResource(R.string.settings_update_check_summary), updates) { v ->
+                // Installed by F-Droid, Obtainium…: that app tells about updates, so no arrow; said here.
+                val updater = remember { com.xlollx.songport.update.AppUpdates.updatedBy(ctx) }
+                PrefSwitch(
+                    Icons.Filled.Upgrade, stringResource(R.string.settings_update_check),
+                    if (updater != null) stringResource(R.string.settings_update_check_elsewhere, updater) else stringResource(R.string.settings_update_check_summary),
+                    updates && updater == null, enabled = updater == null,
+                ) { v ->
                     updates = v
                     com.xlollx.songport.update.AppUpdates.setEnabled(ctx, v)
                     if (v) updatesScope.launch { com.xlollx.songport.update.AppUpdates.check(ctx, force = true) }
