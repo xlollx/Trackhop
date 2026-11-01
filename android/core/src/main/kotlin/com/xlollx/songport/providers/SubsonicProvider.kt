@@ -31,7 +31,8 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
     override val routeNoteName: String? get() = "route_note_server"
     override val brandColor = 0xFF2E7D32
     override val noteName = "provider_note_subsonic"
-    override val beta = true
+    // Out of beta (01/11/2026): used against real servers and accounts, and passing LiveServersIT.
+    override val beta = false
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
     override val supportsAlbums = true

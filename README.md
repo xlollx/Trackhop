@@ -119,7 +119,7 @@ common errors.
 
 ### Good to know
 
-- Apple Music, TIDAL, Deezer, SoundCloud, the personal servers, Last.fm and ListenBrainz are marked **beta** in
+- Apple Music, TIDAL, Deezer, SoundCloud and ListenBrainz are marked **beta** in
   the app: written against each service's documented API and working, but with far less real-world
   use than the rest, so a report about them is especially welcome.
 - Deezer (web) is marked **alpha**: covered by offline tests but not yet tried on real accounts. Try
@@ -233,10 +233,10 @@ that is exactly what to report.
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
 | TIDAL | beta | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. Beta: limited real-world use. |
 | Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
-| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete, beta | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
-| Jellyfin | complete, beta | server URL, user, password | nothing | Favourites supported. |
-| Plex | complete, beta | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
-| Last.fm | read-only, beta | username | `LASTFM_API_KEY` or a key entered by the user | Loved tracks only, source only. |
+| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
+| Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
+| Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
+| Last.fm | read-only | username | `LASTFM_API_KEY` or a key entered by the user | Loved tracks, recent scrobbles and the month's most played; source only. |
 | ListenBrainz | read-only, beta | username | nothing | Playlists and loved tracks, source only. |
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
 | SoundCloud | public links, read-only, unofficial; GitHub/F-Droid build and server only | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
@@ -629,8 +629,8 @@ services mentioned in this project are trademarks of their respective owners.
 
 ## Known limits
 
-- The connectors marked *beta* in the app (Apple Music, TIDAL, Deezer, Subsonic/Navidrome, Jellyfin,
-  Plex, Last.fm, ListenBrainz) follow each service's documented API and work, but have had limited
+- The connectors marked *beta* in the app (Apple Music, TIDAL, Deezer, SoundCloud with an account,
+  ListenBrainz) follow each service's documented API and work, but have had limited
   real-world use: the app says so on the connector's card and asks for reports.
 - YouTube (official API): the daily quota is 10,000 units per key, about 100 searches; long syncs
   need the Bridge or several days. Video title parsing is not perfect (doubtful tracks end up in

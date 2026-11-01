@@ -26,7 +26,8 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
     override val routeNoteName: String? get() = "route_note_server"
     override val brandColor = 0xFFE5A00D
     override val noteName = "provider_note_plex"
-    override val beta = true
+    // Out of beta (01/11/2026): used against real servers and accounts, and passing LiveServersIT.
+    override val beta = false
     override val loginForm = LoginForm(needsUrl = true, needsUser = false, needsSecret = true, secretLabelName = "login_token", hintName = "login_hint_plex")
 
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {

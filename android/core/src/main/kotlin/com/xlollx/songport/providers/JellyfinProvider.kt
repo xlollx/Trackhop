@@ -26,7 +26,8 @@ class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
     override val routeNoteName: String? get() = "route_note_server"
     override val brandColor = 0xFF00A4DC
     override val noteName = "provider_note_jellyfin"
-    override val beta = true
+    // Out of beta (01/11/2026): used against real servers and accounts, and passing LiveServersIT.
+    override val beta = false
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
     override val supportsAlbums = true

@@ -25,7 +25,8 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
     override val routeNoteName: String? get() = "route_note_api_readonly"
     override val brandColor = 0xFFD51007
     override val noteName = "provider_note_lastfm"
-    override val beta = true
+    // Out of beta (01/11/2026): used against real servers and accounts, and passing LiveServersIT.
+    override val beta = false
     override val canWrite = false
     override val canRemoveTracks = false
     override val supportsLikedSongs = true
