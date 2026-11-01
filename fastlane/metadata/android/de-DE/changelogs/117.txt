@@ -1,0 +1,1 @@
+Behoben: In 1.5.9 schloss sich die App beim Verbinden von TIDAL, kurz bevor sich die Anmeldeseite im Browser öffnete.

@@ -1,0 +1,1 @@
+Fixed: connecting TIDAL in 1.5.9 closed the app when its sign-in page was about to open in the browser.

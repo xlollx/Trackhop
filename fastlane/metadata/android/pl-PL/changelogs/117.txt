@@ -1,0 +1,1 @@
+Naprawiono: w 1.5.9 łączenie TIDAL zamykało aplikację tuż przed otwarciem strony logowania w przeglądarce.

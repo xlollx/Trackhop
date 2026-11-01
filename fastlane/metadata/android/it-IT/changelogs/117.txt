@@ -1,0 +1,1 @@
+Corretto: nella 1.5.9 collegare TIDAL chiudeva l’app quando stava per aprire la pagina di accesso nel browser.

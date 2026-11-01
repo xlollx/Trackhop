@@ -1,0 +1,1 @@
+Corrigido: na 1.5.9, conectar o TIDAL fechava o app quando ia abrir a página de login no navegador.

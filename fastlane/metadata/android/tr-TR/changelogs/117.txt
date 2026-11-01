@@ -1,0 +1,1 @@
+Düzeltildi: 1.5.9’da TIDAL’ı bağlamak, giriş sayfası tarayıcıda açılmak üzereyken uygulamayı kapatıyordu.

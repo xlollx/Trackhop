@@ -1,0 +1,1 @@
+Corrigé : dans la 1.5.9, connecter TIDAL fermait l’app au moment d’ouvrir la page de connexion dans le navigateur.
