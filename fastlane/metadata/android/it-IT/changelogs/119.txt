@@ -1,0 +1,1 @@
+I server personali con un indirizzo http semplice (Plex, Navidrome, Jellyfin o Subsonic sulla rete di casa, come http://192.168.1.20:32400) ora funzionano dall’app. I numeri grandi sulle schede (+1150) si rimpiccioliscono invece di perdere l’ultima cifra.

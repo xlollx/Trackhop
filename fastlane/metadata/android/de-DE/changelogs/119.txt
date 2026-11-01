@@ -1,0 +1,1 @@
+Eigene Server mit einer einfachen http-Adresse (Plex, Navidrome, Jellyfin oder Subsonic im Heimnetz, etwa http://192.168.1.20:32400) funktionieren jetzt in der App. Große Zahlen auf den Karten (+1150) werden kleiner, statt die letzte Ziffer zu verlieren.

@@ -1,0 +1,1 @@
+Prywatne serwery pod zwykłym adresem http (Plex, Navidrome, Jellyfin lub Subsonic w sieci domowej, np. http://192.168.1.20:32400) działają teraz w aplikacji. Duże liczby na kartach (+1150) zmniejszają się zamiast tracić ostatnią cyfrę.

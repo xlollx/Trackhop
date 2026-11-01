@@ -1,0 +1,1 @@
+Düz http adresli kişisel sunucular (ev ağındaki Plex, Navidrome, Jellyfin veya Subsonic, ör. http://192.168.1.20:32400) artık uygulamadan çalışıyor. Kartlardaki büyük sayılar (+1150) son basamağı kaybolmak yerine küçülüyor.

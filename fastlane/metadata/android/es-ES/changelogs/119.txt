@@ -1,0 +1,1 @@
+Los servidores personales con una dirección http simple (Plex, Navidrome, Jellyfin o Subsonic en la red de casa, como http://192.168.1.20:32400) ya funcionan desde la app. Las cifras grandes de las tarjetas (+1150) se reducen en vez de perder la última cifra.
