@@ -1,0 +1,1 @@
+Las tarjetas recuerdan la última comprobación: “Cambios por sincronizar” o “Al día” aparece al instante al volver a abrir la app, y se mantiene sin conexión.

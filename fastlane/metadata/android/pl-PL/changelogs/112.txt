@@ -1,0 +1,1 @@
+Karty pamiętają ostatnie sprawdzenie: „Zmiany do synchronizacji” lub „Aktualna” widać od razu po ponownym otwarciu aplikacji, także bez sieci.

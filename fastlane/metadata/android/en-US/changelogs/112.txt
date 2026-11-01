@@ -1,0 +1,1 @@
+Sync cards keep their last check: “Changes to sync” or “Up to date” shows right away when you reopen the app, and stays when the network is down.

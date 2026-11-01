@@ -1,0 +1,1 @@
+Le schede ricordano l’ultimo controllo: “Da sincronizzare” o “Aggiornata” compare subito quando riapri l’app, e resta anche senza rete.

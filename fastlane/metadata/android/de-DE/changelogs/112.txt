@@ -1,0 +1,1 @@
+Sync-Karten behalten ihre letzte Prüfung: „Änderungen offen“ oder „Aktuell“ erscheint sofort beim erneuten Öffnen der App und bleibt auch ohne Netz.

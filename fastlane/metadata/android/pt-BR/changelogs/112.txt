@@ -1,0 +1,1 @@
+Os cartões lembram a última verificação: “Alterações para sincronizar” ou “Atualizada” aparece na hora ao reabrir o app, e continua mesmo sem rede.

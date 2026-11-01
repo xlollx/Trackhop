@@ -1,0 +1,1 @@
+Kartlar son kontrolü hatırlar: uygulamayı yeniden açtığınızda “Eşitlenecek değişiklik var” veya “Güncel” hemen görünür, ağ yokken de kalır.
