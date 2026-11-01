@@ -1,74 +1,74 @@
 {
  "product": "desktop",
- "version": "0.6.3",
- "tag": "server-v0.6.3",
- "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v0.6.3",
- "checked": "2026-11-01T19:21:46Z",
+ "version": "0.7.0",
+ "tag": "server-v0.7.0",
+ "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v0.7.0",
+ "checked": "2026-11-01T22:07:55Z",
  "clean": true,
  "files": [
   {
-   "name": "Trackhop-Desktop-v0.6.3-linux.deb",
-   "sha256": "3c0b39d3cc19b5e5fa2612a304e11a54c50af5160784d9b0105efbce9511b0f9",
+   "name": "Trackhop-Desktop-v0.7.0-linux.deb",
+   "sha256": "cd6faa8c15fbdf4fd4711e91760f7a26fe5c3ceaee74d25ac1fb510a3e15de55",
    "malicious": 0,
    "suspicious": 0,
    "engines": 60,
-   "link": "https://www.virustotal.com/gui/file/3c0b39d3cc19b5e5fa2612a304e11a54c50af5160784d9b0105efbce9511b0f9"
+   "link": "https://www.virustotal.com/gui/file/cd6faa8c15fbdf4fd4711e91760f7a26fe5c3ceaee74d25ac1fb510a3e15de55"
   },
   {
-   "name": "Trackhop-Desktop-v0.6.3-linux.flatpak",
-   "sha256": "8bc374e7005b97cd025b42067a0916956c42294295e70d90cff264adf6815490",
+   "name": "Trackhop-Desktop-v0.7.0-linux.flatpak",
+   "sha256": "ae946183350036e1e44fa3b465c505960ee3d138a33ea1e7376ec24887b4e8a1",
    "malicious": 0,
    "suspicious": 0,
    "engines": 61,
-   "link": "https://www.virustotal.com/gui/file/8bc374e7005b97cd025b42067a0916956c42294295e70d90cff264adf6815490"
+   "link": "https://www.virustotal.com/gui/file/ae946183350036e1e44fa3b465c505960ee3d138a33ea1e7376ec24887b4e8a1"
   },
   {
-   "name": "Trackhop-Desktop-v0.6.3-linux.tar.gz",
-   "sha256": "d6ef392bc2d5d212959e8329e7ffa24cb90d50c0de80bb0d0605da4af04290ef",
-   "malicious": 0,
-   "suspicious": 0,
-   "engines": 55,
-   "link": "https://www.virustotal.com/gui/file/d6ef392bc2d5d212959e8329e7ffa24cb90d50c0de80bb0d0605da4af04290ef"
-  },
-  {
-   "name": "Trackhop-Desktop-v0.6.3-macos-arm64.dmg",
-   "sha256": "1ee02cdfc442528b519f8a81bd85d13ffaeab4dd49faa8d5f80b084bb7332178",
-   "malicious": 0,
-   "suspicious": 0,
-   "engines": 60,
-   "link": "https://www.virustotal.com/gui/file/1ee02cdfc442528b519f8a81bd85d13ffaeab4dd49faa8d5f80b084bb7332178"
-  },
-  {
-   "name": "Trackhop-Desktop-v0.6.3-macos-x64.dmg",
-   "sha256": "6431701c4e3bbfe76a241bb20a03283750ddc9a52d04ca09ad389b18796ad131",
-   "malicious": 0,
-   "suspicious": 0,
-   "engines": 59,
-   "link": "https://www.virustotal.com/gui/file/6431701c4e3bbfe76a241bb20a03283750ddc9a52d04ca09ad389b18796ad131"
-  },
-  {
-   "name": "Trackhop-Desktop-v0.6.3-windows.msi",
-   "sha256": "d078da6329e5df7a47274c70384642a656e478f1ecfca86ba125bc9812ddc9f0",
+   "name": "Trackhop-Desktop-v0.7.0-linux.tar.gz",
+   "sha256": "1c63c6768ea31738ab69926a76196bda5bcce529ad65e4ae4ba92dbab1520a03",
    "malicious": 0,
    "suspicious": 0,
    "engines": 53,
-   "link": "https://www.virustotal.com/gui/file/d078da6329e5df7a47274c70384642a656e478f1ecfca86ba125bc9812ddc9f0"
+   "link": "https://www.virustotal.com/gui/file/1c63c6768ea31738ab69926a76196bda5bcce529ad65e4ae4ba92dbab1520a03"
   },
   {
-   "name": "Trackhop-Desktop-v0.6.3-windows.msix",
-   "sha256": "f914b3d12f5bff3383274ac3a2761a3c5d667d5627c6712b0377c958df18b6e3",
+   "name": "Trackhop-Desktop-v0.7.0-macos-arm64.dmg",
+   "sha256": "1de5f159be39892395908658ecf80d16593e193cebb6844ceee4c8e5c7ae210f",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 36,
-   "link": "https://www.virustotal.com/gui/file/f914b3d12f5bff3383274ac3a2761a3c5d667d5627c6712b0377c958df18b6e3"
+   "engines": 60,
+   "link": "https://www.virustotal.com/gui/file/1de5f159be39892395908658ecf80d16593e193cebb6844ceee4c8e5c7ae210f"
   },
   {
-   "name": "Trackhop-Desktop-v0.6.3-windows.zip",
-   "sha256": "550f9599e71479df87df702b4ed21bd1147a8bbe82d87385e4dd4836f83384b8",
+   "name": "Trackhop-Desktop-v0.7.0-macos-x64.dmg",
+   "sha256": "8f4622221ebde613ccd0786ec4021b2a584e547b5bf85a42112d2c58e0ad51c9",
+   "malicious": 0,
+   "suspicious": 0,
+   "engines": 60,
+   "link": "https://www.virustotal.com/gui/file/8f4622221ebde613ccd0786ec4021b2a584e547b5bf85a42112d2c58e0ad51c9"
+  },
+  {
+   "name": "Trackhop-Desktop-v0.7.0-windows.msi",
+   "sha256": "9784d9d5909a87245227053c3bf3674f9baa66e1f6169ea86f8a78f0e9306483",
+   "malicious": 0,
+   "suspicious": 0,
+   "engines": 56,
+   "link": "https://www.virustotal.com/gui/file/9784d9d5909a87245227053c3bf3674f9baa66e1f6169ea86f8a78f0e9306483"
+  },
+  {
+   "name": "Trackhop-Desktop-v0.7.0-windows.msix",
+   "sha256": "ff0eed765deda1a35befd649c28709029b52d5e44f06e646936cbc8aa2e6e332",
+   "malicious": 0,
+   "suspicious": 0,
+   "engines": 56,
+   "link": "https://www.virustotal.com/gui/file/ff0eed765deda1a35befd649c28709029b52d5e44f06e646936cbc8aa2e6e332"
+  },
+  {
+   "name": "Trackhop-Desktop-v0.7.0-windows.zip",
+   "sha256": "08fa0c1c8602d13ddc8233b6aec94962e033281490bfe46a851c317b9d610aea",
    "malicious": 0,
    "suspicious": 0,
    "engines": 58,
-   "link": "https://www.virustotal.com/gui/file/550f9599e71479df87df702b4ed21bd1147a8bbe82d87385e4dd4836f83384b8"
+   "link": "https://www.virustotal.com/gui/file/08fa0c1c8602d13ddc8233b6aec94962e033281490bfe46a851c317b9d610aea"
   }
  ]
 }
