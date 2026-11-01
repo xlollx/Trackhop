@@ -1,0 +1,1 @@
+Düzeltildi: TIDAL arama biçimini değiştirdiği için TIDAL’a eşitlemeler hiç parça bulamıyordu.

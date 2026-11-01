@@ -1,0 +1,1 @@
+Corrigido: as syncs para o TIDAL não encontravam nenhuma faixa, porque o TIDAL mudou a forma de buscar.

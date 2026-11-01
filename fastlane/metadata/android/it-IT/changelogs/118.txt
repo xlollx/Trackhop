@@ -1,0 +1,1 @@
+Corretto: i sync verso TIDAL non trovavano nessun brano, perché TIDAL ha cambiato il modo di cercare.

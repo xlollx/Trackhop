@@ -1,0 +1,1 @@
+Corregido: las syncs hacia TIDAL no encontraban ningún tema, porque TIDAL cambió su forma de buscar.

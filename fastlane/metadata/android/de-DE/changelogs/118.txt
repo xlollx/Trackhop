@@ -1,0 +1,1 @@
+Behoben: Syncs zu TIDAL fanden keine Titel, da TIDAL seine Suche geändert hat.
