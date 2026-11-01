@@ -1,0 +1,1 @@
+“Up to date” is now checked, not assumed: Trackhop looks at the source playlist when you open the list and after each run. If it changed since the last run, the card says “Changes to sync” and a tap runs it. Where the service can’t be checked, the card shows when the sync last ran.

@@ -1,0 +1,1 @@
+“Atualizada” agora é verificada, não suposta: o Trackhop olha a playlist de origem quando você abre a lista e após cada execução. Se ela mudou desde a última vez, o cartão mostra “Alterações para sincronizar” e um toque executa. Onde o serviço não permite verificar, o cartão mostra quando a sync foi executada.

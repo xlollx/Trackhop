@@ -1,0 +1,1 @@
+“Güncel” artık varsayılmıyor, kontrol ediliyor: Trackhop listeyi açtığınızda ve her çalıştırmadan sonra kaynak çalma listesine bakar. Son çalıştırmadan beri değiştiyse kartta “Eşitlenecek değişiklik var” yazar, dokunmak çalıştırır. Kontrol edilemeyen hizmetlerde kart, eşitlemenin en son ne zaman çalıştığını gösterir.

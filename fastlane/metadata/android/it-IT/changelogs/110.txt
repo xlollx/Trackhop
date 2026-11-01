@@ -1,0 +1,1 @@
+“Aggiornata” ora viene verificata, non data per scontata: Trackhop controlla la playlist d’origine quando apri l’elenco e dopo ogni esecuzione. Se è cambiata dall’ultima volta, la scheda dice “Da sincronizzare” e un tocco la esegue. Dove il servizio non permette il controllo, la scheda mostra quando è stata eseguita.

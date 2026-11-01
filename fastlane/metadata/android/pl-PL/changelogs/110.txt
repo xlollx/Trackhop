@@ -1,0 +1,1 @@
+„Aktualna” jest teraz sprawdzana, a nie zakładana: Trackhop patrzy na playlistę źródłową przy otwarciu listy i po każdym uruchomieniu. Jeśli zmieniła się od ostatniego razu, karta pokazuje „Zmiany do synchronizacji”, a dotknięcie ją uruchamia. Gdy usługa nie pozwala sprawdzić, karta pokazuje, kiedy synchronizacja była uruchomiona.

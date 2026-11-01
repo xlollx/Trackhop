@@ -1,0 +1,1 @@
+„Aktuell“ wird jetzt geprüft statt angenommen: Trackhop schaut beim Öffnen der Liste und nach jedem Lauf auf die Quell-Playlist. Hat sie sich seit dem letzten Lauf geändert, steht auf der Karte „Änderungen offen“, ein Tipp startet den Lauf. Wo der Dienst keine Prüfung erlaubt, zeigt die Karte, wann die Sync zuletzt lief.

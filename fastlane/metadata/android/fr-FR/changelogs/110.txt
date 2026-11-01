@@ -1,0 +1,1 @@
+« À jour » est maintenant vérifié, plus supposé : Trackhop regarde la playlist source à l’ouverture de la liste et après chaque exécution. Si elle a changé depuis, la carte indique « Changements à synchroniser » et un appui la lance. Là où le service ne permet pas de vérifier, la carte indique quand la sync a tourné.

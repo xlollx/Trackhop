@@ -1,0 +1,1 @@
+“Al día” ahora se comprueba, no se supone: Trackhop mira la playlist de origen al abrir la lista y después de cada ejecución. Si cambió desde la última vez, la tarjeta dice “Cambios por sincronizar” y un toque la ejecuta. Donde el servicio no permite comprobarlo, la tarjeta muestra cuándo se ejecutó.
