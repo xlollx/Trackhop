@@ -99,6 +99,12 @@
   </requires>
 
   <releases>
+    <release version="0.6.3" date="2026-11-01">
+      <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.6.3</url>
+      <description>
+        <p>ListenBrainz works as a target again, Last.fm lists are named as on Last.fm, and a sync with an empty source says so.</p>
+      </description>
+    </release>
     <release version="0.6.2" date="2026-11-01">
       <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.6.2</url>
       <description>

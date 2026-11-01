@@ -5,6 +5,20 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 0.6.3
+
+- **ListenBrainz works as a target again**: its track lookup now wants the user token (and a new path),
+  so every search failed; it sends the token, and when two syncs spend the rate-limit window together
+  it waits for the window instead of ending in "429".
+- **TIDAL**: saved albums and followed artists get the access they need (collection scopes), and the
+  setup steps say which scopes to tick on developer.tidal.com, where a new app has them all off.
+- **Last.fm** lists are named as on Last.fm ("Loved tracks"), with a new one: the most played tracks
+  of the last month.
+- **A source read empty** (no loved tracks yet, an emptied playlist) is said on the sync's card
+  instead of a silent +0.
+- **Jellyfin** users without a password can sign in.
+- A connection dropped during the TLS handshake ("connection closed") is waited out and tried again.
+
 ## 0.6.2
 
 - **A target read in part no longer makes a sync write everything again**: when a service lists far
