@@ -122,7 +122,8 @@ object Lyrics {
         try {
             files.forEachIndexed { i, f ->
                 if (i % 10 == 0) progress("${i + 1} of ${files.size}: ${f.name}")
-                val rel = rootPath.relativize(f.canonicalFile.toPath()).toString()
+                // With "/" on every system: the misses file and the lists read the same on Windows.
+                val rel = rootPath.relativize(f.canonicalFile.toPath()).joinToString("/")
                 if (hasLyrics(f)) { had++; return@forEachIndexed }
                 val tried = misses[rel]
                 if (tried != null && !options.retryMissing && now - tried < RETRY_MS) { missing += rel; return@forEachIndexed }
