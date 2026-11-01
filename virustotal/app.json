@@ -1,26 +1,26 @@
 {
  "product": "app",
- "version": "1.5.2",
- "tag": "v1.5.2",
- "release": "https://github.com/xlollx/Trackhop/releases/tag/v1.5.2",
- "checked": "2026-10-31T11:33:47Z",
+ "version": "1.5.3",
+ "tag": "v1.5.3",
+ "release": "https://github.com/xlollx/Trackhop/releases/tag/v1.5.3",
+ "checked": "2026-11-01T14:11:34Z",
  "clean": true,
  "files": [
   {
-   "name": "Songport-v1.5.2-play.aab",
-   "sha256": "0ffb38f994d4d0bd5b0af46b8b977f04b1469fe2ea1cf2a6134d1aed081e78f0",
+   "name": "Trackhop-v1.5.3-play.aab",
+   "sha256": "a7a29412c139917c325c8e1e28df15aa3ddb85e5302499c4cd1a2a1fd1103ab7",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 66,
-   "link": "https://www.virustotal.com/gui/file/0ffb38f994d4d0bd5b0af46b8b977f04b1469fe2ea1cf2a6134d1aed081e78f0"
+   "engines": 67,
+   "link": "https://www.virustotal.com/gui/file/a7a29412c139917c325c8e1e28df15aa3ddb85e5302499c4cd1a2a1fd1103ab7"
   },
   {
-   "name": "Songport-v1.5.2.apk",
-   "sha256": "165a1cd3c47a0dc88995dea0a6bb4a318ef65dff35f90ef700db5406289f1456",
+   "name": "Trackhop-v1.5.3.apk",
+   "sha256": "3ab981d94aae24a5ba313efd9f0b02075bc34434ae448050fe7c6a05c81ace44",
    "malicious": 0,
    "suspicious": 0,
    "engines": 68,
-   "link": "https://www.virustotal.com/gui/file/165a1cd3c47a0dc88995dea0a6bb4a318ef65dff35f90ef700db5406289f1456"
+   "link": "https://www.virustotal.com/gui/file/3ab981d94aae24a5ba313efd9f0b02075bc34434ae448050fe7c6a05c81ace44"
   }
  ]
 }
