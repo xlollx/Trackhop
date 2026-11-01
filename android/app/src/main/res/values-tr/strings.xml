@@ -682,6 +682,8 @@
     </string-array>
     <string name="more_actions">Daha fazla</string>
     <string name="pill_ok">Güncel</string>
+    <string name="pill_changed">Eşitlenecek değişiklik var</string>
+    <string name="pill_last_run">%1$s çalıştı</string>
     <string name="pill_error">İlgilenilmeli</string>
     <string name="pill_never">Henüz çalışmadı</string>
     <string name="pill_running">Senkronize ediliyor</string>
@@ -1026,7 +1028,7 @@
     <string name="help_example">Örnek:</string>
     <string name="help_cards_title">Senkronizasyon kartları</string>
     <string name="help_status_title">Durum</string>
-    <string name="help_status_body">Etiket, son çalıştırmanın nasıl geçtiğini gösterir. Güncel: tamamlandı ve sizi bekleyen bir şey yok. Kaldırmalar bekliyor, Tamamlanmadı ve Bulunamadı: N, bakılması gereken bir şey olduğunu söyler; etikete dokunmak sizi oraya götürür. İlgilenilmeli: çalıştırma başarısız oldu.</string>
+    <string name="help_status_body">Etiket, son çalıştırmanın nasıl geçtiğini gösterir. Güncel: Trackhop, kaynağın son çalıştırmadan beri değişmediğini az önce kontrol etti. Eşitlenecek değişiklik var: kaynak o zamandan beri değişti; dokunmak çalıştırır. 3 gün önce çalıştı: hizmet çalıştırmadan kontrol etmeye izin vermiyor, bu yüzden yalnızca zaman gösterilir. Kaldırmalar bekliyor, Tamamlanmadı ve Bulunamadı: N, bakılması gereken bir şey olduğunu söyler; etikete dokunmak sizi oraya götürür. İlgilenilmeli: çalıştırma başarısız oldu.</string>
     <string name="help_status_example">“Bulunamadı: 12” incelemeyi açar; orada bu 12 parçayı elle seçebilirsiniz.</string>
     <string name="help_route_title">→ ve ↔</string>
     <string name="help_route_body">→ kaynaktan hedefe tek yönlü bir senkronizasyondur. ↔ çift yönlü bir çifti gösterir: her yön için bir tane olmak üzere iki senkronizasyon, iki kart olarak görünür. ↔ kartını düzenlemek asıl senkronizasyonu açar; birini silmek ikisini de siler.</string>

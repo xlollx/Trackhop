@@ -683,6 +683,8 @@
     <!-- Restyling: status pills, empty screens, header -->
     <string name="more_actions">More</string>
     <string name="pill_ok">Up to date</string>
+    <string name="pill_changed">Changes to sync</string>
+    <string name="pill_last_run">Ran %1$s</string>
     <string name="pill_error">Needs attention</string>
     <string name="pill_never">Not run yet</string>
     <string name="pill_running">Syncing</string>
@@ -1028,7 +1030,7 @@
     <string name="help_example">Example:</string>
     <string name="help_cards_title">Sync cards</string>
     <string name="help_status_title">Status</string>
-    <string name="help_status_body">The pill says how the last run went. Up to date: it finished and nothing waits for you. Removals on hold, Not finished and Not found: N mean something needs a look, and a tap on the pill takes you there. Needs attention: the run failed.</string>
+    <string name="help_status_body">The pill says how the last run went. Up to date: Trackhop has just checked that the source has not changed since the last run, which finished with nothing waiting for you. Changes to sync: the source changed since; a tap runs it. Ran 3 days ago: the service gives no way to check without running it, so only the time is shown. Removals on hold, Not finished and Not found: N mean something needs a look, and a tap on the pill takes you there. Needs attention: the run failed.</string>
     <string name="help_status_example">“Not found: 12” opens the review, where you can pick those 12 tracks by hand.</string>
     <string name="help_route_title">→ and ↔</string>
     <string name="help_route_body">→ is a one-way sync from the source to the target. ↔ marks a two-way pair: two syncs, one per direction, shown as two cards. Editing the ↔ card opens the original sync, and deleting either one deletes both.</string>

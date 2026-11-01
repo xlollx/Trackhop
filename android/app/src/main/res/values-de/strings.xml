@@ -683,6 +683,8 @@
     <!-- Restyling: Status, leere Bildschirme, Kopfbereich -->
     <string name="more_actions">Mehr</string>
     <string name="pill_ok">Aktuell</string>
+    <string name="pill_changed">Änderungen offen</string>
+    <string name="pill_last_run">Lief %1$s</string>
     <string name="pill_error">Bitte prüfen</string>
     <string name="pill_never">Noch nicht ausgeführt</string>
     <string name="pill_running">Synchronisiert</string>
@@ -1028,7 +1030,7 @@
     <string name="help_example">Beispiel:</string>
     <string name="help_cards_title">Sync-Karten</string>
     <string name="help_status_title">Status</string>
-    <string name="help_status_body">Die Markierung zeigt, wie der letzte Lauf war. Aktuell: Er ist durchgelaufen und nichts wartet auf dich. Entfernungen warten, Nicht fertig und Nicht gefunden: N heißen, dass du etwas ansehen solltest – ein Tipp auf die Markierung bringt dich hin. Bitte prüfen: Der Lauf ist fehlgeschlagen.</string>
+    <string name="help_status_body">Die Markierung zeigt, wie der letzte Lauf war. Aktuell: Trackhop hat gerade geprüft, dass sich die Quelle seit dem letzten Lauf nicht geändert hat und nichts auf dich wartet. Änderungen offen: Die Quelle hat sich seitdem geändert; ein Tipp startet den Lauf. Lief vor 3 Tagen: Der Dienst lässt sich nicht prüfen, ohne den Lauf zu starten, daher steht nur die Zeit da. Entfernungen warten, Nicht fertig und Nicht gefunden: N heißen, dass du etwas ansehen solltest – ein Tipp auf die Markierung bringt dich hin. Bitte prüfen: Der Lauf ist fehlgeschlagen.</string>
     <string name="help_status_example">„Nicht gefunden: 12“ öffnet die Prüfung, in der du diese 12 Titel von Hand auswählst.</string>
     <string name="help_route_title">→ und ↔</string>
     <string name="help_route_body">→ ist ein Sync in eine Richtung, von der Quelle zum Ziel. ↔ kennzeichnet ein beidseitiges Paar: zwei Syncs, einer je Richtung, als zwei Karten. Bearbeiten der ↔-Karte öffnet den ursprünglichen Sync, und wer einen löscht, löscht beide.</string>

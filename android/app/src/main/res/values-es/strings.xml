@@ -683,6 +683,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Más</string>
     <string name="pill_ok">Al día</string>
+    <string name="pill_changed">Cambios por sincronizar</string>
+    <string name="pill_last_run">Ejecutada %1$s</string>
     <string name="pill_error">Requiere atención</string>
     <string name="pill_never">Sin ejecutar</string>
     <string name="pill_running">Sincronizando</string>
@@ -1035,7 +1037,7 @@
     <string name="help_example">Ejemplo:</string>
     <string name="help_cards_title">Tarjetas de sincronización</string>
     <string name="help_status_title">Estado</string>
-    <string name="help_status_body">La etiqueta indica cómo fue la última ejecución. Al día: terminó y nada te espera. Eliminaciones en espera, Sin terminar y No encontradas: N indican que hay algo que revisar, y un toque en la etiqueta te lleva allí. Requiere atención: la ejecución falló.</string>
+    <string name="help_status_body">La etiqueta indica cómo fue la última ejecución. Al día: Trackhop acaba de comprobar que el origen no ha cambiado desde la última ejecución, que terminó sin nada pendiente. Cambios por sincronizar: el origen cambió desde entonces; un toque la ejecuta. Ejecutada hace 3 días: el servicio no permite comprobarlo sin ejecutarla, así que solo se muestra cuándo. Eliminaciones en espera, Sin terminar y No encontradas: N indican que hay algo que revisar, y un toque en la etiqueta te lleva allí. Requiere atención: la ejecución falló.</string>
     <string name="help_status_example">“No encontradas: 12” abre la revisión, donde puedes elegir esas 12 canciones a mano.</string>
     <string name="help_route_title">→ y ↔</string>
     <string name="help_route_body">→ es una sincronización en un solo sentido, del origen al destino. ↔ marca una pareja bidireccional: dos sincronizaciones, una por sentido, que se ven como dos tarjetas. Editar la tarjeta ↔ abre la sincronización original, y borrar cualquiera de las dos borra ambas.</string>

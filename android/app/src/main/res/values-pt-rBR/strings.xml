@@ -683,6 +683,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Mais</string>
     <string name="pill_ok">Atualizada</string>
+    <string name="pill_changed">Alterações para sincronizar</string>
+    <string name="pill_last_run">Executada %1$s</string>
     <string name="pill_error">Precisa de atenção</string>
     <string name="pill_never">Ainda não executada</string>
     <string name="pill_running">Sincronizando</string>
@@ -1035,7 +1037,7 @@
     <string name="help_example">Exemplo:</string>
     <string name="help_cards_title">Cartões de sincronização</string>
     <string name="help_status_title">Status</string>
-    <string name="help_status_body">A etiqueta mostra como foi a última execução. Atualizada: terminou e nada espera por você. Remoções pendentes, Não concluída e Não encontradas: N indicam que algo precisa de uma olhada, e um toque na etiqueta leva você até lá. Precisa de atenção: a execução falhou.</string>
+    <string name="help_status_body">A etiqueta mostra como foi a última execução. Atualizada: o Trackhop acabou de verificar que a origem não mudou desde a última execução. Alterações para sincronizar: a origem mudou desde então; um toque executa. Executada há 3 dias: o serviço não permite verificar sem executar, então só aparece quando. Remoções pendentes, Não concluída e Não encontradas: N indicam que algo precisa de uma olhada, e um toque na etiqueta leva você até lá. Precisa de atenção: a execução falhou.</string>
     <string name="help_status_example">“Não encontradas: 12” abre a revisão, onde você escolhe essas 12 faixas manualmente.</string>
     <string name="help_route_title">→ e ↔</string>
     <string name="help_route_body">→ é uma sincronização de mão única, da origem para o destino. ↔ marca um par bidirecional: duas sincronizações, uma para cada sentido, exibidas como dois cartões. Editar o cartão ↔ abre a sincronização original, e apagar qualquer uma apaga as duas.</string>

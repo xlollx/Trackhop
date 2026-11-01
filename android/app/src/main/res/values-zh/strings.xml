@@ -676,6 +676,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">更多</string>
     <string name="pill_ok">已是最新</string>
+    <string name="pill_changed">有待同步的更改</string>
+    <string name="pill_last_run">%1$s运行</string>
     <string name="pill_error">需要处理</string>
     <string name="pill_never">尚未运行</string>
     <string name="pill_running">正在同步</string>
@@ -1008,7 +1010,7 @@
     <string name="help_example">示例：</string>
     <string name="help_cards_title">同步卡片</string>
     <string name="help_status_title">状态</string>
-    <string name="help_status_body">标签显示上一次运行的结果。“已是最新”：运行已完成，没有需要你处理的事。“删除待确认”“未完成”和“未找到：N”表示有内容需要查看，点按标签即可前往。“需要处理”：运行失败了。</string>
+    <string name="help_status_body">标签显示上一次运行的结果。“已是最新”：Trackhop 刚刚确认源自上次运行以来没有变化。“有待同步的更改”：源在那之后有变化，点按即可运行。“3天前运行”：该服务无法在不运行的情况下检查，所以只显示时间。“删除待确认”“未完成”和“未找到：N”表示有内容需要查看，点按标签即可前往。“需要处理”：运行失败了。</string>
     <string name="help_status_example">点按“未找到：12”会打开检查页面，你可以在那里手动选择这 12 首歌。</string>
     <string name="help_route_title">→ 和 ↔</string>
     <string name="help_route_body">→ 表示从来源到目标的单向同步。↔ 表示一对双向同步：每个方向各一个，显示为两张卡片。编辑 ↔ 卡片会打开原来的同步，删除其中任意一个会同时删除两个。</string>

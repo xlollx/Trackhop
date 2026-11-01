@@ -683,6 +683,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Plus</string>
     <string name="pill_ok">À jour</string>
+    <string name="pill_changed">Changements à synchroniser</string>
+    <string name="pill_last_run">Exécutée %1$s</string>
     <string name="pill_error">À vérifier</string>
     <string name="pill_never">Jamais lancée</string>
     <string name="pill_running">Synchronisation</string>
@@ -1035,7 +1037,7 @@
     <string name="help_example">Exemple :</string>
     <string name="help_cards_title">Cartes de sync</string>
     <string name="help_status_title">État</string>
-    <string name="help_status_body">L\'étiquette indique comment s\'est passée la dernière exécution. À jour : elle s\'est terminée et rien ne vous attend. Retraits en attente, Inachevée et Introuvables : N signalent qu\'il faut jeter un œil, et un appui sur l\'étiquette vous y emmène. À vérifier : l\'exécution a échoué.</string>
+    <string name="help_status_body">L\'étiquette indique comment s\'est passée la dernière exécution. À jour : Trackhop vient de vérifier que la source n\'a pas changé depuis la dernière exécution, terminée sans rien en attente. Changements à synchroniser : la source a changé depuis ; un appui la lance. Exécutée il y a 3 jours : le service ne permet pas de le vérifier sans la lancer, seule la date s\'affiche. Retraits en attente, Inachevée et Introuvables : N signalent qu\'il faut jeter un œil, et un appui sur l\'étiquette vous y emmène. À vérifier : l\'exécution a échoué.</string>
     <string name="help_status_example">« Introuvables : 12 » ouvre la révision, où vous choisissez ces 12 titres à la main.</string>
     <string name="help_route_title">→ et ↔</string>
     <string name="help_route_body">→ est une sync à sens unique, de la source vers la cible. ↔ signale une paire bidirectionnelle : deux syncs, une par sens, affichées comme deux cartes. Modifier la carte ↔ ouvre la sync d\'origine, et supprimer l\'une supprime les deux.</string>

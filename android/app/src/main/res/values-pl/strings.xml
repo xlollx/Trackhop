@@ -699,6 +699,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Więcej</string>
     <string name="pill_ok">Aktualna</string>
+    <string name="pill_changed">Zmiany do synchronizacji</string>
+    <string name="pill_last_run">Uruchomiona %1$s</string>
     <string name="pill_error">Wymaga uwagi</string>
     <string name="pill_never">Jeszcze nie uruchomiona</string>
     <string name="pill_running">Synchronizowanie</string>
@@ -1070,7 +1072,7 @@
     <string name="help_example">Przykład:</string>
     <string name="help_cards_title">Karty synchronizacji</string>
     <string name="help_status_title">Stan</string>
-    <string name="help_status_body">Etykieta mówi, jak poszło ostatnie uruchomienie. Aktualna: zakończyło się i nic na ciebie nie czeka. Usunięcia czekają, Niedokończona i Nieznalezione: N oznaczają, że coś wymaga uwagi, a dotknięcie etykiety cię tam zabiera. Wymaga uwagi: uruchomienie się nie powiodło.</string>
+    <string name="help_status_body">Etykieta mówi, jak poszło ostatnie uruchomienie. Aktualna: Trackhop przed chwilą sprawdził, że źródło nie zmieniło się od ostatniego uruchomienia. Zmiany do synchronizacji: źródło od tego czasu się zmieniło; dotknięcie uruchamia synchronizację. Uruchomiona 3 dni temu: usługa nie pozwala tego sprawdzić bez uruchomienia, więc widać tylko czas. Usunięcia czekają, Niedokończona i Nieznalezione: N oznaczają, że coś wymaga uwagi, a dotknięcie etykiety cię tam zabiera. Wymaga uwagi: uruchomienie się nie powiodło.</string>
     <string name="help_status_example">„Nieznalezione: 12” otwiera przegląd, w którym wybierzesz te 12 utworów ręcznie.</string>
     <string name="help_route_title">→ i ↔</string>
     <string name="help_route_body">→ to synchronizacja w jedną stronę, ze źródła do celu. ↔ oznacza parę dwukierunkową: dwie synchronizacje, po jednej w każdą stronę, widoczne jako dwie karty. Edycja karty ↔ otwiera oryginalną synchronizację, a usunięcie jednej usuwa obie.</string>

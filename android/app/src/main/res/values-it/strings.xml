@@ -683,6 +683,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Altro</string>
     <string name="pill_ok">Aggiornata</string>
+    <string name="pill_changed">Da sincronizzare</string>
+    <string name="pill_last_run">Eseguita %1$s</string>
     <string name="pill_error">Da controllare</string>
     <string name="pill_never">Mai eseguita</string>
     <string name="pill_running">In corso</string>
@@ -1028,7 +1030,7 @@
     <string name="help_example">Esempio:</string>
     <string name="help_cards_title">Le schede delle sync</string>
     <string name="help_status_title">Stato</string>
-    <string name="help_status_body">L\'etichetta dice com\'è andata l\'ultima esecuzione. Aggiornata: è finita e nulla ti aspetta. Rimozioni in attesa, Non finita e Non trovati: N indicano che qualcosa va guardato, e un tocco sull\'etichetta ti porta lì. Da controllare: l\'esecuzione non è riuscita.</string>
+    <string name="help_status_body">L\'etichetta dice com\'è andata l\'ultima esecuzione. Aggiornata: Trackhop ha appena controllato che l\'origine non è cambiata dall\'ultima esecuzione, finita senza nulla in sospeso. Da sincronizzare: l\'origine è cambiata da allora; un tocco la esegue. Eseguita 3 giorni fa: il servizio non permette di controllarlo senza eseguirla, quindi c\'è solo quando. Rimozioni in attesa, Non finita e Non trovati: N indicano che qualcosa va guardato, e un tocco sull\'etichetta ti porta lì. Da controllare: l\'esecuzione non è riuscita.</string>
     <string name="help_status_example">“Non trovati: 12” apre la revisione, dove puoi scegliere a mano quei 12 brani.</string>
     <string name="help_route_title">→ e ↔</string>
     <string name="help_route_body">→ è una sync a senso unico, dall\'origine alla destinazione. ↔ indica una coppia bidirezionale: due sync, una per direzione, mostrate come due schede. Modificare la scheda ↔ apre la sync originale, ed eliminarne una le elimina entrambe.</string>

@@ -1,5 +1,10 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.xlollx.songport.platform.env
+import com.xlollx.songport.sync.Freshness
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import android.text.format.DateUtils
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.background
@@ -193,6 +198,13 @@ fun SyncsScreen(
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    // "Up to date" is checked, not assumed: each sync's source against its last run, when the list
+    // shows and again after a run (FreshnessChecks).
+    val toCheck = FreshnessChecks.worthChecking(data.jobs)
+    LifecycleResumeEffect(toCheck.map { Triple(it.id, it.lastRunEpoch, it.sourceVersion) }) {
+        val check = scope.launch { FreshnessChecks.refresh(ctx.env, toCheck) }
+        onPauseOrDispose { check.cancel() }
+    }
     val support = SupportPrompt.pending(Store.get(ctx))
     // One open in ten: a small card that goes away by itself at the next open.
     val nudge = support == null && data.settings.appOpens > 0 && SupportPrompt.nudge(Store.get(ctx))
@@ -475,9 +487,16 @@ private fun JobCard(
                     CardStatus.NEVER -> StatusPill(stringResource(R.string.pill_never), Tone.Neutral)
                     CardStatus.ERROR -> StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
                     CardStatus.HELD_BACK -> ActionPill(stringResource(R.string.pill_held_back), Tone.Warning) { onPreview(job) }
-                    CardStatus.INCOMPLETE -> ActionPill(stringResource(R.string.pill_incomplete), Tone.Warning, onOpenLog)
+                    CardStatus.INCOMPLETE -> ActionPill(stringResource(R.string.pill_incomplete), Tone.Warning, onClick = onOpenLog)
                     CardStatus.NOT_FOUND -> ActionPill(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning) { onReview(report!!.id) }
-                    CardStatus.OK -> StatusPill(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
+                    // Up to date only once checked: the source seen unchanged since the last run. Changed:
+                    // a tap runs it. Not checkable (no version from the service, offline) or not checked
+                    // yet: when it last ran, without the tick.
+                    CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
+                        Freshness.State.CURRENT -> StatusPill(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
+                        Freshness.State.CHANGED -> ActionPill(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
+                        else -> StatusPill(stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)), Tone.Neutral, Icons.Filled.Schedule)
+                    }
                 }
             }
             if (run != null) {
@@ -602,14 +621,18 @@ private fun JobCard(
     }
 }
 
+/** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
+internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =
+    DateUtils.getRelativeTimeSpanString(epoch, now, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString()
+
 /** The still, greyed bar of a paused card (for the UI tests). */
 internal const val PAUSED_BAR_TAG = "paused-bar"
 
 /** A status pill that leads somewhere: the warning icon, and a tap target as tall as a button. */
 @Composable
-private fun ActionPill(text: String, tone: Tone, onClick: () -> Unit) {
+private fun ActionPill(text: String, tone: Tone, icon: ImageVector = Icons.Filled.Warning, onClick: () -> Unit) {
     StatusPill(
-        text, tone, Icons.Filled.Warning,
+        text, tone, icon,
         Modifier.minimumInteractiveComponentSize().clip(RoundedCornerShape(50)).clickable(role = Role.Button, onClick = onClick),
     )
 }

@@ -676,6 +676,8 @@
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">その他</string>
     <string name="pill_ok">最新の状態</string>
+    <string name="pill_changed">同期する変更あり</string>
+    <string name="pill_last_run">%1$sに実行</string>
     <string name="pill_error">要確認</string>
     <string name="pill_never">未実行</string>
     <string name="pill_running">同期中</string>
@@ -1008,7 +1010,7 @@
     <string name="help_example">例：</string>
     <string name="help_cards_title">同期カード</string>
     <string name="help_status_title">ステータス</string>
-    <string name="help_status_body">ラベルは前回の実行結果を示します。「最新の状態」は、完了していて対応の必要がないことを意味します。「削除が保留中」「未完了」「見つからず：N」は確認が必要なことがある印で、ラベルをタップするとその画面に移動します。「要確認」は実行が失敗したことを示します。</string>
+    <string name="help_status_body">ラベルは前回の実行結果を示します。「最新の状態」は、ソースが前回の実行から変わっていないことを Trackhop がたった今確認したことを意味します。「同期する変更あり」はその後ソースが変わったことを示し、タップすると実行します。「3 日前に実行」は、サービスが実行せずに確認する方法を提供していないため、日時だけを表示しています。「削除が保留中」「未完了」「見つからず：N」は確認が必要なことがある印で、ラベルをタップするとその画面に移動します。「要確認」は実行が失敗したことを示します。</string>
     <string name="help_status_example">「見つからず：12」をタップすると確認画面が開き、その12曲を手動で選べます。</string>
     <string name="help_route_title">→ と ↔</string>
     <string name="help_route_body">→ は同期元から同期先への一方向の同期です。↔ は双方向のペアを表し、方向ごとに1つずつ、2つの同期が2枚のカードとして表示されます。↔ のカードを編集すると元の同期が開き、どちらかを削除すると両方とも削除されます。</string>
