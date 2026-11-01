@@ -37,10 +37,9 @@ jobs:
         run: |
           echo "::notice::PLAY_SERVICE_ACCOUNT_JSON is not set: $TAG was not sent to Google Play (packaging/README.md, Google Play)."
 
+      # The notes come from the branch this runs on (main): they may be written after the tag.
       - uses: actions/checkout@v7
         if: ${{ env.HAS_KEY == 'true' }}
-        with:
-          ref: ${{ inputs.tag }}
 
       - name: The release's bundle and its Play notes
         id: files
@@ -48,7 +47,8 @@ jobs:
         run: |
           mkdir -p dist
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "Trackhop-$TAG-play.aab" --dir dist
-          code=$(sed -n 's/.*versionCode \([0-9]*\).*/\1/p' android/app/build.gradle | head -1)
+          git fetch -q --depth 1 origin "refs/tags/$TAG:refs/tags/$TAG"
+          code=$(git show "$TAG:android/app/build.gradle" | sed -n 's/.*versionCode \([0-9]*\).*/\1/p' | head -1)
           echo "Version code $code"
           if [ -n "$code" ] && ls "play/whatsnew/$code"/whatsnew-* >/dev/null 2>&1; then
             echo "notes=play/whatsnew/$code" >> "$GITHUB_OUTPUT"
