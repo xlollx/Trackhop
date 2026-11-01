@@ -1,0 +1,1 @@
+Los temas que te gustan en SoundCloud ahora también se comprueban: la tarjeta dice “Al día” o “Cambios por sincronizar” (tras una ejecución). Una sync de hace menos de un minuto dice “Recién ejecutada”.

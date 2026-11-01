@@ -1,0 +1,1 @@
+SoundCloud liked tracks can now be checked too: their card says “Up to date” or “Changes to sync” (after one run). A sync that ran less than a minute ago says “Just ran”.

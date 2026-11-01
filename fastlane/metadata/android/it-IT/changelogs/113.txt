@@ -1,0 +1,1 @@
+Anche i brani piaciuti di SoundCloud ora vengono controllati: la scheda dice “Aggiornata” o “Da sincronizzare” (dopo una prima esecuzione). Un sync eseguito da meno di un minuto dice “Appena eseguita”.

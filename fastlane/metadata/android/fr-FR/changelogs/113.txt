@@ -1,0 +1,1 @@
+Les titres aimés sur SoundCloud sont maintenant vérifiés aussi : la carte indique « À jour » ou « Changements à synchroniser » (après une exécution). Une sync lancée il y a moins d’une minute indique « Exécutée à l’instant ».

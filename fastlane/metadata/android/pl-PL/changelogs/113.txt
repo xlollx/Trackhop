@@ -1,0 +1,1 @@
+Polubione utwory z SoundCloud też są teraz sprawdzane: karta pokazuje „Aktualna” lub „Zmiany do synchronizacji” (po jednym uruchomieniu). Synchronizacja sprzed mniej niż minuty pokazuje „Właśnie uruchomiona”.

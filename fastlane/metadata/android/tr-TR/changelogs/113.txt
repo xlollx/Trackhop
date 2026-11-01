@@ -1,0 +1,1 @@
+SoundCloud’da beğenilen parçalar da artık kontrol ediliyor: kart (bir çalıştırmadan sonra) “Güncel” veya “Eşitlenecek değişiklik var” der. Bir dakikadan kısa süre önce çalışan eşitleme “Az önce çalıştı” der.

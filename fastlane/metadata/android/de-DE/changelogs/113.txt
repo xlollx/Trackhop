@@ -1,0 +1,1 @@
+Auch gelikte SoundCloud-Titel werden jetzt geprüft: Die Karte zeigt „Aktuell“ oder „Änderungen offen“ (nach einem Lauf). Eine Sync, die vor weniger als einer Minute lief, zeigt „Gerade gelaufen“.

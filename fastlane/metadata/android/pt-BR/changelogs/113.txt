@@ -1,0 +1,1 @@
+As faixas curtidas do SoundCloud agora também são verificadas: o cartão mostra “Atualizada” ou “Alterações para sincronizar” (após uma execução). Uma sync executada há menos de um minuto mostra “Executada agora”.
