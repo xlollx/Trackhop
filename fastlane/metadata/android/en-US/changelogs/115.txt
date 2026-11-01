@@ -1,0 +1,1 @@
+ListenBrainz works as a target again (its track lookup now needs your user token). Last.fm lists are named as on Last.fm, with a new one: your most played tracks of the month. A sync whose source is empty says so. Jellyfin users without a password can sign in. When F-Droid or Obtainium installed the app, Settings says they update it.

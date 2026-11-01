@@ -1,0 +1,1 @@
+O ListenBrainz volta a funcionar como destino (a busca de faixas agora precisa do seu token). As listas do Last.fm têm os nomes do Last.fm, com uma nova: suas mais ouvidas do mês. Uma sync com a origem vazia avisa. No Jellyfin dá para entrar sem senha. Se o F-Droid ou o Obtainium instalou o app, as Configurações dizem que eles o atualizam.

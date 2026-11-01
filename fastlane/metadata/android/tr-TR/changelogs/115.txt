@@ -1,0 +1,1 @@
+ListenBrainz yeniden hedef olarak çalışıyor (parça araması artık kullanıcı token’ını istiyor). Last.fm listeleri Last.fm’deki adlarını taşıyor, yeni bir liste de var: ayın en çok dinlenenleri. Kaynağı boş bir eşitleme bunu söyler. Jellyfin’e parolasız girilebilir. Uygulamayı F-Droid veya Obtainium yüklediyse Ayarlar güncellemeyi onların yaptığını söyler.

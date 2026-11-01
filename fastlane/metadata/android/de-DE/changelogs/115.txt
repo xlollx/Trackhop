@@ -1,0 +1,1 @@
+ListenBrainz funktioniert wieder als Ziel (die Titelsuche braucht jetzt dein Benutzer-Token). Last.fm-Listen heißen wie auf Last.fm, dazu neu: deine meistgehörten Titel des Monats. Eine Sync mit leerer Quelle sagt es. Jellyfin-Nutzer ohne Passwort können sich anmelden. Hat F-Droid oder Obtainium die App installiert, sagen die Einstellungen, dass sie sie aktualisieren.

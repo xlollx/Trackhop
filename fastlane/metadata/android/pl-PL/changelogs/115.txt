@@ -1,0 +1,1 @@
+ListenBrainz znów działa jako cel (wyszukiwanie utworów wymaga teraz twojego tokenu). Listy Last.fm mają nazwy jak na Last.fm, plus nowa: najczęściej słuchane w miesiącu. Synchronizacja z pustym źródłem mówi o tym. Do Jellyfin można zalogować się bez hasła. Jeśli aplikację zainstalował F-Droid lub Obtainium, Ustawienia mówią, że to one ją aktualizują.

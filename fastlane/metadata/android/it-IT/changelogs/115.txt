@@ -1,0 +1,1 @@
+ListenBrainz funziona di nuovo come destinazione (la ricerca dei brani ora richiede il tuo token). Le liste di Last.fm hanno i nomi di Last.fm, più una nuova: i tuoi più ascoltati del mese. Un sync con la sorgente vuota lo dice. Su Jellyfin si accede anche senza password. Se l’app l’ha installata F-Droid o Obtainium, le Impostazioni dicono che la aggiornano loro.

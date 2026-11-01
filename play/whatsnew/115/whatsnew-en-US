@@ -1,0 +1,4 @@
+• ListenBrainz works as a destination again: track search now uses your user token.
+• Last.fm lists are named as on Last.fm, with a new one: your most played tracks of the month.
+• A sync whose source is empty now says so.
+• Jellyfin users without a password can sign in.
