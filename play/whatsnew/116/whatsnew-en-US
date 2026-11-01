@@ -1,0 +1,3 @@
+• TIDAL: signing in works again. The TIDAL page now opens in your browser, as its bot check blocked it inside the app.
+• Saved albums and followed artists on TIDAL get the access they need.
+• ListenBrainz waits when its rate limit is reached instead of stopping, and a dropped connection is tried again.

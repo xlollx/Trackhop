@@ -1,0 +1,1 @@
+TIDAL: giriş yeniden çalışıyor: TIDAL’ın bot denetimi uygulama içinde engellediği için sayfa artık tarayıcıda açılıyor. TIDAL’daki kayıtlı albümler ve takip edilen sanatçılar artık gereken erişimi alıyor. ListenBrainz istek sınırına ulaşınca durmak yerine bekliyor, kopan bağlantı yeniden deneniyor.

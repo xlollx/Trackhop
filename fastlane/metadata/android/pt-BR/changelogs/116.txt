@@ -1,0 +1,1 @@
+TIDAL: o login voltou a funcionar: a página do TIDAL abre no navegador, porque a proteção contra bots a bloqueava dentro do app. Álbuns salvos e artistas seguidos no TIDAL agora têm o acesso necessário. O ListenBrainz espera ao atingir o limite em vez de parar, e uma conexão que cai é tentada de novo.

@@ -1,0 +1,1 @@
+TIDAL : la connexion fonctionne de nouveau : la page TIDAL s’ouvre dans le navigateur, car sa protection anti-bot la bloquait dans l’app. Les albums enregistrés et artistes suivis sur TIDAL ont maintenant les accès nécessaires. ListenBrainz attend quand sa limite est atteinte au lieu de s’arrêter, et une connexion coupée est retentée.

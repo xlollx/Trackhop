@@ -1,0 +1,1 @@
+TIDAL: el inicio de sesión vuelve a funcionar: la página de TIDAL se abre en el navegador, porque su control antibots la bloqueaba dentro de la app. Los álbumes guardados y artistas seguidos en TIDAL tienen ya el acceso necesario. ListenBrainz espera al llegar al límite en vez de detenerse, y una conexión que se corta se reintenta.

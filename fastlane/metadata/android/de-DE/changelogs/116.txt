@@ -1,0 +1,1 @@
+TIDAL: Die Anmeldung klappt wieder: Die TIDAL-Seite öffnet sich im Browser, da ihr Bot-Schutz sie in der App blockierte. Gespeicherte Alben und gefolgte Künstler auf TIDAL haben jetzt die nötigen Rechte. ListenBrainz wartet beim Erreichen des Limits, statt anzuhalten, und eine abgebrochene Verbindung wird erneut versucht.

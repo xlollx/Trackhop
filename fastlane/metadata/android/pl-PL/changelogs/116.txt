@@ -1,0 +1,1 @@
+TIDAL: logowanie znów działa: strona TIDAL otwiera się w przeglądarce, bo jej ochrona przed botami blokowała ją w aplikacji. Zapisane albumy i obserwowani wykonawcy w TIDAL mają teraz potrzebny dostęp. ListenBrainz czeka po osiągnięciu limitu zamiast się zatrzymać, a zerwane połączenie jest ponawiane.

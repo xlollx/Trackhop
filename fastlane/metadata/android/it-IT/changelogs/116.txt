@@ -1,0 +1,1 @@
+TIDAL: l’accesso funziona di nuovo: la pagina di TIDAL si apre nel browser, perché il suo controllo anti-bot la bloccava dentro l’app. Album salvati e artisti seguiti su TIDAL hanno ora i permessi necessari. ListenBrainz aspetta quando raggiunge il limite di richieste invece di fermarsi, e una connessione che cade viene ritentata.
