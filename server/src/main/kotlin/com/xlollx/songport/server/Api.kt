@@ -281,6 +281,27 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             val text = if (format == ExportFormat.CSV) f.readText() else format.encode(f.nameWithoutExtension, com.xlollx.songport.sync.CsvCodec.parse(f.readText()))
             send(ex, 200, text, format.mime)
         }
+        rest == listOf("lyrics") && (method == "GET" || method == "POST") -> {
+            if (edition != Html.Edition.SERVER || !env.may(Permissions.ADMIN)) return error(403, "Lyrics are for whoever runs the Docker server.")
+            val root = Lyrics.musicDir ?: return error(409, "No music folder: mount it and set SONGPORT_MUSIC (see the guide, Lyrics).")
+            if (method == "GET") return json(200, buildJsonObject {
+                put("folder", root.path)
+                put("running", Tasks.running(Lyrics.TITLE))
+                put("weekly", Lyrics.weekly(env))
+                put("lastRun", Lyrics.lastRun(env)?.let { s ->
+                    buildJsonObject {
+                        put("at", s.at); put("files", s.files); put("saved", s.saved); put("synced", s.synced); put("plain", s.plain)
+                        put("hadLyrics", s.had); put("instrumental", s.instrumental); put("notFound", s.missing); put("unreadable", s.unreadable)
+                    }
+                } ?: JsonNull)
+            })
+            if (Tasks.running(Lyrics.TITLE)) return error(409, "Lyrics are already being looked for.")
+            val folder = query["folder"].orEmpty()
+            if (Lyrics.target(root, folder) == null) return error(400, "$folder is not a folder of the library.")
+            val options = Lyrics.Options(folder, syncedOnly = query["synced"] == "true", retryMissing = query["retry"] == "true")
+            val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
+            json(202, buildJsonObject { put("task", task.id) })
+        }
         else -> error(404, "Unknown call. See https://xlollx.github.io/Trackhop/guide/docker#api")
     }
 }

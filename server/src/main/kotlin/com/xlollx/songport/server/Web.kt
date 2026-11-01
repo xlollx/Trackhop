@@ -57,7 +57,7 @@ class Web(
     private val auth: Auth,
     private val password: String?,
     internal val version: String,
-    private val edition: Html.Edition = Html.Edition.SERVER,
+    internal val edition: Html.Edition = Html.Edition.SERVER,
     /** Desktop: stops the app (the page's "Quit" button). */
     private val onQuit: (() -> Unit)? = null,
     /** Desktop: brings its window up (a second start asks the running one). */

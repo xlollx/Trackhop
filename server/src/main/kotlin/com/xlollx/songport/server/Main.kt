@@ -81,6 +81,7 @@ class Config(
 fun main() {
     System.setProperty("java.awt.headless", "true")
     val config = Config(System.getenv())
+    Lyrics.configure(System.getenv())
     if (config.multiUser) {
         if (config.password != null) { MultiUser.serve(config, System.getenv()); return }
         println("SONGPORT_MULTIUSER needs SONGPORT_PASSWORD, the admin's password: starting for one person.")
@@ -123,7 +124,7 @@ fun launch(
     // A first start: the services the server offers are not listed until the user adds them, as in the app.
     if (!env.store.data.settings.connectorsInit) env.store.updateSettings { it.copy(connectorsInit = true) }
 
-    val runner = Runner(env)
+    val runner = Runner(env, edition)
     val web = Web(env, runner, Auth(env), config.password, version, edition, onQuit, onShow, account, sharedRoot)
     return Launched(env, runner, web, version, config, edition)
 }

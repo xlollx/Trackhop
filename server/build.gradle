@@ -34,6 +34,8 @@ configurations {
 dependencies {
     implementation project(':core')
     implementation project(':ytm')
+    // Lyrics (Docker): the tags of the library's audio files (LGPL-2.1).
+    implementation 'net.jthink:jaudiotagger:3.0.1'
     compileOnly("org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:$swtVersion") { transitive = false }
     swtWindows("org.eclipse.platform:org.eclipse.swt.win32.win32.x86_64:$swtVersion") { transitive = false }
     swtLinux("org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:$swtVersion") { transitive = false }

@@ -102,6 +102,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "stats" -> statsPage(r)
         "api" -> apiPage(r)
         "config" -> configPage(r)
+        "lyrics" -> lyricsPage(r)
         else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
     }
 }
@@ -120,6 +121,10 @@ private fun Web.toolsIndex(r: Web.Req) {
     body.append("<h2>Clean up</h2>")
     tool("/tools/dedupe", "Duplicates", "The tracks a playlist has more than once, and the extra copies removed.")
     tool("/tools/unplayable", "Unplayable tracks", "The tracks a service still lists but no longer plays, replaced by a playable version.")
+    if (edition == Html.Edition.SERVER && env.may(Permissions.ADMIN)) {
+        body.append("<h2>Your library</h2>")
+        tool("/tools/lyrics", "Lyrics", "Lyrics for the music files of your server, saved next to them, where Navidrome, Jellyfin and Plex show them.")
+    }
     body.append("<h2>Connect</h2>")
     tool("/tools/api", "API and webhook", "Let Home Assistant, n8n or a script start syncs and read how they went; be told when a run ends.")
     body.append("<h2>Safety</h2>")

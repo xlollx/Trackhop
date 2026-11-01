@@ -5,6 +5,17 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## Unreleased
+
+- **Lyrics for your music library** (Docker only): mount the music folder, set `SONGPORT_MUSIC`, and
+  Tools › Lyrics saves the lyrics of each file next to it (`.lrc` synced, `.txt` plain) from LRCLIB,
+  where Navidrome, Jellyfin and Plex show them. Nothing is overwritten; a weekly pass for new files;
+  `GET`/`POST /api/v1/lyrics`.
+- **Fewer tracks not found**: before searching, titles also lose credits ("(with X)", "(con X)",
+  "(prod. X)"), localised remaster notes and "- <Album> Version"; "Don't" is searched as one word; an
+  artist field holding several names is also searched by the first one; ListenBrainz tries the title
+  without its decorations.
+
 ## 0.6.3
 
 - **ListenBrainz works as a target again**: its track lookup now wants the user token (and a new path),

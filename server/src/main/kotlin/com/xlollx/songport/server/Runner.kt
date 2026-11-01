@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
  * that wakes every minute and starts the syncs whose interval has passed since their last run, a
  * few at a time.
  */
-class Runner(private val env: ServerEnv) {
+class Runner(private val env: ServerEnv, private val edition: Html.Edition = Html.Edition.SERVER) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val slots = Semaphore(MAX_PARALLEL)
     /** A scheduled sync that found no network is tried again sooner than its next interval. */
@@ -93,6 +93,8 @@ class Runner(private val env: ServerEnv) {
                 env.store.data.jobs.filter { isDue(it, now) && !isRunning(it.id) }.forEach { start(it, scheduled = true) }
                 // The backup schedule (Tools › Full backup), as the app's BackupWorker.
                 if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }) { t -> Backups.run(env) { t.progress = it } }
+                // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
+                if (env.may(Permissions.ADMIN) && Lyrics.isDue(env, edition, now)) Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }) { t -> lyricsResult(Lyrics.run(env, Lyrics.Options()) { t.progress = it }) }
                 delay(TICK_MS)
             }
         }

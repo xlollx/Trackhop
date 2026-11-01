@@ -300,8 +300,49 @@ leave the home-screen app and not come back to it.
 The page's **Tools** are the app's: Export a playlist, File playlists (upload any format, download
 CSV, M3U, XSPF, JSPF or text), **Full backup** (by hand, daily or weekly, optionally copied to a
 folder: mount one, for example `-v /mnt/nas/trackhop:/backups`, and enter `/backups`),
-**Duplicates**, **Unplayable tracks** and **AI playlists**. Long runs go on in the background: their
+**Duplicates**, **Unplayable tracks**, **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
 page refreshes until the result, and you can leave it.
+
+## Lyrics
+
+Trackhop can give a music library on the server its lyrics: for each audio file without them, it
+asks [LRCLIB](https://lrclib.net), a free archive written by its users, and saves what it finds next
+to the file, synced lyrics as `<name>.lrc` and plain ones as `<name>.txt`. Navidrome, Jellyfin and
+Plex show them in their players after their next library scan. Only on Docker, not in the app or in
+Trackhop Desktop.
+
+Mount the music folder and name it in `SONGPORT_MUSIC`:
+
+```yaml
+services:
+  trackhop:
+    image: ghcr.io/xlollx/trackhop:latest
+    volumes:
+      - ./trackhop-data:/data
+      - /path/to/music:/music
+    environment:
+      SONGPORT_MUSIC: /music
+```
+
+The container runs as user 999, so it needs to be allowed to write in that folder (and only to add
+files; it changes none): `sudo setfacl -R -m u:999:rwX -m d:u:999:rwX /path/to/music` gives it that
+without changing the files' owner. Do not mount it `:ro`.
+
+Then **Tools › Lyrics** looks through the whole library or one folder of it. The artist, title,
+album and length come from the files' tags (or from names like `Artist - Title.mp3` when a file has
+none); a title with "Remastered", "(feat. …)" or "(with …)" is tried again without them, and the
+length has to match within a few seconds, so a live version does not get the studio lyrics.
+
+- Files that already have lyrics, beside them or in their tags, are left as they are; nothing is
+  overwritten.
+- A file LRCLIB does not know is asked again after a month, or now with *Ask again*. Anyone can add
+  the missing ones on lrclib.net.
+- *Every week* looks only at what has no lyrics yet, so new albums get theirs on their own.
+- *Synced lyrics only* skips the plain ones.
+
+For each file, its artist, title, album and length are sent to LRCLIB, nothing else. Lyrics are
+protected by copyright: they are for your own listening. On a server shared by several people,
+only the admin sees this tool.
 
 ## AI playlists
 
@@ -358,7 +399,8 @@ the container.
 | `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201) |
 | `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
 | `GET /api/v1/backup`, `POST /api/v1/backup` | The last full backup and its schedule; starts one (202, with a task id) |
-| `GET /api/v1/tasks/<id>` | A background task (a backup): progress, done, error |
+| `GET /api/v1/tasks/<id>` | A background task (a backup, lyrics): progress, done, error |
+| `GET /api/v1/lyrics`, `POST /api/v1/lyrics` | The music folder and the last lyrics run (files, saved, synced, plain, not found); starts one (202, with a task id): `?folder=Queen/Jazz` for one folder, `&synced=true` for synced lyrics only, `&retry=true` to ask again for the ones not found. [Lyrics](#lyrics) |
 | `GET /api/v1/config` (`?history=true`) | The whole set-up as a `.trackhop` file, as *Tools › Backup & restore* saves it |
 | `GET /api/v1/metrics` | Prometheus metrics: syncs, running, and per sync the last run's time, result, added, removed and not found |
 | `GET /api/v1/services/<service>/playlists` | A connected service's playlists (and its liked songs, saved albums… where it has them) |

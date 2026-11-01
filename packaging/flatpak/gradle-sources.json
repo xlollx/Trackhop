@@ -99,6 +99,20 @@
   },
   {
     "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/net/jthink/jaudiotagger/3.0.1/jaudiotagger-3.0.1.jar",
+    "sha512": "5675c79139ae51ea873960b33fba0443565b3572fec6a806ac69c76897664c594c3c4ea8b6295d212365b91a8d1a9c0c5073d299f6d6fc7b55013527eb3a7a22",
+    "dest": "maven-local/net/jthink/jaudiotagger/3.0.1",
+    "dest-filename": "jaudiotagger-3.0.1.jar"
+  },
+  {
+    "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/net/jthink/jaudiotagger/3.0.1/jaudiotagger-3.0.1.pom",
+    "sha512": "a9b15f4f2ffcc019019304978fb206d119231dd5e6ceeaf487c1b7b6bfb79a981bba823d468366ee4680da6d32804c8b59e876a7f11fd48a192e4e36955b91b4",
+    "dest": "maven-local/net/jthink/jaudiotagger/3.0.1",
+    "dest-filename": "jaudiotagger-3.0.1.pom"
+  },
+  {
+    "type": "file",
     "url": "https://repo.maven.apache.org/maven2/org/eclipse/platform/org.eclipse.swt.gtk.linux.x86_64/3.135.0/org.eclipse.swt.gtk.linux.x86_64-3.135.0.jar",
     "sha512": "671e6e0acc3510a998f5925168df2be98079524be605e11490c284dc339720939fc851014099e0a8459df39b26a15b608d4d6acd85d18af9df2b75e6e6e78882",
     "dest": "maven-local/org/eclipse/platform/org.eclipse.swt.gtk.linux.x86_64/3.135.0",
