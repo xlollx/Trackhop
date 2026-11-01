@@ -186,4 +186,26 @@ class TidalContractTest : ContractTest() {
         assertCall(s, "GET", api, "/v2/tracks")
         assertEquals("GBAAA0000001", s.query("filter[isrc]"))
     }
+
+    /** Regression (01/11/2026): the text goes in filter[query]; a query in the path is "Invalid resource ID". */
+    @Test fun searchByQueryFilterWithTheTracksIncluded() = runBlocking {
+        json("""{"data":[{"id":"sr-1","type":"searchResults","relationships":{"tracks":{"data":[{"id":"101","type":"tracks"}]}}}],"included":[${inc(1)}]}""")
+        json(artists)
+        val r = td.search(env, Track("x", "Song 1", listOf("Beyoncé")))
+        assertEquals(listOf("101"), r.map { it.id })
+        val s = next()
+        assertCall(s, "GET", api, "/v2/searchResults")
+        assertEquals("beyonce song 1", s.query("filter[query]"))
+        assertEquals("tracks", s.query("include"))
+    }
+
+    @Test fun searchReadsTheRelationshipWhenTheTracksAreNotIncluded() = runBlocking {
+        json("""{"data":{"id":"sr-1","type":"searchResults"}}""")
+        json("""{"data":[{"id":"101","type":"tracks"}],"included":[${inc(1)}]}""")
+        json(artists)
+        val r = td.search(env, Track("x", "Song 1", listOf("Beyoncé")))
+        assertEquals(listOf("101"), r.map { it.id })
+        next()
+        assertCall(next(), "GET", api, "/v2/searchResults/sr-1/relationships/tracks")
+    }
 }

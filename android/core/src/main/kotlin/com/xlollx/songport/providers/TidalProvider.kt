@@ -221,14 +221,12 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
                 if (r.isNotEmpty()) return r
             }
             val q = (listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }) + Matcher.searchTitle(track.title)).joinToString(" ")
-            val j = api(ctx, "GET", "$API/searchResults/${Http.enc(q)}/relationships/albums?countryCode=${cc(ctx)}&include=albums")
-            val ids = j["data"].arr.mapNotNull { it["id"].str }.take(5).toSet()
-            return albumsOf(ctx, j["included"].arr.filter { it["type"].str == "albums" && it["id"].str in ids })
+            val (ids, included) = searchFor(ctx, q, "albums")
+            return albumsOf(ctx, included.filter { it["type"].str == "albums" && it["id"].str in ids })
         }
         if (track.kind == Track.KIND_ARTIST) {
-            val j = api(ctx, "GET", "$API/searchResults/${Http.enc(track.title)}/relationships/artists?countryCode=${cc(ctx)}&include=artists")
-            val ids = j["data"].arr.mapNotNull { it["id"].str }.take(5).toSet()
-            return j["included"].arr.filter { it["type"].str == "artists" && it["id"].str in ids }.mapNotNull { artistFrom(it) }
+            val (ids, included) = searchFor(ctx, track.title, "artists")
+            return included.filter { it["type"].str == "artists" && it["id"].str in ids }.mapNotNull { artistFrom(it) }
         }
         if (track.kind == Track.KIND_PODCAST) return emptyList()
         track.isrcNorm?.let { isrc ->
@@ -237,10 +235,30 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             if (r.isNotEmpty()) return r
         }
         val q = (listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }) + Matcher.searchTitle(track.title)).joinToString(" ")
-        val j = api(ctx, "GET", "$API/searchResults/${Http.enc(q)}/relationships/tracks?countryCode=${cc(ctx)}&include=tracks")
-        val ids = j["data"].arr.mapNotNull { it["id"].str }.take(5).toSet()
-        val res = j["included"].arr.filter { it["type"].str == "tracks" && it["id"].str in ids }
-        return resolve(ctx, res)
+        val (ids, included) = searchFor(ctx, q, "tracks")
+        return resolve(ctx, included.filter { it["type"].str == "tracks" && it["id"].str in ids })
+    }
+
+    /**
+     * A catalogue search: the first five ids of [kind] (tracks, albums, artists) and the resources
+     * included with them. The text goes in filter[query] of GET /searchResults: the search id in
+     * /searchResults/{id}/… is an opaque id TIDAL issues, and a query there is "Invalid resource ID"
+     * (since late 2026). When the search answers without the [kind] included, its relationship is read.
+     */
+    private suspend fun searchFor(ctx: Env, query: String, kind: String): Pair<Set<String>, List<JsonElement>> {
+        val q = query.take(256)
+        val j = api(ctx, "GET", "$API/searchResults?countryCode=${cc(ctx)}&filter[query]=${Http.enc(q)}&include=$kind")
+        // "A collection containing exactly one search results resource": an array of one, or the object.
+        val result = j["data"].arr.firstOrNull() ?: j["data"]
+        var ids = result["relationships"][kind]["data"].arr.mapNotNull { it["id"].str }
+        var included = j["included"].arr
+        if (ids.isEmpty() || included.none { it["type"].str == kind }) {
+            val id = result["id"].str ?: return emptySet<String>() to emptyList()
+            val r = api(ctx, "GET", "$API/searchResults/${Http.enc(id)}/relationships/$kind?countryCode=${cc(ctx)}&include=$kind")
+            ids = r["data"].arr.mapNotNull { it["id"].str }
+            included = r["included"].arr
+        }
+        return ids.take(5).toSet() to included
     }
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
