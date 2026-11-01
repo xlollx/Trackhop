@@ -1,0 +1,1 @@
+Daha yeni bir Trackhop çıktığında üstte Ko-fi’nin yanında bir ok belirir: dokunmak onu indirir. GitHub günde iki kez kontrol edilir; Ayarlar → Hakkında’dan kapatılabilir. Uygulamayı F-Droid veya Obtainium yüklediyse görünmez: onlar günceller.

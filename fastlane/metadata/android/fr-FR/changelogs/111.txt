@@ -1,0 +1,1 @@
+Quand un Trackhop plus récent sort, une flèche apparaît en haut à côté de Ko-fi : un appui le télécharge. La vérification se fait sur GitHub deux fois par jour et se désactive dans Réglages → À propos. Elle reste cachée si F-Droid ou Obtainium a installé l’app : ils la mettent à jour eux-mêmes.

@@ -1,0 +1,1 @@
+Gibt es ein neueres Trackhop, erscheint oben neben Ko-fi ein Pfeil: ein Tipp lädt es herunter. Geprüft wird zweimal täglich auf GitHub, abschaltbar unter Einstellungen → Info. Hat F-Droid oder Obtainium die App installiert, bleibt er verborgen: sie aktualisieren sie selbst.

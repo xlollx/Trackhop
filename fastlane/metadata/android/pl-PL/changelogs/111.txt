@@ -1,0 +1,1 @@
+Gdy wyjdzie nowszy Trackhop, u góry obok Ko-fi pojawia się strzałka: dotknięcie go pobiera. Sprawdzanie GitHuba odbywa się dwa razy dziennie i można je wyłączyć w Ustawienia → Informacje. Strzałka się nie pokazuje, jeśli aplikację zainstalował F-Droid lub Obtainium: one ją aktualizują.

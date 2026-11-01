@@ -1,0 +1,1 @@
+When a newer Trackhop is out, an arrow appears next to Ko-fi at the top: a tap downloads it. It checks GitHub twice a day and can be turned off in Settings → About. It stays hidden when F-Droid or Obtainium installed the app: they update it themselves.

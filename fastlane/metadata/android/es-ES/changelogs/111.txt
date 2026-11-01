@@ -1,0 +1,1 @@
+Cuando sale un Trackhop más nuevo, aparece una flecha arriba junto a Ko-fi: un toque lo descarga. Consulta GitHub dos veces al día y se puede desactivar en Ajustes → Acerca de. No aparece si F-Droid u Obtainium instalaron la app: ellos la actualizan.

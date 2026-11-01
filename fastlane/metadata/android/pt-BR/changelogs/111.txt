@@ -1,0 +1,1 @@
+Quando sai um Trackhop mais novo, aparece uma seta no topo ao lado do Ko-fi: um toque faz o download. A verificação no GitHub é feita duas vezes por dia e pode ser desligada em Configurações → Sobre. Ela não aparece se o F-Droid ou o Obtainium instalou o app: eles mesmos o atualizam.
