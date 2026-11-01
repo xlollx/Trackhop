@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Personal servers (Navidrome/Subsonic, Jellyfin, Plex) are usually reached on the home network at
+  plain http://192.168.x.x or http://nas.local, which Android refuses by default since API 28
+  ("CLEARTEXT communication not permitted"). Their addresses are typed by the user, so no domain list
+  can name them: plain http is allowed where the user writes it. The online services Trackhop talks
+  to are all https, and only the system's certificate authorities are trusted.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
