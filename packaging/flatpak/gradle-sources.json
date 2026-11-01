@@ -99,6 +99,13 @@
   },
   {
     "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/net/java/jvnet-parent/1/jvnet-parent-1.pom",
+    "sha512": "22fb9b68f57380088955b5526bfc382da87332202bb4741def44af2ec340240d8d2ad1283ffcab0433175fe35ab5540a503aaf9a2e44aad1de005c8915bfabe8",
+    "dest": "maven-local/net/java/jvnet-parent/1",
+    "dest-filename": "jvnet-parent-1.pom"
+  },
+  {
+    "type": "file",
     "url": "https://repo.maven.apache.org/maven2/net/jthink/jaudiotagger/3.0.1/jaudiotagger-3.0.1.jar",
     "sha512": "5675c79139ae51ea873960b33fba0443565b3572fec6a806ac69c76897664c594c3c4ea8b6295d212365b91a8d1a9c0c5073d299f6d6fc7b55013527eb3a7a22",
     "dest": "maven-local/net/jthink/jaudiotagger/3.0.1",
