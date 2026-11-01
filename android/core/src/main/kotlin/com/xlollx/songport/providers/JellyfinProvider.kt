@@ -31,7 +31,8 @@ class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
     override val supportsLikedTarget = true
     override val supportsAlbums = true
     override val supportsArtists = true
-    override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_jellyfin")
+    // A Jellyfin user may have no password (the server allows it, as its public demo does): may stay empty.
+    override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_jellyfin", secretOptional = true)
 
     // Client and DeviceId stay "Songport" after the rename to Trackhop: they are identifiers, not a
     // name the user reads, and Jellyfin files existing sign-ins under them in its Devices list.
