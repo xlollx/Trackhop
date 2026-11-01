@@ -72,5 +72,5 @@ does not pay twice, **Another cover** asks for a new one, **Save cover** keeps i
 ## Sharing and saving
 
 **Share** opens the system share sheet with the PNG; **Save image** asks where to put the file.
-Cards carry a small "Trackhop · xlollx.github.io/Trackhop" line at the bottom: that is how people
+Cards carry a small "Trackhop · trackhop.org" line at the bottom: that is how people
 who see one find the app.

@@ -13,8 +13,8 @@ Users can still switch to their own credentials in the app.
 ## 2. Google Auth Platform
 
 1. **Branding**: app name `Trackhop`, user support e-mail, app logo (`docs/store/icon512.png`
-   scaled to 120×120), application home page `https://xlollx.github.io/Trackhop/`, privacy policy
-   `https://xlollx.github.io/Trackhop/privacy-policy`, terms of service (optional), authorized
+   scaled to 120×120), application home page `https://trackhop.org/`, privacy policy
+   `https://trackhop.org/privacy-policy`, terms of service (optional), authorized
    domain `xlollx.github.io`, developer contact e-mail.
 2. **Audience**: user type **External**. While the app is in *Testing*, only the listed test users
    (max 100) can log in. Press **Publish app** when you are ready for verification.
@@ -50,7 +50,7 @@ Prepare, in this order:
 1. **Home page** on the authorized domain that describes the app and how it uses Google user data
    (`docs/index.md` already does), linking to the privacy policy.
 2. **Domain ownership**: Google Search Console → add the URL-prefix property
-   `https://xlollx.github.io/Trackhop/` and verify it with the HTML file method (drop the file in
+   `https://trackhop.org/` and verify it with the HTML file method (drop the file in
    `docs/`). The account doing this must be an owner of the Cloud project.
 3. **Demo video** (unlisted YouTube video, 1–3 minutes): open the app, tap Connect on YouTube
    Music, show the Google consent screen with the app name and the requested permission, complete

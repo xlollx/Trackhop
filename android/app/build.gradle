@@ -48,7 +48,7 @@ def admobBannerId = admobLive ? cfg('ADMOB_BANNER_ID', 'ca-app-pub-8339336051440
 def admobTestDevices = cfg('ADMOB_TEST_DEVICES', '')
 def kofiUrl       = cfg('KOFI_URL', 'https://ko-fi.com/xlollx')
 def sponsorsUrl   = cfg('SPONSORS_URL', 'https://github.com/sponsors/xlollx')
-def privacyUrl    = cfg('PRIVACY_POLICY_URL', 'https://xlollx.github.io/Trackhop/privacy-policy')
+def privacyUrl    = cfg('PRIVACY_POLICY_URL', 'https://trackhop.org/privacy-policy')
 
 def hasReleaseKey = System.getenv('KEYSTORE_FILE') != null && !System.getenv('KEYSTORE_FILE').isEmpty()
 

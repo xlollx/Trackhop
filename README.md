@@ -10,14 +10,14 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases"><img src="https://img.shields.io/github/downloads/xlollx/Trackhop/total" alt="Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue" alt="License: GPL-3.0-only"></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-3ddc84" alt="Android 8.0+">
-  <a href="https://xlollx.github.io/Trackhop/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
-  <a href="https://xlollx.github.io/Trackhop/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-desktop.json&label=Desktop%20on%20VirusTotal" alt="Trackhop Desktop's files on VirusTotal"></a>
+  <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
+  <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-desktop.json&label=Desktop%20on%20VirusTotal" alt="Trackhop Desktop's files on VirusTotal"></a>
 </p>
 
 > **Songport is now Trackhop.** Same app, same code, same updates. The name changed because an
 > unrelated service called "SongPort", a music link converter, works in the same space, and two apps
 > with one name confuse people. Your installed app updates normally and keeps all its data; only the
-> name and the web addresses changed (github.com/xlollx/Trackhop, xlollx.github.io/Trackhop), and old
+> name and the web addresses changed (github.com/xlollx/Trackhop, trackhop.org), and old
 > links keep working.
 
 <p align="center">
@@ -33,9 +33,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>On a computer or a server?</b> <sub>(beta)</sub><br>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v0.6.3/Trackhop-Desktop-v0.6.3-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://xlollx.github.io/Trackhop/guide/desktop#macos"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://trackhop.org/guide/desktop#macos"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v0.6.3/Trackhop-Desktop-v0.6.3-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
-  <a href="https://xlollx.github.io/Trackhop/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
+  <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
 </p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, tools, a shared track, the compatibility and poster cards, unplayable tracks, settings"></p>
@@ -71,7 +71,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   Using it and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
   (GitHub only, read its notes first), or switch to the F-Droid/GitHub build above, which has them
-  built in. [Which Trackhop?](https://xlollx.github.io/Trackhop/guide/versions) compares the two.
+  built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares the two.
 - **Desktop (Windows, macOS, Linux, beta)**: works for everyday use, still young. The same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
   next to the clock and the same web page as the server. Version 0.6.3 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v0.6.3)):
@@ -82,39 +82,39 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v0.6.3/Trackhop-Desktop-v0.6.3-linux.deb) ·
   [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v0.6.3/Trackhop-Desktop-v0.6.3-linux.tar.gz) ·
   [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v0.6.3/Trackhop-Desktop-v0.6.3-linux.flatpak). See the
-  [Desktop guide](https://xlollx.github.io/Trackhop/guide/desktop); every version is in the
+  [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
   then `scoop install xlollx/trackhop`; with [Homebrew](https://github.com/xlollx/homebrew-tap) on a Mac:
   `brew install --cask xlollx/tap/trackhop`. The Mac app is not signed by Apple: the first time,
-  *System Settings › Privacy & Security › Open Anyway* ([how](https://xlollx.github.io/Trackhop/guide/desktop#macos)). On the [Microsoft Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P) (official connections only), also with
+  *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)). On the [Microsoft Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P) (official connections only), also with
   `winget install 9PFX74Q2XN9P`. *Coming soon, not live yet:* `winget install xlollx.Trackhop`,
   `choco install trackhop` (both in review), and
   `flatpak install flathub io.github.xlollx.Trackhop` ([packaging/](packaging/README.md)).
 - **Server (Docker, beta)**: works for everyday use, still young. The same engine on a home server or a NAS, with a web page and
   scheduled syncs: `docker run -p 8080:8080 -v trackhop-data:/data ghcr.io/xlollx/trackhop`. Official
   APIs, personal servers and YouTube Music with pasted cookies (unofficial); see the
-  [Docker guide](https://xlollx.github.io/Trackhop/guide/docker). To update: `docker pull ghcr.io/xlollx/trackhop`,
+  [Docker guide](https://trackhop.org/guide/docker). To update: `docker pull ghcr.io/xlollx/trackhop`,
   then remove and start the container again (the data stays in its volume). The same image is also on
   [Docker Hub](https://hub.docker.com/r/xlollx/trackhop): `docker pull xlollx/trackhop`. For the whole
   household, `SONGPORT_MULTIUSER=true`: each person signs in and has their own services and syncs
-  ([how](https://xlollx.github.io/Trackhop/guide/docker#several-people-on-one-server)).
+  ([how](https://trackhop.org/guide/docker#several-people-on-one-server)).
 - Desktop and Docker also have **radio syncs**: Trackhop listens to an internet radio in the hours
   you choose and saves the songs it plays to a playlist on any service
-  ([how](https://xlollx.github.io/Trackhop/guide/docker#radio-syncs)), and **Shazam syncs**, like the
-  app's ([how](https://xlollx.github.io/Trackhop/guide/shazam)).
+  ([how](https://trackhop.org/guide/docker#radio-syncs)), and **Shazam syncs**, like the
+  app's ([how](https://trackhop.org/guide/shazam)).
 - Desktop and Docker also have a **REST API and a webhook**, for Home Assistant, n8n, Node-RED or a
   script: list and start syncs, read their results, add and remove tracks in any connected
   service's playlists, get notified when a run ends. See
   [Automation: REST API and webhook](#automation-rest-api-and-webhook).
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
-  container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://xlollx.github.io/Trackhop/guide/cli).
+  container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
 - Desktop and Docker have their **own version** (now 0.6.3), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
-New here? The **[guide](https://xlollx.github.io/Trackhop/guide/)** covers getting started and the
+New here? The **[guide](https://trackhop.org/guide/)** covers getting started and the
 common errors.
 
 ### Good to know
@@ -185,8 +185,8 @@ that is exactly what to report.
 | | Bidirectional | One switch creates the reverse twin sync without removals; the two are deleted together. |
 | | Keep the source order | After the adds, the target is put in the source's order; Spotify (both routes), YouTube Music and Deezer can move tracks. |
 | | "Liked songs" as source or target | Spotify, Deezer, Subsonic, Jellyfin, Last.fm, ListenBrainz. |
-| | Shazam sync | Every song you Shazam, in a playlist of your choice on any service. Shazam has no API for your library, so nothing unofficial is used: in Shazam's settings, connect Spotify or Apple Music and Shazam keeps every Shazam in a "My Shazam Tracks" playlist there; "Shazam" as the source in the editor finds that playlist on your connected account (or says how to turn it on) and syncs it hourly. The card wears Shazam's mark. Also on Desktop and Docker (Spotify). [Guide](https://xlollx.github.io/Trackhop/guide/shazam). |
-| | Radio sync | The songs an internet radio plays in the hours you choose (days, from, to; past midnight too), in a playlist on any service. Find the station by name in radio-browser.info or paste its stream; only the song title the station sends with its stream is read, never the audio, and adverts, news and the station's name are left out. On the phone the stream is sampled every 2 minutes (a few seconds each, a few MB an hour), on Wi‑Fi by default, from a quiet "Listening to …" notification; the songs are synced every 10 minutes and when the window closes. The card wears a radio and says what is on air. Also on Desktop and Docker. [Guide](https://xlollx.github.io/Trackhop/guide/radio). |
+| | Shazam sync | Every song you Shazam, in a playlist of your choice on any service. Shazam has no API for your library, so nothing unofficial is used: in Shazam's settings, connect Spotify or Apple Music and Shazam keeps every Shazam in a "My Shazam Tracks" playlist there; "Shazam" as the source in the editor finds that playlist on your connected account (or says how to turn it on) and syncs it hourly. The card wears Shazam's mark. Also on Desktop and Docker (Spotify). [Guide](https://trackhop.org/guide/shazam). |
+| | Radio sync | The songs an internet radio plays in the hours you choose (days, from, to; past midnight too), in a playlist on any service. Find the station by name in radio-browser.info or paste its stream; only the song title the station sends with its stream is read, never the audio, and adverts, news and the station's name are left out. On the phone the stream is sampled every 2 minutes (a few seconds each, a few MB an hour), on Wi‑Fi by default, from a quiet "Listening to …" notification; the songs are synced every 10 minutes and when the window closes. The card wears a radio and says what is on air. Also on Desktop and Docker. [Guide](https://trackhop.org/guide/radio). |
 | | Saved albums, followed artists, podcasts | Sync or transfer them like a playlist (Spotify, Deezer, Subsonic/Navidrome, Jellyfin; Apple Music albums, add only). Matched by UPC where available, then title and artist; the review works the same. YouTube Music and TIDAL not yet. |
 | Preview | What would change, before doing it | Already present, to add, to remove, not found, uncertain. |
 | Matching | Rules per sync | Strictness, explicit or clean preference, same album, studio versions only. |
@@ -240,7 +240,7 @@ that is exactly what to report.
 | ListenBrainz | read-only, beta | username | nothing | Playlists and loved tracks, source only. |
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
 | SoundCloud | public links, read-only, unofficial; GitHub/F-Droid build and server only | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
-| NetEase Cloud Music, QQ Music | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist link | nothing | No interface for third-party apps, so a public playlist is read the way the sites' own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. [More](https://xlollx.github.io/Trackhop/guide/netease-qq-music). |
+| NetEase Cloud Music, QQ Music | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist link | nothing | No interface for third-party apps, so a public playlist is read the way the sites' own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. [More](https://trackhop.org/guide/netease-qq-music). |
 | Qobuz, Pandora | not connectable | | | Partner-only or closed-beta APIs. Use files. |
 
 Own credentials are entered from *Accounts → service card → Use your own credentials*: numbered
@@ -300,7 +300,7 @@ first sign-in, in the Bridge and in the built-in connectors alike. Passwords are
 services' own pages and are never seen or stored; the session cookies stay encrypted on the phone,
 and the sync engine gets only data or short-lived tokens.
 
-User-facing page: [xlollx.github.io/Trackhop/plugins](https://xlollx.github.io/Trackhop/plugins).
+User-facing page: [trackhop.org/plugins](https://trackhop.org/plugins).
 
 ### Two distributions of Trackhop
 
@@ -360,7 +360,7 @@ notification when tracks were not found, and a `rest_command` that starts every 
 **Grafana.** Point Prometheus at `/api/v1/metrics` with the token as `bearer_token` to chart what
 every sync adds and misses, and alert when one fails.
 
-Details and more examples: [Docker guide › API](https://xlollx.github.io/Trackhop/guide/docker#api).
+Details and more examples: [Docker guide › API](https://trackhop.org/guide/docker#api).
 
 ## How tracks are matched
 

@@ -23,7 +23,7 @@ the `/data` volume. The image runs on `amd64` and `arm64`.
 
 For the whole household, add `-e SONGPORT_MULTIUSER=true`: you sign in as `admin` with the password,
 add the others in **Users**, and each person has their own services and syncs
-([how](https://xlollx.github.io/Trackhop/guide/docker#several-people-on-one-server)).
+([how](https://trackhop.org/guide/docker#several-people-on-one-server)).
 
 ## Tags
 
@@ -35,7 +35,7 @@ The same image is on the GitHub Container Registry as `ghcr.io/xlollx/trackhop`.
 
 ## More
 
-- [The Docker guide](https://xlollx.github.io/Trackhop/guide/docker): Docker Compose, settings,
+- [The Docker guide](https://trackhop.org/guide/docker): Docker Compose, settings,
   services, reverse proxy, API.
 - [Source code](https://github.com/xlollx/Trackhop) (GPL-3.0-only) and
   [issues](https://github.com/xlollx/Trackhop/issues).

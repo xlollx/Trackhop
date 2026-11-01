@@ -1,6 +1,6 @@
 # Trackhop server: the sync engine of the Android app behind a small web page, for a server or a NAS.
 # Build from the repository root:  docker build -f server/Dockerfile -t trackhop .
-# Guide: docs/guide/docker.md (https://xlollx.github.io/Trackhop/guide/docker)
+# Guide: docs/guide/docker.md (https://trackhop.org/guide/docker)
 
 # The build stage runs on the builder's own platform: its output is JVM bytecode, the same for every
 # architecture, so a multi-platform image (amd64, arm64 for a NAS or a Raspberry Pi) compiles once.

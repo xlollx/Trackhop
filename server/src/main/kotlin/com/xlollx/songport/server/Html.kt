@@ -18,8 +18,8 @@ object Html {
     /** Where the engine runs: in a container ([SERVER]) or as an app on the user's computer ([DESKTOP]). */
     /** [stage]: the server on Docker is a beta since 0.4.0, Trackhop Desktop since 0.4.1. */
     enum class Edition(val product: String, val guide: String, val stage: String) {
-        SERVER("Trackhop server", "https://xlollx.github.io/Trackhop/guide/docker", "beta"),
-        DESKTOP("Trackhop Desktop", "https://xlollx.github.io/Trackhop/guide/desktop", "beta"),
+        SERVER("Trackhop server", "https://trackhop.org/guide/docker", "beta"),
+        DESKTOP("Trackhop Desktop", "https://trackhop.org/guide/desktop", "beta"),
     }
 
     /** The Trackhop mark (the app's ic_brand_mark), white, for the header's tile. */
@@ -105,7 +105,7 @@ ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
 </head><body>
 <header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop <span class="${edition.stage}">${edition.stage}</span></a>
 ${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}</header>
-<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://xlollx.github.io/Trackhop/guide/reporting-a-problem">report what goes wrong</a>.</p>
+<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>
 <main>
 ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""}
 <h1>${h(title)}</h1>

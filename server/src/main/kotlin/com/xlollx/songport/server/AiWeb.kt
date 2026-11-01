@@ -75,7 +75,7 @@ internal fun Web.aiTool(r: Web.Req) {
     }
     body.append(
         """<h2>Your AI</h2><form method="post" action="/tools/ai" class="card"><input type="hidden" name="action" value="settings">
-<p class="muted">Trackhop has no AI of its own: use yours. Free ways: an <a href="https://openrouter.ai/keys">OpenRouter</a> key with a <code>:free</code> model, a <a href="https://console.groq.com/keys">Groq</a> key, a <a href="https://aistudio.google.com/apikey">Gemini</a> key; or a model on your own machine (Ollama, LM Studio): choose <i>OpenAI-compatible</i> and its address, no key needed. <a href="https://xlollx.github.io/Trackhop/guide/docker#ai-playlists">More</a></p>
+<p class="muted">Trackhop has no AI of its own: use yours. Free ways: an <a href="https://openrouter.ai/keys">OpenRouter</a> key with a <code>:free</code> model, a <a href="https://console.groq.com/keys">Groq</a> key, a <a href="https://aistudio.google.com/apikey">Gemini</a> key; or a model on your own machine (Ollama, LM Studio): choose <i>OpenAI-compatible</i> and its address, no key needed. <a href="https://trackhop.org/guide/docker#ai-playlists">More</a></p>
 <label>Service</label><select name="vendor">$vendors</select>
 <label>Key${if (config?.apiKey?.isNotBlank() == true) " (saved: leave empty to keep it)" else ""}</label><input type="password" name="key" autocomplete="off">
 <label>Model</label><input type="text" name="model" value="${h(config?.model)}" placeholder="for example meta-llama/llama-3.3-70b-instruct:free, llama-3.3-70b-versatile, gemini-2.0-flash, llama3.2">

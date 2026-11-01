@@ -166,11 +166,11 @@ jobs:
           awk -v v="$v" '/^## /{p = ($2 == v)} p && !/^## /' server/CHANGELOG.md > notes.md
           cat >> notes.md <<EOF
 
-          **Docker:** \`docker pull ghcr.io/xlollx/trackhop:$v\` (or \`:latest\`). [Docker guide](https://xlollx.github.io/Trackhop/guide/docker) · [Desktop guide](https://xlollx.github.io/Trackhop/guide/desktop)
+          **Docker:** \`docker pull ghcr.io/xlollx/trackhop:$v\` (or \`:latest\`). [Docker guide](https://trackhop.org/guide/docker) · [Desktop guide](https://trackhop.org/guide/desktop)
 
           The \`.msix\` is the package for the Microsoft Store, unsigned: it does not install by itself; use the \`.msi\` or the \`.zip\`.
 
-          **macOS:** \`-macos-arm64.dmg\` for Apple silicon (M1 and later), \`-macos-x64.dmg\` for Intel Macs. Not signed by Apple: the first time, macOS refuses to open it; then *System Settings › Privacy & Security › Open Anyway* ([how](https://xlollx.github.io/Trackhop/guide/desktop#macos)).
+          **macOS:** \`-macos-arm64.dmg\` for Apple silicon (M1 and later), \`-macos-x64.dmg\` for Intel Macs. Not signed by Apple: the first time, macOS refuses to open it; then *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)).
 
           **Flatpak (Linux):** \`flatpak install --user Trackhop-Desktop-v$v-linux.flatpak\`, then *Trackhop* in the menu (needs Flathub's GNOME runtime, which Flatpak offers to install).
           EOF

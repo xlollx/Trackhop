@@ -51,7 +51,7 @@ object Cards {
     private const val INK = 0xFF14121A.toInt()
     private const val PANEL = 0x2EFFFFFF
     private const val PANEL_LINE = 0x40FFFFFF
-    private const val SITE = "xlollx.github.io/Trackhop"
+    private const val SITE = "trackhop.org"
 
     /** What the compatibility card shows: names, score, the common tracks with covers. */
     class CompatibilityCard(val nameA: String, val nameB: String, val result: Compatibility.Result, val covers: Map<String, Bitmap?>)

@@ -41,8 +41,8 @@
     <binary>trackhop</binary>
   </provides>
 
-  <url type="homepage">https://xlollx.github.io/Trackhop/</url>
-  <url type="help">https://xlollx.github.io/Trackhop/guide/desktop</url>
+  <url type="homepage">https://trackhop.org/</url>
+  <url type="help">https://trackhop.org/guide/desktop</url>
   <url type="bugtracker">https://github.com/xlollx/Trackhop/issues</url>
   <url type="vcs-browser">https://github.com/xlollx/Trackhop</url>
 

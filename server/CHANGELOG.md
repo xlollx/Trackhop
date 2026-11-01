@@ -46,7 +46,7 @@ the Docker image carried the app's version.
   for each person, co-admin (manages the others), the unofficial connectors, radio syncs, folders on
   the server and the API with the command line. A new person gets everything but co-admin, and so do
   the people added with 0.6.0. Each person sees theirs under their name.
-  [How](https://xlollx.github.io/Trackhop/guide/docker#several-people-on-one-server).
+  [How](https://trackhop.org/guide/docker#several-people-on-one-server).
 - **A forgotten password**: the Users page sets a new one for anyone (*Forgot the password?*), and
   says where the admin's own is (`SONGPORT_PASSWORD` in the container's settings).
 - Trackhop Desktop: no changes.
@@ -59,7 +59,7 @@ the Docker image carried the app's version.
   `SONGPORT_PASSWORD`) adds and removes people in **Users** and keeps what the server had before.
   A real sign-in page with a sign-out, scheduled syncs for everyone, `trackhop --user <name>` on the
   command line, an API token per person. Without the setting nothing changes.
-  [How](https://xlollx.github.io/Trackhop/guide/docker#several-people-on-one-server).
+  [How](https://trackhop.org/guide/docker#several-people-on-one-server).
 - Trackhop Desktop: no changes.
 
 ## 0.5.6
@@ -67,13 +67,13 @@ the Docker image carried the app's version.
 - **NetEase Cloud Music and QQ Music as sources**: a public playlist link of 网易云音乐 or QQ音乐 as
   the source of a sync, read-only and with no Chinese account, like SoundCloud's links. Not in the
   Microsoft Store build, which carries official connectors only.
-  [How](https://xlollx.github.io/Trackhop/guide/netease-qq-music).
+  [How](https://trackhop.org/guide/netease-qq-music).
 
 ## 0.5.5
 
 - **On the phone, as an app**: the server's page can be added to the home screen and opens full
   screen, like an app (a PWA: manifest, icons, a service worker that keeps nothing and says so when
-  the server cannot be reached). [How](https://xlollx.github.io/Trackhop/guide/docker#on-your-phone-as-an-app).
+  the server cannot be reached). [How](https://trackhop.org/guide/docker#on-your-phone-as-an-app).
 - **Fixed**: a radio sync could find its playlist empty when a new song was being saved at the
   same moment, and add nothing that run. Playlist files are now written whole and swapped in.
 
@@ -84,7 +84,7 @@ the Docker image carried the app's version.
   Scheduler. It talks to the Trackhop running on the same computer or in the same container with
   nothing to set up (a key Trackhop leaves in its data folder, accepted from this machine only),
   or to a server elsewhere with its API token. Desktop: `trackhop-cli` (`trackhop` with Scoop and
-  Chocolatey); Docker: `docker exec trackhop trackhop …`. [The guide](https://xlollx.github.io/Trackhop/guide/cli).
+  Chocolatey); Docker: `docker exec trackhop trackhop …`. [The guide](https://trackhop.org/guide/cli).
 - **macOS**: Trackhop Desktop for Apple silicon and Intel Macs, as a `.dmg`. Not signed by Apple:
   the first time, *System Settings › Privacy & Security › Open Anyway*. On the Mac its pages open in
   the browser, with its icon in the menu bar.

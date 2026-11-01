@@ -302,7 +302,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
             json(202, buildJsonObject { put("task", task.id) })
         }
-        else -> error(404, "Unknown call. See https://xlollx.github.io/Trackhop/guide/docker#api")
+        else -> error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
     }
 }
 
@@ -323,7 +323,7 @@ internal fun Web.apiPage(r: Web.Req) {
         }
     }
     val body = StringBuilder(notice(r))
-    body.append("""<div class="card"><p>Other tools (Home Assistant, n8n, Node-RED, a script) can list the syncs, start them and read how they went, through a small JSON API at <code>${h(env.baseUrl)}/api/v1</code>. <a href="https://xlollx.github.io/Trackhop/guide/docker#api">The calls</a></p>""")
+    body.append("""<div class="card"><p>Other tools (Home Assistant, n8n, Node-RED, a script) can list the syncs, start them and read how they went, through a small JSON API at <code>${h(env.baseUrl)}/api/v1</code>. <a href="https://trackhop.org/guide/docker#api">The calls</a></p>""")
     if (shown != null) {
         body.append("""<div class="card ok"><b>Your token</b>: copy it now, it is not shown again.<pre>${h(shown)}</pre><span class="muted">Send it as <code>Authorization: Bearer …</code></span></div>""")
     }

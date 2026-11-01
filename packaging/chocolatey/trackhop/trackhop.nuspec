@@ -9,12 +9,12 @@
     <title>Trackhop Desktop</title>
     <authors>xlollx</authors>
     <owners>xlollx</owners>
-    <projectUrl>https://xlollx.github.io/Trackhop/</projectUrl>
+    <projectUrl>https://trackhop.org/</projectUrl>
     <projectSourceUrl>https://github.com/xlollx/Trackhop</projectSourceUrl>
     <packageSourceUrl>https://github.com/xlollx/Trackhop/tree/main/packaging/chocolatey</packageSourceUrl>
-    <docsUrl>https://xlollx.github.io/Trackhop/guide/desktop</docsUrl>
+    <docsUrl>https://trackhop.org/guide/desktop</docsUrl>
     <bugTrackerUrl>https://github.com/xlollx/Trackhop/issues</bugTrackerUrl>
-    <iconUrl>https://xlollx.github.io/Trackhop/store/icon512.png</iconUrl>
+    <iconUrl>https://trackhop.org/store/icon512.png</iconUrl>
     <licenseUrl>https://github.com/xlollx/Trackhop/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>Copyright (c) xlollx, GPL-3.0-only</copyright>

@@ -15,7 +15,7 @@ internal fun Web.lyricsPage(r: Web.Req) {
       - /path/to/music:/music
     environment:
       - SONGPORT_MUSIC=/music</pre>
-<p><a href="https://xlollx.github.io/Trackhop/guide/docker#lyrics">How it works</a></p></div>"""))
+<p><a href="https://trackhop.org/guide/docker#lyrics">How it works</a></p></div>"""))
     }
     if (r.method == "POST") {
         when (r.form["action"]) {

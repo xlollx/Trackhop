@@ -419,7 +419,7 @@ class Web(
 
     private fun ytmNote(): String = """<div class="card"><p><span class="badge">unofficial</span> <span class="alpha">alpha</span></p>
 <p>YouTube Music through the music.youtube.com web player, signed in with the cookies of a browser where you are signed in. Not an official API: Google can change it, or block it, at any time.</p>
-<p class="muted">Without the app's hidden browser every call is plain HTTP, which Google's abuse detection stops sooner, above all from a datacenter address: a server at home works best. When Google blocks this network, open music.youtube.com in a browser on the same network as this server, pass Google's check, then paste fresh cookies here. Signing out in that browser ends these cookies too. <a href="https://xlollx.github.io/Trackhop/guide/docker#youtube-music-unofficial">How to copy them</a></p></div>"""
+<p class="muted">Without the app's hidden browser every call is plain HTTP, which Google's abuse detection stops sooner, above all from a datacenter address: a server at home works best. When Google blocks this network, open music.youtube.com in a browser on the same network as this server, pass Google's check, then paste fresh cookies here. Signing out in that browser ends these cookies too. <a href="https://trackhop.org/guide/docker#youtube-music-unofficial">How to copy them</a></p></div>"""
 
     /**
      * Spotify and Deezer without a key: the cookie that names the account is HttpOnly, so it is copied
@@ -440,7 +440,7 @@ class Web(
         }
         return """<div class="card"><p><span class="badge">unofficial</span> <span class="alpha">alpha</span></p>
 <p>${h(about)} Signed in with the cookies of a browser where you are signed in. Not an official API: against $service's terms, it can stop working whenever the player changes.</p>
-<p class="muted">In a desktop browser signed in to ${h(p.cookieSite)}, open the developer tools (F12), then <b>Application</b> (<b>Storage</b> in Firefox) › <b>Cookies</b> › <code>https://${h(p.cookieSite)}</code>, and copy $cookie as <code>name=value; name=value</code>. The <code>cookie:</code> header of any request to the site, a cookies.txt or a cookie-editor JSON export work too. They are as good as your password; signing out in that browser ends them: paste fresh ones then. <a href="https://xlollx.github.io/Trackhop/guide/docker#spotify-and-deezer-without-a-key-unofficial">How to copy them</a></p></div>"""
+<p class="muted">In a desktop browser signed in to ${h(p.cookieSite)}, open the developer tools (F12), then <b>Application</b> (<b>Storage</b> in Firefox) › <b>Cookies</b> › <code>https://${h(p.cookieSite)}</code>, and copy $cookie as <code>name=value; name=value</code>. The <code>cookie:</code> header of any request to the site, a cookies.txt or a cookie-editor JSON export work too. They are as good as your password; signing out in that browser ends them: paste fresh ones then. <a href="https://trackhop.org/guide/docker#spotify-and-deezer-without-a-key-unofficial">How to copy them</a></p></div>"""
     }
 
     /** The pasted cookies: a Cookie header, cookies.txt or a JSON export, and optionally the browser's user agent. */

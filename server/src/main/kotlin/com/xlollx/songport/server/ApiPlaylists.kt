@@ -71,7 +71,7 @@ internal object ApiPlaylists {
                     sub.size == 3 && sub[0] == "playlists" && sub[2] == "tracks" && method == "DELETE" -> remove(env, p, sub[1], ex, json, error)
                     // For tools that cannot send a body with DELETE.
                     sub.size == 4 && sub[0] == "playlists" && sub[2] == "tracks" && sub[3] == "remove" && method == "POST" -> remove(env, p, sub[1], ex, json, error)
-                    else -> error(404, "Unknown call. See https://xlollx.github.io/Trackhop/guide/docker#api")
+                    else -> error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
                 }
             }
         }

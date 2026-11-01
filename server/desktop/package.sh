@@ -76,14 +76,14 @@ if [ "$os" = windows ]; then
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
     --win-per-user-install --win-menu --win-menu-group Trackhop --win-shortcut \
     --win-upgrade-uuid 5b8f3c1e-7a2d-4e9b-9c61-2f0d8a4b7e13 \
-    --about-url https://xlollx.github.io/Trackhop/guide/desktop
+    --about-url https://trackhop.org/guide/desktop
   mv "$work"/Trackhop-*.msi "dist/$name-windows.msi"
 elif [ "$os" = macos ]; then
   # Ad-hoc signed (no certificate): Apple silicon runs nothing unsigned. Not notarized.
   codesign --force --deep --sign - "$work/out/Trackhop.app"
   jpackage --type dmg --app-image "$work/out/Trackhop.app" --name Trackhop --dest "$work" \
     --app-version "$appVersion" --vendor xlollx --description "Trackhop Desktop (beta)" \
-    --about-url https://xlollx.github.io/Trackhop/guide/desktop "${mac[@]}"
+    --about-url https://trackhop.org/guide/desktop "${mac[@]}"
   mv "$work"/Trackhop-*.dmg "dist/$name-macos-$arch.dmg"
 else
   tar -C "$work/out" -czf "dist/$name-linux.tar.gz" Trackhop
@@ -92,7 +92,7 @@ else
     --linux-package-name trackhop --linux-shortcut --linux-menu-group "AudioVideo;Audio" \
     --linux-app-category sound \
     --linux-package-deps "libwebkit2gtk-4.1-0 | libwebkit2gtk-4.0-37" --linux-deb-maintainer "xlollx@users.noreply.github.com" \
-    --about-url https://xlollx.github.io/Trackhop/guide/desktop
+    --about-url https://trackhop.org/guide/desktop
   mv "$work"/trackhop_*.deb "dist/$name-linux.deb"
 fi
 ls -l dist

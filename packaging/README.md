@@ -193,7 +193,7 @@ version, URL and hash and commits. `packaging/scoop/trackhop.json` here is only 
 5. Create the submission:
    - *Pricing and availability*: free, markets.
    - *Properties*: category *Music* (or *Productivity*), privacy policy URL
-     `https://xlollx.github.io/Trackhop/privacy-policy`, website, support contact
+     `https://trackhop.org/privacy-policy`, website, support contact
      (`https://github.com/xlollx/Trackhop/issues`).
    - *Age ratings*: the IARC questionnaire (no violence, no user interaction or sharing, no
      purchases, no ads in Desktop).
