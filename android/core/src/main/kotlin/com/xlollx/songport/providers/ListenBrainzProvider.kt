@@ -42,6 +42,12 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         headers["Accept"] = "application/json"
         token?.let { headers["Authorization"] = "Token $it" }
         val resp = Http.send(method, "$API$path", headers, body?.let { Http.jsonBody(it.toString()) })
+        // ListenBrainz paces by window (X-RateLimit-*): the last call of a window waits for the next one,
+        // so a long search never meets a 429.
+        if (resp.header("X-RateLimit-Remaining") == "0") {
+            val wait = resp.header("X-RateLimit-Reset-In")?.toLongOrNull()?.coerceIn(1, 60) ?: 5
+            Http.pause(wait * 1000 + 250)
+        }
         if (!resp.ok) {
             val why = runCatching { parseJson(resp.body)["error"].str ?: "" }.getOrElse { resp.body.take(160) }
             throw ProviderException("$displayName API ${resp.code}: $why")
@@ -137,7 +143,10 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     /** MusicBrainz knows the recording: its MBID is what feedback is written against. */
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         val artist = track.artists.firstOrNull() ?: return emptyList()
-        val j = api(ctx, "/1/metadata/lookup?artist_name=${Http.enc(artist)}&recording_name=${Http.enc(track.title)}")
+        // The lookup wants the user token (since 2026) and its path ends with a slash (without, a 308).
+        // Only a ListenBrainz target is searched, and writing its loved tracks needs the token anyway.
+        val token = token(ctx) ?: throw ProviderException(ctx.text("listenbrainz_token_needed"))
+        val j = api(ctx, "/1/metadata/lookup/?artist_name=${Http.enc(artist)}&recording_name=${Http.enc(track.title)}", token = token)
         val mbid = j["recording_mbid"].str ?: return emptyList()
         return listOf(Track(
             id = mbid, title = j["recording_name"].str ?: track.title,

@@ -204,6 +204,26 @@ class ListenBrainzContractTest : ContractTest() {
         assertEquals(listOf(2000L), pauses)
     }
 
+    /** Regression (01/11/2026): the lookup wants the token and the path with its final slash; without either it was a 308/401 per track. */
+    @Test fun searchLooksUpWithTheTokenAndWaitsWhenTheWindowIsSpent() = runBlocking {
+        signIn()
+        json("""{"artist_credit_name":"Daft Punk","recording_mbid":"${mbid(7)}","recording_name":"One More Time","release_name":"Discovery"}""",
+            200, "X-RateLimit-Remaining" to "0", "X-RateLimit-Reset-In" to "3")
+        val found = lb.search(env, Track("x", "One More Time", artists = listOf("Daft Punk")))
+        assertEquals(listOf(mbid(7)), found.map { it.id })
+        val r = next()
+        assertCall(r, "GET", host, "/1/metadata/lookup/")
+        assertEquals("Daft Punk", r.query("artist_name"))
+        assertEquals("Token LBTOKEN", r.getHeader("Authorization"))
+        assertEquals(listOf(3250L), pauses)
+    }
+
+    @Test fun noTokenNoSearch() = runBlocking {
+        signIn(token = null)
+        try { lb.search(env, Track("x", "One More Time", artists = listOf("Daft Punk"))); fail() } catch (e: ProviderException) { assertEquals("listenbrainz_token_needed", e.message) }
+        noMoreRequests()
+    }
+
     @Test fun loginChecksTheToken() = runBlocking {
         json("""{"count":0,"offset":0,"playlist_count":0,"playlists":[]}""")
         json("""{"code":200,"message":"Token invalid.","valid":false}""")
