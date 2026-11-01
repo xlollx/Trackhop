@@ -1290,9 +1290,7 @@
     <string name="idea_field">あなたのアイデア</string>
     <string name="idea_why">どう役立つか（任意）</string>
     <string name="idea_services">関係するサービス（任意）</string>
-    <string name="idea_note">GitHub ではアイデアは公開され、ほかの人が投票できます（無料アカウントが必要）。メールなら非公開のままです。Trackhop が勝手に送ることはありません。送信前に内容を確認できます。</string>
+    <string name="idea_note">アイデアは GitHub に投稿され、公開されてほかの人が投票できます（無料アカウントが必要）。Trackhop が勝手に送ることはありません。投稿前に内容を確認できます。</string>
     <string name="idea_github">GitHub に投稿</string>
-    <string name="idea_email">メールで送る</string>
     <string name="idea_others">ほかの人のアイデアを見る</string>
-    <string name="idea_no_email">メールアプリが見つかりません：%1$s 宛てに送ってください。</string>
 </resources>

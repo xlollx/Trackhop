@@ -1310,9 +1310,7 @@
     <string name="idea_field">Fikrin</string>
     <string name="idea_why">Neden işine yarardı (isteğe bağlı)</string>
     <string name="idea_services">İlgili servisler (isteğe bağlı)</string>
-    <string name="idea_note">GitHub\'da fikrin herkese açıktır ve başkaları oy verebilir (ücretsiz bir hesap gerekir). E-postayla gizli kalır. Trackhop kendiliğinden hiçbir şey göndermez: metni göndermeden önce görürsün.</string>
+    <string name="idea_note">Fikrin GitHub\'a gider; orada herkese açıktır ve başkaları oy verebilir (ücretsiz bir hesap gerekir). Trackhop kendiliğinden hiçbir şey göndermez: metni paylaşmadan önce görürsün.</string>
     <string name="idea_github">GitHub\'da paylaş</string>
-    <string name="idea_email">E-postayla gönder</string>
     <string name="idea_others">Başkalarının fikirlerini gör</string>
-    <string name="idea_no_email">E-posta uygulaması bulunamadı: %1$s adresine yaz.</string>
 </resources>

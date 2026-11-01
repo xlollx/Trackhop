@@ -1356,9 +1356,7 @@
     <string name="idea_field">Ваша идея</string>
     <string name="idea_why">Чем это поможет вам (необязательно)</string>
     <string name="idea_services">Затронутые сервисы (необязательно)</string>
-    <string name="idea_note">На GitHub идея публична, и другие могут за неё голосовать (нужен бесплатный аккаунт). По электронной почте она остаётся личной. Trackhop ничего не отправляет сам: вы видите текст перед отправкой.</string>
+    <string name="idea_note">Ваша идея попадает на GitHub, где она публична и другие могут за неё голосовать (нужен бесплатный аккаунт). Trackhop ничего не отправляет сам: вы видите текст перед публикацией.</string>
     <string name="idea_github">Опубликовать на GitHub</string>
-    <string name="idea_email">Отправить по почте</string>
     <string name="idea_others">Посмотреть идеи других</string>
-    <string name="idea_no_email">Почтовое приложение не найдено: напишите на %1$s.</string>
 </resources>

@@ -1312,9 +1312,7 @@
     <string name="idea_field">Deine Idee</string>
     <string name="idea_why">Warum es dir helfen würde (optional)</string>
     <string name="idea_services">Betroffene Dienste (optional)</string>
-    <string name="idea_note">Auf GitHub ist deine Idee öffentlich und andere können dafür stimmen (ein kostenloses Konto ist nötig). Per E-Mail bleibt sie privat. Trackhop sendet nichts von selbst: du siehst den Text, bevor du ihn abschickst.</string>
+    <string name="idea_note">Deine Idee kommt auf GitHub, wo sie öffentlich ist und andere dafür stimmen können (ein kostenloses Konto ist nötig). Trackhop sendet nichts von selbst: du siehst den Text, bevor du ihn veröffentlichst.</string>
     <string name="idea_github">Auf GitHub posten</string>
-    <string name="idea_email">Per E-Mail senden</string>
     <string name="idea_others">Ideen anderer ansehen</string>
-    <string name="idea_no_email">Keine E-Mail-App gefunden: schreib an %1$s.</string>
 </resources>

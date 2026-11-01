@@ -1320,9 +1320,7 @@
     <string name="idea_field">Votre idée</string>
     <string name="idea_why">Pourquoi cela vous aiderait (facultatif)</string>
     <string name="idea_services">Services concernés (facultatif)</string>
-    <string name="idea_note">Sur GitHub, votre idée est publique et d\'autres peuvent voter pour elle (un compte gratuit est nécessaire). Par e-mail, elle reste privée. Trackhop n\'envoie rien de lui-même : vous voyez le texte avant de l\'envoyer.</string>
+    <string name="idea_note">Votre idée va sur GitHub, où elle est publique et où d\'autres peuvent voter pour elle (un compte gratuit est nécessaire). Trackhop n\'envoie rien de lui-même : vous voyez le texte avant de le publier.</string>
     <string name="idea_github">Publier sur GitHub</string>
-    <string name="idea_email">Envoyer par e-mail</string>
     <string name="idea_others">Voir les idées des autres</string>
-    <string name="idea_no_email">Aucune app d\'e-mail trouvée : écrivez à %1$s.</string>
 </resources>

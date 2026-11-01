@@ -1290,9 +1290,7 @@
     <string name="idea_field">你的建议</string>
     <string name="idea_why">为什么对你有帮助（可选）</string>
     <string name="idea_services">涉及的服务（可选）</string>
-    <string name="idea_note">在 GitHub 上，你的建议是公开的，其他人可以投票（需要免费账号）。通过电子邮件则保持私密。Trackhop 不会自行发送任何内容：发送前你会看到全文。</string>
+    <string name="idea_note">你的建议会发布到 GitHub，公开可见，其他人可以投票（需要免费账号）。Trackhop 不会自行发送任何内容：发布前你会看到全文。</string>
     <string name="idea_github">在 GitHub 上发布</string>
-    <string name="idea_email">通过邮件发送</string>
     <string name="idea_others">查看其他人的建议</string>
-    <string name="idea_no_email">未找到邮件应用：请写信至 %1$s。</string>
 </resources>
