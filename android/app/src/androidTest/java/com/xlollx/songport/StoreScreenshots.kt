@@ -392,7 +392,8 @@ class StoreScreenshots {
                 scrollTo(s(R.string.settings_section_privacy)); snap("settings_${theme}_2")
                 scrollTo(s(R.string.settings_section_advanced)); snap("settings_${theme}_3")
                 // Settings › Help › Suggest an idea: empty, then written.
-                scrollTo(s(R.string.idea_row)); compose.onAllNodesWithText(s(R.string.idea_row)).onFirst().performClick()
+                // Its click action, not a tap: scrolled into view, the row can sit under the bottom bar.
+                scrollTo(s(R.string.idea_row)); compose.onAllNodesWithText(s(R.string.idea_row)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.idea_title)).fetchSemanticsNodes().size > 1 }
                 snap("idea_${theme}_1")
                 compose.onAllNodes(hasSetTextAction()).onFirst().performTextInput("Sync my Shazam history to a playlist every week")
