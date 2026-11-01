@@ -87,7 +87,8 @@ object Http {
                 // A short pause is absorbed here. A long one (Spotify can ask for hours) is not: the
                 // caller gets the 429 at once, with Retry-After, and says so instead of showing a
                 // spinner for minutes; the sync engine waits on its own terms, visibly.
-                val asked = out.header("Retry-After")?.trim()?.toLongOrNull()
+                // Retry-After, or the window's reset of services that pace by window (ListenBrainz).
+                val asked = (out.header("Retry-After") ?: out.header("X-RateLimit-Reset-In"))?.trim()?.toLongOrNull()
                 if (asked != null && asked > MAX_SILENT_WAIT_S) return@withContext out
                 pause((asked?.coerceAtLeast(1) ?: (2L * (attempt + 1))) * 1000)
                 continue

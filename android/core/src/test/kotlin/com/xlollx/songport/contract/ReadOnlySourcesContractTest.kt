@@ -196,12 +196,12 @@ class ListenBrainzContractTest : ContractTest() {
         try { lb.tracks(env, "x"); fail() } catch (e: ProviderException) { assertTrue(e.message, e.message!!.startsWith("ListenBrainz API 502: <html>")) }
     }
 
-    @Test fun rateLimitWithoutRetryAfterBacksOffBriefly() = runBlocking {
+    @Test fun rateLimitWaitsForTheWindowToReset() = runBlocking {
         signIn()
         json("""{"code":429,"error":"Too many requests"}""", 429, "X-RateLimit-Reset-In" to "4")
         json("""{"playlist":{"track":[]}}""")
         lb.tracks(env, "x")
-        assertEquals(listOf(2000L), pauses)
+        assertEquals(listOf(4000L), pauses)
     }
 
     /** Regression (01/11/2026): the lookup wants the token and the path with its final slash; without either it was a 308/401 per track. */

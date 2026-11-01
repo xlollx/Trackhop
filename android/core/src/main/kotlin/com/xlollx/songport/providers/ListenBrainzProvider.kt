@@ -41,7 +41,9 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         val headers = HashMap<String, String>()
         headers["Accept"] = "application/json"
         token?.let { headers["Authorization"] = "Token $it" }
-        val resp = Http.send(method, "$API$path", headers, body?.let { Http.jsonBody(it.toString()) })
+        // Several syncs (or this one's search and writes) share the user's window: a 429 is waited out
+        // a few times over, each wait as long as the window still has to run.
+        val resp = Http.send(method, "$API$path", headers, body?.let { Http.jsonBody(it.toString()) }, maxRateLimitRetries = 8)
         // ListenBrainz paces by window (X-RateLimit-*): the last call of a window waits for the next one,
         // so a long search never meets a 429.
         if (resp.header("X-RateLimit-Remaining") == "0") {
