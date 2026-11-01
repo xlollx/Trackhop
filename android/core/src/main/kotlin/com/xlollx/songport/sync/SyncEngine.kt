@@ -59,7 +59,9 @@ private val NETWORK_RETRY_SECONDS = intArrayOf(5, 15, 30, 60, 120)
 fun isTransientNetwork(msg: String?): Boolean {
     val m = msg ?: return false
     return m.contains("Unable to resolve host", true) || m.contains("unreachable", true) || m.contains("Failed to connect", true) ||
-        m.contains("timeout", true) || m.contains("timed out", true) || m.contains("connection abort", true) || m.contains("reset by peer", true)
+        m.contains("timeout", true) || m.contains("timed out", true) || m.contains("connection abort", true) || m.contains("reset by peer", true) ||
+        // A TLS handshake cut short ("connection closed") or a reply cut off: the line dropped, as above.
+        m.contains("connection closed", true) || m.contains("unexpected end of stream", true)
 }
 
 /** Below the match threshold but close enough to be worth proposing in the review. */
