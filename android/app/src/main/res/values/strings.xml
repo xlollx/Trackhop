@@ -685,6 +685,10 @@
     <string name="pill_ok">Up to date</string>
     <string name="pill_changed">Changes to sync</string>
     <string name="pill_last_run">Ran %1$s</string>
+    <string name="update_pill">Update</string>
+    <string name="update_pill_desc">A new version of Trackhop is available: tap to update</string>
+    <string name="settings_update_check">Check for updates</string>
+    <string name="settings_update_check_summary">Twice a day, asks GitHub whether a newer Trackhop exists and shows an arrow at the top; a tap downloads it. Not done when F-Droid or Obtainium installed the app: they update it themselves.</string>
     <string name="pill_error">Needs attention</string>
     <string name="pill_never">Not run yet</string>
     <string name="pill_running">Syncing</string>

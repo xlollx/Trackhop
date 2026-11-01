@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material.icons.filled.Upgrade
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.app.Activity
@@ -359,6 +360,16 @@ fun SettingsScreen(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 leading = { BrandMark(40.dp) },
             )
+            // The GitHub build's update check (the Play build follows Google Play): an arrow in the top bar.
+            if (com.xlollx.songport.update.AppUpdates.configurable) {
+                var updates by remember { mutableStateOf(com.xlollx.songport.update.AppUpdates.enabled(ctx)) }
+                val updatesScope = rememberCoroutineScope()
+                PrefSwitch(Icons.Filled.Upgrade, stringResource(R.string.settings_update_check), stringResource(R.string.settings_update_check_summary), updates) { v ->
+                    updates = v
+                    com.xlollx.songport.update.AppUpdates.setEnabled(ctx, v)
+                    if (v) updatesScope.launch { com.xlollx.songport.update.AppUpdates.check(ctx, force = true) }
+                }
+            }
             // The newest release's highlights, the sheet shown once after the update.
             PrefRow(Icons.Filled.NewReleases, stringResource(R.string.whats_new_row), stringResource(R.string.whats_new_row_summary, WhatsNew.newestVersion), onClick = onWhatsNew)
             // Open source: the repository holds the code, the docs and the connector-plugin page.

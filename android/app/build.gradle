@@ -218,6 +218,8 @@ dependencies {
     // Solo la build Play mostra annunci: la build GitHub non include ne' l'SDK ne' il modulo del consenso.
     playImplementation 'com.google.android.gms:play-services-ads:24.4.0'
     playImplementation 'com.google.android.ump:user-messaging-platform:3.2.0'
+    // Whether Google Play has a newer Trackhop (update/AppUpdates.kt): the top bar's arrow, Play build only.
+    playImplementation 'com.google.android.play:app-update:2.1.0'
 
     // GitHub/F-Droid build: YouTube Music, Amazon Music and the Spotify/Apple web sign-in run inside
     // the app. The Play build does not include them and uses the separate Bridge app when installed.

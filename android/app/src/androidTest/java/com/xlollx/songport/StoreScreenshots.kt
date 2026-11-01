@@ -403,9 +403,19 @@ class StoreScreenshots {
                 toBottom(s(R.string.tools_section_safety)); snap("tools_${theme}_3")
             }
         }
+        // The top bar's update arrow (GitHub build): a newer version, as if GitHub had just said so.
+        fun syncsTop(theme: String) {
+            app.getSharedPreferences("app_updates", 0).edit().putString("name", "9.9.9")
+                .putString("url", "https://github.com/xlollx/Trackhop/releases/latest").putLong("checked", System.currentTimeMillis()).commit()
+            tab(MainActivity.TAB_SYNCS) {
+                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.update_pill)).fetchSemanticsNodes().isNotEmpty() }
+                snap("syncs_${theme}_update", 3000)
+            }
+        }
         for (theme in listOf("DARK", "LIGHT")) {
             store.updateSettings { it.copy(themeMode = theme) }; store.flush()
             val t = theme.lowercase()
+            syncsTop(t)
             settingsPages(t)
             toolsPages(t)
         }

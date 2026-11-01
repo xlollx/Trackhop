@@ -28,6 +28,11 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   reads the player's public JavaScript and, at most every six hours, a public list of the player's
   query identifiers hosted on GitHub (raw.githubusercontent.com). Both are anonymous downloads: no
   account data, token or playlist is sent with them.
+- **Update check**: the version downloaded from GitHub asks GitHub's public API (api.github.com), at
+  most twice a day, which is the latest Trackhop release, to show an arrow at the top when a newer one
+  exists. It is an anonymous request: no account, token, playlist or device identifier is sent. It is not
+  made when F-Droid or Obtainium installed the app, and it can be turned off in Settings › About. The
+  Google Play version asks Google Play instead, through Google Play's own update service.
 - **Playlist generator (optional)**: if you connect your own AI account (OpenAI, Anthropic, Google Gemini
   or a compatible server you choose), the description you type, the optional reference tracks and the
   number of tracks are sent to that provider, under its own policy; your API key is stored encrypted on
@@ -78,6 +83,12 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
 - **Credenziali dei server personali** (Subsonic/Navidrome, Jellyfin, Plex) e **nomi utente** Last.fm/ListenBrainz inseriti dall'utente: salvati cifrati solo sul dispositivo, usati solo verso il server indicato.
 - **Contenuto delle playlist** (titoli, artisti, ISRC) letto dai servizi collegati per eseguire le sync e
   una cache locale degli abbinamenti. Restano sul dispositivo.
+- **Controllo aggiornamenti**: la versione scaricata da GitHub chiede all'API pubblica di GitHub
+  (api.github.com), al massimo due volte al giorno, qual è l'ultima versione di Trackhop, per mostrare una
+  freccia in alto quando ne esiste una più recente. È una richiesta anonima: non vengono inviati account,
+  token, playlist o identificativi del dispositivo. Non avviene se l'app è stata installata da F-Droid o
+  Obtainium e si può spegnere in Impostazioni › Informazioni. La versione Google Play lo chiede invece a
+  Google Play, tramite il servizio di aggiornamento di Google Play.
 - **Generatore di playlist (facoltativo)**: se colleghi il tuo account AI (OpenAI, Anthropic, Google Gemini
   o un server compatibile a tua scelta), la descrizione che scrivi, gli eventuali brani di riferimento e il
   numero di brani vengono inviati a quel fornitore, secondo la sua informativa; la chiave API resta cifrata

@@ -700,6 +700,10 @@
     <string name="pill_ok">Актуально</string>
     <string name="pill_changed">Есть изменения</string>
     <string name="pill_last_run">Запуск: %1$s</string>
+    <string name="update_pill">Обновить</string>
+    <string name="update_pill_desc">Доступна новая версия Trackhop: нажмите, чтобы обновить</string>
+    <string name="settings_update_check">Проверять обновления</string>
+    <string name="settings_update_check_summary">Дважды в день спрашивает GitHub, есть ли новый Trackhop, и показывает стрелку вверху; нажатие скачивает его. Не выполняется, если приложение установлено через F-Droid или Obtainium: они обновляют его сами.</string>
     <string name="pill_error">Требует внимания</string>
     <string name="pill_never">Ещё не запускалась</string>
     <string name="pill_running">Синхронизация</string>

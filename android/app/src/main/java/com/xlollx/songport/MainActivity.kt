@@ -581,6 +581,7 @@ private fun MainScreen(
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {
+                            com.xlollx.songport.ui.UpdatePill()
                             com.xlollx.songport.ui.CoffeePill()
                             if (data.jobs.isNotEmpty()) com.xlollx.songport.ui.HelpButton(
                                 Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow, label = stringResource(R.string.help_cards_title),

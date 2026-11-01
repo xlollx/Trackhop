@@ -1,5 +1,8 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.Upgrade
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -438,6 +441,41 @@ fun playlistDisplayName(playlistId: String?, name: String): String = when (playl
     MusicProvider.PODCASTS_ID -> stringResource(R.string.followed_podcasts)
     MusicProvider.RECENT_ID -> stringResource(R.string.recently_played)
     else -> name
+}
+
+/**
+ * The top bar's arrow when a newer Trackhop exists (update/AppUpdates.kt, one per build): GitHub's
+ * latest release for the GitHub build, Google Play's for the Play build. A tap gets it from where
+ * this build came from: the APK from GitHub, or Trackhop's page in the Play Store. Checked when the
+ * bar shows and each time the app comes back (the GitHub check itself goes out at most twice a day).
+ */
+@Composable
+fun UpdatePill() {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val available by com.xlollx.songport.update.UpdateState.available.collectAsState()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+        val check = scope.launch { com.xlollx.songport.update.AppUpdates.check(ctx) }
+        onPauseOrDispose { check.cancel() }
+    }
+    if (available == null) return
+    val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.update_pill)
+    val desc = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.update_pill_desc)
+    Box(
+        Modifier.padding(end = 4.dp).heightIn(min = 48.dp).clip(RoundedCornerShape(999.dp))
+            .clickable(onClickLabel = desc) { com.xlollx.songport.update.AppUpdates.open(ctx) }
+            .semantics { contentDescription = desc },
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            Modifier.clip(RoundedCornerShape(999.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(androidx.compose.material.icons.Icons.Filled.Upgrade, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(Modifier.width(4.dp))
+            Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+    }
 }
 
 /**
