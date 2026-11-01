@@ -189,6 +189,15 @@ jobs:
       version: ${{ needs.release.outputs.version }}
     secrets: inherit
 
+  msstore:
+    # The new release's .msix to the Microsoft Store (msstore.yml). Skipped until the MSSTORE_* secrets exist.
+    needs: release
+    if: ${{ needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/msstore.yml
+    with:
+      version: ${{ needs.release.outputs.version }}
+    secrets: inherit
+
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml), as the app's are.
     needs: release

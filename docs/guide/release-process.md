@@ -23,9 +23,9 @@ people; the app's version does not move for it, nor theirs for an app-only chang
   creates the release `server-vX.Y.Z`: a prerelease that is never "latest", so Obtainium and the
   links to `releases/latest` keep finding the app.
 - The page's footer shows both: the server's version and the app version whose engine it runs.
-- After a new release, `stores.yml` opens the winget pull request and pushes the Chocolatey package
-  (each once its secret exists); Docker Hub follows `server.yml`; Scoop's bucket updates itself; the
-  Microsoft Store (the release's `.msix`) and Flathub need a step by hand. All of it is in
+- After a new release, `stores.yml` opens the winget pull request and pushes the Chocolatey package,
+  and `msstore.yml` sends the `.msix` to the Microsoft Store (each once its secrets exist); Docker Hub
+  follows `server.yml`; Scoop's bucket updates itself; Flathub needs a step by hand. All of it is in
   [packaging/README.md](https://github.com/xlollx/Trackhop/blob/main/packaging/README.md).
 - The direct download links (README, the site's "Also on a computer" section, the Desktop guide)
   name the version: point them at the new `server-v…` files once its release is out.
@@ -40,7 +40,11 @@ people; the app's version does not move for it, nor theirs for an app-only chang
   its passwords outside GitHub.
 - The F-Droid recipe is `metadata/com.xlollx.songport.yml` in fdroiddata; a copy lives in `fdroid/`.
 
-## Google Play (when it happens)
+## Google Play
+
+After each app release `play.yml` uploads the bundle to the closed track, once its secret exists, with
+the notes in `play/whatsnew/<versionCode>/` (en-US and it-IT, written for Play: write them with the
+changelog of each version).
 
 The `play` flavour is published as **Trackhop**, like every other build: same package id, no built-in
 web connectors, AdMob banner. Listing texts, Data safety answers and the closed-test kit are in `docs/play-store-listing.md`

@@ -15,7 +15,8 @@ note off each one once its channel is live.
 | Chocolatey | `chocolatey/` | 0.5.1 pushed, in moderation | Account, API key secret | `stores.yml` packs, tests and pushes; moderation approves |
 | Scoop | `scoop/trackhop.json` | **Live** ([xlollx/scoop-bucket](https://github.com/xlollx/scoop-bucket)) | Create `xlollx/scoop-bucket` | The bucket's Excavator updates the manifest |
 | Homebrew (macOS) | `homebrew/` | **Live** ([xlollx/homebrew-tap](https://github.com/xlollx/homebrew-tap)) | Create `xlollx/homebrew-tap` | The tap's own workflow updates the cask |
-| Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission | Upload the release's `.msix` in Partner Center |
+| Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission; for automatic updates an Entra ID app and four secrets | `msstore.yml` uploads the `.msix` and submits it (once its secrets exist; until then, by hand in Partner Center) |
+| Google Play (the app) | `play/whatsnew/`, `play.yml` | Closed testing | A service account, its key as a secret, the track's name | `play.yml` uploads the release's `.aab` with the notes in `play/whatsnew/<versionCode>/` |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
@@ -204,9 +205,58 @@ version, URL and hash and commits. `packaging/scoop/trackhop.json` here is only 
      trust to run its own runtime."
 6. Submit; certification takes a few days.
 
-**Each release:** download the release's `.msix` and upload it in a new submission (*Update*).
-Partner Center can also be driven by the Microsoft Store Developer CLI (`msstore publish`) with an
-Entra app, if this ever needs to be automatic.
+**Each release:** automatic once the four secrets below exist: `msstore.yml` (called by `desktop.yml`)
+downloads the release's `.msix`, uploads it with the Microsoft Store Developer CLI
+(`msstore publish <msix> -id 9PFX74Q2XN9P`) and submits it to certification. A draft waiting in Partner
+Center is replaced (the CLI makes a new submission from the last published one), so edit the listing
+between releases, or run the workflow by hand with *draft* ticked and finish it in Partner Center.
+Without the secrets: download the release's `.msix` and upload it in a new submission (*Update*).
+
+**Once, for the automatic updates** (Microsoft's
+[GitHub Actions page](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/github-actions)):
+
+1. [Microsoft Entra admin center](https://entra.microsoft.com) › *Identity › Applications › App
+   registrations › New registration*: name *Trackhop Store upload*, single tenant, no redirect URI.
+   Copy its **Application (client) ID**, and from *Identity › Overview* the **Tenant ID**.
+2. The app's *Certificates & secrets › Client secrets › New client secret* (24 months): copy the
+   **Value** at once (it is not shown again).
+3. [Partner Center](https://partner.microsoft.com/dashboard) › *Account settings › User management ›
+   Microsoft Entra applications › Add Microsoft Entra application*: pick the app, role **Manager**.
+   (If Partner Center asks to associate a tenant first, associate the same one.)
+4. *Account settings › Legal info* (or *Developer settings*): the **Seller ID**.
+5. GitHub secrets: `MSSTORE_TENANT_ID`, `MSSTORE_CLIENT_ID`, `MSSTORE_CLIENT_SECRET`, `MSSTORE_SELLER_ID`.
+   The product ID defaults to `9PFX74Q2XN9P` (variable `MSSTORE_PRODUCT_ID` to change it).
+6. Try it: *Actions › Microsoft Store › Run workflow*, the latest version, *draft* ticked; Partner
+   Center then shows a new submission with that package.
+
+---
+
+## Google Play (the app)
+
+**In the repository.** `play.yml` (called by `build.yml` after each app release) downloads the
+release's `Trackhop-v<version>-play.aab` and uploads it with
+[upload-google-play](https://github.com/r0adkll/upload-google-play) to the track named by the
+variable `PLAY_TRACK` (default `alpha`), rolled out as `PLAY_STATUS` says (default `completed`; `draft`
+leaves it for Play Console). The release notes are `play/whatsnew/<versionCode>/whatsnew-en-US` and
+`whatsnew-it-IT`, written for Play: they never name what the Play build leaves out (the web
+connectors and their plugin, F-Droid, Ko-fi…), which is why the F-Droid changelogs are not used.
+Without notes for a version, it goes up without any.
+
+**Once** (Google's [getting started](https://developers.google.com/android-publisher/getting_started)):
+
+1. [Google Cloud Console](https://console.cloud.google.com/projectcreate): a project (any name, e.g.
+   *trackhop-play*), then [enable the Google Play Android Developer API](https://console.cloud.google.com/apis/library/androidpublisher.googleapis.com).
+2. *IAM & Admin › Service accounts › Create service account* (name *play-upload*, no roles), then the
+   account's *Keys › Add key › Create new key › JSON*: a file downloads.
+3. [Play Console › Users and permissions](https://play.google.com/console/users-and-permissions) ›
+   *Invite new users*: the service account's e-mail (…@….iam.gserviceaccount.com), *App permissions ›
+   Trackhop*: **Release to testing tracks** (and **Release to production** when it goes public), *Invite user*.
+4. GitHub secret `PLAY_SERVICE_ACCOUNT_JSON`: the whole JSON file's text. Variable `PLAY_TRACK` if the
+   closed track is not `alpha` (Play Console › *Testing › Closed testing*: the track's name).
+5. Try it: *Actions › Google Play › Run workflow* with the latest tag (a version Play already has is
+   refused: fine for a test of the key, or wait for the next release).
+
+**Each release:** automatic, with the notes written for it in `play/whatsnew/<versionCode>/`.
 
 ---
 

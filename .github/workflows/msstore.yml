@@ -1,0 +1,71 @@
+# A new Trackhop Desktop release (server-v<version>, made by desktop.yml) to the Microsoft Store: the
+# release's .msix uploaded to the product with the Microsoft Store Developer CLI (msstore) and the
+# submission sent to certification (a pending draft in Partner Center is replaced by a new one made
+# from the last published submission, as msstore publish does).
+# Called by desktop.yml after a new release; by hand (Actions › Microsoft Store › Run workflow) to send
+# a release again, optionally as a draft to finish in Partner Center.
+# Skipped until the four secrets exist: MSSTORE_TENANT_ID, MSSTORE_SELLER_ID, MSSTORE_CLIENT_ID,
+# MSSTORE_CLIENT_SECRET (an Entra ID app with the Manager role in Partner Center: packaging/README.md).
+name: Microsoft Store
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version already released as server-v<version>, e.g. 0.6.2'
+        type: string
+        required: true
+      draft:
+        description: 'Leave the submission as a draft (finish it in Partner Center)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      HAS_KEYS: ${{ secrets.MSSTORE_TENANT_ID != '' && secrets.MSSTORE_SELLER_ID != '' && secrets.MSSTORE_CLIENT_ID != '' && secrets.MSSTORE_CLIENT_SECRET != '' }}
+      PRODUCT_ID: ${{ vars.MSSTORE_PRODUCT_ID || '9PFX74Q2XN9P' }}
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: No Partner Center keys
+        if: ${{ env.HAS_KEYS != 'true' }}
+        run: |
+          Write-Output "::notice::The MSSTORE_* secrets are not all set: server-v$env:VERSION was not sent to the Microsoft Store (packaging/README.md, Microsoft Store)."
+
+      - name: The release's package
+        if: ${{ env.HAS_KEYS == 'true' }}
+        run: |
+          gh release download "server-v$env:VERSION" --repo "$env:GITHUB_REPOSITORY" --pattern "*-windows.msix" --dir dist
+          Get-ChildItem dist
+
+      - name: Microsoft Store Developer CLI
+        if: ${{ env.HAS_KEYS == 'true' }}
+        uses: microsoft/microsoft-store-apppublisher@v1.4
+
+      - name: Upload and submit
+        if: ${{ env.HAS_KEYS == 'true' }}
+        env:
+          TENANT: ${{ secrets.MSSTORE_TENANT_ID }}
+          SELLER: ${{ secrets.MSSTORE_SELLER_ID }}
+          CLIENT: ${{ secrets.MSSTORE_CLIENT_ID }}
+          SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+          DRAFT: ${{ inputs.draft && 'true' || 'false' }}
+        run: |
+          msstore reconfigure --tenantId $env:TENANT --sellerId $env:SELLER --clientId $env:CLIENT --clientSecret $env:SECRET
+          $msix = (Get-ChildItem dist -Filter *.msix | Select-Object -First 1).FullName
+          if ($env:DRAFT -eq 'true') { msstore publish $msix -id $env:PRODUCT_ID --noCommit }
+          else { msstore publish $msix -id $env:PRODUCT_ID }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -175,6 +175,15 @@ jobs:
             Trackhop-*.aab
           generate_release_notes: true
 
+  play:
+    # The new release's bundle to Google Play (play.yml). Skipped until PLAY_SERVICE_ACCOUNT_JSON exists.
+    needs: build
+    if: ${{ needs.build.outputs.tag != '' }}
+    uses: ./.github/workflows/play.yml
+    with:
+      tag: ${{ needs.build.outputs.tag }}
+    secrets: inherit
+
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml): the results go into its notes
     # and the README's badge. Skipped until the VT_API_KEY secret exists.

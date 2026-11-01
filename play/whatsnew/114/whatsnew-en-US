@@ -1,0 +1,3 @@
+• Safer syncs: if a service sends only part of a playlist, Trackhop no longer adds everything again. It reads the playlist once more and, if it is still far smaller than at the last run, stops without changing anything.
+• “Up to date” is checked, not assumed, and remembered when you reopen the app.
+• When an update is available, an arrow at the top opens it on Google Play.

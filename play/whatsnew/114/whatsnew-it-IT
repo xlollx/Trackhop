@@ -1,0 +1,3 @@
+• Sync più sicuri: se un servizio manda solo una parte della playlist, Trackhop non aggiunge più tutto di nuovo. La rilegge e, se è ancora molto più piccola dell’ultima volta, si ferma senza cambiare niente.
+• “Aggiornata” viene verificata, non data per scontata, e ricordata quando riapri l’app.
+• Quando c’è un aggiornamento, una freccia in alto lo apre su Google Play.

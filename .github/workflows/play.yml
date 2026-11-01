@@ -1,0 +1,81 @@
+# A new app release (v<version>, made by build.yml) to Google Play: its bundle (Trackhop-v<version>-play.aab)
+# uploaded to a track with the release notes written for Play in play/whatsnew/<versionCode>/
+# (whatsnew-en-US, whatsnew-it-IT…; never the F-Droid changelogs, which name what the Play build
+# leaves out). Without notes for that versionCode the upload goes without any.
+# Called by build.yml after a new release; by hand (Actions › Google Play › Run workflow) for any tag.
+# Skipped until the PLAY_SERVICE_ACCOUNT_JSON secret exists (packaging/README.md says how to make it).
+# The track is the PLAY_TRACK variable (default "alpha", the closed testing track Play creates first;
+# a closed track renamed in Play Console has its own name), the rollout PLAY_STATUS (default completed).
+name: Google Play
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'App release tag, e.g. v1.5.7'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+      HAS_KEY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: No PLAY_SERVICE_ACCOUNT_JSON
+        if: ${{ env.HAS_KEY != 'true' }}
+        run: |
+          echo "::notice::PLAY_SERVICE_ACCOUNT_JSON is not set: $TAG was not sent to Google Play (packaging/README.md, Google Play)."
+
+      - uses: actions/checkout@v7
+        if: ${{ env.HAS_KEY == 'true' }}
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: The release's bundle and its Play notes
+        id: files
+        if: ${{ env.HAS_KEY == 'true' }}
+        run: |
+          mkdir -p dist
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "Trackhop-$TAG-play.aab" --dir dist
+          code=$(sed -n 's/.*versionCode \([0-9]*\).*/\1/p' android/app/build.gradle | head -1)
+          echo "Version code $code"
+          if [ -n "$code" ] && ls "play/whatsnew/$code"/whatsnew-* >/dev/null 2>&1; then
+            echo "notes=play/whatsnew/$code" >> "$GITHUB_OUTPUT"
+            ls "play/whatsnew/$code"
+          else
+            echo "::warning::No Play notes in play/whatsnew/$code: uploaded without release notes."
+          fi
+
+      - name: Upload with release notes
+        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes != '' }}
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.xlollx.songport
+          releaseFiles: dist/*.aab
+          releaseName: ${{ inputs.tag }}
+          tracks: ${{ vars.PLAY_TRACK || 'alpha' }}
+          status: ${{ vars.PLAY_STATUS || 'completed' }}
+          whatsNewDirectory: ${{ steps.files.outputs.notes }}
+
+      - name: Upload without release notes
+        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes == '' }}
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.xlollx.songport
+          releaseFiles: dist/*.aab
+          releaseName: ${{ inputs.tag }}
+          tracks: ${{ vars.PLAY_TRACK || 'alpha' }}
+          status: ${{ vars.PLAY_STATUS || 'completed' }}
