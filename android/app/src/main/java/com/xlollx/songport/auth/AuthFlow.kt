@@ -49,8 +49,29 @@ object AuthFlow {
             )
             return
         }
+        openInBrowser(ctx, url, provider)
+    }
+
+    /**
+     * The sign-in page in the phone's browser (a Custom Tab), from any context: started from the
+     * application context it needs FLAG_ACTIVITY_NEW_TASK, or Android stops the app (1.5.9, TIDAL).
+     * No Custom Tab browser: any browser; no browser at all: the page inside the app.
+     */
+    private fun openInBrowser(ctx: Context, url: String, provider: MusicProvider) {
+        val uri = Uri.parse(url)
         val tab = CustomTabsIntent.Builder().setShowTitle(true).build()
-        tab.launchUrl(ctx, Uri.parse(url))
+        tab.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try { tab.launchUrl(ctx, uri); return } catch (_: android.content.ActivityNotFoundException) {}
+        try {
+            ctx.startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            return
+        } catch (_: android.content.ActivityNotFoundException) {}
+        ctx.startActivity(
+            Intent(ctx, WebAuthActivity::class.java)
+                .putExtra(WebAuthActivity.EXTRA_URL, url)
+                .putExtra(WebAuthActivity.EXTRA_SERVICE, provider.displayName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
     }
 
     /**
