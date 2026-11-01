@@ -28,7 +28,9 @@ import kotlinx.serialization.json.JsonElement
  */
 class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val serviceId = SERVICE
-    override val loginInApp: Boolean get() = true
+    // Not inside the app: login.tidal.com's bot check blocks an in-app page ("You have been blocked.
+    // Something about the behaviour of the browser…", issue #22). The phone's browser passes it.
+    override val loginInApp: Boolean get() = false
     override val revokeUrl = "https://account.tidal.com/"
     override val displayName = "TIDAL"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.OFFICIAL
@@ -43,7 +45,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://developer.tidal.com/dashboard",
         redirectUri = Env.APP_REDIRECT_URI,
-        stepUrls = listOf("https://developer.tidal.com/dashboard", "https://developer.tidal.com/dashboard/create", null, "https://developer.tidal.com/dashboard"),
+        stepUrls = listOf("https://developer.tidal.com/dashboard", "https://developer.tidal.com/dashboard/create", null, null, "https://developer.tidal.com/dashboard"),
         whyName = "setup_why_tidal",
         stepsArrayName = "setup_steps_tidal",
         fieldLabelName = "setup_field_client_id",
@@ -52,7 +54,9 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val defaultClientId: String get() = BuildDefaults["TIDAL_CLIENT_ID"]
     override val authorizeEndpoint = "https://login.tidal.com/authorize"
     override val tokenEndpoint = "https://auth.tidal.com/v1/oauth2/token"
-    override val scopes = "user.read playlists.read playlists.write search.read"
+    // collection.* for saved albums and followed artists (userCollections). TIDAL's dashboard leaves every
+    // scope off on a new app: the setup steps say which to tick.
+    override val scopes = "user.read playlists.read playlists.write search.read collection.read collection.write"
     override val apiAccept = "application/vnd.api+json"
     override val apiContentType = "application/vnd.api+json"
 

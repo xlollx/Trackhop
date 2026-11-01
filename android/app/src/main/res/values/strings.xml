@@ -669,6 +669,7 @@
         <item>Sign in at developer.tidal.com with your TIDAL account.</item>
         <item>Press "Create new app". Name and description are up to you.</item>
         <item>In "Redirect URIs" paste exactly the address shown below and save.</item>
+        <item>Under "Scopes" tick user.read, playlists.read, playlists.write, search.read, collection.read and collection.write (TIDAL leaves them all off), then save.</item>
         <item>Copy the Client ID here. The Client secret is not needed.</item>
     </string-array>
     <string-array name="setup_steps_deezer">

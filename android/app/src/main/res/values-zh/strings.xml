@@ -662,6 +662,7 @@
         <item>使用你的 TIDAL 账号登录 developer.tidal.com。</item>
         <item>点按“Create new app”。名称和描述可随意填写。</item>
         <item>在“Redirect URIs”中准确粘贴下方显示的地址并保存。</item>
+        <item>在“Scopes”中勾选 user.read、playlists.read、playlists.write、search.read、collection.read 和 collection.write（TIDAL 默认全部不勾选），然后保存。</item>
         <item>将 Client ID 复制到这里。不需要 Client secret。</item>
     </string-array>
     <string-array name="setup_steps_deezer">
