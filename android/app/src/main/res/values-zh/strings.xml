@@ -678,6 +678,7 @@
     <string name="pill_ok">已是最新</string>
     <string name="pill_changed">有待同步的更改</string>
     <string name="pill_last_run">%1$s运行</string>
+    <string name="pill_just_ran">刚刚运行</string>
     <string name="update_pill">更新</string>
     <string name="update_pill_desc">Trackhop 有新版本：点按即可更新</string>
     <string name="settings_update_check">检查更新</string>

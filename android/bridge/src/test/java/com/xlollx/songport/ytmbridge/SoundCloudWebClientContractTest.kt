@@ -167,7 +167,21 @@ class SoundCloudWebClientContractTest {
     @Test fun versionIsLastModifiedAndSize() {
         answer(set(1001, stub(1), stub(2)))
         assertEquals("2026-10-01T10:00:00Z|2", sc.version("1001"))
-        assertNull(sc.version("__liked__"))
+    }
+
+    @Test fun likesVersionIsTheirCountAndNewestLike() {
+        answer("""{"collection":[{"created_at":"2026-05-01T10:00:00Z","kind":"like","track":${track(301)}}],"next_href":"https://api-v2.soundcloud.com/users/123/track_likes?offset=1&limit=1"}""")
+        assertEquals("2026-05-01T10:00:00Z|301", sc.version("__liked__"))
+        val likes = BridgeMock.calls.last()
+        assertApi(likes, "GET", "/users/123/track_likes")
+        assertEquals("1", likes.requestUrl!!.queryParameter("limit"))
+        // A public likes page: the user's count too, so an unlike shows.
+        answer("""{"id":5,"kind":"user","username":"someone","likes_count":42}""")
+        answer("""{"collection":[{"created_at":"2026-06-01T10:00:00Z","kind":"like","track":${track(302)}}],"next_href":null}""")
+        assertEquals("42|2026-06-01T10:00:00Z|302", sc.version("someone/likes"))
+        answer("""{"id":5,"kind":"user","username":"someone","likes_count":0}""")
+        answer("""{"collection":[],"next_href":null}""")
+        assertEquals("0", sc.version("someone/likes"))
     }
 
     // ------------------------------------------------------------------ session and client id

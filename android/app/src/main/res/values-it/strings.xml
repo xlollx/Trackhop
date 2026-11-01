@@ -685,6 +685,7 @@
     <string name="pill_ok">Aggiornata</string>
     <string name="pill_changed">Da sincronizzare</string>
     <string name="pill_last_run">Eseguita %1$s</string>
+    <string name="pill_just_ran">Appena eseguita</string>
     <string name="update_pill">Aggiorna</string>
     <string name="update_pill_desc">È disponibile una nuova versione di Trackhop: tocca per aggiornare</string>
     <string name="settings_update_check">Controlla aggiornamenti</string>

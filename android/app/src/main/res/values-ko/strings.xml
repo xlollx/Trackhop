@@ -677,6 +677,7 @@
     <string name="pill_ok">최신 상태</string>
     <string name="pill_changed">동기화할 변경 있음</string>
     <string name="pill_last_run">%1$s 실행</string>
+    <string name="pill_just_ran">방금 실행</string>
     <string name="update_pill">업데이트</string>
     <string name="update_pill_desc">Trackhop 새 버전이 있어요. 눌러서 업데이트하세요</string>
     <string name="settings_update_check">업데이트 확인</string>

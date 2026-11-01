@@ -228,11 +228,28 @@ class SoundCloudWebClient(private val ctx: Context) {
         return playlistDto(playlist(id), me) ?: throw BridgeException("SoundCloud: playlist $id not found")
     }
 
-    /** What changes when a set changes: its modification date and size. Likes have none. */
+    /** What changes when a set changes: its modification date and size; for likes, see [likesVersion]. */
     fun version(id: String): String? {
-        if (id == LIKED || (isPath(id) && isLikes(id))) return null
+        if (id == LIKED) {
+            val me = api("GET", "/me")
+            return likesVersion(me["id"].long?.toString() ?: meId(), me["likes_count"].long)
+        }
+        if (isPath(id) && isLikes(id)) {
+            val u = user(id)
+            return likesVersion(u["id"].long?.toString() ?: return null, u["likes_count"].long)
+        }
         val s = if (isPath(id)) set(id) else playlist(id)
         return listOfNotNull(s["last_modified"].str, s["track_count"].long?.toString()).joinToString("|").ifEmpty { null }
+    }
+
+    /**
+     * Likes have no modification date: their count and the newest like (when, and which track)
+     * stand in for one. A new like changes the newest, an unlike the count; one small page read.
+     */
+    private fun likesVersion(uid: String, count: Long?): String? {
+        val newest = api("GET", "$API/users/$uid/track_likes?limit=1&linked_partitioning=1")["collection"].arr.firstOrNull()
+        val parts = listOfNotNull(count?.toString(), newest?.get("created_at").str, newest?.get("track")?.get("id").long?.toString())
+        return parts.joinToString("|").ifEmpty { null }
     }
 
     /** The tracks of a set, the liked tracks, or a public page's, as trimmed track objects. */

@@ -684,6 +684,7 @@
     <string name="pill_ok">Güncel</string>
     <string name="pill_changed">Eşitlenecek değişiklik var</string>
     <string name="pill_last_run">%1$s çalıştı</string>
+    <string name="pill_just_ran">Az önce çalıştı</string>
     <string name="update_pill">Güncelle</string>
     <string name="update_pill_desc">Trackhop\'un yeni sürümü var: güncellemek için dokunun</string>
     <string name="settings_update_check">Güncellemeleri denetle</string>

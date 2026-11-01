@@ -685,6 +685,7 @@
     <string name="pill_ok">Aktuell</string>
     <string name="pill_changed">Änderungen offen</string>
     <string name="pill_last_run">Lief %1$s</string>
+    <string name="pill_just_ran">Gerade gelaufen</string>
     <string name="update_pill">Aktualisieren</string>
     <string name="update_pill_desc">Eine neue Version von Trackhop ist verfügbar: zum Aktualisieren tippen</string>
     <string name="settings_update_check">Nach Updates suchen</string>

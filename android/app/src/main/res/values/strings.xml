@@ -685,6 +685,7 @@
     <string name="pill_ok">Up to date</string>
     <string name="pill_changed">Changes to sync</string>
     <string name="pill_last_run">Ran %1$s</string>
+    <string name="pill_just_ran">Just ran</string>
     <string name="update_pill">Update</string>
     <string name="update_pill_desc">A new version of Trackhop is available: tap to update</string>
     <string name="settings_update_check">Check for updates</string>

@@ -496,7 +496,12 @@ private fun JobCard(
                     CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
                         Freshness.State.CURRENT -> StatusPill(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
                         Freshness.State.CHANGED -> ActionPill(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
-                        else -> StatusPill(stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)), Tone.Neutral, Icons.Filled.Schedule)
+                        else -> StatusPill(
+                            // Under a minute "0 min. ago" reads oddly: "Just ran" instead.
+                            if (System.currentTimeMillis() - job.lastRunEpoch < DateUtils.MINUTE_IN_MILLIS) stringResource(R.string.pill_just_ran)
+                            else stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)),
+                            Tone.Neutral, Icons.Filled.Schedule,
+                        )
                     }
                 }
             }
