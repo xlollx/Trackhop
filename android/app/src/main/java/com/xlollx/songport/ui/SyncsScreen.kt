@@ -120,6 +120,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.xlollx.songport.Notifications
 import com.xlollx.songport.sync.ShazamLibrary
 import androidx.compose.material.icons.outlined.AutoAwesome
@@ -1578,7 +1579,15 @@ private fun Stat(value: String, label: String, modifier: Modifier, brush: Brush?
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = tint ?: MaterialTheme.colorScheme.onSurface, maxLines = 1)
+        // A long figure ("+1150", "12345") shrinks to fit its tile instead of losing its last digits.
+        val ink = tint ?: MaterialTheme.colorScheme.onSurface
+        val big = MaterialTheme.typography.headlineSmall
+        androidx.compose.foundation.text.BasicText(
+            value,
+            style = big.copy(fontWeight = FontWeight.Bold, color = ink, textAlign = TextAlign.Center),
+            maxLines = 1,
+            autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = 11.sp, maxFontSize = big.fontSize, stepSize = 1.sp),
+        )
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
     }
 }
