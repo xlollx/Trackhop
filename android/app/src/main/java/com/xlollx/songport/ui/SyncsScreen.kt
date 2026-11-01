@@ -202,6 +202,7 @@ fun SyncsScreen(
     // shows and again after a run (FreshnessChecks).
     val toCheck = FreshnessChecks.worthChecking(data.jobs)
     LifecycleResumeEffect(toCheck.map { Triple(it.id, it.lastRunEpoch, it.sourceVersion) }) {
+        FreshnessChecks.keepOnly(data.jobs.mapTo(HashSet()) { it.id })
         val check = scope.launch { FreshnessChecks.refresh(ctx.env, toCheck) }
         onPauseOrDispose { check.cancel() }
     }

@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateMapOf
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.platform.Env
@@ -17,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap
  * well is called up to date only once its source has been seen unchanged since that run. One light
  * call per sync when the list shows, a few at a time, kept [KEEP_MS]; checked again sooner when the
  * sync runs (its last run or the version seen at it change).
+ *
+ * The results are kept on the phone too ([init]): a card opens with what the last check found, not
+ * with a blank that fills in a second later, and a new check replaces it only once it has an answer.
  */
 internal object FreshnessChecks {
     private class Entry(val state: Freshness.State, val at: Long, val lastRun: Long, val seen: String?)
@@ -24,9 +29,22 @@ internal object FreshnessChecks {
     private const val KEEP_MS = 10 * 60_000L
     private val entries = ConcurrentHashMap<String, Entry>()
     private val slots = Semaphore(3)
+    private var prefs: SharedPreferences? = null
 
     /** What the cards read: written on the main thread, so a card recomposes when its check ends. */
     private val states = mutableStateMapOf<String, Freshness.State>()
+
+    /** The checks kept from earlier opens of the app; once, on the main thread, at start. */
+    fun init(ctx: Context) {
+        if (prefs != null) return
+        val p = ctx.applicationContext.getSharedPreferences("freshness", Context.MODE_PRIVATE)
+        prefs = p
+        for ((id, value) in p.all) {
+            val e = (value as? String)?.let(::decode) ?: continue
+            entries[id] = e
+            states[id] = e.state
+        }
+    }
 
     /** The checked state of [job], or null while it is not checked for its latest run. */
     fun stateOf(job: SyncJob): Freshness.State? {
@@ -48,11 +66,35 @@ internal object FreshnessChecks {
         }.forEach { job ->
             launch(Dispatchers.IO) {
                 slots.withPermit {
-                    val state = Freshness.check(env, job)
-                    entries[job.id] = Entry(state, System.currentTimeMillis(), job.lastRunEpoch, job.sourceVersion)
+                    val found = Freshness.check(env, job)
+                    val before = entries[job.id]?.takeIf { it.lastRun == job.lastRunEpoch && it.seen == job.sourceVersion }
+                    // A check that could not get an answer (no network, a slow service) leaves the
+                    // last answer for this same run in place rather than wiping it.
+                    val state = if (found == Freshness.State.UNKNOWN && before != null) before.state else found
+                    val e = Entry(state, System.currentTimeMillis(), job.lastRunEpoch, job.sourceVersion)
+                    entries[job.id] = e
+                    prefs?.edit()?.putString(job.id, encode(e))?.apply()
                     withContext(Dispatchers.Main) { states[job.id] = state }
                 }
             }
         }
+    }
+
+    /** Drops what is kept for syncs that no longer exist. */
+    fun keepOnly(ids: Set<String>) {
+        val gone = entries.keys.filter { it !in ids }
+        if (gone.isEmpty()) return
+        gone.forEach { entries.remove(it); states.remove(it) }
+        prefs?.edit()?.apply { gone.forEach { remove(it) } }?.apply()
+    }
+
+    // "STATE\tat\tlastRun\tseen": the version last, so whatever it holds stays whole.
+    private fun encode(e: Entry) = listOf(e.state.name, e.at, e.lastRun, e.seen ?: "").joinToString("\t")
+
+    private fun decode(s: String): Entry? {
+        val p = s.split('\t', limit = 4)
+        if (p.size != 4) return null
+        val state = runCatching { Freshness.State.valueOf(p[0]) }.getOrNull() ?: return null
+        return Entry(state, p[1].toLongOrNull() ?: return null, p[2].toLongOrNull() ?: return null, p[3].ifEmpty { null })
     }
 }
