@@ -1298,6 +1298,12 @@
     <string name="radio_notif_blocked_title">Tap to listen to %1$s</string>
     <string name="radio_notif_blocked_text">Android did not let Trackhop start listening in the background. Open the app to start it, or allow alarms and reminders for Trackhop.</string>
     <string name="radio_listen_again">Listen again</string>
+    <string name="whats_new_16_match_title">Fewer songs not found</string>
+    <string name="whats_new_16_match_body">Before searching, titles lose credits such as “(with …)” or “(prod. …)” and remaster notes, and a field with several artists is also tried with the first one.</string>
+    <string name="whats_new_16_servers_title">Home servers out of beta</string>
+    <string name="whats_new_16_servers_body">Navidrome, Jellyfin, Plex and Last.fm are out of beta, used against real servers and accounts. Servers at a plain http:// address on your home network work too.</string>
+    <string name="whats_new_16_idea_title">Suggest an idea</string>
+    <string name="whats_new_16_idea_body">Settings › Help › Suggest an idea: write what would help and post it on GitHub, where others can vote for it.</string>
     <string name="whats_new_15_radio_title">Songs from a radio</string>
     <string name="whats_new_15_radio_body">Pick a radio and the hours: Trackhop notes the songs it plays and adds them to a playlist on any service. Look for the radio on the card.</string>
     <string name="whats_new_15_light_title">Light on battery and data</string>

@@ -1306,6 +1306,12 @@
     <string name="radio_notif_blocked_title">Toque para ouvir %1$s</string>
     <string name="radio_notif_blocked_text">O Android não deixou o Trackhop começar a ouvir em segundo plano. Abra o app para iniciar ou permita alarmes e lembretes para o Trackhop.</string>
     <string name="radio_listen_again">Ouvir de novo</string>
+    <string name="whats_new_16_match_title">Menos músicas não encontradas</string>
+    <string name="whats_new_16_match_body">Antes da busca, os títulos perdem créditos como “(with …)” ou “(prod. …)” e notas de remasterização, e um campo com vários artistas também é tentado com o primeiro.</string>
+    <string name="whats_new_16_servers_title">Servidores caseiros fora do beta</string>
+    <string name="whats_new_16_servers_body">Navidrome, Jellyfin, Plex e Last.fm saem do beta, testados com servidores e contas reais. Servidores da rede de casa com um endereço http:// simples também funcionam.</string>
+    <string name="whats_new_16_idea_title">Sugerir uma ideia</string>
+    <string name="whats_new_16_idea_body">Configurações › Ajuda › Sugerir uma ideia: escreva o que ajudaria e publique no GitHub, onde outros podem votar.</string>
     <string name="whats_new_15_radio_title">Músicas de uma rádio</string>
     <string name="whats_new_15_radio_body">Escolha uma rádio e os horários: o Trackhop anota as músicas tocadas e as adiciona a uma playlist em qualquer serviço.</string>
     <string name="whats_new_15_light_title">Leve na bateria e nos dados</string>

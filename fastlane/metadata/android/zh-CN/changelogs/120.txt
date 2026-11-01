@@ -1,0 +1,1 @@
+更少找不到的歌曲：搜索前，标题会去掉“(with …)”“(prod. …)”等署名和重制版标注，包含多位艺人的字段也会用第一位艺人再试。Navidrome/Subsonic、Jellyfin、Plex 和 Last.fm 结束测试阶段。新功能：设置 › 帮助 › 提出建议，发布到 GitHub，其他人可以投票。网站现为 trackhop.org。

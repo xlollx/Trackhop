@@ -1275,6 +1275,12 @@
     <string name="radio_notif_blocked_title">탭하여 %1$s 듣기</string>
     <string name="radio_notif_blocked_text">Android가 Trackhop이 백그라운드에서 듣기를 시작하도록 허용하지 않았습니다. 앱을 열어 시작하거나 Trackhop에 알람 및 리마인더를 허용하세요.</string>
     <string name="radio_listen_again">다시 듣기</string>
+    <string name="whats_new_16_match_title">못 찾는 곡이 줄었어요</string>
+    <string name="whats_new_16_match_body">검색 전에 제목에서 “(with …)”, “(prod. …)” 같은 크레딧과 리마스터 표기를 빼고, 여러 아티스트가 들어 있는 칸은 첫 번째 아티스트로도 찾아요.</string>
+    <string name="whats_new_16_servers_title">홈 서버 베타 졸업</string>
+    <string name="whats_new_16_servers_body">Navidrome, Jellyfin, Plex, Last.fm이 실제 서버와 계정으로 확인되어 베타를 졸업했어요. 집 네트워크의 http:// 주소 서버도 쓸 수 있어요.</string>
+    <string name="whats_new_16_idea_title">아이디어 제안</string>
+    <string name="whats_new_16_idea_body">설정 › 도움말 › 아이디어 제안: 도움이 될 것을 적어 GitHub에 올리면 다른 사람이 투표할 수 있어요.</string>
     <string name="whats_new_15_radio_title">라디오의 노래를 플레이리스트로</string>
     <string name="whats_new_15_radio_body">라디오와 시간대를 고르면 방송된 노래를 기록해 원하는 서비스의 플레이리스트에 추가합니다.</string>
     <string name="whats_new_15_light_title">배터리와 데이터를 아껴요</string>

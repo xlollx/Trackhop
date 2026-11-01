@@ -1,0 +1,1 @@
+Mniej nieznalezionych utworów: przed wyszukiwaniem tytuły tracą dopiski typu „(with …)” czy „(prod. …)” i notki o remasterze, a pole z kilkoma wykonawcami jest próbowane też z pierwszym. Navidrome/Subsonic, Jellyfin, Plex i Last.fm wychodzą z bety. Nowość: Ustawienia › Pomoc › Zaproponuj pomysł, publikowany na GitHubie, gdzie inni mogą głosować. Strona to teraz trackhop.org.

@@ -1276,6 +1276,12 @@
     <string name="radio_notif_blocked_title">タップして %1$s を聴く</string>
     <string name="radio_notif_blocked_text">Android により、Trackhop はバックグラウンドで聴き始められませんでした。アプリを開いて開始するか、Trackhop にアラームとリマインダーを許可してください。</string>
     <string name="radio_listen_again">もう一度聴く</string>
+    <string name="whats_new_16_match_title">見つからない曲が減りました</string>
+    <string name="whats_new_16_match_body">検索前に、タイトルから「(with …)」「(prod. …)」などのクレジットやリマスター表記を取り除き、複数のアーティストが入った欄は最初のアーティストでも探します。</string>
+    <string name="whats_new_16_servers_title">自宅サーバーがベータを卒業</string>
+    <string name="whats_new_16_servers_body">Navidrome・Jellyfin・Plex・Last.fm は実際のサーバーとアカウントで確認し、ベータを卒業しました。自宅ネットワークの http:// アドレスのサーバーも使えます。</string>
+    <string name="whats_new_16_idea_title">アイデアを提案</string>
+    <string name="whats_new_16_idea_body">設定 › ヘルプ › アイデアを提案：役立つことを書いて GitHub に投稿すると、ほかの人が投票できます。</string>
     <string name="whats_new_15_radio_title">ラジオの曲をプレイリストに</string>
     <string name="whats_new_15_radio_body">ラジオ局と時間帯を選ぶと、流れた曲を記録して好きなサービスのプレイリストに追加します。</string>
     <string name="whats_new_15_light_title">バッテリーと通信量にやさしく</string>

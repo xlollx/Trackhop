@@ -1,0 +1,1 @@
+Menos músicas não encontradas: antes da busca, os títulos perdem créditos como “(with …)” ou “(prod. …)” e notas de remasterização, e um campo com vários artistas também é tentado com o primeiro. Navidrome/Subsonic, Jellyfin, Plex e Last.fm saem do beta. Novo: Configurações › Ajuda › Sugerir uma ideia, publicada no GitHub onde outros podem votar. O site agora é trackhop.org.

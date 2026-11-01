@@ -1276,6 +1276,12 @@
     <string name="radio_notif_blocked_title">点按以收听 %1$s</string>
     <string name="radio_notif_blocked_text">Android 不允许 Trackhop 在后台开始收听。打开应用即可开始，或允许 Trackhop 设置闹钟和提醒。</string>
     <string name="radio_listen_again">重新收听</string>
+    <string name="whats_new_16_match_title">更少找不到的歌曲</string>
+    <string name="whats_new_16_match_body">搜索前，标题会去掉“(with …)”“(prod. …)”等署名和重制版标注；包含多位艺人的字段也会用第一位艺人再试一次。</string>
+    <string name="whats_new_16_servers_title">家庭服务器结束测试</string>
+    <string name="whats_new_16_servers_body">Navidrome、Jellyfin、Plex 和 Last.fm 已在真实服务器和账号上验证，结束测试阶段。家庭网络中使用普通 http:// 地址的服务器也能用。</string>
+    <string name="whats_new_16_idea_title">提出建议</string>
+    <string name="whats_new_16_idea_body">设置 › 帮助 › 提出建议：写下对你有帮助的想法并发布到 GitHub，其他人可以投票。</string>
     <string name="whats_new_15_radio_title">收录电台歌曲</string>
     <string name="whats_new_15_radio_body">选择电台和时段：Trackhop 记录播放的歌曲，并添加到任意服务上的播放列表。</string>
     <string name="whats_new_15_light_title">省电又省流量</string>

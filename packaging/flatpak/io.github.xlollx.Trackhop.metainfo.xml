@@ -99,6 +99,12 @@
   </requires>
 
   <releases>
+    <release version="0.7.0" date="2026-11-01">
+      <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.7.0</url>
+      <description>
+        <p>Fewer tracks not found: titles lose credits and remaster notes before the search. Navidrome, Jellyfin, Plex and Last.fm are out of beta.</p>
+      </description>
+    </release>
     <release version="0.6.3" date="2026-11-01">
       <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.6.3</url>
       <description>

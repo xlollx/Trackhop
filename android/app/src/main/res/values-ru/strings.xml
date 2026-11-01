@@ -1342,6 +1342,12 @@
     <string name="radio_notif_blocked_title">Нажмите, чтобы слушать %1$s</string>
     <string name="radio_notif_blocked_text">Android не позволил Trackhop начать прослушивание в фоне. Откройте приложение, чтобы запустить его, или разрешите Trackhop будильники и напоминания.</string>
     <string name="radio_listen_again">Слушать снова</string>
+    <string name="whats_new_16_match_title">Меньше ненайденных треков</string>
+    <string name="whats_new_16_match_body">Перед поиском из названий убираются пометки вроде «(with …)» или «(prod. …)» и отметки о ремастере, а поле с несколькими исполнителями пробуется и с первым.</string>
+    <string name="whats_new_16_servers_title">Домашние серверы вышли из беты</string>
+    <string name="whats_new_16_servers_body">Navidrome, Jellyfin, Plex и Last.fm вышли из беты: проверены на настоящих серверах и аккаунтах. Серверы домашней сети с простым адресом http:// тоже работают.</string>
+    <string name="whats_new_16_idea_title">Предложить идею</string>
+    <string name="whats_new_16_idea_body">Настройки › Помощь › Предложить идею: напишите, что помогло бы, и опубликуйте на GitHub, где другие могут за это голосовать.</string>
     <string name="whats_new_15_radio_title">Песни с радио</string>
     <string name="whats_new_15_radio_body">Выберите станцию и часы: Trackhop записывает звучащие песни и добавляет их в плейлист в любом сервисе.</string>
     <string name="whats_new_15_light_title">Бережёт батарею и трафик</string>

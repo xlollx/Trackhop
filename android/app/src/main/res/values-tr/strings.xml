@@ -1296,6 +1296,12 @@
     <string name="radio_notif_blocked_title">%1$s dinlemek için dokun</string>
     <string name="radio_notif_blocked_text">Android, Trackhop\'un arka planda dinlemeye başlamasına izin vermedi. Başlatmak için uygulamayı aç ya da Trackhop\'a alarm ve hatırlatıcı izni ver.</string>
     <string name="radio_listen_again">Yeniden dinle</string>
+    <string name="whats_new_16_match_title">Daha az bulunamayan şarkı</string>
+    <string name="whats_new_16_match_body">Aramadan önce başlıklardan “(with …)” veya “(prod. …)” gibi notlar ve remaster ibareleri çıkarılır; birkaç sanatçı içeren bir alan ilk sanatçıyla da denenir.</string>
+    <string name="whats_new_16_servers_title">Ev sunucuları betadan çıktı</string>
+    <string name="whats_new_16_servers_body">Navidrome, Jellyfin, Plex ve Last.fm gerçek sunucu ve hesaplarla denenip betadan çıktı. Ev ağındaki basit http:// adresli sunucular da çalışır.</string>
+    <string name="whats_new_16_idea_title">Fikir öner</string>
+    <string name="whats_new_16_idea_body">Ayarlar › Yardım › Fikir öner: neyin işine yarayacağını yaz ve GitHub\'da paylaş; orada başkaları oy verebilir.</string>
     <string name="whats_new_15_radio_title">Bir radyonun şarkıları</string>
     <string name="whats_new_15_radio_body">Bir radyo ve saatler seç: Trackhop çalınan şarkıları not eder ve herhangi bir servisteki çalma listesine ekler.</string>
     <string name="whats_new_15_light_title">Pil ve veri dostu</string>
