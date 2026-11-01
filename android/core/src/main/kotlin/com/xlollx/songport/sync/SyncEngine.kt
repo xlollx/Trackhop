@@ -155,8 +155,20 @@ class SyncEngine(
      * An error for the log. A [ProviderException] is said by its message alone: its class name is
      * not ours to show, and in a release build R8 shortens it to a letter ("Liked songs: c: …").
      */
-    private fun describe(e: Exception): String =
-        if (e is ProviderException) e.message ?: "error" else "${e.javaClass.simpleName}: ${e.message}"
+    /**
+     * An error as the log says it. Our own exceptions carry a message written for people; a class
+     * name helps only for the platform's own (IOException, SocketTimeoutException…), as a release
+     * build shrinks the app's class names to letters ("h: Stopped by you").
+     */
+    private fun describe(e: Exception): String {
+        val msg = e.message
+        val platform = e.javaClass.name.let { it.startsWith("java.") || it.startsWith("javax.") || it.startsWith("kotlin.") || it.startsWith("android.") }
+        return when {
+            e is ProviderException -> msg ?: "error"
+            platform -> "${e.javaClass.simpleName}: $msg"
+            else -> msg ?: "error"
+        }
+    }
 
     /** A track as the log names it: artist and title, never an id alone (an untitled entry says so). */
     private fun named(tracks: Collection<Track>, max: Int = 20): String =
