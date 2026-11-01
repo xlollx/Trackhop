@@ -15,7 +15,7 @@ note off each one once its channel is live.
 | Chocolatey | `chocolatey/` | 0.5.1 pushed, in moderation | Account, API key secret | `stores.yml` packs, tests and pushes; moderation approves |
 | Scoop | `scoop/trackhop.json` | **Live** ([xlollx/scoop-bucket](https://github.com/xlollx/scoop-bucket)) | Create `xlollx/scoop-bucket` | The bucket's Excavator updates the manifest |
 | Homebrew (macOS) | `homebrew/` | **Live** ([xlollx/homebrew-tap](https://github.com/xlollx/homebrew-tap)) | Create `xlollx/homebrew-tap` | The tap's own workflow updates the cask |
-| Microsoft Store | `msix/`, `desktop.yml` | Submitted, in certification ("Trackhop Desktop") | Account, reserve the name, three variables, first submission | Upload the release's `.msix` in Partner Center |
+| Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission | Upload the release's `.msix` in Partner Center |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
