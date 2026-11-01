@@ -1,0 +1,1 @@
+Syncs más seguras: si un servicio envía solo parte de una playlist (le pasó a YouTube Music con Me gusta), Trackhop ya no vuelve a añadirlo todo. Un destino mucho más pequeño que en la última ejecución se vuelve a leer y, si sigue así, la sync se detiene sin cambiar nada. Desde la vista previa puedes sincronizar igualmente si de verdad vaciaste la playlist.

@@ -5,6 +5,16 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 0.6.2
+
+- **A target read in part no longer makes a sync write everything again**: when a service lists far
+  fewer tracks than the last run left on the target (under half, from 20 tracks: YouTube Music once
+  sent a few songs of a Liked music of thousands), the target is read again and, still that small,
+  the run stops before writing anything, with both counts in the error. If the playlist really was
+  emptied, **Sync anyway** on the sync's card runs it once regardless; scheduled runs never do.
+- **YouTube Music**: a playlist listing under half of the song count in its own header is refused
+  instead of taken as the whole.
+
 ## 0.6.1
 
 - **What each person may use**, on a server shared by several people: in **Users** the admin ticks,

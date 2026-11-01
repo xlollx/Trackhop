@@ -1,0 +1,1 @@
+Syncs mais seguras: quando um serviço envia só parte de uma playlist (aconteceu com as Curtidas do YouTube Music), o Trackhop não adiciona mais tudo de novo. Um destino muito menor que na última execução é lido outra vez e, se continuar assim, a sync para sem mudar nada. Pela prévia você pode sincronizar mesmo assim se a playlist foi esvaziada de verdade.

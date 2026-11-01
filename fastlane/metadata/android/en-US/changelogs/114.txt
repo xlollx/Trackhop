@@ -1,0 +1,1 @@
+Safer syncs: when a service sends only part of a playlist (YouTube Music did with Liked music), Trackhop no longer adds everything again. A target far smaller than at the last run is read once more and, still that small, the sync stops without changing anything. The preview lets you sync anyway if the playlist really was emptied.

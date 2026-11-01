@@ -1,0 +1,1 @@
+Syncs plus sûres : quand un service n’envoie qu’une partie d’une playlist (YouTube Music l’a fait avec les J’aime), Trackhop ne rajoute plus tout. Une cible bien plus petite qu’à la dernière exécution est relue et, si elle le reste, la sync s’arrête sans rien changer. L’aperçu permet de synchroniser quand même si la playlist a vraiment été vidée.

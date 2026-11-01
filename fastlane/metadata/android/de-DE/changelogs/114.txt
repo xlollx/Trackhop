@@ -1,0 +1,1 @@
+Sicherere Syncs: Schickt ein Dienst nur einen Teil einer Playlist (YouTube Music bei „Mag ich“), fügt Trackhop nicht mehr alles erneut hinzu. Ein Ziel, das viel kleiner ist als beim letzten Lauf, wird noch einmal gelesen; bleibt es so klein, stoppt die Sync, ohne etwas zu ändern. In der Vorschau kannst du trotzdem synchronisieren, wenn die Playlist wirklich geleert wurde.

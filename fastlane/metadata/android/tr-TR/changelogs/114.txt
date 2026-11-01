@@ -1,0 +1,1 @@
+Daha güvenli eşitleme: Bir hizmet çalma listesinin yalnızca bir kısmını gönderdiğinde (YouTube Music beğenilerinde oldu), Trackhop artık her şeyi yeniden eklemiyor. Son çalıştırmadan çok daha küçük görünen hedef yeniden okunur; hâlâ küçükse eşitleme hiçbir şeyi değiştirmeden durur. Liste gerçekten boşaltıldıysa önizlemeden yine de eşitleyebilirsin.
