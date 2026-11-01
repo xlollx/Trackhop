@@ -1282,4 +1282,17 @@
     <string name="whats_new_15_light_body">在手机上每 2 分钟查看一次正在播放的歌曲，默认仅在 Wi-Fi 下，并显示一条小通知。</string>
     <string name="whats_new_15_parallel_title">更快的全部同步</string>
     <string name="whats_new_15_parallel_body">不同账号的同步现在可同时进行，最多三个；同一账号的仍会排队。</string>
+    <!-- Suggest an idea (IdeaSheet) -->
+    <string name="idea_row">提出建议</string>
+    <string name="idea_row_summary">新的服务、选项，或不清楚的地方：说说什么对你有帮助。</string>
+    <string name="idea_title">提出建议</string>
+    <string name="idea_body">怎样能让 Trackhop 对你更好用？你遇到的问题比具体的解决方案更重要。</string>
+    <string name="idea_field">你的建议</string>
+    <string name="idea_why">为什么对你有帮助（可选）</string>
+    <string name="idea_services">涉及的服务（可选）</string>
+    <string name="idea_note">在 GitHub 上，你的建议是公开的，其他人可以投票（需要免费账号）。通过电子邮件则保持私密。Trackhop 不会自行发送任何内容：发送前你会看到全文。</string>
+    <string name="idea_github">在 GitHub 上发布</string>
+    <string name="idea_email">通过邮件发送</string>
+    <string name="idea_others">查看其他人的建议</string>
+    <string name="idea_no_email">未找到邮件应用：请写信至 %1$s。</string>
 </resources>

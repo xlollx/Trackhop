@@ -274,7 +274,6 @@ class StoreScreenshots {
         open(main().setAction(MainActivity.ACTION_NEW_SYNC)) {
             step("shot $n") {
                 waitText("Spotify")
-                compose.onAllNodesWithText("Spotify").onFirst().performClick()
                 compose.waitForIdle()
                 val yt = compose.onAllNodesWithText("YouTube Music").fetchSemanticsNodes()
                 if (yt.size >= 2) compose.onAllNodesWithText("YouTube Music")[1].performClick()
@@ -392,6 +391,13 @@ class StoreScreenshots {
                 snap("settings_${theme}_1")
                 scrollTo(s(R.string.settings_section_privacy)); snap("settings_${theme}_2")
                 scrollTo(s(R.string.settings_section_advanced)); snap("settings_${theme}_3")
+                // Settings › Help › Suggest an idea: empty, then written.
+                scrollTo(s(R.string.idea_row)); compose.onAllNodesWithText(s(R.string.idea_row)).onFirst().performClick()
+                compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.idea_title)).fetchSemanticsNodes().size > 1 }
+                snap("idea_${theme}_1")
+                compose.onAllNodes(hasSetTextAction()).onFirst().performTextInput("Sync my Shazam history to a playlist every week")
+                hideKeyboard(); snap("idea_${theme}_2")
+                instr.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); compose.waitForIdle()
                 toBottom(s(R.string.settings_about)); snap("settings_${theme}_4")
             }
         }

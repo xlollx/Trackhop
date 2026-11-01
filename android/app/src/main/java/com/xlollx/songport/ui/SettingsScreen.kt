@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
@@ -71,6 +72,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -351,6 +353,10 @@ fun SettingsScreen(
         // The guides, written into the app: offline, and in the app's language.
         PrefSection(stringResource(R.string.settings_section_help)) {
             PrefRow(Icons.AutoMirrored.Filled.MenuBook, stringResource(R.string.howto_title), stringResource(R.string.howto_summary), onClick = onHowTo)
+            // Ideas, as a GitHub issue (public, voted) or an email (private): see IdeaSheet.
+            var ideaOpen by rememberSaveable { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Lightbulb, stringResource(R.string.idea_row), stringResource(R.string.idea_row_summary)) { ideaOpen = true }
+            if (ideaOpen) IdeaSheet(onDismiss = { ideaOpen = false })
         }
 
         // ---------------------------------------------------------------- About

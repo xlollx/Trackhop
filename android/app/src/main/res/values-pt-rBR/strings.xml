@@ -1312,4 +1312,17 @@
     <string name="whats_new_15_light_body">No celular, confere a música no ar a cada 2 minutos, só no Wi-Fi por padrão, com uma pequena notificação.</string>
     <string name="whats_new_15_parallel_title">Sincronizar tudo mais rápido</string>
     <string name="whats_new_15_parallel_body">Sincronizações em contas diferentes rodam juntas, até três; duas na mesma conta continuam em fila.</string>
+    <!-- Suggest an idea (IdeaSheet) -->
+    <string name="idea_row">Sugerir uma ideia</string>
+    <string name="idea_row_summary">Um serviço novo, uma opção, algo pouco claro: diga o que ajudaria.</string>
+    <string name="idea_title">Sugerir uma ideia</string>
+    <string name="idea_body">O que deixaria o Trackhop melhor para você? O problema que você enfrenta conta mais do que a solução exata.</string>
+    <string name="idea_field">Sua ideia</string>
+    <string name="idea_why">Por que ajudaria você (opcional)</string>
+    <string name="idea_services">Serviços envolvidos (opcional)</string>
+    <string name="idea_note">No GitHub sua ideia é pública e outros podem votar nela (é preciso uma conta gratuita). Por e-mail ela fica privada. O Trackhop não envia nada sozinho: você vê o texto antes de enviar.</string>
+    <string name="idea_github">Publicar no GitHub</string>
+    <string name="idea_email">Enviar por e-mail</string>
+    <string name="idea_others">Ver as ideias de outras pessoas</string>
+    <string name="idea_no_email">Nenhum app de e-mail encontrado: escreva para %1$s.</string>
 </resources>

@@ -1282,4 +1282,17 @@
     <string name="whats_new_15_light_body">スマホでは 2 分ごとにオンエア中の曲を確認。初期設定は Wi-Fi のみで、小さな通知が出ます。</string>
     <string name="whats_new_15_parallel_title">「すべて同期」が速く</string>
     <string name="whats_new_15_parallel_body">異なるアカウントの同期は最大 3 件まで同時に実行。同じアカウントの同期は順番に実行します。</string>
+    <!-- Suggest an idea (IdeaSheet) -->
+    <string name="idea_row">アイデアを提案</string>
+    <string name="idea_row_summary">新しいサービス、オプション、わかりにくい点など、役立つことを教えてください。</string>
+    <string name="idea_title">アイデアを提案</string>
+    <string name="idea_body">Trackhop をもっと良くするには？ 正確な解決策より、困っていることのほうが大切です。</string>
+    <string name="idea_field">あなたのアイデア</string>
+    <string name="idea_why">どう役立つか（任意）</string>
+    <string name="idea_services">関係するサービス（任意）</string>
+    <string name="idea_note">GitHub ではアイデアは公開され、ほかの人が投票できます（無料アカウントが必要）。メールなら非公開のままです。Trackhop が勝手に送ることはありません。送信前に内容を確認できます。</string>
+    <string name="idea_github">GitHub に投稿</string>
+    <string name="idea_email">メールで送る</string>
+    <string name="idea_others">ほかの人のアイデアを見る</string>
+    <string name="idea_no_email">メールアプリが見つかりません：%1$s 宛てに送ってください。</string>
 </resources>

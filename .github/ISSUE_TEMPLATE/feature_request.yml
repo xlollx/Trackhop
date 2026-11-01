@@ -9,9 +9,19 @@ body:
       description: The problem you are trying to solve counts more than the exact solution.
     validations:
       required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it would help you
+      description: Optional. What you do today instead, or what goes wrong.
   - type: dropdown
     id: services
     attributes:
       label: Services involved, if any
       multiple: true
-      options: [Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Subsonic/Navidrome, Jellyfin, Plex, Last.fm, ListenBrainz, Files, Other]
+      options: [Spotify, YouTube Music, YouTube, Apple Music, Amazon Music, TIDAL, Deezer, SoundCloud, Subsonic/Navidrome, Jellyfin, Plex, Last.fm, ListenBrainz, Files, Other]
+  - type: input
+    id: version
+    attributes:
+      label: Trackhop version
+      description: Optional. Filled in when the idea comes from the app (Settings › Help › Suggest an idea).
