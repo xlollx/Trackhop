@@ -57,9 +57,10 @@ class SettingsTest {
     }
 
     @Test fun onlyThePublishedServerReleasesCount() = runBlocking {
-        // The app's releases (v1.x) come first in GitHub's list and are newer by number: not ours.
+        // The app's releases (v1.x) come first in GitHub's list and are newer by number: not ours. The
+        // server's are all marked pre-release on GitHub (so the app's stay "latest"); a test version has "-rc".
         releases = "[" + listOf(release("v1.6.1"), release("server-v0.9.0", draft = true), release("server-v0.8.0-rc1", pre = true),
-            release("server-v0.7.1"), release("server-v0.7.0")).joinToString(",") + "]"
+            release("server-v0.7.1", pre = true), release("server-v0.7.0", pre = true)).joinToString(",") + "]"
         assertTrue(Updates.check())
         assertEquals("0.7.1", Updates.available()?.version)
         assertEquals("https://github.com/xlollx/Trackhop/releases/tag/server-v0.7.1", Updates.available()?.url)
@@ -87,6 +88,7 @@ class SettingsTest {
         assertEquals("Scoop (scoop update trackhop)", Updates.desktopUpdater("C:\\Users\\me\\scoop\\apps\\trackhop\\current\\Trackhop.exe", "", emptyMap(), false))
         assertTrue(Updates.desktopUpdater("/opt/homebrew/Caskroom/x", "/opt/homebrew/Cellar/trackhop/0.7.0/libexec", emptyMap(), false)!!.startsWith("Homebrew"))
         assertTrue(Updates.desktopUpdater("/app/bin/Trackhop", "", mapOf("FLATPAK_ID" to "org.trackhop.Trackhop"), false)!!.startsWith("Flathub"))
+        assertTrue(Updates.desktopUpdater("/snap/trackhop/12/Trackhop/bin/Trackhop", "", mapOf("SNAP_NAME" to "trackhop"), false)!!.contains("Snap Store"))
         assertNull(Updates.desktopUpdater("C:\\Users\\me\\AppData\\Local\\Trackhop\\Trackhop.exe", "", emptyMap(), false))
     }
 

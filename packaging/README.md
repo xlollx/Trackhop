@@ -17,6 +17,7 @@ note off each one once its channel is live.
 | Homebrew (macOS) | `homebrew/` | **Live** ([xlollx/homebrew-tap](https://github.com/xlollx/homebrew-tap)) | Create `xlollx/homebrew-tap` | The tap's own workflow updates the cask |
 | Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission; for automatic updates an Entra ID app and four secrets | `msstore.yml` uploads the `.msix` and submits it (once its secrets exist; until then, by hand in Partner Center) |
 | Google Play (the app) | `play/whatsnew/`, `play.yml` | Closed testing | A service account, its key as a secret, the track's name | `play.yml` uploads the release's `.aab` with the notes in `play/whatsnew/<versionCode>/` |
+| Snap Store | `snap/`, `snap.yml` | Needs owner action | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
@@ -259,6 +260,31 @@ Without notes for a version, it goes up without any.
 **Each release:** automatic, with the notes written for it in `play/whatsnew/<versionCode>/`.
 
 ---
+
+## Snap Store (Ubuntu)
+
+**In the repository.** `packaging/snap/snapcraft.yaml` packs the Linux `.tar.gz` of a Desktop release
+(jpackage's image, with its own Java) as a strict snap, with GTK 3 and WebKitGTK 4.1 for its window
+from the `gnome` extension. Its data is in `$SNAP_USER_COMMON` (kept across updates); "Start with the
+computer" works through the snap's `autostart` entry; the update notice says the Snap Store updates it.
+`snap.yml` runs after each Desktop run on main that made a release (or by hand), keeps the `.snap` as an
+artifact and, once the secret exists, publishes it to the stable channel.
+
+**Once:**
+
+1. An Ubuntu One account at [snapcraft.io](https://snapcraft.io/account) (sign in, accept the
+   developer terms).
+2. Register the name: [snapcraft.io/register-snap](https://snapcraft.io/register-snap), `trackhop`.
+3. On a Linux machine with snapd (Ubuntu, or Ubuntu in WSL): `sudo snap install snapcraft --classic`,
+   then
+   `snapcraft export-login --snaps=trackhop --channels=stable --acls package_access,package_push,package_update,package_release trackhop-store.txt`
+   (it asks for the Ubuntu One sign-in).
+4. GitHub secret `SNAPCRAFT_STORE_CREDENTIALS`: the whole text of `trackhop-store.txt`; then delete
+   the file.
+5. *Actions › Snap › Run workflow*, *Publish* ticked: the current version goes to the store. The first
+   upload of a strict snap may wait for a manual review of its interfaces (a day or two).
+
+**Each release:** automatic.
 
 ## Flathub
 

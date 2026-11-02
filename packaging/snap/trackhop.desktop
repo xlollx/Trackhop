@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Trackhop
+Comment=Keeps your playlists in sync between music services
+Exec=trackhop
+Icon=${SNAP}/meta/gui/icon.png
+Categories=AudioVideo;Audio;Network;
+StartupWMClass=Trackhop

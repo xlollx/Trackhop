@@ -1,6 +1,6 @@
 name: Desktop
 
-# Trackhop Desktop (beta, docs/guide/desktop.md): the server's engine and pages packed as an app
+# Trackhop Desktop (docs/guide/desktop.md): the server's engine and pages packed as an app
 # with its own Java runtime, by server/desktop/package.sh. Windows: an MSI (per-user, no
 # administrator) and a portable ZIP; Linux: a .deb and a tar.gz for any distribution. Every run keeps
 # them as artifacts; on main, a new server/VERSION gets its own release, server-v<version>, with
@@ -175,7 +175,7 @@ jobs:
           **Flatpak (Linux):** \`flatpak install --user Trackhop-Desktop-v$v-linux.flatpak\`, then *Trackhop* in the menu (needs Flathub's GNOME runtime, which Flatpak offers to install).
           EOF
           gh release create "$tag" dist/* --target "$GITHUB_SHA" --prerelease --latest=false \
-            --title "Trackhop Desktop & Server $v (beta)" --notes-file notes.md
+            --title "Trackhop Desktop & Server $v" --notes-file notes.md
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
   stores:

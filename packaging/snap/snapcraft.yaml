@@ -1,0 +1,54 @@
+# Trackhop Desktop as a snap, for the Snap Store (Ubuntu's software centre). Built by snap.yml from the
+# Linux .tar.gz of a Desktop release (jpackage's image: the program and its own Java runtime), with
+# GNOME's libraries (GTK 3 and WebKitGTK 4.1, for its window) from the gnome extension.
+#
+#   snap.yml lays it out as snapcraft wants it (snap/snapcraft.yaml, snap/gui/) next to the
+#   release's Trackhop-Desktop-linux.tar.gz, then: snapcraft pack
+#   sudo snap install --dangerous trackhop_*.snap
+name: trackhop
+title: Trackhop
+summary: Keeps your playlists in sync between music services
+description: |
+  Trackhop keeps playlists in sync between Spotify, YouTube Music, TIDAL, Deezer, Apple Music,
+  Navidrome, Jellyfin, Plex and more: copy a playlist once, or keep two in step on a schedule. It
+  runs in the background with an icon next to the clock and opens its pages in its own window, and
+  in any browser on this computer at 127.0.0.1, port 8642. Nothing outside the computer can reach
+  them; sign-ins and keys stay on your computer.
+
+  The same sync engine as the Android app. Open source (GPL-3.0). https://trackhop.org
+version: '0.0.0' # set by snap.yml from server/VERSION
+base: core24
+grade: stable
+confinement: strict
+license: GPL-3.0-only
+website: https://trackhop.org
+source-code: https://github.com/xlollx/Trackhop
+issues: https://github.com/xlollx/Trackhop/issues
+platforms:
+  amd64:
+
+apps:
+  trackhop:
+    command: Trackhop/bin/Trackhop
+    extensions: [gnome]
+    # "Start with the computer" in its menu writes $XDG_CONFIG_HOME/autostart/trackhop.desktop, which
+    # under snap confinement is the snap's own folder, where snapd looks for this name.
+    autostart: trackhop.desktop
+    environment:
+      # Its data in the snap's common folder: kept across updates without a copy per revision.
+      SONGPORT_DATA: $SNAP_USER_COMMON
+    plugs:
+      - network
+      - network-bind
+      - browser-support
+      - opengl
+      - home
+
+parts:
+  trackhop:
+    plugin: dump
+    source: Trackhop-Desktop-linux.tar.gz
+    stage-packages:
+      - libxtst6
+      - libxi6
+      - libxrender1

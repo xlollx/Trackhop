@@ -14,7 +14,7 @@ import java.util.Properties
  * "A new version is out": at most twice a day, one plain GET to GitHub's public API for the
  * releases of Trackhop (no account, no identifiers, a fixed User-Agent), and the newest
  * `server-v…` one compared with this version. Not done at all where something else updates
- * Trackhop (the Microsoft Store, Flathub, Homebrew, Scoop, Chocolatey), nor when turned off in
+ * Trackhop (the Microsoft Store, Flathub, the Snap Store, Homebrew, Scoop, Chocolatey), nor when turned off in
  * Settings or with `SONGPORT_UPDATE_CHECK=false`. On a server shared by several people only the
  * admin's engine checks, and only the admin is told.
  */
@@ -107,11 +107,15 @@ object Updates {
         return true
     }
 
-    /** The newest published `server-v…` release in GitHub's list (the app's own are `v…`). */
+    /**
+     * The newest published `server-v…` release in GitHub's list (the app's own are `v…`). They are
+     * all marked "pre-release" on GitHub, so the app's stay "latest": a test version is told by its
+     * tag instead ("0.9.0-rc1").
+     */
     internal fun newest(releases: JsonElement?): Available? =
         releases.arr.mapNotNull { j ->
             val tag = j["tag_name"].str ?: return@mapNotNull null
-            if (!tag.startsWith("server-v") || j["draft"].bool == true || j["prerelease"].bool == true) return@mapNotNull null
+            if (!tag.startsWith("server-v") || j["draft"].bool == true || tag.removePrefix("server-v").contains('-')) return@mapNotNull null
             Available(tag.removePrefix("server-v"), j["html_url"].str ?: RELEASES)
         }.reduceOrNull { a, b -> if (newer(b.version, a.version)) b else a }
 
@@ -137,6 +141,7 @@ object Updates {
         return when {
             store -> "the Microsoft Store"
             env["FLATPAK_ID"] != null -> "Flathub (your software centre)"
+            env["SNAP_NAME"] != null -> "the Snap Store (your software centre)"
             "/cellar/" in where || "/homebrew/" in where -> "Homebrew (brew upgrade)"
             "/scoop/apps/" in where -> "Scoop (scoop update trackhop)"
             "/chocolatey/" in where -> "Chocolatey (choco upgrade trackhop)"

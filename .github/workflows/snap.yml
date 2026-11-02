@@ -1,0 +1,82 @@
+# Trackhop Desktop for the Snap Store (packaging/snap, packaging/README.md "Snap Store"): the Linux
+# .tar.gz of a Desktop release, packed as a snap. After each Desktop run on main that made a release,
+# or by hand (Actions › Snap › Run workflow). Published only when the SNAPCRAFT_STORE_CREDENTIALS
+# secret exists; the .snap is kept as an artifact either way.
+name: Snap
+
+on:
+  workflow_run:
+    workflows: [Desktop]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Desktop version (empty = server/VERSION)
+        required: false
+      publish:
+        description: Publish to the Snap Store (stable channel)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  snap:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    env:
+      HAS_STORE_KEY: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS != '' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Version and release
+        id: rel
+        run: |
+          v="${{ inputs.version }}"
+          [ -n "$v" ] || v=$(tr -d '[:space:]' < server/VERSION)
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          created=$(gh release view "server-v$v" --json createdAt -q .createdAt 2>/dev/null || true)
+          if [ -z "$created" ]; then echo "No release server-v$v yet: nothing to pack."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # After a Desktop run, only a release it has just made: other runs rebuild the same version.
+          if [ "${{ github.event_name }}" = "workflow_run" ] && [ $(( $(date +%s) - $(date -d "$created" +%s) )) -gt 7200 ]; then
+            echo "server-v$v is older than this run: already packed."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
+      - name: Gather the snap's files
+        if: steps.rel.outputs.go == 'true'
+        run: |
+          v=${{ steps.rel.outputs.version }}
+          gh release download "server-v$v" -p "Trackhop-Desktop-v$v-linux.tar.gz" -O packaging/snap/Trackhop-Desktop-linux.tar.gz
+          # snapcraft's layout: snap/snapcraft.yaml, with the menu entry and icon in snap/gui.
+          mkdir -p packaging/snap/snap/gui
+          sed "s/^version: .*/version: '$v'/" packaging/snap/snapcraft.yaml > packaging/snap/snap/snapcraft.yaml
+          cp packaging/snap/trackhop.desktop packaging/snap/snap/gui/trackhop.desktop
+          cp docs/store/icon512.png packaging/snap/snap/gui/icon.png
+
+      - name: Build
+        if: steps.rel.outputs.go == 'true'
+        id: build
+        uses: snapcore/action-build@v1
+        with:
+          path: packaging/snap
+
+      - name: Keep the snap
+        if: steps.rel.outputs.go == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: trackhop-snap
+          path: ${{ steps.build.outputs.snap }}
+          retention-days: 14
+
+      - name: Publish
+        if: steps.rel.outputs.go == 'true' && env.HAS_STORE_KEY == 'true' && (github.event_name == 'workflow_run' || inputs.publish)
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable
