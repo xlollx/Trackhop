@@ -5,15 +5,16 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.0.0
 
-- **Trackhop Desktop is out of beta.** The unofficial connectors stay an alpha; the server on Docker
+- **Trackhop Desktop is out of beta**, hence 1.0. The unofficial connectors stay an alpha; the server on Docker
   stays a beta for now.
 - **Invitation links** for several people on one server: the admin picks a name and what they may use,
   and sends a link; the person opens it and chooses their own password. A link works once, for 7 days,
   and can be renewed or cancelled. Adding someone with a password chosen by the admin still works.
 - **`SONGPORT_USER`**: the user name that goes with `SONGPORT_PASSWORD`. Set, only that name signs in
   (otherwise any name will do, as before); with several people, it is the admin's name instead of `admin`.
+- **New-version notice**: it now sees the server's releases (0.8.0 missed them, being marked as pre-releases on GitHub).
 
 ## 0.8.0
 

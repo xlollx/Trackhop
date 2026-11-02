@@ -95,6 +95,12 @@
   </requires>
 
   <releases>
+    <release version="1.0.0" date="2026-11-02">
+      <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v1.0.0</url>
+      <description>
+        <p>Trackhop Desktop is out of beta. Several people on one server can be invited with a link and choose their own password, and the notice of a new version works.</p>
+      </description>
+    </release>
     <release version="0.8.0" date="2026-11-02">
       <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.8.0</url>
       <description>
