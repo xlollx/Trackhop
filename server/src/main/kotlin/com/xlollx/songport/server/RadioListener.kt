@@ -137,7 +137,7 @@ class RadioListener(private val env: ServerEnv, private val runner: Runner) {
     private fun onTitle(jobId: String, title: String) {
         val job = env.store.job(jobId) ?: return
         val st = status[jobId]
-        st?.lastTitle = title
+        st?.lastTitle = RadioTitles.display(title, job.radio!!.station)
         val track = RadioTitles.track(title, job.radio!!.station) ?: return
         val playlist = job.source.playlistId ?: return
         val added = runBlocking {

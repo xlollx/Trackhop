@@ -24,6 +24,19 @@ class RadioTitlesTest {
         assertEquals("One Kiss (Radio Edit)", RadioTitles.track("Calvin Harris – One Kiss (Radio Edit) | Radio Deejay")!!.title)
     }
 
+    @Test fun mediasetStationsSendARecordTitleFirst() {
+        val raw = "Sweet Home Alabama~Lynyrd Skynyrd~~1974~~211~2026-11-02T08:54:14~2026-11-02T08:56:17~Virgin Radio Classic Rock~123.96~dbced0a3-8299-472b-93e8-ff26ff6d22d8"
+        val t = RadioTitles.track(raw, "Virgin Radio Classic Rock")!!
+        assertEquals("Sweet Home Alabama", t.title)
+        assertEquals(listOf("Lynyrd Skynyrd"), t.artists)
+        assertEquals("Lynyrd Skynyrd - Sweet Home Alabama", RadioTitles.display(raw, "Virgin Radio Classic Rock"))
+        // The station talking: no artist.
+        assertNull(RadioTitles.track("Virgin Radio Classic Rock~~~~~0~2026-11-02T09:00:00~~Virgin Radio Classic Rock~~x", "Virgin Radio Classic Rock"))
+        assertEquals("Virgin Radio Classic Rock", RadioTitles.display("Virgin Radio Classic Rock~~~~~0~2026-11-02T09:00:00~~Virgin Radio Classic Rock~~x"))
+        // "Artist ~ Title" with spaces stays the plain separator.
+        assertEquals("Digital Love", RadioTitles.track("Daft Punk ~ Digital Love")!!.title)
+    }
+
     @Test fun theStationTalkingIsNotASong() {
         assertNull(RadioTitles.track("Radio Deejay", "Radio Deejay"))
         assertNull(RadioTitles.track("Radio Deejay - Radio Deejay", "Radio Deejay"))

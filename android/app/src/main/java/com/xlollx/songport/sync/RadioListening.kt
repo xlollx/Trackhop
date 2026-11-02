@@ -305,7 +305,7 @@ class RadioService : Service() {
 
     private fun status(job: SyncJob, h: Heard, phase: RadioState.Phase, noTitles: Boolean = false, error: String? = null) {
         RadioState.status.update {
-            it + (job.id to RadioState.Status(job.radio!!.station, phase, h.lastTitle, noTitles, error, h.songs))
+            it + (job.id to RadioState.Status(job.radio!!.station, phase, h.lastTitle?.let { RadioTitles.display(it, job.radio!!.station) }, noTitles, error, h.songs))
         }
     }
 

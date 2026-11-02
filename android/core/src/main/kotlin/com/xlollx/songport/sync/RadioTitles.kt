@@ -27,6 +27,7 @@ object RadioTitles {
      * station's name, a URL, an advert or the news.
      */
     fun track(title: String, station: String = ""): Track? {
+        tildeRecord(title)?.let { (song, artist) -> return track("$artist - $song", station) }
         val t = title.trim().replace(Regex("""\s+"""), " ")
         if (t.length < 3 || t.contains("://") || t.contains("www.", ignoreCase = true)) return null
         if (station.isNotBlank() && t.contains(station.trim(), ignoreCase = true) && !t.contains(" - ")) return null
@@ -40,6 +41,25 @@ object RadioTitles {
         if (station.isNotBlank() && (artist.equals(station.trim(), ignoreCase = true) || song.equals(station.trim(), ignoreCase = true))) return null
         return Track(id = "", title = song, artists = artist.split(Regex("""\s*(?:,|&| feat\.? | ft\.? | x )\s*""", RegexOption.IGNORE_CASE)).filter { it.isNotBlank() })
     }
+
+    /**
+     * The record some stations send instead of "Artist - Title" (Mediaset's: Virgin Radio, R101,
+     * Radio 105): fields joined by "~", title first, then artist, then year, length, times, the
+     * station's name and an id ("Sweet Home Alabama~Lynyrd Skynyrd~~1974~~211~…~Virgin Radio Classic Rock~…").
+     * Title and artist, or null when [title] is not such a record or names no artist (the station talking).
+     */
+    private fun tildeRecord(title: String): Pair<String, String>? {
+        if (title.count { it == '~' } < 3 || title.contains(" ~ ")) return null
+        val f = title.split('~').map { it.trim() }
+        val song = f[0]
+        val artist = f.getOrElse(1) { "" }
+        return (song to artist).takeIf { song.isNotEmpty() && artist.isNotEmpty() }
+    }
+
+    /** What is on air, for the card: "Artist - Title" when it is a song, else the title as sent (a record cut to its first field). */
+    fun display(title: String, station: String = ""): String =
+        track(title, station)?.let { t -> t.artists.joinToString(", ") + " - " + t.title }
+            ?: if (title.count { it == '~' } >= 3) title.substringBefore('~').trim().ifEmpty { title } else title
 
     /** The same song, whatever the case or spacing: to note each one once. */
     fun key(t: Track): String = (t.artists.joinToString(",") + "|" + t.title).lowercase().replace(Regex("""[^\p{L}\p{N}|,]"""), "")

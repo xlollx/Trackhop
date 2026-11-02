@@ -7,6 +7,8 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- **Radio syncs: Mediaset stations** (Virgin Radio, R101, Radio 105) send title and artist as a
+  "~" record: they are now read as songs, and the card shows "Artist - Title".
 - **Settings**: a new tab with the page's look (the system's, light or dark, kept for each person)
   and **updates**: a line under the header when a new version is out, with how to update. Twice a
   day at most Trackhop asks GitHub's public API; off in Settings or with `SONGPORT_UPDATE_CHECK=false`,
