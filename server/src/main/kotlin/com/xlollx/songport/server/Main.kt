@@ -108,7 +108,7 @@ class Launched(val env: ServerEnv, val runner: Runner, val web: Web, val version
     fun started(warnNoPassword: Boolean, port: Int = config.port) {
         runner.startScheduler()
         runCatching { LocalKey.write(config.dataDir, port) }.onFailure { env.log("server", "no key for the command line: ${it.message}") }
-        env.log("server", "${edition.product} $version (${edition.stage.uppercase()}: keep a copy of the data folder), data in ${config.dataDir.absolutePath}" + if (warnNoPassword) " (no password: set SONGPORT_PASSWORD if others can reach this port)" else "")
+        env.log("server", "${edition.product} $version${if (edition.stage.isNotEmpty()) " (${edition.stage.uppercase()}: keep a copy of the data folder)" else ""}, data in ${config.dataDir.absolutePath}" + if (warnNoPassword) " (no password: set SONGPORT_PASSWORD if others can reach this port)" else "")
         Runtime.getRuntime().addShutdownHook(Thread { env.store.flush() })
     }
 }

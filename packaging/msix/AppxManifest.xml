@@ -16,7 +16,7 @@
     <DisplayName>Trackhop Desktop</DisplayName>
     <PublisherDisplayName>@PUBLISHER_DISPLAY_NAME@</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-    <Description>Keeps playlists in sync between music services (beta)</Description>
+    <Description>Keeps playlists in sync between music services</Description>
   </Properties>
 
   <Dependencies>

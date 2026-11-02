@@ -1,7 +1,6 @@
-# Trackhop Desktop (Windows, macOS, Linux; beta)
+# Trackhop Desktop (Windows, macOS, Linux)
 
-> **Beta.** Trackhop Desktop works for everyday use but is still young: pages and settings can change
-> between releases. Keep a copy of the data folder (or save the set-up from *Tools › Backup &
+> Out of beta since 0.8.1. Keep a copy of the data folder (or save the set-up from *Tools › Backup &
 > restore*) and [report](reporting-a-problem) what goes wrong. The unofficial connectors stay an alpha.
 
 The same sync engine as the Android app, as a program on your computer, with nothing else to

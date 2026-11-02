@@ -72,7 +72,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
   (GitHub only, read its notes first), or switch to the F-Droid/GitHub build above, which has them
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares the two.
-- **Desktop (Windows, macOS, Linux, beta)**: works for everyday use, still young. The same engine as a program on your
+- **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
   next to the clock and the same web page as the server. Version 0.8.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v0.8.0)):
   [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v0.8.0/Trackhop-Desktop-v0.8.0-windows.msi) ·

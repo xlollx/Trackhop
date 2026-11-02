@@ -16,10 +16,10 @@ object Html {
             """<button class="${h(style)}">${h(label)}</button></form>"""
 
     /** Where the engine runs: in a container ([SERVER]) or as an app on the user's computer ([DESKTOP]). */
-    /** [stage]: the server on Docker is a beta since 0.4.0, Trackhop Desktop since 0.4.1. */
+    /** [stage]: the server on Docker is a beta since 0.4.0; Trackhop Desktop was one from 0.4.1 and is out of it since 0.8.1 (""). */
     enum class Edition(val product: String, val guide: String, val stage: String) {
         SERVER("Trackhop server", "https://trackhop.org/guide/docker", "beta"),
-        DESKTOP("Trackhop Desktop", "https://trackhop.org/guide/desktop", "beta"),
+        DESKTOP("Trackhop Desktop", "https://trackhop.org/guide/desktop", ""),
     }
 
     /** The Trackhop mark (the app's ic_brand_mark), white, for the header's tile. */
@@ -109,16 +109,16 @@ ${refreshSeconds?.let { """<meta http-equiv="refresh" content="$it">""" } ?: ""}
 <link rel="stylesheet" href="/style.css">
 ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
 </head><body>
-<header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop <span class="${edition.stage}">${edition.stage}</span></a>
+<header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop${if (edition.stage.isNotEmpty()) """ <span class="${edition.stage}">${edition.stage}</span>""" else ""}</a>
 ${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}</header>
-$banner<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>
+$banner${if (edition.stage.isEmpty()) "" else """<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>"""}
 <main${if (wide) " class=\"wide\"" else ""}>
 ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""}
 <h1>${h(title)}</h1>
 $body
 </main>
 <footer><a class="coffee" href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">☕ Buy me a coffee</a> <span class="muted">Optional: nothing is unlocked, everything stays free.</span><br>
-${h(edition.product)} ${h(version)} · ${edition.stage} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop">GitHub</a> · <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">Sponsor</a>${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
+${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop">GitHub</a> · <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">Sponsor</a>${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
 </body></html>"""
 
     /**

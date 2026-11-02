@@ -1,6 +1,6 @@
 {
     "version": "0.5.1",
-    "description": "Keeps playlists in sync between music services (Spotify, YouTube, TIDAL, Navidrome, Jellyfin, Plex...). Beta.",
+    "description": "Keeps playlists in sync between music services (Spotify, YouTube, TIDAL, Navidrome, Jellyfin, Plex...).",
     "homepage": "https://trackhop.org/",
     "license": "GPL-3.0-only",
     "notes": [

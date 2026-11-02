@@ -19,12 +19,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>Copyright (c) xlollx, GPL-3.0-only</copyright>
     <tags>trackhop music playlist sync spotify youtube-music tidal navidrome subsonic jellyfin plex foss</tags>
-    <summary>Keeps playlists in sync between music services (beta)</summary>
+    <summary>Keeps playlists in sync between music services</summary>
     <description><![CDATA[Trackhop Desktop is the sync engine of the Trackhop Android app as a program for your computer, with its own Java runtime: nothing else to install.
 
 It keeps playlists in sync between Spotify, YouTube, TIDAL, Navidrome and other Subsonic servers, Jellyfin, Plex, Last.fm, ListenBrainz, SoundCloud links and CSV files, on a schedule, with an icon next to the clock. Its pages open in its own window and in the browser at 127.0.0.1, port 8642, reachable only from this computer.
 
-**Beta:** it works for everyday use, but pages and settings can still change between releases.
 
 ## Notes
 
