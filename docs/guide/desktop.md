@@ -35,6 +35,7 @@ and their commands do not work until the *(soon)* goes away here:
 | Homebrew (macOS) | `brew install --cask xlollx/tap/trackhop` |
 | Microsoft Store (Windows) | [Trackhop Desktop on the Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P), or `winget install 9PFX74Q2XN9P` (official connections only, see [Services](#services)) |
 | Flathub (Linux) | `flatpak install flathub io.github.xlollx.Trackhop` *(soon)* |
+| Snap Store (Ubuntu and others) | `sudo snap install trackhop`, or *Trackhop* in Ubuntu's App Center *(soon, in review)* |
 
 **Windows warns about an unrecognised app** ("Windows protected your PC"): the installer is not
 signed with a paid certificate, as is usual for open-source projects. Choose *More info*, then
@@ -71,6 +72,11 @@ on Windows and WebKitGTK on Linux). Add services, create syncs, run them, as in 
 `http://127.0.0.1:8642` in any browser on this computer (*Open in the browser* in the tray's menu).
 Closing the window leaves Trackhop running in the tray, for the scheduled syncs.
 
+**Settings** (the last tab): a light or dark look, the home page's side column (the last two weeks,
+the numbers, the latest runs; on the left, on the right or hidden), and the notice when a new
+version is out. Installed from a store (Microsoft Store, Flathub, Snap Store, Homebrew, Scoop,
+Chocolatey), that store updates Trackhop and the notice stays off.
+
 The icon next to the clock has **Open Trackhop**, **Open in the browser**, **Start with the
 computer** (it then starts hidden when you sign in, and scheduled syncs keep running) and **Quit**.
 Starting Trackhop again while it runs just brings its window up. Some Linux desktops (GNOME without the *AppIndicator*
@@ -104,7 +110,7 @@ Where it is and every command: [the trackhop command](cli).
 
 | | Windows | Linux |
 |---|---|---|
-| Data (syncs, sign-ins, log) | `%APPDATA%\Trackhop` | `~/.local/share/trackhop` |
+| Data (syncs, sign-ins, log) | `%APPDATA%\Trackhop` | `~/.local/share/trackhop` (`~/snap/trackhop/common` with the snap) |
 | The program | `%LOCALAPPDATA%\Trackhop` (MSI) | `/opt/trackhop` (deb) |
 
 Back up the data folder and you have backed up Trackhop. The log is `songport.log` there, and in

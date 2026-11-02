@@ -9,6 +9,7 @@ which services they can reach, and how.
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
 | Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | no |
+| LiveOne (web player), NetEase Cloud Music and QQ Music links | yes | no |
 | Ads | none | a small banner |
 | Updates | F-Droid, Obtainium or the GitHub release page | Google Play |
 

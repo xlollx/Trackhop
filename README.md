@@ -31,7 +31,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>On a computer or a server?</b> <sub>(beta)</sub><br>
+  <b>On a computer or a server?</b> <sub>(Docker: beta)</sub><br>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v0.8.0/Trackhop-Desktop-v0.8.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://trackhop.org/guide/desktop#macos"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v0.8.0/Trackhop-Desktop-v0.8.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
@@ -43,7 +43,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, a shared track going into a playlist, how compatible two playlists are, a playlist poster, unplayable tracks and their replacements"></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
-Deezer, Subsonic/Navidrome, Jellyfin and Plex, with Last.fm, ListenBrainz and public SoundCloud, NetEase
+Deezer, LiveOne, Subsonic/Navidrome, Jellyfin and Plex, with Last.fm, ListenBrainz and public SoundCloud, NetEase
 Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 this build: development lives on voluntary donations.
