@@ -1,5 +1,5 @@
 // Cloudflare Worker: Ko-fi's webhook → GitHub, so a new supporter's name reaches the site's
-// thank-you (.github/workflows/supporters.yml opens a pull request with it).
+// thank-you (.github/workflows/supporters.yml adds it to the site).
 // Settings (Worker › Settings › Variables and Secrets, as secrets):
 //   KOFI_TOKEN    the "Verification Token" of Ko-fi › Settings › API › Webhooks
 //   GITHUB_TOKEN  a fine-grained token for xlollx/Trackhop only, Contents: Read and write
