@@ -111,7 +111,7 @@
     <string name="ytm_install">Scarica il Bridge</string>
     <string name="report_issue">Segnala su GitHub</string>
     <string name="provider_note_youtube">API ufficiale YouTube Data con un tuo progetto Google Cloud. La quota giornaliera è limitata: le sync grandi possono richiedere più giorni.</string>
-    <string name="provider_note_tidal">Playlist TIDAL (beta).</string>
+    <string name="provider_note_tidal">Playlist TIDAL.</string>
     <string name="provider_note_deezer">Playlist e preferiti Deezer (beta).</string>
 
     <string name="log_empty">Nessuna sincronizzazione eseguita finora.</string>

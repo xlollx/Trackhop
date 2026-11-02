@@ -111,7 +111,7 @@
     <string name="ytm_install">获取 Bridge</string>
     <string name="report_issue">在 GitHub 上报告</string>
     <string name="provider_note_youtube">官方 YouTube Data API，需要你自己的 Google Cloud 项目。每日配额有限：大型同步可能需要好几天。</string>
-    <string name="provider_note_tidal">TIDAL 歌单（测试版）。</string>
+    <string name="provider_note_tidal">TIDAL 歌单。</string>
     <string name="provider_note_deezer">Deezer 歌单和收藏（测试版）。</string>
 
     <string name="log_empty">尚未运行过任何同步。</string>

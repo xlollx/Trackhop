@@ -231,8 +231,9 @@ that is exactly what to report.
 | Spotify (web) | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Spotify sign-in on Spotify's page | nothing, and no Premium | Talks to the web player's own backend (the GraphQL gateway and the playlist store open.spotify.com uses), with the player's session token and client token; the query hashes are read from the player's own code. Since December 2025 Spotify refuses first-party tokens on the public Web API, which is why this route no longer touches it. No ISRC on this route: matching is by title, artist and duration. Not an official route, against Spotify's terms, may break without notice. |
 | Apple Music (web) | read and add, built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above. Not an official route, against Apple's terms, may break without notice. |
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
-| TIDAL | beta | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. Beta: limited real-world use. |
+| TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
 | Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
+| LiveOne (web) | presets (liked songs): read and add, alpha; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
 | Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
 | Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
@@ -629,7 +630,7 @@ services mentioned in this project are trademarks of their respective owners.
 
 ## Known limits
 
-- The connectors marked *beta* in the app (Apple Music, TIDAL, Deezer, SoundCloud with an account,
+- The connectors marked *beta* in the app (Apple Music, Deezer, SoundCloud with an account,
   ListenBrainz) follow each service's documented API and work, but have had limited
   real-world use: the app says so on the connector's card and asks for reports.
 - YouTube (official API): the daily quota is 10,000 units per key, about 100 searches; long syncs

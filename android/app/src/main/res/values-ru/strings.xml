@@ -111,7 +111,7 @@
     <string name="ytm_install">Получить Bridge</string>
     <string name="report_issue">Сообщить на GitHub</string>
     <string name="provider_note_youtube">Официальный YouTube Data API с вашим собственным проектом Google Cloud. Дневная квота ограничена: большие синхронизации могут занять несколько дней.</string>
-    <string name="provider_note_tidal">Плейлисты TIDAL (бета).</string>
+    <string name="provider_note_tidal">Плейлисты TIDAL.</string>
     <string name="provider_note_deezer">Плейлисты и избранное Deezer (бета).</string>
 
     <string name="log_empty">Ни одна синхронизация ещё не запускалась.</string>

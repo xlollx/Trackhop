@@ -111,7 +111,7 @@
     <string name="ytm_install">Bridge 받기</string>
     <string name="report_issue">GitHub에 신고</string>
     <string name="provider_note_youtube">직접 만든 Google Cloud 프로젝트로 쓰는 공식 YouTube Data API예요. 하루 할당량이 제한되어 큰 동기화는 며칠 걸릴 수 있어요.</string>
-    <string name="provider_note_tidal">TIDAL 플레이리스트(베타).</string>
+    <string name="provider_note_tidal">TIDAL 플레이리스트.</string>
     <string name="provider_note_deezer">Deezer 플레이리스트와 즐겨찾기(베타).</string>
 
     <string name="log_empty">아직 실행된 동기화가 없어요.</string>

@@ -24,7 +24,7 @@ import kotlinx.serialization.json.JsonElement
 
 /**
  * TIDAL Open API v2 (https://developer.tidal.com), formato JSON:API.
- * BETA: l'API TIDAL e' giovane e cambia; gli endpoint sono isolati qui per aggiornarli in fretta.
+ * L'API TIDAL v2 cambia ancora: gli endpoint sono isolati qui per aggiornarli in fretta (fuori dalla beta dalla 1.6.2).
  */
 class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val serviceId = SERVICE
@@ -37,7 +37,6 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val routeNoteName: String? get() = "route_note_api"
     override val brandColor = 0xFF111111
     override val noteName = "provider_note_tidal"
-    override val beta = true
     override val searchesByIsrc: Boolean get() = true
     override val supportsAlbums = true
     override val supportsArtists = true

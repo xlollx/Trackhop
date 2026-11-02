@@ -111,7 +111,7 @@
     <string name="ytm_install">Bridge を入手</string>
     <string name="report_issue">GitHub で報告</string>
     <string name="provider_note_youtube">ご自身の Google Cloud プロジェクトを使う公式の YouTube Data API です。1日の割り当ては限られているため、大規模な同期には数日かかることがあります。</string>
-    <string name="provider_note_tidal">TIDAL のプレイリスト（ベータ版）。</string>
+    <string name="provider_note_tidal">TIDAL のプレイリスト。</string>
     <string name="provider_note_deezer">Deezer のプレイリストとお気に入り（ベータ版）。</string>
 
     <string name="log_empty">まだ同期は実行されていません。</string>

@@ -111,7 +111,7 @@
     <string name="ytm_install">Obtenir le Bridge</string>
     <string name="report_issue">Signaler sur GitHub</string>
     <string name="provider_note_youtube">API officielle YouTube Data avec votre propre projet Google Cloud. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
-    <string name="provider_note_tidal">Playlists TIDAL (bêta).</string>
+    <string name="provider_note_tidal">Playlists TIDAL.</string>
     <string name="provider_note_deezer">Playlists et favoris Deezer (bêta).</string>
 
     <string name="log_empty">Aucune sync n\'a encore été lancée.</string>

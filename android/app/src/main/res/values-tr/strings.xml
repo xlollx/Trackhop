@@ -111,7 +111,7 @@
     <string name="ytm_install">Bridge\'i indir</string>
     <string name="report_issue">GitHub\'da bildir</string>
     <string name="provider_note_youtube">Kendi Google Cloud projenizle resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
-    <string name="provider_note_tidal">TIDAL çalma listeleri (beta).</string>
+    <string name="provider_note_tidal">TIDAL çalma listeleri.</string>
     <string name="provider_note_deezer">Deezer çalma listeleri ve favoriler (beta).</string>
 
     <string name="log_empty">Henüz hiçbir senkronizasyon çalışmadı.</string>
