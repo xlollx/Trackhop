@@ -168,6 +168,8 @@ jobs:
 
           **Docker:** \`docker pull ghcr.io/xlollx/trackhop:$v\` (or \`:latest\`). [Docker guide](https://trackhop.org/guide/docker) · [Desktop guide](https://trackhop.org/guide/desktop)
 
+          *A stable release:* GitHub shows it as a pre-release only so that the repository's "latest" release stays the Android app, which app stores and updaters (Obtainium, F-Droid) read from it.
+
           The \`.msix\` is the package for the Microsoft Store, unsigned: it does not install by itself; use the \`.msi\` or the \`.zip\`.
 
           **macOS:** \`-macos-arm64.dmg\` for Apple silicon (M1 and later), \`-macos-x64.dmg\` for Intel Macs. Not signed by Apple: the first time, macOS refuses to open it; then *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)).
