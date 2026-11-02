@@ -426,19 +426,48 @@ class WebLoginActivity : ComponentActivity() {
      * holds a usable session. False until then.
      */
     private var liveOneReading = false
+    /** The last session tried and refused: not tried again while the page still holds it. */
+    private var liveOneRefused: String? = null
     private fun checkLiveOne(): Boolean {
         if (liveOneReading || !::web.isInitialized) return false
-        val host = runCatching { android.net.Uri.parse(web.url ?: "").host }.getOrNull() ?: return false
-        if (host != "www.liveone.com") return false
+        val uri = runCatching { android.net.Uri.parse(web.url ?: "") }.getOrNull() ?: return false
+        // After the sign-in LiveOne passes through /helper/onAuthResponse.jsp, before the player
+        // exchanges the sign-in for its tokens: the storage there still holds the earlier (visitor) session.
+        if (uri.host != "www.liveone.com" || uri.path.orEmpty().startsWith("/helper/")) return false
         liveOneReading = true
         web.evaluateJavascript(LiveOneBridge.STORAGE_SCRIPT) { raw ->
-            liveOneReading = false
-            if (done || isFinishing) return@evaluateJavascript
             // evaluateJavascript answers with a JSON string literal.
             val value = runCatching { parseJson(raw ?: "").str }.getOrNull()
-            if (LiveOneBridge.usable(value)) keepLiveOne(value!!)
+            val token = value?.let { LiveOneWebClient.tokenIn(it) }
+            if (done || isFinishing || !LiveOneBridge.usable(value) || token == liveOneRefused) { liveOneReading = false; return@evaluateJavascript }
+            // Tried before the screen closes: a session LiveOne refuses (a visitor's, one already
+            // renewed by the page) is not kept, and the page is read again a moment later.
+            verifyLiveOne(value!!, token!!)
         }
         return false
+    }
+
+    private fun verifyLiveOne(value: String, token: String) {
+        val app = applicationContext
+        thread {
+            val why = LiveOneBridge.keep(app, value) ?: runCatching { LiveOneWebClient(app).apply { wsToken(renew = true); presets() }; null }
+                .getOrElse { it.message ?: it.javaClass.simpleName }
+            handler.post {
+                liveOneReading = false
+                if (done || isFinishing) return@post
+                if (why == null) { finishLiveOne(); return@post }
+                liveOneRefused = token
+                LiveOneBridge.session.clear(app)
+                BridgeNet.log("liveone", "sign-in: the page's session was refused ($why); waiting for the page to renew it")
+            }
+        }
+    }
+
+    private fun finishLiveOne() {
+        done = true
+        BridgeNet.log("liveone", "sign-in: session kept")
+        setResult(RESULT_OK)
+        finish()
     }
 
     /** LiveOne: the session pasted from a desktop browser (its `slackerUser` entry). */
@@ -456,14 +485,16 @@ class WebLoginActivity : ComponentActivity() {
     private fun keepLiveOne(value: String) {
         if (done) return
         val app = applicationContext
-        LiveOneBridge.keep(app, value)?.let { why ->
-            android.widget.Toast.makeText(this, "LiveOne: $why", android.widget.Toast.LENGTH_LONG).show()
-            return
+        thread {
+            val why = LiveOneBridge.keep(app, value) ?: runCatching { LiveOneWebClient(app).apply { wsToken(renew = true); presets() }; null }
+                .getOrElse { it.message ?: it.javaClass.simpleName }
+            handler.post {
+                if (done || isFinishing) return@post
+                if (why == null) return@post finishLiveOne()
+                LiveOneBridge.session.clear(app)
+                android.widget.Toast.makeText(this, "LiveOne: $why", android.widget.Toast.LENGTH_LONG).show()
+            }
         }
-        done = true
-        BridgeNet.log("liveone", "sign-in: session kept")
-        setResult(RESULT_OK)
-        finish()
     }
 
     /**
