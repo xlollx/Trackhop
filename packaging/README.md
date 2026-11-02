@@ -12,7 +12,7 @@ note off each one once its channel is live.
 |---|---|---|---|---|
 | Docker Hub | `dockerhub/README.md`, `server.yml` | **Live** ([xlollx/trackhop](https://hub.docker.com/r/xlollx/trackhop)) | Docker Hub account and token, two secrets | `server.yml` pushes `xlollx/trackhop` and updates its page |
 | winget | `winget/manifests/…/0.5.1/` | First PR open, in review | Fork, first PR by hand, a token | `stores.yml` opens the PR to `microsoft/winget-pkgs` |
-| Chocolatey | `chocolatey/` | 0.5.1 pushed, in moderation | Account, API key secret | `stores.yml` packs, tests and pushes; moderation approves |
+| Chocolatey | `chocolatey/` | **Live** ([trackhop](https://community.chocolatey.org/packages/trackhop), approved 02/11 with 0.5.1; later versions pushed by `stores.yml`) | Account, API key secret | `stores.yml` packs, tests and pushes; moderation approves |
 | Scoop | `scoop/trackhop.json` | **Live** ([xlollx/scoop-bucket](https://github.com/xlollx/scoop-bucket)) | Create `xlollx/scoop-bucket` | The bucket's Excavator updates the manifest |
 | Homebrew (macOS) | `homebrew/` | **Live** ([xlollx/homebrew-tap](https://github.com/xlollx/homebrew-tap)) | Create `xlollx/homebrew-tap` | The tap's own workflow updates the cask |
 | Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission; for automatic updates an Entra ID app and four secrets | `msstore.yml` uploads the `.msix` and submits it (once its secrets exist; until then, by hand in Partner Center) |

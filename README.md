@@ -88,8 +88,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   then `scoop install xlollx/trackhop`; with [Homebrew](https://github.com/xlollx/homebrew-tap) on a Mac:
   `brew install --cask xlollx/tap/trackhop`. The Mac app is not signed by Apple: the first time,
   *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)). On the [Microsoft Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P) (official connections only), also with
-  `winget install 9PFX74Q2XN9P`. *Coming soon, not live yet:* `winget install xlollx.Trackhop`,
-  `choco install trackhop` (both in review), and
+  `winget install 9PFX74Q2XN9P`. With [Chocolatey](https://community.chocolatey.org/packages/trackhop): `choco install trackhop`. *Coming soon, not live yet:* `winget install xlollx.Trackhop` (in review), and
   `flatpak install flathub io.github.xlollx.Trackhop` ([packaging/](packaging/README.md)).
 - **Server (Docker, beta)**: works for everyday use, still young. The same engine on a home server or a NAS, with a web page and
   scheduled syncs: `docker run -p 8080:8080 -v trackhop-data:/data ghcr.io/xlollx/trackhop`. Official

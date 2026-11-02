@@ -24,12 +24,12 @@ The current version is **0.8.0** ([what's in it](https://github.com/xlollx/Track
 | Any other Linux (x86-64) | [.tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v0.8.0/Trackhop-Desktop-v0.8.0-linux.tar.gz) | Unpack and run `Trackhop/bin/Trackhop`. |
 | Linux with Flatpak | [.flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v0.8.0/Trackhop-Desktop-v0.8.0-linux.flatpak) | `flatpak install --user Trackhop-Desktop-v0.8.0-linux.flatpak` (Flatpak offers GNOME's runtime from Flathub), then *Trackhop* in the menu. |
 
-**Package managers and stores.** Scoop, Homebrew, the Microsoft Store and the Snap Store have Trackhop Desktop already; the others are on their way,
+**Package managers and stores.** Scoop, Chocolatey, Homebrew, the Microsoft Store and the Snap Store have Trackhop Desktop already; the others are on their way,
 and their commands do not work until the *(soon)* goes away here:
 
 | Where | Command |
 |---|---|
-| winget (Windows) | `winget install xlollx.Trackhop` |
+| winget (Windows) | `winget install xlollx.Trackhop` *(soon, in review)* |
 | Chocolatey (Windows) | `choco install trackhop` |
 | Scoop (Windows) | `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`, then `scoop install xlollx/trackhop` |
 | Homebrew (macOS) | `brew install --cask xlollx/tap/trackhop` |

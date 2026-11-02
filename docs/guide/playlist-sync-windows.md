@@ -21,7 +21,8 @@ it (no Java, no Docker, no administrator rights).
 | Portable (.zip) | Unzip anywhere, even a USB stick, and run `Trackhop.exe`. |
 | [Scoop](https://scoop.sh) | `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket` then `scoop install xlollx/trackhop` |
 | [Microsoft Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P) | Install *Trackhop Desktop* from the Store, or `winget install 9PFX74Q2XN9P`. Official connections only; updates come from the Store. |
-| winget (community), Chocolatey | On their way ([status](desktop#install)). |
+| [Chocolatey](https://community.chocolatey.org/packages/trackhop) | `choco install trackhop` |
+| winget (community) | On its way ([status](desktop#install)). |
 
 Windows may say "Windows protected your PC" the first time: the installer is not signed with a paid
 certificate. Choose *More info*, then *Run anyway*.
