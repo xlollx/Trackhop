@@ -21,7 +21,7 @@ From the [download table](desktop#install):
 | `.deb` (Debian, Ubuntu, Mint, Pop!_OS…) | `sudo apt install ./Trackhop-Desktop-v…-linux.deb`, then *Trackhop* in the menu |
 | Flatpak (any distribution) | `flatpak install --user Trackhop-Desktop-v…-linux.flatpak` (built from source, as Flathub does) |
 | `.tar.gz` (any x86-64 distribution) | unpack and run `Trackhop/bin/Trackhop` |
-| Snap (Ubuntu and others) | `sudo snap install trackhop` *(soon, in review)* |
+| Snap (Ubuntu and others) | `sudo snap install trackhop` |
 
 On a server or a NAS with no desktop, use **Docker** instead: one container, a web page, the syncs
 around the clock ([how](playlist-sync-nas)).

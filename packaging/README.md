@@ -17,7 +17,7 @@ note off each one once its channel is live.
 | Homebrew (macOS) | `homebrew/` | **Live** ([xlollx/homebrew-tap](https://github.com/xlollx/homebrew-tap)) | Create `xlollx/homebrew-tap` | The tap's own workflow updates the cask |
 | Microsoft Store | `msix/`, `desktop.yml` | **Live** ([Trackhop Desktop](https://apps.microsoft.com/detail/9PFX74Q2XN9P), product ID `9PFX74Q2XN9P`) | Account, reserve the name, three variables, first submission; for automatic updates an Entra ID app and four secrets | `msstore.yml` uploads the `.msix` and submits it (once its secrets exist; until then, by hand in Partner Center) |
 | Google Play (the app) | `play/whatsnew/`, `play.yml` | Closed testing | A service account, its key as a secret, the track's name | `play.yml` uploads the release's `.aab` with the notes in `play/whatsnew/<versionCode>/` |
-| Snap Store | `snap/`, `snap.yml` | Needs owner action | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
+| Snap Store | `snap/`, `snap.yml` | **Live** ([snapcraft.io/trackhop](https://snapcraft.io/trackhop), stable since 0.8.0) | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
