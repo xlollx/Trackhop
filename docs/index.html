@@ -25,7 +25,20 @@ main_class: home
         <!-- Google Play: its official badge here once the listing is public (never a link to the Bridge from the Play build; the site may). -->
       </div>
       <p class="playnote">On a computer or a server: Trackhop Desktop and Docker. <a href="#docker">All downloads</a></p>
-      <a class="trust" href="guide/security"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>Every download checked on VirusTotal</a>
+      <div class="proof"><a class="trust" href="guide/security"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>Every download checked on VirusTotal</a>
+      <p class="downloads" id="downloads" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zm7-3 6-6-1.41-1.41L13 13.17V4h-2v9.17l-3.59-3.58L6 11l6 6z"/></svg><span></span> downloads</p></div>
+      <script>
+        fetch("https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads-detail.json")
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || !(d.total >= 100)) return;
+            var el = document.getElementById("downloads");
+            el.querySelector("span").textContent = (Math.floor(d.total / 100) * 100).toLocaleString("en") + "+";
+            el.title = "GitHub release downloads and Docker Hub pulls. F-Droid and the stores publish no count, so the real number is higher.";
+            el.hidden = false;
+          })
+          .catch(function () {});
+      </script>
       <p class="playnote">Installed Trackhop from Google Play? Add <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> for YouTube Music, Amazon Music, and Spotify and Apple Music without developer keys. <a href="guide/versions">Which version do I need?</a></p>
     </div>
     <div class="phone"><img src="store/demo.gif" width="230" alt="A tour of Trackhop: syncs, a new sync, accounts, tools, a shared track, the compatibility and poster cards, unplayable tracks, settings"></div>

@@ -1,0 +1,47 @@
+# Counts downloads (GitHub releases + Docker Hub pulls) into the "badges" branch:
+# downloads.json (the README's shields.io badge) and downloads-detail.json (the site's counter).
+name: Downloads
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: downloads
+  cancel-in-progress: false
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Count
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/downloads.py out
+      - name: Into the badges branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for try in 1 2 3 4; do
+            rm -rf badges; git worktree prune
+            git fetch --depth=1 origin badges
+            git worktree add badges FETCH_HEAD
+            git -C badges checkout -q -B badges
+            cp out/downloads.json out/downloads-detail.json badges/
+            git -C badges add -A
+            # Only the time changed: nothing to publish.
+            if git -C badges diff --cached --quiet -- downloads.json && \
+               [ "$(git -C badges diff --cached -- downloads-detail.json | grep -c '^[-+] *"\(total\|github\|docker\)"')" = 0 ]; then
+              echo "No change."; exit 0
+            fi
+            git -C badges commit -q -m "Downloads: $(python3 -c 'import json;print(json.load(open("out/downloads-detail.json"))["total"])')"
+            git -C badges push origin badges && exit 0
+            sleep $((try * 5))
+          done
+          exit 1

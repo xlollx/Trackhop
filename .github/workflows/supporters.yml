@@ -48,11 +48,11 @@ jobs:
 
       - name: Publish
         run: |
-          if git diff --quiet -- docs/_data/supporters.yml; then echo "Nobody new."; exit 0; fi
+          if git diff --quiet -- docs/_data/supporters.yml README.md; then echo "Nobody new."; exit 0; fi
           names=$(paste -sd ',' added.txt | sed 's/,/, /g')
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/_data/supporters.yml
+          git add docs/_data/supporters.yml README.md
           git commit -m "Site: thank $names"
           # Someone may have pushed meanwhile: replay on top and try again.
           for i in 1 2 3; do git pull --rebase -q origin main && git push origin HEAD:main && break; sleep 5; done

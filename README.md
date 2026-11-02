@@ -7,18 +7,13 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases"><img src="https://img.shields.io/github/downloads/xlollx/Trackhop/total" alt="Downloads"></a>
+  <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/github/stars/xlollx/Trackhop?style=flat&label=stars&color=e3b341" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue" alt="License: GPL-3.0-only"></a>
-  <img src="https://img.shields.io/badge/Android-8.0%2B-3ddc84" alt="Android 8.0+">
+  <br>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-desktop.json&label=Desktop%20on%20VirusTotal" alt="Trackhop Desktop's files on VirusTotal"></a>
 </p>
-
-> **Songport is now Trackhop.** Same app, same code, same updates. The name changed because an
-> unrelated service called "SongPort", a music link converter, works in the same space, and two apps
-> with one name confuse people. Your installed app updates normally and keeps all its data; only the
-> name and the web addresses changed (github.com/xlollx/Trackhop, trackhop.org), and old
-> links keep working.
 
 <p align="center">
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="64" alt="Get it on F-Droid"></a>
@@ -37,6 +32,12 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
 </p>
+
+<p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
+<!-- supporters:start -->
+THE ICON · Michel Henke · Pisqui❤️
+<!-- supporters:end -->
+<br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, tools, a shared track, the compatibility and poster cards, unplayable tracks, settings"></p>
 
@@ -167,6 +168,7 @@ that is exactly what to report.
 - [Ads, consent and donations](#ads-consent-and-donations)
 - [Publishing on Google Play](#publishing-on-google-play)
 - [Contributing](#contributing)
+- [Formerly Songport](#formerly-songport)
 - [License, copyright and trademark](#license-copyright-and-trademark)
 - [Known limits](#known-limits)
 
@@ -606,6 +608,14 @@ Issues and pull requests are welcome. For a new service: implement `MusicProvide
 languages and, where useful, a test in `src/test`. Run `gradle testDebugUnitTest` before opening a
 pull request. Report vulnerabilities as described in [SECURITY.md](SECURITY.md), not in a public
 issue.
+
+## Formerly Songport
+
+Same app, same code, same updates. The name changed because an
+unrelated service called "SongPort", a music link converter, works in the same space, and two apps
+with one name confuse people. Your installed app updates normally and keeps all its data; only the
+name and the web addresses changed (github.com/xlollx/Trackhop, trackhop.org), and old
+links keep working.
 
 ## License, copyright and trademark
 

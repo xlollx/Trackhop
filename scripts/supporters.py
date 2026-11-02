@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adds supporters' names to docs/_data/supporters.yml (the "Thank you" in the site's footer).
+"""Adds supporters' names to docs/_data/supporters.yml (the site's "Thank you") and the README's list.
 
     supporters.py "Name" ...            names given (a Ko-fi supporter, by the Supporters workflow)
     supporters.py --sponsors FILE       public GitHub Sponsors from a GraphQL answer (FILE, or - for stdin)
@@ -7,12 +7,15 @@
 Names only, as the person shows them: never amounts. A name already listed (any case) is left as it is.
 Prints the names it added, one per line.
 """
+import html
 import json
 import re
 import sys
 from pathlib import Path
 
-FILE = Path(__file__).resolve().parent.parent / "docs" / "_data" / "supporters.yml"
+ROOT = Path(__file__).resolve().parent.parent
+FILE = ROOT / "docs" / "_data" / "supporters.yml"
+README = ROOT / "README.md"
 MAX = 40
 
 
@@ -41,7 +44,19 @@ def add(names):
             text += "\n"
         text += "".join(f"- name: {json.dumps(n, ensure_ascii=False)}\n" for n in added)
         FILE.write_text(text, encoding="utf-8")
+    readme(text)
     return added
+
+
+def readme(text):
+    """The README's thank-you line, between its supporters markers."""
+    names = [json.loads('"' + n + '"') for n in re.findall(r'^- name: "((?:[^"\\]|\\.)*)"', text, re.M)]
+    page = README.read_text(encoding="utf-8")
+    line = " · ".join(html.escape(n, quote=False) for n in names)
+    new = re.sub(r"(<!-- supporters:start -->\n).*?(\n<!-- supporters:end -->)",
+                 lambda m: m.group(1) + line + m.group(2), page, count=1, flags=re.S)
+    if new != page:
+        README.write_text(new, encoding="utf-8")
 
 
 def sponsors(answer):

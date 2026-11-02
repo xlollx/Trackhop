@@ -223,5 +223,10 @@ body.drawer-open { overflow: hidden; }
 .vt-pill.ok { background: #d8f5e3; color: #135c33; }
 .trust { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 5px 14px; border-radius: 999px; font-size: .9rem; font-weight: 600; text-decoration: none; background: rgba(255,255,255,.14); color: inherit; box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
 .trust:hover { background: rgba(255,255,255,.22); }
+.proof { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.proof .trust { margin-top: 0; }
+.downloads { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 5px 14px; border-radius: 999px; font-size: .9rem; font-weight: 600; background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); cursor: help; }
+.downloads[hidden] { display: none; }
+.downloads span { font-variant-numeric: tabular-nums; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .vt-pill.ok { background: #1d3b2a; color: #9ce6b8; } }
 :root[data-theme="dark"] .vt-pill.ok { background: #1d3b2a; color: #9ce6b8; }
