@@ -96,13 +96,6 @@
       <a href="https://github.com/xlollx/Trackhop/security">Security</a>
     </div>
     <p class="support">Trackhop is free, with nothing locked. If it saves you time, you can <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">buy me a coffee</a> or <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">sponsor it on GitHub</a>.</p>
-    {%- assign fans = site.data.supporters %}
-    {%- if fans and fans.size > 0 %}
-    <div class="thanks{% if fans.size >= 4 %} rolling{% endif %}" aria-label="Thank you to the people who supported Trackhop">
-      <span class="thanks-label">♥ Thank you</span>
-      <div class="thanks-window"><ul class="thanks-names">{% for f in fans %}<li>{{ f.name | escape }}</li>{% endfor %}</ul>{% if fans.size >= 4 %}<ul class="thanks-names" aria-hidden="true">{% for f in fans %}<li>{{ f.name | escape }}</li>{% endfor %}</ul>{% endif %}</div>
-    </div>
-    {%- endif %}
     <p>Trackhop is free software under GPL-3.0-only. It is not affiliated with any music service; their names are used only to indicate compatibility.</p>
   </footer>
 </body>

@@ -88,6 +88,25 @@ body.drawer-open { overflow: hidden; }
 /* On a phone the bar keeps one row: the text links live in the drawer, the cup and the menu stay. */
 @media (max-width: 560px) { .top nav { flex-wrap: nowrap; } .top nav > a:not(.coffee) { display: none; } }
 /* The rename notice, once at the top of the hero, now a quiet note at the end of Get started. */
+/* Supporters on the home page: names only, a few at a time rolling upwards (all of them, still,
+   with reduced motion). */
+.supporters { display: flex; align-items: center; gap: 18px; max-width: 70ch; margin: 22px 0 0; padding: 12px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.supporters-text { flex: 1 1 50%; min-width: 0; }
+.supporters-title { margin: 0; font-weight: 600; color: var(--ink); }
+.supporters-title span { color: var(--accent); }
+.supporters-how { margin: 2px 0 0; font-size: 13px; color: var(--ink-3); }
+.supporters-window { flex: 1 1 50%; min-width: 0; overflow: hidden; }
+.supporters-names { margin: 0; padding: 0; list-style: none; color: var(--ink); }
+.supporters-names li { padding: 3px 0; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.supporters.rolling .supporters-window { height: 7.5em; mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); }
+.supporters.rolling .supporters-roll { animation: supporters-roll var(--supporters-time, 10s) linear infinite; }
+.supporters.rolling:hover .supporters-roll { animation-play-state: paused; }
+@keyframes supporters-roll { to { transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .supporters.rolling .supporters-window { height: auto; mask-image: none; -webkit-mask-image: none; }
+  .supporters.rolling .supporters-roll { animation: none; }
+  .supporters.rolling .supporters-names[aria-hidden] { display: none; }
+}
 .renamed-note { max-width: 70ch; margin: 22px 0 0; padding: 12px 16px; font-size: 14px; color: var(--ink-2); background: var(--surface-2); border-radius: 12px; }
 .stage { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 8px; border-radius: 999px; background: #c8e6ff; color: #003258; vertical-align: middle; }
 .foot p.support { margin-bottom: 10px; color: var(--ink-2); }
@@ -95,21 +114,6 @@ body.drawer-open { overflow: hidden; }
 .foot div { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
 .foot a { color: var(--ink-2); }
 .foot p { max-width: 640px; margin: 0 auto; }
-/* Supporters: their names in a small window under the support line, rolling once there are a few. */
-.foot div.thanks { display: flex; flex-wrap: nowrap; align-items: center; gap: 12px; max-width: 520px; margin: 0 auto 14px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); justify-content: center; }
-.foot .thanks-label { flex: none; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
-.foot div.thanks-window { overflow: hidden; display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: 0; min-width: 0; margin: 0; }
-.foot .thanks-names { display: flex; gap: 22px; margin: 0; padding: 0; list-style: none; color: var(--ink); white-space: nowrap; }
-.foot div.thanks.rolling { justify-content: flex-start; }
-.foot div.thanks.rolling div.thanks-window { flex: 1; gap: 22px; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
-.foot .thanks.rolling .thanks-names { flex: none; animation: thanks-roll 28s linear infinite; }
-.foot .thanks.rolling:hover .thanks-names { animation-play-state: paused; }
-@keyframes thanks-roll { to { transform: translateX(calc(-100% - 22px)); } }
-@media (prefers-reduced-motion: reduce) {
-  .foot div.thanks.rolling div.thanks-window { mask-image: none; -webkit-mask-image: none; flex-wrap: wrap; }
-  .foot .thanks.rolling .thanks-names { animation: none; flex-wrap: wrap; white-space: normal; }
-  .foot .thanks.rolling .thanks-names[aria-hidden] { display: none; }
-}
 
 /* Markdown pages */
 .prose { max-width: 760px; margin: 0 auto; padding: 32px 16px; overflow-wrap: anywhere; }
