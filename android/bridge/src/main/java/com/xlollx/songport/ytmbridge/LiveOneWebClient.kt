@@ -118,9 +118,10 @@ class LiveOneWebClient(private val host: WebHost) {
     /** A player call with the WSToken; a refused token is renewed once. */
     private fun call(method: String, url: String, json: String?, retry: Boolean = true): JsonElement? {
         val p = player()
-        val req = Request.Builder().url(url).method(method, json?.toRequestBody(JSON))
-            .header("BBI-AUTHORIZATION", wsToken()).header("Accept", "application/json, text/plain, */*").headers(p)
-            .apply { if (json != null) header("Content-Type", "application/json") }
+        // A PATCH is a JSON Patch, and the server wants it named so (plain JSON gets a 415).
+        val type = if (method == "PATCH") JSON_PATCH else JSON
+        val req = Request.Builder().url(url).method(method, json?.toRequestBody(type))
+            .header("BBI-AUTHORIZATION", wsToken()).header("Accept", "application/json").headers(p)
             .build()
         val r = send(req)
         if ((r.code == 401 || r.code == 403) && retry) { wsToken(renew = true); return call(method, url, json, retry = false) }
@@ -164,6 +165,7 @@ class LiveOneWebClient(private val host: WebHost) {
         private const val VERSION = "playerVersion"; private const val K = "k"; private const val OAUTH_K = "oauthK"; private const val KEYS_AT = "keysAt"
         private val FORM = "application/x-www-form-urlencoded".toMediaType()
         private val JSON = "application/json".toMediaType()
+        private val JSON_PATCH = "application/json-patch+json".toMediaType()
 
         fun sha1(s: String): String = MessageDigest.getInstance("SHA-1").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
 
