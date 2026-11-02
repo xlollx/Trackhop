@@ -7,7 +7,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
-  <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json&cacheSeconds=3600" alt="Downloads from GitHub and Docker Hub"></a>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/github/stars/xlollx/Trackhop?style=flat&label=stars&color=e3b341" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue" alt="License: GPL-3.0-only"></a>
   <br>
