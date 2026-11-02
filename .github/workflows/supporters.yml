@@ -1,0 +1,57 @@
+# The supporters thanked in the site's footer (docs/_data/supporters.yml), kept up to date:
+# - Ko-fi: each public donation reaches the Cloudflare Worker in packaging/supporters, which sends
+#   the name here (repository_dispatch "supporter"); private ones are never sent.
+# - GitHub Sponsors: once a day, the public sponsors.
+# New names arrive as a pull request, for the owner to look at before they are on the site.
+# Names only, never amounts.
+name: Supporters
+
+on:
+  repository_dispatch:
+    types: [supporter]
+  schedule:
+    - cron: '43 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: supporters
+  cancel-in-progress: false
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Ko-fi supporter
+        if: github.event_name == 'repository_dispatch'
+        env:
+          NAME: ${{ github.event.client_payload.name }}
+        run: python3 scripts/supporters.py "$NAME" | tee -a added.txt
+
+      - name: GitHub Sponsors
+        if: github.event_name != 'repository_dispatch'
+        continue-on-error: true
+        run: |
+          gh api graphql -f query='query { user(login: "${{ github.repository_owner }}") { sponsorshipsAsMaintainer(first: 100, activeOnly: false) { nodes { privacyLevel sponsorEntity { ... on User { login name } ... on Organization { login name } } } } } }' \
+            | python3 scripts/supporters.py --sponsors - | tee -a added.txt
+
+      - name: Pull request
+        run: |
+          if git diff --quiet -- docs/_data/supporters.yml; then echo "Nobody new."; exit 0; fi
+          names=$(paste -sd ',' added.txt | sed 's/,/, /g')
+          branch="supporters/$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add docs/_data/supporters.yml
+          git commit -m "Site: thank $names"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "Thank $names on the site" \
+            --body "New supporters for the footer's thank-you (names only). Merge to show them on trackhop.org; close to leave them out."
