@@ -205,8 +205,8 @@ class Web(
     /** "Trackhop server" or "Trackhop Desktop". */
     internal val productName: String get() = edition.product
 
-    internal fun page(title: String, body: String, refresh: Int? = null) =
-        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner())
+    internal fun page(title: String, body: String, refresh: Int? = null, wide: Boolean = false) =
+        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner(), wide = wide)
 
     /** The path being answered, for the header's current tab. */
     private val currentPath = ThreadLocal<String>()
@@ -244,10 +244,12 @@ class Web(
         if (connected.size < 1) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
         }
+        body.append("""<div class="dash"><div class="dash-main">""")
         body.append("""<p class="actions"><a class="button" href="/syncs/new">New sync</a> ${if (env.may(Permissions.RADIO)) """<a class="button secondary" href="/syncs/radio">$RADIO_ICON New radio sync</a> """ else ""}<a class="button secondary" href="/syncs/shazam">$SHAZAM_ICON New Shazam sync</a></p>""")
         if (jobs.isEmpty()) body.append("""<p class="muted">No syncs yet.</p>""")
         for (job in jobs) body.append(jobCard(job, running.containsKey(job.id)))
-        send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null))
+        body.append("</div>").append(homeSide()).append("</div>")
+        send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = true))
     }
 
     internal fun label(id: String): String = Providers.byId(id)?.label(env) ?: id

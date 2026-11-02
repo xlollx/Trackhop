@@ -98,6 +98,8 @@ object Html {
         theme: String = "system",
         /** A line under the header (a new version is out), or "". */
         banner: String = "",
+        /** The home page's two columns: a wider page on a wide screen. */
+        wide: Boolean = false,
     ): String = """<!doctype html>
 <html lang="en"${if (theme == "light" || theme == "dark") " data-theme=\"$theme\"" else ""}><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -110,7 +112,7 @@ ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
 <header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop <span class="${edition.stage}">${edition.stage}</span></a>
 ${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}</header>
 $banner<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>
-<main>
+<main${if (wide) " class=\"wide\"" else ""}>
 ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""}
 <h1>${h(title)}</h1>
 $body
@@ -206,6 +208,20 @@ footer{max-width:920px;margin:24px auto;padding:0 16px 24px;color:var(--ink-3);f
 .swatches input:focus-visible+.dot{outline:3px dashed var(--link);outline-offset:2px}
 a b,.card a{text-decoration:none}
 progress{width:100%;accent-color:var(--accent)}
+main.wide{max-width:1240px}
+.dash{display:grid;gap:0 20px}
+@media (min-width:1000px){.dash{grid-template-columns:320px minmax(0,1fr)}.dash-side{order:-1;position:sticky;top:12px;align-self:start}}
+.dash-side h3{margin-bottom:8px}
+.figures{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 12px}
+.figures div{margin:0}.figures dt{color:var(--ink-3);font-size:13px}.figures dd{margin:0;font-size:22px;font-weight:700}
+.runs,.services{list-style:none;margin:0;padding:0}
+.runs li{margin:0 0 8px}
+.services{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}.services li{display:flex;align-items:center;gap:8px;margin:0}
+svg.activity{width:100%;height:auto;display:block;margin-top:6px}
+svg.activity .bar{fill:var(--accent)}
+svg.activity .col:hover .bar{fill:var(--link);filter:brightness(1.15)}
+svg.activity .axis{stroke:var(--line);stroke-width:1}
+svg.activity .tick{fill:var(--ink-3);font-size:10px}
 @media (max-width:560px){h1{font-size:22px}.top{padding:10px 12px}}
 """
 }
