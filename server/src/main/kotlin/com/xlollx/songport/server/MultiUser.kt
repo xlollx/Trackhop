@@ -50,6 +50,7 @@ class MultiUser private constructor(
     private val admin: Launched,
     private val users: UserStore,
     private val sessions: Sessions,
+    private val invites: Invites,
 ) {
     /** One person's Trackhop as the shared server reaches it. [loader] is null for the admin's, which lives in this one. */
     private class Engine(val handler: HttpHandler, val acceptsApi: BiPredicate<String?, InetAddress?>, val stop: Runnable, val loader: URLClassLoader?)
@@ -136,6 +137,7 @@ class MultiUser private constructor(
             return delegate(engine, ex)
         }
         if (path == "/login") return login(ex, method)
+        if (parts.size == 2 && parts[0] == "invite") return acceptInvite(ex, method, parts[1])
         val name = signedIn(ex) ?: return askToSignIn(ex, method)
         if (method == "POST" && !sameOrigin({ ex.requestHeaders.getFirst(it) }, config.baseUrl)) return send(ex, 403, "Cross-site request refused", "text/plain")
         when {
@@ -229,6 +231,45 @@ class MultiUser private constructor(
         redirect(ex, "/login")
     }
 
+    /**
+     * Someone opening the link the admin sent them: they choose their password, and the account the
+     * admin prepared (name, what they may use) is theirs, signed in. A link works once, for [Invites.DAYS] days.
+     */
+    private fun acceptInvite(ex: HttpExchange, method: String, token: String) {
+        val invite = invites.find(token)
+        if (invite == null || users.has(invite.name)) return send(ex, 404, page(
+            "This invitation does not work",
+            """<div class="card err">The link was already used, has expired or was cancelled.</div><p class="muted">Ask whoever sent it for a new one. Already have an account? <a href="/login">Sign in</a>.</p>""",
+        ))
+        var error: String? = null
+        if (method == "POST") {
+            if (!sameOrigin({ ex.requestHeaders.getFirst(it) }, config.baseUrl)) return send(ex, 403, "Cross-site request refused", "text/plain")
+            val f = form(String(ex.requestBody.readNBytes(MAX_FORM), StandardCharsets.UTF_8))
+            val password = f["password"].orEmpty()
+            when {
+                password.length < MIN_PASSWORD -> error = "Use at least $MIN_PASSWORD characters."
+                password != f["repeat"] -> error = "The two passwords are different."
+                invites.take(token) == null -> return send(ex, 404, page("This invitation does not work", """<div class="card err">The link was just used.</div><p><a href="/login">Sign in</a></p>"""))
+                else -> {
+                    users.add(invite.name, password, invite.permissions)
+                    startEngine(invite.name)
+                    log("${invite.name} joined with the invitation from ${invite.by}")
+                    val session = sessions.create(invite.name, config.password!!)
+                    ex.responseHeaders.add("Set-Cookie", cookieHeader(session, SESSION_DAYS * 86_400L))
+                    return redirect(ex, "/")
+                }
+            }
+        }
+        val body = """${error?.let { """<div class="card err">${h(it)}</div>""" } ?: ""}<form method="post" class="card">
+<p>${h(invite.by)} invited you to this Trackhop: you get one of your own, with your services and syncs. Nobody else on this server sees them.</p>
+<label for="user">Your user name</label><input type="text" id="user" name="user" value="${h(invite.name)}" autocomplete="username" readonly>
+<label for="password">Choose a password</label><input type="password" id="password" name="password" autocomplete="new-password" minlength="$MIN_PASSWORD" required autofocus>
+<label for="repeat">Password again</label><input type="password" id="repeat" name="repeat" autocomplete="new-password" minlength="$MIN_PASSWORD" required>
+<p><button>Start</button></p></form>
+<p class="muted">You sign in with this name and password from now on; you can change the password under your name.</p>"""
+        send(ex, 200, Html.page("Welcome", body, admin.version, null, Html.Edition.SERVER, "invite", null, showNav = false))
+    }
+
     private fun cookieHeader(value: String, maxAge: Long): String =
         "$COOKIE=$value; Path=/; Max-Age=$maxAge; HttpOnly; SameSite=Lax" + if (config.baseUrl.startsWith("https://")) "; Secure" else ""
 
@@ -288,9 +329,13 @@ $passwordCard"""
         send(ex, 200, page("Your account", body, me, "account"))
     }
 
+    private fun inviteLink(token: String) = "${config.baseUrl}/invite/$token"
+
     private fun usersPage(ex: HttpExchange, method: String, me: String) {
         var message: String? = null
         var error: String? = null
+        /** An invitation just made: the person and their link, shown this once (only its hash is kept). */
+        var newLink: Pair<String, String>? = null
         if (method == "POST") {
             val pairs = formPairs(String(ex.requestBody.readNBytes(MAX_FORM), StandardCharsets.UTF_8))
             val f = pairs.toMap()
@@ -302,9 +347,17 @@ $passwordCard"""
                     !NAME.matches(name) -> error = "A user name is 1 to 32 lowercase letters, digits, - or _, starting with a letter or a digit."
                     name in RESERVED -> error = "\"$name\" is taken: choose another name."
                     users.has(name) -> error = "There is already a user called $name."
+                    // The page's own button says which; a script sending only a password adds as before.
+                    f["how"] == "invite" || (f["how"] == null && password.isEmpty()) -> {
+                        // Invited: the name is kept for them until they choose their password.
+                        val token = invites.create(name, chosen, me)
+                        log("$me invited $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})")
+                        newLink = name to inviteLink(token)
+                    }
                     password.length < MIN_PASSWORD -> error = "Use at least $MIN_PASSWORD characters for the password."
                     else -> {
                         users.add(name, password, chosen)
+                        invites.cancel(name)
                         startEngine(name)
                         log("$me added $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})")
                         message = "Added $name: they sign in with that name and password, and start with an empty Trackhop."
@@ -332,6 +385,18 @@ $passwordCard"""
                         message = "Saved $name's permissions. Their Trackhop restarted with them: a sync that was running starts again at its next turn."
                     }
                 }
+                "renew" -> when (val old = invites.pending().firstOrNull { it.name == name }) {
+                    null -> error = "There is no invitation for $name."
+                    else -> {
+                        newLink = name to inviteLink(invites.create(name, old.permissions, me))
+                        log("$me made a new invitation link for $name")
+                    }
+                }
+                "cancel" -> {
+                    invites.cancel(name)
+                    log("$me cancelled the invitation for $name")
+                    message = "Cancelled the invitation for $name: the link no longer works."
+                }
                 "remove" -> when {
                     !users.has(name) -> error = "There is no user called $name."
                     name == me -> error = "You cannot remove yourself: the admin or another co-admin can."
@@ -351,6 +416,10 @@ $passwordCard"""
         fun boxes(selected: Set<String>) = Permissions.ALL.joinToString("") { (k, label, help) ->
             """<label class="check"><input type="checkbox" name="perm" value="$k"${if (k in selected) " checked" else ""}> <span><b>${h(label)}</b><br><span class="muted">${h(help)}</span></span></label>"""
         }
+        val pending = invites.pending().joinToString("") { inv ->
+            """<div class="card"><p><b>${h(inv.name)}</b> <span class="badge">invited</span> <span class="muted">by ${h(inv.by)}, link valid until ${Html.date(inv.until)}</span></p>
+<p class="row">${Html.postButton("/users", "New link", "secondary", mapOf("action" to "renew", "name" to inv.name))} ${Html.postButton("/users", "Cancel invitation", "secondary", mapOf("action" to "cancel", "name" to inv.name))}</p></div>"""
+        }
         val rows = users.names().joinToString("") { n ->
             val state = broken[n]?.let { """<span class="err">did not start: ${h(it)}</span>""" } ?: if (engines.containsKey(n)) "" else "starting…"
             val perms = users.permissions(n)
@@ -358,16 +427,23 @@ $passwordCard"""
 <details><summary>Permissions</summary><form method="post" action="/users"><input type="hidden" name="action" value="permissions"><input type="hidden" name="name" value="${h(n)}">${boxes(perms)}<p><button class="secondary">Save permissions</button></p></form></details>
 <details><summary>Forgot the password?</summary><form method="post" action="/users"><input type="hidden" name="action" value="password"><input type="hidden" name="name" value="${h(n)}"><label>New password for ${h(n)}</label><input type="password" name="password" autocomplete="new-password" minlength="$MIN_PASSWORD" required><p class="muted">They are signed out everywhere and sign in again with it; they can change it afterwards under their name.</p><p><button class="secondary">Set the new password</button></p></form></details>
 ${if (n == me) "" else Html.postButton("/users", "Remove $n", "secondary", mapOf("action" to "remove", "name" to n), confirm = "Remove $n? Their Trackhop stops; their data is kept in a folder you can delete afterwards.")}</div>"""
-        }.ifEmpty { """<p class="muted">Nobody else yet.</p>""" }
-        val body = """${message?.let { """<div class="card ok">${h(it)}</div>""" } ?: ""}${error?.let { """<div class="card err">${h(it)}</div>""" } ?: ""}
+        }.ifEmpty { if (pending.isEmpty()) """<p class="muted">Nobody else yet.</p>""" else "" }
+        val linkCard = newLink?.let { (n, link) -> """<div class="card ok"><p><b>Invitation for ${h(n)}</b>: send them this link (a message, an email…). It works once, for ${Invites.DAYS} days: they open it, choose their password and are in.</p>
+<p class="row"><input type="text" id="invite-link" value="${h(link)}" readonly onfocus="this.select()"> <button type="button" class="secondary" onclick="var i=document.getElementById('invite-link');i.select();(navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.reject()).catch(function(){document.execCommand('copy')});this.textContent='Copied'">Copy</button></p>
+<p class="muted">It is shown only now. Lost it? Make a new one below: the old one stops working.</p></div>""" } ?: ""
+        val body = """${message?.let { """<div class="card ok">${h(it)}</div>""" } ?: ""}${error?.let { """<div class="card err">${h(it)}</div>""" } ?: ""}$linkCard
 <p class="muted">Each person has a Trackhop of their own on this server: their own services, syncs, files, backups and log, in <code>${h(File(root, USERS_DIR).path)}/&lt;name&gt;</code>. Their scheduled syncs run whether or not they are signed in. <b>$ADMIN</b> keeps this server's own Trackhop and may do everything.</p>
 <form method="post" action="/users" class="card"><h2>Add someone</h2><input type="hidden" name="action" value="add">
 <label for="name">User name</label><input type="text" id="name" name="name" autocapitalize="none" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-]{0,31}" required>
-<label for="password">Password</label><input type="password" id="password" name="password" autocomplete="new-password" minlength="$MIN_PASSWORD" required>
 <p><b>They may use</b></p>${boxes(Permissions.DEFAULT)}
-<p><button>Add</button></p></form>
+<p><button name="how" value="invite">Create an invitation link</button></p>
+<p class="muted">They open the link, choose their own password and are in: you never need to know it.</p>
+<details><summary>Or choose their password yourself</summary>
+<label for="password">Password</label><input type="password" id="password" name="password" autocomplete="new-password" minlength="$MIN_PASSWORD">
+<p class="muted">Then tell them their name and this password.</p>
+<p><button name="how" value="password" class="secondary">Add with this password</button></p></details></form>
 <h2>People</h2>
-$rows
+$pending$rows
 <div class="card"><p><b>The admin's password</b> is <code>SONGPORT_PASSWORD</code> in the container's settings (the Compose file, or the container's environment in Portainer, Unraid, Synology…). Forgot it? Read it there, or set a new one and restart the container: nothing else changes.</p></div>"""
         send(ex, 200, page("Users", body, Html.Account(me, true), "users"))
     }
@@ -447,7 +523,7 @@ $rows
          */
         fun serve(config: Config, env: Map<String, String>): MultiUser {
             val admin = launch(Config(env - "SONGPORT_PASSWORD"), Html.Edition.SERVER, account = Html.Account(ADMIN, true))
-            val hub = MultiUser(config, env, admin, UserStore(File(config.dataDir, "users.json")), Sessions(File(config.dataDir, "sessions.json")))
+            val hub = MultiUser(config, env, admin, UserStore(File(config.dataDir, "users.json")), Sessions(File(config.dataDir, "sessions.json")), Invites(File(config.dataDir, "invites.json")))
             hub.users.names().forEach { hub.startEngine(it) }
             val server = HttpServer.create(InetSocketAddress(config.port), 0)
             server.executor = Executors.newFixedThreadPool(16)
@@ -640,5 +716,58 @@ internal class Sessions(private val file: File) {
 
     companion object {
         private const val DAYS = 30
+    }
+}
+
+/**
+ * Invitations to a shared server: the admin prepares a person (name, what they may use) and sends
+ * them a link; opening it, they choose their password. Here only the link's SHA-256 is kept, in
+ * `invites.json`, with whose it is and until when. One per name: a new link replaces the old one.
+ */
+internal class Invites(private val file: File) {
+    class Invite(val name: String, val permissions: Set<String>, val by: String, val until: Long)
+
+    private val lock = Any()
+    private var all: Map<String, Invite> = load()
+
+    private fun load(): Map<String, Invite> = runCatching {
+        Json.parseToJsonElement(file.readText()).jsonObject.mapValues { (_, v) ->
+            val o = v.jsonObject
+            Invite(o["name"]!!.jsonPrimitive.content, Permissions.parse(o["permissions"]?.jsonPrimitive?.contentOrNull), o["by"]?.jsonPrimitive?.contentOrNull.orEmpty(), o["until"]!!.jsonPrimitive.long)
+        }
+    }.getOrDefault(emptyMap())
+
+    private fun save() = writePrivate(file, buildJsonObject {
+        all.forEach { (k, i) -> put(k, buildJsonObject { put("name", i.name); put("permissions", Permissions.format(i.permissions)); put("by", i.by); put("until", i.until) }) }
+    }.toString())
+
+    private fun live(now: Long = System.currentTimeMillis()) = all.filterValues { it.until > now }
+
+    /** A new link for [name] (any earlier one stops working); returns its token, for the link only. */
+    fun create(name: String, permissions: Set<String>, by: String): String {
+        val token = Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32).also { SecureRandom().nextBytes(it) })
+        synchronized(lock) {
+            all = live().filterValues { it.name != name } + (MultiUser.sha256(token) to Invite(name, permissions, by, System.currentTimeMillis() + DAYS * 86_400_000L))
+            save()
+        }
+        return token
+    }
+
+    fun find(token: String): Invite? = synchronized(lock) { live()[MultiUser.sha256(token)] }
+
+    /** Uses up [token]: the invitation it was, or null when it no longer works (two tabs, a second click). */
+    fun take(token: String): Invite? = synchronized(lock) {
+        val key = MultiUser.sha256(token)
+        live()[key]?.also { all = all - key; save() }
+    }
+
+    fun cancel(name: String) = synchronized(lock) {
+        if (all.values.any { it.name == name }) { all = all.filterValues { it.name != name }; save() }
+    }
+
+    fun pending(): List<Invite> = synchronized(lock) { live().values.sortedBy { it.name } }
+
+    companion object {
+        const val DAYS = 7
     }
 }

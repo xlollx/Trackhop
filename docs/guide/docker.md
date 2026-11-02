@@ -246,9 +246,16 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
 ```
 
 1. Open the page and sign in as **admin**, with `SONGPORT_PASSWORD`.
-2. In **Users**, add each person with a user name, a first password and what they may use (below).
-3. They sign in at the same address with their name and password, and connect their own services.
-   The 👤 link with their name, in the top bar, is where they change their password or sign out.
+2. In **Users**, add each person with a user name and what they may use (below), then **Create an
+   invitation link** and send it to them (a message, an email…).
+3. They open the link, choose their own password and are in: they connect their own services. From
+   then on they sign in at the same address with their name and password. The 👤 link with their
+   name, in the top bar, is where they change their password or sign out.
+
+- **Invitation links** work once, for 7 days, and are shown only when made. Lost or expired? In
+  **Users**, *New link* makes another (the old one stops working); *Cancel invitation* ends it. The
+  link starts with `SONGPORT_URL`, so set that to the address the others reach. Rather choose the
+  password yourself? Under *Or choose their password yourself*, then tell them name and password.
 
 - **What each person may use**, ticked by the admin in **Users** and changed there at any time:
   - *Co-admin*: manages the others as the admin does (not themselves: another admin does that).

@@ -9,6 +9,9 @@ the Docker image carried the app's version.
 
 - **Trackhop Desktop is out of beta.** The unofficial connectors stay an alpha; the server on Docker
   stays a beta for now.
+- **Invitation links** for several people on one server: the admin picks a name and what they may use,
+  and sends a link; the person opens it and chooses their own password. A link works once, for 7 days,
+  and can be renewed or cancelled. Adding someone with a password chosen by the admin still works.
 
 ## 0.8.0
 

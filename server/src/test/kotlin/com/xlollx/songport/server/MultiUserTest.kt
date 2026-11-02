@@ -129,6 +129,52 @@ class MultiUserTest {
         assertTrue(File(data, "users-removed").listFiles()!!.any { it.name.startsWith("anna-") })
     }
 
+    @Test fun anInvitationLinkLetsSomeoneChooseTheirPassword() {
+        val admin = signIn("admin", "admin-secret")
+        val made = postPairs("/users", listOf("action" to "add", "name" to "Bea", "how" to "invite", "perm" to Permissions.RADIO), admin).body()
+        assertTrue(made, made.contains("Invitation for bea"))
+        val link = Regex("value=\"[^\"]*(/invite/[A-Za-z0-9_-]+)\"").find(made)!!.groupValues[1]
+        // Only the link's hash is kept, and the name is not a user yet.
+        assertFalse(File(data, "invites.json").readText().contains(link.substringAfterLast('/')))
+        assertEquals(401, post("/login", mapOf("user" to "bea", "password" to "whatever1")).statusCode())
+        assertTrue(get("/users", admin).body().contains("invited"))
+
+        val page = get(link)
+        assertEquals(200, page.statusCode())
+        assertTrue(page.body().contains("admin invited you"))
+        assertTrue(post(link, mapOf("password" to "bea-password", "repeat" to "other-pass")).body().contains("different"))
+        assertEquals(403, client.send(HttpRequest.newBuilder(URI("$base$link")).header("Origin", "https://evil.example").header("Content-Type", "application/x-www-form-urlencoded")
+            .POST(HttpRequest.BodyPublishers.ofString("password=bea-password&repeat=bea-password")).build(), HttpResponse.BodyHandlers.ofString()).statusCode())
+        val joined = post(link, mapOf("password" to "bea-password", "repeat" to "bea-password"))
+        assertEquals(joined.body(), 303, joined.statusCode())
+        val bea = joined.headers().firstValue("Set-Cookie").get().substringBefore(';')
+        assertEquals(200, get("/", bea).statusCode())
+        // What the admin ticked on the invitation.
+        assertTrue(File(data, "users.json").readText().contains("\"permissions\":\"radio\""))
+        assertTrue(get("/account", bea).body().contains("Signed in as <b>bea</b>"))
+        signIn("bea", "bea-password")
+        // A link works once.
+        assertEquals(404, get(link).statusCode())
+        assertEquals(404, post(link, mapOf("password" to "x-password", "repeat" to "x-password")).statusCode())
+        assertTrue(File(data, "users/bea").isDirectory)
+    }
+
+    @Test fun aNewLinkOrACancelEndsTheOldOne() {
+        val admin = signIn("admin", "admin-secret")
+        fun linkIn(body: String) = Regex("value=\"[^\"]*(/invite/[A-Za-z0-9_-]+)\"").find(body)!!.groupValues[1]
+        val first = linkIn(post("/users", mapOf("action" to "add", "name" to "cid", "how" to "invite"), admin).body())
+        val second = linkIn(post("/users", mapOf("action" to "renew", "name" to "cid"), admin).body())
+        assertEquals(404, get(first).statusCode())
+        assertEquals(200, get(second).statusCode())
+        assertTrue(post("/users", mapOf("action" to "cancel", "name" to "cid"), admin).body().contains("no longer works"))
+        assertEquals(404, get(second).statusCode())
+        assertEquals(404, get("/invite/made-up").statusCode())
+        // Adding with a password instead ends the invitation too.
+        val third = linkIn(post("/users", mapOf("action" to "add", "name" to "dee", "how" to "invite"), admin).body())
+        assertTrue(post("/users", mapOf("action" to "add", "name" to "dee", "how" to "password", "password" to "dee-password"), admin).body().contains("Added dee"))
+        assertEquals(404, get(third).statusCode())
+    }
+
     private fun postPairs(path: String, pairs: List<Pair<String, String>>, cookie: String) = client.send(
         HttpRequest.newBuilder(URI("$base$path")).header("Content-Type", "application/x-www-form-urlencoded").header("Cookie", cookie).header("Origin", base)
             .POST(HttpRequest.BodyPublishers.ofString(pairs.joinToString("&") { "${enc(it.first)}=${enc(it.second)}" })).build(),
