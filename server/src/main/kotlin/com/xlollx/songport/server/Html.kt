@@ -211,6 +211,7 @@ progress{width:100%;accent-color:var(--accent)}
 main.wide{max-width:1240px}
 .dash{display:grid;gap:0 20px}
 @media (min-width:1000px){.dash{grid-template-columns:320px minmax(0,1fr)}.dash-side{order:-1;position:sticky;top:12px;align-self:start}.dash.side-right{grid-template-columns:minmax(0,1fr) 320px}.dash.side-right .dash-side{order:1}.dash.no-side{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:999px){.dash-side{display:none}}
 .dash-side h3{margin-bottom:8px}
 .figures{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 12px}
 .figures div{margin:0}.figures dt{color:var(--ink-3);font-size:13px}.figures dd{margin:0;font-size:22px;font-weight:700}

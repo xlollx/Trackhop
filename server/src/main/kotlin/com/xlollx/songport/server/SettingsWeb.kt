@@ -84,7 +84,7 @@ internal fun Web.settingsPage(r: Web.Req) {
     val place = HomeSide.place(env)
     val cards = HomeSide.cards(env)
     body.append("""<form method="post" action="/settings" class="card"><input type="hidden" name="action" value="home"><h3>Home page</h3>
-<p class="muted">On a wide screen, a column next to the syncs; on a phone, below them.</p><label>Column</label>""")
+<p class="muted">A column next to the syncs, on a wide screen only (not on a phone).</p><label>Column</label>""")
     HomeSide.PLACES.forEach { (key, label) ->
         body.append("""<label class="check inline"><input type="radio" name="side" value="$key"${if (key == place) " checked" else ""}> ${h(label)}</label>""")
     }

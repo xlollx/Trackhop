@@ -7,7 +7,7 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
-- **Home page side column** on a wide screen: tracks added in the last two weeks (chart), the
+- **Home page side column** on a wide screen (not on a phone): tracks added in the last two weeks (chart), the
   numbers, the latest runs and the services in use. On the left by default; in **Settings › Home page**
   on the right or hidden, and which cards to show.
 - **Radio syncs: Mediaset stations** (Virgin Radio, R101, Radio 105) send title and artist as a
