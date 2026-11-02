@@ -260,6 +260,9 @@ class SyncEngine(
         val matchedDstIds = HashSet<String>()
         val newCache = HashMap<String, String>()
         val toSearch = ArrayList<Track>()
+        // The same song twice in the source (common in long playlists) is searched once, and is one
+        // entry of what was not found: the review lists each song once (issue #24).
+        val queued = HashSet<String>()
         // A match the preview is unsure about is not remembered: the run searches it again and puts
         // it in its own review, unless the user settled it in the preview (which remembers it).
         val unsure = HashSet<String>()
@@ -287,7 +290,7 @@ class SyncEngine(
             if (found != null) {
                 matchedDstIds += found.id
                 newCache[key] = found.id
-            } else toSearch += s
+            } else if (queued.add(s.id)) toSearch += s
         }
 
         // 2) ricerca dei mancanti
@@ -398,7 +401,7 @@ class SyncEngine(
         return SyncPlan(
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,
-            alreadyPresent = srcTracks.size - toSearch.size,
+            alreadyPresent = srcTracks.size - srcTracks.count { it.id in queued },
             toAdd = toAdd.values.toList(),
             toRemove = toRemove,
             unmatched = unmatched,

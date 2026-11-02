@@ -116,8 +116,10 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
             )
         },
     ) { padding ->
-        val reviews = report?.reviewTracks.orEmpty()
-        val tracks = report?.unmatchedTracks.orEmpty()
+        // Once each: a report saved before 1.6.1 can hold the same song twice, and two rows with one
+        // key close the app (issue #24).
+        val reviews = report?.reviewTracks.orEmpty().distinctBy { it.source.id }
+        val tracks = report?.unmatchedTracks.orEmpty().distinctBy { it.id }
         if (report == null || job == null || (tracks.isEmpty() && reviews.isEmpty())) {
             Column(Modifier.fillMaxSize().padding(padding).padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(stringResource(R.string.unmatched_none), textAlign = TextAlign.Center)
