@@ -24,7 +24,9 @@ permissions:
 
 jobs:
   snap:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Not only on success: a later job of the Desktop run (an antivirus flag in virustotal) fails it
+    # after the release is out. The step below checks that the release exists.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-24.04
     env:
       HAS_STORE_KEY: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS != '' }}
