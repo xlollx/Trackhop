@@ -40,9 +40,9 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
     override val authDomain = "liveone.com"
     override val searchParallelism = 2
     override val cookieSite = "www.liveone.com"
-    override val cookieExample = "eyJhbGciOi… (the refresh_token entry)"
+    override val cookieExample = "{\"id\":\"…\",\"refresh_token\":\"eyJ…\", …} (the slackerUser entry)"
     override val pasteLabel = "LiveOne's refresh token"
-    override val pasteHelp = """<p class="muted">In a desktop browser signed in to <code>www.liveone.com</code>, open the developer tools (F12), then <b>Application</b> (<b>Storage</b> in Firefox) › <b>Local storage</b> › <code>https://www.liveone.com</code>, and copy the value of <code>refresh_token</code> (a long text starting with <code>eyJ</code>; the whole <code>slackerUser</code> entry works too). It is as good as your password and lasts until you sign out of LiveOne in that browser. <a href="https://trackhop.org/guide/docker#liveone-unofficial">How to copy it</a></p>"""
+    override val pasteHelp = """<p class="muted">In a desktop browser signed in to <code>www.liveone.com</code>, open the developer tools (F12), then <b>Application</b> (<b>Storage</b> in Firefox) › <b>Local storage</b> › <code>https://www.liveone.com</code>, and copy the whole value of <code>slackerUser</code> (it holds the refresh token; a <code>refresh_token</code> entry, when there is one, works too). It is as good as your password and lasts until you sign out of LiveOne in that browser. <a href="https://trackhop.org/guide/docker#liveone-unofficial">How to copy it</a></p>"""
 
     override fun isConfigured(ctx: Env): Boolean = true
     override fun isConnected(ctx: Env): Boolean = ctx.tokens.get(id)?.accessToken?.isNotBlank() == true
@@ -54,8 +54,9 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
     /** Checked before saving: the token must renew into a session that reads the presets. */
     override suspend fun connect(ctx: Env, pasted: String, userAgent: String?) {
         val token = LiveOneWebClient.tokenIn(pasted) ?: throw ProviderException(
-            "This is not LiveOne's refresh token: copy the value of refresh_token from www.liveone.com's local storage (it starts with eyJ).",
+            "This holds no LiveOne token: copy the whole value of slackerUser from www.liveone.com's local storage.",
         )
+        LiveOneWebClient.problemWith(token)?.let { throw ProviderException("$displayName: $it. Copy the whole slackerUser entry from www.liveone.com's local storage.") }
         val account = LiveOneWebClient.accountOf(token) ?: throw ProviderException("This token names no LiveOne account: copy refresh_token again.")
         val kv = cache(ctx)
         kv.clear()

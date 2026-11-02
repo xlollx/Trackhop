@@ -61,10 +61,13 @@ class LiveOneWebClient(private val host: WebHost) {
             Request.Builder().url(TOKEN_URL).post(form.toRequestBody(FORM)).header("Authorization", "Basic $basic").headers(p).build(),
         )
         if (tok.code != 200) {
-            val why = runCatching { parseJson(tok.text)["error"].str }.getOrNull()
-            // invalid_grant: the token itself is spent or signed out; anything else is ours to fix.
-            if (why == "invalid_grant") throw BridgeException(EXPIRED)
-            throw BridgeException("LiveOne sign-in refused (HTTP ${tok.code}${why?.let { ", $it" } ?: ""}): Trackhop needs an update")
+            val j = runCatching { parseJson(tok.text) }.getOrNull()
+            val why = j["error"].str
+            val detail = j["error_description"].str
+            // The token itself refused (spent, signed out, not a refresh token); "Unauthorized" with no
+            // description is the client's signature, ours to fix.
+            if (why == "invalid_grant" || why == "invalid_token") throw BridgeException("$EXPIRED (${detail ?: why})")
+            throw BridgeException("LiveOne sign-in refused (HTTP ${tok.code}${why?.let { ", $it" } ?: ""}${detail?.let { ": $it" } ?: ""})")
         }
         val j = parseJson(tok.text)
         val access = j["access_token"].str ?: throw BridgeException(EXPIRED)
@@ -91,7 +94,9 @@ class LiveOneWebClient(private val host: WebHost) {
         val version = Regex("""cdn\.liveone\.com/s=([0-9.]+)/js/concat\.js""").find(page)?.groupValues?.get(1)
             ?: throw BridgeException("LiveOne's player has changed (no script found): Trackhop needs an update")
         val script = send(Request.Builder().url("https://cdn.liveone.com/s=$version/js/concat.js").header("User-Agent", host.userAgent).build()).text
-        val p = parsePlayer(version, script) ?: throw BridgeException("LiveOne's player has changed (no keys found): Trackhop needs an update")
+        // x-scid names the player's own version (8.4.0.1426), which the page's links carry as `av`.
+        val appVersion = Regex("""av(?:%3D|=)([0-9]+(?:\.[0-9]+){2,})""").find(page)?.groupValues?.get(1) ?: version
+        val p = parsePlayer(appVersion, script) ?: throw BridgeException("LiveOne's player has changed (no keys found): Trackhop needs an update")
         host.put(VERSION, p.version); host.put(K, p.k); host.put(OAUTH_K, p.oauthK); host.put(KEYS_AT, System.currentTimeMillis().toString())
         return p
     }
@@ -183,12 +188,24 @@ class LiveOneWebClient(private val host: WebHost) {
             return Regex("""eyJ[\w-]+\.[\w-]+\.[\w-]+""").find(t)?.value
         }
 
-        /** The `accountId` claim of a JWT. */
-        fun accountOf(jwt: String): String? = runCatching {
+        private fun claims(jwt: String): JsonElement? = runCatching {
             val payload = jwt.split('.')[1]
-            val claims = parseJson(String(Base64.getUrlDecoder().decode(payload.padEnd((payload.length + 3) / 4 * 4, '='))))
-            claims["accountId"].str?.takeIf { it.isNotBlank() }
+            parseJson(String(Base64.getUrlDecoder().decode(payload.padEnd((payload.length + 3) / 4 * 4, '='))))
         }.getOrNull()
+
+        /** The `accountId` claim of a JWT. */
+        fun accountOf(jwt: String): String? = claims(jwt)["accountId"].str?.takeIf { it.isNotBlank() }
+
+        /**
+         * What is wrong with a pasted token, or null when it is a refresh token still valid: the
+         * access token (two hours, no `ati` claim) looks the same at a glance.
+         */
+        fun problemWith(jwt: String, now: Long = System.currentTimeMillis()): String? {
+            val c = claims(jwt) ?: return "this is not a LiveOne token"
+            if (c["ati"] == null) return "this is the access token (it lasts two hours), not the refresh token"
+            val exp = c["exp"].long ?: return null
+            return if (exp * 1000 < now) "this refresh token has expired: sign in to liveone.com again and copy a fresh one" else null
+        }
 
         fun parsePresets(j: JsonElement?): List<TrackDto> = j["content"].arr.mapNotNull { c ->
             val it = c["item"]

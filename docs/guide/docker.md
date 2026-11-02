@@ -197,10 +197,10 @@ player, unofficial and alpha, like the web connectors above. No developer key.
 
 1. In a desktop browser, sign in to [liveone.com](https://www.liveone.com).
 2. Open the developer tools (F12), then **Application** (**Storage** in Firefox) › **Local storage** ›
-   `https://www.liveone.com`, and copy the value of **`refresh_token`** (a long text starting with `eyJ`).
+   `https://www.liveone.com`, and copy the whole value of **`slackerUser`** (it holds the refresh token).
 3. In Trackhop, **Services › Add › LiveOne (web)**, paste it and press **Connect**.
 
-Trackhop renews the session from that token as the player does; it lasts until you sign out of
+Trackhop renews the session from the refresh token in it as the player does; it lasts until you sign out of
 LiveOne in that browser. It is as good as your password: keep it to yourself.
 
 What works: a free account's **presets**, shown as the liked songs, as a source and as a target

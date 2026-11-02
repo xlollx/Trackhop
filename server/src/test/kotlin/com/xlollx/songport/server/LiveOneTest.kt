@@ -4,6 +4,7 @@ import com.xlollx.songport.ytmbridge.LiveOneWebClient
 import com.xlollx.songport.ytmbridge.parseJson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Base64
 
@@ -27,12 +28,17 @@ class LiveOneTest {
     }
 
     @Test fun takesTheTokenAloneOrInsideTheUserEntry() {
-        val payload = Base64.getUrlEncoder().withoutPadding().encodeToString("""{"accountId":653700473,"user_name":"x"}""".toByteArray())
+        val payload = Base64.getUrlEncoder().withoutPadding().encodeToString("""{"accountId":653700473,"user_name":"x","ati":"a1","exp":4102444800}""".toByteArray())
         val jwt = "eyJhbGciOiJIUzI1NiJ9.$payload.sig-nature_1"
         assertEquals(jwt, LiveOneWebClient.tokenIn("  \"$jwt\" "))
         assertEquals(jwt, LiveOneWebClient.tokenIn("""{"id":"653700473","access_token":"eyJa.b.c","refresh_token":"$jwt"}"""))
         assertNull(LiveOneWebClient.tokenIn("sp_dc=abc"))
         assertEquals("653700473", LiveOneWebClient.accountOf(jwt))
+        assertNull(LiveOneWebClient.problemWith(jwt))
+        // The access token has no "ati"; an old refresh token has expired.
+        fun token(claims: String) = "eyJhbGciOiJIUzI1NiJ9." + Base64.getUrlEncoder().withoutPadding().encodeToString(claims.toByteArray()) + ".s"
+        assertTrue(LiveOneWebClient.problemWith(token("""{"accountId":1,"exp":4102444800}"""))!!.contains("access token"))
+        assertTrue(LiveOneWebClient.problemWith(token("""{"accountId":1,"ati":"a","exp":1}"""))!!.contains("expired"))
     }
 
     @Test fun signsAsThePlayerDoes() {
