@@ -39,14 +39,12 @@ the VirusTotal results above are about what is inside. Now and then a single eng
 unsigned installer with a generic "unknown program" verdict; the report shows which engine and why,
 and the badge then says "checked" instead of "clean".
 
-**The Intel Mac file (`-macos-x64.dmg`) and Microsoft Defender.** Of all the engines, Microsoft's alone
-flags this one file, as `Trojan:Script/Wacatac.C!ml`. The `!ml` ending means *machine learning*: a
-guess about a program it has never seen, not a virus it recognises. Wacatac is the name it gives to
-many such guesses, and new unsigned apps get it often. Every other engine reports the file clean, and
-so does every engine for the same app built for Apple silicon, Windows and Linux. The code is public
-and each file is built by GitHub Actions from it; the SHA-256 in the table lets you check you have that
-very file. The detection is reported to Microsoft as a false positive, and the table updates itself
-once it is corrected. A Mac does not run Microsoft Defender unless you installed it.
+**What a lone warning means.** A verdict ending in `!ml` (*machine learning*), or one with
+*generic* in its name, is an engine's guess about a program it has never seen, not a virus it
+recognises; new unsigned apps get them now and then. When that happens, the release notes name the
+engine and the verdict, the file is reported to that engine as a false positive, and the table
+updates itself once it is corrected. It happened once, to the Intel Mac file of Desktop 1.0.0
+(Microsoft, `Trojan:Script/Wacatac.C!ml`): reported, and cleared by Microsoft the same day.
 
 [All guide pages](./)
 
