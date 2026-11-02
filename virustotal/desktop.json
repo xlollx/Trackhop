@@ -3,7 +3,7 @@
  "version": "1.0.0",
  "tag": "server-v1.0.0",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v1.0.0",
- "checked": "2026-11-02T12:42:54Z",
+ "checked": "2026-11-02T13:51:42Z",
  "clean": false,
  "files": [
   {
@@ -12,6 +12,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 60,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/f54d880e4b3fa9bd787769bd15277c13749ef36e937eb0badfc0ca22292207e7"
   },
   {
@@ -20,6 +21,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 61,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/1ea0e8f52980afce6300bd03308f56881e8fe4880bf4d6d7553585680b46a28d"
   },
   {
@@ -28,6 +30,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 54,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/defb6a323f2efdaadbb5faba56924c0b14fe5506afcbf7c649ce3f280babaa48"
   },
   {
@@ -36,6 +39,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 59,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/766174c2fc0bd9ba90d796aec4c95053da104d984e88efefe2c0047fb9836cc9"
   },
   {
@@ -44,6 +48,9 @@
    "malicious": 1,
    "suspicious": 0,
    "engines": 60,
+   "flagged_by": {
+    "Microsoft": "Trojan:Script/Wacatac.C!ml"
+   },
    "link": "https://www.virustotal.com/gui/file/1e85a459b89e0a9440fc231f350cb91c7f75952d03414df3bc42e8922d7fe16d"
   },
   {
@@ -52,6 +59,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 56,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/2ffeae0c5e3ff5b04b0dcac55ffeb64506d60aa74a12749c4bd5ee8886674708"
   },
   {
@@ -60,6 +68,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 62,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/42d024372bfff9583fffb9c6219e8239a82caadf4f88d6589d53eac12d19e93e"
   },
   {
@@ -68,6 +77,7 @@
    "malicious": 0,
    "suspicious": 0,
    "engines": 58,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/fd9c0c33a3ebc29c9c59a80becf46180dda183245f1d6ce2148f8f26b198d343"
   }
  ]
