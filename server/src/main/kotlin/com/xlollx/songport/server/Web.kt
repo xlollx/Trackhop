@@ -336,7 +336,7 @@ class Web(
                 if (provider is CookieConnector) {
                     val result = runCatching { runBlocking { provider.connect(env, r.form["cookies"].orEmpty(), r.form["userAgent"]) } }
                     result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
-                    env.log("auth", "${provider.id} connected (pasted cookies)")
+                    env.log("auth", "${provider.id} connected (pasted session)")
                     return redirect(r.ex, "$back?ok=${q("Connected.")}")
                 }
                 if (provider is CredentialsProvider) {
