@@ -1,0 +1,3 @@
+Yeni: LiveOne, LiveOne'ın kendi sayfasında oturum açarak (resmi değil, alfa): ücretsiz hesabın ön ayarları beğenilen şarkılar olarak okunur ve eklenir.
+TIDAL betadan çıktı.
+Aynı çalma listesine yazan iki eşitleme artık sırayla çalışıyor ve orada kaldırma yapmıyor: birbirinin şarkılarını artık silmiyorlar. Yinelenen bir eşitlemeyi ya da yansıtma açık paylaşılan bir listeyi kaydetmek uyarı gösterir.

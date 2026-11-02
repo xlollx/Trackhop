@@ -1,0 +1,3 @@
+Neu: LiveOne, Anmeldung auf LiveOnes eigener Seite (inoffiziell, Alpha): die Presets eines kostenlosen Kontos als Lieblingssongs, lesen und ergänzen.
+TIDAL ist keine Beta mehr.
+Zwei Syncs, die in dieselbe Playlist schreiben, laufen jetzt nacheinander, und dort wird nichts entfernt: Sie nehmen sich die Titel nicht mehr gegenseitig weg. Beim Speichern eines doppelten Syncs oder einer geteilten Playlist mit Spiegeln erscheint ein Hinweis.

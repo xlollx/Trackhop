@@ -1,0 +1,2 @@
+• TIDAL is out of beta.
+• Two syncs writing to the same playlist now run one after the other and no longer take away each other's songs; a warning when saving a duplicate.

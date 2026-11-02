@@ -1,0 +1,3 @@
+Nowość: LiveOne, logowanie na stronie LiveOne (nieoficjalnie, alfa): presety darmowego konta jako polubione utwory, odczyt i dodawanie.
+TIDAL wychodzi z bety.
+Dwie synchronizacje zapisujące do tej samej playlisty działają teraz po kolei i nic tam nie usuwają: nie zabierają już sobie utworów. Zapisanie zduplikowanej synchronizacji lub wspólnej playlisty z lustrem pokazuje ostrzeżenie.

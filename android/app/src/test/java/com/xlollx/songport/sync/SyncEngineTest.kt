@@ -33,6 +33,9 @@ class SyncEngineTest {
         Track(id = sid(id), title = title, artists = listOf(artist), album = "Album", durationMs = 200_000, isrc = isrc?.let { "$run-$it" })
 
     @Before fun setUp() {
+        // Each test starts from no syncs: the store outlives a test, and syncs left on the same
+        // target would be read as another sync writing there (JobConflicts).
+        Store.get(ctx).let { st -> st.data.jobs.forEach { st.deleteJob(it.id) } }
         src = FakeProvider("fsrc")
         dst = FakeProvider("fdst")
         Providers.testDoubles = listOf(src, dst)

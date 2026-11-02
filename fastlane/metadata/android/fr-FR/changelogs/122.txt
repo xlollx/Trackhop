@@ -1,0 +1,3 @@
+Nouveau : LiveOne, connexion sur la page de LiveOne (non officiel, alpha) : les presets d'un compte gratuit comme titres favoris, lus et complétés.
+TIDAL sort de la bêta.
+Deux synchros qui écrivent dans la même playlist s'exécutent désormais l'une après l'autre, sans suppression : elles ne se retirent plus les titres. Enregistrer une synchro en double, ou une playlist partagée en miroir, affiche un avertissement.

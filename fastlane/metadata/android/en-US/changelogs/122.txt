@@ -1,0 +1,3 @@
+New: LiveOne, signed in on LiveOne's own page (unofficial, alpha): a free account's presets as liked songs, read and added to.
+TIDAL is out of beta.
+Two syncs writing to the same playlist now run one after the other, and removals are skipped there so they no longer take away what the other adds. Saving a duplicate sync, or a shared playlist with mirror on, shows a warning.

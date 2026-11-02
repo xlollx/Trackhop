@@ -12,10 +12,10 @@ object JobConflicts {
     /** "service|playlist" of [job]'s target; null while it has none yet (a playlist still to create). */
     fun targetKey(job: SyncJob): String? = job.target.playlistId?.takeIf { it.isNotBlank() }?.let { "${job.target.provider}|$it" }
 
-    /** The other syncs writing to [job]'s target. */
+    /** The other syncs writing to [job]'s target; one turned off writes nothing. */
     fun sharingTarget(jobs: List<SyncJob>, job: SyncJob): List<SyncJob> {
         val key = targetKey(job) ?: return emptyList()
-        return jobs.filter { it.id != job.id && targetKey(it) == key }
+        return jobs.filter { it.id != job.id && it.enabled && targetKey(it) == key }
     }
 
     /** The other syncs with [job]'s source and target both: the same sync twice. */

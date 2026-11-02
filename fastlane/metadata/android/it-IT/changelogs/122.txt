@@ -1,0 +1,3 @@
+Novità: LiveOne, con l'accesso dalla pagina di LiveOne (non ufficiale, alpha): i preset di un account gratuito come brani preferiti, letti e arricchiti.
+TIDAL esce dalla beta.
+Due sync che scrivono nella stessa playlist ora girano una dopo l'altra, e lì le rimozioni vengono saltate: non si tolgono più a vicenda i brani. Salvando una sync doppia, o una playlist condivisa con il mirror attivo, compare un avviso.

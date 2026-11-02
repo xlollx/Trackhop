@@ -1,0 +1,3 @@
+Novedad: LiveOne, con inicio de sesión en la propia página de LiveOne (no oficial, alfa): los presets de una cuenta gratuita como canciones favoritas, leídos y ampliados.
+TIDAL sale de la beta.
+Dos sincronizaciones que escriben en la misma playlist ahora se ejecutan una tras otra y allí no se elimina nada: ya no se quitan canciones entre ellas. Al guardar una sincronización duplicada, o una playlist compartida con espejo, aparece un aviso.
