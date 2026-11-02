@@ -15,12 +15,14 @@ import java.util.Locale
  * store keeps; nothing is asked of the services.
  */
 internal fun Web.homeSide(now: Long = System.currentTimeMillis(), zone: ZoneId = ZoneId.systemDefault()): String {
+    val show = HomeSide.cards(env)
+    if (HomeSide.place(env) == HomeSide.HIDDEN || show.isEmpty()) return ""
     val data = env.store.data
     val reports = data.reports.filter { !it.partial }
     val sb = StringBuilder("""<aside class="dash-side">""")
-    sb.append(activityCard(reports.map { it.startedEpoch to it.added }, now, zone))
+    if ("activity" in show) sb.append(activityCard(reports.map { it.startedEpoch to it.added }, now, zone))
     val s = UsageStats.compute(data, now, zone)
-    if (!s.isEmpty) {
+    if ("numbers" in show && !s.isEmpty) {
         sb.append("""<div class="card"><h3>Your numbers</h3><dl class="figures">""")
         sb.append("""<div><dt>Tracks moved</dt><dd>${s.added}</dd></div>""")
         sb.append("""<div><dt>This month</dt><dd>${s.addedThisMonth}</dd></div>""")
@@ -29,7 +31,7 @@ internal fun Web.homeSide(now: Long = System.currentTimeMillis(), zone: ZoneId =
         sb.append("""</dl><a href="/tools/stats">All the numbers ›</a></div>""")
     }
     val latest = reports.sortedByDescending { it.startedEpoch }.take(5)
-    if (latest.isNotEmpty()) {
+    if ("runs" in show && latest.isNotEmpty()) {
         sb.append("""<div class="card"><h3>Latest runs</h3><ul class="runs">""")
         latest.forEach { r ->
             val result = if (r.error != null) """<span class="err">failed</span>""" else """<span class="ok">+${r.added} −${r.removed}</span>"""
@@ -38,7 +40,7 @@ internal fun Web.homeSide(now: Long = System.currentTimeMillis(), zone: ZoneId =
         sb.append("</ul></div>")
     }
     val services = Providers.connectors().filter { it.requiresAuth && it.isConnected(env) }
-    if (services.isNotEmpty()) {
+    if ("services" in show && services.isNotEmpty()) {
         sb.append("""<div class="card"><h3>Services</h3><ul class="services">""")
         services.forEach { p -> sb.append("""<li>${logo(p.id, 24)} ${h(p.label(env))}</li>""") }
         sb.append("""</ul><a href="/connectors">Manage ›</a></div>""")

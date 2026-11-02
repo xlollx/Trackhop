@@ -15,6 +15,25 @@ internal object Theme {
     }
 }
 
+/** The home page's side column: where it goes and which cards it shows. Each person keeps their own. */
+internal object HomeSide {
+    const val LEFT = "left"; const val RIGHT = "right"; const val HIDDEN = "hidden"
+    val PLACES = listOf(LEFT to "On the left", RIGHT to "On the right", HIDDEN to "Hidden")
+    /** The cards, in order: the chart first, as by default. */
+    val CARDS = listOf("activity" to "Last two weeks (chart)", "numbers" to "Your numbers", "runs" to "Latest runs", "services" to "Services")
+
+    fun place(env: ServerEnv): String = env.keyValues("ui")["side"]?.takeIf { p -> PLACES.any { it.first == p } } ?: LEFT
+
+    /** The cards shown: all of them until the person picks. */
+    fun cards(env: ServerEnv): Set<String> =
+        env.keyValues("ui")["sideCards"]?.split(',')?.filter { c -> CARDS.any { it.first == c } }?.toSet() ?: CARDS.map { it.first }.toSet()
+
+    fun set(env: ServerEnv, place: String, cards: Collection<String>) {
+        if (PLACES.any { it.first == place }) env.keyValues("ui")["side"] = place
+        env.keyValues("ui")["sideCards"] = CARDS.map { it.first }.filter { it in cards }.joinToString(",")
+    }
+}
+
 /** True when this person is told about updates: the one who runs Trackhop (the admin, on a shared server). */
 internal fun Web.seesUpdates(): Boolean = Updates.configured && env.may(Permissions.ADMIN)
 
@@ -32,6 +51,10 @@ internal fun Web.settingsPage(r: Web.Req) {
             "theme" -> {
                 Theme.set(env, r.form["theme"].orEmpty())
                 return redirect(r.ex, "/settings")
+            }
+            "home" -> {
+                HomeSide.set(env, r.form["side"].orEmpty(), r.rawForm.filter { it.first == "card" }.map { it.second })
+                return redirect(r.ex, "/settings?ok=${q("Saved.")}")
             }
             "updates" -> {
                 if (!seesUpdates()) return send(r.ex, 403, page("Settings", NOT_ALLOWED))
@@ -58,6 +81,18 @@ internal fun Web.settingsPage(r: Web.Req) {
         body.append("""<label class="check"><input type="radio" name="theme" value="$key"${if (key == theme) " checked" else ""}> ${h(label)}</label>""")
     }
     body.append("""<p class="muted">Kept for ${if (account != null) "your account" else "this ${if (edition == Html.Edition.DESKTOP) "computer" else "server"}"}, on every browser.</p><p><button>Save</button></p></form>""")
+    val place = HomeSide.place(env)
+    val cards = HomeSide.cards(env)
+    body.append("""<form method="post" action="/settings" class="card"><input type="hidden" name="action" value="home"><h3>Home page</h3>
+<p class="muted">On a wide screen, a column next to the syncs; on a phone, below them.</p><label>Column</label>""")
+    HomeSide.PLACES.forEach { (key, label) ->
+        body.append("""<label class="check inline"><input type="radio" name="side" value="$key"${if (key == place) " checked" else ""}> ${h(label)}</label>""")
+    }
+    body.append("<label>Show</label>")
+    HomeSide.CARDS.forEach { (key, label) ->
+        body.append("""<label class="check"><input type="checkbox" name="card" value="$key"${if (key in cards) " checked" else ""}> ${h(label)}</label>""")
+    }
+    body.append("""<p><button>Save</button></p></form>""")
     if (seesUpdates()) body.append(updatesCard())
     body.append(
         """<div class="card"><h3>Language</h3><p class="muted">These pages are in English for now. The texts that come from the app (services, notes) follow ${

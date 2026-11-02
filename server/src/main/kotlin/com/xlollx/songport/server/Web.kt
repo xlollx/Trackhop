@@ -244,12 +244,13 @@ class Web(
         if (connected.size < 1) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
         }
-        body.append("""<div class="dash"><div class="dash-main">""")
+        val side = homeSide()
+        body.append("""<div class="dash${if (side.isEmpty()) " no-side" else if (HomeSide.place(env) == HomeSide.RIGHT) " side-right" else ""}"><div class="dash-main">""")
         body.append("""<p class="actions"><a class="button" href="/syncs/new">New sync</a> ${if (env.may(Permissions.RADIO)) """<a class="button secondary" href="/syncs/radio">$RADIO_ICON New radio sync</a> """ else ""}<a class="button secondary" href="/syncs/shazam">$SHAZAM_ICON New Shazam sync</a></p>""")
         if (jobs.isEmpty()) body.append("""<p class="muted">No syncs yet.</p>""")
         for (job in jobs) body.append(jobCard(job, running.containsKey(job.id)))
-        body.append("</div>").append(homeSide()).append("</div>")
-        send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = true))
+        body.append("</div>").append(side).append("</div>")
+        send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = side.isNotEmpty()))
     }
 
     internal fun label(id: String): String = Providers.byId(id)?.label(env) ?: id

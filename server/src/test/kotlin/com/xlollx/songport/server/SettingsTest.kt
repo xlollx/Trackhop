@@ -115,6 +115,20 @@ class SettingsTest {
             post("action=theme&theme=system")
             assertFalse(get("/").contains("data-theme"))
 
+            // The home page's column: left by default, on the right, only some cards, or none.
+            assertTrue(get("/").contains("""<div class="dash"><div class="dash-main">"""))
+            assertTrue(get("/").contains("Last two weeks"))
+            post("action=home&side=right&card=runs&card=services")
+            val right = get("/")
+            assertTrue(right.contains("dash side-right"))
+            assertFalse(right.contains("Last two weeks"))
+            post("action=home&side=hidden&card=activity")
+            val hidden = get("/")
+            assertFalse(hidden.contains("dash-side"))
+            assertFalse(hidden.contains("""<main class="wide">"""))
+            post("action=home&side=left&card=activity")
+            assertTrue(get("/").contains("Last two weeks"))
+
             post("action=updates")
             assertFalse(get("/").contains("is out"))
             assertTrue(get("/style.css").contains(":root[data-theme=dark]{"))
