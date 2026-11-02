@@ -160,6 +160,20 @@ def scan(tag, out, files, key):
         result = "clean" if r["malicious"] == 0 and r["suspicious"] == 0 else (
             f"flagged by {r['malicious'] + r['suspicious']} of {r['engines']} engines" if r["engines"] else "checked")
         lines.append(f"| {r['name']} | [{result}]({r['link']}) | `{r['sha256']}` |")
+    for r in rows:
+        by = r.get("flagged_by") or {}
+        if not by:
+            continue
+        who = ", ".join(f"{e} (`{label}`)" for e, label in by.items())
+        guess = all(str(label).endswith("!ml") or ".gen" in str(label).lower() or "generic" in str(label).lower() for label in by.values())
+        lines += ["", f"**About {r['name']}**: flagged by {who}."]
+        if guess:
+            lines += ["`!ml` (or *generic*) means the engine's machine-learning guess about an unknown program, not a virus it "
+                      "recognises: it happens to new, unsigned apps, as this one is (no paid Apple or Microsoft certificate). "
+                      "Every other engine reports this file clean, as they do every other file of the release, including the same app "
+                      "for the other platforms. Trackhop is open source and each file is built by GitHub Actions from the public code; "
+                      "the SHA-256 above lets you check you have that very file. The detection is reported to the engine as a false "
+                      "positive, and this table is refreshed once it is corrected ([more](https://trackhop.org/guide/security))."]
     lines += ["", END]
     with open(os.path.join(out, "notes.md"), "w") as f:
         f.write("\n".join(lines) + "\n")

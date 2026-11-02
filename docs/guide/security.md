@@ -39,6 +39,15 @@ the VirusTotal results above are about what is inside. Now and then a single eng
 unsigned installer with a generic "unknown program" verdict; the report shows which engine and why,
 and the badge then says "checked" instead of "clean".
 
+**The Intel Mac file (`-macos-x64.dmg`) and Microsoft Defender.** Of all the engines, Microsoft's alone
+flags this one file, as `Trojan:Script/Wacatac.C!ml`. The `!ml` ending means *machine learning*: a
+guess about a program it has never seen, not a virus it recognises. Wacatac is the name it gives to
+many such guesses, and new unsigned apps get it often. Every other engine reports the file clean, and
+so does every engine for the same app built for Apple silicon, Windows and Linux. The code is public
+and each file is built by GitHub Actions from it; the SHA-256 in the table lets you check you have that
+very file. The detection is reported to Microsoft as a false positive, and the table updates itself
+once it is corrected. A Mac does not run Microsoft Defender unless you installed it.
+
 [All guide pages](./)
 
 <script>
@@ -61,7 +70,8 @@ and the badge then says "checked" instead of "clean".
     var rows = r.files.map(function (f) {
       var clean = f.malicious === 0 && f.suspicious === 0;
       return '<tr><td title="' + esc(f.name) + '">' + esc(short(f.name)) + '</td><td><a class="vt-pill ' + (clean ? 'ok' : 'note') + '" href="' + esc(f.link) +
-        '">' + (clean ? '✓ Clean' : 'See the report') + '</a></td><td><code title="' + esc(f.sha256) + '">' +
+        '">' + (clean ? '✓ Clean' : 'See the report') + '</a>' + (clean || !f.flagged_by ? '' : '<br><small class="muted">' +
+        Object.keys(f.flagged_by).map(function (e) { return esc(e) + ': ' + esc(f.flagged_by[e]); }).join(', ') + (Object.keys(f.flagged_by).every(function (e) { return /!ml$/.test(f.flagged_by[e]); }) ? ' (a machine-learning guess)' : '') + '</small>') + '</td><td><code title="' + esc(f.sha256) + '">' +
         esc(f.sha256.slice(0, 12)) + '…</code></td></tr>';
     }).join('');
     return '<div class="vt-card"><h3>' + title + ' ' + esc(r.version) + ' <span class="vt-pill ' + (r.clean ? 'ok' : 'note') + '">' +

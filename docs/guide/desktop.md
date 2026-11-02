@@ -58,6 +58,11 @@ Settings › Privacy & Security*, scroll down to "Trackhop was blocked…" and c
 then confirm. From then on it opens normally. (In Terminal, `xattr -dr com.apple.quarantine
 /Applications/Trackhop.app` does the same.)
 
+**On VirusTotal, the Intel `.dmg` shows one warning** (Microsoft, `Trojan:Script/Wacatac.C!ml`): a
+machine-learning guess about a new unsigned app, not a known virus. Every other engine reports it
+clean, as they do the Apple silicon `.dmg` of the same app; it is reported to Microsoft as a false
+positive. [More on how the downloads are checked](security).
+
 On the Mac, Trackhop shows its pages in your browser (no window of its own yet) and puts its icon
 in the menu bar, with **Open Trackhop** and **Quit Trackhop**; it has no *Start with the computer*
 yet: add it in *System Settings › General › Login Items* if you want it. Its data is in
