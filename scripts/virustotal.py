@@ -92,6 +92,12 @@ def _counts(stats):
     return {"malicious": flagged, "suspicious": suspicious, "engines": engines}
 
 
+def _flagged_by(results):
+    """Which engines flag a file, and as what: {engine: label}, for the log and report.json."""
+    return {e: (r.get("result") or r.get("category")) for e, r in (results or {}).items()
+            if r.get("category") in ("malicious", "suspicious")}
+
+
 def scan(tag, out, files, key):
     product = "desktop" if tag.startswith("server-v") else "app"
     version = tag.removeprefix("server-v").removeprefix("v")
@@ -101,8 +107,9 @@ def scan(tag, out, files, key):
         status, known = _request("GET", f"{API}/files/{sha}", key=key)
         stats = known.get("data", {}).get("attributes", {}).get("last_analysis_stats") if status == 200 else None
         if stats and sum(stats.values()) > 0:
-            results[name] = {"name": name, "sha256": sha, **_counts(stats)}
-            print(f"{name}: known to VirusTotal")
+            by = _flagged_by(known["data"]["attributes"].get("last_analysis_results"))
+            results[name] = {"name": name, "sha256": sha, **_counts(stats), "flagged_by": by}
+            print(f"{name}: known to VirusTotal" + (f", flagged by {by}" if by else ""))
         else:
             pending[name] = (sha, _upload(path, key))
             print(f"{name}: uploaded")
@@ -114,9 +121,10 @@ def scan(tag, out, files, key):
             _, answer = _request("GET", f"{API}/analyses/{analysis}", key=key)
             attrs = answer.get("data", {}).get("attributes", {})
             if attrs.get("status") == "completed":
-                results[name] = {"name": name, "sha256": sha, **_counts(attrs.get("stats", {}))}
+                by = _flagged_by(attrs.get("results"))
+                results[name] = {"name": name, "sha256": sha, **_counts(attrs.get("stats", {})), "flagged_by": by}
                 del pending[name]
-                print(f"{name}: analysed")
+                print(f"{name}: analysed" + (f", flagged by {by}" if by else ""))
         if pending:
             time.sleep(30)
     rows = [dict(results[os.path.basename(p)], link=GUI + results[os.path.basename(p)]["sha256"]) for p in files]
