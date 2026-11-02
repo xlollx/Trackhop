@@ -1073,6 +1073,9 @@
     <string name="services_group_unavailable">Niedostępne w tej wersji</string>
     <string name="preview_remove_confirm">Usuń te %1$d utworów z celu</string>
     <string name="note_two_way_no_removals">Usunięcia pominięte: to synchronizacja dwukierunkowa, więc %1$d utworów w celu, których nie ma w źródle, zostało zachowanych (synchronizacja odwrotna kopiuje je z powrotem). Wyłącz Dwukierunkową, aby odzwierciedlać usunięcia.</string>
+    <string name="note_shared_target_no_removals">Pominięto usuwanie: inna synchronizacja też zapisuje do tej playlisty (%2$s), więc %1$d utworów spoza tego źródła zostało. Daj każdej synchronizacji własną playlistę, aby odzwierciedlać usunięcia.</string>
+    <string name="conflict_duplicate">Synchronizacja z tym samym źródłem i celem już istnieje (%1$s): ta by ją tylko powtarzała.</string>
+    <string name="conflict_shared_target">Inna synchronizacja zapisuje do tej samej playlisty (%1$s): usuwanie jest pomijane w obu, inaczej każda usuwałaby to, co dodaje druga.</string>
     <string name="editor_mirror_two_way">Nie z Dwukierunkową: utwór dodany po drugiej stronie mógłby zostać usunięty, zanim zostanie skopiowany z powrotem.</string>
     <string name="editor_twin_note">„%1$s” to odwrotna połowa tej synchronizacji dwukierunkowej. Korzysta z tych ustawień, więc obie edytujesz tutaj.</string>
     <string name="editor_schedule_desc">Pierwsze uruchomienie startuje kilka minut po zapisaniu, potem mniej więcej raz na okres; dokładny moment wybiera Android.</string>

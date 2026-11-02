@@ -1031,6 +1031,9 @@
     <string name="services_group_unavailable">Non disponibili in questa versione</string>
     <string name="preview_remove_confirm">Rimuovi questi %1$d brani dalla destinazione</string>
     <string name="note_two_way_no_removals">Rimozioni saltate: è una sync bidirezionale, quindi i %1$d brani della destinazione che non sono nell\'origine sono stati tenuti (la sync inversa li riporta indietro). Spegni Bidirezionale per rispecchiare le rimozioni.</string>
+    <string name="note_shared_target_no_removals">Rimozioni saltate: anche un\'altra sync scrive in questa playlist (%2$s), quindi i %1$d brani che non sono in questa sorgente sono rimasti. Dai a ogni sync la sua playlist per riflettere le rimozioni.</string>
+    <string name="conflict_duplicate">Esiste già una sync con la stessa sorgente e la stessa destinazione (%1$s): questa la ripeterebbe soltanto.</string>
+    <string name="conflict_shared_target">Un\'altra sync scrive nella stessa playlist (%1$s): le rimozioni vengono saltate in entrambe, altrimenti ognuna toglierebbe ciò che aggiunge l\'altra.</string>
     <string name="editor_mirror_two_way">Non con Bidirezionale: un brano aggiunto dall\'altra parte potrebbe essere tolto prima di essere copiato indietro.</string>
     <string name="editor_twin_note">“%1$s” è la metà inversa di questa sync bidirezionale. Segue queste impostazioni, quindi si modificano entrambe da qui.</string>
     <string name="editor_schedule_desc">La prima esecuzione parte entro pochi minuti dal salvataggio, poi circa una volta per intervallo; il momento preciso lo sceglie Android.</string>

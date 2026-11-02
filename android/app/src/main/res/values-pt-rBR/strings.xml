@@ -1038,6 +1038,9 @@
     <string name="services_group_unavailable">Indisponíveis nesta versão</string>
     <string name="preview_remove_confirm">Remover estas %1$d faixas do destino</string>
     <string name="note_two_way_no_removals">Remoções ignoradas: esta é uma sincronização bidirecional, então as %1$d faixas do destino que não estão na origem foram mantidas (a sincronização inversa as copia de volta). Desligue Bidirecional para espelhar remoções.</string>
+    <string name="note_shared_target_no_removals">Remoções puladas: outra sincronização também grava nesta playlist (%2$s), então as %1$d músicas que não estão nesta origem foram mantidas. Dê a cada sincronização sua própria playlist para espelhar remoções.</string>
+    <string name="conflict_duplicate">Já existe uma sincronização com a mesma origem e o mesmo destino (%1$s): esta só a repetiria.</string>
+    <string name="conflict_shared_target">Outra sincronização grava na mesma playlist (%1$s): as remoções são puladas nas duas, senão cada uma tiraria o que a outra adiciona.</string>
     <string name="editor_mirror_two_way">Não com Bidirecional: uma faixa adicionada do outro lado poderia ser removida antes de ser copiada de volta.</string>
     <string name="editor_twin_note">“%1$s” é a metade inversa desta sincronização bidirecional. Ela segue estas configurações, então as duas são editadas aqui.</string>
     <string name="editor_schedule_desc">A primeira execução começa poucos minutos depois de salvar e depois cerca de uma vez por intervalo; o Android escolhe o momento exato.</string>

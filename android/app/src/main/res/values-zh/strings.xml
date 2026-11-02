@@ -1011,6 +1011,9 @@
     <string name="services_group_unavailable">此版本不可用</string>
     <string name="preview_remove_confirm">从目标中移除这 %1$d 首歌</string>
     <string name="note_two_way_no_removals">已跳过删除：这是双向同步，因此保留了目标中来源没有的 %1$d 首歌（反向同步会把它们复制回去）。要同步删除，请关闭“双向”。</string>
+    <string name="note_shared_target_no_removals">已跳过删除：另一个同步也在写入此歌单（%2$s），因此保留了不在此来源中的 %1$d 首歌曲。要同步删除，请为每个同步使用单独的歌单。</string>
+    <string name="conflict_duplicate">已存在来源和目标相同的同步（%1$s）：这个同步只会重复它。</string>
+    <string name="conflict_shared_target">另一个同步写入同一个歌单（%1$s）：两者都会跳过删除，否则会互相删除对方添加的歌曲。</string>
     <string name="editor_mirror_two_way">不能与“双向”同时使用：在另一侧添加的歌曲可能在被复制回去之前就被移除。</string>
     <string name="editor_twin_note">“%1$s”是这个双向同步的反向部分。它沿用这里的设置，所以两者都在这里编辑。</string>
     <string name="editor_schedule_desc">保存后几分钟内开始第一次运行，之后大约每个间隔运行一次；具体时间由 Android 决定。</string>

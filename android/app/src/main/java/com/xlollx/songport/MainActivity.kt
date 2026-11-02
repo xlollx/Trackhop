@@ -43,6 +43,7 @@ import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -256,8 +257,15 @@ private fun MainScreen(
     // What saving a sync does, from the editor or from a card's menu: stored, and its scheduled work
     // brought in line with it (cancelled when it is off or manual).
     fun saveJob(job: SyncJob) {
+        val warning = when (val c = com.xlollx.songport.sync.JobConflicts.of(store.data.jobs, job)) {
+            is com.xlollx.songport.sync.JobConflicts.Conflict.Duplicate -> ctx.getString(R.string.conflict_duplicate, c.other.name)
+            is com.xlollx.songport.sync.JobConflicts.Conflict.SharedTarget -> ctx.getString(R.string.conflict_shared_target, c.others.joinToString(", ") { it.name })
+            null -> null
+        }
         store.upsertJob(job)
         Scheduler.apply(ctx, job)
+        // Saved all the same: merging, or a copy kept on purpose, is the user's choice; it is said once.
+        if (warning != null) snackScope.launch { snackbar.showSnackbar(warning, withDismissAction = true, duration = SnackbarDuration.Long) }
     }
     // The screen on top survives a rotation and a fold: jobs travel as JSON, providers by id.
     var editing by rememberSaveable(stateSaver = JobSaver) { mutableStateOf<SyncJob?>(null) }

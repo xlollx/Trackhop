@@ -1029,6 +1029,9 @@
     <string name="services_group_unavailable">Bu sürümde kullanılamaz</string>
     <string name="preview_remove_confirm">Bu %1$d parçayı hedeften kaldır</string>
     <string name="note_two_way_no_removals">Kaldırmalar atlandı: bu çift yönlü bir senkronizasyon, bu yüzden hedefte olup kaynakta olmayan %1$d parça tutuldu (ters senkronizasyon onları geri kopyalar). Kaldırmaları yansıtmak için Çift yönlü\'yü kapatın.</string>
+    <string name="note_shared_target_no_removals">Kaldırmalar atlandı: başka bir eşitleme de bu çalma listesine yazıyor (%2$s), bu yüzden bu kaynakta olmayan %1$d şarkı tutuldu. Kaldırmaları yansıtmak için her eşitlemeye kendi çalma listesini ver.</string>
+    <string name="conflict_duplicate">Aynı kaynak ve hedefe sahip bir eşitleme zaten var (%1$s): bu yalnızca onu tekrarlar.</string>
+    <string name="conflict_shared_target">Başka bir eşitleme aynı çalma listesine yazıyor (%1$s): kaldırmalar ikisinde de atlanır, yoksa her biri diğerinin eklediğini kaldırır.</string>
     <string name="editor_mirror_two_way">Çift yönlü ile olmaz: diğer tarafa eklenen bir parça geri kopyalanmadan önce kaldırılabilir.</string>
     <string name="editor_twin_note">“%1$s”, bu çift yönlü senkronizasyonun ters yarısıdır. Bu ayarları izler, bu yüzden ikisi de buradan düzenlenir.</string>
     <string name="editor_schedule_desc">İlk çalıştırma kaydettikten birkaç dakika sonra başlar, sonra yaklaşık her aralıkta bir kez; kesin zamanı Android seçer.</string>

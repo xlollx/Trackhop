@@ -1010,6 +1010,9 @@
     <string name="services_group_unavailable">이 버전에서는 사용할 수 없음</string>
     <string name="preview_remove_confirm">대상에서 이 %1$d곡 삭제</string>
     <string name="note_two_way_no_removals">삭제를 건너뛰었어요. 양방향 동기화라서 원본에 없는 대상의 %1$d곡은 그대로 두었어요(반대 방향 동기화가 다시 복사해요). 삭제를 반영하려면 양방향을 끄세요.</string>
+    <string name="note_shared_target_no_removals">삭제 건너뜀: 다른 동기화도 이 플레이리스트에 쓰고 있어(%2$s) 이 소스에 없는 %1$d곡을 유지했습니다. 삭제를 반영하려면 동기화마다 각자의 플레이리스트를 사용하세요.</string>
+    <string name="conflict_duplicate">소스와 대상이 같은 동기화가 이미 있습니다(%1$s). 이 동기화는 그것을 반복할 뿐입니다.</string>
+    <string name="conflict_shared_target">다른 동기화가 같은 플레이리스트에 쓰고 있습니다(%1$s). 두 동기화 모두 삭제를 건너뜁니다. 그렇지 않으면 서로 추가한 곡을 지우게 됩니다.</string>
     <string name="editor_mirror_two_way">양방향과 함께 쓸 수 없어요. 다른 쪽에 추가한 곡이 다시 복사되기 전에 삭제될 수 있어요.</string>
     <string name="editor_twin_note">‘%1$s’은(는) 이 양방향 동기화의 반대 방향이에요. 이 설정을 따르므로 둘 다 여기서 편집해요.</string>
     <string name="editor_schedule_desc">첫 실행은 저장 후 몇 분 안에 시작되고, 그다음에는 대략 주기마다 한 번 실행돼요. 정확한 시각은 Android가 정해요.</string>

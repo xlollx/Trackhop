@@ -1031,6 +1031,9 @@
     <string name="services_group_unavailable">In dieser Version nicht verfügbar</string>
     <string name="preview_remove_confirm">Diese %1$d Titel aus dem Ziel entfernen</string>
     <string name="note_two_way_no_removals">Entfernungen übersprungen: dies ist ein beidseitiger Sync, daher wurden die %1$d Titel im Ziel behalten, die nicht in der Quelle sind (der Sync in Gegenrichtung kopiert sie zurück). Schalte Beidseitig aus, um Entfernungen zu spiegeln.</string>
+    <string name="note_shared_target_no_removals">Entfernen übersprungen: Auch ein anderer Sync schreibt in diese Playlist (%2$s), daher wurden die %1$d Titel, die nicht in dieser Quelle sind, behalten. Gib jedem Sync eine eigene Playlist, um Entfernungen zu spiegeln.</string>
+    <string name="conflict_duplicate">Ein Sync mit derselben Quelle und demselben Ziel existiert bereits (%1$s): Dieser würde ihn nur wiederholen.</string>
+    <string name="conflict_shared_target">Ein anderer Sync schreibt in dieselbe Playlist (%1$s): Entfernungen werden in beiden übersprungen, sonst würde jeder entfernen, was der andere hinzufügt.</string>
     <string name="editor_mirror_two_way">Nicht mit Beidseitig: ein auf der anderen Seite hinzugefügter Titel könnte entfernt werden, bevor er zurückkopiert wird.</string>
     <string name="editor_twin_note">„%1$s“ ist die Gegenrichtung dieses beidseitigen Syncs. Er folgt diesen Einstellungen, daher werden beide hier bearbeitet.</string>
     <string name="editor_schedule_desc">Der erste Lauf startet wenige Minuten nach dem Speichern, danach etwa einmal pro Intervall; den genauen Zeitpunkt wählt Android.</string>

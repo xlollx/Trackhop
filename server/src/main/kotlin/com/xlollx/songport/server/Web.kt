@@ -13,6 +13,7 @@ import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.OAuthProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.server.Html.h
+import com.xlollx.songport.sync.JobConflicts
 import com.xlollx.songport.sync.PlaylistLinks
 import com.xlollx.songport.sync.SoundCloudPublic
 import com.xlollx.songport.sync.SyncState
@@ -544,8 +545,10 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
                         val color = r.form["color"]?.takeIf { it in Html.JOB_COLORS }
-                        env.store.upsertJob(job.copy(name = name, schedule = s, mirrorRemovals = r.form["mirror"] == "on", color = color))
-                        redirect(r.ex, "$back?ok=${q("Saved.")}")
+                        val saved = job.copy(name = name, schedule = s, mirrorRemovals = r.form["mirror"] == "on", color = color)
+                        val warning = conflictWarning(saved)
+                        env.store.upsertJob(saved)
+                        redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
                     }
                     "radio" -> {
                         if (!env.may(Permissions.RADIO)) return send(r.ex, 403, page("Radio sync", NOT_ALLOWED))
@@ -655,8 +658,16 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
             mirrorRemovals = r.form["mirror"] == "on",
         )
+        val warning = conflictWarning(job)
         env.store.upsertJob(job)
-        redirect(r.ex, "/syncs/${q(job.id)}?ok=${q("Sync created. Run it now, or let the schedule start it.")}")
+        redirect(r.ex, "/syncs/${q(job.id)}?ok=${q("Sync created. Run it now, or let the schedule start it." + (warning?.let { " $it" } ?: ""))}")
+    }
+
+    /** A sync that repeats another, or shares its target with one that mirrors removals: said once, saved all the same. */
+    private fun conflictWarning(job: SyncJob): String? = when (val c = JobConflicts.of(env.store.data.jobs, job)) {
+        is JobConflicts.Conflict.Duplicate -> env.text("conflict_duplicate", c.other.name)
+        is JobConflicts.Conflict.SharedTarget -> env.text("conflict_shared_target", c.others.joinToString(", ") { it.name })
+        null -> null
     }
 
     private fun syncPage(r: Req, job: SyncJob) {

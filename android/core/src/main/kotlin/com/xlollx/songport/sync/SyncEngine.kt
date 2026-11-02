@@ -105,6 +105,11 @@ class SyncEngine(
                 return report
             }
         }
+        // Two syncs writing to the same playlist run one after the other: at once they could both add
+        // what is missing, twice. The second waits for the first.
+        val lock = JobConflicts.targetKey(job)?.let { targetLocks.getOrPut(it) { kotlinx.coroutines.sync.Mutex() } }
+        if (lock?.isLocked == true) env.log("engine", "${job.name}: waiting for another sync writing to the same playlist")
+        lock?.lock()
         val report = try {
             val plan = plan(job, onProgress, unattended = unattended)
             // La ricerca e' finita: i brani non trovati e gli abbinamenti incerti si possono gia'
@@ -129,6 +134,8 @@ class SyncEngine(
             env.log("engine", "${job.name}: ${describe(e)}")
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
                 error = e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0)
+        } finally {
+            lock?.unlock()
         }
         store.addReport(report)
         if (report.error == null && dst0 != null) {
@@ -347,6 +354,8 @@ class SyncEngine(
         // Half of a two-way pair: the other half copies back what was added on this target, and a
         // removal here could come first. Removals are never made in a pair.
         val paired = job.linkedJobId?.let { store.job(it) } != null
+        // Another sync writes to this playlist too: what matches none of this source may be its.
+        val sharing = JobConflicts.sharingTarget(store.data.jobs, job)
         if (job.mirrorRemovals) {
             // An entry the service lists by id alone cannot be told apart from one of the source's
             // under another id: it stays (see MusicProvider.listsUntitledEntries).
@@ -370,6 +379,7 @@ class SyncEngine(
             val large = extra.size > REMOVAL_CAP_MIN && extra.size * 4 > dstTracks.size
             when {
                 paired -> if (extra.isNotEmpty()) notes += str("note_two_way_no_removals", extra.size)
+                sharing.isNotEmpty() -> if (extra.isNotEmpty()) notes += str("note_shared_target_no_removals", extra.size, sharing.joinToString(", ") { it.name })
                 // Ricerca non completata: un brano della destinazione puo' corrispondere a uno
                 // dell'origine non ancora cercato. Nulla si toglie finche' non si sa.
                 interrupted != null -> if (extra.isNotEmpty()) notes += str("note_removals_deferred", extra.size)
@@ -496,6 +506,8 @@ class SyncEngine(
     /** Un semaforo per servizio di destinazione, condiviso da tutte le istanze del motore nel processo. */
     private companion object {
         val searchSlots = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Semaphore>()
+        /** One run at a time per target playlist ("service|playlist"), across the syncs of this process. */
+        val targetLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     }
 
     private suspend fun searchMissing(

@@ -1038,6 +1038,9 @@
     <string name="services_group_unavailable">Indisponibles dans cette version</string>
     <string name="preview_remove_confirm">Retirer ces %1$d titres de la destination</string>
     <string name="note_two_way_no_removals">Suppressions ignorées : c\'est une sync bidirectionnelle, donc les %1$d titres de la destination absents de la source ont été gardés (la sync inverse les recopie). Désactivez Bidirectionnelle pour refléter les retraits.</string>
+    <string name="note_shared_target_no_removals">Suppressions ignorées : une autre synchro écrit aussi dans cette playlist (%2$s), les %1$d titres absents de cette source ont donc été gardés. Donne à chaque synchro sa propre playlist pour refléter les suppressions.</string>
+    <string name="conflict_duplicate">Une synchro avec la même source et la même destination existe déjà (%1$s) : celle-ci ne ferait que la répéter.</string>
+    <string name="conflict_shared_target">Une autre synchro écrit dans la même playlist (%1$s) : les suppressions sont ignorées dans les deux, sinon chacune retirerait ce que l\'autre ajoute.</string>
     <string name="editor_mirror_two_way">Pas avec Bidirectionnelle : un titre ajouté de l\'autre côté pourrait être retiré avant d\'être recopié.</string>
     <string name="editor_twin_note">« %1$s » est la moitié inverse de cette sync bidirectionnelle. Elle suit ces réglages : les deux se modifient ici.</string>
     <string name="editor_schedule_desc">La première exécution démarre quelques minutes après l\'enregistrement, puis environ une fois par intervalle ; Android choisit le moment exact.</string>

@@ -1031,6 +1031,9 @@
     <string name="services_group_unavailable">Not available in this version</string>
     <string name="preview_remove_confirm">Remove these %1$d tracks from the target</string>
     <string name="note_two_way_no_removals">Removals skipped: this is a two-way sync, so the %1$d tracks in the target that are not in the source were kept (the reverse sync copies them back). Turn off Two-way to mirror removals.</string>
+    <string name="note_shared_target_no_removals">Removals skipped: another sync writes to this playlist too (%2$s), so the %1$d tracks that are not in this source were kept. Give each sync its own playlist to mirror removals.</string>
+    <string name="conflict_duplicate">A sync with the same source and target already exists (%1$s): this one would only repeat it.</string>
+    <string name="conflict_shared_target">Another sync writes to the same playlist (%1$s): removals are skipped in both, or each would take away what the other adds.</string>
     <string name="editor_mirror_two_way">Not with Two-way: a track added on the other side could be removed before it is copied back.</string>
     <string name="editor_twin_note">“%1$s” is the reverse half of this two-way sync. It follows these settings, so both are edited here.</string>
     <string name="editor_schedule_desc">The first run starts within minutes of saving, then about once per interval; Android picks the exact time.</string>

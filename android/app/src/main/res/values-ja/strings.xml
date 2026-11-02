@@ -1011,6 +1011,9 @@
     <string name="services_group_unavailable">このバージョンでは利用できません</string>
     <string name="preview_remove_confirm">これらの %1$d 曲を同期先から削除</string>
     <string name="note_two_way_no_removals">削除をスキップしました：双方向の同期のため、同期元にない同期先の %1$d 曲は残しました（逆方向の同期がそれらをコピーし戻します）。削除を反映するには「双方向」をオフにしてください。</string>
+    <string name="note_shared_target_no_removals">削除をスキップしました：別の同期もこのプレイリストに書き込んでいるため（%2$s）、このソースにない %1$d 曲は残しました。削除を反映するには、同期ごとに別のプレイリストを使ってください。</string>
+    <string name="conflict_duplicate">同じソースと同じ保存先の同期がすでにあります（%1$s）。この同期はそれを繰り返すだけです。</string>
+    <string name="conflict_shared_target">別の同期が同じプレイリストに書き込んでいます（%1$s）。両方で削除をスキップします。そうしないと互いに追加した曲を削除し合います。</string>
     <string name="editor_mirror_two_way">双方向とは併用できません：もう一方に追加した曲が、コピーし戻される前に削除されるおそれがあります。</string>
     <string name="editor_twin_note">「%1$s」はこの双方向同期の逆方向側です。この設定に従うため、両方ともここで編集します。</string>
     <string name="editor_schedule_desc">最初の実行は保存から数分以内に始まり、その後はおおよそ間隔ごとに 1 回実行されます。正確な時刻は Android が決めます。</string>
