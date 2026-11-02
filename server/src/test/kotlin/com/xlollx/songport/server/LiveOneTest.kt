@@ -17,7 +17,9 @@ class LiveOneTest {
     }
 
     @Test fun readsTheKeysOutOfThePlayersScript() {
-        val script = "x;this.OAUTH_K=\"${encode("oauth-key-123")}\";y;slackerConfig={client:1,tokenClientId:45,K:\"${encode("sign-key")}\",z:2}"
+        // The web player's config object, then another device's key assigned later (Fire TV): the first one counts.
+        val script = "x;slackerConfig={client:1,tokenClientId:45,K:\"${encode("sign-key")}\",z:2,OAUTH_K:\"${encode("oauth-key-123")}\"};" +
+            "CONFIG.slackerConfig.OAUTH_K=\"${encode("firetv-key")}\""
         val p = LiveOneWebClient.parsePlayer("4.0.1426", script)!!
         assertEquals("sign-key", p.k)
         assertEquals("oauth-key-123", p.oauthK)

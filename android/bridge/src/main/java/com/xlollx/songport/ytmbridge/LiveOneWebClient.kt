@@ -60,8 +60,12 @@ class LiveOneWebClient(private val host: WebHost) {
         val tok = send(
             Request.Builder().url(TOKEN_URL).post(form.toRequestBody(FORM)).header("Authorization", "Basic $basic").headers(p).build(),
         )
-        if (tok.code == 400 || tok.code == 401) throw BridgeException(EXPIRED)
-        if (tok.code != 200) throw BridgeException("LiveOne sign-in: HTTP ${tok.code}")
+        if (tok.code != 200) {
+            val why = runCatching { parseJson(tok.text)["error"].str }.getOrNull()
+            // invalid_grant: the token itself is spent or signed out; anything else is ours to fix.
+            if (why == "invalid_grant") throw BridgeException(EXPIRED)
+            throw BridgeException("LiveOne sign-in refused (HTTP ${tok.code}${why?.let { ", $it" } ?: ""}): Trackhop needs an update")
+        }
         val j = parseJson(tok.text)
         val access = j["access_token"].str ?: throw BridgeException(EXPIRED)
         j["refresh_token"].str?.let { host.put(REFRESH, it) }
@@ -166,7 +170,9 @@ class LiveOneWebClient(private val host: WebHost) {
 
         fun parsePlayer(version: String, script: String): Player? {
             val k = Regex("""tokenClientId:45,K:"([0-9a-f]+)"""").find(script)?.groupValues?.get(1)?.let { key(it) } ?: return null
-            val o = Regex("""OAUTH_K="([0-9a-f]+)"""").find(script)?.groupValues?.get(1)?.let { key(it) } ?: return null
+            // The web player's own config object (`OAUTH_K:"…"`): the script also holds the Fire TV's,
+            // the Samsung TV's and others, assigned as `CONFIG.slackerConfig.OAUTH_K="…"`.
+            val o = Regex("""[{,]OAUTH_K:"([0-9a-f]+)"""").find(script)?.groupValues?.get(1)?.let { key(it) } ?: return null
             return Player(version, k, o)
         }
 
