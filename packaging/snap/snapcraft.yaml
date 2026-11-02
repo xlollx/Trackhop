@@ -24,12 +24,14 @@ license: GPL-3.0-only
 website: https://trackhop.org
 source-code: https://github.com/xlollx/Trackhop
 issues: https://github.com/xlollx/Trackhop/issues
+contact: https://github.com/xlollx/Trackhop/issues
 platforms:
   amd64:
 
 apps:
   trackhop:
-    command: Trackhop/bin/Trackhop
+    # snapcraft drops the archive's single top folder (Trackhop/): the launcher is bin/Trackhop.
+    command: bin/Trackhop
     extensions: [gnome]
     # "Start with the computer" in its menu writes $XDG_CONFIG_HOME/autostart/trackhop.desktop, which
     # under snap confinement is the snap's own folder, where snapd looks for this name.
