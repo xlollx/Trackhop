@@ -56,6 +56,8 @@ jobs:
           # snapcraft's layout: snap/snapcraft.yaml, with the menu entry and icon in snap/gui.
           mkdir -p packaging/snap/snap/gui
           sed "s/^version: .*/version: '$v'/" packaging/snap/snapcraft.yaml > packaging/snap/snap/snapcraft.yaml
+          # Only that one: with both, snapcraft reads the template's ('0.0.0').
+          rm packaging/snap/snapcraft.yaml
           cp packaging/snap/trackhop.desktop packaging/snap/snap/gui/trackhop.desktop
           cp docs/store/icon512.png packaging/snap/snap/gui/icon.png
 
