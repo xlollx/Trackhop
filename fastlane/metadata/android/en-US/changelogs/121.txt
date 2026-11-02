@@ -1,0 +1,1 @@
+Fixes a crash when opening the songs to fix of a long playlist: a song listed twice in the source appeared twice there and closed the app. Each song is now searched and listed once.

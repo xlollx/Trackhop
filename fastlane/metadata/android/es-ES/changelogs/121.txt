@@ -1,0 +1,1 @@
+Corrige un cierre al abrir las canciones por arreglar de una lista larga: una canción repetida en el origen aparecía dos veces y cerraba la app. Ahora cada canción se busca y se muestra una sola vez.

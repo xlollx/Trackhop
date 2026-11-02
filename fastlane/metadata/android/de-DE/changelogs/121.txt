@@ -1,0 +1,1 @@
+Behebt einen Absturz beim Öffnen der zu korrigierenden Songs einer langen Playlist: ein in der Quelle doppelt vorhandener Song erschien dort zweimal und schloss die App. Jeder Song wird jetzt einmal gesucht und aufgeführt.

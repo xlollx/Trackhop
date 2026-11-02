@@ -1,0 +1,1 @@
+Corrige um travamento ao abrir as músicas a corrigir de uma playlist longa: uma música repetida na origem aparecia duas vezes e fechava o app. Agora cada música é buscada e listada uma só vez.

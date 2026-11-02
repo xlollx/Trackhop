@@ -1,0 +1,1 @@
+Corrige une fermeture à l'ouverture des titres à corriger d'une longue playlist : un titre présent deux fois dans la source y apparaissait deux fois et fermait l'application. Chaque titre est maintenant recherché et listé une seule fois.

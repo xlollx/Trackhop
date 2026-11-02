@@ -1,0 +1,1 @@
+Corregge la chiusura dell'app aprendo i brani da sistemare di una playlist lunga: un brano presente due volte nella sorgente compariva due volte e faceva chiudere l'app. Ora ogni brano è cercato ed elencato una volta sola.

@@ -1,0 +1,1 @@
+Naprawia awarię przy otwieraniu utworów do poprawy z długiej playlisty: utwór występujący dwa razy w źródle pojawiał się tam dwukrotnie i zamykał aplikację. Teraz każdy utwór jest wyszukiwany i wyświetlany raz.

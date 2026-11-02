@@ -1,0 +1,1 @@
+Uzun bir çalma listesinin düzeltilecek şarkıları açılırken oluşan çökme giderildi: kaynakta iki kez bulunan bir şarkı orada iki kez görünüyor ve uygulamayı kapatıyordu. Artık her şarkı bir kez aranır ve listelenir.
