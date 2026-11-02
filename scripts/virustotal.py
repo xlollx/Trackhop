@@ -101,11 +101,21 @@ def _flagged_by(results):
 def scan(tag, out, files, key):
     product = "desktop" if tag.startswith("server-v") else "app"
     version = tag.removeprefix("server-v").removeprefix("v")
-    results, pending = {}, {}
+    results, pending, rechecked = {}, {}, set()
     for path in files:
         name, sha = os.path.basename(path), _sha256(path)
         status, known = _request("GET", f"{API}/files/{sha}", key=key)
         stats = known.get("data", {}).get("attributes", {}).get("last_analysis_stats") if status == 200 else None
+        if stats and sum(stats.values()) > 0 and int(stats.get("malicious", 0)) > 0 and name not in rechecked:
+            # Flagged when last seen: ask for a fresh analysis, the engines may have corrected
+            # themselves since (a false positive reported to them), and wait for it.
+            _, again = _request("POST", f"{API}/files/{sha}/analyse", key=key)
+            analysis = again.get("data", {}).get("id")
+            if analysis:
+                rechecked.add(name)
+                pending[name] = (sha, analysis)
+                print(f"{name}: flagged when last seen, analysed again")
+                continue
         if stats and sum(stats.values()) > 0:
             by = _flagged_by(known["data"]["attributes"].get("last_analysis_results"))
             results[name] = {"name": name, "sha256": sha, **_counts(stats), "flagged_by": by}
