@@ -148,6 +148,10 @@ fun main(args: Array<String>) {
     val show = { window?.showLater() ?: DesktopApp.openBrowser(config.baseUrl) }
     // The Microsoft Store's package offers only the official connections, as the app's Play build does.
     val store = Autostart.storePackage(System.getProperty("jpackage.app-path").orEmpty())
+    Updates.configure(
+        config.dataDir, serverVersion(), Html.Edition.DESKTOP, System.getenv(),
+        Updates.desktopUpdater(System.getProperty("jpackage.app-path").orEmpty(), System.getProperty("java.home").orEmpty(), System.getenv(), store),
+    )
     val app = launch(config, Html.Edition.DESKTOP, onQuit = quit, onShow = show, officialOnly = store)
     try {
         app.web.start(config.port, loopbackOnly = true)

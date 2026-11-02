@@ -55,6 +55,10 @@ prefix and the log file its name `songport.log`, so nothing else needs to change
 
 ## Update
 
+The page says when a new version is out (**Settings › Updates**): twice a day at most it asks
+GitHub's public API which version is the latest, nothing else. Turn it off there, or for everyone with
+`SONGPORT_UPDATE_CHECK=false`.
+
 The image is `ghcr.io/xlollx/trackhop:latest`, or a version (`:0.7.0`): Docker and Trackhop Desktop
 have their own version, separate from the app's, listed in the
 [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true). To

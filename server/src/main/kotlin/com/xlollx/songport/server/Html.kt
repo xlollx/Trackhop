@@ -31,7 +31,7 @@ object Html {
      */
     private const val DESKTOP_LINKS = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.host===location.host)return;e.preventDefault();location.href='trackhop-external:'+a.href})</script>"""
 
-    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log")
+    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log", "/settings" to "Settings")
 
     /**
      * A service's mark as the app draws it: its glyph (ServiceMarks) white on a circle in its brand
@@ -94,8 +94,12 @@ object Html {
         account: Account? = null,
         /** False for the sign-in page: nothing to go to before signing in. */
         showNav: Boolean = true,
+        /** "light" or "dark" to set the look; anything else follows the system. */
+        theme: String = "system",
+        /** A line under the header (a new version is out), or "". */
+        banner: String = "",
     ): String = """<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"${if (theme == "light" || theme == "dark") " data-theme=\"$theme\"" else ""}><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#141218">
 ${refreshSeconds?.let { """<meta http-equiv="refresh" content="$it">""" } ?: ""}
@@ -105,7 +109,7 @@ ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
 </head><body>
 <header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop <span class="${edition.stage}">${edition.stage}</span></a>
 ${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}</header>
-<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>
+$banner<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>
 <main>
 ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""}
 <h1>${h(title)}</h1>
@@ -122,7 +126,8 @@ ${h(edition.product)} ${h(version)} · ${edition.stage} · <a href="${edition.gu
      */
     const val CSS = """
 :root{--bg:#fbf8ff;--surface:#f6f2fc;--surface-2:#eae6f1;--line:#cbc4d1;--ink:#1c1b22;--ink-2:#49454f;--ink-3:#6e6878;--accent:#5b3fd9;--accent-ink:#fff;--accent-2:#e6deff;--accent-2-ink:#1b0062;--link:#4c32c4;--ok:#1b7f4b;--err:#b3261e;--radius:20px;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#141218;--surface:#1d1b20;--surface-2:#2b2930;--line:#49454f;--ink:#e6e1ea;--ink-2:#cac4d0;--ink-3:#948f99;--accent:#c8bfff;--accent-ink:#2b0a9a;--accent-2:#4327c0;--accent-2-ink:#e6deff;--link:#c8bfff;--ok:#7dd8a3;--err:#ffb4ab;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141218;--surface:#1d1b20;--surface-2:#2b2930;--line:#49454f;--ink:#e6e1ea;--ink-2:#cac4d0;--ink-3:#948f99;--accent:#c8bfff;--accent-ink:#2b0a9a;--accent-2:#4327c0;--accent-2-ink:#e6deff;--link:#c8bfff;--ok:#7dd8a3;--err:#ffb4ab;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#141218;--surface:#1d1b20;--surface-2:#2b2930;--line:#49454f;--ink:#e6e1ea;--ink-2:#cac4d0;--ink-3:#948f99;--accent:#c8bfff;--accent-ink:#2b0a9a;--accent-2:#4327c0;--accent-2-ink:#e6deff;--link:#c8bfff;--ok:#7dd8a3;--err:#ffb4ab;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a{color:var(--link)}
@@ -145,7 +150,8 @@ h2{font-size:18px;margin:24px 0 8px}
 h3{margin:0 0 4px;font-size:16px}
 .card{background:var(--surface);border-radius:var(--radius);padding:16px 18px;margin:0 0 12px}
 .card[style*="--job"]{background:color-mix(in srgb,var(--job) 12%,var(--surface));box-shadow:inset 4px 0 0 var(--job)}
-@media (prefers-color-scheme:dark){.card[style*="--job"]{background:color-mix(in srgb,var(--job-dark) 12%,var(--surface));box-shadow:inset 4px 0 0 var(--job-dark)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .card[style*="--job"]{background:color-mix(in srgb,var(--job-dark) 12%,var(--surface));box-shadow:inset 4px 0 0 var(--job-dark)}}
+:root[data-theme=dark] .card[style*="--job"]{background:color-mix(in srgb,var(--job-dark) 12%,var(--surface));box-shadow:inset 4px 0 0 var(--job-dark)}
 .hero{border-radius:28px;padding:20px 22px;margin:0 0 16px;color:#fff;position:relative;overflow:hidden;
  background:linear-gradient(12deg,#000 0%,#2a0000 50%,#400000 66%,#421aff 70%,#59ffff 80%,#fff 100%)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#000,#990000);mix-blend-mode:screen;pointer-events:none}
@@ -168,6 +174,8 @@ h3{margin:0 0 4px;font-size:16px}
 .card.ok{box-shadow:inset 4px 0 0 var(--ok)}.card.err{box-shadow:inset 4px 0 0 var(--err)}
 .alpha{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#ffb4ab;color:#690005;vertical-align:middle}
 .beta{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#c8e6ff;color:#003258;vertical-align:middle}
+.update-note{margin:0;padding:10px 16px;background:var(--accent-2);color:var(--accent-2-ink);font-size:14px;font-weight:600;text-align:center}
+.update-note a{color:inherit}
 .alpha-note{margin:0;padding:10px 16px;background:var(--surface-2);color:var(--ink-2);font-size:13.5px;text-align:center}
 .badge{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
 button,.button{font:inherit;font-weight:600;font-size:14px;cursor:pointer;border:0;border-radius:999px;padding:9px 18px;background:var(--accent);color:var(--accent-ink);text-decoration:none;display:inline-block;line-height:1.3}

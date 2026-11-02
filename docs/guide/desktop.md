@@ -42,7 +42,9 @@ signed with a paid certificate, as is usual for open-source projects. Choose *Mo
 *Run anyway*. The files are built by GitHub from this repository's code, in the
 [Desktop workflow](https://github.com/xlollx/Trackhop/actions/workflows/desktop.yml).
 
-To update, install the newer file over the old one: your syncs and sign-ins stay.
+To update, install the newer file over the old one: your syncs and sign-ins stay. Trackhop says when a
+new version is out (**Settings › Updates**, where it can be turned off); installed from a store or a
+package manager, that updates it instead.
 
 ### macOS
 

@@ -7,6 +7,10 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- **Settings**: a new tab with the page's look (the system's, light or dark, kept for each person)
+  and **updates**: a line under the header when a new version is out, with how to update. Twice a
+  day at most Trackhop asks GitHub's public API; off in Settings or with `SONGPORT_UPDATE_CHECK=false`,
+  and not done where the Microsoft Store, Flathub, Homebrew, Scoop or Chocolatey update Trackhop.
 - **Lyrics: LRCLIB busy is waited out.** When LRCLIB answers "busy", Trackhop waits a few seconds
   and asks again before counting the file as not found for a week.
 

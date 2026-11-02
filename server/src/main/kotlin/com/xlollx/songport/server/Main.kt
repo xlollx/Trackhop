@@ -82,6 +82,7 @@ fun main() {
     System.setProperty("java.awt.headless", "true")
     val config = Config(System.getenv())
     Lyrics.configure(System.getenv())
+    Updates.configure(config.dataDir, serverVersion(), Html.Edition.SERVER, System.getenv())
     if (config.multiUser) {
         if (config.password != null) { MultiUser.serve(config, System.getenv()); return }
         println("SONGPORT_MULTIUSER needs SONGPORT_PASSWORD, the admin's password: starting for one person.")
@@ -90,6 +91,9 @@ fun main() {
     app.web.start(config.port)
     app.started(config.password == null)
 }
+
+/** The server's own version ("0.7.0"), as its releases are tagged; "dev" outside a build. */
+fun serverVersion(): String = Config::class.java.getResourceAsStream("/songport-version.txt")?.use { String(it.readBytes()).trim() } ?: "dev"
 
 /** The engine set up on [config]'s data folder, not yet serving: [web] is started by the caller. */
 class Launched(val env: ServerEnv, val runner: Runner, val web: Web, val version: String, private val config: Config, private val edition: Html.Edition) {
@@ -116,7 +120,7 @@ fun launch(
     Log.init(config.dataDir)
     fun resource(name: String) = Config::class.java.getResourceAsStream(name)?.use { String(it.readBytes()).trim() }
     // The server's own version, then the app version whose engine it runs.
-    val version = (resource("/songport-version.txt") ?: "dev") + (resource("/engine-version.txt")?.let { " (engine $it)" } ?: "")
+    val version = serverVersion() + (resource("/engine-version.txt")?.let { " (engine $it)" } ?: "")
 
     BuildDefaults.values = config.buildDefaults
     installServerConnectors(officialOnly)

@@ -160,6 +160,7 @@ class Web(
             path.size == 2 && path[0] == "files" && method == "POST" -> fileAction(r, path[1])
             path == listOf("files") && method == "POST" -> upload(r)
             path[0] == "tools" -> tools(r, path.drop(1))
+            path == listOf("settings") -> settingsPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
             else -> send(ex, 404, page("Not found", "<p><a href=\"/\">Back</a></p>"))
@@ -204,7 +205,8 @@ class Web(
     /** "Trackhop server" or "Trackhop Desktop". */
     internal val productName: String get() = edition.product
 
-    internal fun page(title: String, body: String, refresh: Int? = null) = Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account)
+    internal fun page(title: String, body: String, refresh: Int? = null) =
+        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner())
 
     /** The path being answered, for the header's current tab. */
     private val currentPath = ThreadLocal<String>()
