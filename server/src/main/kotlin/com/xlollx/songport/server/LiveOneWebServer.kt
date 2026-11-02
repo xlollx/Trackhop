@@ -89,7 +89,18 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
 
     override fun webSearchUrl(ctx: Env, query: String): String = "https://www.liveone.com/search?q=" + URLEncoder.encode(query, "UTF-8").replace("+", "%20")
 
-    override suspend fun search(ctx: Env, track: Track): List<Track> {
+    /**
+     * A search that fails is counted as "not found" by the engine without a word: the first few
+     * failures of a process go to the log, so a sync with many not found shows whether LiveOne refused.
+     */
+    override suspend fun search(ctx: Env, track: Track): List<Track> = try {
+        searchOnce(ctx, track)
+    } catch (e: Exception) {
+        if (e !is kotlinx.coroutines.CancellationException && searchErrors.incrementAndGet() <= 5) ctx.log("liveone", "search failed for \"${track.title}\": ${e.message}")
+        throw e
+    }
+
+    private suspend fun searchOnce(ctx: Env, track: Track): List<Track> {
         if (track.kind.isNotEmpty()) return emptyList()
         val q = listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }, Matcher.searchTitle(track.title)).joinToString(" ")
         val r = io(ctx, needsSession = false) { c -> c.search(q).map { toTrack(it) } }
@@ -126,6 +137,7 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
     }
 
     companion object {
+        private val searchErrors = java.util.concurrent.atomic.AtomicInteger()
         const val SERVICE = "liveone_web"
     }
 }
