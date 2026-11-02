@@ -431,6 +431,11 @@ class Web(
      * from the developer tools' cookie list (or the Cookie header of a request) rather than from a script.
      */
     private fun webPlayerNote(p: CookieConnector): String {
+        p.pasteHelp?.let { help ->
+            return """<div class="card"><p><span class="badge">unofficial</span> <span class="alpha">alpha</span></p>
+<p>${h(p.familyName)} through its own web player: no public API, no developer key. A free account syncs its presets, shown as the liked songs (add only); playlists of your own need its paid plan and are not handled yet. Not an official API: against ${h(p.familyName)}'s terms, it can stop working whenever the player changes.</p>
+$help</div>"""
+        }
         val (service, about, cookie) = when (p) {
             is SpotifyWebServerProvider -> Triple(
                 "Spotify",
@@ -451,7 +456,7 @@ class Web(
     /** The pasted cookies: a Cookie header, cookies.txt or a JSON export, and optionally the browser's user agent. */
     private fun cookieForm(p: CookieConnector): String =
         """<form method="post" action="/connectors/${q(p.id)}/connect" class="card">
-<label>Cookies of ${h(p.cookieSite)}</label>
+<label>${h(p.pasteLabel)}</label>
 <textarea name="cookies" rows="6" required autocomplete="off" spellcheck="false" placeholder="${h(p.cookieExample)}  (the Cookie header, cookies.txt or a JSON export)"></textarea>
 <label>Your browser's user agent (optional)</label>
 <input type="text" name="userAgent" autocomplete="off" placeholder="Mozilla/5.0 … Chrome/… Safari/537.36">

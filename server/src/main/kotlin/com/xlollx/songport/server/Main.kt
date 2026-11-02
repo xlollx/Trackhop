@@ -39,6 +39,7 @@ fun installServerConnectors(officialOnly: Boolean = false) = Providers.install(
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerWebServerProvider.SERVICE) { DeezerWebServerProvider(it) }.takeUnless { officialOnly },
+        Factory(LiveOneWebServerProvider.SERVICE) { LiveOneWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },

@@ -98,6 +98,7 @@ class ServerEnv(
  * In English, like the rest of the page.
  */
 private val SERVER_TEXTS = mapOf(
+    "provider_note_liveone" to "LiveOne through its web player, signed in with the token of a browser session. Unofficial, alpha: a free account syncs its presets (add only).",
     "note_file_target" to "Saved inside Trackhop as a CSV file: download it from Services › File.",
     // The app says "from the preview"; here the sync's card has the button.
     "error_target_shrunk" to "%1\$s lists only %2\$d tracks, but the last run left %3\$d there: probably an incomplete answer. Nothing was changed. " +

@@ -190,6 +190,23 @@ when you sign out in that browser. Spotify's access token is read from the playe
 the cookies: when that page answers as a signed-out visitor, Trackhop says the cookies have expired.
 Paste fresh ones then.
 
+## LiveOne (unofficial)
+
+LiveOne (formerly Slacker Radio) has no public API: Trackhop goes through liveone.com's own web
+player, unofficial and alpha, like the web connectors above. No developer key.
+
+1. In a desktop browser, sign in to [liveone.com](https://www.liveone.com).
+2. Open the developer tools (F12), then **Application** (**Storage** in Firefox) › **Local storage** ›
+   `https://www.liveone.com`, and copy the value of **`refresh_token`** (a long text starting with `eyJ`).
+3. In Trackhop, **Services › Add › LiveOne (web)**, paste it and press **Connect**.
+
+Trackhop renews the session from that token as the player does; it lasts until you sign out of
+LiveOne in that browser. It is as good as your password: keep it to yourself.
+
+What works: a free account's **presets**, shown as the liked songs, as a source and as a target
+(songs are added, not removed); search. Not yet: playlists of your own (they need LiveOne's paid
+plan), removing songs, and stations as a radio source (LiveOne plays them only in the US).
+
 ## Radio syncs
 
 A radio sync listens to an internet radio in the hours you choose and saves the songs it plays to a

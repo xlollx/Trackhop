@@ -18,6 +18,10 @@ interface CookieConnector : MusicProvider {
     val cookieSite: String
     /** The cookies that matter, as the form's placeholder shows them. */
     val cookieExample: String
+    /** The form's label for what is pasted. */
+    val pasteLabel: String get() = "Cookies of $cookieSite"
+    /** How to copy it, as HTML, when it is not the site's cookies; null for the cookies' own steps. */
+    val pasteHelp: String? get() = null
 
     /**
      * Stores the pasted cookies (a `Cookie` header, cookies.txt or a JSON export) once one call has

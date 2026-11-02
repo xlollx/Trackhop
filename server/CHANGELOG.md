@@ -7,6 +7,8 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- **LiveOne (web)**, unofficial and alpha: signed in with the web player's refresh token, pasted
+  once; a free account's presets as liked songs (read and add), search. Not in the Microsoft Store build.
 - **Home page side column** on a wide screen (not on a phone): tracks added in the last two weeks (chart), the
   numbers, the latest runs and the services in use. On the left by default; in **Settings › Home page**
   on the right or hidden, and which cards to show.
