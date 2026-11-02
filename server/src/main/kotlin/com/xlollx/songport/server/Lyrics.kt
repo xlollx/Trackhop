@@ -10,6 +10,7 @@ import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Matcher
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.JsonElement
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
@@ -204,14 +205,23 @@ object Lyrics {
     /** LRCLIB's "The server is busy, please retry in a moment" (503), after [Http.send]'s own second try. */
     class Busy : Exception("LRCLIB: busy")
 
+    /**
+     * The pauses before asking again when LRCLIB says it is busy: under load it stays busy for more
+     * than the second the HTTP client waits, and a song it has would otherwise wait a week.
+     */
+    @Volatile internal var busyPausesMs: List<Long> = listOf(5_000L, 15_000L)
+
     private suspend fun get(path: String): JsonElement? {
-        val r = Http.send("GET", "$api$path", UA, maxRateLimitRetries = 4)
-        return when (r.code) {
-            200 -> parseJson(r.body)
-            404 -> null
-            503 -> throw Busy()
-            else -> throw IllegalStateException("LRCLIB: HTTP ${r.code}")
+        for (pause in busyPausesMs + -1L) {
+            val r = Http.send("GET", "$api$path", UA, maxRateLimitRetries = 4)
+            when (r.code) {
+                200 -> return parseJson(r.body)
+                404 -> return null
+                503 -> if (pause < 0) throw Busy() else delay(pause)
+                else -> throw IllegalStateException("LRCLIB: HTTP ${r.code}")
+            }
         }
+        throw Busy()
     }
 
     /** A lookup that may come back busy: the next way of asking is tried instead. */

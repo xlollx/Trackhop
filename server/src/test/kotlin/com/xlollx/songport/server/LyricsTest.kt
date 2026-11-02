@@ -34,6 +34,7 @@ class LyricsTest {
     private lateinit var env: ServerEnv
     private val calls = AtomicInteger()
     private val asked = mutableListOf<String>()
+    private val busyFor = AtomicInteger()
 
     private val synced = "[00:01.00] Tonight I'm gonna have myself a real good time"
 
@@ -56,6 +57,10 @@ class LyricsTest {
                 ex.requestURI.path == "/api/search" && q["artist_name"] == "Mahmood" ->
                     200 to """[{"trackName":"Tuta gold","artistName":"Mahmood","duration":0,"plainLyrics":"Tuta gold","syncedLyrics":"[00:02.00] Tuta gold"}]"""
                 q["artist_name"] == "Busy" -> 503 to """{"name":"ServerOverloaded"}"""
+                // Busy for the first few calls, then it answers: LRCLIB under load.
+                q["artist_name"] == "EDEN" && busyFor.getAndDecrement() > 0 -> 503 to """{"name":"ServerOverloaded"}"""
+                ex.requestURI.path == "/api/get" && q["artist_name"] == "EDEN" && q["track_name"] == "Fumes" ->
+                    200 to """{"trackName":"Fumes","artistName":"EDEN","duration":215,"instrumental":false,"plainLyrics":"Fumes","syncedLyrics":"[00:03.00] Fumes"}"""
                 ex.requestURI.path == "/api/search" -> 200 to "[]"
                 else -> 404 to """{"code":404,"name":"TrackNotFound"}"""
             }
@@ -67,6 +72,7 @@ class LyricsTest {
         Lyrics.api = "http://127.0.0.1:${lrclib.address.port}"
         music = tmp.newFolder("music")
         Lyrics.musicDir = music
+        Lyrics.busyPausesMs = listOf(1L, 1L)
         env = ServerEnv(tmp.newFolder("data"), Strings(emptyMap()), "http://localhost")
     }
 
@@ -74,6 +80,7 @@ class LyricsTest {
         lrclib.stop(0)
         Lyrics.musicDir = null
         Lyrics.api = "https://lrclib.net"
+        Lyrics.busyPausesMs = listOf(5_000L, 15_000L)
     }
 
     private fun file(path: String) = File(music, path).apply { parentFile.mkdirs(); writeBytes(byteArrayOf(1, 2, 3)) }
@@ -139,6 +146,16 @@ class LyricsTest {
         misses.writeText(misses.readLines().joinToString("") { l -> l.substringBefore('\t') + "\t" + (l.substringAfter('\t').toLong() - 7L * 24 * 3600_000 - 1) + "\n" })
         Lyrics.run(env, Lyrics.Options()) {}
         assertTrue(calls.get() > before)
+    }
+
+    @Test fun aShortBusySpellIsWaitedOut() = runBlocking {
+        // The HTTP client asks twice per call; three calls in a row busy, then the song is there.
+        busyFor.set(5)
+        val fumes = file("EDEN/i think you think too much of me/05. EDEN - Fumes feat. gnash.flac")
+        val s = Lyrics.run(env, Lyrics.Options()) {}
+        assertEquals(1, s.synced)
+        assertEquals(0, s.missing)
+        assertEquals("[00:03.00] Fumes\n", File(fumes.parentFile, "05. EDEN - Fumes feat. gnash.lrc").readText())
     }
 
     @Test fun syncedOnlySkipsPlainLyrics() = runBlocking {
