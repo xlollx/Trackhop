@@ -99,6 +99,12 @@
   </requires>
 
   <releases>
+    <release version="0.8.0" date="2026-11-02">
+      <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.8.0</url>
+      <description>
+        <p>Settings with a light or dark look and a notice when a new version is out. The home page shows the last two weeks, the numbers and the latest runs on a wide screen. Syncs writing to the same playlist no longer undo each other. TIDAL is out of beta.</p>
+      </description>
+    </release>
     <release version="0.7.0" date="2026-11-01">
       <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v0.7.0</url>
       <description>

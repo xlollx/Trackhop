@@ -5,7 +5,7 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 0.8.0
 
 - **Syncs writing to the same playlist** run one after the other, and skip removals there (each would
   take away what the other adds); a warning when saving a duplicate sync or a shared playlist with mirror on.
