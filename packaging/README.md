@@ -278,7 +278,8 @@ artifact and, once the secret exists, publishes it to the stable channel.
 3. On a Linux machine with snapd (Ubuntu, or Ubuntu in WSL): `sudo snap install snapcraft --classic`,
    then
    `snapcraft export-login --snaps=trackhop --channels=stable --acls package_access,package_push,package_update,package_release trackhop-store.txt`
-   (it asks for the Ubuntu One sign-in).
+   (it asks for the Ubuntu One sign-in). Where snap does not work (Ubuntu in WSL), the same without
+   snapcraft: `python3 packaging/snap/export-login.py` (Python 3 only, nothing to install).
 4. GitHub secret `SNAPCRAFT_STORE_CREDENTIALS`: the whole text of `trackhop-store.txt`; then delete
    the file.
 5. *Actions › Snap › Run workflow*, *Publish* ticked: the current version goes to the store. The first
