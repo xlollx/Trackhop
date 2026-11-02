@@ -66,6 +66,11 @@ class Config(
     /** Where the browser reaches this server: OAuth sign-ins come back to <url>/callback. */
     val baseUrl = (env["SONGPORT_URL"]?.takeIf { it.isNotBlank() } ?: "http://$defaultHost:$port").trimEnd('/')
     val password = env["SONGPORT_PASSWORD"]?.takeIf { it.isNotEmpty() }
+    /**
+     * The user name that goes with [password]: set, the browser's sign-in asks for exactly this one
+     * (otherwise any name will do, as before); with [multiUser], the admin's name instead of "admin".
+     */
+    val user = env["SONGPORT_USER"]?.trim()?.takeIf { it.isNotEmpty() }
     val locale = env["SONGPORT_LOCALE"]
     /** Several people, each with their own services and syncs (MultiUser.kt): needs SONGPORT_PASSWORD, the admin's. */
     val multiUser = env["SONGPORT_MULTIUSER"]?.trim()?.lowercase() in setOf("1", "true", "yes", "on")
@@ -130,6 +135,6 @@ fun launch(
     if (!env.store.data.settings.connectorsInit) env.store.updateSettings { it.copy(connectorsInit = true) }
 
     val runner = Runner(env, edition)
-    val web = Web(env, runner, Auth(env), config.password, version, edition, onQuit, onShow, account, sharedRoot)
+    val web = Web(env, runner, Auth(env), config.password, version, edition, onQuit, onShow, account, sharedRoot, config.user)
     return Launched(env, runner, web, version, config, edition)
 }

@@ -35,7 +35,7 @@ import javax.crypto.spec.PBEKeySpec
 /**
  * Several people on one server (SONGPORT_MULTIUSER): each signs in with a user name and a password
  * and has a Trackhop of their own, with their own services, syncs, files, backups and log, in
- * `<data>/users/<name>`. The admin ([ADMIN], with SONGPORT_PASSWORD) adds and removes the others and
+ * `<data>/users/<name>`. The admin ([adminName]: SONGPORT_USER, or [ADMIN]; with SONGPORT_PASSWORD) adds and removes the others and
  * keeps the data folder's own Trackhop, so a server that was used by one person carries on as the
  * admin's.
  *
@@ -51,6 +51,8 @@ class MultiUser private constructor(
     private val users: UserStore,
     private val sessions: Sessions,
     private val invites: Invites,
+    /** Who the admin signs in as: SONGPORT_USER, or [ADMIN]. */
+    private val adminName: String,
 ) {
     /** One person's Trackhop as the shared server reaches it. [loader] is null for the admin's, which lives in this one. */
     private class Engine(val handler: HttpHandler, val acceptsApi: BiPredicate<String?, InetAddress?>, val stop: Runnable, val loader: URLClassLoader?)
@@ -103,9 +105,9 @@ class MultiUser private constructor(
     private val closer = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "trackhop-users").apply { isDaemon = true } }
 
     /** The admin, or a co-admin ([Permissions.ADMIN]): who sees the Users page. */
-    private fun manages(name: String) = name == ADMIN || Permissions.ADMIN in users.permissions(name)
+    private fun manages(name: String) = name == adminName || Permissions.ADMIN in users.permissions(name)
 
-    private fun engineOf(name: String): Engine? = if (name == ADMIN) adminEngine else engines[name]
+    private fun engineOf(name: String): Engine? = if (name == adminName) adminEngine else engines[name]
 
     private fun userDir(name: String) = File(File(root, USERS_DIR), name)
 
@@ -187,10 +189,10 @@ class MultiUser private constructor(
 
     private val basicCache = ConcurrentHashMap<String, Pair<String, Long>>()
 
-    private fun exists(name: String) = name == ADMIN || users.has(name)
+    private fun exists(name: String) = name == adminName || users.has(name)
 
     private fun verify(name: String, password: String): Boolean =
-        if (name == ADMIN) MessageDigest.isEqual(password.toByteArray(), config.password!!.toByteArray()) else users.check(name, password)
+        if (name == adminName) MessageDigest.isEqual(password.toByteArray(), config.password!!.toByteArray()) else users.check(name, password)
 
     private fun askToSignIn(ex: HttpExchange, method: String) {
         if (method != "GET") return send(ex, 401, "Sign in first", "text/plain")
@@ -290,7 +292,7 @@ class MultiUser private constructor(
         val me = Html.Account(name, manages(name))
         var message: String? = null
         var error: String? = null
-        if (method == "POST" && name != ADMIN) {
+        if (method == "POST" && name != adminName) {
             val f = form(String(ex.requestBody.readNBytes(MAX_FORM), StandardCharsets.UTF_8))
             val fresh = f["new"].orEmpty()
             when {
@@ -307,7 +309,7 @@ class MultiUser private constructor(
                 }
             }
         }
-        val passwordCard = if (name == ADMIN)
+        val passwordCard = if (name == adminName)
             """<div class="card"><p>You are the admin: your password is <code>SONGPORT_PASSWORD</code> in the container's settings (the Compose file, or the container's environment in Portainer, Unraid, Synology…). To change it, or if you forgot it, read or set it there and restart the container.</p><p><a class="button secondary" href="/users">Users</a></p></div>"""
         else """<form method="post" action="/account" class="card"><h2>Change your password</h2>
 <label for="current">Current password</label><input type="password" id="current" name="current" autocomplete="current-password" required>
@@ -316,7 +318,7 @@ class MultiUser private constructor(
 <p><button>Change password</button></p></form>"""
         val body = """${message?.let { """<div class="card ok">${h(it)}</div>""" } ?: ""}${error?.let { """<div class="card err">${h(it)}</div>""" } ?: ""}
 <div class="card"><p>Signed in as <b>${h(name)}</b>.</p><p class="muted">Your services, syncs, files and backups are yours alone: the others on this server do not see them.</p>
-${if (name == ADMIN) "" else {
+${if (name == adminName) "" else {
             val mine = users.permissions(name)
             val (yes, no) = Permissions.ALL.partition { it.first in mine }
             fun list(ps: List<Triple<String, String, String>>) = ps.joinToString("") { "<li>${h(it.second)}</li>" }
@@ -345,7 +347,7 @@ $passwordCard"""
             when (f["action"]) {
                 "add" -> when {
                     !NAME.matches(name) -> error = "A user name is 1 to 32 lowercase letters, digits, - or _, starting with a letter or a digit."
-                    name in RESERVED -> error = "\"$name\" is taken: choose another name."
+                    name in RESERVED || name == adminName -> error = "\"$name\" is taken: choose another name."
                     users.has(name) -> error = "There is already a user called $name."
                     // The page's own button says which; a script sending only a password adds as before.
                     f["how"] == "invite" || (f["how"] == null && password.isEmpty()) -> {
@@ -432,7 +434,7 @@ ${if (n == me) "" else Html.postButton("/users", "Remove $n", "secondary", mapOf
 <p class="row"><input type="text" id="invite-link" value="${h(link)}" readonly onfocus="this.select()"> <button type="button" class="secondary" onclick="var i=document.getElementById('invite-link');i.select();(navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.reject()).catch(function(){document.execCommand('copy')});this.textContent='Copied'">Copy</button></p>
 <p class="muted">It is shown only now. Lost it? Make a new one below: the old one stops working.</p></div>""" } ?: ""
         val body = """${message?.let { """<div class="card ok">${h(it)}</div>""" } ?: ""}${error?.let { """<div class="card err">${h(it)}</div>""" } ?: ""}$linkCard
-<p class="muted">Each person has a Trackhop of their own on this server: their own services, syncs, files, backups and log, in <code>${h(File(root, USERS_DIR).path)}/&lt;name&gt;</code>. Their scheduled syncs run whether or not they are signed in. <b>$ADMIN</b> keeps this server's own Trackhop and may do everything.</p>
+<p class="muted">Each person has a Trackhop of their own on this server: their own services, syncs, files, backups and log, in <code>${h(File(root, USERS_DIR).path)}/&lt;name&gt;</code>. Their scheduled syncs run whether or not they are signed in. <b>${h(adminName)}</b> keeps this server's own Trackhop and may do everything.</p>
 <form method="post" action="/users" class="card"><h2>Add someone</h2><input type="hidden" name="action" value="add">
 <label for="name">User name</label><input type="text" id="name" name="name" autocapitalize="none" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-]{0,31}" required>
 <p><b>They may use</b></p>${boxes(Permissions.DEFAULT)}
@@ -479,7 +481,7 @@ $pending$rows
     }
 
     companion object {
-        /** The admin's user name: SONGPORT_PASSWORD is their password. */
+        /** The admin's user name unless SONGPORT_USER sets another: SONGPORT_PASSWORD is their password. Never someone else's. */
         const val ADMIN = "admin"
         const val USERS_DIR = "users"
         const val REMOVED_DIR = "users-removed"
@@ -522,15 +524,25 @@ $pending$rows
          * Trackhop per person added, and the sign-in in front of them. Returns once it is serving.
          */
         fun serve(config: Config, env: Map<String, String>): MultiUser {
-            val admin = launch(Config(env - "SONGPORT_PASSWORD"), Html.Edition.SERVER, account = Html.Account(ADMIN, true))
-            val hub = MultiUser(config, env, admin, UserStore(File(config.dataDir, "users.json")), Sessions(File(config.dataDir, "sessions.json")), Invites(File(config.dataDir, "invites.json")))
+            val users = UserStore(File(config.dataDir, "users.json"))
+            val wanted = config.user?.let { normalize(it) }
+            val adminName = when {
+                wanted == null -> ADMIN
+                !NAME.matches(wanted) || wanted in RESERVED - ADMIN || users.has(wanted) -> {
+                    println("SONGPORT_USER \"${config.user}\" cannot be the admin's name (not 1 to 32 lowercase letters, digits, - or _, or someone else's): signing in as $ADMIN.")
+                    ADMIN
+                }
+                else -> wanted
+            }
+            val admin = launch(Config(env - "SONGPORT_PASSWORD"), Html.Edition.SERVER, account = Html.Account(adminName, true))
+            val hub = MultiUser(config, env, admin, users, Sessions(File(config.dataDir, "sessions.json"), adminName), Invites(File(config.dataDir, "invites.json")), adminName)
             hub.users.names().forEach { hub.startEngine(it) }
             val server = HttpServer.create(InetSocketAddress(config.port), 0)
             server.executor = Executors.newFixedThreadPool(16)
             server.createContext("/", hub.handler)
             server.start()
             admin.started(false, config.port)
-            hub.log("several people on this server: $ADMIN and ${hub.users.names().size} more; listening on port ${server.address.port}, reachable as ${config.baseUrl}")
+            hub.log("several people on this server: $adminName and ${hub.users.names().size} more; listening on port ${server.address.port}, reachable as ${config.baseUrl}")
             hub.server = server
             return hub
         }
@@ -657,7 +669,7 @@ internal class UserStore(private val file: File) {
  * Who is signed in where: a random token in the browser's cookie, and here only its SHA-256 with the
  * person and when it ends, in `sessions.json` (signing in survives a restart of the container).
  */
-internal class Sessions(private val file: File) {
+internal class Sessions(private val file: File, private val adminName: String = MultiUser.ADMIN) {
     /**
      * [check]: for the admin, a hash of the session with SONGPORT_PASSWORD, so a new password in the
      * container's settings signs every admin session out (without keeping the password itself here).
@@ -680,7 +692,7 @@ internal class Sessions(private val file: File) {
     }.toString())
 
     private fun check(user: String, key: String, adminPassword: String) =
-        if (user == MultiUser.ADMIN) MultiUser.sha256("$key:$adminPassword") else ""
+        if (user == adminName) MultiUser.sha256("$key:$adminPassword") else ""
 
     fun create(user: String, adminPassword: String): String {
         val bytes = ByteArray(32).also { SecureRandom().nextBytes(it) }

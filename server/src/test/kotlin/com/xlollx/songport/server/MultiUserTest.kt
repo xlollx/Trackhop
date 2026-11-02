@@ -175,7 +175,33 @@ class MultiUserTest {
         assertEquals(404, get(third).statusCode())
     }
 
-    private fun postPairs(path: String, pairs: List<Pair<String, String>>, cookie: String) = client.send(
+    @Test fun songportUserNamesTheAdmin() {
+        val admin = signIn("admin", "admin-secret")
+        post("/users", mapOf("action" to "add", "name" to "taken", "password" to "taken-password"), admin)
+        hub.stop()
+        LocalKey.reset()
+        val env = mapOf("SONGPORT_DATA" to data.path, "SONGPORT_PORT" to "0", "SONGPORT_PASSWORD" to "admin-secret", "SONGPORT_MULTIUSER" to "true", "SONGPORT_USER" to "Lorenzo")
+        hub = MultiUser.serve(Config(env), env)
+        base = "http://127.0.0.1:${hub.server!!.address.port}"
+        // The old name signs in no more, nor do its sessions; the new one is the admin.
+        assertEquals(303, get("/", admin).statusCode())
+        assertEquals(401, post("/login", mapOf("user" to "admin", "password" to "admin-secret")).statusCode())
+        val lorenzo = signIn("lorenzo", "admin-secret")
+        val users = get("/users", lorenzo)
+        assertEquals(200, users.statusCode())
+        assertTrue(users.body().contains("<b>lorenzo</b> keeps"))
+        assertTrue(post("/users", mapOf("action" to "add", "name" to "lorenzo", "password" to "whatever-pw"), lorenzo).body().contains("is taken"))
+        // Someone else's name cannot become the admin's.
+        hub.stop()
+        LocalKey.reset()
+        val clash = env + ("SONGPORT_USER" to "taken")
+        hub = MultiUser.serve(Config(clash), clash)
+        base = "http://127.0.0.1:${hub.server!!.address.port}"
+        signIn("admin", "admin-secret")
+        signIn("taken", "taken-password")
+    }
+
+        private fun postPairs(path: String, pairs: List<Pair<String, String>>, cookie: String) = client.send(
         HttpRequest.newBuilder(URI("$base$path")).header("Content-Type", "application/x-www-form-urlencoded").header("Cookie", cookie).header("Origin", base)
             .POST(HttpRequest.BodyPublishers.ofString(pairs.joinToString("&") { "${enc(it.first)}=${enc(it.second)}" })).build(),
         HttpResponse.BodyHandlers.ofString(),

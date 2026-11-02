@@ -100,7 +100,8 @@ object Cli {
         val params = rest.drop(1)
         if (command == "help") { out.println(USAGE); return 0 }
         return try {
-            val name = user?.let { MultiUser.normalize(it) }?.takeIf { it != MultiUser.ADMIN }
+            val adminName = System.getenv("SONGPORT_USER")?.trim()?.takeIf { it.isNotEmpty() }?.let { MultiUser.normalize(it) }
+            val name = user?.let { MultiUser.normalize(it) }?.takeIf { it != MultiUser.ADMIN && it != adminName }
             if (name != null && !MultiUser.NAME.matches(name)) return usage(err, "no user can be called \"$user\"")
             // A person's Trackhop on a shared server keeps its key in their own folder (MultiUser.kt).
             val api = connect(url, token, if (name == null) dataDir else { { File(File(dataDir(), MultiUser.USERS_DIR), name) } })

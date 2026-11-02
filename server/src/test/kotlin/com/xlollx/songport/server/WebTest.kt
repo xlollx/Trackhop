@@ -55,7 +55,20 @@ class WebTest {
         assertEquals(200, get("/").statusCode())
     }
 
-    @Test fun theInstallableAppsFilesNeedNoPassword() {
+    @Test fun withSongportUserTheNameCountsToo() {
+        val named = Web(env, Runner(env), Auth(env), "sekret", "test", user = "Lorenzo").start(0)
+        try {
+            fun as_(user: String, pw: String) = client.send(HttpRequest.newBuilder(URI("http://127.0.0.1:${named.address.port}/"))
+                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("$user:$pw".toByteArray())).GET().build(), HttpResponse.BodyHandlers.ofString()).statusCode()
+            assertEquals(200, as_("lorenzo", "sekret"))
+            assertEquals(401, as_("any", "sekret"))
+            assertEquals(401, as_("lorenzo", "wrong"))
+        } finally {
+            named.stop(0)
+        }
+    }
+
+        @Test fun theInstallableAppsFilesNeedNoPassword() {
         val manifest = get("/manifest.webmanifest", withAuth = false)
         assertEquals(200, manifest.statusCode())
         assertTrue(manifest.body().contains("\"display\": \"standalone\""))

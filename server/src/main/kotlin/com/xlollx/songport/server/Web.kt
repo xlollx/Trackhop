@@ -70,6 +70,8 @@ class Web(
      * not point into except their own part. Null for the admin and on a single-user server.
      */
     internal val sharedRoot: java.io.File? = null,
+    /** SONGPORT_USER: the only user name the sign-in takes with [password]; null, any name. */
+    private val user: String? = null,
 ) {
     /** The addresses a desktop install answers to; null (a server) answers to any. */
     @Volatile private var localHosts: Set<String>? = null
@@ -174,7 +176,8 @@ class Web(
         if (!header.startsWith("Basic ")) return false
         val decoded = runCatching { String(Base64.getDecoder().decode(header.substring(6)), StandardCharsets.UTF_8) }.getOrNull() ?: return false
         val given = decoded.substringAfter(':', "")
-        return MessageDigest.isEqual(given.toByteArray(), pw.toByteArray())
+        val nameOk = user == null || decoded.substringBefore(':').trim().equals(user, ignoreCase = true)
+        return MessageDigest.isEqual(given.toByteArray(), pw.toByteArray()) && nameOk
     }
 
 

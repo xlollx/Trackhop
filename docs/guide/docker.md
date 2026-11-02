@@ -78,7 +78,8 @@ version running, and the app version whose engine it uses.
 | Variable | Default | What it does |
 |---|---|---|
 | `SONGPORT_URL` | `http://127.0.0.1:8080` | The address your browser uses to reach Trackhop. Sign-ins come back to `<SONGPORT_URL>/callback`. |
-| `SONGPORT_PASSWORD` | none | Asks for this password on every page. The browser also asks for a user name: any will do, only the password counts. **Set it** whenever anyone else can reach the port. With `SONGPORT_MULTIUSER`, the admin's password. |
+| `SONGPORT_PASSWORD` | none | Asks for this password on every page. The browser also asks for a user name: any will do, unless `SONGPORT_USER` sets one. **Set it** whenever anyone else can reach the port. With `SONGPORT_MULTIUSER`, the admin's password. |
+| `SONGPORT_USER` | none | The user name that goes with `SONGPORT_PASSWORD`: set, only this name signs in (otherwise any will do). With `SONGPORT_MULTIUSER`, the admin's name instead of `admin`. |
 | `SONGPORT_MULTIUSER` | off | `true`: [several people](#several-people-on-one-server), each with their own services and syncs, signing in with a user name and a password. Needs `SONGPORT_PASSWORD`. |
 | `SONGPORT_LOCALE` | English | Language of the texts that come from the engine: `it`, `de`, `fr`, `es`, `pt-BR`, `pl`, `ru`, `tr`, `zh`, `ja`, `ko`. |
 | `SONGPORT_PORT` | `8080` | Port inside the container. |
@@ -245,7 +246,8 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
       SONGPORT_MULTIUSER: "true"
 ```
 
-1. Open the page and sign in as **admin**, with `SONGPORT_PASSWORD`.
+1. Open the page and sign in as **admin** (or the name in `SONGPORT_USER`, if you set one), with
+   `SONGPORT_PASSWORD`.
 2. In **Users**, add each person with a user name and what they may use (below), then **Create an
    invitation link** and send it to them (a message, an email…).
 3. They open the link, choose their own password and are in: they connect their own services. From

@@ -12,6 +12,8 @@ the Docker image carried the app's version.
 - **Invitation links** for several people on one server: the admin picks a name and what they may use,
   and sends a link; the person opens it and chooses their own password. A link works once, for 7 days,
   and can be renewed or cancelled. Adding someone with a password chosen by the admin still works.
+- **`SONGPORT_USER`**: the user name that goes with `SONGPORT_PASSWORD`. Set, only that name signs in
+  (otherwise any name will do, as before); with several people, it is the admin's name instead of `admin`.
 
 ## 0.8.0
 

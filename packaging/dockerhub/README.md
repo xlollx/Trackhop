@@ -21,7 +21,7 @@ docker run -d --name trackhop \
 Then open `http://127.0.0.1:8080` (any user name, the password you chose). Everything is kept in
 the `/data` volume. The image runs on `amd64` and `arm64`.
 
-For the whole household, add `-e SONGPORT_MULTIUSER=true`: you sign in as `admin` with the password,
+For the whole household, add `-e SONGPORT_MULTIUSER=true`: you sign in as `admin` (or `SONGPORT_USER`) with the password,
 invite the others from **Users** with a link, and each person has their own services and syncs
 ([how](https://trackhop.org/guide/docker#several-people-on-one-server)).
 
