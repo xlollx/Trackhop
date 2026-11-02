@@ -3,8 +3,8 @@
  "version": "1.0.0",
  "tag": "server-v1.0.0",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v1.0.0",
- "checked": "2026-11-02T13:51:42Z",
- "clean": false,
+ "checked": "2026-11-02T14:05:08Z",
+ "clean": true,
  "files": [
   {
    "name": "Trackhop-Desktop-v1.0.0-linux.deb",
@@ -45,12 +45,10 @@
   {
    "name": "Trackhop-Desktop-v1.0.0-macos-x64.dmg",
    "sha256": "1e85a459b89e0a9440fc231f350cb91c7f75952d03414df3bc42e8922d7fe16d",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 60,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.C!ml"
-   },
+   "engines": 58,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/1e85a459b89e0a9440fc231f350cb91c7f75952d03414df3bc42e8922d7fe16d"
   },
   {
