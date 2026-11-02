@@ -69,10 +69,11 @@ class WebLoginActivity : ComponentActivity() {
             ACTION_APPLE -> APPLE
             ACTION_DEEZER -> DEEZER
             ACTION_SOUNDCLOUD -> SOUNDCLOUD
+            ACTION_LIVEONE -> LIVEONE
             else -> intent.getStringExtra(EXTRA_SERVICE) ?: SPOTIFY
         }
         // Deezer and SoundCloud came with a notice that names them: an acceptance of the older one does not cover them.
-        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD) Disclaimer.VERSION else 1) { setup() }
+        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE) Disclaimer.VERSION else 1) { setup() }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -85,6 +86,12 @@ class WebLoginActivity : ComponentActivity() {
             text = getString(R.string.bridge_login_hint)
             textSize = 12f
             layoutParams = android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        })
+        // LiveOne: where the in-app sign-in cannot finish (Google may refuse an embedded browser), the
+        // player's `slackerUser` entry copied from a desktop browser works the same.
+        if (service == LIVEONE) bar.addView(android.widget.Button(this).apply {
+            text = getString(android.R.string.paste)
+            setOnClickListener { pasteLiveOne() }
         })
         bar.addView(android.widget.Button(this).apply {
             text = getString(R.string.bridge_login_done)
@@ -241,6 +248,7 @@ class WebLoginActivity : ComponentActivity() {
             APPLE -> AppleBridge.HOME
             DEEZER -> DeezerBridge.LOGIN_URL
             SOUNDCLOUD -> SoundCloudBridge.LOGIN_URL
+            LIVEONE -> LiveOneBridge.LOGIN_URL
             else -> SpotifyBridge.LOGIN_URL
         })
         // Sign-in overlays (Apple ID) do not navigate: poll the cookie jar while the screen is open.
@@ -368,6 +376,7 @@ class WebLoginActivity : ComponentActivity() {
         APPLE -> "Apple Music"
         DEEZER -> "Deezer"
         SOUNDCLOUD -> "SoundCloud"
+        LIVEONE -> "LiveOne"
         else -> "Spotify"
     }
 
@@ -386,6 +395,7 @@ class WebLoginActivity : ComponentActivity() {
     private fun check(): Boolean {
         if (done) return true
         if (service == SOUNDCLOUD) return checkSoundCloud()
+        if (service == LIVEONE) return checkLiveOne()
         val origin = when (service) {
             APPLE -> "https://music.apple.com"
             DEEZER -> DeezerBridge.ORIGIN
@@ -408,6 +418,52 @@ class WebLoginActivity : ComponentActivity() {
         if (service == DEEZER) { sess.put(applicationContext, "sid", null); DeezerWebClient.forget() }
         signedIn(sess, cookies)
         return true
+    }
+
+    /**
+     * LiveOne: once the page is back on www.liveone.com, the player keeps its session in local
+     * storage (`slackerUser`, with the refresh token). Read asynchronously; the screen closes when it
+     * holds a usable session. False until then.
+     */
+    private var liveOneReading = false
+    private fun checkLiveOne(): Boolean {
+        if (liveOneReading || !::web.isInitialized) return false
+        val host = runCatching { android.net.Uri.parse(web.url ?: "").host }.getOrNull() ?: return false
+        if (host != "www.liveone.com") return false
+        liveOneReading = true
+        web.evaluateJavascript(LiveOneBridge.STORAGE_SCRIPT) { raw ->
+            liveOneReading = false
+            if (done || isFinishing) return@evaluateJavascript
+            // evaluateJavascript answers with a JSON string literal.
+            val value = runCatching { parseJson(raw ?: "").str }.getOrNull()
+            if (LiveOneBridge.usable(value)) keepLiveOne(value!!)
+        }
+        return false
+    }
+
+    /** LiveOne: the session pasted from a desktop browser (its `slackerUser` entry). */
+    private fun pasteLiveOne() {
+        val cm = getSystemService(android.content.ClipboardManager::class.java)
+        val text = runCatching { cm?.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() }.getOrNull().orEmpty()
+        if (!LiveOneBridge.usable(text)) {
+            val why = LiveOneWebClient.tokenIn(text)?.let { LiveOneWebClient.problemWith(it) } ?: "no LiveOne session in the clipboard"
+            android.widget.Toast.makeText(this, "LiveOne: $why", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        keepLiveOne(text)
+    }
+
+    private fun keepLiveOne(value: String) {
+        if (done) return
+        val app = applicationContext
+        LiveOneBridge.keep(app, value)?.let { why ->
+            android.widget.Toast.makeText(this, "LiveOne: $why", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        done = true
+        BridgeNet.log("liveone", "sign-in: session kept")
+        setResult(RESULT_OK)
+        finish()
     }
 
     /**
@@ -469,17 +525,20 @@ class WebLoginActivity : ComponentActivity() {
         const val ACTION_APPLE = "com.xlollx.songport.ytmbridge.APPLE_LOGIN"
         const val ACTION_DEEZER = "com.xlollx.songport.ytmbridge.DEEZER_LOGIN"
         const val ACTION_SOUNDCLOUD = "com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN"
+        const val ACTION_LIVEONE = "com.xlollx.songport.ytmbridge.LIVEONE_LOGIN"
         const val EXTRA_SERVICE = "service"
         const val SPOTIFY = "spotify"
         const val APPLE = "apple"
         const val DEEZER = "deezer"
         const val SOUNDCLOUD = "soundcloud"
+        const val LIVEONE = "liveone"
 
         fun intent(ctx: android.content.Context, service: String): Intent =
             Intent(ctx, WebLoginActivity::class.java).setAction(when (service) {
                 APPLE -> ACTION_APPLE
                 DEEZER -> ACTION_DEEZER
                 SOUNDCLOUD -> ACTION_SOUNDCLOUD
+                LIVEONE -> ACTION_LIVEONE
                 else -> ACTION_SPOTIFY
             })
     }

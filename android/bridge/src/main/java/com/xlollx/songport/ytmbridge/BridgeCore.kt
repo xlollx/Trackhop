@@ -235,6 +235,16 @@ object BridgeCore {
                 }
                 "deezer.rename" -> { DeezerWebClient(ctx).renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "deezer.delete" -> { DeezerWebClient(ctx).deletePlaylist(arg ?: return err("missing playlist id")); deezerCache.invalidate(arg); Bundle() }
+                // ---- LiveOne web session: the presets (as liked songs), read whole and added to; search without an account.
+                "liveone.status" -> Bundle().apply {
+                    putBoolean("connected", LiveOneBridge.session.isConnected(ctx))
+                    putString("account", LiveOneBridge.session.account(ctx))
+                    putInt("version", VERSION)
+                }
+                "liveone.disconnect" -> { LiveOneBridge.session.clear(ctx); Bundle() }
+                "liveone.presets" -> ok(json.encodeToString(LiveOneWebClient(ctx).presets()))
+                "liveone.search" -> ok(json.encodeToString(LiveOneWebClient(ctx).search(arg ?: "")))
+                "liveone.add" -> { LiveOneWebClient(ctx).addPresets(extras?.getStringArray("ids")?.toList() ?: emptyList()); Bundle() }
                 // ---- SoundCloud web session: api-v2 with the web app's client id and the account's OAuth token.
                 // Tracks travel as SoundCloud's own track objects, trimmed: Trackhop parses them like its public links.
                 "soundcloud.status" -> Bundle().apply {

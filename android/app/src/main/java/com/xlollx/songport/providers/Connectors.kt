@@ -10,7 +10,7 @@ import com.xlollx.songport.providers.Providers.Factory
  * which the builds without built-in connectors reach only through a plugin (see [linkProvider]).
  */
 fun installConnectors() = Providers.install(
-    listOf(
+    listOfNotNull(
         Factory(SpotifyProvider.SERVICE) { SpotifyProvider(it) },
         Factory(SpotifyBridgeProvider.SERVICE) { SpotifyBridgeProvider(it) },
         Factory(AppleMusicProvider.SERVICE) { AppleMusicProvider(it) },
@@ -21,6 +21,8 @@ fun installConnectors() = Providers.install(
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerBridgeProvider.SERVICE) { DeezerBridgeProvider(it) },
+        // LiveOne has no official route: only in the builds that carry the web connectors.
+        Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) }.takeIf { BuiltIn.available },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },

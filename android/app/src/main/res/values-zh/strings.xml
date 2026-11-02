@@ -1166,6 +1166,7 @@
     <string name="tour_results">运行后，卡片会显示数字，“未找到”之类的标签会带你去需要查看的地方。更多内容见“设置 › 使用说明”。</string>
     <string name="plugins_where">插件由各自的作者发布，而不是由本应用提供：在 GitHub 上它们带有主题“trackhop-plugin”。</string>
     <string name="provider_note_deezer_bridge">在 Deezer 自己的页面上登录：无需创建开发者应用（Deezer 已不再注册新应用）。使用网页播放器的会话：这不是官方途径，违反 Deezer 的条款，可能随时失效。Alpha 测试版。使用你自己应用 ID 的官方途径仍以“Deezer”提供。</string>
+    <string name="provider_note_liveone">LiveOne 没有公开 API：在 LiveOne 自己的页面登录后，Trackhop 使用网页播放器的会话。这不是官方途径，违反 LiveOne 的条款，可能随时失效。Alpha 版。免费账户同步其预设，显示为喜欢的歌曲（只添加，不删除）；自己的歌单需要付费方案。如果用 Google 登录无法完成，请在电脑上复制 www.liveone.com 本地存储中的 slackerUser 条目，然后使用“粘贴”。</string>
     <string name="provider_note_soundcloud_account">在 SoundCloud 自己的页面上登录：你的歌单和喜欢的曲目可作为来源和目标。使用网页应用的会话：这不是官方接口，违反 SoundCloud 的条款，可能随时失效。Beta 测试版。SoundCloud 上很少有曲目带 ISRC，因此匹配依据标题、艺人和时长。</string>
     <string name="alpha">Alpha 测试版</string>
     <string name="alpha_note">Alpha 测试版：尚未在真实账号上测试。请先用测试歌单试用，并报告遇到的问题。</string>

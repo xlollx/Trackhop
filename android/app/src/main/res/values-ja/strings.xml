@@ -1166,6 +1166,7 @@
     <string name="tour_results">実行後、カードに数字が表示され、「見つからず」などのラベルから確認が必要な画面に移動できます。詳しくは「設定 › 使い方」へ。</string>
     <string name="plugins_where">プラグインはこのアプリではなく各作者が公開しています。GitHub ではトピック「trackhop-plugin」が付いています。</string>
     <string name="provider_note_deezer_bridge">Deezer 自身のページでサインインします。開発者アプリは不要です（Deezer は新しいアプリの登録を停止しています）。ウェブプレーヤーのセッションを使います。公式のルートではなく、Deezer の規約に反し、動かなくなることがあります。アルファ版です。自分のアプリ ID を使う公式ルートは「Deezer」として引き続き利用できます。</string>
+    <string name="provider_note_liveone">LiveOne には公開 API がありません。LiveOne 自身のページでサインインすると、Trackhop はウェブプレーヤーのセッションを使います。公式の方法ではなく、LiveOne の規約に反し、動かなくなることがあります。アルファ版。無料アカウントではプリセットを「お気に入りの曲」として同期します（追加のみ、削除なし）。自分のプレイリストには有料プランが必要です。Google でのサインインが完了しない場合は、パソコンで www.liveone.com のローカルストレージの slackerUser をコピーし、「貼り付け」を使ってください。</string>
     <string name="provider_note_soundcloud_account">SoundCloud 自身のページでサインインします。あなたのプレイリストと「いいね」した曲が、同期元・同期先になります。ウェブアプリのセッションを使います。公式のインターフェースではなく、SoundCloud の規約に反し、動かなくなることがあります。ベータ版です。SoundCloud の曲には ISRC がほとんどないため、照合はタイトル・アーティスト・長さで行います。</string>
     <string name="alpha">アルファ版</string>
     <string name="alpha_note">アルファ版：実際のアカウントではまだ検証していません。まずテスト用のプレイリストで試し、問題があれば報告してください。</string>

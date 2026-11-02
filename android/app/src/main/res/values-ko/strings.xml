@@ -1165,6 +1165,7 @@
     <string name="tour_results">실행이 끝나면 카드에 숫자가 나오고, 찾지 못함 같은 라벨을 누르면 확인할 곳으로 가요. 자세한 내용은 설정 › 사용 방법에 있어요.</string>
     <string name="plugins_where">플러그인은 이 앱이 아니라 각 제작자가 배포합니다. GitHub에서는 “trackhop-plugin” 주제가 붙어 있습니다.</string>
     <string name="provider_note_deezer_bridge">Deezer 자체 페이지에서 로그인해요. 개발자 앱이 필요 없어요(Deezer는 더 이상 새 앱을 등록하지 않아요). 웹 플레이어의 세션을 사용해요. 공식 경로가 아니며 Deezer 약관에 어긋나고 작동이 멈출 수 있어요. 알파예요. 직접 만든 앱 ID를 쓰는 공식 경로는 \"Deezer\"로 계속 사용할 수 있어요.</string>
+    <string name="provider_note_liveone">LiveOne에는 공개 API가 없습니다. LiveOne 자체 페이지에서 로그인하면 Trackhop이 웹 플레이어의 세션을 사용합니다. 공식 방법이 아니며 LiveOne 약관에 어긋나고 작동이 멈출 수 있습니다. 알파. 무료 계정은 프리셋을 좋아요 표시한 곡으로 동기화합니다(추가만, 삭제 없음). 내 플레이리스트에는 유료 요금제가 필요합니다. Google 로그인이 끝나지 않으면 컴퓨터에서 www.liveone.com 로컬 저장소의 slackerUser 항목을 복사해 붙여넣기를 사용하세요.</string>
     <string name="provider_note_soundcloud_account">SoundCloud 자체 페이지에서 로그인해요. 내 플레이리스트와 좋아요한 트랙이 원본과 대상이 돼요. 웹 앱의 세션을 사용해요. 공식 인터페이스가 아니며 SoundCloud 약관에 어긋나고 작동이 멈출 수 있어요. 베타예요. SoundCloud 트랙에는 ISRC가 거의 없어서 제목, 아티스트, 길이로 매칭해요.</string>
     <string name="alpha">알파</string>
     <string name="alpha_note">알파: 아직 실제 계정으로 테스트하지 않았어요. 먼저 테스트용 플레이리스트로 써 보고 문제를 알려 주세요.</string>
