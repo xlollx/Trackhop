@@ -214,6 +214,7 @@ class SyncEngine(
      * covers (Spotify); a sync made before covers were followed only notes the current one, so a
      * cover the user chose is not replaced until the source changes its own. Never fails the run.
      */
+    private val SYSTEMIC_ADD_FAILURES = 5
     private val SELF_NAMING_WINDOW_MS = 3L * 24 * 3600 * 1000
 
     private suspend fun followSource(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
@@ -825,6 +826,11 @@ class SyncEngine(
         val addedList = ArrayList<Track>()
         // Refused by the service as already in the playlist (its listing left them out): present, not added.
         val alreadyThere = ArrayList<Track>()
+        // Every addition refused, one by one, from the start (a path the service closed, a scope the
+        // sign-in lacks): the service, not the tracks. Adding stops and the run fails with its answer,
+        // instead of listing every track as not found (issue #34).
+        var addStopped: String? = null
+        var singleFails = 0
         if (plan.toAdd.isNotEmpty()) {
             onProgress(Progress(Progress.Step.ADDING, 0, plan.toAdd.size))
             // Verso una playlist un blocco di 50 e' una chiamata sola. Verso i "brani preferiti" ogni
@@ -836,6 +842,7 @@ class SyncEngine(
             // cosi' l'ordine dell'origine (il piu' recente in cima) si ritrova uguale nella destinazione.
             val additions = if (MusicProvider.isLibrary(targetId)) plan.toAdd.asReversed() else plan.toAdd
             for (chunk in additions.chunked(chunkSize)) {
+                if (addStopped != null) break
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
                 onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, plan.toAdd.size, chunk.first().live()))
                 while (true) {
@@ -860,6 +867,7 @@ class SyncEngine(
                         }
                         // Un blocco fallito (id non piu' valido, ecc.): riprova brano per brano.
                         for (t in chunk) {
+                            if (addStopped != null) break
                             try {
                                 if (t.id in dst.addTracksReportingPresent(env, targetId, listOf(t))) {
                                     alreadyThere += t
@@ -868,9 +876,15 @@ class SyncEngine(
                                     added++; addedList += t
                                     SyncState.item(job.id, SyncState.LiveItem(t.live(), null, SyncState.Outcome.ADDED))
                                 }
+                                singleFails = 0
                             } catch (e2: Exception) {
                                 failed += "$t (${e2.message})"
                                 SyncState.item(job.id, SyncState.LiveItem(t.live(), e2.message?.take(80), SyncState.Outcome.ADD_FAILED))
+                                singleFails++
+                                if (singleFails >= SYSTEMIC_ADD_FAILURES && added == 0 && alreadyThere.isEmpty()) {
+                                    addStopped = e2.message ?: e2.javaClass.simpleName
+                                    env.log("engine", "${job.name}: adding stopped, ${dst.displayName} refused the first $singleFails tracks one by one: ${addStopped?.take(300)}")
+                                }
                             }
                         }
                         break
@@ -939,6 +953,7 @@ class SyncEngine(
             // Favourites are added last-first: listed back in the source's order.
             addedTracks = (if (MusicProvider.isLibrary(targetId)) addedList.asReversed() else addedList).take(MAX_LISTED),
             notes = notes,
+            error = addStopped?.let { "${dst.displayName}: $it" },
             suggestions = suggestionsFor(unmatched),
             absent = unmatched.filter { it.id in absent }.map { it.id },
             heldBack = plan.heldBackRemovals,

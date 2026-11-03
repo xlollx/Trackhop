@@ -280,7 +280,12 @@ class MemoryService(override val serviceId: String) : MusicProvider {
         lists[name] = ArrayList()
         return Playlist(name, name, 0)
     }
+    /** Thrown by [addTracks] when set: a service that refuses every addition. */
+    var addFailure: Exception? = null
+    var addCalls = 0
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+        addCalls++
+        addFailure?.let { throw it }
         lists.getOrPut(playlistId) { ArrayList() } += tracks
     }
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
