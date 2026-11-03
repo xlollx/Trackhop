@@ -18,7 +18,10 @@ adb shell svc data disable || true
 adb shell rm -rf /sdcard/ui-test-failures || true
 adb logcat -G 16M || true
 adb logcat -c || true
-gradle "$TASK" -Pandroid.testInstrumentationRunnerArguments.package=com.xlollx.songport.flows \
+# ONLY: one class of the flows package (the workflow's "only" input), or all of them.
+if [ -n "${ONLY:-}" ]; then FILTER="-Pandroid.testInstrumentationRunnerArguments.class=com.xlollx.songport.flows.${ONLY}"
+else FILTER="-Pandroid.testInstrumentationRunnerArguments.package=com.xlollx.songport.flows"; fi
+gradle "$TASK" "$FILTER" \
   --no-daemon --stacktrace --continue 2>&1 | tee ui-out/gradle.log
 status=${PIPESTATUS[0]}
 # Bounded: if the emulator has gone (it happens), adb would wait for the device until the job's

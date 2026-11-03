@@ -884,8 +884,43 @@ class SyncEngine(
     // ------------------------------------------------------------------ revisione abbinamenti
 
     /** L'abbinamento incerto va bene: resta in cache, sparisce dalla lista da rivedere. */
-    fun confirmMatch(reportId: String, review: MatchReview) {
-        store.updateReport(reportId) { r -> r.copy(reviewTracks = r.reviewTracks.filter { it.source.id != review.source.id }) }
+    fun confirmMatch(reportId: String, review: MatchReview) = confirmMatches(reportId, listOf(review))
+
+    /** [confirmMatch] for several uncertain matches at once. */
+    fun confirmMatches(reportId: String, reviews: Collection<MatchReview>) {
+        val ids = reviews.map { it.source.id }.toHashSet()
+        if (ids.isEmpty()) return
+        store.updateReport(reportId) { r -> r.copy(reviewTracks = r.reviewTracks.filter { it.source.id !in ids }) }
+    }
+
+    /**
+     * Uncertain matches that are wrong, with no replacement wanted: the chosen tracks leave the
+     * target (where its API allows removals) and the source tracks stay out of every future sync
+     * to that service, as "Ignore" does for a track that was not found. A target track that another
+     * source track still matches stays. Returns how many tracks were taken off the target.
+     */
+    suspend fun discardMatches(job: SyncJob, reportId: String?, reviews: Collection<MatchReview>): Int {
+        if (reviews.isEmpty()) return 0
+        val (src, dst) = providers(job)
+        val targetId = job.target.playlistId ?: throw ProviderException("No target playlist")
+        val leaving = reviews.map { it.source.id }.toHashSet()
+        var removed = 0
+        if (dst.canRemoveTracks) {
+            val wrong = reviews.map { it.chosen.id }.filter { id ->
+                store.sourcesMatchedTo(src.id, dst.id, id).all { it in leaving }
+            }.toHashSet()
+            if (wrong.isNotEmpty()) {
+                // The tracks read from the search carry no playlist item id: take them from the target.
+                val present = dst.tracks(env, targetId).filter { it.id in wrong }
+                if (present.isNotEmpty()) {
+                    dst.removeTracks(env, targetId, present)
+                    removed = present.size
+                }
+            }
+        }
+        ignoreAll(job, src.id, dst.id, leaving)
+        if (reportId != null) confirmMatches(reportId, reviews)
+        return removed
     }
 
     /**
@@ -1029,19 +1064,36 @@ class SyncEngine(
      * L'utente non vuole piu' vedere questo brano: e' assente dalla destinazione, e lo resta per ogni
      * sync verso quel servizio, non solo per questa (come gli abbinamenti scelti a mano).
      */
-    fun ignore(job: SyncJob, reportId: String, sourceTrack: Track) {
-        store.upsertJob(job.copy(ignoredSourceIds = (job.ignoredSourceIds + sourceTrack.id).distinct()))
-        runCatching { val (src, dst) = providers(job); store.putIgnored(src.id, sourceTrack.id, dst.id) }
-        dropUnmatched(reportId, sourceTrack)
+    fun ignore(job: SyncJob, reportId: String, sourceTrack: Track) = ignore(job, reportId, listOf(sourceTrack))
+
+    /** [ignore] for several tracks that were not found, at once. */
+    fun ignore(job: SyncJob, reportId: String, sourceTracks: Collection<Track>) {
+        if (sourceTracks.isEmpty()) return
+        val ids = sourceTracks.map { it.id }.toHashSet()
+        val (src, dst) = runCatching { providers(job) }.getOrNull() ?: (null to null)
+        ignoreAll(job, src?.id, dst?.id, ids)
+        dropUnmatched(reportId, sourceTracks)
     }
 
-    private fun dropUnmatched(reportId: String, track: Track) {
+    /** Out of every future sync of [job] (and, with the services known, of every sync between them). */
+    private fun ignoreAll(job: SyncJob, srcId: String?, dstId: String?, ids: Set<String>) {
+        // The job as stored now: the caller's copy may be older than another change.
+        val current = store.job(job.id) ?: job
+        store.upsertJob(current.copy(ignoredSourceIds = (current.ignoredSourceIds + ids).distinct()))
+        if (srcId != null && dstId != null) store.putIgnored(srcId, ids, dstId)
+    }
+
+    private fun dropUnmatched(reportId: String, tracks: Collection<Track>) {
+        val ids = tracks.map { it.id }.toHashSet()
+        val names = tracks.map { it.toString() }.toHashSet()
         store.updateReport(reportId) { r ->
             r.copy(
-                unmatchedTracks = r.unmatchedTracks.filter { it.id != track.id },
-                unmatched = r.unmatched.filter { it != track.toString() },
-                suggestions = r.suggestions - track.id,
+                unmatchedTracks = r.unmatchedTracks.filter { it.id !in ids },
+                unmatched = r.unmatched.filter { it !in names },
+                suggestions = r.suggestions - ids,
             )
         }
     }
+
+    private fun dropUnmatched(reportId: String, track: Track) = dropUnmatched(reportId, listOf(track))
 }

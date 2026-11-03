@@ -4,7 +4,10 @@ import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,11 +24,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -82,12 +90,31 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf<String?>(null) }
+    // Rows picked to act on together ("r-" uncertain match, "u-" not found): a long press starts it.
+    var picked by remember { mutableStateOf(setOf<String>()) }
+    // What the remove dialog is about to take off the target.
+    var discarding by remember { mutableStateOf<List<MatchReview>?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    val reviewKeys = report?.reviewTracks.orEmpty().map { "r-" + it.source.id }.toSet()
+    val unmatchedKeys = report?.unmatchedTracks.orEmpty().map { "u-" + it.id }.toSet()
+    // Rows done meanwhile drop out of the selection.
+    val selection = picked.filter { it in reviewKeys || it in unmatchedKeys }.toSet()
+    val selecting = selection.isNotEmpty()
     ScreenBackHandler(onClose)
+    BackHandler(enabled = selecting) { picked = emptySet() }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            TopAppBar(
+            if (selecting) TopAppBar(
+                title = { Text(stringResource(R.string.review_selected, selection.size)) },
+                navigationIcon = { IconButton(onClick = { picked = emptySet() }) { Icon(Icons.Filled.Close, stringResource(R.string.review_clear_selection)) } },
+                actions = {
+                    if (selection.size < reviewKeys.size + unmatchedKeys.size) {
+                        IconButton(onClick = { picked = reviewKeys + unmatchedKeys }) { Icon(Icons.Filled.SelectAll, stringResource(R.string.review_select_all)) }
+                    }
+                },
+            ) else TopAppBar(
                 title = { Text(stringResource(R.string.review_title, report?.jobName ?: "")) },
                 navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
                 actions = {
@@ -115,6 +142,28 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                 },
             )
         },
+        bottomBar = {
+            if (selecting && report != null && job != null) {
+                val pickedReviews = report.reviewTracks.filter { "r-" + it.source.id in selection }
+                val pickedTracks = report.unmatchedTracks.filter { "u-" + it.id in selection }
+                BottomAppBar {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                        if (pickedTracks.isNotEmpty()) {
+                            TextButton(enabled = !busy, onClick = { engine.ignore(job, reportId, pickedTracks); picked = picked - pickedTracks.map { "u-" + it.id }.toSet() }) {
+                                Text(stringResource(R.string.unmatched_ignore))
+                            }
+                        }
+                        if (pickedReviews.isNotEmpty()) {
+                            TextButton(enabled = !busy, onClick = { discarding = pickedReviews }) { Text(stringResource(R.string.review_discard)) }
+                            FilledTonalButton(enabled = !busy, onClick = { engine.confirmMatches(reportId, pickedReviews); picked = picked - pickedReviews.map { "r-" + it.source.id }.toSet() }) {
+                                Text(stringResource(R.string.review_keep))
+                            }
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                }
+            }
+        },
     ) { padding ->
         // Once each: a report saved before 1.6.1 can hold the same song twice, and two rows with one
         // key close the app (issue #24).
@@ -137,6 +186,32 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
             ai?.let { cfg -> { cands -> com.xlollx.songport.ai.AiClient.suggestMatch(cfg, source, cands, dstName, language) } }
         fun fail(msg: String) { scope.launch { snackbar.showSnackbar(msg.ifBlank { ctx.getString(R.string.error_generic) }) } }
         fun toggle(id: String) { expanded = if (expanded == id) null else id }
+        fun pick(key: String) { picked = if (key in selection) selection - key else selection + key }
+        // A tap picks while selecting, and opens the row otherwise.
+        fun tap(key: String) { if (selecting) pick(key) else toggle(key) }
+
+        discarding?.let { list ->
+            val removes = dst?.canRemoveTracks != false
+            AlertDialog(
+                onDismissRequest = { if (!busy) discarding = null },
+                title = { Text(stringResource(R.string.review_discard_title, dstName)) },
+                text = { Text(stringResource(if (removes) R.string.review_discard_body else R.string.review_discard_body_kept, dstName)) },
+                confirmButton = {
+                    TextButton(enabled = !busy, onClick = {
+                        busy = true
+                        scope.launch {
+                            try {
+                                val n = engine.discardMatches(job, reportId, list)
+                                picked = picked - list.map { "r-" + it.source.id }.toSet()
+                                if (removes) snackbar.showSnackbar(ctx.getString(R.string.review_discarded, dstName, n))
+                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e.message ?: "") }
+                            finally { busy = false; discarding = null }
+                        }
+                    }) { Text(stringResource(R.string.review_discard)) }
+                },
+                dismissButton = { TextButton(enabled = !busy, onClick = { discarding = null }) { Text(stringResource(R.string.cancel)) } },
+            )
+        }
 
         LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item(key = "summary") {
@@ -144,6 +219,7 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(stringResource(R.string.review_summary, tracks.size, reviews.size), style = MaterialTheme.typography.titleMedium)
                         Text(stringResource(R.string.review_tap_hint, dstName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (reviews.size + tracks.size > 1) Text(stringResource(R.string.review_select_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (report.partial) {
                             Row(verticalAlignment = Alignment.Top) {
                                 Icon(Icons.Filled.Info, null, Modifier.size(16.dp).padding(top = 2.dp), tint = MaterialTheme.colorScheme.tertiary)
@@ -155,12 +231,16 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                 }
             }
             if (reviews.isNotEmpty()) {
-                item(key = "h-review") { SectionTitle(stringResource(R.string.review_section_uncertain, reviews.size)) }
+                item(key = "h-review") {
+                    SectionTitle(stringResource(R.string.review_section_uncertain, reviews.size), onSelectAll = { picked = selection + reviews.map { "r-" + it.source.id } }.takeIf { reviews.size > 1 })
+                }
                 items(reviews, key = { "r-" + it.source.id }) { review ->
                     ReviewRow(
                         review = review, dstName = dstName,
-                        expanded = expanded == "r-" + review.source.id, onToggle = { toggle("r-" + review.source.id) },
+                        expanded = !selecting && expanded == "r-" + review.source.id, onToggle = { tap("r-" + review.source.id) },
+                        selected = ("r-" + review.source.id in selection).takeIf { selecting }, onLongPress = { pick("r-" + review.source.id) },
                         onKeep = { engine.confirmMatch(reportId, review) },
+                        onDiscard = { discarding = listOf(review) },
                         search = { q -> engine.searchOnTarget(job, q, review.source) },
                         webSearchUrl = webSearch, askAi = askFor(review.source),
                         onReplace = { chosen -> engine.replaceMatch(job, reportId, review, chosen) },
@@ -169,12 +249,15 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                 }
             }
             if (tracks.isNotEmpty()) {
-                item(key = "h-unmatched") { SectionTitle(stringResource(R.string.review_section_unmatched, tracks.size)) }
+                item(key = "h-unmatched") {
+                    SectionTitle(stringResource(R.string.review_section_unmatched, tracks.size), onSelectAll = { picked = selection + tracks.map { "u-" + it.id } }.takeIf { tracks.size > 1 })
+                }
                 // What the service has no trace of goes last: there is little to do about it by hand.
                 items(tracks.sortedBy { it.id in report.absent }, key = { "u-" + it.id }) { track ->
                     UnmatchedRow(
                         track = track, dstName = dstName, suggestion = report.suggestions[track.id], absent = track.id in report.absent,
-                        expanded = expanded == "u-" + track.id, onToggle = { toggle("u-" + track.id) },
+                        expanded = !selecting && expanded == "u-" + track.id, onToggle = { tap("u-" + track.id) },
+                        selected = ("u-" + track.id in selection).takeIf { selecting }, onLongPress = { pick("u-" + track.id) },
                         search = { q -> engine.searchOnTarget(job, q, track) },
                         webSearchUrl = webSearch, askAi = askFor(track),
                         onPick = { c -> engine.resolveManually(job, reportId, track, c) },
@@ -188,20 +271,33 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+private fun SectionTitle(text: String, onSelectAll: (() -> Unit)? = null) {
     Spacer(Modifier.height(4.dp))
-    Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+        if (onSelectAll != null) TextButton(onClick = onSelectAll) { Text(stringResource(R.string.review_select_all)) }
+    }
 }
 
 /** Riga chiusa: titolo e artista in una riga, freccia a destra. Aperta: le azioni. */
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun CollapsibleRow(
     track: Track, expanded: Boolean, onToggle: () -> Unit, absent: Boolean = false,
-    trailing: @Composable () -> Unit = {}, below: (@Composable () -> Unit)? = null, content: @Composable () -> Unit,
+    trailing: @Composable () -> Unit = {}, below: (@Composable () -> Unit)? = null,
+    /** Picked or not while rows are being selected; null when they are not. */
+    selected: Boolean? = null, onLongPress: (() -> Unit)? = null,
+    content: @Composable () -> Unit,
 ) {
-    Card(Modifier.fillMaxWidth().clickable(onClick = onToggle)) {
+    val tap = if (onLongPress != null) Modifier.combinedClickable(onClick = onToggle, onLongClick = onLongPress) else Modifier.clickable(onClick = onToggle)
+    val colors = if (selected == true) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else CardDefaults.cardColors()
+    Card(Modifier.fillMaxWidth().then(tap), colors = colors) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (selected != null) {
+                    Checkbox(checked = selected, onCheckedChange = { onToggle() })
+                    Spacer(Modifier.width(4.dp))
+                }
                 Column(Modifier.weight(1f)) {
                     Text(track.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (absent) Text(stringResource(R.string.review_absent), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
@@ -212,9 +308,9 @@ fun CollapsibleRow(
                     )
                 }
                 trailing()
-                Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (selected == null) Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            below?.invoke()
+            if (selected == null) below?.invoke()
             AnimatedVisibility(expanded) {
                 Column(Modifier.padding(top = 10.dp)) { content() }
             }
@@ -235,10 +331,14 @@ fun ReviewRow(
     onError: (String) -> Unit,
     webSearchUrl: ((String) -> String?)? = null,
     askAi: (suspend (List<Track>) -> com.xlollx.songport.ai.AiClient.Suggestion)? = null,
+    /** The match is wrong and no other is wanted (issue #26); null where nothing was written yet. */
+    onDiscard: (() -> Unit)? = null,
+    selected: Boolean? = null,
+    onLongPress: (() -> Unit)? = null,
 ) {
     var changing by remember { mutableStateOf(false) }
     CollapsibleRow(
-        track = review.source, expanded = expanded, onToggle = onToggle,
+        track = review.source, expanded = expanded, onToggle = onToggle, selected = selected, onLongPress = onLongPress,
         trailing = {
             Text(stringResource(R.string.review_score, (review.score * 100).toInt()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
             Spacer(Modifier.width(6.dp))
@@ -251,6 +351,7 @@ fun ReviewRow(
         }
         if (!changing) {
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                if (onDiscard != null) TextButton(onClick = onDiscard) { Text(stringResource(R.string.review_discard)) }
                 TextButton(onClick = { changing = true }) { Text(stringResource(R.string.review_change)) }
                 TextButton(onClick = onKeep) { Text(stringResource(R.string.review_keep)) }
             }
@@ -279,6 +380,8 @@ private fun UnmatchedRow(
     onError: (String) -> Unit,
     webSearchUrl: ((String) -> String?)? = null,
     askAi: (suspend (List<Track>) -> com.xlollx.songport.ai.AiClient.Suggestion)? = null,
+    selected: Boolean? = null,
+    onLongPress: (() -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     var accepting by remember { mutableStateOf(false) }
@@ -299,7 +402,7 @@ private fun UnmatchedRow(
             }
         }
     } else null
-    CollapsibleRow(track = track, expanded = expanded, onToggle = onToggle, absent = absent, below = proposal) {
+    CollapsibleRow(track = track, expanded = expanded, onToggle = onToggle, absent = absent, below = proposal, selected = selected, onLongPress = onLongPress) {
         MatchSearch(
             initialQuery = if (track.artists.isEmpty()) track.title else "${track.artistLine} - ${track.title}",
             targetName = dstName,

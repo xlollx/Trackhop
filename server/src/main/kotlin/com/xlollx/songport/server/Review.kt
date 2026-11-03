@@ -1,6 +1,7 @@
 package com.xlollx.songport.server
 
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.TargetSearch
 import com.xlollx.songport.model.Track
@@ -12,7 +13,8 @@ import kotlinx.serialization.json.Json
 /**
  * After a run, what the app's review screens do: the tracks not found (take the suggestion, search
  * by hand and pick, or ignore), the uncertain matches (confirm, or search for the right one), and
- * the tracks a mirror sync removed (put them back). Under /syncs/<id>/review/<report id>.
+ * the tracks a mirror sync removed (put them back). Under /syncs/<id>/review/<report id>. Ticked
+ * rows are kept, removed or ignored together (issue #26).
  */
 private val json = Json { ignoreUnknownKeys = true }
 
@@ -36,6 +38,11 @@ internal fun Web.review(r: Web.Req, job: SyncJob, rest: List<String>) {
     fun chosen(): Track? = r.form["chosen"]?.let { runCatching { json.decodeFromString(Track.serializer(), it) }.getOrNull() }
     val unmatched = report.unmatchedTracks.firstOrNull { it.id == srcId }
     val uncertain = report.reviewTracks.firstOrNull { it.source.id == srcId }
+    // The ticked rows of a section ("pick" repeated: a map would keep only the last).
+    val ticked = r.rawForm.filter { it.first == "pick" }.map { it.second }.toSet()
+    val tickedReviews = report.reviewTracks.filter { it.source.id in ticked }
+    val tickedTracks = report.unmatchedTracks.filter { it.id in ticked }
+    fun tracks(n: Int) = if (n == 1) "1 track" else "$n tracks"
     val result = runCatching {
         when (action) {
             "resolve" -> {
@@ -46,6 +53,23 @@ internal fun Web.review(r: Web.Req, job: SyncJob, rest: List<String>) {
             "ignore" -> {
                 engine.ignore(job, report.id, unmatched ?: error("That track is no longer in the list."))
                 "Ignored: it will not be searched for again on this service."
+            }
+            "ignore-many" -> {
+                if (tickedTracks.isEmpty()) error("Tick the tracks first.")
+                engine.ignore(job, report.id, tickedTracks)
+                "Ignored ${tracks(tickedTracks.size)}: not searched for again on this service."
+            }
+            "keep-many" -> {
+                if (tickedReviews.isEmpty()) error("Tick the matches first.")
+                engine.confirmMatches(report.id, tickedReviews)
+                "Kept ${tracks(tickedReviews.size)}."
+            }
+            "discard", "discard-many" -> {
+                val list = if (action == "discard") listOf(uncertain ?: error("That match is no longer in the list.")) else tickedReviews
+                if (list.isEmpty()) error("Tick the matches first.")
+                val n = runBlocking { engine.discardMatches(job, report.id, list) }
+                if (Providers.byId(job.target.provider)?.canRemoveTracks == false) "No longer synced: ${tracks(list.size)}. ${label(job.target.provider)} does not let Trackhop remove tracks: delete them there if you want."
+                else "Removed ${tracks(n)} from ${label(job.target.provider)}; this sync no longer adds them."
             }
             "confirm" -> {
                 engine.confirmMatch(report.id, uncertain ?: error("That match is no longer in the list."))
@@ -80,9 +104,12 @@ private fun Web.reviewPage(r: Web.Req, job: SyncJob, report: SyncReport) {
     }
     if (report.unmatchedTracks.isNotEmpty()) {
         body.append("""<h2>Not found (${report.unmatchedTracks.size})</h2><p class="muted">Pick the right one once: Trackhop remembers it for the next syncs. Or ignore the track.</p>""")
+        if (report.unmatchedTracks.size > 1) {
+            body.append(bulkBar("bulk-u", "$base/ignore-many", listOf("""<button class="secondary">Ignore the ticked</button>""")))
+        }
         for (t in report.unmatchedTracks) {
             val sug = report.suggestions[t.id]
-            body.append("""<div class="card"><div class="row"><div><b>${h(t.title)}</b><br><span class="muted">${h(t.artistLine)}${if (t.album.isNotBlank()) " · " + h(t.album) else ""}</span>""")
+            body.append("""<div class="card"><div class="row">${tick("bulk-u", t.id, report.unmatchedTracks.size)}<div style="flex:1"><b>${h(t.title)}</b><br><span class="muted">${h(t.artistLine)}${if (t.album.isNotBlank()) " · " + h(t.album) else ""}</span>""")
             if (t.id in report.absent) body.append("""<br><span class="muted">${h(label(job.target.provider))} had no result at all.</span>""")
             if (sug != null) body.append("""<br>Closest: ${h(sug.artistLine)} — ${h(sug.title)}""")
             body.append("</div><div class=\"actions\">")
@@ -93,14 +120,30 @@ private fun Web.reviewPage(r: Web.Req, job: SyncJob, report: SyncReport) {
         }
     }
     if (report.reviewTracks.isNotEmpty()) {
-        body.append("""<h2>To check (${report.reviewTracks.size})</h2><p class="muted">Matches Trackhop was not sure of: keep them, or pick the right one.</p>""")
+        body.append("""<h2>To check (${report.reviewTracks.size})</h2><p class="muted">Matches Trackhop was not sure of: keep them, pick the right one, or remove them.</p>""")
+        val dstName = label(job.target.provider)
+        val removes = Providers.byId(job.target.provider)?.canRemoveTracks != false
+        val ask = if (removes) "Take the ticked matches out of $dstName? This sync will no longer add these songs."
+            else "$dstName does not let Trackhop remove tracks: they stay in the playlist, but this sync will no longer add these songs."
+        if (report.reviewTracks.size > 1) {
+            body.append(
+                bulkBar(
+                    "bulk-r", "$base/keep-many",
+                    listOf(
+                        """<button>Keep the ticked</button>""",
+                        if (canWrite) """<button class="secondary" formaction="$base/discard-many" onclick="return confirm('${h(ask.replace("'", "\\'"))}')">Remove the ticked</button>""" else "",
+                    ),
+                ),
+            )
+        }
         for (m in report.reviewTracks) {
             body.append(
-                """<div class="card"><div class="row"><div>${h(m.source.artistLine)} — <b>${h(m.source.title)}</b><br>
+                """<div class="card"><div class="row">${tick("bulk-r", m.source.id, report.reviewTracks.size)}<div style="flex:1">${h(m.source.artistLine)} — <b>${h(m.source.title)}</b><br>
 <span class="muted">became</span> ${h(m.chosen.artistLine)} — ${h(m.chosen.title)} <span class="badge">${(m.score * 100).toInt()}%</span></div><div class="actions">""",
             )
             body.append(Html.postButton("$base/confirm", "Right", fields = mapOf("track" to m.source.id)))
-            if (canWrite) body.append(""" <a class="button secondary" href="$base/search?track=${q(m.source.id)}&mode=replace">Change</a>""")
+            if (canWrite) body.append(""" <a class="button secondary" href="$base/search?track=${q(m.source.id)}&mode=replace">Change</a> """)
+            if (canWrite) body.append(Html.postButton("$base/discard", "Remove", "secondary", fields = mapOf("track" to m.source.id), confirm = if (removes) "Take this match out of $dstName? This sync will no longer add the song." else ask))
             body.append("</div></div></div>")
         }
     }
@@ -148,6 +191,16 @@ ${where?.let { """<span class="badge">$it</span> """ } ?: ""}<span class="badge"
     }
     send(r.ex, 200, page("Find the right track", body.toString()))
 }
+
+/** The form a section's ticked rows go with, its "tick all" box and its buttons. */
+private fun bulkBar(form: String, action: String, buttons: List<String>): String =
+    """<form id="$form" method="post" action="${h(action)}"></form><div class="card row"><label class="check" style="margin:0"><input type="checkbox" """ +
+        """onchange="for(const c of document.querySelectorAll('input[name=pick][form=$form]'))c.checked=this.checked"> Tick all</label>""" +
+        """<div class="actions">${buttons.filter { it.isNotEmpty() }.joinToString(" ") { it.replace("<button", "<button form=\"$form\"") }}</div></div>"""
+
+/** A row's box for its section's form; none in a section of one. */
+private fun tick(form: String, id: String, rows: Int): String =
+    if (rows < 2) "" else """<input type="checkbox" name="pick" value="${h(id)}" form="$form" aria-label="Tick" style="margin-right:10px">"""
 
 private fun duration(ms: Long): String = if (ms <= 0) "" else " · %d:%02d".format(ms / 60000, ms / 1000 % 60)
 

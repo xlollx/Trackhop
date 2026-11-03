@@ -601,6 +601,15 @@
     <string name="review_section_unmatched">Não encontradas (%1$d)</string>
     <string name="review_keep">Parece certo</string>
     <string name="review_change">Alterar</string>
+    <string name="review_select_all">Selecionar tudo</string>
+    <string name="review_selected">%1$d selecionadas</string>
+    <string name="review_clear_selection">Limpar seleção</string>
+    <string name="review_discard">Remover</string>
+    <string name="review_discard_title">Remover de %1$s?</string>
+    <string name="review_discard_body">As faixas escolhidas saem da playlist no %1$s, e esta sincronização não adiciona mais essas músicas.</string>
+    <string name="review_discard_body_kept">O %1$s não permite que o Trackhop remova faixas: elas ficam na playlist, mas esta sincronização não adiciona mais essas músicas. Você pode apagá-las no %1$s.</string>
+    <string name="review_discarded">Removidas de %1$s: %2$d</string>
+    <string name="review_select_hint">Toque e segure uma faixa para selecionar várias de uma vez.</string>
     <string name="review_use_this">Usar esta</string>
     <string name="review_score">%1$d%% de correspondência</string>
     <string name="preview_uncertain">%1$d a conferir</string>

@@ -9,6 +9,11 @@ name: UI tests
 # and the log are kept as artifacts.
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: Run one test class of the flows package (e.g. BulkReviewFlowTest); empty runs them all
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -70,6 +75,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           FLAVOR: ${{ matrix.flavor }}
+          ONLY: ${{ inputs.only }}
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64

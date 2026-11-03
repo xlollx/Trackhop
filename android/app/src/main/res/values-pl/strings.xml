@@ -613,6 +613,15 @@
     <string name="review_section_unmatched">Nie znaleziono (%1$d)</string>
     <string name="review_keep">Wygląda dobrze</string>
     <string name="review_change">Zmień</string>
+    <string name="review_select_all">Zaznacz wszystko</string>
+    <string name="review_selected">Zaznaczone: %1$d</string>
+    <string name="review_clear_selection">Wyczyść zaznaczenie</string>
+    <string name="review_discard">Usuń</string>
+    <string name="review_discard_title">Usunąć z %1$s?</string>
+    <string name="review_discard_body">Dopasowane utwory znikną z playlisty w %1$s, a ta synchronizacja nie będzie już ich dodawać.</string>
+    <string name="review_discard_body_kept">%1$s nie pozwala Trackhop usuwać utworów: zostają na playliście, ale ta synchronizacja nie będzie już ich dodawać. Możesz je usunąć w %1$s.</string>
+    <string name="review_discarded">Usunięto z %1$s: %2$d</string>
+    <string name="review_select_hint">Przytrzymaj utwór, aby zaznaczyć kilka naraz.</string>
     <string name="review_use_this">Użyj tego</string>
     <string name="review_score">Dopasowanie %1$d%%</string>
     <string name="preview_uncertain">Do sprawdzenia: %1$d</string>

@@ -596,6 +596,15 @@
     <string name="review_section_unmatched">未找到（%1$d）</string>
     <string name="review_keep">看起来没问题</string>
     <string name="review_change">更改</string>
+    <string name="review_select_all">全选</string>
+    <string name="review_selected">已选 %1$d 首</string>
+    <string name="review_clear_selection">取消选择</string>
+    <string name="review_discard">移除</string>
+    <string name="review_discard_title">从 %1$s 移除？</string>
+    <string name="review_discard_body">匹配到的曲目将从 %1$s 的歌单中移除，此同步以后不再添加这些歌曲。</string>
+    <string name="review_discard_body_kept">%1$s 不允许 Trackhop 移除曲目：它们会留在歌单中，但此同步以后不再添加这些歌曲。你可以在 %1$s 中删除它们。</string>
+    <string name="review_discarded">已从 %1$s 移除：%2$d</string>
+    <string name="review_select_hint">长按一首歌曲即可一次选择多首。</string>
     <string name="review_use_this">使用这首</string>
     <string name="review_score">匹配度 %1$d%%</string>
     <string name="preview_uncertain">%1$d 首待核对</string>

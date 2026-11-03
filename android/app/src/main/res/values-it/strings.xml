@@ -601,6 +601,15 @@
     <string name="review_section_unmatched">Non trovati (%1$d)</string>
     <string name="review_keep">Va bene</string>
     <string name="review_change">Cambia</string>
+    <string name="review_select_all">Seleziona tutto</string>
+    <string name="review_selected">%1$d selezionati</string>
+    <string name="review_clear_selection">Annulla selezione</string>
+    <string name="review_discard">Rimuovi</string>
+    <string name="review_discard_title">Rimuovere da %1$s?</string>
+    <string name="review_discard_body">I brani abbinati escono dalla playlist su %1$s e questa sync non aggiunge più questi brani.</string>
+    <string name="review_discard_body_kept">%1$s non permette a Trackhop di togliere brani: restano nella playlist, ma questa sync non aggiunge più questi brani. Puoi eliminarli in %1$s.</string>
+    <string name="review_discarded">Rimossi da %1$s: %2$d</string>
+    <string name="review_select_hint">Tieni premuto un brano per selezionarne più di uno.</string>
     <string name="review_use_this">Usa questo</string>
     <string name="review_score">%1$d%% di somiglianza</string>
     <string name="preview_uncertain">%1$d da verificare</string>

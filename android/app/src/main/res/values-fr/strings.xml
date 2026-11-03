@@ -601,6 +601,15 @@
     <string name="review_section_unmatched">Introuvables (%1$d)</string>
     <string name="review_keep">C\'est bon</string>
     <string name="review_change">Changer</string>
+    <string name="review_select_all">Tout sélectionner</string>
+    <string name="review_selected">%1$d sélectionnés</string>
+    <string name="review_clear_selection">Annuler la sélection</string>
+    <string name="review_discard">Retirer</string>
+    <string name="review_discard_title">Retirer de %1$s ?</string>
+    <string name="review_discard_body">Les titres associés quittent la playlist sur %1$s, et cette synchro n’ajoute plus ces morceaux.</string>
+    <string name="review_discard_body_kept">%1$s ne permet pas à Trackhop de retirer des titres : ils restent dans la playlist, mais cette synchro n’ajoute plus ces morceaux. Vous pouvez les supprimer dans %1$s.</string>
+    <string name="review_discarded">Retirés de %1$s : %2$d</string>
+    <string name="review_select_hint">Appuyez longuement sur un titre pour en sélectionner plusieurs.</string>
     <string name="review_use_this">Utiliser celui-ci</string>
     <string name="review_score">%1$d%% de correspondance</string>
     <string name="preview_uncertain">%1$d à vérifier</string>

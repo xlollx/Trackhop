@@ -244,6 +244,21 @@ open class FileStore(dir: File) {
     fun putIgnored(srcProvider: String, srcTrackId: String, dstProvider: String) =
         update { d -> d.copy(ignoredTracks = d.ignoredTracks + cacheKey(srcProvider, srcTrackId, dstProvider)) }
 
+    /** [putIgnored] for several tracks in one write. */
+    fun putIgnored(srcProvider: String, srcTrackIds: Collection<String>, dstProvider: String) {
+        if (srcTrackIds.isEmpty()) return
+        update { d -> d.copy(ignoredTracks = d.ignoredTracks + srcTrackIds.map { cacheKey(srcProvider, it, dstProvider) }) }
+    }
+
+    /** The source tracks (of [srcProvider]) whose match on [dstProvider] is [dstTrackId]. */
+    fun sourcesMatchedTo(srcProvider: String, dstProvider: String, dstTrackId: String): List<String> {
+        val prefix = family(srcProvider) + ":"
+        val suffix = ">" + family(dstProvider)
+        return data.matchCache.entries
+            .filter { (k, v) -> v == dstTrackId && k.startsWith(prefix) && k.endsWith(suffix) }
+            .map { it.key.substring(prefix.length, it.key.length - suffix.length) }
+    }
+
     fun putMatches(entries: Map<String, String>) {
         if (entries.isEmpty()) return
         update { d ->

@@ -186,6 +186,35 @@ class WebTest {
         assertEquals(404, get("/syncs/j1/review/r1").statusCode())
     }
 
+    @Test fun tickedRowsAreKeptRemovedOrIgnoredTogether() {
+        File(data, "csv").mkdirs()
+        File(data, "csv/Out.csv").writeText("title,artist\n")
+        val job = com.xlollx.songport.model.SyncJob("j3", "Mix", com.xlollx.songport.model.PlaylistRef("csv", "In", "In"), com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out"))
+        env.store.upsertJob(job)
+        fun t(id: String) = com.xlollx.songport.model.Track(id = id, title = "Song $id", artists = listOf("Artist $id"))
+        fun m(id: String) = com.xlollx.songport.model.MatchReview(t(id), t(id + "2"), 0.7)
+        env.store.addReport(
+            com.xlollx.songport.model.SyncReport(
+                id = "r3", jobId = "j3", jobName = "Mix", startedEpoch = 1, durationMs = 1,
+                unmatched = listOf("a", "b", "c").map { t(it).toString() }, unmatchedTracks = listOf(t("a"), t("b"), t("c")),
+                reviewTracks = listOf(m("d"), m("e"), m("f"), m("g")),
+            ),
+        )
+        val page = get("/syncs/j3/review/r3").body()
+        assertTrue(page.contains("Tick all") && page.contains("Remove the ticked") && page.contains("Ignore the ticked"))
+        assertEquals(303, post("/syncs/j3/review/r3/ignore-many", "pick=a&pick=c", *origin).statusCode())
+        assertEquals(303, post("/syncs/j3/review/r3/keep-many", "pick=d&pick=e", *origin).statusCode())
+        assertEquals(303, post("/syncs/j3/review/r3/discard-many", "pick=f", *origin).statusCode())
+        assertEquals(303, post("/syncs/j3/review/r3/discard", "track=g", *origin).statusCode())
+        val rep = env.store.data.reports.first { it.id == "r3" }
+        assertEquals(listOf("b"), rep.unmatchedTracks.map { it.id })
+        assertTrue(rep.reviewTracks.isEmpty())
+        assertEquals(setOf("a", "c", "f", "g"), env.store.job("j3")!!.ignoredSourceIds.toSet())
+        // Nothing ticked: said so, nothing changed.
+        val none = post("/syncs/j3/review/r3/ignore-many", "", *origin)
+        assertTrue(none.headers().firstValue("Location").orElse("").contains("err="))
+    }
+
     @Test fun playlistFilesUploadInAnyFormatAndExportInOthers() {
         val boundary = "----trackhop"
         val m3u = "#EXTM3U\r\n#EXTINF:200,Band - Song\r\nBand - Song.mp3\r\n"
