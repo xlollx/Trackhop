@@ -240,3 +240,7 @@ body.drawer-open { overflow: hidden; }
 .panel { margin-top: 14px; }
 .panel .more { margin-top: 10px; font-size: .92rem; opacity: .9; }
 .panel .more a { color: inherit; text-decoration: underline; }
+
+/* Menu language: only the pages in the chosen language (English pages one tap away). */
+.drawer-head select.lang { margin-left: auto; margin-right: 10px; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
+.drawer-nav .more-en { margin-top: 18px; font: inherit; font-size: 14px; color: var(--link); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }

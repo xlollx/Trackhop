@@ -46,8 +46,9 @@
        the sitemap, people through this. Add a new page here when it is made. -->
   <div class="drawer" id="allpages" hidden>
    <div class="drawer-panel">
-    <div class="drawer-head"><strong>All pages</strong><button class="close" type="button" aria-label="Close">×</button></div>
+    <div class="drawer-head"><strong>All pages</strong><select class="lang" aria-label="Language of the pages"><option value="en">English</option><option value="it">Italiano</option><option value="es">Español</option><option value="pt">Português</option><option value="zh">中文</option></select><button class="close" type="button" aria-label="Close">×</button></div>
     <nav class="drawer-nav">
+      <div class="grp" data-lang="en">
       <h4>Get Trackhop</h4>
       <a href="{{ '/' | relative_url }}">Android app</a>
       <a href="{{ '/guide/playlist-sync-windows' | relative_url }}">Windows</a>
@@ -55,6 +56,8 @@
       <a href="{{ '/guide/playlist-sync-linux' | relative_url }}">Linux</a>
       <a href="{{ '/guide/playlist-sync-nas' | relative_url }}">Docker on a NAS or home server</a>
       <a href="{{ '/guide/versions' | relative_url }}">Which version do I need?</a>
+      </div>
+      <div class="grp" data-lang="en">
       <h4>Step by step</h4>
       <a href="{{ '/guide/getting-started' | relative_url }}">Getting started</a>
       <a href="{{ '/guide/spotify-to-youtube-music' | relative_url }}">Spotify → YouTube Music</a>
@@ -82,27 +85,39 @@
       <a href="{{ '/guide/netease-qq-music' | relative_url }}">NetEase Cloud Music and QQ Music links</a>
       <a href="{{ '/guide/cards' | relative_url }}">Compatibility cards and posters</a>
       <a href="{{ '/guide/unplayable-tracks' | relative_url }}">Unplayable tracks</a>
+      </div>
+      <div class="grp" data-lang="en">
       <h4>Compared with</h4>
       <a href="{{ '/guide/soundiiz-alternative' | relative_url }}">Soundiiz</a>
       <a href="{{ '/guide/tunemymusic-alternative' | relative_url }}">TuneMyMusic</a>
       <a href="{{ '/guide/freeyourmusic-alternative' | relative_url }}">FreeYourMusic</a>
       <a href="{{ '/guide/songshift-android' | relative_url }}">SongShift (Android)</a>
       <a href="{{ '/guide/spotify-import-alternative' | relative_url }}">Spotify's built-in import</a>
+      </div>
+      <div class="grp" data-lang="it">
       <h4>In italiano</h4>
       <a href="{{ '/guide/trasferire-playlist' | relative_url }}">Trasferire playlist</a>
       <a href="{{ '/guide/alternativa-soundiiz' | relative_url }}">Alternativa a Soundiiz</a>
       <a href="{{ '/guide/trasferire-playlist-spotify-apple-music' | relative_url }}">Spotify → Apple Music</a>
       <a href="{{ '/guide/trasferire-playlist-spotify-youtube-music' | relative_url }}">Spotify → YouTube Music</a>
+      </div>
+      <div class="grp" data-lang="es">
       <h4>En español</h4>
       <a href="{{ '/guide/transferir-playlists' | relative_url }}">Transferir playlists</a>
+      </div>
+      <div class="grp" data-lang="pt">
       <h4>Em português</h4>
       <a href="{{ '/guide/transferir-playlist' | relative_url }}">Transferir playlists</a>
+      </div>
+      <div class="grp" data-lang="en">
       <h4>Desktop, server, automation</h4>
       <a href="{{ '/guide/desktop' | relative_url }}">Trackhop Desktop</a>
       <a href="{{ '/guide/docker' | relative_url }}">Docker server</a>
       <a href="{{ '/guide/cli' | relative_url }}">The trackhop command</a>
       <a href="{{ '/guide/docker' | relative_url }}#api">REST API and webhook</a>
       <a href="{{ '/plugins' | relative_url }}">Plugins</a>
+      </div>
+      <div class="grp" data-lang="en">
       <h4>Help</h4>
       <a href="{{ '/guide/troubleshooting' | relative_url }}">Troubleshooting</a>
       <a href="{{ '/guide/reporting-a-problem' | relative_url }}">Reporting a problem</a>
@@ -110,6 +125,12 @@
       <a href="{{ '/privacy-policy' | relative_url }}">Privacy policy</a>
       <a href="https://github.com/xlollx/Trackhop">Source code on GitHub</a>
       <a href="{{ '/guide/' | relative_url }}">The whole guide</a>
+      </div>
+      <div class="grp" data-lang="zh">
+      <h4>中文</h4>
+      <a href="{{ '/guide/netease-qq-music-zh' | relative_url }}">网易云音乐和 QQ 音乐歌单</a>
+      </div>
+      <button type="button" class="more-en" hidden>More pages in English</button>
     </nav>
    </div>
   </div>
@@ -122,6 +143,26 @@
       d.querySelector('.close').addEventListener('click', function () { set(false); });
       d.addEventListener('click', function (e) { if (e.target === d) set(false); });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+      // Language of the menu: the one chosen here, else this page's, else the browser's; English otherwise.
+      var sel = d.querySelector('select.lang'), more = d.querySelector('.more-en');
+      var known = ['en', 'it', 'es', 'pt', 'zh'], saved = null;
+      try { saved = localStorage.getItem('menuLang'); } catch (e) {}
+      var page = (document.documentElement.lang || '').slice(0, 2), nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+      var lang = known.indexOf(saved) >= 0 ? saved : (page && page !== 'en' && known.indexOf(page) >= 0) ? page : known.indexOf(nav) >= 0 ? nav : 'en';
+      function lang_(l) {
+        sel.value = l;
+        var groups = d.querySelectorAll('.grp');
+        groups.forEach(function (g) {
+          var gl = g.getAttribute('data-lang');
+          g.hidden = l === 'en' ? gl !== 'en' : gl !== l;
+        });
+        var own = d.querySelector('.grp[data-lang="' + l + '"]');
+        if (own && l !== 'en') own.parentNode.insertBefore(own, own.parentNode.firstChild);
+        more.hidden = l === 'en';
+      }
+      sel.addEventListener('change', function () { try { localStorage.setItem('menuLang', sel.value); } catch (e) {} lang_(sel.value); });
+      more.addEventListener('click', function () { d.querySelectorAll('.grp[data-lang="en"]').forEach(function (g) { g.hidden = false; }); more.hidden = true; });
+      lang_(lang);
     })();
   </script>
   <main class="{{ page.main_class | default: 'prose' }}">

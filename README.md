@@ -28,7 +28,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://trackhop.org/guide/desktop#macos"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
