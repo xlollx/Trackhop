@@ -1,0 +1,1 @@
+Pełniejsza diagnostyka: więcej i dłuższych wierszy dziennika, powtórzenia zebrane razem, a „Zgłoś na GitHub” kopiuje cały raport. Spotify (web) ponawia raz po błędzie serwera.

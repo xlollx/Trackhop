@@ -1,0 +1,1 @@
+Diagnóstico más completo: más líneas de registro y más largas, repeticiones agrupadas, y "Informar en GitHub" copia el informe completo. Spotify (web) reintenta una vez un error del servidor.

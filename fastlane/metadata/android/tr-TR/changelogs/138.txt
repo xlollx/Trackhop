@@ -1,0 +1,1 @@
+Daha ayrıntılı tanılama: daha çok ve daha uzun günlük satırı, tekrarlar birleştirilir ve "GitHub'da bildir" raporun tamamını kopyalar. Spotify (web) bir sunucu hatasında bir kez yeniden dener.

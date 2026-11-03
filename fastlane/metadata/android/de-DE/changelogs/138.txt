@@ -1,0 +1,1 @@
+Ausführlichere Diagnose: mehr und längere Protokollzeilen, Wiederholungen zusammengefasst, und „Auf GitHub melden“ kopiert den ganzen Bericht. Spotify (web) versucht einen Serverfehler einmal erneut.

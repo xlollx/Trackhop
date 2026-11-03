@@ -1,0 +1,1 @@
+Diagnostica più completa: più righe di log e più lunghe, ripetizioni raggruppate, e "Segnala su GitHub" copia il rapporto intero. Spotify (web) riprova una volta dopo un errore del server.
