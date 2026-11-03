@@ -5,9 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.3.0
 
 - **MCP**: an AI assistant (Claude Desktop, Claude Code, any MCP client) can list, run and turn on or off your syncs, read playlists, create them and add or remove tracks: `trackhop mcp` on the same computer, or `/mcp` on the server with the API's token. [How](https://trackhop.org/guide/cli#with-an-ai-assistant-mcp)
+- Deezer's own mark next to its name.
 
 ## 1.2.0
 
