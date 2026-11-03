@@ -22,6 +22,7 @@ object BridgeCore {
     const val RECENT = "__recent__"
 
     fun call(ctx: Context, method: String, arg: String?, extras: Bundle?): Bundle {
+        BridgeNet.attach(ctx)
         return try {
             val client = YtmClient(ctx)
             when (method) {
@@ -49,6 +50,7 @@ object BridgeCore {
                     ok(json.encodeToString(if (kind == "album" || kind == "artist") client.searchKind(arg ?: "", kind) else client.search(arg ?: "", extras?.getBoolean("videos") == true)))
                 }
                 "stats" -> Bundle().apply { putString("stats", YtmClient.Stats.summary()) }
+                "log" -> Bundle().apply { putString("log", BridgeNet.recent(extras?.getInt("lines")?.takeIf { it > 0 } ?: 300)) }
                 "create" -> ok(json.encodeToString(client.createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "add" -> {
                     val id = arg ?: return err("missing playlist id")

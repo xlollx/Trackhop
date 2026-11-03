@@ -17,20 +17,29 @@ import java.util.Locale
  * indirizzi dei server personali.
  */
 object Diagnostics {
-    private const val MAX_LINES = 300
+    private const val MAX_LINES = 2000
+    private const val MAX_CHARS = 1200
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
     private val lock = Any()
+    /** The last line written and how many times it came again since, folded into one line. */
+    private var last: String? = null
+    private var repeats = 0
 
     private fun file(ctx: Context) = File(ctx.filesDir, "diagnostics.log")
 
     fun log(ctx: Context, tag: String, message: String) {
-        val line = "${fmt.format(Date())} [$tag] ${message.replace('\n', ' ').take(400)}"
+        val text = "[$tag] ${message.replace('\n', ' ').take(MAX_CHARS)}"
         synchronized(lock) {
             try {
+                if (text == last) { repeats++; return }
                 val f = file(ctx)
-                val lines = if (f.exists()) f.readLines() else emptyList()
-                val next = (lines + line).takeLast(MAX_LINES)
-                f.writeText(next.joinToString("\n"))
+                val out = StringBuilder()
+                if (repeats > 0) out.append("${fmt.format(Date())} (the line above came $repeats more times)\n")
+                out.append("${fmt.format(Date())} $text\n")
+                last = text; repeats = 0
+                f.appendText(out.toString())
+                // Trimmed when it grows past the limit, not at every line: a sync writes many.
+                if (f.length() > MAX_LINES * 300L) f.writeText(f.readLines().takeLast(MAX_LINES * 3 / 4).joinToString("\n", postfix = "\n"))
             } catch (_: Exception) { }
         }
     }
@@ -43,7 +52,11 @@ object Diagnostics {
         val sb = StringBuilder()
         sb.appendLine("${ctx.getString(R.string.app_name)} ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         sb.appendLine("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MANUFACTURER} ${Build.MODEL}")
-        sb.appendLine("Locale: ${Locale.getDefault()}")
+        sb.appendLine("Build: ${BuildConfig.FLAVOR} · Locale: ${Locale.getDefault()} · ${java.util.TimeZone.getDefault().id}")
+        runCatching { android.webkit.WebView.getCurrentWebViewPackage() }.getOrNull()?.let { sb.appendLine("WebView: ${it.packageName} ${it.versionName}") }
+        val plugin = if (BridgePlugin.builtIn) null else BridgePlugin.find(ctx)
+        plugin?.let { p -> runCatching { ctx.packageManager.getPackageInfo(p.packageName, 0) }.getOrNull() }
+            ?.let { sb.appendLine("Plugin: ${it.versionName} (${androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(it)})") }
         sb.appendLine()
         sb.appendLine("Connectors:")
         val connectors = Providers.connectors()
@@ -71,12 +84,37 @@ object Diagnostics {
         sb.appendLine("Last runs:")
         data.reports.take(15).forEach { r ->
             sb.appendLine("  ${fmt.format(Date(r.startedEpoch))} ${r.jobName}: +${r.added} -${r.removed} nf=${r.unmatched.size}" +
-                (r.error?.let { " ERROR: $it" } ?: ""))
+                (r.error?.let { " ERROR: ${it.take(700)}" } ?: ""))
         }
         sb.appendLine()
         sb.appendLine("Log:")
         val f = file(ctx)
-        if (f.exists()) f.readLines().takeLast(120).forEach { sb.appendLine("  $it") }
+        if (f.exists()) f.readLines().takeLast(400).forEach { sb.appendLine("  $it") }
+        // On the Play build some connectors run in the plugin: its own log, where it keeps one.
+        if (plugin != null) {
+            val pluginLog = runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "log", null, android.os.Bundle().apply { putInt("lines", 300) })?.getString("log") }.getOrNull()
+            if (!pluginLog.isNullOrBlank()) {
+                sb.appendLine()
+                sb.appendLine("Plugin log:")
+                pluginLog.lines().forEach { sb.appendLine("  $it") }
+            }
+        }
         return sb.toString()
+    }
+
+    /**
+     * [report] in at most [max] characters: everything before the log, then the newest log lines
+     * that still fit (the oldest are the ones left out), with a line saying how many were.
+     */
+    fun forLink(report: String, max: Int): String {
+        if (report.length <= max) return report
+        val cut = report.indexOf("\nLog:\n").takeIf { it >= 0 } ?: return report.take(max)
+        val head = report.substring(0, cut + 6).take(max / 2)
+        val lines = report.substring(cut + 6).lines()
+        val kept = ArrayDeque<String>()
+        var room = max - head.length - 60
+        for (l in lines.asReversed()) { if (l.length + 1 > room) break; kept.addFirst(l); room -= l.length + 1 }
+        val left = lines.size - kept.size
+        return head + (if (left > 0) "  ($left older lines left out)\n" else "") + kept.joinToString("\n")
     }
 }

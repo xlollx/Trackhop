@@ -115,9 +115,17 @@ class SpotifyWebClient(private val host: Host) {
             .post(body.toString().toRequestBody(JSON))
             .header("Accept", "application/json").header("Content-Type", "application/json")
             .header("User-Agent", host.userAgent).header("Origin", "https://open.spotify.com").header("Referer", "https://open.spotify.com/").build()
-        val j = http.newCall(req).execute().use { r -> parseJson(r.body?.string() ?: "") }
+        var status = 0
+        var raw = ""
+        val j = http.newCall(req).execute().use { r -> status = r.code; raw = r.body?.string() ?: ""; runCatching { parseJson(raw) }.getOrDefault(JsonNull) }
         val token = j["granted_token"]["token"].str
-            ?: throw BridgeException("Spotify did not grant a client token (${j["response_type"].str ?: "no answer"})")
+        if (token == null) {
+            // What came back instead, for the diagnostics log: the status, the answer's type and the
+            // start of the body with anything token-like removed; the client version tells a stale page.
+            BridgeNet.log("spotify", "client token refused: HTTP $status, ${j["response_type"].str ?: "no response_type"}, client version $version, " +
+                "body ${raw.replace(Regex("[A-Za-z0-9_\\-]{40,}"), "…").take(200).ifBlank { "empty" }}")
+            throw BridgeException("Spotify did not grant a client token (${j["response_type"].str ?: "HTTP $status"})")
+        }
         val ttl = (j["granted_token"]["refresh_after_seconds"].long ?: j["granted_token"]["expires_after_seconds"].long ?: 1_209_600L) * 1000
         rememberClientToken(token, System.currentTimeMillis() + ttl - 60_000)
         host.put("appVersion", version)
@@ -268,6 +276,13 @@ class SpotifyWebClient(private val host: Host) {
             return gql(operation, variables, retry = false)
         }
         if (code == 429) throw BridgeException("Spotify asks to slow down (429, retry in $wait s)")
+        // A server error is often a moment's one (a 500 on the library while the next call works):
+        // tried once more after a pause, and logged so a report shows whether it came back.
+        if (code >= 500 && retry) {
+            BridgeNet.log("spotify", "$operation: HTTP $code, trying once more" + (lastClientTokenError?.let { " (no client token: $it)" } ?: ""))
+            Thread.sleep(2_000)
+            return gql(operation, variables, retry = false)
+        }
         if (code !in 200..299 && errors.isEmpty()) throw BridgeException("Spotify $operation: HTTP $code ${text.take(200)}" + (lastClientTokenError?.let { " (no client token: $it)" } ?: ""))
         if (errors.isNotEmpty()) throw BridgeException("Spotify $operation: ${errors.joinToString("; ").take(300)}")
         val typename = j["data"].let { d -> (d as? JsonObject)?.values?.firstOrNull()?.get("__typename").str }

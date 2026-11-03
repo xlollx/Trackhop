@@ -112,6 +112,9 @@ class SyncEngine(
         lock?.lock()
         val report = try {
             val plan = plan(job, onProgress, unattended = unattended)
+            env.log("engine", "${job.name}: plan ready in ${(System.currentTimeMillis() - started) / 1000}s: source ${plan.sourceCount}, " +
+                "not found ${plan.unmatched.size}, to review ${plan.uncertain.size}, removals held back ${plan.heldBackRemovals}" +
+                if (plan.searchInterrupted) ", search interrupted" else "")
             // La ricerca e' finita: i brani non trovati e gli abbinamenti incerti si possono gia'
             // sistemare mentre l'aggiunta procede. Un report provvisorio li rende raggiungibili.
             if (plan.unmatched.isNotEmpty() || plan.uncertain.isNotEmpty()) {
@@ -221,6 +224,7 @@ class SyncEngine(
         if (old.isNotEmpty() && now != null && now != old) {
             updated = updated.copy(source = updated.source.copy(playlistName = now))
             if (latest.name.trim() == old) updated = updated.copy(name = now)
+            env.log("engine", "${job.name}: the source playlist is now called \"$now\"" + if (latest.name.trim() == old) ", the sync takes its name" else "")
             if (dst.canRenamePlaylists) {
                 val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
                     ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()
@@ -631,7 +635,7 @@ class SyncEngine(
                     val msg = e.message ?: ""
                     // Said in the log, the first few of a run: a search that fails is otherwise only a
                     // "not found", and a service refusing every search looked like a catalogue without the songs.
-                    if (errors <= 3) env.log("engine", "${dst.displayName}: search failed for \"${listOfNotNull(s.artists.firstOrNull(), s.title).joinToString(" – ")}\": ${msg.take(200)}")
+                    if (errors <= 5) env.log("engine", "${dst.displayName}: search failed for \"${listOfNotNull(s.artists.firstOrNull(), s.title).joinToString(" – ")}\": ${msg.take(200)}")
                     // Errori sistemici (quota, limiti, sessione scaduta): inutile insistere. Se non e'
                     // stato trovato ancora nulla l'errore e' dell'intera sync; altrimenti ci si ferma qui.
                     // Also when failures are a good share of the real searches, even if not in a row:

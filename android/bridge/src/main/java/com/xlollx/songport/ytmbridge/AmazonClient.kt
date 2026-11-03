@@ -211,8 +211,9 @@ class AmazonClient(private val ctx: Context) {
         val type = listOf("x-amzn-errortype", "x-amzn-error-type", "www-authenticate", "x-amzn-requestid")
             .mapNotNull { h -> resp.header(h)?.let { "$h=${it.take(80)}" } }
         val sent = req.headers.names().map { it.lowercase() }.sorted()
-        BridgeNet.log("amazon", "${resp.code} from ${req.url.host}: ${type.joinToString().ifBlank { "no error header" }}; " +
-            "body: ${redact(body).take(200).ifBlank { "empty" }}; sent: ${sent.joinToString(",")}")
+        BridgeNet.log("amazon", "${resp.code} from ${req.url.host}${req.url.encodedPath}: ${type.joinToString().ifBlank { "no error header" }}; " +
+            "territory sent ${req.header("music-territory") ?: "none"}, player's ${playerHeader("music-territory").ifBlank { "unseen" }}; " +
+            "body: ${redact(body).take(500).ifBlank { "empty" }}; sent: ${sent.joinToString(",")}")
     }
 
     /** One answer: its data, and the error codes GraphQL returned next to it (DUPLICATE_TRACK...). */
@@ -225,6 +226,15 @@ class AmazonClient(private val ctx: Context) {
             "Amazon Music served the player to a signed-out visitor: the Amazon session has expired. Accounts, Amazon Music: disconnect and connect again.",
         )
         val built = baseHeaders(domain, c)
+        // The account's region as each side sees it: a mismatch is the usual cause of
+        // AUTH_INVALID_CUSTOMER_ID. Country codes and field names only, never a value of the session.
+        logOnce("region", "domain $domain; territory ${built["music-territory"]} (${when {
+            c.raw["musicTerritory"].str != null -> "musicTerritory"
+            c.raw["territory"].str != null -> "territory"
+            c.raw["marketplaceCountry"].str != null -> "marketplaceCountry"
+            else -> "from the domain"
+        }}); marketplace field: ${describe(c.raw["marketplaceId"])}; device type ${if (c.deviceType.isBlank()) "missing" else "present"}; " +
+            "configuration fields: ${c.fields.joinToString(",").take(600)}")
         if (built["csrf-token"] != null) return built
         // The configuration no longer carries the CSRF triple where it used to (October 2026: sent
         // without it, Amazon answers AUTH_INVALID_CUSTOMER_ID): the player's own values fill it.
