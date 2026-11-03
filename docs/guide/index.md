@@ -36,6 +36,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Transfer Spotify playlists to Deezer](spotify-to-deezer) and [to Amazon Music](spotify-to-amazon-music).
 - [Apple Music to YouTube Music, and back](apple-music-to-youtube-music).
 - [Keep playlists in sync](sync-playlists) between any two services, on a schedule.
+- [Free playlist sync](free-playlist-sync): no paid plan, no track limit, no account.
 - [Transfer liked songs](transfer-liked-songs), favourites and saved albums.
 - [Merge playlists and remove duplicates](merge-playlists-remove-duplicates).
 - [Sync Spotify playlists to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin), from your own library.

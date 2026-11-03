@@ -29,4 +29,6 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
 - [Apple Music and YouTube Music](apple-music-to-youtube-music)
 - [Spotify and your Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin)
 
+Free, with no plan to unlock: see [free playlist sync](free-playlist-sync).
+
 [Getting started](getting-started) · [All guide pages](./)
