@@ -32,6 +32,12 @@ description (architecture, matching, services and their limits) stays in the
 - [Transfer YouTube Music playlists to Spotify](youtube-music-to-spotify), on the phone or a computer.
 - [Transfer Deezer playlists to Spotify](deezer-to-spotify), favourites included.
 - [Transfer Amazon Music playlists to Spotify](amazon-music-to-spotify), or the other way round.
+- [Transfer TIDAL playlists to Spotify](tidal-to-spotify), with exact ISRC matching.
+- [Transfer Spotify playlists to Deezer](spotify-to-deezer) and [to Amazon Music](spotify-to-amazon-music).
+- [Apple Music to YouTube Music, and back](apple-music-to-youtube-music).
+- [Keep playlists in sync](sync-playlists) between any two services, on a schedule.
+- [Transfer liked songs](transfer-liked-songs), favourites and saved albums.
+- [Merge playlists and remove duplicates](merge-playlists-remove-duplicates).
 - [Sync Spotify playlists to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin), from your own library.
 - [Export a playlist to CSV or M3U](export-playlist-csv), and back up all of them.
 - [Your Shazams in a playlist](shazam): every song you Shazam, on any service.
@@ -40,10 +46,14 @@ description (architecture, matching, services and their limits) stays in the
 **Coming from another service**
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.
 - [A free TuneMyMusic alternative](tunemymusic-alternative): transfers plus automatic sync, free and open source.
+- [A free FreeYourMusic alternative](freeyourmusic-alternative): no paid plan, no track limit.
+- [SongShift for Android?](songshift-android): SongShift is iPhone-only; Trackhop does it on Android.
+- [Spotify's "Import your music" vs Trackhop](spotify-import-alternative): what the built-in tools do not do.
 
 **In italiano**
 - [Trasferire playlist tra Spotify, YouTube Music, Apple Music e Amazon Music](trasferire-playlist), gratis e sincronizzate.
 - [Alternativa gratuita a Soundiiz e TuneMyMusic](alternativa-soundiiz): niente account, niente limiti.
+- [Da Spotify ad Apple Music](trasferire-playlist-spotify-apple-music) e [da Spotify a YouTube Music](trasferire-playlist-spotify-youtube-music), gratis.
 
 **Maintaining it**
 - [Release process](release-process): version, changelogs, what CI does, F-Droid and Obtainium.
