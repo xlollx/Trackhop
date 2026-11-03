@@ -1358,4 +1358,5 @@
     <string name="timing_at_label">A las %1$s</string>
     <string name="timing_days_label">Solo estos días (opcional)</string>
     <string name="search_listen">Escúchala</string>
+    <string name="timing_custom_days">Días concretos</string>
 </resources>

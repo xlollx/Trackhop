@@ -1350,4 +1350,5 @@
     <string name="timing_at_label">Um %1$s</string>
     <string name="timing_days_label">Nur an diesen Tagen (optional)</string>
     <string name="search_listen">Anhören</string>
+    <string name="timing_custom_days">An bestimmten Tagen</string>
 </resources>

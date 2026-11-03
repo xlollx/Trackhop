@@ -1396,4 +1396,5 @@
     <string name="timing_at_label">O %1$s</string>
     <string name="timing_days_label">Tylko w te dni (opcjonalnie)</string>
     <string name="search_listen">Posłuchaj</string>
+    <string name="timing_custom_days">W wybrane dni</string>
 </resources>

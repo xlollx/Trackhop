@@ -1,1 +1,1 @@
-Fixed: the schedule slider skipped some steps (every 6 hours, daily). Ticking every day is Daily, and Daily shows every day ticked.
+Fixed: the schedule slider skipped some steps (every 6 hours, daily). New: "On chosen days" after Weekly, to pick the days of the week; ticking all seven is Daily.

@@ -473,22 +473,20 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
         // The usual choices one tap away; the slider in between for the rest.
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(0, 60, 360, 1440, 10080).forEach { m ->
-                val chosen = if (m == 10080) every == m && days.size <= 1 else every == m && days.isEmpty()
-                FilterChip(selected = chosen, onClick = {
-                    // Weekly is one day of the week: today's, which the chips below can move.
-                    onDays(if (m == 10080) java.time.LocalDate.now().dayOfWeek.value.toString() else "")
-                    onEvery(m)
-                }, label = { Text(stepLabel(m)) })
+                FilterChip(selected = every == m && days.isEmpty(), onClick = { onDays(""); onEvery(m) }, label = { Text(stepLabel(m)) })
             }
+            // Chosen days of the week: the day chips appear only with this one.
+            FilterChip(selected = days.isNotEmpty(), onClick = {
+                if (days.isEmpty()) onDays(java.time.LocalDate.now().dayOfWeek.value.toString())
+            }, label = { Text(stringResource(R.string.timing_custom_days)) })
         }
         Text(if (days.isNotEmpty()) stringResource(R.string.timing_at, dayNames(days), at) else stepLabel(every),
             style = MaterialTheme.typography.titleMedium)
-        Slider(
+        if (days.isEmpty()) Slider(
             value = index.toFloat(),
             onValueChange = { onEvery(steps[kotlin.math.round(it).toInt().coerceIn(0, steps.size - 1)]) },
             valueRange = 0f..(steps.size - 1).toFloat(),
             steps = steps.size - 2,
-            enabled = days.isEmpty(),
         )
         if (every >= 1440 || days.isNotEmpty()) {
             OutlinedButton(onClick = {
@@ -497,17 +495,16 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
                     android.text.format.DateFormat.is24HourFormat(ctx)).show()
             }) { Text(stringResource(R.string.timing_at_label, at)) }
         }
-        if (every > 0 || days.isNotEmpty()) {
-            Text(stringResource(R.string.timing_days_label), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            // Daily shows every day ticked; ticking all seven is daily again.
-            val shown = if (days.isEmpty() && every == 1440) (1..7).toList() else days
+        if (days.isNotEmpty()) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 (1..7).forEach { d ->
-                    val on = d in shown
+                    val on = d in days
                     FilterChip(selected = on, onClick = {
-                        val next = if (on) shown - d else (shown + d).sorted()
+                        val next = if (on) days - d else (days + d).sorted()
                         when {
+                            // Every day is Daily; no day left goes back to Weekly.
                             next.size == 7 -> { onDays(""); onEvery(1440) }
+                            next.isEmpty() -> { onDays(""); onEvery(10080) }
                             else -> onDays(next.joinToString(","))
                         }
                     }, label = { Text(dayNames(listOf(d))) })
