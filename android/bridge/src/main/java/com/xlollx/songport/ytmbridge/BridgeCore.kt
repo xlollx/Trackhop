@@ -235,6 +235,10 @@ object BridgeCore {
                 }
                 "deezer.rename" -> { DeezerWebClient(ctx).renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "deezer.delete" -> { DeezerWebClient(ctx).deletePlaylist(arg ?: return err("missing playlist id")); deezerCache.invalidate(arg); Bundle() }
+                // ---- Relay for the Google Play build's read-only link sources and TikTok lookups (NetRelay).
+                "net.status" -> Bundle().apply { putBoolean("ok", true); putInt("version", VERSION) }
+                "net.fetch" -> NetRelay.fetch(arg ?: return err("missing address"), extras)
+                "net.chunk" -> NetRelay.chunk(arg ?: return err("missing id"), extras?.getInt("offset") ?: 0)
                 // ---- Anghami web session: the web player's gateway with its sid; the liked songs as "__liked__".
                 "anghami.status" -> Bundle().apply {
                     putBoolean("connected", AnghamiBridge.session.isConnected(ctx))

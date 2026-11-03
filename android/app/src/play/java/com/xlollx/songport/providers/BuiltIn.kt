@@ -21,6 +21,7 @@ object BuiltIn {
     @Suppress("UNUSED_PARAMETER")
     fun extraActions(ctx: Context, serviceId: String, developer: Boolean): List<Pair<String, Intent>> = emptyList()
 
+    /** The read-only link sources and TikTok lookups go through an installed plugin, if any. */
     @Suppress("UNUSED_PARAMETER")
-    fun onAppStart(ctx: Context, interceptor: okhttp3.Interceptor) = Unit
+    fun onAppStart(ctx: Context, interceptor: okhttp3.Interceptor) = PluginRelay.install(ctx)
 }

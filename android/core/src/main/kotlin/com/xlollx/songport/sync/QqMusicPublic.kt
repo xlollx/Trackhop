@@ -3,6 +3,7 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.net.Relay
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
@@ -76,7 +77,7 @@ object QqMusicPublic {
 
     private suspend fun page(id: String, begin: Int, count: Int): JsonElement {
         val req = """{"req_0":{"module":"music.srfDissInfo.aiDissInfo","method":"uniform_get_Dissinfo","param":{"disstid":$id,"song_begin":$begin,"song_num":$count,"onlysong":0}}}"""
-        val r = Http.send("GET", "$API?format=json&data=${Http.enc(req)}", HEADERS, maxRateLimitRetries = 1)
+        val r = Relay.send("GET", "$API?format=json&data=${Http.enc(req)}", HEADERS, maxRateLimitRetries = 1)
         if (!r.ok) throw Changed("u.y.qq.com HTTP ${r.code}")
         val j = runCatching { parseJson(r.body) }.getOrElse { throw Changed("not JSON") }
         if (j["code"].int != 0) throw Changed("code ${j["code"].int}")

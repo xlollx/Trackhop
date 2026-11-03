@@ -3,6 +3,7 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.net.Relay
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
@@ -92,7 +93,7 @@ object AnghamiPublic {
     private suspend fun page(id: String, page: Int): JsonElement {
         val url = "$GATEWAY?type=GETplaylistdata&playlistid=${Http.enc(id)}&buffered=1&lang=en&language=en&output=jsonhp" +
             "&web2=true&fingerprint=$fingerprint&angh_type=GETplaylistdata" + (if (page > 0) "&page=$page" else "")
-        val r = Http.send("GET", url, HEADERS, maxRateLimitRetries = 1)
+        val r = Relay.send("GET", url, HEADERS, maxRateLimitRetries = 1)
         if (r.code == 404) throw NotPublic()
         if (!r.ok) throw Changed("coussa.anghami.com HTTP ${r.code}")
         val j = runCatching { parseJson(r.body) }.getOrElse { throw Changed("not JSON") }

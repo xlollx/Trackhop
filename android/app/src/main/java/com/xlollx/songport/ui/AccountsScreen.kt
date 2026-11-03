@@ -250,8 +250,11 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                     }
                     // Play build: the services this version cannot reach on its own, greyed out under
                     // a plain fact. Nothing to tap, no name of anything else, no link.
-                    val offered = services.map { it.serviceId }.toSet()
-                    val unavailable = if (BridgePlugin.builtIn) emptyList() else UNAVAILABLE_ON_PLAY.filter { it.first !in offered }
+                    // A service a plugin brings (an account, or the reading of its public links) is not one of them.
+                    val offered = services.map { it.serviceId }.flatMap { listOf(it, it.removeSuffix("_web")) }.toSet()
+                    val unavailable = if (BridgePlugin.builtIn) emptyList() else UNAVAILABLE_ON_PLAY.filter { (id, _, _) ->
+                        id !in offered && Providers.byId(id)?.let { it.linkOnly && it.isConfigured(ctx) } != true
+                    }
                     if (unavailable.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                             Text(stringResource(R.string.services_group_unavailable), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))

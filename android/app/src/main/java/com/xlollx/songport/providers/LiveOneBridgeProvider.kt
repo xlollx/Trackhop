@@ -28,7 +28,7 @@ import kotlinx.serialization.json.JsonElement
  */
 class LiveOneBridgeProvider(override val slot: String = "") : MusicProvider {
     override val serviceId = SERVICE
-    override val displayName = "LiveOne (web)"
+    override val displayName = if (BridgePlugin.builtIn) "LiveOne (web)" else "LiveOne (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
     override val routeNoteName: String? get() = "route_note_web"
     override val familyName: String get() = "LiveOne"
@@ -44,9 +44,11 @@ class LiveOneBridgeProvider(override val slot: String = "") : MusicProvider {
     override val pluginBased = true
     override val searchParallelism = 2
 
-    override fun isConfigured(ctx: Env): Boolean = BridgePlugin.builtIn
+    /** Built in (GitHub, F-Droid), or through a connector plugin that knows it (Google Play). */
+    override fun isConfigured(ctx: Env): Boolean =
+        BridgePlugin.installed(ctx) && runCatching { call(ctx, "liveone.status").containsKey("connected") }.getOrDefault(false)
     override fun isConnected(ctx: Env): Boolean =
-        BridgePlugin.builtIn && runCatching { call(ctx, "liveone.status").getBoolean("connected", false) }.getOrDefault(false)
+        BridgePlugin.installed(ctx) && runCatching { call(ctx, "liveone.status").getBoolean("connected", false) }.getOrDefault(false)
     override fun accountName(ctx: Env): String? = runCatching { call(ctx, "liveone.status").getString("account") }.getOrNull()
 
     override fun startAuth(ctx: Env) = BridgePlugin.startLogin(ctx, LOGIN_ACTION)
@@ -114,7 +116,7 @@ class LiveOneBridgeProvider(override val slot: String = "") : MusicProvider {
         withContext(Dispatchers.IO) { map(parseJson(call(ctx, method, arg, extras).getString("json") ?: "")) }
 
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
-        if (!BridgePlugin.builtIn) throw ProviderException(ctx.text("error_not_connected", displayName))
+        if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("error_not_connected", displayName))
         val b = try {
             BridgePlugin.call(ctx, method, arg, extras)
         } catch (e: Exception) {

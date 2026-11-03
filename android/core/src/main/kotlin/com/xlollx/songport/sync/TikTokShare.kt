@@ -2,6 +2,7 @@ package com.xlollx.songport.sync
 
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.net.Relay
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
@@ -21,8 +22,14 @@ object TikTokShare {
 
     const val SERVICE = "tiktok"
 
-    /** Off in the builds limited to official services (Google Play, Microsoft Store). */
-    @Volatile var enabled: Boolean = true
+    /**
+     * Off in the builds limited to official services (Microsoft Store); on Google Play, on while a
+     * connector plugin that reads the video pages is installed (see [com.xlollx.songport.net.Relay]).
+     */
+    @Volatile var gate: () -> Boolean = { true }
+    var enabled: Boolean
+        get() = gate()
+        set(value) { gate = { value } }
 
     /**
      * A video's address: tiktok.com/@user/video/<id>, m.tiktok.com/v/<id>.html, or a short link of
@@ -51,7 +58,7 @@ object TikTokShare {
     /** Reads the video's page and tells its sound. */
     suspend fun sound(text: String): Sound {
         val url = LINK.find(text)?.value ?: return Sound.Unknown
-        val page = runCatching { Http.follow(url, Http.MOBILE_UA) }.getOrNull() ?: return Sound.Unknown
+        val page = runCatching { Relay.follow(url, Http.MOBILE_UA) }.getOrNull() ?: return Sound.Unknown
         if (page.code !in 200..299) return Sound.Unknown
         return parse(page.page, id(page.url) ?: id(url) ?: "")
     }

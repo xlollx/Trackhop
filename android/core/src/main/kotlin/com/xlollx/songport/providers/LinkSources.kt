@@ -4,6 +4,7 @@ import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.net.Relay
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.sync.AnghamiPublic
 import com.xlollx.songport.sync.NeteasePublic
@@ -25,8 +26,10 @@ abstract class LinkSource : MusicProvider {
     override val searchParallelism = 1
 
     override fun label(ctx: Env): String = ctx.text("${serviceId}_label")
-    override fun isConfigured(ctx: Env) = true
-    override fun isConnected(ctx: Env) = true
+    /** Always where these sources run here; on Google Play, while a plugin makes their requests ([Relay]). */
+    override fun isConfigured(ctx: Env) = Relay.available(ctx)
+    override fun isConnected(ctx: Env) = Relay.available(ctx)
+    override val pluginBased: Boolean get() = Relay.throughPlugin
     override fun accountName(ctx: Env): String? = null
     override fun startAuth(ctx: Env) = Unit
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) = Unit
@@ -34,7 +37,7 @@ abstract class LinkSource : MusicProvider {
 
     /** Nothing to list: the source is always a pasted link. */
     override suspend fun playlists(ctx: Env): List<Playlist> = emptyList()
-    override fun canRead(ctx: Env, playlistId: String) = !MusicProvider.isLibrary(playlistId)
+    override fun canRead(ctx: Env, playlistId: String) = !MusicProvider.isLibrary(playlistId) && Relay.available(ctx)
 
     /** Never a destination, so never searched or written. */
     override suspend fun search(ctx: Env, track: Track): List<Track> = emptyList()

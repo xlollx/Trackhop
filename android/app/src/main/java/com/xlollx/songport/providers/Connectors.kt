@@ -21,9 +21,9 @@ fun installConnectors() = Providers.install(
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerBridgeProvider.SERVICE) { DeezerBridgeProvider(it) },
-        // LiveOne has no official route: only in the builds that carry the web connectors.
-        Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) }.takeIf { BuiltIn.available },
-        Factory(AnghamiBridgeProvider.SERVICE) { AnghamiBridgeProvider(it) }.takeIf { BuiltIn.available },
+        // LiveOne and Anghami have no official route: built in, or (Google Play) through a plugin that has them.
+        Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) },
+        Factory(AnghamiBridgeProvider.SERVICE) { AnghamiBridgeProvider(it) },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
@@ -32,9 +32,10 @@ fun installConnectors() = Providers.install(
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
     ),
-    // The read-only link sources with no official route (NetEase Cloud Music, QQ Music): with the
-    // builds that carry unofficial connectors, as SoundCloud's links; not in the Google Play one.
-    singletons = listOfNotNull(LocalFilesProvider, NeteaseProvider.takeIf { BuiltIn.available }, AnghamiProvider.takeIf { BuiltIn.available }, QqMusicProvider.takeIf { BuiltIn.available }),
+    // The read-only link sources with no official route (NetEase Cloud Music, QQ Music, Anghami): read
+    // here by the builds that carry unofficial connectors; on Google Play only through a plugin that
+    // relays their requests (PluginRelay), and not offered without one.
+    singletons = listOf(LocalFilesProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider),
 )
 
 /**

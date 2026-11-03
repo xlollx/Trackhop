@@ -3,6 +3,7 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.net.Relay
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
@@ -77,7 +78,7 @@ object NeteasePublic {
     // ---- Network ---------------------------------------------------------------------------
 
     private suspend fun detail(id: String): JsonElement {
-        val r = Http.send("GET", "$SITE/api/v6/playlist/detail?id=${Http.enc(id)}&n=$MAX_TRACKS", HEADERS, maxRateLimitRetries = 1)
+        val r = Relay.send("GET", "$SITE/api/v6/playlist/detail?id=${Http.enc(id)}&n=$MAX_TRACKS", HEADERS, maxRateLimitRetries = 1)
         if (!r.ok) throw Changed("music.163.com HTTP ${r.code}")
         val j = runCatching { parseJson(r.body) }.getOrElse { throw Changed("not JSON") }
         val code = j["code"].int ?: throw Changed("no code")
@@ -92,7 +93,7 @@ object NeteasePublic {
         val out = HashMap<Long, Track>()
         for (chunk in ids.chunked(BATCH)) {
             val body = FormBody.Builder().add("c", chunk.joinToString(",", "[", "]") { """{"id":$it}""" }).build()
-            val r = Http.send("POST", "$SITE/api/v3/song/detail", HEADERS, body, maxRateLimitRetries = 1)
+            val r = Relay.send("POST", "$SITE/api/v3/song/detail", HEADERS, body, maxRateLimitRetries = 1)
             if (!r.ok) throw Changed("song/detail HTTP ${r.code}")
             val j = runCatching { parseJson(r.body) }.getOrElse { throw Changed("song/detail not JSON") }
             j["songs"].arr.mapNotNull { parseTrack(it) }.forEach { out[it.id.toLong()] = it }
