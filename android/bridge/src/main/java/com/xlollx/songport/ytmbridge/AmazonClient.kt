@@ -40,6 +40,12 @@ class AmazonClient(private val ctx: Context) {
         val csrfTs get() = (raw["csrf"]["ts"] ?: raw["CSRFTokenConfig"]["csrf_ts"]).asText()
         val csrfRnd get() = (raw["csrf"]["rnd"] ?: raw["CSRFTokenConfig"]["csrf_rnd"]).asText()
         val customerId get() = raw["customerId"].str
+        /**
+         * The country the account's music belongs to, as the player's configuration says it: an
+         * account of one store signed in on another's domain (a Dutch account on music.amazon.de)
+         * is refused (AUTH_INVALID_CUSTOMER_ID) when the header names the domain's country instead.
+         */
+        val musicTerritory get() = (raw["musicTerritory"].str ?: raw["territory"].str ?: raw["marketplaceCountry"].str)?.takeIf { it.length == 2 }?.uppercase()
         val customerName get() = raw["customerName"].str ?: raw["displayName"].str ?: raw["customerDisplayName"].str
             ?: raw["customer"]["name"].str ?: raw["userName"].str
         /** A customer in the configuration: the page was served to a signed-in session. */
@@ -248,7 +254,7 @@ class AmazonClient(private val ctx: Context) {
             "csrf-token" to c.csrfToken,
             "csrf-rnd" to c.csrfRnd,
             "csrf-ts" to c.csrfTs,
-            "music-territory" to territory(domain),
+            "music-territory" to (c.musicTerritory ?: territory(domain)),
             // The player names the subscription with each call; taken from its own headers when seen.
             "x-amzn-client-subscription-tier" to playerHeader("x-amzn-client-subscription-tier"),
             "x-amzn-feature-flags" to FEATURE_FLAGS,
