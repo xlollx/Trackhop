@@ -207,28 +207,38 @@ class SyncEngine(
      * A source that renames itself (a Spotify daylist gets a new title every few hours, issue #32):
      * the target takes the new name when it still carries the source's old one, i.e. the user has
      * not given it a name of their own; so does the sync, when it is named after the source. A
-     * target renamed by the user keeps its name. Never fails the run: a rename refused is only logged.
+     * target renamed by the user keeps its name. A new cover is copied too, where the target takes
+     * covers (Spotify); a sync made before covers were followed only notes the current one, so a
+     * cover the user chose is not replaced until the source changes its own. Never fails the run.
      */
-    private suspend fun followSourceName(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
+    private suspend fun followSource(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
         if (MusicProvider.isLibrary(srcId) || MusicProvider.isLibrary(targetId)) return
-        val old = job.source.playlistName.trim()
-        if (old.isEmpty()) return
-        val now = runCatching { src.playlistInfo(env, srcId).name.trim() }.getOrNull()
-            ?.takeIf { it.isNotEmpty() && it != srcId } ?: return
-        if (now == old) return
+        val info = runCatching { src.playlistInfo(env, srcId) }.getOrNull() ?: return
         val latest = store.job(job.id) ?: job
-        var updated = latest.copy(source = latest.source.copy(playlistName = now))
-        if (latest.name.trim() == old) updated = updated.copy(name = now)
-        if (dst.canRenamePlaylists) {
-            val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
-                ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()
-            if (current == old) {
-                runCatching { dst.renamePlaylist(env, targetId, now) }
-                    .onSuccess { updated = updated.copy(target = updated.target.copy(playlistName = now)); env.log("engine", "${job.name}: the source is now \"$now\", the target follows") }
-                    .onFailure { env.log("engine", "${job.name}: target not renamed: ${it.message?.take(120)}") }
+        var updated = latest
+        val old = latest.source.playlistName.trim()
+        val now = info.name.trim().takeIf { it.isNotEmpty() && it != srcId }
+        if (old.isNotEmpty() && now != null && now != old) {
+            updated = updated.copy(source = updated.source.copy(playlistName = now))
+            if (latest.name.trim() == old) updated = updated.copy(name = now)
+            if (dst.canRenamePlaylists) {
+                val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
+                    ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()
+                if (current == old) {
+                    runCatching { dst.renamePlaylist(env, targetId, now) }
+                        .onSuccess { updated = updated.copy(target = updated.target.copy(playlistName = now)); env.log("engine", "${job.name}: the source is now \"$now\", the target follows") }
+                        .onFailure { env.log("engine", "${job.name}: target not renamed: ${it.message?.take(120)}") }
+                }
             }
         }
-        store.upsertJob(updated)
+        val cover = info.imageUrl?.takeIf { it.isNotBlank() }
+        if (cover != null && cover != latest.sourceCover) {
+            if (latest.sourceCover == null || !dst.canSetCover) updated = updated.copy(sourceCover = cover)
+            else runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, targetId, it) } ?: error("no image") }
+                .onSuccess { updated = updated.copy(sourceCover = cover); env.log("engine", "${job.name}: new cover copied") }
+                .onFailure { env.log("engine", "${job.name}: cover not copied: ${it.message?.take(120)}") }
+        }
+        if (updated != latest) store.upsertJob(updated)
     }
 
     suspend fun plan(job: SyncJob, onProgress: (Progress) -> Unit = {}, createTarget: Boolean = true, unattended: Boolean = false, interactive: Boolean = false): SyncPlan {
@@ -276,13 +286,14 @@ class SyncEngine(
                 name = job.name.ifBlank { name },
                 source = job.source.copy(playlistName = srcName),
                 target = job.target.copy(playlistId = created.id, playlistName = created.name),
+                sourceCover = info?.imageUrl,
             ))
             val cover = info?.imageUrl ?: (if (dst.canSetCover) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
             if (dst.canSetCover && cover != null) runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, created.id, it) } }
                 .onFailure { env.log("engine", "cover not set: ${it.message?.take(120)}") }
         }
 
-        if (!targetCreated && createTarget && !interactive) followSourceName(job, src, srcPlaylistId, dst, targetId)
+        if (!targetCreated && createTarget && !interactive) followSource(job, src, srcPlaylistId, dst, targetId)
 
         if (dst.serviceId == LocalFilesProvider.serviceId) notes += str("note_file_target")
 

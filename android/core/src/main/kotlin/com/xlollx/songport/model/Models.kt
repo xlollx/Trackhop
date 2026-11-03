@@ -128,6 +128,8 @@ data class SyncJob(
      * Shazams reaches the target. Only a mark for the card and the editor; the run is a plain sync.
      */
     val shazam: Boolean = false,
+    /** The source's cover last copied to the target (its address): a new one is copied again, where the target takes covers. */
+    val sourceCover: String? = null,
 )
 
 /**

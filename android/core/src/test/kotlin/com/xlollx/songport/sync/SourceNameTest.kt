@@ -69,4 +69,28 @@ class SourceNameTest {
         engine.plan(job("daylist • sad tuesday night"), createTarget = false, interactive = true)
         assertTrue(dst.renames.isEmpty())
     }
+
+    @Test fun aNewSourceCoverIsCopiedWhereTheTargetTakesCovers() = runBlocking {
+        val web = okhttp3.mockwebserver.MockWebServer()
+        web.start()
+        try {
+            repeat(2) { web.enqueue(okhttp3.mockwebserver.MockResponse().setBody("jpeg-bytes")) }
+            env.shrink = { it }
+            dst.takesCovers = true
+            dst.names["t"] = "Daylist"
+            val j = job("Daylist", name = "My daylist")
+            src.coverUrls["p"] = web.url("/a.jpg").toString()
+            engine.run(j)
+            // A sync from before covers were followed only notes the cover it sees: the target's own is kept.
+            assertTrue(dst.covers.isEmpty())
+            assertEquals(web.url("/a.jpg").toString(), env.store.job(j.id)!!.sourceCover)
+            engine.run(env.store.job(j.id)!!)
+            assertTrue(dst.covers.isEmpty())
+            src.coverUrls["p"] = web.url("/b.jpg").toString()
+            engine.run(env.store.job(j.id)!!)
+            assertEquals(1, dst.covers.size)
+            assertEquals("jpeg-bytes", String(dst.covers[0].second))
+            assertEquals(web.url("/b.jpg").toString(), env.store.job(j.id)!!.sourceCover)
+        } finally { web.shutdown() }
+    }
 }

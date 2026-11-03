@@ -136,7 +136,9 @@ class ContractEnv : Env {
             override fun clear() = m.clear()
         }
     }
-    override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? = null
+    /** What a cover becomes once shrunk; none by default (no images in most tests). */
+    var shrink: (ByteArray) -> ByteArray? = { null }
+    override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? = shrink(raw)
 }
 
 /** JSON string literal for [s], escaped. */
