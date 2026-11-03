@@ -1,1 +1,1 @@
-Richer diagnostics: more and longer log lines, repeats folded together, and "Report a problem" copies the whole report. Spotify (web) retries a server error once.
+Richer diagnostics: more and longer log lines, repeats folded together, and "Report on GitHub" copies the whole report. Spotify (web) retries a server error once.
