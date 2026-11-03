@@ -132,11 +132,10 @@ common errors.
 
 ---
 
-## Public beta
+## Feedback
 
-Trackhop is in **open beta**: the features are complete and used daily by the developer, and now
-they need other libraries, phones and habits. Everything you meet is meant to work; if it does not,
-that is exactly what to report.
+Trackhop is stable and used every day. Every library, phone and habit is a little different, so
+reports are what make it better: if something does not work as it should, say so.
 
 - **Install**: the signed APK from the [Releases](https://github.com/xlollx/Trackhop/releases/latest)
   page (updates install over it), [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) or Obtainium. This build includes YouTube Music,
@@ -154,7 +153,7 @@ that is exactly what to report.
 ---
 
 ## Contents
-- [Public beta](#public-beta)
+- [Feedback](#feedback)
 - [Features](#features)
 - [Supported services and their limits](#supported-services-and-their-limits)
 - [Connector plugins](#connector-plugins)
