@@ -1,0 +1,1 @@
+Yeni: kendi zamanlamanız. Bir kaydırıcı eşitlemenin ne sıklıkla çalışacağını belirler, saatte birden haftada bire; bir günden itibaren saati seçer, haftanın günlerini işaretleyebilirsiniz (örneğin pazartesi, çarşamba ve cuma 7:30).

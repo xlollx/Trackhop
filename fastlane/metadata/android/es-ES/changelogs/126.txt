@@ -1,0 +1,1 @@
+Nuevo: horarios a tu medida. Un control deslizante elige cada cuánto se ejecuta una sync, de cada hora a cada semana; a partir de un día eliges la hora y puedes marcar los días de la semana (lunes, miércoles y viernes a las 7:30, por ejemplo).

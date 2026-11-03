@@ -1,0 +1,1 @@
+Novo: agendamentos do seu jeito. Um controle deslizante define a frequência de uma sync, de cada hora a cada semana; a partir de um dia você escolhe o horário e pode marcar os dias da semana (segunda, quarta e sexta às 7:30, por exemplo).

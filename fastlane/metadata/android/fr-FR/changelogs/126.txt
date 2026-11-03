@@ -1,0 +1,1 @@
+Nouveau : des plannings sur mesure. Un curseur règle la fréquence d’une sync, de toutes les heures à chaque semaine ; à partir d’un jour, vous choisissez l’heure et pouvez cocher des jours (lundi, mercredi et vendredi à 7 h 30, par exemple).

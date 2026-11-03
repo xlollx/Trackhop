@@ -1,0 +1,1 @@
+Novità: pianificazioni su misura. Uno slider sceglie ogni quanto parte una sync, da ogni ora a ogni settimana; da un giorno in su scegli l'orario, e puoi indicare i giorni della settimana (per esempio lunedì, mercoledì e venerdì alle 7:30).

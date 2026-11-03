@@ -1,0 +1,1 @@
+Nowość: własne harmonogramy. Suwak ustala, jak często działa synchronizacja, od co godzinę do co tydzień; od jednego dnia wybierasz godzinę i możesz zaznaczyć dni tygodnia (np. poniedziałek, środa i piątek o 7:30).

@@ -1,0 +1,1 @@
+Neu: eigene Zeitpläne. Ein Schieberegler legt fest, wie oft eine Sync läuft, von stündlich bis wöchentlich; ab einem Tag wählst du die Uhrzeit und kannst Wochentage festlegen (etwa Montag, Mittwoch und Freitag um 7:30).
