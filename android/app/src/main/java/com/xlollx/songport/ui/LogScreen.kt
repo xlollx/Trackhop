@@ -103,7 +103,7 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
                     val full = Diagnostics.report(ctx)
                     // A link carries only so much: the summary and the newest log lines go in it,
                     // the whole report to the clipboard, to paste when it doesn't fit.
-                    val fits = Diagnostics.forLink(full, 6000)
+                    val fits = Diagnostics.forLink(full, 5500)
                     val note = if (fits.length < full.length) {
                         runCatching {
                             (ctx.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager)

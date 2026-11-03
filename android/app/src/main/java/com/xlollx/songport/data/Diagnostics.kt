@@ -103,18 +103,48 @@ object Diagnostics {
     }
 
     /**
-     * [report] in at most [max] characters: everything before the log, then the newest log lines
-     * that still fit (the oldest are the ones left out), with a line saying how many were.
+     * [report] cut so that, encoded in a link, it takes at most [max] characters: everything before
+     * the log (cut too if it alone is longer), then the newest log lines that still fit, with a line
+     * saying how many older ones were left out. GitHub refuses a link of more than about 8 KB, and
+     * encoding makes a text two or three times longer (spaces, line ends, letters beyond ASCII).
      */
     fun forLink(report: String, max: Int): String {
-        if (report.length <= max) return report
-        val cut = report.indexOf("\nLog:\n").takeIf { it >= 0 } ?: return report.take(max)
-        val head = report.substring(0, cut + 6).take(max / 2)
+        if (encodedLength(report) <= max) return report
+        val cut = report.indexOf("\nLog:\n")
+        val headFull = if (cut >= 0) report.substring(0, cut + 6) else report
+        val head = fit(headFull, max / 2)
+        if (cut < 0) return head
+        var room = max - encodedLength(head) - 120
         val lines = report.substring(cut + 6).lines()
         val kept = ArrayDeque<String>()
-        var room = max - head.length - 60
-        for (l in lines.asReversed()) { if (l.length + 1 > room) break; kept.addFirst(l); room -= l.length + 1 }
+        for (l in lines.asReversed()) {
+            val n = encodedLength(l) + 3
+            if (n > room) break
+            kept.addFirst(l); room -= n
+        }
         val left = lines.size - kept.size
         return head + (if (left > 0) "  ($left older lines left out)\n" else "") + kept.joinToString("\n")
+    }
+
+    /** The longest start of [text] whose encoded length is at most [max]. */
+    private fun fit(text: String, max: Int): String {
+        var n = 0
+        for ((i, c) in text.withIndex()) {
+            n += encodedLength(c.toString())
+            if (n > max) return text.substring(0, i)
+        }
+        return text
+    }
+
+    /** How long [text] gets once percent-encoded in a link (as Uri.encode does it). */
+    fun encodedLength(text: String): Int {
+        var n = 0
+        for (c in text) n += when {
+            c.isLetterOrDigit() && c.code < 128 -> 1
+            c in "-_.!~*'()" -> 1
+            c.isSurrogate() -> 6
+            else -> 3 * c.toString().toByteArray(Charsets.UTF_8).size
+        }
+        return n
     }
 }
