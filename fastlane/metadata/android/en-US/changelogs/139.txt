@@ -1,1 +1,1 @@
-Spotify: Liked Songs, albums, artists and podcasts can be filled again (Spotify closed the old paths to personal apps in February 2026). A playlist that renames itself often (like the daylist) no longer renames the sync every time.
+Spotify: Liked Songs, albums, artists and podcasts can be filled again (Spotify closed the old paths to personal apps in February 2026). A playlist that renames itself often (like the daylist) no longer renames the sync every time. Amazon Music: accounts of a store without its own Amazon Music site (such as amazon.nl) use their own region.
