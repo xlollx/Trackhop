@@ -1334,4 +1334,14 @@
     <string name="anghami_not_public">这个 Anghami 歌单是私密的或不存在：只支持公开链接</string>
     <string name="anghami_changed">Anghami 改了网站，Trackhop 需要更新</string>
     <string name="provider_note_anghami_web">Anghami 没有公开 API：在 Anghami 自己的页面登录后，Trackhop 使用网页播放器的会话。这不是官方途径，违反 Anghami 的条款，可能随时失效。Alpha 版。读写你自己的歌单和喜欢的歌曲。如果登录无法完成，请在电脑上复制 play.anghami.com 的一个 gateway.php 请求地址（包含 sid=…），然后使用“粘贴”。</string>
+    <string name="whats_new_18_schedule_title">随心安排同步时间</string>
+    <string name="whats_new_18_schedule_body">每小时、每 6 小时、每天、每周或你选的日子，在你定的时间。</string>
+    <string name="whats_new_18_daylist_title">会自己变化的歌单</string>
+    <string name="whats_new_18_daylist_body">Spotify 的 daylist 或 Discover Weekly 保持同步：新歌、新标题，在 Spotify 上还有新封面。</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">把你的 Emby 服务器作为来源和目标，和 Jellyfin 一样：歌单和收藏。</string>
+    <string name="whats_new_18_liked_title">YouTube 点赞歌曲</string>
+    <string name="whats_new_18_liked_body">通过 YouTube（Google API）连接，点赞的歌曲可作为来源和目标，排除非音乐视频。</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">登录 Anghami 同步你的歌单和喜欢的歌曲，或粘贴公开歌单链接。</string>
 </resources>

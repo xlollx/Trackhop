@@ -1354,4 +1354,14 @@
     <string name="anghami_not_public">Bu Anghami listesi gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
     <string name="anghami_changed">Anghami sitesini değiştirdi; Trackhop güncellenmeli</string>
     <string name="provider_note_anghami_web">Anghami\'nin herkese açık bir API\'si yok: Anghami\'nin kendi sayfasında giriş yapın, Trackhop web oynatıcının oturumunu kullanır. Resmi bir yol değildir, Anghami\'nin koşullarına aykırıdır, çalışmayı bırakabilir. Alfa. Kendi çalma listeleriniz ve beğenilen şarkılar, okuma ve yazma. Giriş tamamlanmazsa, bir bilgisayardan play.anghami.com\'un bir gateway.php isteğinin adresini kopyalayın (sid=… içerir) ve Yapıştır\'ı kullanın.</string>
+    <string name="whats_new_18_schedule_title">İstediğin gibi zamanlama</string>
+    <string name="whats_new_18_schedule_body">Saatte bir, 6 saatte bir, her gün, her hafta ya da seçtiğin günlerde, istediğin saatte.</string>
+    <string name="whats_new_18_daylist_title">Kendiliğinden değişen listeler</string>
+    <string name="whats_new_18_daylist_body">Spotify daylist veya Discover Weekly eşit kalır: yeni şarkılar, yeni başlık ve Spotify\'da yeni kapak takip eder.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Emby sunucun kaynak ve hedef olarak, Jellyfin gibi: çalma listeleri ve favoriler.</string>
+    <string name="whats_new_18_liked_title">YouTube\'da beğenilenler</string>
+    <string name="whats_new_18_liked_body">YouTube (Google API) bağlantısıyla beğendiklerin kaynak ve hedef olur, müzik olmayan videolar hariç.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Çalma listelerini ve beğendiğin şarkıları eşitlemek için Anghami\'ye giriş yap ya da herkese açık bir liste bağlantısı yapıştır.</string>
 </resources>

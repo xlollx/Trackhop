@@ -28,6 +28,10 @@ import androidx.compose.material.icons.automirrored.filled.ManageSearch
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,6 +93,18 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.8",
+                listOfNotNull(
+                    Item(Icons.Filled.Schedule, JobColor.TEAL, R.string.whats_new_18_schedule_title, R.string.whats_new_18_schedule_body),
+                    Item(Icons.Filled.Autorenew, JobColor.ORANGE, R.string.whats_new_18_daylist_title, R.string.whats_new_18_daylist_body),
+                    Item(Icons.Filled.ThumbUp, JobColor.PINK, R.string.whats_new_18_liked_title, R.string.whats_new_18_liked_body),
+                    Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_18_emby_title, R.string.whats_new_18_emby_body),
+                    // Only in the builds that carry the unofficial connectors.
+                    Item(Icons.Filled.LibraryMusic, JobColor.PURPLE, R.string.whats_new_18_anghami_title, R.string.whats_new_18_anghami_body)
+                        .takeIf { com.xlollx.songport.providers.BridgePlugin.builtIn },
+                ),
+            ),
             Release(
                 "1.7",
                 listOfNotNull(

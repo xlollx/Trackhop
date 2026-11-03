@@ -1400,4 +1400,14 @@
     <string name="anghami_not_public">Этот плейлист Anghami закрыт или не существует: работают только публичные ссылки</string>
     <string name="anghami_changed">Anghami изменил сайт; Trackhop нужно обновить</string>
     <string name="provider_note_anghami_web">У Anghami нет публичного API: войдите на странице Anghami, и Trackhop использует сессию веб-плеера. Это не официальный способ, он нарушает условия Anghami и может перестать работать. Альфа. Ваши плейлисты и любимые треки, чтение и запись. Если вход не завершается, скопируйте на компьютере адрес запроса gateway.php с play.anghami.com (в нём есть sid=…) и нажмите «Вставить».</string>
+    <string name="whats_new_18_schedule_title">Расписание по-своему</string>
+    <string name="whats_new_18_schedule_body">Каждый час, каждые 6 часов, ежедневно, еженедельно или в выбранные дни, в нужное время.</string>
+    <string name="whats_new_18_daylist_title">Плейлисты, которые меняются сами</string>
+    <string name="whats_new_18_daylist_body">Daylist Spotify или Discover Weekly остаются синхронными: новые песни, новое название и, в Spotify, новая обложка.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Ваш сервер Emby как источник и назначение, как Jellyfin: плейлисты и избранное.</string>
+    <string name="whats_new_18_liked_title">Понравившиеся на YouTube</string>
+    <string name="whats_new_18_liked_body">С подключением YouTube (Google API) понравившиеся работают как источник и назначение, без видео, которые не являются музыкой.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Войдите в Anghami, чтобы синхронизировать плейлисты и любимые треки, или вставьте ссылку на публичный плейлист.</string>
 </resources>

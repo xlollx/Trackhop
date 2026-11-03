@@ -1356,4 +1356,14 @@
     <string name="anghami_not_public">This Anghami playlist is private or doesn\'t exist: only public links work</string>
     <string name="anghami_changed">Anghami changed its site; Trackhop needs an update</string>
     <string name="provider_note_anghami_web">Anghami has no public API: sign in on Anghami\'s own page and Trackhop uses the web player\'s session. Not an official route, against Anghami\'s terms, may stop working. Alpha. Playlists of your own and liked songs, read and written. If the sign-in does not finish, copy the address of a gateway.php request of play.anghami.com from a computer (it holds sid=…) and use Paste.</string>
+    <string name="whats_new_18_schedule_title">Schedules your way</string>
+    <string name="whats_new_18_schedule_body">Every hour, every 6 hours, daily, weekly or on the days you choose, at the time you pick.</string>
+    <string name="whats_new_18_daylist_title">Playlists that change by themselves</string>
+    <string name="whats_new_18_daylist_body">A Spotify daylist or Discover Weekly stays in sync: its new songs, its new title and, on Spotify, its new cover follow along.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Your Emby server as a source and a target, like Jellyfin: playlists and favourites.</string>
+    <string name="whats_new_18_liked_title">Liked songs on YouTube</string>
+    <string name="whats_new_18_liked_body">With the YouTube (Google API) connection, your liked songs work as a source and a target, without non-music videos.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Sign in to Anghami to sync your playlists and liked songs, or paste a public Anghami playlist link.</string>
 </resources>

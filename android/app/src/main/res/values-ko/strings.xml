@@ -1333,4 +1333,14 @@
     <string name="anghami_not_public">이 Anghami 플레이리스트는 비공개이거나 없습니다: 공개 링크만 됩니다</string>
     <string name="anghami_changed">Anghami가 사이트를 바꿨습니다. Trackhop 업데이트가 필요합니다</string>
     <string name="provider_note_anghami_web">Anghami에는 공개 API가 없습니다. Anghami 페이지에서 로그인하면 Trackhop이 웹 플레이어의 세션을 사용합니다. 공식 방법이 아니며 Anghami 약관에 어긋나고 작동이 멈출 수 있습니다. 알파. 내 플레이리스트와 좋아요한 곡을 읽고 씁니다. 로그인이 끝나지 않으면 컴퓨터에서 play.anghami.com의 gateway.php 요청 주소(sid=… 포함)를 복사해 붙여넣기를 사용하세요.</string>
+    <string name="whats_new_18_schedule_title">원하는 대로 예약</string>
+    <string name="whats_new_18_schedule_body">매시간, 6시간마다, 매일, 매주 또는 고른 요일에, 원하는 시간에.</string>
+    <string name="whats_new_18_daylist_title">스스로 바뀌는 플레이리스트</string>
+    <string name="whats_new_18_daylist_body">Spotify 데이리스트나 Discover Weekly도 계속 동기화됩니다: 새 곡, 새 제목, Spotify에서는 새 커버까지.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Emby 서버를 Jellyfin처럼 소스와 대상으로: 플레이리스트와 즐겨찾기.</string>
+    <string name="whats_new_18_liked_title">YouTube 좋아요</string>
+    <string name="whats_new_18_liked_body">YouTube(Google API) 연결로 좋아요한 곡을 소스와 대상으로 사용합니다. 음악이 아닌 동영상은 제외.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Anghami에 로그인해 플레이리스트와 좋아요한 곡을 동기화하거나, 공개 플레이리스트 링크를 붙여넣으세요.</string>
 </resources>

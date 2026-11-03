@@ -1364,4 +1364,14 @@
     <string name="anghami_not_public">Esta playlist do Anghami é privada ou não existe: só links públicos funcionam</string>
     <string name="anghami_changed">O Anghami mudou o site; o Trackhop precisa de uma atualização</string>
     <string name="provider_note_anghami_web">O Anghami não tem API pública: entre na página do Anghami e o Trackhop usa a sessão do player web. Não é um caminho oficial, vai contra os termos do Anghami e pode parar de funcionar. Alfa. Suas playlists e músicas curtidas, leitura e escrita. Se o login não terminar, copie de um computador o endereço de uma requisição gateway.php de play.anghami.com (contém sid=…) e use Colar.</string>
+    <string name="whats_new_18_schedule_title">Agendamentos do seu jeito</string>
+    <string name="whats_new_18_schedule_body">A cada hora, a cada 6 horas, diário, semanal ou nos dias que você escolher, no horário que quiser.</string>
+    <string name="whats_new_18_daylist_title">Playlists que mudam sozinhas</string>
+    <string name="whats_new_18_daylist_body">Um daylist do Spotify ou o Descobertas da Semana continuam sincronizados: as músicas novas, o novo título e, no Spotify, a nova capa.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Seu servidor Emby como origem e destino, como o Jellyfin: playlists e favoritos.</string>
+    <string name="whats_new_18_liked_title">Curtidas no YouTube</string>
+    <string name="whats_new_18_liked_body">Com a conexão do YouTube (API do Google), suas curtidas funcionam como origem e destino, sem vídeos que não são música.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Entre no Anghami para sincronizar suas playlists e músicas curtidas, ou cole o link de uma playlist pública.</string>
 </resources>

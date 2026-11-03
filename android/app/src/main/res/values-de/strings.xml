@@ -1356,4 +1356,14 @@
     <string name="anghami_not_public">Diese Anghami-Playlist ist privat oder existiert nicht: Nur öffentliche Links funktionieren</string>
     <string name="anghami_changed">Anghami hat seine Seite geändert; Trackhop braucht ein Update</string>
     <string name="provider_note_anghami_web">Anghami hat keine öffentliche API: Melde dich auf Anghamis eigener Seite an, Trackhop nutzt dann die Sitzung des Webplayers. Kein offizieller Weg, gegen Anghamis Bedingungen, kann jederzeit aufhören zu funktionieren. Alpha. Eigene Playlists und Lieblingssongs, lesen und schreiben. Wenn die Anmeldung nicht abschließt, kopiere an einem Computer die Adresse einer gateway.php-Anfrage von play.anghami.com (sie enthält sid=…) und tippe auf Einfügen.</string>
+    <string name="whats_new_18_schedule_title">Zeitpläne nach Wunsch</string>
+    <string name="whats_new_18_schedule_body">Stündlich, alle 6 Stunden, täglich, wöchentlich oder an gewählten Tagen, zur gewünschten Uhrzeit.</string>
+    <string name="whats_new_18_daylist_title">Playlists, die sich selbst ändern</string>
+    <string name="whats_new_18_daylist_body">Eine Spotify-Daylist oder Discover Weekly bleiben synchron: neue Songs, neuer Titel und auf Spotify das neue Cover.</string>
+    <string name="whats_new_18_emby_title">Emby</string>
+    <string name="whats_new_18_emby_body">Dein Emby-Server als Quelle und Ziel, wie Jellyfin: Playlists und Favoriten.</string>
+    <string name="whats_new_18_liked_title">Lieblingssongs auf YouTube</string>
+    <string name="whats_new_18_liked_body">Mit der YouTube-Verbindung (Google-API) sind deine Lieblingssongs Quelle und Ziel, ohne Videos, die keine Musik sind.</string>
+    <string name="whats_new_18_anghami_title">Anghami</string>
+    <string name="whats_new_18_anghami_body">Melde dich bei Anghami an, um Playlists und Lieblingssongs zu synchronisieren, oder füge den Link einer öffentlichen Playlist ein.</string>
 </resources>
