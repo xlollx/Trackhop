@@ -59,6 +59,8 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
     ),
     singletons = listOfNotNull(
         LocalFilesProvider,
+        // Apple Music's and Deezer's public charts: official feeds, so on every build.
+        com.xlollx.songport.providers.ChartsProvider,
         SoundCloudProvider.takeUnless { officialOnly },
         NeteaseProvider.takeUnless { officialOnly },
         AnghamiProvider.takeUnless { officialOnly },

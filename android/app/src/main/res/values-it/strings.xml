@@ -1394,4 +1394,12 @@
     <string name="diag_range_day">Ultime 24 ore</string>
     <string name="diag_range_week">Ultimi 7 giorni</string>
     <string name="diag_range_all">Tutto</string>
+    <string name="charts_label">Classifiche</string>
+    <string name="provider_note_charts">Le classifiche di Apple Music (Top 100 per Paese) e Deezer (top per Paese e mondiale), dai loro feed pubblici: una sync tiene aggiornata una tua playlist quando la classifica cambia. Nessun account.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Questa classifica non è più disponibile.</string>
+    <string name="charts_unavailable">%1$s non ha restituito la classifica (%2$d): riprova più tardi.</string>
+    <string name="whats_new_110_charts_title">Classifiche come sorgente</string>
+    <string name="whats_new_110_charts_body">Tieni una tua playlist al passo con la Top 100 di Apple Music di qualsiasi Paese o con le classifiche Deezer: scegli “Classifiche” come sorgente di una nuova sync.</string>
 </resources>

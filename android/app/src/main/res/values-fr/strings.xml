@@ -1402,4 +1402,12 @@
     <string name="diag_range_day">Dernières 24 heures</string>
     <string name="diag_range_week">7 derniers jours</string>
     <string name="diag_range_all">Tout</string>
+    <string name="charts_label">Classements</string>
+    <string name="provider_note_charts">Les classements d\'Apple Music (Top 100 par pays) et de Deezer (top par pays et mondial), depuis leurs flux publics : une synchro tient une de tes playlists à jour quand le classement change. Sans compte.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Ce classement n\'est plus disponible.</string>
+    <string name="charts_unavailable">%1$s n\'a pas renvoyé son classement (%2$d) : réessaie plus tard.</string>
+    <string name="whats_new_110_charts_title">Les classements comme source</string>
+    <string name="whats_new_110_charts_body">Garde une de tes playlists au rythme du Top 100 Apple Music d\'un pays ou des classements Deezer : choisis « Classements » comme source d\'une nouvelle synchro.</string>
 </resources>

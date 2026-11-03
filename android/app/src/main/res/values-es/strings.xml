@@ -1402,4 +1402,12 @@
     <string name="diag_range_day">Últimas 24 horas</string>
     <string name="diag_range_week">Últimos 7 días</string>
     <string name="diag_range_all">Todo</string>
+    <string name="charts_label">Listas</string>
+    <string name="provider_note_charts">Las listas de Apple Music (Top 100 por país) y Deezer (top por país y mundial), de sus feeds públicos: una sync mantiene al día una playlist tuya cuando cambia la lista. Sin cuenta.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Esta lista ya no está disponible.</string>
+    <string name="charts_unavailable">%1$s no devolvió su lista (%2$d): inténtalo más tarde.</string>
+    <string name="whats_new_110_charts_title">Listas como origen</string>
+    <string name="whats_new_110_charts_body">Mantén una playlist tuya al ritmo del Top 100 de Apple Music de cualquier país o de las listas de Deezer: elige «Listas» como origen de una nueva sync.</string>
 </resources>
