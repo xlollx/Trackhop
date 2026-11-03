@@ -37,6 +37,10 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     override val familyName: String get() = "YouTube Music"
     override val brandColor = 0xFFFF0000
     override val noteName = "provider_note_youtube"
+    // Liked songs: the videos the account liked, the music ones (issue #30). Liking or unliking one
+    // costs 50 quota units, as a playlist write does.
+    override val supportsLikedSongs = true
+    override val supportsLikedTarget = true
 
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://console.cloud.google.com/apis/credentials",
@@ -131,6 +135,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
+        if (playlistId == MusicProvider.LIKED_ID) return likedTracks(ctx)
         data class Raw(val itemId: String, val videoId: String, val title: String, val channel: String?)
         val raws = ArrayList<Raw>()
         var page: String? = null
@@ -242,6 +247,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId == MusicProvider.LIKED_ID) return rate(ctx, tracks, "like")
         for (t in tracks) {
             counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "POST", "$API/playlistItems?part=snippet",
                 jsonObj("snippet" to mapOf(
@@ -286,7 +292,28 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "DELETE", "$API/playlists?id=$playlistId") }
     }
 
+    /**
+     * The account's liked videos (videos.list myRating=like, 1 unit a page of 50), keeping the music
+     * ones: those in YouTube's Music category, which is where YouTube Music's own likes land.
+     */
+    private suspend fun likedTracks(ctx: Env): List<Track> {
+        val out = ArrayList<Track>()
+        var page: String? = null
+        do {
+            val j = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/videos?part=snippet,contentDetails&myRating=like&maxResults=50" +
+                (page?.let { "&pageToken=$it" } ?: "")) }
+            out += likedFrom(j)
+            page = j["nextPageToken"].str
+        } while (page != null)
+        return out
+    }
+
+    private suspend fun rate(ctx: Env, tracks: List<Track>, rating: String) {
+        for (t in tracks) counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "POST", "$API/videos/rate?id=${Http.enc(t.id)}&rating=$rating") }
+    }
+
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId == MusicProvider.LIKED_ID) return rate(ctx, tracks, "none")
         for (t in tracks) {
             val itemId = t.itemId ?: continue
             counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "DELETE", "$API/playlistItems?id=$itemId") }
@@ -296,5 +323,13 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     companion object {
         const val SERVICE = "youtube"
         private const val API = "https://www.googleapis.com/youtube/v3"
+
+        /** The music videos of a page of videos.list (category 10, "Music"), as tracks. */
+        internal fun likedFrom(page: JsonElement): List<Track> = page["items"].arr.mapNotNull { v ->
+            val id = v["id"].str ?: return@mapNotNull null
+            if (v["snippet"]["categoryId"].str != "10") return@mapNotNull null
+            val (title, artists) = TitleParser.parseYouTube(v["snippet"]["title"].str ?: return@mapNotNull null, v["snippet"]["channelTitle"].str)
+            Track(id = id, title = title, artists = artists, durationMs = Durations.parseIso8601(v["contentDetails"]["duration"].str))
+        }
     }
 }
