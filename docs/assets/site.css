@@ -259,5 +259,6 @@ body.drawer-open { overflow: hidden; }
 @media (max-width: 640px) { .panel[data-panel="phone"] .get.cols { grid-template-columns: repeat(2, 150px); } }
 
 /* "Translate this page" for visitors in another language (Google Translate link, no script). */
-.xlate { max-width: 860px; margin: 12px auto 0; padding: 0 20px; font-size: .92rem; }
-.xlate a { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--link); text-decoration: none; }
+.top nav a.xlate { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font-weight: 600; font-size: 13px; letter-spacing: .02em; }
+.top nav a.xlate[hidden] { display: none; }
+.top nav a.xlate:hover { color: var(--ink); border-color: var(--ink-2); }
