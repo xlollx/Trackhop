@@ -1,0 +1,1 @@
+"Günlüğü dışa aktar" artık metin dosyasını gerçekten oluşturup paylaşıyor (1.9.7'de pencere yalnızca kapanıyordu).

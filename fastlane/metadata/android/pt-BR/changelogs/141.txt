@@ -1,0 +1,1 @@
+"Exportar log" agora cria e compartilha de verdade o arquivo de texto (na 1.9.7 só fechava a janela).
