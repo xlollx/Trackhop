@@ -201,27 +201,42 @@ class SpotifyContractTest : ContractTest() {
         assertEquals(listOf(100, 100, 50), sizes)
     }
 
-    @Test fun likedAddAndRemoveInFifties() = runBlocking {
-        val tracks = (0 until 120).map { Track(id(it), "S") }
+    @Test fun likedAddAndRemoveThroughTheLibraryInForties() = runBlocking {
+        val tracks = (0 until 90).map { Track(id(it), "S") }
         repeat(6) { ok("") }
         sp.addTracks(env, MusicProvider.LIKED_ID, tracks)
         sp.removeTracks(env, MusicProvider.LIKED_ID, tracks)
-        val shapes = (0 until 6).map { val r = next(); Triple(r.method, r.pathOnly(), r.jsonBody()["ids"].arr.size) }
+        val shapes = (0 until 6).map { val r = next(); Triple(r.method, r.pathOnly(), r.query("uris")!!.split(",").size) }
         assertEquals(listOf(
-            Triple("PUT", "/v1/me/tracks", 50), Triple("PUT", "/v1/me/tracks", 50), Triple("PUT", "/v1/me/tracks", 20),
-            Triple("DELETE", "/v1/me/tracks", 50), Triple("DELETE", "/v1/me/tracks", 50), Triple("DELETE", "/v1/me/tracks", 20),
+            Triple("PUT", "/v1/me/library", 40), Triple("PUT", "/v1/me/library", 40), Triple("PUT", "/v1/me/library", 10),
+            Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 10),
         ), shapes)
+        noMoreRequests()
     }
 
-    @Test fun albumsInTwentiesAndShowsAsQuery() = runBlocking {
-        repeat(3) { ok("") }
-        sp.addTracks(env, MusicProvider.ALBUMS_ID, (0 until 21).map { Track("al$it", "A", kind = Track.KIND_ALBUM) })
+    @Test fun likedUrisNameTheTracks() = runBlocking {
+        ok("")
+        sp.addTracks(env, MusicProvider.LIKED_ID, listOf(Track(id(1), "S"), Track(id(2), "T")))
+        assertEquals("spotify:track:${id(1)},spotify:track:${id(2)}", next().query("uris"))
+    }
+
+    @Test fun likedFallsBackToTheOlderPathWhenTheLibraryPathIsMissing() = runBlocking {
+        json("""{"error":{"status":404,"message":"Not found."}}""", 404)
+        repeat(2) { ok("") }
+        sp.addTracks(env, MusicProvider.LIKED_ID, (0 until 60).map { Track(id(it), "S") })
+        next()
+        val a = next(); assertCall(a, "PUT", api, "/v1/me/tracks"); assertEquals(50, a.jsonBody()["ids"].arr.size)
+        assertEquals(10, next().jsonBody()["ids"].arr.size)
+    }
+
+    @Test fun albumsAndShowsThroughTheLibrary() = runBlocking {
+        repeat(2) { ok("") }
+        sp.addTracks(env, MusicProvider.ALBUMS_ID, listOf(Track("al1", "A", kind = Track.KIND_ALBUM)))
         sp.addTracks(env, MusicProvider.PODCASTS_ID, listOf(Track("sh1", "S"), Track("sh2", "T")))
-        assertEquals(20, next().jsonBody()["ids"].arr.size)
-        assertEquals(1, next().jsonBody()["ids"].arr.size)
+        assertEquals("spotify:album:al1", next().query("uris"))
         val r = next()
-        assertCall(r, "PUT", api, "/v1/me/shows")
-        assertEquals("sh1,sh2", r.query("ids"))
+        assertCall(r, "PUT", api, "/v1/me/library")
+        assertEquals("spotify:show:sh1,spotify:show:sh2", r.query("uris"))
     }
 
     @Test fun createRenameVisibilityDeleteWithUnicode() = runBlocking {
@@ -243,7 +258,9 @@ class SpotifyContractTest : ContractTest() {
         val v = next()
         assertCall(v, "PUT", api, "/v1/playlists/NEW")
         assertEquals("""{"public":true}""", v.bodyText())
-        assertCall(next(), "DELETE", api, "/v1/playlists/NEW/followers")
+        val d = next()
+        assertCall(d, "DELETE", api, "/v1/me/library")
+        assertEquals("spotify:playlist:NEW", d.query("uris"))
         noMoreRequests()
     }
 

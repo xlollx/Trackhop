@@ -431,25 +431,35 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
 
     /** Spotify has no delete: a playlist you stop following disappears from your library. */
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
-        api(ctx, "DELETE", "$API/playlists/$playlistId/followers")
+        library(ctx, "DELETE", "playlist", listOf(playlistId)) { api(ctx, "DELETE", "$API/playlists/$playlistId/followers") }
+    }
+
+    /**
+     * Saves to or removes from the library through /me/library, which takes URIs, 40 at a time: since
+     * February 2026 the per-type paths (/me/tracks, /me/albums, /me/following, /me/shows, the
+     * playlist followers) answer Development Mode apps with a 403 (issue #34). An app still served by
+     * them (Extended Quota) gets a 404 or 405 from the new path for a type it does not take: the old
+     * path, [legacy], is called then, once for all the ids.
+     */
+    private suspend fun library(ctx: Env, method: String, type: String, ids: List<String>, legacy: suspend () -> Unit) {
+        try {
+            ids.chunked(40).forEach { chunk ->
+                api(ctx, method, "$API/me/library?uris=" + chunk.joinToString(",") { java.net.URLEncoder.encode("spotify:$type:$it", "UTF-8") })
+            }
+        } catch (e: ProviderException) {
+            if (e.code != 404 && e.code != 405 && !(e.code == 400 && type == "artist")) throw e
+            ctx.log("spotify", "/me/library refused $type (${e.code}): the older path")
+            legacy()
+        }
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (playlistId == MusicProvider.LIKED_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "PUT", "$API/me/tracks", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.ALBUMS_ID) {
-            tracks.map { it.id }.chunked(20).forEach { ids -> api(ctx, "PUT", "$API/me/albums", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.ARTISTS_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "PUT", "$API/me/following?type=artist", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.PODCASTS_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "PUT", "$API/me/shows?ids=${ids.joinToString(",")}") }
-            return
+        val ids = tracks.map { it.id }
+        when (playlistId) {
+            MusicProvider.LIKED_ID -> return library(ctx, "PUT", "track", ids) { ids.chunked(50).forEach { api(ctx, "PUT", "$API/me/tracks", jsonObj("ids" to it)) } }
+            MusicProvider.ALBUMS_ID -> return library(ctx, "PUT", "album", ids) { ids.chunked(20).forEach { api(ctx, "PUT", "$API/me/albums", jsonObj("ids" to it)) } }
+            MusicProvider.ARTISTS_ID -> return library(ctx, "PUT", "artist", ids) { ids.chunked(50).forEach { api(ctx, "PUT", "$API/me/following?type=artist", jsonObj("ids" to it)) } }
+            MusicProvider.PODCASTS_ID -> return library(ctx, "PUT", "show", ids) { ids.chunked(50).forEach { api(ctx, "PUT", "$API/me/shows?ids=${it.joinToString(",")}") } }
         }
         tracks.mapNotNull { it.uri }.chunked(100).forEach { chunk ->
             api(ctx, "POST", "$API/playlists/$playlistId/items", jsonObj("uris" to chunk))
@@ -457,21 +467,12 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (playlistId == MusicProvider.LIKED_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "DELETE", "$API/me/tracks", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.ALBUMS_ID) {
-            tracks.map { it.id }.chunked(20).forEach { ids -> api(ctx, "DELETE", "$API/me/albums", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.ARTISTS_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "DELETE", "$API/me/following?type=artist", jsonObj("ids" to ids)) }
-            return
-        }
-        if (playlistId == MusicProvider.PODCASTS_ID) {
-            tracks.map { it.id }.chunked(50).forEach { ids -> api(ctx, "DELETE", "$API/me/shows?ids=${ids.joinToString(",")}") }
-            return
+        val ids = tracks.map { it.id }
+        when (playlistId) {
+            MusicProvider.LIKED_ID -> return library(ctx, "DELETE", "track", ids) { ids.chunked(50).forEach { api(ctx, "DELETE", "$API/me/tracks", jsonObj("ids" to it)) } }
+            MusicProvider.ALBUMS_ID -> return library(ctx, "DELETE", "album", ids) { ids.chunked(20).forEach { api(ctx, "DELETE", "$API/me/albums", jsonObj("ids" to it)) } }
+            MusicProvider.ARTISTS_ID -> return library(ctx, "DELETE", "artist", ids) { ids.chunked(50).forEach { api(ctx, "DELETE", "$API/me/following?type=artist", jsonObj("ids" to it)) } }
+            MusicProvider.PODCASTS_ID -> return library(ctx, "DELETE", "show", ids) { ids.chunked(50).forEach { api(ctx, "DELETE", "$API/me/shows?ids=${it.joinToString(",")}") } }
         }
         tracks.mapNotNull { it.uri }.chunked(100).forEach { chunk ->
             api(ctx, "DELETE", "$API/playlists/$playlistId/items",
