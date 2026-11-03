@@ -216,6 +216,8 @@ class MainActivity : ComponentActivity() {
         i?.getStringExtra(EXTRA_MESSAGE)?.let { messages.value = it; i.removeExtra(EXTRA_MESSAGE) }
         if (i?.hasExtra(EXTRA_TAB) == true) { tabRequests.value = i.getIntExtra(EXTRA_TAB, 0); i.removeExtra(EXTRA_TAB) }
         i?.getStringExtra(EXTRA_TOOL)?.let { toolRequests.value = it; i.removeExtra(EXTRA_TOOL) }
+        // A sync tapped in a widget: the Syncs tab, scrolled to its card, which lights up.
+        i?.getStringExtra(EXTRA_FOCUS_JOB)?.let { com.xlollx.songport.ui.JobFocus.request.value = it; tabRequests.value = TAB_SYNCS; i.removeExtra(EXTRA_FOCUS_JOB) }
     }
 
     private fun askNotificationPermission() {
@@ -228,6 +230,7 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_TAB = "tab"
         const val EXTRA_TOOL = "tool"
+        const val EXTRA_FOCUS_JOB = "focusJob"
         const val TOOL_UNPLAYABLE = "unplayable"
         /** The scrims enableEdgeToEdge() puts behind three-button navigation by default. */
         private val LIGHT_SCRIM = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)

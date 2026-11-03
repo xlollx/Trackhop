@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.pluralStringResource
@@ -200,6 +201,9 @@ fun SyncsScreen(
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    // A sync tapped in a widget (JobFocus): scrolled to and lit up for a moment.
+    val focusAsked by JobFocus.request.collectAsState()
+    var flashing by remember { mutableStateOf<String?>(null) }
     // "Up to date" is checked, not assumed: each sync's source against its last run, when the list
     // shows and again after a run (FreshnessChecks).
     val toCheck = FreshnessChecks.worthChecking(data.jobs)
@@ -243,6 +247,18 @@ fun SyncsScreen(
         onRefresh = { if (!pullOff) { pullHaptic(); starting = true; onRunAll() } },
         modifier = Modifier.fillMaxSize(),
     ) {
+        LaunchedEffect(focusAsked, shown) {
+            val id = focusAsked ?: return@LaunchedEffect
+            if (data.jobs.none { it.id == id }) { JobFocus.request.value = null; return@LaunchedEffect }
+            // Hidden by the search or a filter: the whole list again, then the card.
+            if (shown.none { it.id == id }) { filter = SyncFilter(); return@LaunchedEffect }
+            kotlinx.coroutines.delay(150)
+            // The syncs are the list's last items: the ones before them (summary, notes) come first.
+            val index = listState.layoutInfo.totalItemsCount - shown.size + shown.indexOfFirst { it.id == id }
+            runCatching { listState.animateScrollToItem(index.coerceAtLeast(0)) }
+            JobFocus.request.value = null
+            flashing = id
+        }
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
@@ -297,7 +313,19 @@ fun SyncsScreen(
             else if (nudge) item(key = "nudge") { CoffeeCard() }
             if (shown.isEmpty()) item(key = "nomatch") { SyncFinderEmpty { filter = SyncFilter() } }
             items(shown, key = { it.id }) { job ->
-                Box(Modifier.animateItem()) {
+                val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
+                LaunchedEffect(flashing) {
+                    if (flashing == job.id) {
+                        repeat(2) {
+                            flash.animateTo(1f, androidx.compose.animation.core.tween(220))
+                            flash.animateTo(0f, androidx.compose.animation.core.tween(520))
+                        }
+                        flashing = null
+                    }
+                }
+                Box(Modifier.animateItem().then(
+                    if (flash.value > 0f) Modifier.border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = flash.value), MaterialTheme.shapes.large) else Modifier,
+                )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
                     JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled)
                 }

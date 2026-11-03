@@ -90,7 +90,9 @@ object Widgets {
     /** A sync as the widgets show it. */
     class Row(val id: String, val name: String, val color: JobColor?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
         /** The services, "Spotify → TIDAL": syncs of one playlist to several services share a name. */
-        val route: String, val target: String)
+        val route: String, val target: String,
+        /** The connectors' ids, for their marks. */
+        val sourceId: String, val targetId: String)
 
     fun rows(ctx: Context): List<Row> {
         val data = Store.get(ctx).data
@@ -112,7 +114,8 @@ object Widgets {
         val from = job.radio?.station ?: service(job.source.provider)
         val to = service(job.target.provider)
         return Row(job.id, job.name, JobColor.of(job.color), status, last != null && !last.ok && job.id !in running, job.id in running,
-            (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to)
+            (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to,
+            job.source.provider, job.target.provider)
     }
 
     internal val JOB = ActionParameters.Key<String>("job")
@@ -146,6 +149,22 @@ private fun RunButton(job: String?, size: Int = 40) {
 
 private fun openApp(ctx: Context) = actionStartActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
+/** Opens the app on the Syncs tab, scrolled to [jobId]'s card, which lights up for a moment. */
+private fun openSync(ctx: Context, jobId: String) = actionStartActivity(
+    Intent(ctx, MainActivity::class.java)
+        // One address per sync: otherwise the system keeps a single pending intent for every row.
+        .setData(android.net.Uri.parse("trackhop://sync/" + android.net.Uri.encode(jobId)))
+        .putExtra(MainActivity.EXTRA_FOCUS_JOB, jobId)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+)
+
+/** The pair of service marks, source then target, as on the sync cards. */
+@Composable
+private fun Marks(r: Widgets.Row, height: Int) {
+    val px = (height * LocalContext.current.resources.displayMetrics.density).toInt()
+    Image(ImageProvider(LogoBitmaps.pair(r.sourceId, r.targetId, px)), r.route, GlanceModifier.width((height * 1.62f).toInt().dp).height(height.dp))
+}
+
 // ---------------------------------------------------------------- every sync
 
 class SyncListWidget : GlanceAppWidget() {
@@ -171,12 +190,12 @@ class SyncListWidget : GlanceAppWidget() {
             } else LazyColumn {
                 items(rows, itemId = { it.id.hashCode().toLong() }) { r ->
                     Column(GlanceModifier.fillMaxWidth().padding(bottom = 6.dp)) {
-                        Row(GlanceModifier.fillMaxWidth().cornerRadius(16.dp).background(GlanceTheme.colors.secondaryContainer).padding(10.dp),
+                        Row(GlanceModifier.fillMaxWidth().cornerRadius(16.dp).background(GlanceTheme.colors.secondaryContainer).padding(10.dp).clickable(openSync(ctx, r.id)),
                             verticalAlignment = Alignment.CenterVertically) {
-                            Box(GlanceModifier.size(10.dp).cornerRadius(5.dp).background(if (r.failed) red else accent(r.color))) {}
+                            Marks(r, 26)
                             Spacer(GlanceModifier.width(10.dp))
-                            Column(GlanceModifier.defaultWeight().clickable(openApp(ctx))) {
-                                Text("${r.name} → ${r.target}", maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                            Column(GlanceModifier.defaultWeight()) {
+                                Text(r.name, maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 14.sp, fontWeight = FontWeight.Medium))
                                 Text(r.status, maxLines = 1, style = TextStyle(color = if (r.failed) red else GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp))
                             }
                             Spacer(GlanceModifier.width(8.dp))
@@ -211,14 +230,15 @@ class OneSyncWidget : GlanceAppWidget() {
     private fun One(r: Widgets.Row?, job: SyncJob?) {
         val ctx = LocalContext.current
         val wide = LocalSize.current.width >= 200.dp
-        Column(GlanceModifier.fillMaxSize().cornerRadius(24.dp).background(GlanceTheme.colors.widgetBackground).padding(14.dp).clickable(openApp(ctx))) {
+        Column(GlanceModifier.fillMaxSize().cornerRadius(24.dp).background(GlanceTheme.colors.widgetBackground).padding(14.dp)
+            .clickable(if (r != null) openSync(ctx, r.id) else openApp(ctx))) {
             if (r == null || job == null) {
                 Text(ctx.getString(R.string.widget_sync_gone), style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 13.sp))
                 return@Column
             }
             Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Box(GlanceModifier.size(12.dp).cornerRadius(6.dp).background(if (r.failed) red else accent(r.color))) {}
-                Spacer(GlanceModifier.width(8.dp))
+                Marks(r, 28)
+                Spacer(GlanceModifier.width(10.dp))
                 Text(r.name, GlanceModifier.defaultWeight(), maxLines = 1,
                     style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold))
                 RunButton(r.id, 40)
