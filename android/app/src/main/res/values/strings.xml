@@ -1349,4 +1349,5 @@
     <string name="timing_at">%1$s at %2$s</string>
     <string name="timing_at_label">At %1$s</string>
     <string name="timing_days_label">Only on these days (optional)</string>
+    <string name="search_listen">Listen to it</string>
 </resources>

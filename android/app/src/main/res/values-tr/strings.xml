@@ -1347,4 +1347,5 @@
     <string name="timing_at">%1$s, saat %2$s</string>
     <string name="timing_at_label">Saat %1$s</string>
     <string name="timing_days_label">Yalnızca bu günler (isteğe bağlı)</string>
+    <string name="search_listen">Dinle</string>
 </resources>

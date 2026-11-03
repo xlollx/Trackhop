@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material3.IconButton
 import com.xlollx.songport.providers.*
 import android.net.Uri
 import android.content.Intent
@@ -87,6 +88,8 @@ fun MatchSearch(
     onError: (String) -> Unit,
     autoSearch: Boolean = false,
     webSearchUrl: ((String) -> String?)? = null,
+    /** A candidate's address on the target service, to listen to it before picking it (#31); null = no button. */
+    openTrack: ((Track) -> String?)? = null,
     extraActions: @Composable (busy: Boolean) -> Unit = {},
     /** The user's AI, when configured: looks at the candidates and says which one it is, or how else to search. */
     askAi: (suspend (List<Track>) -> AiClient.Suggestion)? = null,
@@ -206,6 +209,13 @@ fun MatchSearch(
                         busy = false
                     }
                     Unit
+                }
+                // Opened with the link alone, no app named: the phone's default for that address
+                // (YouTube Music's links can go to Metrolist or the like, if the user chose so).
+                openTrack?.invoke(h.track)?.let { url ->
+                    IconButton(onClick = {
+                        runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }) { Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = stringResource(R.string.search_listen)) }
                 }
                 if (primary) FilledTonalButton(enabled = !busy, onClick = act) { Text(pickLabel) }
                 else TextButton(enabled = !busy, onClick = act) { Text(pickLabel) }

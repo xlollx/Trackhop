@@ -179,6 +179,8 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
         val dstName = dst?.displayName ?: job.target.provider
         // Only when the service has a web search: Subsonic servers other than Navidrome, and Plex, have none.
         val webSearch: ((String) -> String?)? = remember(dst) { dst?.webSearch(ctx) }
+        // A candidate opened on the target service, in whatever app the phone opens its links with (#31).
+        val openTrack: ((Track) -> String?)? = remember(dst) { dst?.let { p -> { t: Track -> p.trackUrl(ctx, t.id) } } }
         // The user's AI, when they connected one for the generator: the same key helps here.
         val ai = remember { com.xlollx.songport.ai.AiClient.config(ctx)?.takeIf { it.complete } }
         val language = remember { java.util.Locale.getDefault().getDisplayLanguage(java.util.Locale.ENGLISH) }
@@ -243,7 +245,7 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                         onKeep = { engine.confirmMatch(reportId, review) },
                         onDiscard = { discarding = listOf(review) },
                         search = { q -> engine.searchOnTarget(job, q, review.source) },
-                        webSearchUrl = webSearch, askAi = askFor(review.source),
+                        webSearchUrl = webSearch, openTrack = openTrack, askAi = askFor(review.source),
                         onReplace = { chosen -> engine.replaceMatch(job, reportId, review, chosen) },
                         onError = ::fail,
                     )
@@ -260,7 +262,7 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                         expanded = !selecting && expanded == "u-" + track.id, onToggle = { tap("u-" + track.id) },
                         selected = ("u-" + track.id in selection).takeIf { selecting }, onLongPress = { pick("u-" + track.id) },
                         search = { q -> engine.searchOnTarget(job, q, track) },
-                        webSearchUrl = webSearch, askAi = askFor(track),
+                        webSearchUrl = webSearch, openTrack = openTrack, askAi = askFor(track),
                         onPick = { c -> engine.resolveManually(job, reportId, track, c) },
                         onIgnore = { engine.ignore(job, reportId, track) },
                         onError = ::fail,
@@ -331,6 +333,7 @@ fun ReviewRow(
     onReplace: suspend (Track) -> Unit,
     onError: (String) -> Unit,
     webSearchUrl: ((String) -> String?)? = null,
+    openTrack: ((Track) -> String?)? = null,
     askAi: (suspend (List<Track>) -> com.xlollx.songport.ai.AiClient.Suggestion)? = null,
     /** The match is wrong and no other is wanted (issue #26); null where nothing was written yet. */
     onDiscard: (() -> Unit)? = null,
@@ -360,7 +363,7 @@ fun ReviewRow(
             val initial = if (review.source.artists.isEmpty()) review.source.title else "${review.source.artistLine} - ${review.source.title}"
             MatchSearch(
                 initialQuery = initial, targetName = dstName, pickLabel = stringResource(R.string.review_use_this),
-                search = search, onPick = onReplace, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, askAi = askAi,
+                search = search, onPick = onReplace, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
                 extraActions = { TextButton(onClick = { changing = false }) { Text(stringResource(R.string.cancel)) } },
             )
         }
@@ -380,6 +383,7 @@ private fun UnmatchedRow(
     onIgnore: () -> Unit,
     onError: (String) -> Unit,
     webSearchUrl: ((String) -> String?)? = null,
+    openTrack: ((Track) -> String?)? = null,
     askAi: (suspend (List<Track>) -> com.xlollx.songport.ai.AiClient.Suggestion)? = null,
     selected: Boolean? = null,
     onLongPress: (() -> Unit)? = null,
@@ -408,7 +412,7 @@ private fun UnmatchedRow(
             initialQuery = if (track.artists.isEmpty()) track.title else "${track.artistLine} - ${track.title}",
             targetName = dstName,
             pickLabel = stringResource(R.string.unmatched_add),
-            search = search, onPick = onPick, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, askAi = askAi,
+            search = search, onPick = onPick, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
             extraActions = { busy -> TextButton(enabled = !busy, onClick = onIgnore) { Text(stringResource(R.string.unmatched_ignore)) } },
         )
     }

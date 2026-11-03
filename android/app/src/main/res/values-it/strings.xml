@@ -1349,4 +1349,5 @@
     <string name="timing_at">%1$s alle %2$s</string>
     <string name="timing_at_label">Alle %1$s</string>
     <string name="timing_days_label">Solo in questi giorni (facoltativo)</string>
+    <string name="search_listen">Ascoltalo</string>
 </resources>
