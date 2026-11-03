@@ -1,0 +1,1 @@
+Poprawione: suwak harmonogramu pomijał niektóre wartości (co 6 godzin, codziennie).

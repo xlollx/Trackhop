@@ -1,0 +1,1 @@
+Düzeltildi: zamanlama kaydırıcısı bazı adımları atlıyordu (6 saatte bir, her gün).

@@ -1,0 +1,1 @@
+Behoben: Der Zeitplan-Regler übersprang einige Stufen (alle 6 Stunden, täglich).

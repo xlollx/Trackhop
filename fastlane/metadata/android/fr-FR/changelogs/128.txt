@@ -1,0 +1,1 @@
+Corrigé : le curseur de planification sautait certaines valeurs (toutes les 6 heures, chaque jour).

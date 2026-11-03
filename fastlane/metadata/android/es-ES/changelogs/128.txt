@@ -1,0 +1,1 @@
+Corregido: el control de frecuencia se saltaba algunos valores (cada 6 horas, a diario).

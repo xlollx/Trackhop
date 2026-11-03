@@ -480,7 +480,7 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
             style = MaterialTheme.typography.titleMedium)
         Slider(
             value = index.toFloat(),
-            onValueChange = { onEvery(steps[it.toInt().coerceIn(0, steps.size - 1)]) },
+            onValueChange = { onEvery(steps[kotlin.math.round(it).toInt().coerceIn(0, steps.size - 1)]) },
             valueRange = 0f..(steps.size - 1).toFloat(),
             steps = steps.size - 2,
             enabled = days.isEmpty(),

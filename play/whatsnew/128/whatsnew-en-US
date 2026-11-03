@@ -1,0 +1,1 @@
+Fixed: the schedule slider skipped some steps (every 6 hours, daily).
