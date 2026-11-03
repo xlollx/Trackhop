@@ -247,7 +247,13 @@ class MemoryService(override val serviceId: String) : MusicProvider {
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) {}
     override fun disconnect(ctx: Env) {}
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = lists.map { (id, t) -> Playlist(id, id, t.size) }
+    /** Playlist names a test sets (a source that renames itself); the id otherwise. */
+    val names = HashMap<String, String>()
+    val renames = ArrayList<Pair<String, String>>()
+    override suspend fun playlists(ctx: Env): List<Playlist> = lists.map { (id, t) -> Playlist(id, names[id] ?: id, t.size) }
+    override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = Playlist(playlistId, names[playlistId] ?: playlistId)
+    override val canCreatePlaylists: Boolean get() = true
+    override suspend fun renamePlaylist(ctx: Env, playlistId: String, name: String) { names[playlistId] = name; renames += playlistId to name }
     /** Thrown by [tracks] when set: a service that fails the whole run. */
     var failure: Exception? = null
     /** Sizes the next reads stop at, one per read: a listing the service sends in part. */

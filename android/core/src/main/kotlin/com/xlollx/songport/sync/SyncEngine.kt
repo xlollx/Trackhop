@@ -203,6 +203,34 @@ class SyncEngine(
      * preview ([FileStore.confirmRemovals]): the next run started by hand then removes them, provided
      * it removes nothing the user did not see. A scheduled run ([unattended]) never does.
      */
+    /**
+     * A source that renames itself (a Spotify daylist gets a new title every few hours, issue #32):
+     * the target takes the new name when it still carries the source's old one, i.e. the user has
+     * not given it a name of their own; so does the sync, when it is named after the source. A
+     * target renamed by the user keeps its name. Never fails the run: a rename refused is only logged.
+     */
+    private suspend fun followSourceName(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
+        if (MusicProvider.isLibrary(srcId) || MusicProvider.isLibrary(targetId)) return
+        val old = job.source.playlistName.trim()
+        if (old.isEmpty()) return
+        val now = runCatching { src.playlistInfo(env, srcId).name.trim() }.getOrNull()
+            ?.takeIf { it.isNotEmpty() && it != srcId } ?: return
+        if (now == old) return
+        val latest = store.job(job.id) ?: job
+        var updated = latest.copy(source = latest.source.copy(playlistName = now))
+        if (latest.name.trim() == old) updated = updated.copy(name = now)
+        if (dst.canRenamePlaylists) {
+            val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
+                ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()
+            if (current == old) {
+                runCatching { dst.renamePlaylist(env, targetId, now) }
+                    .onSuccess { updated = updated.copy(target = updated.target.copy(playlistName = now)); env.log("engine", "${job.name}: the source is now \"$now\", the target follows") }
+                    .onFailure { env.log("engine", "${job.name}: target not renamed: ${it.message?.take(120)}") }
+            }
+        }
+        store.upsertJob(updated)
+    }
+
     suspend fun plan(job: SyncJob, onProgress: (Progress) -> Unit = {}, createTarget: Boolean = true, unattended: Boolean = false, interactive: Boolean = false): SyncPlan {
         val (src, dst) = providers(job)
         val srcPlaylistId = job.source.playlistId ?: throw ProviderException("No source playlist selected")
@@ -253,6 +281,8 @@ class SyncEngine(
             if (dst.canSetCover && cover != null) runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, created.id, it) } }
                 .onFailure { env.log("engine", "cover not set: ${it.message?.take(120)}") }
         }
+
+        if (!targetCreated && createTarget && !interactive) followSourceName(job, src, srcPlaylistId, dst, targetId)
 
         if (dst.serviceId == LocalFilesProvider.serviceId) notes += str("note_file_target")
 
