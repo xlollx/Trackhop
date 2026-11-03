@@ -42,11 +42,11 @@ class RemovalSafetyTest {
 
     @After fun tearDown() { Providers.testDoubles = emptyList() }
 
-    private fun job(mirror: Boolean = true, linked: String? = null): SyncJob =
+    private fun job(mirror: Boolean = true, linked: String? = null, follows: Boolean = false): SyncJob =
         SyncJob(
             id = "job-" + System.nanoTime(), name = "test",
             source = PlaylistRef("msrc", "p", "p"), target = PlaylistRef("mdst", "t", "t"),
-            mirrorRemovals = mirror, linkedJobId = linked,
+            mirrorRemovals = mirror, linkedJobId = linked, followsChanges = follows,
         ).also { env.store.upsertJob(it) }
 
     /** The source lists 2 of the target's 20 tracks: 18 removals, held back by the cap. */
@@ -140,6 +140,18 @@ class RemovalSafetyTest {
         dst.lists["t"]!!.removeAll { it.id == "dx18" }
         val r = engine.run(j)
         assertEquals(17, r.removed)
+    }
+
+    /** A daylist renews itself: with "changes by itself" its turnover goes through, scheduled runs included. */
+    @Test fun aSourceThatChangesByItselfIsFollowedWithoutConfirmation() = runBlocking {
+        largeRemoval()
+        val j = job(follows = true)
+        val r = engine.run(j, unattended = true)
+        assertEquals(r.notes.toString(), 18, r.removed)
+        assertEquals(0, r.heldBack)
+        assertEquals(2, dst.lists["t"]!!.size)
+        largeRemoval()
+        assertTrue(!engine.plan(j, createTarget = false, interactive = true).removalsNeedConfirmation)
     }
 
     @Test fun aScheduledRunKeepsTheCapAndLeavesTheConfirmation() = runBlocking {

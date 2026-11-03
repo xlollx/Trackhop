@@ -1,0 +1,1 @@
+새 기능: '삭제 반영' 옆에 '스스로 바뀌는 플레이리스트'. Spotify daylist, Discover Weekly, Release Radar는 거의 모든 곡이 바뀌어도 확인 없이 매번 새 버전이 됩니다.

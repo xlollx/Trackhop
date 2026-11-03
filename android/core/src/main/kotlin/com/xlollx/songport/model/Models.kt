@@ -82,6 +82,12 @@ data class SyncJob(
     val target: PlaylistRef,
     val schedule: Schedule = Schedule.MANUAL,
     val mirrorRemovals: Boolean = false,
+    /**
+     * The source replaces most of its tracks by itself (a Spotify daylist, Discover Weekly, Release
+     * Radar): with [mirrorRemovals], large removals are expected and go through on scheduled runs too,
+     * instead of waiting for a confirmation in the preview.
+     */
+    val followsChanges: Boolean = false,
     val wifiOnly: Boolean = false,
     val enabled: Boolean = true,
     val lastRunEpoch: Long = 0,

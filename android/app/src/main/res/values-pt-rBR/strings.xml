@@ -1350,4 +1350,6 @@
     <string name="whats_new_17_tiktok_body">Compartilhe um vídeo do TikTok com o Trackhop: ele lê qual música toca nele e a adiciona à sua playlist.</string>
     <string name="provider_note_emby">Seu servidor Emby. Sem cadastro, sem cota. Os favoritos contam como músicas curtidas.</string>
     <string name="login_hint_emby">Digite o endereço do seu servidor Emby (por exemplo https://emby.example.com), seu usuário e sua senha.</string>
+    <string name="editor_follows">Playlist que muda sozinha</string>
+    <string name="editor_follows_desc">Para um daylist, Descobertas da Semana ou Radar de Novidades: o destino vira a nova versão da origem a cada vez, mesmo que quase todas as músicas mudem, sem confirmação.</string>
 </resources>

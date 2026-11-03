@@ -8,6 +8,8 @@ the Docker image carried the app's version.
 ## Unreleased
 
 - Emby (beta): your Emby server as a source and a target, like Jellyfin (playlists, favourites).
+- "The source changes by itself" next to Mirror removals: for a daylist or Discover Weekly, big removals go through with no confirmation.
+- A source playlist's description is copied as plain text (a Spotify daylist's is HTML, which YouTube refused).
 
 ## 1.1.0
 

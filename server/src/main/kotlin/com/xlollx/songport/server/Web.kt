@@ -548,7 +548,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
                         val color = r.form["color"]?.takeIf { it in Html.JOB_COLORS }
-                        val saved = job.copy(name = name, schedule = s, mirrorRemovals = r.form["mirror"] == "on", color = color)
+                        val saved = job.copy(name = name, schedule = s, mirrorRemovals = r.form["mirror"] == "on", followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on", color = color)
                         val warning = conflictWarning(saved)
                         env.store.upsertJob(saved)
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
@@ -624,6 +624,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>Name of the sync (optional)</label><input type="text" name="name">
 <label>Schedule</label><select name="schedule">$schedules</select>
 <label class="check"><input type="checkbox" name="mirror"> Mirror removals (tracks removed from the source are removed from the destination)</label>
+<label class="check"><input type="checkbox" name="follows"> The source changes by itself (a daylist, Discover Weekly): with mirror removals, big removals need no confirmation</label>
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -660,6 +661,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
             mirrorRemovals = r.form["mirror"] == "on",
+            followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on",
         )
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
@@ -689,7 +691,8 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """<label>Schedule</label><select name="schedule">$schedules</select>
-<label class="check"><input type="checkbox" name="mirror"${if (job.mirrorRemovals) " checked" else ""}> Mirror removals</label>"""}
+<label class="check"><input type="checkbox" name="mirror"${if (job.mirrorRemovals) " checked" else ""}> Mirror removals</label>
+<label class="check"><input type="checkbox" name="follows"${if (job.followsChanges) " checked" else ""}> The source changes by itself (a daylist, Discover Weekly): big removals need no confirmation</label>"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}</div>
 <p><button class="secondary">Save</button></p></form>""",
         )

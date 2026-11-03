@@ -1,0 +1,1 @@
+Nouveau : « Playlist qui change toute seule », à côté de Refléter les suppressions. Pour le daylist de Spotify, Discover Weekly ou Release Radar, la destination devient à chaque fois la nouvelle version, même si presque tout change, sans confirmation.

@@ -1320,4 +1320,6 @@
     <string name="whats_new_17_tiktok_body">将 TikTok 视频分享给 Trackhop：它会读出视频中播放的歌曲并添加到你的歌单。</string>
     <string name="provider_note_emby">你自己的 Emby 服务器。无需注册，没有配额。收藏的歌曲视为喜欢的歌曲。</string>
     <string name="login_hint_emby">输入你的 Emby 服务器地址（例如 https://emby.example.com）、用户名和密码。</string>
+    <string name="editor_follows">会自动变化的歌单</string>
+    <string name="editor_follows_desc">适用于 daylist、Discover Weekly 或 Release Radar：即使几乎所有歌曲都变了，目标每次都会变成源歌单的新版本，无需确认。</string>
 </resources>

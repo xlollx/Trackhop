@@ -1342,4 +1342,6 @@
     <string name="whats_new_17_tiktok_body">Share a TikTok video to Trackhop: it reads which song plays in it and adds it to your playlist.</string>
     <string name="provider_note_emby">Your Emby server. No registration, no quota. Favourites count as liked songs.</string>
     <string name="login_hint_emby">Enter the address of your Emby server (for example https://emby.example.com), your username and password.</string>
+    <string name="editor_follows">Playlist that changes by itself</string>
+    <string name="editor_follows_desc">For a daylist, Discover Weekly or Release Radar: the target becomes the source\'s new version each time, even when most tracks change, with no confirmation.</string>
 </resources>

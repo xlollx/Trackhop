@@ -803,6 +803,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var schedule by rememberSaveable { mutableStateOf(if (isNew && job.shazam) Schedule.HOURLY else job.schedule) }
     var mirror by rememberSaveable { mutableStateOf(job.mirrorRemovals) }
     var keepOrder by rememberSaveable { mutableStateOf(job.keepOrder) }
+    var follows by rememberSaveable { mutableStateOf(job.followsChanges) }
     var wifiOnly by rememberSaveable { mutableStateOf(job.wifiOnly) }
     var enabled by rememberSaveable { mutableStateOf(job.enabled) }
     var color by rememberSaveable { mutableStateOf(job.color) }
@@ -937,7 +938,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             source = source,
             target = target,
             schedule = schedule, mirrorRemovals = mirror, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-            keepOrder = keepOrder, color = color,
+            keepOrder = keepOrder, color = color, followsChanges = mirror && follows,
             shazam = shazamMode && !linkMode,
         )
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
@@ -1130,6 +1131,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                         )
+                    }
+                    // A source that renews itself (daylist, Discover Weekly): its big turnovers are not mistakes.
+                    if (mirror && !bidirectional) {
+                        SwitchRow(stringResource(R.string.editor_follows), stringResource(R.string.editor_follows_desc), follows) { follows = it }
                     }
                     if (Providers.byId(dstProvider)?.canReorder == true) {
                         SwitchRow(stringResource(R.string.editor_keep_order), stringResource(R.string.editor_keep_order_desc), keepOrder, help = { HelpButton(Helps.keepOrder) }) { keepOrder = it }

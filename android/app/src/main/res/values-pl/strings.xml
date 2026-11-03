@@ -1388,4 +1388,6 @@
     <string name="whats_new_17_tiktok_body">Udostępnij film z TikToka w Trackhop: odczyta, jaki utwór w nim gra, i doda go do playlisty.</string>
     <string name="provider_note_emby">Twój serwer Emby. Bez rejestracji, bez limitów. Ulubione liczą się jako polubione utwory.</string>
     <string name="login_hint_emby">Podaj adres swojego serwera Emby (na przykład https://emby.example.com), nazwę użytkownika i hasło.</string>
+    <string name="editor_follows">Playlista, która zmienia się sama</string>
+    <string name="editor_follows_desc">Dla daylist, Discover Weekly czy Release Radar: cel za każdym razem staje się nową wersją źródła, nawet gdy zmienia się prawie każdy utwór, bez potwierdzania.</string>
 </resources>

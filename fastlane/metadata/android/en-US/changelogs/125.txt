@@ -1,0 +1,1 @@
+New: "Playlist that changes by itself", next to Mirror removals. For a Spotify daylist, Discover Weekly or Release Radar the target becomes the new version every time, even when almost every track changes, with no confirmation.

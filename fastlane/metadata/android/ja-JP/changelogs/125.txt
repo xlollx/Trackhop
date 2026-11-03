@@ -1,0 +1,1 @@
+新機能：「削除も反映」の隣に「自動で変わるプレイリスト」。Spotify の daylist、Discover Weekly、Release Radar などは、ほとんどの曲が入れ替わっても確認なしで毎回最新版にします。

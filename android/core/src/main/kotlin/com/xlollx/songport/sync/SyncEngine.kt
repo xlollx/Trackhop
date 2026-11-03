@@ -386,8 +386,8 @@ class SyncEngine(
                 !dst.canRemoveTracks -> if (extra.isNotEmpty()) notes += str("note_no_removals", dst.displayName, extra.size)
                 // Origine vuota: quasi certamente un errore, non svuotiamo la destinazione.
                 srcTracks.isEmpty() -> notes += str("error_source_empty")
-                interactive -> { toRemove = extra; needsConfirmation = large }
-                !large -> toRemove = extra
+                interactive -> { toRemove = extra; needsConfirmation = large && !job.followsChanges }
+                !large || job.followsChanges -> toRemove = extra
                 else -> {
                     // A confirmation serves one run started by hand, used or not; a scheduled run leaves it.
                     val confirmed = if (unattended) null else store.takeRemovalConfirmation(job.id)

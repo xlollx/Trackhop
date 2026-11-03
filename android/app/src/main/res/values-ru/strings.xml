@@ -1386,4 +1386,6 @@
     <string name="whats_new_17_tiktok_body">Поделитесь видео из TikTok с Trackhop: он узнает, какая песня в нём звучит, и добавит её в плейлист.</string>
     <string name="provider_note_emby">Ваш сервер Emby. Без регистрации и без квот. Избранное считается любимыми треками.</string>
     <string name="login_hint_emby">Введите адрес вашего сервера Emby (например, https://emby.example.com), имя пользователя и пароль.</string>
+    <string name="editor_follows">Плейлист, который меняется сам</string>
+    <string name="editor_follows_desc">Для daylist, Discover Weekly или Release Radar: плейлист назначения каждый раз становится новой версией источника, даже если меняются почти все треки, без подтверждения.</string>
 </resources>

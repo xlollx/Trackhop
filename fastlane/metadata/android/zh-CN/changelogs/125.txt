@@ -1,0 +1,1 @@
+新功能：在“同步删除”旁新增“会自动变化的歌单”。对于 Spotify 的 daylist、Discover Weekly 或 Release Radar，即使几乎所有歌曲都变了，目标每次都会变成新版本，无需确认。

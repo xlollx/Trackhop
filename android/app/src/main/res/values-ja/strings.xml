@@ -1320,4 +1320,6 @@
     <string name="whats_new_17_tiktok_body">TikTok の動画を Trackhop に共有すると、流れている曲を読み取ってプレイリストに追加します。</string>
     <string name="provider_note_emby">あなたの Emby サーバー。登録不要、利用制限なし。お気に入りは「いいね」した曲として扱われます。</string>
     <string name="login_hint_emby">Emby サーバーのアドレス（例: https://emby.example.com）、ユーザー名、パスワードを入力してください。</string>
+    <string name="editor_follows">自動で変わるプレイリスト</string>
+    <string name="editor_follows_desc">daylist、Discover Weekly、Release Radar など：ほとんどの曲が入れ替わっても、確認なしで毎回コピー先を元の最新版にします。</string>
 </resources>
