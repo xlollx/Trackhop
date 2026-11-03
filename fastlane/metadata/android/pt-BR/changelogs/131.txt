@@ -1,0 +1,1 @@
+Corrigido: o número de músicas da sync conta a playlist sincronizada (contava a origem): um daylist sem Espelhar remoções agora mostra 93 depois de +43 sobre 50.

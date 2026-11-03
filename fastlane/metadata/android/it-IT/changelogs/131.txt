@@ -1,0 +1,1 @@
+Corretto: il numero "brani" della card conta la playlist sincronizzata (contava la sorgente): una daylist sincronizzata senza Rimozioni a specchio ora segna 93 dopo +43 su 50.

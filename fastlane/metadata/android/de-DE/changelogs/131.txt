@@ -1,0 +1,1 @@
+Behoben: Die Titelzahl einer Sync zählt die synchronisierte Playlist (sie zählte die Quelle): Eine Daylist ohne gespiegeltes Entfernen zeigt nach +43 auf 50 jetzt 93.

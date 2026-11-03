@@ -1,0 +1,1 @@
+Poprawiono: liczba utworów synchronizacji liczy synchronizowaną playlistę (liczyła źródło): daylista bez lustrzanego usuwania pokazuje teraz 93 po +43 do 50.

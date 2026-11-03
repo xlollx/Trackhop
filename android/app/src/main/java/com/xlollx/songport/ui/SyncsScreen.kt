@@ -1556,7 +1556,11 @@ private fun RunStats(
         Stat("+${r.added}", stringResource(R.string.stat_added), Modifier.weight(1f), brush, ink ?: MaterialTheme.colorScheme.primary, onAdded.takeIf { r.added > 0 })
         Stat("−${r.removed}", stringResource(R.string.stat_removed), Modifier.weight(1f), brush, onClick = onRemoved.takeIf { r.removed > 0 })
         Stat("${r.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), brush, if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
-        Stat("${r.sourceCount}", stringResource(R.string.stat_tracks), Modifier.weight(1f), brush, onClick = onTracks)
+        // The tile opens the synced playlist, so it counts that one: what it held before the run, plus
+        // and minus this run's changes. A source that replaces its songs (a daylist) without Mirror
+        // removals leaves the target larger than the source: +43 on 50 reads 93, not 50.
+        val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
+        Stat("$size", stringResource(R.string.stat_tracks), Modifier.weight(1f), brush, onClick = onTracks)
     }
     if (history.size >= 2) {
         Spacer(Modifier.height(10.dp))

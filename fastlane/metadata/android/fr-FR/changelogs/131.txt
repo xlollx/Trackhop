@@ -1,0 +1,1 @@
+Corrigé : le nombre de titres d'une synchro compte la playlist synchronisée (il comptait la source) : une daylist sans suppressions en miroir affiche maintenant 93 après +43 sur 50.

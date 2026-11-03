@@ -1,0 +1,1 @@
+Düzeltildi: bir eşitlemenin şarkı sayısı eşitlenen listeyi sayar (kaynağı sayıyordu): ayna silme olmadan eşitlenen bir daylist artık 50'ye +43'ten sonra 93 gösterir.

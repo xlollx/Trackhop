@@ -1,0 +1,1 @@
+Fixed: a sync's "tracks" figure counts the synced playlist (it counted the source): a daylist synced without Mirror removals now reads 93 after +43 on 50.

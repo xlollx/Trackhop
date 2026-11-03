@@ -1,0 +1,1 @@
+Corregido: la cifra de canciones de una sync cuenta la playlist sincronizada (contaba el origen): un daylist sin Reflejar eliminaciones ahora marca 93 tras +43 sobre 50.
