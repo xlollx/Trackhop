@@ -87,6 +87,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                         Diagnostics.log(ctx, "sync", "no network for ${job.name}: will retry")
                     }
                     SupportPrompt.offer(store, report)
+                    com.xlollx.songport.automation.Automation.announce(ctx, report)
                     val notable = report.added > 0 || report.removed > 0 || !report.ok
                     if (!networkGone && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok) && notable) {
                         Notifications.syncResult(ctx, report)

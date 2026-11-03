@@ -18,6 +18,8 @@ data class Settings(
     val notifyOnSync: Boolean = true,
     /** Strumenti per chi sviluppa o segnala: log delle connessioni, rapporto tecnico, cattura traffico. */
     val developerOptions: Boolean = false,
+    /** Commands from automation apps (Tasker, MacroDroid…) and the end-of-sync event: off until turned on. */
+    val automation: Boolean = false,
     /** Chiedere al catalogo Deezer l'ISRC dei brani che non lo portano (vedi IsrcOracle). */
     val isrcLookup: Boolean = true,
     /** Client ID inseriti dall'utente, per servizio (vuoto = usa quello della build). */

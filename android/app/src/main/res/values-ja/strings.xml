@@ -1379,4 +1379,10 @@
     <string name="charts_unavailable">%1$s がチャートを返しませんでした（%2$d）。後でもう一度お試しください。</string>
     <string name="whats_new_110_charts_title">チャートをソースに</string>
     <string name="whats_new_110_charts_body">任意の国の Apple Music トップ100 や Deezer のチャートにプレイリストを合わせ続けます。新しい同期のソースに「チャート」を選んでください。</string>
+    <string name="settings_automation">オートメーション（Tasker、MacroDroid など）</string>
+    <string name="settings_automation_summary">オートメーションアプリから同期を実行し、終了を受け取れるようにします。端末上のどのアプリでもこれらのコマンドを送れるため、オンにするまではオフです。</string>
+    <string name="settings_automation_how">ブロードキャストインテントを送信：com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 名前) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error)。アプリアイコンを長押しすると最近の同期へのショートカットがあります。</string>
+    <string name="automation_shortcut_run">%1$s を実行</string>
+    <string name="whats_new_110_automation_title">Tasker・MacroDroid とショートカット</string>
+    <string name="whats_new_110_automation_body">オートメーションアプリから同期を開始し、終了に反応できます（設定 › オートメーション、オンにするまでオフ）。アイコンを長押しで最近の同期へのショートカット。</string>
 </resources>

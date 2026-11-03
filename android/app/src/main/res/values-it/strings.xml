@@ -1402,4 +1402,10 @@
     <string name="charts_unavailable">%1$s non ha restituito la classifica (%2$d): riprova più tardi.</string>
     <string name="whats_new_110_charts_title">Classifiche come sorgente</string>
     <string name="whats_new_110_charts_body">Tieni una tua playlist al passo con la Top 100 di Apple Music di qualsiasi Paese o con le classifiche Deezer: scegli “Classifiche” come sorgente di una nuova sync.</string>
+    <string name="settings_automation">Automazioni (Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">Permette alle app di automazione di avviare le tue sync e di sapere quando una finisce. Qualsiasi app del telefono può mandare questi comandi, quindi resta spento finché non lo attivi.</string>
+    <string name="settings_automation_how">Invia un intent broadcast: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = nome) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Tieni premuta l\'icona dell\'app per le scorciatoie alle ultime sync.</string>
+    <string name="automation_shortcut_run">Avvia %1$s</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid e scorciatoie</string>
+    <string name="whats_new_110_automation_body">Avvia le sync dalle app di automazione e reagisci quando una finisce (Impostazioni › Automazioni, spento finché non lo attivi), e tieni premuta l\'icona per le scorciatoie alle ultime sync.</string>
 </resources>

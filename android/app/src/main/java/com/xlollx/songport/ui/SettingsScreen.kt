@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicOff
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
@@ -201,6 +202,14 @@ fun SettingsScreen(
         PrefSection(stringResource(R.string.settings_section_notifications), accent = JobColor.ORANGE) {
             PrefSwitch(Icons.Filled.Notifications, stringResource(R.string.settings_notifications), stringResource(R.string.settings_notifications_summary), settings.notifyOnSync, help = { HelpButton(Helps.notifications) }) { v ->
                 store.updateSettings { it.copy(notifyOnSync = v) }
+            }
+            // Tasker, MacroDroid…: the commands and the end-of-sync event, off until turned on.
+            PrefSwitch(Icons.Filled.Bolt, stringResource(R.string.settings_automation), stringResource(R.string.settings_automation_summary), settings.automation) { v ->
+                store.updateSettings { it.copy(automation = v) }
+            }
+            if (settings.automation) {
+                Text(stringResource(R.string.settings_automation_how), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 56.dp, end = 16.dp, bottom = 8.dp))
             }
             PrefSwitch(Icons.Filled.MusicOff, stringResource(R.string.settings_unplayable), stringResource(R.string.settings_unplayable_summary), settings.unplayableCheck) { v ->
                 store.updateSettings { it.copy(unplayableCheck = v) }; Scheduler.applyUnplayable(ctx)

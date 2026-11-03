@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.MusicVideo
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.automirrored.filled.ManageSearch
 import androidx.compose.material.icons.filled.Speed
@@ -101,6 +102,7 @@ object WhatsNew {
                 "1.10",
                 listOfNotNull(
                     Item(Icons.Filled.BarChart, JobColor.ORANGE, R.string.whats_new_110_charts_title, R.string.whats_new_110_charts_body),
+                    Item(Icons.Filled.Bolt, JobColor.TEAL, R.string.whats_new_110_automation_title, R.string.whats_new_110_automation_body),
                     // Where TikTok is read and a song can be recognised: built in, or on Google Play through a connector plugin.
                     Item(Icons.Filled.MusicVideo, JobColor.PINK, R.string.whats_new_110_tiktok_title, R.string.whats_new_110_tiktok_body,
                         shown = { com.xlollx.songport.sync.TikTokShare.enabled && com.xlollx.songport.sync.TikTokShare.recognizer != null }),

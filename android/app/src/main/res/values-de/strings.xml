@@ -1402,4 +1402,10 @@
     <string name="charts_unavailable">%1$s hat die Charts nicht geliefert (%2$d): versuche es später erneut.</string>
     <string name="whats_new_110_charts_title">Charts als Quelle</string>
     <string name="whats_new_110_charts_body">Halte eine deiner Playlists im Takt mit den Top 100 von Apple Music eines Landes oder den Deezer-Charts: wähle „Charts“ als Quelle einer neuen Sync.</string>
+    <string name="settings_automation">Automatisierung (Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">Lässt Automatisierungs-Apps deine Syncs starten und das Ende einer Sync erfahren. Jede App auf dem Handy kann diese Befehle senden, daher ist es aus, bis du es einschaltest.</string>
+    <string name="settings_automation_how">Sende einen Broadcast-Intent: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = Name) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Lange auf das App-Symbol drücken für Verknüpfungen zu deinen letzten Syncs.</string>
+    <string name="automation_shortcut_run">%1$s starten</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid und Verknüpfungen</string>
+    <string name="whats_new_110_automation_body">Starte Syncs aus Automatisierungs-Apps und reagiere, wenn eine endet (Einstellungen › Automatisierung, aus bis du es einschaltest), und drücke lange aufs Symbol für Verknüpfungen zu den letzten Syncs.</string>
 </resources>

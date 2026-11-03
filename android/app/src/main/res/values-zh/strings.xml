@@ -1379,4 +1379,10 @@
     <string name="charts_unavailable">%1$s 未返回排行榜（%2$d）：请稍后再试。</string>
     <string name="whats_new_110_charts_title">排行榜作为来源</string>
     <string name="whats_new_110_charts_body">让你的歌单跟上任意国家的 Apple Music Top 100 或 Deezer 排行榜：在新同步中选择“排行榜”作为来源。</string>
+    <string name="settings_automation">自动化（Tasker、MacroDroid…）</string>
+    <string name="settings_automation_summary">允许自动化应用运行你的同步，并在同步结束时收到通知。手机上的任何应用都能发送这些命令，所以在你开启前保持关闭。</string>
+    <string name="settings_automation_how">发送广播 Intent：com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 名称) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error)。长按应用图标可使用最近同步的快捷方式。</string>
+    <string name="automation_shortcut_run">运行 %1$s</string>
+    <string name="whats_new_110_automation_title">Tasker、MacroDroid 与快捷方式</string>
+    <string name="whats_new_110_automation_body">从自动化应用启动同步，并在同步结束时做出响应（设置 › 自动化，开启前保持关闭）；长按图标可使用最近同步的快捷方式。</string>
 </resources>

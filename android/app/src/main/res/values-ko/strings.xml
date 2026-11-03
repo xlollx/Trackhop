@@ -1378,4 +1378,10 @@
     <string name="charts_unavailable">%1$s에서 차트를 받지 못했습니다(%2$d). 나중에 다시 시도하세요.</string>
     <string name="whats_new_110_charts_title">차트를 소스로</string>
     <string name="whats_new_110_charts_body">어느 나라든 Apple Music Top 100이나 Deezer 차트에 맞춰 내 플레이리스트를 유지하세요. 새 동기화의 소스로 "차트"를 선택하세요.</string>
+    <string name="settings_automation">자동화(Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">자동화 앱이 동기화를 실행하고 끝났을 때 알 수 있게 합니다. 휴대폰의 어떤 앱이든 이 명령을 보낼 수 있으므로 켜기 전까지는 꺼져 있습니다.</string>
+    <string name="settings_automation_how">브로드캐스트 인텐트 보내기: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 이름) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). 앱 아이콘을 길게 누르면 최근 동기화 바로가기가 있습니다.</string>
+    <string name="automation_shortcut_run">%1$s 실행</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid 및 바로가기</string>
+    <string name="whats_new_110_automation_body">자동화 앱에서 동기화를 시작하고 끝나면 반응하세요(설정 › 자동화, 켜기 전까지 꺼짐). 아이콘을 길게 누르면 최근 동기화 바로가기가 있습니다.</string>
 </resources>

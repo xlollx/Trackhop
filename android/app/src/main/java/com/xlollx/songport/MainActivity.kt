@@ -112,6 +112,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         com.xlollx.songport.widget.Widgets.refresh(this)
+        com.xlollx.songport.automation.Automation.updateShortcuts(this)
     }
 
     override fun attachBaseContext(newBase: android.content.Context) {
@@ -199,6 +200,17 @@ class MainActivity : ComponentActivity() {
         when (i?.action) {
             ACTION_SYNC_ALL -> { Scheduler.runNow(this, SyncWorker.ALL); messages.value = getString(R.string.running); i.action = null }
             ACTION_NEW_SYNC -> { newSyncRequests.value = true; i.action = null }
+            // A launcher shortcut of one sync: run it, and show its card.
+            ACTION_RUN_SYNC -> {
+                i.getStringExtra(com.xlollx.songport.automation.Automation.EXTRA_SYNC)?.let { id ->
+                    if (com.xlollx.songport.data.Store.get(this).job(id) != null) {
+                        Scheduler.runNow(this, id)
+                        messages.value = getString(R.string.running)
+                        com.xlollx.songport.ui.JobFocus.request.value = id; tabRequests.value = TAB_SYNCS
+                    }
+                }
+                i.action = null
+            }
         }
         if (i?.action == Intent.ACTION_SEND) {
             i.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText.value = it }
@@ -237,6 +249,7 @@ class MainActivity : ComponentActivity() {
         private val DARK_SCRIM = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
         const val ACTION_SYNC_ALL = "com.xlollx.songport.SYNC_ALL"
         const val ACTION_NEW_SYNC = "com.xlollx.songport.NEW_SYNC"
+        const val ACTION_RUN_SYNC = "com.xlollx.songport.RUN_SYNC"
         const val TAB_SYNCS = 0
         const val TAB_ACCOUNTS = 1
         const val TAB_TOOLS = 2

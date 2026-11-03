@@ -1448,4 +1448,10 @@
     <string name="charts_unavailable">%1$s не вернул чарт (%2$d): попробуйте позже.</string>
     <string name="whats_new_110_charts_title">Чарты как источник</string>
     <string name="whats_new_110_charts_body">Держите свой плейлист в такт с Топ-100 Apple Music любой страны или чартами Deezer: выберите «Чарты» источником новой синхронизации.</string>
+    <string name="settings_automation">Автоматизация (Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">Позволяет приложениям автоматизации запускать синхронизации и узнавать об их окончании. Любое приложение на телефоне может отправить эти команды, поэтому функция выключена, пока вы её не включите.</string>
+    <string name="settings_automation_how">Отправьте broadcast-интент: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = имя) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Долгое нажатие на значок приложения — ярлыки последних синхронизаций.</string>
+    <string name="automation_shortcut_run">Запустить %1$s</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid и ярлыки</string>
+    <string name="whats_new_110_automation_body">Запускайте синхронизации из приложений автоматизации и реагируйте на их окончание (Настройки › Автоматизация, выключено, пока не включите), а долгое нажатие на значок даёт ярлыки последних синхронизаций.</string>
 </resources>

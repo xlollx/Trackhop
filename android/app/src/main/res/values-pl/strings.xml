@@ -1450,4 +1450,10 @@
     <string name="charts_unavailable">%1$s nie zwrócił listy (%2$d): spróbuj później.</string>
     <string name="whats_new_110_charts_title">Listy przebojów jako źródło</string>
     <string name="whats_new_110_charts_body">Trzymaj swoją playlistę w zgodzie z Top 100 Apple Music dowolnego kraju lub listami Deezera: wybierz „Listy przebojów” jako źródło nowej synchronizacji.</string>
+    <string name="settings_automation">Automatyzacja (Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">Pozwala aplikacjom do automatyzacji uruchamiać synchronizacje i wiedzieć, kiedy się kończą. Każda aplikacja na telefonie może wysłać te polecenia, więc jest wyłączone, dopóki go nie włączysz.</string>
+    <string name="settings_automation_how">Wyślij intent broadcast: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = nazwa) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Przytrzymaj ikonę aplikacji, by mieć skróty do ostatnich synchronizacji.</string>
+    <string name="automation_shortcut_run">Uruchom %1$s</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid i skróty</string>
+    <string name="whats_new_110_automation_body">Uruchamiaj synchronizacje z aplikacji do automatyzacji i reaguj na ich koniec (Ustawienia › Automatyzacja, wyłączone, dopóki nie włączysz), a przytrzymaj ikonę, by mieć skróty do ostatnich synchronizacji.</string>
 </resources>

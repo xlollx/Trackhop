@@ -1410,4 +1410,10 @@
     <string name="charts_unavailable">%1$s no devolvió su lista (%2$d): inténtalo más tarde.</string>
     <string name="whats_new_110_charts_title">Listas como origen</string>
     <string name="whats_new_110_charts_body">Mantén una playlist tuya al ritmo del Top 100 de Apple Music de cualquier país o de las listas de Deezer: elige «Listas» como origen de una nueva sync.</string>
+    <string name="settings_automation">Automatización (Tasker, MacroDroid…)</string>
+    <string name="settings_automation_summary">Permite que las apps de automatización ejecuten tus syncs y sepan cuándo termina una. Cualquier app del teléfono puede enviar estos comandos, así que está desactivado hasta que lo actives.</string>
+    <string name="settings_automation_how">Envía un intent de difusión: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = nombre) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Mantén pulsado el icono de la app para accesos directos a tus últimas syncs.</string>
+    <string name="automation_shortcut_run">Ejecutar %1$s</string>
+    <string name="whats_new_110_automation_title">Tasker, MacroDroid y accesos directos</string>
+    <string name="whats_new_110_automation_body">Inicia syncs desde apps de automatización y reacciona cuando una termina (Ajustes › Automatización, desactivado hasta que lo actives), y mantén pulsado el icono para accesos a tus últimas syncs.</string>
 </resources>
