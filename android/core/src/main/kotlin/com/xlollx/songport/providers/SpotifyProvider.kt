@@ -296,7 +296,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     private suspend fun searchAlbums(ctx: Env, q: String): List<Track> {
-        val j = api(ctx, "GET", "$API/search?type=album&limit=5&q=${Http.enc(q)}")
+        val j = searchPace.paced { api(ctx, "GET", "$API/search?type=album&limit=5&q=${Http.enc(q)}") }
         return j["albums"]["items"].arr.mapNotNull { albumItem(it) }
     }
 
@@ -315,7 +315,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     private suspend fun searchQuery(ctx: Env, q: String): List<Track> {
-        val j = api(ctx, "GET", "$API/search?type=track&limit=5&q=${Http.enc(q)}")
+        val j = searchPace.paced { api(ctx, "GET", "$API/search?type=track&limit=5&q=${Http.enc(q)}") }
         return j["tracks"]["items"].arr.filter { it["id"].str != null }.map { toTrack(it) }
     }
 
@@ -331,11 +331,11 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
                 return r.ifEmpty { searchAlbums(ctx, listOfNotNull(artist, Matcher.searchTitle(track.title)).joinToString(" ")) }
             }
             Track.KIND_ARTIST -> {
-                val j = api(ctx, "GET", "$API/search?type=artist&limit=5&q=${Http.enc(track.title)}")
+                val j = searchPace.paced { api(ctx, "GET", "$API/search?type=artist&limit=5&q=${Http.enc(track.title)}") }
                 return j["artists"]["items"].arr.mapNotNull { artistItem(it) }
             }
             Track.KIND_PODCAST -> {
-                val j = api(ctx, "GET", "$API/search?type=show&limit=5&q=${Http.enc(track.title)}")
+                val j = searchPace.paced { api(ctx, "GET", "$API/search?type=show&limit=5&q=${Http.enc(track.title)}") }
                 return j["shows"]["items"].arr.mapNotNull { showItem(it) }
             }
         }
@@ -480,6 +480,12 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     companion object {
+        /**
+         * Searches spaced out, about three a second across every sync of the process: Spotify blocks
+         * an app for half an hour after a burst of them (issue #30), and a steady pace never gets
+         * there, so a first sync of a thousand songs ends sooner than with the blocks.
+         */
+        val searchPace = com.xlollx.songport.net.Pacer(350)
         const val SERVICE = "spotify"
         private const val API = "https://api.spotify.com/v1"
     }

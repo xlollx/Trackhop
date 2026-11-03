@@ -7,6 +7,7 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- Spotify searches go at a steady pace: a first sync of many songs into Spotify (from YouTube, with no ISRC) no longer runs into Spotify's half-hour blocks (issue #30).
 - Anghami: public playlists from a link, read-only, no account; and Anghami (web), unofficial and alpha: your playlists and liked songs, read and written, with the session of a browser signed in to Anghami.
 - A source that renames itself (a Spotify daylist) renames the target too, unless you gave the target a name of your own; a new cover is copied too, where the target takes covers (Spotify) (issue #32).
 - YouTube (Google API) Liked songs leave out Music videos that are not songs.
