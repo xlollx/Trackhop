@@ -16,6 +16,19 @@
   <link rel="icon" href="{{ '/assets/icon-96.png' | relative_url }}" type="image/png" sizes="96x96">
   <link rel="icon" href="{{ '/assets/icon-192.png' | relative_url }}" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}">
+  {%- if page.url == "/" %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trackhop","url":"https://trackhop.org/",
+   "description":"{{ site.description | escape }}","applicationCategory":"MultimediaApplication",
+   "operatingSystem":"Android 8.0+, Windows 10/11, macOS 11+, Linux, Docker",
+   "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},
+   "license":"https://www.gnu.org/licenses/agpl-3.0.html","isAccessibleForFree":true,
+   "image":"{{ '/store/icon512.png' | absolute_url }}","screenshot":"{{ '/store/screenshots.png' | absolute_url }}",
+   "softwareHelp":"https://trackhop.org/guide/","downloadUrl":"https://github.com/xlollx/Trackhop/releases",
+   "author":{"@type":"Person","name":"xlollx","url":"https://github.com/xlollx"},
+   "sameAs":["https://github.com/xlollx/Trackhop","https://f-droid.org/packages/com.xlollx.songport/","https://apps.microsoft.com/detail/9PFX74Q2XN9P","https://snapcraft.io/trackhop","https://hub.docker.com/r/xlollx/trackhop"]}
+  </script>
+  {%- endif %}
   <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 </head>
 <body>
@@ -47,6 +60,10 @@
       <a href="{{ '/guide/spotify-to-youtube-music' | relative_url }}">Spotify → YouTube Music</a>
       <a href="{{ '/guide/apple-music-to-spotify' | relative_url }}">Apple Music → Spotify</a>
       <a href="{{ '/guide/spotify-to-tidal' | relative_url }}">Spotify → TIDAL</a>
+      <a href="{{ '/guide/spotify-to-apple-music' | relative_url }}">Spotify → Apple Music</a>
+      <a href="{{ '/guide/youtube-music-to-spotify' | relative_url }}">YouTube Music → Spotify</a>
+      <a href="{{ '/guide/deezer-to-spotify' | relative_url }}">Deezer → Spotify</a>
+      <a href="{{ '/guide/amazon-music-to-spotify' | relative_url }}">Amazon Music → Spotify</a>
       <a href="{{ '/guide/spotify-to-navidrome-jellyfin' | relative_url }}">Spotify → Navidrome, Jellyfin, Plex</a>
       <a href="{{ '/guide/self-hosted-playlist-sync' | relative_url }}">Self-hosted playlist sync</a>
       <a href="{{ '/guide/export-playlist-csv' | relative_url }}">Export to CSV or M3U, backups</a>
@@ -60,6 +77,9 @@
       <h4>Compared with</h4>
       <a href="{{ '/guide/soundiiz-alternative' | relative_url }}">Soundiiz</a>
       <a href="{{ '/guide/tunemymusic-alternative' | relative_url }}">TuneMyMusic</a>
+      <h4>In italiano</h4>
+      <a href="{{ '/guide/trasferire-playlist' | relative_url }}">Trasferire playlist</a>
+      <a href="{{ '/guide/alternativa-soundiiz' | relative_url }}">Alternativa a Soundiiz</a>
       <h4>Desktop, server, automation</h4>
       <a href="{{ '/guide/desktop' | relative_url }}">Trackhop Desktop</a>
       <a href="{{ '/guide/docker' | relative_url }}">Docker server</a>

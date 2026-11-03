@@ -28,6 +28,10 @@ description (architecture, matching, services and their limits) stays in the
 - [Sync Spotify playlists to YouTube Music](spotify-to-youtube-music), and keep them in sync.
 - [Transfer Apple Music playlists to Spotify](apple-music-to-spotify), no Mac or iPhone needed.
 - [Move Spotify playlists to TIDAL](spotify-to-tidal), with exact ISRC matching.
+- [Transfer Spotify playlists to Apple Music](spotify-to-apple-music), and keep adding new songs.
+- [Transfer YouTube Music playlists to Spotify](youtube-music-to-spotify), on the phone or a computer.
+- [Transfer Deezer playlists to Spotify](deezer-to-spotify), favourites included.
+- [Transfer Amazon Music playlists to Spotify](amazon-music-to-spotify), or the other way round.
 - [Sync Spotify playlists to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin), from your own library.
 - [Export a playlist to CSV or M3U](export-playlist-csv), and back up all of them.
 - [Your Shazams in a playlist](shazam): every song you Shazam, on any service.
@@ -37,9 +41,12 @@ description (architecture, matching, services and their limits) stays in the
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.
 - [A free TuneMyMusic alternative](tunemymusic-alternative): transfers plus automatic sync, free and open source.
 
+**In italiano**
+- [Trasferire playlist tra Spotify, YouTube Music, Apple Music e Amazon Music](trasferire-playlist), gratis e sincronizzate.
+- [Alternativa gratuita a Soundiiz e TuneMyMusic](alternativa-soundiiz): niente account, niente limiti.
+
 **Maintaining it**
 - [Release process](release-process): version, changelogs, what CI does, F-Droid and Obtainium.
 - [Amazon Music capture](amazon-music-capture): what to do when Amazon changes its web player again.
-- [Getting the word out](getting-the-word-out): where Trackhop should be listed, and what is done.
 
 [Back to the Trackhop site](../)
