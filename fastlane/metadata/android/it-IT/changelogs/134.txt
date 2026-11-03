@@ -1,0 +1,1 @@
+"Novità" in Impostazioni › Info ora elenca le ultime tre versioni, ciascuna con il suo nome.

@@ -1,0 +1,1 @@
+Ayarlar › Hakkında'daki "Yenilikler" artık son üç sürümü, her birini kendi adıyla listeliyor.

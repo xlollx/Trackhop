@@ -1,0 +1,1 @@
+"Novedades" en Ajustes › Acerca de ahora muestra las tres últimas versiones, cada una con su nombre.

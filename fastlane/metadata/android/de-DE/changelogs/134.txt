@@ -1,0 +1,1 @@
+„Neuigkeiten“ unter Einstellungen › Info zeigt jetzt die letzten drei Versionen, jede unter ihrem Namen.

@@ -1,0 +1,1 @@
+"Novidades" em Configurações › Sobre agora mostra as três últimas versões, cada uma com seu nome.
