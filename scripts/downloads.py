@@ -42,11 +42,10 @@ def docker():
 
 
 def short(n):
-    if n < 1000:
+    """The same figure the site shows: rounded down to the hundred, with a "+" (8,053 -> "8,000+")."""
+    if n < 100:
         return str(n)
-    if n < 1_000_000:
-        return f"{n / 1000:.1f}".rstrip("0").rstrip(".") + "k"
-    return f"{n / 1_000_000:.1f}".rstrip("0").rstrip(".") + "M"
+    return f"{n // 100 * 100:,}+"
 
 
 if __name__ == "__main__":

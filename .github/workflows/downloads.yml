@@ -7,6 +7,10 @@ on:
     # Hourly: GitHub drops some scheduled runs under load (12:17 UTC on 03/11 never ran), and one run costs seconds.
     - cron: "23 * * * *"
   workflow_dispatch:
+  # Also after every release build: GitHub's scheduler skips hourly runs for hours at a time.
+  workflow_run:
+    workflows: [Build, Desktop, Server]
+    types: [completed]
 
 permissions:
   contents: write
