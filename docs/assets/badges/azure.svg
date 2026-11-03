@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 58" width="168" height="58" role="img" aria-label="DEPLOY ON Azure">
+  <rect x="1" y="1" width="166" height="56" rx="8" fill="#000" stroke="#a6a6a6" stroke-width="1.5"/>
+  <g transform="translate(12 11) scale(1.5)" fill="#0089D6"><path d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.23 2.7L6.105 8.677 0 19.253h5.505v.014L13.23 2.7z"/></g>
+  <text x="56" y="23" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" letter-spacing=".6">DEPLOY ON</text>
+  <text x="55" y="44" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="600">Azure</text>
+</svg>
