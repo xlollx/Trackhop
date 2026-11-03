@@ -281,7 +281,7 @@ class Web(
         return """<div class="card"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
-<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else scheduleName(job.schedule))}</span>${if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
+<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
 <div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download</div></div></div></div>"""
     }
@@ -297,6 +297,27 @@ class Web(
         }
         val bar = p.percent?.let { """<progress max="100" value="$it"></progress>""" } ?: ""
         return """<span>${h(step)}$count$paused${p.label?.let { " · " + h(it) } ?: ""}</span>$bar"""
+    }
+
+    /** The timing fields of a sync's form: how often, at what time, on which days (sync/Timing). */
+    internal fun timingFields(job: SyncJob?): String {
+        val current = job?.let { com.xlollx.songport.sync.Timing.interval(it) } ?: 1440
+        val steps = com.xlollx.songport.sync.Timing.STEPS.joinToString("") { m ->
+            """<option value="$m"${if (m == current) " selected" else ""}>${h(com.xlollx.songport.sync.Timing.stepName(m))}</option>"""
+        }
+        val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").mapIndexed { i, d ->
+            """<label class="check" style="display:inline-flex;margin-right:10px"><input type="checkbox" name="day" value="${i + 1}"${if (job != null && (i + 1) in job.days) " checked" else ""}> $d</label>"""
+        }.joinToString("")
+        return """<label>Runs</label><select name="every">$steps</select>
+<label>At (for daily or longer, or on the days below)</label><input type="time" name="at" value="${h(job?.at ?: "09:00")}">
+<label>Only on these days (optional)</label><div>$days</div>"""
+    }
+
+    /** A sync with the timing read from its form. */
+    internal fun withTiming(job: SyncJob, r: Req): SyncJob {
+        val every = r.form["every"]?.toIntOrNull() ?: return job
+        val days = r.rawForm.filter { it.first == "day" }.mapNotNull { it.second.toIntOrNull() }
+        return com.xlollx.songport.sync.Timing.apply(job, every, r.form["at"], days)
     }
 
     internal fun scheduleName(s: Schedule) = when (s) {
@@ -548,7 +569,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
                         val color = r.form["color"]?.takeIf { it in Html.JOB_COLORS }
-                        val saved = job.copy(name = name, schedule = s, mirrorRemovals = r.form["mirror"] == "on", followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on", color = color)
+                        val saved = withTiming(job.copy(name = name, schedule = s), r).copy(mirrorRemovals = r.form["mirror"] == "on", followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on", color = color)
                         val warning = conflictWarning(saved)
                         env.store.upsertJob(saved)
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
@@ -622,7 +643,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
             else """<label>From ${h(src.label(env))}</label><select name="srcPlaylist" required>${opts(srcLists.getOrDefault(emptyList()))}</select>"""}
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
-<label>Schedule</label><select name="schedule">$schedules</select>
+${timingFields(null)}
 <label class="check"><input type="checkbox" name="mirror"> Mirror removals (tracks removed from the source are removed from the destination)</label>
 <label class="check"><input type="checkbox" name="follows"> The source changes by itself (a daylist, Discover Weekly): with mirror removals, big removals need no confirmation</label>
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
@@ -662,7 +683,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
             mirrorRemovals = r.form["mirror"] == "on",
             followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on",
-        )
+        ).let { withTiming(it, r) }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
         redirect(r.ex, "/syncs/${q(job.id)}?ok=${q("Sync created. Run it now, or let the schedule start it." + (warning?.let { " $it" } ?: ""))}")
@@ -690,7 +711,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
         body.append("</div>")
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
-            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """<label>Schedule</label><select name="schedule">$schedules</select>
+            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
 <label class="check"><input type="checkbox" name="mirror"${if (job.mirrorRemovals) " checked" else ""}> Mirror removals</label>
 <label class="check"><input type="checkbox" name="follows"${if (job.followsChanges) " checked" else ""}> The source changes by itself (a daylist, Discover Weekly): big removals need no confirmation</label>"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}</div>

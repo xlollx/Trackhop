@@ -1321,4 +1321,9 @@
     <string name="login_hint_emby">Emby 서버 주소(예: https://emby.example.com), 사용자 이름과 비밀번호를 입력하세요.</string>
     <string name="editor_follows">스스로 바뀌는 플레이리스트</string>
     <string name="editor_follows_desc">daylist, Discover Weekly, Release Radar 등: 대부분의 곡이 바뀌어도 확인 없이 매번 대상이 원본의 새 버전이 됩니다.</string>
+    <string name="timing_every_hours">%1$d시간마다</string>
+    <string name="timing_every_days">%1$d일마다</string>
+    <string name="timing_at">%1$s %2$s</string>
+    <string name="timing_at_label">%1$s</string>
+    <string name="timing_days_label">이 요일에만(선택)</string>
 </resources>

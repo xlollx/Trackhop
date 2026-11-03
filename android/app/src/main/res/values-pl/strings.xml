@@ -1390,4 +1390,9 @@
     <string name="login_hint_emby">Podaj adres swojego serwera Emby (na przykład https://emby.example.com), nazwę użytkownika i hasło.</string>
     <string name="editor_follows">Playlista, która zmienia się sama</string>
     <string name="editor_follows_desc">Dla daylist, Discover Weekly czy Release Radar: cel za każdym razem staje się nową wersją źródła, nawet gdy zmienia się prawie każdy utwór, bez potwierdzania.</string>
+    <string name="timing_every_hours">Co %1$d godz.</string>
+    <string name="timing_every_days">Co %1$d dni</string>
+    <string name="timing_at">%1$s o %2$s</string>
+    <string name="timing_at_label">O %1$s</string>
+    <string name="timing_days_label">Tylko w te dni (opcjonalnie)</string>
 </resources>

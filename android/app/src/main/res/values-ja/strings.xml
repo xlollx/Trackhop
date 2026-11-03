@@ -1322,4 +1322,9 @@
     <string name="login_hint_emby">Emby サーバーのアドレス（例: https://emby.example.com）、ユーザー名、パスワードを入力してください。</string>
     <string name="editor_follows">自動で変わるプレイリスト</string>
     <string name="editor_follows_desc">daylist、Discover Weekly、Release Radar など：ほとんどの曲が入れ替わっても、確認なしで毎回コピー先を元の最新版にします。</string>
+    <string name="timing_every_hours">%1$d時間ごと</string>
+    <string name="timing_every_days">%1$d日ごと</string>
+    <string name="timing_at">%1$s %2$s</string>
+    <string name="timing_at_label">%1$s</string>
+    <string name="timing_days_label">この曜日だけ（任意）</string>
 </resources>

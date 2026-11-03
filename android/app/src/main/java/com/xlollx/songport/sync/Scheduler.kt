@@ -37,6 +37,10 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             batch != null -> batch.mapNotNull { store.job(it) }
             jobId == ALL -> store.data.jobs.filter { it.enabled }
             else -> listOfNotNull(store.job(jobId))
+        }.filter {
+            // A scheduled wake of a sync at a time of day: nothing to do until its time.
+            !scheduled || batch != null || jobId == ALL || !com.xlollx.songport.sync.Timing.timed(it) ||
+                com.xlollx.songport.sync.Timing.isDue(it, System.currentTimeMillis())
         }
         // Rete ancora assente al risveglio: non e' un esito della sync, la si rimette in coda.
         val retryLater = java.util.concurrent.atomic.AtomicBoolean(false)
@@ -199,7 +203,7 @@ object Scheduler {
 
     private fun applyWork(ctx: Context, job: SyncJob) {
         val wm = WorkManager.getInstance(ctx)
-        if (!job.enabled || job.schedule == Schedule.MANUAL) {
+        if (!com.xlollx.songport.sync.Timing.scheduled(job)) {
             wm.cancelUniqueWork(name(job.id))
             return
         }
@@ -207,7 +211,10 @@ object Scheduler {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(if (job.wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
             .build()
-        val req = PeriodicWorkRequestBuilder<SyncWorker>(job.schedule.minutes, TimeUnit.MINUTES)
+        // A sync at a time of day wakes every 15 minutes and runs only when its time has come (SyncWorker);
+        // one by interval wakes at the interval itself.
+        val period = if (com.xlollx.songport.sync.Timing.timed(job)) 15L else com.xlollx.songport.sync.Timing.interval(job).toLong()
+        val req = PeriodicWorkRequestBuilder<SyncWorker>(period, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .setInputData(workDataOf(SyncWorker.KEY_JOB to job.id, SyncWorker.KEY_SCHEDULED to true))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)

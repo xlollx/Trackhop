@@ -1344,4 +1344,9 @@
     <string name="login_hint_emby">Enter the address of your Emby server (for example https://emby.example.com), your username and password.</string>
     <string name="editor_follows">Playlist that changes by itself</string>
     <string name="editor_follows_desc">For a daylist, Discover Weekly or Release Radar: the target becomes the source\'s new version each time, even when most tracks change, with no confirmation.</string>
+    <string name="timing_every_hours">Every %1$d hours</string>
+    <string name="timing_every_days">Every %1$d days</string>
+    <string name="timing_at">%1$s at %2$s</string>
+    <string name="timing_at_label">At %1$s</string>
+    <string name="timing_days_label">Only on these days (optional)</string>
 </resources>

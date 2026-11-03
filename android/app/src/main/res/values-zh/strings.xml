@@ -1322,4 +1322,9 @@
     <string name="login_hint_emby">输入你的 Emby 服务器地址（例如 https://emby.example.com）、用户名和密码。</string>
     <string name="editor_follows">会自动变化的歌单</string>
     <string name="editor_follows_desc">适用于 daylist、Discover Weekly 或 Release Radar：即使几乎所有歌曲都变了，目标每次都会变成源歌单的新版本，无需确认。</string>
+    <string name="timing_every_hours">每 %1$d 小时</string>
+    <string name="timing_every_days">每 %1$d 天</string>
+    <string name="timing_at">%1$s %2$s</string>
+    <string name="timing_at_label">%1$s</string>
+    <string name="timing_days_label">仅在这些日子（可选）</string>
 </resources>

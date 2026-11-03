@@ -1352,4 +1352,9 @@
     <string name="login_hint_emby">Digite o endereço do seu servidor Emby (por exemplo https://emby.example.com), seu usuário e sua senha.</string>
     <string name="editor_follows">Playlist que muda sozinha</string>
     <string name="editor_follows_desc">Para um daylist, Descobertas da Semana ou Radar de Novidades: o destino vira a nova versão da origem a cada vez, mesmo que quase todas as músicas mudem, sem confirmação.</string>
+    <string name="timing_every_hours">A cada %1$d horas</string>
+    <string name="timing_every_days">A cada %1$d dias</string>
+    <string name="timing_at">%1$s às %2$s</string>
+    <string name="timing_at_label">Às %1$s</string>
+    <string name="timing_days_label">Só nestes dias (opcional)</string>
 </resources>

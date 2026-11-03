@@ -1388,4 +1388,9 @@
     <string name="login_hint_emby">Введите адрес вашего сервера Emby (например, https://emby.example.com), имя пользователя и пароль.</string>
     <string name="editor_follows">Плейлист, который меняется сам</string>
     <string name="editor_follows_desc">Для daylist, Discover Weekly или Release Radar: плейлист назначения каждый раз становится новой версией источника, даже если меняются почти все треки, без подтверждения.</string>
+    <string name="timing_every_hours">Каждые %1$d ч</string>
+    <string name="timing_every_days">Каждые %1$d дн.</string>
+    <string name="timing_at">%1$s в %2$s</string>
+    <string name="timing_at_label">В %1$s</string>
+    <string name="timing_days_label">Только в эти дни (необязательно)</string>
 </resources>

@@ -81,6 +81,12 @@ data class SyncJob(
     val source: PlaylistRef,
     val target: PlaylistRef,
     val schedule: Schedule = Schedule.MANUAL,
+    /** A custom interval in minutes (60 to 10080), over [schedule]'s; null = [schedule]'s own. See sync/Timing. */
+    val everyMinutes: Int? = null,
+    /** The time of day ("07:30", the device's or server's zone) for runs a day or more apart, or on [days]. */
+    val at: String? = null,
+    /** Days of the week it runs on (1 = Monday … 7 = Sunday), at [at]; empty = by the interval. */
+    val days: List<Int> = emptyList(),
     val mirrorRemovals: Boolean = false,
     /**
      * The source replaces most of its tracks by itself (a Spotify daylist, Discover Weekly, Release

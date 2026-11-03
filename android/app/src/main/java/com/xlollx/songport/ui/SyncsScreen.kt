@@ -588,7 +588,7 @@ private fun JobCard(
                 Text(
                     // A two-way pair never removes, whatever an older version saved. A radio sync shows
                     // its window (days and hours) where the others show their schedule.
-                    (job.radio?.let { radioWindowLabel(ctx, it) } ?: scheduleLabel(job.schedule)) +
+                    (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                         (if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
@@ -801,6 +801,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var newName by rememberSaveable { mutableStateOf(if (job.target.playlistId == null) job.target.playlistName else "") }
     // A new Shazam sync checks every hour: a song Shazamed in the morning is there by lunch.
     var schedule by rememberSaveable { mutableStateOf(if (isNew && job.shazam) Schedule.HOURLY else job.schedule) }
+    // The timing (sync/Timing): how often, at what time, on which days.
+    var everyM by rememberSaveable { mutableStateOf(if (isNew && job.shazam) 60 else com.xlollx.songport.sync.Timing.interval(job)) }
+    var atStr by rememberSaveable { mutableStateOf(job.at ?: "09:00") }
+    var daysCsv by rememberSaveable { mutableStateOf(job.days.joinToString(",")) }
     var mirror by rememberSaveable { mutableStateOf(job.mirrorRemovals) }
     var keepOrder by rememberSaveable { mutableStateOf(job.keepOrder) }
     var follows by rememberSaveable { mutableStateOf(job.followsChanges) }
@@ -843,7 +847,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
 
     // Shazam as the source: its playlist, once found (null: looked up by the effect below).
     fun useShazam(playlist: Playlist? = null) {
-        if (!shazamMode && isNew) { schedule = Schedule.HOURLY; mirror = false }
+        if (!shazamMode && isNew) { schedule = Schedule.HOURLY; everyM = 60; mirror = false }
         shazamMode = true
         linkMode = false
         radioMode = false
@@ -851,7 +855,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     }
     // A radio as the source: listened to on Wi-Fi unless the user says otherwise, run by its window, never mirrored.
     fun useRadio() {
-        if (!radioMode && isNew) { schedule = Schedule.MANUAL; mirror = false; wifiOnly = true; bidirectional = false; keepOrder = false }
+        if (!radioMode && isNew) { schedule = Schedule.MANUAL; everyM = 0; mirror = false; wifiOnly = true; bidirectional = false; keepOrder = false }
         radioMode = true
         linkMode = false
         shazamMode = false
@@ -933,6 +937,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
         val target = if (createNew) PlaylistRef(dstProvider, null, newName.ifBlank { if (linkMode) "" else srcName })
         else PlaylistRef(dstProvider, dp!!.id, dp.name)
         val source = PlaylistRef(srcProvider, sp.id, srcName, link = linkText.trim().takeIf { linkMode && it.isNotBlank() })
+        fun timed(j: SyncJob): SyncJob = com.xlollx.songport.sync.Timing.apply(j, everyM, atStr, daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() })
         val main = job.copy(
             name = name.ifBlank { srcName },
             source = source,
@@ -940,7 +945,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             schedule = schedule, mirrorRemovals = mirror, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
             keepOrder = keepOrder, color = color, followsChanges = mirror && follows,
             shazam = shazamMode && !linkMode,
-        )
+        ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
         // swapped); its name, ignore list, reports and order setting stay its own. A pair never removes.
         val partner = job.linkedJobId?.let { Store.get(ctx).job(it) }
@@ -957,7 +962,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     linkedJobId = job.id, color = color,
                     sourceVersion = if (moved) null else partner.sourceVersion,
                     targetVersion = if (moved) null else partner.targetVersion,
-                )
+                ).let { timed(it) }
             } else SyncJob(
                 id = UUID.randomUUID().toString(),
                 name = "${main.name} ↔",
@@ -965,7 +970,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 target = source,
                 schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
                 linkedJobId = job.id, color = color, twin = true,
-            )
+            ).let { timed(it) }
         } else null
         saveHaptic()
         onSave(main.copy(linkedJobId = reverse?.id), reverse)
@@ -1104,10 +1109,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 } else Column(Modifier.tourTarget(TourTarget.EDITOR_SCHEDULE), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     HelpLabel(stringResource(R.string.editor_schedule)) { HelpButton(Helps.schedule) }
                     // I chip vanno a capo da soli, quante righe servono per lo schermo.
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-                        Schedule.entries.forEach { s -> FilterChip(selected = schedule == s, onClick = { schedule = s }, label = { Text(scheduleLabel(s)) }) }
-                    }
-                    if (schedule != Schedule.MANUAL) {
+                    TimingPicker(everyM, atStr, daysCsv,
+                        onEvery = { everyM = it; schedule = com.xlollx.songport.sync.Timing.legacy(it) },
+                        onAt = { atStr = it }, onDays = { daysCsv = it })
+                    if (everyM > 0 || daysCsv.isNotBlank()) {
                         Text(stringResource(R.string.editor_schedule_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }

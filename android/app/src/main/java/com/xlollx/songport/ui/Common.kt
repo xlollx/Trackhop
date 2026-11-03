@@ -1,5 +1,10 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material3.Slider
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.Upgrade
@@ -428,6 +433,73 @@ fun scheduleLabel(s: Schedule): String = stringResource(
         Schedule.WEEKLY -> R.string.schedule_weekly
     }
 )
+
+/** A step of the timing slider in words: "Manual only", "Every 3 hours", "Daily", "Every 2 days", "Weekly". */
+@Composable
+fun stepLabel(minutes: Int): String = when {
+    minutes <= 0 -> stringResource(R.string.schedule_manual)
+    minutes == 60 -> stringResource(R.string.schedule_hourly)
+    minutes < 1440 -> stringResource(R.string.timing_every_hours, minutes / 60)
+    minutes == 1440 -> stringResource(R.string.schedule_daily)
+    minutes < 10080 -> stringResource(R.string.timing_every_days, minutes / 1440)
+    else -> stringResource(R.string.schedule_weekly)
+}
+
+private fun dayNames(days: List<Int>): String = days.joinToString(", ") {
+    java.time.DayOfWeek.of(it.coerceIn(1, 7)).getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+}
+
+/** A sync's timing in words, for its card: "Every 3 hours", "Daily at 07:30", "Mon, Wed, Fri at 08:00". */
+@Composable
+fun timingLabel(job: com.xlollx.songport.model.SyncJob): String {
+    val T = com.xlollx.songport.sync.Timing
+    if (job.days.isNotEmpty()) return stringResource(R.string.timing_at, dayNames(job.days), job.at ?: "09:00")
+    val step = stepLabel(T.interval(job))
+    return if (T.timed(job) && job.at != null) stringResource(R.string.timing_at, step, job.at!!) else step
+}
+
+/**
+ * How often a sync runs: a slider that stops at manual, 1–23 hours, 1–6 days and a week, its value
+ * read out above it; from a day up, the time of day; and, optionally, the days of the week.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit, onAt: (String) -> Unit, onDays: (String) -> Unit) {
+    val steps = com.xlollx.songport.sync.Timing.STEPS
+    val index = steps.indexOf(every).takeIf { it >= 0 } ?: steps.indexOfFirst { it >= every }.coerceAtLeast(0)
+    val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(if (days.isNotEmpty()) stringResource(R.string.timing_at, dayNames(days), at) else stepLabel(every),
+            style = MaterialTheme.typography.titleMedium)
+        Slider(
+            value = index.toFloat(),
+            onValueChange = { onEvery(steps[it.toInt().coerceIn(0, steps.size - 1)]) },
+            valueRange = 0f..(steps.size - 1).toFloat(),
+            steps = steps.size - 2,
+            enabled = days.isEmpty(),
+        )
+        if (every >= 1440 || days.isNotEmpty()) {
+            OutlinedButton(onClick = {
+                val t = runCatching { java.time.LocalTime.parse(at) }.getOrDefault(java.time.LocalTime.of(9, 0))
+                android.app.TimePickerDialog(ctx, { _, h, m -> onAt("%02d:%02d".format(h, m)) }, t.hour, t.minute,
+                    android.text.format.DateFormat.is24HourFormat(ctx)).show()
+            }) { Text(stringResource(R.string.timing_at_label, at)) }
+        }
+        if (every > 0 || days.isNotEmpty()) {
+            Text(stringResource(R.string.timing_days_label), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                (1..7).forEach { d ->
+                    val on = d in days
+                    FilterChip(selected = on, onClick = {
+                        val next = if (on) days - d else (days + d).sorted()
+                        onDays(next.joinToString(","))
+                    }, label = { Text(dayNames(listOf(d))) })
+                }
+            }
+        }
+    }
+}
 
 fun formatDate(epoch: Long): String =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(epoch))

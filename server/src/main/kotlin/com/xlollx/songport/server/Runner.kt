@@ -72,9 +72,9 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
 
     /** True when [job] is due by its schedule at [now]. */
     fun isDue(job: SyncJob, now: Long): Boolean {
-        if (!job.enabled || job.schedule == Schedule.MANUAL) return false
+        if (!com.xlollx.songport.sync.Timing.scheduled(job)) return false
         retryAt[job.id]?.let { if (now >= it) return true }
-        return now - job.lastRunEpoch >= job.schedule.minutes * 60_000
+        return com.xlollx.songport.sync.Timing.isDue(job, now)
     }
 
     /** Stops the scheduler, the radio listeners and the runs under way (a user removed from a shared server). */
@@ -110,7 +110,6 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
 
         /** When [job] runs next by its schedule, or null for a manual one. */
         fun nextRun(job: SyncJob): Long? =
-            if (!job.enabled || job.schedule == Schedule.MANUAL) null
-            else maxOf(System.currentTimeMillis(), job.lastRunEpoch + job.schedule.minutes * 60_000)
+            com.xlollx.songport.sync.Timing.nextRun(job, System.currentTimeMillis())?.let { maxOf(System.currentTimeMillis(), it) }
     }
 }
