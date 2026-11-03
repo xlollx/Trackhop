@@ -51,6 +51,13 @@ class TimingTest {
         assertEquals(t("2026-11-09T08:00"), Timing.nextRun(afterFriday, t("2026-11-07T12:00"), rome))
     }
 
+    @Test fun everyDayOfTheWeekIsDaily() {
+        val j = Timing.apply(base, 10080, "07:30", (1..7).toList())
+        assertEquals(emptyList<Int>(), j.days)
+        assertEquals(1440, Timing.interval(j))
+        assertEquals(Schedule.DAILY, j.schedule)
+    }
+
     @Test fun limitsAndTheOldChoice() {
         assertEquals(60, Timing.interval(Timing.apply(base, 5, null, emptyList())))
         assertEquals(10080, Timing.interval(Timing.apply(base, 99999, null, emptyList())))

@@ -1,1 +1,1 @@
-Corretto: lo slider della pianificazione saltava alcuni valori (ogni 6 ore, ogni giorno).
+Corretto: lo slider della pianificazione saltava alcuni valori (ogni 6 ore, ogni giorno). Selezionare tutti i giorni equivale a Ogni giorno, e Ogni giorno mostra tutti i giorni selezionati.

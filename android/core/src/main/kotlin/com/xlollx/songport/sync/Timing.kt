@@ -69,8 +69,10 @@ object Timing {
 
     /** [job] with a new timing; [SyncJob.schedule] kept as the closest old choice. */
     fun apply(job: SyncJob, minutes: Int, at: String?, days: List<Int>): SyncJob {
-        val m = if (minutes in 1 until MIN_MINUTES) MIN_MINUTES else minutes.coerceIn(0, MAX_MINUTES)
-        val d = days.filter { it in 1..7 }.distinct().sorted()
+        var m = if (minutes in 1 until MIN_MINUTES) MIN_MINUTES else minutes.coerceIn(0, MAX_MINUTES)
+        var d = days.filter { it in 1..7 }.distinct().sorted()
+        // Every day of the week is daily.
+        if (d.size == 7) { d = emptyList(); m = 1440 }
         return job.copy(
             schedule = if (d.isNotEmpty()) Schedule.DAILY else legacy(m),
             everyMinutes = m,
