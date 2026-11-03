@@ -1,3 +1,8 @@
+---
+title: Getting started
+i18n: start
+---
+
 # Getting started
 
 **Songport is now Trackhop**: the same app with a new name (an unrelated service called "SongPort" works in the same space); it updates normally, keeps all its data, and old links keep working.

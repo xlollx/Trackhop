@@ -11,3 +11,8 @@ transfer:
   ja: /guide/playlist-transfer-ja
   ko: /guide/playlist-transfer-ko
   zh: /guide/playlist-transfer-zh
+start:
+  en: /guide/getting-started
+  it: /guide/iniziare
+  es: /guide/primeros-pasos
+  pt-BR: /guide/primeiros-passos
