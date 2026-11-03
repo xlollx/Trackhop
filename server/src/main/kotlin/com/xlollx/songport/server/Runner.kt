@@ -58,6 +58,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                     (report.error?.let { " ERR $it" } ?: ""),
             )
             Api.notify(env, job, report)
+            // The channels the person set up (Notify.kt): in the background, never failing the run.
+            Notify.afterRun(env, job, report)
             if (scheduled && !report.ok && isTransientNetwork(report.error)) {
                 retryAt[job.id] = System.currentTimeMillis() + RETRY_MS
                 env.log("sync", "no network for ${job.name}: will retry")

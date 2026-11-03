@@ -102,6 +102,12 @@ Last.fm, ListenBrainz and files (store rules, as for the app on Google Play): fo
 (Spotify and Google both accept plain `http` for `127.0.0.1`). The service's page in Trackhop
 shows the exact address and the steps.
 
+## Notifications
+
+Settings › Notifications sends a short message to Telegram, ntfy, Gotify, Discord, Slack, Matrix or
+Pushover when a sync changes something, fails or waits for you, while Trackhop Desktop runs. How to
+set up each one: [Notifications](docker#notifications), the same as on Docker.
+
 ## Command line
 
 Desktop comes with `trackhop-cli`, to run syncs, read their results and add or remove tracks from a

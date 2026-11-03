@@ -42,6 +42,8 @@ dependencies {
     swtWindows("org.eclipse.platform:org.eclipse.swt.win32.win32.x86_64:$swtVersion") { transitive = false }
     swtLinux("org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:$swtVersion") { transitive = false }
     testImplementation 'junit:junit:4.13.2'
+    // Notifications (NotifyTest): a stand-in for each channel's server.
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
 }
 
 // The Spotify and Deezer web clients of the app's :bridge module (the web players' own backends, no

@@ -63,6 +63,9 @@ object Cli {
           import <file>                  a playlist file into the File service (CSV, M3U, XSPF, JSPF, JSON, text)
           backup [--wait]                back up every playlist now
           config [<file>]                the whole set-up as one file (to stdout without <file>)
+        Notifications
+          notify                         the notification channels (their tokens masked)
+          notify test <channel>          send a test message through a channel (its name or id)
         Other
           status                         version, syncs, what is running
           mcp                            serve Trackhop's tools to an AI assistant (MCP, over stdin/stdout)
@@ -189,6 +192,7 @@ object Cli {
             "import" -> import(one(p, "import <file>"))
             "backup" -> backup(wait)
             "config" -> config(p.firstOrNull())
+            "notify" -> notify(p)
             else -> throw Failure(2, "unknown command \"$command\". See: trackhop help")
         }
 
@@ -406,6 +410,41 @@ object Cli {
                 if (!t.b("done")) continue
                 if (asJson) print(t) else out.println(t["error"].str()?.let { "Backup failed: $it" } ?: "Backup done.")
                 return if (t["error"].str() == null) 0 else 1
+            }
+        }
+
+        private fun allChannels() = api.get("notifications").jsonArray.map { it.jsonObject }
+
+        /** The channel named [ask]: its id, or its name (exact, then the only one that starts with it). */
+        private fun channel(ask: String): JsonObject {
+            val list = allChannels()
+            return list.firstOrNull { it.s("id") == ask }
+                ?: list.filter { it.s("name").equals(ask, ignoreCase = true) }.let { if (it.size > 1) throw Failure(1, "more than one channel is called \"$ask\": use its id (trackhop notify)") else it.firstOrNull() }
+                ?: list.filter { it.s("name").startsWith(ask, ignoreCase = true) }.singleOrNull()
+                ?: throw Failure(1, "no notification channel \"$ask\". See: trackhop notify")
+        }
+
+        private fun notify(p: List<String>): Int {
+            when (p.firstOrNull()) {
+                null, "list", "ls" -> {
+                    val list = allChannels()
+                    if (asJson) return print(JsonArray(list)).let { 0 }
+                    if (list.isEmpty()) out.println("No notification channels yet: add them on Trackhop's page, Settings > Notifications.")
+                    for (o in list) {
+                        val events = o["events"]?.jsonArray?.mapNotNull { it.str() }.orEmpty()
+                        val state = when { !o.b("ready") -> "needs its token"; o.b("enabled") -> "on"; else -> "off" }
+                        out.println("${o.s("name")}  (${o.s("id")})  ${o.s("kindName")}  [$state]")
+                        out.println("  when: ${events.joinToString(", ").ifEmpty { "nothing chosen" }}")
+                    }
+                    return 0
+                }
+                "test" -> {
+                    val c = channel(p.drop(1).joinToString(" ").ifEmpty { throw Failure(2, "usage: trackhop notify test <channel>") })
+                    val r = api.post("notifications/${enc(c.s("id"))}/test").jsonObject
+                    if (asJson) print(r) else out.println("Sent a test to ${c.s("name")}: check that it arrived.")
+                    return 0
+                }
+                else -> throw Failure(2, "usage: trackhop notify [test <channel>]")
             }
         }
 
