@@ -50,6 +50,39 @@ Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTu
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 this build: development lives on voluntary donations.
 
+### Music services at a glance
+
+**Read** = use it as a source · **Write** = create playlists and add tracks · **Remove** = mirror removals.
+"All builds" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker. The *quick sign-in*
+routes go through the service's own web player: they are not official interfaces and live in the GitHub and
+F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
+
+| Service | Read | Write | Remove | How you connect | Where |
+|---|:-:|:-:|:-:|---|---|
+| **Spotify** | ✓ | ✓ | ✓ | Quick sign-in with your usual account, no key, no Premium | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | ✓ | ✓ | Official: your own free developer key (Spotify requires Premium for it) | All builds |
+| **YouTube Music** | ✓ | ✓ | ✓ | Quick sign-in with your Google account | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | ✓ | ✓ | Official: your own Google API key | All builds |
+| **Apple Music** | ✓ | ✓ | — | Quick sign-in with your Apple ID (Apple's API cannot remove tracks) | GitHub, F-Droid · plugin |
+| | ✓ | ✓ | — | Official: Apple developer token | All builds |
+| **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
+| **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
+| **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |
+| **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, alpha) | GitHub, F-Droid, Desktop, Docker |
+| **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
+| **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
+| **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
+| **Last.fm** | ✓ | — | — | Your username (loved tracks, scrobbles, top tracks) | All builds |
+| **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
+| **SoundCloud** | ✓ | — | — | Paste a public set or likes link | GitHub, F-Droid, Desktop, Docker |
+| **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker |
+| **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker |
+| **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
+| **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
+
+Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
+Not connectable: Qobuz and Pandora (partner-only APIs): use files.
+
 **Why not an online transfer service?** Soundiiz, TuneMyMusic and FreeYourMusic are good at a one-off
 move. Trackhop is for keeping playlists in step over time, without handing your accounts to anyone:
 
@@ -157,6 +190,7 @@ reports are what make it better: if something does not work as it should, say so
 ---
 
 ## Contents
+- [Music services at a glance](#music-services-at-a-glance)
 - [Feedback](#feedback)
 - [Features](#features)
 - [Supported services and their limits](#supported-services-and-their-limits)
@@ -226,6 +260,9 @@ reports are what make it better: if something does not work as it should, say so
 | | Info sheet before every login, encrypted tokens, fingerprint or PIN lock | See [How logins are protected](#how-logins-are-protected). |
 
 ## Supported services and their limits
+
+The technical side of each connector (for a quick overview, see [Music services at a glance](#music-services-at-a-glance)).
+
 
 | Service | Status | Login | What the build needs | Limits |
 |---------|--------|-------|----------------------|--------|
