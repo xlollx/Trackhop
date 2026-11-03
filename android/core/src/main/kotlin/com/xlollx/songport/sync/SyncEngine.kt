@@ -557,6 +557,8 @@ class SyncEngine(
     ): String? {
         val parallel = dst.searchParallelism.coerceIn(1, 8)
         var consecutiveErrors = 0
+        var errors = 0
+        var searchedHere = 0
         var done = 0
         var waits = 0
         var blockWaits = 0
@@ -625,20 +627,31 @@ class SyncEngine(
                 if (e != null) {
                     if (e !is ProviderException) throw e
                     consecutiveErrors++
+                    errors++
                     val msg = e.message ?: ""
+                    // Said in the log, the first few of a run: a search that fails is otherwise only a
+                    // "not found", and a service refusing every search looked like a catalogue without the songs.
+                    if (errors <= 3) env.log("engine", "${dst.displayName}: search failed for \"${listOfNotNull(s.artists.firstOrNull(), s.title).joinToString(" – ")}\": ${msg.take(200)}")
                     // Errori sistemici (quota, limiti, sessione scaduta): inutile insistere. Se non e'
                     // stato trovato ancora nulla l'errore e' dell'intera sync; altrimenti ci si ferma qui.
-                    val systemic = consecutiveErrors >= 3 || msg.contains("quota", true) || msg.contains("reconnect", true) ||
+                    // Also when failures are a good share of the real searches, even if not in a row:
+                    // songs remembered from earlier runs, answered in between, used to hide them.
+                    val systemic = consecutiveErrors >= 3 || (errors >= 10 && errors * 3 > searchedHere + errors) ||
+                        msg.contains("quota", true) || msg.contains("reconnect", true) ||
                         msg.contains("sign in again", true) || isThrottle(msg)
                     if (systemic) {
                         saveMisses()
+                        env.log("engine", "${dst.displayName}: search stopped after $searchedHere searches and $errors failures: ${msg.take(200)}")
                         if (done - chunk.size + i <= 0) throw e
                         return msg
                     }
                     onResult(s, null, null)
                 } else {
-                    consecutiveErrors = 0
                     val (found, score) = r.getOrThrow()
+                    // Only a search the service answered clears the run of failures: a song remembered
+                    // from earlier runs (or a recent miss) asked nothing of it.
+                    val remembered = (found != null && score == null) || score == MISS_SCORE
+                    if (!remembered) { consecutiveErrors = 0; searchedHere++ }
                     if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dst.id) == null) searched++
                     if (found == null && score != MISS_SCORE) misses += FileStore.cacheKey(src.id, s.id, dst.id)
                     if (misses.size >= 50) saveMisses()
@@ -649,7 +662,7 @@ class SyncEngine(
         saveMisses()
         if (searched > 0) {
             val secs = (System.currentTimeMillis() - startedAt) / 1000
-            env.log("engine", "${dst.displayName}: $searched searches in ${secs}s (${if (searched > 0) secs * 1000 / searched else 0} ms each), $waits waits")
+            env.log("engine", "${dst.displayName}: $searched searches in ${secs}s (${if (searched > 0) secs * 1000 / searched else 0} ms each), $waits waits" + if (errors > 0) ", $errors failed" else "")
         }
         return null
     }

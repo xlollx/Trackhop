@@ -488,6 +488,10 @@ class SpotifyWebClient(private val host: Host) {
         if (kind == null) {
             val r = runCatching {
                 gql("searchTracks", jsonObj("searchTerm" to query, "offset" to 0, "limit" to 10, "numberOfTopResults" to 5, "includeAudiobooks" to false, "includePreReleases" to false))
+            }.onFailure { e ->
+                // Spotify asking for a pause is said at once: asking the other search would only add to it.
+                if (e.message?.contains("429") == true) throw e
+                if (searchTracksFailures++ < 3) BridgeNet.log("spotify", "searchTracks failed, trying searchDesktop: ${e.message?.take(200)}")
             }.getOrNull()
             val items = r["data"]["searchV2"]["tracksV2"]["items"].arr
             if (items.isNotEmpty()) return items.mapNotNull { trackDto(it["item"]["data"] ?: it["data"], null, null, it["item"]["_uri"].str) }
@@ -682,6 +686,7 @@ class SpotifyWebClient(private val host: Host) {
          * them makes Spotify block for half an hour (issue #30), a steady pace does not.
          */
         private const val SEARCH_GAP_MS = 350L
+        @Volatile private var searchTracksFailures = 0
         private var nextSearchAt = 0L
         @JvmStatic private fun paceSearch() {
             val wait = synchronized(this) {
