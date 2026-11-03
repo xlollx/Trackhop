@@ -35,6 +35,7 @@ import java.io.File
 fun installServerConnectors(officialOnly: Boolean = false) {
     // TikTok's page is read only where unofficial sources are allowed (not the Microsoft Store package).
     com.xlollx.songport.sync.TikTokShare.enabled = !officialOnly
+    if (!officialOnly) com.xlollx.songport.sync.TikTokShare.recognizer = ServerAudio.recognizer
     installServerConnectorsOnly(officialOnly)
 }
 

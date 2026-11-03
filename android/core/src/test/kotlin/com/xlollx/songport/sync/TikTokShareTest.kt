@@ -11,7 +11,25 @@ import org.junit.Test
 class TikTokShareTest {
     private fun page(name: String) = javaClass.getResource("/tiktok/$name.html")!!.readText()
 
-    @After fun on() { TikTokShare.enabled = true }
+    @After fun on() { TikTokShare.enabled = true; TikTokShare.recognizer = null }
+
+    @Test fun anOriginalSoundIsRecognisedFromItsAudioWhereRecognitionIsAvailable() = kotlinx.coroutines.runBlocking {
+        val original = TikTokShare.Sound.Original("sophia", "https://v16m.tiktokcdn-us.com/abc/?mime_type=audio_mpeg")
+        assertEquals(original, TikTokShare.hear(original))
+        var asked: String? = null
+        TikTokShare.recognizer = { url -> asked = url; com.xlollx.songport.model.Track("shz", "A Thousand Years", listOf("Christina Perri")) }
+        val s = TikTokShare.hear(original) as TikTokShare.Sound.Song
+        assertTrue(s.recognized)
+        assertEquals("A Thousand Years", s.track.title)
+        assertEquals(original.audio, asked)
+        // Nothing recognised, or recognition failing: still the original sound.
+        TikTokShare.recognizer = { null }
+        assertEquals(original, TikTokShare.hear(original))
+        TikTokShare.recognizer = { error("offline") }
+        assertEquals(original, TikTokShare.hear(original))
+        // Without its audio there is nothing to listen to.
+        assertEquals(TikTokShare.Sound.Original("tiff"), TikTokShare.hear(TikTokShare.Sound.Original("tiff")))
+    }
 
     @Test fun linksOfEveryShape() {
         val cases = mapOf(
@@ -39,7 +57,7 @@ class TikTokShareTest {
     }
 
     @Test fun theCreatorsOwnSoundNamesNoSong() {
-        assertEquals(TikTokShare.Sound.Original("tiff"), TikTokShare.parse(page("original")))
+        assertEquals("tiff", (TikTokShare.parse(page("original")) as TikTokShare.Sound.Original).creator)
         // No title at all: the same.
         assertTrue(TikTokShare.parse(page("notitle")) is TikTokShare.Sound.Original)
         // "original sound" in another language.

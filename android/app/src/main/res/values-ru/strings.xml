@@ -1430,4 +1430,5 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Новые виджеты</string>
     <string name="whats_new_19_widgets_body">Ваши синхронизации на главном экране в цветах телефона: все с ▶ для запуска, одна на выбор или плитка «Синхронизировать всё».</string>
+    <string name="tiktok_recognized">Распознано по звуку видео, TikTok его не указывает: проверьте, та ли это песня.</string>
 </resources>

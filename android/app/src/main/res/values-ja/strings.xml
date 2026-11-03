@@ -1361,4 +1361,5 @@
     </plurals>
     <string name="whats_new_19_widgets_title">新しいウィジェット</string>
     <string name="whats_new_19_widgets_body">ホーム画面に端末のカラーで同期を表示：すべての同期と ▶ ボタン、選んだ1件、または「すべて同期」タイル。</string>
+    <string name="tiktok_recognized">TikTok の表示ではなく動画の音声から認識しました。正しい曲か確認してください。</string>
 </resources>

@@ -1360,4 +1360,5 @@
     </plurals>
     <string name="whats_new_19_widgets_title">새 위젯</string>
     <string name="whats_new_19_widgets_body">휴대폰 색상으로 홈 화면에 동기화 표시: ▶로 실행하는 전체 목록, 고른 동기화 하나, 또는 ‘모두 동기화’ 타일.</string>
+    <string name="tiktok_recognized">TikTok이 알려준 것이 아니라 동영상 오디오에서 인식했습니다. 맞는 곡인지 확인하세요.</string>
 </resources>

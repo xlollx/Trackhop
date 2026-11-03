@@ -1392,4 +1392,5 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Widgets nuevos</string>
     <string name="whats_new_19_widgets_body">Tus syncs en la pantalla de inicio con los colores del teléfono: todas con ▶ para ejecutarlas, una sync a tu elección o un botón “Sincronizar todo”.</string>
+    <string name="tiktok_recognized">Reconocida por el audio del vídeo, no la indica TikTok: comprueba que sea la canción correcta.</string>
 </resources>

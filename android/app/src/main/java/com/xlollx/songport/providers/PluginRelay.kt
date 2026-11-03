@@ -3,6 +3,8 @@ package com.xlollx.songport.providers
 import android.content.Context
 import android.os.Bundle
 import com.xlollx.songport.net.Relay
+import com.xlollx.songport.net.get
+import com.xlollx.songport.net.str
 import com.xlollx.songport.platform.android
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,6 +31,26 @@ object PluginRelay {
         Relay.available = { env -> capable(env.android) }
         com.xlollx.songport.sync.TikTokShare.gate = { capable(app) }
         Relay.via = { c -> withContext(Dispatchers.IO) { relay(app, c) } }
+        com.xlollx.songport.sync.TikTokShare.recognizer = recognizer(app)
+    }
+
+    /**
+     * The song in a TikTok "original sound", heard by the connectors (in-process in the full build,
+     * the plugin's in the Play one): null when nothing matched, or when the plugin is too old to
+     * know "audio.recognize" (its error is not an answer).
+     */
+    fun recognizer(app: Context): suspend (String) -> com.xlollx.songport.model.Track? = { url ->
+        withContext(Dispatchers.IO) {
+            val b = BridgePlugin.call(app, "audio.recognize", url) ?: return@withContext null
+            b.getString("error")?.let { com.xlollx.songport.data.Diagnostics.log(app, "shazam", "not recognised: ${it.take(200)}"); return@withContext null }
+            val j = com.xlollx.songport.net.parseJson(b.getString("json") ?: return@withContext null)
+            val title = j["title"].str?.takeIf { it.isNotBlank() } ?: return@withContext null
+            com.xlollx.songport.model.Track(
+                id = j["isrc"].str ?: "shazam:$title", title = title,
+                artists = listOfNotNull(j["artist"].str?.takeIf { it.isNotBlank() }),
+                album = j["album"].str.orEmpty(), isrc = j["isrc"].str,
+            )
+        }
     }
 
     private fun relay(ctx: Context, c: Relay.Call): Relay.Answer {

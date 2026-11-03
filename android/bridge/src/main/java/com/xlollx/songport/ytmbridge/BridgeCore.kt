@@ -50,6 +50,10 @@ object BridgeCore {
                     ok(json.encodeToString(if (kind == "album" || kind == "artist") client.searchKind(arg ?: "", kind) else client.search(arg ?: "", extras?.getBoolean("videos") == true)))
                 }
                 "stats" -> Bundle().apply { putString("stats", YtmClient.Stats.summary()) }
+                // The song in an audio file (a TikTok "original sound"): title, artist, album, ISRC; "{}" when none.
+                "audio.recognize" -> ok(AudioRecognition.recognize(ctx, arg ?: return err("missing address"))?.let {
+                    jsonObj("title" to it.title, "artist" to it.artist, "album" to it.album, "isrc" to it.isrc).toString()
+                } ?: "{}")
                 "log" -> Bundle().apply { putString("log", BridgeNet.recent(extras?.getInt("lines")?.takeIf { it > 0 } ?: 300)) }
                 "create" -> ok(json.encodeToString(client.createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "add" -> {

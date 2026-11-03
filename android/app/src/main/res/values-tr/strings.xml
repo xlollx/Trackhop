@@ -1382,4 +1382,5 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Yeni widget\'lar</string>
     <string name="whats_new_19_widgets_body">Eşitlemelerin ana ekranda telefonunun renkleriyle: hepsi ▶ ile başlatılabilir, seçtiğin bir eşitleme ya da tek bir “Tümünü eşitle” kutusu.</string>
+    <string name="tiktok_recognized">TikTok belirtmedi, videonun sesinden tanındı: doğru şarkı olup olmadığını kontrol et.</string>
 </resources>

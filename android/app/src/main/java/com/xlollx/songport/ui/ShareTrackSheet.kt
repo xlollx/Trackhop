@@ -100,7 +100,7 @@ fun ShareTrackSheet(
             ShazamShare.SERVICE -> ShazamShare.track(text)
             // A TikTok video: the song its public page names.
             TikTokShare.SERVICE -> when (val sound = withContext(Dispatchers.IO) { TikTokShare.sound(link) }) {
-                is TikTokShare.Sound.Song -> sound.track
+                is TikTokShare.Sound.Song -> { if (sound.recognized) sourceNote = ctx.getString(R.string.tiktok_recognized); sound.track }
                 is TikTokShare.Sound.Original -> { sourceNote = ctx.getString(R.string.tiktok_original_sound); null }
                 TikTokShare.Sound.Unknown -> { sourceNote = ctx.getString(R.string.tiktok_unreadable); null }
             }
@@ -172,7 +172,11 @@ fun ShareTrackSheet(
                     CircularProgressIndicator(Modifier.width(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading))
                 }
                 src.title.isBlank() -> Text(sourceNote ?: stringResource(R.string.share_sheet_unknown), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                else -> TrackLine(src, emphasis = true)
+                else -> {
+                    TrackLine(src, emphasis = true)
+                    // Heard in the video's audio rather than named by its page: said, it may be wrong.
+                    sourceNote?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TrackLinks.url(ref.service, ref.trackId)?.let { url ->

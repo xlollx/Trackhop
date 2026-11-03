@@ -42,15 +42,26 @@ object TikTokShare {
 
     fun isTikTok(text: String): Boolean = enabled && LINK.containsMatchIn(text)
 
+    /**
+     * Recognises the song in an audio file by its address (a TikTok sound's mp3), or null when none
+     * is found: set where song recognition is available (the full builds in-process, the Play
+     * build through the connector plugin, Docker and Desktop with their own decoder); null where
+     * it is not, and an "original sound" stays unknown.
+     */
+    @Volatile var recognizer: (suspend (String) -> Track?)? = null
+
     /** The video id, or the short link's code: what tells two shares apart. */
     fun id(text: String): String? = LINK.find(text)?.groupValues?.drop(1)?.firstOrNull { it.isNotEmpty() }
 
     /** What a TikTok page says about the video's sound. */
     sealed class Sound {
-        /** A released song: search for it. */
-        data class Song(val track: Track) : Sound()
-        /** The creator's own sound ("original sound"): the page does not say which song it is. */
-        data class Original(val creator: String) : Sound()
+        /** A released song: search for it. [recognized] when the page did not name it and its audio did. */
+        data class Song(val track: Track, val recognized: Boolean = false) : Sound()
+        /**
+         * The creator's own sound ("original sound"): the page does not say which song it is.
+         * [audio] is the sound's own file, where the page gives it: what [recognizer] listens to.
+         */
+        data class Original(val creator: String, val audio: String? = null) : Sound()
         /** The page could not be read (the video is private or gone, or TikTok answered something else). */
         object Unknown : Sound()
     }
@@ -60,7 +71,14 @@ object TikTokShare {
         val url = LINK.find(text)?.value ?: return Sound.Unknown
         val page = runCatching { Relay.follow(url, Http.MOBILE_UA) }.getOrNull() ?: return Sound.Unknown
         if (page.code !in 200..299) return Sound.Unknown
-        return parse(page.page, id(page.url) ?: id(url) ?: "")
+        return hear(parse(page.page, id(page.url) ?: id(url) ?: ""))
+    }
+
+    /** An "original sound" is often a released song uploaded again: its audio may tell which. */
+    suspend fun hear(sound: Sound): Sound {
+        if (sound !is Sound.Original || sound.audio == null) return sound
+        val heard = recognizer?.let { r -> runCatching { r(sound.audio) }.getOrNull() } ?: return sound
+        return Sound.Song(heard, recognized = true)
     }
 
     /** The sound named by a video page's HTML. */
@@ -70,7 +88,7 @@ object TikTokShare {
         val artist = music["authorName"].str.orEmpty().trim()
         val album = music["album"].str.orEmpty().trim()
         // A song TikTok knows has an album; without one, a title like "original sound" is the creator's.
-        if (title.isEmpty() || (album.isEmpty() && isOriginal(title))) return Sound.Original(artist)
+        if (title.isEmpty() || (album.isEmpty() && isOriginal(title))) return Sound.Original(artist, music["playUrl"].str?.takeIf { it.startsWith("https://") })
         val id = music["id"].str ?: videoId
         return Sound.Song(Track(id = id, title = title, artists = listOfNotNull(artist.ifEmpty { null }), album = album))
     }
