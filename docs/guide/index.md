@@ -51,6 +51,9 @@ description (architecture, matching, services and their limits) stays in the
 - [SongShift for Android?](songshift-android): SongShift is iPhone-only; Trackhop does it on Android.
 - [Spotify's "Import your music" vs Trackhop](spotify-import-alternative): what the built-in tools do not do.
 
+**In other languages**
+- [Français](transferer-playlists) · [Deutsch](playlists-uebertragen) · [Polski](przenoszenie-playlist) · [Русский](perenos-pleylistov) · [Türkçe](calma-listesi-aktarma) · [日本語](playlist-transfer-ja) · [한국어](playlist-transfer-ko) · [中文](playlist-transfer-zh)
+
 **En español**
 - [Transferir playlists entre Spotify, YouTube Music, Apple Music y Deezer](transferir-playlists), gratis y sincronizadas.
 

@@ -1,6 +1,7 @@
 ---
 title: Free playlist sync between Spotify, YouTube Music, Apple Music and more
 description: Sync playlists for free between Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Navidrome, Jellyfin and Plex. No subscription, no track limit, no account. Open source, on Android, Windows, macOS, Linux and Docker.
+i18n: transfer
 ---
 
 # Free playlist sync, with no catch

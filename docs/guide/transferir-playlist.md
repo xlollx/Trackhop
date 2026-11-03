@@ -2,6 +2,7 @@
 title: Transferir playlists entre Spotify, YouTube Music, Apple Music e Deezer, grátis
 description: Transfira playlists do Spotify para o YouTube Music, Apple Music, Amazon Music, TIDAL ou Deezer de graça e mantenha tudo sincronizado. App de código aberto, sem conta e sem limites.
 lang: pt-BR
+i18n: transfer
 ---
 
 # Transferir playlists de um serviço para outro, grátis

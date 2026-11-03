@@ -30,6 +30,9 @@
   </script>
   {%- endif %}
   <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+{% if page.i18n %}{% assign alts = site.data.i18n_pages[page.i18n] %}{% for a in alts %}
+  <link rel="alternate" hreflang="{{ a[0] }}" href="https://trackhop.org{{ a[1] }}">{% endfor %}
+  <link rel="alternate" hreflang="x-default" href="https://trackhop.org{{ alts.en }}">{% endif %}
 </head>
 <body>
   <header class="top">
@@ -46,7 +49,7 @@
        the sitemap, people through this. Add a new page here when it is made. -->
   <div class="drawer" id="allpages" hidden>
    <div class="drawer-panel">
-    <div class="drawer-head"><strong>All pages</strong><select class="lang" aria-label="Language of the pages"><option value="en">English</option><option value="it">Italiano</option><option value="es">Español</option><option value="pt">Português</option><option value="zh">中文</option></select><button class="close" type="button" aria-label="Close">×</button></div>
+    <div class="drawer-head"><strong>All pages</strong><select class="lang" aria-label="Language of the pages"><option value="en">English</option><option value="it">Italiano</option><option value="es">Español</option><option value="pt">Português</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="pl">Polski</option><option value="ru">Русский</option><option value="tr">Türkçe</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="zh">中文</option></select><button class="close" type="button" aria-label="Close">×</button></div>
     <nav class="drawer-nav">
       <div class="grp" data-lang="en">
       <h4>Get Trackhop</h4>
@@ -126,9 +129,38 @@
       <a href="https://github.com/xlollx/Trackhop">Source code on GitHub</a>
       <a href="{{ '/guide/' | relative_url }}">The whole guide</a>
       </div>
+      <div class="grp" data-lang="fr">
+      <h4>En français</h4>
+      <a href="{{ '/guide/transferer-playlists' | relative_url }}">Transférer des playlists</a>
+      </div>
+      <div class="grp" data-lang="de">
+      <h4>Auf Deutsch</h4>
+      <a href="{{ '/guide/playlists-uebertragen' | relative_url }}">Playlists übertragen</a>
+      </div>
+      <div class="grp" data-lang="pl">
+      <h4>Po polsku</h4>
+      <a href="{{ '/guide/przenoszenie-playlist' | relative_url }}">Przenoszenie playlist</a>
+      </div>
+      <div class="grp" data-lang="ru">
+      <h4>По-русски</h4>
+      <a href="{{ '/guide/perenos-pleylistov' | relative_url }}">Перенос плейлистов</a>
+      </div>
+      <div class="grp" data-lang="tr">
+      <h4>Türkçe</h4>
+      <a href="{{ '/guide/calma-listesi-aktarma' | relative_url }}">Çalma listesi aktarma</a>
+      </div>
+      <div class="grp" data-lang="ja">
+      <h4>日本語</h4>
+      <a href="{{ '/guide/playlist-transfer-ja' | relative_url }}">プレイリストの移行</a>
+      </div>
+      <div class="grp" data-lang="ko">
+      <h4>한국어</h4>
+      <a href="{{ '/guide/playlist-transfer-ko' | relative_url }}">플레이리스트 옮기기</a>
+      </div>
       <div class="grp" data-lang="zh">
       <h4>中文</h4>
       <a href="{{ '/guide/netease-qq-music-zh' | relative_url }}">网易云音乐和 QQ 音乐歌单</a>
+      <a href="{{ '/guide/playlist-transfer-zh' | relative_url }}">迁移歌单</a>
       </div>
       <button type="button" class="more-en" hidden>More pages in English</button>
     </nav>
@@ -145,7 +177,7 @@
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
       // Language of the menu: the one chosen here, else this page's, else the browser's; English otherwise.
       var sel = d.querySelector('select.lang'), more = d.querySelector('.more-en');
-      var known = ['en', 'it', 'es', 'pt', 'zh'], saved = null;
+      var known = ['en', 'it', 'es', 'pt', 'fr', 'de', 'pl', 'ru', 'tr', 'ja', 'ko', 'zh'], saved = null;
       try { saved = localStorage.getItem('menuLang'); } catch (e) {}
       var page = (document.documentElement.lang || '').slice(0, 2), nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
       var lang = known.indexOf(saved) >= 0 ? saved : (page && page !== 'en' && known.indexOf(page) >= 0) ? page : known.indexOf(nav) >= 0 ? nav : 'en';
