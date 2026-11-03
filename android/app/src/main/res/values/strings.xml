@@ -1355,4 +1355,5 @@
     <string name="provider_note_anghami">Public Anghami playlists, read-only and without signing in: paste the playlist link (play.anghami.com/playlist/…) as the source of a sync. Not an official interface: it can stop working when the site changes.</string>
     <string name="anghami_not_public">This Anghami playlist is private or doesn\'t exist: only public links work</string>
     <string name="anghami_changed">Anghami changed its site; Trackhop needs an update</string>
+    <string name="provider_note_anghami_web">Anghami has no public API: sign in on Anghami\'s own page and Trackhop uses the web player\'s session. Not an official route, against Anghami\'s terms, may stop working. Alpha. Playlists of your own and liked songs, read and written. If the sign-in does not finish, copy the address of a gateway.php request of play.anghami.com from a computer (it holds sid=…) and use Paste.</string>
 </resources>

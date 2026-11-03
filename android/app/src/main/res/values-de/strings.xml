@@ -1355,4 +1355,5 @@
     <string name="provider_note_anghami">Öffentliche Anghami-Playlists, nur lesen und ohne Anmeldung: Füge den Link der Playlist (play.anghami.com/playlist/…) als Quelle einer Sync ein. Keine offizielle Schnittstelle: Sie kann aufhören zu funktionieren, wenn sich die Seite ändert.</string>
     <string name="anghami_not_public">Diese Anghami-Playlist ist privat oder existiert nicht: Nur öffentliche Links funktionieren</string>
     <string name="anghami_changed">Anghami hat seine Seite geändert; Trackhop braucht ein Update</string>
+    <string name="provider_note_anghami_web">Anghami hat keine öffentliche API: Melde dich auf Anghamis eigener Seite an, Trackhop nutzt dann die Sitzung des Webplayers. Kein offizieller Weg, gegen Anghamis Bedingungen, kann jederzeit aufhören zu funktionieren. Alpha. Eigene Playlists und Lieblingssongs, lesen und schreiben. Wenn die Anmeldung nicht abschließt, kopiere an einem Computer die Adresse einer gateway.php-Anfrage von play.anghami.com (sie enthält sid=…) und tippe auf Einfügen.</string>
 </resources>

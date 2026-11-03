@@ -1333,4 +1333,5 @@
     <string name="provider_note_anghami">Anghami 的公开歌单，只读且无需登录：把歌单链接（play.anghami.com/playlist/…）粘贴为同步的来源。这不是官方接口：网站变化时可能失效。</string>
     <string name="anghami_not_public">这个 Anghami 歌单是私密的或不存在：只支持公开链接</string>
     <string name="anghami_changed">Anghami 改了网站，Trackhop 需要更新</string>
+    <string name="provider_note_anghami_web">Anghami 没有公开 API：在 Anghami 自己的页面登录后，Trackhop 使用网页播放器的会话。这不是官方途径，违反 Anghami 的条款，可能随时失效。Alpha 版。读写你自己的歌单和喜欢的歌曲。如果登录无法完成，请在电脑上复制 play.anghami.com 的一个 gateway.php 请求地址（包含 sid=…），然后使用“粘贴”。</string>
 </resources>

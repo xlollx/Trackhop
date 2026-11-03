@@ -1333,4 +1333,5 @@
     <string name="provider_note_anghami">Anghami の公開プレイリストを読み取り専用・ログインなしで：プレイリストのリンク（play.anghami.com/playlist/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
     <string name="anghami_not_public">この Anghami プレイリストは非公開か存在しません：公開リンクのみ使えます</string>
     <string name="anghami_changed">Anghami のサイトが変わりました。Trackhop の更新が必要です</string>
+    <string name="provider_note_anghami_web">Anghami には公開 API がありません。Anghami のページでサインインすると、Trackhop はウェブプレーヤーのセッションを使います。公式の方法ではなく、Anghami の規約に反し、動かなくなることがあります。アルファ版。自分のプレイリストとお気に入りの曲を読み書きします。サインインが終わらない場合は、パソコンで play.anghami.com の gateway.php リクエストのアドレス（sid=… を含む）をコピーし、「貼り付け」を使ってください。</string>
 </resources>

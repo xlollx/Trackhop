@@ -1401,4 +1401,5 @@
     <string name="provider_note_anghami">Publiczne playlisty Anghami, tylko do odczytu i bez logowania: wklej link do playlisty (play.anghami.com/playlist/…) jako źródło synchronizacji. To nie jest oficjalny interfejs: może przestać działać, gdy strona się zmieni.</string>
     <string name="anghami_not_public">Ta playlista Anghami jest prywatna lub nie istnieje: działają tylko publiczne linki</string>
     <string name="anghami_changed">Anghami zmieniło stronę; Trackhop wymaga aktualizacji</string>
+    <string name="provider_note_anghami_web">Anghami nie ma publicznego API: zaloguj się na stronie Anghami, a Trackhop użyje sesji odtwarzacza webowego. To nie jest oficjalna droga, narusza warunki Anghami i może przestać działać. Alfa. Twoje playlisty i polubione utwory, odczyt i zapis. Jeśli logowanie się nie kończy, skopiuj na komputerze adres żądania gateway.php z play.anghami.com (zawiera sid=…) i użyj Wklej.</string>
 </resources>

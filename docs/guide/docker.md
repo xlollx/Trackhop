@@ -208,6 +208,23 @@ What works: a free account's **presets**, shown as the liked songs, as a source 
 (songs are added, not removed); search. Not yet: playlists of your own (they need LiveOne's paid
 plan), removing songs, and stations as a radio source (LiveOne plays them only in the US).
 
+## Anghami (unofficial)
+
+Anghami has no public API: Trackhop goes through play.anghami.com's own web player, unofficial and
+alpha, like the web connectors above. No developer key. (Public playlist links work without any of
+this: paste them as the source of a sync.)
+
+1. In a desktop browser, sign in to [play.anghami.com](https://play.anghami.com).
+2. Open the developer tools (F12), then **Network**; type `gateway` in the filter and open your library.
+3. Right-click one of the `gateway.php` requests › **Copy** › **Copy URL**.
+4. In Trackhop, **Services › Add › Anghami (web)**, paste it and press **Connect**.
+
+The `sid` in that address is the session: it lasts until you sign out of Anghami in that browser, and
+it is as good as your password, so keep it to yourself.
+
+What works: your playlists and your liked songs, as a source and as a target (add, remove, create,
+rename, delete); search.
+
 ## Radio syncs
 
 A radio sync listens to an internet radio in the hours you choose and saves the songs it plays to a

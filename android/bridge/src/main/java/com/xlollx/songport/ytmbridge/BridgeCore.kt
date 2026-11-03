@@ -235,6 +235,32 @@ object BridgeCore {
                 }
                 "deezer.rename" -> { DeezerWebClient(ctx).renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "deezer.delete" -> { DeezerWebClient(ctx).deletePlaylist(arg ?: return err("missing playlist id")); deezerCache.invalidate(arg); Bundle() }
+                // ---- Anghami web session: the web player's gateway with its sid; the liked songs as "__liked__".
+                "anghami.status" -> Bundle().apply {
+                    putBoolean("connected", AnghamiBridge.session.isConnected(ctx))
+                    putString("account", AnghamiBridge.session.account(ctx))
+                    putInt("version", VERSION)
+                }
+                "anghami.disconnect" -> { AnghamiBridge.session.clear(ctx); anghamiCache.clear(); Bundle() }
+                "anghami.playlists" -> ok(json.encodeToString(AnghamiWebClient(ctx).playlists()))
+                "anghami.tracks" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val all = anghamiCache.get(id) { val c = AnghamiWebClient(ctx); if (id == LIKED) c.liked() else c.tracks(id) }
+                    paged(json.encodeToString(all.drop(extras?.getInt("offset") ?: 0).take(PAGE)), all.size, extras?.getInt("offset") ?: 0)
+                }
+                "anghami.search" -> ok(json.encodeToString(AnghamiWebClient(ctx).search(arg ?: "")))
+                "anghami.create" -> ok(json.encodeToString(AnghamiWebClient(ctx).create(extras?.getString("name") ?: "Playlist")))
+                "anghami.add", "anghami.remove" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
+                    val on = method == "anghami.add"
+                    val c = AnghamiWebClient(ctx)
+                    when { id == LIKED -> c.like(ids, on); on -> c.add(id, ids); else -> c.remove(id, ids) }
+                    anghamiCache.invalidate(id)
+                    Bundle()
+                }
+                "anghami.rename" -> { AnghamiWebClient(ctx).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
+                "anghami.delete" -> { AnghamiWebClient(ctx).delete(arg ?: return err("missing playlist id")); anghamiCache.invalidate(arg); Bundle() }
                 // ---- LiveOne web session: the presets (as liked songs), read whole and added to; search without an account.
                 "liveone.status" -> Bundle().apply {
                     putBoolean("connected", LiveOneBridge.session.isConnected(ctx))
@@ -342,6 +368,7 @@ object BridgeCore {
     }
 
     private val deezerCache = ListCache<TrackDto>()
+    private val anghamiCache = ListCache<TrackDto>()
     private val soundCloudCache = ListCache<kotlinx.serialization.json.JsonObject>()
 
     /** One page of a listing, as the `tracks` methods answer: the page, the total, and where the next one starts. */

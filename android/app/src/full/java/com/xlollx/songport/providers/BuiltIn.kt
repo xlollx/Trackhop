@@ -38,6 +38,7 @@ object BuiltIn {
         DeezerBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.DEEZER)
         SoundCloudBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.SOUNDCLOUD)
         LiveOneBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.LIVEONE)
+        AnghamiBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.ANGHAMI)
         else -> null
     }
 

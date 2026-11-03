@@ -23,6 +23,7 @@ fun installConnectors() = Providers.install(
         Factory(DeezerBridgeProvider.SERVICE) { DeezerBridgeProvider(it) },
         // LiveOne has no official route: only in the builds that carry the web connectors.
         Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) }.takeIf { BuiltIn.available },
+        Factory(AnghamiBridgeProvider.SERVICE) { AnghamiBridgeProvider(it) }.takeIf { BuiltIn.available },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },

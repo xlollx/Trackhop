@@ -1399,4 +1399,5 @@
     <string name="provider_note_anghami">Публичные плейлисты Anghami, только чтение и без входа: вставьте ссылку на плейлист (play.anghami.com/playlist/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
     <string name="anghami_not_public">Этот плейлист Anghami закрыт или не существует: работают только публичные ссылки</string>
     <string name="anghami_changed">Anghami изменил сайт; Trackhop нужно обновить</string>
+    <string name="provider_note_anghami_web">У Anghami нет публичного API: войдите на странице Anghami, и Trackhop использует сессию веб-плеера. Это не официальный способ, он нарушает условия Anghami и может перестать работать. Альфа. Ваши плейлисты и любимые треки, чтение и запись. Если вход не завершается, скопируйте на компьютере адрес запроса gateway.php с play.anghami.com (в нём есть sid=…) и нажмите «Вставить».</string>
 </resources>

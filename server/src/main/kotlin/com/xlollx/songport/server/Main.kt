@@ -48,6 +48,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerWebServerProvider.SERVICE) { DeezerWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(LiveOneWebServerProvider.SERVICE) { LiveOneWebServerProvider(it) }.takeUnless { officialOnly },
+        Factory(AnghamiWebServerProvider.SERVICE) { AnghamiWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },

@@ -70,10 +70,11 @@ class WebLoginActivity : ComponentActivity() {
             ACTION_DEEZER -> DEEZER
             ACTION_SOUNDCLOUD -> SOUNDCLOUD
             ACTION_LIVEONE -> LIVEONE
+            ACTION_ANGHAMI -> ANGHAMI
             else -> intent.getStringExtra(EXTRA_SERVICE) ?: SPOTIFY
         }
         // Deezer and SoundCloud came with a notice that names them: an acceptance of the older one does not cover them.
-        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE) Disclaimer.VERSION else 1) { setup() }
+        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI) Disclaimer.VERSION else 1) { setup() }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -89,9 +90,9 @@ class WebLoginActivity : ComponentActivity() {
         })
         // LiveOne: where the in-app sign-in cannot finish (Google may refuse an embedded browser), the
         // player's `slackerUser` entry copied from a desktop browser works the same.
-        if (service == LIVEONE) bar.addView(android.widget.Button(this).apply {
+        if (service == LIVEONE || service == ANGHAMI) bar.addView(android.widget.Button(this).apply {
             text = getString(android.R.string.paste)
-            setOnClickListener { pasteLiveOne() }
+            setOnClickListener { if (service == ANGHAMI) pasteAnghami() else pasteLiveOne() }
         })
         bar.addView(android.widget.Button(this).apply {
             text = getString(R.string.bridge_login_done)
@@ -180,6 +181,7 @@ class WebLoginActivity : ComponentActivity() {
                 // SoundCloud's web app names itself with a client id on every API call, and signed in
                 // sends the account's token: both kept for ours (see [watchSoundCloud]).
                 watchSoundCloud(request)
+                watchAnghami(request.url.toString())
                 watchBotCheck(request.url.toString())
                 // Only watched: every request goes on as the page made it.
                 return null
@@ -249,6 +251,7 @@ class WebLoginActivity : ComponentActivity() {
             DEEZER -> DeezerBridge.LOGIN_URL
             SOUNDCLOUD -> SoundCloudBridge.LOGIN_URL
             LIVEONE -> LiveOneBridge.LOGIN_URL
+            ANGHAMI -> AnghamiWebClient.LOGIN_URL
             else -> SpotifyBridge.LOGIN_URL
         })
         // Sign-in overlays (Apple ID) do not navigate: poll the cookie jar while the screen is open.
@@ -377,6 +380,7 @@ class WebLoginActivity : ComponentActivity() {
         DEEZER -> "Deezer"
         SOUNDCLOUD -> "SoundCloud"
         LIVEONE -> "LiveOne"
+        ANGHAMI -> "Anghami"
         else -> "Spotify"
     }
 
@@ -396,6 +400,7 @@ class WebLoginActivity : ComponentActivity() {
         if (done) return true
         if (service == SOUNDCLOUD) return checkSoundCloud()
         if (service == LIVEONE) return checkLiveOne()
+        if (service == ANGHAMI) return false
         val origin = when (service) {
             APPLE -> "https://music.apple.com"
             DEEZER -> DeezerBridge.ORIGIN
@@ -482,6 +487,56 @@ class WebLoginActivity : ComponentActivity() {
         keepLiveOne(text)
     }
 
+    /**
+     * Anghami: once signed in, the player names its session (sid) on every request to its gateway.
+     * The first one seen is tried (reading the playlists) before the screen closes; one Anghami
+     * refuses is not tried again.
+     */
+    @Volatile private var anghamiTrying = false
+    private var anghamiRefused: String? = null
+    private fun watchAnghami(url: String) {
+        if (service != ANGHAMI || done || anghamiTrying) return
+        val (sid, fingerprint) = AnghamiBridge.fromRequest(url) ?: return
+        if (sid == anghamiRefused) return
+        anghamiTrying = true
+        handler.post { keepAnghami(sid, fingerprint, fromPage = true) }
+    }
+
+    private fun pasteAnghami() {
+        val cm = getSystemService(android.content.ClipboardManager::class.java)
+        val text = runCatching { cm?.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() }.getOrNull().orEmpty()
+        // A whole request address copied from the developer tools carries the fingerprint too.
+        val (sid, fingerprint) = AnghamiWebClient.sessionIn(text) ?: (null to null)
+        if (sid == null) {
+            android.widget.Toast.makeText(this, "Anghami: no session in the clipboard", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        keepAnghami(sid, fingerprint, fromPage = false)
+    }
+
+    private fun keepAnghami(sid: String, fingerprint: String?, fromPage: Boolean) {
+        if (done) return
+        val app = applicationContext
+        thread {
+            val why = AnghamiBridge.keep(app, sid, fingerprint) ?: runCatching { AnghamiWebClient(app).playlists(); null }
+                .getOrElse { it.message ?: it.javaClass.simpleName }
+            handler.post {
+                anghamiTrying = false
+                if (done || isFinishing) return@post
+                if (why == null) {
+                    done = true
+                    BridgeNet.log("anghami", "sign-in: session kept")
+                    setResult(RESULT_OK)
+                    finish()
+                    return@post
+                }
+                AnghamiBridge.session.clear(app)
+                if (fromPage) { anghamiRefused = sid; BridgeNet.log("anghami", "sign-in: the page's session was refused ($why)") }
+                else android.widget.Toast.makeText(this, "Anghami: $why", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun keepLiveOne(value: String) {
         if (done) return
         val app = applicationContext
@@ -557,12 +612,14 @@ class WebLoginActivity : ComponentActivity() {
         const val ACTION_DEEZER = "com.xlollx.songport.ytmbridge.DEEZER_LOGIN"
         const val ACTION_SOUNDCLOUD = "com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN"
         const val ACTION_LIVEONE = "com.xlollx.songport.ytmbridge.LIVEONE_LOGIN"
+        const val ACTION_ANGHAMI = "com.xlollx.songport.ytmbridge.ANGHAMI_LOGIN"
         const val EXTRA_SERVICE = "service"
         const val SPOTIFY = "spotify"
         const val APPLE = "apple"
         const val DEEZER = "deezer"
         const val SOUNDCLOUD = "soundcloud"
         const val LIVEONE = "liveone"
+        const val ANGHAMI = "anghami"
 
         fun intent(ctx: android.content.Context, service: String): Intent =
             Intent(ctx, WebLoginActivity::class.java).setAction(when (service) {
@@ -570,6 +627,7 @@ class WebLoginActivity : ComponentActivity() {
                 DEEZER -> ACTION_DEEZER
                 SOUNDCLOUD -> ACTION_SOUNDCLOUD
                 LIVEONE -> ACTION_LIVEONE
+                ANGHAMI -> ACTION_ANGHAMI
                 else -> ACTION_SPOTIFY
             })
     }
