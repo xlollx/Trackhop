@@ -1,0 +1,1 @@
+New: Anghami, from a public playlist link or with your account (unofficial, alpha). A source that renames itself, like a Spotify daylist, renames the synced playlist too, unless you named it; on Spotify the new cover follows. Spotify searches go at a steady pace, so a big first sync no longer waits half an hour. YouTube API liked songs leave out videos that are not songs.

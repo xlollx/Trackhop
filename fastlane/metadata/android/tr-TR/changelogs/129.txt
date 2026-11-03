@@ -1,0 +1,1 @@
+Yeni: Anghami, herkese açık bağlantıdan veya hesabınla (resmi değil, alfa). Kaynak adını değiştirdiğinde (Spotify daylist gibi), kendi ad vermediysen eşitlenen liste de değiştirir; Spotify'da kapak da güncellenir. Spotify aramaları sabit hızda yapılır: büyük ilk eşitleme artık yarım saat beklemez. YouTube API beğenileri şarkı olmayan videoları dışarıda bırakır.

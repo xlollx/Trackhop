@@ -1,0 +1,1 @@
+When a source renames itself, like a Spotify daylist, the synced playlist takes the new name too, unless you named it; on Spotify the new cover follows. Spotify searches go at a steady pace, so a big first sync no longer waits half an hour. YouTube API liked songs leave out videos that are not songs.
