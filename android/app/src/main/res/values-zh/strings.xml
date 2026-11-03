@@ -1362,4 +1362,6 @@
     <string name="whats_new_19_widgets_title">全新小组件</string>
     <string name="whats_new_19_widgets_body">在主屏幕上以手机配色显示同步：全部同步并可用 ▶ 运行、选择的单个同步，或一个“全部同步”图块。</string>
     <string name="tiktok_recognized">根据视频音频识别，并非 TikTok 标注：请确认是否为正确的歌曲。</string>
+    <string name="whats_new_110_tiktok_title">TikTok：原声中的歌曲</string>
+    <string name="whats_new_110_tiktok_body">分享使用创作者原声的 TikTok：Trackhop 现在会聆听音频，常常能找出其中播放的歌曲，添加到你想要的地方。</string>
 </resources>

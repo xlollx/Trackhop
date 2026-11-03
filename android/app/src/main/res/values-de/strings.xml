@@ -1385,4 +1385,6 @@
     <string name="whats_new_19_widgets_title">Neue Widgets</string>
     <string name="whats_new_19_widgets_body">Deine Syncs auf dem Startbildschirm in den Farben deines Handys: alle mit ▶ zum Starten, eine Sync deiner Wahl oder eine Kachel „Alle synchronisieren“.</string>
     <string name="tiktok_recognized">An der Tonspur des Videos erkannt, nicht von TikTok genannt: prüfe, ob es der richtige Song ist.</string>
+    <string name="whats_new_110_tiktok_title">TikTok: der Song im Originalton</string>
+    <string name="whats_new_110_tiktok_body">Teile ein TikTok mit eigenem Ton des Creators: Trackhop hört jetzt hinein und findet oft den Song darin, um ihn hinzuzufügen, wo du willst.</string>
 </resources>

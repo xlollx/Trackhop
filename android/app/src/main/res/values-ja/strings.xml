@@ -1362,4 +1362,6 @@
     <string name="whats_new_19_widgets_title">新しいウィジェット</string>
     <string name="whats_new_19_widgets_body">ホーム画面に端末のカラーで同期を表示：すべての同期と ▶ ボタン、選んだ1件、または「すべて同期」タイル。</string>
     <string name="tiktok_recognized">TikTok の表示ではなく動画の音声から認識しました。正しい曲か確認してください。</string>
+    <string name="whats_new_110_tiktok_title">TikTok：オリジナル楽曲の中の曲</string>
+    <string name="whats_new_110_tiktok_body">クリエイター独自のサウンドの TikTok を共有すると、Trackhop が音声を聴いて流れている曲を見つけられることが多くなりました。好きな場所に追加できます。</string>
 </resources>

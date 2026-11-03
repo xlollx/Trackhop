@@ -1393,4 +1393,6 @@
     <string name="whats_new_19_widgets_title">Nouveaux widgets</string>
     <string name="whats_new_19_widgets_body">Vos synchros sur l\'écran d\'accueil aux couleurs du téléphone : toutes avec ▶ pour les lancer, une synchro au choix, ou une tuile « Tout synchroniser ».</string>
     <string name="tiktok_recognized">Reconnue à partir du son de la vidéo, pas indiquée par TikTok : vérifie que c\'est le bon titre.</string>
+    <string name="whats_new_110_tiktok_title">TikTok : le titre d\'un son original</string>
+    <string name="whats_new_110_tiktok_body">Partage un TikTok au son propre du créateur : Trackhop l\'écoute maintenant et trouve souvent le titre qui y passe, pour l\'ajouter où tu veux.</string>
 </resources>

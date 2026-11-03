@@ -97,6 +97,14 @@ object WhatsNew {
     val releases: List<Release> by lazy {
         listOf(
             Release(
+                "1.10",
+                listOfNotNull(
+                    // Where TikTok is read and a song can be recognised: built in, or on Google Play through a connector plugin.
+                    Item(Icons.Filled.MusicVideo, JobColor.PINK, R.string.whats_new_110_tiktok_title, R.string.whats_new_110_tiktok_body,
+                        shown = { com.xlollx.songport.sync.TikTokShare.enabled && com.xlollx.songport.sync.TikTokShare.recognizer != null }),
+                ),
+            ),
+            Release(
                 "1.9",
                 listOf(
                     Item(Icons.Filled.Widgets, JobColor.BLUE, R.string.whats_new_19_widgets_title, R.string.whats_new_19_widgets_body),

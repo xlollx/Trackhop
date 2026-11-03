@@ -1385,4 +1385,6 @@
     <string name="whats_new_19_widgets_title">New widgets</string>
     <string name="whats_new_19_widgets_body">Your syncs on the home screen in your phone\'s colours: all of them with ▶ to run each, one sync of your choice, or a single “Sync all” tile.</string>
     <string name="tiktok_recognized">Recognised from the video\'s audio, not named by TikTok: check it is the right song.</string>
+    <string name="whats_new_110_tiktok_title">TikTok: the song in an original sound</string>
+    <string name="whats_new_110_tiktok_body">Share a TikTok whose sound is the creator\'s own: Trackhop now listens to it and often finds the song playing in it, to add it wherever you like.</string>
 </resources>

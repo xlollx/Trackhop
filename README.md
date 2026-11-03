@@ -82,7 +82,7 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Anghami** | ✓ | ✓ | ✓ | Quick sign-in with your Anghami account: your playlists and likes (alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
 | | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
-| **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker · plugin |
+| **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses, or recognises it from the audio | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
 
@@ -257,7 +257,7 @@ reports are what make it better: if something does not work as it should, say so
 | Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF and plain text. |
 | | setlist.fm | Share or paste a setlist.fm link: the concert becomes a playlist to sync anywhere. |
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
-| | TikTok | Share a TikTok video (GitHub and F-Droid builds): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song, and Trackhop says so. Also in Desktop and Docker: paste the link in a review search. |
+| | TikTok | Share a TikTok video (GitHub and F-Droid builds, Google Play with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
 | Widget and shortcuts | Home widget and long-press on the icon | Last sync, "Sync all", "New sync". |
 | Diagnostics | "Share technical details" in the log | Version, device, services, last runs, error log; no tokens. |
 | | "Test the connection" per account | Account, playlist list and one search, with the service's answer on failure. |
@@ -691,6 +691,13 @@ The name "Trackhop" (and "Songport", its former name) is not licensed: it identi
 project's official releases. A fork that changes the app and distributes it should use a name of its
 own, as section 7(c) of the license permits to require, so users can tell the two apart. Names of the music
 services mentioned in this project are trademarks of their respective owners.
+
+**Credits.** The audio signature that recognises the song in a TikTok "original sound"
+(`android/ytm/.../Shazam.kt`) is a port to Kotlin of [SongRec](https://github.com/marin-m/SongRec)
+by Marin M. (GPL-3.0), whose author worked out Shazam's signature format. It talks to Shazam's
+unofficial endpoint, so it is only in the builds that use unofficial services (GitHub, F-Droid,
+Docker, Desktop outside the Microsoft Store, and the Google Play build through the plugin). MP3s are
+decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) (LGPL-2.1).
 
 ## Known limits
 

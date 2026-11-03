@@ -1393,4 +1393,6 @@
     <string name="whats_new_19_widgets_title">Novos widgets</string>
     <string name="whats_new_19_widgets_body">Suas syncs na tela inicial com as cores do celular: todas com ▶ para executar, uma sync à sua escolha ou um botão “Sincronizar tudo”.</string>
     <string name="tiktok_recognized">Reconhecida pelo áudio do vídeo, não informada pelo TikTok: confira se é a música certa.</string>
+    <string name="whats_new_110_tiktok_title">TikTok: a música de um som original</string>
+    <string name="whats_new_110_tiktok_body">Compartilhe um TikTok com som próprio do criador: agora o Trackhop o escuta e muitas vezes encontra a música que toca nele, para adicionar onde quiser.</string>
 </resources>

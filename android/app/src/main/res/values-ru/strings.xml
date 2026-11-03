@@ -1431,4 +1431,6 @@
     <string name="whats_new_19_widgets_title">Новые виджеты</string>
     <string name="whats_new_19_widgets_body">Ваши синхронизации на главном экране в цветах телефона: все с ▶ для запуска, одна на выбор или плитка «Синхронизировать всё».</string>
     <string name="tiktok_recognized">Распознано по звуку видео, TikTok его не указывает: проверьте, та ли это песня.</string>
+    <string name="whats_new_110_tiktok_title">TikTok: песня в оригинальном звуке</string>
+    <string name="whats_new_110_tiktok_body">Поделитесь TikTok с собственным звуком автора: теперь Trackhop прослушивает его и часто находит звучащую песню, чтобы добавить её куда угодно.</string>
 </resources>
