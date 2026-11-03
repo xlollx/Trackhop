@@ -200,6 +200,28 @@
       lang_(lang);
     })();
   </script>
+  <!-- An English page seen by a visitor whose browser speaks another language, with no version of
+       this page in it: a link to Google Translate's copy of the page (no script of Google's here). -->
+  <p class="xlate" id="xlate" hidden><a rel="nofollow"></a></p>
+  <script>
+    (function () {
+      var l = (navigator.language || 'en').toLowerCase(), short = l.slice(0, 2);
+      if (short === 'en' || (document.documentElement.lang || 'en').slice(0, 2) !== 'en') return;
+      var alts = document.querySelectorAll('link[rel="alternate"][hreflang]');
+      for (var i = 0; i < alts.length; i++) if (alts[i].hreflang.slice(0, 2) === short) {
+        var own = document.getElementById('xlate'); own.querySelector('a').href = alts[i].href;
+        own.querySelector('a').textContent = (new Intl.DisplayNames([l], { type: 'language' }).of(short) || short) + ' ›';
+        own.hidden = false; return;
+      }
+      var tl = short === 'zh' ? 'zh-CN' : short === 'pt' ? 'pt' : short;
+      var host = location.hostname.replace(/-/g, '--').replace(/\./g, '-');
+      var x = document.getElementById('xlate'), a = x.querySelector('a');
+      a.href = 'https://' + host + '.translate.goog' + location.pathname + '?_x_tr_sl=en&_x_tr_tl=' + tl + '&_x_tr_hl=' + tl;
+      var name = short; try { name = new Intl.DisplayNames([l], { type: 'language' }).of(short); } catch (e) {}
+      a.textContent = 'Translate this page: ' + name + ' (Google Translate) ›';
+      x.hidden = false;
+    })();
+  </script>
   <main class="{{ page.main_class | default: 'prose' }}">
 {{ content }}
   </main>
