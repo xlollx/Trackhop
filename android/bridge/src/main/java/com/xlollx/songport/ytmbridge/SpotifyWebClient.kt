@@ -252,6 +252,7 @@ class SpotifyWebClient(private val host: Host) {
 
     /** One persisted query. GraphQL errors and a refused write (HTTP 200, a failure typename) both throw. */
     fun gql(operation: String, variables: JsonObject, retry: Boolean = true): JsonElement {
+        if (operation.startsWith("search")) paceSearch()
         val body = jsonObj(
             "variables" to variables,
             "operationName" to operation,
@@ -676,6 +677,22 @@ class SpotifyWebClient(private val host: Host) {
     }
 
     companion object {
+        /**
+         * Searches spaced out, about three a second across every client of the process: a burst of
+         * them makes Spotify block for half an hour (issue #30), a steady pace does not.
+         */
+        private const val SEARCH_GAP_MS = 350L
+        private var nextSearchAt = 0L
+        @JvmStatic private fun paceSearch() {
+            val wait = synchronized(this) {
+                val now = System.currentTimeMillis()
+                val at = maxOf(now, nextSearchAt)
+                nextSearchAt = at + SEARCH_GAP_MS
+                at - now
+            }
+            if (wait > 0) Thread.sleep(wait)
+        }
+
         const val PATHFINDER = "https://api-partner.spotify.com/pathfinder/v1/query"
         /** open.spotify.com's own client id, unchanged for years; the page is read first all the same. */
         const val WEB_PLAYER_CLIENT_ID = "d8a5ed958d274c2e8ee717e6a4b0971d"
