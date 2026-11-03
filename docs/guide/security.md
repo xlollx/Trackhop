@@ -20,7 +20,7 @@ its own SHA-256 is the same (on Windows `certutil -hashfile <file> SHA256`, on m
 
 ## How Trackhop is built
 
-- **Open source.** All the code is on [GitHub](https://github.com/xlollx/Trackhop), under the GPL-3.0.
+- **Open source.** All the code is on [GitHub](https://github.com/xlollx/Trackhop), under the AGPL-3.0.
 - **Built in public.** Every file of a release is built by GitHub Actions from the code of that
   release's commit, and the build logs are public. Nothing is built on a personal computer.
 - **F-Droid builds it again.** F-Droid compiles the Android app from the source on its own servers

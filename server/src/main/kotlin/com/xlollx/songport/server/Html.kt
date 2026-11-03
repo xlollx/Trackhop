@@ -118,7 +118,7 @@ ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""
 $body
 </main>
 <footer><a class="coffee" href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">☕ Buy me a coffee</a> <span class="muted">Optional: nothing is unlocked, everything stays free.</span><br>
-${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop">GitHub</a> · <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">Sponsor</a>${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
+${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop" title="Free software under the AGPL-3.0: this is its source code">Source code</a> · <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">Sponsor</a>${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
 </body></html>"""
 
     /**

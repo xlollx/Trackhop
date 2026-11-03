@@ -8,7 +8,7 @@ description: Keep playlists in sync between Spotify, YouTube, TIDAL, Navidrome, 
 **Trackhop Desktop** keeps your playlists identical across music services on Linux: Spotify,
 YouTube and TIDAL (with your own free developer key), your Navidrome, Jellyfin or Plex server,
 Last.fm and ListenBrainz, and playlist files. It runs your syncs on a schedule, with an icon in the
-tray and its own window. Free and open source (GPL-3.0), no account, its own Java runtime included.
+tray and its own window. Free and open source (AGPL-3.0), no account, its own Java runtime included.
 
 ![Trackhop Desktop: the syncs, with their last result and the next run](../store/desktop/1-syncs.jpg)
 

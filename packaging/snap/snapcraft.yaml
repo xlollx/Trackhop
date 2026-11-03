@@ -15,12 +15,12 @@ description: |
   in any browser on this computer at 127.0.0.1, port 8642. Nothing outside the computer can reach
   them; sign-ins and keys stay on your computer.
 
-  The same sync engine as the Android app. Open source (GPL-3.0). https://trackhop.org
+  The same sync engine as the Android app. Open source (AGPL-3.0). https://trackhop.org
 version: '0.0.0' # set by snap.yml from server/VERSION
 base: core24
 grade: stable
 confinement: strict
-license: GPL-3.0-only
+license: AGPL-3.0-only
 website: https://trackhop.org
 source-code: https://github.com/xlollx/Trackhop
 issues: https://github.com/xlollx/Trackhop/issues

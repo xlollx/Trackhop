@@ -28,7 +28,7 @@ the file with "Replace" instead. No `prebuild` step is needed for the Play flavo
 fdroiddata's CI (pipeline 2878053202 on !49974, scanner included) passed on the recipe without it.
 
 The icon and the feature graphics are CC BY-SA 4.0 (see the README's licence section), so F-Droid
-can carry them; the code is GPL-3.0-only.
+can carry them; the code is AGPL-3.0-only.
 
 Check a change locally with `pip install fdroidserver`, then `fdroid rewritemeta` and `fdroid lint`
 in a folder holding `metadata/com.xlollx.songport.yml`.

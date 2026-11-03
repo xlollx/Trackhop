@@ -2,7 +2,7 @@
 
 The [Homebrew](https://brew.sh) tap of [Trackhop Desktop](https://github.com/xlollx/Trackhop) for
 macOS (Apple silicon and Intel), which keeps your playlists in sync across Spotify, YouTube, TIDAL,
-Navidrome, Jellyfin, Plex and more. Free and open source (GPL-3.0).
+Navidrome, Jellyfin, Plex and more. Free and open source (AGPL-3.0).
 
 ```sh
 brew install --cask xlollx/tap/trackhop

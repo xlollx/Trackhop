@@ -22,7 +22,7 @@ music accounts are never handed to a third party.
 | Where it runs | On your Android phone, your computer ([Windows, macOS, Linux](desktop)) or your own server ([Docker](docker)) | On Soundiiz's servers, in the browser |
 | Who holds your music logins | Only your device, encrypted | The service |
 | Your own music server | Navidrome and other Subsonic servers, Jellyfin, Plex | Not among the services it lists |
-| Source code | Open (GPL-3.0) | Closed |
+| Source code | Open (AGPL-3.0) | Closed |
 
 Soundiiz's column follows its own pricing page as of October 2026; check it there for the current
 details.
@@ -55,7 +55,7 @@ Step-by-step guides: [Spotify to YouTube Music](spotify-to-youtube-music) ·
 
 ## Questions
 
-**Is Trackhop really free?** Yes: free software under the GPL-3.0, with no paid plan and no feature
+**Is Trackhop really free?** Yes: free software under the AGPL-3.0, with no paid plan and no feature
 behind a paywall. The Google Play version shows a small ad; the GitHub and F-Droid versions have none.
 
 **Does it work on iPhone?** There is no iPhone app. On a computer, [Trackhop Desktop](desktop) does

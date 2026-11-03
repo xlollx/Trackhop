@@ -9,7 +9,7 @@
     <name>xlollx</name>
   </developer>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0-only</project_license>
+  <project_license>AGPL-3.0-only</project_license>
 
   <description>
     <p>
@@ -95,6 +95,12 @@
   </requires>
 
   <releases>
+    <release version="1.1.0" date="2026-11-03">
+      <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v1.1.0</url>
+      <description>
+        <p>Review several tracks at once and remove wrong matches; find the song of a TikTok video from its link. Trackhop is now under the AGPL-3.0.</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-11-02">
       <url type="details">https://github.com/xlollx/Trackhop/releases/tag/server-v1.0.0</url>
       <description>

@@ -9,7 +9,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
   <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json&cacheSeconds=3600" alt="Downloads from GitHub and Docker Hub"></a>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/github/stars/xlollx/Trackhop?style=flat&label=stars&color=e3b341" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue" alt="License: GPL-3.0-only"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-desktop.json&label=Desktop%20on%20VirusTotal" alt="Trackhop Desktop's files on VirusTotal"></a>
@@ -27,9 +27,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker: beta)</sub><br>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://trackhop.org/guide/desktop#macos"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
 </p>
 
@@ -59,7 +59,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 | Account, subscription | None | Account; limits on the free plan |
 | Scheduled sync, removals mirrored | Yes | Mostly paid plans |
 | Personal servers (Navidrome, Jellyfin, Plex) | Yes | Rarely |
-| Source code | Open (GPL-3.0-only) | Closed |
+| Source code | Open (AGPL-3.0-only) | Closed |
 
 ### Install
 
@@ -75,14 +75,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares the two.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 1.0.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.0.0)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.0.0/Trackhop-Desktop-v1.0.0-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 1.1.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.1.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -110,7 +110,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 1.0.0), separate from the app's.
+- Desktop and Docker have their **own version** (now 1.1.0), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
@@ -128,7 +128,7 @@ common errors.
   YouTube Music, TIDAL, Deezer, Last.fm) each user creates a free developer key, and the app walks
   them through it in about two minutes. Or use the quick route: sign in on the service's own page.
   Personal servers and files need nothing.
-- License: GPL-3.0-only, see [LICENSE](LICENSE). Security reports: [SECURITY.md](SECURITY.md).
+- License: AGPL-3.0-only, see [LICENSE](LICENSE). Security reports: [SECURITY.md](SECURITY.md).
 
 ---
 
@@ -214,7 +214,7 @@ that is exactly what to report.
 | Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF and plain text. |
 | | setlist.fm | Share or paste a setlist.fm link: the concert becomes a playlist to sync anywhere. |
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
-| | TikTok | Share a TikTok video (GitHub and F-Droid builds): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song, and Trackhop says so. Also in Desktop and Docker: paste the link in a review search. Instagram Reels need an account to be read, so they are not supported yet. |
+| | TikTok | Share a TikTok video (GitHub and F-Droid builds): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song, and Trackhop says so. Also in Desktop and Docker: paste the link in a review search. |
 | Widget and shortcuts | Home widget and long-press on the icon | Last sync, "Sync all", "New sync". |
 | Diagnostics | "Share technical details" in the log | Version, device, services, last runs, error log; no tokens. |
 | | "Test the connection" per account | Account, playlist list and one search, with the service's answer on failure. |
@@ -621,9 +621,11 @@ links keep working.
 ## License, copyright and trademark
 
 Trackhop is free software: you can redistribute it and/or modify it under the terms of the GNU
-General Public License, version 3 only (SPDX `GPL-3.0-only`, see [LICENSE](LICENSE)). Copyright (C) 2026 xlollx and
+Affero General Public License, version 3 only (SPDX `AGPL-3.0-only`, see [LICENSE](LICENSE)). Copyright (C) 2026 xlollx and
 contributors. Any distributed build of this code or of a modified version must ship its complete
-source code under the same license, as the GPL requires.
+source code under the same license, and so must a modified version that people use over a network
+(a hosted Trackhop server, for example): its users are offered its source code. Releases up to app
+1.6.2 and server 1.0.0 were published under the GPL-3.0-only and stay available under it.
 
 The app icon (`android/app/src/main/res/mipmap*`, `android/app/src/main/res/drawable/ic_launcher*`,
 `fastlane/metadata/android/en-US/images/icon.png`, `docs/store/icon512.png`) and the feature
@@ -635,7 +637,7 @@ project may keep them.
 
 The name "Trackhop" (and "Songport", its former name) is not licensed: it identifies this
 project's official releases. A fork that changes the app and distributes it should use a name of its
-own, as GPLv3 section 7(c) permits to require, so users can tell the two apart. Names of the music
+own, as section 7(c) of the license permits to require, so users can tell the two apart. Names of the music
 services mentioned in this project are trademarks of their respective owners.
 
 ## Known limits

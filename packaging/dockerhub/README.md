@@ -37,5 +37,5 @@ The same image is on the GitHub Container Registry as `ghcr.io/xlollx/trackhop`.
 
 - [The Docker guide](https://trackhop.org/guide/docker): Docker Compose, settings,
   services, reverse proxy, API.
-- [Source code](https://github.com/xlollx/Trackhop) (GPL-3.0-only) and
+- [Source code](https://github.com/xlollx/Trackhop) (AGPL-3.0-only) and
   [issues](https://github.com/xlollx/Trackhop/issues).

@@ -2,7 +2,7 @@
     "version": "0.5.1",
     "description": "Keeps playlists in sync between music services (Spotify, YouTube, TIDAL, Navidrome, Jellyfin, Plex...).",
     "homepage": "https://trackhop.org/",
-    "license": "GPL-3.0-only",
+    "license": "AGPL-3.0-only",
     "notes": [
         "Trackhop keeps its data (syncs, sign-ins, log) in %APPDATA%\\Trackhop, outside Scoop's folders:",
         "updating or uninstalling with Scoop leaves it in place. Its pages: http://127.0.0.1:8642",
