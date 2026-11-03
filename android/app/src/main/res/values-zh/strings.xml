@@ -1344,4 +1344,21 @@
     <string name="whats_new_18_liked_body">通过 YouTube（Google API）连接，点赞的歌曲可作为来源和目标，排除非音乐视频。</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">登录 Anghami 同步你的歌单和喜欢的歌曲，或粘贴公开歌单链接。</string>
+    <string name="widget_running">进行中…</string>
+    <string name="widget_no_syncs">还没有同步：请在 Trackhop 中创建。</string>
+    <string name="widget_sync_gone">此同步已不存在：长按小组件选择其他同步。</string>
+    <string name="widget_run">运行</string>
+    <string name="widget_sync_all_short">全部同步</string>
+    <string name="widget_list_label">Trackhop 同步</string>
+    <string name="widget_list_description">所有同步及其最近结果；▶ 运行其中一个。</string>
+    <string name="widget_one_label">一个 Trackhop 同步</string>
+    <string name="widget_one_description">你选择的同步：最近结果、待检查的歌曲，▶ 立即运行。</string>
+    <string name="widget_all_label">全部同步</string>
+    <string name="widget_all_description">轻点一下即可运行所有同步。</string>
+    <string name="widget_pick_sync">小组件要显示哪个同步？</string>
+    <plurals name="widget_to_check">
+        <item quantity="other">%d 首待检查</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">全新小组件</string>
+    <string name="whats_new_19_widgets_body">在主屏幕上以手机配色显示同步：全部同步并可用 ▶ 运行、选择的单个同步，或一个“全部同步”图块。</string>
 </resources>

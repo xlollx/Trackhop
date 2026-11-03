@@ -133,6 +133,24 @@
                 android:resource="@xml/widget_sync_info" />
         </receiver>
 
+        <!-- Glance widgets (GlanceWidgets.kt): every sync, one sync chosen when placed, "Sync all". -->
+        <receiver android:name=".widget.SyncListWidgetReceiver" android:exported="true" android:label="@string/widget_list_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_list_info" />
+        </receiver>
+        <receiver android:name=".widget.OneSyncWidgetReceiver" android:exported="true" android:label="@string/widget_one_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_one_info" />
+        </receiver>
+        <receiver android:name=".widget.SyncAllWidgetReceiver" android:exported="true" android:label="@string/widget_all_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_all_info" />
+        </receiver>
+        <activity android:name=".widget.OneSyncWidgetConfigure" android:exported="true" android:theme="@style/Theme.Songport"
+            android:excludeFromRecents="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter>
+        </activity>
+
         <!-- Quick Settings tile "Sync all": runs every sync; its subtitle says when the last ran. -->
         <service
             android:name=".widget.SyncAllTile"

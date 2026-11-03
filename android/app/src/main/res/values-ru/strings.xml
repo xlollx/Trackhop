@@ -1410,4 +1410,24 @@
     <string name="whats_new_18_liked_body">С подключением YouTube (Google API) понравившиеся работают как источник и назначение, без видео, которые не являются музыкой.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Войдите в Anghami, чтобы синхронизировать плейлисты и любимые треки, или вставьте ссылку на публичный плейлист.</string>
+    <string name="widget_running">Выполняется…</string>
+    <string name="widget_no_syncs">Синхронизаций пока нет: создайте её в Trackhop.</string>
+    <string name="widget_sync_gone">Этой синхронизации больше нет: удерживайте виджет, чтобы выбрать другую.</string>
+    <string name="widget_run">Запустить</string>
+    <string name="widget_sync_all_short">Синхронизировать всё</string>
+    <string name="widget_list_label">Синхронизации Trackhop</string>
+    <string name="widget_list_description">Все синхронизации с последним результатом; ▶ запускает одну.</string>
+    <string name="widget_one_label">Синхронизация Trackhop</string>
+    <string name="widget_one_description">Выбранная синхронизация: последний результат, что проверить, ▶ для запуска.</string>
+    <string name="widget_all_label">Синхронизировать всё</string>
+    <string name="widget_all_description">Одно нажатие запускает все синхронизации.</string>
+    <string name="widget_pick_sync">Какую синхронизацию показывать в виджете?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d для проверки</item>
+        <item quantity="few">%d для проверки</item>
+        <item quantity="many">%d для проверки</item>
+        <item quantity="other">%d для проверки</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">Новые виджеты</string>
+    <string name="whats_new_19_widgets_body">Ваши синхронизации на главном экране в цветах телефона: все с ▶ для запуска, одна на выбор или плитка «Синхронизировать всё».</string>
 </resources>

@@ -1364,4 +1364,22 @@
     <string name="whats_new_18_liked_body">YouTube (Google API) bağlantısıyla beğendiklerin kaynak ve hedef olur, müzik olmayan videolar hariç.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Çalma listelerini ve beğendiğin şarkıları eşitlemek için Anghami\'ye giriş yap ya da herkese açık bir liste bağlantısı yapıştır.</string>
+    <string name="widget_running">Çalışıyor…</string>
+    <string name="widget_no_syncs">Henüz eşitleme yok: Trackhop\'ta bir tane oluştur.</string>
+    <string name="widget_sync_gone">Bu eşitleme artık yok: başka birini seçmek için widget\'a basılı tut.</string>
+    <string name="widget_run">Başlat</string>
+    <string name="widget_sync_all_short">Tümünü eşitle</string>
+    <string name="widget_list_label">Trackhop eşitlemeleri</string>
+    <string name="widget_list_description">Tüm eşitlemeler son sonuçlarıyla; ▶ birini başlatır.</string>
+    <string name="widget_one_label">Bir Trackhop eşitlemesi</string>
+    <string name="widget_one_description">Seçtiğin bir eşitleme: son sonuç, kontrol edilecekler, başlatmak için ▶.</string>
+    <string name="widget_all_label">Tümünü eşitle</string>
+    <string name="widget_all_description">Tek dokunuş tüm eşitlemeleri başlatır.</string>
+    <string name="widget_pick_sync">Widget hangi eşitlemeyi göstersin?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d kontrol edilecek</item>
+        <item quantity="other">%d kontrol edilecek</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">Yeni widget\'lar</string>
+    <string name="whats_new_19_widgets_body">Eşitlemelerin ana ekranda telefonunun renkleriyle: hepsi ▶ ile başlatılabilir, seçtiğin bir eşitleme ya da tek bir “Tümünü eşitle” kutusu.</string>
 </resources>

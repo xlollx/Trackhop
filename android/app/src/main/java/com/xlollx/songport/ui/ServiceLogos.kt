@@ -43,7 +43,7 @@ import com.xlollx.songport.providers.*
  *
  * Glyph paths are in [ServiceMarks] (Simple Icons, CC0), shared with the server's web page. The marks
  * are the services' trademarks and are used only to show which service a playlist or an account belongs to.
- * Services Simple Icons does not carry (Amazon Music, Deezer, ListenBrainz) keep their initial;
+ * Services Simple Icons does not carry (Amazon Music, LiveOne, Anghami, ListenBrainz) keep their initial;
  * personal servers without a mark of their own (Subsonic/Navidrome) and files get a generic icon.
  */
 object ServiceLogos {

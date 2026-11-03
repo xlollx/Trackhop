@@ -108,6 +108,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+    /** Leaving the app: the widgets show the syncs as they were left (added, renamed, removed). */
+    override fun onStop() {
+        super.onStop()
+        com.xlollx.songport.widget.Widgets.refresh(this)
+    }
+
     override fun attachBaseContext(newBase: android.content.Context) {
         super.attachBaseContext(com.xlollx.songport.ui.AppLocale.wrap(newBase))
     }

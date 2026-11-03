@@ -1343,4 +1343,21 @@
     <string name="whats_new_18_liked_body">YouTube(Google API) 연결로 좋아요한 곡을 소스와 대상으로 사용합니다. 음악이 아닌 동영상은 제외.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Anghami에 로그인해 플레이리스트와 좋아요한 곡을 동기화하거나, 공개 플레이리스트 링크를 붙여넣으세요.</string>
+    <string name="widget_running">실행 중…</string>
+    <string name="widget_no_syncs">아직 동기화가 없습니다. Trackhop에서 만드세요.</string>
+    <string name="widget_sync_gone">이 동기화가 더 이상 없습니다. 위젯을 길게 눌러 다른 것을 고르세요.</string>
+    <string name="widget_run">실행</string>
+    <string name="widget_sync_all_short">모두 동기화</string>
+    <string name="widget_list_label">Trackhop 동기화</string>
+    <string name="widget_list_description">모든 동기화와 마지막 결과. ▶로 실행.</string>
+    <string name="widget_one_label">Trackhop 동기화 하나</string>
+    <string name="widget_one_description">고른 동기화의 마지막 결과, 확인할 곡, ▶로 실행.</string>
+    <string name="widget_all_label">모두 동기화</string>
+    <string name="widget_all_description">한 번 누르면 모든 동기화를 실행합니다.</string>
+    <string name="widget_pick_sync">위젯에 어떤 동기화를 표시할까요?</string>
+    <plurals name="widget_to_check">
+        <item quantity="other">확인할 곡 %d개</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">새 위젯</string>
+    <string name="whats_new_19_widgets_body">휴대폰 색상으로 홈 화면에 동기화 표시: ▶로 실행하는 전체 목록, 고른 동기화 하나, 또는 ‘모두 동기화’ 타일.</string>
 </resources>

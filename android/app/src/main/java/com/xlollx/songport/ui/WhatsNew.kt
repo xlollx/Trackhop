@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -95,6 +96,12 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.9",
+                listOf(
+                    Item(Icons.Filled.Widgets, JobColor.BLUE, R.string.whats_new_19_widgets_title, R.string.whats_new_19_widgets_body),
+                ),
+            ),
             Release(
                 "1.8",
                 listOfNotNull(

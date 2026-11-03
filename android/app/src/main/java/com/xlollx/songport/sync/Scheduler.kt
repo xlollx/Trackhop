@@ -54,6 +54,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             com.xlollx.songport.sync.ParallelRuns.run(jobs) { job ->
                 if (job.id in SyncState.running.value) return@run
                 SyncState.start(job.id)
+                com.xlollx.songport.widget.Widgets.refresh(ctx)
                 val engine = SyncEngine(ctx)
                 Diagnostics.log(ctx, "sync", "start ${job.name} (${if (scheduled) "scheduled" else "manual"})")
                 try {
@@ -97,7 +98,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
         } finally {
             if (foreground) SyncNotice.leave(ctx)
         }
-        SyncWidget.refresh(ctx)
+        com.xlollx.songport.widget.Widgets.refresh(ctx)
         store.flush()
         return if (retryLater.get()) Result.retry() else Result.success()
     }

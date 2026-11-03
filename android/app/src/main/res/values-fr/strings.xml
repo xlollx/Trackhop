@@ -1374,4 +1374,22 @@
     <string name="whats_new_18_liked_body">Avec la connexion YouTube (API Google), vos titres aimés servent de source et de destination, sans les vidéos qui ne sont pas de la musique.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Connectez-vous à Anghami pour synchroniser vos playlists et titres aimés, ou collez le lien d\'une playlist publique.</string>
+    <string name="widget_running">En cours…</string>
+    <string name="widget_no_syncs">Aucune synchro : créez-en une dans Trackhop.</string>
+    <string name="widget_sync_gone">Cette synchro n\'existe plus : appui long sur le widget pour en choisir une autre.</string>
+    <string name="widget_run">Lancer</string>
+    <string name="widget_sync_all_short">Tout synchroniser</string>
+    <string name="widget_list_label">Synchros Trackhop</string>
+    <string name="widget_list_description">Toutes les synchros et leur dernier résultat ; ▶ en lance une.</string>
+    <string name="widget_one_label">Une synchro Trackhop</string>
+    <string name="widget_one_description">Une synchro de votre choix : dernier résultat, ce qu\'il faut vérifier, ▶ pour la lancer.</string>
+    <string name="widget_all_label">Tout synchroniser</string>
+    <string name="widget_all_description">Un appui lance toutes les synchros.</string>
+    <string name="widget_pick_sync">Quelle synchro le widget doit-il afficher ?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d à vérifier</item>
+        <item quantity="other">%d à vérifier</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">Nouveaux widgets</string>
+    <string name="whats_new_19_widgets_body">Vos synchros sur l\'écran d\'accueil aux couleurs du téléphone : toutes avec ▶ pour les lancer, une synchro au choix, ou une tuile « Tout synchroniser ».</string>
 </resources>

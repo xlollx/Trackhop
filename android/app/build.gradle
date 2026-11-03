@@ -197,6 +197,9 @@ dependencies {
 
     // Lavori in background (sync programmata)
     implementation 'androidx.work:work-runtime-ktx:2.10.2'
+    // Home-screen widgets in Material You (GlanceWidgets.kt).
+    implementation 'androidx.glance:glance-appwidget:1.1.1'
+    implementation 'androidx.glance:glance-material3:1.1.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
     // Login OAuth nel browser (Custom Tabs) e token cifrati

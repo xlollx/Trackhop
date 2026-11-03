@@ -1366,4 +1366,22 @@
     <string name="whats_new_18_liked_body">With the YouTube (Google API) connection, your liked songs work as a source and a target, without non-music videos.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Sign in to Anghami to sync your playlists and liked songs, or paste a public Anghami playlist link.</string>
+    <string name="widget_running">Running…</string>
+    <string name="widget_no_syncs">No syncs yet: make one in Trackhop.</string>
+    <string name="widget_sync_gone">This sync no longer exists: hold the widget to pick another.</string>
+    <string name="widget_run">Run</string>
+    <string name="widget_sync_all_short">Sync all</string>
+    <string name="widget_list_label">Trackhop syncs</string>
+    <string name="widget_list_description">Every sync with its last result; ▶ runs one.</string>
+    <string name="widget_one_label">Trackhop sync</string>
+    <string name="widget_one_description">One sync of your choice: its last result, what to check, ▶ to run it.</string>
+    <string name="widget_all_label">Sync all</string>
+    <string name="widget_all_description">One tap runs every sync.</string>
+    <string name="widget_pick_sync">Which sync should the widget show?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d to check</item>
+        <item quantity="other">%d to check</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">New widgets</string>
+    <string name="whats_new_19_widgets_body">Your syncs on the home screen in your phone\'s colours: all of them with ▶ to run each, one sync of your choice, or a single “Sync all” tile.</string>
 </resources>

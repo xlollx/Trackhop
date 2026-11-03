@@ -1374,4 +1374,22 @@
     <string name="whats_new_18_liked_body">Con la conexión de YouTube (API de Google), tus Me gusta funcionan como origen y destino, sin vídeos que no son música.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Inicia sesión en Anghami para sincronizar tus playlists y canciones que te gustan, o pega el enlace de una playlist pública.</string>
+    <string name="widget_running">En curso…</string>
+    <string name="widget_no_syncs">Aún no hay syncs: crea una en Trackhop.</string>
+    <string name="widget_sync_gone">Esta sync ya no existe: mantén pulsado el widget para elegir otra.</string>
+    <string name="widget_run">Ejecutar</string>
+    <string name="widget_sync_all_short">Sincronizar todo</string>
+    <string name="widget_list_label">Syncs de Trackhop</string>
+    <string name="widget_list_description">Todas las syncs con su último resultado; ▶ ejecuta una.</string>
+    <string name="widget_one_label">Una sync de Trackhop</string>
+    <string name="widget_one_description">Una sync a tu elección: su último resultado, qué revisar, ▶ para ejecutarla.</string>
+    <string name="widget_all_label">Sincronizar todo</string>
+    <string name="widget_all_description">Un toque ejecuta todas las syncs.</string>
+    <string name="widget_pick_sync">¿Qué sync debe mostrar el widget?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d por revisar</item>
+        <item quantity="other">%d por revisar</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">Widgets nuevos</string>
+    <string name="whats_new_19_widgets_body">Tus syncs en la pantalla de inicio con los colores del teléfono: todas con ▶ para ejecutarlas, una sync a tu elección o un botón “Sincronizar todo”.</string>
 </resources>

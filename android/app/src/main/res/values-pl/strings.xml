@@ -1412,4 +1412,24 @@
     <string name="whats_new_18_liked_body">Z połączeniem YouTube (API Google) Twoje polubione działają jako źródło i cel, bez filmów, które nie są muzyką.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Zaloguj się do Anghami, aby synchronizować playlisty i polubione utwory, albo wklej link do publicznej playlisty.</string>
+    <string name="widget_running">W toku…</string>
+    <string name="widget_no_syncs">Brak synchronizacji: utwórz ją w Trackhop.</string>
+    <string name="widget_sync_gone">Ta synchronizacja już nie istnieje: przytrzymaj widżet, aby wybrać inną.</string>
+    <string name="widget_run">Uruchom</string>
+    <string name="widget_sync_all_short">Synchronizuj wszystko</string>
+    <string name="widget_list_label">Synchronizacje Trackhop</string>
+    <string name="widget_list_description">Wszystkie synchronizacje z ostatnim wynikiem; ▶ uruchamia jedną.</string>
+    <string name="widget_one_label">Synchronizacja Trackhop</string>
+    <string name="widget_one_description">Wybrana synchronizacja: ostatni wynik, co sprawdzić, ▶ aby ją uruchomić.</string>
+    <string name="widget_all_label">Synchronizuj wszystko</string>
+    <string name="widget_all_description">Jedno dotknięcie uruchamia wszystkie synchronizacje.</string>
+    <string name="widget_pick_sync">Którą synchronizację ma pokazywać widżet?</string>
+    <plurals name="widget_to_check">
+        <item quantity="one">%d do sprawdzenia</item>
+        <item quantity="few">%d do sprawdzenia</item>
+        <item quantity="many">%d do sprawdzenia</item>
+        <item quantity="other">%d do sprawdzenia</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">Nowe widżety</string>
+    <string name="whats_new_19_widgets_body">Twoje synchronizacje na ekranie głównym w kolorach telefonu: wszystkie z ▶ do uruchomienia, wybrana jedna albo kafelek „Synchronizuj wszystko”.</string>
 </resources>

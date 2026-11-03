@@ -1344,4 +1344,21 @@
     <string name="whats_new_18_liked_body">YouTube（Google API）の接続で、高く評価した曲をソースにも同期先にも使えます。音楽でない動画は除外。</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
     <string name="whats_new_18_anghami_body">Anghami にサインインしてプレイリストとお気に入りの曲を同期、または公開プレイリストのリンクを貼り付け。</string>
+    <string name="widget_running">実行中…</string>
+    <string name="widget_no_syncs">まだ同期がありません。Trackhop で作成してください。</string>
+    <string name="widget_sync_gone">この同期はもうありません。ウィジェットを長押しして別の同期を選んでください。</string>
+    <string name="widget_run">実行</string>
+    <string name="widget_sync_all_short">すべて同期</string>
+    <string name="widget_list_label">Trackhop の同期</string>
+    <string name="widget_list_description">すべての同期と最新の結果。▶ で実行。</string>
+    <string name="widget_one_label">Trackhop の同期（1件）</string>
+    <string name="widget_one_description">選んだ同期の最新結果、確認が必要な曲、▶ で実行。</string>
+    <string name="widget_all_label">すべて同期</string>
+    <string name="widget_all_description">タップ一回ですべての同期を実行。</string>
+    <string name="widget_pick_sync">ウィジェットに表示する同期を選んでください</string>
+    <plurals name="widget_to_check">
+        <item quantity="other">確認 %d 件</item>
+    </plurals>
+    <string name="whats_new_19_widgets_title">新しいウィジェット</string>
+    <string name="whats_new_19_widgets_body">ホーム画面に端末のカラーで同期を表示：すべての同期と ▶ ボタン、選んだ1件、または「すべて同期」タイル。</string>
 </resources>
