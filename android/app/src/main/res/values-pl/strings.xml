@@ -1386,4 +1386,6 @@
     <string name="whats_new_17_review_body">Przytrzymaj utwór, aby zaznaczyć kilka, a potem zachowaj je, usuń z playlisty albo zignoruj za jednym razem.</string>
     <string name="whats_new_17_tiktok_title">Utwory z TikToka</string>
     <string name="whats_new_17_tiktok_body">Udostępnij film z TikToka w Trackhop: odczyta, jaki utwór w nim gra, i doda go do playlisty.</string>
+    <string name="provider_note_emby">Twój serwer Emby. Bez rejestracji, bez limitów. Ulubione liczą się jako polubione utwory.</string>
+    <string name="login_hint_emby">Podaj adres swojego serwera Emby (na przykład https://emby.example.com), nazwę użytkownika i hasło.</string>
 </resources>

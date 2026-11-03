@@ -1348,4 +1348,6 @@
     <string name="whats_new_17_review_body">Mantén pulsada una canción para seleccionar varias y luego consérvalas, quítalas de la playlist o ignóralas de una vez.</string>
     <string name="whats_new_17_tiktok_title">Canciones de TikTok</string>
     <string name="whats_new_17_tiktok_body">Comparte un vídeo de TikTok con Trackhop: lee qué canción suena y la añade a tu playlist.</string>
+    <string name="provider_note_emby">Tu servidor Emby. Sin registro, sin cuotas. Los favoritos cuentan como canciones que te gustan.</string>
+    <string name="login_hint_emby">Introduce la dirección de tu servidor Emby (por ejemplo https://emby.example.com), tu usuario y tu contraseña.</string>
 </resources>

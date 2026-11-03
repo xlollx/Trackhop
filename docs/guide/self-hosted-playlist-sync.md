@@ -5,7 +5,7 @@ description: Keep your Navidrome, Jellyfin or Plex playlists in sync with Spotif
 
 # Self-hosted playlist sync
 
-You run your own music server, **Navidrome** (or another Subsonic server), **Jellyfin** or **Plex**,
+You run your own music server, **Navidrome** (or another Subsonic server), **Jellyfin**, **Emby** (beta) or **Plex**,
 and you still have playlists on a streaming service. Trackhop keeps the two in step: the same
 playlists on both sides, updated on a schedule, on hardware you own. No account, no cloud service
 in the middle, free and open source.

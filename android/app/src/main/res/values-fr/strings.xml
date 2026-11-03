@@ -1348,4 +1348,6 @@
     <string name="whats_new_17_review_body">Appuyez longuement sur un titre pour en sélectionner plusieurs, puis gardez-les, retirez-les de la playlist ou ignorez-les d\'un coup.</string>
     <string name="whats_new_17_tiktok_title">Les morceaux de TikTok</string>
     <string name="whats_new_17_tiktok_body">Partagez une vidéo TikTok avec Trackhop : il lit quel morceau on y entend et l\'ajoute à votre playlist.</string>
+    <string name="provider_note_emby">Votre serveur Emby. Sans inscription, sans quota. Les favoris comptent comme titres likés.</string>
+    <string name="login_hint_emby">Saisissez l\'adresse de votre serveur Emby (par exemple https://emby.example.com), votre nom d\'utilisateur et votre mot de passe.</string>
 </resources>

@@ -1340,4 +1340,6 @@
     <string name="whats_new_17_review_body">Halte einen Titel gedrückt, um mehrere auszuwählen, und behalte sie, entferne sie aus der Playlist oder ignoriere sie auf einmal.</string>
     <string name="whats_new_17_tiktok_title">Songs aus TikTok</string>
     <string name="whats_new_17_tiktok_body">Teile ein TikTok-Video mit Trackhop: Es erkennt, welcher Song darin läuft, und fügt ihn deiner Playlist hinzu.</string>
+    <string name="provider_note_emby">Dein Emby-Server. Keine Registrierung, kein Kontingent. Favoriten zählen als Lieblingssongs.</string>
+    <string name="login_hint_emby">Gib die Adresse deines Emby-Servers ein (zum Beispiel https://emby.example.com), deinen Benutzernamen und dein Passwort.</string>
 </resources>

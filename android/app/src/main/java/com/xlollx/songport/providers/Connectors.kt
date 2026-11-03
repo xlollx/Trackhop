@@ -26,6 +26,7 @@ fun installConnectors() = Providers.install(
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
+        Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },

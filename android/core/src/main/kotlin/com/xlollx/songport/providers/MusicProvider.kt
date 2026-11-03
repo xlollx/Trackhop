@@ -325,6 +325,7 @@ object Providers {
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
+        Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },

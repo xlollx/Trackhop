@@ -16,6 +16,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
+  <!-- Google Play: replace with the official badge linking to the listing once it is public. -->
+  <img src="docs/assets/badges/play-soon.svg" height="56" alt="Google Play: coming soon">
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
 </p>
@@ -45,7 +47,7 @@ THE ICON · Michel Henke · Pisqui❤️
 <p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, a shared track going into a playlist, how compatible two playlists are, a playlist poster, unplayable tracks and their replacements"></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
-Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin and Plex, with Last.fm, ListenBrainz and public NetEase
+Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase
 Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 this build: development lives on voluntary donations.
@@ -71,6 +73,7 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, alpha) | GitHub, F-Droid, Desktop, Docker |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
+| **Emby** (beta) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
 | **Last.fm** | ✓ | — | — | Your username (loved tracks, scrobbles, top tracks) | All builds |
 | **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
@@ -279,6 +282,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | LiveOne (web) | presets (liked songs): read and add, alpha; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
 | Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
+| Emby | beta | server URL, user, password | nothing | Jellyfin's API (Emby is where Jellyfin forked from) under `/emby`, with `X-Emby-Authorization`/`X-Emby-Token`; favourites supported. Not yet tried on a real Emby server. |
 | Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
 | Last.fm | read-only | username | `LASTFM_API_KEY` or a key entered by the user | Loved tracks, recent scrobbles and the month's most played; source only. |
 | ListenBrainz | read-only, beta | username | nothing | Playlists and loved tracks, source only. |

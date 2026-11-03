@@ -1318,4 +1318,6 @@
     <string name="whats_new_17_review_body">长按一首歌曲即可多选，然后一次性保留、从歌单中移除或忽略它们。</string>
     <string name="whats_new_17_tiktok_title">来自 TikTok 的歌曲</string>
     <string name="whats_new_17_tiktok_body">将 TikTok 视频分享给 Trackhop：它会读出视频中播放的歌曲并添加到你的歌单。</string>
+    <string name="provider_note_emby">你自己的 Emby 服务器。无需注册，没有配额。收藏的歌曲视为喜欢的歌曲。</string>
+    <string name="login_hint_emby">输入你的 Emby 服务器地址（例如 https://emby.example.com）、用户名和密码。</string>
 </resources>

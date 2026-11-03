@@ -1340,4 +1340,6 @@
     <string name="whats_new_17_review_body">Tieni premuto un brano per selezionarne più di uno, poi tienili, toglili dalla playlist o ignorali in un colpo solo.</string>
     <string name="whats_new_17_tiktok_title">Canzoni da TikTok</string>
     <string name="whats_new_17_tiktok_body">Condividi un video TikTok con Trackhop: legge quale canzone ci suona e la aggiunge alla tua playlist.</string>
+    <string name="provider_note_emby">Il tuo server Emby. Nessuna registrazione, nessuna quota. I preferiti contano come brani che ti piacciono.</string>
+    <string name="login_hint_emby">Inserisci l\'indirizzo del tuo server Emby (per esempio https://emby.example.com), nome utente e password.</string>
 </resources>

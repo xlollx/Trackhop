@@ -2,6 +2,7 @@ package com.xlollx.songport.server
 
 import com.xlollx.songport.platform.BuildDefaults
 import com.xlollx.songport.providers.DeezerProvider
+import com.xlollx.songport.providers.EmbyProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.ListenBrainzProvider
@@ -48,6 +49,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(LiveOneWebServerProvider.SERVICE) { LiveOneWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
+        Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },

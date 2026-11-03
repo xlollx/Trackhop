@@ -20,7 +20,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 /** Jellyfin (https://api.jellyfin.org): server personale, nessuna registrazione, nessuna quota. */
-class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
+open class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
     override val serviceId = SERVICE
     override val displayName = "Jellyfin"
     override val routeNoteName: String? get() = "route_note_server"
@@ -41,11 +41,18 @@ class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
         "MediaBrowser Client=\"Songport\", Device=\"Android\", DeviceId=\"songport-android\", Version=\"1.0\"" +
             (token?.let { ", Token=\"$it\"" } ?: "")
 
+    /** The headers of every call: Jellyfin's "Authorization: MediaBrowser …" (Emby overrides it). */
+    protected open fun headers(token: String?): Map<String, String> =
+        mapOf("Authorization" to authHeader(token), "Accept" to "application/json")
+
+    /** Where the API lives under the server's address (Emby: under /emby). */
+    protected open fun apiRoot(base: String): String = base
+
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
         val base = normalizeUrl(url)
         val resp = Http.send(
-            "POST", "$base/Users/AuthenticateByName",
-            mapOf("Authorization" to authHeader(null), "Accept" to "application/json"),
+            "POST", "${apiRoot(base)}/Users/AuthenticateByName",
+            headers(null),
             Http.jsonBody(jsonObj("Username" to user.trim(), "Pw" to secret).toString()),
         )
         if (!resp.ok) throw ProviderException("$displayName: login failed (HTTP ${resp.code})")
@@ -54,18 +61,18 @@ class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
         save(ctx, Tokens(accessToken = token, userId = j["User"]["Id"].str ?: "", userName = user.trim(), extra = mapOf("url" to base)))
     }
 
-    private suspend fun api(ctx: Env, method: String, path: String, body: JsonElement? = null): JsonElement {
+    protected suspend fun api(ctx: Env, method: String, path: String, body: JsonElement? = null): JsonElement {
         val t = creds(ctx)
         val resp = Http.send(
-            method, "${t.extra["url"]}$path",
-            mapOf("Authorization" to authHeader(t.accessToken), "Accept" to "application/json"),
+            method, "${apiRoot(t.extra["url"] ?: "")}$path",
+            headers(t.accessToken),
             body?.let { Http.jsonBody(it.toString()) },
         )
         if (!resp.ok) throw ProviderException("$displayName API ${resp.code}: ${resp.body.take(200)}")
         return parseJson(resp.body)
     }
 
-    private fun uid(ctx: Env) = creds(ctx).userId
+    protected fun uid(ctx: Env) = creds(ctx).userId
 
     /** The search page of the server's own web client, where the user finds the track and copies its link. */
     override fun webSearchUrl(ctx: Env, query: String): String? =

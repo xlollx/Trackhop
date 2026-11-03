@@ -1338,4 +1338,6 @@
     <string name="whats_new_17_review_body">Birkaç parça seçmek için bir parçaya basılı tut; sonra hepsini tek seferde koru, çalma listesinden kaldır ya da yok say.</string>
     <string name="whats_new_17_tiktok_title">TikTok\'tan şarkılar</string>
     <string name="whats_new_17_tiktok_body">Bir TikTok videosunu Trackhop ile paylaş: içinde hangi şarkının çaldığını okur ve çalma listene ekler.</string>
+    <string name="provider_note_emby">Emby sunucunuz. Kayıt yok, kota yok. Favoriler beğenilen şarkılar sayılır.</string>
+    <string name="login_hint_emby">Emby sunucunuzun adresini (örneğin https://emby.example.com), kullanıcı adınızı ve şifrenizi girin.</string>
 </resources>

@@ -5,6 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## Unreleased
+
+- Emby (beta): your Emby server as a source and a target, like Jellyfin (playlists, favourites).
+
 ## 1.1.0
 
 - **Review several tracks at once**: tick tracks in the review page (or "Tick all"), then keep, remove

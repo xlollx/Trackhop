@@ -1318,4 +1318,6 @@
     <string name="whats_new_17_review_body">曲を長押しして複数選択し、まとめて残す・プレイリストから削除する・無視することができます。</string>
     <string name="whats_new_17_tiktok_title">TikTok の曲</string>
     <string name="whats_new_17_tiktok_body">TikTok の動画を Trackhop に共有すると、流れている曲を読み取ってプレイリストに追加します。</string>
+    <string name="provider_note_emby">あなたの Emby サーバー。登録不要、利用制限なし。お気に入りは「いいね」した曲として扱われます。</string>
+    <string name="login_hint_emby">Emby サーバーのアドレス（例: https://emby.example.com）、ユーザー名、パスワードを入力してください。</string>
 </resources>

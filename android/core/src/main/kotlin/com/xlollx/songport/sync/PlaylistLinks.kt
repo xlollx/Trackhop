@@ -71,6 +71,7 @@ object PlaylistLinks {
             "qqmusic" -> "https://y.qq.com/n/ryqq/playlist/$playlistId"
             "amazon" -> "https://music.amazon.${region?.lowercase()?.takeIf { it.isNotBlank() } ?: "com"}/user-playlists/$playlistId"
             "jellyfin" -> b?.let { "$it/web/#/details?id=$playlistId" }
+            "emby" -> b?.let { it.trimEnd('/').removeSuffix("/emby") + "/web/index.html#!/item?id=$playlistId" }
             "subsonic", "plex" -> b
             else -> null
         }

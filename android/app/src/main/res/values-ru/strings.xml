@@ -1384,4 +1384,6 @@
     <string name="whats_new_17_review_body">Нажмите и удерживайте трек, чтобы выбрать несколько, а затем оставьте их, удалите из плейлиста или игнорируйте за один раз.</string>
     <string name="whats_new_17_tiktok_title">Песни из TikTok</string>
     <string name="whats_new_17_tiktok_body">Поделитесь видео из TikTok с Trackhop: он узнает, какая песня в нём звучит, и добавит её в плейлист.</string>
+    <string name="provider_note_emby">Ваш сервер Emby. Без регистрации и без квот. Избранное считается любимыми треками.</string>
+    <string name="login_hint_emby">Введите адрес вашего сервера Emby (например, https://emby.example.com), имя пользователя и пароль.</string>
 </resources>
