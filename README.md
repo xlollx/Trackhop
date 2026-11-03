@@ -80,6 +80,7 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker |
+| **Anghami** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker |
 | **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |

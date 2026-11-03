@@ -7,6 +7,7 @@ import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.ListenBrainzProvider
 import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.providers.AnghamiProvider
 import com.xlollx.songport.providers.NeteaseProvider
 import com.xlollx.songport.providers.QqMusicProvider
 import com.xlollx.songport.providers.SoundCloudProvider
@@ -58,6 +59,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         LocalFilesProvider,
         SoundCloudProvider.takeUnless { officialOnly },
         NeteaseProvider.takeUnless { officialOnly },
+        AnghamiProvider.takeUnless { officialOnly },
         QqMusicProvider.takeUnless { officialOnly },
     ),
 )

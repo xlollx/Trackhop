@@ -34,6 +34,8 @@ object PlaylistLinks {
         // QQ Music: https://y.qq.com/n/ryqq/playlist/123 (older: /n/yqq/playlist/123.html), the shared
         // i.y.qq.com/n2/m/share/details/taoge.html?…&id=123; c.y.qq.com short links are followed first.
         Regex("""y\.qq\.com/n/(?:ryqq|yqq)/playlist/(\d+)""") to "qqmusic",
+        // Anghami: https://play.anghami.com/playlist/123 (also anghami.com/playlist/123).
+        Regex("""(?:play\.)?anghami\.com/playlist/(\d+)""") to "anghami",
         Regex("""y\.qq\.com/[^\s]*(?:taoge|playlist)[^\s]*?[?&](?:id|disstid)=(\d+)""") to "qqmusic",
     )
 
@@ -68,6 +70,7 @@ object PlaylistLinks {
             "tidal" -> "https://tidal.com/browse/playlist/$playlistId"
             "soundcloud" -> "https://soundcloud.com/$playlistId"
             "netease" -> "https://music.163.com/#/playlist?id=$playlistId"
+            "anghami" -> "https://play.anghami.com/playlist/$playlistId"
             "qqmusic" -> "https://y.qq.com/n/ryqq/playlist/$playlistId"
             "amazon" -> "https://music.amazon.${region?.lowercase()?.takeIf { it.isNotBlank() } ?: "com"}/user-playlists/$playlistId"
             "jellyfin" -> b?.let { "$it/web/#/details?id=$playlistId" }

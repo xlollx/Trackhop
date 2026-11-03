@@ -582,6 +582,7 @@ private val UNAVAILABLE_ON_PLAY = listOf(
     Triple("amazon", 0xFF1AB0D6, "Amazon Music"),
     Triple("soundcloud", 0xFFFF5500, "SoundCloud"),
     Triple("netease", 0xFFC20C0C, "NetEase Cloud Music"),
+    Triple("anghami", 0xFF8D3DEB, "Anghami"),
     Triple("qqmusic", 0xFF31C27C, "QQ Music"),
 )
 

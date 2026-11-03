@@ -1329,4 +1329,8 @@
     <string name="timing_days_label">この曜日だけ（任意）</string>
     <string name="search_listen">聴いてみる</string>
     <string name="timing_custom_days">曜日を指定</string>
+    <string name="anghami_label">Anghami（公開リンク・非公式）</string>
+    <string name="provider_note_anghami">Anghami の公開プレイリストを読み取り専用・ログインなしで：プレイリストのリンク（play.anghami.com/playlist/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
+    <string name="anghami_not_public">この Anghami プレイリストは非公開か存在しません：公開リンクのみ使えます</string>
+    <string name="anghami_changed">Anghami のサイトが変わりました。Trackhop の更新が必要です</string>
 </resources>

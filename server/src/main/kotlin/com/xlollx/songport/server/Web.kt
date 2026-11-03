@@ -595,6 +595,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
     /** What a link to a playlist on [src] looks like, for the form's hint. */
     private fun linkHint(src: MusicProvider): String = when (src.serviceId) {
         com.xlollx.songport.sync.NeteasePublic.SERVICE -> "https://music.163.com/#/playlist?id=…"
+        com.xlollx.songport.sync.AnghamiPublic.SERVICE -> "https://play.anghami.com/playlist/…"
         com.xlollx.songport.sync.QqMusicPublic.SERVICE -> "https://y.qq.com/n/ryqq/playlist/…"
         else -> "https://soundcloud.com/user/sets/…"
     }

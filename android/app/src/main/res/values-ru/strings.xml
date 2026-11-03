@@ -1395,4 +1395,8 @@
     <string name="timing_days_label">Только в эти дни (необязательно)</string>
     <string name="search_listen">Послушать</string>
     <string name="timing_custom_days">По выбранным дням</string>
+    <string name="anghami_label">Anghami (публичные ссылки, неофициально)</string>
+    <string name="provider_note_anghami">Публичные плейлисты Anghami, только чтение и без входа: вставьте ссылку на плейлист (play.anghami.com/playlist/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
+    <string name="anghami_not_public">Этот плейлист Anghami закрыт или не существует: работают только публичные ссылки</string>
+    <string name="anghami_changed">Anghami изменил сайт; Trackhop нужно обновить</string>
 </resources>

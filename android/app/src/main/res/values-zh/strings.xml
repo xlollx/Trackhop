@@ -1329,4 +1329,8 @@
     <string name="timing_days_label">仅在这些日子（可选）</string>
     <string name="search_listen">试听</string>
     <string name="timing_custom_days">指定日期</string>
+    <string name="anghami_label">Anghami（公开链接，非官方）</string>
+    <string name="provider_note_anghami">Anghami 的公开歌单，只读且无需登录：把歌单链接（play.anghami.com/playlist/…）粘贴为同步的来源。这不是官方接口：网站变化时可能失效。</string>
+    <string name="anghami_not_public">这个 Anghami 歌单是私密的或不存在：只支持公开链接</string>
+    <string name="anghami_changed">Anghami 改了网站，Trackhop 需要更新</string>
 </resources>

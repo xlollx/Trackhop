@@ -1349,4 +1349,8 @@
     <string name="timing_days_label">Yalnızca bu günler (isteğe bağlı)</string>
     <string name="search_listen">Dinle</string>
     <string name="timing_custom_days">Seçili günlerde</string>
+    <string name="anghami_label">Anghami (herkese açık bağlantılar, resmî değil)</string>
+    <string name="provider_note_anghami">Herkese açık Anghami listeleri, salt okunur ve giriş yapmadan: listenin bağlantısını (play.anghami.com/playlist/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
+    <string name="anghami_not_public">Bu Anghami listesi gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
+    <string name="anghami_changed">Anghami sitesini değiştirdi; Trackhop güncellenmeli</string>
 </resources>

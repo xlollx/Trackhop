@@ -5,6 +5,7 @@ import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.platform.Env
+import com.xlollx.songport.sync.AnghamiPublic
 import com.xlollx.songport.sync.NeteasePublic
 import com.xlollx.songport.sync.QqMusicPublic
 
@@ -83,4 +84,25 @@ object QqMusicProvider : LinkSource() {
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = reading(ctx) { QqMusicPublic.info(playlistId) }
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? = runCatching { QqMusicPublic.version(playlistId) }.getOrNull()
     override fun webSearchUrl(ctx: Env, query: String): String = "${QqMusicPublic.SITE}/n/ryqq/search?w=${Http.enc(query)}&t=song"
+}
+
+/** Anghami: public playlists from a link, read-only, no account (sync/AnghamiPublic). */
+object AnghamiProvider : LinkSource() {
+    override val serviceId = AnghamiPublic.SERVICE
+    override val displayName = "Anghami"
+    override val brandColor = 0xFF8D3DEB
+    override val noteName = "provider_note_anghami"
+
+    private suspend fun <T> reading(ctx: Env, block: suspend () -> T): T = try {
+        block()
+    } catch (e: AnghamiPublic.NotPublic) {
+        throw ProviderException(ctx.text("anghami_not_public"), e, 404)
+    } catch (e: AnghamiPublic.Changed) {
+        throw ProviderException(ctx.text("anghami_changed"), e)
+    }
+
+    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = reading(ctx) { AnghamiPublic.tracks(playlistId) }
+    override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = reading(ctx) { AnghamiPublic.info(playlistId) }
+    override suspend fun playlistVersion(ctx: Env, playlistId: String): String? = runCatching { AnghamiPublic.version(playlistId) }.getOrNull()
+    override fun webSearchUrl(ctx: Env, query: String): String = "${AnghamiPublic.SITE}/search/${Http.enc(query)}"
 }

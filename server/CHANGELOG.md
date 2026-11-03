@@ -7,6 +7,8 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- Anghami: public playlists from a link, read-only, no account.
+- YouTube (Google API) Liked songs leave out Music videos that are not songs.
 - Your own schedules: any interval from an hour to a week, a time of day, the days of the week.
 - Emby (beta): your Emby server as a source and a target, like Jellyfin (playlists, favourites).
 - "The source changes by itself" next to Mirror removals: for a daylist or Discover Weekly, big removals go through with no confirmation.

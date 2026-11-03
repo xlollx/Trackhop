@@ -33,7 +33,7 @@ fun installConnectors() = Providers.install(
     ),
     // The read-only link sources with no official route (NetEase Cloud Music, QQ Music): with the
     // builds that carry unofficial connectors, as SoundCloud's links; not in the Google Play one.
-    singletons = listOfNotNull(LocalFilesProvider, NeteaseProvider.takeIf { BuiltIn.available }, QqMusicProvider.takeIf { BuiltIn.available }),
+    singletons = listOfNotNull(LocalFilesProvider, NeteaseProvider.takeIf { BuiltIn.available }, AnghamiProvider.takeIf { BuiltIn.available }, QqMusicProvider.takeIf { BuiltIn.available }),
 )
 
 /**

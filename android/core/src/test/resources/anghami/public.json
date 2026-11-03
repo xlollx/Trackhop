@@ -1,0 +1,59 @@
+{
+ "status": "ok",
+ "id": "5891475",
+ "playlistid": 5891475,
+ "title": "Top Anghami Arabic",
+ "PlaylistName": "Top Anghami Arabic",
+ "public": "true",
+ "PlaylistCount": 3,
+ "songorder": "1290789601,1290789599,1290789600",
+ "timestamp": 1793672709,
+ "sections": [
+  {
+   "type": "vibestags",
+   "data": []
+  },
+  {
+   "displaytype": "list",
+   "playmode": "list",
+   "show_recommendations": 0,
+   "top": 1,
+   "sectionid": 1,
+   "preview-url": "http://track.anghami.com/rest/v1/GETtrack.view?songid=1220307995",
+   "type": "song",
+   "data": [
+    {
+     "id": "1290789601",
+     "title": "متأثر بغيابه",
+     "album": "مش هتكرر",
+     "albumID": "1095780739",
+     "artist": "تامر حسني",
+     "artistID": "665",
+     "duration": "179.00",
+     "year": "2026"
+    },
+    {
+     "id": "1290789599",
+     "title": "بعيش علي الذكري",
+     "album": "مش هتكرر",
+     "albumID": "1095780739",
+     "artist": "تامر حسني",
+     "artistID": "665",
+     "duration": "203.00",
+     "year": "2026"
+    },
+    {
+     "id": "1290789600",
+     "title": "دهب قشرة",
+     "album": "مش هتكرر",
+     "albumID": "1095780739",
+     "artist": "تامر حسني",
+     "artistID": "665",
+     "duration": "157.00",
+     "year": "2026"
+    }
+   ],
+   "index": 1
+  }
+ ]
+}

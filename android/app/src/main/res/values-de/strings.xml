@@ -1351,4 +1351,8 @@
     <string name="timing_days_label">Nur an diesen Tagen (optional)</string>
     <string name="search_listen">Anhören</string>
     <string name="timing_custom_days">An bestimmten Tagen</string>
+    <string name="anghami_label">Anghami (öffentliche Links, inoffiziell)</string>
+    <string name="provider_note_anghami">Öffentliche Anghami-Playlists, nur lesen und ohne Anmeldung: Füge den Link der Playlist (play.anghami.com/playlist/…) als Quelle einer Sync ein. Keine offizielle Schnittstelle: Sie kann aufhören zu funktionieren, wenn sich die Seite ändert.</string>
+    <string name="anghami_not_public">Diese Anghami-Playlist ist privat oder existiert nicht: Nur öffentliche Links funktionieren</string>
+    <string name="anghami_changed">Anghami hat seine Seite geändert; Trackhop braucht ein Update</string>
 </resources>
