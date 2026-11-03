@@ -1,0 +1,1 @@
+Corregido: cuando un servicio rechazaba las búsquedas, se contaban como no encontradas sin aviso (una sync de YouTube a Spotify podía mostrar cientos); ahora la búsqueda se detiene y dice por qué. Las búsquedas en Spotify (web) también van a ritmo constante.

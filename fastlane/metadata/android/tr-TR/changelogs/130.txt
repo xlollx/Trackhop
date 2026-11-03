@@ -1,0 +1,1 @@
+Düzeltildi: bir servis aramaları reddettiğinde bunlar sessizce bulunamadı sayılıyordu (YouTube'dan Spotify'a bir eşitleme yüzlercesini gösterebiliyordu); artık arama durur ve nedenini söyler. Spotify (web) aramaları da sabit hızda yapılır.

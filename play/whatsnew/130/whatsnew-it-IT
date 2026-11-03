@@ -1,0 +1,1 @@
+Corretto: quando un servizio rifiutava le ricerche, venivano contate come non trovate senza dire nulla; ora la ricerca si ferma e dice perché.

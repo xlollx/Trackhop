@@ -1,0 +1,1 @@
+Fixed: when a service refused searches, they were counted as not found without a word; now the search stops and says why.

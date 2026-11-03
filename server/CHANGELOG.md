@@ -5,8 +5,9 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.2.0
 
+- A search that fails is no longer counted as "not found": many failures stop the search with the reason, in the log too.
 - Spotify searches go at a steady pace: a first sync of many songs into Spotify (from YouTube, with no ISRC) no longer runs into Spotify's half-hour blocks (issue #30).
 - Anghami: public playlists from a link, read-only, no account; and Anghami (web), unofficial and alpha: your playlists and liked songs, read and written, with the session of a browser signed in to Anghami.
 - A source that renames itself (a Spotify daylist) renames the target too, unless you gave the target a name of your own; a new cover is copied too, where the target takes covers (Spotify) (issue #32).

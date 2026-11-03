@@ -1,0 +1,1 @@
+Corretto: quando un servizio rifiutava le ricerche, venivano contate come non trovate senza dire nulla (una sync da YouTube a Spotify poteva mostrarne centinaia); ora la ricerca si ferma e dice perché. Anche le ricerche su Spotify (web) vanno a ritmo costante.

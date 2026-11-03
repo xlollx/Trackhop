@@ -1,0 +1,1 @@
+Poprawiono: gdy usługa odrzucała wyszukiwania, liczono je po cichu jako nieznalezione (synchronizacja z YouTube do Spotify mogła pokazać setki); teraz wyszukiwanie się zatrzymuje i podaje powód. Wyszukiwania w Spotify (web) też idą w stałym tempie.

@@ -1,0 +1,1 @@
+Corrigé : quand un service refusait les recherches, elles étaient comptées comme introuvables sans le dire (une synchro de YouTube vers Spotify pouvait en montrer des centaines) ; la recherche s'arrête maintenant et dit pourquoi. Les recherches Spotify (web) vont aussi à un rythme régulier.

@@ -23,15 +23,15 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>Installed Trackhop from Google Play?</b> Add the plugin for YouTube Music, Amazon Music, and Spotify and Apple Music without developer keys:<br><br>
+  <b>Installed Trackhop from Google Play?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
   <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for the Google Play version"></a>
 </p>
 
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
@@ -70,7 +70,7 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
 | **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
 | **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |
-| **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, alpha) | GitHub, F-Droid, Desktop, Docker |
+| **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Emby** (beta) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
@@ -79,10 +79,10 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
-| **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker |
-| **Anghami** | ✓ | ✓ | ✓ | Quick sign-in with your Anghami account: your playlists and likes (alpha) | GitHub, F-Droid, Desktop, Docker |
-| | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker |
-| **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker |
+| **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
+| **Anghami** | ✓ | ✓ | ✓ | Quick sign-in with your Anghami account: your playlists and likes (alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
+| **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
 
@@ -115,14 +115,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares the two.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 1.1.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.1.0)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.1.0/Trackhop-Desktop-v1.1.0-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 1.2.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.2.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.2.0/Trackhop-Desktop-v1.2.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -153,7 +153,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 1.1.0), separate from the app's.
+- Desktop and Docker have their **own version** (now 1.2.0), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.

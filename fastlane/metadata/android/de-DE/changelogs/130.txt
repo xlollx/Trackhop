@@ -1,0 +1,1 @@
+Behoben: Lehnte ein Dienst Suchen ab, zählten sie stillschweigend als nicht gefunden (eine Sync von YouTube zu Spotify konnte Hunderte zeigen); jetzt stoppt die Suche und nennt den Grund. Auch Spotify-Suchen (Web) laufen in gleichmäßigem Tempo.

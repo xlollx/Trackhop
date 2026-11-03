@@ -59,7 +59,7 @@ The page says when a new version is out (**Settings › Updates**): twice a day 
 GitHub's public API which version is the latest, nothing else. Turn it off there, or for everyone with
 `SONGPORT_UPDATE_CHECK=false`.
 
-The image is `ghcr.io/xlollx/trackhop:latest`, or a version (`:1.1.0`): Docker and Trackhop Desktop
+The image is `ghcr.io/xlollx/trackhop:latest`, or a version (`:1.2.0`): Docker and Trackhop Desktop
 have their own version, separate from the app's, listed in the
 [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true). To
 update, pull the image and start the container again; everything is in the volume, so nothing is lost:
