@@ -47,6 +47,19 @@ class SourceNameTest {
         assertEquals("daylist • chill monday morning", saved.name)
     }
 
+    @Test fun aSourceThatRenamesItselfOftenNoLongerRenamesTheSync() = runBlocking {
+        dst.names["t"] = "daylist • sad tuesday night"
+        val j = job("daylist • sad tuesday night")
+        engine.run(j)
+        assertEquals("daylist • chill monday morning", env.store.job(j.id)!!.name)
+        src.names["p"] = "daylist • upbeat monday evening"
+        engine.run(env.store.job(j.id)!!)
+        val saved = env.store.job(j.id)!!
+        assertEquals("daylist • upbeat monday evening", saved.source.playlistName)
+        assertEquals("daylist • upbeat monday evening", saved.target.playlistName)
+        assertEquals("daylist • chill monday morning", saved.name)
+    }
+
     @Test fun aTargetTheUserNamedKeepsItsName() = runBlocking {
         dst.names["t"] = "Daylist"
         val j = job("Daylist", name = "My daylist")

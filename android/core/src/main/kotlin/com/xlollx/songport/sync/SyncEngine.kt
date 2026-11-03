@@ -214,6 +214,8 @@ class SyncEngine(
      * covers (Spotify); a sync made before covers were followed only notes the current one, so a
      * cover the user chose is not replaced until the source changes its own. Never fails the run.
      */
+    private val SELF_NAMING_WINDOW_MS = 3L * 24 * 3600 * 1000
+
     private suspend fun followSource(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
         if (MusicProvider.isLibrary(srcId) || MusicProvider.isLibrary(targetId)) return
         val info = runCatching { src.playlistInfo(env, srcId) }.getOrNull() ?: return
@@ -222,9 +224,15 @@ class SyncEngine(
         val old = latest.source.playlistName.trim()
         val now = info.name.trim().takeIf { it.isNotEmpty() && it != srcId }
         if (old.isNotEmpty() && now != null && now != old) {
-            updated = updated.copy(source = updated.source.copy(playlistName = now))
-            if (latest.name.trim() == old) updated = updated.copy(name = now)
-            env.log("engine", "${job.name}: the source playlist is now called \"$now\"" + if (latest.name.trim() == old) ", the sync takes its name" else "")
+            val at = System.currentTimeMillis()
+            // Renamed again within days: a playlist that names itself, whose titles would rename the
+            // sync several times a day. The sync keeps the name it has; the target still follows.
+            val selfNaming = latest.sourceRenamedAt?.let { at - it < SELF_NAMING_WINDOW_MS } == true
+            val takesName = latest.name.trim() == old && !selfNaming
+            updated = updated.copy(source = updated.source.copy(playlistName = now), sourceRenamedAt = at)
+            if (takesName) updated = updated.copy(name = now)
+            env.log("engine", "${job.name}: the source playlist is now called \"$now\"" +
+                when { takesName -> ", the sync takes its name"; selfNaming -> ", it renames itself often: the sync keeps its name"; else -> "" })
             if (dst.canRenamePlaylists) {
                 val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
                     ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()

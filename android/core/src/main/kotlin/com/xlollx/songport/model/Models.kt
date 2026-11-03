@@ -130,6 +130,11 @@ data class SyncJob(
     val shazam: Boolean = false,
     /** The source's cover last copied to the target (its address): a new one is copied again, where the target takes covers. */
     val sourceCover: String? = null,
+    /**
+     * When the source last took a new name: renamed again within days, it is one that names itself
+     * (a Spotify daylist, several titles a day), and the sync keeps its own name from then on.
+     */
+    val sourceRenamedAt: Long? = null,
 )
 
 /**
