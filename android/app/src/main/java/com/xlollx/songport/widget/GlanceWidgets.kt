@@ -88,7 +88,9 @@ object Widgets {
     }
 
     /** A sync as the widgets show it. */
-    class Row(val id: String, val name: String, val color: JobColor?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int)
+    class Row(val id: String, val name: String, val color: JobColor?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
+        /** The services, "Spotify → TIDAL": syncs of one playlist to several services share a name. */
+        val route: String, val target: String)
 
     fun rows(ctx: Context): List<Row> {
         val data = Store.get(ctx).data
@@ -106,8 +108,11 @@ object Widgets {
             !last.ok -> ctx.getString(R.string.result_error, last.error)
             else -> ctx.getString(R.string.widget_last, time.format(Date(last.startedEpoch)), ctx.getString(R.string.result_added_removed, last.added, last.removed))
         }
+        fun service(id: String) = com.xlollx.songport.providers.Providers.byId(id)?.familyName ?: id
+        val from = job.radio?.station ?: service(job.source.provider)
+        val to = service(job.target.provider)
         return Row(job.id, job.name, JobColor.of(job.color), status, last != null && !last.ok && job.id !in running, job.id in running,
-            (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0))
+            (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to)
     }
 
     internal val JOB = ActionParameters.Key<String>("job")
@@ -171,7 +176,7 @@ class SyncListWidget : GlanceAppWidget() {
                             Box(GlanceModifier.size(10.dp).cornerRadius(5.dp).background(if (r.failed) red else accent(r.color))) {}
                             Spacer(GlanceModifier.width(10.dp))
                             Column(GlanceModifier.defaultWeight().clickable(openApp(ctx))) {
-                                Text(r.name, maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                                Text("${r.name} → ${r.target}", maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 14.sp, fontWeight = FontWeight.Medium))
                                 Text(r.status, maxLines = 1, style = TextStyle(color = if (r.failed) red else GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp))
                             }
                             Spacer(GlanceModifier.width(8.dp))
@@ -219,7 +224,7 @@ class OneSyncWidget : GlanceAppWidget() {
                 RunButton(r.id, 40)
             }
             Spacer(GlanceModifier.height(6.dp))
-            if (wide) Text("${job.source.playlistName.ifBlank { job.source.provider }} → ${job.target.playlistName.ifBlank { job.target.provider }}", maxLines = 1,
+            if (wide) Text(r.route, maxLines = 1,
                 style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp))
             Text(r.status, maxLines = 2, style = TextStyle(color = if (r.failed) red else GlanceTheme.colors.onSurface, fontSize = 13.sp))
             if (r.toCheck > 0) Text(ctx.resources.getQuantityString(R.plurals.widget_to_check, r.toCheck, r.toCheck), maxLines = 1,
