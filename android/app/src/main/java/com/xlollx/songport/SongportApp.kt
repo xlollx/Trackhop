@@ -11,6 +11,8 @@ class SongportApp : Application() {
         com.xlollx.songport.platform.BuildDefaults.values = com.xlollx.songport.platform.AndroidEnv.buildDefaults()
         com.xlollx.songport.platform.Res.init(this)
         com.xlollx.songport.providers.installConnectors()
+        // TikTok's page is read only by the full build: the Play one keeps to official services.
+        com.xlollx.songport.sync.TikTokShare.enabled = BuildConfig.FLAVOR != "play"
         // The connections log (hosts only) starts before anything talks to the network.
         com.xlollx.songport.net.HostLog.init(this)
         com.xlollx.songport.providers.BuiltIn.onAppStart(this, com.xlollx.songport.net.HostLog.interceptor)

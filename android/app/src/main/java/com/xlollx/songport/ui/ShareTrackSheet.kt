@@ -47,6 +47,7 @@ import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.SyncEngine
 import com.xlollx.songport.sync.TrackLinks
 import com.xlollx.songport.sync.ShazamShare
+import com.xlollx.songport.sync.TikTokShare
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import com.xlollx.songport.sync.TrackLookup
@@ -91,9 +92,20 @@ fun ShareTrackSheet(
     // What the link is about, read once; null while loading, a title-less Track when nothing answered.
     var source by remember { mutableStateOf<Track?>(null) }
     var sourceFailed by remember { mutableStateOf(false) }
+    // Why a TikTok names no song: its creator's own sound, or a page that did not say.
+    var sourceNote by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(ref) {
-        // A Shazam share names its song in the text: nothing to ask anyone.
-        source = if (ref.service == ShazamShare.SERVICE) ShazamShare.track(text) else describe(app, ref, link)
+        source = when (ref.service) {
+            // A Shazam share names its song in the text: nothing to ask anyone.
+            ShazamShare.SERVICE -> ShazamShare.track(text)
+            // A TikTok video: the song its public page names.
+            TikTokShare.SERVICE -> when (val sound = withContext(Dispatchers.IO) { TikTokShare.sound(link) }) {
+                is TikTokShare.Sound.Song -> sound.track
+                is TikTokShare.Sound.Original -> { sourceNote = ctx.getString(R.string.tiktok_original_sound); null }
+                TikTokShare.Sound.Unknown -> { sourceNote = ctx.getString(R.string.tiktok_unreadable); null }
+            }
+            else -> describe(app, ref, link)
+        }
         if (source == null) { sourceFailed = true; source = Track(id = ref.trackId, title = "") }
     }
 
@@ -159,7 +171,7 @@ fun ShareTrackSheet(
                 src == null -> Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.width(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading))
                 }
-                src.title.isBlank() -> Text(stringResource(R.string.share_sheet_unknown), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                src.title.isBlank() -> Text(sourceNote ?: stringResource(R.string.share_sheet_unknown), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> TrackLine(src, emphasis = true)
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -254,7 +266,7 @@ private fun queryOf(t: Track) = if (t.artists.isEmpty()) t.title else "${t.artis
 
 private fun serviceName(service: String) = when (service) {
     "spotify" -> "Spotify"; "apple" -> "Apple Music"; "youtube" -> "YouTube Music"; "amazon" -> "Amazon Music"
-    "deezer" -> "Deezer"; "tidal" -> "TIDAL"; else -> service.replaceFirstChar { it.uppercase() }
+    "deezer" -> "Deezer"; "tidal" -> "TIDAL"; TikTokShare.SERVICE -> "TikTok"; else -> service.replaceFirstChar { it.uppercase() }
 }
 
 /**
@@ -276,7 +288,7 @@ private suspend fun describe(app: android.content.Context, ref: TrackLinks.Ref, 
 /** The very recording on [dst], when its id is known there: the link's own service, or song.link's word. */
 private suspend fun exactOn(app: android.content.Context, dst: MusicProvider, ref: TrackLinks.Ref, link: String): Track? {
     // Shazam's ids are its own: the song is found by searching what it is called.
-    if (ref.service == ShazamShare.SERVICE) return null
+    if (ref.service == ShazamShare.SERVICE || ref.service == TikTokShare.SERVICE) return null
     val id = if (TrackLinks.matches(ref.service, dst.serviceId)) ref.trackId
         else attempt { TrackLinks.viaOdesli(link, dst.serviceId) }?.trackId ?: return null
     return attempt { dst.track(app, id) }?.takeIf { it.title.isNotBlank() }

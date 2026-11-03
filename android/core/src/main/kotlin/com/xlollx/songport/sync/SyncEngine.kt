@@ -980,6 +980,14 @@ class SyncEngine(
         fun hit(t: Track, kind: TargetSearch.Kind) = TargetSearch.Hit(t, if (source != null) Matcher.score(source, t, policy) else 0.0, kind)
         // A Shazam share names the song but lives on no service: search for what it names.
         if (ShazamShare.isShazam(query)) ShazamShare.track(query)?.let { return searchOn(dst, playlistId, policy, ShazamShare.query(it), source) }
+        // A TikTok video: the song its page names. The creator's own sound names none.
+        if (TikTokShare.isTikTok(query)) {
+            return when (val sound = TikTokShare.sound(query)) {
+                is TikTokShare.Sound.Song -> searchOn(dst, playlistId, policy, TikTokShare.query(sound.track), source ?: sound.track)
+                is TikTokShare.Sound.Original -> throw ProviderException(str("tiktok_original_sound"))
+                TikTokShare.Sound.Unknown -> throw ProviderException(str("tiktok_unreadable"))
+            }
+        }
         // Il link del brano incollato: si aggiunge quello, letto dal servizio quando possibile. I link
         // brevi delle app (amzn.eu, spotify.link...) si seguono fino all'indirizzo vero.
         (TrackLinks.parse(query) ?: resolveShortLink(query)?.let { TrackLinks.parse(it) })?.let { ref0 ->

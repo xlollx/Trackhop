@@ -32,6 +32,8 @@ object TrackLinks {
         Regex("""tidal\.com/(?:browse/)?track/(\d+)""") to "tidal",
         // Shazam: not a service to add to, but a song to find elsewhere (see ShazamShare).
         ShazamShare.LINK to ShazamShare.SERVICE,
+        // TikTok: a video whose song is read from its page (see TikTokShare); the id is the video's.
+        TikTokShare.LINK to TikTokShare.SERVICE,
     )
 
     /** @return il riferimento al brano, oppure null se il testo non e' un link riconosciuto. */
@@ -39,8 +41,9 @@ object TrackLinks {
         val s = text.trim()
         if (s.isEmpty()) return null
         for ((regex, service) in RULES) {
+            if (service == TikTokShare.SERVICE && !TikTokShare.enabled) continue
             val m = regex.find(s) ?: continue
-            val id = m.groupValues[1]
+            val id = m.groupValues.drop(1).firstOrNull { it.isNotEmpty() }.orEmpty()
             if (id.isNotBlank()) return Ref(service, id)
         }
         return null

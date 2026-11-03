@@ -30,7 +30,13 @@ import java.io.File
  * [officialOnly] (the Microsoft Store's package, like the app's Play build) leaves the unofficial
  * ones out: the official APIs, the personal servers, Last.fm, ListenBrainz and files remain.
  */
-fun installServerConnectors(officialOnly: Boolean = false) = Providers.install(
+fun installServerConnectors(officialOnly: Boolean = false) {
+    // TikTok's page is read only where unofficial sources are allowed (not the Microsoft Store package).
+    com.xlollx.songport.sync.TikTokShare.enabled = !officialOnly
+    installServerConnectorsOnly(officialOnly)
+}
+
+private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.install(
     listOfNotNull(
         Factory(SpotifyProvider.SERVICE) { SpotifyProvider(it) },
         Factory(SpotifyWebServerProvider.SERVICE) { SpotifyWebServerProvider(it) }.takeUnless { officialOnly },
