@@ -1,0 +1,1 @@
+Widgets : chaque synchro indique sa destination (« Metal & More → TIDAL »), pour distinguer les synchros d'une playlist vers plusieurs services.

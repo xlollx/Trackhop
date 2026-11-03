@@ -1,0 +1,1 @@
+Widgets: cada sync muestra a dónde va ("Metal & More → TIDAL"), así se distinguen las syncs de una playlist hacia varios servicios.

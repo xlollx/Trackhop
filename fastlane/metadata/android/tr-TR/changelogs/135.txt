@@ -1,0 +1,1 @@
+Widget'lar: her eşitleme nereye gittiğini gösterir ("Metal & More → TIDAL"), böylece bir listenin farklı servislere eşitlemeleri ayırt edilir.
