@@ -470,6 +470,12 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
     val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
     val ctx = androidx.compose.ui.platform.LocalContext.current
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // The usual choices one tap away; the slider in between for the rest.
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(0, 60, 360, 1440, 10080).forEach { m ->
+                FilterChip(selected = every == m && days.isEmpty(), onClick = { onDays(""); onEvery(m) }, label = { Text(stepLabel(m)) })
+            }
+        }
         Text(if (days.isNotEmpty()) stringResource(R.string.timing_at, dayNames(days), at) else stepLabel(every),
             style = MaterialTheme.typography.titleMedium)
         Slider(
