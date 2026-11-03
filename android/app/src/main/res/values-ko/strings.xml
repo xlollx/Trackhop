@@ -1326,4 +1326,5 @@
     <string name="timing_at">%1$s %2$s</string>
     <string name="timing_at_label">%1$s</string>
     <string name="timing_days_label">이 요일에만(선택)</string>
+    <string name="search_listen">들어 보기</string>
 </resources>

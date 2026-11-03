@@ -1327,4 +1327,5 @@
     <string name="timing_at">%1$s %2$s</string>
     <string name="timing_at_label">%1$s</string>
     <string name="timing_days_label">この曜日だけ（任意）</string>
+    <string name="search_listen">聴いてみる</string>
 </resources>
