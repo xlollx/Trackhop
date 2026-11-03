@@ -22,7 +22,7 @@ object BridgeCore {
     const val RECENT = "__recent__"
 
     fun call(ctx: Context, method: String, arg: String?, extras: Bundle?): Bundle {
-        BridgeNet.attach(ctx)
+        BridgeNet.attach(ctx.filesDir)
         return try {
             val client = YtmClient(ctx)
             when (method) {
