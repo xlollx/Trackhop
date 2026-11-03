@@ -1,0 +1,2 @@
+Nuevo: canciones que te gustan con la conexión de YouTube (API de Google), como origen y destino: los vídeos musicales que marcaste con Me gusta.
+Revisión: un botón junto a cada candidato lo abre en el servicio de destino, en la app predeterminada del móvil, para escucharlo antes de elegir.

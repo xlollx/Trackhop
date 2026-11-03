@@ -1,0 +1,2 @@
+New: Liked songs with the YouTube (Google API) connection, as a source and a target: the music videos you liked.
+Review: a button next to every candidate opens it on the target service, in your phone's default app for those links, to listen before you pick.

@@ -1,0 +1,2 @@
+Yeni: YouTube (Google API) bağlantısıyla beğenilen şarkılar, kaynak ve hedef olarak: beğendiğiniz müzik videoları.
+İnceleme: her adayın yanındaki düğme onu hedef serviste, telefonun varsayılan uygulamasında açar; seçmeden önce dinleyin.

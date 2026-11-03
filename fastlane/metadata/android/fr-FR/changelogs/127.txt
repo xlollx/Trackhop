@@ -1,0 +1,2 @@
+Nouveau : titres likés avec la connexion YouTube (API Google), comme source et destination : les vidéos musicales que vous avez aimées.
+Révision : un bouton à côté de chaque candidat l’ouvre sur le service de destination, dans l’app par défaut du téléphone, pour l’écouter avant de choisir.

@@ -1,0 +1,2 @@
+Nowość: polubione utwory przez połączenie YouTube (API Google), jako źródło i cel: teledyski, które polubiłeś.
+Przegląd: przycisk przy każdym kandydacie otwiera go w serwisie docelowym, w domyślnej aplikacji telefonu, by posłuchać przed wyborem.

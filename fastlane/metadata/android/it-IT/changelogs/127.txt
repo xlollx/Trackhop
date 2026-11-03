@@ -1,0 +1,2 @@
+Novità: i brani che ti piacciono con il collegamento YouTube (API Google), come sorgente e destinazione: i video musicali a cui hai messo Mi piace.
+Revisione: un pulsante accanto a ogni candidato lo apre sul servizio di destinazione, nell'app predefinita del telefono, per ascoltarlo prima di sceglierlo.

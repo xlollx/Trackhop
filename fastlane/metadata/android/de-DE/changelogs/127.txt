@@ -1,0 +1,2 @@
+Neu: Lieblingssongs mit der YouTube-Verbindung (Google-API), als Quelle und Ziel: die Musikvideos mit deinem Like.
+Überprüfung: Ein Knopf neben jedem Kandidaten öffnet ihn beim Zieldienst, in der Standard-App des Handys, zum Anhören vor der Auswahl.

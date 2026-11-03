@@ -1,0 +1,2 @@
+Novo: músicas curtidas com a conexão do YouTube (API do Google), como origem e destino: os vídeos de música que você curtiu.
+Revisão: um botão ao lado de cada candidato abre a música no serviço de destino, no app padrão do celular, para ouvir antes de escolher.
