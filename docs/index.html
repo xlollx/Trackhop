@@ -12,17 +12,27 @@ main_class: home
       <p class="lead">Trackhop keeps playlists in sync across music services, by hand or on a schedule.</p>
       <p class="sub">Free and open source. No account, no server, no subscription: everything runs on your phone.</p>
       <div class="platforms" role="tablist" aria-label="Where to install Trackhop">
-        <button type="button" role="tab" data-tab="phone" aria-selected="true">Phone</button>
-        <button type="button" role="tab" data-tab="computer" aria-selected="false">Computer</button>
-        <button type="button" role="tab" data-tab="server" aria-selected="false">Server</button>
+        <button type="button" role="tab" data-tab="phone" aria-selected="true">Android</button>
+        <button type="button" role="tab" data-tab="computer" aria-selected="false">Desktop</button>
+        <button type="button" role="tab" data-tab="server" aria-selected="false">Self-hosted</button>
       </div>
       <div class="panel" data-panel="phone" role="tabpanel">
-        <div class="get">
-          <!-- Google Play: its official badge first here once the listing is public (never a link to the Bridge from the Play build; the site may). -->
-          <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid"></a>
-          <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium"></a>
+        <div class="get cols">
+          <div class="col">
+            <!-- Google Play: swap this for the official badge linking to the listing once it is public (never a link to the Bridge from the Play build; the site may). -->
+            <span class="soon"><img src="assets/badges/play-soon.svg" alt="Google Play: coming soon"></span>
+            <small>In testing · from Google Play? Add the <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">plugin</a></small>
+          </div>
+          <div class="col">
+            <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid"></a>
+            <small>Built from source · new versions a few days later</small>
+          </div>
+          <div class="col">
+            <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium"></a>
+            <small>Every release at once · or <a href="https://github.com/xlollx/Trackhop/releases/latest">the APK</a></small>
+          </div>
         </div>
-        <p class="more">Android 8.0 or newer · <a href="https://github.com/xlollx/Trackhop/releases/latest">Download the APK</a> · From Google Play? Add the <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">plugin</a> · <a href="guide/versions">Which version?</a></p>
+        <p class="more">Android 8.0 or newer · <a href="guide/versions">Which version do I need?</a></p>
       </div>
       <div class="panel" data-panel="computer" role="tabpanel">
         <div class="get cols">

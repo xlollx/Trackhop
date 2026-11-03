@@ -251,3 +251,6 @@ body.drawer-open { overflow: hidden; }
 @media (max-width: 640px) { .get .col { width: 150px; } }
 .get .col small { font-size: .82rem; opacity: .9; text-align: center; }
 .get .col small a { color: inherit; text-decoration: underline; }
+.get .soon { cursor: default; }
+.get .soon img { opacity: .85; }
+@media (max-width: 640px) { .platforms button { padding: 7px 11px; font-size: .88rem; } }
