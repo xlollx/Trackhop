@@ -436,6 +436,37 @@ File). Trackhop has no AI of its own and sends the AI only your description. Fre
 What the AI proposes is searched on the service like any sync, so a track it made up is simply not
 found.
 
+## Notifications
+
+A short message on your phone or in a chat when a sync ends with something to know: in
+**Settings › Notifications**, add as many channels as you like, each with its own events (a sync
+added or removed tracks, a sync failed or a sign-in expired, tracks to review, removals waiting for
+your confirmation), and try it with **Send test**. The message says the sync's name, `+added
+−removed` and the error's first line: never your tokens or your server's address. Sending happens
+apart from the sync (10 seconds at most per channel); a channel that fails is noted in the log and
+never fails the sync. Tokens are kept in the data folder like the sign-ins, shown masked
+(`••••abcd`), and left out of the `.trackhop` set-up file: after restoring it on another server,
+enter them again (the channels wait, turned off). On a server for several people each has their own.
+
+- **Telegram**: make a bot with [@BotFather](https://t.me/BotFather) (`/newbot`) and paste its token;
+  send your bot a message, then enter your chat id (@userinfobot tells it; a channel's `@name` works
+  once the bot is an admin there).
+- **ntfy**: subscribe to a topic in the ntfy app and enter it; the server is `https://ntfy.sh` or your
+  own. On ntfy.sh anyone who knows a topic can read it: pick one hard to guess, or use an access
+  token for a protected topic.
+- **Gotify**: in Gotify, *Apps › Create application*; enter the server's address and the app's token.
+- **Discord**: the channel's *Settings › Integrations › Webhooks › New webhook › Copy webhook URL*.
+- **Slack**: an app with an [incoming webhook](https://api.slack.com/messaging/webhooks) for a
+  channel; paste its URL.
+- **Matrix**: an account (a bot's, best) that is in the room: the homeserver, its access token
+  (Element: *Settings › Help & About › Access token*) and the room's id (`!…:server`, in *Room
+  settings › Advanced*).
+- **Pushover**: your user key (pushover.net's front page) and the API token of an application you
+  create there.
+
+From a terminal, `trackhop notify` lists the channels and `trackhop notify test <name or id>` sends a
+test. For the whole run as JSON (Home Assistant, n8n), use the [webhook](#api) instead.
+
 ## API
 
 Other tools (Home Assistant, n8n, Node-RED, a script) can list the syncs, start them and read how
@@ -461,6 +492,8 @@ the container. The same token lets an AI assistant use Trackhop at `/mcp` (Model
 | `GET /api/v1/tasks/<id>` | A background task (a backup, lyrics): progress, done, error |
 | `GET /api/v1/lyrics`, `POST /api/v1/lyrics` | The music folder and the last lyrics run (files, saved, synced, plain, not found); starts one (202, with a task id): `?folder=Queen/Jazz` for one folder, `&synced=true` for synced lyrics only, `&retry=true` to ask again for the ones not found. [Lyrics](#lyrics) |
 | `GET /api/v1/config` (`?history=true`) | The whole set-up as a `.trackhop` file, as *Tools › Backup & restore* saves it |
+| `GET /api/v1/notifications` | The [notification channels](#notifications), their tokens masked |
+| `POST /api/v1/notifications/<id>/test` | Sends a test message through one (200, or 502 with the service's answer) |
 | `GET /api/v1/metrics` | Prometheus metrics: syncs, running, and per sync the last run's time, result, added, removed and not found |
 | `GET /api/v1/services/<service>/playlists` | A connected service's playlists (and its liked songs, saved albums… where it has them) |
 | `POST /api/v1/services/<service>/playlists` | Creates a playlist: `{"name": "…"}` (201, with its id) |

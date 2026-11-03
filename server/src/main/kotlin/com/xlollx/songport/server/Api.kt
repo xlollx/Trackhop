@@ -208,7 +208,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("metrics") && method == "GET" -> send(ex, 200, Api.metrics(env, running.keys), "text/plain; version=0.0.4")
         rest == listOf("config") && method == "GET" -> {
             ex.responseHeaders.add("Content-Disposition", "attachment; filename=\"${com.xlollx.songport.data.ConfigBackup.fileName()}\"")
-            send(ex, 200, com.xlollx.songport.data.ConfigBackup.export(env, "$productName $version (API)", history = query["history"] == "true"), "application/json")
+            send(ex, 200, Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "$productName $version (API)", history = query["history"] == "true")), "application/json")
         }
         rest == listOf("backup") && method == "GET" -> json(200, buildJsonObject {
             put("running", Tasks.running(Backups.TITLE))
@@ -251,6 +251,14 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                 }
                 else -> error(404, "Unknown call.")
             }
+        }
+        rest == listOf("notifications") && method == "GET" -> json(200, JsonArray(Notify.channels(env).map { Notify.shown(it) }))
+        rest.size == 3 && rest[0] == "notifications" && rest[2] == "test" && method == "POST" -> {
+            val c = Notify.channel(env, rest[1]) ?: return error(404, "No notification channel with that id.")
+            val failed = Notify.test(c)
+            env.log("notify", "test to ${c.name} (${c.kind.label}): ${failed ?: "sent"}")
+            if (failed != null) return error(502, "${c.name}: $failed")
+            json(200, buildJsonObject { put("sent", true); put("channel", Notify.shown(c)) })
         }
         rest.size == 2 && rest[0] == "runs" && method == "GET" -> {
             val report = env.store.data.reports.firstOrNull { it.id == rest[1] } ?: return error(404, "No run with that id.")

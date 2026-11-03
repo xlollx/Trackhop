@@ -93,6 +93,10 @@ internal fun Web.settingsPage(r: Web.Req) {
         body.append("""<label class="check"><input type="checkbox" name="card" value="$key"${if (key in cards) " checked" else ""}> ${h(label)}</label>""")
     }
     body.append("""<p><button>Save</button></p></form>""")
+    if (env.may(Permissions.API)) {
+        val n = Notify.channels(env).count { it.enabled }
+        body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
+    }
     if (seesUpdates()) body.append(updatesCard())
     body.append(
         """<div class="card"><h3>Language</h3><p class="muted">These pages are in English for now. The texts that come from the app (services, notes) follow ${

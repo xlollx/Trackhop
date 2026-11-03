@@ -78,6 +78,8 @@ A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`…, as `trackhop
 | `trackhop import <file>` | A playlist file into the File service: CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text. |
 | `trackhop backup` | Backs up every playlist now (`--wait` to wait for the end). |
 | `trackhop config [<file>]` | Your whole set-up as one file, as Backup & restore makes it; to the screen without `<file>`. |
+| `trackhop notify` | The [notification channels](docker#notifications), their tokens masked. |
+| `trackhop notify test <channel>` | Sends a test message through a channel, named by its name or id; fails (exit 1) with the service's answer if it did not arrive. |
 
 **Other:** `trackhop status` (version, syncs, what is running), `trackhop help`, `trackhop --version`.
 

@@ -166,6 +166,7 @@ class Web(
             path == listOf("files") && method == "POST" -> upload(r)
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
+            path == listOf("settings", "notifications") -> notificationsPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
             else -> send(ex, 404, page("Not found", "<p><a href=\"/\">Back</a></p>"))

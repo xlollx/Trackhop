@@ -60,7 +60,7 @@ object Backups {
         }
         // The set-up of the day: restoring the folder gives the syncs back, not only the playlists.
         val config = File(dir, com.xlollx.songport.data.ConfigBackup.fileName())
-        if (!config.exists()) { config.writeText(com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop (scheduled backup)")); n++ }
+        if (!config.exists()) { config.writeText(Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop (scheduled backup)"))); n++ }
         return n
     }
 
