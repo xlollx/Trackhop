@@ -1,0 +1,1 @@
+Amazon Music：即使与登录的网站不同，Trackhop 现在也使用 Amazon 为你的账户指定的地区。修复搜索和创建歌单时的 "invalid customer" 错误。

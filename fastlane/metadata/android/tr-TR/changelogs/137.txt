@@ -1,0 +1,1 @@
+Amazon Music: Trackhop artık, giriş yaptığın siteden farklı olsa bile Amazon'un hesabın için verdiği bölgeyi kullanıyor. Arama ve çalma listesi oluştururken görülen "invalid customer" hataları düzeltildi.

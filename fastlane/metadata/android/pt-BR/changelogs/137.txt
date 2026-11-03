@@ -1,0 +1,1 @@
+Amazon Music: o Trackhop agora usa a região que a Amazon indica para a sua conta, mesmo quando é diferente do site em que você entra. Corrige os erros "invalid customer" ao buscar e criar playlists.
