@@ -601,15 +601,6 @@
     <string name="review_section_unmatched">Nicht gefunden (%1$d)</string>
     <string name="review_keep">Passt</string>
     <string name="review_change">Ändern</string>
-    <string name="review_select_all">Alle auswählen</string>
-    <string name="review_selected">%1$d ausgewählt</string>
-    <string name="review_clear_selection">Auswahl aufheben</string>
-    <string name="review_discard">Entfernen</string>
-    <string name="review_discard_title">Aus %1$s entfernen?</string>
-    <string name="review_discard_body">Die zugeordneten Titel werden aus der Playlist auf %1$s entfernt, und dieser Sync fügt diese Songs nicht mehr hinzu.</string>
-    <string name="review_discard_body_kept">%1$s erlaubt Trackhop nicht, Titel zu entfernen: Sie bleiben in der Playlist, aber dieser Sync fügt diese Songs nicht mehr hinzu. Du kannst sie in %1$s löschen.</string>
-    <string name="review_discarded">Aus %1$s entfernt: %2$d</string>
-    <string name="review_select_hint">Halte einen Titel gedrückt, um mehrere auf einmal auszuwählen.</string>
     <string name="review_use_this">Diesen nehmen</string>
     <string name="review_score">%1$d%% Übereinstimmung</string>
     <string name="preview_uncertain">%1$d zu prüfen</string>
@@ -1334,4 +1325,19 @@
     <string name="idea_note">Deine Idee kommt auf GitHub, wo sie öffentlich ist und andere dafür stimmen können (ein kostenloses Konto ist nötig). Trackhop sendet nichts von selbst: du siehst den Text, bevor du ihn veröffentlichst.</string>
     <string name="idea_github">Auf GitHub posten</string>
     <string name="idea_others">Ideen anderer ansehen</string>
+    <string name="review_select_all">Alle auswählen</string>
+    <string name="review_selected">%1$d ausgewählt</string>
+    <string name="review_clear_selection">Auswahl aufheben</string>
+    <string name="review_discard">Entfernen</string>
+    <string name="review_discard_title">Aus %1$s entfernen?</string>
+    <string name="review_discard_body">Die zugeordneten Titel werden aus der Playlist auf %1$s entfernt, und dieser Sync fügt diese Songs nicht mehr hinzu.</string>
+    <string name="review_discard_body_kept">%1$s erlaubt Trackhop nicht, Titel zu entfernen: Sie bleiben in der Playlist, aber dieser Sync fügt diese Songs nicht mehr hinzu. Du kannst sie in %1$s löschen.</string>
+    <string name="review_discarded">Aus %1$s entfernt: %2$d</string>
+    <string name="review_select_hint">Halte einen Titel gedrückt, um mehrere auf einmal auszuwählen.</string>
+    <string name="tiktok_original_sound">Dieses TikTok nutzt einen eigenen Sound der Person, die es erstellt hat: TikTok sagt nicht, welcher Song läuft.</string>
+    <string name="tiktok_unreadable">TikTok hat den Sound dieses Videos nicht angezeigt: Es ist vielleicht privat oder gelöscht.</string>
+    <string name="whats_new_17_review_title">Viele Titel auf einmal prüfen</string>
+    <string name="whats_new_17_review_body">Halte einen Titel gedrückt, um mehrere auszuwählen, und behalte sie, entferne sie aus der Playlist oder ignoriere sie auf einmal.</string>
+    <string name="whats_new_17_tiktok_title">Songs aus TikTok</string>
+    <string name="whats_new_17_tiktok_body">Teile ein TikTok-Video mit Trackhop: Es erkennt, welcher Song darin läuft, und fügt ihn deiner Playlist hinzu.</string>
 </resources>

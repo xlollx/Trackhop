@@ -601,15 +601,6 @@
     <string name="review_section_unmatched">Introuvables (%1$d)</string>
     <string name="review_keep">C\'est bon</string>
     <string name="review_change">Changer</string>
-    <string name="review_select_all">Tout sélectionner</string>
-    <string name="review_selected">%1$d sélectionnés</string>
-    <string name="review_clear_selection">Annuler la sélection</string>
-    <string name="review_discard">Retirer</string>
-    <string name="review_discard_title">Retirer de %1$s ?</string>
-    <string name="review_discard_body">Les titres associés quittent la playlist sur %1$s, et cette synchro n’ajoute plus ces morceaux.</string>
-    <string name="review_discard_body_kept">%1$s ne permet pas à Trackhop de retirer des titres : ils restent dans la playlist, mais cette synchro n’ajoute plus ces morceaux. Vous pouvez les supprimer dans %1$s.</string>
-    <string name="review_discarded">Retirés de %1$s : %2$d</string>
-    <string name="review_select_hint">Appuyez longuement sur un titre pour en sélectionner plusieurs.</string>
     <string name="review_use_this">Utiliser celui-ci</string>
     <string name="review_score">%1$d%% de correspondance</string>
     <string name="preview_uncertain">%1$d à vérifier</string>
@@ -1342,4 +1333,19 @@
     <string name="idea_note">Votre idée va sur GitHub, où elle est publique et où d\'autres peuvent voter pour elle (un compte gratuit est nécessaire). Trackhop n\'envoie rien de lui-même : vous voyez le texte avant de le publier.</string>
     <string name="idea_github">Publier sur GitHub</string>
     <string name="idea_others">Voir les idées des autres</string>
+    <string name="review_select_all">Tout sélectionner</string>
+    <string name="review_selected">%1$d sélectionnés</string>
+    <string name="review_clear_selection">Annuler la sélection</string>
+    <string name="review_discard">Retirer</string>
+    <string name="review_discard_title">Retirer de %1$s ?</string>
+    <string name="review_discard_body">Les titres associés quittent la playlist sur %1$s, et cette synchro n’ajoute plus ces morceaux.</string>
+    <string name="review_discard_body_kept">%1$s ne permet pas à Trackhop de retirer des titres : ils restent dans la playlist, mais cette synchro n’ajoute plus ces morceaux. Vous pouvez les supprimer dans %1$s.</string>
+    <string name="review_discarded">Retirés de %1$s : %2$d</string>
+    <string name="review_select_hint">Appuyez longuement sur un titre pour en sélectionner plusieurs.</string>
+    <string name="tiktok_original_sound">Ce TikTok utilise un son original de son créateur : TikTok ne dit pas quel morceau on y entend.</string>
+    <string name="tiktok_unreadable">TikTok n\'a pas montré le son de cette vidéo : elle est peut-être privée ou supprimée.</string>
+    <string name="whats_new_17_review_title">Vérifier plusieurs titres à la fois</string>
+    <string name="whats_new_17_review_body">Appuyez longuement sur un titre pour en sélectionner plusieurs, puis gardez-les, retirez-les de la playlist ou ignorez-les d\'un coup.</string>
+    <string name="whats_new_17_tiktok_title">Les morceaux de TikTok</string>
+    <string name="whats_new_17_tiktok_body">Partagez une vidéo TikTok avec Trackhop : il lit quel morceau on y entend et l\'ajoute à votre playlist.</string>
 </resources>

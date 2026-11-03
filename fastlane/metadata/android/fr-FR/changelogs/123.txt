@@ -1,0 +1,2 @@
+Nouveau : partagez une vidéo TikTok avec Trackhop, il trouve le morceau utilisé et l'ajoute à votre playlist.
+Vérification : appuyez longuement sur un titre pour en sélectionner plusieurs, puis gardez-les, retirez-les ou ignorez-les d'un coup. Une correspondance incertaine peut maintenant être retirée : elle quitte la playlist et n'est plus ajoutée.

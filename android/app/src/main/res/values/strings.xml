@@ -601,15 +601,6 @@
     <string name="review_section_unmatched">Not found (%1$d)</string>
     <string name="review_keep">Looks right</string>
     <string name="review_change">Change</string>
-    <string name="review_select_all">Select all</string>
-    <string name="review_selected">%1$d selected</string>
-    <string name="review_clear_selection">Clear selection</string>
-    <string name="review_discard">Remove</string>
-    <string name="review_discard_title">Remove from %1$s?</string>
-    <string name="review_discard_body">The matched tracks leave the playlist on %1$s, and this sync no longer adds these songs.</string>
-    <string name="review_discard_body_kept">%1$s does not let Trackhop remove tracks: they stay in the playlist, but this sync no longer adds these songs. You can delete them in %1$s.</string>
-    <string name="review_discarded">Removed from %1$s: %2$d</string>
-    <string name="review_select_hint">Touch and hold a track to select several at once.</string>
     <string name="review_use_this">Use this</string>
     <string name="review_score">%1$d%% match</string>
     <string name="preview_uncertain">%1$d to double-check</string>
@@ -1334,4 +1325,19 @@
     <string name="idea_note">Your idea goes on GitHub, where it is public and others can vote for it (a free account is needed). Trackhop sends nothing by itself: you see the text before you post it.</string>
     <string name="idea_github">Post on GitHub</string>
     <string name="idea_others">See the ideas others proposed</string>
+    <string name="review_select_all">Select all</string>
+    <string name="review_selected">%1$d selected</string>
+    <string name="review_clear_selection">Clear selection</string>
+    <string name="review_discard">Remove</string>
+    <string name="review_discard_title">Remove from %1$s?</string>
+    <string name="review_discard_body">The matched tracks leave the playlist on %1$s, and this sync no longer adds these songs.</string>
+    <string name="review_discard_body_kept">%1$s does not let Trackhop remove tracks: they stay in the playlist, but this sync no longer adds these songs. You can delete them in %1$s.</string>
+    <string name="review_discarded">Removed from %1$s: %2$d</string>
+    <string name="review_select_hint">Touch and hold a track to select several at once.</string>
+    <string name="tiktok_original_sound">This TikTok uses its creator\'s own sound: TikTok does not say which song plays in it.</string>
+    <string name="tiktok_unreadable">TikTok did not show this video\'s sound: it may be private or removed.</string>
+    <string name="whats_new_17_review_title">Review many tracks at once</string>
+    <string name="whats_new_17_review_body">Touch and hold a track to select several, then keep them, remove them from the playlist or ignore them in one go.</string>
+    <string name="whats_new_17_tiktok_title">Songs from TikTok</string>
+    <string name="whats_new_17_tiktok_body">Share a TikTok video to Trackhop: it reads which song plays in it and adds it to your playlist.</string>
 </resources>

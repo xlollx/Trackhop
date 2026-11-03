@@ -1,0 +1,2 @@
+Neu: Teile ein TikTok-Video mit Trackhop, und es findet den verwendeten Song und fügt ihn deiner Playlist hinzu.
+Prüfen: Halte einen Titel gedrückt, um mehrere auszuwählen, und behalte, entferne oder ignoriere sie auf einmal. Eine unsichere Zuordnung lässt sich jetzt entfernen: Sie verlässt die Playlist und wird nicht erneut hinzugefügt.

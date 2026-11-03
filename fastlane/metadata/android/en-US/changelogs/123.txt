@@ -1,0 +1,2 @@
+New: share a TikTok video to Trackhop and it finds the song it uses, then adds it to your playlist.
+Review: touch and hold a track to select several, then keep them, remove them or ignore them at once. An uncertain match can now be removed: it leaves the playlist and is not added again.

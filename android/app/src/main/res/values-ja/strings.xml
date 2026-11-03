@@ -596,15 +596,6 @@
     <string name="review_section_unmatched">見つからない曲（%1$d）</string>
     <string name="review_keep">これで正しい</string>
     <string name="review_change">変更</string>
-    <string name="review_select_all">すべて選択</string>
-    <string name="review_selected">%1$d 件選択</string>
-    <string name="review_clear_selection">選択を解除</string>
-    <string name="review_discard">削除</string>
-    <string name="review_discard_title">%1$s から削除しますか？</string>
-    <string name="review_discard_body">一致した曲は %1$s のプレイリストから削除され、この同期はこれらの曲を今後追加しません。</string>
-    <string name="review_discard_body_kept">%1$s では Trackhop が曲を削除できません。曲はプレイリストに残りますが、この同期はこれらの曲を今後追加しません。%1$s で削除できます。</string>
-    <string name="review_discarded">%1$s から削除: %2$d</string>
-    <string name="review_select_hint">曲を長押しすると複数選択できます。</string>
     <string name="review_use_this">これを使う</string>
     <string name="review_score">一致度 %1$d%%</string>
     <string name="preview_uncertain">要確認 %1$d 曲</string>
@@ -1312,4 +1303,19 @@
     <string name="idea_note">アイデアは GitHub に投稿され、公開されてほかの人が投票できます（無料アカウントが必要）。Trackhop が勝手に送ることはありません。投稿前に内容を確認できます。</string>
     <string name="idea_github">GitHub に投稿</string>
     <string name="idea_others">ほかの人のアイデアを見る</string>
+    <string name="review_select_all">すべて選択</string>
+    <string name="review_selected">%1$d 件選択</string>
+    <string name="review_clear_selection">選択を解除</string>
+    <string name="review_discard">削除</string>
+    <string name="review_discard_title">%1$s から削除しますか？</string>
+    <string name="review_discard_body">一致した曲は %1$s のプレイリストから削除され、この同期はこれらの曲を今後追加しません。</string>
+    <string name="review_discard_body_kept">%1$s では Trackhop が曲を削除できません。曲はプレイリストに残りますが、この同期はこれらの曲を今後追加しません。%1$s で削除できます。</string>
+    <string name="review_discarded">%1$s から削除: %2$d</string>
+    <string name="review_select_hint">曲を長押しすると複数選択できます。</string>
+    <string name="tiktok_original_sound">この TikTok は投稿者のオリジナル音源を使っています。TikTok はどの曲かを示していません。</string>
+    <string name="tiktok_unreadable">TikTok がこの動画の音源を表示しませんでした。非公開か削除された可能性があります。</string>
+    <string name="whats_new_17_review_title">まとめてレビュー</string>
+    <string name="whats_new_17_review_body">曲を長押しして複数選択し、まとめて残す・プレイリストから削除する・無視することができます。</string>
+    <string name="whats_new_17_tiktok_title">TikTok の曲</string>
+    <string name="whats_new_17_tiktok_body">TikTok の動画を Trackhop に共有すると、流れている曲を読み取ってプレイリストに追加します。</string>
 </resources>

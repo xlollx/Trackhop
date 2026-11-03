@@ -601,15 +601,6 @@
     <string name="review_section_unmatched">No encontradas (%1$d)</string>
     <string name="review_keep">Parece correcta</string>
     <string name="review_change">Cambiar</string>
-    <string name="review_select_all">Seleccionar todo</string>
-    <string name="review_selected">%1$d seleccionadas</string>
-    <string name="review_clear_selection">Quitar selección</string>
-    <string name="review_discard">Quitar</string>
-    <string name="review_discard_title">¿Quitar de %1$s?</string>
-    <string name="review_discard_body">Las canciones elegidas salen de la playlist en %1$s y esta sincronización ya no añade estas canciones.</string>
-    <string name="review_discard_body_kept">%1$s no permite a Trackhop quitar canciones: siguen en la playlist, pero esta sincronización ya no añade estas canciones. Puedes borrarlas en %1$s.</string>
-    <string name="review_discarded">Quitadas de %1$s: %2$d</string>
-    <string name="review_select_hint">Mantén pulsada una canción para seleccionar varias a la vez.</string>
     <string name="review_use_this">Usar esta</string>
     <string name="review_score">%1$d%% de coincidencia</string>
     <string name="preview_uncertain">%1$d por revisar</string>
@@ -1342,4 +1333,19 @@
     <string name="idea_note">Tu idea va a GitHub, donde es pública y otros pueden votarla (hace falta una cuenta gratuita). Trackhop no envía nada por sí solo: ves el texto antes de publicarlo.</string>
     <string name="idea_github">Publicar en GitHub</string>
     <string name="idea_others">Ver las ideas de otros</string>
+    <string name="review_select_all">Seleccionar todo</string>
+    <string name="review_selected">%1$d seleccionadas</string>
+    <string name="review_clear_selection">Quitar selección</string>
+    <string name="review_discard">Quitar</string>
+    <string name="review_discard_title">¿Quitar de %1$s?</string>
+    <string name="review_discard_body">Las canciones elegidas salen de la playlist en %1$s y esta sincronización ya no añade estas canciones.</string>
+    <string name="review_discard_body_kept">%1$s no permite a Trackhop quitar canciones: siguen en la playlist, pero esta sincronización ya no añade estas canciones. Puedes borrarlas en %1$s.</string>
+    <string name="review_discarded">Quitadas de %1$s: %2$d</string>
+    <string name="review_select_hint">Mantén pulsada una canción para seleccionar varias a la vez.</string>
+    <string name="tiktok_original_sound">Este TikTok usa un sonido original de quien lo creó: TikTok no dice qué canción suena.</string>
+    <string name="tiktok_unreadable">TikTok no mostró el sonido de este vídeo: puede que sea privado o se haya eliminado.</string>
+    <string name="whats_new_17_review_title">Revisa muchas canciones a la vez</string>
+    <string name="whats_new_17_review_body">Mantén pulsada una canción para seleccionar varias y luego consérvalas, quítalas de la playlist o ignóralas de una vez.</string>
+    <string name="whats_new_17_tiktok_title">Canciones de TikTok</string>
+    <string name="whats_new_17_tiktok_body">Comparte un vídeo de TikTok con Trackhop: lee qué canción suena y la añade a tu playlist.</string>
 </resources>

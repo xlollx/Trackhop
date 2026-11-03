@@ -1,0 +1,2 @@
+Yeni: bir TikTok videosunu Trackhop ile paylaş; kullanılan şarkıyı bulup çalma listene ekler.
+Gözden geçirme: birkaç parça seçmek için bir parçaya basılı tut, sonra hepsini aynı anda koru, kaldır ya da yok say. Emin olunmayan bir eşleşme artık kaldırılabilir: listeden çıkar ve tekrar eklenmez.

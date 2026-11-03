@@ -613,15 +613,6 @@
     <string name="review_section_unmatched">Не найдено (%1$d)</string>
     <string name="review_keep">Верно</string>
     <string name="review_change">Изменить</string>
-    <string name="review_select_all">Выбрать все</string>
-    <string name="review_selected">Выбрано: %1$d</string>
-    <string name="review_clear_selection">Снять выбор</string>
-    <string name="review_discard">Удалить</string>
-    <string name="review_discard_title">Удалить из %1$s?</string>
-    <string name="review_discard_body">Подобранные треки будут удалены из плейлиста в %1$s, и эта синхронизация больше не будет их добавлять.</string>
-    <string name="review_discard_body_kept">%1$s не позволяет Trackhop удалять треки: они останутся в плейлисте, но эта синхронизация больше не будет их добавлять. Их можно удалить в %1$s.</string>
-    <string name="review_discarded">Удалено из %1$s: %2$d</string>
-    <string name="review_select_hint">Нажмите и удерживайте трек, чтобы выбрать несколько.</string>
     <string name="review_use_this">Использовать</string>
     <string name="review_score">Совпадение %1$d%%</string>
     <string name="preview_uncertain">Проверить: %1$d</string>
@@ -1378,4 +1369,19 @@
     <string name="idea_note">Ваша идея попадает на GitHub, где она публична и другие могут за неё голосовать (нужен бесплатный аккаунт). Trackhop ничего не отправляет сам: вы видите текст перед публикацией.</string>
     <string name="idea_github">Опубликовать на GitHub</string>
     <string name="idea_others">Посмотреть идеи других</string>
+    <string name="review_select_all">Выбрать все</string>
+    <string name="review_selected">Выбрано: %1$d</string>
+    <string name="review_clear_selection">Снять выбор</string>
+    <string name="review_discard">Удалить</string>
+    <string name="review_discard_title">Удалить из %1$s?</string>
+    <string name="review_discard_body">Подобранные треки будут удалены из плейлиста в %1$s, и эта синхронизация больше не будет их добавлять.</string>
+    <string name="review_discard_body_kept">%1$s не позволяет Trackhop удалять треки: они останутся в плейлисте, но эта синхронизация больше не будет их добавлять. Их можно удалить в %1$s.</string>
+    <string name="review_discarded">Удалено из %1$s: %2$d</string>
+    <string name="review_select_hint">Нажмите и удерживайте трек, чтобы выбрать несколько.</string>
+    <string name="tiktok_original_sound">В этом TikTok оригинальный звук автора: TikTok не сообщает, какая песня в нём звучит.</string>
+    <string name="tiktok_unreadable">TikTok не показал звук этого видео: возможно, оно скрыто или удалено.</string>
+    <string name="whats_new_17_review_title">Проверяйте много треков сразу</string>
+    <string name="whats_new_17_review_body">Нажмите и удерживайте трек, чтобы выбрать несколько, а затем оставьте их, удалите из плейлиста или игнорируйте за один раз.</string>
+    <string name="whats_new_17_tiktok_title">Песни из TikTok</string>
+    <string name="whats_new_17_tiktok_body">Поделитесь видео из TikTok с Trackhop: он узнает, какая песня в нём звучит, и добавит её в плейлист.</string>
 </resources>

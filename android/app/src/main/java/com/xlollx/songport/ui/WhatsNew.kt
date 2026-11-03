@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.MusicVideo
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.automirrored.filled.ManageSearch
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Wifi
@@ -87,6 +89,15 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.7",
+                listOfNotNull(
+                    Item(Icons.Filled.Checklist, JobColor.BLUE, R.string.whats_new_17_review_title, R.string.whats_new_17_review_body),
+                    // Only where TikTok's page is read: the Play build does not.
+                    Item(Icons.Filled.MusicVideo, JobColor.PINK, R.string.whats_new_17_tiktok_title, R.string.whats_new_17_tiktok_body)
+                        .takeIf { com.xlollx.songport.sync.TikTokShare.enabled },
+                ),
+            ),
             Release(
                 "1.6",
                 listOf(

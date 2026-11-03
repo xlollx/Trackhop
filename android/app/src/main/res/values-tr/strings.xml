@@ -601,15 +601,6 @@
     <string name="review_section_unmatched">Bulunamadı (%1$d)</string>
     <string name="review_keep">Doğru görünüyor</string>
     <string name="review_change">Değiştir</string>
-    <string name="review_select_all">Tümünü seç</string>
-    <string name="review_selected">%1$d seçildi</string>
-    <string name="review_clear_selection">Seçimi temizle</string>
-    <string name="review_discard">Kaldır</string>
-    <string name="review_discard_title">%1$s üzerinden kaldırılsın mı?</string>
-    <string name="review_discard_body">Eşleşen parçalar %1$s üzerindeki çalma listesinden çıkar ve bu senkronizasyon bu şarkıları artık eklemez.</string>
-    <string name="review_discard_body_kept">%1$s, Trackhop\'un parça kaldırmasına izin vermiyor: parçalar listede kalır, ancak bu senkronizasyon bu şarkıları artık eklemez. Onları %1$s içinde silebilirsin.</string>
-    <string name="review_discarded">%1$s üzerinden kaldırıldı: %2$d</string>
-    <string name="review_select_hint">Birden fazla seçmek için bir parçaya basılı tut.</string>
     <string name="review_use_this">Bunu kullan</string>
     <string name="review_score">%%%1$d eşleşme</string>
     <string name="preview_uncertain">%1$d kontrol edilecek</string>
@@ -1332,4 +1323,19 @@
     <string name="idea_note">Fikrin GitHub\'a gider; orada herkese açıktır ve başkaları oy verebilir (ücretsiz bir hesap gerekir). Trackhop kendiliğinden hiçbir şey göndermez: metni paylaşmadan önce görürsün.</string>
     <string name="idea_github">GitHub\'da paylaş</string>
     <string name="idea_others">Başkalarının fikirlerini gör</string>
+    <string name="review_select_all">Tümünü seç</string>
+    <string name="review_selected">%1$d seçildi</string>
+    <string name="review_clear_selection">Seçimi temizle</string>
+    <string name="review_discard">Kaldır</string>
+    <string name="review_discard_title">%1$s üzerinden kaldırılsın mı?</string>
+    <string name="review_discard_body">Eşleşen parçalar %1$s üzerindeki çalma listesinden çıkar ve bu senkronizasyon bu şarkıları artık eklemez.</string>
+    <string name="review_discard_body_kept">%1$s, Trackhop\'un parça kaldırmasına izin vermiyor: parçalar listede kalır, ancak bu senkronizasyon bu şarkıları artık eklemez. Onları %1$s içinde silebilirsin.</string>
+    <string name="review_discarded">%1$s üzerinden kaldırıldı: %2$d</string>
+    <string name="review_select_hint">Birden fazla seçmek için bir parçaya basılı tut.</string>
+    <string name="tiktok_original_sound">Bu TikTok, oluşturan kişinin kendi sesini kullanıyor: TikTok içinde hangi şarkının çaldığını söylemiyor.</string>
+    <string name="tiktok_unreadable">TikTok bu videonun sesini göstermedi: video gizli ya da kaldırılmış olabilir.</string>
+    <string name="whats_new_17_review_title">Birçok parçayı aynı anda gözden geçir</string>
+    <string name="whats_new_17_review_body">Birkaç parça seçmek için bir parçaya basılı tut; sonra hepsini tek seferde koru, çalma listesinden kaldır ya da yok say.</string>
+    <string name="whats_new_17_tiktok_title">TikTok\'tan şarkılar</string>
+    <string name="whats_new_17_tiktok_body">Bir TikTok videosunu Trackhop ile paylaş: içinde hangi şarkının çaldığını okur ve çalma listene ekler.</string>
 </resources>

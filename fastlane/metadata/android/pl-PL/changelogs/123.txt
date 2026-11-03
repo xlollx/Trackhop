@@ -1,0 +1,2 @@
+Nowość: udostępnij film z TikToka w Trackhop, a znajdzie użyty w nim utwór i doda go do playlisty.
+Przegląd: przytrzymaj utwór, aby zaznaczyć kilka, a potem zachowaj, usuń lub zignoruj je naraz. Niepewne dopasowanie można teraz usunąć: znika z playlisty i nie jest dodawane ponownie.
