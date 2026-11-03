@@ -1,0 +1,2 @@
+Corrigido: uma playlist com links na descrição, como o daylist do Spotify, agora é copiada para o YouTube Music (parava com um erro 400).
+Novo, beta: servidores Emby, como o Jellyfin.

@@ -1,0 +1,2 @@
+Düzeltildi: açıklamasında bağlantı olan bir liste, örneğin Spotify daylist, artık YouTube Music’e kopyalanıyor (400 hatasıyla duruyordu).
+Yeni, beta: Jellyfin gibi Emby sunucuları.

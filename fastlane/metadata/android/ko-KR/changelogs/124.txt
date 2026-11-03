@@ -1,0 +1,2 @@
+수정: 설명에 링크가 있는 플레이리스트(Spotify daylist 등)를 이제 YouTube Music으로 복사할 수 있습니다(오류 400으로 멈췄습니다).
+새 기능, 베타: Jellyfin처럼 Emby 서버 지원.

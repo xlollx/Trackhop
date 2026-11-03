@@ -1,0 +1,2 @@
+修复：描述中带链接的歌单（例如 Spotify 的 daylist）现在可以复制到 YouTube Music（之前会因错误 400 停止）。
+新功能（测试版）：支持 Emby 服务器，与 Jellyfin 相同。
