@@ -230,3 +230,13 @@ body.drawer-open { overflow: hidden; }
 .downloads span { font-variant-numeric: tabular-nums; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .vt-pill.ok { background: #1d3b2a; color: #9ce6b8; } }
 :root[data-theme="dark"] .vt-pill.ok { background: #1d3b2a; color: #9ce6b8; }
+
+/* Install: one tab per platform (phone, computer, server); without JavaScript every panel shows. */
+.platforms { display: none; gap: 4px; padding: 4px; margin-top: 22px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); width: fit-content; }
+.platforms.on { display: flex; }
+.platforms button { font: inherit; font-size: .95rem; font-weight: 600; color: inherit; background: none; border: 0; border-radius: 999px; padding: 7px 16px; cursor: pointer; opacity: .8; }
+.platforms button[aria-selected="true"] { background: rgba(255,255,255,.92); color: #2a0000; opacity: 1; }
+.platforms button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.panel { margin-top: 14px; }
+.panel .more { margin-top: 10px; font-size: .92rem; opacity: .9; }
+.panel .more a { color: inherit; text-decoration: underline; }
