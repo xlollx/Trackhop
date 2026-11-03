@@ -74,7 +74,8 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
 | **Last.fm** | ✓ | — | — | Your username (loved tracks, scrobbles, top tracks) | All builds |
 | **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
-| **SoundCloud** | ✓ | — | — | Paste a public set or likes link | GitHub, F-Droid, Desktop, Docker |
+| **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
+| | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker |
 | **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses | GitHub, F-Droid, Desktop, Docker |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
@@ -282,7 +283,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Last.fm | read-only | username | `LASTFM_API_KEY` or a key entered by the user | Loved tracks, recent scrobbles and the month's most played; source only. |
 | ListenBrainz | read-only, beta | username | nothing | Playlists and loved tracks, source only. |
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
-| SoundCloud | public links, read-only, unofficial; GitHub/F-Droid build and server only | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
+| SoundCloud | your account (sets, likes: read, create, add, remove; beta) built into the GitHub/F-Droid build and in the Trackhop Bridge; public links read-only on every non-Play build and the server; unofficial | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
 | NetEase Cloud Music, QQ Music | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist link | nothing | No interface for third-party apps, so a public playlist is read the way the sites' own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. [More](https://trackhop.org/guide/netease-qq-music). |
 | Qobuz, Pandora | not connectable | | | Partner-only or closed-beta APIs. Use files. |
 
