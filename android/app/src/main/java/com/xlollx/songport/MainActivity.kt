@@ -512,7 +512,8 @@ private fun MainScreen(
     // "What's new" after an update that brings something new: once the tabs are on screen, with no
     // page, sheet, dialog or tour step over them; then never again for that release, however it is closed.
     val whatsNew = when {
-        whatsNewAsked -> com.xlollx.songport.ui.WhatsNew.releases.take(1)
+        // Asked for (Settings › About): the last few 1.x releases, each under its name, as a short changelog.
+        whatsNewAsked -> com.xlollx.songport.ui.WhatsNew.releases.take(com.xlollx.songport.ui.WhatsNew.MAX_SHOWN)
         overlay == null && tourStep == null && !firstSheet && sharedLink == null && sharedTrack == null &&
             connectNow == null && firstSyncReady == null -> com.xlollx.songport.ui.WhatsNew.due(data.settings)
         else -> emptyList()
