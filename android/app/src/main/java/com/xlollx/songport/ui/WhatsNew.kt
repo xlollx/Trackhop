@@ -82,6 +82,8 @@ object WhatsNew {
         @StringRes val title: Int,
         @StringRes val body: Int,
         val tint: (@Composable () -> Color)? = null,
+        /** Whether this phone has the feature now: built in, or (Google Play) brought by a connector plugin. */
+        val shown: (android.content.Context) -> Boolean = { true },
     )
 
     /** At most this many releases at once, for someone who skipped several. */
@@ -100,18 +102,18 @@ object WhatsNew {
                     Item(Icons.Filled.Autorenew, JobColor.ORANGE, R.string.whats_new_18_daylist_title, R.string.whats_new_18_daylist_body),
                     Item(Icons.Filled.ThumbUp, JobColor.PINK, R.string.whats_new_18_liked_title, R.string.whats_new_18_liked_body),
                     Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_18_emby_title, R.string.whats_new_18_emby_body),
-                    // Only in the builds that carry the unofficial connectors.
-                    Item(Icons.Filled.LibraryMusic, JobColor.PURPLE, R.string.whats_new_18_anghami_title, R.string.whats_new_18_anghami_body)
-                        .takeIf { com.xlollx.songport.providers.BridgePlugin.builtIn },
+                    // Built in (GitHub, F-Droid), or on Google Play when a connector plugin brings Anghami.
+                    Item(Icons.Filled.LibraryMusic, JobColor.PURPLE, R.string.whats_new_18_anghami_title, R.string.whats_new_18_anghami_body,
+                        shown = { c -> anghamiAvailable(c) }),
                 ),
             ),
             Release(
                 "1.7",
                 listOfNotNull(
                     Item(Icons.Filled.Checklist, JobColor.BLUE, R.string.whats_new_17_review_title, R.string.whats_new_17_review_body),
-                    // Only where TikTok's page is read: the Play build does not.
-                    Item(Icons.Filled.MusicVideo, JobColor.PINK, R.string.whats_new_17_tiktok_title, R.string.whats_new_17_tiktok_body)
-                        .takeIf { com.xlollx.songport.sync.TikTokShare.enabled },
+                    // Only where TikTok's page is read: built in, or on Google Play through a connector plugin.
+                    Item(Icons.Filled.MusicVideo, JobColor.PINK, R.string.whats_new_17_tiktok_title, R.string.whats_new_17_tiktok_body,
+                        shown = { com.xlollx.songport.sync.TikTokShare.enabled }),
                 ),
             ),
             Release(
@@ -141,6 +143,10 @@ object WhatsNew {
             ),
         )
     }
+
+    private fun anghamiAvailable(ctx: android.content.Context): Boolean =
+        com.xlollx.songport.providers.BridgePlugin.builtIn || (com.xlollx.songport.providers.BridgePlugin.installed(ctx) &&
+            runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "anghami.status")?.containsKey("connected") == true }.getOrDefault(false))
 
     /** The newest release with an entry: what closing the sheet, or finishing the welcome, marks as seen. */
     val newestVersion: String get() = releases.first().version
@@ -203,7 +209,7 @@ fun WhatsNewSheet(releases: List<WhatsNew.Release>, onClose: () -> Unit) {
                     style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 8.dp).semantics { heading() },
                 )
-                r.items.forEach { WhatsNewRow(it) }
+                r.items.filter { it.shown(ctx) }.forEach { WhatsNewRow(it) }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
                 Button(
