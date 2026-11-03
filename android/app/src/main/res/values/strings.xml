@@ -1384,4 +1384,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">New widgets</string>
     <string name="whats_new_19_widgets_body">Your syncs on the home screen in your phone\'s colours: all of them with ▶ to run each, one sync of your choice, or a single “Sync all” tile.</string>
+    <string name="diag_export">Export log</string>
+    <string name="diag_export_title">Export the log</string>
+    <string name="diag_export_body">A text file with the technical details and the whole log of the time you choose, nothing cut: attach it to an issue or send it.</string>
+    <string name="diag_range_hour">Last hour</string>
+    <string name="diag_range_day">Last 24 hours</string>
+    <string name="diag_range_week">Last 7 days</string>
+    <string name="diag_range_all">Everything</string>
 </resources>

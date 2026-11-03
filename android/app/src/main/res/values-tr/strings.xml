@@ -1382,4 +1382,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Yeni widget\'lar</string>
     <string name="whats_new_19_widgets_body">Eşitlemelerin ana ekranda telefonunun renkleriyle: hepsi ▶ ile başlatılabilir, seçtiğin bir eşitleme ya da tek bir “Tümünü eşitle” kutusu.</string>
+    <string name="diag_export">Günlüğü dışa aktar</string>
+    <string name="diag_export_title">Günlüğü dışa aktar</string>
+    <string name="diag_export_body">Teknik ayrıntılar ve seçtiğin sürenin tüm günlüğü, kesilmeden bir metin dosyasında: bir issue\'ya ekle ya da gönder.</string>
+    <string name="diag_range_hour">Son 1 saat</string>
+    <string name="diag_range_day">Son 24 saat</string>
+    <string name="diag_range_week">Son 7 gün</string>
+    <string name="diag_range_all">Tümü</string>
 </resources>

@@ -44,10 +44,35 @@ object Diagnostics {
         }
     }
 
+    /** Lines of the report's log by default: enough to read, short enough to paste or share whole. */
+    const val REPORT_LINES = 200
+
+    /** The lines written at or after [sinceMs] (a line without its own time goes with the one before). */
+    private fun since(lines: List<String>, sinceMs: Long?): List<String> {
+        if (sinceMs == null) return lines
+        var keep = false
+        return lines.filter { l ->
+            val at = runCatching { fmt.parse(l.take(19))?.time }.getOrNull()
+            if (at != null) keep = at >= sinceMs
+            keep
+        }
+    }
+
+    /**
+     * The report with the whole log since [sinceMs] (null: all of it), as a text file in the cache's
+     * logs folder, for the share sheet: nothing cut, whatever its length.
+     */
+    fun exportFile(ctx: Context, sinceMs: Long?): File {
+        val dir = File(ctx.cacheDir, "logs").apply { mkdirs() }
+        dir.listFiles()?.forEach { it.delete() }
+        val name = "trackhop-log-" + SimpleDateFormat("yyyyMMdd-HHmm", Locale.ROOT).format(Date()) + ".txt"
+        return File(dir, name).apply { writeText(report(ctx, sinceMs = sinceMs ?: 0L)) }
+    }
+
     fun clear(ctx: Context) { runCatching { file(ctx).delete() } }
 
     /** Rapporto leggibile: versione, dispositivo, servizi collegati, ultime sync, ultime righe di log. */
-    fun report(ctx: Context): String {
+    fun report(ctx: Context, logLines: Int = REPORT_LINES, sinceMs: Long? = null): String {
         val data = Store.get(ctx).data
         val sb = StringBuilder()
         sb.appendLine("${ctx.getString(R.string.app_name)} ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
@@ -87,18 +112,25 @@ object Diagnostics {
                 (r.error?.let { " ERROR: ${it.take(700)}" } ?: ""))
         }
         sb.appendLine()
-        sb.appendLine("Log:")
-        val f = file(ctx)
-        if (f.exists()) f.readLines().takeLast(400).forEach { sb.appendLine("  $it") }
-        // On the Play build some connectors run in the plugin: its own log, where it keeps one.
+        // On the Play build some connectors run in the plugin: its own log, where it keeps one, goes
+        // first, so the app's newest lines end the report (a pasted or shared text cut short loses
+        // its end, the part that matters most).
         if (plugin != null) {
-            val pluginLog = runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "log", null, android.os.Bundle().apply { putInt("lines", 300) })?.getString("log") }.getOrNull()
-            if (!pluginLog.isNullOrBlank()) {
-                sb.appendLine()
+            val pluginLog = runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "log", null, android.os.Bundle().apply { putInt("lines", if (sinceMs != null) 600 else logLines) })?.getString("log") }.getOrNull()
+            val lines = pluginLog?.lines()?.filter { it.isNotBlank() }?.let { since(it, sinceMs) }.orEmpty()
+            if (lines.isNotEmpty()) {
                 sb.appendLine("Plugin log:")
-                pluginLog.lines().forEach { sb.appendLine("  $it") }
+                lines.forEach { sb.appendLine("  $it") }
+                sb.appendLine()
             }
         }
+        sb.appendLine("Log:")
+        val f = file(ctx)
+        val all = synchronized(lock) { if (f.exists()) f.readLines().filter { it.isNotBlank() } else emptyList() }
+        val shown = if (sinceMs != null) since(all, sinceMs) else all.takeLast(logLines)
+        if (sinceMs == null && all.size > shown.size) sb.appendLine("  (${all.size - shown.size} older lines: Log › Export log has them all)")
+        shown.forEach { sb.appendLine("  $it") }
+        synchronized(lock) { if (repeats > 0) sb.appendLine("  (the line above came $repeats more times)") }
         return sb.toString()
     }
 

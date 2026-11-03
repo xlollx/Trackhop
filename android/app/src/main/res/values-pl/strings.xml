@@ -1432,4 +1432,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Nowe widżety</string>
     <string name="whats_new_19_widgets_body">Twoje synchronizacje na ekranie głównym w kolorach telefonu: wszystkie z ▶ do uruchomienia, wybrana jedna albo kafelek „Synchronizuj wszystko”.</string>
+    <string name="diag_export">Eksportuj dziennik</string>
+    <string name="diag_export_title">Eksportuj dziennik</string>
+    <string name="diag_export_body">Plik tekstowy ze szczegółami technicznymi i całym dziennikiem z wybranego okresu, bez skracania: dołącz go do zgłoszenia lub wyślij.</string>
+    <string name="diag_range_hour">Ostatnia godzina</string>
+    <string name="diag_range_day">Ostatnie 24 godziny</string>
+    <string name="diag_range_week">Ostatnie 7 dni</string>
+    <string name="diag_range_all">Wszystko</string>
 </resources>

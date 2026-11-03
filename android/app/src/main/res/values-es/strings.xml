@@ -1392,4 +1392,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Widgets nuevos</string>
     <string name="whats_new_19_widgets_body">Tus syncs en la pantalla de inicio con los colores del teléfono: todas con ▶ para ejecutarlas, una sync a tu elección o un botón “Sincronizar todo”.</string>
+    <string name="diag_export">Exportar registro</string>
+    <string name="diag_export_title">Exportar el registro</string>
+    <string name="diag_export_body">Un archivo de texto con los detalles técnicos y todo el registro del periodo que elijas, sin recortes: adjúntalo a una issue o envíalo.</string>
+    <string name="diag_range_hour">Última hora</string>
+    <string name="diag_range_day">Últimas 24 horas</string>
+    <string name="diag_range_week">Últimos 7 días</string>
+    <string name="diag_range_all">Todo</string>
 </resources>

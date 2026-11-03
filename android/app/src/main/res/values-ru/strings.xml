@@ -1430,4 +1430,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Новые виджеты</string>
     <string name="whats_new_19_widgets_body">Ваши синхронизации на главном экране в цветах телефона: все с ▶ для запуска, одна на выбор или плитка «Синхронизировать всё».</string>
+    <string name="diag_export">Экспорт журнала</string>
+    <string name="diag_export_title">Экспорт журнала</string>
+    <string name="diag_export_body">Текстовый файл с техническими данными и всем журналом за выбранный период, без сокращений: приложите его к issue или отправьте.</string>
+    <string name="diag_range_hour">Последний час</string>
+    <string name="diag_range_day">Последние 24 часа</string>
+    <string name="diag_range_week">Последние 7 дней</string>
+    <string name="diag_range_all">Всё</string>
 </resources>

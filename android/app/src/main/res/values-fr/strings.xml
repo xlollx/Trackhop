@@ -1392,4 +1392,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Nouveaux widgets</string>
     <string name="whats_new_19_widgets_body">Vos synchros sur l\'écran d\'accueil aux couleurs du téléphone : toutes avec ▶ pour les lancer, une synchro au choix, ou une tuile « Tout synchroniser ».</string>
+    <string name="diag_export">Exporter le journal</string>
+    <string name="diag_export_title">Exporter le journal</string>
+    <string name="diag_export_body">Un fichier texte avec les détails techniques et tout le journal de la période choisie, sans coupure : joins-le à une issue ou envoie-le.</string>
+    <string name="diag_range_hour">Dernière heure</string>
+    <string name="diag_range_day">Dernières 24 heures</string>
+    <string name="diag_range_week">7 derniers jours</string>
+    <string name="diag_range_all">Tout</string>
 </resources>

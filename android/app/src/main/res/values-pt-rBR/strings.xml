@@ -1392,4 +1392,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Novos widgets</string>
     <string name="whats_new_19_widgets_body">Suas syncs na tela inicial com as cores do celular: todas com ▶ para executar, uma sync à sua escolha ou um botão “Sincronizar tudo”.</string>
+    <string name="diag_export">Exportar log</string>
+    <string name="diag_export_title">Exportar o log</string>
+    <string name="diag_export_body">Um arquivo de texto com os detalhes técnicos e todo o log do período escolhido, sem cortes: anexe a uma issue ou envie.</string>
+    <string name="diag_range_hour">Última hora</string>
+    <string name="diag_range_day">Últimas 24 horas</string>
+    <string name="diag_range_week">Últimos 7 dias</string>
+    <string name="diag_range_all">Tudo</string>
 </resources>

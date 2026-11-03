@@ -1361,4 +1361,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">全新小组件</string>
     <string name="whats_new_19_widgets_body">在主屏幕上以手机配色显示同步：全部同步并可用 ▶ 运行、选择的单个同步，或一个“全部同步”图块。</string>
+    <string name="diag_export">导出日志</string>
+    <string name="diag_export_title">导出日志</string>
+    <string name="diag_export_body">包含技术详情和所选时间段完整日志的文本文件，不做截断：可附加到 issue 或发送。</string>
+    <string name="diag_range_hour">最近 1 小时</string>
+    <string name="diag_range_day">最近 24 小时</string>
+    <string name="diag_range_week">最近 7 天</string>
+    <string name="diag_range_all">全部</string>
 </resources>

@@ -1384,4 +1384,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">Neue Widgets</string>
     <string name="whats_new_19_widgets_body">Deine Syncs auf dem Startbildschirm in den Farben deines Handys: alle mit ▶ zum Starten, eine Sync deiner Wahl oder eine Kachel „Alle synchronisieren“.</string>
+    <string name="diag_export">Protokoll exportieren</string>
+    <string name="diag_export_title">Protokoll exportieren</string>
+    <string name="diag_export_body">Eine Textdatei mit den technischen Details und dem ganzen Protokoll des gewählten Zeitraums, ungekürzt: hänge sie an ein Issue an oder sende sie.</string>
+    <string name="diag_range_hour">Letzte Stunde</string>
+    <string name="diag_range_day">Letzte 24 Stunden</string>
+    <string name="diag_range_week">Letzte 7 Tage</string>
+    <string name="diag_range_all">Alles</string>
 </resources>

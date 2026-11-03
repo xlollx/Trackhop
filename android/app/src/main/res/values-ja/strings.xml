@@ -1361,4 +1361,11 @@
     </plurals>
     <string name="whats_new_19_widgets_title">新しいウィジェット</string>
     <string name="whats_new_19_widgets_body">ホーム画面に端末のカラーで同期を表示：すべての同期と ▶ ボタン、選んだ1件、または「すべて同期」タイル。</string>
+    <string name="diag_export">ログをエクスポート</string>
+    <string name="diag_export_title">ログをエクスポート</string>
+    <string name="diag_export_body">技術的な詳細と、選んだ期間のログ全体を省略せずにテキストファイルにします。Issue に添付するか送信してください。</string>
+    <string name="diag_range_hour">過去1時間</string>
+    <string name="diag_range_day">過去24時間</string>
+    <string name="diag_range_week">過去7日間</string>
+    <string name="diag_range_all">すべて</string>
 </resources>
