@@ -1,0 +1,1 @@
+Log: "Report on GitHub" opens a filled-in issue again (the link was too long for GitHub), and the new "Export log" saves the whole log of the last hour, day, week or all of it as a text file, nothing cut.

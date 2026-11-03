@@ -1,0 +1,1 @@
+Günlük: "GitHub'da bildir" yeniden doldurulmuş bir issue açıyor (bağlantı GitHub için fazla uzundu) ve yeni "Günlüğü dışa aktar" son saatin, günün, haftanın ya da tamamının günlüğünü kesilmeden metin dosyası olarak kaydediyor.
