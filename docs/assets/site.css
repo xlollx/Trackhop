@@ -244,3 +244,10 @@ body.drawer-open { overflow: hidden; }
 /* Menu language: only the pages in the chosen language (English pages one tap away). */
 .drawer-head select.lang { margin-left: auto; margin-right: 10px; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
 .drawer-nav .more-en { margin-top: 18px; font: inherit; font-size: 14px; color: var(--link); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+
+/* Computer tab: each badge with its alternatives right below it. */
+.get.cols { align-items: flex-start; gap: 14px; }
+.get .col { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 172px; }
+@media (max-width: 640px) { .get .col { width: 150px; } }
+.get .col small { font-size: .82rem; opacity: .9; text-align: center; }
+.get .col small a { color: inherit; text-decoration: underline; }
