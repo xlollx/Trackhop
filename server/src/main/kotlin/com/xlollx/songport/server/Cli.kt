@@ -65,6 +65,7 @@ object Cli {
           config [<file>]                the whole set-up as one file (to stdout without <file>)
         Other
           status                         version, syncs, what is running
+          mcp                            serve Trackhop's tools to an AI assistant (MCP, over stdin/stdout)
           help                           this text
 
         A <sync> is its name (or the start of it) or its id; a <service> its name or id; a <playlist>
@@ -104,7 +105,14 @@ object Cli {
             val name = user?.let { MultiUser.normalize(it) }?.takeIf { it != MultiUser.ADMIN && it != adminName }
             if (name != null && !MultiUser.NAME.matches(name)) return usage(err, "no user can be called \"$user\"")
             // A person's Trackhop on a shared server keeps its key in their own folder (MultiUser.kt).
-            val api = connect(url, token, if (name == null) dataDir else { { File(File(dataDir(), MultiUser.USERS_DIR), name) } })
+            val dir: () -> File = if (name == null) dataDir else { { File(File(dataDir(), MultiUser.USERS_DIR), name) } }
+            // An MCP server for an AI assistant: it reaches Trackhop at the first tool call, so the
+            // assistant can start it before Trackhop; stdout carries only the protocol.
+            if (command == "mcp") {
+                Mcp.serveStdio(System.`in`.bufferedReader(Charsets.UTF_8), out, cliVersion()) { connect(url, token, dir) }
+                return 0
+            }
+            val api = connect(url, token, dir)
             Commands(api, out, asJson).run(command, params, wait, all)
         } catch (f: Failure) {
             err.println("trackhop: ${f.message}")
@@ -123,7 +131,7 @@ object Cli {
     fun defaultDataDir(env: Map<String, String>): File =
         env["SONGPORT_DATA"]?.takeIf { it.isNotBlank() }?.let { File(it) } ?: DesktopApp.dataDir(env)
 
-    private fun connect(url: String?, token: String?, dataDir: () -> File): Client {
+    internal fun connect(url: String?, token: String?, dataDir: () -> File): Client {
         if (url != null) {
             if (token == null) throw Failure(2, "--url needs --token too (the API's token, made on the page: Tools › API)")
             return Client(url.trimEnd('/'), token)
@@ -165,7 +173,7 @@ object Cli {
         }
     }
 
-    private class Commands(val api: Client, val out: PrintStream, val asJson: Boolean) {
+    internal class Commands(val api: Client, val out: PrintStream, val asJson: Boolean) {
         fun run(command: String, p: List<String>, wait: Boolean, all: Boolean): Int = when (command) {
             "status" -> status()
             "syncs", "list", "ls" -> syncs()

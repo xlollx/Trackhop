@@ -136,6 +136,8 @@ class Web(
         }
         // The API has its own token (Tools › API) instead of the page's password, and no cookies to forge.
         if (path.size >= 2 && path[0] == "api" && path[1] == "v1") return api(ex, ex.requestMethod.uppercase(), path, parseForm(ex.requestURI.rawQuery ?: ""))
+        // The MCP tools for AI assistants (McpWeb.kt): the API's token too.
+        if (path == listOf("mcp")) return mcp(ex)
         if (!authorized(ex)) {
             ex.responseHeaders.add("WWW-Authenticate", "Basic realm=\"Trackhop\", charset=\"UTF-8\"")
             return send(ex, 401, "Password required", "text/plain")

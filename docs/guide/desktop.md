@@ -106,7 +106,7 @@ shows the exact address and the steps.
 
 Desktop comes with `trackhop-cli`, to run syncs, read their results and add or remove tracks from a
 terminal, a script or Task Scheduler while Trackhop is running: `trackhop-cli run --all --wait`.
-Where it is and every command: [the trackhop command](cli).
+Where it is and every command: [the trackhop command](cli). It also lets an AI assistant (Claude Desktop, Claude Code…) use Trackhop through MCP: [how](cli#with-an-ai-assistant-mcp).
 
 ## Where things are
 

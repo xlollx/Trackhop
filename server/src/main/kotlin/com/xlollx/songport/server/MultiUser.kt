@@ -132,7 +132,7 @@ class MultiUser private constructor(
         if (path == "/health" || (method == "GET" && parts.size == 1 && parts[0] in Pwa.files)) return adminEngine.handler.handle(ex)
         if (path == "/style.css") return send(ex, 200, Html.CSS, "text/css")
         // The API and the command line: the token (or the command line's key) says whose Trackhop it is.
-        if (parts.size >= 2 && parts[0] == "api" && parts[1] == "v1") {
+        if ((parts.size >= 2 && parts[0] == "api" && parts[1] == "v1") || parts == listOf("mcp")) {
             val header = ex.requestHeaders.getFirst("Authorization")
             val from = ex.remoteAddress?.address
             val engine = listOf(adminEngine).plus(engines.values).firstOrNull { it.acceptsApi.test(header, from) } ?: adminEngine

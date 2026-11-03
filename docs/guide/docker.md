@@ -443,7 +443,7 @@ they went. Turn it on in **Tools › API**: make a token (shown once; only its h
 it as `Authorization: Bearer <token>`. It is separate from the page's password; on Trackhop Desktop
 only the computer itself can reach it. From a terminal or a script, the [`trackhop` command](cli)
 does the same with less typing: `docker exec trackhop trackhop run --all`, no token needed inside
-the container.
+the container. The same token lets an AI assistant use Trackhop at `/mcp` (Model Context Protocol): [how](cli#with-an-ai-assistant-mcp).
 
 | Call | What it does |
 |---|---|
