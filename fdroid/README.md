@@ -14,18 +14,20 @@ What F-Droid reads from this repository:
 - `android/gradle/wrapper/`: the Gradle version (the wrapper JAR is the official 8.14.3 one,
   SHA-256 `7d3a4ac4…6172`, as listed on gradle.org).
 
-## Submitting
+## The recipe
 
-1. Create an account on gitlab.com and fork https://gitlab.com/fdroid/fdroiddata.
-2. Add `com.xlollx.songport.yml` from this folder as `metadata/com.xlollx.songport.yml`.
-3. Open a merge request with the "App inclusion" template. The CI of fdroiddata builds the app; the
-   reviewers comment there if something needs changing.
+Trackhop is on F-Droid since 31 October 2026 (https://f-droid.org/packages/com.xlollx.songport/). Its
+recipe lives in fdroiddata, not here:
+[metadata/com.xlollx.songport.yml](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.xlollx.songport.yml).
+New versions need nothing by hand: F-Droid's bot finds each `v<version>` tag (`UpdateCheckMode: Tags`),
+adds its build and publishes it once F-Droid's build matches the GitHub APK byte for byte (same signing
+key, `AllowedAPKSigningKeys`). A change to the recipe itself (licence, website, description) is a merge
+request on a fork of fdroiddata, edited in GitLab's web editor.
 
-The recipe must stay exactly as `fdroid rewritemeta` writes it, or fdroiddata's CI fails: no
-comments, Unix line endings (LF). Pasting it into GitLab's web editor on Windows saves CRLF; upload
-the file with "Replace" instead. No `prebuild` step is needed for the Play flavor's ads SDK: the
-`playImplementation` lines in `build.gradle` belong to a flavor F-Droid does not build, and
-fdroiddata's CI (pipeline 2878053202 on !49974, scanner included) passed on the recipe without it.
+The recipe must stay exactly as `fdroid rewritemeta` writes it, or fdroiddata's CI fails: no comments,
+Unix line endings (LF). In a merge request, the `checkupdates` job fails whenever a newer Trackhop tag
+exists than the recipe lists: it only says the bot has a version to add, and is not a problem of the
+change.
 
 The icon and the feature graphics are CC BY-SA 4.0 (see the README's licence section), so F-Droid
 can carry them; the code is AGPL-3.0-only.

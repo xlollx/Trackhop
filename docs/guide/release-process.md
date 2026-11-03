@@ -24,7 +24,8 @@ people; the app's version does not move for it, nor theirs for an app-only chang
   links to `releases/latest` keep finding the app.
 - The page's footer shows both: the server's version and the app version whose engine it runs.
 - After a new release, `stores.yml` opens the winget pull request and pushes the Chocolatey package,
-  and `msstore.yml` sends the `.msix` to the Microsoft Store (each once its secrets exist); Docker Hub
+  and the Microsoft Store gets the `.msix` by hand in Partner Center (`msstore.yml` would do it, but
+  needs secrets a personal account does not have); Docker Hub
   follows `server.yml`; Scoop's bucket updates itself; Flathub needs a step by hand. All of it is in
   [packaging/README.md](https://github.com/xlollx/Trackhop/blob/main/packaging/README.md).
 - The direct download links (README, the site's "Also on a computer" section, the Desktop guide)

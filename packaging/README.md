@@ -125,8 +125,7 @@ Scoop's folders, so updates and uninstalls leave it alone (the manifest's notes 
 
 **Scoop Extras is not possible yet:** its rules ask for a "reasonably well-known and widely used"
 project, *at least 100 stars and/or 50 forks*, the "latest stable version", and an issue (package
-request) before any pull request. Trackhop has 8 stars and its Desktop is a beta. So: our own
-bucket.
+request) before any pull request. Trackhop is still far from 100 stars. So: our own bucket.
 
 **Once:**
 
@@ -206,7 +205,10 @@ version, URL and hash and commits. `packaging/scoop/trackhop.json` here is only 
      trust to run its own runtime."
 6. Submit; certification takes a few days.
 
-**Each release:** automatic once the four secrets below exist: `msstore.yml` (called by `desktop.yml`)
+**Each release:** by hand for now: download the release's `.msix` and upload it in a new submission
+(*Update*) in Partner Center. The automation below needs an Entra ID tenant, which this personal
+account could only get through a paid route, so its secrets are not set. Once they exist it is
+automatic: `msstore.yml` (called by `desktop.yml`)
 downloads the release's `.msix`, uploads it with the Microsoft Store Developer CLI
 (`msstore publish <msix> -id 9PFX74Q2XN9P`) and submits it to certification. A draft waiting in Partner
 Center is replaced (the CLI makes a new submission from the last published one), so edit the listing
@@ -317,8 +319,8 @@ artifact and, once the secret exists, publishes it to the stable channel.
   required. Verification: sign in on flathub.org with the `xlollx` GitHub account.
 - **Stable software only**: "The Flathub stable repository is dedicated to hosting only stable
   software" and "New application submissions will not be accepted directly into the Flathub beta
-  repository". Desktop calls itself a beta and its GitHub releases are prereleases: reviewers may
-  refuse it until it drops "beta".
+  repository". Desktop is out of beta since 1.0.0; its GitHub releases are still marked pre-releases
+  only so that the repository's "latest" release stays the Android app (Obtainium): say so in the PR.
 - "Simple web wrapper applications that embed local or remote content in a web engine without
   providing significant polish, functionality, or meaningful desktop integration will not be
   accepted." Trackhop has its own engine, scheduler, tray and API, but its window is a web view of

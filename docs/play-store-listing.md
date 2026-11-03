@@ -86,14 +86,12 @@ Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free a
 
 ### Graphics
 - Icon 512×512: `docs/store/icon512.png` (also `fastlane/metadata/android/en-US/images/icon.png`).
-- Feature graphic 1024×500: `docs/store/feature_en.png`, `feature_it.png` (they still say Songport:
-  regenerate with "Trackhop" before uploading, or upload without text).
+- Feature graphic 1024×500: `docs/store/feature_en.png`, `feature_it.png`.
 - Phone screenshots: 2 to 8, JPEG/PNG, 320–3840 px per side, **long side at most twice the short
-  one**. The F-Droid captures in `fastlane/metadata/android/en-US/images/phoneScreenshots/` are
-  1080×2340 and taller (two are 1080×3755 and 1080×2659), so Play refuses them as they are, and they
-  show the old Songport name. Take fresh ones from the `play` build and run
-  `scripts/play_screenshots.sh <files>`: it crops anything taller than 2:1, keeping the top, into a
-  `play/` folder next to the originals.
+  one**. The Play build's own pictures are in `docs/store/play/<locale>/`, taken on an emulator by
+  the Screenshots workflow with flavor `play` (only the services that build reaches, no ad). The
+  F-Droid captures in `fastlane/` are taller than 2:1 and show services the Play build leaves out:
+  not for Play. `scripts/play_screenshots.sh <files>` crops other pictures to 2:1 if needed.
 - No service logos anywhere (icon, screenshots, feature graphic): names in text only.
 
 ## App content (Play Console › Policy › App content)

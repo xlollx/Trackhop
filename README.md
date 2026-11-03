@@ -139,7 +139,7 @@ they need other libraries, phones and habits. Everything you meet is meant to wo
 that is exactly what to report.
 
 - **Install**: the signed APK from the [Releases](https://github.com/xlollx/Trackhop/releases/latest)
-  page (updates install over it), or F-Droid once listed there. This build includes YouTube Music,
+  page (updates install over it), [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) or Obtainium. This build includes YouTube Music,
   Amazon Music and the Spotify/Apple Music web sign-in; no second app is needed.
 - **What helps most**: the connectors marked *beta* in Accounts, a sync of a big playlist (a thousand tracks and more), the review of the tracks
   that were not found (one-tap proposals, the "likeliest" list, pasting a track link), scheduled syncs
