@@ -1433,4 +1433,11 @@
     <string name="tiktok_recognized">Распознано по звуку видео, TikTok его не указывает: проверьте, та ли это песня.</string>
     <string name="whats_new_110_tiktok_title">TikTok: песня в оригинальном звуке</string>
     <string name="whats_new_110_tiktok_body">Поделитесь TikTok с собственным звуком автора: теперь Trackhop прослушивает его и часто находит звучащую песню, чтобы добавить её куда угодно.</string>
+    <string name="diag_export">Экспорт журнала</string>
+    <string name="diag_export_title">Экспорт журнала</string>
+    <string name="diag_export_body">Текстовый файл с техническими данными и всем журналом за выбранный период, без сокращений: приложите его к issue или отправьте.</string>
+    <string name="diag_range_hour">Последний час</string>
+    <string name="diag_range_day">Последние 24 часа</string>
+    <string name="diag_range_week">Последние 7 дней</string>
+    <string name="diag_range_all">Всё</string>
 </resources>

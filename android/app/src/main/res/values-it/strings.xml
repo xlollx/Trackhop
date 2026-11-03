@@ -1387,4 +1387,11 @@
     <string name="tiktok_recognized">Riconosciuta dall\'audio del video, non indicata da TikTok: controlla che sia la canzone giusta.</string>
     <string name="whats_new_110_tiktok_title">TikTok: la canzone in un suono originale</string>
     <string name="whats_new_110_tiktok_body">Condividi un TikTok con un suono originale del creator: ora Trackhop lo ascolta e spesso trova la canzone che c\'è dentro, da aggiungere dove vuoi.</string>
+    <string name="diag_export">Esporta log</string>
+    <string name="diag_export_title">Esporta il log</string>
+    <string name="diag_export_body">Un file di testo con i dettagli tecnici e tutto il log del periodo che scegli, senza tagli: allegalo a una issue o mandalo.</string>
+    <string name="diag_range_hour">Ultima ora</string>
+    <string name="diag_range_day">Ultime 24 ore</string>
+    <string name="diag_range_week">Ultimi 7 giorni</string>
+    <string name="diag_range_all">Tutto</string>
 </resources>

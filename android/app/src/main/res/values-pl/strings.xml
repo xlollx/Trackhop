@@ -1435,4 +1435,11 @@
     <string name="tiktok_recognized">Rozpoznano po dźwięku filmu, TikTok go nie podaje: sprawdź, czy to właściwy utwór.</string>
     <string name="whats_new_110_tiktok_title">TikTok: utwór w oryginalnym dźwięku</string>
     <string name="whats_new_110_tiktok_body">Udostępnij TikToka z własnym dźwiękiem twórcy: Trackhop teraz go słucha i często znajduje grający w nim utwór, by dodać go, gdzie chcesz.</string>
+    <string name="diag_export">Eksportuj dziennik</string>
+    <string name="diag_export_title">Eksportuj dziennik</string>
+    <string name="diag_export_body">Plik tekstowy ze szczegółami technicznymi i całym dziennikiem z wybranego okresu, bez skracania: dołącz go do zgłoszenia lub wyślij.</string>
+    <string name="diag_range_hour">Ostatnia godzina</string>
+    <string name="diag_range_day">Ostatnie 24 godziny</string>
+    <string name="diag_range_week">Ostatnie 7 dni</string>
+    <string name="diag_range_all">Wszystko</string>
 </resources>

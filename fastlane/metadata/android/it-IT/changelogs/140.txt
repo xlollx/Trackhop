@@ -1,0 +1,1 @@
+Log: "Segnala su GitHub" apre di nuovo una issue già compilata (il link era troppo lungo per GitHub), e il nuovo "Esporta log" salva tutto il log dell'ultima ora, del giorno, della settimana o intero come file di testo, senza tagli.

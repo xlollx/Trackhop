@@ -1,0 +1,1 @@
+Registro: "Informar en GitHub" vuelve a abrir una issue rellenada (el enlace era demasiado largo para GitHub), y el nuevo "Exportar registro" guarda todo el registro de la última hora, día, semana o completo como archivo de texto, sin recortes.

@@ -1395,4 +1395,11 @@
     <string name="tiktok_recognized">Reconnue à partir du son de la vidéo, pas indiquée par TikTok : vérifie que c\'est le bon titre.</string>
     <string name="whats_new_110_tiktok_title">TikTok : le titre d\'un son original</string>
     <string name="whats_new_110_tiktok_body">Partage un TikTok au son propre du créateur : Trackhop l\'écoute maintenant et trouve souvent le titre qui y passe, pour l\'ajouter où tu veux.</string>
+    <string name="diag_export">Exporter le journal</string>
+    <string name="diag_export_title">Exporter le journal</string>
+    <string name="diag_export_body">Un fichier texte avec les détails techniques et tout le journal de la période choisie, sans coupure : joins-le à une issue ou envoie-le.</string>
+    <string name="diag_range_hour">Dernière heure</string>
+    <string name="diag_range_day">Dernières 24 heures</string>
+    <string name="diag_range_week">7 derniers jours</string>
+    <string name="diag_range_all">Tout</string>
 </resources>

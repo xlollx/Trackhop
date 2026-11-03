@@ -1363,4 +1363,11 @@
     <string name="tiktok_recognized">TikTok이 알려준 것이 아니라 동영상 오디오에서 인식했습니다. 맞는 곡인지 확인하세요.</string>
     <string name="whats_new_110_tiktok_title">TikTok: 원본 사운드 속 노래</string>
     <string name="whats_new_110_tiktok_body">크리에이터 자체 사운드의 TikTok을 공유하면 이제 Trackhop이 소리를 듣고 그 안에 나오는 노래를 찾는 경우가 많습니다. 원하는 곳에 추가하세요.</string>
+    <string name="diag_export">로그 내보내기</string>
+    <string name="diag_export_title">로그 내보내기</string>
+    <string name="diag_export_body">기술 정보와 선택한 기간의 전체 로그를 잘림 없이 텍스트 파일로 만듭니다. 이슈에 첨부하거나 보내세요.</string>
+    <string name="diag_range_hour">최근 1시간</string>
+    <string name="diag_range_day">최근 24시간</string>
+    <string name="diag_range_week">최근 7일</string>
+    <string name="diag_range_all">전체</string>
 </resources>

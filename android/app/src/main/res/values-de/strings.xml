@@ -1387,4 +1387,11 @@
     <string name="tiktok_recognized">An der Tonspur des Videos erkannt, nicht von TikTok genannt: prüfe, ob es der richtige Song ist.</string>
     <string name="whats_new_110_tiktok_title">TikTok: der Song im Originalton</string>
     <string name="whats_new_110_tiktok_body">Teile ein TikTok mit eigenem Ton des Creators: Trackhop hört jetzt hinein und findet oft den Song darin, um ihn hinzuzufügen, wo du willst.</string>
+    <string name="diag_export">Protokoll exportieren</string>
+    <string name="diag_export_title">Protokoll exportieren</string>
+    <string name="diag_export_body">Eine Textdatei mit den technischen Details und dem ganzen Protokoll des gewählten Zeitraums, ungekürzt: hänge sie an ein Issue an oder sende sie.</string>
+    <string name="diag_range_hour">Letzte Stunde</string>
+    <string name="diag_range_day">Letzte 24 Stunden</string>
+    <string name="diag_range_week">Letzte 7 Tage</string>
+    <string name="diag_range_all">Alles</string>
 </resources>

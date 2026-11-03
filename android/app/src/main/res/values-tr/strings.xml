@@ -1385,4 +1385,11 @@
     <string name="tiktok_recognized">TikTok belirtmedi, videonun sesinden tanındı: doğru şarkı olup olmadığını kontrol et.</string>
     <string name="whats_new_110_tiktok_title">TikTok: orijinal sesteki şarkı</string>
     <string name="whats_new_110_tiktok_body">İçerik üreticisinin kendi sesini kullanan bir TikTok\'u paylaş: Trackhop artık onu dinliyor ve çoğu zaman içinde çalan şarkıyı bulup istediğin yere ekliyor.</string>
+    <string name="diag_export">Günlüğü dışa aktar</string>
+    <string name="diag_export_title">Günlüğü dışa aktar</string>
+    <string name="diag_export_body">Teknik ayrıntılar ve seçtiğin sürenin tüm günlüğü, kesilmeden bir metin dosyasında: bir issue\'ya ekle ya da gönder.</string>
+    <string name="diag_range_hour">Son 1 saat</string>
+    <string name="diag_range_day">Son 24 saat</string>
+    <string name="diag_range_week">Son 7 gün</string>
+    <string name="diag_range_all">Tümü</string>
 </resources>

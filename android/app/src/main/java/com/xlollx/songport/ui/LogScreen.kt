@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material3.AlertDialog
 import com.xlollx.songport.providers.*
 import android.content.Intent
 import android.net.Uri
@@ -94,6 +95,8 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
         return
     }
     val ctx = LocalContext.current
+    var exportOpen by remember { mutableStateOf(false) }
+    if (exportOpen) ExportLogDialog(onDismiss = { exportOpen = false })
     LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item(key = "diag") {
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -115,6 +118,8 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
                         "&body=" + Uri.encode("<!-- Describe what you were doing. Remove anything you prefer not to share. -->\n\n```\n$fits\n```$note")
                     runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
                 }) { Text(stringResource(R.string.report_issue)) }
+                // The whole log, or the part of it a time span holds, as a text file: nothing cut.
+                TextButton(onClick = { exportOpen = true }) { Text(stringResource(R.string.diag_export)) }
                 if (data.settings.developerOptions) TextButton(onClick = {
                     val text = Diagnostics.report(ctx)
                     val share = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text); putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name) + " diagnostics") }
@@ -219,4 +224,45 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
             }
         }
     }
+}
+
+/** Which part of the log goes into the exported file: the last hour, day, week, or all of it. */
+@Composable
+private fun ExportLogDialog(onDismiss: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val hour = 3_600_000L
+    val ranges = listOf(
+        R.string.diag_range_hour to hour,
+        R.string.diag_range_day to 24 * hour,
+        R.string.diag_range_week to 7 * 24 * hour,
+        R.string.diag_range_all to null,
+    )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.diag_export_title)) },
+        text = {
+            Column {
+                Text(stringResource(R.string.diag_export_body), style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(8.dp))
+                ranges.forEach { (label, span) ->
+                    TextButton(onClick = {
+                        onDismiss()
+                        scope.launch {
+                            val file = withContext(Dispatchers.IO) { Diagnostics.exportFile(ctx, span?.let { System.currentTimeMillis() - it }) }
+                            val uri = androidx.core.content.FileProvider.getUriForFile(ctx, ctx.packageName + ".cards", file)
+                            val share = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name) + " log")
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            runCatching { ctx.startActivity(Intent.createChooser(share, ctx.getString(R.string.diag_export))) }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(label), modifier = Modifier.fillMaxWidth()) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) } },
+    )
 }

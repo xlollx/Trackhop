@@ -1364,4 +1364,11 @@
     <string name="tiktok_recognized">根据视频音频识别，并非 TikTok 标注：请确认是否为正确的歌曲。</string>
     <string name="whats_new_110_tiktok_title">TikTok：原声中的歌曲</string>
     <string name="whats_new_110_tiktok_body">分享使用创作者原声的 TikTok：Trackhop 现在会聆听音频，常常能找出其中播放的歌曲，添加到你想要的地方。</string>
+    <string name="diag_export">导出日志</string>
+    <string name="diag_export_title">导出日志</string>
+    <string name="diag_export_body">包含技术详情和所选时间段完整日志的文本文件，不做截断：可附加到 issue 或发送。</string>
+    <string name="diag_range_hour">最近 1 小时</string>
+    <string name="diag_range_day">最近 24 小时</string>
+    <string name="diag_range_week">最近 7 天</string>
+    <string name="diag_range_all">全部</string>
 </resources>

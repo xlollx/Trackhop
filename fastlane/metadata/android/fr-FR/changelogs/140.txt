@@ -1,0 +1,1 @@
+Journal : « Signaler sur GitHub » ouvre à nouveau une issue préremplie (le lien était trop long pour GitHub), et le nouveau « Exporter le journal » enregistre tout le journal de la dernière heure, du jour, de la semaine ou entier en fichier texte, sans coupure.

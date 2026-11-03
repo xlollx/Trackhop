@@ -1,0 +1,1 @@
+Dziennik: „Zgłoś na GitHub” znów otwiera wypełnione zgłoszenie (link był za długi dla GitHuba), a nowe „Eksportuj dziennik” zapisuje cały dziennik z ostatniej godziny, dnia, tygodnia lub całość jako plik tekstowy, bez skracania.

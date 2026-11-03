@@ -1387,4 +1387,11 @@
     <string name="tiktok_recognized">Recognised from the video\'s audio, not named by TikTok: check it is the right song.</string>
     <string name="whats_new_110_tiktok_title">TikTok: the song in an original sound</string>
     <string name="whats_new_110_tiktok_body">Share a TikTok whose sound is the creator\'s own: Trackhop now listens to it and often finds the song playing in it, to add it wherever you like.</string>
+    <string name="diag_export">Export log</string>
+    <string name="diag_export_title">Export the log</string>
+    <string name="diag_export_body">A text file with the technical details and the whole log of the time you choose, nothing cut: attach it to an issue or send it.</string>
+    <string name="diag_range_hour">Last hour</string>
+    <string name="diag_range_day">Last 24 hours</string>
+    <string name="diag_range_week">Last 7 days</string>
+    <string name="diag_range_all">Everything</string>
 </resources>

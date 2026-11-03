@@ -1,0 +1,1 @@
+Log: "Reportar no GitHub" volta a abrir uma issue preenchida (o link era longo demais para o GitHub), e o novo "Exportar log" salva todo o log da última hora, do dia, da semana ou inteiro como arquivo de texto, sem cortes.

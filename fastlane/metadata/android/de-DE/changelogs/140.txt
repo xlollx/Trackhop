@@ -1,0 +1,1 @@
+Protokoll: „Auf GitHub melden“ öffnet wieder ein ausgefülltes Issue (der Link war für GitHub zu lang), und neu ist „Protokoll exportieren“: das ganze Protokoll der letzten Stunde, des Tages, der Woche oder alles als Textdatei, ungekürzt.
