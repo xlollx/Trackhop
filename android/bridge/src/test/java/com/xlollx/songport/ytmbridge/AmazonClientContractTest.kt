@@ -58,6 +58,20 @@ class AmazonClientContractTest {
     private fun page(range: IntRange, next: String?) = """{"data":{"playlist":{"id":"PL1","title":"T","tracks":{"edges":[${range.joinToString(",") { """{"cursor":"$it:uuid-$it","node":${node(it)}}""" }}],
         "pageInfo":{"hasNextPage":${next != null},"endCursor":${next?.let { q(it) } ?: "null"}}}}}}"""
 
+    @Test fun aDutchAccountOnTheComDomainSendsItsOwnTerritory() {
+        BridgeMock.fixed = { r ->
+            if (r.getHeader(BridgeMock.ORIGINAL_HOST) == "music.amazon.com" && r.requestUrl!!.encodedPath == "/") MockResponse().setBody("""<html><script>
+                amznMusic.appConfig = {"accessToken":"Atna|tok","customerId":"A1CUSTOMER","deviceId":"1","deviceType":"A16ZV8BU3SN1N3",
+                  "marketplaceId":"A1805IZSGTT6HS","csrf":{"token":"t","ts":1,"rnd":"2"}};
+                </script></html>""") else null
+        }
+        AmazonSession.save(app, cookies, "music.amazon.com", null)
+        AmazonClient.forgetConfig()
+        answer(page(0..0, null))
+        AmazonClient(app).playlistTracks("PL1")
+        assertEquals("NL", call(0).getHeader("music-territory"))
+    }
+
     @Test fun playlistReadByCursorWithThePlayersHeaders() {
         answer(page(0..99, "99:uuid-99"))
         answer(page(100..100, null))

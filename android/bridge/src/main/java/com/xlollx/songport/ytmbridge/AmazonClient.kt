@@ -45,7 +45,8 @@ class AmazonClient(private val ctx: Context) {
          * account of one store signed in on another's domain (a Dutch account on music.amazon.de)
          * is refused (AUTH_INVALID_CUSTOMER_ID) when the header names the domain's country instead.
          */
-        val musicTerritory get() = (raw["musicTerritory"].str ?: raw["territory"].str ?: raw["marketplaceCountry"].str)?.takeIf { it.length == 2 }?.uppercase()
+        val musicTerritory get() = ((raw["musicTerritory"].str ?: raw["territory"].str ?: raw["marketplaceCountry"].str)?.takeIf { it.length == 2 }
+            ?: MARKETPLACES[raw["marketplaceId"].str])?.uppercase()
         val customerName get() = raw["customerName"].str ?: raw["displayName"].str ?: raw["customerDisplayName"].str
             ?: raw["customer"]["name"].str ?: raw["userName"].str
         /** A customer in the configuration: the page was served to a signed-in session. */
@@ -232,8 +233,10 @@ class AmazonClient(private val ctx: Context) {
             c.raw["musicTerritory"].str != null -> "musicTerritory"
             c.raw["territory"].str != null -> "territory"
             c.raw["marketplaceCountry"].str != null -> "marketplaceCountry"
+            MARKETPLACES[c.raw["marketplaceId"].str] != null -> "marketplaceId"
+            playerHeader("music-territory").length == 2 -> "the player's header"
             else -> "from the domain"
-        }}); marketplace field: ${describe(c.raw["marketplaceId"])}; device type ${if (c.deviceType.isBlank()) "missing" else "present"}; " +
+        }}); marketplace ${c.raw["marketplaceId"].str?.takeIf { it.length in 10..16 && it.all(Char::isLetterOrDigit) } ?: describe(c.raw["marketplaceId"])}; device type ${if (c.deviceType.isBlank()) "missing" else "present"}; " +
             "configuration fields: ${c.fields.joinToString(",").take(600)}")
         if (built["csrf-token"] != null) return built
         // The configuration no longer carries the CSRF triple where it used to (October 2026: sent
@@ -264,7 +267,9 @@ class AmazonClient(private val ctx: Context) {
             "csrf-token" to c.csrfToken,
             "csrf-rnd" to c.csrfRnd,
             "csrf-ts" to c.csrfTs,
-            "music-territory" to (c.musicTerritory ?: territory(domain)),
+            // The account's own region first (an amazon.nl account plays on music.amazon.com, which
+            // has no Dutch site: issue #33), then the player's own header, the domain's last.
+            "music-territory" to (c.musicTerritory ?: playerHeader("music-territory").takeIf { it.length == 2 } ?: territory(domain)),
             // The player names the subscription with each call; taken from its own headers when seen.
             "x-amzn-client-subscription-tier" to playerHeader("x-amzn-client-subscription-tier"),
             "x-amzn-feature-flags" to FEATURE_FLAGS,
@@ -707,6 +712,18 @@ class AmazonClient(private val ctx: Context) {
             "music.amazon.ae" to Region("EU", "ar_AE"),
             "music.amazon.co.jp" to Region("FE", "ja_JP"),
             "music.amazon.com.au" to Region("FE", "en_AU"),
+        )
+
+        /**
+         * Amazon's public marketplace ids and their countries: the store an account belongs to,
+         * which the player's configuration names even on a domain of another country.
+         */
+        val MARKETPLACES: Map<String?, String> = mapOf(
+            "ATVPDKIKX0DER" to "US", "A2EUQ1WTGCTBG2" to "CA", "A1AM78C64UM0Y8" to "MX", "A2Q3Y263D00KWC" to "BR",
+            "A1F83G8C2ARO7P" to "GB", "A1PA6795UKMFR9" to "DE", "A13V1IB3VIYZZH" to "FR", "APJ6JRA9NG5V4" to "IT",
+            "A1RKKUPIHCS9HS" to "ES", "A1805IZSGTT6HS" to "NL", "A2NODRKZP88ZB9" to "SE", "A1C3SOZRARQ6R3" to "PL",
+            "AMEN7PMS3EDWL" to "BE", "A33AVAJ2PDY3EV" to "TR", "A21TJRUUN4KGV" to "IN", "A17E79C6D8DWNP" to "SA",
+            "A2VIGQ35RCS4UG" to "AE", "A1VC38T7YXB528" to "JP", "A39IBJ37TRP1C6" to "AU",
         )
 
         /** The territory header ("IT", "GB"...): the country part of the domain's language. */
