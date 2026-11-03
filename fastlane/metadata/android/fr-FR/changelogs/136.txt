@@ -1,0 +1,1 @@
+Les widgets affichent les services de chaque synchro avec de petits logos, comme sur les cartes. Toucher une synchro ouvre Trackhop sur sa carte, qui s'illumine un instant.

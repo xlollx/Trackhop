@@ -1,0 +1,1 @@
+Os widgets mostram os serviços de cada sync com pequenos logos, como nos cartões. Tocar numa sync abre o Trackhop no cartão dela, que se ilumina por um instante.

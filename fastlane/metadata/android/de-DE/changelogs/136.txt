@@ -1,0 +1,1 @@
+Widgets zeigen die Dienste jeder Sync als kleine Logos, wie auf den Karten. Ein Tipp auf eine Sync öffnet Trackhop an ihrer Karte, die kurz aufleuchtet.

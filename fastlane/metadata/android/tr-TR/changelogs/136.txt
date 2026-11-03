@@ -1,0 +1,1 @@
+Widget'lar her eşitlemenin servislerini kartlardaki gibi küçük logolarla gösterir. Bir eşitlemeye dokununca Trackhop onun kartında açılır ve kart kısa süre parlar.

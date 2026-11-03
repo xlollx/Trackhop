@@ -1,0 +1,1 @@
+Widżety pokazują usługi każdej synchronizacji jako małe logo, jak na kartach. Dotknięcie synchronizacji otwiera Trackhop na jej karcie, która na chwilę się podświetla.
