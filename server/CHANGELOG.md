@@ -5,6 +5,18 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.1.0
+
+- **Review several tracks at once**: tick tracks in the review page (or "Tick all"), then keep, remove
+  or ignore them together. An uncertain match can now be **removed**: the wrong track leaves the
+  playlist (where the service allows removals) and this sync no longer adds the song (issue #26).
+- **Songs from TikTok**: paste a TikTok video's link in a review search and its song is found on the
+  service, read from the video's public page. A creator's own sound names no song, and the page says
+  so. Not in the Microsoft Store build.
+- **License**: from this version Trackhop is under the **AGPL-3.0-only** (it was GPL-3.0-only): a
+  modified Trackhop server offered to others over a network must offer them its source code too.
+  The page footer links to the source code.
+
 ## 1.0.0
 
 - **Trackhop Desktop is out of beta**, hence 1.0. The unofficial connectors stay an alpha; the server on Docker
