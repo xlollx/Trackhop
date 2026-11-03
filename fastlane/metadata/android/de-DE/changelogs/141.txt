@@ -1,0 +1,1 @@
+„Protokoll exportieren“ erstellt und teilt die Textdatei jetzt wirklich (in 1.9.7 schloss sich nur das Fenster).
