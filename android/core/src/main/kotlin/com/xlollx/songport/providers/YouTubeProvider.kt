@@ -328,8 +328,28 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         internal fun likedFrom(page: JsonElement): List<Track> = page["items"].arr.mapNotNull { v ->
             val id = v["id"].str ?: return@mapNotNull null
             if (v["snippet"]["categoryId"].str != "10") return@mapNotNull null
-            val (title, artists) = TitleParser.parseYouTube(v["snippet"]["title"].str ?: return@mapNotNull null, v["snippet"]["channelTitle"].str)
-            Track(id = id, title = title, artists = artists, durationMs = Durations.parseIso8601(v["contentDetails"]["duration"].str))
+            val raw = v["snippet"]["title"].str ?: return@mapNotNull null
+            val ms = Durations.parseIso8601(v["contentDetails"]["duration"].str)
+            if (!looksLikeASong(raw, ms)) return@mapNotNull null
+            val (title, artists) = TitleParser.parseYouTube(raw, v["snippet"]["channelTitle"].str)
+            Track(id = id, title = title, artists = artists, durationMs = ms)
+        }
+
+        /** Words in a Music video's title that say it is about a song, not the song (an interview, a trailer). */
+        private val NOT_A_SONG = Regex(
+            """\b(interview|trailer|teaser|behind the scenes|making of|track by track|track inspiration|documentary|reaction|reacts?|podcast|livestream|live stream|unboxing|vlog|tutorial|lesson|how to play|guitar cover lesson|full album|full concert|album review|q&a)\b""",
+            RegexOption.IGNORE_CASE,
+        )
+
+        /**
+         * A liked Music video that is a song: not one whose title says it is something else, and between
+         * 30 seconds and 15 minutes (a short is a clip; a long one a concert, an album or a mix).
+         */
+        internal fun looksLikeASong(title: String, durationMs: Long): Boolean {
+            if (NOT_A_SONG.containsMatchIn(title)) return false
+            if (durationMs in 1 until 30_000) return false
+            if (durationMs > 15 * 60_000L) return false
+            return true
         }
     }
 }

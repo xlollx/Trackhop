@@ -17,4 +17,14 @@ class YouTubeLikedTest {
         assertEquals(175_000L, t[0].durationMs)
         assertEquals("Espresso", t[0].title)
     }
+
+    @Test fun videosAboutASongAreLeftOut() {
+        assertEquals(false, YouTubeProvider.looksLikeASong("Equal Vision Records - We Came As Romans \"Stay Inspired\" Track Inspiration", 180_000))
+        assertEquals(false, YouTubeProvider.looksLikeASong("Billie Eilish - Interview at the Grammys", 300_000))
+        assertEquals(false, YouTubeProvider.looksLikeASong("Pink Floyd - Live at Pompeii (Full Concert)", 3_600_000))
+        assertEquals(false, YouTubeProvider.looksLikeASong("Dua Lipa - Houdini #shorts", 20_000))
+        assertEquals(true, YouTubeProvider.looksLikeASong("Daft Punk - Get Lucky (Official Video)", 369_000))
+        assertEquals(true, YouTubeProvider.looksLikeASong("Espresso", 175_000))
+        assertEquals(true, YouTubeProvider.looksLikeASong("Some Song (Live)", 240_000))
+    }
 }
