@@ -240,7 +240,7 @@ class SyncEngine(
             // No name given for the new playlist: the shared one's own name, read now (a link pasted
             // without a name resolves here), then whatever the sync is called.
             val name = job.target.playlistName.ifBlank { info?.name?.takeIf { it.isNotBlank() } ?: srcName.ifBlank { job.name } }
-            val description = info?.description.orEmpty().trim().take(300)
+            val description = MusicProvider.plainDescription(info?.description)
             val created = patient(onProgress) { dst.createPlaylist(env, name, description.ifBlank { MusicProvider.description(str("app_name")) }) }
             targetId = created.id
             targetCreated = true

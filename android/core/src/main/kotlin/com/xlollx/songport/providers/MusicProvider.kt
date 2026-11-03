@@ -291,6 +291,21 @@ interface MusicProvider {
         }
         /** Description of the playlists this app creates, from the app name (R.string.app_name): "Trackhop" on Google Play. */
         fun description(appName: String) = "Synced with $appName"
+
+        /**
+         * A source playlist's description made safe to copy: Spotify writes some as HTML (a daylist links
+         * its moods with <a href=…> tags) and YouTube refuses a description with "<" or ">" (HTTP 400).
+         * Tags go, entities are read, what is left is plain text of at most [max] characters.
+         */
+        fun plainDescription(raw: String?, max: Int = 300): String {
+            if (raw.isNullOrBlank()) return ""
+            val text = raw.replace(Regex("<[^>]*>"), "")
+                .replace("&nbsp;", " ").replace("&quot;", "\"").replace("&#39;", "'").replace("&#x27;", "'")
+                .replace("&lt;", "").replace("&gt;", "").replace("&amp;", "&")
+                .replace("<", "").replace(">", "")
+                .replace(Regex("\\s+"), " ").trim()
+            return text.take(max).trim()
+        }
     }
 }
 
