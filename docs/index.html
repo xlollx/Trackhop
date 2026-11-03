@@ -29,7 +29,11 @@ main_class: home
           </div>
           <div class="col">
             <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="assets/badges/obtainium.svg" alt="Get it on Obtainium"></a>
-            <small>Every release at once · or <a href="https://github.com/xlollx/Trackhop/releases/latest">the APK</a></small>
+            <small>Every release at once, updates by itself</small>
+          </div>
+          <div class="col">
+            <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="assets/badges/github.svg" alt="Download the APK from GitHub"></a>
+            <small>The latest APK, to install by hand</small>
           </div>
         </div>
         <p class="more">Android 8.0 or newer · <a href="guide/versions">Which version do I need?</a></p>
@@ -52,11 +56,17 @@ main_class: home
         <p class="more">On a Mac, open it once with right-click › Open (<a href="guide/desktop#macos">why</a>) · <a href="#docker">All downloads</a></p>
       </div>
       <div class="panel" data-panel="server" role="tabpanel">
-        <div class="get">
-          <a href="guide/docker"><img src="assets/badges/docker.svg" alt="Run it on Docker"></a>
-          <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="Beta: runs in your own Azure subscription (about $5 a month)"><img src="assets/badges/azure.svg" alt="Deploy on Azure (beta)"></a>
+        <div class="get cols">
+          <div class="col">
+            <a href="guide/docker"><img src="assets/badges/docker.svg" alt="Run it on Docker"></a>
+            <small>Beta · ghcr.io or <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="guide/playlist-sync-nas">on a NAS</a></small>
+          </div>
+          <div class="col">
+            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="Beta: runs in your own Azure subscription (about $5 a month)"><img src="assets/badges/azure.svg" alt="Deploy on Azure (beta)"></a>
+            <small>Beta · your own subscription, about &#36;5 a month · <a href="guide/docker#on-azure-beta">details</a></small>
+          </div>
         </div>
-        <p class="more">Docker and Azure are in beta · <a href="guide/playlist-sync-nas">On a NAS</a> · <a href="guide/docker#several-people-on-one-server">One account each</a> · <a href="guide/docker#on-azure-beta">Azure costs</a></p>
+        <p class="more">A web page, scheduled syncs, an API · <a href="guide/docker#several-people-on-one-server">One account each</a> for the whole household</p>
       </div>
       <script>
         (function () {

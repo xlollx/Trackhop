@@ -246,7 +246,7 @@ body.drawer-open { overflow: hidden; }
 .drawer-nav .more-en { margin-top: 18px; font: inherit; font-size: 14px; color: var(--link); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
 
 /* Computer tab: each badge with its alternatives right below it. */
-.get.cols { align-items: flex-start; gap: 14px; }
+.get.cols { display: grid; grid-template-columns: repeat(auto-fill, 172px); align-items: start; gap: 14px; }
 .get .col { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 172px; }
 @media (max-width: 640px) { .get .col { width: 150px; } }
 .get .col small { font-size: .82rem; opacity: .9; text-align: center; }
@@ -254,3 +254,6 @@ body.drawer-open { overflow: hidden; }
 .get .soon { cursor: default; }
 .get .soon img { opacity: .85; }
 @media (max-width: 640px) { .platforms button { padding: 7px 11px; font-size: .88rem; } }
+@media (max-width: 640px) { .get.cols { grid-template-columns: repeat(2, 150px); } }
+.panel[data-panel="phone"] .get.cols { grid-template-columns: repeat(2, 172px); }
+@media (max-width: 640px) { .panel[data-panel="phone"] .get.cols { grid-template-columns: repeat(2, 150px); } }
