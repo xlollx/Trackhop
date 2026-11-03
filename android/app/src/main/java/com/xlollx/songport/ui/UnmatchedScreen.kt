@@ -200,12 +200,13 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                     TextButton(enabled = !busy, onClick = {
                         busy = true
                         scope.launch {
-                            try {
-                                val n = engine.discardMatches(job, reportId, list)
-                                picked = picked - list.map { "r-" + it.source.id }.toSet()
-                                if (removes) snackbar.showSnackbar(ctx.getString(R.string.review_discarded, dstName, n))
-                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e.message ?: "") }
+                            val n = try {
+                                engine.discardMatches(job, reportId, list)
+                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e.message ?: ""); null }
                             finally { busy = false; discarding = null }
+                            picked = picked - list.map { "r-" + it.source.id }.toSet()
+                            // Shown after: the message stays a few seconds and the bar must work meanwhile.
+                            if (n != null && removes) snackbar.showSnackbar(ctx.getString(R.string.review_discarded, dstName, n))
                         }
                     }) { Text(stringResource(R.string.review_discard)) }
                 },
