@@ -37,6 +37,8 @@ object Diagnostics {
                 if (repeats > 0) out.append("${fmt.format(Date())} (the line above came $repeats more times)\n")
                 out.append("${fmt.format(Date())} $text\n")
                 last = text; repeats = 0
+                // A file written by an older version may lack its last line end: lines must not run together.
+                if (f.length() > 0 && f.inputStream().use { it.skip(f.length() - 1); it.read() } != '\n'.code) out.insert(0, "\n")
                 f.appendText(out.toString())
                 // Trimmed when it grows past the limit, not at every line: a sync writes many.
                 if (f.length() > MAX_LINES * 300L) f.writeText(f.readLines().takeLast(MAX_LINES * 3 / 4).joinToString("\n", postfix = "\n"))
@@ -163,7 +165,7 @@ object Diagnostics {
         var n = 0
         for ((i, c) in text.withIndex()) {
             n += encodedLength(c.toString())
-            if (n > max) return text.substring(0, i)
+            if (n > max) return text.substring(0, i).let { cut -> cut.substring(0, cut.lastIndexOf('\n') + 1) } + "  …\n"
         }
         return text
     }

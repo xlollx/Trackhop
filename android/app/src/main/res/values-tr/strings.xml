@@ -1392,4 +1392,12 @@
     <string name="diag_range_day">Son 24 saat</string>
     <string name="diag_range_week">Son 7 gün</string>
     <string name="diag_range_all">Tümü</string>
+    <string name="charts_label">Listeler</string>
+    <string name="provider_note_charts">Apple Music (ülkeye göre Top 100) ve Deezer (ülkeye göre ve dünya) listeleri, herkese açık akışlarından: eşitleme, liste değiştikçe çalma listeni güncel tutar. Hesap gerekmez.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Bu liste artık yok.</string>
+    <string name="charts_unavailable">%1$s listeyi döndürmedi (%2$d): daha sonra tekrar dene.</string>
+    <string name="whats_new_110_charts_title">Kaynak olarak listeler</string>
+    <string name="whats_new_110_charts_body">Bir çalma listeni herhangi bir ülkenin Apple Music Top 100\'üne ya da Deezer listelerine uygun tut: yeni bir eşitlemenin kaynağı olarak "Listeler"i seç.</string>
 </resources>

@@ -1440,4 +1440,12 @@
     <string name="diag_range_day">Последние 24 часа</string>
     <string name="diag_range_week">Последние 7 дней</string>
     <string name="diag_range_all">Всё</string>
+    <string name="charts_label">Чарты</string>
+    <string name="provider_note_charts">Чарты Apple Music (Топ-100 по странам) и Deezer (по странам и мировой) из их открытых лент: синхронизация обновляет ваш плейлист вслед за чартом. Без аккаунта.</string>
+    <string name="charts_apple_name">Apple Music Топ-100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Этот чарт больше недоступен.</string>
+    <string name="charts_unavailable">%1$s не вернул чарт (%2$d): попробуйте позже.</string>
+    <string name="whats_new_110_charts_title">Чарты как источник</string>
+    <string name="whats_new_110_charts_body">Держите свой плейлист в такт с Топ-100 Apple Music любой страны или чартами Deezer: выберите «Чарты» источником новой синхронизации.</string>
 </resources>

@@ -1442,4 +1442,12 @@
     <string name="diag_range_day">Ostatnie 24 godziny</string>
     <string name="diag_range_week">Ostatnie 7 dni</string>
     <string name="diag_range_all">Wszystko</string>
+    <string name="charts_label">Listy przebojów</string>
+    <string name="provider_note_charts">Listy Apple Music (Top 100 według kraju) i Deezera (top krajowe i światowe) z ich publicznych źródeł: synchronizacja utrzymuje twoją playlistę na bieżąco, gdy lista się zmienia. Bez konta.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Ta lista nie jest już dostępna.</string>
+    <string name="charts_unavailable">%1$s nie zwrócił listy (%2$d): spróbuj później.</string>
+    <string name="whats_new_110_charts_title">Listy przebojów jako źródło</string>
+    <string name="whats_new_110_charts_body">Trzymaj swoją playlistę w zgodzie z Top 100 Apple Music dowolnego kraju lub listami Deezera: wybierz „Listy przebojów” jako źródło nowej synchronizacji.</string>
 </resources>

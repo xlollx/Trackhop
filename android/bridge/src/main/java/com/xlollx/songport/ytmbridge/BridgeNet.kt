@@ -1,6 +1,5 @@
 package com.xlollx.songport.ytmbridge
 
-import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.io.File
@@ -24,7 +23,11 @@ object BridgeNet {
     private val lock = Any()
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
 
-    fun attach(ctx: Context) { if (own == null) own = File(ctx.applicationContext.filesDir, "bridge.log") }
+    /**
+     * The folder of the Bridge's own log (the app's files folder on Android). A [File], not a Context:
+     * the server build compiles this file too, without Android.
+     */
+    fun attach(dir: File) { if (own == null) own = File(dir, "bridge.log") }
 
     fun log(tag: String, message: String) {
         val sink = logSink

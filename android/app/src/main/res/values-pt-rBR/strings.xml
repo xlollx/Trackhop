@@ -1402,4 +1402,12 @@
     <string name="diag_range_day">Últimas 24 horas</string>
     <string name="diag_range_week">Últimos 7 dias</string>
     <string name="diag_range_all">Tudo</string>
+    <string name="charts_label">Paradas</string>
+    <string name="provider_note_charts">As paradas do Apple Music (Top 100 por país) e do Deezer (top por país e mundial), dos feeds públicos: uma sync mantém uma playlist sua atualizada quando a parada muda. Sem conta.</string>
+    <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_deezer_name">Deezer · %1$s</string>
+    <string name="charts_unknown">Esta parada não está mais disponível.</string>
+    <string name="charts_unavailable">%1$s não retornou a parada (%2$d): tente mais tarde.</string>
+    <string name="whats_new_110_charts_title">Paradas como origem</string>
+    <string name="whats_new_110_charts_body">Mantenha uma playlist sua no ritmo do Top 100 do Apple Music de qualquer país ou das paradas do Deezer: escolha "Paradas" como origem de uma nova sync.</string>
 </resources>

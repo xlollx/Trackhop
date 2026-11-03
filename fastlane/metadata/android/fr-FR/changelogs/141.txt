@@ -1,0 +1,1 @@
+« Exporter le journal » crée et partage maintenant vraiment le fichier texte (en 1.9.7 la fenêtre se fermait seulement).

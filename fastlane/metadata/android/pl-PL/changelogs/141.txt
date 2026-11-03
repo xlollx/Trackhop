@@ -1,0 +1,1 @@
+„Eksportuj dziennik” teraz naprawdę tworzy i udostępnia plik tekstowy (w 1.9.7 tylko zamykało się okno).
