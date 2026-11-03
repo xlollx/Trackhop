@@ -73,7 +73,10 @@ class SafetyFlowTest : FlowTest() {
         assertEquals(0, confirmed.heldBack)
         assertEquals(5, FakeWorld.playlist("deezer", "Big Mix")!!.tracks.size)
         assertNull("the confirmation is spent", store.data.removalConfirmations[job.id])
-        waitText(s(R.string.pill_ok))
+        // Nothing held back any more. Since 1.6 "Up to date" needs a version check the fake services
+        // cannot answer, so a card that just ran says that instead.
+        waitGone(s(R.string.pill_held_back))
+        waitText(s(R.string.pill_just_ran))
     }
 
     @Test
