@@ -295,15 +295,15 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
 
 Without `SONGPORT_MULTIUSER` nothing changes: one Trackhop, one password, any user name.
 
-## On Azure
+## On Azure (beta)
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json)
 
 No server at home? The button creates Trackhop on **Azure Container Apps** in your own subscription:
 a small app that is always on, with an HTTPS address, and its data on an Azure Files share. You choose a
 name, a region, a user name and a password; the address is shown at the end of the deployment.
-It is billed to your Azure subscription (check the
-[pricing calculator](https://azure.microsoft.com/pricing/calculator/)); to remove it, delete the resource group.
+It is billed to your Azure subscription: about $5 a month in most regions when it sits idle between syncs, up to about $15 if it is busy all the time (estimate from Azure's list prices for Container Apps after its monthly free grant; storage costs cents) (check the
+[pricing calculator](https://azure.microsoft.com/pricing/calculator/) for your region); to remove it, delete the resource group.
 From a datacenter, use the official connectors: the unofficial ones are blocked more often.
 Details: [packaging/azure](https://github.com/xlollx/Trackhop/tree/main/packaging/azure).
 

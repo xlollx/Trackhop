@@ -13,7 +13,7 @@ It asks for a name, a region, a user name and a password, and whether several pe
 `SONGPORT_URL` is set to the app's HTTPS address, which the services' sign-in pages need.
 The address is shown under *Outputs* when the deployment ends.
 
-Costs go to your Azure subscription: check the [pricing calculator](https://azure.microsoft.com/pricing/calculator/)
+Costs go to your Azure subscription: about $5 a month in most regions when it sits idle between syncs, up to about $15 if it is busy all the time (estimate from Azure's list prices for Container Apps after its monthly free grant; storage costs cents). Check the [pricing calculator](https://azure.microsoft.com/pricing/calculator/)
 for Container Apps and Azure Files in your region. To update, restart the revision (the `latest` image is pulled
 again); to remove everything, delete the resource group.
 
