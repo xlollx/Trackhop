@@ -105,6 +105,9 @@ internal fun openUrl(ctx: android.content.Context, url: String) {
 
 internal const val SOURCE_URL = "https://github.com/xlollx/Trackhop"
 
+/** The author attribution of NOTICE (AGPL-3.0 section 7(b)): kept as it is by any modified version. */
+internal const val ATTRIBUTION = "Trackhop by xlollx · AGPL-3.0 · github.com/xlollx/Trackhop"
+
 /** The little arrow of a row that leaves the app (browser, system settings). */
 @Composable
 private fun ExternalMark() = Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
@@ -384,8 +387,9 @@ fun SettingsScreen(
             }
             // The newest release's highlights, the sheet shown once after the update.
             PrefRow(Icons.Filled.NewReleases, stringResource(R.string.whats_new_row), stringResource(R.string.whats_new_row_summary, WhatsNew.newestVersion), onClick = onWhatsNew)
-            // Open source: the repository holds the code, the docs and the connector-plugin page.
-            PrefRow(Icons.Filled.Code, stringResource(R.string.settings_source_code), SOURCE_URL.removePrefix("https://"), trailing = { ExternalMark() }) {
+            // Open source: the repository holds the code, the docs and the connector-plugin page. The line
+            // under it is the author attribution the license's additional terms (NOTICE) ask forks to keep.
+            PrefRow(Icons.Filled.Code, stringResource(R.string.settings_source_code), ATTRIBUTION, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE_URL))) }
             }
             PrefRow(Icons.Filled.Policy, stringResource(R.string.settings_privacy_policy), null, trailing = { ExternalMark() }) {

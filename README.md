@@ -635,6 +635,11 @@ graphics (`fastlane/metadata/android/*/images/featureGraphic.png`, `docs/store/f
 licence, so that repositories such as F-Droid can ship them as they are. Unmodified rebuilds of this
 project may keep them.
 
+**Attribution (additional terms, see [NOTICE](NOTICE)).** Every copy or modified version, as source,
+APK, desktop package or container image, must keep the line "Trackhop by xlollx · AGPL-3.0 ·
+github.com/xlollx/Trackhop" where the program shows it (Settings › About in the app, the page footer
+on Desktop and Docker), and a modified version must say that it was modified and by whom.
+
 The name "Trackhop" (and "Songport", its former name) is not licensed: it identifies this
 project's official releases. A fork that changes the app and distributes it should use a name of its
 own, as section 7(c) of the license permits to require, so users can tell the two apart. Names of the music
