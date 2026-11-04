@@ -1620,4 +1620,8 @@
     <string name="ai_nano_use_key">Meinen Schlüssel nutzen</string>
     <string name="ai_nano_preparing">%1$s wird auf diesem Handy vorbereitet…</string>
     <string name="ai_nano_private">Läuft auf diesem Handy: Die Playlist wird nirgendwohin gesendet.</string>
+    <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
+    <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
+    <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>
+    <string name="whats_new_114_tips_body">Eine kurze Seite zeigt, was Trackhop vom Startbildschirm aus kann: Widgets mit einem Tipp hinzufügen, die Verknüpfungen am App-Symbol und die Automatisierung. Zu finden unter Einstellungen › Hilfe.</string>
 </resources>

@@ -1628,4 +1628,8 @@
     <string name="ai_nano_use_key">Usar minha chave</string>
     <string name="ai_nano_preparing">Preparando o %1$s neste celular…</string>
     <string name="ai_nano_private">Roda neste celular: a playlist não é enviada para lugar nenhum.</string>
+    <string name="whats_new_114_nano_title">IA sem chave</string>
+    <string name="whats_new_114_nano_body">Em celulares com Gemini Nano, o Roast e o gerador de playlists agora funcionam no próprio aparelho: sem chave e nada sai do dispositivo. Nos outros, o Roast leva direto para configurar uma chave gratuita.</string>
+    <string name="whats_new_114_tips_title">Widgets, atalhos e automações</string>
+    <string name="whats_new_114_tips_body">Uma página curta mostra o que o Trackhop faz pela tela inicial: widgets para adicionar com um toque, os atalhos do ícone e as automações. Fica em Configurações › Ajuda.</string>
 </resources>

@@ -68,8 +68,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdk 26
         targetSdk 36
-        versionCode 153
-        versionName "1.13.3"
+        versionCode 154
+        versionName "1.14.0"
 
         buildConfigField "String", "SPOTIFY_CLIENT_ID", "\"${spotifyClientId}\""
         buildConfigField "String", "TIDAL_CLIENT_ID", "\"${tidalClientId}\""

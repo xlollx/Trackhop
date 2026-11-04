@@ -1620,4 +1620,8 @@
     <string name="ai_nano_use_key">Use my key</string>
     <string name="ai_nano_preparing">Getting %1$s ready on this phone…</string>
     <string name="ai_nano_private">It runs on this phone: the playlist is not sent anywhere.</string>
+    <string name="whats_new_114_nano_title">AI without a key</string>
+    <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
+    <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>
+    <string name="whats_new_114_tips_body">A short page shows what Trackhop can do from the home screen: widgets to add with one tap, the shortcuts behind the app icon, and automation. Find it in Settings › Help.</string>
 </resources>

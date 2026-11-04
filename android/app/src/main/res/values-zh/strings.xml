@@ -1597,4 +1597,8 @@
     <string name="ai_nano_use_key">使用我的密钥</string>
     <string name="ai_nano_preparing">正在这部手机上准备 %1$s…</string>
     <string name="ai_nano_private">在这部手机上运行：播放列表不会发送到任何地方。</string>
+    <string name="whats_new_114_nano_title">无需密钥的 AI</string>
+    <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
+    <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>
+    <string name="whats_new_114_tips_body">一个简短页面介绍 Trackhop 在主屏幕上能做什么：一键添加的小组件、长按图标的快捷方式以及自动化。位于设置 › 帮助。</string>
 </resources>

@@ -1628,4 +1628,8 @@
     <string name="ai_nano_use_key">Utiliser ma clé</string>
     <string name="ai_nano_preparing">Préparation de %1$s sur ce téléphone…</string>
     <string name="ai_nano_private">Il tourne sur ce téléphone : la playlist n\'est envoyée nulle part.</string>
+    <string name="whats_new_114_nano_title">L\'IA sans clé</string>
+    <string name="whats_new_114_nano_body">Sur les téléphones avec Gemini Nano, le Roast et le générateur de playlists fonctionnent désormais sur le téléphone même : sans clé, et rien ne quitte l\'appareil. Ailleurs, le Roast t\'emmène directement configurer une clé gratuite.</string>
+    <string name="whats_new_114_tips_title">Widgets, raccourcis et automatisations</string>
+    <string name="whats_new_114_tips_body">Une courte page montre ce que Trackhop fait depuis l\'écran d\'accueil : des widgets à ajouter en un geste, les raccourcis de l\'icône et les automatisations. Dans Réglages › Aide.</string>
 </resources>

@@ -49,6 +49,11 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
 - **Connections log**: the app keeps, on the device, the list of host names it has contacted and how
   many times (Settings › Developer options › Show connections), so you can verify the above yourself. Only host
   names, never content; you can clear it at any time.
+- **On-device AI (Gemini Nano, optional)**: on phones that have it, the Roast and the playlist generator can use
+  Google's Gemini Nano through Android's AICore and Google's ML Kit library. The text it works on (playlist name,
+  artists, titles) is processed on the phone and is not sent anywhere. ML Kit may send Google technical usage
+  data (for example which feature ran and whether it worked, not your playlists), under Google's terms:
+  https://developers.google.com/ml-kit/terms.
 - **Advertising data** (Google Play version only; the version downloaded from GitHub contains no
   advertising SDK and collects no advertising data): the app shows one banner via Google AdMob. The Google Mobile Ads SDK may collect
   the advertising ID, IP address, device and app information to serve and measure ads, according to the
@@ -111,6 +116,11 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
 - **Registro delle connessioni**: l'app conserva, sul dispositivo, l'elenco degli host che ha contattato e quante
   volte (Impostazioni › Opzioni sviluppatore › Mostra le connessioni), così puoi verificare tu stesso quanto sopra. Solo nomi
   di host, mai contenuti; puoi svuotarlo quando vuoi.
+- **AI sul telefono (Gemini Nano, facoltativa)**: sui telefoni che lo hanno, il Roast e il generatore di playlist
+  possono usare Gemini Nano di Google tramite AICore di Android e la libreria ML Kit di Google. Il testo su cui
+  lavora (nome della playlist, artisti, titoli) è elaborato sul telefono e non viene inviato altrove. ML Kit può
+  inviare a Google dati tecnici d'uso (per esempio quale funzione è stata usata e se ha funzionato, non le tue
+  playlist), secondo i termini di Google: https://developers.google.com/ml-kit/terms.
 - **Dati pubblicitari** (solo nella versione Google Play; la versione scaricata da GitHub non contiene
   alcun SDK pubblicitario e non raccoglie dati pubblicitari): l'app mostra un banner tramite Google AdMob. L'SDK Google Mobile Ads può
   raccogliere l'identificatore pubblicitario, indirizzo IP, informazioni sul dispositivo e sull'app per

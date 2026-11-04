@@ -1618,4 +1618,8 @@
     <string name="ai_nano_use_key">Anahtarımı kullan</string>
     <string name="ai_nano_preparing">%1$s bu telefonda hazırlanıyor…</string>
     <string name="ai_nano_private">Bu telefonda çalışır: çalma listesi hiçbir yere gönderilmez.</string>
+    <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
+    <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
+    <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>
+    <string name="whats_new_114_tips_body">Kısa bir sayfa Trackhop\'un ana ekrandan neler yapabildiğini gösterir: tek dokunuşla eklenen widget\'lar, uygulama simgesindeki kısayollar ve otomasyon. Ayarlar › Yardım bölümünde.</string>
 </resources>

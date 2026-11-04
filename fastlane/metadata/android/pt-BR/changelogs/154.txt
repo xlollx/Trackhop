@@ -1,0 +1,1 @@
+Novidades: em celulares com Gemini Nano, o Roast e o gerador de playlists funcionam sem chave, no próprio aparelho. Uma página curta mostra widgets, atalhos do ícone e automações. Se o Spotify pedir uma pausa de horas numa primeira sincronização grande, ela para e diz até quando. Corrigidos os logos do Apple Music e do Emby. A introdução leva ao site e ao GitHub.

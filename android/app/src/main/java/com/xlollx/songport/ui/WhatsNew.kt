@@ -102,6 +102,13 @@ object WhatsNew {
     val releases: List<Release> by lazy {
         listOf(
             Release(
+                "1.14",
+                listOf(
+                    Item(Icons.Filled.AutoAwesome, JobColor.PINK, R.string.whats_new_114_nano_title, R.string.whats_new_114_nano_body),
+                    Item(Icons.Filled.Widgets, JobColor.BLUE, R.string.whats_new_114_tips_title, R.string.whats_new_114_tips_body),
+                ),
+            ),
+            Release(
                 "1.13",
                 listOf(
                     Item(Icons.Filled.Inventory2, JobColor.TEAL, R.string.whats_new_113_archive_title, R.string.whats_new_113_archive_body),

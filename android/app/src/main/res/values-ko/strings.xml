@@ -1596,4 +1596,8 @@
     <string name="ai_nano_use_key">내 키 사용</string>
     <string name="ai_nano_preparing">이 휴대폰에서 %1$s 준비 중…</string>
     <string name="ai_nano_private">이 휴대폰에서 실행됩니다. 플레이리스트는 어디에도 전송되지 않습니다.</string>
+    <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
+    <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
+    <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>
+    <string name="whats_new_114_tips_body">홈 화면에서 Trackhop으로 할 수 있는 일을 짧은 페이지로 보여 줍니다. 한 번에 추가하는 위젯, 아이콘 길게 누르기 바로가기, 자동화. 설정 › 도움말에 있습니다.</string>
 </resources>
