@@ -212,6 +212,7 @@ class AmazonClient(private val ctx: Context) {
         val type = listOf("x-amzn-errortype", "x-amzn-error-type", "www-authenticate", "x-amzn-requestid")
             .mapNotNull { h -> resp.header(h)?.let { "$h=${it.take(80)}" } }
         val sent = req.headers.names().map { it.lowercase() }.sorted()
+        noteInvalidCustomer(body + " " + type.joinToString())
         BridgeNet.log("amazon", "${resp.code} from ${req.url.host}${req.url.encodedPath}: ${type.joinToString().ifBlank { "no error header" }}; " +
             "territory sent ${req.header("music-territory") ?: "none"}, player's ${playerHeader("music-territory").ifBlank { "unseen" }}; " +
             "body: ${redact(body).take(500).ifBlank { "empty" }}; sent: ${sent.joinToString(",")}")
@@ -420,6 +421,7 @@ class AmazonClient(private val ctx: Context) {
     private fun parse(code: Int, text: String, operation: String): Answer {
         if (code == 401 || code == 403) {
             cachedConfig = null
+            noteInvalidCustomer(text)
             throw BridgeException("Amazon Music $code on $operation" + redact(text).take(120).let { if (it.isBlank()) "" else ": $it" })
         }
         if (code == -1) throw BridgeException("Amazon Music: $operation not sent (${text.take(160)})")
@@ -428,6 +430,7 @@ class AmazonClient(private val ctx: Context) {
         val errors = j["errors"].arr
         val codes = errors.mapNotNull { it["extensions"]["code"].str }
         val messages = errors.mapNotNull { it["message"].str }
+        noteInvalidCustomer((codes + messages).joinToString())
         if (codes.any { it == "PERSISTED_QUERY_NOT_FOUND" } || messages.any { it.contains("PersistedQueryNotFound", true) }) {
             throw BridgeException("Amazon Music updated its web player ($operation is no longer known): the connector needs an update.")
         }
@@ -698,6 +701,13 @@ class AmazonClient(private val ctx: Context) {
         private val logged = java.util.concurrent.ConcurrentHashMap<String, Long>()
         private const val PAGE_MODE_MS = 30 * 60_000L
         fun forgetConfig() { cachedConfig = null; libraryCounts = null }
+
+        /** When Amazon last refused a call as AUTH_INVALID_CUSTOMER_ID: [AmazonRoute] may then try the skill API. */
+        @Volatile private var invalidCustomerAt = 0L
+        private fun noteInvalidCustomer(text: String) {
+            if (text.contains("AUTH_INVALID_CUSTOMER_ID")) invalidCustomerAt = System.currentTimeMillis()
+        }
+        fun invalidCustomerSince(at: Long): Boolean = invalidCustomerAt >= at
 
         /** Regional web player domains, with the language the player sends. */
         val DOMAINS: Map<String, Region> = mapOf(

@@ -67,6 +67,45 @@ object AmazonSession {
     }
     fun gqlHost(ctx: Context): String? = prefs(ctx).getString("gql_host", null)?.takeIf { AmazonClient.isGqlHost(it) }
 
+    /**
+     * What one of the player's skill API calls showed (issue #35): the host its library calls go to,
+     * its `x-amzn-*` headers (they carry the access token: kept here, encrypted, never logged) and its
+     * userHash. A null leaves the stored value as it is.
+     */
+    fun saveSkill(ctx: Context, host: String?, headers: String?, userHash: String?, userAgent: String?) {
+        val e = prefs(ctx).edit()
+        if (host != null && AmazonSkillClient.isSkillHost(host)) e.putString("skill_host", host.lowercase())
+        if (headers != null) e.putString("skill_headers", headers).putLong("skill_headers_at", System.currentTimeMillis()).putString("skill_ua", userAgent)
+        if (userHash != null) e.putString("skill_user_hash", userHash)
+        e.apply()
+    }
+    fun skillHost(ctx: Context): String? = prefs(ctx).getString("skill_host", null)?.takeIf { AmazonSkillClient.isSkillHost(it) }
+    fun skillHeaders(ctx: Context): String? = prefs(ctx).getString("skill_headers", null)
+    fun skillHeadersAt(ctx: Context): Long = prefs(ctx).getLong("skill_headers_at", 0)
+    fun skillUserHash(ctx: Context): String? = prefs(ctx).getString("skill_user_hash", null)
+    fun skillUserAgent(ctx: Context): String? = prefs(ctx).getString("skill_ua", null)
+    /** The player was seen calling GraphQL on this install (its host or its headers were kept). */
+    fun gqlSeen(ctx: Context): Boolean = prefs(ctx).getString("gql_host", null) != null || headers(ctx) != null
+    /** The player's skill host and credentials were seen: the skill API can be tried. */
+    fun skillKnown(ctx: Context): Boolean = skillHost(ctx) != null && skillHeaders(ctx) != null
+
+    /** The API this account's player uses ([AmazonRoute.SKILL] or [AmazonRoute.GQL]); null until it was seen. */
+    fun api(ctx: Context): String? = prefs(ctx).getString("api", null)
+
+    /** Keeps the account's API; a change is logged once, when it happens. */
+    @Synchronized
+    fun setApi(ctx: Context, api: String) {
+        val was = api(ctx)
+        if (api == was) return
+        prefs(ctx).edit().putString("api", api).commit()
+        if (api == AmazonRoute.SKILL) {
+            val host = skillHost(ctx) ?: "its skill host"
+            BridgeNet.log("amazon", "Amazon Music: this account uses the ${if (host.startsWith("eu.")) "European " else ""}skill API ($host)")
+        } else if (was == AmazonRoute.SKILL) {
+            BridgeNet.log("amazon", "Amazon Music: this account's player uses GraphQL again")
+        }
+    }
+
     fun headers(ctx: Context): String? = prefs(ctx).getString("headers", null)
     fun headersUserAgent(ctx: Context): String? = prefs(ctx).getString("headers_ua", null)
     /** The player page the headers were seen on: the account's real regional site. */

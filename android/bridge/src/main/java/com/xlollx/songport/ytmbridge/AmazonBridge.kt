@@ -59,6 +59,41 @@ object AmazonBridge {
     fun ready(ctx: Context): Boolean = stored(ctx) != null
 
     /**
+     * One of the player's calls to its skill API (`<region>.web.skill.music.a2z.com/api/<method>`),
+     * reported by [HOOK]: its host, its `x-amzn-*` headers (from the request body) and userHash are
+     * kept, and the account's API is updated (see [AmazonRoute]). True when it carried usable
+     * credentials. Only names and lengths reach the log, never a value.
+     */
+    fun rememberSkill(ctx: Context, host: String, method: String, headersJson: String, userHash: String, userAgent: String?, pageSawGql: Boolean): Boolean {
+        if (!AmazonSkillClient.isSkillHost(host)) return false
+        val app = ctx.applicationContext
+        val evidence = AmazonSkillClient.isEvidence(method)
+        val headers = headersJson.takeIf { it.isNotBlank() }?.let { AmazonSkillClient.headersOf(it) }
+        val hash = userHash.takeIf { runCatching { parseJson(it) is JsonObject }.getOrDefault(false) }
+        // showHome goes to na. even for the Dutch player, whose library calls go to eu.: the host is
+        // taken from library and catalogue calls only.
+        AmazonSession.saveSkill(app, if (evidence) host else null, headers?.let { headersJson }, hash, userAgent)
+        AmazonRoute.afterPlayerCall(AmazonSession.api(app), skill = true, method = method, pageSawGql = pageSawGql)?.let { AmazonSession.setApi(app, it) }
+        val key = "$host/$method/${headers != null}"
+        val now = System.currentTimeMillis()
+        if (now - (skillLogged[key] ?: 0L) > 600_000) {
+            skillLogged[key] = now
+            BridgeNet.log("amazon", "the player's skill call $method on $host: " +
+                (headers?.entries?.sortedBy { it.key }?.joinToString(",") { "${it.key}(${it.value.length})" }
+                    ?: if (headersJson.isBlank()) "no headers" else "headers without credentials") +
+                (if (pageSawGql) "; the page also called GraphQL" else ""))
+        }
+        return headers != null
+    }
+
+    private val skillLogged = ConcurrentHashMap<String, Long>()
+
+    /** A GraphQL call of the player: an account it had on the skill API is back on GraphQL. */
+    private fun sawGql(app: Context) {
+        AmazonRoute.afterPlayerCall(AmazonSession.api(app), skill = false, method = "", pageSawGql = true)?.let { AmazonSession.setApi(app, it) }
+    }
+
+    /**
      * Stores headers seen in a visible WebView (sign-in, traffic capture). Called from JavaScript,
      * so it accepts whatever arrives and simply ignores anything without a token.
      */
@@ -82,7 +117,12 @@ object AmazonBridge {
             fun headers(json: String, ua: String?, host: String?) { remember(app, json, ua, host) }
             /** The host the player's API calls go to (an EU-side one for a "Rest of Europe" account). */
             @JavascriptInterface
-            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host) }
+            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host); sawGql(app) }
+            /** One of the player's skill API calls (an account left on the older API, issue #35). */
+            @JavascriptInterface
+            fun skill(host: String, method: String, headers: String, userHash: String, ua: String?, sawGql: Boolean) {
+                rememberSkill(app, host, method, headers, userHash, ua, sawGql)
+            }
             /** Status of one of the player's own API calls, for the diagnostics log. */
             @JavascriptInterface
             fun status(op: String, code: Int) { playerStatus(op, code) }
@@ -111,6 +151,15 @@ object AmazonBridge {
         val p = capture(ctx.applicationContext, domain, keep = refresh)
         cached = p
         return p
+    }
+
+    /**
+     * Runs the player offscreen until it makes a skill API call with its credentials (or a GraphQL
+     * one), for [AmazonSkillClient]: what it saw is in [AmazonSession]. Blocking; never on the main thread.
+     */
+    @Synchronized
+    fun skillPlayer(ctx: Context, domain: String) {
+        capture(ctx.applicationContext, domain, skill = true)
     }
 
     // ------------------------------------------------------------------ calls from inside the player
@@ -197,7 +246,7 @@ object AmazonBridge {
     fun storedUserAgent(ctx: Context): String? = AmazonSession.headersUserAgent(ctx.applicationContext)
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    private fun capture(app: Context, domain: String, keep: Boolean = false): Player {
+    private fun capture(app: Context, domain: String, keep: Boolean = false, skill: Boolean = false): Player {
         val latch = CountDownLatch(1)
         // Written from the WebView thread, read here: atomic holders, not plain locals.
         val headers = AtomicReference<Map<String, String>?>(null)
@@ -207,6 +256,7 @@ object AmazonBridge {
         val problem = AtomicReference<String?>(null)
         val calls = AtomicInteger(0)
         val anonymous = AtomicInteger(0)
+        val skillSeen = java.util.concurrent.atomic.AtomicBoolean(false)
         val others = java.util.Collections.synchronizedSet(LinkedHashSet<String>())
         var web: WebView? = null
         val main = Handler(Looper.getMainLooper())
@@ -234,7 +284,19 @@ object AmazonBridge {
             fun other(where: String) { if (others.size < 40) others.add(where.take(80)) }
 
             @JavascriptInterface
-            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host) }
+            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host); sawGql(app) }
+
+            /**
+             * One of the player's skill API calls: kept like in [install]. It ends the wait only when
+             * the skill API asked for this run ([skillPlayer]); a GraphQL run keeps waiting for GraphQL.
+             */
+            @JavascriptInterface
+            fun skill(host: String, method: String, headers: String, userHash: String, ua: String?, sawGql: Boolean) {
+                if (rememberSkill(app, host, method, headers, userHash, ua, sawGql) && AmazonSkillClient.isEvidence(method)) {
+                    skillSeen.set(true)
+                    if (skill) latch.countDown()
+                }
+            }
 
             /** The player showed a page instead of starting ("update your browser", "get the app"). */
             @JavascriptInterface
@@ -311,7 +373,7 @@ object AmazonBridge {
         if (h == null && problem.get()?.startsWith("page says") == true) throw BridgeException(
             "the Amazon Music player did not start [${problem.get()}, url: ${lastUrl.get().take(80)}].",
         )
-        if (h == null && c == null) throw BridgeException(
+        if (h == null && c == null && !(skill && skillSeen.get())) throw BridgeException(
             "the Amazon Music player did not hand over its credentials in time" +
                 " [url: ${lastUrl.get().take(80).ifBlank { "none" }}" +
                 ", calls seen: ${calls.get()}" +
@@ -328,7 +390,8 @@ object AmazonBridge {
 
     /**
      * Mirrors the HTTP headers of the player's own GraphQL calls (CSRF triple, device and session
-     * ids), and meets the desktop player's browser checks so that it starts at all.
+     * ids), and the body headers of its skill API calls for the accounts still on it (issue #35), and
+     * meets the desktop player's browser checks so that it starts at all.
      */
     val HOOK = """
         (function(){
@@ -369,6 +432,23 @@ object AmazonBridge {
           // (gql-eu…, eu.gql…): whatever host carries "gql" under music.amazon.
           var gqlHostOf = function(u){ try { var h = new URL(String(u||''), location.href).host; return /^[a-z0-9-]*gql[a-z0-9.-]*\.music\.amazon\./.test(h) ? h : null; } catch(e) { return null; } };
           var isGql = function(u){ return gqlHostOf(u) != null; };
+          // The older skill API (issue #35): some "Rest of Europe" accounts' players call only
+          // <region>.web.skill.music.a2z.com/api/<method>, with the x-amzn-* headers inside the JSON
+          // body (a JSON string under "headers") next to the userHash. Host, method, those headers and
+          // the userHash go to the Bridge, with whether this page has called GraphQL too.
+          var skillOf = function(u){ try { var x = new URL(String(u||''), location.href); return /^(na|eu|fe)\.web\.skill\.music\.a2z\.com$/.test(x.host) && /^\/api\//.test(x.pathname) ? x : null; } catch(e) { return null; } };
+          var skill = function(x, b){
+            try {
+              if (!AmzBridge.skill) return;
+              var h = '', uh = '';
+              try {
+                var j = (typeof b === 'string') ? JSON.parse(b) : null;
+                if (j && j.headers != null) h = (typeof j.headers === 'string') ? j.headers : JSON.stringify(j.headers);
+                if (j && j.userHash != null) uh = String(j.userHash);
+              } catch(e){}
+              AmzBridge.skill(x.host, x.pathname.split('/').pop(), h, uh, navigator.userAgent, !!window.__amzSawGql);
+            } catch(e){}
+          };
           var plain = function(h){
             var out = {};
             try {
@@ -405,7 +485,8 @@ object AmazonBridge {
           var of = window.fetch;
           if (of) window.fetch = function(input, init){
             var url = (typeof input === 'string') ? input : (input && input.url) || '';
-            if (isGql(url)) grab((init && init.headers) || (input && input.headers), url); else other(url);
+            if (isGql(url)) { window.__amzSawGql = 1; grab((init && init.headers) || (input && input.headers), url); }
+            else { var sk = skillOf(url); if (sk) skill(sk, init && init.body); other(url); }
             var p = of.apply(this, arguments);
             // How Amazon answers the player's own calls: tells "the session is refused" from "our
             // copy of the player's request is refused".
@@ -418,7 +499,11 @@ object AmazonBridge {
           var oo = XMLHttpRequest.prototype.open, os = XMLHttpRequest.prototype.send, osh = XMLHttpRequest.prototype.setRequestHeader;
           XMLHttpRequest.prototype.setRequestHeader = function(k, v){ (this.__h = this.__h || []).push([k, v]); return osh.apply(this, arguments); };
           XMLHttpRequest.prototype.open = function(m, u){ this.__u = u; return oo.apply(this, arguments); };
-          XMLHttpRequest.prototype.send = function(b){ if (isGql(this.__u)) grab(this.__h, this.__u); else other(this.__u); return os.apply(this, arguments); };
+          XMLHttpRequest.prototype.send = function(b){
+            if (isGql(this.__u)) { window.__amzSawGql = 1; grab(this.__h, this.__u); }
+            else { var sk = skillOf(this.__u); if (sk) skill(sk, b); other(this.__u); }
+            return os.apply(this, arguments);
+          };
         })();
     """.trimIndent()
 

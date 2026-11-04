@@ -97,28 +97,53 @@ object BridgeCore {
                     putInt("version", VERSION)
                 }
                 "amazon.disconnect" -> { AmazonSession.clear(ctx); Bundle() }
-                "amazon.search" -> ok(json.encodeToString(AmazonClient(ctx).searchTracks(arg ?: "")))
-                "amazon.tracks" -> ok(json.encodeToString(AmazonClient(ctx).playlistTracks(arg ?: return err("missing playlist id"))))
-                "amazon.playlists" -> ok(json.encodeToString(AmazonClient(ctx).libraryPlaylists()))
-                "amazon.create" -> ok(json.encodeToString(AmazonClient(ctx).createPlaylist(extras?.getString("name") ?: "Playlist")))
+                // GraphQL for most accounts; the older skill API for the players still on it (issue #35).
+                "amazon.search" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.searchTracks(arg ?: "") }, { it.searchTracks(arg ?: "") })))
+                "amazon.tracks" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    ok(json.encodeToString(AmazonRoute.run(ctx, { it.playlistTracks(id) }, { it.playlistTracks(id) })))
+                }
+                "amazon.playlists" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.libraryPlaylists() }, { it.libraryPlaylists() })))
+                "amazon.create" -> {
+                    val name = extras?.getString("name") ?: "Playlist"
+                    ok(json.encodeToString(AmazonRoute.run(ctx, { it.createPlaylist(name) }, { it.createPlaylist(name) })))
+                }
                 "amazon.add" -> {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
-                    val c = AmazonClient(ctx)
+                    val titles = extras?.getStringArray("titles") ?: emptyArray()
                     // Tracks Amazon refused as already in the playlist: Trackhop counts them as present, not added.
-                    val duplicates = ids.filterNot { id -> c.addTrack(pid, id).also { Thread.sleep(150) } }
+                    val duplicates = AmazonRoute.run(ctx,
+                        { c -> ids.filterNot { id -> c.addTrack(pid, id).also { Thread.sleep(150) } } },
+                        { c -> ids.filterIndexed { i, id -> !c.addTrack(pid, id, titles.getOrNull(i) ?: "").also { Thread.sleep(150) } } },
+                    )
                     Bundle().apply { putStringArray("duplicates", duplicates.toTypedArray()) }
                 }
-                "amazon.rename" -> err("Amazon Music: renaming is not available in the current web player")
-                "amazon.delete" -> { AmazonClient(ctx).removePlaylist(arg ?: return err("missing playlist id")); Bundle() }
-                "amazon.visibility" -> err("Amazon Music: visibility cannot be changed from the current web player")
+                "amazon.rename" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    if (AmazonSession.api(ctx) != AmazonRoute.SKILL) return err("Amazon Music: renaming is not available in the current web player")
+                    AmazonSkillClient(ctx).renamePlaylist(id, extras?.getString("name") ?: ""); Bundle()
+                }
+                "amazon.delete" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    AmazonRoute.run(ctx, { it.removePlaylist(id) }, { it.removePlaylist(id) }); Bundle()
+                }
+                "amazon.visibility" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    if (AmazonSession.api(ctx) != AmazonRoute.SKILL) return err("Amazon Music: visibility cannot be changed from the current web player")
+                    AmazonSkillClient(ctx).setVisibility(id, extras?.getBoolean("public") ?: false); Bundle()
+                }
                 "amazon.remove" -> {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
                     val entries = extras?.getStringArray("entryIds") ?: emptyArray()
-                    // By cursor, highest index first, then checked against the playlist: the entries
-                    // Amazon still lists go back as "kept", and Trackhop counts them as not removed.
-                    val kept = AmazonClient(ctx).removeEntries(pid, ids.toList(), entries.toList())
+                    // Checked against the playlist afterwards: the entries Amazon still lists go back
+                    // as "kept", and Trackhop counts them as not removed. GraphQL removes by cursor,
+                    // highest index first; the skill API by trackEntryId.
+                    val kept = AmazonRoute.run(ctx,
+                        { it.removeEntries(pid, ids.toList(), entries.toList()) },
+                        { it.removeEntries(pid, ids.toList(), entries.toList()) },
+                    )
                     Bundle().apply { putStringArray("kept", kept.toTypedArray()) }
                 }
                 // ---- Spotify web session: Trackhop gets a short-lived Web API token, never the cookies.
