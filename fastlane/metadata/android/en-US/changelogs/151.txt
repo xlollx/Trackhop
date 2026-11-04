@@ -1,0 +1,1 @@
+Amazon Music: accounts of countries without an Amazon Music site of their own (Netherlands, Belgium, Ireland…) are served on the European side, which Trackhop now follows; the log says where the player's calls go when a session is refused.

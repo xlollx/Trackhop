@@ -1,0 +1,1 @@
+Amazon Music: Konten aus Ländern ohne eigene Amazon-Music-Seite (Niederlande, Belgien, Irland…) laufen über die europäische Seite, der Trackhop jetzt folgt; wird eine Sitzung abgelehnt, sagt das Protokoll, wohin die Aufrufe des Players gehen.

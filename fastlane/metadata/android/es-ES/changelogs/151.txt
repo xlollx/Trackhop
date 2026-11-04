@@ -1,0 +1,1 @@
+Amazon Music: las cuentas de países sin sitio propio de Amazon Music (Países Bajos, Bélgica, Irlanda…) se sirven desde el lado europeo, que Trackhop ahora sigue; si se rechaza una sesión, el registro dice adónde van las llamadas del reproductor.
