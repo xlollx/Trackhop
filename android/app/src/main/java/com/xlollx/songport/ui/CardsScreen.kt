@@ -7,9 +7,6 @@ import com.xlollx.songport.providers.*
 import android.graphics.Bitmap
 import com.xlollx.songport.sync.CoverPrompt
 import com.xlollx.songport.ai.AiClient
-import androidx.compose.ui.semantics.Role
-import androidx.compose.material3.Checkbox
-import androidx.compose.foundation.selection.toggleable
 import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -309,6 +306,25 @@ private fun Suggestions(title: String, tracks: List<Track>) {
 /** Covers the user's AI drew in this session, by playlist: "make the card again" does not pay twice. */
 private val aiCovers = HashMap<String, Bitmap>()
 
+/** Track covers picked for a playlist in this session (playlist, variant, how many): changing style does not look them up again. */
+private val pickedCovers = LinkedHashMap<String, List<Bitmap>>()
+
+/**
+ * What the poster's art is made of: the playlist's own covers, a cover drawn on the phone in one
+ * of [GeneratedCovers.Style], or the user's AI.
+ */
+internal enum class PosterArt(val label: Int, val style: GeneratedCovers.Style? = null) {
+    COVERS(R.string.card_cover_covers),
+    MOSAIC(R.string.card_cover_mosaic, GeneratedCovers.Style.MOSAIC),
+    GRADIENT(R.string.card_cover_gradient, GeneratedCovers.Style.GRADIENT),
+    GEOMETRIC(R.string.card_cover_geometric, GeneratedCovers.Style.GEOMETRIC),
+    TYPOGRAPHIC(R.string.card_cover_typographic, GeneratedCovers.Style.TYPOGRAPHIC),
+    VINYL(R.string.card_cover_vinyl, GeneratedCovers.Style.VINYL),
+    AI(R.string.card_cover_ai),
+}
+
+private fun posterPrefs(ctx: android.content.Context) = ctx.applicationContext.getSharedPreferences("poster", android.content.Context.MODE_PRIVATE)
+
 /** The playlist poster: covers, title, numbers and a QR to open it. */
 @Composable
 fun PosterCard(snackbar: SnackbarHostState) {
@@ -321,7 +337,14 @@ fun PosterCard(snackbar: SnackbarHostState) {
     // The AI of the Playlist generator, if any, and whether it can draw.
     val ai = remember { AiClient.config(ctx)?.takeIf { it.complete } }
     val aiSupport = ai?.let { AiClient.imageSupport(it) }
-    var aiCover by remember { mutableStateOf(false) }
+    val aiOk = ai != null && aiSupport == AiClient.ImageSupport.YES
+    // The art chosen last time; the AI only while it can still draw.
+    var art by remember {
+        val saved = runCatching { PosterArt.valueOf(posterPrefs(ctx).getString("art", null) ?: "") }.getOrNull() ?: PosterArt.COVERS
+        mutableStateOf(if (saved == PosterArt.AI && !aiOk) PosterArt.COVERS else saved)
+    }
+    // "Make it again" and "another version" turn this: other picks, another drawing.
+    var variant by remember { mutableStateOf(0) }
     var drawing by remember { mutableStateOf(false) }
     var drawn by remember { mutableStateOf<Bitmap?>(null) }
     val saveCover = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
@@ -329,43 +352,66 @@ fun PosterCard(snackbar: SnackbarHostState) {
         if (uri != null && b != null) Cards.save(ctx, b, uri)
     }
 
-    fun run(newCover: Boolean = false) {
+    fun run(nextVariant: Boolean = false, newCover: Boolean = false) {
         val p = pick ?: return
+        if (nextVariant) variant++
+        val v = variant
+        val chosen = art
         busy = true; bitmaps = null
         scope.launch {
             try {
                 val tracks = p.provider.tracks(ctx, p.playlist.id)
                 val info = if (p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank()) p.playlist else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
                 val key = p.provider.id + "|" + p.playlist.id
+                val title = info.name.ifBlank { p.playlist.name }.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
+                val artists = CoverPrompt.topArtists(tracks)
                 if (newCover) aiCovers.remove(key)
+                // The covers of the artists that appear most, looked up once per playlist and variant.
+                suspend fun picks(want: Int): List<Bitmap> {
+                    val k = "$key|$v|$want"
+                    synchronized(pickedCovers) { pickedCovers[k] }?.let { return it }
+                    val got = Cards.distinctCovers(tracks, p.provider.serviceId, want, maxLookups = if (want > 4) 24 else 16, variant = v)
+                    synchronized(pickedCovers) { if (pickedCovers.size >= 8) pickedCovers.remove(pickedCovers.keys.first()); pickedCovers[k] = got }
+                    return got
+                }
+                suspend fun generated(style: GeneratedCovers.Style): Bitmap {
+                    val covers = picks(if (style == GeneratedCovers.Style.MOSAIC) 9 else 4)
+                    return withContext(Dispatchers.Default) { GeneratedCovers.draw(style, GeneratedCovers.Input(title, artists, covers), v) }
+                }
                 val covers: List<Bitmap?> = withContext(Dispatchers.IO) {
-                    if (aiCover && ai != null && aiSupport == AiClient.ImageSupport.YES) {
-                        // Only the title, the main artists and the description go to the user's AI.
-                        // When the AI can't draw (no image quota on the key, a refusal), the poster is
-                        // still made, with the playlist's own covers, and the reason is said once.
-                        val art = aiCovers[key] ?: try {
-                            drawing = true
-                            val prompt = CoverPrompt.build(info.name.ifBlank { p.playlist.name }, CoverPrompt.topArtists(tracks), info.description)
-                            val bytes = AiClient.generateImage(ai, prompt)
-                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
-                                ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
-                        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            val why = e.message ?: ctx.getString(R.string.error_generic)
-                            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed, why), withDismissAction = true, duration = androidx.compose.material3.SnackbarDuration.Long) }
-                            null
-                        } finally { drawing = false }
-                        if (art != null) {
-                            drawn = art
-                            return@withContext listOf(art)
+                    drawn = null
+                    when {
+                        chosen == PosterArt.AI && ai != null && aiOk -> {
+                            // Only the title, the main artists and the description go to the user's AI.
+                            // When the AI can't draw (no image quota on the key, a refusal), the poster is
+                            // still made, with a cover drawn on the phone, and the reason is said once.
+                            val drawnByAi = aiCovers[key] ?: try {
+                                drawing = true
+                                val prompt = CoverPrompt.build(title, artists, info.description)
+                                val bytes = AiClient.generateImage(ai, prompt)
+                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
+                                    ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
+                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                                val why = e.message ?: ctx.getString(R.string.error_generic)
+                                scope.launch { snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed_drawn, why), withDismissAction = true, duration = androidx.compose.material3.SnackbarDuration.Long) }
+                                null
+                            } finally { drawing = false }
+                            val shown = drawnByAi ?: generated(if (picks(4).size >= 4) GeneratedCovers.Style.MOSAIC else GeneratedCovers.Style.GRADIENT)
+                            drawn = shown
+                            listOf(shown)
+                        }
+                        chosen.style != null -> generated(chosen.style).also { drawn = it }.let { listOf(it) }
+                        else -> {
+                            // The playlist's own picture, else the covers of its most present artists,
+                            // else (nothing found) a cover drawn from its title.
+                            info.imageUrl?.let { url -> Cards.bitmap(url, 900)?.let { return@withContext listOf(it) } }
+                            picks(4).ifEmpty { listOf(generated(GeneratedCovers.Style.GRADIENT)) }
                         }
                     }
-                    drawn = null
-                    info.imageUrl?.let { url -> Cards.bitmap(url, 900)?.let { return@withContext listOf(it) } }
-                    Cards.distinctCovers(tracks, p.provider.serviceId)
                 }
                 qr = qrUrl(ctx, p)
                 val card = Cards.PosterCard(
-                    title = info.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) },
+                    title = title,
                     owner = if (info.ownedByMe) p.provider.accountName(ctx).orEmpty() else "",
                     service = p.provider.displayName,
                     trackCount = tracks.size, durationMs = tracks.sumOf { it.durationMs },
@@ -381,44 +427,56 @@ fun PosterCard(snackbar: SnackbarHostState) {
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.tools_poster_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; bitmaps = null; drawn = null }
-        AiCoverOption(ai, aiSupport, aiCover) { aiCover = it; bitmaps = null }
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; bitmaps = null; drawn = null; variant = 0 }
+        CoverArtChoice(art, ai, aiSupport, enabled = !busy) {
+            art = it; bitmaps = null; drawn = null
+            runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
+        }
         if (drawing) Text(stringResource(R.string.card_ai_drawing), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (bitmaps != null && qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        CardActions(bitmaps, "trackhop-poster", busy || pick == null, onRender = { run() }, renderLabel = stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again))
-        if (aiCover && drawn != null && bitmaps != null) {
+        CardActions(bitmaps, "trackhop-poster", busy || pick == null, onRender = { run(nextVariant = bitmaps != null) }, renderLabel = stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again))
+        if (art != PosterArt.COVERS && drawn != null && bitmaps != null) {
             androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }) { Text(stringResource(R.string.card_ai_again)) }
+                if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }) { Text(stringResource(R.string.card_ai_again)) }
+                else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }) { Text(stringResource(R.string.card_cover_another)) }
                 TextButton(onClick = { saveCover.launch("trackhop-cover.png") }) { Text(stringResource(R.string.card_ai_save)) }
             }
         }
     }
 }
 
-/** "Cover drawn by your AI": a checkbox row, enabled only when the configured AI can make images, with the reason when not. */
+/**
+ * The poster's art: the playlist's covers, a cover drawn on the phone (five styles), or the
+ * user's AI, as chips. "Your AI" is on only when the configured AI can make images; the line under
+ * the chips says what the choice does, and why the AI is off when it is.
+ */
 @Composable
-private fun AiCoverOption(ai: AiClient.Config?, support: AiClient.ImageSupport?, checked: Boolean, onChange: (Boolean) -> Unit) {
-    val enabled = support == AiClient.ImageSupport.YES
-    val note = when {
+private fun CoverArtChoice(selected: PosterArt, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean, onChange: (PosterArt) -> Unit) {
+    val aiOk = ai != null && support == AiClient.ImageSupport.YES
+    val aiNote = when {
         ai == null -> stringResource(R.string.card_ai_cover_none)
         support == AiClient.ImageSupport.YES -> stringResource(R.string.card_ai_cover_yes, ai.vendor.label)
         support == AiClient.ImageSupport.NEEDS_IMAGE_MODEL -> stringResource(R.string.card_ai_cover_model)
         ai.vendor == AiClient.Vendor.ANTHROPIC -> stringResource(R.string.card_ai_cover_claude)
         else -> stringResource(R.string.card_ai_cover_no_images, ai.vendor.label)
     }
-    Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-            .toggleable(value = checked && enabled, enabled = enabled, role = Role.Checkbox, onValueChange = onChange)
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(checked = checked && enabled, onCheckedChange = null, enabled = enabled)
-        Spacer(Modifier.width(8.dp))
-        Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.card_ai_cover), style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-            Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(stringResource(R.string.card_cover_title), style = MaterialTheme.typography.titleSmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            PosterArt.entries.forEach { a ->
+                FilterChip(
+                    selected = a == selected, enabled = enabled && (a != PosterArt.AI || aiOk),
+                    onClick = { onChange(a) }, label = { Text(stringResource(a.label)) },
+                )
+            }
         }
+        val note = when {
+            selected == PosterArt.COVERS -> stringResource(R.string.card_cover_covers_note)
+            selected == PosterArt.AI -> aiNote
+            else -> stringResource(R.string.card_cover_drawn_note)
+        }
+        Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!aiOk) Text(aiNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

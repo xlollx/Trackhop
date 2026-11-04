@@ -1542,4 +1542,16 @@
     <string name="onboarding_discover_link_desc">Condividi una playlist che si apre sul servizio dei tuoi amici e scopri quanto siete compatibili.</string>
     <string name="onboarding_discover_mix_title">Playlist dagli artisti che ami</string>
     <string name="onboarding_discover_mix_desc">Il generatore di playlist in Strumenti funziona anche senza chiave AI.</string>
+    <string name="card_cover_title">Copertina</string>
+    <string name="card_cover_covers">Copertine</string>
+    <string name="card_cover_mosaic">Mosaico</string>
+    <string name="card_cover_gradient">Sfumature</string>
+    <string name="card_cover_geometric">Geometrica</string>
+    <string name="card_cover_typographic">Tipografica</string>
+    <string name="card_cover_vinyl">Vinile</string>
+    <string name="card_cover_ai">La tua IA</string>
+    <string name="card_cover_covers_note">L\'immagine della playlist, oppure le copertine degli artisti più presenti.</string>
+    <string name="card_cover_drawn_note">Disegnata sul telefono dal titolo, dagli artisti principali e dai colori delle copertine: non viene inviato nulla.</string>
+    <string name="card_cover_another">Un\'altra versione</string>
+    <string name="card_ai_cover_failed_drawn">La tua IA non è riuscita a disegnare la copertina (%1$s). Il poster usa una copertina disegnata sul telefono.</string>
 </resources>

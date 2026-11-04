@@ -8,14 +8,12 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
-import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
@@ -46,12 +44,18 @@ import org.junit.runner.RunWith
 
 /**
  * The two cards of Discover: "how compatible are we" (two playlists in, a score and a card out) and
- * the playlist poster with its QR code; and the poster's "cover drawn by your AI" option, with a
- * fake AI: its picture is already in the app's session cache, and any request it would make goes
- * to a closed local port through the closed network.
+ * the playlist poster with its QR code; the poster's covers drawn on the phone; and its "your AI"
+ * choice, with a fake AI: its picture is already in the app's session cache, and any request it
+ * would make goes to a closed local port through the closed network.
  */
 @RunWith(AndroidJUnit4::class)
 class CardsFlowTest : FlowTest() {
+
+    /** The poster's art choice is remembered: every test starts from the default (the playlist's covers). */
+    @org.junit.Before
+    fun forgetPosterChoice() {
+        app.getSharedPreferences("poster", android.content.Context.MODE_PRIVATE).edit().clear().commit()
+    }
 
     private fun openTool(title: Int) {
         launch(tabIntent(MainActivity.TAB_DISCOVER))
@@ -131,7 +135,10 @@ class CardsFlowTest : FlowTest() {
     fun aiCoverOptionIsOffWithoutAnAiAndExplainsWhy() {
         openTool(R.string.tools_poster_title)
         waitText(s(R.string.card_ai_cover_none))
-        aiRow().assertIsNotEnabled().assertIsOff()
+        aiChip().assertIsNotEnabled()
+        // The default: the playlist's own covers.
+        artChip(R.string.card_cover_covers).assertIsSelected()
+        assertTrue(exists(s(R.string.card_cover_covers_note)))
     }
 
     @Test
@@ -139,7 +146,7 @@ class CardsFlowTest : FlowTest() {
         AiClient.save(app, AiClient.Config(AiClient.Vendor.ANTHROPIC, "test-key", "claude-test", "http://127.0.0.1:9/v1"))
         openTool(R.string.tools_poster_title)
         waitText(s(R.string.card_ai_cover_claude))
-        aiRow().assertIsNotEnabled()
+        aiChip().assertIsNotEnabled()
     }
 
     @Test
@@ -149,9 +156,11 @@ class CardsFlowTest : FlowTest() {
         val drawing = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.MAGENTA) }
         aiCache()["spotify|${FakeWorld.SPOTIFY_ROAD}"] = drawing
         openTool(R.string.tools_poster_title)
+        waitText(s(R.string.card_cover_title))
+        aiChip().assertIsEnabled().assertIsNotSelected().performClick()
+        aiChip().assertIsSelected()
+        // Chosen, it says which AI draws and that it may cost.
         waitText(s(R.string.card_ai_cover_yes, "OpenAI"))
-        aiRow().assertIsEnabled().assertIsOff().performClick()
-        aiRow().assertIsOn()
         pickOwnPlaylist("Spotify", "Road Trip")
         click(s(R.string.card_poster_run))
         waitText(s(R.string.card_share), ms = 30_000)
@@ -160,13 +169,63 @@ class CardsFlowTest : FlowTest() {
         assertTrue(exists(s(R.string.card_ai_save)))
         assertFalse("the cached drawing needs no request", "127.0.0.1" in attemptedHosts)
 
-        // "Another cover" asks the AI again: no network here, so the error is shown, nothing crashes.
+        // "Another cover" asks the AI again: no network here, so the error is shown, nothing crashes,
+        // and the poster is still made, with a cover drawn on the phone.
         click(s(R.string.card_ai_again))
         waitText("network is closed", ms = 30_000, substring = true)
         assertTrue("127.0.0.1" in attemptedHosts)
+        waitText(s(R.string.card_share), ms = 30_000)
     }
 
-    private fun aiRow() = compose.onNode(isToggleable() and hasText(s(R.string.card_ai_cover))).also { runCatching { it.performScrollTo() } }
+    @Test
+    fun aCoverDrawnOnThePhoneIsChosenRemadeAndRemembered() {
+        openTool(R.string.tools_poster_title)
+        waitText(s(R.string.card_cover_title))
+        artChip(R.string.card_cover_gradient).performClick()
+        artChip(R.string.card_cover_gradient).assertIsSelected()
+        artChip(R.string.card_cover_covers).assertIsNotSelected()
+        waitText(s(R.string.card_cover_drawn_note))
+        pickOwnPlaylist("Spotify", "Road Trip")
+        click(s(R.string.card_poster_run))
+        waitText(s(R.string.card_share), ms = 30_000)
+        // A drawn cover can be drawn again (another seed) and saved alone; no AI is asked.
+        waitText(s(R.string.card_cover_another))
+        assertTrue(exists(s(R.string.card_ai_save)))
+        assertFalse(exists(s(R.string.card_ai_again)))
+        click(s(R.string.card_cover_another))
+        waitText(s(R.string.card_share), ms = 30_000)
+        assertFalse("127.0.0.1" in attemptedHosts)
+        // The square poster still carries its QR code with the drawn art.
+        click(s(R.string.card_format_square))
+        assertEquals("https://open.spotify.com/playlist/${FakeWorld.SPOTIFY_ROAD}", readQrOnScreen())
+
+        // The choice is kept for the next poster.
+        openTool(R.string.tools_poster_title)
+        waitText(s(R.string.card_cover_title))
+        artChip(R.string.card_cover_gradient).assertIsSelected()
+    }
+
+    @Test
+    fun everyDrawnStyleMakesASquareCoverForAnyTitle() {
+        val covers = listOf(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN).map { c -> Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888).apply { eraseColor(c) } }
+        val inputs = listOf(
+            com.xlollx.songport.ui.GeneratedCovers.Input("Chill", listOf("Bonobo"), covers),
+            com.xlollx.songport.ui.GeneratedCovers.Input("A very long playlist title ".repeat(8), listOf("An artist with a rather long name".repeat(3)), covers.take(1)),
+            com.xlollx.songport.ui.GeneratedCovers.Input("", emptyList(), emptyList()),
+        )
+        for (input in inputs) for (style in com.xlollx.songport.ui.GeneratedCovers.Style.entries) {
+            val bmp = com.xlollx.songport.ui.GeneratedCovers.draw(style, input)
+            assertEquals(com.xlollx.songport.ui.GeneratedCovers.SIDE, bmp.width)
+            assertEquals(com.xlollx.songport.ui.GeneratedCovers.SIDE, bmp.height)
+            // Deterministic: the same playlist draws the same cover.
+            assertTrue(style.name, bmp.sameAs(com.xlollx.songport.ui.GeneratedCovers.draw(style, input)))
+        }
+    }
+
+    /** A chip of the poster's art choice, scrolled into view. */
+    private fun artChip(label: Int) = compose.onNode(isSelectable() and hasText(s(label))).also { runCatching { it.performScrollTo() } }
+
+    private fun aiChip() = artChip(R.string.card_cover_ai)
 
     @Suppress("UNCHECKED_CAST")
     @Test

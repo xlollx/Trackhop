@@ -103,7 +103,7 @@ class AccessibilityFlowTest : FlowTest() {
         waitText(s(R.string.discover_wrapped_title))
         audit("Discover")
         click(s(R.string.tools_poster_title))
-        waitText(s(R.string.card_ai_cover))
+        waitText(s(R.string.card_cover_title))
         audit("Poster")
         back()
 

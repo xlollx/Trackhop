@@ -189,8 +189,8 @@ class SyncJobFlowTest : FlowTest() {
         click(s(R.string.tab_discover))
         waitText(s(R.string.discover_wrapped_title))
         click(s(R.string.tools_poster_title))
-        waitText(s(R.string.card_ai_cover))
+        waitText(s(R.string.card_cover_title))
         rotate(UiAutomation.ROTATION_FREEZE_0)
-        waitText(s(R.string.card_ai_cover))
+        waitText(s(R.string.card_cover_title))
     }
 }

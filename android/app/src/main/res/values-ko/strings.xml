@@ -1518,4 +1518,16 @@
     <string name="onboarding_discover_link_desc">친구의 서비스에서 열리는 플레이리스트를 공유하고 궁합도 확인하세요.</string>
     <string name="onboarding_discover_mix_title">좋아하는 아티스트로 플레이리스트</string>
     <string name="onboarding_discover_mix_desc">도구의 플레이리스트 생성기는 AI 키 없이도 됩니다.</string>
+    <string name="card_cover_title">커버</string>
+    <string name="card_cover_covers">앨범 커버</string>
+    <string name="card_cover_mosaic">모자이크</string>
+    <string name="card_cover_gradient">그라데이션</string>
+    <string name="card_cover_geometric">기하학</string>
+    <string name="card_cover_typographic">타이포그래피</string>
+    <string name="card_cover_vinyl">바이닐</string>
+    <string name="card_cover_ai">내 AI</string>
+    <string name="card_cover_covers_note">플레이리스트 자체 이미지 또는 가장 많이 나오는 아티스트들의 커버.</string>
+    <string name="card_cover_drawn_note">제목, 주요 아티스트, 커버 색상으로 휴대폰에서 직접 그립니다. 아무것도 전송되지 않습니다.</string>
+    <string name="card_cover_another">다른 버전</string>
+    <string name="card_ai_cover_failed_drawn">AI가 커버를 그리지 못했습니다(%1$s). 포스터에는 휴대폰에서 그린 커버를 사용합니다.</string>
 </resources>
