@@ -249,13 +249,28 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.LIKED_ID) return rate(ctx, tracks, "like")
         for (t in tracks) {
-            counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "POST", "$API/playlistItems?part=snippet",
-                jsonObj("snippet" to mapOf(
-                    "playlistId" to playlistId,
-                    "resourceId" to mapOf("kind" to "youtube#video", "videoId" to t.id),
-                ))) }
+            var attempt = 0
+            while (true) {
+                try {
+                    counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "POST", "$API/playlistItems?part=snippet",
+                        jsonObj("snippet" to mapOf(
+                            "playlistId" to playlistId,
+                            "resourceId" to mapOf("kind" to "youtube#video", "videoId" to t.id),
+                        ))) }
+                    break
+                } catch (e: ProviderException) {
+                    // A 409 "The operation was aborted" (or a 503) is YouTube refusing an insert that
+                    // came too close to the one before on the same playlist: the same insert a moment
+                    // later goes through.
+                    if ((e.code != 409 && e.code != 503) || ++attempt > INSERT_RETRIES) throw e
+                    ctx.log(id, "YouTube aborted adding a video (${e.code}): trying again, ${attempt} of $INSERT_RETRIES")
+                    kotlinx.coroutines.delay(2_000L * attempt)
+                }
+            }
         }
     }
+
+    private val INSERT_RETRIES = 3
 
     /**
      * The playlist's snippet as it is, with [title] in place of its own when given. An update
