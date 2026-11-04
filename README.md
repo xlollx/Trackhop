@@ -177,6 +177,13 @@ common errors.
 
 ---
 
+## They talk about Trackhop
+
+Videos and articles that mention Trackhop (made one? open an issue and tell me):
+
+- ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
+- ▶ [Melhores 8 APLICATIVOS para CELULAR em 2026 #44 Grátis](https://www.youtube.com/watch?v=jzWL9qPXKH8): ODORIZZI, YouTube (Portuguese)
+
 ## Feedback
 
 Trackhop is stable and used every day. Every library, phone and habit is a little different, so
@@ -199,6 +206,7 @@ reports are what make it better: if something does not work as it should, say so
 
 ## Contents
 - [Music services at a glance](#music-services-at-a-glance)
+- [They talk about Trackhop](#they-talk-about-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
 - [Supported services and their limits](#supported-services-and-their-limits)

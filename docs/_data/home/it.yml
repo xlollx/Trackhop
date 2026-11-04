@@ -125,3 +125,6 @@ renamed: '<strong>Songport ora si chiama Trackhop.</strong> Stessa app, stesso c
 public_links: "link pubblici"
 radio_shazam: "Radio online · Shazam"
 charts: "Classifiche"
+press_title: Parlano di Trackhop
+press_intro: Video e articoli che citano Trackhop. Ne hai fatto uno? Segnalamelo con una issue
+  su GitHub.

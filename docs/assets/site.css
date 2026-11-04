@@ -266,3 +266,11 @@ a.card.link .go { margin-top: 12px; color: var(--accent); font-weight: 600; font
 .top nav a.xlate { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font-weight: 600; font-size: 13px; letter-spacing: .02em; }
 .top nav a.xlate[hidden] { display: none; }
 .top nav a.xlate:hover { color: var(--ink); border-color: var(--ink-2); }
+
+/* "They talk about Trackhop": videos and articles. */
+ul.press { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+ul.press a { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); color: var(--ink); text-decoration: none; }
+ul.press a:hover { border-color: var(--ink-2); }
+ul.press .press-kind { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #ff0033; color: #fff; font-size: 14px; }
+ul.press strong { display: block; font-weight: 600; line-height: 1.3; }
+ul.press small { display: block; color: var(--ink-2); margin-top: 2px; }
