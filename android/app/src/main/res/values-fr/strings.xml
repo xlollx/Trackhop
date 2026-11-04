@@ -1521,4 +1521,13 @@
     <string name="whats_new_112_mix_title">Playlists sans clé d\'IA</string>
     <string name="whats_new_112_mix_body">Outils › Générateur de playlists crée une playlist à partir d\'artistes choisis ou d\'une de vos playlists, avec de vraies données d\'écoute. Aucune clé nécessaire.</string>
     <string name="card_ai_cover_failed">Votre IA n\'a pas pu dessiner la pochette (%1$s). L\'affiche utilise les pochettes de la playlist.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Lecture de vos playlists…</item>
+        <item>Recherche de votre artiste préféré…</item>
+        <item>On compte vos décennies…</item>
+        <item>Calcul de votre âge musical…</item>
+        <item>Presque fini…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">En attente</string>
+    <string name="discover_wrapped_found">Titres trouvés jusqu\'ici : %1$d</string>
 </resources>

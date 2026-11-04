@@ -1489,4 +1489,13 @@
     <string name="whats_new_112_mix_title">AI 키 없이 플레이리스트</string>
     <string name="whats_new_112_mix_body">도구 › 플레이리스트 생성기가 고른 아티스트나 내 플레이리스트로 실제 청취 데이터를 바탕으로 플레이리스트를 만듭니다. 키가 필요 없습니다.</string>
     <string name="card_ai_cover_failed">AI가 커버를 그리지 못했습니다(%1$s). 포스터에는 플레이리스트의 커버를 사용합니다.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>플레이리스트를 읽는 중…</item>
+        <item>가장 좋아하는 아티스트를 찾는 중…</item>
+        <item>연대를 세는 중…</item>
+        <item>음악 나이를 계산하는 중…</item>
+        <item>거의 다 됐어요…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">대기 중</string>
+    <string name="discover_wrapped_found">지금까지 찾은 곡: %1$d</string>
 </resources>

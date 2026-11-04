@@ -1559,4 +1559,13 @@
     <string name="whats_new_112_mix_title">Плейлисты без ключа ИИ</string>
     <string name="whats_new_112_mix_body">Инструменты › Генератор плейлистов собирает плейлист из выбранных исполнителей или одного из ваших плейлистов по реальным данным прослушиваний. Ключ не нужен.</string>
     <string name="card_ai_cover_failed">Ваш ИИ не смог нарисовать обложку (%1$s). На постере будут обложки из плейлиста.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Читаю ваши плейлисты…</item>
+        <item>Ищу вашего любимого исполнителя…</item>
+        <item>Считаю ваши десятилетия…</item>
+        <item>Вычисляю ваш музыкальный возраст…</item>
+        <item>Почти готово…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Ожидание</string>
+    <string name="discover_wrapped_found">Найдено треков: %1$d</string>
 </resources>

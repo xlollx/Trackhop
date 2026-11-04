@@ -1513,4 +1513,13 @@
     <string name="whats_new_112_mix_title">Playlists ohne KI-Schlüssel</string>
     <string name="whats_new_112_mix_body">Werkzeuge › Playlist-Generator erstellt eine Playlist aus Künstlern deiner Wahl oder einer deiner Playlists, mit echten Hördaten. Kein Schlüssel nötig.</string>
     <string name="card_ai_cover_failed">Deine KI konnte das Cover nicht zeichnen (%1$s). Das Poster nutzt die Cover der Playlist.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Deine Playlists werden gelesen…</item>
+        <item>Dein Lieblingskünstler wird gesucht…</item>
+        <item>Deine Jahrzehnte werden gezählt…</item>
+        <item>Dein musikalisches Alter wird berechnet…</item>
+        <item>Fast fertig…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Wartet</string>
+    <string name="discover_wrapped_found">Bisher gefundene Songs: %1$d</string>
 </resources>

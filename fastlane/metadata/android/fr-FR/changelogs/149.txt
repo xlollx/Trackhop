@@ -1,0 +1,1 @@
+Votre Wrapped : un chargement plus vivant, service par service. Affiche : si votre IA ne peut pas dessiner la pochette (une clé Gemini gratuite n'a pas de quota d'images), l'affiche utilise les pochettes de la playlist. Votre IA : la fenêtre garde vos choix quand vous quittez l'app et revenez.

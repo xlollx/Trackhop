@@ -1,0 +1,1 @@
+Your Wrapped: a livelier loading screen, service by service. Playlist poster: when your AI can't draw the cover (a free Gemini key has no image quota) the poster is made with the playlist's covers. Your AI: the dialog keeps what you chose when you leave the app and come back.

@@ -1513,4 +1513,13 @@
     <string name="whats_new_112_mix_title">Playlist senza chiave AI</string>
     <string name="whats_new_112_mix_body">Strumenti › Generatore di playlist crea una playlist dagli artisti che scegli o da una tua playlist, con dati di ascolto reali. Nessuna chiave necessaria.</string>
     <string name="card_ai_cover_failed">La tua AI non è riuscita a disegnare la copertina (%1$s). Il poster usa le copertine della playlist.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Leggo le tue playlist…</item>
+        <item>Cerco il tuo artista preferito…</item>
+        <item>Conto i tuoi decenni…</item>
+        <item>Calcolo la tua età musicale…</item>
+        <item>Quasi fatto…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">In attesa</string>
+    <string name="discover_wrapped_found">Brani trovati finora: %1$d</string>
 </resources>

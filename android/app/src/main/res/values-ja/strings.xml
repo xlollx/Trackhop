@@ -1490,4 +1490,13 @@
     <string name="whats_new_112_mix_title">AIキーなしでプレイリスト</string>
     <string name="whats_new_112_mix_body">ツール › プレイリスト生成で、選んだアーティストや自分のプレイリストから実際の再生データをもとにプレイリストを作成。キーは不要です。</string>
     <string name="card_ai_cover_failed">AIがカバーを描けませんでした（%1$s）。ポスターにはプレイリストのジャケットを使います。</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>プレイリストを読み込んでいます…</item>
+        <item>いちばん聴くアーティストを探しています…</item>
+        <item>年代を数えています…</item>
+        <item>音楽年齢を計算しています…</item>
+        <item>もうすぐです…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">待機中</string>
+    <string name="discover_wrapped_found">見つかった曲：%1$d</string>
 </resources>

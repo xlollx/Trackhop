@@ -4,6 +4,13 @@ package com.xlollx.songport.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -146,17 +153,26 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     var card by remember { mutableStateOf<Cards.WrappedCard?>(null) }
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
     var noAge by remember { mutableStateOf(false) }
+    // The reading, service by service, for the loading view: (playlists read, playlists to read, songs).
+    var reading by remember { mutableStateOf<Map<String, Triple<Int, Int, Int>>>(emptyMap()) }
+    var current by remember { mutableStateOf<String?>(null) }
 
     fun run() {
-        busy = true; bitmaps = null; card = null
+        busy = true; bitmaps = null; card = null; reading = emptyMap(); current = null
         scope.launch {
             try {
                 val all = ArrayList<Track>()
                 val used = ArrayList<String>()
                 for (p in services) {
-                    val got = LibraryReader.read(ctx, p) { done, total -> step = ctx.getString(R.string.discover_reading, p.displayName, done, total) }
+                    current = p.id
+                    val got = LibraryReader.read(ctx, p) { done, total ->
+                        step = ctx.getString(R.string.discover_reading, p.displayName, done, total)
+                        reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
+                    }
+                    reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
                     if (got.isNotEmpty()) { all += got; if (p.displayName !in used) used += p.displayName }
                 }
+                current = null
                 val year = Calendar.getInstance().get(Calendar.YEAR)
                 val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
                 if (s.trackCount == 0) { snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_empty)); busy = false; return@launch }
@@ -187,7 +203,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
 
     Intro(stringResource(R.string.discover_wrapped_intro))
     if (services.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
-    if (busy && step.isNotEmpty()) Busy(step)
+    if (busy) WrappedLoading(services, reading, current)
     card?.let { c ->
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -204,7 +220,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
             }
         }
     }
-    CardActions(
+    if (!busy) CardActions(
         bitmaps, "trackhop-wrapped", busy, onRender = { run() },
         renderLabel = stringResource(if (card == null) R.string.discover_wrapped_button else R.string.card_again),
         previewDescription = card?.let { listOf(it.headline, it.subline.orEmpty()).joinToString(". ") },
@@ -519,4 +535,58 @@ private fun OnlyOn(title: String, tracks: List<Track>) {
     val shown = if (all) tracks.take(200) else tracks.take(8)
     shown.forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     if (!all && tracks.size > 8) TextButton(onClick = { all = true }) { Text(stringResource(R.string.preview_more, tracks.size - 8)) }
+}
+
+
+/**
+ * The Wrapped being made: a card in the story's colours with a pulsing spark, a line that changes
+ * every couple of seconds, one row per service (its logo, a bar while it is read, a tick and the songs
+ * found once done) and the songs found so far.
+ */
+@Composable
+private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, Triple<Int, Int, Int>>, current: String?) {
+    val lines = androidx.compose.ui.res.stringArrayResource(R.array.discover_wrapped_loading_lines)
+    var line by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(2200); line = (line + 1) % lines.size } }
+    val pulse = androidx.compose.animation.core.rememberInfiniteTransition(label = "spark")
+    val scale by pulse.animateFloat(0.85f, 1.15f, androidx.compose.animation.core.infiniteRepeatable(
+        androidx.compose.animation.core.tween(900), androidx.compose.animation.core.RepeatMode.Reverse), label = "scale")
+    val songs = reading.values.sumOf { it.third }
+    val brush = androidx.compose.ui.graphics.Brush.linearGradient(listOf(
+        androidx.compose.ui.graphics.Color(0xFF5B3FD9), androidx.compose.ui.graphics.Color(0xFFC2185B), androidx.compose.ui.graphics.Color(0xFFFF7043)))
+    val white = androidx.compose.ui.graphics.Color.White
+    Box(
+        Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp)).background(brush).padding(20.dp),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.AutoAwesome, null, tint = white, modifier = Modifier.size(34.dp).graphicsLayer { scaleX = scale; scaleY = scale })
+                Spacer(Modifier.width(12.dp))
+                androidx.compose.animation.AnimatedContent(targetState = line, label = "line") { i ->
+                    Text(lines[i], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = white)
+                }
+            }
+            services.forEach { p ->
+                val r = reading[p.id]
+                val done = r != null && current != p.id && (r.first >= r.second)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ServiceLogo(p, size = 28.dp)
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(p.displayName, style = MaterialTheme.typography.bodyMedium, color = white, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        when {
+                            done -> Text(pluralStringResource(R.plurals.card_tracks, r!!.third, r.third), style = MaterialTheme.typography.bodySmall, color = white.copy(alpha = 0.8f))
+                            current == p.id && r != null && r.second > 0 -> androidx.compose.material3.LinearProgressIndicator(
+                                progress = { r.first.toFloat() / r.second }, color = white, trackColor = white.copy(alpha = 0.25f),
+                                modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+                            current == p.id -> androidx.compose.material3.LinearProgressIndicator(color = white, trackColor = white.copy(alpha = 0.25f), modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+                            else -> Text(stringResource(R.string.discover_wrapped_waiting), style = MaterialTheme.typography.bodySmall, color = white.copy(alpha = 0.6f))
+                        }
+                    }
+                    if (done) { Spacer(Modifier.width(8.dp)); Icon(Icons.Filled.CheckCircle, null, tint = white) }
+                }
+            }
+            if (songs > 0) Text(stringResource(R.string.discover_wrapped_found, songs), style = MaterialTheme.typography.labelLarge, color = white)
+        }
+    }
 }

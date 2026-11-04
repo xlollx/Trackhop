@@ -1511,4 +1511,13 @@
     <string name="whats_new_112_mix_title">Yapay zekâ anahtarı olmadan listeler</string>
     <string name="whats_new_112_mix_body">Araçlar › Çalma listesi oluşturucu, seçtiğin sanatçılardan ya da listelerinden birinden gerçek dinleme verileriyle liste oluşturur. Anahtar gerekmez.</string>
     <string name="card_ai_cover_failed">Yapay zekân kapağı çizemedi (%1$s). Poster, çalma listesinin kapaklarını kullanıyor.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Çalma listelerin okunuyor…</item>
+        <item>En sevdiğin sanatçı aranıyor…</item>
+        <item>On yılların sayılıyor…</item>
+        <item>Müzik yaşın hesaplanıyor…</item>
+        <item>Neredeyse bitti…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Bekliyor</string>
+    <string name="discover_wrapped_found">Şimdiye kadar bulunan şarkı: %1$d</string>
 </resources>

@@ -1513,4 +1513,13 @@
     <string name="whats_new_112_mix_title">Playlists without an AI key</string>
     <string name="whats_new_112_mix_body">Tools › Playlist generator builds a playlist from artists you pick or from one of your playlists, with real listening data. No key needed.</string>
     <string name="card_ai_cover_failed">Your AI could not draw the cover (%1$s). The poster uses the playlist\'s covers instead.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Reading your playlists…</item>
+        <item>Looking for your top artist…</item>
+        <item>Counting your decades…</item>
+        <item>Working out your musical age…</item>
+        <item>Almost there…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Waiting</string>
+    <string name="discover_wrapped_found">Songs found so far: %1$d</string>
 </resources>

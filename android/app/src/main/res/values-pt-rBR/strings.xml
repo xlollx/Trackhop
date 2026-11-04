@@ -1521,4 +1521,13 @@
     <string name="whats_new_112_mix_title">Playlists sem chave de IA</string>
     <string name="whats_new_112_mix_body">Ferramentas › Gerador de playlists cria uma playlist a partir de artistas que você escolhe ou de uma playlist sua, com dados reais de audição. Sem chave.</string>
     <string name="card_ai_cover_failed">Sua IA não conseguiu desenhar a capa (%1$s). O pôster usa as capas da playlist.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Lendo suas playlists…</item>
+        <item>Procurando seu artista favorito…</item>
+        <item>Contando suas décadas…</item>
+        <item>Calculando sua idade musical…</item>
+        <item>Quase lá…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Aguardando</string>
+    <string name="discover_wrapped_found">Músicas encontradas até agora: %1$d</string>
 </resources>

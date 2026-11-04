@@ -1,0 +1,1 @@
+Twój Wrapped: żywszy ekran ładowania, serwis po serwisie. Plakat: gdy twoja AI nie może narysować okładki (darmowy klucz Gemini nie ma limitu na obrazy), plakat używa okładek playlisty. Twoja AI: okno pamięta wybór po wyjściu z aplikacji i powrocie.

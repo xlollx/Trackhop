@@ -1490,4 +1490,13 @@
     <string name="whats_new_112_mix_title">无需 AI 密钥的歌单</string>
     <string name="whats_new_112_mix_body">工具 › 歌单生成器根据你选的艺人或你的某个歌单，用真实收听数据生成歌单。无需密钥。</string>
     <string name="card_ai_cover_failed">你的 AI 无法绘制封面（%1$s）。海报将使用歌单的封面。</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>正在读取你的歌单…</item>
+        <item>正在寻找你最爱的艺人…</item>
+        <item>正在统计你的年代…</item>
+        <item>正在计算你的音乐年龄…</item>
+        <item>马上就好…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">等待中</string>
+    <string name="discover_wrapped_found">目前找到的歌曲：%1$d</string>
 </resources>

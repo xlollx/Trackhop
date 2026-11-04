@@ -1561,4 +1561,13 @@
     <string name="whats_new_112_mix_title">Playlisty bez klucza AI</string>
     <string name="whats_new_112_mix_body">Narzędzia › Generator playlist tworzy playlistę z wybranych artystów lub jednej z twoich playlist, na podstawie prawdziwych danych o słuchaniu. Bez klucza.</string>
     <string name="card_ai_cover_failed">Twoja AI nie mogła narysować okładki (%1$s). Plakat używa okładek z playlisty.</string>
+    <string-array name="discover_wrapped_loading_lines">
+        <item>Czytam twoje playlisty…</item>
+        <item>Szukam twojego ulubionego artysty…</item>
+        <item>Liczę twoje dekady…</item>
+        <item>Obliczam twój muzyczny wiek…</item>
+        <item>Prawie gotowe…</item>
+    </string-array>
+    <string name="discover_wrapped_waiting">Czeka</string>
+    <string name="discover_wrapped_found">Znalezione utwory: %1$d</string>
 </resources>
