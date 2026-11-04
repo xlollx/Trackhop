@@ -1389,4 +1389,5 @@
     <string name="capture_site_desc">在此打开某个服务的网页播放器，并将其请求写入可分享的文件（不含 Cookie、令牌或密码），用于添加新服务。</string>
     <string name="capture_site_address">地址</string>
     <string name="capture_site_open">打开</string>
+    <string name="provider_note_qobuz_web">Qobuz 只向合作伙伴开放 API：在 Qobuz 自己的页面登录后，Trackhop 使用网页播放器的会话。这不是官方途径，违反 Qobuz 的条款，可能随时失效。Alpha 版。读写你自己的歌单和收藏的曲目（作为喜欢的歌曲），并按 ISRC 搜索。如果登录无法完成，请在电脑的开发者工具中复制一个发往 www.qobuz.com/api.json 的请求（复制为 cURL，包含 X-User-Auth-Token），然后使用“粘贴”。</string>
 </resources>

@@ -21,9 +21,10 @@ fun installConnectors() = Providers.install(
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerBridgeProvider.SERVICE) { DeezerBridgeProvider(it) },
-        // LiveOne and Anghami have no official route: built in, or (Google Play) through a plugin that has them.
+        // LiveOne, Anghami and Qobuz have no official route: built in, or (Google Play) through a plugin that has them.
         Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) },
         Factory(AnghamiBridgeProvider.SERVICE) { AnghamiBridgeProvider(it) },
+        Factory(QobuzBridgeProvider.SERVICE) { QobuzBridgeProvider(it) },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },

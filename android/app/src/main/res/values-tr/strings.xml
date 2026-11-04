@@ -1410,4 +1410,5 @@
     <string name="capture_site_desc">Bir servisin web oynatıcısı burada açılır ve yaptığı çağrılar paylaşılacak bir dosyaya yazılır; çerezler, tokenlar ve parolalar hariç: yeni bir servis eklemeye yardım eder.</string>
     <string name="capture_site_address">Adres</string>
     <string name="capture_site_open">Aç</string>
+    <string name="provider_note_qobuz_web">Qobuz API\'sini yalnızca iş ortaklarına açar: Qobuz\'un kendi sayfasında giriş yapın, Trackhop web oynatıcının oturumunu kullanır. Resmi bir yol değildir, Qobuz\'un koşullarına aykırıdır, çalışmayı bırakabilir. Alfa. Kendi çalma listeleriniz ve favori parçalarınız (beğenilen şarkılar olarak), okuma ve yazma; ISRC ile arama. Giriş tamamlanmazsa, bir bilgisayarın geliştirici araçlarından www.qobuz.com/api.json\'a giden bir isteği kopyalayın (cURL olarak: X-User-Auth-Token içerir) ve Yapıştır\'ı kullanın.</string>
 </resources>

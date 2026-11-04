@@ -1412,4 +1412,5 @@
     <string name="capture_site_desc">Der Web-Player eines Dienstes öffnet sich hier, seine Aufrufe werden in eine Datei zum Teilen geschrieben, ohne Cookies, Tokens oder Passwörter: hilft, einen neuen Dienst hinzuzufügen.</string>
     <string name="capture_site_address">Adresse</string>
     <string name="capture_site_open">Öffnen</string>
+    <string name="provider_note_qobuz_web">Qobuz öffnet seine API nur für Partner: Melde dich auf Qobuz\' eigener Seite an, Trackhop nutzt dann die Sitzung des Webplayers. Kein offizieller Weg, gegen Qobuz\' Bedingungen, kann jederzeit aufhören zu funktionieren. Alpha. Eigene Playlists und Lieblingstitel (als Lieblingssongs), lesen und schreiben; Suche per ISRC. Wenn die Anmeldung nicht abschließt, kopiere an einem Computer in den Entwicklertools eine Anfrage an www.qobuz.com/api.json (als cURL: sie enthält X-User-Auth-Token) und tippe auf Einfügen.</string>
 </resources>

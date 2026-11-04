@@ -1420,4 +1420,5 @@
     <string name="capture_site_desc">O player web de um serviço abre aqui e as chamadas dele vão para um arquivo para compartilhar, sem cookies, tokens ou senhas: ajuda a adicionar um novo serviço.</string>
     <string name="capture_site_address">Endereço</string>
     <string name="capture_site_open">Abrir</string>
+    <string name="provider_note_qobuz_web">O Qobuz só abre sua API a parceiros: entre na página do Qobuz e o Trackhop usa a sessão do player web. Não é um caminho oficial, vai contra os termos do Qobuz e pode parar de funcionar. Alfa. Suas playlists e faixas favoritas (como músicas curtidas), leitura e escrita; busca por ISRC. Se o login não terminar, copie nas ferramentas de desenvolvedor de um computador uma requisição para www.qobuz.com/api.json (como cURL: contém X-User-Auth-Token) e use Colar.</string>
 </resources>

@@ -1,0 +1,55 @@
+{
+ "id": "bwmuu6rf7umge",
+ "title": "Perfecth",
+ "version": null,
+ "artist": {
+  "name": "Queens Of The Stone Age",
+  "id": 148265
+ },
+ "release_date_original": "2026-10-30",
+ "upc": "0191401225366",
+ "tracks_count": 9,
+ "track_ids": [
+  440805159,
+  440805160
+ ],
+ "tracks": {
+  "offset": 0,
+  "limit": 500,
+  "total": 2,
+  "items": [
+   {
+    "id": 440805159,
+    "title": "It's Only Love",
+    "version": null,
+    "duration": 187,
+    "isrc": "USMTD2600082",
+    "parental_warning": false,
+    "performer": {
+     "name": "Queens Of The Stone Age",
+     "id": 148265
+    },
+    "track_number": 1,
+    "streamable": true,
+    "release_date_original": "2026-10-30",
+    "maximum_bit_depth": 24
+   },
+   {
+    "id": 440805160,
+    "title": "Insignificant Other",
+    "version": null,
+    "duration": 353,
+    "isrc": "USMTD2600083",
+    "parental_warning": false,
+    "performer": {
+     "name": "Queens Of The Stone Age",
+     "id": 148265
+    },
+    "track_number": 2,
+    "streamable": true,
+    "release_date_original": "2026-10-30",
+    "maximum_bit_depth": 24
+   }
+  ]
+ }
+}

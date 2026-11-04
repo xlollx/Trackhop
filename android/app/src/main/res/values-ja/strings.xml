@@ -1389,4 +1389,5 @@
     <string name="capture_site_desc">サービスのウェブプレーヤーをここで開き、その通信を共有用ファイルに書き出します（Cookie・トークン・パスワードは含みません）。新しいサービスの追加に役立ちます。</string>
     <string name="capture_site_address">アドレス</string>
     <string name="capture_site_open">開く</string>
+    <string name="provider_note_qobuz_web">Qobuz は API をパートナーにしか公開していません。Qobuz のページでサインインすると、Trackhop はウェブプレーヤーのセッションを使います。公式の方法ではなく、Qobuz の規約に反し、動かなくなることがあります。アルファ版。自分のプレイリストとお気に入りのトラック（お気に入りの曲として）を読み書きし、ISRC で検索します。サインインが終わらない場合は、パソコンの開発者ツールで www.qobuz.com/api.json へのリクエストを（cURL として、X-User-Auth-Token を含む）コピーし、「貼り付け」を使ってください。</string>
 </resources>

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 /**
- * Shared sign-in screen for the web sessions (Spotify, Apple Music, Deezer, SoundCloud). The user signs in on the
+ * Shared sign-in screen for the web sessions (Spotify, Apple Music, Deezer, SoundCloud, LiveOne, Anghami, Qobuz). The user signs in on the
  * service's own page; the activity polls the cookie jar of the service's domain and, as soon as the
  * session cookie is there, stores the cookies encrypted and closes. Trackhop starts it with the
  * actions declared in the manifest.
@@ -71,10 +71,11 @@ class WebLoginActivity : ComponentActivity() {
             ACTION_SOUNDCLOUD -> SOUNDCLOUD
             ACTION_LIVEONE -> LIVEONE
             ACTION_ANGHAMI -> ANGHAMI
+            ACTION_QOBUZ -> QOBUZ
             else -> intent.getStringExtra(EXTRA_SERVICE) ?: SPOTIFY
         }
         // Deezer and SoundCloud came with a notice that names them: an acceptance of the older one does not cover them.
-        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI) Disclaimer.VERSION else 1) { setup() }
+        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI || service == QOBUZ) Disclaimer.VERSION else 1) { setup() }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -90,9 +91,9 @@ class WebLoginActivity : ComponentActivity() {
         })
         // LiveOne: where the in-app sign-in cannot finish (Google may refuse an embedded browser), the
         // player's `slackerUser` entry copied from a desktop browser works the same.
-        if (service == LIVEONE || service == ANGHAMI) bar.addView(android.widget.Button(this).apply {
+        if (service == LIVEONE || service == ANGHAMI || service == QOBUZ) bar.addView(android.widget.Button(this).apply {
             text = getString(android.R.string.paste)
-            setOnClickListener { if (service == ANGHAMI) pasteAnghami() else pasteLiveOne() }
+            setOnClickListener { when (service) { ANGHAMI -> pasteAnghami(); QOBUZ -> pasteQobuz(); else -> pasteLiveOne() } }
         })
         bar.addView(android.widget.Button(this).apply {
             text = getString(R.string.bridge_login_done)
@@ -182,6 +183,8 @@ class WebLoginActivity : ComponentActivity() {
                 // sends the account's token: both kept for ours (see [watchSoundCloud]).
                 watchSoundCloud(request)
                 watchAnghami(request.url.toString())
+                // Qobuz: the session travels as headers of the player's API calls, not in their address.
+                watchQobuz(request)
                 watchBotCheck(request.url.toString())
                 // Only watched: every request goes on as the page made it.
                 return null
@@ -252,6 +255,7 @@ class WebLoginActivity : ComponentActivity() {
             SOUNDCLOUD -> SoundCloudBridge.LOGIN_URL
             LIVEONE -> LiveOneBridge.LOGIN_URL
             ANGHAMI -> AnghamiWebClient.LOGIN_URL
+            QOBUZ -> QobuzWebClient.LOGIN_URL
             else -> SpotifyBridge.LOGIN_URL
         })
         // Sign-in overlays (Apple ID) do not navigate: poll the cookie jar while the screen is open.
@@ -381,6 +385,7 @@ class WebLoginActivity : ComponentActivity() {
         SOUNDCLOUD -> "SoundCloud"
         LIVEONE -> "LiveOne"
         ANGHAMI -> "Anghami"
+        QOBUZ -> "Qobuz"
         else -> "Spotify"
     }
 
@@ -400,7 +405,7 @@ class WebLoginActivity : ComponentActivity() {
         if (done) return true
         if (service == SOUNDCLOUD) return checkSoundCloud()
         if (service == LIVEONE) return checkLiveOne()
-        if (service == ANGHAMI) return false
+        if (service == ANGHAMI || service == QOBUZ) return false
         val origin = when (service) {
             APPLE -> "https://music.apple.com"
             DEEZER -> DeezerBridge.ORIGIN
@@ -537,6 +542,59 @@ class WebLoginActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Qobuz: once signed in, the player sends its session (X-User-Auth-Token) and its app id
+     * (X-App-Id) as headers of every call to www.qobuz.com/api.json. The first one seen is tried
+     * (reading the playlists, which also gives the account's name) before the screen closes; one
+     * Qobuz refuses is not tried again.
+     */
+    @Volatile private var qobuzTrying = false
+    private var qobuzRefused: String? = null
+    private fun watchQobuz(request: WebResourceRequest) {
+        if (service != QOBUZ || done || qobuzTrying) return
+        val (token, appId) = QobuzBridge.fromRequest(request.url.toString(), request.requestHeaders) ?: return
+        if (token == qobuzRefused) return
+        qobuzTrying = true
+        handler.post { keepQobuz(token, appId, fromPage = true) }
+    }
+
+    private fun pasteQobuz() {
+        val cm = getSystemService(android.content.ClipboardManager::class.java)
+        val text = runCatching { cm?.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() }.getOrNull().orEmpty()
+        // A whole request copied from the developer tools (as cURL) carries the app id too.
+        val (token, appId) = QobuzWebClient.sessionIn(text) ?: (null to null)
+        if (token == null) {
+            android.widget.Toast.makeText(this, "Qobuz: no session in the clipboard", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        keepQobuz(token, appId, fromPage = false)
+    }
+
+    private fun keepQobuz(token: String, appId: String?, fromPage: Boolean) {
+        if (done) { qobuzTrying = false; return }
+        val app = applicationContext
+        thread {
+            var account: String? = null
+            val why = QobuzBridge.keep(app, token, appId) ?: runCatching { account = QobuzWebClient(app).probe(); null }
+                .getOrElse { it.message ?: it.javaClass.simpleName }
+            handler.post {
+                qobuzTrying = false
+                if (done || isFinishing) return@post
+                if (why == null) {
+                    done = true
+                    account?.let { QobuzBridge.name(app, it) }
+                    BridgeNet.log("qobuz", "sign-in: session kept")
+                    setResult(RESULT_OK)
+                    finish()
+                    return@post
+                }
+                QobuzBridge.session.clear(app)
+                if (fromPage) { qobuzRefused = token; BridgeNet.log("qobuz", "sign-in: the page's session was refused ($why)") }
+                else android.widget.Toast.makeText(this, "Qobuz: $why", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun keepLiveOne(value: String) {
         if (done) return
         val app = applicationContext
@@ -613,6 +671,7 @@ class WebLoginActivity : ComponentActivity() {
         const val ACTION_SOUNDCLOUD = "com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN"
         const val ACTION_LIVEONE = "com.xlollx.songport.ytmbridge.LIVEONE_LOGIN"
         const val ACTION_ANGHAMI = "com.xlollx.songport.ytmbridge.ANGHAMI_LOGIN"
+        const val ACTION_QOBUZ = "com.xlollx.songport.ytmbridge.QOBUZ_LOGIN"
         const val EXTRA_SERVICE = "service"
         const val SPOTIFY = "spotify"
         const val APPLE = "apple"
@@ -620,6 +679,7 @@ class WebLoginActivity : ComponentActivity() {
         const val SOUNDCLOUD = "soundcloud"
         const val LIVEONE = "liveone"
         const val ANGHAMI = "anghami"
+        const val QOBUZ = "qobuz"
 
         fun intent(ctx: android.content.Context, service: String): Intent =
             Intent(ctx, WebLoginActivity::class.java).setAction(when (service) {
@@ -628,6 +688,7 @@ class WebLoginActivity : ComponentActivity() {
                 SOUNDCLOUD -> ACTION_SOUNDCLOUD
                 LIVEONE -> ACTION_LIVEONE
                 ANGHAMI -> ACTION_ANGHAMI
+                QOBUZ -> ACTION_QOBUZ
                 else -> ACTION_SPOTIFY
             })
     }

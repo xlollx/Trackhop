@@ -40,6 +40,7 @@ object BuiltIn {
         SoundCloudBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.SOUNDCLOUD)
         LiveOneBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.LIVEONE)
         AnghamiBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.ANGHAMI)
+        QobuzBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.QOBUZ)
         else -> null
     }
 
