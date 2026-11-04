@@ -1642,4 +1642,6 @@
     <string name="discover_roast_report_title">Diesen Roast als anstößig melden?</string>
     <string name="discover_roast_report_body">Er wird ausgeblendet, und im Browser öffnet sich eine kurze Meldung mit der Stufe und der verwendeten KI, nichts aus deiner Playlist.</string>
     <string name="discover_roast_report_send">Senden</string>
+    <string name="whats_new_114_roast_title">Ein fieserer Roast</string>
+    <string name="whats_new_114_roast_body">Wähle, wie hart er trifft: Sanft, Scharf oder Gnadenlos, auf Wunsch mit expliziter Sprache. Die Karte zeigt jetzt das Cover der Playlist und die Alben ihrer Top-Künstler.</string>
 </resources>

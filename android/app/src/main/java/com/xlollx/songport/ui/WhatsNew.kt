@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -106,6 +107,7 @@ object WhatsNew {
                 listOf(
                     Item(Icons.Filled.AutoAwesome, JobColor.PINK, R.string.whats_new_114_nano_title, R.string.whats_new_114_nano_body),
                     Item(Icons.Filled.Widgets, JobColor.BLUE, R.string.whats_new_114_tips_title, R.string.whats_new_114_tips_body),
+                    Item(Icons.Filled.Whatshot, JobColor.ORANGE, R.string.whats_new_114_roast_title, R.string.whats_new_114_roast_body),
                 ),
             ),
             Release(

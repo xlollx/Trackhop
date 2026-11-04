@@ -1690,4 +1690,6 @@
     <string name="discover_roast_report_title">Zgłosić ten roast jako obraźliwy?</string>
     <string name="discover_roast_report_body">Zostanie ukryty, a w przeglądarce otworzy się krótkie zgłoszenie z poziomem i użytym AI, bez niczego z Twojej playlisty.</string>
     <string name="discover_roast_report_send">Wyślij</string>
+    <string name="whats_new_114_roast_title">Ostrzejszy Roast</string>
+    <string name="whats_new_114_roast_body">Wybierz siłę: Łagodny, Pikantny lub Bezlitosny, z dosadnym językiem, jeśli chcesz. Karta pokazuje teraz okładkę playlisty i albumy jej głównych wykonawców.</string>
 </resources>

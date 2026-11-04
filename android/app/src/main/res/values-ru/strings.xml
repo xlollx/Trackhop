@@ -1688,4 +1688,6 @@
     <string name="discover_roast_report_title">Пожаловаться на эту прожарку как на оскорбительную?</string>
     <string name="discover_roast_report_body">Она будет скрыта, а в браузере откроется короткая жалоба с уровнем и использованным ИИ, без данных из твоего плейлиста.</string>
     <string name="discover_roast_report_send">Отправить</string>
+    <string name="whats_new_114_roast_title">Более злой Roast</string>
+    <string name="whats_new_114_roast_body">Выберите силу: Мягко, Остро или Беспощадно, при желании — с ненормативной лексикой. На карточке теперь обложка плейлиста и альбомы главных исполнителей.</string>
 </resources>

@@ -1642,4 +1642,6 @@
     <string name="discover_roast_report_title">Report this roast as offensive?</string>
     <string name="discover_roast_report_body">It will be hidden, and a short report opens in your browser with the level and the AI used, nothing from your playlist.</string>
     <string name="discover_roast_report_send">Send</string>
+    <string name="whats_new_114_roast_title">A meaner Roast</string>
+    <string name="whats_new_114_roast_body">Pick how hard it hits: Gentle, Spicy or Savage, with explicit language if you want it. The card now shows the playlist\'s cover and the albums of its top artists.</string>
 </resources>

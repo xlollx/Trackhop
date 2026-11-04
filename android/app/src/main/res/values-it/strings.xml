@@ -1642,4 +1642,6 @@
     <string name="discover_roast_report_title">Segnalare questo roast come offensivo?</string>
     <string name="discover_roast_report_body">Verrà nascosto e nel browser si apre una breve segnalazione con il livello e l\'IA usata, niente della tua playlist.</string>
     <string name="discover_roast_report_send">Invia</string>
+    <string name="whats_new_114_roast_title">Un Roast più cattivo</string>
+    <string name="whats_new_114_roast_body">Scegli quanto picchia: Affettuoso, Piccante o Spietato, con linguaggio esplicito se vuoi. La card ora mostra la copertina della playlist e gli album dei suoi artisti principali.</string>
 </resources>

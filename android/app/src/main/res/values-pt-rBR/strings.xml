@@ -1650,4 +1650,6 @@
     <string name="discover_roast_report_title">Denunciar este roast como ofensivo?</string>
     <string name="discover_roast_report_body">Ele será ocultado e um breve relato abrirá no navegador com o nível e a IA usada, nada da sua playlist.</string>
     <string name="discover_roast_report_send">Enviar</string>
+    <string name="whats_new_114_roast_title">Um Roast mais malvado</string>
+    <string name="whats_new_114_roast_body">Escolha o quanto ele pega pesado: Gentil, Picante ou Impiedoso, com linguagem explícita se quiser. O card agora mostra a capa da playlist e os álbuns dos principais artistas.</string>
 </resources>

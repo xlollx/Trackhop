@@ -1640,4 +1640,6 @@
     <string name="discover_roast_report_title">Bu roast rahatsız edici olarak bildirilsin mi?</string>
     <string name="discover_roast_report_body">Gizlenecek ve tarayıcında yalnızca seviyeyi ve kullanılan yapay zekâyı içeren kısa bir bildirim açılacak; çalma listenden hiçbir şey yok.</string>
     <string name="discover_roast_report_send">Gönder</string>
+    <string name="whats_new_114_roast_title">Daha acımasız Roast</string>
+    <string name="whats_new_114_roast_body">Ne kadar sert olacağını seç: Nazik, Acılı ya da Acımasız; istersen açık dille. Kart artık çalma listesinin kapağını ve öne çıkan sanatçıların albümlerini gösteriyor.</string>
 </resources>

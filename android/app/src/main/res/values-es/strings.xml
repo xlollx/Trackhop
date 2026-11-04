@@ -1650,4 +1650,6 @@
     <string name="discover_roast_report_title">¿Denunciar este roast como ofensivo?</string>
     <string name="discover_roast_report_body">Se ocultará y se abrirá en tu navegador un breve informe con el nivel y la IA usada, nada de tu playlist.</string>
     <string name="discover_roast_report_send">Enviar</string>
+    <string name="whats_new_114_roast_title">Un Roast más malvado</string>
+    <string name="whats_new_114_roast_body">Elige cuánto duele: Suave, Picante o Despiadado, con lenguaje explícito si quieres. La tarjeta ahora muestra la portada de la playlist y los álbumes de sus artistas principales.</string>
 </resources>

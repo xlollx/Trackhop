@@ -1619,4 +1619,6 @@
     <string name="discover_roast_report_title">このローストを不快な内容として報告しますか？</string>
     <string name="discover_roast_report_body">画面から非表示になり、レベルと使用したAIだけを記した短い報告がブラウザで開きます。プレイリストの内容は含まれません。</string>
     <string name="discover_roast_report_send">送信</string>
+    <string name="whats_new_114_roast_title">もっと辛口のRoast</string>
+    <string name="whats_new_114_roast_body">強さを選べます：やさしめ、ピリ辛、容赦なし。必要なら過激な言葉もオンに。カードにはプレイリストのカバーと主要アーティストのアルバムが表示されます。</string>
 </resources>

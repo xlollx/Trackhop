@@ -1619,4 +1619,6 @@
     <string name="discover_roast_report_title">将这条吐槽举报为冒犯内容？</string>
     <string name="discover_roast_report_body">它会被隐藏，浏览器中会打开一份简短的举报，只包含力度和所用的 AI，不含你歌单里的任何内容。</string>
     <string name="discover_roast_report_send">发送</string>
+    <string name="whats_new_114_roast_title">更狠的吐槽</string>
+    <string name="whats_new_114_roast_body">选择力度：温和、辛辣或毒舌，还可以开启粗口。卡片现在会显示歌单封面和主要艺人的专辑。</string>
 </resources>
