@@ -1600,24 +1600,11 @@
     <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
     <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>
     <string name="whats_new_114_tips_body">홈 화면에서 Trackhop으로 할 수 있는 일을 짧은 페이지로 보여 줍니다. 한 번에 추가하는 위젯, 아이콘 길게 누르기 바로가기, 자동화. 설정 › 도움말에 있습니다.</string>
-    <string name="discover_roast_level">로스트 수위</string>
-    <string name="discover_roast_gentle">순한 맛</string>
-    <string name="discover_roast_spicy">매운 맛</string>
-    <string name="discover_roast_savage">무자비</string>
-    <string name="discover_roast_gentle_desc">애정 어린 놀림, 상처 주는 말은 없어요.</string>
-    <string name="discover_roast_spicy_desc">날카롭지만 다정하게: 기본 로스트.</string>
-    <string name="discover_roast_savage_desc">당신을 직접 겨냥한 잔혹한 로스트: 음악 취향에 자비는 없어요.</string>
-    <string name="discover_roast_explicit">거친 표현</string>
-    <string name="discover_roast_explicit_desc">AI가 욕설을 쓸 수 있어요. 놀리는 건 음악 취향뿐, 당신이라는 사람은 절대 아니에요.</string>
-    <string name="discover_roast_adult_title">18세 이상인가요?</string>
-    <string name="discover_roast_adult_body">거친 표현은 욕설과 저속한 농담을 뜻해요. 켜려면 18세 이상임을 확인해 주세요.</string>
-    <string name="discover_roast_adult_yes">18세 이상입니다</string>
-    <string name="discover_roast_refused_lower">AI가 거기까지는 가지 않으려 했어요. 수위를 낮추거나 거친 표현을 꺼 보세요.</string>
     <string name="discover_roast_refused">이번에는 AI가 로스트를 쓰지 않았어요. 다시 시도해 주세요.</string>
     <string name="discover_roast_report">신고</string>
     <string name="discover_roast_report_title">이 로스트를 불쾌한 내용으로 신고할까요?</string>
     <string name="discover_roast_report_body">화면에서 숨겨지고, 수위와 사용한 AI만 담긴 짧은 신고서가 브라우저에서 열려요. 플레이리스트 내용은 포함되지 않아요.</string>
     <string name="discover_roast_report_send">보내기</string>
-    <string name="whats_new_114_roast_title">더 독한 Roast</string>
-    <string name="whats_new_114_roast_body">강도를 고르세요: 순한 맛, 매운 맛, 무자비. 원하면 거친 표현도 켤 수 있습니다. 카드에는 이제 플레이리스트 커버와 주요 아티스트의 앨범이 나옵니다.</string>
+    <string name="whats_new_114_roast_title">더 예뻐진 Roast 카드</string>
+    <string name="whats_new_114_roast_body">이제 Roast 카드에 플레이리스트 커버와 주요 아티스트의 앨범이 그 색감으로 표시됩니다.</string>
 </resources>

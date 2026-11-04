@@ -1632,24 +1632,11 @@
     <string name="whats_new_114_nano_body">Em celulares com Gemini Nano, o Roast e o gerador de playlists agora funcionam no próprio aparelho: sem chave e nada sai do dispositivo. Nos outros, o Roast leva direto para configurar uma chave gratuita.</string>
     <string name="whats_new_114_tips_title">Widgets, atalhos e automações</string>
     <string name="whats_new_114_tips_body">Uma página curta mostra o que o Trackhop faz pela tela inicial: widgets para adicionar com um toque, os atalhos do ícone e as automações. Fica em Configurações › Ajuda.</string>
-    <string name="discover_roast_level">Nível do roast</string>
-    <string name="discover_roast_gentle">Gentil</string>
-    <string name="discover_roast_spicy">Picante</string>
-    <string name="discover_roast_savage">Impiedoso</string>
-    <string name="discover_roast_gentle_desc">Provocações carinhosas, nada que machuque.</string>
-    <string name="discover_roast_spicy_desc">Afiado, mas amigável: o roast clássico.</string>
-    <string name="discover_roast_savage_desc">Brutal e direto em você: seu gosto não terá piedade.</string>
-    <string name="discover_roast_explicit">Linguagem explícita</string>
-    <string name="discover_roast_explicit_desc">Permite que a IA fale palavrões. Só o seu gosto musical é zoado, nunca quem você é.</string>
-    <string name="discover_roast_adult_title">Você tem 18 anos ou mais?</string>
-    <string name="discover_roast_adult_body">Linguagem explícita significa palavrões e piadas grosseiras. Confirme que você tem pelo menos 18 anos para ativá-la.</string>
-    <string name="discover_roast_adult_yes">Tenho 18 anos ou mais</string>
-    <string name="discover_roast_refused_lower">A IA não quis ir tão longe. Tente um nível mais baixo ou desative a linguagem explícita.</string>
     <string name="discover_roast_refused">Desta vez a IA não escreveu um roast. Tente de novo.</string>
     <string name="discover_roast_report">Denunciar</string>
     <string name="discover_roast_report_title">Denunciar este roast como ofensivo?</string>
     <string name="discover_roast_report_body">Ele será ocultado e um breve relato abrirá no navegador com o nível e a IA usada, nada da sua playlist.</string>
     <string name="discover_roast_report_send">Enviar</string>
-    <string name="whats_new_114_roast_title">Um Roast mais malvado</string>
-    <string name="whats_new_114_roast_body">Escolha o quanto ele pega pesado: Gentil, Picante ou Impiedoso, com linguagem explícita se quiser. O card agora mostra a capa da playlist e os álbuns dos principais artistas.</string>
+    <string name="whats_new_114_roast_title">Um card de Roast mais bonito</string>
+    <string name="whats_new_114_roast_body">O card do Roast agora mostra a capa da playlist e os álbuns dos principais artistas, nas cores deles.</string>
 </resources>

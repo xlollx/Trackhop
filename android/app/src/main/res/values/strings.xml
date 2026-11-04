@@ -1624,24 +1624,11 @@
     <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
     <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>
     <string name="whats_new_114_tips_body">A short page shows what Trackhop can do from the home screen: widgets to add with one tap, the shortcuts behind the app icon, and automation. Find it in Settings › Help.</string>
-    <string name="discover_roast_level">Roast level</string>
-    <string name="discover_roast_gentle">Gentle</string>
-    <string name="discover_roast_spicy">Spicy</string>
-    <string name="discover_roast_savage">Savage</string>
-    <string name="discover_roast_gentle_desc">Affectionate teasing, nothing that stings.</string>
-    <string name="discover_roast_spicy_desc">Sharp but friendly: the classic roast.</string>
-    <string name="discover_roast_savage_desc">Brutal, and aimed at you: your taste gets no mercy.</string>
-    <string name="discover_roast_explicit">Explicit language</string>
-    <string name="discover_roast_explicit_desc">Lets the AI swear. Only your music taste is ever mocked, never who you are.</string>
-    <string name="discover_roast_adult_title">Are you 18 or older?</string>
-    <string name="discover_roast_adult_body">Explicit language means swearing and crude jokes. Confirm you are at least 18 to turn it on.</string>
-    <string name="discover_roast_adult_yes">I\'m 18 or older</string>
-    <string name="discover_roast_refused_lower">The AI didn\'t want to go that far. Try a lower level or turn off explicit language.</string>
     <string name="discover_roast_refused">The AI didn\'t write a roast this time. Try again.</string>
     <string name="discover_roast_report">Report</string>
     <string name="discover_roast_report_title">Report this roast as offensive?</string>
     <string name="discover_roast_report_body">It will be hidden, and a short report opens in your browser with the level and the AI used, nothing from your playlist.</string>
     <string name="discover_roast_report_send">Send</string>
-    <string name="whats_new_114_roast_title">A meaner Roast</string>
-    <string name="whats_new_114_roast_body">Pick how hard it hits: Gentle, Spicy or Savage, with explicit language if you want it. The card now shows the playlist\'s cover and the albums of its top artists.</string>
+    <string name="whats_new_114_roast_title">A nicer Roast card</string>
+    <string name="whats_new_114_roast_body">The Roast card now shows the playlist\'s cover and the albums of its top artists, in their colours.</string>
 </resources>

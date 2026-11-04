@@ -796,7 +796,7 @@ object Cards {
      * [covers] the album covers of its top artists (empty when none loaded: the app's purple then).
      */
     class RoastCard(
-        val eyebrow: String, val badge: String, val title: String, val text: String,
+        val eyebrow: String, val badge: String?, val title: String, val text: String,
         val cover: Bitmap?, val covers: List<Bitmap>, val artists: List<String>,
     )
 
@@ -850,16 +850,17 @@ object Cards {
             val titleP = paint(Color.WHITE, (if (story) 64f else 50f) * s, bold = true)
             if (story) {
                 val side = 380f * s
-                val badge = badgeBlock(card.badge, 32f * s, w / 2f, inner, centered = true)
+                val badge = card.badge?.let { badgeBlock(it, 32f * s, w / 2f, inner, centered = true) }
+                val bGap = if (badge != null) badge.height + 24f * s else 6f * s
                 val title = textLayout(card.title, titleP, inner.toInt(), 2, Layout.Alignment.ALIGN_CENTER)
                 val ebH = eb.textSize * 1.3f
-                val hh = side + 40f * s + ebH + 18f * s + badge.height + 24f * s + title.height
+                val hh = side + 40f * s + ebH + 18f * s + bGap + title.height
                 return Block(hh) { cv, y ->
                     artTile(cv, playlistCover, (w - side) / 2, y, side)
                     var yy = y + side + 40f * s
                     line(cv, card.eyebrow.uppercase(), w / 2f, yy + eb.textSize, eb, inner, Paint.Align.CENTER)
                     yy += ebH + 18f * s
-                    badge.draw(cv, yy); yy += badge.height + 24f * s
+                    badge?.draw(cv, yy); yy += bGap
                     title.drawAt(cv, margin, yy)
                 }
             }
@@ -867,16 +868,17 @@ object Cards {
             val side = 200f * s
             val tx = margin + side + 36f * s
             val tw = w - margin - tx
-            val badge = badgeBlock(card.badge, 26f * s, tx, tw, centered = false)
+            val badge = card.badge?.let { badgeBlock(it, 26f * s, tx, tw, centered = false) }
+            val bGap = if (badge != null) badge.height + 16f * s else 4f * s
             val title = textLayout(card.title, titleP, tw.toInt(), 2)
             val ebH = eb.textSize * 1.3f
-            val textH = ebH + 14f * s + badge.height + 16f * s + title.height
+            val textH = ebH + 14f * s + bGap + title.height
             return Block(maxOf(side, textH)) { cv, y ->
                 artTile(cv, playlistCover, margin, y, side)
                 var yy = y + ((side - textH) / 2).coerceAtLeast(0f)
                 line(cv, card.eyebrow.uppercase(), tx, yy + eb.textSize, eb, tw)
                 yy += ebH + 14f * s
-                badge.draw(cv, yy); yy += badge.height + 16f * s
+                badge?.draw(cv, yy); yy += bGap
                 title.drawAt(cv, tx, yy)
             }
         }

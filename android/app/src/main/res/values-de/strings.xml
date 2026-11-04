@@ -1624,24 +1624,11 @@
     <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
     <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>
     <string name="whats_new_114_tips_body">Eine kurze Seite zeigt, was Trackhop vom Startbildschirm aus kann: Widgets mit einem Tipp hinzufügen, die Verknüpfungen am App-Symbol und die Automatisierung. Zu finden unter Einstellungen › Hilfe.</string>
-    <string name="discover_roast_level">Roast-Stufe</string>
-    <string name="discover_roast_gentle">Sanft</string>
-    <string name="discover_roast_spicy">Scharf</string>
-    <string name="discover_roast_savage">Gnadenlos</string>
-    <string name="discover_roast_gentle_desc">Liebevolles Necken, nichts, was wehtut.</string>
-    <string name="discover_roast_spicy_desc">Spitz, aber freundlich: der klassische Roast.</string>
-    <string name="discover_roast_savage_desc">Brutal und direkt an dich: dein Geschmack bekommt keine Gnade.</string>
-    <string name="discover_roast_explicit">Explizite Sprache</string>
-    <string name="discover_roast_explicit_desc">Erlaubt der KI zu fluchen. Verspottet wird nur dein Musikgeschmack, nie du als Person.</string>
-    <string name="discover_roast_adult_title">Bist du 18 oder älter?</string>
-    <string name="discover_roast_adult_body">Explizite Sprache heißt Flüche und derbe Witze. Bestätige, dass du mindestens 18 bist, um sie einzuschalten.</string>
-    <string name="discover_roast_adult_yes">Ich bin 18 oder älter</string>
-    <string name="discover_roast_refused_lower">So weit wollte die KI nicht gehen. Versuch eine niedrigere Stufe oder schalte die explizite Sprache aus.</string>
     <string name="discover_roast_refused">Die KI hat diesmal keinen Roast geschrieben. Versuch es noch einmal.</string>
     <string name="discover_roast_report">Melden</string>
     <string name="discover_roast_report_title">Diesen Roast als anstößig melden?</string>
     <string name="discover_roast_report_body">Er wird ausgeblendet, und im Browser öffnet sich eine kurze Meldung mit der Stufe und der verwendeten KI, nichts aus deiner Playlist.</string>
     <string name="discover_roast_report_send">Senden</string>
-    <string name="whats_new_114_roast_title">Ein fieserer Roast</string>
-    <string name="whats_new_114_roast_body">Wähle, wie hart er trifft: Sanft, Scharf oder Gnadenlos, auf Wunsch mit expliziter Sprache. Die Karte zeigt jetzt das Cover der Playlist und die Alben ihrer Top-Künstler.</string>
+    <string name="whats_new_114_roast_title">Eine schönere Roast-Karte</string>
+    <string name="whats_new_114_roast_body">Die Roast-Karte zeigt jetzt das Cover der Playlist und die Alben ihrer Top-Künstler, in ihren Farben.</string>
 </resources>

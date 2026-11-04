@@ -1672,24 +1672,11 @@
     <string name="whats_new_114_nano_body">Na telefonach z Gemini Nano Roast i generator playlist działają teraz bezpośrednio na telefonie: bez klucza i nic nie opuszcza urządzenia. Na innych Roast od razu prowadzi do ustawienia darmowego klucza.</string>
     <string name="whats_new_114_tips_title">Widżety, skróty i automatyzacje</string>
     <string name="whats_new_114_tips_body">Krótka strona pokazuje, co Trackhop potrafi z ekranu głównego: widżety dodawane jednym dotknięciem, skróty pod ikoną aplikacji i automatyzacje. Znajdziesz ją w Ustawienia › Pomoc.</string>
-    <string name="discover_roast_level">Poziom roastu</string>
-    <string name="discover_roast_gentle">Łagodny</string>
-    <string name="discover_roast_spicy">Pikantny</string>
-    <string name="discover_roast_savage">Bezlitosny</string>
-    <string name="discover_roast_gentle_desc">Czułe przytyki, nic, co zaboli.</string>
-    <string name="discover_roast_spicy_desc">Ostro, ale po przyjacielsku: klasyczny roast.</string>
-    <string name="discover_roast_savage_desc">Brutalnie i prosto w Ciebie: Twój gust nie dostanie litości.</string>
-    <string name="discover_roast_explicit">Wulgarny język</string>
-    <string name="discover_roast_explicit_desc">Pozwala AI przeklinać. Wyśmiewany jest tylko Twój gust muzyczny, nigdy to, kim jesteś.</string>
-    <string name="discover_roast_adult_title">Masz co najmniej 18 lat?</string>
-    <string name="discover_roast_adult_body">Wulgarny język to przekleństwa i sprośne żarty. Potwierdź, że masz co najmniej 18 lat, aby go włączyć.</string>
-    <string name="discover_roast_adult_yes">Mam co najmniej 18 lat</string>
-    <string name="discover_roast_refused_lower">AI nie chciało posunąć się tak daleko. Spróbuj niższego poziomu albo wyłącz wulgarny język.</string>
     <string name="discover_roast_refused">Tym razem AI nie napisało roastu. Spróbuj ponownie.</string>
     <string name="discover_roast_report">Zgłoś</string>
     <string name="discover_roast_report_title">Zgłosić ten roast jako obraźliwy?</string>
     <string name="discover_roast_report_body">Zostanie ukryty, a w przeglądarce otworzy się krótkie zgłoszenie z poziomem i użytym AI, bez niczego z Twojej playlisty.</string>
     <string name="discover_roast_report_send">Wyślij</string>
-    <string name="whats_new_114_roast_title">Ostrzejszy Roast</string>
-    <string name="whats_new_114_roast_body">Wybierz siłę: Łagodny, Pikantny lub Bezlitosny, z dosadnym językiem, jeśli chcesz. Karta pokazuje teraz okładkę playlisty i albumy jej głównych wykonawców.</string>
+    <string name="whats_new_114_roast_title">Ładniejsza karta Roast</string>
+    <string name="whats_new_114_roast_body">Karta Roast pokazuje teraz okładkę playlisty i albumy jej głównych wykonawców, w ich kolorach.</string>
 </resources>

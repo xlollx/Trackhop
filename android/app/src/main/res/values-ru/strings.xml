@@ -1670,24 +1670,11 @@
     <string name="whats_new_114_nano_body">На телефонах с Gemini Nano Roast и генератор плейлистов теперь работают прямо на устройстве: без ключа, и ничего не покидает телефон. На остальных Roast сразу ведёт к настройке бесплатного ключа.</string>
     <string name="whats_new_114_tips_title">Виджеты, ярлыки и автоматизация</string>
     <string name="whats_new_114_tips_body">Короткая страница показывает, что Trackhop умеет с главного экрана: виджеты, которые добавляются одним касанием, ярлыки значка приложения и автоматизация. Она в разделе Настройки › Справка.</string>
-    <string name="discover_roast_level">Уровень прожарки</string>
-    <string name="discover_roast_gentle">Мягко</string>
-    <string name="discover_roast_spicy">Остро</string>
-    <string name="discover_roast_savage">Беспощадно</string>
-    <string name="discover_roast_gentle_desc">Ласковые подколки, ничего обидного.</string>
-    <string name="discover_roast_spicy_desc">Колко, но по-дружески: классическая прожарка.</string>
-    <string name="discover_roast_savage_desc">Жёстко и лично тебе: твоему вкусу пощады не будет.</string>
-    <string name="discover_roast_explicit">Ненормативная лексика</string>
-    <string name="discover_roast_explicit_desc">Разрешает ИИ ругаться. Высмеивается только твой музыкальный вкус, а не ты сам.</string>
-    <string name="discover_roast_adult_title">Тебе есть 18?</string>
-    <string name="discover_roast_adult_body">Ненормативная лексика — это мат и грубые шутки. Подтверди, что тебе не меньше 18 лет, чтобы включить её.</string>
-    <string name="discover_roast_adult_yes">Мне есть 18</string>
-    <string name="discover_roast_refused_lower">ИИ не захотел заходить так далеко. Попробуй уровень пониже или отключи ненормативную лексику.</string>
     <string name="discover_roast_refused">На этот раз ИИ не написал прожарку. Попробуй ещё раз.</string>
     <string name="discover_roast_report">Пожаловаться</string>
     <string name="discover_roast_report_title">Пожаловаться на эту прожарку как на оскорбительную?</string>
     <string name="discover_roast_report_body">Она будет скрыта, а в браузере откроется короткая жалоба с уровнем и использованным ИИ, без данных из твоего плейлиста.</string>
     <string name="discover_roast_report_send">Отправить</string>
-    <string name="whats_new_114_roast_title">Более злой Roast</string>
-    <string name="whats_new_114_roast_body">Выберите силу: Мягко, Остро или Беспощадно, при желании — с ненормативной лексикой. На карточке теперь обложка плейлиста и альбомы главных исполнителей.</string>
+    <string name="whats_new_114_roast_title">Карточка Roast стала красивее</string>
+    <string name="whats_new_114_roast_body">Карточка Roast теперь показывает обложку плейлиста и альбомы главных исполнителей в их цветах.</string>
 </resources>

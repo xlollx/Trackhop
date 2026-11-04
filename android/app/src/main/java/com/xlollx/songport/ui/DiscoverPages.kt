@@ -515,23 +515,9 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
 
 // ------------------------------------------------------------------------------------------ Roast
 
-/** The level's name on screen and on the card. */
-private fun roastLevelName(ctx: Context, l: AiRoast.Level): String = ctx.getString(when (l) {
-    AiRoast.Level.GENTLE -> R.string.discover_roast_gentle
-    AiRoast.Level.SPICY -> R.string.discover_roast_spicy
-    AiRoast.Level.SAVAGE -> R.string.discover_roast_savage
-})
-
-private fun roastLevelDesc(l: AiRoast.Level): Int = when (l) {
-    AiRoast.Level.GENTLE -> R.string.discover_roast_gentle_desc
-    AiRoast.Level.SPICY -> R.string.discover_roast_spicy_desc
-    AiRoast.Level.SAVAGE -> R.string.discover_roast_savage_desc
-}
-
-/** A GitHub issue about an offensive roast: the level and the AI, never the playlist or the roast. */
-private fun roastReportUrl(level: AiRoast.Level, explicit: Boolean, ai: AiClient.Config): String {
+private fun roastReportUrl(ai: AiClient.Config): String {
     val vendor = if (ai.local) "${ai.model} (on device)" else "${ai.vendor.label} (${ai.model})"
-    val body = "Roast report\n\nLevel: ${level.label}\nExplicit language: ${if (explicit) "on" else "off"}\nAI: $vendor\nApp: ${versionLine()}\n\n" +
+    val body = "Roast report\n\nAI: $vendor\nApp: ${versionLine()}\n\n" +
         "<!-- What was offensive about it? Please leave out personal details. -->\n"
     return "https://github.com/xlollx/Trackhop/issues/new?title=" + android.net.Uri.encode("Roast report") + "&body=" + android.net.Uri.encode(body)
 }
@@ -563,14 +549,10 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     var busy by remember { mutableStateOf(false) }
     var coverSearch by remember { mutableStateOf(false) }
     var roast by rememberSaveable { mutableStateOf<String?>(null) }
-    // The level and language the roast on screen was written with (for its badge and a report).
-    var roastLevel by rememberSaveable { mutableStateOf(AiRoast.Level.DEFAULT.name) }
-    var roastExplicit by rememberSaveable { mutableStateOf(false) }
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
-    val level = AiRoast.Level.from(settings.settings.roastLevel)
-    // Off each time the page opens; the 18+ answer is kept.
-    var explicit by rememberSaveable { mutableStateOf(false) }
-    var askAdult by remember { mutableStateOf(false) }
+    // One roast, as it always was: the levels and the explicit switch were tried and dropped.
+    val level = AiRoast.Level.DEFAULT
+    val explicit = false
     var askReport by remember { mutableStateOf(false) }
     // Only the Google Play build has the report (its AI-content policy); the full build shows nothing.
     val reportable = com.xlollx.songport.BuildConfig.FLAVOR == "play"
@@ -587,7 +569,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
                 val name = p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
                 val language = locale(ctx).getDisplayLanguage(Locale.ENGLISH)
                 val text = AiRoast.roast(ai, name, tracks, language, lv, ex)
-                roast = text; roastLevel = lv.name; roastExplicit = ex
+                roast = text
                 // The covers: best effort and short, the card is drawn without them too.
                 val urls = ArrayList<String>()
                 var own: Bitmap? = null
@@ -606,15 +588,14 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
                 val covers = synchronized(urls) { urls.toList() }.mapNotNull { Cards.bitmap(it, 400) }
                 val card = Cards.RoastCard(
                     eyebrow = ctx.getString(R.string.discover_roast_title),
-                    badge = AiRoast.badge(roastLevelName(ctx, lv), lv),
+                    badge = null,
                     title = name, text = text, cover = own, covers = covers,
                     artists = com.xlollx.songport.sync.CoverPrompt.topArtists(tracks),
                 )
                 bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.roast(ctx, card, it) } }
             } catch (e: CancellationException) { throw e } catch (e: AiRoast.Refused) {
                 // A refusal or an empty answer: a friendly word, a lower level when there is one.
-                val msg = if (lv != AiRoast.Level.GENTLE || ex) R.string.discover_roast_refused_lower else R.string.discover_roast_refused
-                snackbar.showSnackbar(ctx.getString(msg), withDismissAction = true, duration = SnackbarDuration.Long)
+                snackbar.showSnackbar(ctx.getString(R.string.discover_roast_refused), withDismissAction = true, duration = SnackbarDuration.Long)
             } catch (e: Exception) {
                 snackbar.showSnackbar(errorText(ctx, e))
             }
@@ -626,52 +607,12 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     val ready = !ai.local || NanoStatus()
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; roast = null; bitmaps = null }
-    // The level and the explicit switch, before running.
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.discover_roast_level), style = MaterialTheme.typography.titleSmall)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            AiRoast.Level.entries.forEach { l ->
-                FilterChip(
-                    selected = l == level, enabled = !busy,
-                    onClick = { store.updateSettings { it.copy(roastLevel = l.name) } },
-                    label = { Text(AiRoast.badge(roastLevelName(ctx, l), l)) },
-                )
-            }
-        }
-        Text(stringResource(roastLevelDesc(level)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.discover_roast_explicit), style = MaterialTheme.typography.bodyLarge)
-            Text(stringResource(R.string.discover_roast_explicit_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(Modifier.width(12.dp))
-        androidx.compose.material3.Switch(checked = explicit, enabled = !busy, onCheckedChange = { on ->
-            when {
-                !on -> explicit = false
-                settings.settings.roastAdultConfirmed -> explicit = true
-                else -> askAdult = true
-            }
-        })
-    }
-    if (askAdult) androidx.compose.material3.AlertDialog(
-        onDismissRequest = { askAdult = false },
-        title = { Text(stringResource(R.string.discover_roast_adult_title)) },
-        text = { Text(stringResource(R.string.discover_roast_adult_body)) },
-        confirmButton = { TextButton(onClick = {
-            store.updateSettings { it.copy(roastAdultConfirmed = true) }
-            explicit = true; askAdult = false
-        }) { Text(stringResource(R.string.discover_roast_adult_yes)) } },
-        dismissButton = { TextButton(onClick = { askAdult = false }) { Text(stringResource(R.string.cancel)) } },
-    )
     roast?.let { text ->
-        val shownLevel = AiRoast.Level.from(roastLevel)
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(pick?.playlist?.name.orEmpty(), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text(AiRoast.badge(roastLevelName(ctx, shownLevel), shownLevel), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (reportable) IconButton(onClick = { askReport = true }) {
                         Icon(Icons.Outlined.Flag, stringResource(R.string.discover_roast_report), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -689,7 +630,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
                 askReport = false
                 // The roast goes from the screen, and the prefilled report opens.
                 roast = null; bitmaps = null
-                openUrl(ctx, roastReportUrl(shownLevel, roastExplicit, ai))
+                openUrl(ctx, roastReportUrl(ai))
             }) { Text(stringResource(R.string.discover_roast_report_send)) } },
             dismissButton = { TextButton(onClick = { askReport = false }) { Text(stringResource(R.string.cancel)) } },
         )

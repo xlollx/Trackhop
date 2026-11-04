@@ -1624,24 +1624,11 @@
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>
     <string name="whats_new_114_tips_body">Una pagina breve mostra cosa fa Trackhop dalla schermata Home: widget da aggiungere con un tocco, le scorciatoie dietro l\'icona e le automazioni. La trovi in Impostazioni › Aiuto.</string>
-    <string name="discover_roast_level">Livello del roast</string>
-    <string name="discover_roast_gentle">Affettuoso</string>
-    <string name="discover_roast_spicy">Piccante</string>
-    <string name="discover_roast_savage">Spietato</string>
-    <string name="discover_roast_gentle_desc">Prese in giro affettuose, niente che punga.</string>
-    <string name="discover_roast_spicy_desc">Pungente ma amichevole: il roast classico.</string>
-    <string name="discover_roast_savage_desc">Brutale e rivolto a te: il tuo gusto non avrà pietà.</string>
-    <string name="discover_roast_explicit">Linguaggio esplicito</string>
-    <string name="discover_roast_explicit_desc">L\'IA può usare parolacce. Si prende in giro solo il tuo gusto musicale, mai chi sei.</string>
-    <string name="discover_roast_adult_title">Hai almeno 18 anni?</string>
-    <string name="discover_roast_adult_body">Linguaggio esplicito vuol dire parolacce e battute volgari. Conferma di avere almeno 18 anni per attivarlo.</string>
-    <string name="discover_roast_adult_yes">Ho almeno 18 anni</string>
-    <string name="discover_roast_refused_lower">L\'IA non ha voluto spingersi così in là. Prova un livello più basso o disattiva il linguaggio esplicito.</string>
     <string name="discover_roast_refused">Stavolta l\'IA non ha scritto il roast. Riprova.</string>
     <string name="discover_roast_report">Segnala</string>
     <string name="discover_roast_report_title">Segnalare questo roast come offensivo?</string>
     <string name="discover_roast_report_body">Verrà nascosto e nel browser si apre una breve segnalazione con il livello e l\'IA usata, niente della tua playlist.</string>
     <string name="discover_roast_report_send">Invia</string>
-    <string name="whats_new_114_roast_title">Un Roast più cattivo</string>
-    <string name="whats_new_114_roast_body">Scegli quanto picchia: Affettuoso, Piccante o Spietato, con linguaggio esplicito se vuoi. La card ora mostra la copertina della playlist e gli album dei suoi artisti principali.</string>
+    <string name="whats_new_114_roast_title">Una card del Roast più bella</string>
+    <string name="whats_new_114_roast_body">La card del Roast ora mostra la copertina della playlist e gli album dei suoi artisti principali, nei loro colori.</string>
 </resources>
