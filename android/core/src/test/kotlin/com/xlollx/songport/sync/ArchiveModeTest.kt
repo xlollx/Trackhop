@@ -131,3 +131,22 @@ class ArchiveModeTest {
         assertEquals(1, src.lists["dw"]!!.size)
     }
 }
+
+/** The playlists the editor offers "replace or keep every track" for. */
+class ChangingPlaylistsTest {
+    @Test fun knownSelfChangingPlaylistsAreRecognised() {
+        listOf("Discover Weekly", "release radar", "daylist • chill tuesday evening", "Daily Mix 3", "Descubrimiento semanal", "My Supermix", "New Music Mix")
+            .forEach { assertTrue(it, ChangingPlaylists.isSelfChanging("spotify", it)) }
+        assertTrue(ChangingPlaylists.isSelfChanging("charts", "Apple Music Top 100 · Italy"))
+        listOf("Road trip", "Discover", "", null).forEach { org.junit.Assert.assertFalse(it.toString(), ChangingPlaylists.isSelfChanging("spotify", it)) }
+    }
+
+    @Test fun theWeeklyPlaylistIsOfferedOnlyWhereItCanBeRead() {
+        assertEquals("Discover Weekly", ChangingPlaylists.weekly("spotify_bridge"))
+        org.junit.Assert.assertNull(ChangingPlaylists.weekly("spotify"))
+        org.junit.Assert.assertNull(ChangingPlaylists.weekly("deezer"))
+        assertTrue(ChangingPlaylists.madeBySpotify("Discover Weekly"))
+        assertTrue(ChangingPlaylists.madeBySpotify("daylist • sunday morning"))
+        org.junit.Assert.assertFalse(ChangingPlaylists.madeBySpotify("My road trip"))
+    }
+}
