@@ -1,1 +1,1 @@
-Tu Wrapped: una carga más animada, servicio a servicio. Póster: si tu IA no puede dibujar la portada (una clave gratuita de Gemini no tiene cuota de imágenes), el póster usa las portadas de la playlist. Tu IA: el diálogo conserva lo elegido al salir de la app y volver.
+Tu Wrapped, renovado: top 5 artistas, décadas, horas de música, canción más antigua, también en formato cuadrado, historial de Wrapped y eliges los servicios cada vez. Carga más animada. Póster aunque tu IA no dibuje. Tu IA conserva lo elegido al salir de la app. Toca Descubrir otra vez para volver a la lista.

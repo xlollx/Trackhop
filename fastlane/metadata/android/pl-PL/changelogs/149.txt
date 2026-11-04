@@ -1,1 +1,1 @@
-Twój Wrapped: żywszy ekran ładowania, serwis po serwisie. Plakat: gdy twoja AI nie może narysować okładki (darmowy klucz Gemini nie ma limitu na obrazy), plakat używa okładek playlisty. Twoja AI: okno pamięta wybór po wyjściu z aplikacji i powrocie.
+Twój Wrapped od nowa: top 5 artystów, dekady, godziny muzyki, najstarszy utwór, także w kwadracie, historia i wybór serwisów za każdym razem. Żywsze ładowanie. Plakat nawet gdy AI nie rysuje. Twoja AI pamięta wybór po wyjściu z aplikacji. Ponowne dotknięcie Odkrywaj wraca do listy.
