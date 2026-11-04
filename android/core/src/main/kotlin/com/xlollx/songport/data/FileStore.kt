@@ -80,6 +80,10 @@ data class Settings(
     val wrappedSkipped: Set<String> = emptySet(),
     /** The "Did you know?" pill on Syncs (widgets, shortcuts, automation) was closed or opened: not shown again. */
     val tipsPillDismissed: Boolean = false,
+    /** The Roast's last level ([com.xlollx.songport.ai.AiRoast.Level] by name); blank = the default. */
+    val roastLevel: String = "",
+    /** The user confirmed once being 18 or older, for the Roast's explicit language. */
+    val roastAdultConfirmed: Boolean = false,
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

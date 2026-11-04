@@ -1622,4 +1622,22 @@
     <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
     <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>
     <string name="whats_new_114_tips_body">Kısa bir sayfa Trackhop\'un ana ekrandan neler yapabildiğini gösterir: tek dokunuşla eklenen widget\'lar, uygulama simgesindeki kısayollar ve otomasyon. Ayarlar › Yardım bölümünde.</string>
+    <string name="discover_roast_level">Roast seviyesi</string>
+    <string name="discover_roast_gentle">Nazik</string>
+    <string name="discover_roast_spicy">Acılı</string>
+    <string name="discover_roast_savage">Acımasız</string>
+    <string name="discover_roast_gentle_desc">Sevgi dolu takılmalar, kırıcı hiçbir şey yok.</string>
+    <string name="discover_roast_spicy_desc">Keskin ama dostça: klasik roast.</string>
+    <string name="discover_roast_savage_desc">Acımasız ve doğrudan sana: müzik zevkine merhamet yok.</string>
+    <string name="discover_roast_explicit">Müstehcen dil</string>
+    <string name="discover_roast_explicit_desc">Yapay zekânın küfür etmesine izin verir. Yalnızca müzik zevkinle dalga geçilir, asla kim olduğunla değil.</string>
+    <string name="discover_roast_adult_title">18 yaşında veya daha büyük müsün?</string>
+    <string name="discover_roast_adult_body">Müstehcen dil, küfür ve kaba şakalar demektir. Açmak için en az 18 yaşında olduğunu onayla.</string>
+    <string name="discover_roast_adult_yes">18 yaşında veya daha büyüğüm</string>
+    <string name="discover_roast_refused_lower">Yapay zekâ o kadar ileri gitmek istemedi. Daha düşük bir seviye dene ya da müstehcen dili kapat.</string>
+    <string name="discover_roast_refused">Yapay zekâ bu sefer bir roast yazmadı. Tekrar dene.</string>
+    <string name="discover_roast_report">Bildir</string>
+    <string name="discover_roast_report_title">Bu roast rahatsız edici olarak bildirilsin mi?</string>
+    <string name="discover_roast_report_body">Gizlenecek ve tarayıcında yalnızca seviyeyi ve kullanılan yapay zekâyı içeren kısa bir bildirim açılacak; çalma listenden hiçbir şey yok.</string>
+    <string name="discover_roast_report_send">Gönder</string>
 </resources>

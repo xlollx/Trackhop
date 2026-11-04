@@ -1632,4 +1632,22 @@
     <string name="whats_new_114_nano_body">En los móviles con Gemini Nano, el Roast y el generador de playlists ahora funcionan en el propio teléfono: sin clave y sin que nada salga del dispositivo. En los demás, el Roast te lleva directo a configurar una clave gratuita.</string>
     <string name="whats_new_114_tips_title">Widgets, accesos directos y automatizaciones</string>
     <string name="whats_new_114_tips_body">Una página breve muestra lo que Trackhop hace desde la pantalla de inicio: widgets que se añaden con un toque, los accesos directos del icono y las automatizaciones. Está en Ajustes › Ayuda.</string>
+    <string name="discover_roast_level">Nivel del roast</string>
+    <string name="discover_roast_gentle">Suave</string>
+    <string name="discover_roast_spicy">Picante</string>
+    <string name="discover_roast_savage">Despiadado</string>
+    <string name="discover_roast_gentle_desc">Burlas cariñosas, nada que duela.</string>
+    <string name="discover_roast_spicy_desc">Afilado pero amistoso: el roast clásico.</string>
+    <string name="discover_roast_savage_desc">Brutal y dirigido a ti: tu gusto no tendrá piedad.</string>
+    <string name="discover_roast_explicit">Lenguaje explícito</string>
+    <string name="discover_roast_explicit_desc">Permite que la IA diga palabrotas. Solo se burla de tu gusto musical, nunca de quién eres.</string>
+    <string name="discover_roast_adult_title">¿Tienes 18 años o más?</string>
+    <string name="discover_roast_adult_body">Lenguaje explícito significa palabrotas y chistes groseros. Confirma que tienes al menos 18 años para activarlo.</string>
+    <string name="discover_roast_adult_yes">Tengo 18 años o más</string>
+    <string name="discover_roast_refused_lower">La IA no quiso llegar tan lejos. Prueba un nivel más bajo o desactiva el lenguaje explícito.</string>
+    <string name="discover_roast_refused">Esta vez la IA no escribió un roast. Inténtalo de nuevo.</string>
+    <string name="discover_roast_report">Denunciar</string>
+    <string name="discover_roast_report_title">¿Denunciar este roast como ofensivo?</string>
+    <string name="discover_roast_report_body">Se ocultará y se abrirá en tu navegador un breve informe con el nivel y la IA usada, nada de tu playlist.</string>
+    <string name="discover_roast_report_send">Enviar</string>
 </resources>

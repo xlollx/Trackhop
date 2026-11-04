@@ -55,6 +55,12 @@ class AiRoutingTest {
         assertEquals(1, fake.asked.size)
     }
 
+    @Test fun roastRefusalIsItsOwnError() = runBlocking {
+        AiClient.localModel = FakeLocal("I can't write that.")
+        val r = runCatching { AiRoast.roast(AiClient.onDevice(nano), "Mix", listOf(Track(id = "1", title = "Song", artists = listOf("A"))), "English", AiRoast.Level.SAVAGE, explicit = true) }
+        assertTrue(r.exceptionOrNull() is AiRoast.Refused)
+    }
+
     @Test fun localConfigWithoutModelFailsCleanly() = runBlocking {
         AiClient.localModel = null
         val r = runCatching { AiRoast.roast(AiClient.onDevice(nano), "Mix", emptyList(), "English") }

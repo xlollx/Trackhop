@@ -9,7 +9,8 @@ import com.xlollx.songport.sync.Matcher
 /**
  * "Roast of a playlist", with the user's own AI ([AiClient]): a short, funny and affectionate
  * comment on a playlist. The AI gets a compact summary only (name, counts, top artists, decades,
- * a sample of titles), never the whole list, and is told to tease the taste, never the person.
+ * a sample of titles), never the whole list. Three levels ([Level]); at every one only the taste is
+ * mocked, never the person ([SAFETY]), and swearing only when the user turned it on.
  */
 object AiRoast {
     /** How many titles of the playlist go to the AI as a sample. */
@@ -48,14 +49,73 @@ object AiRoast {
         }.trimEnd()
     }
 
-    private fun system(language: String) = """
-        You write a short, funny, affectionate roast of someone's music playlist, like a friend teasing them.
-        Tease the taste, the habits and the choices; never insult people, the listener or the artists as persons,
-        no slurs, nothing about appearance, body, gender, religion, origin or health, nothing cruel or sexual.
-        3 to 5 sentences, at most 90 words, no hashtags, no emoji spam (one emoji at most).
-        Write in ${language.ifBlank { "English" }}.
-        Reply with ONLY a JSON object: {"roast": "..."}
+    /** How hard the roast hits: [GENTLE] teases with love, [SPICY] is the classic, [SAVAGE] speaks to the listener and does not hold back. */
+    enum class Level(val label: String, val flames: Int) {
+        GENTLE("Gentle", 1), SPICY("Spicy", 2), SAVAGE("Savage", 3);
+
+        /** "🔥🔥" for Spicy: one flame per step. */
+        val fire: String get() = "\uD83D\uDD25".repeat(flames)
+
+        companion object {
+            val DEFAULT = SPICY
+            /** The saved level by name; unknown or blank = [DEFAULT]. */
+            fun from(name: String?): Level = entries.firstOrNull { it.name == name } ?: DEFAULT
+        }
+    }
+
+    /** "Savage 🔥🔥🔥": the level's name (already translated) and its flames, as the card shows it. */
+    fun badge(label: String, level: Level): String = "$label ${level.fire}"
+
+    /** Rules every level keeps, whatever else the prompt says. */
+    val SAFETY = """
+        Fixed rules, at every level and above anything else: mock ONLY the music taste (the songs, artists, genres,
+        habits and choices in the playlist). Never attack personal characteristics: appearance, body, gender, sexuality,
+        race, ethnicity, origin, nationality, religion, age, disability, health or identity. No sexual content.
+        No hate, no slurs, no discrimination, no threats, nothing about self-harm or violence.
+        If you cannot write it within these rules, reply with {"roast": ""}.
     """.trimIndent()
+
+    const val NO_SWEARING = "No swearing, no profanity, no crude words."
+    const val SWEARING_OK = "Swearing and crude words are allowed (the listener is an adult and asked for it), but keep it witty, never hateful."
+
+    private fun tone(level: Level) = when (level) {
+        Level.GENTLE -> """
+            You write a short, gentle, affectionate roast of someone's music playlist, like a kind friend teasing them with a smile.
+            Keep it warm and light: playful jabs, nothing that stings, a compliment hidden somewhere.
+        """.trimIndent()
+        Level.SPICY -> """
+            You write a short, funny, affectionate roast of someone's music playlist, like a friend teasing them.
+            Tease the taste, the habits and the choices; never insult people, the listener or the artists as persons.
+        """.trimIndent()
+        Level.SAVAGE -> """
+            You write a short, savage roast of the listener's music taste, speaking straight to them in the second person ("you").
+            Be brutal and cutting about their taste, their habits and their choices, like a merciless comedian at a roast:
+            sharp and witty, no compliments, no softening.
+        """.trimIndent()
+    }
+
+    /** The system prompt for [level]; [explicit] lets the AI swear. Pure, covered by tests. */
+    fun system(language: String, level: Level = Level.DEFAULT, explicit: Boolean = false): String = listOf(
+        tone(level),
+        SAFETY,
+        if (explicit) SWEARING_OK else NO_SWEARING,
+        "3 to 5 sentences, at most 90 words, no hashtags, no emoji spam (one emoji at most).",
+        "Write in ${language.ifBlank { "English" }}.",
+        "Reply with ONLY a JSON object: {\"roast\": \"...\"}",
+    ).joinToString("\n")
+
+    /** The AI wrote nothing, or said it would not: the page suggests a lower level instead of an error. */
+    class Refused : Exception("The AI did not write a roast")
+
+    private val REFUSAL = Regex("""^(I\s+(can'?t|cannot|can not|won'?t|will not|am unable|'m unable|'m not able|am not able)|I'?m sorry|I am sorry|Sorry,|As an AI)""", RegexOption.IGNORE_CASE)
+
+    /** True when [answer] is no roast: empty, or a plain-text refusal (a roast comes as JSON, a refusal rarely does). */
+    fun refused(answer: String): Boolean {
+        val text = parse(answer)
+        if (text.isBlank()) return true
+        val json = answer.contains('{') && answer.contains("\"roast\"")
+        return !json && REFUSAL.containsMatchIn(text.trim())
+    }
 
     /** The roast's text out of the AI's answer: the JSON's "roast", else the answer itself, unwrapped. */
     fun parse(answer: String): String {
@@ -65,9 +125,12 @@ object AiRoast {
         return trimmed.trim('"').trim()
     }
 
-    suspend fun roast(c: AiClient.Config, name: String, tracks: List<Track>, language: String): String {
-        val text = parse(AiClient.complete(c, system(language), "Roast this playlist:\n" + summary(name, tracks)))
-        if (text.isBlank()) throw com.xlollx.songport.model.ProviderException("Empty answer")
-        return text
+    suspend fun roast(
+        c: AiClient.Config, name: String, tracks: List<Track>, language: String,
+        level: Level = Level.DEFAULT, explicit: Boolean = false,
+    ): String {
+        val answer = AiClient.complete(c, system(language, level, explicit), "Roast this playlist:\n" + summary(name, tracks))
+        if (refused(answer)) throw Refused()
+        return parse(answer)
     }
 }

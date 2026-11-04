@@ -1601,4 +1601,22 @@
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>
     <string name="whats_new_114_tips_body">一个简短页面介绍 Trackhop 在主屏幕上能做什么：一键添加的小组件、长按图标的快捷方式以及自动化。位于设置 › 帮助。</string>
+    <string name="discover_roast_level">吐槽力度</string>
+    <string name="discover_roast_gentle">温和</string>
+    <string name="discover_roast_spicy">辛辣</string>
+    <string name="discover_roast_savage">毒舌</string>
+    <string name="discover_roast_gentle_desc">充满爱意的调侃，不会刺痛人。</string>
+    <string name="discover_roast_spicy_desc">犀利但友好：经典吐槽。</string>
+    <string name="discover_roast_savage_desc">直接冲你来，毫不留情：你的音乐品味别想全身而退。</string>
+    <string name="discover_roast_explicit">粗口模式</string>
+    <string name="discover_roast_explicit_desc">允许 AI 说脏话。被吐槽的只有你的音乐品味，绝不是你本人。</string>
+    <string name="discover_roast_adult_title">你年满 18 岁了吗？</string>
+    <string name="discover_roast_adult_body">粗口模式意味着脏话和粗俗笑话。请确认你已年满 18 岁后再开启。</string>
+    <string name="discover_roast_adult_yes">我已年满 18 岁</string>
+    <string name="discover_roast_refused_lower">AI 不愿意说得那么狠。试试降低力度，或关闭粗口模式。</string>
+    <string name="discover_roast_refused">这次 AI 没有写出吐槽。请再试一次。</string>
+    <string name="discover_roast_report">举报</string>
+    <string name="discover_roast_report_title">将这条吐槽举报为冒犯内容？</string>
+    <string name="discover_roast_report_body">它会被隐藏，浏览器中会打开一份简短的举报，只包含力度和所用的 AI，不含你歌单里的任何内容。</string>
+    <string name="discover_roast_report_send">发送</string>
 </resources>

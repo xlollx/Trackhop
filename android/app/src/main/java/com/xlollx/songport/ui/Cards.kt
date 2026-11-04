@@ -790,33 +790,147 @@ object Cards {
         return bmp
     }
 
-    /** "Roast of a playlist": the eyebrow, the playlist's name and the AI's words on a glass panel. */
-    fun roast(ctx: Context, eyebrow: String, title: String, text: String, format: Format): Bitmap {
+    /**
+     * What a roast card shows: the eyebrow, the level's badge ("Savage 🔥🔥🔥"), the playlist's name
+     * and the AI's words; [cover] is the playlist's own picture (null: one is drawn from the title),
+     * [covers] the album covers of its top artists (empty when none loaded: the app's purple then).
+     */
+    class RoastCard(
+        val eyebrow: String, val badge: String, val title: String, val text: String,
+        val cover: Bitmap?, val covers: List<Bitmap>, val artists: List<String>,
+    )
+
+    /** A picture [side] wide at [left], rounded, with a soft shadow and a faint edge (as the Wrapped's art). */
+    private fun artTile(c: Canvas, bmp: Bitmap?, left: Float, top: Float, side: Float, seed: Int = 0) {
+        val r = RectF(left, top, left + side, top + side)
+        val radius = side * 0.06f
+        c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = INK; setShadowLayer(side * 0.05f, 0f, side * 0.02f, 0x8C000000.toInt()) })
+        cover(c, bmp, r, radius, seed)
+        c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x33FFFFFF; style = Paint.Style.STROKE; strokeWidth = 2f })
+    }
+
+    /** The level's badge: a small pill, centred on [cx] or starting at [left]; returns its height. */
+    private fun badgeBlock(text: String, size: Float, x: Float, maxWidth: Float, centered: Boolean): Block {
+        val p = paint(Color.WHITE, size, bold = true)
+        val padX = size * 0.7f
+        val tw = minOf(p.measureText(text), maxWidth - 2 * padX)
+        val h = size * 1.8f
+        return Block(h) { c, y ->
+            val bw = tw + 2 * padX
+            val left = if (centered) x - bw / 2 else x
+            panel(c, RectF(left, y, left + bw, y + h), h / 2)
+            line(c, text, left + padX, y + h / 2 + size * 0.36f, p, tw + 1f)
+        }
+    }
+
+    /** "Roast of a playlist": the playlist's cover, the eyebrow and level, its name, the AI's words and its top artists' covers. */
+    fun roast(ctx: Context, card: RoastCard, format: Format): Bitmap {
         val w = format.width; val h = format.height
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
         val story = format == Format.STORY
-        background(c, w, h)
+        val input = GeneratedCovers.Input(card.title, card.artists, card.covers)
+        // The covers' colours when there are covers, else the app's purple (offline, nothing found).
+        if (card.covers.isNotEmpty()) background(c, w, h, GeneratedCovers.palette(input)) else background(c, w, h)
+        // No picture of its own (liked songs, a service that lists none): one drawn from the title.
+        val playlistCover = card.cover ?: GeneratedCovers.draw(GeneratedCovers.Style.GRADIENT, input, 0, 720)
         val margin = 72f
-        val inner = (w - 2 * margin).toInt()
-        var y = if (story) 220f else 90f
-        val flame = paint(Color.WHITE, if (story) 150f else 90f)
-        flame.textAlign = Paint.Align.CENTER
-        c.drawText("🔥", w / 2f, y + flame.textSize * 0.8f, flame)
-        y += flame.textSize + (if (story) 60f else 30f)
-        val eb = paint(Color.WHITE, if (story) 36f else 30f, bold = true, alpha = 215).apply { letterSpacing = 0.1f }
-        line(c, eyebrow.uppercase(), w / 2f, y, eb, inner.toFloat(), Paint.Align.CENTER)
-        y += 24f
-        y += block(c, title, margin, y, paint(Color.WHITE, if (story) 64f else 50f, bold = true), inner, 2, Layout.Alignment.ALIGN_CENTER) + 40f
-        val body = paint(Color.WHITE, if (story) 44f else 34f)
-        val pad = 48f
-        val bottom = h - 140f
-        // As much of the text as fits on the panel, in lines of the body's size.
-        val lines = ((bottom - y - 2 * pad) / (body.fontSpacing * 1.05f)).toInt().coerceAtLeast(3)
-        val layout = StaticLayout.Builder.obtain(text, 0, text.length, body, inner - (2 * pad).toInt())
-            .setMaxLines(lines).setEllipsize(TextUtils.TruncateAt.END).setLineSpacing(0f, 1.05f).build()
-        panel(c, RectF(margin, y, w - margin, y + layout.height + 2 * pad))
-        c.save(); c.translate(margin + pad, y + pad); layout.draw(c); c.restore()
+        val inner = w - 2 * margin
+        val top = if (story) 120f else 64f
+        val bottom = h - (if (story) 130f else 104f)
+        val avail = bottom - top
+        val gap = if (story) 44f else 28f
+        val tileGap = if (story) 28f else 22f
+        val maxRows = if (story) 2 else 1
+        val maxTile = if (story) 300f else 200f
+        val minTile = if (story) 150f else 100f
+
+        fun header(s: Float): Block {
+            val eb = paint(Color.WHITE, (if (story) 36f else 28f) * s, bold = true, alpha = 215).apply { letterSpacing = 0.1f }
+            val titleP = paint(Color.WHITE, (if (story) 64f else 50f) * s, bold = true)
+            if (story) {
+                val side = 380f * s
+                val badge = badgeBlock(card.badge, 32f * s, w / 2f, inner, centered = true)
+                val title = textLayout(card.title, titleP, inner.toInt(), 2, Layout.Alignment.ALIGN_CENTER)
+                val ebH = eb.textSize * 1.3f
+                val hh = side + 40f * s + ebH + 18f * s + badge.height + 24f * s + title.height
+                return Block(hh) { cv, y ->
+                    artTile(cv, playlistCover, (w - side) / 2, y, side)
+                    var yy = y + side + 40f * s
+                    line(cv, card.eyebrow.uppercase(), w / 2f, yy + eb.textSize, eb, inner, Paint.Align.CENTER)
+                    yy += ebH + 18f * s
+                    badge.draw(cv, yy); yy += badge.height + 24f * s
+                    title.drawAt(cv, margin, yy)
+                }
+            }
+            // The square: the cover at the left, the words beside it.
+            val side = 200f * s
+            val tx = margin + side + 36f * s
+            val tw = w - margin - tx
+            val badge = badgeBlock(card.badge, 26f * s, tx, tw, centered = false)
+            val title = textLayout(card.title, titleP, tw.toInt(), 2)
+            val ebH = eb.textSize * 1.3f
+            val textH = ebH + 14f * s + badge.height + 16f * s + title.height
+            return Block(maxOf(side, textH)) { cv, y ->
+                artTile(cv, playlistCover, margin, y, side)
+                var yy = y + ((side - textH) / 2).coerceAtLeast(0f)
+                line(cv, card.eyebrow.uppercase(), tx, yy + eb.textSize, eb, tw)
+                yy += ebH + 14f * s
+                badge.draw(cv, yy); yy += badge.height + 16f * s
+                title.drawAt(cv, tx, yy)
+            }
+        }
+
+        fun textPanel(s: Float, maxLines: Int): Block {
+            val body = paint(Color.WHITE, (if (story) 44f else 34f) * s)
+            val pad = 48f * s
+            val layout = StaticLayout.Builder.obtain(card.text, 0, card.text.length, body, (inner - 2 * pad).toInt())
+                .setMaxLines(maxLines.coerceAtLeast(1)).setEllipsize(TextUtils.TruncateAt.END).setLineSpacing(0f, 1.05f).build()
+            return Block(layout.height + 2 * pad) { cv, y ->
+                panel(cv, RectF(margin, y, w - margin, y + layout.height + 2 * pad))
+                layout.drawAt(cv, margin + pad, y + pad)
+            }
+        }
+
+        // The covers in up to [maxRows] rows, as big as [room] lets them be; null when they would be too small.
+        fun coversBlock(room: Float): Block? {
+            val n = card.covers.size
+            if (n == 0) return null
+            var best = 0f; var bestCols = 1; var bestRows = 1
+            for (rows in 1..minOf(maxRows, n)) {
+                val cols = (n + rows - 1) / rows
+                val tile = minOf((inner - (cols - 1) * tileGap) / cols, (room - (rows - 1) * tileGap) / rows, maxTile)
+                if (tile > best + 0.5f) { best = tile; bestCols = cols; bestRows = rows }
+            }
+            if (best < minTile) return null
+            val shown = card.covers.take(bestCols * bestRows)
+            return Block(bestRows * best + (bestRows - 1) * tileGap) { cv, y ->
+                shown.chunked(bestCols).forEachIndexed { r, row ->
+                    val rowW = row.size * best + (row.size - 1) * tileGap
+                    row.forEachIndexed { i, b -> artTile(cv, b, (w - rowW) / 2 + i * (best + tileGap), y + r * (best + tileGap), best, i) }
+                }
+            }
+        }
+
+        // Smaller type and cover until the text and a row of covers fit; past that the text is cut.
+        var blocks = emptyList<Block>()
+        for (s in floatArrayOf(1f, 0.92f, 0.84f, 0.76f)) {
+            val head = header(s)
+            val bodyP = paint(Color.WHITE, (if (story) 44f else 34f) * s)
+            val room = avail - head.height - gap - 96f * s
+            val lines = (room / (bodyP.fontSpacing * 1.05f)).toInt().coerceAtLeast(3)
+            val text = textPanel(s, lines)
+            val rest = avail - head.height - text.height - 2 * gap
+            val art = coversBlock(rest)
+            blocks = listOfNotNull(head, text, art)
+            if (art != null || card.covers.isEmpty()) break
+        }
+        val used = blocks.sumOf { it.height.toDouble() }.toFloat() + gap * (blocks.size - 1)
+        // Short content sits in the middle rather than stuck to the top.
+        var y = top + ((avail - used) / 2).coerceAtLeast(0f)
+        c.save(); c.clipRect(0f, 0f, w.toFloat(), bottom + 20f)
+        for (b in blocks) { b.draw(c, y); y += b.height + gap }
+        c.restore()
         footer(ctx, c, w, h)
         return bmp
     }
