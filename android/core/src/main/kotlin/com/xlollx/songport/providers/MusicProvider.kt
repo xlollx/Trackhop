@@ -86,6 +86,13 @@ interface MusicProvider {
     val canCreatePlaylists: Boolean get() = true
     /** True se ha senso collegare piu' account dello stesso servizio. */
     val supportsMultipleAccounts: Boolean get() = requiresAuth
+
+    /**
+     * Milliseconds the service needs between two tracks added to [playlistId], when it adds them one
+     * at a time on purpose (Spotify's liked songs, to keep their order): the engine warns that a big
+     * first sync is slow. 0 for a normal target.
+     */
+    fun addSpacingMs(playlistId: String): Long = 0
     /** Dominio su cui l'utente fara' davvero il login (mostrato prima di aprire il browser). */
     val authDomain: String? get() = null
     /** Pagina del servizio dove revocare l'accesso all'app. */

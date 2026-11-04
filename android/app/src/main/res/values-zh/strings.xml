@@ -1394,4 +1394,5 @@
     <string name="provider_note_qobuz_web">Qobuz 只向合作伙伴开放 API：在 Qobuz 自己的页面登录后，Trackhop 使用网页播放器的会话。这不是官方途径，违反 Qobuz 的条款，可能随时失效。Alpha 版。读写你自己的歌单和收藏的曲目（作为喜欢的歌曲），并按 ISRC 搜索。如果登录无法完成，请在电脑的开发者工具中复制一个发往 www.qobuz.com/api.json 的请求（复制为 cURL，包含 X-User-Auth-Token），然后使用“粘贴”。</string>
     <string name="whats_new_111_qobuz_title">Qobuz</string>
     <string name="whats_new_111_qobuz_body">登录 Qobuz（也可用 Google），将歌单和收藏的曲目与任何其他服务同步。通过 Qobuz 自己的网页播放器，无需开发者密钥。</string>
+    <string name="note_slow_ordered_adds">%1$s 会逐首保存喜欢的歌曲以保持顺序：添加 %2$d 首歌曲大约需要 %3$d 分钟。这是正常的，只有首次大量同步才会这么慢，可以让 Trackhop 在后台运行。</string>
 </resources>

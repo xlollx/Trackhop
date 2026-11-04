@@ -442,6 +442,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
      * path, [legacy], is called then, once for all the ids.
      */
     @Volatile private var lastLibrarySave = 0L
+    override fun addSpacingMs(playlistId: String): Long = if (playlistId == MusicProvider.LIKED_ID) librarySpacingMs else 0
     /** The gap between two saved tracks: a little over a second, so each gets its own second. */
     @Volatile var librarySpacingMs = 1_050L
 

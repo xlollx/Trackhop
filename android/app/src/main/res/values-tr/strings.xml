@@ -1415,4 +1415,5 @@
     <string name="provider_note_qobuz_web">Qobuz API\'sini yalnızca iş ortaklarına açar: Qobuz\'un kendi sayfasında giriş yapın, Trackhop web oynatıcının oturumunu kullanır. Resmi bir yol değildir, Qobuz\'un koşullarına aykırıdır, çalışmayı bırakabilir. Alfa. Kendi çalma listeleriniz ve favori parçalarınız (beğenilen şarkılar olarak), okuma ve yazma; ISRC ile arama. Giriş tamamlanmazsa, bir bilgisayarın geliştirici araçlarından www.qobuz.com/api.json\'a giden bir isteği kopyalayın (cURL olarak: X-User-Auth-Token içerir) ve Yapıştır\'ı kullanın.</string>
     <string name="whats_new_111_qobuz_title">Qobuz</string>
     <string name="whats_new_111_qobuz_body">Qobuz\'a giriş yap (Google ile de) ve çalma listelerini ve favori parçalarını başka herhangi bir servisle eşitle. Qobuz\'un kendi web oynatıcısı üzerinden, geliştirici anahtarı olmadan.</string>
+    <string name="note_slow_ordered_adds">%1$s, sıralarını korumak için beğenilen şarkıları tek tek kaydeder: %2$d şarkı eklemek yaklaşık %3$d dakika sürer. Bu normaldir ve yalnızca büyük bir ilk eşitleme bu kadar yavaştır: Trackhop\'u arka planda bırakabilirsiniz.</string>
 </resources>

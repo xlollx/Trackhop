@@ -1425,4 +1425,5 @@
     <string name="provider_note_qobuz_web">Qobuz réserve son API à ses partenaires : connectez-vous sur la page de Qobuz et Trackhop utilise la session du lecteur web. Pas une voie officielle, contraire aux conditions de Qobuz, peut cesser de fonctionner. Alpha. Vos playlists et titres favoris (comme titres aimés), en lecture et écriture ; recherche par ISRC. Si la connexion n\'aboutit pas, copiez depuis les outils de développement d\'un ordinateur une requête vers www.qobuz.com/api.json (en cURL : elle contient X-User-Auth-Token) et utilisez Coller.</string>
     <string name="whats_new_111_qobuz_title">Qobuz</string>
     <string name="whats_new_111_qobuz_body">Connecte-toi à Qobuz (aussi avec Google) et synchronise tes playlists et titres favoris avec n\'importe quel autre service. Via le lecteur web de Qobuz, sans clé de développeur.</string>
+    <string name="note_slow_ordered_adds">%1$s enregistre les titres likés un par un pour garder leur ordre : ajouter %2$d titres prend environ %3$d minutes. C\'est normal, et seule une grosse première synchronisation est aussi lente : vous pouvez laisser Trackhop en arrière-plan.</string>
 </resources>

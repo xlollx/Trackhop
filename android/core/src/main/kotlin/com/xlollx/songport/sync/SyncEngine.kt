@@ -43,6 +43,8 @@ import java.util.UUID
 private val WAIT_SECONDS = intArrayOf(10, 20, 40, 60, 120)
 /** Quante attese dichiarate dal servizio (blocco dell'indirizzo) si accettano prima di fermarsi con quanto fatto. */
 private const val MAX_BLOCK_WAITS = 8
+/** Additions from which a slow, one-at-a-time target (see MusicProvider.addSpacingMs) is worth a note. */
+private const val SLOW_ADD_NOTE_FROM = 60
 /** How many added tracks a report keeps for its list: enough to read, small enough for a stored report. */
 private const val MAX_LISTED = 500
 private const val RESET_AFTER_CHUNKS = 15
@@ -462,6 +464,12 @@ class SyncEngine(
         // Gli abbinamenti sono fatti, non intenzioni: salvarli ora evita di ripetere le ricerche
         // (e la quota YouTube) se l'utente esegue dopo l'anteprima.
         store.putMatches(newCache - unsure)
+        // A service that saves one track at a time to keep the order (Spotify's liked songs): a big
+        // first sync takes a while, and the person should know it's expected.
+        val spacing = dst.addSpacingMs(targetId)
+        if (spacing > 0 && toAdd.size >= SLOW_ADD_NOTE_FROM) {
+            notes += str("note_slow_ordered_adds", dst.displayName, toAdd.size, ((toAdd.size * spacing + 59_999) / 60_000).toInt())
+        }
         return SyncPlan(
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,

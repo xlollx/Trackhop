@@ -1417,4 +1417,5 @@
     <string name="provider_note_qobuz_web">Qobuz gives its API to partners only: sign in on Qobuz\'s own page and Trackhop uses the web player\'s session. Not an official route, against Qobuz\'s terms, may stop working. Alpha. Playlists of your own and favourite tracks (as liked songs), read and written; search by ISRC. If the sign-in does not finish, copy a request to www.qobuz.com/api.json from a computer\'s developer tools (as cURL: it holds X-User-Auth-Token) and use Paste.</string>
     <string name="whats_new_111_qobuz_title">Qobuz</string>
     <string name="whats_new_111_qobuz_body">Sign in to Qobuz (also with Google) and sync your playlists and favourite tracks with any other service. Through Qobuz\'s own web player, no developer key.</string>
+    <string name="note_slow_ordered_adds">%1$s saves liked songs one at a time to keep their order: adding %2$d songs takes about %3$d minutes. That\'s normal, and only a big first sync is this slow: you can leave Trackhop in the background.</string>
 </resources>
