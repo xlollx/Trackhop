@@ -1,0 +1,1 @@
+Capturer un site web : plus aucun appel n'est perdu (réponses au format JSON et requêtes que la page ne peut pas lire comprises).

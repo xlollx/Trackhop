@@ -1,0 +1,1 @@
+Bir siteyi yakala: artık hiçbir çağrı kaybolmuyor (JSON biçimindeki yanıtlar ve sayfanın kendisinin okuyamadığı istekler dahil).

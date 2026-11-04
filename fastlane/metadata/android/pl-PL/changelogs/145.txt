@@ -1,0 +1,1 @@
+Przechwytywanie strony: żadne wywołanie już nie ginie (także odpowiedzi w formacie JSON i żądania, których sama strona nie może odczytać).

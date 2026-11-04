@@ -1,0 +1,1 @@
+Website-Mitschnitt: keine Aufrufe gehen mehr verloren (auch Antworten im JSON-Format und Anfragen, die die Seite selbst nicht lesen kann).

@@ -1,0 +1,1 @@
+Capture a website: no calls are lost any more (replies in JSON format and requests the page itself cannot read are written too).

@@ -1,0 +1,1 @@
+Cattura un sito: nessuna chiamata va più persa (anche le risposte in formato JSON e le richieste che la pagina stessa non riesce a leggere).
