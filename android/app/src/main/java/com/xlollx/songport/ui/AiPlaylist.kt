@@ -52,6 +52,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -168,7 +169,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
     val d = AiDraft
     remember { d.load(ctx); true }
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
-    var setupOpen by remember { mutableStateOf(false) }
+    var setupOpen by rememberSaveable { mutableStateOf(false) }
     val targets = remember { (Providers.connectors().filter { it.isConnected(ctx) } + LocalFilesProvider).distinctBy { it.id }.filter { it.canWrite && it.canCreatePlaylists } }
     val target = targets.firstOrNull { it.id == d.targetId } ?: targets.firstOrNull { it.requiresAuth } ?: LocalFilesProvider
 
@@ -505,15 +506,21 @@ private fun ModelRow(c: AiClient.Config, onChange: () -> Unit, onModel: (String)
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (AiClient.Config?) -> Unit) {
+    // Closed on purpose: the unsaved key is forgotten (see AiSetupDraft).
+    val close = { AiSetupDraft.closing = true; AiSetupDraft.key = null; onDismiss() }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    var vendor by remember { mutableStateOf(initial?.vendor ?: AiClient.Vendor.OPENAI) }
-    var key by remember { mutableStateOf(initial?.apiKey.orEmpty()) }
-    var model by remember { mutableStateOf(initial?.model.orEmpty()) }
-    var baseUrl by remember { mutableStateOf(initial?.baseUrl.orEmpty()) }
-    var imageModel by remember { mutableStateOf(initial?.imageModel.orEmpty()) }
-    var models by remember { mutableStateOf<List<String>>(emptyList()) }
-    var modelsOpen by remember { mutableStateOf(false) }
+    // What is being chosen survives leaving the app and coming back (the activity may be made anew
+    // meanwhile). The key typed but not saved yet stays in this process only, never in saved state.
+    var vendor by rememberSaveable { mutableStateOf(initial?.vendor ?: AiClient.Vendor.OPENAI) }
+    var key by remember { mutableStateOf(AiSetupDraft.key ?: initial?.apiKey.orEmpty()) }
+    var model by rememberSaveable { mutableStateOf(initial?.model.orEmpty()) }
+    var baseUrl by rememberSaveable { mutableStateOf(initial?.baseUrl.orEmpty()) }
+    var imageModel by rememberSaveable { mutableStateOf(initial?.imageModel.orEmpty()) }
+    var models by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
+    var modelsOpen by rememberSaveable { mutableStateOf(false) }
+    androidx.compose.runtime.SideEffect { if (!AiSetupDraft.closing) AiSetupDraft.key = key }
+    androidx.compose.runtime.DisposableEffect(Unit) { AiSetupDraft.closing = false; onDispose { if (AiSetupDraft.closing) AiSetupDraft.key = null } }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     /** "" = the test passed; text = its error; null = not tried. */
@@ -521,7 +528,7 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
     fun current() = AiClient.Config(vendor, key.trim(), model.trim(), baseUrl.trim(), if (vendor == AiClient.Vendor.CUSTOM) imageModel.trim() else "")
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.ai_setup_title)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -616,12 +623,12 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
             }
         },
         confirmButton = {
-            TextButton(enabled = current().complete, onClick = { AiClient.save(ctx, current()); AiDraft.models = emptyList(); onSaved(current()) }) { Text(stringResource(R.string.save)) }
+            TextButton(enabled = current().complete, onClick = { AiClient.save(ctx, current()); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(current()) }) { Text(stringResource(R.string.save)) }
         },
         dismissButton = {
             Row {
-                if (initial != null) TextButton(onClick = { AiClient.clear(ctx); AiDraft.models = emptyList(); onSaved(null) }) { Text(stringResource(R.string.ai_forget), color = MaterialTheme.colorScheme.error) }
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                if (initial != null) TextButton(onClick = { AiClient.clear(ctx); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(null) }) { Text(stringResource(R.string.ai_forget), color = MaterialTheme.colorScheme.error) }
+                TextButton(onClick = close) { Text(stringResource(R.string.cancel)) }
             }
         },
     )
@@ -848,4 +855,12 @@ fun AiCountField(value: Int, onChange: (Int) -> Unit) {
         },
         modifier = Modifier.fillMaxWidth(),
     )
+}
+
+
+/** The key typed in [AiSetupDialog] and not saved yet, kept across a remade activity in memory only. */
+object AiSetupDraft {
+    @Volatile var key: String? = null
+    /** Set when the dialog is closed on purpose (saved or cancelled), so the draft is dropped. */
+    @Volatile var closing = false
 }

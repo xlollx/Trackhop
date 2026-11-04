@@ -309,7 +309,7 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.History, stringResource(R.string.settings_log), stringResource(R.string.settings_log_summary), onClick = onOpenLog)
             // Same dialog as the generator in Tools: key and model live in the encrypted token store.
             var aiConfig by remember { mutableStateOf(com.xlollx.songport.ai.AiClient.config(ctx)) }
-            var aiOpen by remember { mutableStateOf(false) }
+            var aiOpen by rememberSaveable { mutableStateOf(false) }
             if (aiOpen) AiSetupDialog(aiConfig, onDismiss = { aiOpen = false }) { aiConfig = it; aiOpen = false }
             val ai = aiConfig
             PrefRow(
