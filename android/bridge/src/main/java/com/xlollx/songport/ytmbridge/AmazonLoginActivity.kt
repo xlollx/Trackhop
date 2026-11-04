@@ -75,7 +75,7 @@ class AmazonLoginActivity : ComponentActivity() {
         // The player runs here, in front of the user: the surest place to see the headers it builds
         // for its own API calls, which are the only thing carrying an access token.
         val early = AmazonBridge.install(this, web)
-        web.webViewClient = object : WebViewClient() {
+        web.webViewClient = object : SafeWebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                 if (!early) view.evaluateJavascript(AmazonBridge.HOOK, null)
             }

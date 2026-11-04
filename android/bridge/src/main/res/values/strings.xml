@@ -26,4 +26,5 @@
     <string name="bridge_capture_delete_body">The file stays on this phone until a day has passed, unless you delete it now.</string>
     <string name="bridge_capture_delete">Delete</string>
     <string name="bridge_capture_keep">Keep</string>
+    <string name="bridge_page_crashed">The page stopped working and was closed. Please try again.</string>
 </resources>

@@ -1588,4 +1588,5 @@
     <string name="whats_new_113_covers_title">Covers drawn on your phone</string>
     <string name="whats_new_113_covers_body">Five cover styles for the poster, with no AI and nothing sent anywhere, and covers picked from the artists your playlist really has.</string>
     <string name="discover_wrapped_covers">Looking for the covers…</string>
+    <string name="web_page_crashed">The page stopped working and was closed. Please try again.</string>
 </resources>

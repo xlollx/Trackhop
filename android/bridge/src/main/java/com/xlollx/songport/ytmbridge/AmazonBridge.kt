@@ -267,7 +267,7 @@ object AmazonBridge {
                 w.addJavascriptInterface(sink, "AmzBridge")
                 val early = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
                 if (early) WebViewCompat.addDocumentStartJavaScript(w, HOOK, setOf("*"))
-                w.webViewClient = object : WebViewClient() {
+                w.webViewClient = object : SafeWebViewClient() {
                     override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                         lastUrl.set(url ?: "")
                         if (!early) view.evaluateJavascript(HOOK, null)

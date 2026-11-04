@@ -26,4 +26,5 @@
     <string name="bridge_capture_delete_body">Die Datei bleibt einen Tag auf diesem Handy, außer du löschst sie jetzt.</string>
     <string name="bridge_capture_delete">Löschen</string>
     <string name="bridge_capture_keep">Behalten</string>
+    <string name="bridge_page_crashed">Die Seite funktioniert nicht mehr und wurde geschlossen. Versuche es noch einmal.</string>
 </resources>

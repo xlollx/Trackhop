@@ -87,7 +87,7 @@ object AppleBridge {
                 web = w
                 w.settings.javaScriptEnabled = true
                 w.settings.domStorageEnabled = true
-                w.webViewClient = object : android.webkit.WebViewClient() {
+                w.webViewClient = object : SafeWebViewClient() {
                     override fun shouldInterceptRequest(view: android.webkit.WebView, request: android.webkit.WebResourceRequest): android.webkit.WebResourceResponse? {
                         if (request.url.host?.endsWith("music.apple.com") == true) offer(request.requestHeaders?.get("Authorization"))
                         return null

@@ -1565,4 +1565,5 @@
     <string name="whats_new_113_covers_title">スマホで描くカバー</string>
     <string name="whats_new_113_covers_body">ポスター用の5つのカバースタイル。AI不要で何も送信しません。カバーはプレイリストに多いアーティストから選びます。</string>
     <string name="discover_wrapped_covers">ジャケットを探しています…</string>
+    <string name="web_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
 </resources>

@@ -155,7 +155,7 @@ object SoundCloudRenewal {
                         override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? { watch(request); return null }
                     })
                 }
-                w.webViewClient = object : WebViewClient() {
+                w.webViewClient = object : SafeWebViewClient() {
                     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? { watch(request); return null }
                     // "Open in app" and the stores: the page stays where it is.
                     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =

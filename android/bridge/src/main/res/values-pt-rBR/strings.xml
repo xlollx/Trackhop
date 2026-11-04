@@ -26,4 +26,5 @@
     <string name="bridge_capture_delete_body">O arquivo fica neste celular por um dia, a menos que você o apague agora.</string>
     <string name="bridge_capture_delete">Apagar</string>
     <string name="bridge_capture_keep">Manter</string>
+    <string name="bridge_page_crashed">A página parou de funcionar e foi fechada. Tente de novo.</string>
 </resources>

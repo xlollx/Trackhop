@@ -37,7 +37,7 @@ class VerifyActivity : ComponentActivity() {
 
         CookieManager.getInstance().apply { setAcceptCookie(true); setAcceptThirdPartyCookies(web, true) }
         web.settings.apply { javaScriptEnabled = true; domStorageEnabled = true }
-        web.webViewClient = object : WebViewClient() {
+        web.webViewClient = object : SafeWebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 // Past the captcha Google follows the "continue" address: the block is lifted.
                 val host = Uri.parse(url).host ?: return

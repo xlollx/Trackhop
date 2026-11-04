@@ -1564,4 +1564,5 @@
     <string name="whats_new_113_covers_title">휴대폰에서 그리는 커버</string>
     <string name="whats_new_113_covers_body">포스터용 커버 스타일 5가지, AI 없이 아무것도 보내지 않습니다. 커버는 플레이리스트에 실제로 많은 아티스트에서 고릅니다.</string>
     <string name="discover_wrapped_covers">커버를 찾는 중…</string>
+    <string name="web_page_crashed">페이지가 작동을 멈춰 닫혔습니다. 다시 시도해 주세요.</string>
 </resources>

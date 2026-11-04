@@ -89,7 +89,7 @@ class AmazonCaptureActivity : ComponentActivity() {
         // Watching the real Amazon player here also refreshes the connector's own credentials.
         val amazon = site == null
         if (amazon) AmazonBridge.install(this, web)
-        web.webViewClient = object : WebViewClient() {
+        web.webViewClient = object : SafeWebViewClient() {
             // Every request to the site as the WebView sees it (also those a page script cannot:
             // workers, beacons, a reply it could not read): address and method, no body. A safety
             // net under the script's fuller lines.
@@ -122,7 +122,7 @@ class AmazonCaptureActivity : ComponentActivity() {
                     settings.apply { javaScriptEnabled = true; domStorageEnabled = true; setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true }
                     BridgeUa.apply(this@AmazonCaptureActivity, this)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-                    webViewClient = WebViewClient()
+                    webViewClient = SafeWebViewClient()
                     webChromeClient = object : android.webkit.WebChromeClient() {
                         override fun onCloseWindow(window: WebView) { closePopup(window) }
                     }

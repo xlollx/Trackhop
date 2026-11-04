@@ -161,7 +161,7 @@ object SpotifyBridge {
                 w.addJavascriptInterface(sink, "SpBridge")
                 val early = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
                 if (early) WebViewCompat.addDocumentStartJavaScript(w, HOOK, setOf("*"))
-                w.webViewClient = object : WebViewClient() {
+                w.webViewClient = object : SafeWebViewClient() {
                     override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                         if (!early) view.evaluateJavascript(HOOK, null)
                     }

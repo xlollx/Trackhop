@@ -94,7 +94,7 @@ object YtmWeb {
                     val w = WebView(app)
                     w.settings.apply { javaScriptEnabled = true; domStorageEnabled = true }
                     w.addJavascriptInterface(sink, "YtmWeb")
-                    w.webViewClient = object : WebViewClient() {
+                    w.webViewClient = object : SafeWebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) { latch.countDown() }
                         override fun onReceivedError(view: WebView, req: android.webkit.WebResourceRequest, err: android.webkit.WebResourceError) {
                             if (req.isForMainFrame) { broken = true; latch.countDown() }

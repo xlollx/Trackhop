@@ -157,7 +157,7 @@ class WebLoginActivity : ComponentActivity() {
                 })
             }
         }
-        web.webViewClient = object : WebViewClient() {
+        web.webViewClient = object : SafeWebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val scheme = request.url.scheme
                 // SoundCloud's mobile site offers its app ("Listen in app", banners) by intent://,
@@ -219,7 +219,7 @@ class WebLoginActivity : ComponentActivity() {
                     }
                     identity(this)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-                    webViewClient = object : WebViewClient() {
+                    webViewClient = object : SafeWebViewClient() {
                         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                             watchSoundCloud(request)
                             watchBotCheck(request.url.toString())

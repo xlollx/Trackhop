@@ -79,7 +79,7 @@ class AppleAuthActivity : ComponentActivity() {
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.setSupportMultipleWindows(true)
         CookieManager.getInstance().setAcceptCookie(true)
-        webViewClient = object : WebViewClient() {
+        webViewClient = object : SafeWebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
                 assetLoader.shouldInterceptRequest(request.url)
         }

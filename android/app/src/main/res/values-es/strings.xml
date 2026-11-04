@@ -1596,4 +1596,5 @@
     <string name="whats_new_113_covers_title">Portadas dibujadas en tu móvil</string>
     <string name="whats_new_113_covers_body">Cinco estilos de portada para el póster, sin IA y sin enviar nada, y portadas elegidas entre los artistas que la playlist tiene de verdad.</string>
     <string name="discover_wrapped_covers">Buscando las portadas…</string>
+    <string name="web_page_crashed">La página dejó de funcionar y se cerró. Inténtalo de nuevo.</string>
 </resources>

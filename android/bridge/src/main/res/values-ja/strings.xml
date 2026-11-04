@@ -26,4 +26,5 @@
     <string name="bridge_capture_delete_body">今削除しない限り、ファイルは1日間この端末に残ります。</string>
     <string name="bridge_capture_delete">削除</string>
     <string name="bridge_capture_keep">残す</string>
+    <string name="bridge_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
 </resources>

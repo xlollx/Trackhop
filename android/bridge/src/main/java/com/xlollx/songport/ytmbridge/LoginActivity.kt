@@ -52,7 +52,7 @@ class LoginActivity : ComponentActivity() {
             builtInZoomControls = true
             displayZoomControls = false
         }
-        web.webViewClient = object : WebViewClient() {
+        web.webViewClient = object : SafeWebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val scheme = request.url.scheme
                 if (scheme == "http" || scheme == "https") return false

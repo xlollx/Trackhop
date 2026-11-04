@@ -1565,4 +1565,5 @@
     <string name="whats_new_113_covers_title">在手机上绘制的封面</string>
     <string name="whats_new_113_covers_body">海报有五种封面样式，无需 AI，不发送任何数据；封面从歌单里真正常见的艺人中挑选。</string>
     <string name="discover_wrapped_covers">正在查找封面…</string>
+    <string name="web_page_crashed">页面已停止运行并被关闭。请重试。</string>
 </resources>

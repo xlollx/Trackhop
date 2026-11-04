@@ -1634,4 +1634,5 @@
     <string name="whats_new_113_covers_title">Обложки, нарисованные на телефоне</string>
     <string name="whats_new_113_covers_body">Пять стилей обложки для постера, без ИИ и без отправки данных, а обложки выбираются из исполнителей, которых в плейлисте больше всего.</string>
     <string name="discover_wrapped_covers">Ищу обложки…</string>
+    <string name="web_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
 </resources>

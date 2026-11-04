@@ -26,4 +26,5 @@
     <string name="bridge_capture_delete_body">除非现在删除，文件会在本机保留一天。</string>
     <string name="bridge_capture_delete">删除</string>
     <string name="bridge_capture_keep">保留</string>
+    <string name="bridge_page_crashed">页面已停止运行并被关闭。请重试。</string>
 </resources>
