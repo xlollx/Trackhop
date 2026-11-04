@@ -434,6 +434,41 @@ class WebTest {
         assertTrue(post("/syncs/${job.id}/radio", "start=12%3A00&end=13%3A00", *origin).headers().firstValue("Location").orElse("").contains("err="))
     }
 
+    /** "Keep every track": chosen in the new sync's form and on its page, shown on its card, kept by a config backup. */
+    @Test fun anArchiveSyncIsMadeShownChangedAndBackedUp() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/Weekly.csv").writeText("title,artist\nSong,Someone\n")
+        val form = get("/syncs/new?src=csv&dst=csv").body()
+        assertTrue(form, form.contains("name=\"changes\" value=\"archive\"") && form.contains("Keep every track (archive)"))
+        assertTrue(form.contains("Copy the latest version (replace)"))
+        val made = post("/syncs", "src=csv&dst=csv&srcPlaylist=Weekly&dstPlaylist=&name=Weekly&schedule=WEEKLY&changes=archive&follows=on", *origin)
+        val at = made.headers().firstValue("Location").orElse("")
+        assertTrue(at, at.startsWith("/syncs/") && !at.contains("err="))
+        val job = env.store.data.jobs.single()
+        assertTrue(job.archive)
+        assertFalse("an archive never mirrors", job.mirrorRemovals || job.followsChanges)
+        assertTrue(get("/").body().contains("keeps every track"))
+        assertTrue(get("/syncs/${job.id}").body().contains("value=\"archive\" checked"))
+        // Back to the latest version, then to only adding, from its page.
+        assertEquals(303, post("/syncs/${job.id}/schedule", "name=Weekly&changes=mirror&follows=on", *origin).statusCode())
+        env.store.job(job.id)!!.let { assertTrue(it.mirrorRemovals && it.followsChanges && !it.archive) }
+        assertEquals(303, post("/syncs/${job.id}/schedule", "name=Weekly&changes=archive", *origin).statusCode())
+        env.store.job(job.id)!!.let { assertTrue(it.archive && !it.mirrorRemovals) }
+        // The older checkbox still means what it did.
+        assertEquals(303, post("/syncs/${job.id}/schedule", "name=Weekly&mirror=on", *origin).statusCode())
+        env.store.job(job.id)!!.let { assertTrue(it.mirrorRemovals && !it.archive) }
+        assertEquals(303, post("/syncs/${job.id}/schedule", "name=Weekly&changes=archive", *origin).statusCode())
+        // A config backup carries it to another Trackhop.
+        val text = get("/tools/config?download=1").body()
+        val env2 = ServerEnv(tmp.newFolder("other-archive"), Strings(emptyMap()), "http://127.0.0.1")
+        com.xlollx.songport.data.ConfigBackup.import(env2, com.xlollx.songport.data.ConfigBackup.read(text))
+        assertTrue(env2.store.job(job.id)!!.archive)
+        // And the API says it.
+        val api = Api.job(env, env.store.job(job.id)!!, running = false).toString()
+        assertTrue(api, api.contains("\"archive\":true") && api.contains("\"mirrorRemovals\":false"))
+    }
+
     @Test fun configurationExportsAndImportsWithoutSignIns() {
         File(data, "csv").mkdirs()
         File(data, "csv/Keep.csv").writeText("title,artist\nSong,Band\n")

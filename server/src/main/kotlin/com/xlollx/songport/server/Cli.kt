@@ -269,7 +269,7 @@ object Cli {
             if (asJson) return print(o).let { 0 }
             out.println("${o.s("name")}  (${o.s("id")})")
             out.println("  ${route(o)}")
-            out.println("  schedule ${o.s("schedule")}${if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
+            out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
             (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
             o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
             val runs = o["runs"]?.jsonArray.orEmpty()

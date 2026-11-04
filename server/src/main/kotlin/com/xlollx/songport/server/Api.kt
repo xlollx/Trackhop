@@ -72,6 +72,10 @@ object Api {
         put("target", ref(env, j.target.provider, j.target.playlistId, j.target.playlistName))
         put("schedule", j.schedule.name.lowercase())
         put("mirrorRemovals", j.mirrorRemovals)
+        // The source changes by itself (a daylist): with mirrorRemovals, big removals need no confirmation.
+        put("followsChanges", j.followsChanges)
+        // Keeps every track ever seen: nothing is removed from the target, new tracks are added at the end.
+        put("archive", j.archive)
         put("enabled", j.enabled)
         // Its source is the playlist the Shazam app fills on Spotify or Apple Music.
         put("shazam", j.shazam)

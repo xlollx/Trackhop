@@ -284,7 +284,7 @@ class Web(
         return """<div class="card"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
-<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
+<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
 <div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download</div></div></div></div>"""
     }
@@ -314,6 +314,29 @@ class Web(
         return """<label>Runs</label><select name="every">$steps</select>
 <label>At (for daily or longer, or on the days below)</label><input type="time" name="at" value="${h(job?.at ?: "09:00")}">
 <label>Only on these days (optional)</label><div>$days</div>"""
+    }
+
+    /**
+     * What the destination does when the source changes, as three choices: only add (the default),
+     * copy the latest version (Mirror removals), or keep every track (an archive, for a Discover
+     * Weekly, a daylist or a chart). "The source changes by itself" goes with the latest version.
+     */
+    internal fun changesFields(job: SyncJob?): String {
+        val mode = when { job?.archive == true -> "archive"; job?.mirrorRemovals == true -> "mirror"; else -> "add" }
+        fun choice(value: String, text: String) =
+            """<label class="check"><input type="radio" name="changes" value="$value"${if (value == mode) " checked" else ""}> $text</label>"""
+        return """<label>When the source changes</label>
+${choice("add", "Only add new tracks: what the destination already has stays")}
+${choice("mirror", "Copy the latest version (replace): tracks removed from the source are removed from the destination")}
+${choice("archive", "Keep every track (archive): nothing is ever removed, only new tracks are added, at the end. For Discover Weekly, Release Radar, a daylist or a chart")}
+<label class="check"><input type="checkbox" name="follows"${if (job?.followsChanges == true) " checked" else ""}> With the latest version: the source changes by itself (a daylist, Discover Weekly), big removals need no confirmation</label>"""
+    }
+
+    /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
+    internal fun withChanges(job: SyncJob, r: Req): SyncJob {
+        val mode = r.form["changes"] ?: when { r.form["archive"] == "on" -> "archive"; r.form["mirror"] == "on" -> "mirror"; else -> "add" }
+        val mirror = mode == "mirror"
+        return job.copy(mirrorRemovals = mirror, followsChanges = mirror && r.form["follows"] == "on", archive = mode == "archive")
     }
 
     /** A sync with the timing read from its form. */
@@ -572,7 +595,9 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
                         val color = r.form["color"]?.takeIf { it in Html.JOB_COLORS }
-                        val saved = withTiming(job.copy(name = name, schedule = s), r).copy(mirrorRemovals = r.form["mirror"] == "on", followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on", color = color)
+                        val timed = withTiming(job.copy(name = name, schedule = s, color = color), r)
+                        // A radio sync's form has no choice about changes: its source only grows.
+                        val saved = if (job.radio != null) timed else withChanges(timed, r)
                         val warning = conflictWarning(saved)
                         env.store.upsertJob(saved)
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
@@ -648,8 +673,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-<label class="check"><input type="checkbox" name="mirror"> Mirror removals (tracks removed from the source are removed from the destination)</label>
-<label class="check"><input type="checkbox" name="follows"> The source changes by itself (a daylist, Discover Weekly): with mirror removals, big removals need no confirmation</label>
+${changesFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -685,9 +709,7 @@ ${timingFields(null)}
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-            mirrorRemovals = r.form["mirror"] == "on",
-            followsChanges = r.form["mirror"] == "on" && r.form["follows"] == "on",
-        ).let { withTiming(it, r) }
+        ).let { withChanges(withTiming(it, r), r) }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
         redirect(r.ex, "/syncs/${q(job.id)}?ok=${q("Sync created. Run it now, or let the schedule start it." + (warning?.let { " $it" } ?: ""))}")
@@ -716,8 +738,7 @@ ${timingFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-<label class="check"><input type="checkbox" name="mirror"${if (job.mirrorRemovals) " checked" else ""}> Mirror removals</label>
-<label class="check"><input type="checkbox" name="follows"${if (job.followsChanges) " checked" else ""}> The source changes by itself (a daylist, Discover Weekly): big removals need no confirmation</label>"""}
+${changesFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}</div>
 <p><button class="secondary">Save</button></p></form>""",
         )
