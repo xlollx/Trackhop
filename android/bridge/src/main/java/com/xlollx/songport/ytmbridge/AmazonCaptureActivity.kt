@@ -33,6 +33,8 @@ class AmazonCaptureActivity : ComponentActivity() {
     private lateinit var web: WebView
     private lateinit var counter: TextView
     private var count = 0
+    /** One writer for the page script and the WebView's own requests (several threads). */
+    private val sink by lazy { Sink() }
 
     /**
      * Another site's web player to capture instead of Amazon's (a service being added, Qobuz…):
@@ -75,7 +77,7 @@ class AmazonCaptureActivity : ComponentActivity() {
             loadWithOverviewMode = true
         }
         BridgeUa.apply(this, web)
-        web.addJavascriptInterface(Sink(), "SpCapture")
+        web.addJavascriptInterface(sink, "SpCapture")
         val hook = (site?.let { "window.__capSite = '${it.replace("'", "")}';\n" } ?: "") + HOOK
         val early = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
         if (early) WebViewCompat.addDocumentStartJavaScript(web, hook, setOf("*"))
@@ -83,6 +85,22 @@ class AmazonCaptureActivity : ComponentActivity() {
         val amazon = site == null
         if (amazon) AmazonBridge.install(this, web)
         web.webViewClient = object : WebViewClient() {
+            // Every request to the site as the WebView sees it (also those a page script cannot:
+            // workers, beacons, a reply it could not read): address and method, no body. A safety
+            // net under the script's fuller lines.
+            override fun shouldInterceptRequest(view: WebView, request: android.webkit.WebResourceRequest): android.webkit.WebResourceResponse? {
+                val s = site ?: return null
+                val u = request.url
+                val host = u.host ?: return null
+                if ((host == s || host.endsWith(".$s")) && !STATIC.containsMatchIn(u.path.orEmpty())) {
+                    val line = org.json.JSONObject()
+                        .put("t", System.currentTimeMillis()).put("seen", "webview")
+                        .put("method", request.method).put("url", cleanUrl(u.toString()))
+                        .put("headers", org.json.JSONObject(request.requestHeaders.mapValues { (k, v) -> if (SECRET_HEADER.containsMatchIn(k)) "[${v.length} chars]" else v.take(200) }))
+                    sink.log(line.toString())
+                }
+                return null
+            }
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                 if (!early) { view.evaluateJavascript(hook, null); if (amazon) view.evaluateJavascript(AmazonBridge.HOOK, null) }
             }
@@ -125,6 +143,24 @@ class AmazonCaptureActivity : ComponentActivity() {
     }
 
     companion object {
+        private val STATIC = Regex("""\.(?:png|jpe?g|webp|gif|svg|css|woff2?|ico|js|mp3|flac|m4a)$""", RegexOption.IGNORE_CASE)
+        private val SECRET_HEADER = Regex("authori|token|cookie|csrf|session|signature|credential", RegexOption.IGNORE_CASE)
+        /** Personal fields of a form or a query, by their decoded name (as the page script does). */
+        private val PERSONAL = Regex("pass|secret|token|mail|user_?name|login|authori[sz]|authenticat|birth|captcha|phone|address|gender|iban", RegexOption.IGNORE_CASE)
+
+        /** [url] with the values of its personal query fields blanked. */
+        fun cleanUrl(url: String): String {
+            val q = url.indexOf('?').takeIf { it >= 0 } ?: return url
+            val query = url.substring(q + 1).split('&').joinToString("&") { kv ->
+                val i = kv.indexOf('=')
+                if (i < 0) kv else {
+                    val name = runCatching { java.net.URLDecoder.decode(kv.substring(0, i), "UTF-8") }.getOrDefault(kv.substring(0, i))
+                    if (PERSONAL.containsMatchIn(name)) kv.substring(0, i) + "=[redacted]" else kv
+                }
+            }
+            return url.substring(0, q + 1) + query
+        }
+
         /** The address to open for a capture of another site (https only). */
         const val EXTRA_URL = "url"
         private const val MAX_BYTES = 6L * 1024 * 1024
@@ -266,7 +302,8 @@ class AmazonCaptureActivity : ComponentActivity() {
                 var reqHeaders = hdrs((init && init.headers) || (input && input.headers));
                 var p = of.apply(this, arguments);
                 if (match(url)) p.then(function(r){
-                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: answer(t)}); }); } catch(e){}
+                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: answer(t)}); })
+                    .catch(function(e){ send({t: Date.now(), url: clean(abs(url)), method: method, status: r.status, error: String(e)}); }); } catch(e){ send({t: Date.now(), url: clean(abs(url)), method: method, error: String(e)}); }
                 });
                 return p;
               };
@@ -277,7 +314,11 @@ class AmazonCaptureActivity : ComponentActivity() {
               XMLHttpRequest.prototype.send = function(b){
                 var x = this;
                 if (match(x.__u)) x.addEventListener('loadend', function(){
-                  send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: answer(String(x.responseText || ''))});
+                  // responseText throws for a "json", "blob" or "arraybuffer" request: read what there is.
+                  var text = '';
+                  try { text = (x.responseType === '' || x.responseType === 'text') ? String(x.responseText || '') : (x.responseType === 'json' ? JSON.stringify(x.response) : '[' + x.responseType + ']'); } catch(e) { text = '[unreadable: ' + e + ']'; }
+                  try { send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: answer(text)}); }
+                  catch(e) { send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, error: String(e)}); }
                 });
                 return os.apply(this, arguments);
               };
