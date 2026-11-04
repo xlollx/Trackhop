@@ -173,10 +173,15 @@ class SpotifyWebClient(private val host: Host) {
         return j.entries.associate { (k, v) -> k to (v.str ?: "") }.filterValues { it.length == 64 }.toMutableMap()
     }
 
-    private fun saveHashes(map: Map<String, String>, pack: String?) {
+    /**
+     * [harvested]: the bundle was really read. Only then does the half-hour pause before the next
+     * read start: saving the registry's or the player's hashes used to start it too, and a mutation
+     * the registry lacks (addToLibrary, liked songs) then went unsearched for half an hour (#34).
+     */
+    private fun saveHashes(map: Map<String, String>, pack: String?, harvested: Boolean = false) {
         host.put("hashes", JsonObject(map.mapValues { JsonPrimitive(it.value) }).toString())
         host.put("hashesPack", pack)
-        host.put("hashesAt", System.currentTimeMillis().toString())
+        if (harvested) host.put("hashesAt", System.currentTimeMillis().toString())
     }
 
     /** A hash the WebView saw the player use: kept, and preferred to whatever the bundle said. */
@@ -219,7 +224,7 @@ class SpotifyWebClient(private val host: Host) {
         val main = fetch(pack)
         scan(main)
         // Only what was asked for: the whole set would mean tens of megabytes on first use.
-        if (wanted in map) { saveHashes(map, pack); return }
+        if (wanted in map) { saveHashes(map, pack, harvested = true); return }
         val maps = CHUNK_MAP.findAll(main).map { m ->
             PAIR.findAll(m.value).associate { it.groupValues[1].toInt() to it.groupValues[2] }
         }.filter { it.size > 3 }.toList()
@@ -241,7 +246,7 @@ class SpotifyWebClient(private val host: Host) {
             bytes += t.length
             scan(t)
         }
-        saveHashes(map, pack)
+        saveHashes(map, pack, harvested = true)
     }
 
     // ---- GraphQL
