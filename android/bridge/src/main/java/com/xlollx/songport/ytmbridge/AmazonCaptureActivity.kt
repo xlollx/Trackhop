@@ -31,6 +31,8 @@ import java.io.File
  */
 class AmazonCaptureActivity : ComponentActivity() {
     private lateinit var web: WebView
+    private lateinit var frame: android.widget.FrameLayout
+    private val popups = ArrayList<WebView>()
     private lateinit var counter: TextView
     private var count = 0
     /** One writer for the page script and the WebView's own requests (several threads). */
@@ -58,8 +60,10 @@ class AmazonCaptureActivity : ComponentActivity() {
         val clear = Button(this).apply { text = getString(R.string.bridge_amazon_capture_clear); setOnClickListener { file.delete(); count = 0; refresh() } }
         bar.addView(counter); bar.addView(clear); bar.addView(share)
         val hint = TextView(this).apply { text = if (site != null) getString(R.string.bridge_capture_site_intro, site) else getString(R.string.bridge_amazon_capture_intro); setPadding(16, 0, 16, 8); textSize = 12f }
-        web = WebView(this).apply { layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f) }
-        root.addView(bar); root.addView(hint); root.addView(web)
+        web = WebView(this)
+        // The page and, above it, the popups a sign-in opens ("Continue with Google").
+        frame = android.widget.FrameLayout(this).apply { layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f); addView(web) }
+        root.addView(bar); root.addView(hint); root.addView(frame)
         setContentView(root)
         BridgeInsets.fit(root)
         refresh()
@@ -108,8 +112,42 @@ class AmazonCaptureActivity : ComponentActivity() {
                 if (!early) { view.evaluateJavascript(hook, null); if (amazon) view.evaluateJavascript(AmazonBridge.HOOK, null) }
             }
         }
-        onBackPressedDispatcher.addCallback(this) { if (web.canGoBack()) web.goBack() else finish() }
+        // A sign-in with Google, Apple or Facebook opens a popup and hands its result back to the
+        // page that opened it: a real second view, sharing the cookies, keeps that working.
+        web.settings.apply { setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true }
+        web.webChromeClient = object : android.webkit.WebChromeClient() {
+            override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: android.os.Message): Boolean {
+                val popup = WebView(this@AmazonCaptureActivity).apply {
+                    settings.apply { javaScriptEnabled = true; domStorageEnabled = true; setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true }
+                    BridgeUa.apply(this@AmazonCaptureActivity, this)
+                    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    webViewClient = WebViewClient()
+                    webChromeClient = object : android.webkit.WebChromeClient() {
+                        override fun onCloseWindow(window: WebView) { closePopup(window) }
+                    }
+                }
+                frame.addView(popup)
+                popups += popup
+                (resultMsg.obj as WebView.WebViewTransport).webView = popup
+                resultMsg.sendToTarget()
+                return true
+            }
+        }
+        onBackPressedDispatcher.addCallback(this) {
+            val top = popups.lastOrNull()
+            when {
+                top != null -> if (top.canGoBack()) top.goBack() else closePopup(top)
+                web.canGoBack() -> web.goBack()
+                else -> finish()
+            }
+        }
         web.loadUrl(startUrl ?: ("https://" + (AmazonSession.domain(this) ?: "music.amazon.com") + "/"))
+    }
+
+    private fun closePopup(popup: WebView) {
+        popups -= popup
+        frame.removeView(popup)
+        popup.destroy()
     }
 
     private fun refresh() { counter.text = getString(R.string.bridge_amazon_capture_count, count) }
