@@ -1587,4 +1587,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, a daylist or a chart change every week: a sync can now keep every song they ever had (archive), even on the same service.</string>
     <string name="whats_new_113_covers_title">Covers drawn on your phone</string>
     <string name="whats_new_113_covers_body">Five cover styles for the poster, with no AI and nothing sent anywhere, and covers picked from the artists your playlist really has.</string>
+    <string name="discover_wrapped_covers">Looking for the covers…</string>
 </resources>

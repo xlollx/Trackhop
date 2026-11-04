@@ -1585,4 +1585,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, daylist ya da listeler her hafta değişir: artık bir eşitleme, içlerinde olmuş her şarkıyı saklayabilir (arşiv), aynı serviste bile.</string>
     <string name="whats_new_113_covers_title">Telefonda çizilen kapaklar</string>
     <string name="whats_new_113_covers_body">Poster için beş kapak stili, yapay zekâsız ve hiçbir şey göndermeden; kapaklar listede gerçekten olan sanatçılardan seçilir.</string>
+    <string name="discover_wrapped_covers">Kapaklar aranıyor…</string>
 </resources>

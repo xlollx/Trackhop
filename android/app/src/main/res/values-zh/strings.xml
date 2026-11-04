@@ -1564,4 +1564,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly、daylist 或排行榜每周都会变：现在同步可以保留它们出现过的每一首歌（存档），同一服务内也可以。</string>
     <string name="whats_new_113_covers_title">在手机上绘制的封面</string>
     <string name="whats_new_113_covers_body">海报有五种封面样式，无需 AI，不发送任何数据；封面从歌单里真正常见的艺人中挑选。</string>
+    <string name="discover_wrapped_covers">正在查找封面…</string>
 </resources>

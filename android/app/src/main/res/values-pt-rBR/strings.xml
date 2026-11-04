@@ -1595,4 +1595,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, uma daylist ou uma parada mudam toda semana: agora uma sincronização pode guardar cada música que já tiveram (arquivo), até no mesmo serviço.</string>
     <string name="whats_new_113_covers_title">Capas desenhadas no seu celular</string>
     <string name="whats_new_113_covers_body">Cinco estilos de capa para o pôster, sem IA e sem enviar nada, e capas escolhidas entre os artistas que a playlist realmente tem.</string>
+    <string name="discover_wrapped_covers">Procurando as capas…</string>
 </resources>

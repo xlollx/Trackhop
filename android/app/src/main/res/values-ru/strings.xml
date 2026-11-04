@@ -1633,4 +1633,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, daylist или чарт меняются каждую неделю: теперь синхронизация может сохранять все треки, что в них когда-либо были (архив), даже в том же сервисе.</string>
     <string name="whats_new_113_covers_title">Обложки, нарисованные на телефоне</string>
     <string name="whats_new_113_covers_body">Пять стилей обложки для постера, без ИИ и без отправки данных, а обложки выбираются из исполнителей, которых в плейлисте больше всего.</string>
+    <string name="discover_wrapped_covers">Ищу обложки…</string>
 </resources>

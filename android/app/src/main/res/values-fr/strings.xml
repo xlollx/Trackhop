@@ -1595,4 +1595,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, une daylist ou un classement changent chaque semaine : une synchro peut maintenant garder chaque titre qu\'ils ont eu (archive), même sur le même service.</string>
     <string name="whats_new_113_covers_title">Des pochettes dessinées sur votre téléphone</string>
     <string name="whats_new_113_covers_body">Cinq styles de pochette pour l\'affiche, sans IA et sans rien envoyer, et des pochettes choisies parmi les artistes vraiment présents dans la playlist.</string>
+    <string name="discover_wrapped_covers">Je cherche les pochettes…</string>
 </resources>

@@ -275,7 +275,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     Intro(stringResource(R.string.discover_wrapped_intro))
     if (services.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
-    if (busy) WrappedLoading(readingFrom, reading, current)
+    if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
     else if (shown != null && card != null) {
         Text(
             stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))),
@@ -754,7 +754,7 @@ private fun OnlyOn(title: String, tracks: List<Track>) {
  * found once done) and the songs found so far.
  */
 @Composable
-private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, Triple<Int, Int, Int>>, current: String?) {
+private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, Triple<Int, Int, Int>>, current: String?, coverSearch: Boolean = false) {
     val lines = androidx.compose.ui.res.stringArrayResource(R.array.discover_wrapped_loading_lines)
     var line by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(2200); line = (line + 1) % lines.size } }
@@ -797,6 +797,10 @@ private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, T
                 }
             }
             if (songs > 0) Text(stringResource(R.string.discover_wrapped_found, songs), style = MaterialTheme.typography.labelLarge, color = white)
+            if (coverSearch) Column {
+                Text(stringResource(R.string.discover_wrapped_covers), style = MaterialTheme.typography.bodyMedium, color = white)
+                androidx.compose.material3.LinearProgressIndicator(color = white, trackColor = white.copy(alpha = 0.25f), modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+            }
         }
     }
 }
@@ -810,6 +814,8 @@ internal object WrappedRun {
     var reading by mutableStateOf<Map<String, Triple<Int, Int, Int>>>(emptyMap()); private set
     var readingFrom by mutableStateOf<List<MusicProvider>>(emptyList()); private set
     var current by mutableStateOf<String?>(null); private set
+    /** True while the covers of the top artists are looked up, after the reading. */
+    var coverSearch by mutableStateOf(false); private set
     /** A failure or an empty result not yet told to the person (the page says it when it shows). */
     var error by mutableStateOf<String?>(null)
     var empty by mutableStateOf(false)
@@ -819,7 +825,7 @@ internal object WrappedRun {
 
     fun start(ctx: Context, read: List<MusicProvider>, onDone: (Wrapped.Saved) -> Unit) {
         if (busy) return
-        busy = true; reading = emptyMap(); current = null; readingFrom = read
+        busy = true; reading = emptyMap(); current = null; coverSearch = false; readingFrom = read
         scope.launch {
             try {
                 val all = ArrayList<Track>()
@@ -842,11 +848,12 @@ internal object WrappedRun {
                     // A few covers of the top artists, for the card's art and colours: best effort and
                     // short, a Wrapped without them is drawn from its title's colours.
                     val covers = ArrayList<String>()
+                    coverSearch = true
                     try {
                         kotlinx.coroutines.withTimeoutOrNull(COVER_WAIT_MS) {
                             Cards.distinctCoverUrls(Wrapped.coverCandidates(all).map { it to (origin[it] ?: "") }, Wrapped.MAX_COVERS, covers)
                         }
-                    } catch (e: CancellationException) { throw e } catch (_: Exception) { }
+                    } catch (e: CancellationException) { throw e } catch (_: Exception) { } finally { coverSearch = false }
                     val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis(), covers = synchronized(covers) { covers.toList() })
                     // Kept even if the page is gone: the store is the app's, not the page's.
                     Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }

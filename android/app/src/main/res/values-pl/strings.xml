@@ -1635,4 +1635,5 @@
     <string name="whats_new_113_archive_body">Discover Weekly, daylista czy lista przebojów zmieniają się co tydzień: synchronizacja może teraz zachować każdy utwór, jaki kiedykolwiek miały (archiwum), także w tym samym serwisie.</string>
     <string name="whats_new_113_covers_title">Okładki rysowane na telefonie</string>
     <string name="whats_new_113_covers_body">Pięć stylów okładki do plakatu, bez AI i bez wysyłania czegokolwiek, oraz okładki wybrane spośród artystów, których playlista naprawdę ma.</string>
+    <string name="discover_wrapped_covers">Szukam okładek…</string>
 </resources>
