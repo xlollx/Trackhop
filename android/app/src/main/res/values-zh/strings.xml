@@ -1385,4 +1385,8 @@
     <string name="automation_shortcut_run">运行 %1$s</string>
     <string name="whats_new_110_automation_title">Tasker、MacroDroid 与快捷方式</string>
     <string name="whats_new_110_automation_body">从自动化应用启动同步，并在同步结束时做出响应（设置 › 自动化，开启前保持关闭）；长按图标可使用最近同步的快捷方式。</string>
+    <string name="capture_site_title">抓取网站流量</string>
+    <string name="capture_site_desc">在此打开某个服务的网页播放器，并将其请求写入可分享的文件（不含 Cookie、令牌或密码），用于添加新服务。</string>
+    <string name="capture_site_address">地址</string>
+    <string name="capture_site_open">打开</string>
 </resources>

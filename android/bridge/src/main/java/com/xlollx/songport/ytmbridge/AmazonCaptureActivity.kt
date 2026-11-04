@@ -34,7 +34,15 @@ class AmazonCaptureActivity : ComponentActivity() {
     private lateinit var counter: TextView
     private var count = 0
 
-    private val file: File get() = File(filesDir, "amazon-capture.jsonl")
+    /**
+     * Another site's web player to capture instead of Amazon's (a service being added, Qobuz…):
+     * every call to its domain is written, not only Amazon's API paths.
+     */
+    private val startUrl: String? by lazy { intent.getStringExtra(EXTRA_URL)?.takeIf { it.startsWith("https://") } }
+    /** The site's domain ("qobuz.com"): the calls to it and to its subdomains are written. */
+    private val site: String? by lazy { startUrl?.let { android.net.Uri.parse(it).host }?.split('.')?.takeLast(2)?.joinToString(".") }
+
+    private val file: File get() = File(filesDir, site?.let { "capture-$it.jsonl" } ?: "amazon-capture.jsonl")
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +55,7 @@ class AmazonCaptureActivity : ComponentActivity() {
         val share = Button(this).apply { text = getString(R.string.bridge_amazon_capture_share); setOnClickListener { share() } }
         val clear = Button(this).apply { text = getString(R.string.bridge_amazon_capture_clear); setOnClickListener { file.delete(); count = 0; refresh() } }
         bar.addView(counter); bar.addView(clear); bar.addView(share)
-        val hint = TextView(this).apply { text = getString(R.string.bridge_amazon_capture_intro); setPadding(16, 0, 16, 8); textSize = 12f }
+        val hint = TextView(this).apply { text = if (site != null) getString(R.string.bridge_capture_site_intro, site) else getString(R.string.bridge_amazon_capture_intro); setPadding(16, 0, 16, 8); textSize = 12f }
         web = WebView(this).apply { layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f) }
         root.addView(bar); root.addView(hint); root.addView(web)
         setContentView(root)
@@ -68,20 +76,22 @@ class AmazonCaptureActivity : ComponentActivity() {
         }
         BridgeUa.apply(this, web)
         web.addJavascriptInterface(Sink(), "SpCapture")
+        val hook = (site?.let { "window.__capSite = '${it.replace("'", "")}';\n" } ?: "") + HOOK
         val early = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
-        if (early) WebViewCompat.addDocumentStartJavaScript(web, HOOK, setOf("*"))
-        // Watching the real player here also refreshes the connector's own credentials.
-        AmazonBridge.install(this, web)
+        if (early) WebViewCompat.addDocumentStartJavaScript(web, hook, setOf("*"))
+        // Watching the real Amazon player here also refreshes the connector's own credentials.
+        val amazon = site == null
+        if (amazon) AmazonBridge.install(this, web)
         web.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
-                if (!early) { view.evaluateJavascript(HOOK, null); view.evaluateJavascript(AmazonBridge.HOOK, null) }
+                if (!early) { view.evaluateJavascript(hook, null); if (amazon) view.evaluateJavascript(AmazonBridge.HOOK, null) }
             }
             override fun onPageFinished(view: WebView, url: String) {
-                if (!early) { view.evaluateJavascript(HOOK, null); view.evaluateJavascript(AmazonBridge.HOOK, null) }
+                if (!early) { view.evaluateJavascript(hook, null); if (amazon) view.evaluateJavascript(AmazonBridge.HOOK, null) }
             }
         }
         onBackPressedDispatcher.addCallback(this) { if (web.canGoBack()) web.goBack() else finish() }
-        web.loadUrl("https://" + (AmazonSession.domain(this) ?: "music.amazon.com") + "/")
+        web.loadUrl(startUrl ?: ("https://" + (AmazonSession.domain(this) ?: "music.amazon.com") + "/"))
     }
 
     private fun refresh() { counter.text = getString(R.string.bridge_amazon_capture_count, count) }
@@ -92,7 +102,7 @@ class AmazonCaptureActivity : ComponentActivity() {
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, "Trackhop: Amazon Music capture")
+            putExtra(Intent.EXTRA_SUBJECT, "Trackhop: ${site ?: "Amazon Music"} capture")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         startActivity(Intent.createChooser(send, getString(R.string.bridge_amazon_capture_share)))
@@ -115,6 +125,8 @@ class AmazonCaptureActivity : ComponentActivity() {
     }
 
     companion object {
+        /** The address to open for a capture of another site (https only). */
+        const val EXTRA_URL = "url"
         private const val MAX_BYTES = 6L * 1024 * 1024
         private val TOKEN = Regex("\"accessToken\"\\s*:\\s*\"[^\"]*\"")
         /** Bearer tokens, JWTs and Amazon access tokens (Atna|…, Atza|…) wherever they appear. */
@@ -180,7 +192,17 @@ class AmazonCaptureActivity : ComponentActivity() {
               // The old skill API, the music.amazon.* api paths, and since October 2026 the GraphQL
               // endpoint (gql.music.amazon.<tld>) the desktop player moved to.
               var abs = function(u){ try { return new URL(String(u||''), location.href).href; } catch(e) { return String(u||''); } };
-              var match = function(u){ return /skill\.music\.a2z\.com|gql\.music\.amazon\.|music\.amazon\.[a-z.]+\/(?:[A-Z]{2}\/)?api\//.test(abs(u)); };
+              var match = function(u){
+                var a = abs(u);
+                // Another site: every call to its domain, pages and pictures aside.
+                if (window.__capSite) { try { var h = new URL(a).hostname; return (h === window.__capSite || h.endsWith('.' + window.__capSite)) && !/\.(?:png|jpe?g|webp|gif|svg|css|woff2?|ico)(?:\?|$)/i.test(a); } catch(e) { return false; } }
+                return /skill\.music\.a2z\.com|gql\.music\.amazon\.|music\.amazon\.[a-z.]+\/(?:[A-Z]{2}\/)?api\//.test(a);
+              };
+              // Passwords and secrets in addresses and form bodies (a sign-in posts them): blanked.
+              var PARAM = /([?&]|^)((?:[a-z_]*pass(?:word)?|[a-z_]*secret|[a-z_]*token|email|username|login)=)[^&#]*/gi;
+              var clean = function(s){ return String(s).replace(PARAM, '$1$2[redacted]'); };
+              var KEY = /pass|secret|token|email|username|login|auth/i;
+              var scrub = function(o){ if (o && typeof o === 'object') Object.keys(o).forEach(function(k){ if (KEY.test(k) && typeof o[k] !== 'object') o[k] = '[redacted]'; else scrub(o[k]); }); return o; };
               // Request headers as sent: names and values, credentials replaced by their length.
               var SECRET = /authori|token|cookie|csrf|session|signature|credential|x-amz-security/i;
               var hdrs = function(h){
@@ -198,8 +220,8 @@ class AmazonCaptureActivity : ComponentActivity() {
               var redact = function(b){
                 if (b == null) return null;
                 if (typeof b !== 'string') { try { b = String(b); } catch(e) { return '[binary]'; } }
-                try { var j = JSON.parse(b); if (j && typeof j === 'object') { delete j.headers; } return JSON.stringify(j).slice(0, 20000); }
-                catch(e) { return b.slice(0, 4000); }
+                try { var j = JSON.parse(b); if (j && typeof j === 'object') { delete j.headers; scrub(j); } return JSON.stringify(j).slice(0, 20000); }
+                catch(e) { return clean(b).slice(0, 4000); }
               };
               var of = window.fetch;
               if (of) window.fetch = function(input, init){
@@ -209,7 +231,7 @@ class AmazonCaptureActivity : ComponentActivity() {
                 var reqHeaders = hdrs((init && init.headers) || (input && input.headers));
                 var p = of.apply(this, arguments);
                 if (match(url)) p.then(function(r){
-                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: abs(url), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: t.slice(0, 30000)}); }); } catch(e){}
+                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: t.slice(0, 30000)}); }); } catch(e){}
                 });
                 return p;
               };
@@ -220,7 +242,7 @@ class AmazonCaptureActivity : ComponentActivity() {
               XMLHttpRequest.prototype.send = function(b){
                 var x = this;
                 if (match(x.__u)) x.addEventListener('loadend', function(){
-                  send({t: Date.now(), url: abs(x.__u), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: String(x.responseText || '').slice(0, 30000)});
+                  send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: String(x.responseText || '').slice(0, 30000)});
                 });
                 return os.apply(this, arguments);
               };

@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (실험적)</string>
     <string name="bridge_amazon_capture">트래픽 캡처</string>
     <string name="bridge_verify_google">Google의 안내</string>
+    <string name="bridge_capture_site_intro">여기서 %1$s을(를) 평소처럼 사용하세요: 로그인, 플레이리스트 열기, 곡 검색, 테스트 플레이리스트 만들기, 곡 추가 후 삭제, 플레이리스트 이름 변경 및 삭제. %1$s에 대한 모든 호출은 쿠키, 토큰, 비밀번호 없이 이 휴대폰의 파일에 기록됩니다. 그런 다음 공유를 눌러 개발자에게 보내세요.</string>
 </resources>

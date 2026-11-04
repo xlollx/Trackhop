@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (экспериментально)</string>
     <string name="bridge_amazon_capture">Записать трафик</string>
     <string name="bridge_verify_google">Что говорит Google</string>
+    <string name="bridge_capture_site_intro">Пользуйтесь %1$s здесь как обычно: войдите, откройте плейлист, найдите песню, создайте тестовый плейлист, добавьте песню, удалите её, переименуйте и удалите плейлист. Каждый запрос к %1$s записывается в файл на этом телефоне без cookie, токенов и паролей. Затем нажмите «Поделиться» и отправьте файл разработчику.</string>
 </resources>

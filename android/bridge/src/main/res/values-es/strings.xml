@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (experimental)</string>
     <string name="bridge_amazon_capture">Capturar tráfico</string>
     <string name="bridge_verify_google">Qué dice Google</string>
+    <string name="bridge_capture_site_intro">Usa %1$s con normalidad aquí: inicia sesión, abre una playlist, busca una canción, crea una playlist de prueba, añade una canción, quítala, renombra y borra la playlist. Cada llamada a %1$s se escribe en un archivo de este teléfono, sin cookies, tokens ni contraseñas. Luego toca Compartir y envía el archivo al desarrollador.</string>
 </resources>

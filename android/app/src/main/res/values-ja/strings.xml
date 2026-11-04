@@ -1385,4 +1385,8 @@
     <string name="automation_shortcut_run">%1$s を実行</string>
     <string name="whats_new_110_automation_title">Tasker・MacroDroid とショートカット</string>
     <string name="whats_new_110_automation_body">オートメーションアプリから同期を開始し、終了に反応できます（設定 › オートメーション、オンにするまでオフ）。アイコンを長押しで最近の同期へのショートカット。</string>
+    <string name="capture_site_title">ウェブサイトをキャプチャ</string>
+    <string name="capture_site_desc">サービスのウェブプレーヤーをここで開き、その通信を共有用ファイルに書き出します（Cookie・トークン・パスワードは含みません）。新しいサービスの追加に役立ちます。</string>
+    <string name="capture_site_address">アドレス</string>
+    <string name="capture_site_open">開く</string>
 </resources>

@@ -24,4 +24,7 @@ object BuiltIn {
     /** The read-only link sources and TikTok lookups go through an installed plugin, if any. */
     @Suppress("UNUSED_PARAMETER")
     fun onAppStart(ctx: Context, interceptor: okhttp3.Interceptor) = PluginRelay.install(ctx)
+
+    /** No built-in web connectors here, so no capture of a web player either. */
+    fun captureIntent(ctx: Context, url: String): Intent? = null
 }

@@ -1416,4 +1416,8 @@
     <string name="automation_shortcut_run">Lancer %1$s</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid et raccourcis</string>
     <string name="whats_new_110_automation_body">Lance des synchros depuis les applis d\'automatisation et réagis quand l\'une se termine (Réglages › Automatisation, désactivé tant que tu ne l\'actives pas), et appui long sur l\'icône pour des raccourcis vers tes dernières synchros.</string>
+    <string name="capture_site_title">Capturer un site web</string>
+    <string name="capture_site_desc">Le lecteur web d\'un service s\'ouvre ici et ses appels sont écrits dans un fichier à partager, sans cookies, jetons ni mots de passe : cela aide à ajouter un nouveau service.</string>
+    <string name="capture_site_address">Adresse</string>
+    <string name="capture_site_open">Ouvrir</string>
 </resources>

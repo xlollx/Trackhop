@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music（实验性）</string>
     <string name="bridge_amazon_capture">捕获流量</string>
     <string name="bridge_verify_google">Google 的提示</string>
+    <string name="bridge_capture_site_intro">在这里正常使用 %1$s：登录、打开歌单、搜索歌曲、创建测试歌单、添加并删除歌曲、重命名并删除歌单。对 %1$s 的每个请求都会写入本机文件（不含 Cookie、令牌或密码）。然后点按“分享”，把文件发给开发者。</string>
 </resources>

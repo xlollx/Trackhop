@@ -1408,4 +1408,8 @@
     <string name="automation_shortcut_run">Run %1$s</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid and shortcuts</string>
     <string name="whats_new_110_automation_body">Start syncs from automation apps and react when one ends (Settings › Automation, off until you turn it on), and long-press the icon for shortcuts to your latest syncs.</string>
+    <string name="capture_site_title">Capture a website</string>
+    <string name="capture_site_desc">A service\'s web player opens here and the calls it makes are written to a file to share, without cookies, tokens or passwords: it helps add a new service.</string>
+    <string name="capture_site_address">Address</string>
+    <string name="capture_site_open">Open</string>
 </resources>

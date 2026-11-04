@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (experimentell)</string>
     <string name="bridge_amazon_capture">Traffic aufzeichnen</string>
     <string name="bridge_verify_google">Was Google sagt</string>
+    <string name="bridge_capture_site_intro">Nutze %1$s hier ganz normal: anmelden, eine Playlist öffnen, einen Song suchen, eine Test-Playlist anlegen, einen Song hinzufügen und entfernen, die Playlist umbenennen und löschen. Jeder Aufruf an %1$s wird ohne Cookies, Tokens oder Passwörter in eine Datei auf diesem Handy geschrieben. Dann auf Teilen tippen und die Datei dem Entwickler senden.</string>
 </resources>

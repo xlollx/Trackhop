@@ -1406,4 +1406,8 @@
     <string name="automation_shortcut_run">%1$s başlat</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid ve kısayollar</string>
     <string name="whats_new_110_automation_body">Eşitlemeleri otomasyon uygulamalarından başlat ve biri bittiğinde tepki ver (Ayarlar › Otomasyon, sen açana kadar kapalı); son eşitlemelerin kısayolları için simgeye uzun bas.</string>
+    <string name="capture_site_title">Bir siteyi yakala</string>
+    <string name="capture_site_desc">Bir servisin web oynatıcısı burada açılır ve yaptığı çağrılar paylaşılacak bir dosyaya yazılır; çerezler, tokenlar ve parolalar hariç: yeni bir servis eklemeye yardım eder.</string>
+    <string name="capture_site_address">Adres</string>
+    <string name="capture_site_open">Aç</string>
 </resources>

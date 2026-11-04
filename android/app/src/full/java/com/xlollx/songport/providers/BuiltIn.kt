@@ -56,4 +56,7 @@ object BuiltIn {
             if (developer) listOf(ctx.getString(com.xlollx.songport.ytmbridge.R.string.bridge_amazon_capture) to Intent(ctx, AmazonCaptureActivity::class.java)) else emptyList()
         else -> emptyList()
     }
+
+    /** The traffic capture of another site's web player (a service being added): a development aid. */
+    fun captureIntent(ctx: Context, url: String): Intent? = Intent(ctx, AmazonCaptureActivity::class.java).putExtra(AmazonCaptureActivity.EXTRA_URL, url)
 }

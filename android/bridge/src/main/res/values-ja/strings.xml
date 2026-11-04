@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music（試験運用）</string>
     <string name="bridge_amazon_capture">通信を記録</string>
     <string name="bridge_verify_google">Google からのメッセージ</string>
+    <string name="bridge_capture_site_intro">ここで %1$s を普段どおり使ってください：ログイン、プレイリストを開く、曲を検索、テスト用プレイリストを作成、曲を追加して削除、プレイリストの名前変更と削除。%1$s への通信は Cookie・トークン・パスワードを除いてこの端末のファイルに書き出されます。その後「共有」をタップして開発者に送ってください。</string>
 </resources>

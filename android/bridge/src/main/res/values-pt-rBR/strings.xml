@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (experimental)</string>
     <string name="bridge_amazon_capture">Capturar tráfego</string>
     <string name="bridge_verify_google">O que o Google diz</string>
+    <string name="bridge_capture_site_intro">Use o %1$s normalmente aqui: entre, abra uma playlist, busque uma música, crie uma playlist de teste, adicione uma música, remova-a, renomeie e apague a playlist. Cada chamada ao %1$s vai para um arquivo neste celular, sem cookies, tokens ou senhas. Depois toque em Compartilhar e envie o arquivo ao desenvolvedor.</string>
 </resources>

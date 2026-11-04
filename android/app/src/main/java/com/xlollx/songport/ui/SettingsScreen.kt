@@ -64,6 +64,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.Composable
@@ -336,6 +337,27 @@ fun SettingsScreen(
 
             PrefSwitch(Icons.Filled.DeveloperMode, stringResource(R.string.settings_developer_switch), stringResource(R.string.settings_developer_summary), settings.developerOptions) { v ->
                 store.updateSettings { it.copy(developerOptions = v) }
+            }
+            if (settings.developerOptions && com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, "https://x") != null) {
+                // A service being added (Qobuz…): its web player opens here and its calls are written
+                // to a file to share, without cookies, tokens or passwords.
+                var captureOpen by remember { mutableStateOf(false) }
+                PrefRow(Icons.Filled.NetworkCheck, stringResource(R.string.capture_site_title), stringResource(R.string.capture_site_desc)) { captureOpen = true }
+                if (captureOpen) {
+                    var address by remember { mutableStateOf("https://play.qobuz.com") }
+                    AlertDialog(
+                        onDismissRequest = { captureOpen = false },
+                        title = { Text(stringResource(R.string.capture_site_title)) },
+                        text = { OutlinedTextField(address, { address = it.trim() }, singleLine = true, label = { Text(stringResource(R.string.capture_site_address)) }) },
+                        confirmButton = {
+                            TextButton(enabled = address.startsWith("https://") && address.length > 10, onClick = {
+                                captureOpen = false
+                                com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, address)?.let { runCatching { ctx.startActivity(it) } }
+                            }) { Text(stringResource(R.string.capture_site_open)) }
+                        },
+                        dismissButton = { TextButton(onClick = { captureOpen = false }) { Text(stringResource(android.R.string.cancel)) } },
+                    )
+                }
             }
             if (settings.developerOptions) {
                 // "Nothing leaves your phone except…" made checkable: the hosts this app has talked to.

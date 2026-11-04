@@ -19,4 +19,5 @@
     <string name="bridge_amazon_title">Amazon Music (deneysel)</string>
     <string name="bridge_amazon_capture">Trafiği yakala</string>
     <string name="bridge_verify_google">Google ne diyor</string>
+    <string name="bridge_capture_site_intro">%1$s\'u burada normal kullan: giriş yap, bir çalma listesi aç, bir şarkı ara, bir test listesi oluştur, şarkı ekle, kaldır, listeyi yeniden adlandır ve sil. %1$s\'a yapılan her çağrı çerezler, tokenlar ve parolalar olmadan bu telefondaki bir dosyaya yazılır. Sonra Paylaş\'a dokun ve dosyayı geliştiriciye gönder.</string>
 </resources>

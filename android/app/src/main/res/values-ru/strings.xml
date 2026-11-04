@@ -1454,4 +1454,8 @@
     <string name="automation_shortcut_run">Запустить %1$s</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid и ярлыки</string>
     <string name="whats_new_110_automation_body">Запускайте синхронизации из приложений автоматизации и реагируйте на их окончание (Настройки › Автоматизация, выключено, пока не включите), а долгое нажатие на значок даёт ярлыки последних синхронизаций.</string>
+    <string name="capture_site_title">Захват сайта</string>
+    <string name="capture_site_desc">Веб-плеер сервиса открывается здесь, а его запросы записываются в файл для отправки, без cookie, токенов и паролей: это помогает добавить новый сервис.</string>
+    <string name="capture_site_address">Адрес</string>
+    <string name="capture_site_open">Открыть</string>
 </resources>
