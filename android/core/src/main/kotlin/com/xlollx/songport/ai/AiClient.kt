@@ -48,12 +48,50 @@ object AiClient {
         val vendor: Vendor, val apiKey: String, val model: String, val baseUrl: String,
         /** The image model of an OpenAI-compatible server (blank: that server makes no images here). */
         val imageModel: String = "",
+        /** The phone's own model ([localModel]): no key, no network; [model] is its name. Never saved. */
+        val local: Boolean = false,
     ) {
         val base: String get() = (baseUrl.ifBlank { vendor.defaultBase }).trimEnd('/')
         /** The only host the key is ever sent to. */
         val host: String get() = runCatching { java.net.URI(base).host }.getOrNull() ?: base
-        val complete: Boolean get() = model.isNotBlank() && (apiKey.isNotBlank() || vendor == Vendor.CUSTOM) && base.isNotBlank()
+        val complete: Boolean get() = local || (model.isNotBlank() && (apiKey.isNotBlank() || vendor == Vendor.CUSTOM) && base.isNotBlank())
+        /** What to call it on screen: the service, or the on-device model's name. */
+        val label: String get() = if (local) model else vendor.label
     }
+
+    /** A model that runs on the device itself (Gemini Nano on Android). The app sets [localModel]; the server has none. */
+    interface LocalModel {
+        suspend fun complete(system: String, user: String): String
+    }
+
+    @Volatile var localModel: LocalModel? = null
+
+    /** Where the on-device model stands: missing, can be fetched, being fetched, ready. */
+    enum class LocalState { NONE, DOWNLOADABLE, DOWNLOADING, READY;
+        /** Worth offering: there already, or the system can fetch it. */
+        val offered: Boolean get() = this != NONE
+    }
+
+    fun onDevice(name: String) = Config(Vendor.GEMINI, "", name, "", local = true)
+
+    /**
+     * Which AI a feature uses: the user's own key when one is set up (it is the better model), else
+     * the on-device one when the phone has it or can fetch it, else none (the feature says it needs a key).
+     */
+    fun pick(saved: Config?, local: LocalState, localName: String): Config? = when {
+        saved != null && !saved.local && saved.complete -> saved
+        local.offered -> onDevice(localName)
+        else -> null
+    }
+
+    /** A small on-device model gets short rounds and a short context (its window is about 4,000 tokens). */
+    const val LOCAL_ROUND = 15
+    fun roundFor(c: Config): Int = if (c.local) LOCAL_ROUND else ROUND
+
+    internal fun fit(c: Config, r: Prompt): Prompt = if (!c.local) r else r.copy(
+        count = minOf(r.count, LOCAL_ROUND),
+        seeds = r.seeds.take(15), existing = r.existing.takeLast(40), unavailable = r.unavailable.takeLast(20),
+    )
 
     data class Prompt(
         val description: String,
@@ -80,6 +118,7 @@ object AiClient {
     }
 
     fun save(env: Env, c: Config) {
+        if (c.local) return
         env.tokens.set(STORE_ID, Tokens(accessToken = c.apiKey, extra = mapOf("vendor" to c.vendor.name, "model" to c.model, "baseUrl" to c.baseUrl, "imageModel" to c.imageModel)))
     }
 
@@ -117,7 +156,7 @@ object AiClient {
     }
 
     /** I modelli disponibili con questa chiave, per non farli scrivere a mano. */
-    suspend fun models(c: Config): List<String> = withContext(Dispatchers.IO) {
+    suspend fun models(c: Config): List<String> = if (c.local) listOf(c.model) else withContext(Dispatchers.IO) {
         val (url, headers) = when (c.vendor) {
             Vendor.ANTHROPIC -> "${c.base}/models?limit=100" to mapOf("x-api-key" to c.apiKey, "anthropic-version" to ANTHROPIC_VERSION)
             Vendor.GEMINI -> "${c.base}/models?pageSize=200&key=${Http.enc(c.apiKey)}" to emptyMap<String, String>()
@@ -204,18 +243,19 @@ object AiClient {
     }
 
     /** La playlist proposta, come brani senza id (li trovera' la ricerca del servizio di destinazione). */
-    suspend fun generate(c: Config, r: Prompt): List<Track> = parseTracks(complete(c, system(r), user(r)))
+    suspend fun generate(c: Config, r: Prompt): List<Track> = fit(c, r).let { parseTracks(complete(c, system(it), user(it))) }
 
     /** One answer holds about a hundred tracks at most: a larger request goes in rounds, each told what came before. */
     const val ROUND = 100
 
     suspend fun generateAll(c: Config, r: Prompt): List<Track> {
-        if (r.count <= ROUND) return generate(c, r)
+        val round = roundFor(c)
+        if (r.count <= round) return generate(c, r)
         val out = ArrayList<Track>()
         var rounds = 0
-        while (out.size < r.count && rounds < r.count / ROUND + 3) {
+        while (out.size < r.count && rounds < r.count / round + 3) {
             rounds++
-            val ask = r.copy(count = minOf(ROUND, r.count - out.size), existing = (r.existing + out.map { it.toString() }).distinct().take(400))
+            val ask = r.copy(count = minOf(round, r.count - out.size), existing = (r.existing + out.map { it.toString() }).distinct().take(400))
             val got = AiMatch.fresh(generate(c, ask), out)
             if (got.isEmpty()) break
             out += got
@@ -277,6 +317,7 @@ object AiClient {
 
     /** Una richiesta, una risposta testuale, qualunque sia il fornitore. */
     internal suspend fun complete(c: Config, system: String, user: String): String {
+        if (c.local) return (localModel ?: throw ProviderException("On-device AI not available")).complete(system, user)
         return when (c.vendor) {
             Vendor.ANTHROPIC -> {
                 val body = jsonObj(
@@ -313,7 +354,7 @@ object AiClient {
     /** Whether this configuration can draw a picture, and why not when it cannot. */
     enum class ImageSupport { YES, NO_IMAGES, NEEDS_IMAGE_MODEL }
 
-    fun imageSupport(c: Config): ImageSupport = when (c.vendor) {
+    fun imageSupport(c: Config): ImageSupport = if (c.local) ImageSupport.NO_IMAGES else when (c.vendor) {
         Vendor.OPENAI, Vendor.GEMINI -> ImageSupport.YES
         Vendor.CUSTOM -> if (c.imageModel.isBlank()) ImageSupport.NEEDS_IMAGE_MODEL else ImageSupport.YES
         // Claude does not make images; Groq and OpenRouter have no image endpoint of this kind.
@@ -331,6 +372,7 @@ object AiClient {
      * image model. Errors name what went wrong (key, quota, content policy, model not enabled).
      */
     suspend fun generateImage(c: Config, prompt: String): ByteArray = withContext(Dispatchers.IO) {
+        if (c.local) throw ProviderException("${c.model} does not make images")
         when (c.vendor) {
             Vendor.GEMINI -> {
                 val body = jsonObj(

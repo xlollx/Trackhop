@@ -1614,4 +1614,10 @@
     <string name="tips_automation_examples">Sync everything while the phone charges at night, or one playlist when you get home.</string>
     <string name="settings_tips_row">Widgets, shortcuts and automation</string>
     <string name="settings_tips_row_summary">Use Trackhop from the home screen and other apps.</string>
+    <string name="discover_roast_no_ai_tap">Needs an AI key: tap to add one. Google Gemini (AI Studio) and Groq give free keys.</string>
+    <string name="ai_nano_desc">No key needed: %1$s runs on this phone and what you type stays on it. It is a small model, so its lists are shorter and miss more often; your own key gives better results.</string>
+    <string name="ai_nano_label">%1$s · on this phone</string>
+    <string name="ai_nano_use_key">Use my key</string>
+    <string name="ai_nano_preparing">Getting %1$s ready on this phone…</string>
+    <string name="ai_nano_private">It runs on this phone: the playlist is not sent anywhere.</string>
 </resources>

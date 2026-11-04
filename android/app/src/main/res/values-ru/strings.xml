@@ -1660,4 +1660,10 @@
     <string name="tips_automation_examples">Синхронизировать всё, пока телефон заряжается ночью, или один плейлист, когда вы приходите домой.</string>
     <string name="settings_tips_row">Виджеты, ярлыки и автоматизация</string>
     <string name="settings_tips_row_summary">Пользуйтесь Trackhop с главного экрана и из других приложений.</string>
+    <string name="discover_roast_no_ai_tap">Нужен ключ ИИ: нажмите, чтобы добавить. Google Gemini (AI Studio) и Groq дают бесплатные ключи.</string>
+    <string name="ai_nano_desc">Без ключа: %1$s работает на этом телефоне, и то, что вы вводите, остаётся на нём. Это небольшая модель, поэтому списки короче и ошибок больше; со своим ключом результаты лучше.</string>
+    <string name="ai_nano_label">%1$s · на этом телефоне</string>
+    <string name="ai_nano_use_key">Использовать мой ключ</string>
+    <string name="ai_nano_preparing">Готовлю %1$s на этом телефоне…</string>
+    <string name="ai_nano_private">Работает на этом телефоне: плейлист никуда не отправляется.</string>
 </resources>

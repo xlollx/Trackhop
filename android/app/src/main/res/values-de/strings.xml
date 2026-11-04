@@ -1614,4 +1614,10 @@
     <string name="tips_automation_examples">Alles synchronisieren, während das Handy nachts lädt, oder eine Playlist, wenn du nach Hause kommst.</string>
     <string name="settings_tips_row">Widgets, Verknüpfungen und Automatisierung</string>
     <string name="settings_tips_row_summary">Trackhop vom Startbildschirm und aus anderen Apps nutzen.</string>
+    <string name="discover_roast_no_ai_tap">Braucht einen KI-Schlüssel: tippen, um einen hinzuzufügen. Google Gemini (AI Studio) und Groq geben kostenlose Schlüssel.</string>
+    <string name="ai_nano_desc">Kein Schlüssel nötig: %1$s läuft auf diesem Handy, und was du eingibst, bleibt hier. Es ist ein kleines Modell, daher sind die Listen kürzer und öfter daneben; mit deinem eigenen Schlüssel werden die Ergebnisse besser.</string>
+    <string name="ai_nano_label">%1$s · auf diesem Handy</string>
+    <string name="ai_nano_use_key">Meinen Schlüssel nutzen</string>
+    <string name="ai_nano_preparing">%1$s wird auf diesem Handy vorbereitet…</string>
+    <string name="ai_nano_private">Läuft auf diesem Handy: Die Playlist wird nirgendwohin gesendet.</string>
 </resources>

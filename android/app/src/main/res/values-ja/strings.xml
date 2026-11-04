@@ -1591,4 +1591,10 @@
     <string name="tips_automation_examples">夜の充電中にすべてを同期、帰宅したら 1 つのプレイリストを同期。</string>
     <string name="settings_tips_row">ウィジェット、ショートカット、自動化</string>
     <string name="settings_tips_row_summary">ホーム画面や他のアプリから Trackhop を使えます。</string>
+    <string name="discover_roast_no_ai_tap">AIキーが必要です。タップして追加。Google Gemini（AI Studio）とGroqは無料のキーを発行しています。</string>
+    <string name="ai_nano_desc">キー不要：%1$sはこのスマホ上で動き、入力した内容は端末から出ません。小さなモデルなので、リストは短めで外れも多くなります。自分のキーを使うと精度が上がります。</string>
+    <string name="ai_nano_label">%1$s · このスマホ上</string>
+    <string name="ai_nano_use_key">自分のキーを使う</string>
+    <string name="ai_nano_preparing">このスマホで%1$sを準備中…</string>
+    <string name="ai_nano_private">このスマホ上で動作：プレイリストはどこにも送信されません。</string>
 </resources>

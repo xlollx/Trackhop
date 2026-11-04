@@ -1622,4 +1622,10 @@
     <string name="tips_automation_examples">Sincronizar tudo enquanto o celular carrega à noite, ou uma playlist quando você chega em casa.</string>
     <string name="settings_tips_row">Widgets, atalhos e automação</string>
     <string name="settings_tips_row_summary">Use o Trackhop na tela inicial e em outros apps.</string>
+    <string name="discover_roast_no_ai_tap">Precisa de uma chave de IA: toque para adicionar. Google Gemini (AI Studio) e Groq dão chaves gratuitas.</string>
+    <string name="ai_nano_desc">Sem chave: o %1$s roda neste celular e o que você digita fica nele. É um modelo pequeno, então as listas são mais curtas e erram mais; com sua própria chave os resultados são melhores.</string>
+    <string name="ai_nano_label">%1$s · neste celular</string>
+    <string name="ai_nano_use_key">Usar minha chave</string>
+    <string name="ai_nano_preparing">Preparando o %1$s neste celular…</string>
+    <string name="ai_nano_private">Roda neste celular: a playlist não é enviada para lugar nenhum.</string>
 </resources>

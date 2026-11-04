@@ -13,6 +13,8 @@ class SongportApp : Application() {
         // MusicBrainz asks every client to name itself, with its version and a contact.
         com.xlollx.songport.ai.ArtistMixSource.userAgent = "Trackhop/${BuildConfig.VERSION_NAME} ( https://trackhop.org )"
         com.xlollx.songport.providers.installConnectors()
+        // Gemini Nano, where the phone has it: an AI without a key for the Roast and the generator.
+        com.xlollx.songport.ai.NanoAi.init()
         // TikTok's pages: read here by the full build; on Google Play only through a connector plugin (BuiltIn.onAppStart).
         // The connections log (hosts only) starts before anything talks to the network.
         com.xlollx.songport.net.HostLog.init(this)

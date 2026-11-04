@@ -76,7 +76,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     var version by remember { mutableIntStateOf(0) }
     var renaming by remember { mutableStateOf<Playlist?>(null) }
     var expanding by remember { mutableStateOf<Playlist?>(null) }
-    val aiReady = remember { com.xlollx.songport.ai.AiClient.config(ctx)?.complete == true }
+    val aiReady = remember { com.xlollx.songport.ai.AiClient.config(ctx)?.complete == true } || com.xlollx.songport.ai.NanoAi.state.offered
     expanding?.let { pl ->
         AiExpandPlaylistDialog(provider, pl, onClose = { expanding = null }) { added, missing, alreadyThere ->
             scope.launch {

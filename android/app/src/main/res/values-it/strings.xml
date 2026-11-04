@@ -1614,4 +1614,10 @@
     <string name="tips_automation_examples">Sincronizzare tutto mentre il telefono si ricarica di notte, o una playlist quando arrivi a casa.</string>
     <string name="settings_tips_row">Widget, scorciatoie e automazione</string>
     <string name="settings_tips_row_summary">Usa Trackhop dalla schermata Home e da altre app.</string>
+    <string name="discover_roast_no_ai_tap">Serve una chiave AI: tocca per aggiungerla. Google Gemini (AI Studio) e Groq danno chiavi gratuite.</string>
+    <string name="ai_nano_desc">Nessuna chiave: %1$s funziona su questo telefono e ciò che scrivi resta qui. È un modello piccolo, quindi le liste sono più corte e sbaglia più spesso; con una tua chiave i risultati sono migliori.</string>
+    <string name="ai_nano_label">%1$s · su questo telefono</string>
+    <string name="ai_nano_use_key">Usa la mia chiave</string>
+    <string name="ai_nano_preparing">Preparo %1$s su questo telefono…</string>
+    <string name="ai_nano_private">Funziona su questo telefono: la playlist non viene inviata da nessuna parte.</string>
 </resources>

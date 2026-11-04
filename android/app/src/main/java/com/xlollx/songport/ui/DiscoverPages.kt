@@ -513,7 +513,7 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
 
 // ------------------------------------------------------------------------------------------ Roast
 
-/** "Roast of a playlist": the user's AI teases a playlist from a short summary of it ([AiRoast]). */
+/** "Roast of a playlist": the user's AI (or Gemini Nano on the phone) teases a playlist from a short summary of it ([AiRoast]). */
 @Composable
 internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     val ctx = LocalContext.current
@@ -544,7 +544,9 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
         }
     }
 
-    Intro(stringResource(R.string.discover_roast_intro, ai.vendor.label))
+    Intro(stringResource(R.string.discover_roast_intro, ai.label))
+    val ready = !ai.local || NanoStatus()
+    if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; roast = null; bitmaps = null }
     roast?.let { text ->
         Card(Modifier.fillMaxWidth()) {
@@ -556,7 +558,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
         }
     }
     CardActions(
-        bitmaps, "trackhop-roast", busy || pick == null, onRender = { run() },
+        bitmaps, "trackhop-roast", busy || pick == null || !ready, onRender = { run() },
         renderLabel = stringResource(if (roast == null) R.string.discover_roast_run else R.string.discover_roast_again),
         previewDescription = roast,
     )
