@@ -267,7 +267,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
         store.update { d -> d.copy(wrapped = d.wrapped.filter { it.id != w.id }) }
         if (shownId == w.id) shownId = null
         scope.launch {
-            val r = snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_deleted), actionLabel = ctx.getString(R.string.unplayable_undo), duration = SnackbarDuration.Short)
+            val r = snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_deleted), actionLabel = ctx.getString(R.string.unplayable_undo), duration = SnackbarDuration.Long)
             if (r == SnackbarResult.ActionPerformed) store.update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, w)) }
         }
     }
