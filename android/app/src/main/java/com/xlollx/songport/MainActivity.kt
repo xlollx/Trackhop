@@ -657,7 +657,17 @@ private fun MainScreen(
                             selected = tab == index,
                             onClick = { tab = index },
                             icon = { Icon(icon, contentDescription = if (bigText) name else null) },
-                            label = { Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            // Five tabs leave a long word ("Einstellungen") little room: it shrinks a
+                            // little to fit instead of losing its end.
+                            label = {
+                                val style = androidx.compose.material3.LocalTextStyle.current
+                                androidx.compose.foundation.text.BasicText(
+                                    name,
+                                    style = style.copy(color = androidx.compose.material3.LocalContentColor.current),
+                                    maxLines = 1,
+                                    autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp), maxFontSize = style.fontSize, stepSize = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
+                                )
+                            },
                             alwaysShowLabel = !bigText,
                         )
                     }
