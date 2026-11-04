@@ -1,0 +1,1 @@
+Neu in 1.10: Charts als Quelle (Apple Music Top 100 je Land, Deezer-Charts), TikTok erkennt den Song in einem Originalton am Audio, und Automatisierung mit Tasker/MacroDroid plus Verknüpfungen zu deinen letzten Syncs (aus, bis du es einschaltest).

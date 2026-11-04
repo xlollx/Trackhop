@@ -1,0 +1,1 @@
+1.10 新功能：排行榜作为来源（各国 Apple Music Top 100、Deezer 排行榜），TikTok 可根据音频识别原声中的歌曲，以及 Tasker/MacroDroid 自动化和最近同步的快捷方式（开启前保持关闭）。

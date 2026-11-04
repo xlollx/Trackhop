@@ -1,0 +1,1 @@
+Nowości w 1.10: listy przebojów jako źródło (Top 100 Apple Music według kraju, listy Deezera), TikTok rozpoznaje po dźwięku utwór w oryginalnym dźwięku, oraz automatyzacja z Taskerem/MacroDroid i skróty do ostatnich synchronizacji (wyłączona, dopóki jej nie włączysz).

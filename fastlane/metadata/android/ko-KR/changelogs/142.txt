@@ -1,0 +1,1 @@
+1.10 새 기능: 차트를 소스로(국가별 Apple Music Top 100, Deezer 차트), TikTok 원본 사운드의 노래를 오디오로 인식, Tasker/MacroDroid 자동화와 최근 동기화 바로가기(켜기 전까지 꺼짐).

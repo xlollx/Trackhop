@@ -1,0 +1,1 @@
+1.10'da yeni: kaynak olarak listeler (ülkeye göre Apple Music Top 100, Deezer listeleri), TikTok orijinal sesteki şarkıyı sesinden tanıyor, ve Tasker/MacroDroid ile otomasyon artı son eşitlemelerin kısayolları (sen açana kadar kapalı).

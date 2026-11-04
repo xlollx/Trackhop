@@ -1,0 +1,1 @@
+Novidades da 1.10: paradas como origem (Top 100 do Apple Music por país, paradas do Deezer), o TikTok reconhece pelo áudio a música de um som original, e automação com Tasker/MacroDroid mais atalhos das últimas syncs (desligada até você ativar).

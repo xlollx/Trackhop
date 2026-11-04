@@ -1,0 +1,1 @@
+Nouveau en 1.10 : les classements comme source (Top 100 Apple Music par pays, classements Deezer), TikTok reconnaît le titre d'un son original à son audio, et l'automatisation avec Tasker/MacroDroid plus des raccourcis vers tes dernières synchros (désactivée tant que tu ne l'actives pas).

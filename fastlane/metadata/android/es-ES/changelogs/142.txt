@@ -1,0 +1,1 @@
+Novedades de 1.10: listas como origen (Top 100 de Apple Music por país, listas de Deezer), TikTok reconoce la canción de un sonido original por su audio, y automatización con Tasker/MacroDroid más accesos a tus últimas syncs (desactivada hasta que la actives).

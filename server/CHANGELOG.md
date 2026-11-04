@@ -5,9 +5,15 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.4.0
+
+- **Charts as a source**: Apple Music's Top 100 of a country and Deezer's charts (by country and worldwide), from their public feeds, no account: a sync keeps a playlist of yours up to date as the chart changes.
+- **TikTok "original sound"**: when a video's page names no song, Trackhop listens to the sound and often finds the song in it (an audio signature, as SongRec does; not in the Microsoft Store build).
 
 - **Notifications** (Settings › Notifications): Telegram, ntfy, Gotify, Discord, Slack, Matrix and Pushover, any number at once, each with its events (changes, a failed sync or an expired sign-in, tracks to review, removals waiting) and a *Send test* button; tokens masked and kept out of the set-up file; `trackhop notify` and `/api/v1/notifications`. [How](https://trackhop.org/guide/docker#notifications)
+- Spotify: Liked Songs, saved albums, followed artists and podcasts written through Spotify's new library address (the old one is closed to personal apps since February 2026); a target refusing every addition stops the sync with its answer instead of "not found".
+- Amazon Music: the region of the account's own store (an amazon.nl account on music.amazon.com).
+- A source that renames itself often (a Spotify daylist) no longer renames the sync each time.
 
 ## 1.3.0
 
