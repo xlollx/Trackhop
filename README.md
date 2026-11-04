@@ -228,6 +228,8 @@ reports are what make it better: if something does not work as it should, say so
 | | Manual ("Run", "Sync all") | Manual syncs run as a foreground job with a progress notification. |
 | | Scheduled: hourly, every 6 hours, daily, weekly | WorkManager, survives reboots; "Wi-Fi only" option. |
 | | Additions only (default) or mirror removals | Removals are skipped when the source comes back empty. |
+| | Keep every track (archive) | For playlists that change by themselves (Discover Weekly, Release Radar, daylist, charts): nothing is ever removed from the target, new tracks are added at the end. The editor offers "Copy the latest version (replace)" or "Keep every track (archive)" right under such a source. Also on Desktop and Docker (web page, API, command line). |
+| | Ideas for one service | With a single service connected, ready-made syncs and tools a tap away: the weekly playlist kept whole, backup, liked songs as a shareable playlist, the country's chart, duplicates, Wrapped. Syncs between two playlists of the same account need no search. |
 | | Bidirectional | One switch creates the reverse twin sync without removals; the two are deleted together. |
 | | Keep the source order | After the adds, the target is put in the source's order; Spotify (both routes), YouTube Music and Deezer can move tracks. |
 | | "Liked songs" as source or target | Spotify, Deezer, Subsonic, Jellyfin, Last.fm, ListenBrainz. |

@@ -518,7 +518,7 @@ the container. The same token lets an AI assistant use Trackhop at `/mcp` (Model
 | Call | What it does |
 |---|---|
 | `GET /api/v1/status` | Version, number of syncs, the ones running, the last run's time |
-| `GET /api/v1/syncs` | Every sync: source, target, schedule, running, last result |
+| `GET /api/v1/syncs` | Every sync: source, target, schedule, `mirrorRemovals`, `followsChanges`, `archive` (keeps every track), running, last result |
 | `GET /api/v1/syncs/<id>` | One sync and its last 20 runs |
 | `POST /api/v1/syncs/<id>/run` | Starts it (202) |
 | `POST /api/v1/syncs/run-all` | Starts every enabled sync |
