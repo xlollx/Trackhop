@@ -201,23 +201,35 @@ class SpotifyContractTest : ContractTest() {
         assertEquals(listOf(100, 100, 50), sizes)
     }
 
-    @Test fun likedAddAndRemoveThroughTheLibraryInForties() = runBlocking {
+    @Test fun likedTracksAreSavedOneByOneAndRemovedInForties() = runBlocking {
+        sp.librarySpacingMs = 0
         val tracks = (0 until 90).map { Track(id(it), "S") }
-        repeat(6) { ok("") }
+        repeat(93) { ok("") }
         sp.addTracks(env, MusicProvider.LIKED_ID, tracks)
         sp.removeTracks(env, MusicProvider.LIKED_ID, tracks)
-        val shapes = (0 until 6).map { val r = next(); Triple(r.method, r.pathOnly(), r.query("uris")!!.split(",").size) }
-        assertEquals(listOf(
-            Triple("PUT", "/v1/me/library", 40), Triple("PUT", "/v1/me/library", 40), Triple("PUT", "/v1/me/library", 10),
-            Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 10),
-        ), shapes)
+        // Saved one per request, in the order given, so each track gets its own second (issue #34).
+        val saves = (0 until 90).map { val r = next(); assertCall(r, "PUT", api, "/v1/me/library"); r.query("uris") }
+        assertEquals(tracks.map { "spotify:track:${it.id}" }, saves)
+        val removals = (0 until 3).map { val r = next(); Triple(r.method, r.pathOnly(), r.query("uris")!!.split(",").size) }
+        assertEquals(listOf(Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 40), Triple("DELETE", "/v1/me/library", 10)), removals)
         noMoreRequests()
     }
 
+    @Test fun likedSavesAreSpacedSoEachHasItsOwnSecond() = runBlocking {
+        sp.librarySpacingMs = 300
+        repeat(3) { ok("") }
+        val start = System.currentTimeMillis()
+        sp.addTracks(env, MusicProvider.LIKED_ID, (0 until 3).map { Track(id(it), "S") })
+        assert(System.currentTimeMillis() - start >= 550) { "the saves were not spaced" }
+        repeat(3) { next() }
+    }
+
     @Test fun likedUrisNameTheTracks() = runBlocking {
-        ok("")
+        sp.librarySpacingMs = 0
+        ok(""); ok("")
         sp.addTracks(env, MusicProvider.LIKED_ID, listOf(Track(id(1), "S"), Track(id(2), "T")))
-        assertEquals("spotify:track:${id(1)},spotify:track:${id(2)}", next().query("uris"))
+        assertEquals("spotify:track:${id(1)}", next().query("uris"))
+        assertEquals("spotify:track:${id(2)}", next().query("uris"))
     }
 
     @Test fun likedFallsBackToTheOlderPathWhenTheLibraryPathIsMissing() = runBlocking {

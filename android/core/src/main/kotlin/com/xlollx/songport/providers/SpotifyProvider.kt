@@ -441,10 +441,24 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
      * them (Extended Quota) gets a 404 or 405 from the new path for a type it does not take: the old
      * path, [legacy], is called then, once for all the ids.
      */
+    @Volatile private var lastLibrarySave = 0L
+    /** The gap between two saved tracks: a little over a second, so each gets its own second. */
+    @Volatile var librarySpacingMs = 1_050L
+
     private suspend fun library(ctx: Env, method: String, type: String, ids: List<String>, legacy: suspend () -> Unit) {
         try {
-            ids.chunked(40).forEach { chunk ->
+            // Saved tracks are listed by the second they were saved, and Spotify orders the ones saved
+            // in the same second as it likes (issue #34: liked songs came out shuffled). Tracks are
+            // saved one per request, a second apart, in the order given (the engine sends the oldest
+            // first): slower, but the order comes out as in the source.
+            val perRequest = if (method == "PUT" && type == "track") 1 else 40
+            ids.chunked(perRequest).forEach { chunk ->
+                if (perRequest == 1) {
+                    val wait = lastLibrarySave + librarySpacingMs - System.currentTimeMillis()
+                    if (wait > 0) kotlinx.coroutines.delay(wait)
+                }
                 api(ctx, method, "$API/me/library?uris=" + chunk.joinToString(",") { java.net.URLEncoder.encode("spotify:$type:$it", "UTF-8") })
+                lastLibrarySave = System.currentTimeMillis()
             }
         } catch (e: ProviderException) {
             if (e.code != 404 && e.code != 405 && !(e.code == 400 && type == "artist")) throw e
