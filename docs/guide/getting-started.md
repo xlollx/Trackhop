@@ -42,6 +42,11 @@ and a schedule. Options worth knowing:
 
 - **Mirror removals**: tracks removed from the source are removed from the target too. A run that
   would remove a large part of the target stops and waits for you to confirm it in the preview.
+- **Keep every track (archive)**: nothing is ever removed from the target; only new tracks are
+  added, at the end. Made for playlists that change by themselves (Discover Weekly, Release Radar,
+  a daylist, a chart): the target keeps every song they ever had. When the source is one of them,
+  the editor asks right under it: *Copy the latest version (replace)* (mirror removals, big turnovers
+  expected) or *Keep every track (archive)*. An archive hides the removal and order options.
 - **Keep the source order**: after adding, the target is put in the source's order (Spotify, YouTube
   Music, Deezer).
 - **Wi-Fi only**, **Enabled**, and the matching rules.
@@ -49,6 +54,29 @@ and a schedule. Options worth knowing:
 Open the **preview** before the first run: it shows what will be added and removed. Tracks that were
 not found go to the **review**, where you search the target yourself or pick a suggestion; the app
 remembers your choice.
+
+## With one service
+
+Trackhop is useful with a single service too. With one connected, the empty *Syncs* tab (and the
+message after the first sign-in) offers ready-made ideas; each opens its page filled in, to check and
+save:
+
+- **Save your weekly playlist every week**: Discover Weekly on Spotify (quick route), Discover Mix
+  on YouTube Music (quick route), New Music Mix on Apple Music (once added to your library), kept as
+  an archive in a playlist of your own on the same account.
+- **Back up all your playlists**, on a schedule (the Backup page).
+- **Liked songs as a playlist you can share**, on the same service, kept up to date.
+- **Your country's chart in your library**: Apple Music's Top 100 of your country (or Deezer's
+  worldwide chart) as a playlist on your service, the latest version every day.
+- **Clean up duplicates** (Tools) and **your Wrapped** (Discover).
+
+A sync between two playlists of the same account adds the source's own tracks, with no search. A
+small *Ideas* card stays on the Syncs tab while you have only one service and a few syncs; close it
+with ×.
+
+Spotify does not let the official connection (your own developer key) read the playlists Spotify
+makes itself (Discover Weekly, Release Radar, daylist): they look empty or missing. That is Spotify's
+rule, not an error; the quick route reads them. See [Troubleshooting](troubleshooting#spotify).
 
 [All guide pages](./)
 

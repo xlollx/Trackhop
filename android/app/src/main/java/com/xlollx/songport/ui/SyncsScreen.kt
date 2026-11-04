@@ -53,6 +53,8 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.ui.semantics.Role
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -157,6 +159,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 
+/** From this many syncs on, the ideas' small card is no longer shown: the person has found their way. */
+private const val IDEAS_STRIP_MAX_SYNCS = 4
+
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SyncsScreen(
@@ -173,6 +178,8 @@ fun SyncsScreen(
     onOpenLog: () -> Unit = {},
     onTour: (() -> Unit)? = null,
     onToggleEnabled: (SyncJob) -> Unit = {},
+    /** An idea for one service tapped (ServiceIdeas): its page, filled in. */
+    onIdea: (Idea) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val running by SyncState.running.collectAsState()
@@ -184,7 +191,25 @@ fun SyncsScreen(
     var filter by rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) }
     if (data.jobs.isEmpty()) {
         val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
-        if (anyConnected) {
+        // With a service connected: what one service alone can do, a tap away, under the usual words.
+        val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
+        if (anyConnected && primary != null) {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 100.dp + LocalBottomBarInset.current),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(Icons.Filled.Sync, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.empty_syncs_title), style = MaterialTheme.typography.titleLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Text(
+                    stringResource(R.string.empty_syncs_body_connected), style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+                ServiceIdeasCard(primary, onIdea = onIdea)
+                if (onTour != null) TextButton(onClick = onTour, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.tour_offer)) }
+            }
+        } else if (anyConnected) {
             EmptyState(
                 Icons.Filled.Sync, stringResource(R.string.empty_syncs_title), stringResource(R.string.empty_syncs_body_connected),
                 secondaryLabel = stringResource(R.string.tour_offer), onSecondary = onTour,
@@ -270,10 +295,19 @@ fun SyncsScreen(
                 val last = if (lastRun > 0) " · " + stringResource(R.string.hero_last, formatDate(lastRun)) else ""
                 // "Your numbers" once a sync has completed: before that there is nothing to count.
                 val anyRun = data.reports.any { it.ok && !it.partial }
-                HeroHeader(
-                    stringResource(R.string.hero_title), ctx.resources.getQuantityString(R.plurals.hero_jobs, n, n) + last,
-                    link = if (anyRun) stringResource(R.string.stats_hero_link) else null, onLink = onStats,
-                )
+                // A few syncs and one service: the ideas for it, small, under the header (in the same
+                // item, so the list's positions stay as they are), until closed.
+                val single = remember(n) { ServiceIdeas.connected(ctx).singleOrNull() }
+                var stripHidden by remember { mutableStateOf(ServiceIdeas.stripDismissed(ctx)) }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    HeroHeader(
+                        stringResource(R.string.hero_title), ctx.resources.getQuantityString(R.plurals.hero_jobs, n, n) + last,
+                        link = if (anyRun) stringResource(R.string.stats_hero_link) else null, onLink = onStats,
+                    )
+                    if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
+                        ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
+                    }
+                }
             }
             // Under the hero and scrolling with the list, so it never fights the pinned pill below.
             if (finder) item(key = "finder") {
@@ -617,7 +651,7 @@ private fun JobCard(
                     // A two-way pair never removes, whatever an older version saved. A radio sync shows
                     // its window (days and hours) where the others show their schedule.
                     (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
-                        (if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
+                        (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
                 )
@@ -836,6 +870,11 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var mirror by rememberSaveable { mutableStateOf(job.mirrorRemovals) }
     var keepOrder by rememberSaveable { mutableStateOf(job.keepOrder) }
     var follows by rememberSaveable { mutableStateOf(job.followsChanges) }
+    // Keep every track (an archive): never removes, adds only what is new; Mirror, its "changes by
+    // itself" and the order are then out of the question, and hidden.
+    var archive by rememberSaveable { mutableStateOf(job.archive) }
+    // A source named before its id is known (an idea: "Discover Weekly"): picked from the list once it loads.
+    var pickByName by rememberSaveable { mutableStateOf(job.source.playlistId == null && job.source.playlistName.isNotBlank()) }
     var wifiOnly by rememberSaveable { mutableStateOf(job.wifiOnly) }
     var enabled by rememberSaveable { mutableStateOf(job.enabled) }
     var color by rememberSaveable { mutableStateOf(job.color) }
@@ -856,13 +895,21 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
         dstLists = loadPlaylists(ctx, dstProvider, forTarget = true)
     }
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
+    // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
         val dstObj = Providers.byId(dstProvider)
         val sid = srcPlaylist?.id
-        if (MusicProvider.isLibrary(sid) && dstObj?.supportsLibrary(sid, asTarget = true) == true && dstPlaylist == null) {
+        if (MusicProvider.isLibrary(sid) && dstProvider != srcProvider && dstObj?.supportsLibrary(sid, asTarget = true) == true && dstPlaylist == null) {
             createNew = false
             dstPlaylist = Playlist(sid!!, srcPlaylist?.name ?: "")
         }
+    }
+    LaunchedEffect(srcLists) {
+        if (!pickByName || srcProvider != job.source.provider) return@LaunchedEffect
+        val items = (srcLists as? Loaded.Ok)?.items ?: return@LaunchedEffect
+        pickByName = false
+        val wanted = job.source.playlistName.trim()
+        items.firstOrNull { it.name.trim().equals(wanted, ignoreCase = true) }?.let { if (srcPlaylist == null) srcPlaylist = it }
     }
     // Job creato da un link condiviso: l'id c'e', il nome ancora no.
     LaunchedEffect(Unit) {
@@ -938,7 +985,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     job.copy(
                         name = name.ifBlank { defaultName }, source = source, target = target,
                         schedule = Schedule.MANUAL, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                        keepOrder = false, color = color, radio = radio, shazam = false, linkedJobId = null,
+                        keepOrder = false, color = color, radio = radio, shazam = false, linkedJobId = null, archive = false,
                     ),
                     null,
                 )
@@ -960,6 +1007,11 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             error = ctx.getString(R.string.editor_error_incomplete)
             return
         }
+        // Two playlists of the same account are fine (an archive of Discover Weekly); one playlist onto itself is not.
+        if (srcProvider == dstProvider && !createNew && dp?.id == sp.id) {
+            error = ctx.getString(R.string.error_same_playlist)
+            return
+        }
         val srcName = sp.name
         // A link whose name could not be read yet: the run reads it and names the new playlist after it.
         val target = if (createNew) PlaylistRef(dstProvider, null, newName.ifBlank { if (linkMode) "" else srcName })
@@ -970,9 +1022,9 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             name = name.ifBlank { srcName },
             source = source,
             target = target,
-            schedule = schedule, mirrorRemovals = mirror, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-            keepOrder = keepOrder, color = color, followsChanges = mirror && follows,
-            shazam = shazamMode && !linkMode,
+            schedule = schedule, mirrorRemovals = mirror && !archive, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
+            keepOrder = keepOrder && !archive, color = color, followsChanges = mirror && follows && !archive,
+            archive = archive, shazam = shazamMode && !linkMode,
         ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
         // swapped); its name, ignore list, reports and order setting stay its own. A pair never removes.
@@ -1087,6 +1139,17 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         }
                     } else {
                         PlaylistPicker(srcLists, srcPlaylist, label = stringResource(R.string.editor_playlist), provider = srcProvider) { srcPlaylist = it }
+                        // A playlist that changes by itself (Discover Weekly, a daylist, a chart): replace or keep everything, said here.
+                        val changing = srcPlaylist?.let { com.xlollx.songport.sync.ChangingPlaylists.isSelfChanging(Providers.byId(srcProvider)?.serviceId, it.name) } == true
+                        if (changing) ChangesChoice(
+                            replace = mirror && !archive, archive = archive,
+                            onReplace = { archive = false; mirror = true; follows = true; bidirectional = false },
+                            onArchive = { archive = true; mirror = false; follows = false; keepOrder = false },
+                        )
+                        // Spotify's own playlists through the official connection: empty by Spotify's rule, said plainly.
+                        if (Providers.byId(srcProvider)?.serviceId == "spotify" && com.xlollx.songport.sync.ChangingPlaylists.madeBySpotify(srcPlaylist?.name)) {
+                            SpotifyOwnPlaylistNote(quickRoute = com.xlollx.songport.providers.BridgePlugin.installed(ctx), onConnect = onConnectService)
+                        }
                         // The playlist Shazam fills on Spotify or Apple Music: one tap makes this a Shazam sync.
                         val shazam = (srcLists as? Loaded.Ok)?.items?.takeIf { ShazamLibrary.canHost(Providers.byId(srcProvider)?.serviceId.orEmpty()) }?.let { ShazamLibrary.find(it) }
                         if (shazam != null) {
@@ -1149,6 +1212,11 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 if (!radioMode) {
                     if (bidirectional && mirror) mirror = false
                     SwitchRow(
+                        stringResource(R.string.editor_changes_archive), stringResource(R.string.editor_archive_desc), archive,
+                        modifier = Modifier.testTag("editor_archive"),
+                    ) { archive = it; if (it) { mirror = false; follows = false; keepOrder = false } }
+                    // An archive never removes: the removal switches would only say what it does not do.
+                    if (!archive) SwitchRow(
                         stringResource(R.string.editor_mirror),
                         stringResource(if (bidirectional) R.string.editor_mirror_two_way else R.string.editor_mirror_desc),
                         mirror, enabled = !bidirectional,
@@ -1158,7 +1226,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     ) { mirror = it }
                     // Into Liked songs a removal is an unlike, of everything liked there that the source lacks:
                     // said in plain words under the switch, not only behind the "?".
-                    if (mirror && !createNew && dstPlaylist?.id == MusicProvider.LIKED_ID) {
+                    if (mirror && !archive && !createNew && dstPlaylist?.id == MusicProvider.LIKED_ID) {
                         Text(
                             stringResource(R.string.editor_mirror_liked_warning),
                             style = MaterialTheme.typography.bodySmall,
@@ -1166,14 +1234,14 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         )
                     }
                     // A source that renews itself (daylist, Discover Weekly): its big turnovers are not mistakes.
-                    if (mirror && !bidirectional) {
+                    if (mirror && !bidirectional && !archive) {
                         SwitchRow(stringResource(R.string.editor_follows), stringResource(R.string.editor_follows_desc), follows) { follows = it }
                     }
-                    if (Providers.byId(dstProvider)?.canReorder == true) {
+                    if (Providers.byId(dstProvider)?.canReorder == true && !archive) {
                         SwitchRow(stringResource(R.string.editor_keep_order), stringResource(R.string.editor_keep_order_desc), keepOrder, help = { HelpButton(Helps.keepOrder) }) { keepOrder = it }
                     }
                     val dstProviderObj = Providers.byId(dstProvider)
-                    if (mirror && dstProviderObj != null && !dstProviderObj.canRemoveTracks) {
+                    if (mirror && !archive && dstProviderObj != null && !dstProviderObj.canRemoveTracks) {
                         Text(
                             stringResource(R.string.editor_mirror_unsupported, dstProviderObj.displayName),
                             style = MaterialTheme.typography.bodySmall,
@@ -1239,6 +1307,54 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 }
             }
             Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Under a source that changes by itself: what the target does with each new version, as two plain
+ * choices. Neither is chosen until the user picks one (or the sync already had one).
+ */
+@Composable
+private fun ChangesChoice(replace: Boolean, archive: Boolean, onReplace: () -> Unit, onArchive: () -> Unit) {
+    Card(Modifier.fillMaxWidth().testTag("changes_choice"), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+        Column(Modifier.padding(14.dp).selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.editor_changes_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text(stringResource(R.string.editor_changes_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            listOf(
+                Triple(replace, R.string.editor_changes_replace to R.string.editor_changes_replace_desc, onReplace),
+                Triple(archive, R.string.editor_changes_archive to R.string.editor_changes_archive_desc, onArchive),
+            ).forEach { (selected, texts, onClick) ->
+                Row(
+                    Modifier.fillMaxWidth().testTag(if (texts.first == R.string.editor_changes_archive) "changes_archive" else "changes_replace").heightIn(min = 48.dp).selectable(selected = selected, role = androidx.compose.ui.semantics.Role.RadioButton, onClick = onClick),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    androidx.compose.material3.RadioButton(selected = selected, onClick = null)
+                    Spacer(Modifier.width(8.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(texts.first), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text(stringResource(texts.second), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The official Spotify connection cannot read the playlists Spotify makes (Discover Weekly, Release
+ * Radar, daylist) since February 2026: Spotify's rule, not an error. Where this phone can connect
+ * Spotify by the quick route, the way there.
+ */
+@Composable
+private fun SpotifyOwnPlaylistNote(quickRoute: Boolean, onConnect: () -> Unit) {
+    Card(Modifier.fillMaxWidth().testTag("spotify_own_note"), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.spotify_own_playlists_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+            if (quickRoute) {
+                Text(stringResource(R.string.spotify_own_playlists_quick), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                FilledTonalButton(onClick = onConnect, modifier = Modifier.align(Alignment.End)) { Text(stringResource(R.string.empty_syncs_cta_accounts)) }
+            }
         }
     }
 }

@@ -99,9 +99,13 @@ fun DiscoverScreen(
     onNewSyncFromFile: (name: String, fileId: String) -> Unit = { _, _ -> },
     /** Grows when the Discover tab is tapped again while it is open: back to the list of cards. */
     homeRequests: Int = 0,
+    /** Asked from elsewhere (an idea on the Syncs tab): the Wrapped opens, once. */
+    openWrapped: Boolean = false,
+    onWrappedOpened: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     var open by rememberSaveable { mutableStateOf<DiscoverCard?>(null) }
+    LaunchedEffect(openWrapped) { if (openWrapped) { open = DiscoverCard.WRAPPED; onWrappedOpened() } }
     val listScroll = rememberScrollState()
     // Two playlist links shared together open the comparison straight away.
     LaunchedEffect(compareLinks) { if (compareLinks != null) open = DiscoverCard.COMPAT }

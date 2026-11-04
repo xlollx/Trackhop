@@ -12,6 +12,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -349,6 +352,20 @@ private fun MainScreen(
     fun startNewSync() {
         if (Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) }) editing = newJob() else firstSheet = true
     }
+    // An idea for one service (ServiceIdeas), from the Syncs tab or the first sign-in: its page, filled in.
+    var dedupeFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var wrappedAsked by rememberSaveable { mutableStateOf(false) }
+    fun openIdea(idea: com.xlollx.songport.ui.Idea) {
+        when (idea.kind) {
+            com.xlollx.songport.ui.IdeaKind.BACKUP -> backupOpen = true
+            com.xlollx.songport.ui.IdeaKind.DEDUPE -> { dedupeFor = idea.providerId; tab = MainActivity.TAB_TOOLS }
+            com.xlollx.songport.ui.IdeaKind.WRAPPED -> { wrappedAsked = true; tab = MainActivity.TAB_DISCOVER }
+            // Discover Weekly with the official Spotify: Spotify's rule keeps it out, the quick route reads it.
+            com.xlollx.songport.ui.IdeaKind.WEEKLY -> if (idea.needsQuickRoute) { tab = MainActivity.TAB_ACCOUNTS; addConnector = true }
+                else com.xlollx.songport.ui.ServiceIdeas.job(ctx, idea)?.let { tab = MainActivity.TAB_SYNCS; editing = it }
+            else -> com.xlollx.songport.ui.ServiceIdeas.job(ctx, idea)?.let { tab = MainActivity.TAB_SYNCS; editing = it }
+        }
+    }
     // The sign-in comes back through the browser (a resume) or the loopback flow (AuthEvents).
     val authVersion by AuthEvents.version.collectAsState()
     var resumes by remember { mutableIntStateOf(0) }
@@ -491,7 +508,14 @@ private fun MainScreen(
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { firstSyncReady = null },
             title = { Text(stringResource(R.string.first_sync_ready_title)) },
-            text = { Text(stringResource(R.string.first_sync_ready_body, p?.label(ctx) ?: id)) },
+            text = {
+                // The first service, alone: what it can do by itself, before a sync between two.
+                val alone = p?.takeIf { com.xlollx.songport.ui.ServiceIdeas.connected(ctx).singleOrNull()?.id == it.id }
+                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.first_sync_ready_body, p?.label(ctx) ?: id))
+                    if (alone != null) com.xlollx.songport.ui.ServiceIdeasCard(alone) { firstSyncReady = null; openIdea(it) }
+                }
+            },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = {
                     firstSyncReady = null
@@ -729,11 +753,13 @@ private fun MainScreen(
                     onOpenLog = { logOpen = true },
                     // Offered on the empty tab until the tour has been taken or skipped once.
                     onTour = if (!data.settings.tourDone) ({ com.xlollx.songport.ui.Tour.start() }) else null,
+                    onIdea = { openIdea(it) },
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
+                    openWrapped = wrappedAsked, onWrappedOpened = { wrappedAsked = false },
                     // "Make a shared playlist": the songs in common, as a file playlist, the source of a new sync.
                     onNewSyncFromFile = { name, id ->
                         tab = MainActivity.TAB_SYNCS
@@ -741,7 +767,7 @@ private fun MainScreen(
                         snackScope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_compat_shared_made)) }
                     },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true })
             } } }
             }

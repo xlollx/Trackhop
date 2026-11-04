@@ -70,6 +70,9 @@ and run it from there; if not, the service listed the source incompletely and no
 removed. Scheduled runs never remove that many on their own. Duplicates in the
 target (the same song twice, in two versions) also show up here.
 
+A sync set to **Keep every track (archive)** never removes anything, so it is never held back: its
+target only grows.
+
 ## A pasted link is not recognised
 
 Use the playlist's share link (open.spotify.com/playlist/…, music.youtube.com/playlist?list=…,

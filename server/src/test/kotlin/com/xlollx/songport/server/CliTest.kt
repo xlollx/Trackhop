@@ -62,6 +62,10 @@ class CliTest {
     @Test fun aSyncIsNamedByItsNameOrIdAndAmbiguityIsSaid() {
         assertTrue(cli("show", "road trip").out.contains("Road trip  (j1)"))
         assertTrue(cli("show", "j2").out.contains("Road trip 2  (j2)"))
+        // An archive says so.
+        env.store.upsertJob(env.store.job("j2")!!.copy(archive = true))
+        assertTrue(cli("show", "j2").out.contains("keeps every track (archive)"))
+        assertTrue(cli("--json", "show", "j2").out.contains("\"archive\": true"))
         val unsure = cli("show", "Road")
         assertEquals(1, unsure.code)
         assertTrue(unsure.err, unsure.err.contains("could be"))
