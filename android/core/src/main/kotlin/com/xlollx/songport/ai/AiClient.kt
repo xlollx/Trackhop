@@ -382,6 +382,8 @@ object AiClient {
         val l = body.lowercase()
         return when {
             code == 401 || (code == 403 && "key" in l) -> "$base (key refused)"
+            // Google gives its image models no free quota: a free AI Studio key gets 429 "limit: 0".
+            code == 429 && ("free_tier" in l || "limit: 0" in l) -> "$base (Gemini draws images only on a key with billing turned on: the free tier has no image quota)"
             code == 429 || "quota" in l || "billing" in l || "insufficient" in l -> "$base (quota or billing)"
             "safety" in l || "content_policy" in l || "policy" in l || "blocked" in l -> "$base (refused by the content policy)"
             else -> base

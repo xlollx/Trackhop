@@ -1489,4 +1489,5 @@
     <string name="whats_new_112_discover_body">全新标签页：随时查看你的年度总结、在任何人的服务上都能打开的歌单链接、你和朋友的契合度、歌单吐槽、消失的歌曲，以及你是否真的需要两个订阅。</string>
     <string name="whats_new_112_mix_title">无需 AI 密钥的歌单</string>
     <string name="whats_new_112_mix_body">工具 › 歌单生成器根据你选的艺人或你的某个歌单，用真实收听数据生成歌单。无需密钥。</string>
+    <string name="card_ai_cover_failed">你的 AI 无法绘制封面（%1$s）。海报将使用歌单的封面。</string>
 </resources>

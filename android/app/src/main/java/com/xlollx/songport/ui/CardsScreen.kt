@@ -341,17 +341,23 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 val covers: List<Bitmap?> = withContext(Dispatchers.IO) {
                     if (aiCover && ai != null && aiSupport == AiClient.ImageSupport.YES) {
                         // Only the title, the main artists and the description go to the user's AI.
-                        val art = aiCovers[key] ?: kotlin.run {
+                        // When the AI can't draw (no image quota on the key, a refusal), the poster is
+                        // still made, with the playlist's own covers, and the reason is said once.
+                        val art = aiCovers[key] ?: try {
                             drawing = true
-                            try {
-                                val prompt = CoverPrompt.build(info.name.ifBlank { p.playlist.name }, CoverPrompt.topArtists(tracks), info.description)
-                                val bytes = AiClient.generateImage(ai, prompt)
-                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
-                                    ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
-                            } finally { drawing = false }
+                            val prompt = CoverPrompt.build(info.name.ifBlank { p.playlist.name }, CoverPrompt.topArtists(tracks), info.description)
+                            val bytes = AiClient.generateImage(ai, prompt)
+                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
+                                ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
+                        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                            val why = e.message ?: ctx.getString(R.string.error_generic)
+                            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed, why), withDismissAction = true, duration = androidx.compose.material3.SnackbarDuration.Long) }
+                            null
+                        } finally { drawing = false }
+                        if (art != null) {
+                            drawn = art
+                            return@withContext listOf(art)
                         }
-                        drawn = art
-                        return@withContext listOf(art)
                     }
                     drawn = null
                     info.imageUrl?.let { url -> Cards.bitmap(url, 900)?.let { return@withContext listOf(it) } }

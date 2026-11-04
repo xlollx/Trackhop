@@ -1488,4 +1488,5 @@
     <string name="whats_new_112_discover_body">새 탭: 원할 때 보는 나의 Wrapped, 누구의 서비스에서든 플레이리스트를 여는 링크, 친구와의 궁합, 플레이리스트 로스트, 사라진 곡, 구독이 정말 두 개나 필요한지까지.</string>
     <string name="whats_new_112_mix_title">AI 키 없이 플레이리스트</string>
     <string name="whats_new_112_mix_body">도구 › 플레이리스트 생성기가 고른 아티스트나 내 플레이리스트로 실제 청취 데이터를 바탕으로 플레이리스트를 만듭니다. 키가 필요 없습니다.</string>
+    <string name="card_ai_cover_failed">AI가 커버를 그리지 못했습니다(%1$s). 포스터에는 플레이리스트의 커버를 사용합니다.</string>
 </resources>

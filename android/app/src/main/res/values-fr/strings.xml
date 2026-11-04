@@ -1520,4 +1520,5 @@
     <string name="whats_new_112_discover_body">Un nouvel onglet : votre Wrapped quand vous voulez, un lien qui ouvre une playlist sur le service de n\'importe qui, votre compatibilité avec un ami, le roast d\'une playlist, les titres disparus et si deux abonnements sont vraiment utiles.</string>
     <string name="whats_new_112_mix_title">Playlists sans clé d\'IA</string>
     <string name="whats_new_112_mix_body">Outils › Générateur de playlists crée une playlist à partir d\'artistes choisis ou d\'une de vos playlists, avec de vraies données d\'écoute. Aucune clé nécessaire.</string>
+    <string name="card_ai_cover_failed">Votre IA n\'a pas pu dessiner la pochette (%1$s). L\'affiche utilise les pochettes de la playlist.</string>
 </resources>

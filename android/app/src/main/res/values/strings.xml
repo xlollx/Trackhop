@@ -1512,4 +1512,5 @@
     <string name="whats_new_112_discover_body">A new tab: your Wrapped whenever you want, a link that opens a playlist on anyone\'s service, how compatible you are with a friend, a playlist roast, vanished songs and whether you really need two subscriptions.</string>
     <string name="whats_new_112_mix_title">Playlists without an AI key</string>
     <string name="whats_new_112_mix_body">Tools › Playlist generator builds a playlist from artists you pick or from one of your playlists, with real listening data. No key needed.</string>
+    <string name="card_ai_cover_failed">Your AI could not draw the cover (%1$s). The poster uses the playlist\'s covers instead.</string>
 </resources>

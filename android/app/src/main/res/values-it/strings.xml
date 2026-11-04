@@ -1512,4 +1512,5 @@
     <string name="whats_new_112_discover_body">Una nuova scheda: il tuo Wrapped quando vuoi, un link che apre una playlist sul servizio di chiunque, quanto sei compatibile con un amico, il roast di una playlist, le canzoni scomparse e se ti servono davvero due abbonamenti.</string>
     <string name="whats_new_112_mix_title">Playlist senza chiave AI</string>
     <string name="whats_new_112_mix_body">Strumenti › Generatore di playlist crea una playlist dagli artisti che scegli o da una tua playlist, con dati di ascolto reali. Nessuna chiave necessaria.</string>
+    <string name="card_ai_cover_failed">La tua AI non è riuscita a disegnare la copertina (%1$s). Il poster usa le copertine della playlist.</string>
 </resources>

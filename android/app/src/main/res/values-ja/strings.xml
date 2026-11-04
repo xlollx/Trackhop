@@ -1489,4 +1489,5 @@
     <string name="whats_new_112_discover_body">新しいタブ：好きなときに自分のWrapped、相手のサービスでプレイリストが開くリンク、友だちとの相性、プレイリストのロースト、消えた曲、2つのサブスクが本当に必要かどうか。</string>
     <string name="whats_new_112_mix_title">AIキーなしでプレイリスト</string>
     <string name="whats_new_112_mix_body">ツール › プレイリスト生成で、選んだアーティストや自分のプレイリストから実際の再生データをもとにプレイリストを作成。キーは不要です。</string>
+    <string name="card_ai_cover_failed">AIがカバーを描けませんでした（%1$s）。ポスターにはプレイリストのジャケットを使います。</string>
 </resources>

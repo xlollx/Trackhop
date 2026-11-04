@@ -1510,4 +1510,5 @@
     <string name="whats_new_112_discover_body">Yeni bir sekme: istediğin zaman Wrapped, bir çalma listesini herkesin kendi servisinde açan bağlantı, bir arkadaşınla ne kadar uyumlu olduğun, çalma listesi roast\'u, kaybolan şarkılar ve iki aboneliğe gerçekten ihtiyacın olup olmadığı.</string>
     <string name="whats_new_112_mix_title">Yapay zekâ anahtarı olmadan listeler</string>
     <string name="whats_new_112_mix_body">Araçlar › Çalma listesi oluşturucu, seçtiğin sanatçılardan ya da listelerinden birinden gerçek dinleme verileriyle liste oluşturur. Anahtar gerekmez.</string>
+    <string name="card_ai_cover_failed">Yapay zekân kapağı çizemedi (%1$s). Poster, çalma listesinin kapaklarını kullanıyor.</string>
 </resources>

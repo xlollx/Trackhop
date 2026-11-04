@@ -1512,4 +1512,5 @@
     <string name="whats_new_112_discover_body">Ein neuer Tab: dein Wrapped, wann du willst, ein Link, der eine Playlist bei jedem Dienst öffnet, wie gut du zu einem Freund passt, ein Playlist-Roast, verschwundene Songs und ob du wirklich zwei Abos brauchst.</string>
     <string name="whats_new_112_mix_title">Playlists ohne KI-Schlüssel</string>
     <string name="whats_new_112_mix_body">Werkzeuge › Playlist-Generator erstellt eine Playlist aus Künstlern deiner Wahl oder einer deiner Playlists, mit echten Hördaten. Kein Schlüssel nötig.</string>
+    <string name="card_ai_cover_failed">Deine KI konnte das Cover nicht zeichnen (%1$s). Das Poster nutzt die Cover der Playlist.</string>
 </resources>

@@ -1560,4 +1560,5 @@
     <string name="whats_new_112_discover_body">Nowa zakładka: twój Wrapped, kiedy chcesz, link otwierający playlistę w serwisie każdego, jak bardzo pasujesz do znajomego, roast playlisty, zniknięte utwory i czy naprawdę potrzebujesz dwóch subskrypcji.</string>
     <string name="whats_new_112_mix_title">Playlisty bez klucza AI</string>
     <string name="whats_new_112_mix_body">Narzędzia › Generator playlist tworzy playlistę z wybranych artystów lub jednej z twoich playlist, na podstawie prawdziwych danych o słuchaniu. Bez klucza.</string>
+    <string name="card_ai_cover_failed">Twoja AI nie mogła narysować okładki (%1$s). Plakat używa okładek z playlisty.</string>
 </resources>
