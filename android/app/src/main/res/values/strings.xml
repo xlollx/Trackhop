@@ -997,8 +997,8 @@
     <string name="tools_section_move_desc">Take playlists to another service, or out as files.</string>
     <string name="tools_section_clean">Clean up</string>
     <string name="tools_section_clean_desc">Fix duplicates and tracks that no longer play.</string>
-    <string name="tools_section_share">Share and discover</string>
-    <string name="tools_section_share_desc">Compare, show off and create playlists.</string>
+    <string name="tools_section_share">Create</string>
+    <string name="tools_section_share_desc">New playlists from artists you like, with or without an AI key.</string>
     <string name="tools_section_safety">Safety</string>
     <string name="tools_section_safety_desc">Keep a copy of your playlists on this phone.</string>
     <string name="tools_row_files">Import, paste and export playlists as files.</string>
@@ -1162,7 +1162,7 @@
     <string name="howto_backups_body"># Full backup\nTools › Full backup saves every playlist and the liked songs of one service as dated files in File playlists. The last 5 versions of each playlist are kept, and an unchanged playlist is not written again. Nothing changes on the service.\n# Backup to a folder\nIn Settings › Backups, choose a folder (SD card, a cloud app, any app that offers one). Each run reads every connected service, saves what changed and copies the new files there, so they survive the phone. Choose Manual only, Daily or Weekly, or tap Copy now. On YouTube, reading uses quota.\n# Restoring\n• A playlist: Tools › File playlists › Import file, pick it from the folder, then make a sync from that file to any service.\n• Tracks removed by Mirror removals: Settings › Advanced › Sync log › Restore.\n• An unplayable fix: Tools › Unplayable tracks › Undo last fix.\n# Export one playlist\nTools › Export a playlist saves it as CSV, M3U, XSPF, JSPF or plain text.</string>
     <string name="howto_tools_title">The Tools tab</string>
     <string name="howto_tools_summary">What each tool does.</string>
-    <string name="howto_tools_body">At the top, choose the service the tools work on. A tool it can\'t do is greyed out.\n# Your music\n• Trackhop in numbers: what your syncs have done so far.\n• Manage playlists: rename, delete, make public or private, look at the tracks.\n• Repeats across playlists: tracks in more than one playlist, liked songs in none.\n# Move and copy\n• Transfer many playlists: one sync per playlist, created and run one after another. They stay in Syncs.\n• Export a playlist: one playlist as a file.\n• New playlist from…: copy, merge, split, sort or shuffle into a new playlist on the same service. A one-off, not a sync.\n• File playlists: imported lists, pasted lists, backups and what syncs wrote to File.\n# Clean up\n• Remove duplicates: find them, then remove them at once, keeping the first copy.\n• Unplayable tracks: swap greyed-out tracks for versions that play, with Undo. Settings can check once a week.\n# Share and discover\nHow compatible are we?, the Playlist poster and the Playlist generator, which uses your own AI.</string>
+    <string name="howto_tools_body">At the top, choose the service the tools work on. A tool it can\'t do is greyed out.\n# Your music\n• Trackhop in numbers: what your syncs have done so far.\n• Manage playlists: rename, delete, make public or private, look at the tracks.\n• Repeats across playlists: tracks in more than one playlist, liked songs in none.\n# Move and copy\n• Transfer many playlists: one sync per playlist, created and run one after another. They stay in Syncs.\n• Export a playlist: one playlist as a file.\n• New playlist from…: copy, merge, split, sort or shuffle into a new playlist on the same service. A one-off, not a sync.\n• File playlists: imported lists, pasted lists, backups and what syncs wrote to File.\n# Clean up\n• Remove duplicates: find them, then remove them at once, keeping the first copy.\n• Unplayable tracks: swap greyed-out tracks for versions that play, with Undo. Settings can check once a week.\n# Create\nPlaylist generator: from artists you choose or one of your playlists, with no key needed, or with your own AI. Compatibility, the poster and the other fun cards are in Discover.</string>
     <string name="howto_accounts_title">Accounts and your own keys</string>
     <string name="howto_accounts_summary">Connectors, routes, keys and security.</string>
     <string name="howto_accounts_body"># Connectors\nA connector is one account on one service. Where a service allows it you can add several, for example two Spotify accounts, each with its own name.\n# Routes\nSome services can be reached two ways. Quick route: you sign in on the service\'s own page, nothing to create, but it can stop working when the site changes. Official route: the service\'s own API with a free key in your name; more stable, a few minutes to set up.</string>
@@ -1508,4 +1508,8 @@
     <string name="lb_unknown_some">Not found on MusicBrainz, left out: %1$s</string>
     <string name="lb_default_name">Like %1$s</string>
     <string name="lb_row_desc">Make a playlist from artists you like, no key needed, or describe it to your own AI.</string>
+    <string name="whats_new_112_discover_title">Discover</string>
+    <string name="whats_new_112_discover_body">A new tab: your Wrapped whenever you want, a link that opens a playlist on anyone\'s service, how compatible you are with a friend, a playlist roast, vanished songs and whether you really need two subscriptions.</string>
+    <string name="whats_new_112_mix_title">Playlists without an AI key</string>
+    <string name="whats_new_112_mix_body">Tools › Playlist generator builds a playlist from artists you pick or from one of your playlists, with real listening data. No key needed.</string>
 </resources>

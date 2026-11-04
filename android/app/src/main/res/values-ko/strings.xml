@@ -976,8 +976,8 @@
     <string name="tools_section_move_desc">플레이리스트를 다른 서비스로 옮기거나 파일로 내보냅니다.</string>
     <string name="tools_section_clean">정리</string>
     <string name="tools_section_clean_desc">중복 곡과 더 이상 재생되지 않는 곡을 고칩니다.</string>
-    <string name="tools_section_share">공유 및 발견</string>
-    <string name="tools_section_share_desc">플레이리스트를 비교하고, 자랑하고, 만듭니다.</string>
+    <string name="tools_section_share">만들기</string>
+    <string name="tools_section_share_desc">좋아하는 아티스트로 새 플레이리스트를 만듭니다. AI 키가 있어도 없어도 됩니다.</string>
     <string name="tools_section_safety">안전</string>
     <string name="tools_section_safety_desc">플레이리스트 사본을 이 휴대폰에 보관합니다.</string>
     <string name="tools_row_files">플레이리스트를 파일로 가져오기, 붙여넣기, 내보내기.</string>
@@ -1141,7 +1141,7 @@
     <string name="howto_backups_body"># 전체 백업\n도구 › 전체 백업은 한 서비스의 모든 플레이리스트와 좋아요 표시한 곡을 날짜가 붙은 파일로 파일 플레이리스트에 저장해요. 플레이리스트마다 최근 5개 버전이 남고, 바뀌지 않은 플레이리스트는 다시 쓰지 않아요. 서비스에서는 아무것도 바뀌지 않아요.\n# 폴더에 백업\n설정 › 백업에서 폴더(SD 카드, 클라우드 앱 등 폴더를 제공하는 앱)를 고르세요. 실행할 때마다 연결된 모든 서비스를 읽고, 바뀐 것을 저장하고, 새 파일을 그곳에 복사해서 휴대폰에 무슨 일이 생겨도 남아요. 수동만, 매일, 매주 중에서 고르거나 지금 복사를 누르세요. YouTube에서는 읽을 때 할당량을 써요.\n# 복원하기\n• 플레이리스트: 도구 › 파일 플레이리스트 › 파일 가져오기에서 폴더의 파일을 고른 뒤, 그 파일에서 원하는 서비스로 동기화를 만드세요.\n• 삭제도 반영으로 삭제된 곡: 설정 › 고급 › 동기화 로그 › 복원.\n• 재생할 수 없는 곡 수정: 도구 › 재생할 수 없는 곡 › 마지막 수정 되돌리기.\n# 플레이리스트 하나 내보내기\n도구 › 플레이리스트 내보내기로 CSV, M3U, XSPF, JSPF, 일반 텍스트로 저장할 수 있어요.</string>
     <string name="howto_tools_title">도구 탭</string>
     <string name="howto_tools_summary">각 도구가 하는 일.</string>
-    <string name="howto_tools_body">맨 위에서 도구를 쓸 서비스를 고르세요. 그 서비스에서 쓸 수 없는 도구는 회색으로 보여요.\n# 내 음악\n• 숫자로 보는 Trackhop: 지금까지 동기화가 해낸 일.\n• 플레이리스트 관리: 이름 바꾸기, 삭제, 공개·비공개 전환, 곡 보기.\n• 플레이리스트 간 중복: 여러 플레이리스트에 있는 곡과 어느 플레이리스트에도 없는 좋아요 표시한 곡.\n# 이동 및 복사\n• 여러 플레이리스트 전송: 플레이리스트마다 동기화를 하나씩 만들어 차례로 실행해요. 동기화 탭에 남아요.\n• 플레이리스트 내보내기: 플레이리스트 하나를 파일로.\n• 새 플레이리스트 만들기…: 같은 서비스의 새 플레이리스트로 복사, 합치기, 나누기, 정렬, 섞기. 한 번만 하는 작업이고 동기화가 아니에요.\n• 파일 플레이리스트: 가져오거나 붙여 넣은 목록, 백업, 동기화가 File에 쓴 것.\n# 정리\n• 중복 제거: 찾은 다음 첫 번째 곡을 남기고 한 번에 지워요.\n• 재생할 수 없는 곡: 회색 곡을 재생 가능한 버전으로 바꾸고, 되돌릴 수도 있어요. 설정에서 매주 확인하게 할 수 있어요.\n# 공유 및 발견\n우리는 얼마나 잘 맞을까?, 플레이리스트 포스터, 그리고 내 AI를 쓰는 플레이리스트 생성기.</string>
+    <string name="howto_tools_body">맨 위에서 도구를 쓸 서비스를 고르세요. 그 서비스에서 쓸 수 없는 도구는 회색으로 보여요.\n# 내 음악\n• 숫자로 보는 Trackhop: 지금까지 동기화가 해낸 일.\n• 플레이리스트 관리: 이름 바꾸기, 삭제, 공개·비공개 전환, 곡 보기.\n• 플레이리스트 간 중복: 여러 플레이리스트에 있는 곡과 어느 플레이리스트에도 없는 좋아요 표시한 곡.\n# 이동 및 복사\n• 여러 플레이리스트 전송: 플레이리스트마다 동기화를 하나씩 만들어 차례로 실행해요. 동기화 탭에 남아요.\n• 플레이리스트 내보내기: 플레이리스트 하나를 파일로.\n• 새 플레이리스트 만들기…: 같은 서비스의 새 플레이리스트로 복사, 합치기, 나누기, 정렬, 섞기. 한 번만 하는 작업이고 동기화가 아니에요.\n• 파일 플레이리스트: 가져오거나 붙여 넣은 목록, 백업, 동기화가 File에 쓴 것.\n# 정리\n• 중복 제거: 찾은 다음 첫 번째 곡을 남기고 한 번에 지워요.\n• 재생할 수 없는 곡: 회색 곡을 재생 가능한 버전으로 바꾸고, 되돌릴 수도 있어요. 설정에서 매주 확인하게 할 수 있어요.\n# 만들기\n플레이리스트 생성기: 고른 아티스트나 내 플레이리스트로, 키 없이 또는 내 AI로 만듭니다. 궁합, 포스터 등 재미있는 카드는 발견에 있습니다.</string>
     <string name="howto_accounts_title">계정과 내 키</string>
     <string name="howto_accounts_summary">커넥터, 연결 경로, 키, 보안.</string>
     <string name="howto_accounts_body"># 커넥터\n커넥터는 한 서비스의 한 계정이에요. 서비스가 허용하면 여러 개를 추가할 수 있어요. 예를 들어 Spotify 계정 두 개를 각자 다른 이름으로 쓸 수 있어요.\n# 연결 경로\n어떤 서비스는 두 가지 방법으로 연결할 수 있어요. 빠른 경로: 서비스 페이지에서 로그인만 하면 되고 만들 것이 없지만, 사이트가 바뀌면 작동하지 않을 수 있어요. 공식 경로: 내 이름으로 만든 무료 키로 쓰는 서비스 API예요. 더 안정적이고 설정에 몇 분 걸려요.</string>
@@ -1484,4 +1484,8 @@
     <string name="lb_unknown_some">MusicBrainz에서 찾지 못해 제외됨: %1$s</string>
     <string name="lb_default_name">%1$s 스타일</string>
     <string name="lb_row_desc">좋아하는 아티스트로 키 없이 플레이리스트를 만들거나 내 AI에게 설명하세요.</string>
+    <string name="whats_new_112_discover_title">발견</string>
+    <string name="whats_new_112_discover_body">새 탭: 원할 때 보는 나의 Wrapped, 누구의 서비스에서든 플레이리스트를 여는 링크, 친구와의 궁합, 플레이리스트 로스트, 사라진 곡, 구독이 정말 두 개나 필요한지까지.</string>
+    <string name="whats_new_112_mix_title">AI 키 없이 플레이리스트</string>
+    <string name="whats_new_112_mix_body">도구 › 플레이리스트 생성기가 고른 아티스트나 내 플레이리스트로 실제 청취 데이터를 바탕으로 플레이리스트를 만듭니다. 키가 필요 없습니다.</string>
 </resources>

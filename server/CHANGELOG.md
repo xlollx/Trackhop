@@ -5,7 +5,9 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.6.0
+
+- **Playlist generator with no AI key**: from artists you pick or one of your playlists, with ListenBrainz/MusicBrainz data (Deezer's public catalogue fills in an artist's top tracks). Tools › AI playlists.
 
 - Spotify liked songs keep the source's order (saved one a second; a big first sync says it will be slow).
 - YouTube (Google API): an add refused with "operation aborted" is tried again.

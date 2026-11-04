@@ -977,8 +977,8 @@
     <string name="tools_section_move_desc">把歌单带到另一个服务，或导出为文件。</string>
     <string name="tools_section_clean">整理</string>
     <string name="tools_section_clean_desc">修复重复的歌曲和无法播放的歌曲。</string>
-    <string name="tools_section_share">分享与发现</string>
-    <string name="tools_section_share_desc">比较、展示和创建歌单。</string>
+    <string name="tools_section_share">创建</string>
+    <string name="tools_section_share_desc">根据你喜欢的艺人创建新歌单，有没有 AI 密钥都可以。</string>
     <string name="tools_section_safety">安全</string>
     <string name="tools_section_safety_desc">在本机保存一份歌单副本。</string>
     <string name="tools_row_files">以文件形式导入、粘贴和导出歌单。</string>
@@ -1142,7 +1142,7 @@
     <string name="howto_backups_body"># 完整备份\n“工具 › 完整备份”会把一个服务的所有歌单和喜欢的歌曲，作为带日期的文件保存到“文件歌单”中。每个歌单保留最近 5 个版本，没有变化的歌单不会重复写入。服务上不会有任何改动。\n# 备份到文件夹\n在“设置 › 备份”中选择一个文件夹（SD 卡、云盘应用，或任何提供文件夹的应用）。每次运行都会读取所有已连接的服务，保存有变化的内容，并把新文件复制到那里，这样即使换了手机也不会丢。可以选择仅手动、每天或每周，或者点按“立即复制”。在 YouTube 上，读取会消耗配额。\n# 恢复\n• 歌单：“工具 › 文件歌单 › 导入文件”，从文件夹中选择它，然后从这个文件创建到任意服务的同步。\n• 被“同步删除”移除的歌曲：“设置 › 高级 › 同步日志 › 恢复”。\n• 无法播放曲目的修复：“工具 › 无法播放的曲目 › 撤销上次修复”。\n# 导出一个歌单\n“工具 › 导出歌单”可将其保存为 CSV、M3U、XSPF、JSPF 或纯文本。</string>
     <string name="howto_tools_title">“工具”标签页</string>
     <string name="howto_tools_summary">每个工具能做什么。</string>
-    <string name="howto_tools_body">在顶部选择工具要作用的服务。它不支持的工具会显示为灰色。\n# 你的音乐\n• Trackhop 数据一览：你的同步到目前为止做了什么。\n• 管理歌单：重命名、删除、设为公开或私密、查看歌曲。\n• 跨歌单重复：出现在多个歌单中的歌曲，以及不在任何歌单里的喜欢的歌曲。\n# 移动和复制\n• 批量转移歌单：每个歌单一个同步，依次创建并运行。它们会留在“同步”中。\n• 导出歌单：把一个歌单保存为文件。\n• 从…新建歌单：复制、合并、拆分、排序或打乱，生成同一服务上的新歌单。一次性操作，不是同步。\n• 文件歌单：导入或粘贴的列表、备份，以及同步写入 File 的内容。\n# 整理\n• 移除重复项：先找出来，再一次性移除，保留第一首。\n• 无法播放的曲目：把变灰的曲目换成可播放的版本，可以撤销。也可以在设置中开启每周检查。\n# 分享与发现\n“我们有多合拍？”、“播放列表海报”，以及使用你自己 AI 的“歌单生成器”。</string>
+    <string name="howto_tools_body">在顶部选择工具要作用的服务。它不支持的工具会显示为灰色。\n# 你的音乐\n• Trackhop 数据一览：你的同步到目前为止做了什么。\n• 管理歌单：重命名、删除、设为公开或私密、查看歌曲。\n• 跨歌单重复：出现在多个歌单中的歌曲，以及不在任何歌单里的喜欢的歌曲。\n# 移动和复制\n• 批量转移歌单：每个歌单一个同步，依次创建并运行。它们会留在“同步”中。\n• 导出歌单：把一个歌单保存为文件。\n• 从…新建歌单：复制、合并、拆分、排序或打乱，生成同一服务上的新歌单。一次性操作，不是同步。\n• 文件歌单：导入或粘贴的列表、备份，以及同步写入 File 的内容。\n# 整理\n• 移除重复项：先找出来，再一次性移除，保留第一首。\n• 无法播放的曲目：把变灰的曲目换成可播放的版本，可以撤销。也可以在设置中开启每周检查。\n# 创建\n歌单生成器：根据你选的艺人或你的某个歌单生成，无需密钥，也可用你自己的 AI。契合度、海报等趣味卡片在“发现”里。</string>
     <string name="howto_accounts_title">账号与你自己的密钥</string>
     <string name="howto_accounts_summary">连接器、接入途径、密钥与安全。</string>
     <string name="howto_accounts_body"># 连接器\n一个连接器就是某个服务上的一个账号。在服务允许的情况下可以添加多个，例如两个 Spotify 账号，各有自己的名称。\n# 接入途径\n有些服务可以通过两种方式接入。快捷途径：在服务自己的页面登录，无需创建任何东西，但网站改版时可能失效。官方途径：使用以你名义创建的免费密钥调用服务的 API；更稳定，设置只需几分钟。</string>
@@ -1485,4 +1485,8 @@
     <string name="lb_unknown_some">在 MusicBrainz 中未找到，已略过：%1$s</string>
     <string name="lb_default_name">类似 %1$s</string>
     <string name="lb_row_desc">用你喜欢的艺人免密钥生成歌单，或向你自己的 AI 描述。</string>
+    <string name="whats_new_112_discover_title">发现</string>
+    <string name="whats_new_112_discover_body">全新标签页：随时查看你的年度总结、在任何人的服务上都能打开的歌单链接、你和朋友的契合度、歌单吐槽、消失的歌曲，以及你是否真的需要两个订阅。</string>
+    <string name="whats_new_112_mix_title">无需 AI 密钥的歌单</string>
+    <string name="whats_new_112_mix_body">工具 › 歌单生成器根据你选的艺人或你的某个歌单，用真实收听数据生成歌单。无需密钥。</string>
 </resources>

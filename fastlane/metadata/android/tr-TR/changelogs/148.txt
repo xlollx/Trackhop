@@ -1,0 +1,1 @@
+1.12'de yeni: Keşfet sekmesi (istediğin zaman Wrapped, evrensel liste bağlantıları, ne kadar uyumluyuz, liste roast'u, kaybolan şarkılar, iki abonelik?). Yapay zekâ anahtarı olmadan liste oluşturucu: seçtiğin sanatçılardan ya da listenden.
