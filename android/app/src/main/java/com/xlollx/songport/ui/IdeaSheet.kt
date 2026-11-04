@@ -48,7 +48,7 @@ private fun ideaServices(): List<String> =
     if (BuildConfig.FLAVOR == "play") IDEA_SERVICES - setOf("Amazon Music", "SoundCloud") else IDEA_SERVICES
 
 /** Which app and which build the idea comes from. */
-private fun versionLine(): String = "Trackhop ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}), Android ${android.os.Build.VERSION.RELEASE}"
+internal fun versionLine(): String = "Trackhop ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}), Android ${android.os.Build.VERSION.RELEASE}"
 
 /**
  * The GitHub issue form (feature_request.yml) filled in from the sheet: its fields are prefilled

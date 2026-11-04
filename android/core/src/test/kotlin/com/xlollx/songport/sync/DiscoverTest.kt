@@ -349,4 +349,55 @@ class DiscoverTest {
         assertEquals("You love it.", AiRoast.parse("```json\n{\"roast\": \"You love it.\"}\n```"))
         assertEquals("Plain text.", AiRoast.parse("Plain text."))
     }
+
+    @Test fun everyRoastLevelKeepsTheSafetyRules() {
+        for (l in AiRoast.Level.entries) for (explicit in listOf(false, true)) {
+            val p = AiRoast.system("Italian", l, explicit)
+            assertTrue("$l", p.contains(AiRoast.SAFETY))
+            assertTrue("$l", p.contains("No sexual content"))
+            assertTrue("$l", p.contains("No hate"))
+            assertTrue("$l", p.contains("appearance"))
+            assertTrue("$l", p.contains("at most 90 words"))
+            assertTrue("$l", p.contains("Write in Italian."))
+            assertTrue("$l", p.contains("{\"roast\""))
+        }
+    }
+
+    @Test fun swearingOnlyWhenExplicit() {
+        for (l in AiRoast.Level.entries) {
+            assertTrue(AiRoast.system("English", l, explicit = false).contains(AiRoast.NO_SWEARING))
+            assertFalse(AiRoast.system("English", l, explicit = false).contains(AiRoast.SWEARING_OK))
+            assertTrue(AiRoast.system("English", l, explicit = true).contains(AiRoast.SWEARING_OK))
+            assertFalse(AiRoast.system("English", l, explicit = true).contains(AiRoast.NO_SWEARING))
+        }
+        // The default is Spicy without swearing, as before the levels.
+        assertEquals(AiRoast.system("English", AiRoast.Level.SPICY, false), AiRoast.system("English"))
+    }
+
+    @Test fun roastLevelsDiffer() {
+        assertTrue(AiRoast.system("English", AiRoast.Level.SAVAGE).contains("second person"))
+        assertTrue(AiRoast.system("English", AiRoast.Level.GENTLE).contains("gentle"))
+        assertEquals(3, AiRoast.Level.entries.map { AiRoast.system("English", it) }.distinct().size)
+    }
+
+    @Test fun roastLevelLabels() {
+        assertEquals("Gentle \uD83D\uDD25", AiRoast.badge(AiRoast.Level.GENTLE.label, AiRoast.Level.GENTLE))
+        assertEquals("Spicy \uD83D\uDD25\uD83D\uDD25", AiRoast.badge(AiRoast.Level.SPICY.label, AiRoast.Level.SPICY))
+        assertEquals("Savage \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25", AiRoast.badge(AiRoast.Level.SAVAGE.label, AiRoast.Level.SAVAGE))
+        assertEquals("Spietato \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25", AiRoast.badge("Spietato", AiRoast.Level.SAVAGE))
+        assertEquals(AiRoast.Level.SAVAGE, AiRoast.Level.from("SAVAGE"))
+        assertEquals(AiRoast.Level.SPICY, AiRoast.Level.from(""))
+        assertEquals(AiRoast.Level.SPICY, AiRoast.Level.from(null))
+        assertEquals(AiRoast.Level.SPICY, AiRoast.Level.from("NUCLEAR"))
+    }
+
+    @Test fun roastRefusalsAreRecognised() {
+        assertTrue(AiRoast.refused(""))
+        assertTrue(AiRoast.refused("{\"roast\": \"\"}"))
+        assertTrue(AiRoast.refused("I can't help with that request."))
+        assertTrue(AiRoast.refused("I'm sorry, but I won't write that."))
+        // A roast that opens like an apology is still a roast when it comes as asked.
+        assertFalse(AiRoast.refused("{\"roast\": \"I'm sorry, but this playlist is a crime.\"}"))
+        assertFalse(AiRoast.refused("Your playlist sounds like a dentist's waiting room."))
+    }
 }
