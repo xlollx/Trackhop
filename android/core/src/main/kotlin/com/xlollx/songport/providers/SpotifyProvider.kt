@@ -118,7 +118,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
                     id = pid,
                     name = p["name"].str ?: "",
                     trackCount = p["items"]["total"].int ?: p["tracks"]["total"].int ?: -1,
-                    ownedByMe = p["owner"]["id"].str == me || p["collaborative"].bool == true,
+                    ownedByMe = (p["owner"]["id"].str == me || p["collaborative"].bool == true) && !SpotifyMade.isSpotifyMade(pid, p["owner"]["id"].str),
                     imageUrl = p["images"][0]["url"].str,
                     isPublic = p["public"].bool,
                 )

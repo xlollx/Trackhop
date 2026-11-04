@@ -177,7 +177,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
 
     private fun toPlaylist(j: JsonElement?): Playlist? {
         val id = j["id"].str ?: return null
-        return Playlist(id, j["name"].str ?: "", j["count"]?.long?.toInt() ?: -1, ownedByMe = j["owned"].bool != false, description = j["description"].str.orEmpty())
+        return Playlist(id, j["name"].str ?: "", j["count"]?.long?.toInt() ?: -1, ownedByMe = j["owned"].bool != false && !SpotifyMade.isSpotifyMade(id), description = j["description"].str.orEmpty())
     }
 
     private fun toTrack(j: JsonElement?): Track? {

@@ -87,6 +87,7 @@ class SyncEngine(
 ) {
     private val store = env.store
     private fun str(name: String, vararg args: Any): String = texts(name, args)
+
     /** Best candidate under the threshold per source track searched in this run: the review's proposals. */
     private val hints = java.util.concurrent.ConcurrentHashMap<String, Track>()
     /** Source ids whose searches on the target returned nothing at all: not there, nothing to review. */
@@ -113,6 +114,11 @@ class SyncEngine(
         if (lock?.isLocked == true) env.log("engine", "${job.name}: waiting for another sync writing to the same playlist")
         lock?.lock()
         val report = try {
+            // A playlist Spotify makes (daylist, Discover Weekly…) is only ever read: a sync writing to
+            // it (one made before the editor knew, or the way back of a two-way) stops here, clearly.
+            if (job.target.provider in SPOTIFY_IDS && com.xlollx.songport.providers.SpotifyMade.isSpotifyMade(job.target.playlistId)) {
+                throw ProviderException(str("error_read_only", job.target.playlistName.ifBlank { job.target.playlistId.orEmpty() }))
+            }
             val plan = plan(job, onProgress, unattended = unattended)
             env.log("engine", "${job.name}: plan ready in ${(System.currentTimeMillis() - started) / 1000}s: source ${plan.sourceCount}, " +
                 "not found ${plan.unmatched.size}, to review ${plan.uncertain.size}, removals held back ${plan.heldBackRemovals}" +
@@ -583,6 +589,7 @@ class SyncEngine(
      */
     /** Un semaforo per servizio di destinazione, condiviso da tutte le istanze del motore nel processo. */
     private companion object {
+        val SPOTIFY_IDS = setOf("spotify", "spotify_bridge")
         val searchSlots = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Semaphore>()
         /** One run at a time per target playlist ("service|playlist"), across the syncs of this process. */
         val targetLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
