@@ -56,6 +56,17 @@ object AmazonSession {
             .apply()
     }
 
+    /**
+     * The host the player sends its API calls to, when it is not `gql.<player domain>`: the "Rest of
+     * Europe" accounts (Netherlands, Belgium…) use music.amazon.com with an EU-side API host.
+     */
+    fun saveGqlHost(ctx: Context, host: String) {
+        if (!AmazonClient.isGqlHost(host)) return
+        if (prefs(ctx).getString("gql_host", null) != host) BridgeNet.log("amazon", "the player's API host is $host")
+        prefs(ctx).edit().putString("gql_host", host).apply()
+    }
+    fun gqlHost(ctx: Context): String? = prefs(ctx).getString("gql_host", null)?.takeIf { AmazonClient.isGqlHost(it) }
+
     fun headers(ctx: Context): String? = prefs(ctx).getString("headers", null)
     fun headersUserAgent(ctx: Context): String? = prefs(ctx).getString("headers_ua", null)
     /** The player page the headers were seen on: the account's real regional site. */

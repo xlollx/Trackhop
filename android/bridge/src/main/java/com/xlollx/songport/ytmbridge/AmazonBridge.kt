@@ -80,6 +80,9 @@ object AmazonBridge {
         web.addJavascriptInterface(object {
             @JavascriptInterface
             fun headers(json: String, ua: String?, host: String?) { remember(app, json, ua, host) }
+            /** The host the player's API calls go to (an EU-side one for a "Rest of Europe" account). */
+            @JavascriptInterface
+            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host) }
             /** Status of one of the player's own API calls, for the diagnostics log. */
             @JavascriptInterface
             fun status(op: String, code: Int) { playerStatus(op, code) }
@@ -230,6 +233,9 @@ object AmazonBridge {
             @JavascriptInterface
             fun other(where: String) { if (others.size < 40) others.add(where.take(80)) }
 
+            @JavascriptInterface
+            fun gqlHost(host: String) { AmazonSession.saveGqlHost(app, host) }
+
             /** The player showed a page instead of starting ("update your browser", "get the app"). */
             @JavascriptInterface
             fun page(text: String) { problem.compareAndSet(null, "page says: " + text.take(120)) }
@@ -359,7 +365,10 @@ object AmazonBridge {
           setTimeout(probe, 8000); setTimeout(probe, 20000);
           // The GraphQL endpoint the player has used since October 2026: its HTTP headers (CSRF triple,
           // device and session ids) are what a request needs besides the cookies.
-          var isGql = function(u){ try { return /^gql\.music\.amazon\./.test(new URL(String(u||''), location.href).host); } catch(e) { return false; } };
+          // Also an EU-side host for the "Rest of Europe" accounts served on music.amazon.com
+          // (gql-eu…, eu.gql…): whatever host carries "gql" under music.amazon.
+          var gqlHostOf = function(u){ try { var h = new URL(String(u||''), location.href).host; return /^[a-z0-9-]*gql[a-z0-9.-]*\.music\.amazon\./.test(h) ? h : null; } catch(e) { return null; } };
+          var isGql = function(u){ return gqlHostOf(u) != null; };
           var plain = function(h){
             var out = {};
             try {
@@ -370,8 +379,11 @@ object AmazonBridge {
             } catch(e){}
             return out;
           };
-          var grab = function(h){
-            try { var o = plain(h); if (o['csrf-token']) { window.__amzLast = o; AmzBridge.headers(JSON.stringify(o), navigator.userAgent, location.host); } } catch(e){}
+          var grab = function(h, u){
+            try {
+              var gh = gqlHostOf(u); if (gh) { window.__amzGqlHost = gh; if (AmzBridge.gqlHost) AmzBridge.gqlHost(gh); }
+              var o = plain(h); if (o['csrf-token']) { window.__amzLast = o; AmzBridge.headers(JSON.stringify(o), navigator.userAgent, location.host); }
+            } catch(e){}
           };
           // A call Trackhop asks for, sent by the page itself with the headers the player last used.
           window.__amzCall = function(id, body){
@@ -382,7 +394,7 @@ object AmazonBridge {
               h['content-type'] = 'application/json';
               h['accept'] = 'application/graphql-response+json, application/json';
               if (h['x-amzn-trace-start']) h['x-amzn-trace-start'] = String(Date.now());
-              window.fetch('https://gql.' + location.host + '/', { method: 'POST', headers: h, body: body, credentials: 'include' })
+              window.fetch('https://' + (window.__amzGqlHost || ('gql.' + location.host)) + '/', { method: 'POST', headers: h, body: body, credentials: 'include' })
                 .then(function(r){ return r.text().then(function(t){ done(r.status, t); }); })
                 .catch(function(e){ done(-1, e); });
             } catch(e) { done(-1, e); }
@@ -393,7 +405,7 @@ object AmazonBridge {
           var of = window.fetch;
           if (of) window.fetch = function(input, init){
             var url = (typeof input === 'string') ? input : (input && input.url) || '';
-            if (isGql(url)) grab((init && init.headers) || (input && input.headers)); else other(url);
+            if (isGql(url)) grab((init && init.headers) || (input && input.headers), url); else other(url);
             var p = of.apply(this, arguments);
             // How Amazon answers the player's own calls: tells "the session is refused" from "our
             // copy of the player's request is refused".
@@ -406,7 +418,7 @@ object AmazonBridge {
           var oo = XMLHttpRequest.prototype.open, os = XMLHttpRequest.prototype.send, osh = XMLHttpRequest.prototype.setRequestHeader;
           XMLHttpRequest.prototype.setRequestHeader = function(k, v){ (this.__h = this.__h || []).push([k, v]); return osh.apply(this, arguments); };
           XMLHttpRequest.prototype.open = function(m, u){ this.__u = u; return oo.apply(this, arguments); };
-          XMLHttpRequest.prototype.send = function(b){ if (isGql(this.__u)) grab(this.__h); else other(this.__u); return os.apply(this, arguments); };
+          XMLHttpRequest.prototype.send = function(b){ if (isGql(this.__u)) grab(this.__h, this.__u); else other(this.__u); return os.apply(this, arguments); };
         })();
     """.trimIndent()
 

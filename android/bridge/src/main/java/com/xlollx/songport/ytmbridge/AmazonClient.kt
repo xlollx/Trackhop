@@ -323,7 +323,10 @@ class AmazonClient(private val ctx: Context) {
         if (e != null && !refused(e) && e.message?.contains("signed-out") != true) throw e
 
         BridgeNet.log("amazon", "player ${if (player?.signedIn == true) "ran" else "sent no headers"}" +
-            (run.exceptionOrNull()?.message?.let { " (${it.take(120)})" } ?: "") + "; our call with its headers refused: asking the page")
+            (run.exceptionOrNull()?.message?.let { " (${it.take(120)})" } ?: "") +
+            // Where the player's calls went instead: the API host Trackhop should follow, if Amazon moved it.
+            (player?.otherRequests?.takeIf { it.isNotEmpty() && player?.signedIn != true }?.let { "; its calls went to: ${it.joinToString(", ")}" } ?: "") +
+            "; our call with its headers refused: asking the page")
         // Accepted from the browser only? The player page sends the call.
         var pageSaid = run.exceptionOrNull()?.message?.let { "player: ${it.take(120)}" } ?: if (player?.signedIn == true) "player ran" else "the player sent no headers"
         if (player?.signedIn == true) {
@@ -350,7 +353,7 @@ class AmazonClient(private val ctx: Context) {
                     "Open it once in the Amazon Music app; if it still fails, send a diagnostics report.",
             )
         }
-        val dup = AmazonSession.duplicateCookies("https://gql.$domain/")
+        val dup = AmazonSession.duplicateCookies("https://${gqlHost(domain)}/")
         BridgeNet.log("amazon", "$pageSaid; library refused too; cookies sent twice: ${dup.joinToString().ifBlank { "none" }}")
         AmazonBridge.forget()
         throw BridgeException(
@@ -395,9 +398,12 @@ class AmazonClient(private val ctx: Context) {
         ).toString()
     }
 
+    /** The API host for [domain]: the one the player was seen using, else `gql.<domain>`. */
+    private fun gqlHost(domain: String): String = AmazonSession.gqlHost(ctx)?.takeIf { it.endsWith(domain.removePrefix("music.")) } ?: "gql.$domain"
+
     private fun gqlWith(domain: String, operation: String, variables: JsonObject, headers: Map<String, String>): Answer {
         val b = Request.Builder()
-            .url("https://gql.$domain/")
+            .url("https://${gqlHost(domain)}/")
             .post(body(operation, variables).toRequestBody(JSON))
             .header("Cookie", cookies())
         b
@@ -725,6 +731,15 @@ class AmazonClient(private val ctx: Context) {
             "AMEN7PMS3EDWL" to "BE", "A33AVAJ2PDY3EV" to "TR", "A21TJRUUN4KGV" to "IN", "A17E79C6D8DWNP" to "SA",
             "A2VIGQ35RCS4UG" to "AE", "A1VC38T7YXB528" to "JP", "A39IBJ37TRP1C6" to "AU",
         )
+
+        /** A host the player's API calls may go to: "gql", in any form, in front of a known player domain. */
+        fun isGqlHost(host: String): Boolean {
+            val h = host.lowercase()
+            val at = h.indexOf(".music.amazon.")
+            if (at <= 0 || h.substring(at + 1) !in DOMAINS) return false
+            val front = h.substring(0, at)
+            return front.contains("gql") && front.all { it.isLetterOrDigit() || it == '.' || it == '-' }
+        }
 
         /** The territory header ("IT", "GB"...): the country part of the domain's language. */
         fun territory(domain: String): String = DOMAINS[domain]?.language?.substringAfter('_') ?: "US"
