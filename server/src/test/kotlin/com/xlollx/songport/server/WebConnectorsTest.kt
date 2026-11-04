@@ -271,6 +271,50 @@ class WebConnectorsTest {
         assertEquals("Deezer (web): ${DeezerWebServerProvider.EXPIRED}", e!!.message)
     }
 
+    // ------------------------------------------------------------------ Qobuz
+
+    private val qobuzToken = "Ab3_" + "q".repeat(80) + "-Z"
+
+    private fun qobuz(): (Seen) -> Answer? = { r ->
+        when {
+            r.host != "www.qobuz.com" -> null
+            r.path.endsWith("/playlist/getUserPlaylists") -> Answer("""{"user":{"id":1001,"login":"listener"},"playlists":{"offset":0,"limit":500,"total":2,"items":[
+                {"id":7001,"name":"Mine","tracks_count":3,"owner":{"id":1001,"name":"listener"}},{"id":7002,"name":"Theirs","tracks_count":9,"owner":{"id":2,"name":"Qobuz"}}]}}""")
+            r.path.endsWith("/playlist/deleteTracks") -> Answer("""{"id":7001}""")
+            else -> null
+        }
+    }
+
+    @Test fun qobuzPasteWithoutATokenIsRefusedBeforeAnyCall() {
+        val env = env()
+        val p = QobuzWebServerProvider()
+        val e = failure { p.connect(env, "x-app-id: 798273057", null) }
+        assertTrue(e is ProviderException)
+        assertTrue(e!!.message!!.contains("X-User-Auth-Token"))
+        assertFalse(p.isConnected(env))
+        assertTrue(seen.isEmpty())
+    }
+
+    @Test fun qobuzPastedRequestIsCheckedStoredAndUsed() {
+        answer = qobuz()
+        val env = env()
+        val p = QobuzWebServerProvider()
+        runBlocking { p.connect(env, "curl 'https://www.qobuz.com/api.json/0.2/playlist/getUserPlaylists' -H 'x-app-id: 123456789' -H 'x-user-auth-token: $qobuzToken'", null) }
+        assertTrue(p.isConnected(env))
+        assertEquals("listener", p.accountName(env))
+        assertEquals(qobuzToken, seen.single().headers["x-user-auth-token"])
+        assertEquals("123456789", seen.single().headers["x-app-id"])
+
+        val lists = runBlocking { p.playlists(env) }
+        assertEquals(listOf("7001", "7002"), lists.map { it.id })
+        assertEquals(listOf(true, false), lists.map { it.ownedByMe })
+        assertEquals(qobuzToken, seen.last().headers["x-user-auth-token"])
+
+        // Removal by the entries the listing gave.
+        runBlocking { p.removeTracks(env, "7001", listOf(com.xlollx.songport.model.Track("11", "One", itemId = "901"))) }
+        assertEquals("playlist_id=7001&playlist_track_ids=901", seen.last().body)
+    }
+
     // ------------------------------------------------------------------ the page
 
     @Test fun pageListsShowsAndConnectsTheCookieConnectors() {
@@ -293,6 +337,7 @@ class WebConnectorsTest {
             val list = get("/connectors").body()
             assertTrue(list.contains("Spotify (web) (unofficial, alpha)"))
             assertTrue(list.contains("Deezer (web) (unofficial, alpha)"))
+            assertTrue(list.contains("Qobuz (web) (unofficial, alpha)"))
 
             val sp = get("/connectors/spotify_bridge").body()
             assertTrue(sp.contains("Cookies of open.spotify.com"))

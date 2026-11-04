@@ -1,0 +1,113 @@
+{
+ "query": "Bring me",
+ "albums": {
+  "limit": 10,
+  "offset": 0,
+  "total": 1000,
+  "items": [
+   {
+    "id": "0886443690707",
+    "title": "Sempiternal",
+    "version": "Expanded Edition",
+    "artist": {
+     "name": "Bring Me The Horizon",
+     "id": 333314
+    },
+    "release_date_original": "2013-04-01",
+    "upc": "0886443690707",
+    "tracks_count": 13
+   }
+  ]
+ },
+ "tracks": {
+  "limit": 10,
+  "offset": 0,
+  "total": 1000,
+  "items": [
+   {
+    "id": 17795395,
+    "title": "Bring Me To Life",
+    "version": null,
+    "duration": 235,
+    "isrc": "USWU30200093",
+    "parental_warning": false,
+    "performer": {
+     "name": "Evanescence",
+     "id": 130725
+    },
+    "album": {
+     "id": "0060150140630",
+     "title": "Fallen",
+     "version": null,
+     "artist": {
+      "name": "Evanescence",
+      "id": 130725
+     },
+     "release_date_original": "2003-03-04",
+     "upc": "0060150140630",
+     "tracks_count": 12
+    },
+    "track_number": 2,
+    "streamable": true,
+    "release_date_original": "2003-03-04",
+    "maximum_bit_depth": 16
+   },
+   {
+    "id": 8187797,
+    "title": "Can You Feel My Heart",
+    "version": null,
+    "duration": 227,
+    "isrc": "GBARL1202415",
+    "parental_warning": true,
+    "performer": {
+     "name": "Bring Me The Horizon",
+     "id": 333314
+    },
+    "album": {
+     "id": "0886443690707",
+     "title": "Sempiternal",
+     "version": "Expanded Edition",
+     "artist": {
+      "name": "Bring Me The Horizon",
+      "id": 333314
+     },
+     "release_date_original": "2013-04-01",
+     "upc": "0886443690707",
+     "tracks_count": 13
+    },
+    "track_number": 1,
+    "streamable": true,
+    "release_date_original": "2013-04-01",
+    "maximum_bit_depth": 16
+   },
+   {
+    "id": 28185411,
+    "title": "Don't Bring Me Down",
+    "version": null,
+    "duration": 243,
+    "isrc": "USSM10015734",
+    "parental_warning": false,
+    "performer": {
+     "name": "Electric Light Orchestra",
+     "id": 122906
+    },
+    "album": {
+     "id": "0886445594027",
+     "title": "Discovery",
+     "version": null,
+     "artist": {
+      "name": "Electric Light Orchestra",
+      "id": 122906
+     },
+     "release_date_original": "1979-05-31",
+     "upc": "0886445594027",
+     "tracks_count": 9
+    },
+    "track_number": 9,
+    "streamable": true,
+    "release_date_original": "1979-05-31",
+    "maximum_bit_depth": 24
+   }
+  ]
+ }
+}

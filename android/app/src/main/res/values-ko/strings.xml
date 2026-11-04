@@ -1390,4 +1390,5 @@
     <string name="capture_site_open">열기</string>
     <string name="capture_unlocked">캡처 도구가 열렸습니다: 개발자 옵션 › 웹사이트 캡처.</string>
     <string name="capture_already_unlocked">캡처 도구가 이미 열려 있습니다.</string>
+    <string name="provider_note_qobuz_web">Qobuz는 API를 파트너에게만 공개합니다. Qobuz 페이지에서 로그인하면 Trackhop이 웹 플레이어의 세션을 사용합니다. 공식 방법이 아니며 Qobuz 약관에 어긋나고 작동이 멈출 수 있습니다. 알파. 내 플레이리스트와 즐겨찾기 트랙(좋아요한 곡으로)을 읽고 쓰며, ISRC로 검색합니다. 로그인이 끝나지 않으면 컴퓨터의 개발자 도구에서 www.qobuz.com/api.json 요청을 (cURL로, X-User-Auth-Token 포함) 복사해 붙여넣기를 사용하세요.</string>
 </resources>

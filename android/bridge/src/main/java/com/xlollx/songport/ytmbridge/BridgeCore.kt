@@ -8,7 +8,7 @@ import kotlinx.serialization.encodeToString
 /**
  * The connectors' methods, the same the Trackhop Bridge app answers through its ContentProvider
  * (`status`, `playlists`, `tracks`, `search`, `add`, `amazon.*`, `spotify.*`, `apple.*`, `deezer.*`,
- * `soundcloud.*`...), called by
+ * `soundcloud.*`, `anghami.*`, `qobuz.*`...), called by
  * Trackhop in-process. No caller check is needed: nothing outside this app can reach it.
  * Callers block, so this is never called on the main thread.
  */
@@ -271,6 +271,35 @@ object BridgeCore {
                 }
                 "anghami.rename" -> { AnghamiWebClient(ctx).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "anghami.delete" -> { AnghamiWebClient(ctx).delete(arg ?: return err("missing playlist id")); anghamiCache.invalidate(arg); Bundle() }
+                // ---- Qobuz web session: the web player's API with its user token and app id; the favourite tracks as "__liked__".
+                "qobuz.status" -> Bundle().apply {
+                    putBoolean("connected", QobuzBridge.session.isConnected(ctx))
+                    putString("account", QobuzBridge.session.account(ctx))
+                    putInt("version", VERSION)
+                }
+                "qobuz.disconnect" -> { QobuzBridge.session.clear(ctx); qobuzCache.clear(); Bundle() }
+                "qobuz.playlists" -> ok(json.encodeToString(QobuzWebClient(ctx).playlists()))
+                "qobuz.tracks" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val all = qobuzCache.get(id) { val c = QobuzWebClient(ctx); if (id == LIKED) c.liked() else c.tracks(id) }
+                    paged(json.encodeToString(all.drop(extras?.getInt("offset") ?: 0).take(PAGE)), all.size, extras?.getInt("offset") ?: 0)
+                }
+                "qobuz.search" -> ok(json.encodeToString(QobuzWebClient(ctx).search(arg ?: "", extras?.getString("isrc"))))
+                "qobuz.create" -> ok(json.encodeToString(QobuzWebClient(ctx).create(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "", extras?.getBoolean("public") ?: false)))
+                "qobuz.add", "qobuz.remove" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
+                    // Removing from a playlist goes by entry (playlist_track_id); "" where the caller had none.
+                    val items = extras?.getStringArray("items")?.map { it.ifEmpty { null } } ?: emptyList()
+                    val on = method == "qobuz.add"
+                    val c = QobuzWebClient(ctx)
+                    when { id == LIKED -> c.like(ids, on); on -> c.add(id, ids); else -> c.remove(id, ids, items) }
+                    qobuzCache.invalidate(id)
+                    Bundle()
+                }
+                "qobuz.rename" -> { QobuzWebClient(ctx).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
+                "qobuz.visibility" -> { QobuzWebClient(ctx).setPublic(arg ?: return err("missing playlist id"), extras?.getBoolean("public") ?: false); Bundle() }
+                "qobuz.delete" -> { QobuzWebClient(ctx).delete(arg ?: return err("missing playlist id")); qobuzCache.invalidate(arg); Bundle() }
                 // ---- LiveOne web session: the presets (as liked songs), read whole and added to; search without an account.
                 "liveone.status" -> Bundle().apply {
                     putBoolean("connected", LiveOneBridge.session.isConnected(ctx))
@@ -379,6 +408,7 @@ object BridgeCore {
 
     private val deezerCache = ListCache<TrackDto>()
     private val anghamiCache = ListCache<TrackDto>()
+    private val qobuzCache = ListCache<TrackDto>()
     private val soundCloudCache = ListCache<kotlinx.serialization.json.JsonObject>()
 
     /** One page of a listing, as the `tracks` methods answer: the page, the total, and where the next one starts. */

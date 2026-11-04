@@ -51,7 +51,7 @@ dependencies {
 // Trackhop Bridge repository copies it whole, so the files stay there. Only the files listed, which
 // import nothing from Android (the module's other files are left out); the rest comes from :ytm.
 def bridgeDir = file('../android/bridge/src/main/java')
-def bridgeClients = ['BridgeNet.kt', 'WebHost.kt', 'SpotifyWebClient.kt', 'DeezerWebClient.kt', 'LiveOneWebClient.kt', 'AnghamiWebClient.kt']
+def bridgeClients = ['BridgeNet.kt', 'WebHost.kt', 'SpotifyWebClient.kt', 'DeezerWebClient.kt', 'LiveOneWebClient.kt', 'AnghamiWebClient.kt', 'QobuzWebClient.kt']
 sourceSets.main.kotlin {
     srcDir(bridgeDir)
     exclude { e -> !e.directory && e.file.toPath().startsWith(bridgeDir.toPath()) && !(e.name in bridgeClients) }

@@ -1414,4 +1414,5 @@
     <string name="capture_site_open">Open</string>
     <string name="capture_unlocked">Capture tools unlocked: Developer options › Capture a website.</string>
     <string name="capture_already_unlocked">Capture tools are already unlocked.</string>
+    <string name="provider_note_qobuz_web">Qobuz gives its API to partners only: sign in on Qobuz\'s own page and Trackhop uses the web player\'s session. Not an official route, against Qobuz\'s terms, may stop working. Alpha. Playlists of your own and favourite tracks (as liked songs), read and written; search by ISRC. If the sign-in does not finish, copy a request to www.qobuz.com/api.json from a computer\'s developer tools (as cURL: it holds X-User-Auth-Token) and use Paste.</string>
 </resources>

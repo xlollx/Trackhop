@@ -1414,4 +1414,5 @@
     <string name="capture_site_open">Apri</string>
     <string name="capture_unlocked">Strumenti di cattura sbloccati: Opzioni sviluppatore › Cattura un sito.</string>
     <string name="capture_already_unlocked">Gli strumenti di cattura sono già sbloccati.</string>
+    <string name="provider_note_qobuz_web">Qobuz apre la sua API solo ai partner: accedi sulla pagina di Qobuz e Trackhop usa la sessione del web player. Non è una via ufficiale, è contro i termini di Qobuz, può smettere di funzionare. Alpha. Playlist tue e brani preferiti (come brani che ti piacciono), in lettura e scrittura; ricerca per ISRC. Se l\'accesso non si completa, copia dagli strumenti per sviluppatori di un computer una richiesta a www.qobuz.com/api.json (come cURL: contiene X-User-Auth-Token) e usa Incolla.</string>
 </resources>
