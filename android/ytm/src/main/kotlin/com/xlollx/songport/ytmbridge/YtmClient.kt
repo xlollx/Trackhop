@@ -377,12 +377,28 @@ class YtmClient(private val host: YtmHost) {
         // Once the anonymous route is refused it usually stays refused for a while: searches go
         // through the session for a few minutes rather than paying a refusal on every one of them.
         val anonymousCold = System.currentTimeMillis() - anonRefusedAt < ANON_COOLDOWN_MS
-        val resp = if (anonymousCold) call("search", body, auth = true) else try {
-            call("search", body, auth = false)
+        val signedIn = host.cookies() != null
+        if (anonymousCold && signedIn) return results(call("search", body, auth = true))
+        val anonymous = try {
+            results(call("search", body, auth = false))
         } catch (e: Throttled) {
+            if (!signedIn) throw e
             anonRefusedAt = System.currentTimeMillis()
-            call("search", body, auth = true)
+            return results(call("search", body, auth = true))
         }
+        // YouTube can answer a visitor's filtered search with "No results" for any song (the catalogue
+        // hidden from visitors: issue #34's "No results for a well-known track"). An empty anonymous
+        // answer is asked again with the session, and the next searches go through it for a while.
+        if (anonymous.isNotEmpty() || !signedIn) return anonymous
+        val withSession = results(call("search", body, auth = true))
+        if (withSession.isNotEmpty()) {
+            anonRefusedAt = System.currentTimeMillis()
+            host.log("ytm: search: no results as a visitor, found with the session; searches use it for a while")
+        }
+        return withSession
+    }
+
+    private fun results(resp: JsonElement): List<TrackDto> {
         val seen = HashSet<String>()
         return resp.findAll("musicResponsiveListItemRenderer")
             .mapNotNull { parseItem(it) }

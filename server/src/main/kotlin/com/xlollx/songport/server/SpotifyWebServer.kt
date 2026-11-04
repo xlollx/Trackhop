@@ -138,8 +138,24 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) { io(ctx) { it.deletePlaylist(playlistId) } }
 
+    /** The gap between two liked songs: a little over a second, so each gets its own second (#34). */
+    @Volatile var likedSpacingMs = 1_050L
+    @Volatile private var lastLikedSave = 0L
+    override fun addSpacingMs(playlistId: String): Long = if (playlistId == MusicProvider.LIKED_ID) likedSpacingMs else 0
+
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
+        // Liked songs: one per call, a second apart, oldest first, or Spotify shuffles those saved in
+        // the same second (issue #34).
+        if (playlistId == MusicProvider.LIKED_ID) {
+            for (t in tracks) {
+                val wait = lastLikedSave + likedSpacingMs - System.currentTimeMillis()
+                if (wait > 0) kotlinx.coroutines.delay(wait)
+                io(ctx) { c -> c.addToLibrary(listOf(uriOf(t))) }
+                lastLikedSave = System.currentTimeMillis()
+            }
+            return
+        }
         val uris = tracks.map { uriOf(it) }
         io(ctx) { c -> if (playlistId in LIBRARY) c.addToLibrary(uris) else c.addToPlaylist(playlistId, uris) }
     }

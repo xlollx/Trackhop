@@ -172,6 +172,20 @@ class YtmClientContractTest {
         assertEquals("/youtubei/v1/playlist/delete", take(4).requestUrl!!.encodedPath)
     }
 
+    @Test fun anEmptyVisitorSearchIsAskedAgainWithTheSession() {
+        // #34: YouTube answers a visitor's song search with "No results"; the session finds it.
+        answer("""{"contents":{"tabbedSearchResultsRenderer":{"tabs":[{"tabRenderer":{"content":{"sectionListRenderer":{"contents":[{"itemSectionRenderer":{"contents":[{"messageRenderer":{"text":{"runs":[{"text":"No results for "}]}}}]}}]}}}}]}}}""")
+        answer("""{"contents":{"tabbedSearchResultsRenderer":{"tabs":[{"tabRenderer":{"content":{"sectionListRenderer":{"contents":[{"musicShelfRenderer":{"contents":[${row("fYdwe3ArFWA", null, "Bohemian Rhapsody")}]}}]}}}}]}}}""")
+        val r = client.search("Queen Bohemian Rhapsody")
+        assertEquals(listOf("fYdwe3ArFWA"), r.map { it.id })
+        assertEquals(null, take(0).getHeader("Authorization"))
+        assertTrue(take(1).getHeader("Authorization") != null)
+        // The next search goes straight through the session.
+        answer("""{"contents":{"tabbedSearchResultsRenderer":{"tabs":[{"tabRenderer":{"content":{"sectionListRenderer":{"contents":[{"musicShelfRenderer":{"contents":[${row("v2", null)}]}}]}}}}]}}}""")
+        client.search("Daft Punk One More Time")
+        assertTrue(take(2).getHeader("Authorization") != null)
+    }
+
     @Test fun deadSessionIsNotRetried() {
         answer("""{"error":{"code":401,"message":"Request had invalid authentication credentials.","status":"UNAUTHENTICATED"}}""", 401)
         try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }

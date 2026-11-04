@@ -7,8 +7,8 @@ import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Matcher
 
 /**
- * "Roast of a playlist", with the user's own AI ([AiClient]): a short, funny and affectionate
- * comment on a playlist. The AI gets a compact summary only (name, counts, top artists, decades,
+ * "Roast of a playlist", with the user's own AI ([AiClient]): a short comedy roast of a playlist,
+ * merciless about the taste (it was too kind: it read like a sweet comment, not a roast). The AI gets a compact summary only (name, counts, top artists, decades,
  * a sample of titles), never the whole list. Three levels ([Level]); at every one only the taste is
  * mocked, never the person ([SAFETY]), and swearing only when the user turned it on.
  */
@@ -84,8 +84,13 @@ object AiRoast {
             Keep it warm and light: playful jabs, nothing that stings, a compliment hidden somewhere.
         """.trimIndent()
         Level.SPICY -> """
-            You write a short, funny, affectionate roast of someone's music playlist, like a friend teasing them.
-            Tease the taste, the habits and the choices; never insult people, the listener or the artists as persons.
+            You are a stand-up comedian at a comedy roast, and tonight's target is this listener's music taste.
+            Write a real roast, not a review: speak straight to them in the second person ("you"), mock their taste
+            without mercy and land actual punches. No compliments, no "but it's fine", no "everyone has their guilty
+            pleasures", no softening, no moralising, and no ending on a kind note.
+            Be specific: name the artists, titles, decades and numbers from the summary and make fun of exactly those
+            (the obsession with one artist, the decade they are stuck in, the clichés, what the playlist name gives away).
+            Exaggerate, compare, and finish with a killer one-liner.
         """.trimIndent()
         Level.SAVAGE -> """
             You write a short, savage roast of the listener's music taste, speaking straight to them in the second person ("you").

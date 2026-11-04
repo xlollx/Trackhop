@@ -144,8 +144,25 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
         withContext(Dispatchers.IO) { call(ctx, "spotify.delete", playlistId) }
     }
 
+    /** The gap between two liked songs: a little over a second, so each gets its own second (#34). */
+    @Volatile var likedSpacingMs = 1_050L
+    @Volatile private var lastLikedSave = 0L
+    override fun addSpacingMs(playlistId: String): Long = if (playlistId == MusicProvider.LIKED_ID) likedSpacingMs else 0
+
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
+        // Liked songs are listed by the second they were saved, and Spotify shuffles those saved in the
+        // same second (issue #34, as with the developer sign-in): one per call, a second apart, in the
+        // order given (the engine sends the oldest first).
+        if (playlistId == MusicProvider.LIKED_ID) {
+            for (t in tracks) {
+                val wait = lastLikedSave + likedSpacingMs - System.currentTimeMillis()
+                if (wait > 0) kotlinx.coroutines.delay(wait)
+                withContext(Dispatchers.IO) { call(ctx, "spotify.add", playlistId, Bundle().apply { putStringArray("uris", arrayOf(uriOf(t))) }) }
+                lastLikedSave = System.currentTimeMillis()
+            }
+            return
+        }
         withContext(Dispatchers.IO) {
             tracks.chunked(100).forEach { chunk ->
                 call(ctx, "spotify.add", playlistId, Bundle().apply { putStringArray("uris", chunk.map { uriOf(it) }.toTypedArray()) })
