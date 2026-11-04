@@ -10,7 +10,7 @@ pages in your browser, and runs scheduled syncs while the computer is on. It is 
 
 ## Install
 
-The current version is **1.3.0** ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.4.0)); every version is in the
+The current version is **1.4.0** ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.4.0)); every version is in the
 [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true)
 (tagged `server-v…`: Desktop and Docker have their own version, separate from the app's).
 
