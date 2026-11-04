@@ -1,0 +1,1 @@
+Listas tiene su propia tarjeta en Cuentas (aparecía como "Archivo").

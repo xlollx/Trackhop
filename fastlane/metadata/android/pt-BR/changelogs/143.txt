@@ -1,0 +1,1 @@
+Paradas tem seu próprio cartão em Contas (aparecia como "Arquivo").

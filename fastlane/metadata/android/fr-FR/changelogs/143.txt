@@ -1,0 +1,1 @@
+Classements a sa propre carte dans Comptes (il apparaissait comme « Fichier »).
