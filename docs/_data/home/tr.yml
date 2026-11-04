@@ -1,0 +1,104 @@
+# The home page's text in Turkish: same keys as _data/home/en.yml, read by _includes/home.html.
+title: Trackhop
+description: "Çalma listelerini Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL, Deezer ve kendi müzik sunucunda aynı tut. Telefonunda, hesap yok, sunucu yok."
+h1: "Çalma listelerin,<br>her yerde."
+lead: Trackhop çalma listelerini müzik servisleri arasında elle ya da bir programa göre senkronize eder.
+sub: "Ücretsiz ve açık kaynak. Hesap yok, sunucu yok, abonelik yok: her şey telefonunda çalışır."
+tabs_label: Trackhop nereye kurulur
+tab_phone: Android
+tab_computer: Bilgisayar
+tab_server: Kendi sunucun
+play_alt: "Google Play: çok yakında"
+play_note: 'Test aşamasında · Google Play''den mi? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Eklentiyi</a> ekle'
+fdroid_alt: F-Droid'den edin
+fdroid_note: Kaynak koddan derlenir · yeni sürümler birkaç gün sonra
+obtainium_alt: Obtainium ile edin
+obtainium_note: Her sürüm anında, kendi kendine güncellenir
+github_alt: APK'yı GitHub'dan indir
+github_note: Elle kurmak için en yeni APK
+phone_more: 'Android 8.0 veya üstü · <a href="/guide/versions">Hangi sürüme ihtiyacım var?</a>'
+windows_alt: Windows için indir
+windows_note: 'veya <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+mac_alt: macOS için indir (Apple silicon)
+mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel için</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
+linux_alt: Linux için indir
+linux_note: '.deb · veya <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
+computer_more: 'Mac''te ilk seferinde sağ tık › Aç ile aç (<a href="/guide/desktop#macos">neden</a>) · <a href="#docker">Tüm indirmeler</a>'
+docker_alt: Docker'da çalıştır
+docker_note: 'Beta · ghcr.io veya <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">NAS üzerinde</a>'
+azure_title: "Beta: kendi Azure aboneliğinde çalışır (ayda yaklaşık 5 $)"
+azure_alt: Azure'a dağıt (beta)
+azure_note: 'Beta · kendi aboneliğin, ayda yaklaşık 5 &#36; · <a href="/guide/docker#on-azure-beta">ayrıntılar</a>'
+server_more: 'Bir web sayfası, zamanlanmış senkronizasyonlar, bir API · Tüm ev halkı için <a href="/guide/docker#several-people-on-one-server">herkese ayrı hesap</a>'
+virustotal: Her indirme VirusTotal'da kontrol edildi
+downloads: "{n} indirme"
+downloads_title: GitHub sürüm indirmeleri ve Docker Hub çekmeleri. F-Droid ve mağazalar sayı yayımlamıyor, yani gerçek sayı daha yüksek.
+demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, araçlar, paylaşılan bir parça, uyumluluk ve poster kartları, çalınamayan parçalar, ayarlar"
+what_title: Ne yapar
+what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.
+card1_title: Her servisten her servise
+card1: Çalma listeleri, beğenilen şarkılar, kaydedilen albümler ve takip edilen sanatçılar. Ya da herkese açık herhangi bir çalma listesinin bağlantısını yapıştır.
+card2_title: Programa göre
+card2: Saatte bir, 6 saatte bir, günlük veya haftalık. Yalnızca eklemeler ya da silmeler de yansıtılsın, kaynağın sırası korunarak.
+card3_title: Tahmin yok
+card3: "Her senkronizasyondan önce bir önizleme. Bulunamayan parçalar incelemeye gider: doğrusunu bir kez seç, Trackhop hatırlar."
+card4_title: Hesapların sende kalır
+card4: Her servise kendi sayfasında giriş yaparsın. Erişim jetonları telefonda şifrelenir ve telefondan asla çıkmaz.
+card5_title: Kendi müzik sunucun
+card5: "Navidrome ve diğer Subsonic sunucuları, Jellyfin ve Plex, akış servislerinin yanında. Dosyalar da: CSV, M3U, XML, JSON."
+card6_title: Çalma listesi araçları
+card6: Yedekler, kopyaları kaldırma, birleştirme, bölme ve sıralama, ayrıca kendi yapay zekâ anahtarınla çalışan bir çalma listesi oluşturucu.
+shots_alt: Sayılarıyla senkronizasyonlar, yeni bir senkronizasyon, bir çalma listesine eklenen paylaşılmış bir parça, iki çalma listesinin ne kadar uyumlu olduğu, bir çalma listesi posteri, çalınamayan parçalar ve yerlerine gelenler
+works_title: Desteklenenler
+works_intro: "Beta olarak işaretlenen servisler çalışır ve her servisin belgelenmiş API'sini izler, ancak gerçek kullanımda daha az denenmiştir: geri bildirimlere açığız."
+group_streaming: Akış servisleri
+group_server: Kendi sunucun
+group_sources: Kaynaklar ve dosyalar
+read_only: salt okunur
+pasted_text: Yapıştırılan metin
+why_title: Neden çevrimiçi bir aktarım servisi değil?
+why_intro: 'Soundiiz, TuneMyMusic ve FreeYourMusic tek seferlik bir taşıma için iyidir. Trackhop ise hesaplarını kimseye teslim etmeden çalma listelerini zaman içinde uyumlu tutmak içindir. Yan yana: <a href="/guide/soundiiz-alternative">Trackhop ve Soundiiz</a>, <a href="/guide/tunemymusic-alternative">Trackhop ve TuneMyMusic</a>.'
+why_them: Çevrimiçi aktarım servisleri
+why_rows:
+  - ["Nerede çalışır", "Telefonunda", "Onların sunucularında"]
+  - ["Giriş bilgilerin kimde", "Yalnızca telefonunda, şifreli", "Serviste"]
+  - ["Hesap, abonelik", "Yok", "Hesap; ücretsiz planda sınırlar"]
+  - ["Zamanlanmış senkronizasyon, silmelerin yansıtılması", "Evet", "Çoğunlukla ücretli planlarda"]
+  - ["Kişisel sunucular", "Evet", "Nadiren"]
+  - ["Kaynak kod", "Açık, AGPL-3.0-only", "Kapalı"]
+also_title: Bilgisayarda veya NAS'ta da
+also_intro: "Telefonsuz denemek ya da senkronizasyonları hep açık duran bir makinede çalıştırmak mı istiyorsun? Aynı motor bilgisayarında ve bir sunucuda da çalışır; servisleri bağlamak ve senkronizasyon oluşturmak için bir web sayfasıyla. İkisi de <strong>beta</strong>: günlük kullanım için uygundur ama henüz yenidir, bu yüzden kurulumunun bir kopyasını sakla ve neyin bozulduğunu bize bildir."
+desktop_intro: '<strong>Trackhop Desktop</strong> Windows, macOS ve Linux için: her program gibi kurulur, Docker ya da Java gerekmez, yönetici yetkisi gerekmez. Saatin yanında durur ve bilgisayar açıkken zamanlanmış senkronizasyonları çalıştırır. Sürüm %V% (<a href="https://github.com/xlollx/Trackhop/releases/tag/server-v%V%">neler yeni</a>).'
+dl_windows: Windows yükleyicisi
+dl_windows_zip: Windows, kurulumsuz (.zip)
+dl_mac_arm: macOS, Apple silicon
+dl_mac_intel: macOS, Intel
+dl_linux_deb: Linux (.deb)
+dl_linux_tar: Linux (.tar.gz)
+dl_linux_flatpak: Linux (Flatpak)
+package_manager: "Ya da bir paket yöneticisiyle:"
+pm_store: Windows, Microsoft Store'dan
+pm_scoop: Windows, Scoop ile
+pm_brew: macOS, Homebrew ile
+desktop_links: '<a href="/guide/desktop">Nasıl kurulur</a> · <a href="https://github.com/xlollx/Trackhop/releases?q=server-v&amp;expanded=true">Tüm sürümler</a> · <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/playlist-sync-windows">Windows</a>, <a href="/guide/playlist-sync-mac">Mac</a>, <a href="/guide/playlist-sync-linux">Linux</a> için'
+docker_intro: '<strong>Docker</strong> <span class="stage">beta</span>, ev sunucusu, NAS veya Raspberry Pi için:'
+docker_password: bir-sifre-sec
+docker_after: 'Ardından <code>http://127.0.0.1:8080</code> adresini aç. Güncellemek için imajı çek ve konteyneri yeniden başlat: senkronizasyonların birimde kalır. Ayarlar, Docker Compose ve orada neyin çalıştığı: <a href="/guide/docker"><strong>Docker rehberi</strong></a>. Ayrıca <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a>''da <code>xlollx/trackhop</code> adıyla. Bir <a href="/guide/playlist-sync-nas">NAS (Synology, Unraid, TrueNAS)</a> üzerinde ya da <a href="/guide/self-hosted-playlist-sync">Navidrome, Jellyfin veya Plex''in yanında</a>. Tüm ev halkı için <a href="/guide/docker#several-people-on-one-server">herkese ayrı hesap</a>: herkes giriş yapar ve kendi servislerine ve senkronizasyonlarına sahip olur.'
+azure_before: '<strong>Azure''da</strong> <span class="stage">beta</span>, evde sunucu olmadan:'
+azure_after: 'Trackhop''u kendi Azure aboneliğinde oluşturur (Container Apps, HTTPS, veriler Azure Files''ta). Faturası aboneliğine yansır: senkronizasyonlar arasında boşta beklediğinde çoğu bölgede ayda yaklaşık 5 &#36;, sürekli meşgulse yaklaşık 15 &#36;''a kadar (Azure''un Container Apps liste fiyatlarından, aylık ücretsiz kotadan sonraki tahmin; depolama birkaç sent tutar). <a href="/guide/docker#on-azure-beta">Daha fazlası</a>.'
+both_have: "İkisinde de uygulamanın görünümü, bulunamayan parçaların incelenmesi, her biçimde dosya çalma listeleri ve uygulamanın Araçları var: dışa aktarma, tam yedekler (zamanlanmış olarak da), kopyalar, çalınamayan parçalar, yapay zekâ çalma listeleri ve istatistiklerin."
+data_title: Trackhop verilerini nasıl kullanır
+data1: "Trackhop seçtiğin müzik servislerine (Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, kişisel sunucular) her servisin kendi girişiyle bağlanır. Çalma listelerini ve parçalarını okur; bir senkronizasyonu başlattığında ya da zamanladığında kendi hesabında çalma listeleri oluşturur ve parça ekler veya kaldırır. Google'ın API'si üzerinden YouTube Music için bu, <code>youtube</code> izniyle YouTube Data API anlamına gelir; yalnızca senin çalma listelerin için ve yalnızca senin cihazında kullanılır."
+data2: 'Erişim jetonları telefonda şifreli olarak saklanır ve asla Trackhop''un geliştiricisine ya da üçüncü taraflara gönderilmez. Trackhop sunucusu yoktur. Ayrıntılar <a href="/privacy-policy">gizlilik politikasında</a>.'
+start_title: Başla
+start_intro: 'Android 8.0 veya üstü; İngilizce, İtalyanca, Fransızca, Almanca, İspanyolca, Portekizce, Lehçe, Rusça, Türkçe, Çince, Japonca ve Korece. Hangi sürümü alacağından emin değil misin? <a href="/guide/versions">Hangi Trackhop?</a> sayfası bunları karşılaştırır. <a href="/guide/">Rehber</a> ilk senkronizasyonu ve yaygın hataları adım adım anlatır; bir şey anlatıldığı gibi çalışmazsa <em>Günlük → GitHub''da bildir</em> ayrıntıları önceden doldurulmuş bir rapor açar.'
+start_apk: veya GitHub'dan APK
+step_by_step: 'Adım adım: <a href="/guide/spotify-to-youtube-music">Spotify''dan YouTube Music''e</a> · <a href="/guide/apple-music-to-spotify">Apple Music''ten Spotify''a</a> · <a href="/guide/spotify-to-tidal">Spotify''dan TIDAL''a</a> · <a href="/guide/spotify-to-apple-music">Spotify''dan Apple Music''e</a> · <a href="/guide/youtube-music-to-spotify">YouTube Music''ten Spotify''a</a> · <a href="/guide/deezer-to-spotify">Deezer''dan Spotify''a</a> · <a href="/guide/amazon-music-to-spotify">Amazon Music''ten Spotify''a</a> · <a href="/guide/spotify-to-navidrome-jellyfin">Spotify''dan Navidrome, Jellyfin veya Plex''e</a> · <a href="/guide/export-playlist-csv">bir çalma listesini CSV veya M3U''ya</a> · <a href="/guide/shazam">Shazam''larını bir çalma listesine</a>. Türkçe rehber: <a href="/guide/calma-listesi-aktarma">Spotify, YouTube Music, Apple Music ve Deezer arasında çalma listesi aktarma, ücretsiz</a>.'
+no_phone: 'Yanında Android telefon yok mu? Windows veya Linux''ta <a href="#docker">Trackhop Desktop''u dene</a> ya da Docker sürümünü.'
+play_bridge: 'Google Play sürümünü mü kullanıyorsun? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Trackhop Bridge''i indir</strong></a>: YouTube Music, Amazon Music ve geliştirici anahtarı olmadan Spotify ile Apple Music ekleyen eklenti (resmî olmayan web arayüzleri: önce notlarını oku).'
+thanks_title: Teşekkürler
+thanks_how: 'Trackhop''un ücretsiz kalmasını sağlayan herkese. Adının burada olmasını ister misin? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> veya <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
+renamed: '<strong>Songport artık Trackhop.</strong> Aynı uygulama, aynı kod, aynı güncellemeler: yalnızca ad değişti, çünkü aynı alanda "SongPort" adlı ilgisiz bir servis var. Kurulu uygulaman normal şekilde güncellenir ve tüm verilerini korur, eski bağlantılar da çalışmaya devam eder.'
+public_links: herkese açık bağlantılar
+radio_shazam: İnternet radyosu · Shazam
+charts: Listeler

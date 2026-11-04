@@ -1,0 +1,104 @@
+# The home page's text in Simplified Chinese: same keys as _data/home/en.yml (see the notes there).
+title: Trackhop
+description: 让你的歌单在 Spotify、Apple Music、YouTube Music、Amazon Music、TIDAL、Deezer 和你自己的音乐服务器之间始终保持一致。只需手机，无需账号，无需服务器。
+h1: "你的歌单，<br>随处同步。"
+lead: Trackhop 在各个音乐服务之间同步歌单，可手动，也可定时。
+sub: "免费开源。无需账号、服务器或订阅：一切都在你的手机上运行。"
+tabs_label: 在哪里安装 Trackhop
+tab_phone: Android
+tab_computer: 桌面版
+tab_server: 自托管
+play_alt: "Google Play：即将上架"
+play_note: '测试中 · 用的是 Google Play 版？请添加<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">插件</a>'
+fdroid_alt: 在 F-Droid 上获取
+fdroid_note: 从源码构建 · 新版本会晚几天
+obtainium_alt: 在 Obtainium 上获取
+obtainium_note: 每个版本第一时间获取，自动更新
+github_alt: 从 GitHub 下载 APK
+github_note: 最新 APK，手动安装
+phone_more: 'Android 8.0 或更高版本 · <a href="/guide/versions">我该选哪个版本？</a>'
+windows_alt: 下载 Windows 版
+windows_note: '或 <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop、Chocolatey</a>'
+mac_alt: 下载 macOS 版（Apple silicon）
+mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel 版</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
+linux_alt: 下载 Linux 版
+linux_note: '.deb · 或 <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
+computer_more: '在 Mac 上，首次请右键 › 打开（<a href="/guide/desktop#macos">原因</a>） · <a href="#docker">全部下载</a>'
+docker_alt: 在 Docker 上运行
+docker_note: '测试版 · ghcr.io 或 <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">在 NAS 上</a>'
+azure_title: "测试版：运行在你自己的 Azure 订阅中（每月约 5 美元）"
+azure_alt: 部署到 Azure（测试版）
+azure_note: '测试版 · 你自己的订阅，每月约 &#36;5 · <a href="/guide/docker#on-azure-beta">详情</a>'
+server_more: '网页界面、定时同步、API · 全家人<a href="/guide/docker#several-people-on-one-server">各用一个账号</a>'
+virustotal: 所有下载均经 VirusTotal 检测
+downloads: "{n} 次下载"
+downloads_title: GitHub 发布版下载量加 Docker Hub 拉取量。F-Droid 和各应用商店不公布数据，实际数字更高。
+demo_alt: "Trackhop 导览：同步列表、新建同步、账号、工具、分享的歌曲、契合度和海报卡片、无法播放的歌曲、设置"
+what_title: 它能做什么
+what_intro: 选好来源和目标，设定同步频率。Trackhop 会在另一端找到每一首歌，先告诉你会有哪些变化，再让两边始终保持一致。
+card1_title: 任意服务互通
+card1: 歌单、喜欢的歌曲、收藏的专辑和关注的艺人。也可以直接粘贴任意公开歌单的链接。
+card2_title: 定时同步
+card2: 每小时、每 6 小时、每天或每周。可以只添加，也可以同步删除，并保持来源的歌曲顺序。
+card3_title: 绝不瞎猜
+card3: "每次同步前都有预览。没找到的歌曲会进入待检查列表：选对一次，Trackhop 就会记住。"
+card4_title: 账号始终属于你
+card4: 在各服务自己的页面上登录。访问令牌在手机上加密保存，绝不离开手机。
+card5_title: 你自己的音乐服务器
+card5: "除了流媒体服务，还支持 Navidrome 等 Subsonic 服务器、Jellyfin 和 Plex。也支持文件：CSV、M3U、XML、JSON。"
+card6_title: 歌单工具
+card6: 备份、去重、合并、拆分和排序，以及用你自己的 AI 密钥驱动的歌单生成器。
+shots_alt: 带数据的同步列表、新建同步、把分享的歌曲加入歌单、两个歌单的契合度、歌单海报、无法播放的歌曲及其替代
+works_title: 支持的服务
+works_intro: "标有测试版的服务可以正常使用，并遵循各服务公开的 API，但实际使用还不多：欢迎反馈。"
+group_streaming: 流媒体服务
+group_server: 你自己的服务器
+group_sources: 来源和文件
+read_only: 只读
+pasted_text: 粘贴的文本
+why_title: 为什么不用在线迁移服务？
+why_intro: 'Soundiiz、TuneMyMusic 和 FreeYourMusic 适合一次性迁移。Trackhop 则是为了长期保持歌单同步，而且不用把账号交给任何人。详细对比：<a href="/guide/soundiiz-alternative">Trackhop 与 Soundiiz</a>、<a href="/guide/tunemymusic-alternative">Trackhop 与 TuneMyMusic</a>。'
+why_them: 在线迁移服务
+why_rows:
+  - [运行位置, 你的手机, 他们的服务器]
+  - [谁掌握你的登录信息, "只有你的手机，加密保存", 服务方]
+  - [账号、订阅, 不需要, "需要账号，免费版有限制"]
+  - [定时同步、同步删除, 支持, 多数需付费]
+  - [个人服务器, 支持, 很少支持]
+  - [源代码, "开源，AGPL-3.0-only", 闭源]
+also_title: 也可以在电脑或 NAS 上运行
+also_intro: "想在没有手机的情况下试试，或者让同步在一台常开的机器上持续运行？同一个引擎可以在电脑和服务器上运行，并提供网页来连接服务和创建同步。两者都是<strong>测试版</strong>：日常使用没问题，但还比较新，所以请备份好你的设置，遇到问题告诉我们。"
+desktop_intro: '适用于 Windows、macOS 和 Linux 的 <strong>Trackhop Desktop</strong>：像普通软件一样安装，无需 Docker 或 Java，也无需管理员权限。它常驻在时钟旁边，电脑开着时就会执行定时同步。版本 %V%（<a href="https://github.com/xlollx/Trackhop/releases/tag/server-v%V%">更新内容</a>）。'
+dl_windows: Windows 安装程序
+dl_windows_zip: Windows 免安装版（.zip）
+dl_mac_arm: macOS，Apple silicon
+dl_mac_intel: macOS，Intel
+dl_linux_deb: Linux（.deb）
+dl_linux_tar: Linux（.tar.gz）
+dl_linux_flatpak: Linux（Flatpak）
+package_manager: "或使用包管理器："
+pm_store: Windows，通过 Microsoft Store
+pm_scoop: Windows，通过 Scoop
+pm_brew: macOS，通过 Homebrew
+desktop_links: '<a href="/guide/desktop">安装方法</a> · <a href="https://github.com/xlollx/Trackhop/releases?q=server-v&amp;expanded=true">所有版本</a> · <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · 适用于 <a href="/guide/playlist-sync-windows">Windows</a>、<a href="/guide/playlist-sync-mac">Mac</a>、<a href="/guide/playlist-sync-linux">Linux</a>'
+docker_intro: '<strong>Docker</strong> <span class="stage">测试版</span>，适用于家庭服务器、NAS 或 Raspberry Pi：'
+docker_password: zixuan-mima
+docker_after: '然后打开 <code>http://127.0.0.1:8080</code>。要更新，拉取镜像并重新启动容器即可：你的同步都保存在卷中。设置、Docker Compose 以及支持的功能，请看 <a href="/guide/docker"><strong>Docker 指南</strong></a>。也已在 <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> 上发布为 <code>xlollx/trackhop</code>。可以在 <a href="/guide/playlist-sync-nas">NAS（Synology、Unraid、TrueNAS）</a>上运行，或者<a href="/guide/self-hosted-playlist-sync">与 Navidrome、Jellyfin、Plex 放在一起</a>。全家使用时，<a href="/guide/docker#several-people-on-one-server">每人一个账号</a>：每个人登录后都有自己的服务和同步。'
+azure_before: '<strong>在 Azure 上</strong> <span class="stage">测试版</span>，家里不用服务器：'
+azure_after: '在你自己的 Azure 订阅中创建 Trackhop（Container Apps、HTTPS，数据存于 Azure Files）。费用计入你的订阅：在两次同步之间闲置时，大多数区域每月约 &#36;5；如果一直繁忙，最多约 &#36;15（根据 Container Apps 扣除每月免费额度后的 Azure 标价估算；存储只需几美分）。<a href="/guide/docker#on-azure-beta">了解更多</a>。'
+both_have: "两者都拥有与应用相同的外观、未找到歌曲的检查、各种格式的文件歌单，以及应用的工具：导出、完整备份（也可定时）、去重、无法播放的歌曲、AI 歌单和你的统计数据。"
+data_title: Trackhop 如何使用你的数据
+data1: "Trackhop 通过各服务自己的登录方式，连接你选择的音乐服务（Spotify、YouTube Music、Apple Music、Amazon Music、TIDAL、Deezer、个人服务器）。它会读取你的歌单及其中的歌曲；当你开始或设定同步时，会在你自己的账号中创建歌单、添加或移除歌曲。对于通过 Google API 连接的 YouTube Music，这意味着使用 YouTube Data API 的 <code>youtube</code> 权限，仅用于你的歌单，且仅在你的设备上进行。"
+data2: '访问令牌加密保存在手机上，绝不会发送给 Trackhop 的开发者或任何第三方。Trackhop 没有服务器。详情见<a href="/privacy-policy">隐私政策</a>。'
+start_title: 开始使用
+start_intro: 'Android 8.0 或更高版本，支持英语、意大利语、法语、德语、西班牙语、葡萄牙语、波兰语、俄语、土耳其语、中文、日语和韩语。不确定选哪个版本？<a href="/guide/versions">选哪个 Trackhop？</a>有对比。<a href="/guide/">指南</a>会带你完成第一次同步并解决常见错误；如果有什么地方和说明不符，<em>日志 → 在 GitHub 上报告</em> 会打开一份已填好详细信息的报告。'
+start_apk: 或从 GitHub 下载 APK
+step_by_step: '分步教程：<a href="/guide/spotify-to-youtube-music">Spotify 到 YouTube Music</a> · <a href="/guide/apple-music-to-spotify">Apple Music 到 Spotify</a> · <a href="/guide/spotify-to-tidal">Spotify 到 TIDAL</a> · <a href="/guide/spotify-to-apple-music">Spotify 到 Apple Music</a> · <a href="/guide/youtube-music-to-spotify">YouTube Music 到 Spotify</a> · <a href="/guide/deezer-to-spotify">Deezer 到 Spotify</a> · <a href="/guide/amazon-music-to-spotify">Amazon Music 到 Spotify</a> · <a href="/guide/spotify-to-navidrome-jellyfin">Spotify 到 Navidrome、Jellyfin 或 Plex</a> · <a href="/guide/export-playlist-csv">把歌单导出为 CSV 或 M3U</a> · <a href="/guide/shazam">把 Shazam 记录做成歌单</a>。中文指南：<a href="/guide/netease-qq-music-zh">网易云音乐、QQ音乐歌单同步</a> · <a href="/guide/playlist-transfer-zh">免费迁移歌单</a>。'
+no_phone: '手边没有 Android 手机？在 Windows 或 Linux 上<a href="#docker">试试 Trackhop Desktop</a>，或者使用 Docker 版。'
+play_bridge: '用的是 Google Play 版？<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>下载 Trackhop Bridge</strong></a>，这个插件可以添加 YouTube Music、Amazon Music，以及无需开发者密钥的 Spotify 和 Apple Music（使用非官方网页接口：请先阅读说明）。'
+thanks_title: 感谢
+thanks_how: '感谢让 Trackhop 保持免费的各位。想让你的名字出现在这里？<a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> 或 <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>。'
+renamed: '<strong>Songport 现已更名为 Trackhop。</strong>同样的应用、同样的代码、同样的更新：只是改了名字，因为同一领域有一个毫不相关的服务叫“SongPort”。已安装的应用会照常更新并保留所有数据，旧链接也依然有效。'
+public_links: "公开链接"
+radio_shazam: "网络电台 · Shazam"
+charts: "排行榜"

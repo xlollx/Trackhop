@@ -1,0 +1,258 @@
+{%- comment -%}
+The home page, in the page's language: its text comes from _data/home/<lang>.yml (English for a key
+a language lacks). index.html and the translated homes (it/index.html…) only include this.
+The Desktop version is set here, once, for every language.
+{%- endcomment -%}
+{%- assign dv = "1.5.0" -%}
+{%- assign dl = "https://github.com/xlollx/Trackhop/releases/download/server-v" | append: dv -%}
+{%- assign hl = page.lang | default: "en" | slice: 0, 2 -%}
+{%- assign en = site.data.home.en -%}
+{%- assign h = site.data.home[hl] | default: en -%}
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="tile"><img src="/assets/mark.svg" alt=""></div>
+      <h1>{{ h.h1 | default: en.h1 }}</h1>
+      <p class="lead">{{ h.lead | default: en.lead }}</p>
+      <p class="sub">{{ h.sub | default: en.sub }}</p>
+      <div class="platforms" role="tablist" aria-label="{{ h.tabs_label | default: en.tabs_label }}">
+        <button type="button" role="tab" data-tab="phone" aria-selected="true">{{ h.tab_phone | default: en.tab_phone }}</button>
+        <button type="button" role="tab" data-tab="computer" aria-selected="false">{{ h.tab_computer | default: en.tab_computer }}</button>
+        <button type="button" role="tab" data-tab="server" aria-selected="false">{{ h.tab_server | default: en.tab_server }}</button>
+      </div>
+      <div class="panel" data-panel="phone" role="tabpanel">
+        <div class="get cols">
+          <div class="col">
+            <!-- Google Play: swap this for the official badge linking to the listing once it is public (never a link to the Bridge from the Play build; the site may). -->
+            <span class="soon"><img src="/assets/badges/play-soon.svg" alt="{{ h.play_alt | default: en.play_alt }}"></span>
+            <small>{{ h.play_note | default: en.play_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="/assets/badges/fdroid.svg" alt="{{ h.fdroid_alt | default: en.fdroid_alt }}"></a>
+            <small>{{ h.fdroid_note | default: en.fdroid_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="/assets/badges/obtainium.svg" alt="{{ h.obtainium_alt | default: en.obtainium_alt }}"></a>
+            <small>{{ h.obtainium_note | default: en.obtainium_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="/assets/badges/github.svg" alt="{{ h.github_alt | default: en.github_alt }}"></a>
+            <small>{{ h.github_note | default: en.github_note }}</small>
+          </div>
+        </div>
+        <p class="more">{{ h.phone_more | default: en.phone_more }}</p>
+      </div>
+      <div class="panel" data-panel="computer" role="tabpanel">
+        <div class="get cols">
+          <div class="col">
+            <a href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-windows.msi"><img src="/assets/badges/windows.svg" alt="{{ h.windows_alt | default: en.windows_alt }}"></a>
+            <small>{{ h.windows_note | default: en.windows_note }}</small>
+          </div>
+          <div class="col">
+            <a href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-macos-arm64.dmg"><img src="/assets/badges/macos.svg" alt="{{ h.mac_alt | default: en.mac_alt }}"></a>
+            <small>{{ h.mac_note | default: en.mac_note | replace: '%DL%', dl | replace: '%V%', dv }}</small>
+          </div>
+          <div class="col">
+            <a href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-linux.deb"><img src="/assets/badges/linux.svg" alt="{{ h.linux_alt | default: en.linux_alt }}"></a>
+            <small>{{ h.linux_note | default: en.linux_note | replace: '%DL%', dl | replace: '%V%', dv }}</small>
+          </div>
+        </div>
+        <p class="more">{{ h.computer_more | default: en.computer_more }}</p>
+      </div>
+      <div class="panel" data-panel="server" role="tabpanel">
+        <div class="get cols">
+          <div class="col">
+            <a href="guide/docker"><img src="/assets/badges/docker.svg" alt="{{ h.docker_alt | default: en.docker_alt }}"></a>
+            <small>{{ h.docker_note | default: en.docker_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="{{ h.azure_title | default: en.azure_title }}"><img src="/assets/badges/azure.svg" alt="{{ h.azure_alt | default: en.azure_alt }}"></a>
+            <small>{{ h.azure_note | default: en.azure_note }}</small>
+          </div>
+        </div>
+        <p class="more">{{ h.server_more | default: en.server_more }}</p>
+      </div>
+      <script>
+        (function () {
+          var tabs = document.querySelectorAll(".platforms [data-tab]");
+          // Android first, always: it is the main app; Desktop and Self-hosted are one tap away.
+          var pick = "phone";
+          function show(name) {
+            tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.tab === name); });
+            document.querySelectorAll(".panel[data-panel]").forEach(function (p) { p.hidden = p.dataset.panel !== name; });
+          }
+          tabs.forEach(function (t) { t.addEventListener("click", function () { show(t.dataset.tab); }); });
+          document.querySelector(".platforms").classList.add("on");
+          show(pick);
+        })();
+      </script>
+      <div class="proof"><a class="trust" href="/guide/security"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>{{ h.virustotal | default: en.virustotal }}</a>
+      <p class="downloads" id="downloads" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zm7-3 6-6-1.41-1.41L13 13.17V4h-2v9.17l-3.59-3.58L6 11l6 6z"/></svg><span></span></p></div>
+      <script>
+        fetch("https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads-detail.json")
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || !(d.total >= 100)) return;
+            var el = document.getElementById("downloads");
+            el.querySelector("span").textContent = {{ h.downloads | default: en.downloads | jsonify }}.replace("{n}", (Math.floor(d.total / 100) * 100).toLocaleString({{ hl | jsonify }}) + "+");
+            el.title = {{ h.downloads_title | default: en.downloads_title | jsonify }};
+            el.hidden = false;
+          })
+          .catch(function () {});
+      </script>
+    </div>
+    <div class="phone"><img src="/store/demo.gif" width="230" alt="{{ h.demo_alt | default: en.demo_alt }}"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>{{ h.what_title | default: en.what_title }}</h2>
+    <p class="intro">{{ h.what_intro | default: en.what_intro }}</p>
+    <div class="cards">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18 2v4h-4"/><path d="M6 22v-4h4"/></svg></div>
+        <h3>{{ h.card1_title | default: en.card1_title }}</h3>
+        <p>{{ h.card1 | default: en.card1 }}</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>{{ h.card2_title | default: en.card2_title }}</h3>
+        <p>{{ h.card2 | default: en.card2 }}</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+        <h3>{{ h.card3_title | default: en.card3_title }}</h3>
+        <p>{{ h.card3 | default: en.card3 }}</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>{{ h.card4_title | default: en.card4_title }}</h3>
+        <p>{{ h.card4 | default: en.card4 }}</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></div>
+        <h3>{{ h.card5_title | default: en.card5_title }}</h3>
+        <p>{{ h.card5 | default: en.card5 }}</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
+        <h3>{{ h.card6_title | default: en.card6_title }}</h3>
+        <p>{{ h.card6 | default: en.card6 }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section shots">
+  <div class="wrap">
+    <img src="/store/screenshots.png" alt="{{ h.shots_alt | default: en.shots_alt }}">
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>{{ h.works_title | default: en.works_title }}</h2>
+    <p class="intro">{{ h.works_intro | default: en.works_intro }}</p>
+    <div class="group"><h3>{{ h.group_streaming | default: en.group_streaming }}</h3><div class="chips">
+      <span class="chip">Spotify</span><span class="chip">YouTube Music</span><span class="chip">Amazon Music</span>
+      <span class="chip">Apple Music <small>beta</small></span><span class="chip">TIDAL</span><span class="chip">Deezer <small>beta</small></span><span class="chip">Qobuz <small>alpha</small></span>
+      <span class="chip">SoundCloud <small>beta</small></span><span class="chip">Anghami <small>alpha</small></span><span class="chip">LiveOne <small>alpha</small></span>
+    </div></div>
+    <div class="group"><h3>{{ h.group_server | default: en.group_server }}</h3><div class="chips">
+      <span class="chip">Navidrome / Subsonic</span><span class="chip">Jellyfin</span><span class="chip">Emby <small>beta</small></span><span class="chip">Plex</span>
+    </div></div>
+    <div class="group"><h3>{{ h.group_sources | default: en.group_sources }}</h3><div class="chips">
+      <span class="chip">Last.fm <small>{{ h.read_only | default: en.read_only }}</small></span><span class="chip">ListenBrainz <small>{{ h.read_only | default: en.read_only }}</small></span>
+      <span class="chip">NetEase Cloud Music · QQ Music <small>{{ h.public_links | default: en.public_links }}</small></span>
+      <span class="chip">TikTok</span><span class="chip">{{ h.radio_shazam | default: en.radio_shazam }}</span><span class="chip">{{ h.charts | default: en.charts }} <small>Apple Music · Deezer</small></span>
+      <span class="chip">CSV · TSV · M3U · XSPF · JSPF · iTunes XML · JSON</span><span class="chip">{{ h.pasted_text | default: en.pasted_text }}</span>
+    </div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>{{ h.why_title | default: en.why_title }}</h2>
+    <p class="intro">{{ h.why_intro | default: en.why_intro }}</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th></th><th>Trackhop</th><th>{{ h.why_them | default: en.why_them }}</th></tr></thead>
+        <tbody>
+          {%- assign rows = h.why_rows | default: en.why_rows %}
+          {%- for r in rows %}
+          <tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td></tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="docker">
+  <div class="wrap">
+    <h2>{{ h.also_title | default: en.also_title }}</h2>
+    <p class="intro">{{ h.also_intro | default: en.also_intro }}</p>
+    <div class="data server">
+      <p>{{ h.desktop_intro | default: en.desktop_intro | replace: '%DL%', dl | replace: '%V%', dv }}</p>
+      <p class="get" style="filter: none"><a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-windows.msi">{{ h.dl_windows | default: en.dl_windows }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-windows.zip">{{ h.dl_windows_zip | default: en.dl_windows_zip }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-macos-arm64.dmg">{{ h.dl_mac_arm | default: en.dl_mac_arm }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-macos-x64.dmg">{{ h.dl_mac_intel | default: en.dl_mac_intel }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-linux.deb">{{ h.dl_linux_deb | default: en.dl_linux_deb }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-linux.tar.gz">{{ h.dl_linux_tar | default: en.dl_linux_tar }}</a> <a class="button-dl" href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-linux.flatpak">{{ h.dl_linux_flatpak | default: en.dl_linux_flatpak }}</a></p>
+      <p>{{ h.package_manager | default: en.package_manager }}</p>
+      <pre><code># {{ h.pm_store | default: en.pm_store }}
+winget install 9PFX74Q2XN9P
+
+# {{ h.pm_scoop | default: en.pm_scoop }}
+scoop bucket add xlollx https://github.com/xlollx/scoop-bucket
+scoop install xlollx/trackhop
+
+# {{ h.pm_brew | default: en.pm_brew }}
+brew install --cask xlollx/tap/trackhop</code></pre>
+      <p>{{ h.desktop_links | default: en.desktop_links }}</p>
+    </div>
+    <div class="data server" style="margin-top: 14px">
+      <p>{{ h.docker_intro | default: en.docker_intro }}</p>
+      <pre><code>docker run -d -p 8080:8080 \
+  -v trackhop-data:/data \
+  -e SONGPORT_PASSWORD={{ h.docker_password | default: en.docker_password }} \
+  ghcr.io/xlollx/trackhop</code></pre>
+      <p>{{ h.docker_after | default: en.docker_after }}</p>
+      <p>{{ h.azure_before | default: en.azure_before }} <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="https://aka.ms/deploytoazurebutton" alt="{{ h.azure_alt | default: en.azure_alt }}" style="vertical-align:middle;height:28px"></a> {{ h.azure_after | default: en.azure_after }}</p>
+      <p class="muted">{{ h.both_have | default: en.both_have }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>{{ h.data_title | default: en.data_title }}</h2>
+    <div class="data">
+      <p>{{ h.data1 | default: en.data1 }}</p>
+      <p>{{ h.data2 | default: en.data2 }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>{{ h.start_title | default: en.start_title }}</h2>
+    <p class="intro">{{ h.start_intro | default: en.start_intro }}</p>
+    <div class="get" style="filter: none">
+      <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="/assets/badges/fdroid.svg" alt="{{ h.fdroid_alt | default: en.fdroid_alt }}"></a>
+      <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="/assets/badges/obtainium.svg" alt="{{ h.obtainium_alt | default: en.obtainium_alt }}"></a>
+      <a href="https://github.com/xlollx/Trackhop/releases/latest">{{ h.start_apk | default: en.start_apk }}</a>
+    </div>
+    <p class="intro">{{ h.step_by_step | default: en.step_by_step }}</p>
+    <p class="intro">{{ h.no_phone | default: en.no_phone }}</p>
+    <p class="intro">{{ h.play_bridge | default: en.play_bridge }}</p>
+    {%- assign fans = site.data.supporters %}
+    {%- if fans and fans.size > 0 %}
+    <div class="supporters{% if fans.size >= 3 %} rolling{% endif %}" style="--supporters-time: {{ fans.size | times: 2.4 }}s">
+      <div class="supporters-text">
+        <p class="supporters-title"><span aria-hidden="true">♥</span> {{ h.thanks_title | default: en.thanks_title }}</p>
+        <p class="supporters-how">{{ h.thanks_how | default: en.thanks_how }}</p>
+      </div>
+      <div class="supporters-window"><div class="supporters-roll"><ul class="supporters-names">{% for f in fans %}<li>{{ f.name | escape }}</li>{% endfor %}</ul>{% if fans.size >= 3 %}<ul class="supporters-names" aria-hidden="true">{% for f in fans %}<li>{{ f.name | escape }}</li>{% endfor %}</ul>{% endif %}</div></div>
+    </div>
+    {%- endif %}
+    <p class="renamed-note">{{ h.renamed | default: en.renamed }}</p>
+  </div>
+</section>

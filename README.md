@@ -85,10 +85,11 @@ F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackh
 | | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
 | **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses, or recognises it from the audio | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
+| **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
 
 Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
-Not connectable: Qobuz and Pandora (partner-only APIs): use files.
+Not connectable: Pandora (no public API, United States only): use files.
 
 **Why not an online transfer service?** Soundiiz, TuneMyMusic and FreeYourMusic are good at a one-off
 move. Trackhop is for keeping playlists in step over time, without handing your accounts to anyone:

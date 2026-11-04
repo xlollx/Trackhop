@@ -16,3 +16,16 @@ start:
   it: /guide/iniziare
   es: /guide/primeros-pasos
   pt-BR: /guide/primeiros-passos
+home:
+  en: /
+  it: /it/
+  es: /es/
+  pt-BR: /pt/
+  fr: /fr/
+  de: /de/
+  pl: /pl/
+  ru: /ru/
+  tr: /tr/
+  ja: /ja/
+  ko: /ko/
+  zh: /zh/

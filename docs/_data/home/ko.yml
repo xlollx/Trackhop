@@ -1,0 +1,104 @@
+# The home page's text in Korean: same keys as _data/home/en.yml (see the notes there).
+title: Trackhop
+description: Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL, Deezer, 그리고 내 음악 서버까지 플레이리스트를 항상 똑같이 유지하세요. 휴대폰 하나로, 계정도 서버도 필요 없어요.
+h1: "내 플레이리스트를,<br>어디서나."
+lead: Trackhop은 음악 서비스 간에 플레이리스트를 동기화해요. 직접 실행하거나 일정에 맞춰 자동으로.
+sub: "무료 오픈 소스. 계정도, 서버도, 구독도 필요 없어요: 모든 것이 휴대폰에서 실행됩니다."
+tabs_label: Trackhop 설치 위치
+tab_phone: Android
+tab_computer: 데스크톱
+tab_server: 셀프 호스팅
+play_alt: "Google Play: 곧 출시"
+play_note: '테스트 중 · Google Play 버전이라면 <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">플러그인</a>을 추가하세요'
+fdroid_alt: F-Droid에서 받기
+fdroid_note: 소스에서 빌드 · 새 버전은 며칠 늦게 올라와요
+obtainium_alt: Obtainium에서 받기
+obtainium_note: 모든 릴리스를 바로, 자동 업데이트
+github_alt: GitHub에서 APK 다운로드
+github_note: 최신 APK를 직접 설치
+phone_more: 'Android 8.0 이상 · <a href="/guide/versions">어떤 버전이 필요할까요?</a>'
+windows_alt: Windows용 받기
+windows_note: '또는 <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+mac_alt: macOS용 받기 (Apple silicon)
+mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel용</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
+linux_alt: Linux용 받기
+linux_note: '.deb · 또는 <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
+computer_more: 'Mac에서는 처음 한 번 오른쪽 클릭 › 열기로 실행하세요 (<a href="/guide/desktop#macos">이유</a>) · <a href="#docker">모든 다운로드</a>'
+docker_alt: Docker에서 실행
+docker_note: '베타 · ghcr.io 또는 <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">NAS에서</a>'
+azure_title: "베타: 내 Azure 구독에서 실행 (월 약 5달러)"
+azure_alt: Azure에 배포 (베타)
+azure_note: '베타 · 내 구독에서, 월 약 &#36;5 · <a href="/guide/docker#on-azure-beta">자세히</a>'
+server_more: '웹 페이지, 예약 동기화, API · 온 가족이 <a href="/guide/docker#several-people-on-one-server">각자 계정</a>으로'
+virustotal: 모든 다운로드는 VirusTotal 검사 완료
+downloads: "{n}회 다운로드"
+downloads_title: GitHub 릴리스 다운로드 수와 Docker Hub pull 수예요. F-Droid와 스토어는 수치를 공개하지 않으니 실제로는 더 많아요.
+demo_alt: "Trackhop 둘러보기: 동기화 목록, 새 동기화, 계정, 도구, 공유된 곡, 호환성·포스터 카드, 재생할 수 없는 곡, 설정"
+what_title: 무엇을 하나요
+what_intro: 원본과 대상을 고르고, 얼마나 자주 할지 정하세요. Trackhop이 상대편에서 곡을 하나하나 찾아내고, 무엇이 바뀔지 보여 준 뒤, 두 플레이리스트를 계속 맞춰 줘요.
+card1_title: 어떤 서비스에서 어떤 서비스로든
+card1: 플레이리스트, 좋아요 표시한 곡, 저장한 앨범, 팔로우한 아티스트. 공개 플레이리스트라면 링크만 붙여 넣어도 돼요.
+card2_title: 일정에 맞춰 자동으로
+card2: 1시간마다, 6시간마다, 매일 또는 매주. 추가만 하거나 삭제까지 반영하고, 원본의 곡 순서도 그대로 유지해요.
+card3_title: 짐작은 하지 않아요
+card3: "동기화 전에는 항상 미리보기. 찾지 못한 곡은 검토 목록으로: 맞는 곡을 한 번만 고르면 Trackhop이 기억해요."
+card4_title: 내 계정은 내 것
+card4: 로그인은 각 서비스의 공식 페이지에서 해요. 액세스 토큰은 휴대폰에 암호화되어 저장되고 밖으로 나가지 않아요.
+card5_title: 내 음악 서버까지
+card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Plex도 지원해요. 파일도 돼요: CSV, M3U, XML, JSON."
+card6_title: 플레이리스트 도구
+card6: 백업, 중복 제거, 합치기·나누기·정렬, 그리고 내 AI 키로 동작하는 플레이리스트 생성기.
+shots_alt: 숫자와 함께 보는 동기화 목록, 새 동기화, 공유된 곡을 플레이리스트에 추가, 두 플레이리스트의 호환성, 플레이리스트 포스터, 재생할 수 없는 곡과 대체 곡
+works_title: 지원 서비스
+works_intro: "베타로 표시된 서비스도 잘 동작하고 각 서비스의 공식 API 문서를 따르지만, 실사용 경험은 아직 적어요. 제보를 환영해요."
+group_streaming: 스트리밍 서비스
+group_server: 내 서버
+group_sources: 소스와 파일
+read_only: 읽기 전용
+pasted_text: 붙여 넣은 텍스트
+why_title: 온라인 이전 서비스는 어때요?
+why_intro: 'Soundiiz, TuneMyMusic, FreeYourMusic은 한 번 옮기는 데는 좋아요. Trackhop은 계정을 누구에게도 맡기지 않고 플레이리스트를 오래도록 똑같이 유지하기 위한 앱이에요. 나란히 비교: <a href="/guide/soundiiz-alternative">Trackhop과 Soundiiz</a>, <a href="/guide/tunemymusic-alternative">Trackhop과 TuneMyMusic</a>.'
+why_them: 온라인 이전 서비스
+why_rows:
+  - [실행 위치, 내 휴대폰, 그들의 서버]
+  - [로그인 정보 보관, "내 휴대폰에만, 암호화", 서비스 업체]
+  - ["계정, 구독", 필요 없음, "계정 필요, 무료 플랜은 제한 있음"]
+  - ["예약 동기화, 삭제 반영", 지원, 대부분 유료 플랜]
+  - [개인 서버, 지원, 거의 미지원]
+  - [소스 코드, "공개, AGPL-3.0-only", 비공개]
+also_title: 컴퓨터나 NAS에서도
+also_intro: "휴대폰 없이 써 보고 싶거나, 항상 켜져 있는 기기에서 동기화를 계속 돌리고 싶나요? 같은 엔진이 컴퓨터와 서버에서도 돌아가고, 웹 페이지에서 서비스를 연결하고 동기화를 만들 수 있어요. 둘 다 <strong>베타</strong>예요: 일상적으로 쓰기엔 충분하지만 아직 새로우니, 설정을 백업해 두고 문제가 생기면 알려 주세요."
+desktop_intro: 'Windows, macOS, Linux용 <strong>Trackhop Desktop</strong>: 일반 프로그램처럼 설치하면 끝. Docker도 Java도 관리자 권한도 필요 없어요. 시계 옆에 머물면서 컴퓨터가 켜져 있는 동안 예약 동기화를 실행해요. 버전 %V% (<a href="https://github.com/xlollx/Trackhop/releases/tag/server-v%V%">변경 사항</a>).'
+dl_windows: Windows 설치 프로그램
+dl_windows_zip: Windows, 설치 없이 (.zip)
+dl_mac_arm: macOS, Apple silicon
+dl_mac_intel: macOS, Intel
+dl_linux_deb: Linux (.deb)
+dl_linux_tar: Linux (.tar.gz)
+dl_linux_flatpak: Linux (Flatpak)
+package_manager: "또는 패키지 관리자로:"
+pm_store: Windows, Microsoft Store에서
+pm_scoop: Windows, Scoop으로
+pm_brew: macOS, Homebrew로
+desktop_links: '<a href="/guide/desktop">설치 방법</a> · <a href="https://github.com/xlollx/Trackhop/releases?q=server-v&amp;expanded=true">모든 버전</a> · <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/playlist-sync-windows">Windows</a>, <a href="/guide/playlist-sync-mac">Mac</a>, <a href="/guide/playlist-sync-linux">Linux</a>용'
+docker_intro: '<strong>Docker</strong> <span class="stage">베타</span>, 홈 서버, NAS, Raspberry Pi용:'
+docker_password: bimilbeonho-jeonghagi
+docker_after: '그다음 <code>http://127.0.0.1:8080</code>을 여세요. 업데이트하려면 이미지를 pull하고 컨테이너를 다시 시작하면 돼요: 동기화는 볼륨에 그대로 남아요. 설정, Docker Compose, 지원 기능은 <a href="/guide/docker"><strong>Docker 가이드</strong></a>를 보세요. <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a>에도 <code>xlollx/trackhop</code>으로 올라가 있어요. <a href="/guide/playlist-sync-nas">NAS(Synology, Unraid, TrueNAS)</a>에서, 또는 <a href="/guide/self-hosted-playlist-sync">Navidrome, Jellyfin, Plex 옆에서</a> 쓸 수 있어요. 온 가족이 쓴다면 <a href="/guide/docker#several-people-on-one-server">각자 계정</a>으로: 모두 로그인해서 자기만의 서비스와 동기화를 가져요.'
+azure_before: '<strong>Azure에서</strong> <span class="stage">베타</span>, 집에 서버가 없어도:'
+azure_after: '내 Azure 구독에 Trackhop을 만들어요(Container Apps, HTTPS, 데이터는 Azure Files에). 요금은 내 구독으로 청구돼요: 동기화 사이에 대기만 할 때는 대부분 리전에서 월 약 &#36;5, 계속 바쁘게 돌면 최대 약 &#36;15예요(Container Apps 월 무료 제공량을 뺀 Azure 정가 기준 추정, 스토리지는 몇 센트 수준). <a href="/guide/docker#on-azure-beta">더 보기</a>.'
+both_have: "둘 다 앱과 같은 모습에, 찾지 못한 곡 검토, 모든 형식의 파일 플레이리스트, 그리고 앱의 도구(내보내기, 전체 백업(예약도 가능), 중복, 재생할 수 없는 곡, AI 플레이리스트, 통계)를 갖추고 있어요."
+data_title: Trackhop의 데이터 사용 방식
+data1: "Trackhop은 사용자가 고른 음악 서비스(Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, 개인 서버)에 각 서비스 자체의 로그인으로 연결해요. 플레이리스트와 그 곡들을 읽고, 동기화를 시작하거나 예약하면 사용자 본인의 계정에서 플레이리스트를 만들고 곡을 추가하거나 삭제해요. Google API를 통한 YouTube Music의 경우 YouTube Data API의 <code>youtube</code> 권한을 사용하며, 오직 사용자의 플레이리스트에만, 사용자의 기기에서만 쓰여요."
+data2: '액세스 토큰은 휴대폰에 암호화되어 저장되며 Trackhop 개발자나 어떤 제3자에게도 전송되지 않아요. Trackhop 서버는 존재하지 않아요. 자세한 내용은 <a href="/privacy-policy">개인정보 처리방침</a>을 보세요.'
+start_title: 시작하기
+start_intro: 'Android 8.0 이상, 영어, 이탈리아어, 프랑스어, 독일어, 스페인어, 포르투갈어, 폴란드어, 러시아어, 튀르키예어, 중국어, 일본어, 한국어 지원. 어떤 빌드를 받을지 모르겠다면 <a href="/guide/versions">어떤 Trackhop?</a>에서 비교해 보세요. <a href="/guide/">가이드</a>에서 첫 동기화와 흔한 오류를 안내해요. 설명대로 동작하지 않으면 <em>로그 → GitHub에 신고</em>로 세부 정보가 채워진 보고서를 열 수 있어요.'
+start_apk: 또는 GitHub에서 APK
+step_by_step: '단계별 안내: <a href="/guide/spotify-to-youtube-music">Spotify에서 YouTube Music으로</a> · <a href="/guide/apple-music-to-spotify">Apple Music에서 Spotify로</a> · <a href="/guide/spotify-to-tidal">Spotify에서 TIDAL로</a> · <a href="/guide/spotify-to-apple-music">Spotify에서 Apple Music으로</a> · <a href="/guide/youtube-music-to-spotify">YouTube Music에서 Spotify로</a> · <a href="/guide/deezer-to-spotify">Deezer에서 Spotify로</a> · <a href="/guide/amazon-music-to-spotify">Amazon Music에서 Spotify로</a> · <a href="/guide/spotify-to-navidrome-jellyfin">Spotify에서 Navidrome, Jellyfin, Plex로</a> · <a href="/guide/export-playlist-csv">플레이리스트를 CSV나 M3U로</a> · <a href="/guide/shazam">Shazam 기록을 플레이리스트로</a>. 한국어 가이드: <a href="/guide/playlist-transfer-ko">플레이리스트 무료로 옮기기</a>.'
+no_phone: 'Android 휴대폰이 없나요? Windows나 Linux에서 <a href="#docker">Trackhop Desktop을 써 보거나</a> Docker 버전을 사용해 보세요.'
+play_bridge: 'Google Play 버전을 쓰고 있나요? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Trackhop Bridge 다운로드</strong></a>: YouTube Music, Amazon Music, 그리고 개발자 키 없이 Spotify와 Apple Music을 추가하는 플러그인이에요(비공식 웹 인터페이스를 쓰니 먼저 안내를 읽어 주세요).'
+thanks_title: 감사합니다
+thanks_how: 'Trackhop을 무료로 유지해 주시는 분들께. 여기에 이름을 올리고 싶다면 <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> 또는 <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>로.'
+renamed: '<strong>Songport가 Trackhop이 되었어요.</strong> 앱도, 코드도, 업데이트도 그대로이고 이름만 바뀌었어요. 같은 분야에 "SongPort"라는 무관한 서비스가 있기 때문이에요. 설치된 앱은 평소처럼 업데이트되고 모든 데이터가 유지되며, 예전 링크도 계속 작동해요.'
+public_links: "공개 링크"
+radio_shazam: "인터넷 라디오 · Shazam"
+charts: "차트"
