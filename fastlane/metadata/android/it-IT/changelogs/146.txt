@@ -1,0 +1,1 @@
+Novità della 1.11: Qobuz (alpha), con accesso dalla pagina di Qobuz (anche con Google): playlist e brani preferiti in lettura e scrittura. Gli strumenti di cattura compaiono solo dopo 7 tocchi sul numero di versione.

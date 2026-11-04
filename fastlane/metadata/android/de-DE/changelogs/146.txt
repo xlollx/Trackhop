@@ -1,0 +1,1 @@
+Neu in 1.11: Qobuz (Alpha), mit Anmeldung auf der Qobuz-Seite (auch mit Google): Playlists und Lieblingstitel lesen und schreiben. Mitschnitt-Werkzeuge erst nach 7 Tipps auf die Versionsnummer sichtbar.

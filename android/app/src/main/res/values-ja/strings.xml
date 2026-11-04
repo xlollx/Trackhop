@@ -1392,4 +1392,6 @@
     <string name="capture_unlocked">キャプチャツールを有効にしました：開発者向けオプション › ウェブサイトをキャプチャ。</string>
     <string name="capture_already_unlocked">キャプチャツールはすでに有効です。</string>
     <string name="provider_note_qobuz_web">Qobuz は API をパートナーにしか公開していません。Qobuz のページでサインインすると、Trackhop はウェブプレーヤーのセッションを使います。公式の方法ではなく、Qobuz の規約に反し、動かなくなることがあります。アルファ版。自分のプレイリストとお気に入りのトラック（お気に入りの曲として）を読み書きし、ISRC で検索します。サインインが終わらない場合は、パソコンの開発者ツールで www.qobuz.com/api.json へのリクエストを（cURL として、X-User-Auth-Token を含む）コピーし、「貼り付け」を使ってください。</string>
+    <string name="whats_new_111_qobuz_title">Qobuz</string>
+    <string name="whats_new_111_qobuz_body">Qobuz にログイン（Google でも可）して、プレイリストやお気に入りの曲を他のサービスと同期できます。Qobuz のウェブプレーヤー経由で、開発者キーは不要です。</string>
 </resources>

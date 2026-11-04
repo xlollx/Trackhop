@@ -1,0 +1,1 @@
+Novedades de 1.11: Qobuz (alfa), iniciando sesión en la página de Qobuz (también con Google): playlists y canciones favoritas, en lectura y escritura. Las herramientas de captura solo aparecen tras 7 toques en el número de versión.

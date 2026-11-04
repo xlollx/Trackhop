@@ -1,0 +1,1 @@
+Nowości w 1.11: Qobuz (alfa), z logowaniem na stronie Qobuz (także Google): playlisty i ulubione utwory do odczytu i zapisu. Narzędzia przechwytywania pojawiają się dopiero po 7 dotknięciach numeru wersji.

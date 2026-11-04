@@ -1461,4 +1461,6 @@
     <string name="capture_unlocked">Инструменты захвата открыты: Параметры разработчика › Захват сайта.</string>
     <string name="capture_already_unlocked">Инструменты захвата уже открыты.</string>
     <string name="provider_note_qobuz_web">Qobuz открывает API только партнёрам: войдите на странице Qobuz, и Trackhop использует сессию веб-плеера. Это не официальный способ, он нарушает условия Qobuz и может перестать работать. Альфа. Ваши плейлисты и избранные треки (как любимые), чтение и запись; поиск по ISRC. Если вход не завершается, скопируйте в инструментах разработчика на компьютере запрос к www.qobuz.com/api.json (как cURL: в нём есть X-User-Auth-Token) и нажмите «Вставить».</string>
+    <string name="whats_new_111_qobuz_title">Qobuz</string>
+    <string name="whats_new_111_qobuz_body">Войдите в Qobuz (в том числе через Google) и синхронизируйте плейлисты и избранные треки с любым другим сервисом. Через веб-плеер Qobuz, без ключа разработчика.</string>
 </resources>

@@ -1463,4 +1463,6 @@
     <string name="capture_unlocked">Narzędzia przechwytywania odblokowane: Opcje programisty › Przechwyć stronę.</string>
     <string name="capture_already_unlocked">Narzędzia przechwytywania są już odblokowane.</string>
     <string name="provider_note_qobuz_web">Qobuz udostępnia API tylko partnerom: zaloguj się na stronie Qobuz, a Trackhop użyje sesji odtwarzacza webowego. To nie jest oficjalna droga, narusza warunki Qobuz i może przestać działać. Alfa. Twoje playlisty i ulubione utwory (jako polubione), odczyt i zapis; wyszukiwanie po ISRC. Jeśli logowanie się nie kończy, skopiuj w narzędziach deweloperskich komputera żądanie do www.qobuz.com/api.json (jako cURL: zawiera X-User-Auth-Token) i użyj Wklej.</string>
+    <string name="whats_new_111_qobuz_title">Qobuz</string>
+    <string name="whats_new_111_qobuz_body">Zaloguj się do Qobuz (także przez Google) i synchronizuj playlisty oraz ulubione utwory z każdą inną usługą. Przez odtwarzacz webowy Qobuz, bez klucza deweloperskiego.</string>
 </resources>

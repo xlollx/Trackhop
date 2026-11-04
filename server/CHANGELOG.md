@@ -5,6 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.5.0
+
+- **Qobuz** (alpha, unofficial): your playlists and favourite tracks, read and written, through play.qobuz.com's own web player; paste a request of a signed-in browser. [How](https://trackhop.org/guide/docker#qobuz-unofficial)
+
 ## 1.4.0
 
 - **Charts as a source**: Apple Music's Top 100 of a country and Deezer's charts (by country and worldwide), from their public feeds, no account: a sync keeps a playlist of yours up to date as the chart changes.

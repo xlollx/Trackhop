@@ -1,0 +1,1 @@
+New in 1.11: Qobuz (alpha), signing in on Qobuz's page (Google too): playlists and favourite tracks, read and written. Capture tools only show after 7 taps on the version number.

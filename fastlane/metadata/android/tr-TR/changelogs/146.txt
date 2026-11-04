@@ -1,0 +1,1 @@
+1.11'de yeni: Qobuz (alfa), Qobuz sayfasından giriş yaparak (Google ile de): çalma listeleri ve favori parçalar, okuma ve yazma. Yakalama araçları ancak sürüm numarasına 7 kez dokunduktan sonra görünür.

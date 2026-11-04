@@ -1,0 +1,1 @@
+Nouveau en 1.11 : Qobuz (alpha), en se connectant sur la page de Qobuz (Google aussi) : playlists et titres favoris, en lecture et en écriture. Les outils de capture n'apparaissent qu'après 7 appuis sur le numéro de version.

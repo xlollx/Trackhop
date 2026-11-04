@@ -225,6 +225,22 @@ it is as good as your password, so keep it to yourself.
 What works: your playlists and your liked songs, as a source and as a target (add, remove, create,
 rename, delete); search.
 
+## Qobuz (unofficial)
+
+Qobuz gives its API only to approved partners: Trackhop goes through play.qobuz.com's own web
+player, unofficial and alpha, like the web connectors above. No developer key.
+
+1. In a desktop browser, sign in to [play.qobuz.com](https://play.qobuz.com).
+2. Open the developer tools (F12), then **Network**; type `api.json` in the filter and open your playlists.
+3. Right-click one of the requests › **Copy** › **Copy as cURL** (or copy its request headers).
+4. In Trackhop, **Services › Add › Qobuz (web)**, paste it and press **Connect**.
+
+What Trackhop keeps is the `X-User-Auth-Token` of that request: it lasts until you sign out of Qobuz in
+that browser, and it is as good as your password, so keep it to yourself.
+
+What works: your playlists and your favourite tracks, as a source and as a target (add, remove,
+create, rename, public or private, delete); search, by ISRC first.
+
 ## Radio syncs
 
 A radio sync listens to an internet radio in the hours you choose and saves the songs it plays to a

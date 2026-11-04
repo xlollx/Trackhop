@@ -99,6 +99,14 @@ object WhatsNew {
     val releases: List<Release> by lazy {
         listOf(
             Release(
+                "1.11",
+                listOfNotNull(
+                    // Built in (GitHub, F-Droid), or on Google Play when a connector plugin brings Qobuz.
+                    Item(Icons.Filled.LibraryMusic, JobColor.BLUE, R.string.whats_new_111_qobuz_title, R.string.whats_new_111_qobuz_body,
+                        shown = { c -> qobuzAvailable(c) }),
+                ),
+            ),
+            Release(
                 "1.10",
                 listOfNotNull(
                     Item(Icons.Filled.BarChart, JobColor.ORANGE, R.string.whats_new_110_charts_title, R.string.whats_new_110_charts_body),
@@ -166,6 +174,10 @@ object WhatsNew {
     private fun anghamiAvailable(ctx: android.content.Context): Boolean =
         com.xlollx.songport.providers.BridgePlugin.builtIn || (com.xlollx.songport.providers.BridgePlugin.installed(ctx) &&
             runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "anghami.status")?.containsKey("connected") == true }.getOrDefault(false))
+
+    private fun qobuzAvailable(ctx: android.content.Context): Boolean =
+        com.xlollx.songport.providers.BridgePlugin.builtIn || (com.xlollx.songport.providers.BridgePlugin.installed(ctx) &&
+            runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "qobuz.status")?.containsKey("connected") == true }.getOrDefault(false))
 
     /** The newest release with an entry: what closing the sheet, or finishing the welcome, marks as seen. */
     val newestVersion: String get() = releases.first().version
