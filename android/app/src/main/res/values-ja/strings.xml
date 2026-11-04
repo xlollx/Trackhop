@@ -1567,4 +1567,27 @@
     <string name="web_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
     <string name="onboarding_docs_site_desc">ガイド、お知らせ、すべての機能の説明</string>
     <string name="onboarding_docs_github_desc">ソースコード、リリース、Issue</string>
+    <string name="tips_pill">ご存じですか？ウィジェット、ショートカットなど</string>
+    <string name="tips_pill_dismiss">このヒントを非表示</string>
+    <string name="tips_title">ご存じですか？</string>
+    <string name="tips_intro">Trackhop はアプリの外からも使えます。ホーム画面、アプリアイコン、自動化アプリから。</string>
+    <string name="tips_widgets_title">ホーム画面ウィジェット</string>
+    <string name="tips_widgets_body">同期の結果をひと目で確認し、ワンタップで実行できます。</string>
+    <string name="tips_widgets_how">自分で追加するには：ホーム画面の空いている場所を長押し › ウィジェット › Trackhop。</string>
+    <string name="tips_widget_add">追加</string>
+    <string name="tips_widget_add_cd">ウィジェットを追加：%1$s</string>
+    <string name="tips_shortcuts_title">アプリアイコンのショートカット</string>
+    <string name="tips_shortcuts_body">Trackhop のアイコンを長押しすると、ここにすぐ移動できます。</string>
+    <string name="tips_shortcuts_pin">ショートカットを長押ししてドラッグすると、ホーム画面に独立したアイコンとして置けます。</string>
+    <string name="tips_shortcuts_recent">最近の同期</string>
+    <string name="tips_shortcuts_recent_desc">最近実行した同期です。タップで実行します。</string>
+    <string name="tips_automation_title">自動化</string>
+    <string name="tips_automation_body">Tasker や MacroDroid などのアプリが、独自のトリガーで同期を実行したり、同期の終了に反応したりできます。スマホ上のどのアプリでもこのコマンドを送れるため、オンにするまではオフです。</string>
+    <string name="tips_automation_open">設定で開く</string>
+    <string name="tips_automation_on">オン：自動化アプリが同期を実行できます。</string>
+    <string name="tips_automation_off">現在オフです。</string>
+    <string name="tips_automation_examples_title">たとえば</string>
+    <string name="tips_automation_examples">夜の充電中にすべてを同期、帰宅したら 1 つのプレイリストを同期。</string>
+    <string name="settings_tips_row">ウィジェット、ショートカット、自動化</string>
+    <string name="settings_tips_row_summary">ホーム画面や他のアプリから Trackhop を使えます。</string>
 </resources>

@@ -9,7 +9,14 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -93,6 +100,7 @@ import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.BackupExport
 import com.xlollx.songport.sync.Scheduler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Apre la pagina Ko-fi: donazione volontaria, nessuna funzione legata. */
@@ -133,6 +141,11 @@ fun SettingsScreen(
     onHowTo: () -> Unit = {},
     onBackup: () -> Unit = {},
     onWhatsNew: () -> Unit = {},
+    /** Help › Widgets, shortcuts and automation: the "Did you know?" page. */
+    onTips: () -> Unit = {},
+    /** Asked from that page: scroll to the automation switch and light it up for a moment. */
+    focusAutomation: Boolean = false,
+    onAutomationFocused: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val privacyRequired by Ads.privacyOptionsRequired.collectAsState()
@@ -205,8 +218,25 @@ fun SettingsScreen(
                 store.updateSettings { it.copy(notifyOnSync = v) }
             }
             // Tasker, MacroDroid…: the commands and the end-of-sync event, off until turned on.
-            PrefSwitch(Icons.Filled.Bolt, stringResource(R.string.settings_automation), stringResource(R.string.settings_automation_summary), settings.automation) { v ->
-                store.updateSettings { it.copy(automation = v) }
+            val automationView = remember { BringIntoViewRequester() }
+            val flash = remember { Animatable(0f) }
+            LaunchedEffect(focusAutomation) {
+                if (!focusAutomation) return@LaunchedEffect
+                // Let the tab settle in before scrolling.
+                delay(250)
+                automationView.bringIntoView()
+                // Outside this effect: clearing the request below restarts it, which would cut the flash short.
+                scope.launch { repeat(2) { flash.animateTo(1f, tween(220)); flash.animateTo(0f, tween(520)) } }
+                onAutomationFocused()
+            }
+            Box(
+                Modifier.bringIntoViewRequester(automationView).then(
+                    if (flash.value > 0f) Modifier.border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = flash.value), MaterialTheme.shapes.medium) else Modifier,
+                ),
+            ) {
+                PrefSwitch(Icons.Filled.Bolt, stringResource(R.string.settings_automation), stringResource(R.string.settings_automation_summary), settings.automation) { v ->
+                    store.updateSettings { it.copy(automation = v) }
+                }
             }
             if (settings.automation) {
                 Text(stringResource(R.string.settings_automation_how), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -387,6 +417,7 @@ fun SettingsScreen(
         // The guides, written into the app: offline, and in the app's language.
         PrefSection(stringResource(R.string.settings_section_help)) {
             PrefRow(Icons.AutoMirrored.Filled.MenuBook, stringResource(R.string.howto_title), stringResource(R.string.howto_summary), onClick = onHowTo)
+            PrefRow(Icons.Filled.Widgets, stringResource(R.string.settings_tips_row), stringResource(R.string.settings_tips_row_summary), onClick = onTips)
             // Ideas, as a GitHub issue (public, voted) or an email (private): see IdeaSheet.
             var ideaOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Lightbulb, stringResource(R.string.idea_row), stringResource(R.string.idea_row_summary)) { ideaOpen = true }

@@ -1598,4 +1598,27 @@
     <string name="web_page_crashed">La page a cessé de fonctionner et a été fermée. Réessayez.</string>
     <string name="onboarding_docs_site_desc">Guides, nouveautés et toutes les fonctions expliquées</string>
     <string name="onboarding_docs_github_desc">Code source, versions et signalements</string>
+    <string name="tips_pill">Le saviez-vous ? Widgets, raccourcis et plus</string>
+    <string name="tips_pill_dismiss">Masquer cette astuce</string>
+    <string name="tips_title">Le saviez-vous ?</string>
+    <string name="tips_intro">Trackhop fonctionne aussi en dehors de l\'appli : depuis l\'écran d\'accueil, depuis son icône et depuis les applis d\'automatisation.</string>
+    <string name="tips_widgets_title">Widgets pour l\'écran d\'accueil</string>
+    <string name="tips_widgets_body">Voyez d\'un coup d\'œil comment se sont passées vos synchros et lancez-les d\'un geste.</string>
+    <string name="tips_widgets_how">Pour en ajouter un vous-même : appui long sur un espace libre de l\'écran d\'accueil › Widgets › Trackhop.</string>
+    <string name="tips_widget_add">Ajouter</string>
+    <string name="tips_widget_add_cd">Ajouter le widget : %1$s</string>
+    <string name="tips_shortcuts_title">Raccourcis de l\'icône</string>
+    <string name="tips_shortcuts_body">Appuyez longuement sur l\'icône de Trackhop pour aller directement ici.</string>
+    <string name="tips_shortcuts_pin">Maintenez un raccourci et faites-le glisser pour le placer sur l\'écran d\'accueil comme une icône à part.</string>
+    <string name="tips_shortcuts_recent">Vos dernières synchros</string>
+    <string name="tips_shortcuts_recent_desc">Les synchros lancées le plus récemment : un appui en lance une.</string>
+    <string name="tips_automation_title">Automatisation</string>
+    <string name="tips_automation_body">Des applis comme Tasker ou MacroDroid peuvent lancer vos synchros avec leurs propres déclencheurs et réagir quand l\'une se termine. C\'est désactivé tant que vous ne l\'activez pas, car n\'importe quelle appli du téléphone pourrait envoyer ces commandes.</string>
+    <string name="tips_automation_open">Ouvrir dans les paramètres</string>
+    <string name="tips_automation_on">Activée : les applis d\'automatisation peuvent lancer vos synchros.</string>
+    <string name="tips_automation_off">Désactivée pour l\'instant.</string>
+    <string name="tips_automation_examples_title">Par exemple</string>
+    <string name="tips_automation_examples">Tout synchroniser pendant que le téléphone charge la nuit, ou une playlist en rentrant chez vous.</string>
+    <string name="settings_tips_row">Widgets, raccourcis et automatisation</string>
+    <string name="settings_tips_row_summary">Utilisez Trackhop depuis l\'écran d\'accueil et d\'autres applis.</string>
 </resources>

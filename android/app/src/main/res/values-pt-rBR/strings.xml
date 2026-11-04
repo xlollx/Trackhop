@@ -1598,4 +1598,27 @@
     <string name="web_page_crashed">A página parou de funcionar e foi fechada. Tente de novo.</string>
     <string name="onboarding_docs_site_desc">Guias, novidades e todos os recursos explicados</string>
     <string name="onboarding_docs_github_desc">Código-fonte, versões e relatos de problemas</string>
+    <string name="tips_pill">Sabia? Widgets, atalhos e mais</string>
+    <string name="tips_pill_dismiss">Ocultar esta dica</string>
+    <string name="tips_title">Sabia?</string>
+    <string name="tips_intro">O Trackhop também funciona fora do app: na tela inicial, pelo ícone e por apps de automação.</string>
+    <string name="tips_widgets_title">Widgets para a tela inicial</string>
+    <string name="tips_widgets_body">Veja num relance como foram suas sincronizações e execute-as com um toque.</string>
+    <string name="tips_widgets_how">Para adicionar você mesmo: toque e segure um espaço vazio da tela inicial › Widgets › Trackhop.</string>
+    <string name="tips_widget_add">Adicionar</string>
+    <string name="tips_widget_add_cd">Adicionar widget: %1$s</string>
+    <string name="tips_shortcuts_title">Atalhos do ícone</string>
+    <string name="tips_shortcuts_body">Toque e segure o ícone do Trackhop para ir direto até eles.</string>
+    <string name="tips_shortcuts_pin">Segure um atalho e arraste-o para colocá-lo na tela inicial como um ícone próprio.</string>
+    <string name="tips_shortcuts_recent">Suas últimas sincronizações</string>
+    <string name="tips_shortcuts_recent_desc">As sincronizações executadas mais recentemente: um toque executa uma.</string>
+    <string name="tips_automation_title">Automação</string>
+    <string name="tips_automation_body">Apps como Tasker ou MacroDroid podem executar suas sincronizações com gatilhos próprios e reagir quando uma termina. Fica desligada até você ligar, porque qualquer app do celular poderia enviar esses comandos.</string>
+    <string name="tips_automation_open">Abrir nas Configurações</string>
+    <string name="tips_automation_on">Ligada: apps de automação podem executar suas sincronizações.</string>
+    <string name="tips_automation_off">Desligada por enquanto.</string>
+    <string name="tips_automation_examples_title">Por exemplo</string>
+    <string name="tips_automation_examples">Sincronizar tudo enquanto o celular carrega à noite, ou uma playlist quando você chega em casa.</string>
+    <string name="settings_tips_row">Widgets, atalhos e automação</string>
+    <string name="settings_tips_row_summary">Use o Trackhop na tela inicial e em outros apps.</string>
 </resources>

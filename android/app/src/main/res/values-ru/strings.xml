@@ -1636,4 +1636,27 @@
     <string name="web_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
     <string name="onboarding_docs_site_desc">Руководства, новости и описание всех функций</string>
     <string name="onboarding_docs_github_desc">Исходный код, версии и сообщения о проблемах</string>
+    <string name="tips_pill">А вы знали? Виджеты, ярлыки и не только</string>
+    <string name="tips_pill_dismiss">Скрыть подсказку</string>
+    <string name="tips_title">А вы знали?</string>
+    <string name="tips_intro">Trackhop работает и вне приложения: с главного экрана, через значок и из приложений автоматизации.</string>
+    <string name="tips_widgets_title">Виджеты для главного экрана</string>
+    <string name="tips_widgets_body">Смотрите результаты синхронизаций с одного взгляда и запускайте их одним нажатием.</string>
+    <string name="tips_widgets_how">Чтобы добавить самому: удерживайте пустое место на главном экране › Виджеты › Trackhop.</string>
+    <string name="tips_widget_add">Добавить</string>
+    <string name="tips_widget_add_cd">Добавить виджет: %1$s</string>
+    <string name="tips_shortcuts_title">Ярлыки значка приложения</string>
+    <string name="tips_shortcuts_body">Удерживайте значок Trackhop, чтобы сразу перейти сюда.</string>
+    <string name="tips_shortcuts_pin">Удерживайте ярлык и перетащите его, чтобы поместить на главный экран отдельным значком.</string>
+    <string name="tips_shortcuts_recent">Последние синхронизации</string>
+    <string name="tips_shortcuts_recent_desc">Синхронизации, запущенные последними: нажатие запускает одну.</string>
+    <string name="tips_automation_title">Автоматизация</string>
+    <string name="tips_automation_body">Приложения вроде Tasker или MacroDroid могут запускать ваши синхронизации по своим триггерам и реагировать на их завершение. Это выключено, пока вы не включите, ведь такие команды может отправить любое приложение на телефоне.</string>
+    <string name="tips_automation_open">Открыть в настройках</string>
+    <string name="tips_automation_on">Включено: приложения автоматизации могут запускать синхронизации.</string>
+    <string name="tips_automation_off">Пока выключено.</string>
+    <string name="tips_automation_examples_title">Например</string>
+    <string name="tips_automation_examples">Синхронизировать всё, пока телефон заряжается ночью, или один плейлист, когда вы приходите домой.</string>
+    <string name="settings_tips_row">Виджеты, ярлыки и автоматизация</string>
+    <string name="settings_tips_row_summary">Пользуйтесь Trackhop с главного экрана и из других приложений.</string>
 </resources>

@@ -1590,4 +1590,27 @@
     <string name="web_page_crashed">La pagina ha smesso di funzionare ed è stata chiusa. Riprova.</string>
     <string name="onboarding_docs_site_desc">Guide, novità e tutte le funzioni spiegate</string>
     <string name="onboarding_docs_github_desc">Codice sorgente, versioni e segnalazioni</string>
+    <string name="tips_pill">Lo sapevi? Widget, scorciatoie e altro</string>
+    <string name="tips_pill_dismiss">Nascondi questo consiglio</string>
+    <string name="tips_title">Lo sapevi?</string>
+    <string name="tips_intro">Trackhop funziona anche fuori dall\'app: dalla schermata Home, dalla sua icona e dalle app di automazione.</string>
+    <string name="tips_widgets_title">Widget per la schermata Home</string>
+    <string name="tips_widgets_body">Vedi a colpo d\'occhio com\'è andata ogni sync e avviala con un tocco.</string>
+    <string name="tips_widgets_how">Per aggiungerne uno da solo: tieni premuto uno spazio libero della schermata Home › Widget › Trackhop.</string>
+    <string name="tips_widget_add">Aggiungi</string>
+    <string name="tips_widget_add_cd">Aggiungi il widget: %1$s</string>
+    <string name="tips_shortcuts_title">Scorciatoie dell\'icona</string>
+    <string name="tips_shortcuts_body">Tieni premuta l\'icona di Trackhop per arrivare subito qui.</string>
+    <string name="tips_shortcuts_pin">Tieni premuta una scorciatoia e trascinala per metterla nella schermata Home come icona a sé.</string>
+    <string name="tips_shortcuts_recent">Le tue ultime sync</string>
+    <string name="tips_shortcuts_recent_desc">Le sync avviate più di recente: un tocco ne avvia una.</string>
+    <string name="tips_automation_title">Automazione</string>
+    <string name="tips_automation_body">App come Tasker o MacroDroid possono avviare le tue sync con i loro trigger e reagire quando una finisce. È spenta finché non la accendi, perché qualsiasi app del telefono potrebbe inviare questi comandi.</string>
+    <string name="tips_automation_open">Apri nelle Impostazioni</string>
+    <string name="tips_automation_on">Accesa: le app di automazione possono avviare le tue sync.</string>
+    <string name="tips_automation_off">Spenta per ora.</string>
+    <string name="tips_automation_examples_title">Per esempio</string>
+    <string name="tips_automation_examples">Sincronizzare tutto mentre il telefono si ricarica di notte, o una playlist quando arrivi a casa.</string>
+    <string name="settings_tips_row">Widget, scorciatoie e automazione</string>
+    <string name="settings_tips_row_summary">Usa Trackhop dalla schermata Home e da altre app.</string>
 </resources>

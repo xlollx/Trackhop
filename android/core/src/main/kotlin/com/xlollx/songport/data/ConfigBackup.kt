@@ -128,6 +128,7 @@ object ConfigBackup {
         connectorsInit = true,
         onboardingDone = current.onboardingDone || incoming.onboardingDone,
         tourDone = current.tourDone || incoming.tourDone,
+        tipsPillDismissed = current.tipsPillDismissed || incoming.tipsPillDismissed,
         supportPromptReport = current.supportPromptReport,
         supportPromptDone = current.supportPromptDone,
         appOpens = current.appOpens,

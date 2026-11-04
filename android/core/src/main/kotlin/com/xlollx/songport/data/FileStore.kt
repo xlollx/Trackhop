@@ -78,6 +78,8 @@ data class Settings(
     val whatsNewSeen: String = "",
     /** Connectors (provider ids) the user left out of the Wrapped: the chips start from this choice next time. */
     val wrappedSkipped: Set<String> = emptySet(),
+    /** The "Did you know?" pill on Syncs (widgets, shortcuts, automation) was closed or opened: not shown again. */
+    val tipsPillDismissed: Boolean = false,
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */
