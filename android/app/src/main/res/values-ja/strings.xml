@@ -1389,4 +1389,6 @@
     <string name="capture_site_desc">サービスのウェブプレーヤーをここで開き、その通信を共有用ファイルに書き出します（Cookie・トークン・パスワードは含みません）。新しいサービスの追加に役立ちます。</string>
     <string name="capture_site_address">アドレス</string>
     <string name="capture_site_open">開く</string>
+    <string name="capture_unlocked">キャプチャツールを有効にしました：開発者向けオプション › ウェブサイトをキャプチャ。</string>
+    <string name="capture_already_unlocked">キャプチャツールはすでに有効です。</string>
 </resources>

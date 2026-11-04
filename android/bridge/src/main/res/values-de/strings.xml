@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Traffic aufzeichnen</string>
     <string name="bridge_verify_google">Was Google sagt</string>
     <string name="bridge_capture_site_intro">Nutze %1$s hier ganz normal: anmelden, eine Playlist öffnen, einen Song suchen, eine Test-Playlist anlegen, einen Song hinzufügen und entfernen, die Playlist umbenennen und löschen. Jeder Aufruf an %1$s wird ohne Cookies, Tokens oder Passwörter in eine Datei auf diesem Handy geschrieben. Dann auf Teilen tippen und die Datei dem Entwickler senden.</string>
+    <string name="bridge_capture_warning_title">Diese Ansicht zeichnet auf</string>
+    <string name="bridge_capture_warning_body">Was du auf dieser Website tust, wird in eine Datei auf diesem Handy geschrieben (ohne Passwörter, E-Mails und Tokens). Teile die Datei nur mit dem Entwickler, nie in einem öffentlichen Issue. Sie wird nach einem Tag von selbst gelöscht.</string>
+    <string name="bridge_capture_delete_title">Mitschnitt löschen?</string>
+    <string name="bridge_capture_delete_body">Die Datei bleibt einen Tag auf diesem Handy, außer du löschst sie jetzt.</string>
+    <string name="bridge_capture_delete">Löschen</string>
+    <string name="bridge_capture_keep">Behalten</string>
 </resources>

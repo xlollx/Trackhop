@@ -1388,4 +1388,6 @@
     <string name="capture_site_desc">서비스의 웹 플레이어를 여기서 열고 그 호출을 공유용 파일에 기록합니다(쿠키, 토큰, 비밀번호 제외). 새 서비스 추가에 도움이 됩니다.</string>
     <string name="capture_site_address">주소</string>
     <string name="capture_site_open">열기</string>
+    <string name="capture_unlocked">캡처 도구가 열렸습니다: 개발자 옵션 › 웹사이트 캡처.</string>
+    <string name="capture_already_unlocked">캡처 도구가 이미 열려 있습니다.</string>
 </resources>

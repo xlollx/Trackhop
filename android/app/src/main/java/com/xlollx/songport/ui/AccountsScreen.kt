@@ -421,7 +421,7 @@ private fun ProviderCard(
                     MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
                 ).let { base ->
                     // Built-in web connectors: Google's block page, the Amazon traffic capture.
-                    com.xlollx.songport.providers.BuiltIn.extraActions(ctx, p.serviceId, com.xlollx.songport.data.Store.get(ctx).data.settings.developerOptions).map { (label, intent) ->
+                    com.xlollx.songport.providers.BuiltIn.extraActions(ctx, p.serviceId, com.xlollx.songport.data.Store.get(ctx).data.settings.let { it.developerOptions && it.captureUnlocked }).map { (label, intent) ->
                         MenuAction(label, { ctx.startActivity(intent) })
                     } + base
                 }

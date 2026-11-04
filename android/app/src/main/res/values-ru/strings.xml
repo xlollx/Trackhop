@@ -1458,4 +1458,6 @@
     <string name="capture_site_desc">Веб-плеер сервиса открывается здесь, а его запросы записываются в файл для отправки, без cookie, токенов и паролей: это помогает добавить новый сервис.</string>
     <string name="capture_site_address">Адрес</string>
     <string name="capture_site_open">Открыть</string>
+    <string name="capture_unlocked">Инструменты захвата открыты: Параметры разработчика › Захват сайта.</string>
+    <string name="capture_already_unlocked">Инструменты захвата уже открыты.</string>
 </resources>

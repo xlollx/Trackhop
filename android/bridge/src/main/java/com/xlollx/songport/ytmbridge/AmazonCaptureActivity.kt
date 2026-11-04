@@ -51,6 +51,7 @@ class AmazonCaptureActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        forgetOld(this)
         count = if (file.exists()) file.readLines().size else 0
 
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -138,10 +139,29 @@ class AmazonCaptureActivity : ComponentActivity() {
             when {
                 top != null -> if (top.canGoBack()) top.goBack() else closePopup(top)
                 web.canGoBack() -> web.goBack()
-                else -> finish()
+                else -> leave()
             }
         }
+        // What this screen does, every time: it records, and the file is for the developer only.
+        if (savedInstanceState == null) android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.bridge_capture_warning_title)
+            .setMessage(R.string.bridge_capture_warning_body)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
         web.loadUrl(startUrl ?: ("https://" + (AmazonSession.domain(this) ?: "music.amazon.com") + "/"))
+    }
+
+    /** Leaving with a capture on the phone: delete it now, or keep it (gone by itself after a day). */
+    private fun leave() {
+        if (!file.exists() || count == 0) { finish(); return }
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.bridge_capture_delete_title)
+            .setMessage(R.string.bridge_capture_delete_body)
+            .setPositiveButton(R.string.bridge_capture_delete) { _, _ -> file.delete(); finish() }
+            .setNegativeButton(R.string.bridge_capture_keep) { _, _ -> finish() }
+            .show()
     }
 
     private fun closePopup(popup: WebView) {
@@ -197,6 +217,12 @@ class AmazonCaptureActivity : ComponentActivity() {
                 }
             }
             return url.substring(0, q + 1) + query
+        }
+
+        /** A capture left on the phone is deleted a day after it was last written. */
+        fun forgetOld(ctx: android.content.Context) = runCatching {
+            ctx.filesDir.listFiles { f -> f.name.endsWith("capture.jsonl") || (f.name.startsWith("capture-") && f.name.endsWith(".jsonl")) }
+                ?.filter { System.currentTimeMillis() - it.lastModified() > 24 * 3_600_000L }?.forEach { it.delete() }
         }
 
         /** The address to open for a capture of another site (https only). */

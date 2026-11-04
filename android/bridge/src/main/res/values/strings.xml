@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Capture traffic</string>
     <string name="bridge_verify_google">What Google says</string>
     <string name="bridge_capture_site_intro">Use %1$s normally here: sign in, open a playlist, search for a song, create a test playlist, add a song, remove it, rename and delete the playlist. Every call to %1$s is written to a file on this phone, without cookies, tokens or passwords. Then tap Share and send the file to the developer.</string>
+    <string name="bridge_capture_warning_title">This screen records</string>
+    <string name="bridge_capture_warning_body">What you do on this site is written to a file on this phone (passwords, e-mails and tokens removed). Share the file only with the developer, never in a public issue. It is deleted by itself after a day.</string>
+    <string name="bridge_capture_delete_title">Delete the capture?</string>
+    <string name="bridge_capture_delete_body">The file stays on this phone until a day has passed, unless you delete it now.</string>
+    <string name="bridge_capture_delete">Delete</string>
+    <string name="bridge_capture_keep">Keep</string>
 </resources>

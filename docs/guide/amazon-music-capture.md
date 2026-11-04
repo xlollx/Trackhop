@@ -15,12 +15,14 @@ GraphQL (`gql.music.amazon.<tld>`, persisted queries).
 
 ## Capturing the player's calls
 
-1. *Settings → Developer options* on.
+1. *Settings › About*: tap the version number seven times. That turns on the developer options and
+   shows the capture tools, which stay hidden otherwise (they record what is done on a site).
 2. *Accounts → Amazon Music → Capture traffic*: the real web player opens inside the app.
 3. Tap **Clear**, then do, in order: open *Library → Playlists*; open one of your playlists and scroll
    to the end; search for a song; create a test playlist; add a song to it; remove it; rename the
    playlist (if the site allows it); delete it.
-4. Tap **Share** and attach the file to an issue (or send it to the maintainer).
+4. Tap **Share** and send the file to the maintainer privately, never in a public issue. The file is
+   deleted from the phone a day after the capture, or at once when you leave the screen and choose *Delete*.
 
 What the file holds: the URL, method, request body and response of every call to Amazon's music
 APIs, and the request's HTTP headers. Cookies are never written; credential headers (authorization,

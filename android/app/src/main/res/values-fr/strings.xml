@@ -1420,4 +1420,6 @@
     <string name="capture_site_desc">Le lecteur web d\'un service s\'ouvre ici et ses appels sont écrits dans un fichier à partager, sans cookies, jetons ni mots de passe : cela aide à ajouter un nouveau service.</string>
     <string name="capture_site_address">Adresse</string>
     <string name="capture_site_open">Ouvrir</string>
+    <string name="capture_unlocked">Outils de capture déverrouillés : Options pour les développeurs › Capturer un site web.</string>
+    <string name="capture_already_unlocked">Les outils de capture sont déjà déverrouillés.</string>
 </resources>

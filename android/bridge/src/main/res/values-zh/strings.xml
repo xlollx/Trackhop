@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">捕获流量</string>
     <string name="bridge_verify_google">Google 的提示</string>
     <string name="bridge_capture_site_intro">在这里正常使用 %1$s：登录、打开歌单、搜索歌曲、创建测试歌单、添加并删除歌曲、重命名并删除歌单。对 %1$s 的每个请求都会写入本机文件（不含 Cookie、令牌或密码）。然后点按“分享”，把文件发给开发者。</string>
+    <string name="bridge_capture_warning_title">此界面会记录</string>
+    <string name="bridge_capture_warning_body">你在该网站上的操作会写入本机文件（不含密码、邮箱和令牌）。只把文件分享给开发者，切勿发到公开的 issue。文件一天后会自动删除。</string>
+    <string name="bridge_capture_delete_title">删除抓取文件？</string>
+    <string name="bridge_capture_delete_body">除非现在删除，文件会在本机保留一天。</string>
+    <string name="bridge_capture_delete">删除</string>
+    <string name="bridge_capture_keep">保留</string>
 </resources>

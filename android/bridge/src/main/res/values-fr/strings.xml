@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Capturer le trafic</string>
     <string name="bridge_verify_google">Ce que dit Google</string>
     <string name="bridge_capture_site_intro">Utilise %1$s normalement ici : connecte-toi, ouvre une playlist, cherche un titre, crée une playlist de test, ajoutes-y un titre, retire-le, renomme et supprime la playlist. Chaque appel à %1$s est écrit dans un fichier sur ce téléphone, sans cookies, jetons ni mots de passe. Puis touche Partager et envoie le fichier au développeur.</string>
+    <string name="bridge_capture_warning_title">Cet écran enregistre</string>
+    <string name="bridge_capture_warning_body">Ce que tu fais sur ce site est écrit dans un fichier sur ce téléphone (sans mots de passe, e-mails ni jetons). Partage le fichier uniquement avec le développeur, jamais dans une issue publique. Il est supprimé tout seul au bout d\'un jour.</string>
+    <string name="bridge_capture_delete_title">Supprimer la capture ?</string>
+    <string name="bridge_capture_delete_body">Le fichier reste sur ce téléphone pendant un jour, sauf si tu le supprimes maintenant.</string>
+    <string name="bridge_capture_delete">Supprimer</string>
+    <string name="bridge_capture_keep">Garder</string>
 </resources>

@@ -338,7 +338,7 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.DeveloperMode, stringResource(R.string.settings_developer_switch), stringResource(R.string.settings_developer_summary), settings.developerOptions) { v ->
                 store.updateSettings { it.copy(developerOptions = v) }
             }
-            if (settings.developerOptions && com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, "https://x") != null) {
+            if (settings.developerOptions && settings.captureUnlocked && com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, "https://x") != null) {
                 // A service being added (Qobuz…): its web player opens here and its calls are written
                 // to a file to share, without cookies, tokens or passwords.
                 var captureOpen by remember { mutableStateOf(false) }
@@ -396,9 +396,21 @@ fun SettingsScreen(
         // ---------------------------------------------------------------- About
         val supportNote = if (BuildConfig.KOFI_URL.isNotBlank()) stringResource(R.string.support_body) else null
         PrefSection(stringResource(R.string.settings_about), footer = supportNote) {
+            // Seven taps on the version show the traffic captures (with developer options on): a tool
+            // for the developer, which records what is done on a site, kept out of everyone's way.
+            var versionTaps by remember { mutableIntStateOf(0) }
             PrefRow(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
-                leading = { BrandMark(40.dp) },
+                leading = { BrandMark(40.dp) }, chevron = false,
+                onClick = {
+                    versionTaps++
+                    if (versionTaps >= 7) {
+                        versionTaps = 0
+                        val already = settings.captureUnlocked
+                        if (!already) store.updateSettings { it.copy(captureUnlocked = true, developerOptions = true) }
+                        android.widget.Toast.makeText(ctx, ctx.getString(if (already) R.string.capture_already_unlocked else R.string.capture_unlocked), android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                },
             )
             // The GitHub build's update check (the Play build follows Google Play): an arrow in the top bar.
             if (com.xlollx.songport.update.AppUpdates.configurable) {

@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">通信を記録</string>
     <string name="bridge_verify_google">Google からのメッセージ</string>
     <string name="bridge_capture_site_intro">ここで %1$s を普段どおり使ってください：ログイン、プレイリストを開く、曲を検索、テスト用プレイリストを作成、曲を追加して削除、プレイリストの名前変更と削除。%1$s への通信は Cookie・トークン・パスワードを除いてこの端末のファイルに書き出されます。その後「共有」をタップして開発者に送ってください。</string>
+    <string name="bridge_capture_warning_title">この画面は記録します</string>
+    <string name="bridge_capture_warning_body">このサイトでの操作がこの端末のファイルに書き込まれます（パスワード・メール・トークンは除く）。ファイルは開発者にだけ共有し、公開の Issue には載せないでください。1日後に自動で削除されます。</string>
+    <string name="bridge_capture_delete_title">キャプチャを削除しますか？</string>
+    <string name="bridge_capture_delete_body">今削除しない限り、ファイルは1日間この端末に残ります。</string>
+    <string name="bridge_capture_delete">削除</string>
+    <string name="bridge_capture_keep">残す</string>
 </resources>

@@ -1389,4 +1389,6 @@
     <string name="capture_site_desc">在此打开某个服务的网页播放器，并将其请求写入可分享的文件（不含 Cookie、令牌或密码），用于添加新服务。</string>
     <string name="capture_site_address">地址</string>
     <string name="capture_site_open">打开</string>
+    <string name="capture_unlocked">已解锁抓取工具：开发者选项 › 抓取网站流量。</string>
+    <string name="capture_already_unlocked">抓取工具已解锁。</string>
 </resources>

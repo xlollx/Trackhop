@@ -1420,4 +1420,6 @@
     <string name="capture_site_desc">O player web de um serviço abre aqui e as chamadas dele vão para um arquivo para compartilhar, sem cookies, tokens ou senhas: ajuda a adicionar um novo serviço.</string>
     <string name="capture_site_address">Endereço</string>
     <string name="capture_site_open">Abrir</string>
+    <string name="capture_unlocked">Ferramentas de captura desbloqueadas: Opções do desenvolvedor › Capturar um site.</string>
+    <string name="capture_already_unlocked">As ferramentas de captura já estão desbloqueadas.</string>
 </resources>

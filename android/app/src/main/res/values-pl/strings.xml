@@ -1460,4 +1460,6 @@
     <string name="capture_site_desc">Odtwarzacz webowy usługi otwiera się tutaj, a jego wywołania trafiają do pliku do udostępnienia, bez ciasteczek, tokenów i haseł: pomaga dodać nową usługę.</string>
     <string name="capture_site_address">Adres</string>
     <string name="capture_site_open">Otwórz</string>
+    <string name="capture_unlocked">Narzędzia przechwytywania odblokowane: Opcje programisty › Przechwyć stronę.</string>
+    <string name="capture_already_unlocked">Narzędzia przechwytywania są już odblokowane.</string>
 </resources>

@@ -1412,4 +1412,6 @@
     <string name="capture_site_desc">Der Web-Player eines Dienstes öffnet sich hier, seine Aufrufe werden in eine Datei zum Teilen geschrieben, ohne Cookies, Tokens oder Passwörter: hilft, einen neuen Dienst hinzuzufügen.</string>
     <string name="capture_site_address">Adresse</string>
     <string name="capture_site_open">Öffnen</string>
+    <string name="capture_unlocked">Mitschnitt-Werkzeuge freigeschaltet: Entwickleroptionen › Website mitschneiden.</string>
+    <string name="capture_already_unlocked">Die Mitschnitt-Werkzeuge sind bereits freigeschaltet.</string>
 </resources>

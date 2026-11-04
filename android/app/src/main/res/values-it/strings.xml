@@ -1412,4 +1412,6 @@
     <string name="capture_site_desc">Il player web di un servizio si apre qui e le sue chiamate finiscono in un file da condividere, senza cookie, token o password: serve per aggiungere un nuovo servizio.</string>
     <string name="capture_site_address">Indirizzo</string>
     <string name="capture_site_open">Apri</string>
+    <string name="capture_unlocked">Strumenti di cattura sbloccati: Opzioni sviluppatore › Cattura un sito.</string>
+    <string name="capture_already_unlocked">Gli strumenti di cattura sono già sbloccati.</string>
 </resources>

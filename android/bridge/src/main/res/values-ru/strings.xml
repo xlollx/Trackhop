@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Записать трафик</string>
     <string name="bridge_verify_google">Что говорит Google</string>
     <string name="bridge_capture_site_intro">Пользуйтесь %1$s здесь как обычно: войдите, откройте плейлист, найдите песню, создайте тестовый плейлист, добавьте песню, удалите её, переименуйте и удалите плейлист. Каждый запрос к %1$s записывается в файл на этом телефоне без cookie, токенов и паролей. Затем нажмите «Поделиться» и отправьте файл разработчику.</string>
+    <string name="bridge_capture_warning_title">Этот экран записывает</string>
+    <string name="bridge_capture_warning_body">Ваши действия на этом сайте записываются в файл на этом телефоне (без паролей, e-mail и токенов). Отправляйте файл только разработчику, никогда — в публичный issue. Он удаляется сам через сутки.</string>
+    <string name="bridge_capture_delete_title">Удалить запись?</string>
+    <string name="bridge_capture_delete_body">Файл останется на телефоне на сутки, если не удалить его сейчас.</string>
+    <string name="bridge_capture_delete">Удалить</string>
+    <string name="bridge_capture_keep">Оставить</string>
 </resources>

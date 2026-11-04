@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">트래픽 캡처</string>
     <string name="bridge_verify_google">Google의 안내</string>
     <string name="bridge_capture_site_intro">여기서 %1$s을(를) 평소처럼 사용하세요: 로그인, 플레이리스트 열기, 곡 검색, 테스트 플레이리스트 만들기, 곡 추가 후 삭제, 플레이리스트 이름 변경 및 삭제. %1$s에 대한 모든 호출은 쿠키, 토큰, 비밀번호 없이 이 휴대폰의 파일에 기록됩니다. 그런 다음 공유를 눌러 개발자에게 보내세요.</string>
+    <string name="bridge_capture_warning_title">이 화면은 기록합니다</string>
+    <string name="bridge_capture_warning_body">이 사이트에서 하는 작업이 이 휴대폰의 파일에 기록됩니다(비밀번호, 이메일, 토큰 제외). 파일은 개발자에게만 공유하고 공개 이슈에는 올리지 마세요. 하루가 지나면 자동으로 삭제됩니다.</string>
+    <string name="bridge_capture_delete_title">캡처를 삭제할까요?</string>
+    <string name="bridge_capture_delete_body">지금 삭제하지 않으면 파일은 하루 동안 이 휴대폰에 남습니다.</string>
+    <string name="bridge_capture_delete">삭제</string>
+    <string name="bridge_capture_keep">보관</string>
 </resources>

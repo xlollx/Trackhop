@@ -1412,4 +1412,6 @@
     <string name="capture_site_desc">A service\'s web player opens here and the calls it makes are written to a file to share, without cookies, tokens or passwords: it helps add a new service.</string>
     <string name="capture_site_address">Address</string>
     <string name="capture_site_open">Open</string>
+    <string name="capture_unlocked">Capture tools unlocked: Developer options › Capture a website.</string>
+    <string name="capture_already_unlocked">Capture tools are already unlocked.</string>
 </resources>

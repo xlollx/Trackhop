@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Trafiği yakala</string>
     <string name="bridge_verify_google">Google ne diyor</string>
     <string name="bridge_capture_site_intro">%1$s\'u burada normal kullan: giriş yap, bir çalma listesi aç, bir şarkı ara, bir test listesi oluştur, şarkı ekle, kaldır, listeyi yeniden adlandır ve sil. %1$s\'a yapılan her çağrı çerezler, tokenlar ve parolalar olmadan bu telefondaki bir dosyaya yazılır. Sonra Paylaş\'a dokun ve dosyayı geliştiriciye gönder.</string>
+    <string name="bridge_capture_warning_title">Bu ekran kayıt yapar</string>
+    <string name="bridge_capture_warning_body">Bu sitede yaptıkların bu telefondaki bir dosyaya yazılır (parolalar, e-postalar ve tokenlar hariç). Dosyayı yalnızca geliştiriciyle paylaş, asla herkese açık bir issue\'da değil. Bir gün sonra kendiliğinden silinir.</string>
+    <string name="bridge_capture_delete_title">Kayıt silinsin mi?</string>
+    <string name="bridge_capture_delete_body">Şimdi silmezsen dosya bir gün boyunca bu telefonda kalır.</string>
+    <string name="bridge_capture_delete">Sil</string>
+    <string name="bridge_capture_keep">Sakla</string>
 </resources>

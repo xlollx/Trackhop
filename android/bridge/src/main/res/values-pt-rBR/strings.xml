@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Capturar tráfego</string>
     <string name="bridge_verify_google">O que o Google diz</string>
     <string name="bridge_capture_site_intro">Use o %1$s normalmente aqui: entre, abra uma playlist, busque uma música, crie uma playlist de teste, adicione uma música, remova-a, renomeie e apague a playlist. Cada chamada ao %1$s vai para um arquivo neste celular, sem cookies, tokens ou senhas. Depois toque em Compartilhar e envie o arquivo ao desenvolvedor.</string>
+    <string name="bridge_capture_warning_title">Esta tela grava</string>
+    <string name="bridge_capture_warning_body">O que você faz neste site vai para um arquivo neste celular (sem senhas, e-mails e tokens). Compartilhe o arquivo só com o desenvolvedor, nunca em uma issue pública. Ele é apagado sozinho depois de um dia.</string>
+    <string name="bridge_capture_delete_title">Apagar a captura?</string>
+    <string name="bridge_capture_delete_body">O arquivo fica neste celular por um dia, a menos que você o apague agora.</string>
+    <string name="bridge_capture_delete">Apagar</string>
+    <string name="bridge_capture_keep">Manter</string>
 </resources>

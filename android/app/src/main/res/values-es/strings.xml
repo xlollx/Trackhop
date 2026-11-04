@@ -1420,4 +1420,6 @@
     <string name="capture_site_desc">El reproductor web de un servicio se abre aquí y sus llamadas se escriben en un archivo para compartir, sin cookies, tokens ni contraseñas: ayuda a añadir un servicio nuevo.</string>
     <string name="capture_site_address">Dirección</string>
     <string name="capture_site_open">Abrir</string>
+    <string name="capture_unlocked">Herramientas de captura desbloqueadas: Opciones de desarrollador › Capturar un sitio web.</string>
+    <string name="capture_already_unlocked">Las herramientas de captura ya están desbloqueadas.</string>
 </resources>

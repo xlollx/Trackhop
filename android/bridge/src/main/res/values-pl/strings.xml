@@ -20,4 +20,10 @@
     <string name="bridge_amazon_capture">Przechwyć ruch</string>
     <string name="bridge_verify_google">Co mówi Google</string>
     <string name="bridge_capture_site_intro">Używaj tu %1$s normalnie: zaloguj się, otwórz playlistę, wyszukaj utwór, utwórz testową playlistę, dodaj utwór, usuń go, zmień nazwę i usuń playlistę. Każde wywołanie do %1$s trafia do pliku na tym telefonie, bez ciasteczek, tokenów i haseł. Potem dotknij Udostępnij i wyślij plik deweloperowi.</string>
+    <string name="bridge_capture_warning_title">Ten ekran nagrywa</string>
+    <string name="bridge_capture_warning_body">To, co robisz na tej stronie, trafia do pliku na tym telefonie (bez haseł, e-maili i tokenów). Udostępnij plik tylko deweloperowi, nigdy w publicznym zgłoszeniu. Usuwa się sam po jednym dniu.</string>
+    <string name="bridge_capture_delete_title">Usunąć przechwycenie?</string>
+    <string name="bridge_capture_delete_body">Plik zostanie na tym telefonie przez dzień, chyba że usuniesz go teraz.</string>
+    <string name="bridge_capture_delete">Usuń</string>
+    <string name="bridge_capture_keep">Zachowaj</string>
 </resources>

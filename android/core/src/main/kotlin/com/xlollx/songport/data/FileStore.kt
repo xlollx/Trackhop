@@ -20,6 +20,8 @@ data class Settings(
     val developerOptions: Boolean = false,
     /** Commands from automation apps (Tasker, MacroDroid…) and the end-of-sync event: off until turned on. */
     val automation: Boolean = false,
+    /** The traffic captures (a development aid that records what is done on a site): shown only after 7 taps on the version. */
+    val captureUnlocked: Boolean = false,
     /** Chiedere al catalogo Deezer l'ISRC dei brani che non lo portano (vedi IsrcOracle). */
     val isrcLookup: Boolean = true,
     /** Client ID inseriti dall'utente, per servizio (vuoto = usa quello della build). */
