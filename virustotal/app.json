@@ -1,28 +1,28 @@
 {
  "product": "app",
- "version": "1.13.0",
- "tag": "v1.13.0",
- "release": "https://github.com/xlollx/Trackhop/releases/tag/v1.13.0",
- "checked": "2026-11-04T12:18:12Z",
+ "version": "1.13.1",
+ "tag": "v1.13.1",
+ "release": "https://github.com/xlollx/Trackhop/releases/tag/v1.13.1",
+ "checked": "2026-11-04T12:27:40Z",
  "clean": true,
  "files": [
   {
-   "name": "Trackhop-v1.13.0-play.aab",
-   "sha256": "8fa0c8cfeba91451ed30c7365aae65d49e15082cbc106a6c6536315c9167759d",
+   "name": "Trackhop-v1.13.1-play.aab",
+   "sha256": "5a8c3c8fd0e70d4e2c67be0ce42a48492e9add26f7f170728447a06112a44251",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 61,
+   "engines": 67,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/8fa0c8cfeba91451ed30c7365aae65d49e15082cbc106a6c6536315c9167759d"
+   "link": "https://www.virustotal.com/gui/file/5a8c3c8fd0e70d4e2c67be0ce42a48492e9add26f7f170728447a06112a44251"
   },
   {
-   "name": "Trackhop-v1.13.0.apk",
-   "sha256": "673526c59425be7765cdbe2bfe090b07ddd92e64a75fafb6c574c800c3d00898",
+   "name": "Trackhop-v1.13.1.apk",
+   "sha256": "a543a54af76b3598d40c1f601930e25035c35eef377a7a050d9c636c108fc497",
    "malicious": 0,
    "suspicious": 0,
    "engines": 68,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/673526c59425be7765cdbe2bfe090b07ddd92e64a75fafb6c574c800c3d00898"
+   "link": "https://www.virustotal.com/gui/file/a543a54af76b3598d40c1f601930e25035c35eef377a7a050d9c636c108fc497"
   }
  ]
 }
