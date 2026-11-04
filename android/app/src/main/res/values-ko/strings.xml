@@ -1511,4 +1511,11 @@
     <string name="discover_wrapped_history">기록</string>
     <string name="discover_wrapped_delete">이 Wrapped 삭제</string>
     <string name="discover_wrapped_deleted">Wrapped를 삭제했습니다</string>
+    <string name="onboarding_discover_title">발견</string>
+    <string name="onboarding_discover_wrapped_title">원할 때 보는 Wrapped</string>
+    <string name="onboarding_discover_wrapped_desc">좋아하는 아티스트, 연대, 음악 나이를 스토리용 카드로.</string>
+    <string name="onboarding_discover_link_title">모두를 위한 링크</string>
+    <string name="onboarding_discover_link_desc">친구의 서비스에서 열리는 플레이리스트를 공유하고 궁합도 확인하세요.</string>
+    <string name="onboarding_discover_mix_title">좋아하는 아티스트로 플레이리스트</string>
+    <string name="onboarding_discover_mix_desc">도구의 플레이리스트 생성기는 AI 키 없이도 됩니다.</string>
 </resources>

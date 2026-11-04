@@ -1535,4 +1535,11 @@
     <string name="discover_wrapped_history">Cronologia</string>
     <string name="discover_wrapped_delete">Elimina questo Wrapped</string>
     <string name="discover_wrapped_deleted">Wrapped eliminato</string>
+    <string name="onboarding_discover_title">Scopri</string>
+    <string name="onboarding_discover_wrapped_title">Il tuo Wrapped, quando vuoi</string>
+    <string name="onboarding_discover_wrapped_desc">Artisti preferiti, decenni e la tua età musicale, in una scheda per le storie.</string>
+    <string name="onboarding_discover_link_title">Link per tutti</string>
+    <string name="onboarding_discover_link_desc">Condividi una playlist che si apre sul servizio dei tuoi amici e scopri quanto siete compatibili.</string>
+    <string name="onboarding_discover_mix_title">Playlist dagli artisti che ami</string>
+    <string name="onboarding_discover_mix_desc">Il generatore di playlist in Strumenti funziona anche senza chiave AI.</string>
 </resources>

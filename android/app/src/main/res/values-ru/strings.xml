@@ -1581,4 +1581,11 @@
     <string name="discover_wrapped_history">История</string>
     <string name="discover_wrapped_delete">Удалить этот Wrapped</string>
     <string name="discover_wrapped_deleted">Wrapped удалён</string>
+    <string name="onboarding_discover_title">Открытия</string>
+    <string name="onboarding_discover_wrapped_title">Ваш Wrapped в любое время</string>
+    <string name="onboarding_discover_wrapped_desc">Любимые исполнители, десятилетия и музыкальный возраст на карточке для историй.</string>
+    <string name="onboarding_discover_link_title">Ссылки для всех</string>
+    <string name="onboarding_discover_link_desc">Поделитесь плейлистом, который откроется в сервисе друга, и узнайте, насколько вы совместимы.</string>
+    <string name="onboarding_discover_mix_title">Плейлисты из любимых исполнителей</string>
+    <string name="onboarding_discover_mix_desc">Генератор плейлистов в «Инструментах» работает и без ключа ИИ.</string>
 </resources>

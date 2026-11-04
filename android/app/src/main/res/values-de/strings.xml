@@ -1535,4 +1535,11 @@
     <string name="discover_wrapped_history">Verlauf</string>
     <string name="discover_wrapped_delete">Diesen Wrapped löschen</string>
     <string name="discover_wrapped_deleted">Wrapped gelöscht</string>
+    <string name="onboarding_discover_title">Entdecken</string>
+    <string name="onboarding_discover_wrapped_title">Dein Wrapped, wann du willst</string>
+    <string name="onboarding_discover_wrapped_desc">Lieblingskünstler, Jahrzehnte und dein musikalisches Alter auf einer Karte für deine Stories.</string>
+    <string name="onboarding_discover_link_title">Links für alle</string>
+    <string name="onboarding_discover_link_desc">Teile eine Playlist, die beim Dienst deiner Freunde öffnet, und sieh, wie gut ihr zusammenpasst.</string>
+    <string name="onboarding_discover_mix_title">Playlists aus Künstlern, die du magst</string>
+    <string name="onboarding_discover_mix_desc">Der Playlist-Generator unter Werkzeuge funktioniert auch ohne KI-Schlüssel.</string>
 </resources>

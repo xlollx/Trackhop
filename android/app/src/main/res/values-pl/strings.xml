@@ -1583,4 +1583,11 @@
     <string name="discover_wrapped_history">Historia</string>
     <string name="discover_wrapped_delete">Usuń ten Wrapped</string>
     <string name="discover_wrapped_deleted">Usunięto Wrapped</string>
+    <string name="onboarding_discover_title">Odkrywaj</string>
+    <string name="onboarding_discover_wrapped_title">Twój Wrapped, kiedy chcesz</string>
+    <string name="onboarding_discover_wrapped_desc">Ulubieni artyści, dekady i twój muzyczny wiek na karcie do relacji.</string>
+    <string name="onboarding_discover_link_title">Linki dla każdego</string>
+    <string name="onboarding_discover_link_desc">Udostępnij playlistę, która otworzy się w serwisie znajomych, i sprawdź waszą zgodność.</string>
+    <string name="onboarding_discover_mix_title">Playlisty z lubianych artystów</string>
+    <string name="onboarding_discover_mix_desc">Generator playlist w Narzędziach działa też bez klucza AI.</string>
 </resources>

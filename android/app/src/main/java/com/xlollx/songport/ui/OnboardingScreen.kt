@@ -26,6 +26,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AccountCircle
@@ -65,12 +68,12 @@ import com.xlollx.songport.R
 import com.xlollx.songport.ads.Ads
 import kotlinx.coroutines.launch
 
-private const val PAGES = 4
+private const val PAGES = 5
 
 /**
- * Primo avvio, in quattro pagine: what Trackhop does (the services it joins), the three moves, how
- * logins are kept and why the app is free (or has ads), and where the documentation and the code
- * are. Skip goes straight to the app; the last page's button starts it.
+ * First start, in five pages: what Trackhop does (the services it joins), the three moves, the
+ * Discover tab, how logins are kept and why the app is free (or has ads), and where the
+ * documentation and the code are. Skip goes straight to the app; the last page's button starts it.
  */
 @Composable
 fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone) {
@@ -83,7 +86,8 @@ fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone) {
                 when (page) {
                     0 -> WelcomePage()
                     1 -> StepsPage()
-                    2 -> TrustPage()
+                    2 -> DiscoverIntroPage()
+                    3 -> TrustPage()
                     else -> DocsPage()
                 }
             }
@@ -148,8 +152,10 @@ private fun WelcomePage() {
     val logos = remember {
         // Amazon Music only where the build carries its connector: the Play build reaches it through
         // a separately installed plugin, so it does not show it as a service of its own.
-        listOf("spotify", "apple", "ytm", "amazon", "tidal", "deezer", "subsonic", "jellyfin", "plex")
-            .filter { it != "amazon" || com.xlollx.songport.providers.BridgePlugin.builtIn }
+        // The same goes for the other quick sign-in services (Qobuz, Anghami): only where built in.
+        val builtInOnly = setOf("amazon", "qobuz_web", "anghami_web")
+        listOf("spotify", "apple", "ytm", "amazon", "tidal", "deezer", "qobuz_web", "soundcloud", "anghami_web", "subsonic", "jellyfin", "emby", "plex")
+            .filter { it !in builtInOnly || com.xlollx.songport.providers.BridgePlugin.builtIn }
             .mapNotNull { id -> Providers.services().firstOrNull { it.serviceId == id } }
     }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -187,6 +193,20 @@ private fun StepsPage() {
             StepRow(Icons.Filled.AccountCircle, stringResource(R.string.onboarding_step1_title), stringResource(R.string.onboarding_step1_desc))
             StepRow(Icons.Filled.PlaylistAdd, stringResource(R.string.onboarding_step2_title), stringResource(R.string.onboarding_step2_desc))
             StepRow(Icons.Filled.Schedule, stringResource(R.string.onboarding_step3_title), stringResource(R.string.onboarding_step3_desc))
+        }
+    }
+}
+
+/** Page 3: the Discover tab, the fun side: Wrapped, links for friends, how compatible you are. */
+@Composable
+private fun DiscoverIntroPage() {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Hero { HeroIcon(Icons.Filled.AutoAwesome, 72.dp) }
+        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            Text(stringResource(R.string.onboarding_discover_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            StepRow(Icons.Filled.AutoAwesome, stringResource(R.string.onboarding_discover_wrapped_title), stringResource(R.string.onboarding_discover_wrapped_desc))
+            StepRow(Icons.Filled.Link, stringResource(R.string.onboarding_discover_link_title), stringResource(R.string.onboarding_discover_link_desc))
+            StepRow(Icons.Filled.QueueMusic, stringResource(R.string.onboarding_discover_mix_title), stringResource(R.string.onboarding_discover_mix_desc))
         }
     }
 }

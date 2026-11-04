@@ -20,28 +20,32 @@ class OnboardingFlowTest : FlowTest() {
     override fun baseSettings() = super.baseSettings().copy(onboardingDone = false)
 
     @Test
-    fun pagerWalksThroughFourPagesAndStartsTheApp() {
+    fun pagerWalksThroughFivePagesAndStartsTheApp() {
         launch()
         waitText(s(R.string.onboarding_title))
-        compose.onNodeWithContentDescription(s(R.string.onboarding_page, 1, 4)).assertIsDisplayed()
+        compose.onNodeWithContentDescription(s(R.string.onboarding_page, 1, 5)).assertIsDisplayed()
         compose.onNodeWithText(s(R.string.onboarding_skip)).assertIsDisplayed()
 
         click(s(R.string.onboarding_next))
-        waitNode("page 2 of 4", hasContentDescription(s(R.string.onboarding_page, 2, 4)))
+        waitNode("page 2 of 5", hasContentDescription(s(R.string.onboarding_page, 2, 5)))
         compose.onNodeWithText(s(R.string.onboarding_step1_title)).assertIsDisplayed()
 
         // The page survives a rotation.
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitNode("page 2 of 4 after rotation", hasContentDescription(s(R.string.onboarding_page, 2, 4)))
+        waitNode("page 2 of 5 after rotation", hasContentDescription(s(R.string.onboarding_page, 2, 5)))
         rotate(UiAutomation.ROTATION_FREEZE_0)
 
         click(s(R.string.onboarding_next))
-        waitNode("page 3 of 4", hasContentDescription(s(R.string.onboarding_page, 3, 4)))
+        waitNode("page 3 of 5", hasContentDescription(s(R.string.onboarding_page, 3, 5)))
+        compose.onNodeWithText(s(R.string.onboarding_discover_title)).assertIsDisplayed()
+
+        click(s(R.string.onboarding_next))
+        waitNode("page 4 of 5", hasContentDescription(s(R.string.onboarding_page, 4, 5)))
         compose.onNodeWithText(s(R.string.security_title)).assertIsDisplayed()
         assertTrue("Skip still offered before the last page", exists(s(R.string.onboarding_skip)))
 
         click(s(R.string.onboarding_next))
-        waitNode("page 4 of 4", hasContentDescription(s(R.string.onboarding_page, 4, 4)))
+        waitNode("page 5 of 5", hasContentDescription(s(R.string.onboarding_page, 5, 5)))
         // Where the documentation and the code are: a link to open, or not.
         compose.onNodeWithText(s(R.string.onboarding_docs_title)).assertIsDisplayed()
         assertTrue(exists(s(R.string.onboarding_docs_open)))

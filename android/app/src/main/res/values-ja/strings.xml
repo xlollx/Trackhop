@@ -1512,4 +1512,11 @@
     <string name="discover_wrapped_history">履歴</string>
     <string name="discover_wrapped_delete">この Wrapped を削除</string>
     <string name="discover_wrapped_deleted">Wrapped を削除しました</string>
+    <string name="onboarding_discover_title">発見</string>
+    <string name="onboarding_discover_wrapped_title">好きなときにWrapped</string>
+    <string name="onboarding_discover_wrapped_desc">よく聴くアーティスト、年代、音楽年齢をストーリー用のカードに。</string>
+    <string name="onboarding_discover_link_title">みんなに届くリンク</string>
+    <string name="onboarding_discover_link_desc">友だちのサービスで開くプレイリストを共有して、相性もチェック。</string>
+    <string name="onboarding_discover_mix_title">好きなアーティストからプレイリスト</string>
+    <string name="onboarding_discover_mix_desc">ツールのプレイリスト生成はAIキーなしでも使えます。</string>
 </resources>

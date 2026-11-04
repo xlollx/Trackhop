@@ -1543,4 +1543,11 @@
     <string name="discover_wrapped_history">Histórico</string>
     <string name="discover_wrapped_delete">Excluir este Wrapped</string>
     <string name="discover_wrapped_deleted">Wrapped excluído</string>
+    <string name="onboarding_discover_title">Descobrir</string>
+    <string name="onboarding_discover_wrapped_title">Seu Wrapped, quando quiser</string>
+    <string name="onboarding_discover_wrapped_desc">Artistas favoritos, décadas e sua idade musical, num cartão para os stories.</string>
+    <string name="onboarding_discover_link_title">Links para todo mundo</string>
+    <string name="onboarding_discover_link_desc">Compartilhe uma playlist que abre no serviço dos seus amigos e veja o quanto vocês combinam.</string>
+    <string name="onboarding_discover_mix_title">Playlists de artistas que você curte</string>
+    <string name="onboarding_discover_mix_desc">O gerador de playlists em Ferramentas também funciona sem chave de IA.</string>
 </resources>

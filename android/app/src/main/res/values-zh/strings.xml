@@ -1512,4 +1512,11 @@
     <string name="discover_wrapped_history">历史记录</string>
     <string name="discover_wrapped_delete">删除这个 Wrapped</string>
     <string name="discover_wrapped_deleted">已删除 Wrapped</string>
+    <string name="onboarding_discover_title">发现</string>
+    <string name="onboarding_discover_wrapped_title">随时查看你的年度总结</string>
+    <string name="onboarding_discover_wrapped_desc">最爱艺人、年代和音乐年龄，做成一张适合发快拍的卡片。</string>
+    <string name="onboarding_discover_link_title">人人能打开的链接</string>
+    <string name="onboarding_discover_link_desc">分享一个在朋友的服务上也能打开的歌单，看看你们有多契合。</string>
+    <string name="onboarding_discover_mix_title">用喜欢的艺人生成歌单</string>
+    <string name="onboarding_discover_mix_desc">“工具”里的歌单生成器无需 AI 密钥也能用。</string>
 </resources>

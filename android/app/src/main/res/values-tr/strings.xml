@@ -1533,4 +1533,11 @@
     <string name="discover_wrapped_history">Geçmiş</string>
     <string name="discover_wrapped_delete">Bu Wrapped\'i sil</string>
     <string name="discover_wrapped_deleted">Wrapped silindi</string>
+    <string name="onboarding_discover_title">Keşfet</string>
+    <string name="onboarding_discover_wrapped_title">İstediğin zaman Wrapped</string>
+    <string name="onboarding_discover_wrapped_desc">Favori sanatçılar, on yıllar ve müzik yaşın, hikâyelerin için bir kartta.</string>
+    <string name="onboarding_discover_link_title">Herkes için bağlantılar</string>
+    <string name="onboarding_discover_link_desc">Arkadaşının servisinde açılan bir liste paylaş ve ne kadar uyumlu olduğunuzu gör.</string>
+    <string name="onboarding_discover_mix_title">Sevdiğin sanatçılardan listeler</string>
+    <string name="onboarding_discover_mix_desc">Araçlar'daki liste oluşturucu yapay zekâ anahtarı olmadan da çalışır.</string>
 </resources>
