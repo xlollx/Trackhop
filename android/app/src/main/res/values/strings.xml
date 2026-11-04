@@ -1442,9 +1442,6 @@
     <string name="discover_wrapped_eyebrow">My %1$d so far</string>
     <string name="discover_wrapped_age">Musical age: %1$d</string>
     <string name="discover_wrapped_born">you listen like someone born in %1$d</string>
-    <string name="discover_wrapped_top_artist">Top artist</string>
-    <string name="discover_wrapped_decade">Decade</string>
-    <string name="discover_wrapped_decade_value">the %1$ds</string>
     <string name="discover_wrapped_tracks">Songs in playlists</string>
     <string name="discover_wrapped_services">Services</string>
     <string name="discover_wrapped_no_age">Your services did not say when your songs came out, so no musical age this time.</string>
@@ -1522,4 +1519,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">Waiting</string>
     <string name="discover_wrapped_found">Songs found so far: %1$d</string>
+    <string name="discover_wrapped_made_on">Made on %1$s</string>
+    <string name="discover_wrapped_top_artists">Top artists</string>
+    <string name="discover_wrapped_decades">Decades</string>
+    <string name="discover_wrapped_decade_label">%1$ds</string>
+    <string name="discover_wrapped_artists">Artists</string>
+    <string name="discover_wrapped_hours">Hours of music</string>
+    <string name="discover_wrapped_minutes">Minutes of music</string>
+    <string name="discover_wrapped_oldest">Oldest song</string>
+    <string name="discover_wrapped_newest">Latest addition</string>
+    <string name="discover_wrapped_pick">Services to include</string>
+    <string name="discover_wrapped_pick_hint">Only the services you tick are read. Your choice is kept for next time, and you can change it every time.</string>
+    <string name="discover_wrapped_keep_one">Keep at least one service.</string>
+    <string name="discover_wrapped_new">Make a new one</string>
+    <string name="discover_wrapped_history">History</string>
+    <string name="discover_wrapped_delete">Delete this Wrapped</string>
+    <string name="discover_wrapped_deleted">Wrapped deleted</string>
 </resources>

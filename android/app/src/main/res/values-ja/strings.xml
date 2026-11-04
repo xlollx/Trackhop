@@ -1419,9 +1419,6 @@
     <string name="discover_wrapped_eyebrow">私の %1$d 年・今日まで</string>
     <string name="discover_wrapped_age">音楽年齢：%1$d 歳</string>
     <string name="discover_wrapped_born">%1$d 年生まれの人のように聴いています</string>
-    <string name="discover_wrapped_top_artist">トップアーティスト</string>
-    <string name="discover_wrapped_decade">年代</string>
-    <string name="discover_wrapped_decade_value">%1$d年代</string>
     <string name="discover_wrapped_tracks">プレイリストの曲数</string>
     <string name="discover_wrapped_services">サービス</string>
     <string name="discover_wrapped_no_age">サービスが曲のリリース年を教えてくれないため、今回は音楽年齢はありません。</string>
@@ -1499,4 +1496,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">待機中</string>
     <string name="discover_wrapped_found">見つかった曲：%1$d</string>
+    <string name="discover_wrapped_made_on">%1$s に作成</string>
+    <string name="discover_wrapped_top_artists">トップアーティスト</string>
+    <string name="discover_wrapped_decades">年代</string>
+    <string name="discover_wrapped_decade_label">%1$d年代</string>
+    <string name="discover_wrapped_artists">アーティスト</string>
+    <string name="discover_wrapped_hours">時間分の音楽</string>
+    <string name="discover_wrapped_minutes">分間の音楽</string>
+    <string name="discover_wrapped_oldest">いちばん古い曲</string>
+    <string name="discover_wrapped_newest">最近追加した曲</string>
+    <string name="discover_wrapped_pick">含めるサービス</string>
+    <string name="discover_wrapped_pick_hint">チェックしたサービスだけを読み込みます。選択は次回のために保存され、毎回変更できます。</string>
+    <string name="discover_wrapped_keep_one">サービスを1つ以上選んでください。</string>
+    <string name="discover_wrapped_new">新しく作る</string>
+    <string name="discover_wrapped_history">履歴</string>
+    <string name="discover_wrapped_delete">この Wrapped を削除</string>
+    <string name="discover_wrapped_deleted">Wrapped を削除しました</string>
 </resources>

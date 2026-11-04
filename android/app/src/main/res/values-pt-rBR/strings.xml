@@ -1450,9 +1450,6 @@
     <string name="discover_wrapped_eyebrow">Meu %1$d até agora</string>
     <string name="discover_wrapped_age">Idade musical: %1$d</string>
     <string name="discover_wrapped_born">você ouve como quem nasceu em %1$d</string>
-    <string name="discover_wrapped_top_artist">Artista nº 1</string>
-    <string name="discover_wrapped_decade">Década</string>
-    <string name="discover_wrapped_decade_value">anos %1$d</string>
     <string name="discover_wrapped_tracks">Músicas nas playlists</string>
     <string name="discover_wrapped_services">Serviços</string>
     <string name="discover_wrapped_no_age">Os seus serviços não dizem quando as músicas saíram, então desta vez não há idade musical.</string>
@@ -1530,4 +1527,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">Aguardando</string>
     <string name="discover_wrapped_found">Músicas encontradas até agora: %1$d</string>
+    <string name="discover_wrapped_made_on">Criado em %1$s</string>
+    <string name="discover_wrapped_top_artists">Artistas mais ouvidos</string>
+    <string name="discover_wrapped_decades">Décadas</string>
+    <string name="discover_wrapped_decade_label">anos %1$d</string>
+    <string name="discover_wrapped_artists">Artistas</string>
+    <string name="discover_wrapped_hours">Horas de música</string>
+    <string name="discover_wrapped_minutes">Minutos de música</string>
+    <string name="discover_wrapped_oldest">Música mais antiga</string>
+    <string name="discover_wrapped_newest">Adição mais recente</string>
+    <string name="discover_wrapped_pick">Serviços a incluir</string>
+    <string name="discover_wrapped_pick_hint">Só os serviços marcados são lidos. A escolha fica guardada para a próxima vez e você pode mudá-la sempre.</string>
+    <string name="discover_wrapped_keep_one">Deixe pelo menos um serviço.</string>
+    <string name="discover_wrapped_new">Criar um novo</string>
+    <string name="discover_wrapped_history">Histórico</string>
+    <string name="discover_wrapped_delete">Excluir este Wrapped</string>
+    <string name="discover_wrapped_deleted">Wrapped excluído</string>
 </resources>

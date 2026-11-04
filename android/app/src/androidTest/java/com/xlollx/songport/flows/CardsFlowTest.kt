@@ -7,7 +7,9 @@ import android.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
@@ -31,6 +33,10 @@ import com.xlollx.songport.R
 import com.xlollx.songport.ai.AiClient
 import com.xlollx.songport.providers.tracks
 import com.xlollx.songport.sync.Compatibility
+import com.xlollx.songport.sync.Wrapped
+import com.xlollx.songport.ui.Cards
+import java.text.DateFormat
+import java.util.Date
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -163,6 +169,68 @@ class CardsFlowTest : FlowTest() {
     private fun aiRow() = compose.onNode(isToggleable() and hasText(s(R.string.card_ai_cover))).also { runCatching { it.performScrollTo() } }
 
     @Suppress("UNCHECKED_CAST")
+    @Test
+    fun wrappedIsKeptWithTheServicesChosenAndCanBeDeleted() {
+        openTool(R.string.discover_wrapped_title)
+        waitText(s(R.string.discover_wrapped_pick))
+        // Both connected services start ticked; Deezer is left out this time.
+        val deezer = { compose.onAllNodes(hasClickAction() and hasText("Deezer")).onFirst() }
+        scrollTo(deezer()).assertIsSelected()
+        tap(deezer(), "Deezer chip")
+        waitFor("Deezer left out") { "deezer" in store.data.settings.wrappedSkipped }
+        // Spotify, now the only one ticked, cannot be left out too.
+        tap(compose.onAllNodes(hasClickAction() and hasText("Spotify")).onFirst(), "Spotify chip")
+        waitText(s(R.string.discover_wrapped_keep_one))
+        assertTrue(store.data.settings.wrappedSkipped.none { it == "spotify" })
+
+        click(s(R.string.discover_wrapped_button))
+        waitFor("a Wrapped kept", 30_000) { store.data.wrapped.size == 1 }
+        val w = store.data.wrapped.single()
+        assertEquals(listOf("Spotify"), w.services.map { it.name })
+        val expected = runBlocking {
+            Wrapped.compute(FakeWorld.playlists.getValue("spotify").filter { it.owned }.flatMap { FakeWorld.spotify.tracks(app, it.id) }, w.year)
+        }
+        assertEquals(expected.trackCount, w.trackCount)
+        assertEquals(expected.topArtists, w.topArtists)
+        val madeOn = s(R.string.discover_wrapped_made_on, DateFormat.getDateInstance(DateFormat.MEDIUM, app.resources.configuration.locales[0]).format(Date(w.madeAt)))
+        waitText(madeOn)
+        waitText(s(R.string.card_share), ms = 30_000)
+
+        // Back on the page later: the last one is there at once, the chips still there with the last choice.
+        launch(tabIntent(MainActivity.TAB_DISCOVER))
+        waitText(s(R.string.discover_wrapped_title))
+        click(s(R.string.discover_wrapped_title))
+        waitText(madeOn, ms = 5_000)
+        waitText(s(R.string.discover_wrapped_history))
+        scrollTo(deezer()).assertIsNotSelected()
+        assertTrue(exists(s(R.string.discover_wrapped_new)))
+
+        // Deleted from the history, then put back.
+        clickDesc(s(R.string.discover_wrapped_delete))
+        waitFor("history empty") { store.data.wrapped.isEmpty() }
+        click(s(R.string.unplayable_undo))
+        waitFor("history back") { store.data.wrapped.map { it.id } == listOf(w.id) }
+    }
+
+    @Test
+    fun wrappedCardDrawsAnyLengthInBothFormats() {
+        val long = "Sir Reginald Alexander Montgomery-Featherstonehaugh and the Extraordinarily Long Orchestra of Everything ".repeat(3)
+        val marks = (0 until 40).map { Cards.Mark("Service number $it with a long name", 0xFF1DB954.toInt(), if (it % 2 == 0) "spotify" else null) }
+        val full = Cards.WrappedCard(
+            eyebrow = s(R.string.discover_wrapped_eyebrow, 2026), headline = s(R.string.discover_wrapped_age, 46) + " " + long,
+            subline = long, artistsTitle = long, artists = (1..5).map { "$it $long" to plural(R.plurals.card_tracks, 1234, 1234) },
+            decadesTitle = long, decades = listOf(long to 100, "1990s" to 48, "2000s" to 0, "1960s" to 3),
+            tiles = listOf("1,234,567,890" to long, "12" to long, "999" to long), facts = listOf(long to long, long to long),
+            servicesTitle = long, services = marks,
+        )
+        val empty = Cards.WrappedCard(s(R.string.discover_wrapped_eyebrow, 2026), plural(R.plurals.card_tracks, 1, 1), null, "", emptyList(), "", emptyList(), emptyList(), emptyList(), "", emptyList())
+        for (card in listOf(full, empty)) for (f in Cards.Format.entries) {
+            val bmp = Cards.wrapped(app, card, f)
+            assertEquals(f.width, bmp.width)
+            assertEquals(f.height, bmp.height)
+        }
+    }
+
     private fun aiCache(): HashMap<String, Bitmap> {
         val f = Class.forName("com.xlollx.songport.ui.CardsScreenKt").getDeclaredField("aiCovers").apply { isAccessible = true }
         return (f.get(null) as HashMap<String, Bitmap>).also { it.clear() }
