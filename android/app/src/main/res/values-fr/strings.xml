@@ -1450,9 +1450,6 @@
     <string name="discover_wrapped_eyebrow">Mon %1$d jusqu\'ici</string>
     <string name="discover_wrapped_age">Âge musical : %1$d</string>
     <string name="discover_wrapped_born">vous écoutez comme quelqu\'un né en %1$d</string>
-    <string name="discover_wrapped_top_artist">Artiste nº 1</string>
-    <string name="discover_wrapped_decade">Décennie</string>
-    <string name="discover_wrapped_decade_value">années %1$d</string>
     <string name="discover_wrapped_tracks">Titres dans les playlists</string>
     <string name="discover_wrapped_services">Services</string>
     <string name="discover_wrapped_no_age">Vos services n\'indiquent pas quand vos titres sont sortis : pas d\'âge musical cette fois.</string>
@@ -1530,4 +1527,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">En attente</string>
     <string name="discover_wrapped_found">Titres trouvés jusqu\'ici : %1$d</string>
+    <string name="discover_wrapped_made_on">Créé le %1$s</string>
+    <string name="discover_wrapped_top_artists">Artistes favoris</string>
+    <string name="discover_wrapped_decades">Décennies</string>
+    <string name="discover_wrapped_decade_label">années %1$d</string>
+    <string name="discover_wrapped_artists">Artistes</string>
+    <string name="discover_wrapped_hours">Heures de musique</string>
+    <string name="discover_wrapped_minutes">Minutes de musique</string>
+    <string name="discover_wrapped_oldest">Titre le plus ancien</string>
+    <string name="discover_wrapped_newest">Dernier ajout</string>
+    <string name="discover_wrapped_pick">Services à inclure</string>
+    <string name="discover_wrapped_pick_hint">Seuls les services cochés sont lus. Votre choix est gardé pour la prochaine fois, et vous pouvez le changer à chaque fois.</string>
+    <string name="discover_wrapped_keep_one">Gardez au moins un service.</string>
+    <string name="discover_wrapped_new">En créer un nouveau</string>
+    <string name="discover_wrapped_history">Historique</string>
+    <string name="discover_wrapped_delete">Supprimer ce Wrapped</string>
+    <string name="discover_wrapped_deleted">Wrapped supprimé</string>
 </resources>

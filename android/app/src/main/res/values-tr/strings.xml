@@ -1440,9 +1440,6 @@
     <string name="discover_wrapped_eyebrow">Bugüne kadarki %1$d yılım</string>
     <string name="discover_wrapped_age">Müzik yaşı: %1$d</string>
     <string name="discover_wrapped_born">%1$d doğumlu biri gibi dinliyorsun</string>
-    <string name="discover_wrapped_top_artist">1 numaralı sanatçı</string>
-    <string name="discover_wrapped_decade">On yıl</string>
-    <string name="discover_wrapped_decade_value">%1$d yılları</string>
     <string name="discover_wrapped_tracks">Çalma listelerindeki şarkılar</string>
     <string name="discover_wrapped_services">Servisler</string>
     <string name="discover_wrapped_no_age">Servislerin şarkılarının ne zaman çıktığını söylemiyor, bu yüzden bu sefer müzik yaşı yok.</string>
@@ -1520,4 +1517,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">Bekliyor</string>
     <string name="discover_wrapped_found">Şimdiye kadar bulunan şarkı: %1$d</string>
+    <string name="discover_wrapped_made_on">%1$s tarihinde oluşturuldu</string>
+    <string name="discover_wrapped_top_artists">En çok dinlenen sanatçılar</string>
+    <string name="discover_wrapped_decades">On yıllar</string>
+    <string name="discover_wrapped_decade_label">%1$d yılları</string>
+    <string name="discover_wrapped_artists">Sanatçılar</string>
+    <string name="discover_wrapped_hours">Saatlik müzik</string>
+    <string name="discover_wrapped_minutes">Dakikalık müzik</string>
+    <string name="discover_wrapped_oldest">En eski şarkı</string>
+    <string name="discover_wrapped_newest">En son eklenen</string>
+    <string name="discover_wrapped_pick">Dahil edilecek servisler</string>
+    <string name="discover_wrapped_pick_hint">Yalnızca işaretlediğin servisler okunur. Seçimin bir dahaki sefere saklanır ve her seferinde değiştirebilirsin.</string>
+    <string name="discover_wrapped_keep_one">En az bir servis bırak.</string>
+    <string name="discover_wrapped_new">Yenisini oluştur</string>
+    <string name="discover_wrapped_history">Geçmiş</string>
+    <string name="discover_wrapped_delete">Bu Wrapped\'i sil</string>
+    <string name="discover_wrapped_deleted">Wrapped silindi</string>
 </resources>

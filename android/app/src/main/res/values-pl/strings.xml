@@ -1490,9 +1490,6 @@
     <string name="discover_wrapped_eyebrow">Mój %1$d do dziś</string>
     <string name="discover_wrapped_age">Wiek muzyczny: %1$d</string>
     <string name="discover_wrapped_born">słuchasz jak ktoś urodzony w %1$d</string>
-    <string name="discover_wrapped_top_artist">Wykonawca nr 1</string>
-    <string name="discover_wrapped_decade">Dekada</string>
-    <string name="discover_wrapped_decade_value">lata %1$d.</string>
     <string name="discover_wrapped_tracks">Utwory w playlistach</string>
     <string name="discover_wrapped_services">Serwisy</string>
     <string name="discover_wrapped_no_age">Twoje serwisy nie podają, kiedy wyszły utwory, więc tym razem bez wieku muzycznego.</string>
@@ -1570,4 +1567,20 @@
     </string-array>
     <string name="discover_wrapped_waiting">Czeka</string>
     <string name="discover_wrapped_found">Znalezione utwory: %1$d</string>
+    <string name="discover_wrapped_made_on">Utworzono %1$s</string>
+    <string name="discover_wrapped_top_artists">Najczęściej słuchani wykonawcy</string>
+    <string name="discover_wrapped_decades">Dekady</string>
+    <string name="discover_wrapped_decade_label">lata %1$d.</string>
+    <string name="discover_wrapped_artists">Wykonawcy</string>
+    <string name="discover_wrapped_hours">Godziny muzyki</string>
+    <string name="discover_wrapped_minutes">Minuty muzyki</string>
+    <string name="discover_wrapped_oldest">Najstarszy utwór</string>
+    <string name="discover_wrapped_newest">Ostatnio dodany</string>
+    <string name="discover_wrapped_pick">Serwisy do uwzględnienia</string>
+    <string name="discover_wrapped_pick_hint">Odczytywane są tylko zaznaczone serwisy. Wybór zostaje zapamiętany na następny raz i możesz go zmienić za każdym razem.</string>
+    <string name="discover_wrapped_keep_one">Zostaw co najmniej jeden serwis.</string>
+    <string name="discover_wrapped_new">Utwórz nowy</string>
+    <string name="discover_wrapped_history">Historia</string>
+    <string name="discover_wrapped_delete">Usuń ten Wrapped</string>
+    <string name="discover_wrapped_deleted">Usunięto Wrapped</string>
 </resources>

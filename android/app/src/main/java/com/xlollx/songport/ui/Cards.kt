@@ -167,7 +167,12 @@ object Cards {
 
     /** One line, cut with an ellipsis to [maxWidth]. */
     private fun line(c: Canvas, text: String, x: Float, y: Float, p: TextPaint, maxWidth: Float, align: Paint.Align = Paint.Align.LEFT) {
-        val cut = TextUtils.ellipsize(text, p, maxWidth, TextUtils.TruncateAt.END).toString()
+        var cut = TextUtils.ellipsize(text, p, maxWidth, TextUtils.TruncateAt.END).toString()
+        // Measured again: where the system's cut still runs over (it happens off-device), cut by hand.
+        if (p.measureText(cut) > maxWidth) {
+            val room = (maxWidth - p.measureText("…")).coerceAtLeast(0f)
+            cut = text.substring(0, p.breakText(text, true, room, null)).trimEnd() + "…"
+        }
         p.textAlign = align
         c.drawText(cut, x, y, p)
         p.textAlign = Paint.Align.LEFT
@@ -448,40 +453,258 @@ object Cards {
     }
 
     /**
-     * "Your Wrapped": the musical age as the headline (or the track count, when the services did
-     * not say when the songs came out), then label/value rows. Already formatted and translated.
+     * "Your Wrapped", already formatted and translated: the musical age as the headline (or the
+     * song count, when the services did not say when the songs came out) with its line, the top
+     * artists (name, songs), the decades (label, share in %), up to three figures (value, label),
+     * a few facts (label, value: the oldest song, the last added) and the services read.
      */
-    class WrappedCard(val eyebrow: String, val headline: String, val subline: String?, val rows: List<Pair<String, String>>)
+    class WrappedCard(
+        val eyebrow: String,
+        val headline: String,
+        val subline: String?,
+        val artistsTitle: String,
+        val artists: List<Pair<String, String>>,
+        val decadesTitle: String,
+        val decades: List<Pair<String, Int>>,
+        val tiles: List<Pair<String, String>>,
+        val facts: List<Pair<String, String>>,
+        val servicesTitle: String,
+        val services: List<Mark>,
+    )
 
-    /** A story card (9:16) of the user's own figures; the square is laid out the same, tighter. */
+    /** A part of a card laid out top to bottom: its height, and how to draw it with its top at a given y. */
+    private class Block(val height: Float, val draw: (Canvas, Float) -> Unit)
+
+    /** Wrapped lines of [text] in [width], at most [maxLines], the last one cut at its end. */
+    private fun textLayout(text: String, p: TextPaint, width: Int, maxLines: Int, align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL): StaticLayout =
+        StaticLayout.Builder.obtain(text, 0, text.length, p, width.coerceAtLeast(1))
+            .setAlignment(align).setMaxLines(maxLines).setEllipsize(TextUtils.TruncateAt.END).setLineSpacing(0f, 1.05f).build()
+
+    private fun StaticLayout.drawAt(c: Canvas, x: Float, y: Float) { c.save(); c.translate(x, y); draw(c); c.restore() }
+
+    /** One line whose top (not baseline) is at [top]. */
+    private fun lineTop(c: Canvas, text: String, x: Float, top: Float, p: TextPaint, maxWidth: Float, align: Paint.Align = Paint.Align.LEFT) =
+        line(c, text, x, top - p.ascent(), p, maxWidth, align)
+
+    private fun captionPaint(s: Float, story: Boolean) =
+        paint(Color.WHITE, (if (story) 30f else 24f) * s, bold = true, alpha = 190).apply { letterSpacing = 0.1f }
+
+    /** A section's caption above [body]: one block. */
+    private fun captioned(title: String, x: Float, width: Float, s: Float, story: Boolean, body: Block): Block {
+        val cap = captionPaint(s, story)
+        val capH = cap.fontSpacing + (if (story) 14f else 8f) * s
+        return Block(capH + body.height) { c, y ->
+            lineTop(c, title.uppercase(), x, y, cap, width)
+            body.draw(c, y + capH)
+        }
+    }
+
+    private fun wrappedHeader(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean): Block {
+        val eb = paint(Color.WHITE, (if (story) 38f else 30f) * s, bold = true, alpha = 215).apply { letterSpacing = 0.12f }
+        // The headline on one line where it fits at three quarters of its size or more, else on two.
+        val size = (if (story) 112f else 76f) * s
+        val hp = paint(Color.WHITE, size, bold = true)
+        while (hp.textSize > size * 0.75f && hp.measureText(card.headline) > width) hp.textSize *= 0.95f
+        val head = textLayout(card.headline, hp, width.toInt(), 2)
+        val sub = card.subline?.let { textLayout(it, paint(Color.WHITE, (if (story) 44f else 32f) * s, alpha = 225), width.toInt(), if (story) 2 else 1) }
+        val gap1 = (if (story) 16f else 10f) * s
+        val gap2 = (if (story) 12f else 6f) * s
+        val h = eb.fontSpacing + gap1 + head.height + (sub?.let { gap2 + it.height } ?: 0f)
+        return Block(h) { c, y ->
+            lineTop(c, card.eyebrow.uppercase(), x, y, eb, width)
+            var yy = y + eb.fontSpacing + gap1
+            head.drawAt(c, x, yy); yy += head.height
+            sub?.let { it.drawAt(c, x, yy + gap2) }
+        }
+    }
+
+    /** The top artists, numbered, the first one bigger; a long name is cut at its end, the count goes first when room is short. */
+    private fun wrappedArtists(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean, max: Int = 5): Block? {
+        val rows = card.artists.take(max)
+        if (rows.isEmpty()) return null
+        class Row(val name: String, val count: String, val nameP: TextPaint, val numP: TextPaint, val cntP: TextPaint, val h: Float)
+        val laid = rows.mapIndexed { i, (name, count) ->
+            val size = (if (i == 0) (if (story) 60f else 40f) else (if (story) 40f else 28f)) * s
+            val nameP = paint(Color.WHITE, size, bold = true, alpha = if (i == 0) 255 else 235)
+            val numP = paint(Color.WHITE, size, bold = true, alpha = 140)
+            val cntP = paint(Color.WHITE, (if (story) 30f else 22f) * s, alpha = 185)
+            Row(name, count, nameP, numP, cntP, nameP.fontSpacing * (if (i == 0) 1.18f else 1.1f))
+        }
+        val numW = laid.maxOf { it.numP.measureText("${rows.size}") } + 20f * s
+        return captioned(card.artistsTitle, x, width, s, story, Block(laid.sumOf { it.h.toDouble() }.toFloat()) { c, y ->
+            var top = y
+            laid.forEachIndexed { i, r ->
+                val base = top - r.nameP.ascent()
+                c.drawText("${i + 1}", x, base, r.numP)
+                val countW = r.cntP.measureText(r.count)
+                var nameMax = width - numW - countW - 24f * s
+                val showCount = r.count.isNotEmpty() && nameMax >= width * 0.45f
+                if (!showCount) nameMax = width - numW
+                line(c, r.name, x + numW, base, r.nameP, nameMax)
+                if (showCount) line(c, r.count, x + width, base, r.cntP, countW + 1f, Paint.Align.RIGHT)
+                top += r.h
+            }
+        })
+    }
+
+    /** The decades as bars: "2010s ▇▇▇▇▁▁ 48%", the share of the dated songs. */
+    private fun wrappedDecades(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean, max: Int = 4): Block? {
+        val rows = card.decades.take(max)
+        if (rows.isEmpty()) return null
+        val lab = paint(Color.WHITE, (if (story) 34f else 24f) * s, bold = true)
+        val pct = paint(Color.WHITE, (if (story) 34f else 24f) * s, bold = true, alpha = 230)
+        val labW = minOf(rows.maxOf { lab.measureText(it.first) }, width * 0.38f)
+        val pctW = pct.measureText("100%")
+        val barH = (if (story) 26f else 18f) * s
+        val rowH = maxOf(lab.fontSpacing, barH) + (if (story) 20f else 12f) * s
+        val gap = 18f * s
+        return captioned(card.decadesTitle, x, width, s, story, Block(rowH * rows.size) { c, y ->
+            rows.forEachIndexed { i, (label, share) ->
+                val cy = y + i * rowH + rowH / 2
+                val base = cy - (lab.ascent() + lab.descent()) / 2
+                line(c, label, x, base, lab, labW)
+                val left = x + labW + gap
+                val right = x + width - pctW - gap
+                if (right - left > barH) {
+                    val track = RectF(left, cy - barH / 2, right, cy + barH / 2)
+                    c.drawRoundRect(track, barH / 2, barH / 2, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x33FFFFFF })
+                    val fill = RectF(left, track.top, left + maxOf(barH, (right - left) * share.coerceIn(0, 100) / 100f), track.bottom)
+                    c.drawRoundRect(fill, barH / 2, barH / 2, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; alpha = 235 })
+                }
+                line(c, "$share%", x + width, base, pct, pctW, Paint.Align.RIGHT)
+            }
+        })
+    }
+
+    /** Up to three figures side by side on glass panels: the value as big as it fits, its label under it. */
+    private fun wrappedTiles(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean): Block? {
+        val tiles = card.tiles.take(3)
+        if (tiles.isEmpty()) return null
+        val gap = (if (story) 22f else 16f) * s
+        val pw = (width - gap * (tiles.size - 1)) / tiles.size
+        val pad = (if (story) 22f else 14f) * s
+        val values = tiles.map { (v, _) -> fit(v, paint(Color.WHITE, 10f, bold = true), (if (story) 68f else 48f) * s, pw - 2 * pad) }
+        val labels = tiles.map { (_, l) -> textLayout(l, paint(Color.WHITE, (if (story) 27f else 20f) * s, alpha = 215), (pw - 2 * pad).toInt(), 2, Layout.Alignment.ALIGN_CENTER) }
+        val valueH = (if (story) 68f else 48f) * s * 1.2f
+        val ph = pad * 1.4f + valueH + 4f * s + labels.maxOf { it.height } + pad
+        return Block(ph) { c, y ->
+            tiles.indices.forEach { i ->
+                val left = x + i * (pw + gap)
+                val r = RectF(left, y, left + pw, y + ph)
+                panel(c, r, 30f * s)
+                val vp = values[i]; vp.textAlign = Paint.Align.CENTER
+                c.drawText(tiles[i].first, r.centerX(), y + pad * 1.4f + valueH * 0.8f, vp)
+                vp.textAlign = Paint.Align.LEFT
+                labels[i].drawAt(c, left + pad, y + pad * 1.4f + valueH + 4f * s)
+            }
+        }
+    }
+
+    /** A few facts on one glass panel: the label small and spaced, the value under it (two lines at most, cut at the end). */
+    private fun wrappedFacts(facts: List<Pair<String, String>>, x: Float, width: Float, s: Float, story: Boolean): Block? {
+        if (facts.isEmpty()) return null
+        val pad = (if (story) 30f else 20f) * s
+        val cap = captionPaint(s, story)
+        val values = facts.map { (_, v) -> textLayout(v, paint(Color.WHITE, (if (story) 36f else 26f) * s, bold = true), (width - 2 * pad).toInt(), if (story) 2 else 1) }
+        val between = (if (story) 22f else 12f) * s
+        val each = values.map { cap.fontSpacing + 4f * s + it.height }
+        val h = 2 * pad + each.sum() + between * (facts.size - 1)
+        return Block(h) { c, y ->
+            panel(c, RectF(x, y, x + width, y + h), 30f * s)
+            var yy = y + pad
+            facts.forEachIndexed { i, (label, _) ->
+                lineTop(c, label.uppercase(), x + pad, yy, cap, width - 2 * pad)
+                values[i].drawAt(c, x + pad, yy + cap.fontSpacing + 4f * s)
+                yy += each[i] + between
+            }
+        }
+    }
+
+    /** The services read: their marks in a row (two at most) and, when [names], their names packed whole in up to two lines. */
+    private fun wrappedServices(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean, names: Boolean): Block? {
+        if (card.services.isEmpty()) return null
+        val d = (if (story) 72f else 52f) * s
+        val gap = (if (story) 18f else 12f) * s
+        val perRow = ((width + gap) / (d + gap)).toInt().coerceAtLeast(1)
+        val markRows = card.services.chunked(perRow).take(if (story) 2 else 1)
+        val np = paint(Color.WHITE, (if (story) 30f else 22f) * s, alpha = 215)
+        val lines = if (names) com.xlollx.songport.sync.Wrapped.packNames(card.services.map { it.name }, width, 2, { np.measureText(it) }) else emptyList()
+        val marksH = markRows.size * d + (markRows.size - 1) * gap
+        val namesTop = marksH + (if (lines.isEmpty()) 0f else 14f * s)
+        val h = namesTop + lines.size * np.fontSpacing
+        return captioned(card.servicesTitle, x, width, s, story, Block(h) { c, y ->
+            markRows.forEachIndexed { r, row ->
+                row.forEachIndexed { i, m -> mark(c, m, x + i * (d + gap) + d / 2, y + r * (d + gap) + d / 2, d) }
+            }
+            lines.forEachIndexed { i, l -> lineTop(c, l, x, y + namesTop + i * np.fontSpacing, np, width) }
+        })
+    }
+
+    /** Two blocks side by side (each already placed at its own x), as tall as the taller one. */
+    private fun columns(left: Block, right: Block): Block =
+        Block(maxOf(left.height, right.height)) { c, y -> left.draw(c, y); right.draw(c, y) }
+
+    /**
+     * "Your Wrapped" as a card. The story, top to bottom: the eyebrow, the headline and its line,
+     * the top five artists, the decades as bars, three figures, the oldest song and the last one
+     * added, the services' marks with their names, the footer. The square puts the artists and the
+     * decades side by side and leaves the facts and the names out. Each part is measured first:
+     * when all of them do not fit, the card is drawn a little smaller, then the least telling parts
+     * go (the facts, the names, the figures); what is left is spread over the height.
+     */
     fun wrapped(ctx: Context, card: WrappedCard, format: Format): Bitmap {
         val w = format.width; val h = format.height
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
         val story = format == Format.STORY
         background(c, w, h)
-        val margin = 80f
+        val margin = if (story) 84f else 72f
         val inner = w - 2 * margin
-        var y = if (story) 220f else 110f
-        val eyebrow = paint(Color.WHITE, if (story) 38f else 32f, bold = true, alpha = 215).apply { letterSpacing = 0.12f }
-        line(c, card.eyebrow.uppercase(), margin, y, eyebrow, inner)
-        y += if (story) 60f else 40f
-        y += block(c, card.headline, margin, y, paint(Color.WHITE, if (story) 112f else 84f, bold = true), inner.toInt(), 2)
-        card.subline?.let {
-            y += 14f
-            y += block(c, it, margin, y, paint(Color.WHITE, if (story) 44f else 36f, alpha = 225), inner.toInt(), 2)
+        val top = if (story) 120f else 64f
+        val bottom = h - (if (story) 130f else 104f)
+        val avail = bottom - top
+        val minGap = if (story) 36f else 22f
+        val maxGap = if (story) 84f else 44f
+
+        fun build(s: Float, level: Int): List<Block> = buildList {
+            add(wrappedHeader(card, margin, inner, s, story))
+            if (story) {
+                wrappedArtists(card, margin, inner, s, story)?.let(::add)
+                wrappedDecades(card, margin, inner, s, story)?.let(::add)
+                if (level < 4) wrappedTiles(card, margin, inner, s, story)?.let(::add)
+                val facts = when (level) { 0 -> card.facts; 1 -> card.facts.take(1); else -> emptyList() }
+                wrappedFacts(facts, margin, inner, s, story)?.let(::add)
+                wrappedServices(card, margin, inner, s, story, names = level < 3)?.let(::add)
+            } else {
+                val half = (inner - 48f) / 2
+                val a = wrappedArtists(card, margin, if (card.decades.isEmpty()) inner else half, s, story)
+                val d = wrappedDecades(card, if (a == null) margin else margin + half + 48f, if (a == null) inner else half, s, story)
+                when {
+                    a != null && d != null -> add(columns(a, d))
+                    a != null -> add(a)
+                    d != null -> add(d)
+                }
+                if (level < 2) wrappedTiles(card, margin, inner, s, story)?.let(::add)
+                if (level < 1) wrappedServices(card, margin, inner, s, story, names = false)?.let(::add)
+            }
         }
-        y += if (story) 110f else 50f
-        val rowH = if (story) 150f else 104f
-        val label = paint(Color.WHITE, if (story) 36f else 30f, alpha = 200)
-        val value = paint(Color.WHITE, if (story) 44f else 36f, bold = true)
-        for ((l, v) in card.rows) {
-            if (y + rowH > h - 150f) break
-            line(c, l, margin, y + rowH * 0.42f, label, inner * 0.42f)
-            line(c, v, w - margin, y + rowH * 0.42f, value, inner * 0.56f, Paint.Align.RIGHT)
-            c.drawRect(margin, y + rowH * 0.72f, w - margin, y + rowH * 0.72f + 2f, Paint().apply { color = PANEL_LINE })
-            y += rowH
+        fun height(b: List<Block>, s: Float) = b.sumOf { it.height.toDouble() }.toFloat() + minGap * s * (b.size - 1)
+
+        var blocks = emptyList<Block>()
+        var scale = 1f
+        search@ for (level in 0..(if (story) 4 else 2)) for (s in floatArrayOf(1f, 0.94f, 0.88f, 0.82f)) {
+            blocks = build(s, level); scale = s
+            if (height(blocks, s) <= avail) break@search
         }
+        val used = blocks.sumOf { it.height.toDouble() }.toFloat()
+        val gap = if (blocks.size > 1) ((avail - used) / (blocks.size - 1)).coerceIn(minGap * scale, maxGap) else 0f
+        val total = used + gap * (blocks.size - 1)
+        // Short content (no dates, few artists) sits in the middle rather than stuck to the top.
+        var y = top + ((avail - total) / 2).coerceAtLeast(0f)
+        // Nothing drawn below the footer's line, whatever the content.
+        c.save(); c.clipRect(0f, 0f, w.toFloat(), bottom + 20f)
+        for (b in blocks) { b.draw(c, y); y += b.height + gap }
+        c.restore()
         footer(ctx, c, w, h)
         return bmp
     }
