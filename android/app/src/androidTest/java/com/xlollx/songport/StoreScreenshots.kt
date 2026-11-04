@@ -184,7 +184,7 @@ class StoreScreenshots {
                 connectors = listOf("spotify", yt, fourth, "deezer", "jellyfin"), connectorsInit = true,
                 onboardingDone = true, tourDone = true, themeMode = "DARK", dynamicColor = false, newLook = true,
                 supportPromptDone = true, appOpens = 1, supportNudgeSeen = 0, shareTarget = yt,
-                whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion,
+                whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion, tipsPillDismissed = true,
             )
         }
         store.flush()
@@ -430,6 +430,17 @@ class StoreScreenshots {
             }
             store.updateSettings { it.copy(onboardingDone = true) }; store.flush()
         }
+        // The "Did you know?" page (widgets, shortcuts, automation), opened from its pill on Syncs.
+        fun tips(theme: String) {
+            store.updateSettings { it.copy(tipsPillDismissed = false) }; store.flush()
+            tab(MainActivity.TAB_SYNCS) {
+                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.tips_pill)).fetchSemanticsNodes().isNotEmpty() }
+                compose.onAllNodesWithText(s(R.string.tips_pill)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+                compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.tips_intro)).fetchSemanticsNodes().isNotEmpty() }
+                snap("tips_$theme")
+            }
+            store.updateSettings { it.copy(tipsPillDismissed = true) }; store.flush()
+        }
         for (theme in listOf("DARK", "LIGHT")) {
             store.updateSettings { it.copy(themeMode = theme) }; store.flush()
             val t = theme.lowercase()
@@ -437,12 +448,14 @@ class StoreScreenshots {
             settingsPages(t)
             toolsPages(t)
             welcomeLinks(t)
+            tips(t)
         }
         // A large font: nothing cut, nothing under the bottom bar.
         store.updateSettings { it.copy(themeMode = "DARK") }; store.flush()
         step("font") { instr.uiAutomation.executeShellCommand("settings put system font_scale 1.5").close(); Thread.sleep(1500) }
         tab(MainActivity.TAB_SETTINGS) { snap("settings_bigfont_1"); scrollTo(s(R.string.backup_title)); snap("settings_bigfont_2") }
         tab(MainActivity.TAB_TOOLS) { snap("tools_bigfont_1"); scrollTo(s(R.string.tools_section_share)); snap("tools_bigfont_2") }
+        tips("bigfont")
         step("font back") { instr.uiAutomation.executeShellCommand("settings put system font_scale 1.0").close(); Thread.sleep(1500) }
         // Tools with no service connected: the way to Accounts.
         val connectors = store.data.settings.connectors

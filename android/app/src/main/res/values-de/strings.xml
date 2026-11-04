@@ -1591,4 +1591,27 @@
     <string name="onboarding_docs_site_desc">Anleitungen, Neuigkeiten und alle Funktionen erklärt</string>
     <string name="onboarding_docs_github_desc">Quellcode, Versionen und Meldungen</string>
     <string name="service_pause_until">%1$s bittet um eine Pause bis etwa %2$s: zu viele Anfragen bei einer ersten großen Synchronisierung. Nichts geht verloren: starte die Synchronisierung danach erneut, sie macht dort weiter.</string>
+    <string name="tips_pill">Schon gewusst? Widgets, Verknüpfungen und mehr</string>
+    <string name="tips_pill_dismiss">Diesen Tipp ausblenden</string>
+    <string name="tips_title">Schon gewusst?</string>
+    <string name="tips_intro">Trackhop funktioniert auch außerhalb der App: vom Startbildschirm, über sein Symbol und aus Automatisierungs-Apps.</string>
+    <string name="tips_widgets_title">Widgets für den Startbildschirm</string>
+    <string name="tips_widgets_body">Sieh auf einen Blick, wie deine Syncs gelaufen sind, und starte sie mit einem Tipp.</string>
+    <string name="tips_widgets_how">Selbst hinzufügen: lange auf eine freie Stelle des Startbildschirms drücken › Widgets › Trackhop.</string>
+    <string name="tips_widget_add">Hinzufügen</string>
+    <string name="tips_widget_add_cd">Widget hinzufügen: %1$s</string>
+    <string name="tips_shortcuts_title">Verknüpfungen am App-Symbol</string>
+    <string name="tips_shortcuts_body">Drücke lange auf das Trackhop-Symbol, um direkt hierhin zu springen.</string>
+    <string name="tips_shortcuts_pin">Halte eine Verknüpfung gedrückt und ziehe sie auf den Startbildschirm, dann wird sie zu einem eigenen Symbol.</string>
+    <string name="tips_shortcuts_recent">Deine letzten Syncs</string>
+    <string name="tips_shortcuts_recent_desc">Die Syncs, die du zuletzt ausgeführt hast: ein Tipp startet einen.</string>
+    <string name="tips_automation_title">Automatisierung</string>
+    <string name="tips_automation_body">Apps wie Tasker oder MacroDroid können deine Syncs mit eigenen Auslösern starten und reagieren, wenn einer endet. Das ist aus, bis du es einschaltest, denn jede App auf dem Handy könnte diese Befehle senden.</string>
+    <string name="tips_automation_open">In den Einstellungen öffnen</string>
+    <string name="tips_automation_on">An: Automatisierungs-Apps können deine Syncs starten.</string>
+    <string name="tips_automation_off">Derzeit aus.</string>
+    <string name="tips_automation_examples_title">Zum Beispiel</string>
+    <string name="tips_automation_examples">Alles synchronisieren, während das Handy nachts lädt, oder eine Playlist, wenn du nach Hause kommst.</string>
+    <string name="settings_tips_row">Widgets, Verknüpfungen und Automatisierung</string>
+    <string name="settings_tips_row_summary">Trackhop vom Startbildschirm und aus anderen Apps nutzen.</string>
 </resources>

@@ -1591,4 +1591,27 @@
     <string name="onboarding_docs_site_desc">Guides, news and every feature explained</string>
     <string name="onboarding_docs_github_desc">Source code, releases and issues</string>
     <string name="service_pause_until">%1$s is asking for a pause until about %2$s: too many requests on a first big sync. Nothing is lost: run the sync again after that time and it carries on.</string>
+    <string name="tips_pill">Did you know? Widgets, shortcuts and more</string>
+    <string name="tips_pill_dismiss">Hide this tip</string>
+    <string name="tips_title">Did you know?</string>
+    <string name="tips_intro">Trackhop also works outside the app: from the home screen, from its icon and from automation apps.</string>
+    <string name="tips_widgets_title">Home-screen widgets</string>
+    <string name="tips_widgets_body">See how your syncs went at a glance and run them with one tap.</string>
+    <string name="tips_widgets_how">To add one yourself: long-press an empty spot on the home screen › Widgets › Trackhop.</string>
+    <string name="tips_widget_add">Add</string>
+    <string name="tips_widget_add_cd">Add widget: %1$s</string>
+    <string name="tips_shortcuts_title">App-icon shortcuts</string>
+    <string name="tips_shortcuts_body">Long-press the Trackhop icon to jump straight to these.</string>
+    <string name="tips_shortcuts_pin">Hold a shortcut and drag it to place it on the home screen as an icon of its own.</string>
+    <string name="tips_shortcuts_recent">Your latest syncs</string>
+    <string name="tips_shortcuts_recent_desc">The syncs you ran most recently: a tap runs one.</string>
+    <string name="tips_automation_title">Automation</string>
+    <string name="tips_automation_body">Apps like Tasker or MacroDroid can run your syncs on their own triggers and react when one ends. It is off until you turn it on, since any app on the phone could send these commands.</string>
+    <string name="tips_automation_open">Open in Settings</string>
+    <string name="tips_automation_on">On: automation apps can run your syncs.</string>
+    <string name="tips_automation_off">Off for now.</string>
+    <string name="tips_automation_examples_title">For example</string>
+    <string name="tips_automation_examples">Sync everything while the phone charges at night, or one playlist when you get home.</string>
+    <string name="settings_tips_row">Widgets, shortcuts and automation</string>
+    <string name="settings_tips_row_summary">Use Trackhop from the home screen and other apps.</string>
 </resources>

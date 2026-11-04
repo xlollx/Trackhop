@@ -96,6 +96,8 @@ abstract class FlowTest {
         connectors = connectedAtStart, connectorsInit = true, onboardingDone = true, tourDone = true,
         isrcLookup = false, supportPromptDone = true, appOpens = 0, themeMode = "LIGHT",
         whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion,
+        // The "Did you know?" pill only where TipsFlowTest asks for it.
+        tipsPillDismissed = true,
     )
 
     // ------------------------------------------------------------------ the activity

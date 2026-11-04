@@ -1568,4 +1568,27 @@
     <string name="onboarding_docs_site_desc">指南、新闻和所有功能说明</string>
     <string name="onboarding_docs_github_desc">源代码、版本和问题反馈</string>
     <string name="service_pause_until">%1$s 要求暂停到约 %2$s：首次大规模同步时请求过多。不会丢失任何内容：在该时间之后重新运行同步即可继续。</string>
+    <string name="tips_pill">你知道吗？小部件、快捷方式等</string>
+    <string name="tips_pill_dismiss">隐藏此提示</string>
+    <string name="tips_title">你知道吗？</string>
+    <string name="tips_intro">Trackhop 在应用外也能使用：主屏幕、应用图标以及自动化应用。</string>
+    <string name="tips_widgets_title">主屏幕小部件</string>
+    <string name="tips_widgets_body">一眼看到同步结果，轻点一下即可运行。</string>
+    <string name="tips_widgets_how">自行添加：长按主屏幕空白处 › 小部件 › Trackhop。</string>
+    <string name="tips_widget_add">添加</string>
+    <string name="tips_widget_add_cd">添加小部件：%1$s</string>
+    <string name="tips_shortcuts_title">应用图标快捷方式</string>
+    <string name="tips_shortcuts_body">长按 Trackhop 图标即可直接跳转到这些功能。</string>
+    <string name="tips_shortcuts_pin">按住快捷方式并拖动，即可将其作为独立图标放到主屏幕上。</string>
+    <string name="tips_shortcuts_recent">最近的同步</string>
+    <string name="tips_shortcuts_recent_desc">最近运行过的同步：轻点即可运行。</string>
+    <string name="tips_automation_title">自动化</string>
+    <string name="tips_automation_body">Tasker、MacroDroid 等应用可以用自己的触发条件运行你的同步，并在同步结束时作出响应。由于手机上的任何应用都能发送这些命令，在你开启之前它保持关闭。</string>
+    <string name="tips_automation_open">在设置中打开</string>
+    <string name="tips_automation_on">已开启：自动化应用可以运行你的同步。</string>
+    <string name="tips_automation_off">目前已关闭。</string>
+    <string name="tips_automation_examples_title">例如</string>
+    <string name="tips_automation_examples">夜间充电时同步全部，或到家时同步某个播放列表。</string>
+    <string name="settings_tips_row">小部件、快捷方式和自动化</string>
+    <string name="settings_tips_row_summary">在主屏幕和其他应用中使用 Trackhop。</string>
 </resources>

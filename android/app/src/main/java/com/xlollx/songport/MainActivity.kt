@@ -312,6 +312,10 @@ private fun MainScreen(
     // "Trackhop in numbers", from the Tools list or the Syncs header.
     var statsOpen by rememberSaveable { mutableStateOf(false) }
     var backupOpen by rememberSaveable { mutableStateOf(false) }
+    // "Did you know?": widgets, shortcuts and automation (Syncs pill, Settings › Help).
+    var tipsOpen by rememberSaveable { mutableStateOf(false) }
+    // From that page to the automation switch in Settings.
+    var focusAutomation by rememberSaveable { mutableStateOf(false) }
     var manageProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
     var scanProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
     var unplayableProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
@@ -552,6 +556,7 @@ private fun MainScreen(
         transferOpen -> "transfer"
         statsOpen -> "stats"
         backupOpen -> "backup"
+        tipsOpen -> "tips"
         current != null -> "edit:" + current.id
         else -> null
     }
@@ -595,6 +600,9 @@ private fun MainScreen(
                 transferOpen -> TransferScreen(onClose = { transferOpen = false }, onDone = { transferOpen = false; tab = MainActivity.TAB_SYNCS })
                 statsOpen -> com.xlollx.songport.ui.StatsScreen(data, onClose = { statsOpen = false })
                 backupOpen -> com.xlollx.songport.ui.BackupScreen(onClose = { backupOpen = false })
+                tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
+                    tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
+                })
                 current != null -> SyncEditorScreen(
                     job = current,
                     onCancel = { editing = null },
@@ -754,6 +762,8 @@ private fun MainScreen(
                     // Offered on the empty tab until the tour has been taken or skipped once.
                     onTour = if (!data.settings.tourDone) ({ com.xlollx.songport.ui.Tour.start() }) else null,
                     onIdea = { openIdea(it) },
+                    // Opening the page counts as seen: the pill does not come back.
+                    onTips = { store.updateSettings { it.copy(tipsPillDismissed = true) }; tipsOpen = true },
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
@@ -768,7 +778,8 @@ private fun MainScreen(
                     },
                 )
                 MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null })
-                else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true })
+                else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
+                    onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } }
             }
         }

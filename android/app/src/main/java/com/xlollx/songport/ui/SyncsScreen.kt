@@ -180,6 +180,8 @@ fun SyncsScreen(
     onToggleEnabled: (SyncJob) -> Unit = {},
     /** An idea for one service tapped (ServiceIdeas): its page, filled in. */
     onIdea: (Idea) -> Unit = {},
+    /** The "Did you know?" pill tapped: the widgets, shortcuts and automation page. */
+    onTips: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val running by SyncState.running.collectAsState()
@@ -306,6 +308,10 @@ fun SyncsScreen(
                     )
                     if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
                         ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
+                    }
+                    // After the first completed sync: what Trackhop does outside the app. In the same item too.
+                    if (Tips.pillShown(data)) {
+                        TipsPill(onOpen = onTips, onDismiss = { Store.get(ctx).updateSettings { it.copy(tipsPillDismissed = true) } })
                     }
                 }
             }

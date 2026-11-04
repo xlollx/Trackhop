@@ -1589,4 +1589,27 @@
     <string name="onboarding_docs_site_desc">Kılavuzlar, haberler ve tüm özelliklerin açıklaması</string>
     <string name="onboarding_docs_github_desc">Kaynak kodu, sürümler ve sorun bildirimleri</string>
     <string name="service_pause_until">%1$s yaklaşık %2$s saatine kadar ara istiyor: ilk büyük senkronizasyonda çok fazla istek oldu. Hiçbir şey kaybolmaz: bu saatten sonra senkronizasyonu yeniden başlatın, kaldığı yerden devam eder.</string>
+    <string name="tips_pill">Biliyor muydunuz? Widget\'lar, kısayollar ve dahası</string>
+    <string name="tips_pill_dismiss">Bu ipucunu gizle</string>
+    <string name="tips_title">Biliyor muydunuz?</string>
+    <string name="tips_intro">Trackhop uygulamanın dışında da çalışır: ana ekrandan, simgesinden ve otomasyon uygulamalarından.</string>
+    <string name="tips_widgets_title">Ana ekran widget\'ları</string>
+    <string name="tips_widgets_body">Senkronizasyonlarınızın nasıl gittiğini bir bakışta görün ve tek dokunuşla çalıştırın.</string>
+    <string name="tips_widgets_how">Kendiniz eklemek için: ana ekranda boş bir yere uzun basın › Widget\'lar › Trackhop.</string>
+    <string name="tips_widget_add">Ekle</string>
+    <string name="tips_widget_add_cd">Widget ekle: %1$s</string>
+    <string name="tips_shortcuts_title">Uygulama simgesi kısayolları</string>
+    <string name="tips_shortcuts_body">Doğrudan buraya gitmek için Trackhop simgesine uzun basın.</string>
+    <string name="tips_shortcuts_pin">Bir kısayolu basılı tutup sürükleyerek ana ekrana ayrı bir simge olarak koyabilirsiniz.</string>
+    <string name="tips_shortcuts_recent">Son senkronizasyonlarınız</string>
+    <string name="tips_shortcuts_recent_desc">En son çalıştırdığınız senkronizasyonlar: dokunmak birini çalıştırır.</string>
+    <string name="tips_automation_title">Otomasyon</string>
+    <string name="tips_automation_body">Tasker veya MacroDroid gibi uygulamalar senkronizasyonlarınızı kendi tetikleyicileriyle çalıştırabilir ve biri bittiğinde tepki verebilir. Telefondaki herhangi bir uygulama bu komutları gönderebileceği için siz açana kadar kapalıdır.</string>
+    <string name="tips_automation_open">Ayarlarda aç</string>
+    <string name="tips_automation_on">Açık: otomasyon uygulamaları senkronizasyonlarınızı çalıştırabilir.</string>
+    <string name="tips_automation_off">Şimdilik kapalı.</string>
+    <string name="tips_automation_examples_title">Örneğin</string>
+    <string name="tips_automation_examples">Telefon gece şarj olurken her şeyi senkronize edin ya da eve vardığınızda bir çalma listesini.</string>
+    <string name="settings_tips_row">Widget\'lar, kısayollar ve otomasyon</string>
+    <string name="settings_tips_row_summary">Trackhop\'u ana ekrandan ve diğer uygulamalardan kullanın.</string>
 </resources>
