@@ -126,6 +126,131 @@ class DiscoverTest {
         assertEquals(2000, s.topDecade)
     }
 
+    @Test fun wrappedRanksFiveArtistsAndDecadeShares() {
+        val tracks = listOf(
+            t("1", "One", "Metallica", year = 1988, ms = 446_000),
+            t("2", "Fuel", "Metallica", year = 1997),
+            t("3", "Enter Sandman", "Metallica", year = 1991),
+            t("4", "Teardrop", "Massive Attack", year = 1998),
+            t("5", "Angel", "Massive Attack", year = 1998),
+            t("6", "Song 2", "Blur", year = 1997),
+            t("7", "Hey Jude", "The Beatles", year = 1968),
+            t("8", "Bad Guy", "Billie Eilish", year = 2019),
+            t("9", "Yellow", "Coldplay", year = 2000),
+            t("10", "Untitled", "Various Artists"),
+            // An album saved is not a song.
+            Track(id = "a", title = "Ride the Lightning", artists = listOf("Metallica"), kind = Track.KIND_ALBUM, year = 1984),
+        )
+        val s = Wrapped.compute(tracks, 2026)
+        assertEquals(listOf("Metallica" to 3, "Massive Attack" to 2), s.topArtists.take(2).map { it.name to it.tracks })
+        assertEquals(5, s.topArtists.size)
+        // Ties in alphabetical order of the normalized name ("The Beatles" is "beatles"), spelled as met.
+        assertEquals(listOf("The Beatles", "Billie Eilish", "Blur"), s.topArtists.drop(2).map { it.name })
+        assertEquals(6, s.artistCount)
+        // 9 dated songs: five of the nineties (56 %), then one each, the earlier decades first; the 2010s do not make the top four.
+        assertEquals(listOf(1990 to 56, 1960 to 11, 1980 to 11, 2000 to 11), s.decades.map { it.decade to it.percent })
+        assertEquals(1990, s.topDecade)
+        assertEquals(Wrapped.Song("Hey Jude", "The Beatles", 1968), s.oldest)
+        assertEquals(446_000L + 9 * 200_000L, s.durationMs)
+        assertNull(s.newest)
+    }
+
+    @Test fun wrappedNewestIsTheLastAdded() {
+        val tracks = listOf(
+            Track(id = "1", title = "Old Love", artists = listOf("A"), addedAt = 1_000),
+            Track(id = "2", title = "New Love", artists = listOf("B", "C"), addedAt = 5_000, year = 2026),
+        )
+        val s = Wrapped.compute(tracks, 2026)
+        assertEquals(Wrapped.Song("New Love", "B", 2026, 5_000), s.newest)
+    }
+
+    @Test fun wrappedServicesOncePerBrand() {
+        fun c(id: String, service: String, name: String, family: String = name) = Wrapped.Connector(id, service, name, family, 0xFF000000 + id.length)
+        val connectors = listOf(
+            c("ytm", "ytm", "YouTube Music"), c("amazon", "amazon", "Amazon Music"),
+            c("spotify_bridge", "spotify_bridge", "Spotify (web)", "Spotify"),
+            c("soundcloud_web", "soundcloud", "SoundCloud (web)", "SoundCloud"),
+            c("tidal", "tidal", "TIDAL"),
+            c("youtube", "youtube", "YouTube Music (Google API)", "YouTube Music"),
+            c("spotify", "spotify", "Spotify"), c("spotify@2", "spotify", "Spotify"),
+            // A connector whose family name still has its route: the brackets go all the same.
+            c("qobuz_web", "qobuz_web", "Qobuz (web)"),
+        )
+        val s = Wrapped.services(connectors)
+        assertEquals(listOf("YouTube Music", "Amazon Music", "Spotify", "SoundCloud", "TIDAL", "Qobuz"), s.map { it.name })
+        // The music app's own glyph: YouTube Music's, Spotify's official route.
+        assertEquals("ytm", s[0].serviceId)
+        assertEquals("spotify", s[2].serviceId)
+        assertEquals("Spotify", Wrapped.brandName("Spotify (plugin)"))
+        assertEquals("Subsonic / Navidrome", Wrapped.brandName("Subsonic / Navidrome"))
+        assertEquals("(web)", Wrapped.brandName("(web)"))
+
+        val labels = Wrapped.chipLabels(connectors)
+        assertEquals("YouTube Music", labels["ytm"])
+        assertEquals("YouTube Music (Google API)", labels["youtube"])
+        assertEquals("Spotify (web)", labels["spotify_bridge"])
+        assertEquals("Spotify", labels["spotify"])
+        assertEquals("Spotify 2", labels["spotify@2"])
+        assertEquals("TIDAL", labels["tidal"])
+        assertEquals("Qobuz", labels["qobuz_web"])
+    }
+
+    @Test fun wrappedChosenNeverEmpty() {
+        assertEquals(listOf("a", "c"), Wrapped.chosen(listOf("a", "b", "c"), setOf("b", "gone")))
+        assertEquals(listOf("a", "b"), Wrapped.chosen(listOf("a", "b"), setOf("a", "b")))
+    }
+
+    @Test fun wrappedNamesPackWholeInTwoLines() {
+        val measure = { s: String -> s.length.toFloat() }
+        val names = listOf("YouTube Music", "Amazon Music", "Spotify", "SoundCloud", "TIDAL", "Qobuz", "Deezer", "Apple Music")
+        val lines = Wrapped.packNames(names, 30f, 2, measure)
+        assertEquals(listOf("YouTube Music · Amazon Music", "Spotify · SoundCloud · +4"), lines)
+        lines.forEach { assertTrue(it, it.length <= 30) }
+        // Everything fits: no count.
+        assertEquals(listOf("Spotify · TIDAL"), Wrapped.packNames(listOf("Spotify", "TIDAL"), 30f, 2, measure))
+        // A name longer than a line stays whole on its own line.
+        assertEquals(listOf("A very very long service name here", "B"), Wrapped.packNames(listOf("A very very long service name here", "B"), 10f, 2, measure))
+        // One line, the count takes a name's place when needed.
+        assertEquals(listOf("Spotify · +2"), Wrapped.packNames(listOf("Spotify", "SoundCloud", "TIDAL"), 18f, 1, measure))
+        assertTrue(Wrapped.packNames(emptyList(), 10f, 2, measure).isEmpty())
+    }
+
+    @Test fun wrappedHistoryKeepsTheNewestTwenty() {
+        val s = Wrapped.compute(listOf(t("1", "One", "Metallica", year = 1988)), 2026)
+        val svc = listOf(Wrapped.Service("spotify", "Spotify", 0xFF1DB954))
+        var h = emptyList<Wrapped.Saved>()
+        for (i in 1..25) h = Wrapped.remember(h, Wrapped.save(s, svc, 2026, madeAt = i * 1000L))
+        assertEquals(Wrapped.MAX_HISTORY, h.size)
+        assertEquals(25_000L, h.first().madeAt)
+        assertEquals(6_000L, h.last().madeAt)
+        // The same one again is not doubled; an older one goes in its place by date.
+        h = Wrapped.remember(h, h[3])
+        assertEquals(Wrapped.MAX_HISTORY, h.size)
+        assertEquals(h.map { it.madeAt }.sortedDescending(), h.map { it.madeAt })
+        val saved = h.first()
+        assertEquals("Metallica", saved.topArtist)
+        assertEquals(svc, saved.services)
+        // Kept as JSON in the store: it reads back the same, and an older file without it reads as empty.
+        val text = com.xlollx.songport.net.json.encodeToString(com.xlollx.songport.data.StoreData.serializer(), com.xlollx.songport.data.StoreData(wrapped = h))
+        assertFalse(text.contains("\"tracks\":[{"))
+        assertEquals(h, com.xlollx.songport.net.json.decodeFromString(com.xlollx.songport.data.StoreData.serializer(), text).wrapped)
+        assertTrue(com.xlollx.songport.net.json.decodeFromString(com.xlollx.songport.data.StoreData.serializer(), "{}").wrapped.isEmpty())
+    }
+
+    @Test fun wrappedHistoryTravelsWithTheRunHistoryOnly() {
+        val a = com.xlollx.songport.contract.ContractEnv()
+        val w = Wrapped.Saved(id = "w1", madeAt = 10, year = 2026, trackCount = 42, age = 30, bornIn = 1996, topArtists = listOf(Wrapped.Artist("Mina", 7)))
+        a.store.update { it.copy(wrapped = listOf(w)) }
+        assertTrue(com.xlollx.songport.data.ConfigBackup.read(com.xlollx.songport.data.ConfigBackup.export(a, "test")).wrapped.isEmpty())
+        val snap = com.xlollx.songport.data.ConfigBackup.read(com.xlollx.songport.data.ConfigBackup.export(a, "test", history = true))
+        assertEquals(listOf(w), snap.wrapped)
+        val b = com.xlollx.songport.contract.ContractEnv()
+        val mine = w.copy(id = "w2", madeAt = 20)
+        b.store.update { it.copy(wrapped = listOf(mine)) }
+        com.xlollx.songport.data.ConfigBackup.import(b, snap)
+        assertEquals(listOf("w2", "w1"), b.store.data.wrapped.map { it.id })
+    }
+
     // ------------------------------------------------------------ overlap
 
     @Test fun overlapCountsEachSongOnceAndUsesTheCache() {

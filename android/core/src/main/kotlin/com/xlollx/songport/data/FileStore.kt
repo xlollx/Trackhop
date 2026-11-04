@@ -3,6 +3,7 @@ package com.xlollx.songport.data
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.net.json
+import com.xlollx.songport.sync.Wrapped
 import com.xlollx.songport.providers.Providers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,6 +76,8 @@ data class Settings(
      * the welcome, which marks it when it ends). Per device: a configuration file leaves it out.
      */
     val whatsNewSeen: String = "",
+    /** Connectors (provider ids) the user left out of the Wrapped: the chips start from this choice next time. */
+    val wrappedSkipped: Set<String> = emptySet(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */
@@ -113,6 +116,8 @@ data class StoreData(
     val removalConfirmations: Map<String, RemovalConfirmation> = emptyMap(),
     /** Syncs whose much smaller target the user agreed, in the preview, to sync anyway, and when. */
     val shrinkConfirmations: Map<String, Long> = emptyMap(),
+    /** The Wrapped made, the newest first (figures only, no tracks): at most [Wrapped.MAX_HISTORY]. */
+    val wrapped: List<Wrapped.Saved> = emptyList(),
 )
 
 /**

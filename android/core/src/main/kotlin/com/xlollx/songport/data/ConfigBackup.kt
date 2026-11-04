@@ -5,6 +5,7 @@ import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.sync.CsvCodec
+import com.xlollx.songport.sync.Wrapped
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -38,6 +39,8 @@ object ConfigBackup {
         val settings: Settings = Settings(),
         /** File playlists: name (without .csv) -> the CSV's text. */
         val files: Map<String, String> = emptyMap(),
+        /** The Wrapped history, with the run history only (it is the user's own past, like the runs). */
+        val wrapped: List<Wrapped.Saved> = emptyList(),
     )
 
     data class Summary(val syncs: Int, val matches: Int, val files: Int, val runs: Int, val writtenBy: String, val writtenAt: Long)
@@ -55,6 +58,7 @@ object ConfigBackup {
             reports = if (history) d.reports else emptyList(),
             matchCache = d.matchCache, ignoredTracks = d.ignoredTracks,
             settings = portable(d.settings), files = files,
+            wrapped = if (history) d.wrapped else emptyList(),
         )
         return json.encodeToString(Snapshot.serializer(), snapshot)
     }
@@ -92,6 +96,7 @@ object ConfigBackup {
                 matchCache = d.matchCache + s.matchCache,
                 ignoredTracks = d.ignoredTracks + s.ignoredTracks,
                 settings = merged(d.settings, s.settings),
+                wrapped = s.wrapped.fold(d.wrapped) { h, w -> Wrapped.remember(h, w) },
             )
         }
         // The services added come with it: the connector list follows the new settings at once.
