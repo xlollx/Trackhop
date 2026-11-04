@@ -260,9 +260,11 @@ private fun DocsPage() {
                 desc = stringResource(R.string.onboarding_docs_site_desc),
                 onClick = { open(SITE_URL) },
             )
+            // GitHub's dark disc sinks into a dark card: on a dark theme the mark goes dark on white.
+            val dark = LocalAppDark.current
             LinkCard(
-                mark = { Image(GitHubGlyph, null, Modifier.size(24.dp), colorFilter = ColorFilter.tint(Color.White)) },
-                markColor = Color(0xFF24292F),
+                mark = { Image(GitHubGlyph, null, Modifier.size(24.dp), colorFilter = ColorFilter.tint(if (dark) Color(0xFF24292F) else Color.White)) },
+                markColor = if (dark) Color.White else Color(0xFF24292F),
                 title = "GitHub",
                 desc = stringResource(R.string.onboarding_docs_github_desc),
                 onClick = { open(SOURCE_URL) },
