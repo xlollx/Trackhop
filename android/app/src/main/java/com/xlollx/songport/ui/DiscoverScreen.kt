@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -181,6 +182,8 @@ private fun WrappedHero(onOpen: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().clip(shape)
             .background(Brush.linearGradient(listOf(Color(0xFF6B4BD8), Color(0xFFC2185B), Color(0xFFFF7043))))
+            // The whole card opens the Wrapped, not only its button.
+            .clickable(onClick = onOpen)
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
