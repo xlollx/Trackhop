@@ -1,0 +1,40 @@
+{
+ "bundle": "web-player.d8d10126.js",
+ "last_updated": "2026-11-04T20:08:15Z",
+ "operations": {
+  "addToLibrary": {
+   "hash": "896ebcb47815681340860d121cb5d494e157e2a78d3950385cd54e0393c67148"
+  },
+  "addToPlaylist": {
+   "hash": "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a"
+  },
+  "fetchLibraryTracks": {
+   "hash": "087278b20b743578a6262c2b0b4bcd20d879c503cc359a2285baf083ef944240"
+  },
+  "fetchPlaylist": {
+   "hash": "21ea11a6ac75a5f3e01fd365d29c18e0a4a8b7dc09f89bbb5d73910190c6acaf"
+  },
+  "getTrack": {
+   "hash": "e7b1bf4e95cb3d733d48b442f93006e9712fd504e8b88d7a82e6e3bac9306a6b"
+  },
+  "libraryV3": {
+   "hash": "390c78e5b951029bad359785e69b07b536a509c581cbcd0aded5e5067f187455"
+  },
+  "profileAttributes": {
+   "hash": "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0"
+  },
+  "removeFromLibrary": {
+   "hash": "896ebcb47815681340860d121cb5d494e157e2a78d3950385cd54e0393c67148"
+  },
+  "removeFromPlaylist": {
+   "hash": "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a"
+  },
+  "searchDesktop": {
+   "hash": "eef7cc54888d91bdd6802623477873caa3948ae173a0c34fd86827b267e94c03"
+  },
+  "searchTracks": {
+   "hash": "b02683192a98dde7966b5e6655a79eeb62713eab703eda9902c932818dd52751"
+  }
+ },
+ "schema_version": 1
+}
