@@ -242,7 +242,7 @@ The Desktop version is set here, once, for every language.
     <p class="intro">{{ h.press_intro | default: en.press_intro }}</p>
     <ul class="press">
       {%- for p in press %}
-      <li><a href="{{ p.url }}" target="_blank" rel="noopener"><span class="press-kind" aria-hidden="true">{% if p.kind == "video" %}▶{% else %}✎{% endif %}</span><span><strong>{{ p.title | escape }}</strong><small>{{ p.source | escape }} · {{ p.lang | upcase }}</small></span></a></li>
+      <li><a href="{{ p.url }}" target="_blank" rel="noopener"><span class="press-kind {{ p.kind }}" aria-hidden="true">{% if p.kind == "video" %}▶{% else %}✎{% endif %}</span><span><strong>{{ p.title | escape }}</strong><small>{{ p.source | escape }} · {{ p.lang | upcase }}</small></span></a></li>
       {%- endfor %}
     </ul>
   </div>

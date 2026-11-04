@@ -26,10 +26,17 @@ Quasi sempre si vuole il primo: un archivio di tutto quello che Discover Weekly 
 
 1. **Installa Trackhop** su Android ([download](/it/)), oppure usa [Trackhop Desktop](desktop) su
    Windows, macOS o Linux.
-2. **Collega Spotify**: *Account → Aggiungi connettore → Spotify*. Accedi sulla pagina di Spotify.
-   Usa il collegamento **Spotify (web)**: da febbraio 2026 Spotify non lascia più leggere le
-   playlist create da Spotify alle app che usano una propria chiave sviluppatore (vedi
-   [Troubleshooting](troubleshooting#spotify), in inglese).
+2. **Collega Spotify con l'accesso rapido**: *Account → Aggiungi connettore → Spotify (web)*, e
+   accedi sulla pagina di Spotify con il tuo solito account.
+
+   > **Perché "Spotify (web)" e non l'altro collegamento Spotify?** Trackhop ha due modi per
+   > raggiungere Spotify. Quello ufficiale, con una tua chiave sviluppatore gratuita, non può più
+   > leggere le playlist che Spotify crea per te (Discover Weekly, Release Radar, daylist): Spotify
+   > non lo permette più da febbraio 2026. Con quel collegamento quelle playlist risultano vuote o
+   > non compaiono: è una regola di Spotify, non un errore di Trackhop. L'accesso rapido passa dal
+   > web player di Spotify e le vede. Non è un'interfaccia ufficiale, quindi leggi prima
+   > [le sue note](troubleshooting#spotify) (in inglese). Nella versione Google Play arriva con il
+   > plugin gratuito [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest).
 3. **Nuova sync**: *Sync → Nuova sync*. Come **Origine** scegli *Discover Weekly* tra le tue
    playlist Spotify.
 4. Come **Destinazione** scegli di nuovo Spotify e *Crea una nuova playlist*, per esempio
