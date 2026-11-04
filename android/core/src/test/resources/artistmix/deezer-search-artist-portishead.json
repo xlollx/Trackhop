@@ -1,0 +1,29 @@
+{
+ "data": [
+  {
+   "id": 1069,
+   "name": "Portishead",
+   "nb_album": 13,
+   "nb_fan": 585569,
+   "radio": true,
+   "type": "artist"
+  },
+  {
+   "id": 413314071,
+   "name": "Portishead",
+   "nb_album": 0,
+   "nb_fan": 0,
+   "radio": true,
+   "type": "artist"
+  },
+  {
+   "id": 310697501,
+   "name": "Portishead Adrian Utley, Ethiopiques",
+   "nb_album": 0,
+   "nb_fan": 5,
+   "radio": true,
+   "type": "artist"
+  }
+ ],
+ "total": 3
+}

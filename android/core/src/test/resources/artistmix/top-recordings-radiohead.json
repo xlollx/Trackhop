@@ -1,0 +1,662 @@
+[
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 262426,
+  "recording_mbid": "9e2ad5bc-c6f9-40d2-a36f-3122ee2072a3",
+  "recording_name": "Karma Police",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 3890683,
+  "total_user_count": 283512
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 384000,
+  "recording_mbid": "9f9cf187-d6f9-437f-9d98-d59cdbd52757",
+  "recording_name": "Paranoid Android",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 3092016,
+  "total_user_count": 260301
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 228533,
+  "recording_mbid": "980a426e-623e-4ea5-98c7-008d037a0508",
+  "recording_name": "No Surprises",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 3001215,
+  "total_user_count": 248803
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 228746,
+  "recording_mbid": "72c6b4d3-71a8-4c70-bf50-da11c0149089",
+  "recording_name": "All I Need",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2843571,
+  "total_user_count": 199387
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 32282694066,
+  "caa_release_mbid": "8125fd6f-addc-45a8-ba34-4b023aeae962",
+  "length": 236666,
+  "recording_mbid": "70595637-9310-45f2-a266-58f8de4874a7",
+  "recording_name": "Creep",
+  "release_mbid": "07aab296-9a40-42a9-8d1f-6b06aa032e8a",
+  "release_name": "Pablo Honey",
+  "total_listen_count": 2829991,
+  "total_user_count": 226709
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 238000,
+  "recording_mbid": "faea2aa0-80a9-41be-9b1e-3b994f4f76ac",
+  "recording_name": "15 Step",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2801152,
+  "total_user_count": 202778
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 248893,
+  "recording_mbid": "31600df4-e6dd-48ca-9f6b-8804027d8d6e",
+  "recording_name": "Jigsaw Falling Into Place",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2706887,
+  "total_user_count": 192469
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 255386,
+  "recording_mbid": "f3bea96c-5ebf-4d37-990d-14f1bc281459",
+  "recording_name": "Nude",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2611162,
+  "total_user_count": 191816
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 318186,
+  "recording_mbid": "f74b48a6-5a60-4b5a-864d-3ecb7e983c31",
+  "recording_name": "Weird Fishes/Arpeggi",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2442952,
+  "total_user_count": 185823
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 242293,
+  "recording_mbid": "94a1d84a-66ce-4fc9-88a5-c46263c54d9a",
+  "recording_name": "Bodysnatchers",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2430056,
+  "total_user_count": 195170
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 32251121765,
+  "caa_release_mbid": "8af759be-1495-4cc4-85a7-47edc21fa348",
+  "length": 290733,
+  "recording_mbid": "1e73e7a6-7378-46e5-97a7-2c299c656a29",
+  "recording_name": "Fake Plastic Trees",
+  "release_mbid": "b3b28d75-e474-43b8-a9ec-4c6856fc10b2",
+  "release_name": "The Bends",
+  "total_listen_count": 2383690,
+  "total_user_count": 211501
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 29475045164,
+  "caa_release_mbid": "0e8a1994-f0a7-481d-9be2-6c2f80e14de5",
+  "length": 251426,
+  "recording_mbid": "60bd9d53-01ff-4562-8058-eb44b3940317",
+  "recording_name": "Everything in Its Right Place",
+  "release_mbid": "e1bdf797-8b89-4d4c-8986-bcb0974d9726",
+  "release_name": "Kid A",
+  "total_listen_count": 2340461,
+  "total_user_count": 204399
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 328293,
+  "recording_mbid": "29a9d792-151b-4dd4-99ae-25bc853d8895",
+  "recording_name": "House of Cards",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2317611,
+  "total_user_count": 188454
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 29475045164,
+  "caa_release_mbid": "0e8a1994-f0a7-481d-9be2-6c2f80e14de5",
+  "length": 309093,
+  "recording_mbid": "1c0377bb-c00b-4bbe-b4b2-615f13324adc",
+  "recording_name": "Idioteque",
+  "release_mbid": "e1bdf797-8b89-4d4c-8986-bcb0974d9726",
+  "release_name": "Kid A",
+  "total_listen_count": 2280922,
+  "total_user_count": 191990
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 32251121765,
+  "caa_release_mbid": "8af759be-1495-4cc4-85a7-47edc21fa348",
+  "length": 257533,
+  "recording_mbid": "83cf16bc-01db-4766-9e3e-f3c796639cf2",
+  "recording_name": "High and Dry",
+  "release_mbid": "b3b28d75-e474-43b8-a9ec-4c6856fc10b2",
+  "release_name": "The Bends",
+  "total_listen_count": 2170587,
+  "total_user_count": 210904
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 19579924721,
+  "caa_release_mbid": "aa1e6810-906c-4d4d-b40b-01f277f6fbd2",
+  "length": 241000,
+  "recording_mbid": "ec049703-9a04-4c45-bc08-8094a918c156",
+  "recording_name": "Reckoner (live)",
+  "release_mbid": "aa1e6810-906c-4d4d-b40b-01f277f6fbd2",
+  "release_name": "Towering Above the Rest Complete",
+  "total_listen_count": 2131618,
+  "total_user_count": 146975
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 281800,
+  "recording_mbid": "8648fe94-bbdc-44a1-9de8-c4ced7913dc2",
+  "recording_name": "Videotape",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2119220,
+  "total_user_count": 176959
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 14926982777,
+  "caa_release_mbid": "1a33443c-3fff-450f-8298-efbc65659d32",
+  "length": 129680,
+  "recording_mbid": "ffac3cb1-a5e9-4f31-952d-45323f3640d5",
+  "recording_name": "Faust Arp",
+  "release_mbid": "ea92a194-2d60-35c7-9d56-0e1dba20cd45",
+  "release_name": "In Rainbows",
+  "total_listen_count": 2045622,
+  "total_user_count": 179509
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 264800,
+  "recording_mbid": "23c3c36b-9449-4484-9040-6ef2125999aa",
+  "recording_name": "Exit Music (for a Film)",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 2024895,
+  "total_user_count": 205179
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 299266,
+  "recording_mbid": "47b02a82-c3bf-4647-b894-dd1c8f608e7f",
+  "recording_name": "Let Down",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 2022152,
+  "total_user_count": 208193
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 284400,
+  "recording_mbid": "4a7fea2e-545b-4c63-bc9a-9943cc3a29d7",
+  "recording_name": "Airbag",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 1918560,
+  "total_user_count": 212464
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 277000,
+  "recording_mbid": "69bab114-162f-4f1b-9f9a-658db592eefa",
+  "recording_name": "Lucky",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 1792070,
+  "total_user_count": 194302
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 32251121765,
+  "caa_release_mbid": "8af759be-1495-4cc4-85a7-47edc21fa348",
+  "length": 252933,
+  "recording_mbid": "99385b86-235b-4780-a8de-62993cae0388",
+  "recording_name": "Street Spirit (Fade Out)",
+  "release_mbid": "b3b28d75-e474-43b8-a9ec-4c6856fc10b2",
+  "release_name": "The Bends",
+  "total_listen_count": 1749557,
+  "total_user_count": 177835
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 29475045164,
+  "caa_release_mbid": "0e8a1994-f0a7-481d-9be2-6c2f80e14de5",
+  "length": 356333,
+  "recording_mbid": "740d324e-4356-4116-812d-17ea76a190ce",
+  "recording_name": "How to Disappear Completely",
+  "release_mbid": "e1bdf797-8b89-4d4c-8986-bcb0974d9726",
+  "release_name": "Kid A",
+  "total_listen_count": 1692796,
+  "total_user_count": 171393
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 267706,
+  "recording_mbid": "bd82738d-163c-4b1a-bfaf-7acffe30e68a",
+  "recording_name": "Subterranean Homesick Alien",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 1632474,
+  "total_user_count": 193759
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 29475045164,
+  "caa_release_mbid": "0e8a1994-f0a7-481d-9be2-6c2f80e14de5",
+  "length": 351693,
+  "recording_mbid": "c7492f6e-adf3-4ff5-85dc-33d527dc81d8",
+  "recording_name": "The National Anthem",
+  "release_mbid": "e1bdf797-8b89-4d4c-8986-bcb0974d9726",
+  "release_name": "Kid A",
+  "total_listen_count": 1580039,
+  "total_user_count": 169714
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 2515589570,
+  "caa_release_mbid": "15dc9592-88d2-42d6-b7f3-40e07ec68ff0",
+  "length": 300400,
+  "recording_mbid": "46c13c78-8a42-42f9-8b55-c98f7de025a6",
+  "recording_name": "Lotus Flower",
+  "release_mbid": "dafc3dce-2ac7-4085-9f1a-d56603418818",
+  "release_name": "The King of Limbs",
+  "total_listen_count": 1524224,
+  "total_user_count": 146952
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 32251121765,
+  "caa_release_mbid": "8af759be-1495-4cc4-85a7-47edc21fa348",
+  "length": 234093,
+  "recording_mbid": "e234705a-d068-43d5-a122-cef8f056588e",
+  "recording_name": "Just",
+  "release_mbid": "b3b28d75-e474-43b8-a9ec-4c6856fc10b2",
+  "release_name": "The Bends",
+  "total_listen_count": 1523695,
+  "total_user_count": 172100
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 2336491200,
+  "caa_release_mbid": "910c1006-887c-3044-b13c-34f906f15ea7",
+  "length": 289000,
+  "recording_mbid": "666879c8-2083-4f64-bd7a-9a15bac75962",
+  "recording_name": "Pyramid Song",
+  "release_mbid": "431761e6-ebda-4f98-9566-3edda2ae595e",
+  "release_name": "Amnesiac",
+  "total_listen_count": 1523611,
+  "total_user_count": 164425
+ },
+ {
+  "artist_mbids": [
+   "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+  ],
+  "artist_name": "Radiohead",
+  "artists": [
+   {
+    "artist_credit_name": "Radiohead",
+    "artist_mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    "join_phrase": ""
+   }
+  ],
+  "caa_id": 43287476628,
+  "caa_release_mbid": "30702389-5c67-4438-9ea0-2351c8de0f1d",
+  "length": 285200,
+  "recording_mbid": "c7225576-001e-423c-adc1-58f0985dcb27",
+  "recording_name": "Climbing Up the Walls",
+  "release_mbid": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "release_name": "OK Computer",
+  "total_listen_count": 1480980,
+  "total_user_count": 175542
+ }
+]
