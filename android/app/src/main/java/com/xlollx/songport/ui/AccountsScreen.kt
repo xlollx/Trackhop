@@ -170,7 +170,9 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         item(key = "intro") { TrustBanner() }
         items(providers, key = { it.id }) { p ->
             key(refresh) {
-                if (!p.requiresAuth) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles)
+                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles)
+                // A source with nothing to sign in to (the charts): its name, what it is, remove.
+                else if (!p.requiresAuth) PlainSourceCard(p, onRemove = { remove(p) })
                 else ProviderCard(
                     p = p,
                     // Read here, where the connector names are observed: the card itself is skipped
@@ -536,6 +538,24 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
                     Text(stringResource(R.string.csv_import))
                 }
             }
+        }
+    }
+}
+
+/** A connector with no account (the charts): nothing to connect, only what it is. */
+@Composable
+private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
+    val ctx = LocalContext.current
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ProviderBadge(p, 40.dp)
+                Spacer(Modifier.width(12.dp))
+                Text(p.label(ctx), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                OverflowMenu(listOf(MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true)))
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(p.noteRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
