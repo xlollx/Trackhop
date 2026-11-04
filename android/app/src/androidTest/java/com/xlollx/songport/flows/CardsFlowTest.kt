@@ -283,8 +283,13 @@ class CardsFlowTest : FlowTest() {
             servicesTitle = long, services = marks,
         )
         val empty = Cards.WrappedCard(s(R.string.discover_wrapped_eyebrow, 2026), plural(R.plurals.card_tracks, 1, 1), null, "", emptyList(), "", emptyList(), emptyList(), emptyList(), "", emptyList())
-        for (card in listOf(full, empty)) for (f in Cards.Format.entries) {
-            val bmp = Cards.wrapped(app, card, f)
+        // With a drawn cover too: from covers, and from the title alone (a Wrapped kept before covers were).
+        val tile = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).apply { eraseColor(0xFFE63946.toInt()) }
+        val arts = listOf(null) + com.xlollx.songport.ui.GeneratedCovers.Style.entries.map { st ->
+            Cards.WrappedArt(st, com.xlollx.songport.ui.GeneratedCovers.Input(long, listOf(long), if (st.ordinal % 2 == 0) List(9) { tile } else emptyList()))
+        }
+        for (card in listOf(full, empty)) for (art in arts) for (f in Cards.Format.entries) {
+            val bmp = Cards.wrapped(app, card, f, art)
             assertEquals(f.width, bmp.width)
             assertEquals(f.height, bmp.height)
         }

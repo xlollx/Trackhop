@@ -91,6 +91,7 @@ import com.xlollx.songport.sync.Vanished
 import com.xlollx.songport.sync.Wrapped
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DateFormat
@@ -232,10 +233,27 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     val shown = history.firstOrNull { it.id == shownId } ?: history.firstOrNull()
     val card = remember(shown) { shown?.let { wrappedCard(ctx, it) } }
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
-    LaunchedEffect(card) {
-        bitmaps = null
+    // The card's art: a cover drawn on the phone from the Wrapped's covers (loaded again from their
+    // addresses), in the style chosen; null until the user picks one = mosaic with four covers or
+    // more, else the gradient. "Another version" turns the variant.
+    var covers by remember { mutableStateOf<List<Bitmap>?>(null) }
+    var style by remember(shown?.id) { mutableStateOf<GeneratedCovers.Style?>(null) }
+    var variant by remember(shown?.id) { mutableStateOf(0) }
+    var rendering by remember { mutableStateOf(false) }
+    LaunchedEffect(shown?.id) {
+        bitmaps = null; covers = null
+        val urls = shown?.covers ?: return@LaunchedEffect
+        covers = kotlinx.coroutines.coroutineScope { urls.map { async { Cards.bitmap(it, 400) } }.mapNotNull { it.await() } }
+    }
+    val artStyle = style ?: if ((covers?.size ?: 0) >= 4) GeneratedCovers.Style.MOSAIC else GeneratedCovers.Style.GRADIENT
+    LaunchedEffect(card, covers, artStyle, variant) {
         val c = card ?: return@LaunchedEffect
-        bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.wrapped(ctx, c, it) } }
+        val w = shown ?: return@LaunchedEffect
+        val got = covers ?: return@LaunchedEffect
+        rendering = true
+        val art = Cards.WrappedArt(artStyle, GeneratedCovers.Input(c.eyebrow, w.topArtists.map { it.name }, got), variant)
+        bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.wrapped(ctx, c, it, art) } }
+        rendering = false
     }
 
     fun run() {
@@ -264,11 +282,22 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
             style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         WrappedSummary(card, shown)
+        // The card's art, as the poster's drawn covers.
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.card_cover_title), style = MaterialTheme.typography.titleSmall)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                PosterArt.entries.forEach { a ->
+                    val st = a.style ?: return@forEach
+                    FilterChip(selected = st == artStyle, enabled = covers != null, onClick = { style = st }, label = { Text(stringResource(a.label)) })
+                }
+            }
+        }
         CardActions(
-            bitmaps, "trackhop-wrapped", busy = bitmaps == null, onRender = null, renderLabel = "",
+            bitmaps, "trackhop-wrapped", busy = bitmaps == null || rendering, onRender = null, renderLabel = "",
             previewDescription = listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
             formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
         )
+        if (bitmaps != null) OutlinedButton(enabled = !rendering, onClick = { variant++ }) { Text(stringResource(R.string.card_cover_another)) }
     }
 
     // A new one: the services to read, chosen every time (the last choice comes back ticked).
@@ -785,6 +814,9 @@ internal object WrappedRun {
     var error by mutableStateOf<String?>(null)
     var empty by mutableStateOf(false)
 
+    /** How long the covers are looked up at most, after the reading. */
+    private const val COVER_WAIT_MS = 25_000L
+
     fun start(ctx: Context, read: List<MusicProvider>, onDone: (Wrapped.Saved) -> Unit) {
         if (busy) return
         busy = true; reading = emptyMap(); current = null; readingFrom = read
@@ -792,20 +824,30 @@ internal object WrappedRun {
             try {
                 val all = ArrayList<Track>()
                 val used = ArrayList<MusicProvider>()
+                // Which service each song was read from: its covers are looked up there first (YouTube's own pictures).
+                val origin = HashMap<Track, String>()
                 for (p in read) {
                     current = p.id
                     val got = LibraryReader.read(ctx, p) { done, total ->
                         reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
                     }
                     reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
-                    if (got.isNotEmpty()) { all += got; used += p }
+                    if (got.isNotEmpty()) { all += got; used += p; for (t in got) origin.putIfAbsent(t, p.serviceId) }
                 }
                 current = null
                 val year = Calendar.getInstance().get(Calendar.YEAR)
                 val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
                 if (s.trackCount == 0) empty = true
                 else {
-                    val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis())
+                    // A few covers of the top artists, for the card's art and colours: best effort and
+                    // short, a Wrapped without them is drawn from its title's colours.
+                    val covers = ArrayList<String>()
+                    try {
+                        kotlinx.coroutines.withTimeoutOrNull(COVER_WAIT_MS) {
+                            Cards.distinctCoverUrls(Wrapped.coverCandidates(all).map { it to (origin[it] ?: "") }, Wrapped.MAX_COVERS, covers)
+                        }
+                    } catch (e: CancellationException) { throw e } catch (_: Exception) { }
+                    val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis(), covers = synchronized(covers) { covers.toList() })
                     // Kept even if the page is gone: the store is the app's, not the page's.
                     Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
                     runCatching { onDone(saved) }

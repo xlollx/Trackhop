@@ -26,6 +26,7 @@ import com.xlollx.songport.R
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.sync.Compatibility
+import com.xlollx.songport.sync.CoverArt
 import com.xlollx.songport.sync.DeezerCatalog
 import com.xlollx.songport.sync.QrCode
 import kotlinx.coroutines.Dispatchers
@@ -100,10 +101,13 @@ object Cards {
     }
 
     /** A cover for [t]: the service's own picture when free (YouTube), else Deezer's or iTunes' catalogue; null when none loads. */
-    suspend fun trackCover(t: Track, serviceId: String): Bitmap? {
-        for (url in DeezerCatalog.ownCover(t.id, serviceId)) bitmap(url, 400)?.let { return it }
+    suspend fun trackCover(t: Track, serviceId: String): Bitmap? = foundCover(t, serviceId)?.second
+
+    /** Like [trackCover], with the address the picture came from. */
+    private suspend fun foundCover(t: Track, serviceId: String): Pair<String, Bitmap>? {
+        for (url in DeezerCatalog.ownCover(t.id, serviceId)) bitmap(url, 400)?.let { return url to it }
         val found = DeezerCatalog.coverUrl(t) ?: DeezerCatalog.itunesCover(t) ?: return null
-        return bitmap(found, 400)
+        return bitmap(found, 400)?.let { found to it }
     }
 
     /**
@@ -113,14 +117,26 @@ object Cards {
      * picked, is skipped; at most [maxLookups] tracks are looked up, four at a time. Fewer than
      * four found: the poster shows the first one alone.
      */
-    suspend fun distinctCovers(tracks: List<Track>, serviceId: String, want: Int = 4, maxLookups: Int = 16, variant: Int = 0): List<Bitmap> {
-        val candidates = com.xlollx.songport.sync.CoverPicks.order(tracks, variant).take(maxLookups)
-        val picked = ArrayList<Bitmap>()
+    suspend fun distinctCovers(tracks: List<Track>, serviceId: String, want: Int = 4, maxLookups: Int = 16, variant: Int = 0): List<Bitmap> =
+        pickDistinct(com.xlollx.songport.sync.CoverPicks.order(tracks, variant).take(maxLookups).map { it to serviceId }, want).map { it.second }
+
+    /**
+     * The addresses of up to [want] different covers for [candidates] (a track and the service it
+     * was read from), looked up in their order, four at a time, as [distinctCovers] picks them.
+     * What was found so far goes to [found] as it comes, so a caller that stops waiting keeps it.
+     */
+    suspend fun distinctCoverUrls(candidates: List<Pair<Track, String>>, want: Int, found: MutableList<String> = ArrayList()): List<String> {
+        pickDistinct(candidates, want) { synchronized(found) { found += it } }
+        return synchronized(found) { found.toList() }
+    }
+
+    private suspend fun pickDistinct(candidates: List<Pair<Track, String>>, want: Int, onPick: (String) -> Unit = {}): List<Pair<String, Bitmap>> {
+        val picked = ArrayList<Pair<String, Bitmap>>()
         for (batch in candidates.chunked(4)) {
-            val got = kotlinx.coroutines.coroutineScope { batch.map { t -> async { trackCover(t, serviceId) } }.map { it.await() } }
-            for (b in got) {
-                if (b == null || picked.any { it === b || it.sameAs(b) }) continue
-                picked += b
+            val got = kotlinx.coroutines.coroutineScope { batch.map { (t, sid) -> async { foundCover(t, sid) } }.map { it.await() } }
+            for (f in got) {
+                if (f == null || picked.any { (_, b) -> b === f.second || b.sameAs(f.second) }) continue
+                picked += f; onPick(f.first)
                 if (picked.size == want) return picked
             }
         }
@@ -499,7 +515,7 @@ object Cards {
         }
     }
 
-    private fun wrappedHeader(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean): Block {
+    private fun wrappedHeader(card: WrappedCard, x: Float, width: Float, s: Float, story: Boolean, eyebrow: Boolean = true): Block {
         val eb = paint(Color.WHITE, (if (story) 38f else 30f) * s, bold = true, alpha = 215).apply { letterSpacing = 0.12f }
         // The headline on one line where it fits at three quarters of its size or more, else on two.
         val size = (if (story) 112f else 76f) * s
@@ -509,10 +525,11 @@ object Cards {
         val sub = card.subline?.let { textLayout(it, paint(Color.WHITE, (if (story) 44f else 32f) * s, alpha = 225), width.toInt(), if (story) 2 else 1) }
         val gap1 = (if (story) 16f else 10f) * s
         val gap2 = (if (story) 12f else 6f) * s
-        val h = eb.fontSpacing + gap1 + head.height + (sub?.let { gap2 + it.height } ?: 0f)
+        val ebH = if (eyebrow) eb.fontSpacing + gap1 else 0f
+        val h = ebH + head.height + (sub?.let { gap2 + it.height } ?: 0f)
         return Block(h) { c, y ->
-            lineTop(c, card.eyebrow.uppercase(), x, y, eb, width)
-            var yy = y + eb.fontSpacing + gap1
+            if (eyebrow) lineTop(c, card.eyebrow.uppercase(), x, y, eb, width)
+            var yy = y + ebH
             head.drawAt(c, x, yy); yy += head.height
             sub?.let { it.drawAt(c, x, yy + gap2) }
         }
@@ -640,6 +657,46 @@ object Cards {
         })
     }
 
+    /**
+     * The art of a Wrapped: a cover drawn on the phone ([GeneratedCovers], from the eyebrow, the top
+     * artists and their covers) at the top of the story, and its palette for the background of
+     * both formats. Without art the card keeps the app's own purple.
+     */
+    class WrappedArt(val style: GeneratedCovers.Style, val input: GeneratedCovers.Input, val variant: Int = 0) {
+        val palette: IntArray by lazy { GeneratedCovers.palette(input, variant) }
+    }
+
+    /**
+     * The background in [pal]'s colours: its deep shade to its darkest along the diagonal, two soft
+     * glows (its second colour at the top, its accent low on the left), a dark wash over all. The
+     * glows are darkened first ([CoverArt.deepen]), so white text reads on them whatever the covers.
+     */
+    private fun background(c: Canvas, w: Int, h: Int, pal: IntArray) {
+        val wf = w.toFloat(); val hf = h.toFloat()
+        c.drawRect(0f, 0f, wf, hf, Paint().apply {
+            shader = LinearGradient(0f, 0f, wf, hf, intArrayOf(pal[0], CoverArt.mix(pal[0], pal[4], 0.5f), pal[4]), floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
+        })
+        fun glow(cx: Float, cy: Float, r: Float, color: Int, a: Int) = c.drawCircle(cx, cy, r, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            val k = CoverArt.deepen(color, 5.0) and 0x00FFFFFF
+            shader = android.graphics.RadialGradient(cx, cy, r, intArrayOf(k or (a shl 24), k or ((a / 2) shl 24), k), floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP)
+        })
+        glow(wf * 0.5f, hf * 0.18f, maxOf(wf, hf) * 0.6f, pal[1], 200)
+        glow(wf * 0.05f, hf * 0.85f, maxOf(wf, hf) * 0.5f, pal[3], 150)
+        c.drawRect(0f, 0f, wf, hf, Paint().apply { color = INK; alpha = 40 })
+    }
+
+    /** The drawn cover, [side] wide, centred, with rounded corners, a soft shadow and a faint edge. */
+    private fun wrappedArtBlock(art: WrappedArt, left: Float, side: Float): Block = Block(side) { c, y ->
+        val r = RectF(left, y, left + side, y + side)
+        val radius = side * 0.06f
+        c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = INK; setShadowLayer(side * 0.05f, 0f, side * 0.02f, 0x8C000000.toInt()) })
+        val bmp = GeneratedCovers.draw(art.style, art.input, art.variant, side.toInt().coerceAtLeast(1))
+        c.save(); c.clipPath(Path().apply { addRoundRect(r, radius, radius, Path.Direction.CW) })
+        c.drawBitmap(bmp, null, r, Paint(Paint.FILTER_BITMAP_FLAG))
+        c.restore()
+        c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x33FFFFFF; style = Paint.Style.STROKE; strokeWidth = 2f })
+    }
+
     /** Two blocks side by side (each already placed at its own x), as tall as the taller one. */
     private fun columns(left: Block, right: Block): Block =
         Block(maxOf(left.height, right.height)) { c, y -> left.draw(c, y); right.draw(c, y) }
@@ -651,13 +708,18 @@ object Cards {
      * decades side by side and leaves the facts and the names out. Each part is measured first:
      * when all of them do not fit, the card is drawn a little smaller, then the least telling parts
      * go (the facts, the names, the figures); what is left is spread over the height.
+     *
+     * With [art], the background takes the art's palette, the story opens on the drawn cover
+     * (which says the eyebrow, so the header starts at the headline; the cover gets smaller before
+     * a part goes, and goes last) and the square shows it as a thumbnail beside the header (the
+     * first thing to go when room is short).
      */
-    fun wrapped(ctx: Context, card: WrappedCard, format: Format): Bitmap {
+    fun wrapped(ctx: Context, card: WrappedCard, format: Format, art: WrappedArt? = null): Bitmap {
         val w = format.width; val h = format.height
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
         val story = format == Format.STORY
-        background(c, w, h)
+        if (art != null) background(c, w, h, art.palette) else background(c, w, h)
         val margin = if (story) 84f else 72f
         val inner = w - 2 * margin
         val top = if (story) 120f else 64f
@@ -666,8 +728,19 @@ object Cards {
         val minGap = if (story) 36f else 22f
         val maxGap = if (story) 84f else 44f
 
-        fun build(s: Float, level: Int): List<Block> = buildList {
-            add(wrappedHeader(card, margin, inner, s, story))
+        fun build(s: Float, level: Int, artSide: Float): List<Block> = buildList {
+            when {
+                art == null || artSide <= 0f -> add(wrappedHeader(card, margin, inner, s, story))
+                // The story's art says the eyebrow in big letters: the header then starts at the headline.
+                story -> { add(wrappedArtBlock(art, (w - artSide) / 2, artSide)); add(wrappedHeader(card, margin, inner, s, story, eyebrow = false)) }
+                // The square's is a thumbnail at the right of the header, as tall as it.
+                else -> {
+                    val gap = 40f * s
+                    val head = wrappedHeader(card, margin, inner - artSide * s - gap, s, story)
+                    val side = head.height.coerceIn(artSide * s * 0.8f, artSide * s)
+                    add(columns(head, wrappedArtBlock(art, w - margin - side, side)))
+                }
+            }
             if (story) {
                 wrappedArtists(card, margin, inner, s, story)?.let(::add)
                 wrappedDecades(card, margin, inner, s, story)?.let(::add)
@@ -692,8 +765,16 @@ object Cards {
 
         var blocks = emptyList<Block>()
         var scale = 1f
-        search@ for (level in 0..(if (story) 4 else 2)) for (s in floatArrayOf(1f, 0.94f, 0.88f, 0.82f)) {
-            blocks = build(s, level); scale = s
+        // The art (story only) gets smaller before the least telling parts go, and goes last of all.
+        // In the square, the art goes before anything else does.
+        val levels = 0..(if (story) 4 else 2)
+        val tries = when {
+            art == null -> levels.map { it to 0f }
+            story -> levels.flatMap { l -> listOf(560f, 480f, 400f).map { l to it } } + levels.map { it to 0f }
+            else -> listOf(0 to 250f) + levels.map { it to 0f }
+        }
+        search@ for ((level, artSide) in tries) for (s in floatArrayOf(1f, 0.94f, 0.88f, 0.82f)) {
+            blocks = build(s, level, artSide); scale = s
             if (height(blocks, s) <= avail) break@search
         }
         val used = blocks.sumOf { it.height.toDouble() }.toFloat()

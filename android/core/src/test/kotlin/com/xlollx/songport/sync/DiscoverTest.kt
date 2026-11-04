@@ -237,6 +237,35 @@ class DiscoverTest {
         assertTrue(com.xlollx.songport.net.json.decodeFromString(com.xlollx.songport.data.StoreData.serializer(), "{}").wrapped.isEmpty())
     }
 
+    @Test fun wrappedCoversComeFromTheTopArtistsFirst() {
+        fun s(id: String, artist: String, album: String, kind: String = "") = Track(id = id, title = "Song $id", artists = listOf(artist), album = album, kind = kind)
+        val tracks = listOf(
+            s("1", "Mina", "Mina 1"), s("2", "Mina", "Mina 1"), s("3", "Mina", "Mina 2"), s("4", "Mina", "Mina 3"),
+            s("5", "Battisti", "Emozioni"), s("6", "Battisti", "Anima latina"), s("7", "Battisti", "Emozioni"),
+            s("8", "Dalla", "Com'è profondo il mare"),
+            s("9", "Mina", "A saved album", kind = Track.KIND_ALBUM),
+            s("1", "Mina", "Mina 1"), // the same song in a second playlist
+        )
+        val picks = Wrapped.coverCandidates(tracks)
+        // One album of each artist, the one with most songs first; then a second album of each.
+        assertEquals(listOf("1", "5", "8", "3", "6", "4"), picks.map { it.id })
+        assertEquals(listOf("1", "5"), Wrapped.coverCandidates(tracks, max = 2).map { it.id })
+        assertTrue(Wrapped.coverCandidates(emptyList()).isEmpty())
+
+        // What is kept: the addresses found, in order, each once, no blanks, nine at most.
+        val urls = listOf("https://a/1.jpg", null, " ", "https://a/2.jpg", "https://a/1.jpg") + (3..12).map { "https://a/$it.jpg" }
+        val kept = Wrapped.covers(urls)
+        assertEquals(Wrapped.MAX_COVERS, kept.size)
+        assertEquals(listOf("https://a/1.jpg", "https://a/2.jpg", "https://a/3.jpg"), kept.take(3))
+        val w = Wrapped.save(Wrapped.compute(tracks, 2026), emptyList(), 2026, madeAt = 1, covers = urls)
+        assertEquals(kept, w.covers)
+        // A Wrapped kept before covers were has none, and still reads.
+        val old = com.xlollx.songport.net.json.decodeFromString(Wrapped.Saved.serializer(), """{"id":"x","madeAt":1,"year":2025,"trackCount":3}""")
+        assertTrue(old.covers.isEmpty())
+        val json = com.xlollx.songport.net.json.encodeToString(Wrapped.Saved.serializer(), w)
+        assertEquals(w, com.xlollx.songport.net.json.decodeFromString(Wrapped.Saved.serializer(), json))
+    }
+
     @Test fun wrappedHistoryTravelsWithTheRunHistoryOnly() {
         val a = com.xlollx.songport.contract.ContractEnv()
         val w = Wrapped.Saved(id = "w1", madeAt = 10, year = 2026, trackCount = 42, age = 30, bornIn = 1996, topArtists = listOf(Wrapped.Artist("Mina", 7)))

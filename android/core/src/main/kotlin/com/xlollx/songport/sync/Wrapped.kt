@@ -29,6 +29,10 @@ object Wrapped {
     /** Wrapped kept in the history. */
     const val MAX_HISTORY = 20
 
+    /** Covers kept with a Wrapped (a 3×3 mosaic), and the songs looked up at most to find them. */
+    const val MAX_COVERS = 9
+    const val COVER_LOOKUPS = 24
+
     /** An artist and the different songs of theirs in the playlists. */
     @Serializable
     data class Artist(val name: String, val tracks: Int)
@@ -89,6 +93,11 @@ object Wrapped {
         val oldest: Song? = null,
         val newest: Song? = null,
         val services: List<Service> = emptyList(),
+        /**
+         * The addresses of a few album covers of the artists that appear most ([coverCandidates]),
+         * best first, for the card's art and colours; empty in a Wrapped made before they were kept.
+         */
+        val covers: List<String> = emptyList(),
     ) {
         val topArtist: String? get() = topArtists.firstOrNull()?.name
     }
@@ -145,12 +154,30 @@ object Wrapped {
         )
     }
 
-    /** [s] as it is kept, made at [madeAt] from [services]. */
-    fun save(s: Summary, services: List<Service>, year: Int, madeAt: Long, id: String = madeAt.toString(36)): Saved = Saved(
+    /** [s] as it is kept, made at [madeAt] from [services], with the [covers] found for it ([covers] keeps the first [MAX_COVERS] different ones). */
+    fun save(s: Summary, services: List<Service>, year: Int, madeAt: Long, id: String = madeAt.toString(36), covers: List<String?> = emptyList()): Saved = Saved(
         id = id, madeAt = madeAt, year = year, trackCount = s.trackCount, age = s.age, bornIn = s.bornIn,
         topArtists = s.topArtists, decades = s.decades, artistCount = s.artistCount, durationMs = s.durationMs,
-        oldest = s.oldest, newest = s.newest, services = services,
+        oldest = s.oldest, newest = s.newest, services = services, covers = covers(covers),
     )
+
+    // ------------------------------------------------------------------ covers
+
+    /**
+     * The songs whose covers can stand for the Wrapped, best first, at most [max]: each song once
+     * (as [compute] counts them), the artists with most songs first and one album each, then a
+     * second album of each, and so on ([CoverPicks.order]), so the first covers are those of the
+     * top artists and nine of them are nine different artists where there are that many. The app
+     * looks them up in this order and keeps the first that load ([covers]).
+     */
+    fun coverCandidates(tracks: List<Track>, max: Int = COVER_LOOKUPS): List<Track> {
+        val songs = tracks.filter { it.kind.isEmpty() && it.title.isNotBlank() }.distinctBy { key(it) }
+        return CoverPicks.order(songs).take(max)
+    }
+
+    /** The cover addresses found, in order: blank ones and repeats left out, at most [max]. */
+    fun covers(found: List<String?>, max: Int = MAX_COVERS): List<String> =
+        found.mapNotNull { it?.trim()?.takeIf { u -> u.isNotEmpty() } }.distinct().take(max)
 
     /** [history] with [w] added: the newest first, the same id once, at most [max]. */
     fun remember(history: List<Saved>, w: Saved, max: Int = MAX_HISTORY): List<Saved> =
