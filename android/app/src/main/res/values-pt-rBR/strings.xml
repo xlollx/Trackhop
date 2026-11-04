@@ -1550,4 +1550,16 @@
     <string name="onboarding_discover_link_desc">Compartilhe uma playlist que abre no serviço dos seus amigos e veja o quanto vocês combinam.</string>
     <string name="onboarding_discover_mix_title">Playlists de artistas que você curte</string>
     <string name="onboarding_discover_mix_desc">O gerador de playlists em Ferramentas também funciona sem chave de IA.</string>
+    <string name="card_cover_title">Capa</string>
+    <string name="card_cover_covers">Capas</string>
+    <string name="card_cover_mosaic">Mosaico</string>
+    <string name="card_cover_gradient">Degradê</string>
+    <string name="card_cover_geometric">Geométrica</string>
+    <string name="card_cover_typographic">Tipográfica</string>
+    <string name="card_cover_vinyl">Vinil</string>
+    <string name="card_cover_ai">Sua IA</string>
+    <string name="card_cover_covers_note">A imagem da playlist, ou as capas dos artistas que mais aparecem nela.</string>
+    <string name="card_cover_drawn_note">Desenhada no seu celular com o título, os principais artistas e as cores das capas: nada é enviado.</string>
+    <string name="card_cover_another">Outra versão</string>
+    <string name="card_ai_cover_failed_drawn">Sua IA não conseguiu desenhar a capa (%1$s). O pôster usa uma capa desenhada no seu celular.</string>
 </resources>

@@ -1550,4 +1550,16 @@
     <string name="onboarding_discover_link_desc">Comparte una playlist que se abre en el servicio de tus amigos y mira lo compatibles que sois.</string>
     <string name="onboarding_discover_mix_title">Playlists de artistas que te gustan</string>
     <string name="onboarding_discover_mix_desc">El generador de playlists de Herramientas también funciona sin clave de IA.</string>
+    <string name="card_cover_title">Portada</string>
+    <string name="card_cover_covers">Portadas</string>
+    <string name="card_cover_mosaic">Mosaico</string>
+    <string name="card_cover_gradient">Degradado</string>
+    <string name="card_cover_geometric">Geométrica</string>
+    <string name="card_cover_typographic">Tipográfica</string>
+    <string name="card_cover_vinyl">Vinilo</string>
+    <string name="card_cover_ai">Tu IA</string>
+    <string name="card_cover_covers_note">La imagen de la playlist, o las portadas de los artistas que más aparecen en ella.</string>
+    <string name="card_cover_drawn_note">Dibujada en tu teléfono con el título, los artistas principales y los colores de las portadas: no se envía nada.</string>
+    <string name="card_cover_another">Otra versión</string>
+    <string name="card_ai_cover_failed_drawn">Tu IA no pudo dibujar la portada (%1$s). El póster usa una portada dibujada en tu teléfono.</string>
 </resources>

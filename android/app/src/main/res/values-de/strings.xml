@@ -1542,4 +1542,16 @@
     <string name="onboarding_discover_link_desc">Teile eine Playlist, die beim Dienst deiner Freunde öffnet, und sieh, wie gut ihr zusammenpasst.</string>
     <string name="onboarding_discover_mix_title">Playlists aus Künstlern, die du magst</string>
     <string name="onboarding_discover_mix_desc">Der Playlist-Generator unter Werkzeuge funktioniert auch ohne KI-Schlüssel.</string>
+    <string name="card_cover_title">Cover</string>
+    <string name="card_cover_covers">Cover</string>
+    <string name="card_cover_mosaic">Mosaik</string>
+    <string name="card_cover_gradient">Verlauf</string>
+    <string name="card_cover_geometric">Geometrisch</string>
+    <string name="card_cover_typographic">Typografisch</string>
+    <string name="card_cover_vinyl">Vinyl</string>
+    <string name="card_cover_ai">Deine KI</string>
+    <string name="card_cover_covers_note">Das Bild der Playlist oder die Cover der Künstler, die am häufigsten darin vorkommen.</string>
+    <string name="card_cover_drawn_note">Auf deinem Handy gezeichnet aus dem Titel, den wichtigsten Künstlern und den Farben der Cover: Es wird nichts gesendet.</string>
+    <string name="card_cover_another">Andere Version</string>
+    <string name="card_ai_cover_failed_drawn">Deine KI konnte das Cover nicht zeichnen (%1$s). Das Poster nutzt stattdessen ein auf deinem Handy gezeichnetes Cover.</string>
 </resources>

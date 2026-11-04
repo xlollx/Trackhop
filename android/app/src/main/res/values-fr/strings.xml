@@ -1550,4 +1550,16 @@
     <string name="onboarding_discover_link_desc">Partagez une playlist qui s\'ouvre sur le service de vos amis et voyez votre compatibilité.</string>
     <string name="onboarding_discover_mix_title">Des playlists d\'artistes que vous aimez</string>
     <string name="onboarding_discover_mix_desc">Le générateur de playlists des Outils marche aussi sans clé d\'IA.</string>
+    <string name="card_cover_title">Pochette</string>
+    <string name="card_cover_covers">Pochettes</string>
+    <string name="card_cover_mosaic">Mosaïque</string>
+    <string name="card_cover_gradient">Dégradé</string>
+    <string name="card_cover_geometric">Géométrique</string>
+    <string name="card_cover_typographic">Typographique</string>
+    <string name="card_cover_vinyl">Vinyle</string>
+    <string name="card_cover_ai">Votre IA</string>
+    <string name="card_cover_covers_note">L\'image de la playlist, ou les pochettes des artistes les plus présents.</string>
+    <string name="card_cover_drawn_note">Dessinée sur votre téléphone à partir du titre, des artistes principaux et des couleurs des pochettes : rien n\'est envoyé.</string>
+    <string name="card_cover_another">Une autre version</string>
+    <string name="card_ai_cover_failed_drawn">Votre IA n\'a pas pu dessiner la pochette (%1$s). L\'affiche utilise une pochette dessinée sur votre téléphone.</string>
 </resources>

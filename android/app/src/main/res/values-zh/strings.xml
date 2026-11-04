@@ -1519,4 +1519,16 @@
     <string name="onboarding_discover_link_desc">分享一个在朋友的服务上也能打开的歌单，看看你们有多契合。</string>
     <string name="onboarding_discover_mix_title">用喜欢的艺人生成歌单</string>
     <string name="onboarding_discover_mix_desc">“工具”里的歌单生成器无需 AI 密钥也能用。</string>
+    <string name="card_cover_title">封面</string>
+    <string name="card_cover_covers">专辑封面</string>
+    <string name="card_cover_mosaic">拼贴</string>
+    <string name="card_cover_gradient">渐变</string>
+    <string name="card_cover_geometric">几何</string>
+    <string name="card_cover_typographic">文字</string>
+    <string name="card_cover_vinyl">黑胶</string>
+    <string name="card_cover_ai">你的 AI</string>
+    <string name="card_cover_covers_note">歌单自己的图片，或歌单中出现最多的艺人的封面。</string>
+    <string name="card_cover_drawn_note">在手机上根据标题、主要艺人和封面颜色绘制：不会发送任何内容。</string>
+    <string name="card_cover_another">换一个版本</string>
+    <string name="card_ai_cover_failed_drawn">你的 AI 无法绘制封面（%1$s）。海报将使用在手机上绘制的封面。</string>
 </resources>
