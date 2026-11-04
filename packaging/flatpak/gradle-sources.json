@@ -880,5 +880,26 @@
     "sha512": "0059680c002f9518c8b14595fc71d917ea1fcabdedd75fa53b662556a83509050d7f16f75a0107c058df249f721a8d2613548a031cc6213ea4b1a38ec4a52002",
     "dest": "maven-local/org/jetbrains/kotlinx/kotlinx-serialization-json-jvm/1.8.1",
     "dest-filename": "kotlinx-serialization-json-jvm-1.8.1.pom"
+  },
+  {
+    "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/javazoom/jlayer/1.0.1/jlayer-1.0.1.jar",
+    "sha512": "17f63cff2826b12c2bc487c25aa3b719cca7bf9b5a13ac18f9ef7a2f24ff72336474527b3f5901198af33b48ac12f443e9260c6bcbc050e28311a34a1c01774e",
+    "dest": "maven-local/javazoom/jlayer/1.0.1",
+    "dest-filename": "jlayer-1.0.1.jar"
+  },
+  {
+    "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/javazoom/jlayer/1.0.1/jlayer-1.0.1.pom",
+    "sha512": "f699e1191f1a4ebe1f661399566a11d2e43470c6a0435a6f1599aca277d9955ba176adeea26b86c754955a0e3f1d85c528823a877dec9d91f39ed5c73914a37b",
+    "dest": "maven-local/javazoom/jlayer/1.0.1",
+    "dest-filename": "jlayer-1.0.1.pom"
+  },
+  {
+    "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/org/sonatype/oss/oss-parent/7/oss-parent-7.pom",
+    "sha512": "63b0951f793ee9d25239ee44760e4d51de3b8503e438e567862306f2d175019d8617eb854bc4ee2374c39f385e0a1094c3c7097f899b2074e4acda14fe6030fb",
+    "dest": "maven-local/org/sonatype/oss/oss-parent/7",
+    "dest-filename": "oss-parent-7.pom"
   }
 ]
