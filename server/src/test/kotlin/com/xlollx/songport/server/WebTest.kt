@@ -290,6 +290,20 @@ class WebTest {
         }
     }
 
+    @Test fun theKeylessGeneratorIsThereWithoutAnAi() {
+        File(data, "csv").mkdirs()
+        File(data, "csv/Mine.csv").writeText("title,artist\nSong,Band\n")
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        val page = get("/tools/ai").body()
+        assertTrue(page, page.contains("value=\"mix\"") && page.contains("name=\"artists\"") && page.contains("name=\"leaning\""))
+        // A playlist of mine: its service first, then its playlists.
+        val from = get("/tools/ai?mixfrom=csv").body()
+        assertTrue(from, from.contains("name=\"playlist\"") && from.contains("Mine"))
+        // Nothing to start from: said at once, no task started.
+        val empty = post("/tools/ai", "action=mix&artists=&count=25&target=csv", *origin)
+        assertTrue(empty.headers().firstValue("Location").get().contains("err="))
+    }
+
     @Test fun playlistsCanBeSeenRenamedAndTrimmed() {
         File(data, "csv").mkdirs()
         File(data, "csv/Mix.csv").writeText("title,artist\nSong,Band\nOther,Band\n")

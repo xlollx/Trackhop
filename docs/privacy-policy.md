@@ -1,6 +1,6 @@
 # Trackhop – Privacy Policy / Informativa sulla privacy
 
-_Last updated / Ultimo aggiornamento: 2026-10-29_
+_Last updated / Ultimo aggiornamento: 2026-11-04_
 
 ## English
 
@@ -37,6 +37,11 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   or a compatible server you choose), the description you type, the optional reference tracks and the
   number of tracks are sent to that provider, under its own policy; your API key is stored encrypted on
   the device only. Nothing else (playlists, tokens) is sent. The feature is off until you add a key.
+- **Playlist generator without a key (optional)**: when you use it, the artist names you type (or the
+  most frequent artists of the playlist you pick) are sent to the public music databases MusicBrainz
+  (musicbrainz.org) and ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org), and, for artists
+  ListenBrainz has no data on, to Deezer's public catalogue (api.deezer.com): anonymous lookups, no
+  account. If you connected ListenBrainz with your token, that token goes along to ListenBrainz.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -93,6 +98,11 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   o un server compatibile a tua scelta), la descrizione che scrivi, gli eventuali brani di riferimento e il
   numero di brani vengono inviati a quel fornitore, secondo la sua informativa; la chiave API resta cifrata
   solo sul dispositivo. Nient'altro (playlist, token) viene inviato. La funzione è spenta finché non aggiungi una chiave.
+- **Generatore di playlist senza chiave (facoltativo)**: quando lo usi, i nomi degli artisti che scrivi (o
+  gli artisti più presenti nella playlist che scegli) vengono inviati ai database musicali pubblici
+  MusicBrainz (musicbrainz.org) e ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org) e, per gli
+  artisti di cui ListenBrainz non ha dati, al catalogo pubblico di Deezer (api.deezer.com): ricerche
+  anonime, senza account. Se hai collegato ListenBrainz con il tuo token, quel token viene inviato a ListenBrainz.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per

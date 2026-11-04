@@ -421,6 +421,29 @@ only the admin sees this tool.
 
 ## AI playlists
 
+### No key needed
+
+The first form on **Tools › AI playlist** needs no AI and no key, and it is the same on every build
+(Android, Docker, Desktop). Type one to five artists you like, or pick a playlist of yours (its most
+frequent artists are the starting point, its own tracks are left out), a length (25, 50, 100) and
+how adventurous: *Familiar* keeps to the closest artists and their best-known songs, *Discovery*
+skips the obvious names and the biggest hits. Trackhop then asks open music data:
+
+- [MusicBrainz](https://musicbrainz.org) for who the artists are (one request a second, as it asks);
+- [ListenBrainz](https://listenbrainz.org) for the artists their listeners play alongside them, and for
+  each artist's most played recordings;
+- Deezer's public catalogue for an artist ListenBrainz will not tell about: since 2026 ListenBrainz
+  answers anonymous requests only from its cache. Connect ListenBrainz with your token (Services)
+  and ListenBrainz answers for every artist.
+
+It mixes them, a few songs per artist and never the same song twice, searches them on the service
+you chose like any sync, and creates the playlist (or saves it into File). Building a list takes
+from a few seconds to a minute or two for 100 tracks; the page shows how far it is. In the app
+it is **Tools › Playlist generator › No key needed**, the mode the card opens in while no AI is set
+up, with the list shown for a look before anything is created.
+
+### With your AI
+
 Describe a playlist; your own AI writes it and Trackhop creates it on a service (or saves it into
 File). Trackhop has no AI of its own and sends the AI only your description. Free ways:
 
