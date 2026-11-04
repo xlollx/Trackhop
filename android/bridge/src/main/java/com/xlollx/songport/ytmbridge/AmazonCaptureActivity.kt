@@ -141,6 +141,26 @@ class AmazonCaptureActivity : ComponentActivity() {
         private val HOOK = """
             (function(){
               if (window.__spCap) return; window.__spCap = 1;
+              // Another site's desktop player (Qobuz asks for at least 1024 px): a 1280 px wide page,
+              // its own viewport tag rewritten as it comes, the window and the screen as wide.
+              if (window.__capSite) {
+                var W = 1280;
+                var wide = function(m){ if (m && m.getAttribute('name') === 'viewport') m.setAttribute('content', 'width=' + W); };
+                try {
+                  new MutationObserver(function(rs){ rs.forEach(function(r){ r.addedNodes.forEach(function(n){ if (n.tagName === 'META') wide(n); }); }); })
+                    .observe(document, { childList: true, subtree: true });
+                  document.addEventListener('DOMContentLoaded', function(){
+                    var m = document.querySelector('meta[name=viewport]');
+                    if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'viewport'); (document.head || document.documentElement).appendChild(m); }
+                    wide(m);
+                  });
+                } catch(e){}
+                try { Object.defineProperty(window, 'innerWidth', { get: function(){ return W; }, configurable: true }); } catch(e){}
+                try { Object.defineProperty(window, 'outerWidth', { get: function(){ return W; }, configurable: true }); } catch(e){}
+                try { Object.defineProperty(Screen.prototype, 'width', { get: function(){ return W; }, configurable: true }); } catch(e){}
+                try { Object.defineProperty(Screen.prototype, 'availWidth', { get: function(){ return W; }, configurable: true }); } catch(e){}
+                try { Object.defineProperty(document.documentElement, 'clientWidth', { get: function(){ return W; }, configurable: true }); } catch(e){}
+              }
               // What the desktop player checks before it loads (read from its own code): the platform
               // must not be Linux (navigator.platform, "Linux aarch64" on a phone), the browser must
               // not be mobile, MSE must accept FLAC in MP4 and Widevine must accept it too. Otherwise
