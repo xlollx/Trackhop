@@ -1539,5 +1539,5 @@
     <string name="onboarding_discover_link_title">Herkes için bağlantılar</string>
     <string name="onboarding_discover_link_desc">Arkadaşının servisinde açılan bir liste paylaş ve ne kadar uyumlu olduğunuzu gör.</string>
     <string name="onboarding_discover_mix_title">Sevdiğin sanatçılardan listeler</string>
-    <string name="onboarding_discover_mix_desc">Araçlar'daki liste oluşturucu yapay zekâ anahtarı olmadan da çalışır.</string>
+    <string name="onboarding_discover_mix_desc">Araçlar\'daki liste oluşturucu yapay zekâ anahtarı olmadan da çalışır.</string>
 </resources>
