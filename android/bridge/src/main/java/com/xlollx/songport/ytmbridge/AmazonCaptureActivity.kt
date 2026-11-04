@@ -219,9 +219,22 @@ class AmazonCaptureActivity : ComponentActivity() {
                 return /skill\.music\.a2z\.com|gql\.music\.amazon\.|music\.amazon\.[a-z.]+\/(?:[A-Z]{2}\/)?api\//.test(a);
               };
               // Passwords and secrets in addresses and form bodies (a sign-in posts them): blanked.
-              var PARAM = /([?&]|^)((?:[a-z_]*pass(?:word)?|[a-z_]*secret|[a-z_]*token|email|username|login)=)[^&#]*/gi;
-              var clean = function(s){ return String(s).replace(PARAM, '$1$2[redacted]'); };
-              var KEY = /pass|secret|token|email|username|login|auth/i;
+              // Personal fields, whatever their form's naming: register[_password], user%5Bemail%5D…
+              var KEY = /pass|secret|token|mail|user_?name|login|authori[sz]|authenticat|birth|captcha|phone|address|gender|iban/i;
+              var pairs = function(s){
+                return s.split('&').map(function(kv){
+                  var i = kv.indexOf('='); if (i < 0) return kv;
+                  var k = kv.slice(0, i), name = k;
+                  try { name = decodeURIComponent(k.replace(/\+/g, ' ')); } catch(e){}
+                  return KEY.test(name) ? k + '=[redacted]' : kv;
+                }).join('&');
+              };
+              var clean = function(s){
+                s = String(s);
+                var q = s.indexOf('?');
+                if (/^https?:/i.test(s)) return q < 0 ? s : s.slice(0, q + 1) + pairs(s.slice(q + 1));
+                return pairs(s);
+              };
               var scrub = function(o){ if (o && typeof o === 'object') Object.keys(o).forEach(function(k){ if (KEY.test(k) && typeof o[k] !== 'object') o[k] = '[redacted]'; else scrub(o[k]); }); return o; };
               // Request headers as sent: names and values, credentials replaced by their length.
               var SECRET = /authori|token|cookie|csrf|session|signature|credential|x-amz-security/i;
@@ -237,6 +250,8 @@ class AmazonCaptureActivity : ComponentActivity() {
                 return out;
               };
               var send = function(o){ try { SpCapture.log(JSON.stringify(o)); } catch(e){} };
+              // An answer can name the account too (e-mail, birthday): the same fields blanked there.
+              var answer = function(t){ try { var j = JSON.parse(t); if (j && typeof j === 'object') return JSON.stringify(scrub(j)).slice(0, 30000); } catch(e){} return String(t).slice(0, 30000); };
               var redact = function(b){
                 if (b == null) return null;
                 if (typeof b !== 'string') { try { b = String(b); } catch(e) { return '[binary]'; } }
@@ -251,7 +266,7 @@ class AmazonCaptureActivity : ComponentActivity() {
                 var reqHeaders = hdrs((init && init.headers) || (input && input.headers));
                 var p = of.apply(this, arguments);
                 if (match(url)) p.then(function(r){
-                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: t.slice(0, 30000)}); }); } catch(e){}
+                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: answer(t)}); }); } catch(e){}
                 });
                 return p;
               };
@@ -262,7 +277,7 @@ class AmazonCaptureActivity : ComponentActivity() {
               XMLHttpRequest.prototype.send = function(b){
                 var x = this;
                 if (match(x.__u)) x.addEventListener('loadend', function(){
-                  send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: String(x.responseText || '').slice(0, 30000)});
+                  send({t: Date.now(), url: clean(abs(x.__u)), method: x.__m, headers: hdrs(x.__h), body: redact(b), status: x.status, response: answer(String(x.responseText || ''))});
                 });
                 return os.apply(this, arguments);
               };
