@@ -447,6 +447,76 @@ object Cards {
         return bmp
     }
 
+    /**
+     * "Your Wrapped": the musical age as the headline (or the track count, when the services did
+     * not say when the songs came out), then label/value rows. Already formatted and translated.
+     */
+    class WrappedCard(val eyebrow: String, val headline: String, val subline: String?, val rows: List<Pair<String, String>>)
+
+    /** A story card (9:16) of the user's own figures; the square is laid out the same, tighter. */
+    fun wrapped(ctx: Context, card: WrappedCard, format: Format): Bitmap {
+        val w = format.width; val h = format.height
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        val story = format == Format.STORY
+        background(c, w, h)
+        val margin = 80f
+        val inner = w - 2 * margin
+        var y = if (story) 220f else 110f
+        val eyebrow = paint(Color.WHITE, if (story) 38f else 32f, bold = true, alpha = 215).apply { letterSpacing = 0.12f }
+        line(c, card.eyebrow.uppercase(), margin, y, eyebrow, inner)
+        y += if (story) 60f else 40f
+        y += block(c, card.headline, margin, y, paint(Color.WHITE, if (story) 112f else 84f, bold = true), inner.toInt(), 2)
+        card.subline?.let {
+            y += 14f
+            y += block(c, it, margin, y, paint(Color.WHITE, if (story) 44f else 36f, alpha = 225), inner.toInt(), 2)
+        }
+        y += if (story) 110f else 50f
+        val rowH = if (story) 150f else 104f
+        val label = paint(Color.WHITE, if (story) 36f else 30f, alpha = 200)
+        val value = paint(Color.WHITE, if (story) 44f else 36f, bold = true)
+        for ((l, v) in card.rows) {
+            if (y + rowH > h - 150f) break
+            line(c, l, margin, y + rowH * 0.42f, label, inner * 0.42f)
+            line(c, v, w - margin, y + rowH * 0.42f, value, inner * 0.56f, Paint.Align.RIGHT)
+            c.drawRect(margin, y + rowH * 0.72f, w - margin, y + rowH * 0.72f + 2f, Paint().apply { color = PANEL_LINE })
+            y += rowH
+        }
+        footer(ctx, c, w, h)
+        return bmp
+    }
+
+    /** "Roast of a playlist": the eyebrow, the playlist's name and the AI's words on a glass panel. */
+    fun roast(ctx: Context, eyebrow: String, title: String, text: String, format: Format): Bitmap {
+        val w = format.width; val h = format.height
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        val story = format == Format.STORY
+        background(c, w, h)
+        val margin = 72f
+        val inner = (w - 2 * margin).toInt()
+        var y = if (story) 220f else 90f
+        val flame = paint(Color.WHITE, if (story) 150f else 90f)
+        flame.textAlign = Paint.Align.CENTER
+        c.drawText("🔥", w / 2f, y + flame.textSize * 0.8f, flame)
+        y += flame.textSize + (if (story) 60f else 30f)
+        val eb = paint(Color.WHITE, if (story) 36f else 30f, bold = true, alpha = 215).apply { letterSpacing = 0.1f }
+        line(c, eyebrow.uppercase(), w / 2f, y, eb, inner.toFloat(), Paint.Align.CENTER)
+        y += 24f
+        y += block(c, title, margin, y, paint(Color.WHITE, if (story) 64f else 50f, bold = true), inner, 2, Layout.Alignment.ALIGN_CENTER) + 40f
+        val body = paint(Color.WHITE, if (story) 44f else 34f)
+        val pad = 48f
+        val bottom = h - 140f
+        // As much of the text as fits on the panel, in lines of the body's size.
+        val lines = ((bottom - y - 2 * pad) / (body.fontSpacing * 1.05f)).toInt().coerceAtLeast(3)
+        val layout = StaticLayout.Builder.obtain(text, 0, text.length, body, inner - (2 * pad).toInt())
+            .setMaxLines(lines).setEllipsize(TextUtils.TruncateAt.END).setLineSpacing(0f, 1.05f).build()
+        panel(c, RectF(margin, y, w - margin, y + layout.height + 2 * pad))
+        c.save(); c.translate(margin + pad, y + pad); layout.draw(c); c.restore()
+        footer(ctx, c, w, h)
+        return bmp
+    }
+
     private fun duration(ms: Long): String {
         val min = ms / 60_000
         return if (min >= 60) "${min / 60} h ${min % 60} min" else "$min min"

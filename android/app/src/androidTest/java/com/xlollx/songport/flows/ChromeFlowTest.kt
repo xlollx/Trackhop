@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class ChromeFlowTest : FlowTest() {
-    private val tabs by lazy { listOf(R.string.tab_syncs, R.string.tab_accounts, R.string.tab_tools, R.string.tab_settings) }
+    private val tabs by lazy { listOf(R.string.tab_syncs, R.string.tab_accounts, R.string.tab_discover, R.string.tab_tools, R.string.tab_settings) }
 
     @After fun dayAgain() { night(false) }
 
@@ -85,7 +85,7 @@ class ChromeFlowTest : FlowTest() {
         waitText("Sync number 1")
         for (tab in tabs) {
             navItem(s(tab)).also { it.performClickSafely() }.assertIsSelected()
-            // All four destinations, each named, on every tab.
+            // All five destinations, each named, on every tab.
             tabs.forEach { assertTrue("tab ${s(it)} missing", compose.onAllNodes(hasText(s(it)) and hasClickAction()).fetchSemanticsNodes().isNotEmpty()) }
             val top = barTop()
             val list = verticalScroller()
