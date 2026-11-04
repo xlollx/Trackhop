@@ -50,6 +50,27 @@ card5_title: Tu propio servidor de música
 card5: "Navidrome y otros servidores Subsonic, Jellyfin y Plex, junto a los servicios de streaming. También archivos: CSV, M3U, XML, JSON."
 card6_title: Herramientas para playlists
 card6: Copias de seguridad, eliminación de duplicados, unir, dividir y ordenar, y un generador de playlists con tu propia clave de IA.
+one_title: "Aunque uses un solo servicio"
+one_intro: "No hace falta un segundo servicio. Si solo usas Spotify, Apple Music, YouTube Music u otro, Trackhop también cuida de tus playlists."
+one1_title: "Guarda Discover Weekly"
+one1: "Discover Weekly, Release Radar o tu daylist copiadas cada semana en una playlist tuya, antes de que cambien."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Copias de seguridad automáticas"
+one2: "Cada playlist y tus canciones favoritas guardadas como archivos con fecha, a diario o cada semana, en la carpeta que elijas."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Elimina duplicados"
+one3: "Las canciones que aparecen dos veces, incluso de otro álbum, encontradas y eliminadas de una vez. Se queda la primera copia."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Arregla las canciones en gris"
+one4: "Las canciones que ya no se pueden reproducir, cambiadas por una versión que sí funciona, en el mismo sitio. Con Deshacer."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Tu Wrapped, cuando quieras"
+one5: "Artistas principales, décadas y tu edad musical en una tarjeta para tus historias, cuando quieras, con historial."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, radio, listas de éxitos"
+one6: "Tus Shazams, lo que suena en una radio, la canción de un TikTok o el Top 100 de un país, directo a una playlist."
+one6_href: "/guide/shazam"
+one_more: "Cómo funciona"
 shots_alt: Sincronizaciones con sus cifras, una nueva sincronización, una canción compartida que entra en una playlist, lo compatibles que son dos playlists, un póster de playlist, canciones no reproducibles y sus sustitutas
 works_title: Funciona con
 works_intro: "Los servicios marcados como beta funcionan y siguen la API documentada de cada servicio, pero se han usado menos en la práctica: los reportes son bienvenidos."

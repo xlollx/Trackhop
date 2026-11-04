@@ -48,6 +48,27 @@ card5_title: 自分の音楽サーバーにも
 card5: "ストリーミングサービスに加えて、Navidrome などの Subsonic サーバー、Jellyfin、Plex にも対応。ファイルも：CSV、M3U、XML、JSON。"
 card6_title: プレイリストツール
 card6: バックアップ、重複の削除、結合・分割・並べ替え、そして自分の AI キーで動くプレイリスト生成。
+one_title: "サービスがひとつだけでも"
+one_intro: "2つ目のサービスは要りません。Spotify、Apple Music、YouTube Music など1つしか使っていなくても、Trackhop がプレイリストを守ります。"
+one1_title: "Discover Weekly を保存"
+one1: "Discover Weekly、Release Radar、daylist を、入れ替わる前に毎週自分のプレイリストへコピー。"
+one1_href: "/guide/save-discover-weekly"
+one2_title: "自動バックアップ"
+one2: "すべてのプレイリストとお気に入りの曲を、毎日または毎週、選んだフォルダーに日付付きファイルとして保存。"
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "重複を削除"
+one3: "別のアルバムからのものも含め、2回入っている曲をまとめて見つけて削除。最初の1曲は残ります。"
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "グレーアウトした曲を修復"
+one4: "再生できなくなった曲を、再生できるバージョンに同じ位置で差し替え。元に戻すこともできます。"
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "いつでも Wrapped"
+one5: "トップアーティスト、年代、あなたの「音楽年齢」をストーリー用カードに。好きなときに作れて、履歴も残ります。"
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam・ラジオ・チャート"
+one6: "Shazam した曲、ラジオ局で流れた曲、TikTok の曲、各国の Top 100 を、そのままプレイリストへ。"
+one6_href: "/guide/shazam"
+one_more: "使い方を見る"
 shots_alt: 数字付きの同期一覧、新しい同期、共有された曲をプレイリストへ追加、2 つのプレイリストの相性、プレイリストのポスター、再生できない曲とその代わりの曲
 works_title: 対応サービス
 works_intro: "ベータと表示されたサービスも動作し、各サービスの公開 API に沿っていますが、実際の利用実績はまだ少なめです。報告をお待ちしています。"

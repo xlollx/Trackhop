@@ -48,6 +48,27 @@ card5_title: 내 음악 서버까지
 card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Plex도 지원해요. 파일도 돼요: CSV, M3U, XML, JSON."
 card6_title: 플레이리스트 도구
 card6: 백업, 중복 제거, 합치기·나누기·정렬, 그리고 내 AI 키로 동작하는 플레이리스트 생성기.
+one_title: "서비스가 하나뿐이어도"
+one_intro: "두 번째 서비스는 필요 없습니다. Spotify, Apple Music, YouTube Music 등 하나만 써도 Trackhop이 플레이리스트를 챙겨 줍니다."
+one1_title: "Discover Weekly 저장"
+one1: "Discover Weekly, Release Radar, daylist를 바뀌기 전에 매주 내 플레이리스트로 복사합니다."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "자동 백업"
+one2: "모든 플레이리스트와 좋아요 표시한 곡을 매일 또는 매주, 원하는 폴더에 날짜별 파일로 저장합니다."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "중복 제거"
+one3: "다른 앨범에서 온 것까지, 두 번 들어간 곡을 한 번에 찾아 지웁니다. 첫 번째 곡은 남습니다."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "회색으로 바뀐 곡 고치기"
+one4: "더 이상 재생되지 않는 곡을 재생되는 버전으로 같은 자리에서 바꿉니다. 실행 취소도 됩니다."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "언제든 Wrapped"
+one5: "자주 듣는 아티스트, 연대, 나의 음악 나이를 스토리용 카드로. 원할 때 만들고 기록도 남습니다."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, 라디오, 차트"
+one6: "Shazam한 곡, 라디오에서 나온 곡, TikTok 속 노래, 나라별 Top 100을 바로 플레이리스트로."
+one6_href: "/guide/shazam"
+one_more: "사용 방법"
 shots_alt: 숫자와 함께 보는 동기화 목록, 새 동기화, 공유된 곡을 플레이리스트에 추가, 두 플레이리스트의 호환성, 플레이리스트 포스터, 재생할 수 없는 곡과 대체 곡
 works_title: 지원 서비스
 works_intro: "베타로 표시된 서비스도 잘 동작하고 각 서비스의 공식 API 문서를 따르지만, 실사용 경험은 아직 적어요. 제보를 환영해요."

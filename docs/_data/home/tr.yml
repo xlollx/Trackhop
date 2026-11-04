@@ -48,6 +48,27 @@ card5_title: Kendi müzik sunucun
 card5: "Navidrome ve diğer Subsonic sunucuları, Jellyfin ve Plex, akış servislerinin yanında. Dosyalar da: CSV, M3U, XML, JSON."
 card6_title: Çalma listesi araçları
 card6: Yedekler, kopyaları kaldırma, birleştirme, bölme ve sıralama, ayrıca kendi yapay zekâ anahtarınla çalışan bir çalma listesi oluşturucu.
+one_title: "Tek bir servisle bile"
+one_intro: "İkinci bir servise gerek yok. Yalnızca Spotify, Apple Music, YouTube Music ya da başka birini kullansan da Trackhop çalma listelerine göz kulak olur."
+one1_title: "Discover Weekly’yi sakla"
+one1: "Discover Weekly, Release Radar ya da daylist’in, değişmeden önce her hafta kendi çalma listene kopyalanır."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Otomatik yedekler"
+one2: "Her çalma listesi ve beğendiğin şarkılar, her gün ya da her hafta, seçtiğin bir klasöre tarihli dosyalar olarak kaydedilir."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Kopyaları kaldır"
+one3: "İki kez geçen şarkılar, başka bir albümden olsalar bile, tek seferde bulunup kaldırılır. İlk kopya kalır."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Gri şarkıları düzelt"
+one4: "Artık çalmayan parçalar, aynı yerde, çalan bir sürümle değiştirilir. Geri alma imkânıyla."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "İstediğin zaman Wrapped"
+one5: "En çok dinlediğin sanatçılar, on yıllar ve müzikal yaşın, hikâyeler için bir kartta, istediğin zaman, geçmişiyle."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, radyo, listeler"
+one6: "Shazam’ların, bir radyonun çaldıkları, bir TikTok’taki şarkı ya da bir ülkenin Top 100’ü, doğrudan bir çalma listesine."
+one6_href: "/guide/shazam"
+one_more: "Nasıl çalışır"
 shots_alt: Sayılarıyla senkronizasyonlar, yeni bir senkronizasyon, bir çalma listesine eklenen paylaşılmış bir parça, iki çalma listesinin ne kadar uyumlu olduğu, bir çalma listesi posteri, çalınamayan parçalar ve yerlerine gelenler
 works_title: Desteklenenler
 works_intro: "Beta olarak işaretlenen servisler çalışır ve her servisin belgelenmiş API'sini izler, ancak gerçek kullanımda daha az denenmiştir: geri bildirimlere açığız."

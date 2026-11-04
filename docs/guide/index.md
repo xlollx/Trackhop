@@ -44,6 +44,13 @@ description (architecture, matching, services and their limits) stays in the
 - [Your Shazams in a playlist](shazam): every song you Shazam, on any service.
 - [Songs from a radio, in a playlist](radio): what a station plays in the hours you choose, on any service.
 
+**Even with just one service**
+- [Save Discover Weekly, Release Radar and daylist](save-discover-weekly) before Spotify replaces them, every week.
+- [Back up all your playlists automatically](backup-spotify-playlists), on Spotify, Apple Music, YouTube Music and more.
+- [Remove duplicate songs](remove-duplicates-spotify) from a playlist, on any service.
+- [Fix greyed-out songs](fix-greyed-out-songs): unplayable tracks swapped for versions that play.
+- [Your Wrapped, whenever you want](wrapped-anytime), from any service, with history.
+
 **Coming from another service**
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.
 - [A free TuneMyMusic alternative](tunemymusic-alternative): transfers plus automatic sync, free and open source.
@@ -64,6 +71,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Trasferire playlist tra Spotify, YouTube Music, Apple Music e Amazon Music](trasferire-playlist), gratis e sincronizzate.
 - [Alternativa gratuita a Soundiiz e TuneMyMusic](alternativa-soundiiz): niente account, niente limiti.
 - [Da Spotify ad Apple Music](trasferire-playlist-spotify-apple-music) e [da Spotify a YouTube Music](trasferire-playlist-spotify-youtube-music), gratis.
+- [Salvare Discover Weekly prima che cambi](salvare-discover-weekly) · [Backup automatico delle playlist](backup-playlist-spotify) · [Rimuovere i brani doppi](rimuovere-duplicati-playlist) · [Sistemare i brani in grigio](brani-non-riproducibili) · [Il tuo Wrapped, quando vuoi](wrapped-quando-vuoi).
 
 **Maintaining it**
 - [Release process](release-process): version, changelogs, what CI does, F-Droid and Obtainium.

@@ -29,3 +29,18 @@ home:
   ja: /ja/
   ko: /ko/
   zh: /zh/
+discover-weekly:
+  en: /guide/save-discover-weekly
+  it: /guide/salvare-discover-weekly
+backup:
+  en: /guide/backup-spotify-playlists
+  it: /guide/backup-playlist-spotify
+duplicates:
+  en: /guide/remove-duplicates-spotify
+  it: /guide/rimuovere-duplicati-playlist
+greyed-out:
+  en: /guide/fix-greyed-out-songs
+  it: /guide/brani-non-riproducibili
+wrapped:
+  en: /guide/wrapped-anytime
+  it: /guide/wrapped-quando-vuoi

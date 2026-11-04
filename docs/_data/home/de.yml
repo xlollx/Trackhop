@@ -48,6 +48,27 @@ card5_title: Dein eigener Musikserver
 card5: "Navidrome und andere Subsonic-Server, Jellyfin und Plex, neben den Streamingdiensten. Auch Dateien: CSV, M3U, XML, JSON."
 card6_title: Playlist-Werkzeuge
 card6: Backups, Duplikate entfernen, Zusammenführen, Aufteilen und Sortieren, dazu ein Playlist-Generator mit deinem eigenen KI-Schlüssel.
+one_title: "Auch mit nur einem Dienst"
+one_intro: "Kein zweiter Dienst nötig. Auch wenn du nur Spotify, Apple Music, YouTube Music oder einen anderen nutzt, kümmert sich Trackhop um deine Playlists."
+one1_title: "Discover Weekly sichern"
+one1: "Discover Weekly, Release Radar oder deine daylist jede Woche in eine eigene Playlist kopiert, bevor sie sich ändern."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Automatische Backups"
+one2: "Jede Playlist und deine Lieblingssongs als datierte Dateien gesichert, täglich oder wöchentlich, in einem Ordner deiner Wahl."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Duplikate entfernen"
+one3: "Songs, die doppelt vorkommen, auch von einem anderen Album, in einem Rutsch gefunden und entfernt. Die erste Kopie bleibt."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Ausgegraute Songs reparieren"
+one4: "Titel, die nicht mehr abspielbar sind, durch eine Version ersetzt, die läuft, an derselben Stelle. Mit Rückgängig."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Dein Wrapped, wann du willst"
+one5: "Top-Künstler, Jahrzehnte und dein musikalisches Alter auf einer Karte für deine Storys, wann du willst, mit Verlauf."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, Radio, Charts"
+one6: "Deine Shazams, was ein Radiosender spielt, der Song aus einem TikTok oder die Top 100 eines Landes, direkt in eine Playlist."
+one6_href: "/guide/shazam"
+one_more: "So geht’s"
 shots_alt: Syncs mit ihren Zahlen, ein neuer Sync, ein geteilter Titel auf dem Weg in eine Playlist, wie gut zwei Playlists zusammenpassen, ein Playlist-Poster, nicht abspielbare Titel und ihr Ersatz
 works_title: Funktioniert mit
 works_intro: "Dienste mit Beta-Kennzeichnung funktionieren und folgen der dokumentierten API des jeweiligen Dienstes, wurden aber weniger im Alltag genutzt: Rückmeldungen sind willkommen."

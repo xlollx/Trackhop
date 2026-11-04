@@ -48,6 +48,27 @@ card5_title: Votre propre serveur de musique
 card5: "Navidrome et les autres serveurs Subsonic, Jellyfin et Plex, à côté des services de streaming. Et aussi des fichiers : CSV, M3U, XML, JSON."
 card6_title: Outils pour playlists
 card6: Sauvegardes, suppression des doublons, fusion, division et tri, et un générateur de playlists qui utilise votre propre clé d’IA.
+one_title: "Même avec un seul service"
+one_intro: "Pas besoin d’un second service. Si vous n’utilisez que Spotify, Apple Music, YouTube Music ou un autre, Trackhop prend quand même soin de vos playlists."
+one1_title: "Gardez Discover Weekly"
+one1: "Discover Weekly, Radar des sorties ou votre daylist copiées chaque semaine dans une playlist à vous, avant qu’elles ne changent."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Sauvegardes automatiques"
+one2: "Chaque playlist et vos titres likés enregistrés en fichiers datés, chaque jour ou chaque semaine, dans le dossier de votre choix."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Supprimez les doublons"
+one3: "Les titres présents deux fois, même issus d’un autre album, trouvés et supprimés d’un coup. La première copie reste."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Réparez les titres grisés"
+one4: "Les titres qui ne se lisent plus remplacés par une version qui fonctionne, au même endroit. Avec Annuler."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Votre Wrapped, quand vous voulez"
+one5: "Artistes favoris, décennies et votre âge musical sur une carte pour vos stories, quand vous voulez, avec un historique."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, radio, classements"
+one6: "Vos Shazam, ce que passe une radio, la chanson d’un TikTok ou le Top 100 d’un pays, directement dans une playlist."
+one6_href: "/guide/shazam"
+one_more: "Comment ça marche"
 shots_alt: Les syncs et leurs chiffres, une nouvelle sync, un titre partagé ajouté à une playlist, la compatibilité de deux playlists, une affiche de playlist, des titres injouables et leurs remplaçants
 works_title: Compatible avec
 works_intro: "Les services marqués bêta fonctionnent et suivent l’API documentée de chaque service, mais ont été moins utilisés en conditions réelles : vos retours sont les bienvenus."

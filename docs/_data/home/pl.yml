@@ -48,6 +48,27 @@ card5_title: Twój własny serwer muzyczny
 card5: "Navidrome i inne serwery Subsonic, Jellyfin i Plex, obok serwisów streamingowych. Także pliki: CSV, M3U, XML, JSON."
 card6_title: Narzędzia do playlist
 card6: Kopie zapasowe, usuwanie duplikatów, łączenie, dzielenie i sortowanie oraz generator playlist działający na Twoim własnym kluczu AI.
+one_title: "Nawet z jednym serwisem"
+one_intro: "Drugi serwis nie jest potrzebny. Jeśli korzystasz tylko ze Spotify, Apple Music, YouTube Music albo innego, Trackhop i tak zadba o Twoje playlisty."
+one1_title: "Zachowaj Discover Weekly"
+one1: "Discover Weekly, Release Radar albo Twój daylist kopiowane co tydzień do Twojej własnej playlisty, zanim się zmienią."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Automatyczne kopie zapasowe"
+one2: "Każda playlista i polubione utwory zapisane jako pliki z datą, codziennie lub co tydzień, w wybranym przez Ciebie folderze."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Usuń duplikaty"
+one3: "Utwory, które występują dwa razy, nawet z innego albumu, znalezione i usunięte za jednym razem. Pierwsza kopia zostaje."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Napraw wyszarzone utwory"
+one4: "Utwory, których nie da się już odtworzyć, zastąpione wersją, która działa, w tym samym miejscu. Z możliwością cofnięcia."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Twój Wrapped, kiedy chcesz"
+one5: "Ulubieni wykonawcy, dekady i Twój muzyczny wiek na karcie do relacji, kiedy chcesz, z historią."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, radio, listy przebojów"
+one6: "Twoje Shazamy, to, co gra stacja radiowa, piosenka z TikToka albo Top 100 danego kraju, prosto do playlisty."
+one6_href: "/guide/shazam"
+one_more: "Jak to działa"
 shots_alt: Synchronizacje z liczbami, nowa synchronizacja, udostępniony utwór trafiający do playlisty, zgodność dwóch playlist, plakat playlisty, nieodtwarzalne utwory i ich zamienniki
 works_title: Współpracuje z
 works_intro: "Serwisy oznaczone jako beta działają i korzystają z udokumentowanego API każdego serwisu, ale były rzadziej używane w praktyce: zgłoszenia są mile widziane."

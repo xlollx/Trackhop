@@ -50,6 +50,27 @@ card5_title: Your own music server
 card5: "Navidrome and other Subsonic servers, Jellyfin and Plex, next to the streaming services. Files too: CSV, M3U, XML, JSON."
 card6_title: Playlist tools
 card6: Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key.
+one_title: "Even with just one service"
+one_intro: "No second service needed. If you only use Spotify, Apple Music, YouTube Music or any other, Trackhop still looks after your playlists."
+one1_title: "Save Discover Weekly"
+one1: "Discover Weekly, Release Radar or your daylist copied into a playlist of yours every week, before they change."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Automatic backups"
+one2: "Every playlist and your liked songs saved as dated files, daily or weekly, in a folder you choose."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Remove duplicates"
+one3: "Songs that appear twice, even from another album, found and removed in one go. The first copy stays."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Fix greyed-out songs"
+one4: "Tracks that no longer play swapped for a version that does, in the same spot. With Undo."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Your Wrapped, any time"
+one5: "Top artists, decades and your musical age on a card for your stories, whenever you want, with a history."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, radio, charts"
+one6: "Your Shazams, what a radio station plays, the song in a TikTok or a country's Top 100, straight into a playlist."
+one6_href: "/guide/shazam"
+one_more: "How it works"
 shots_alt: Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements
 works_title: Works with
 works_intro: "Services marked beta work and follow each service's documented API, but have had less real-world use: reports are welcome."

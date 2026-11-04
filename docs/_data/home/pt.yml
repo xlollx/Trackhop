@@ -50,6 +50,27 @@ card5_title: Seu próprio servidor de música
 card5: "Navidrome e outros servidores Subsonic, Jellyfin e Plex, ao lado dos serviços de streaming. Arquivos também: CSV, M3U, XML, JSON."
 card6_title: Ferramentas de playlist
 card6: Backups, remoção de duplicadas, mesclar, dividir e ordenar, e um gerador de playlists com a sua própria chave de IA.
+one_title: "Mesmo com um só serviço"
+one_intro: "Não precisa de um segundo serviço. Se você usa só Spotify, Apple Music, YouTube Music ou outro, o Trackhop cuida das suas playlists do mesmo jeito."
+one1_title: "Salve o Discover Weekly"
+one1: "Discover Weekly, Radar de Novidades ou o seu daylist copiados toda semana para uma playlist sua, antes que mudem."
+one1_href: "/guide/save-discover-weekly"
+one2_title: "Backups automáticos"
+one2: "Cada playlist e suas músicas curtidas salvas como arquivos com data, todo dia ou toda semana, numa pasta que você escolhe."
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "Remova duplicadas"
+one3: "Músicas que aparecem duas vezes, mesmo de outro álbum, encontradas e removidas de uma vez. A primeira cópia fica."
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "Conserte as músicas em cinza"
+one4: "Faixas que não tocam mais trocadas por uma versão que toca, no mesmo lugar. Com Desfazer."
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "Seu Wrapped, quando quiser"
+one5: "Artistas principais, décadas e sua idade musical num card para os stories, quando quiser, com histórico."
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam, rádio, paradas"
+one6: "Seus Shazams, o que toca numa rádio, a música de um TikTok ou o Top 100 de um país, direto numa playlist."
+one6_href: "/guide/shazam"
+one_more: "Como funciona"
 shots_alt: Sincronizações com seus números, uma nova sincronização, uma faixa compartilhada entrando em uma playlist, o quanto duas playlists são compatíveis, um pôster de playlist, faixas que não tocam e suas substitutas
 works_title: Funciona com
 works_intro: "Os serviços marcados como beta funcionam e seguem a API documentada de cada serviço, mas foram menos usados na prática: relatos são bem-vindos."

@@ -48,6 +48,27 @@ card5_title: 你自己的音乐服务器
 card5: "除了流媒体服务，还支持 Navidrome 等 Subsonic 服务器、Jellyfin 和 Plex。也支持文件：CSV、M3U、XML、JSON。"
 card6_title: 歌单工具
 card6: 备份、去重、合并、拆分和排序，以及用你自己的 AI 密钥驱动的歌单生成器。
+one_title: "只用一个服务也行"
+one_intro: "不需要第二个服务。即使你只用 Spotify、Apple Music、YouTube Music 或其他任何一个，Trackhop 也能照看你的歌单。"
+one1_title: "保存 Discover Weekly"
+one1: "每周在 Discover Weekly、Release Radar 或 daylist 更新之前，把它们复制到你自己的歌单。"
+one1_href: "/guide/save-discover-weekly"
+one2_title: "自动备份"
+one2: "每个歌单和你喜欢的歌曲，每天或每周以带日期的文件保存到你选择的文件夹。"
+one2_href: "/guide/backup-spotify-playlists"
+one3_title: "删除重复歌曲"
+one3: "出现两次的歌曲，即使来自不同专辑，也能一次找出并删除。保留第一份。"
+one3_href: "/guide/remove-duplicates-spotify"
+one4_title: "修复变灰的歌曲"
+one4: "无法再播放的歌曲，在原位置换成可以播放的版本。可以撤销。"
+one4_href: "/guide/fix-greyed-out-songs"
+one5_title: "随时生成你的 Wrapped"
+one5: "常听艺人、年代分布和你的“音乐年龄”，做成适合快拍的卡片，随时生成，保留历史。"
+one5_href: "/guide/wrapped-anytime"
+one6_title: "Shazam、电台、排行榜"
+one6: "你的 Shazam 记录、电台播放的歌、TikTok 里的歌，或某个国家的 Top 100，直接进歌单。"
+one6_href: "/guide/shazam"
+one_more: "了解用法"
 shots_alt: 带数据的同步列表、新建同步、把分享的歌曲加入歌单、两个歌单的契合度、歌单海报、无法播放的歌曲及其替代
 works_title: 支持的服务
 works_intro: "标有测试版的服务可以正常使用，并遵循各服务公开的 API，但实际使用还不多：欢迎反馈。"
