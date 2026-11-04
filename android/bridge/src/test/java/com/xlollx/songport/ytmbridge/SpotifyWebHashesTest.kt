@@ -14,9 +14,9 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
- * #34: liked songs failed with "no query hash for addToLibrary" right after a sync had used the
- * registry's hashes: saving those started the half-hour pause on reading the player's bundle, and
- * addToLibrary (not in the registry) was never looked for.
+ * #34: liked songs failed with "no query hash for addToLibrary". Where a hash comes from, in order:
+ * our own list (refreshed hourly from the live player), the public registry, the hashes shipped
+ * with the app; and when Spotify refuses one, the player's bundle read right away.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], manifest = Config.NONE)
@@ -27,6 +27,7 @@ class SpotifyWebHashesTest {
     private lateinit var web: SpotifyWebClient
     private val reg = "a".repeat(64)
     private val add = "b".repeat(64)
+    private var ours: String? = null
     private val pack = "https://open.spotifycdn.com/cdn/build/web-player/web-player.d8d10126.js"
 
     @Before fun setUp() {
@@ -36,8 +37,9 @@ class SpotifyWebHashesTest {
                 "open.spotify.com" -> MockResponse().setBody("""<html><script id="session" data-testid="session" type="application/json">
                     {"accessToken":"BQ-web-token","accessTokenExpirationTimestampMs":${System.currentTimeMillis() + 3_600_000},"isAnonymous":false,"clientId":"d8a5ed958d274c2e8ee717e6a4b0971d"}</script>
                     <script src="$pack"></script><script>var v="1.2.75.312.g5c3ea2d9";</script></html>""")
-                // The registry has the queries and one library mutation, not addToLibrary.
-                "raw.githubusercontent.com" -> MockResponse().setBody("""{"operations":{"removeFromLibrary":{"hash":"$reg"},"libraryV3":{"hash":"$reg"}}}""")
+                "raw.githubusercontent.com" ->
+                    if (r.path!!.contains("xlollx")) ours?.let { MockResponse().setBody(it) } ?: MockResponse().setResponseCode(404)
+                    else MockResponse().setBody("""{"operations":{"removeFromLibrary":{"hash":"$reg"},"libraryV3":{"hash":"$reg"}}}""")
                 "open.spotifycdn.com" -> MockResponse().setBody("""x={a:["addToLibrary","mutation","$add"]}""")
                 "www.spotify.com" -> MockResponse().setBody("""{"profile":{"username":"spuser","name":"Me"}}""")
                 "clienttoken.spotify.com" -> MockResponse().setBody("""{"response_type":"RESPONSE_GRANTED_TOKEN_RESPONSE","granted_token":{"token":"CT-granted","expires_after_seconds":1209600,"refresh_after_seconds":1209600}}""")
@@ -56,14 +58,32 @@ class SpotifyWebHashesTest {
 
     private fun RecordedRequest.json(): JsonElement = parseJson(body.clone().readUtf8())
 
-    @Test fun likedSongsFindTheirMutationRightAfterTheRegistryWasUsed() {
-        // A registry query first (as a sync's reads do), then liked songs.
-        BridgeMock.answer("""{"data":{"removeFromLibrary":{"__typename":"RemoveFromLibraryResponse"}}}""")
-        web.deletePlaylist("A")
+    private fun sentHash(r: RecordedRequest) = r.json()["extensions"]["persistedQuery"]["sha256Hash"].str
+
+    @Test fun withNoListAnsweringLikedSongsUseTheHashShippedWithTheApp() {
         BridgeMock.answer("""{"data":{"addToLibrary":{"__typename":"AddToLibraryResponse"}}}""")
         web.addToLibrary(listOf("spotify:track:1"))
-        val g = BridgeMock.calls.last()
-        assertEquals("addToLibrary", g.json()["operationName"].str)
-        assertEquals(add, g.json()["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(SpotifyWebClient.SHIPPED_HASHES["addToLibrary"], sentHash(BridgeMock.calls.last()))
+    }
+
+    @Test fun ourHourlyListWinsOverTheShippedHash() {
+        val fresh = "c".repeat(64)
+        ours = """{"operations":{"addToLibrary":{"hash":"$fresh"}}}"""
+        BridgeMock.answer("""{"data":{"addToLibrary":{"__typename":"AddToLibraryResponse"}}}""")
+        web.addToLibrary(listOf("spotify:track:1"))
+        assertEquals(fresh, sentHash(BridgeMock.calls.last()))
+    }
+
+    @Test fun aRefusedHashIsReplacedByTheBundlesRightAway() {
+        BridgeMock.answer("""{"errors":[{"message":"PersistedQueryNotFound"}]}""")
+        BridgeMock.answer("""{"data":{"addToLibrary":{"__typename":"AddToLibraryResponse"}}}""")
+        web.addToLibrary(listOf("spotify:track:1"))
+        val sent = BridgeMock.calls.filter { it.path!!.contains("pathfinder") }
+        assertEquals(SpotifyWebClient.SHIPPED_HASHES["addToLibrary"], sentHash(sent[0]))
+        assertEquals(add, sentHash(sent[1]))
+        // The next add goes straight out with the good one: the refused hash is not taken back from a list.
+        BridgeMock.answer("""{"data":{"addToLibrary":{"__typename":"AddToLibraryResponse"}}}""")
+        web.addToLibrary(listOf("spotify:track:2"))
+        assertEquals(add, sentHash(BridgeMock.calls.filter { it.path!!.contains("pathfinder") }.last()))
     }
 }

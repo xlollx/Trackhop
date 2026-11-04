@@ -1,0 +1,60 @@
+# Every hour, reads Spotify's web player and publishes the query hashes the Spotify (web) connector
+# needs to spotify-hashes.json on the "badges" branch. The app reads that file first, so when Spotify
+# changes its player, installed apps follow within the hour, without an update. A run that cannot
+# find one of them fails: that is the warning, before users see "no query hash".
+name: Spotify hashes
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: badges-spotify
+  cancel-in-progress: false
+
+jobs:
+  hashes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read the player
+        id: read
+        continue-on-error: true
+        run: mkdir -p out && python3 scripts/spotify_hashes.py out
+      - name: Into the badges branch
+        if: hashFiles('out/spotify-hashes.json') != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for try in 1 2 3 4; do
+            rm -rf badges; git worktree prune
+            git fetch --depth=1 origin badges
+            git worktree add badges FETCH_HEAD
+            git -C badges checkout -q -B badges
+            # Hashes the player no longer has keep their last known value instead of disappearing.
+            python3 - <<'PY'
+          import json, os
+          new = json.load(open("out/spotify-hashes.json"))
+          path = "badges/spotify-hashes.json"
+          old = json.load(open(path)) if os.path.exists(path) else {"operations": {}}
+          ops = dict(old.get("operations", {})); ops.update(new["operations"])
+          changed = ops != old.get("operations")
+          new["operations"] = ops
+          if changed or not os.path.exists(path):
+              json.dump(new, open(path, "w"), indent=1, sort_keys=True)
+          PY
+            git -C badges add -A
+            if git -C badges diff --cached --quiet; then echo "No change."; exit 0; fi
+            git -C badges commit -q -m "Spotify hashes: $(python3 -c 'import json;print(json.load(open("out/spotify-hashes.json"))["bundle"])')"
+            git -C badges push origin badges && exit 0
+            sleep $((try * 5))
+          done
+          exit 1
+      - name: Fail when one is missing
+        if: steps.read.outcome == 'failure'
+        run: exit 1

@@ -156,15 +156,23 @@ class SpotifyWebClient(private val host: Host) {
     private fun registry(): Map<String, String> {
         val at = host.get("registryAt")?.toLongOrNull() ?: 0
         val cached = host.get("registry")?.let { runCatching { parseJson(it) as? JsonObject }.getOrNull() }
-        if (cached != null && System.currentTimeMillis() - at < 6 * 3600_000) return cached.entries.associate { (k, v) -> k to (v.str ?: "") }
-        val text = runCatching {
-            http.newCall(Request.Builder().url(REGISTRY_URL).header("User-Agent", host.userAgent).build()).execute().use { r -> if (r.isSuccessful) r.body?.string() else null }
-        }.getOrNull() ?: return cached?.entries?.associate { (k, v) -> k to (v.str ?: "") } ?: emptyMap()
-        val ops = runCatching { parseJson(text)["operations"] as? JsonObject }.getOrNull() ?: return emptyMap()
-        val out = ops.entries.mapNotNull { (name, v) -> v["hash"].str?.takeIf { it.length == 64 }?.let { name to it } }.toMap()
+            ?.entries?.associate { (k, v) -> k to (v.str ?: "") }
+        // Ours is refreshed every hour and has the mutations too: read every hour, the public one fills gaps.
+        if (cached != null && System.currentTimeMillis() - at < 3600_000) return SHIPPED_HASHES + cached
+        fun read(url: String): Map<String, String>? {
+            val text = runCatching {
+                http.newCall(Request.Builder().url(url).header("User-Agent", host.userAgent).build()).execute().use { r -> if (r.isSuccessful) r.body?.string() else null }
+            }.getOrNull() ?: return null
+            val ops = runCatching { parseJson(text)["operations"] as? JsonObject }.getOrNull() ?: return null
+            return ops.entries.mapNotNull { (name, v) -> v["hash"].str?.takeIf { it.length == 64 }?.let { name to it } }.toMap()
+        }
+        val public = read(REGISTRY_URL)
+        val ours = read(OWN_REGISTRY_URL)
+        if (public == null && ours == null) return SHIPPED_HASHES + (cached ?: emptyMap())
+        val out = (public ?: emptyMap()) + (ours ?: emptyMap())
         host.put("registry", JsonObject(out.mapValues { JsonPrimitive(it.value) }).toString())
         host.put("registryAt", System.currentTimeMillis().toString())
-        return out
+        return SHIPPED_HASHES + out
     }
 
     private fun hashes(): MutableMap<String, String> {
@@ -193,17 +201,32 @@ class SpotifyWebClient(private val host: Host) {
         saveHashes(map, host.get("hashesPack"))
     }
 
+    private fun refusedHashes(): Map<String, String> =
+        host.get("refusedHashes")?.let { runCatching { parseJson(it) as? JsonObject }.getOrNull() }
+            ?.entries?.associate { (k, v) -> k to (v.str ?: "") } ?: emptyMap()
+
     private fun hashFor(operation: String, forceHarvest: Boolean = false): String {
         val map = hashes()
         // The registry answers for the main queries without touching the bundle at all.
-        val known = registry()
+        // A hash Spotify refused (PersistedQueryNotFound) is never taken from a list again: the
+        // one read from the bundle stays until the lists catch up.
+        val refused = refusedHashes()
+        val known = registry().filter { (k, v) -> refused[k] != v }
         if (!forceHarvest && known[operation] != null) {
             if (map[operation] != known[operation]) { map[operation] = known[operation]!!; saveHashes(map, host.get("hashesPack")) }
             return known[operation]!!
         }
         // One harvest per half hour at most: a missing operation is not found by asking again.
         val recently = (host.get("hashesAt")?.toLongOrNull() ?: 0) > System.currentTimeMillis() - 30 * 60_000
-        if (forceHarvest || (map[operation] == null && !recently)) harvest(map, runCatching { page().jsPack }.getOrNull(), operation)
+        val missingNow = map[operation] == null && System.currentTimeMillis() - (missedAt[operation] ?: 0) > 5 * 60_000
+        if (forceHarvest || (map[operation] == null && !recently) || missingNow) {
+            if (map[operation] == null) missedAt[operation] = System.currentTimeMillis()
+            val before = if (forceHarvest) (known[operation] ?: map[operation]) else null
+            harvest(map, runCatching { page().jsPack }.getOrNull(), operation, fresh = forceHarvest)
+            if (before != null && map[operation] != null && map[operation] != before) {
+                host.put("refusedHashes", JsonObject((refused + (operation to before)).mapValues { JsonPrimitive(it.value) }).toString())
+            }
+        }
         return map[operation] ?: throw BridgeException("Spotify: no query hash for $operation (the player's code changed; try again in a while)")
     }
 
@@ -212,12 +235,22 @@ class SpotifyWebClient(private val host: Host) {
      * operation this client needs has a hash. Chunk names and hashes are two `{id:"..."}` maps in
      * the main bundle: joined by id they give `<name>.<hash>.js` under the same CDN folder.
      */
-    private fun harvest(map: MutableMap<String, String>, packUrl: String?, wanted: String) {
+    private fun harvest(map: MutableMap<String, String>, packUrl: String?, wanted: String, fresh: Boolean = false) {
         // Bundle literals fill what the registry does not cover (the mutations); the first literal
-        // for a name is kept, as the registry's own reader does.
-        val known = registry()
-        fun scan(text: String) { HASH.findAll(text).forEach { m -> if (m.groupValues[1] !in known) map.putIfAbsent(m.groupValues[1], m.groupValues[3]) } }
+        // for a name is kept, as the registry's own reader does. [fresh]: Spotify refused the hash
+        // we had (PersistedQueryNotFound), so what the bundle says now wins over every list.
+        val refused = refusedHashes()
+        val known = registry().filter { (k, v) -> refused[k] != v }
         map.putAll(known)
+        if (fresh) map.remove(wanted)
+        val seen = HashSet<String>()
+        fun scan(text: String) {
+            HASH.findAll(text).forEach { m ->
+                val name = m.groupValues[1]
+                if (!seen.add(name)) return@forEach
+                if (fresh) map[name] = m.groupValues[3] else if (name !in known) map.putIfAbsent(name, m.groupValues[3])
+            }
+        }
         val pack = packUrl ?: run { if (wanted in map) { saveHashes(map, null); return }; throw BridgeException("Spotify: the player page has no bundle to read the queries from") }
         fun fetch(url: String): String = http.newCall(Request.Builder().url(url).header("User-Agent", host.userAgent).build())
             .execute().use { r -> if (r.isSuccessful) r.body?.string() ?: "" else "" }
@@ -731,6 +764,24 @@ class SpotifyWebClient(private val host: Host) {
         /** `"fetchPlaylist","query","<sha256>"`: how the player's bundles name their persisted queries. */
         val HASH = Regex(""""([A-Za-z][A-Za-z0-9_]*)"\s*,\s*"(query|mutation)"\s*,\s*"([0-9a-f]{64})"""")
         const val REGISTRY_URL = "https://raw.githubusercontent.com/Jigen-Ohtsusuki/spotify-gql-registry/main/hashes.json"
+        /** Ours: refreshed every hour by the "Spotify hashes" workflow from the live player, mutations included. */
+        const val OWN_REGISTRY_URL = "https://raw.githubusercontent.com/xlollx/Trackhop/badges/spotify-hashes.json"
+        /** What the player used when this version was built: the last resort when nothing else answers. */
+        val SHIPPED_HASHES: Map<String, String> = mapOf(
+            "libraryV3" to "390c78e5b951029bad359785e69b07b536a509c581cbcd0aded5e5067f187455",
+            "fetchPlaylist" to "21ea11a6ac75a5f3e01fd365d29c18e0a4a8b7dc09f89bbb5d73910190c6acaf",
+            "fetchLibraryTracks" to "087278b20b743578a6262c2b0b4bcd20d879c503cc359a2285baf083ef944240",
+            "searchTracks" to "b02683192a98dde7966b5e6655a79eeb62713eab703eda9902c932818dd52751",
+            "searchDesktop" to "eef7cc54888d91bdd6802623477873caa3948ae173a0c34fd86827b267e94c03",
+            "getTrack" to "e7b1bf4e95cb3d733d48b442f93006e9712fd504e8b88d7a82e6e3bac9306a6b",
+            "profileAttributes" to "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0",
+            "addToPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
+            "removeFromPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
+            "addToLibrary" to "896ebcb47815681340860d121cb5d494e157e2a78d3950385cd54e0393c67148",
+            "removeFromLibrary" to "896ebcb47815681340860d121cb5d494e157e2a78d3950385cd54e0393c67148",
+        )
+        /** When each name was last looked for in the bundle without luck. */
+        private val missedAt = java.util.concurrent.ConcurrentHashMap<String, Long>()
         val CHUNK_MAP = Regex("""\{\d+:"[^"]+"(?:,\d+:"[^"]+")*\}""")
         private val PAIR = Regex("""(\d+):"([^"]+)"""")
         @Volatile private var cachedPage: Pair<Long, Page>? = null
