@@ -1,0 +1,1 @@
+Spotify z własnymi danymi dewelopera: wyszukiwania idą teraz pojedynczo i nieco wolniej, więc pierwsza duża synchronizacja nie powoduje już blokady aplikacji przez Spotify nawet na dobę. Duża biblioteka za pierwszym razem trwa dłużej; kolejne synchronizacje są szybkie jak dotąd.

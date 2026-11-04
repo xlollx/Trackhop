@@ -151,6 +151,8 @@ interface MusicProvider {
     val searchesByIsrc: Boolean get() = false
     /** Ricerche in parallelo tollerate dal servizio (1 per le interfacce web non ufficiali, che bloccano le raffiche). */
     val searchParallelism: Int get() = 4
+    /** Pause after each real search (ms): for services that block a burst of searches for hours. */
+    val searchSpacingMs: Long get() = 0
     /** True se il servizio passa da un'app plugin installata a parte (vedi BridgePlugin). */
     val pluginBased: Boolean get() = false
     /**

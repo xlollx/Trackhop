@@ -1,0 +1,1 @@
+Spotify con le tue credenziali sviluppatore: le ricerche ora vanno una alla volta e un po' più lente, così una prima sincronizzazione grande non fa più bloccare la tua app da Spotify fino a un giorno. Una libreria grande la prima volta richiede più tempo; le sincronizzazioni dopo restano veloci.

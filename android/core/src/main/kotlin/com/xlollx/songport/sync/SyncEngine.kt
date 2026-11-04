@@ -642,7 +642,10 @@ class SyncEngine(
                             // Slot condivisi fra le sync in corso verso lo stesso servizio: due sync insieme
                             // non raddoppiano la pressione, se la dividono.
                             val slots = searchSlots.getOrPut(dst.id) { kotlinx.coroutines.sync.Semaphore(parallel) }
-                            slots.withPermit { runCatching { searchScored(dst, s, policy) }.map { it?.track to it?.score } }
+                            slots.withPermit {
+                                runCatching { searchScored(dst, s, policy) }.map { it?.track to it?.score }
+                                    .also { if (dst.searchSpacingMs > 0) kotlinx.coroutines.delay(dst.searchSpacingMs) }
+                            }
                         }
                     }
                 }.awaitAll()

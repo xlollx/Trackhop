@@ -1,0 +1,1 @@
+Kendi geliştirici bilgilerinle Spotify: aramalar artık tek tek ve biraz daha yavaş yapılıyor; böylece ilk büyük senkronizasyon uygulamanın Spotify tarafından bir güne kadar engellenmesine yol açmıyor. Büyük bir kitaplık ilk seferde daha uzun sürer; sonrakiler eskisi gibi hızlı.

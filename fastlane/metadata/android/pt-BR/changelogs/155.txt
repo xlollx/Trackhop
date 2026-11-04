@@ -1,0 +1,1 @@
+Spotify com suas próprias credenciais de desenvolvedor: as buscas agora vão uma de cada vez e um pouco mais devagar, para que uma primeira sincronização grande não faça mais o Spotify bloquear seu app por até um dia. Uma biblioteca grande demora mais na primeira vez; as seguintes continuam rápidas.

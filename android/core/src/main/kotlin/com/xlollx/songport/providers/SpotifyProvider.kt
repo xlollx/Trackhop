@@ -29,6 +29,10 @@ import kotlinx.serialization.json.JsonElement
  * per un'app pubblica l'utente puo' inserire il PROPRIO client ID in Impostazioni > Avanzate.
  */
 open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
+    // A developer app in development mode gets blocked for up to 24 h after a burst of searches
+    // (first big syncs, #34): one search at a time, about 40 a minute, stays under it.
+    override val searchParallelism: Int get() = 1
+    override val searchSpacingMs: Long get() = 1500
     override val serviceId = SERVICE
     override val loginInApp: Boolean get() = true
     override val revokeUrl = "https://www.spotify.com/account/apps/"
