@@ -102,7 +102,9 @@ class WebConnectorsTest {
             "raw.githubusercontent.com" -> Answer("""{"operations":{"libraryV3":{"hash":"$hash"}}}""")
             "clienttoken.spotify.com" -> Answer("""{"response_type":"RESPONSE_GRANTED_TOKEN_RESPONSE","granted_token":{"token":"CT-1","expires_after_seconds":1209600,"refresh_after_seconds":1209600}}""")
             "open.spotifycdn.com" -> Answer("""x=[1,"fetchPlaylist","query","$playlistHash",2];""")
-            "api-partner.spotify.com" -> if (r.body.contains("fetchPlaylist")) Answer("""{"data":{"playlistV2":{"__typename":"Playlist","content":{"totalCount":1,"items":[
+            // Only the bundle's hash is current: the one shipped with the app is refused, as when Spotify moves on.
+            "api-partner.spotify.com" -> if (r.body.contains("fetchPlaylist") && !r.body.contains(playlistHash)) Answer("""{"errors":[{"message":"PersistedQueryNotFound"}]}""")
+            else if (r.body.contains("fetchPlaylist")) Answer("""{"data":{"playlistV2":{"__typename":"Playlist","content":{"totalCount":1,"items":[
                 {"uid":"u1","addedAt":{"isoString":"2024-01-02T00:00:00Z"},"itemV2":{"_uri":"spotify:track:t1","data":{"__typename":"Track","uri":"spotify:track:t1","name":"Song",
                 "trackDuration":{"totalMilliseconds":200000},"artists":{"items":[{"profile":{"name":"Artist"}}]},"albumOfTrack":{"name":"Album","date":{"year":2020}},
                 "playability":{"playable":false},"contentRating":{"label":"EXPLICIT"}}}}]}}}}""") else Answer("""{"data":{"me":{"libraryV3":{"__typename":"LibraryPage","totalCount":2,"items":[
@@ -184,7 +186,7 @@ class WebConnectorsTest {
         assertNull(env.keyValues("spotify_web")["userId"])
     }
 
-    /** A query the registry does not list: its hash is read from the player's bundle, named by the page. */
+    /** A query whose known hash Spotify refuses: the current one is read from the player's bundle, named by the page. */
     @Test fun spotifyHarvestsAMissingHashFromThePlayersBundle() {
         answer = spotify()
         val env = env()
