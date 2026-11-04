@@ -331,6 +331,7 @@ private fun MainScreen(
     var toolSubpage by remember { mutableStateOf(false) }
     // The same for a card's page in Discover.
     var discoverSubpage by remember { mutableStateOf(false) }
+    var discoverHome by remember { mutableIntStateOf(0) }
     var addConnector by rememberSaveable { mutableStateOf(false) }
     // A single track shared from a service's app: which of your playlists it goes to.
     var sharedTrack by remember { mutableStateOf<Pair<MusicProvider, com.xlollx.songport.model.Track>?>(null) }
@@ -655,7 +656,8 @@ private fun MainScreen(
                         NavigationBarItem(
                             modifier = if (index == MainActivity.TAB_ACCOUNTS) Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.ACCOUNTS_TAB) else Modifier,
                             selected = tab == index,
-                            onClick = { tab = index },
+                            // Tapping Discover again while a card is open goes back to the list of cards.
+                            onClick = { if (tab == index && index == MainActivity.TAB_DISCOVER) discoverHome++; tab = index },
                             icon = { Icon(icon, contentDescription = if (bigText) name else null) },
                             // Five tabs leave a long word ("Einstellungen") little room: it shrinks a
                             // little to fit instead of losing its end.
@@ -730,7 +732,7 @@ private fun MainScreen(
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
-                    snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it },
+                    snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
                     // "Make a shared playlist": the songs in common, as a file playlist, the source of a new sync.
                     onNewSyncFromFile = { name, id ->

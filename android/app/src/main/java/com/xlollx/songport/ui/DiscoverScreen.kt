@@ -96,6 +96,8 @@ fun DiscoverScreen(
     onGoToAccounts: () -> Unit = {},
     onBackup: () -> Unit = {},
     onNewSyncFromFile: (name: String, fileId: String) -> Unit = { _, _ -> },
+    /** Grows when the Discover tab is tapped again while it is open: back to the list of cards. */
+    homeRequests: Int = 0,
 ) {
     val ctx = LocalContext.current
     var open by rememberSaveable { mutableStateOf<DiscoverCard?>(null) }
@@ -104,6 +106,7 @@ fun DiscoverScreen(
     LaunchedEffect(compareLinks) { if (compareLinks != null) open = DiscoverCard.COMPAT }
     val current = open
     fun close() { if (open == DiscoverCard.COMPAT) onCompareClosed(); open = null }
+    LaunchedEffect(homeRequests) { if (homeRequests > 0 && open != null) { close(); listScroll.scrollTo(0) } }
     DisposableEffect(current != null) {
         onSubpage(current != null)
         onDispose { onSubpage(false) }
