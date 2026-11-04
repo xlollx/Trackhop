@@ -152,7 +152,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onT
         // Nested in the tab, which keeps the status-bar inset (no second gap); the end of the page
         // clears the glass bottom bar.
         Scaffold(
-            snackbarHost = { SnackbarHost(local) },
+            // Above the glass bottom bar, which the page runs under: a snackbar there would be hidden by it.
+            snackbarHost = { SnackbarHost(local, Modifier.padding(bottom = LocalBottomBarInset.current)) },
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
                 TopAppBar(

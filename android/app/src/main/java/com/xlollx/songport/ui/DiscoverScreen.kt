@@ -119,7 +119,8 @@ fun DiscoverScreen(
         val local = remember { SnackbarHostState() }
         BackHandler { close() }
         Scaffold(
-            snackbarHost = { SnackbarHost(local) },
+            // Above the glass bottom bar, which the page runs under: a snackbar there would be hidden by it.
+            snackbarHost = { SnackbarHost(local, Modifier.padding(bottom = LocalBottomBarInset.current)) },
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
                 TopAppBar(
