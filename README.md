@@ -42,9 +42,9 @@ THE ICON · Michel Henke · Pisqui❤️
 <!-- supporters:end -->
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
-<p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, tools, a shared track, the compatibility and poster cards, unplayable tracks, settings"></p>
+<p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
 
-<p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, a shared track going into a playlist, how compatible two playlists are, a playlist poster, unplayable tracks and their replacements"></p>
+<p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements"></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase

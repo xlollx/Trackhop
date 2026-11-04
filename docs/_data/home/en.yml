@@ -35,7 +35,7 @@ server_more: 'A web page, scheduled syncs, an API · <a href="/guide/docker#seve
 virustotal: Every download checked on VirusTotal
 downloads: "{n} downloads"
 downloads_title: GitHub release downloads and Docker Hub pulls. F-Droid and the stores publish no count, so the real number is higher.
-demo_alt: "A tour of Trackhop: syncs, a new sync, accounts, tools, a shared track, the compatibility and poster cards, unplayable tracks, settings"
+demo_alt: "A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings"
 what_title: What it does
 what_intro: Pick a source and a target, choose how often. Trackhop finds every track on the other side, shows you what will change, and keeps both in step.
 card1_title: Any service to any service
@@ -50,7 +50,7 @@ card5_title: Your own music server
 card5: "Navidrome and other Subsonic servers, Jellyfin and Plex, next to the streaming services. Files too: CSV, M3U, XML, JSON."
 card6_title: Playlist tools
 card6: Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key.
-shots_alt: Syncs with their numbers, a new sync, a shared track going into a playlist, how compatible two playlists are, a playlist poster, unplayable tracks and their replacements
+shots_alt: Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements
 works_title: Works with
 works_intro: "Services marked beta work and follow each service's documented API, but have had less real-world use: reports are welcome."
 group_streaming: Streaming services
