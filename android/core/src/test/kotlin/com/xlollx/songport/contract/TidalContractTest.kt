@@ -36,6 +36,23 @@ class TidalContractTest : ContractTest() {
            "explicit":false,"availability":$availability,"popularity":0.5},"relationships":{"artists":{"data":$artists,"links":{"self":"/tracks/${100 + i}/relationships/artists"}}}}"""
     private val artists = """{"data":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}},{"id":"8","type":"artists","attributes":{"name":"Beyoncé"}},{"id":"9","type":"artists","attributes":{"name":"Ñ"}}]}"""
 
+    @Test fun includedTracksWithoutArtistIdsAreAskedForAgain() = runBlocking {
+        // TIDAL's included tracks may carry only a link to their artists: they are fetched again with them.
+        val bare = """{"id":"100","type":"tracks","attributes":{"title":"Song 0","isrc":"GBAAA0000000","duration":"PT3M0S"},"relationships":{"artists":{"links":{"self":"/tracks/100/relationships/artists"}}}}"""
+        json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
+        json("""{"data":[${inc(0)}],"included":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}}]}""")
+        json(artists)
+        val ts = td.tracks(env, "P")
+        assertEquals(listOf("Måneskin"), ts.single().artists)
+        next()
+        val again = next()
+        assertCall(again, "GET", api, "/v2/tracks")
+        assertEquals("100", again.query("filter[id]"))
+        assertEquals("artists", again.query("include"))
+        next()
+        noMoreRequests()
+    }
+
     @Test fun itemsFollowRelativeNextAndKeepItemIds() = runBlocking {
         json("""{"data":[${(0 until 20).joinToString(",") { ref(it) }}],"included":[${(0 until 20).joinToString(",") { inc(it) }}],
             "links":{"self":"/playlists/P/relationships/items?countryCode=IT&include=items","next":"/playlists/P/relationships/items?countryCode=IT&include=items&page%5Bcursor%5D=c2"}}""")

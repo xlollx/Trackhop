@@ -168,6 +168,7 @@ private fun songLine(s: Wrapped.Song, withYear: Boolean) = buildString {
 private fun wrappedHeadline(ctx: Context, w: Wrapped.Saved): String =
     w.age?.let { ctx.getString(R.string.discover_wrapped_age, it) }
         ?: ctx.resources.getQuantityString(R.plurals.card_tracks, w.trackCount, w.trackCount)
+            .replace(w.trackCount.toString(), NumberFormat.getIntegerInstance(locale(ctx)).format(w.trackCount))
 
 /** [w] as the card and the page show it, in the phone's language. */
 internal fun wrappedCard(ctx: Context, w: Wrapped.Saved): Cards.WrappedCard {
@@ -219,11 +220,14 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     val labels = remember(services) { Wrapped.chipLabels(services.map(::connector)) }
     val skipped = data.settings.wrappedSkipped
     val chosenIds = Wrapped.chosen(services.map { it.id }, skipped).toSet()
-    var busy by remember { mutableStateOf(false) }
-    // The reading, service by service, for the loading view: (playlists read, playlists to read, songs).
-    var reading by remember { mutableStateOf<Map<String, Triple<Int, Int, Int>>>(emptyMap()) }
-    var readingFrom by remember { mutableStateOf<List<MusicProvider>>(emptyList()) }
-    var current by remember { mutableStateOf<String?>(null) }
+    // The reading lives in [WrappedRun], not in this page: leaving the page (or the tab) while it
+    // reads does not stop it, and the new Wrapped is there when the page is opened again.
+    val busy = WrappedRun.busy
+    val reading = WrappedRun.reading
+    val readingFrom = WrappedRun.readingFrom
+    val current = WrappedRun.current
+    LaunchedEffect(WrappedRun.error) { WrappedRun.error?.let { WrappedRun.error = null; snackbar.showSnackbar(it) } }
+    LaunchedEffect(WrappedRun.empty) { if (WrappedRun.empty) { WrappedRun.empty = false; snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_empty)) } }
     var shownId by rememberSaveable { mutableStateOf<String?>(null) }
     val shown = history.firstOrNull { it.id == shownId } ?: history.firstOrNull()
     val card = remember(shown) { shown?.let { wrappedCard(ctx, it) } }
@@ -235,31 +239,9 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     }
 
     fun run() {
-        val read = services.filter { it.id in chosenIds }
-        busy = true; reading = emptyMap(); current = null; readingFrom = read
-        scope.launch {
-            try {
-                val all = ArrayList<Track>()
-                val used = ArrayList<MusicProvider>()
-                for (p in read) {
-                    current = p.id
-                    val got = LibraryReader.read(ctx, p) { done, total ->
-                        reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
-                    }
-                    reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
-                    if (got.isNotEmpty()) { all += got; used += p }
-                }
-                current = null
-                val year = Calendar.getInstance().get(Calendar.YEAR)
-                val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
-                if (s.trackCount == 0) { busy = false; snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_empty)); return@launch }
-                val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis())
-                store.update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
-                shownId = saved.id
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(errorText(ctx, e))
-            }
-            busy = false
+        WrappedRun.start(ctx.applicationContext, services.filter { it.id in chosenIds }) { saved ->
+            store.update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
+            shownId = saved.id
         }
     }
 
@@ -577,7 +559,11 @@ internal fun VanishedPage(onBackup: () -> Unit) {
                 }
             }
             // Mirror syncs' removals: the source lost those songs, so the sync took them off its target too.
-            for (r in Store.get(ctx).data.reports) for (t in r.removedTracks) out += GoneRow(t, r.jobName, r.startedEpoch, bySync = true)
+            // Not those of a playlist that changes by itself (a daylist, Discover Weekly): there songs
+            // come and go every day by design, nothing has vanished.
+            val data = Store.get(ctx).data
+            val rotating = data.jobs.filter { it.followsChanges }.map { it.id }.toSet()
+            for (r in data.reports) if (r.jobId !in rotating) for (t in r.removedTracks) out += GoneRow(t, r.jobName, r.startedEpoch, bySync = true)
             out.distinctBy { Wrapped.key(it.track) + "|" + it.where }.sortedByDescending { it.at }.take(300)
         }
     }
@@ -782,6 +768,52 @@ private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, T
                 }
             }
             if (songs > 0) Text(stringResource(R.string.discover_wrapped_found, songs), style = MaterialTheme.typography.labelLarge, color = white)
+        }
+    }
+}
+
+
+/** The Wrapped being made, outside any page: it goes on when the page is left, and says how far it is. */
+internal object WrappedRun {
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Main.immediate)
+    var busy by mutableStateOf(false); private set
+    /** Per service: (playlists read, playlists to read, songs). */
+    var reading by mutableStateOf<Map<String, Triple<Int, Int, Int>>>(emptyMap()); private set
+    var readingFrom by mutableStateOf<List<MusicProvider>>(emptyList()); private set
+    var current by mutableStateOf<String?>(null); private set
+    /** A failure or an empty result not yet told to the person (the page says it when it shows). */
+    var error by mutableStateOf<String?>(null)
+    var empty by mutableStateOf(false)
+
+    fun start(ctx: Context, read: List<MusicProvider>, onDone: (Wrapped.Saved) -> Unit) {
+        if (busy) return
+        busy = true; reading = emptyMap(); current = null; readingFrom = read
+        scope.launch {
+            try {
+                val all = ArrayList<Track>()
+                val used = ArrayList<MusicProvider>()
+                for (p in read) {
+                    current = p.id
+                    val got = LibraryReader.read(ctx, p) { done, total ->
+                        reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
+                    }
+                    reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
+                    if (got.isNotEmpty()) { all += got; used += p }
+                }
+                current = null
+                val year = Calendar.getInstance().get(Calendar.YEAR)
+                val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
+                if (s.trackCount == 0) empty = true
+                else {
+                    val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis())
+                    // Kept even if the page is gone: the store is the app's, not the page's.
+                    Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
+                    runCatching { onDone(saved) }
+                }
+            } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                error = errorText(ctx, e)
+            }
+            busy = false
         }
     }
 }
