@@ -201,6 +201,13 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             for (inc in j["included"].arr) if (inc["type"].str == "tracks") included[inc["id"].str ?: continue] = inc
             url = nextUrl(j)
         }
+        // An included track may come without its artists' ids (only a link to them): those tracks
+        // are asked for again with their artists, twenty at a time, so every track has its names.
+        val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
+        bare.chunked(20).forEach { chunk ->
+            val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
+            for (t in j["data"].arr) { val id = t["id"].str ?: continue; if (t["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = t }
+        }
         val names = artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
         return order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
     }
