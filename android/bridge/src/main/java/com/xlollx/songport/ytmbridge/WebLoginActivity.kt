@@ -137,6 +137,9 @@ class WebLoginActivity : ComponentActivity() {
             // Apple's pages work with the default one, and SoundCloud needs it (see [identity]).
         }
         identity(web)
+        // Qobuz's web player wants a window at least 1024 px wide ("download the app" otherwise,
+        // issue #37 on a foldable): the page is given a desktop one, as the capture screen does.
+        val desktopEarly = service != QOBUZ || DesktopPage.apply(web)
         if (service == SOUNDCLOUD) {
             // A DataDome cookie from an earlier attempt (as desktop Chrome, or already flagged) would
             // tie this one to it: the sign-in starts as a new visitor. The account's cookies stay.
@@ -190,6 +193,7 @@ class WebLoginActivity : ComponentActivity() {
                 return null
             }
             override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
+                if (!desktopEarly) DesktopPage.lateInject(view)
                 // A new page is a new chance: its own block, if any, shows the notice again.
                 seen = null
                 notice.visibility = android.view.View.GONE
