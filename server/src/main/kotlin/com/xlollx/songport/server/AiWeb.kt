@@ -2,6 +2,8 @@ package com.xlollx.songport.server
 
 import com.xlollx.songport.ai.AiClient
 import com.xlollx.songport.ai.AiMatch
+import com.xlollx.songport.ai.ArtistMix
+import com.xlollx.songport.ai.ArtistMixSource
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.server.Html.h
@@ -13,6 +15,8 @@ import kotlinx.coroutines.runBlocking
  * Trackhop searches it on a service and creates it there, or saves it into File. No AI of Trackhop's:
  * the key is the user's (free tiers: OpenRouter's ":free" models, Groq, Gemini), or a local model
  * (Ollama, LM Studio) through an OpenAI-compatible address, which needs no key at all.
+ * Above it, the generator with no key at all ([ArtistMixSource]): seed artists, typed or taken from
+ * a playlist, and the artists and songs MusicBrainz and ListenBrainz relate to them.
  */
 internal fun Web.aiTool(r: Web.Req) {
     val config = AiClient.config(env)
@@ -28,6 +32,7 @@ internal fun Web.aiTool(r: Web.Req) {
                 return redirect(r.ex, "/tools/ai?" + if (problem != null) "err=${q(problem)}" else "ok=${q("Saved.")}")
             }
             "forget" -> { AiClient.clear(env); return redirect(r.ex, "/tools/ai?ok=${q("Forgotten.")}") }
+            "mix" -> return mixGenerate(r)
             "generate" -> {
                 val c = config?.takeIf { it.complete } ?: return redirect(r.ex, "/tools/ai?err=${q("Set up your AI first.")}")
                 val description = r.form["description"].orEmpty().trim().ifEmpty { return redirect(r.ex, "/tools/ai?err=${q("Describe the playlist.")}") }
@@ -58,6 +63,8 @@ internal fun Web.aiTool(r: Web.Req) {
         }
     }
     val body = StringBuilder(notice(r))
+    mixForm(r, body)
+    body.append("<h2>${h(env.text("lb_mode_ai"))}</h2>")
     if (config?.complete == true) {
         val targets = aiTargets().joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
         body.append(
@@ -84,6 +91,92 @@ internal fun Web.aiTool(r: Web.Req) {
     )
     if (config != null) body.append("<p>" + Html.postButton("/tools/ai", "Forget my AI settings", "danger", fields = mapOf("action" to "forget")) + "</p>")
     send(r.ex, 200, page("AI playlist", body.toString()))
+}
+
+/** Playlists the keyless generator can start from: any service that lists playlists, File included. */
+private fun Web.mixSources() = Providers.connectors()
+    .filter { (!it.requiresAuth || it.isConnected(env)) && !it.linkOnly }
+
+/** "No key needed": seed artists (or a playlist of mine, its service chosen first), length, leaning, destination. */
+private fun Web.mixForm(r: Web.Req, body: StringBuilder) {
+    val sources = mixSources()
+    val from = r.query["mixfrom"]?.let { id -> sources.firstOrNull { it.id == id } }
+    val playlists = from?.let { s -> runCatching { runBlocking { s.playlists(env) } } }
+    playlists?.exceptionOrNull()?.let { body.append("""<div class="card err">${h(from.label(env))}: ${h(it.message)}</div>""") }
+    val targets = aiTargets().joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
+    val lengths = ArtistMix.LENGTHS.joinToString("") { """<option value="$it"${if (it == 25) " selected" else ""}>$it</option>""" }
+    val leanings = listOf(ArtistMix.Leaning.FAMILIAR to "lb_familiar", ArtistMix.Leaning.BALANCED to "lb_balanced", ArtistMix.Leaning.DISCOVERY to "lb_discovery")
+        .joinToString("") { (l, k) -> """<option value="${l.name}"${if (l == ArtistMix.Leaning.BALANCED) " selected" else ""}>${h(env.text(k))}</option>""" }
+    body.append("<h2>${h(env.text("lb_mode_keyless"))}</h2>")
+    body.append("""<form method="post" action="/tools/ai" class="card"><input type="hidden" name="action" value="mix">
+<p class="muted">${h(env.text("lb_desc"))}</p>""")
+    if (from != null) {
+        val opts = playlists?.getOrNull().orEmpty().joinToString("") { p -> """<option value="${h(p.id)}">${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>""" }
+        body.append("""<input type="hidden" name="service" value="${h(from.id)}">
+<label>${h(env.text("lb_seed_from_playlist"))}: ${h(from.label(env))}</label><select name="playlist" required>$opts</select>
+<p class="muted">${h(env.text("lb_playlist_hint"))} <a href="/tools/ai">${h(env.text("lb_seed_from_artists"))}</a></p>""")
+    } else {
+        body.append("""<label>${h(env.text("lb_seed_artists"))}</label><textarea name="artists" rows="2" required placeholder="Radiohead, Björk, Massive Attack"></textarea>
+<p class="muted">${h(env.text("lb_seed_artists_hint"))}</p>""")
+    }
+    body.append("""<label>${h(env.text("lb_length"))}</label><select name="count">$lengths</select>
+<label>${h(env.text("lb_leaning"))}</label><select name="leaning">$leanings</select>
+<p class="muted">${h(env.text("lb_leaning_hint"))}</p>
+<label>Name (optional)</label><input type="text" name="name">
+<label>Create it on</label><select name="target">$targets</select>
+<p><button>${h(env.text("ai_generate"))}</button></p></form>""")
+    if (from == null && sources.isNotEmpty()) {
+        val opts = sources.joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
+        body.append("""<form method="get" action="/tools/ai" class="card"><label>${h(env.text("lb_seed_from_playlist"))}</label><select name="mixfrom">$opts</select>
+<p><button class="secondary">${h(env.text("lb_playlist_pick"))}</button></p></form>""")
+    }
+}
+
+/** The keyless generator's run: the mix, searched on the destination, created there (or saved into File). */
+private fun Web.mixGenerate(r: Web.Req): Unit {
+    val count = r.form["count"]?.toIntOrNull()?.coerceIn(5, 200) ?: 25
+    val leaning = ArtistMix.Leaning.of(r.form["leaning"])
+    val source = r.form["service"]?.let { id -> mixSources().firstOrNull { it.id == id } }
+    val playlistId = r.form["playlist"].orEmpty().takeIf { source != null }.orEmpty()
+    val typed = ArtistMix.parseSeeds(r.form["artists"].orEmpty())
+    if (playlistId.isEmpty() && typed.isEmpty()) return redirect(r.ex, "/tools/ai?err=${q(env.text("lb_seed_needed"))}")
+    val target = Providers.byId(r.form["target"].orEmpty())?.takeIf { it in aiTargets() }
+        ?: return redirect(r.ex, "/tools/ai?err=${q("Pick where to create it.")}")
+    val typedName = r.form["name"].orEmpty().trim()
+    val task = Tasks.start(env.text("ai_title"), "/tools/ai", { env.log("mix", it) }) { t ->
+        // Only a playlist the service lists: an id is never taken as typed.
+        val exclude = if (source != null && playlistId.isNotEmpty()) {
+            val p = source.playlists(env).firstOrNull { it.id == playlistId } ?: error("No such playlist on ${source.label(env)}.")
+            source.tracks(env, p.id)
+        } else emptyList()
+        val seeds = if (source != null && playlistId.isNotEmpty()) ArtistMix.topArtists(exclude) else typed
+        if (seeds.isEmpty()) error(env.text("lb_playlist_empty"))
+        val mix = ArtistMixSource.generate(env, ArtistMixSource.Request(seeds, count, leaning, exclude)) { step, done, total ->
+            t.progress = when (step) {
+                ArtistMixSource.Step.ARTISTS -> env.text("lb_step_artists", done, total)
+                ArtistMixSource.Step.SIMILAR -> env.text("lb_step_similar", done, total)
+                else -> env.text("lb_step_tracks", done, total)
+            }
+        }
+        val label = mix.seeds.take(2).joinToString(", ") { it.name }
+        val name = typedName.ifEmpty { env.text("lb_default_name", label) }
+        val tracks = if (target is LocalFilesProvider) mix.tracks.take(count)
+        else ArtistMixSource.onService(env, target, mix.tracks, count, exclude) { found, want -> t.progress = "Found on ${target.label(env)}: $found of $want" }.found
+        if (tracks.isEmpty()) error(env.text("lb_nothing"))
+        t.progress = "Creating “$name”…"
+        val made = LibraryTools.createWith(env, target, name, env.text("lb_default_name", mix.seeds.joinToString(", ") { it.name }), tracks) { p -> t.progress = "Adding ${p.done}/${p.total}" }
+        env.log("mix", "${target.label(env)}: ${made.playlist.name}, ${made.added} tracks")
+        buildString {
+            append("""<div class="card ok"><b>${h(made.playlist.name)}</b> on ${h(target.label(env))}: ${made.added} tracks.</div>""")
+            if (mix.unknown.isNotEmpty()) append("""<div class="card">${h(env.text("lb_unknown_some", mix.unknown.joinToString(", ")))}</div>""")
+            if (made.failed.isNotEmpty()) append("""<div class="card err">Not added: ${h(made.failed.take(20).joinToString(", "))}</div>""")
+            append("<div class=\"card\"><ol>")
+            tracks.take(200).forEach { append("<li>${h(it.artistLine)} — ${h(it.title)}</li>") }
+            append("</ol></div>")
+            if (target is LocalFilesProvider) append("""<p><a href="/connectors/csv">Download it, or sync it to a service</a></p>""")
+        }
+    }
+    redirect(r.ex, "/tools/task/${q(task.id)}")
 }
 
 /** Where an AI playlist can be created: services that make playlists, File first. */

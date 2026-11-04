@@ -117,7 +117,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
     body.append("<h2>Make</h2>")
-    tool("/tools/ai", "AI playlist", "Describe a playlist; your own AI writes it (free tiers and local models work) and Trackhop creates it on a service.")
+    tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")
     body.append("<h2>Clean up</h2>")
     tool("/tools/dedupe", "Duplicates", "The tracks a playlist has more than once, and the extra copies removed.")
     tool("/tools/unplayable", "Unplayable tracks", "The tracks a service still lists but no longer plays, replaced by a playable version.")

@@ -60,6 +60,9 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
 
     private fun token(ctx: Env): String? = creds(ctx).extra["token"]?.takeIf { it.isNotBlank() }
 
+    /** The user token given at sign-in, if any: the keyless playlist generator sends it to ListenBrainz's popularity API. */
+    fun userToken(ctx: Env): String? = token(ctx)
+
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
         val name = user.trim()
         api(ctx, "/1/user/${Http.enc(name)}/playlists?count=1")

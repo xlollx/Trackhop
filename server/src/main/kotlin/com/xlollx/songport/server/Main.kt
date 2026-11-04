@@ -144,6 +144,8 @@ fun launch(
     val version = serverVersion() + (resource("/engine-version.txt")?.let { " (engine $it)" } ?: "")
 
     BuildDefaults.values = config.buildDefaults
+    // MusicBrainz asks every client to name itself, with its version and a contact.
+    com.xlollx.songport.ai.ArtistMixSource.userAgent = "Trackhop/${serverVersion()} ( https://trackhop.org )"
     installServerConnectors(officialOnly)
     val env = ServerEnv(config.dataDir, Strings.load(config.locale), config.baseUrl, permissions)
     // A first start: the services the server offers are not listed until the user adds them, as in the app.
