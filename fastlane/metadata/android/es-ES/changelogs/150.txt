@@ -1,0 +1,1 @@
+Novedades 1.13: Guarda cada canción (archivo) para playlists que cambian solas, incluso en el mismo servicio. Ideas para quien usa un solo servicio. Cinco portadas para el póster dibujadas en el móvil, sin IA, y mejor elección de portadas. Correcciones: artistas de TIDAL en el Wrapped, el Wrapped sigue si sales, canciones desaparecidas sin la daylist.

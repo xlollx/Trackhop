@@ -31,7 +31,7 @@ Most people want the first one: a growing archive of everything Discover Weekly 
    > **Why "Spotify (web)" and not the other Spotify connection?** Trackhop has two ways to reach
    > Spotify. The official one, with your own free developer key, can no longer read the
    > playlists that Spotify makes for you (Discover Weekly, Release Radar, daylist): Spotify
-   > stopped allowing it in February 2026. With that connection those playlists look empty or
+   > stopped allowing it at the end of 2024. With that connection those playlists look empty or
    > are missing; that is Spotify's rule, not a fault in Trackhop. The quick sign-in goes through
    > Spotify's own web player and sees them. It is not an official interface, so read
    > [its notes](troubleshooting#spotify) first. On the Google Play version it comes with the free
@@ -47,7 +47,10 @@ Most people want the first one: a growing archive of everything Discover Weekly 
 7. **Save**, check the preview, and tap **Run now** for the first copy. From then on it runs by
    itself.
 
-<!-- update when archive mode ships -->
+Since version 1.13 there is a clearer way to say the same thing: when the source is a playlist
+that changes by itself, the editor offers **Keep every track (archive)** under the source. The
+target then only ever grows: nothing is removed from it, whatever Discover Weekly does, and new
+songs go at the end.
 
 Each week the card shows how many songs were added. Tracks already in the archive are not added
 twice.

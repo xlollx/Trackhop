@@ -1581,4 +1581,8 @@
     <string name="idea_wrapped_desc">En sevdiğin sanatçılar, on yıllar ve müzik yaşın, paylaşılacak bir kartta.</string>
     <string name="spotify_own_playlists_note">Spotify, resmi bağlantının Spotify\'ın kendi oluşturduğu çalma listelerini (Haftalık Keşif, Release Radar, daylist) okumasına izin vermiyor: boş ya da eksik görünürler. Bu Spotify\'ın kuralı, Trackhop hatası değil.</string>
     <string name="spotify_own_playlists_quick">Bunları okumak için Spotify\'ı hızlı yolla bağla.</string>
+    <string name="whats_new_113_archive_title">Her şarkıyı sakla</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, daylist ya da listeler her hafta değişir: artık bir eşitleme, içlerinde olmuş her şarkıyı saklayabilir (arşiv), aynı serviste bile.</string>
+    <string name="whats_new_113_covers_title">Telefonda çizilen kapaklar</string>
+    <string name="whats_new_113_covers_body">Poster için beş kapak stili, yapay zekâsız ve hiçbir şey göndermeden; kapaklar listede gerçekten olan sanatçılardan seçilir.</string>
 </resources>

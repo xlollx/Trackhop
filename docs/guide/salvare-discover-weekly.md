@@ -32,7 +32,7 @@ Quasi sempre si vuole il primo: un archivio di tutto quello che Discover Weekly 
    > **Perché "Spotify (web)" e non l'altro collegamento Spotify?** Trackhop ha due modi per
    > raggiungere Spotify. Quello ufficiale, con una tua chiave sviluppatore gratuita, non può più
    > leggere le playlist che Spotify crea per te (Discover Weekly, Release Radar, daylist): Spotify
-   > non lo permette più da febbraio 2026. Con quel collegamento quelle playlist risultano vuote o
+   > non lo permette più dalla fine del 2024. Con quel collegamento quelle playlist risultano vuote o
    > non compaiono: è una regola di Spotify, non un errore di Trackhop. L'accesso rapido passa dal
    > web player di Spotify e le vede. Non è un'interfaccia ufficiale, quindi leggi prima
    > [le sue note](troubleshooting#spotify) (in inglese). Nella versione Google Play arriva con il
@@ -48,7 +48,10 @@ Quasi sempre si vuole il primo: un archivio di tutto quello che Discover Weekly 
 7. **Salva**, controlla l'anteprima e tocca **Esegui ora** per la prima copia. Da lì in poi va da
    sola.
 
-<!-- update when archive mode ships -->
+Dalla versione 1.13 c'è un modo più chiaro per fare la stessa cosa: quando l'origine è una
+playlist che cambia da sola, l'editor propone sotto l'origine **Tieni ogni brano (archivio)**. La
+destinazione allora cresce soltanto: non le viene tolto niente, qualunque cosa faccia Discover
+Weekly, e i brani nuovi vanno in fondo.
 
 Ogni settimana la scheda della sync mostra quanti brani sono stati aggiunti. I brani già presenti
 nell'archivio non vengono aggiunti due volte.

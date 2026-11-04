@@ -1,0 +1,1 @@
+1.13'te yeni: Kendi kendine değişen listeler için Her şarkıyı sakla (arşiv), aynı serviste bile. Tek servis kullananlar için öneriler. Telefonda çizilen beş poster kapağı, yapay zekâsız, ve daha iyi kapak seçimi. Düzeltmeler: Wrapped'de TIDAL sanatçıları, çıkınca Wrapped devam eder, daylist olmadan kaybolan şarkılar.

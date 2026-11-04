@@ -1560,4 +1560,8 @@
     <string name="idea_wrapped_desc">最爱艺人、年代和你的音乐年龄，做成一张可分享的卡片。</string>
     <string name="spotify_own_playlists_note">Spotify 不允许官方连接读取 Spotify 自己制作的歌单（Discover Weekly、Release Radar、daylist）：它们看起来是空的或不存在。这是 Spotify 的规定，不是 Trackhop 的错误。</string>
     <string name="spotify_own_playlists_quick">通过快捷方式连接 Spotify 即可读取。</string>
+    <string name="whats_new_113_archive_title">保留每一首歌</string>
+    <string name="whats_new_113_archive_body">Discover Weekly、daylist 或排行榜每周都会变：现在同步可以保留它们出现过的每一首歌（存档），同一服务内也可以。</string>
+    <string name="whats_new_113_covers_title">在手机上绘制的封面</string>
+    <string name="whats_new_113_covers_body">海报有五种封面样式，无需 AI，不发送任何数据；封面从歌单里真正常见的艺人中挑选。</string>
 </resources>

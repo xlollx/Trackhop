@@ -5,6 +5,12 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.7.0
+
+- **Keep every track (archive)**: a sync whose target only grows, for playlists that change by themselves (Discover Weekly, daylist, charts). The sync forms ask what to do when the source changes: only add, copy the latest version, or keep every track. API `archive` and `followsChanges` fields; `trackhop show` says it.
+- Syncs between two playlists of the same account (for example Discover Weekly into a playlist of yours) take the tracks as they are, with no search.
+- TIDAL: tracks listed without their artists are asked for again with them.
+
 ## 1.6.0
 
 - **Playlist generator with no AI key**: from artists you pick or one of your playlists, with ListenBrainz/MusicBrainz data (Deezer's public catalogue fills in an artist's top tracks). Tools › AI playlists.

@@ -1,0 +1,1 @@
+Neu in 1.13: Jeden Song behalten (Archiv) für Playlists, die sich selbst ändern, auch beim selben Dienst. Ideen für alle mit nur einem Dienst. Fünf Poster-Cover, auf dem Handy gezeichnet, ohne KI, und bessere Cover-Auswahl. Fehlerbehebungen: TIDAL-Künstler im Wrapped, Wrapped läuft weiter beim Verlassen, verschwundene Songs ohne Daylist.

@@ -1591,4 +1591,8 @@
     <string name="idea_wrapped_desc">Artistes préférés, décennies et votre âge musical, sur une carte à partager.</string>
     <string name="spotify_own_playlists_note">Spotify ne laisse pas la connexion officielle lire les playlists qu\'il crée lui-même (Discover Weekly, Release Radar, daylist) : elles semblent vides ou absentes. C\'est une règle de Spotify, pas une erreur de Trackhop.</string>
     <string name="spotify_own_playlists_quick">Connectez Spotify par la voie rapide pour les lire.</string>
+    <string name="whats_new_113_archive_title">Gardez chaque titre</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, une daylist ou un classement changent chaque semaine : une synchro peut maintenant garder chaque titre qu\'ils ont eu (archive), même sur le même service.</string>
+    <string name="whats_new_113_covers_title">Des pochettes dessinées sur votre téléphone</string>
+    <string name="whats_new_113_covers_body">Cinq styles de pochette pour l\'affiche, sans IA et sans rien envoyer, et des pochettes choisies parmi les artistes vraiment présents dans la playlist.</string>
 </resources>

@@ -1631,4 +1631,8 @@
     <string name="idea_wrapped_desc">Ulubieni wykonawcy, dekady i Twój muzyczny wiek na karcie do udostępnienia.</string>
     <string name="spotify_own_playlists_note">Spotify nie pozwala oficjalnemu połączeniu czytać playlist tworzonych przez samo Spotify (Odkryj w tym tygodniu, Radar premier, daylist): wyglądają na puste albo ich nie ma. To zasada Spotify, nie błąd Trackhop.</string>
     <string name="spotify_own_playlists_quick">Połącz Spotify szybką ścieżką, aby je odczytać.</string>
+    <string name="whats_new_113_archive_title">Zachowaj każdy utwór</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, daylista czy lista przebojów zmieniają się co tydzień: synchronizacja może teraz zachować każdy utwór, jaki kiedykolwiek miały (archiwum), także w tym samym serwisie.</string>
+    <string name="whats_new_113_covers_title">Okładki rysowane na telefonie</string>
+    <string name="whats_new_113_covers_body">Pięć stylów okładki do plakatu, bez AI i bez wysyłania czegokolwiek, oraz okładki wybrane spośród artystów, których playlista naprawdę ma.</string>
 </resources>

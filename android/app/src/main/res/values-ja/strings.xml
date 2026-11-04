@@ -1560,4 +1560,8 @@
     <string name="idea_wrapped_desc">トップアーティスト、年代、音楽年齢を、シェアできるカードに。</string>
     <string name="spotify_own_playlists_note">Spotify は、公式接続で Spotify 自身が作るプレイリスト（Discover Weekly、Release Radar、daylist）を読ませません。空に見えるか、表示されません。これは Spotify のルールで、Trackhop のエラーではありません。</string>
     <string name="spotify_own_playlists_quick">読み込むには、Spotify をかんたんな方法で接続してください。</string>
+    <string name="whats_new_113_archive_title">すべての曲を残す</string>
+    <string name="whats_new_113_archive_body">Discover Weeklyやdaylist、チャートは毎週変わります。同期でこれまでのすべての曲を残せるようになりました（アーカイブ）。同じサービス内でも使えます。</string>
+    <string name="whats_new_113_covers_title">スマホで描くカバー</string>
+    <string name="whats_new_113_covers_body">ポスター用の5つのカバースタイル。AI不要で何も送信しません。カバーはプレイリストに多いアーティストから選びます。</string>
 </resources>

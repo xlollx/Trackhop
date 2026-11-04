@@ -1583,4 +1583,8 @@
     <string name="idea_wrapped_desc">Top artists, decades and your musical age, on a card to share.</string>
     <string name="spotify_own_playlists_note">Spotify does not let the official connection read the playlists Spotify makes itself (Discover Weekly, Release Radar, daylist): they look empty or missing. This is Spotify\'s rule, not a Trackhop error.</string>
     <string name="spotify_own_playlists_quick">Connect Spotify by the quick route to read them.</string>
+    <string name="whats_new_113_archive_title">Keep every track</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, a daylist or a chart change every week: a sync can now keep every song they ever had (archive), even on the same service.</string>
+    <string name="whats_new_113_covers_title">Covers drawn on your phone</string>
+    <string name="whats_new_113_covers_body">Five cover styles for the poster, with no AI and nothing sent anywhere, and covers picked from the artists your playlist really has.</string>
 </resources>

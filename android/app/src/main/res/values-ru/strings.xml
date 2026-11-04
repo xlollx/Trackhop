@@ -1629,4 +1629,8 @@
     <string name="idea_wrapped_desc">Любимые исполнители, десятилетия и ваш музыкальный возраст на карточке, которой можно поделиться.</string>
     <string name="spotify_own_playlists_note">Spotify не позволяет официальному подключению читать плейлисты, которые создаёт сам Spotify (Discover Weekly, Release Radar, daylist): они выглядят пустыми или отсутствуют. Это правило Spotify, а не ошибка Trackhop.</string>
     <string name="spotify_own_playlists_quick">Подключите Spotify быстрым путём, чтобы читать их.</string>
+    <string name="whats_new_113_archive_title">Сохраняйте каждый трек</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, daylist или чарт меняются каждую неделю: теперь синхронизация может сохранять все треки, что в них когда-либо были (архив), даже в том же сервисе.</string>
+    <string name="whats_new_113_covers_title">Обложки, нарисованные на телефоне</string>
+    <string name="whats_new_113_covers_body">Пять стилей обложки для постера, без ИИ и без отправки данных, а обложки выбираются из исполнителей, которых в плейлисте больше всего.</string>
 </resources>

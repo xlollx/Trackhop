@@ -1,0 +1,1 @@
+Nowość w 1.13: Zachowaj każdy utwór (archiwum) dla playlist, które zmieniają się same, także w tym samym serwisie. Pomysły dla osób z jednym serwisem. Pięć okładek plakatu rysowanych na telefonie, bez AI, i lepszy wybór okładek. Poprawki: artyści TIDAL w Wrapped, Wrapped działa po wyjściu, zniknięte utwory bez daylisty.

@@ -10,19 +10,19 @@ pages in your browser, and runs scheduled syncs while the computer is on. It is 
 
 ## Install
 
-The current version is **1.6.0** ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.6.0)); every version is in the
+The current version is **1.7.0** ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.7.0)); every version is in the
 [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true)
 (tagged `server-v…`: Desktop and Docker have their own version, separate from the app's).
 
 | System | Download | How |
 |---|---|---|
-| Windows 10 or 11 | [Installer (.msi)](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-windows.msi) | Open it. It installs for your user only, no administrator needed, with a Start menu entry. |
-| Windows, no install | [Portable (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-windows.zip) | Unzip anywhere (Documents, a USB stick) and run `Trackhop\Trackhop.exe`. |
-| macOS 11 or later, Apple silicon | [.dmg (arm64)](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-macos-arm64.dmg) | Open it, drag *Trackhop* into *Applications*; the first time, [Open Anyway](#macos). |
-| macOS 11 or later, Intel | [.dmg (x64)](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-macos-x64.dmg) | The same, for Intel Macs. |
-| Debian, Ubuntu, Mint… | [.deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-linux.deb) | `sudo apt install ./Trackhop-Desktop-v1.6.0-linux.deb`, then *Trackhop* in the menu. |
-| Any other Linux (x86-64) | [.tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-linux.tar.gz) | Unpack and run `Trackhop/bin/Trackhop`. |
-| Linux with Flatpak | [.flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.6.0/Trackhop-Desktop-v1.6.0-linux.flatpak) | `flatpak install --user Trackhop-Desktop-v1.6.0-linux.flatpak` (Flatpak offers GNOME's runtime from Flathub), then *Trackhop* in the menu. |
+| Windows 10 or 11 | [Installer (.msi)](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-windows.msi) | Open it. It installs for your user only, no administrator needed, with a Start menu entry. |
+| Windows, no install | [Portable (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-windows.zip) | Unzip anywhere (Documents, a USB stick) and run `Trackhop\Trackhop.exe`. |
+| macOS 11 or later, Apple silicon | [.dmg (arm64)](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-macos-arm64.dmg) | Open it, drag *Trackhop* into *Applications*; the first time, [Open Anyway](#macos). |
+| macOS 11 or later, Intel | [.dmg (x64)](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-macos-x64.dmg) | The same, for Intel Macs. |
+| Debian, Ubuntu, Mint… | [.deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-linux.deb) | `sudo apt install ./Trackhop-Desktop-v1.7.0-linux.deb`, then *Trackhop* in the menu. |
+| Any other Linux (x86-64) | [.tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-linux.tar.gz) | Unpack and run `Trackhop/bin/Trackhop`. |
+| Linux with Flatpak | [.flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-linux.flatpak) | `flatpak install --user Trackhop-Desktop-v1.7.0-linux.flatpak` (Flatpak offers GNOME's runtime from Flathub), then *Trackhop* in the menu. |
 
 ### Package managers and stores
 

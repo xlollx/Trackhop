@@ -1,0 +1,1 @@
+Nouveau en 1.13 : Gardez chaque titre (archive) pour les playlists qui changent seules, même sur le même service. Des idées pour qui n'a qu'un service. Cinq pochettes d'affiche dessinées sur le téléphone, sans IA, et un meilleur choix de pochettes. Corrections : artistes TIDAL dans le Wrapped, le Wrapped continue si vous quittez, titres disparus sans la daylist.

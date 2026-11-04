@@ -1559,4 +1559,8 @@
     <string name="idea_wrapped_desc">인기 아티스트, 연대, 음악 나이를 공유할 수 있는 카드로.</string>
     <string name="spotify_own_playlists_note">Spotify는 공식 연결로 Spotify가 직접 만든 플레이리스트(Discover Weekly, Release Radar, daylist)를 읽지 못하게 합니다. 비어 있거나 보이지 않습니다. 이는 Trackhop 오류가 아니라 Spotify의 규칙입니다.</string>
     <string name="spotify_own_playlists_quick">읽으려면 Spotify를 간편 경로로 연결하세요.</string>
+    <string name="whats_new_113_archive_title">모든 곡 보관</string>
+    <string name="whats_new_113_archive_body">Discover Weekly, daylist, 차트는 매주 바뀝니다. 이제 동기화로 지금까지 있었던 모든 곡을 보관할 수 있습니다(아카이브). 같은 서비스 안에서도 됩니다.</string>
+    <string name="whats_new_113_covers_title">휴대폰에서 그리는 커버</string>
+    <string name="whats_new_113_covers_body">포스터용 커버 스타일 5가지, AI 없이 아무것도 보내지 않습니다. 커버는 플레이리스트에 실제로 많은 아티스트에서 고릅니다.</string>
 </resources>

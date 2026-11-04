@@ -1,0 +1,1 @@
+New in 1.13: Keep every track (archive) for playlists that change by themselves, even on the same service. Ideas for people with one service. Five poster covers drawn on the phone, no AI, and smarter cover picks. Fixes: TIDAL artists in the Wrapped, Wrapped keeps reading when you leave, vanished songs without daylist turnover.
