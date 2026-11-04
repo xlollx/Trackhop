@@ -1642,4 +1642,6 @@
     <string name="ai_nano_failed">Impossible de préparer %1$s : %2$s</string>
     <string name="ai_nano_background">Android le télécharge tout seul et peut attendre le Wi-Fi : cela peut prendre un moment. Le bouton s\'active dès qu\'il est prêt.</string>
     <string name="ai_nano_retry">Réessayer</string>
+    <string name="editor_keep_order_liked_slow">Les titres likés sont enregistrés un par seconde pour garder l\'ordre : une première grosse synchronisation est lente (environ 10 minutes pour 600 titres).</string>
+    <string name="editor_keep_order_liked_fast">Désactivé : ils sont enregistrés par lots à pleine vitesse, mais Spotify peut mélanger l\'ordre.</string>
 </resources>

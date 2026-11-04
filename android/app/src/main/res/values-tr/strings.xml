@@ -1632,4 +1632,6 @@
     <string name="ai_nano_failed">%1$s hazırlanamadı: %2$s</string>
     <string name="ai_nano_background">Android bunu kendisi indirir ve Wi-Fi bekleyebilir: biraz sürebilir. Hazır olduğunda düğme etkinleşir.</string>
     <string name="ai_nano_retry">Tekrar dene</string>
+    <string name="editor_keep_order_liked_slow">Sırayı korumak için beğenilen şarkılar saniyede bir kaydedilir: ilk büyük eşitleme yavaştır (600 şarkı için yaklaşık 10 dakika).</string>
+    <string name="editor_keep_order_liked_fast">Kapalı: beğenilenler tam hızda toplu kaydedilir, ancak Spotify sırayı karıştırabilir.</string>
 </resources>

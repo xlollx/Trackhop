@@ -1680,4 +1680,6 @@
     <string name="ai_nano_failed">Не удалось подготовить %1$s: %2$s</string>
     <string name="ai_nano_background">Android загружает модель сам и может ждать Wi-Fi: это может занять время. Кнопка станет активной, когда всё будет готово.</string>
     <string name="ai_nano_retry">Повторить</string>
+    <string name="editor_keep_order_liked_slow">Любимые треки сохраняются по одному в секунду, чтобы сохранить порядок: первая большая синхронизация идёт медленно (около 10 минут на 600 треков).</string>
+    <string name="editor_keep_order_liked_fast">Выключено: любимые треки сохраняются пачками на полной скорости, но Spotify может перемешать порядок.</string>
 </resources>

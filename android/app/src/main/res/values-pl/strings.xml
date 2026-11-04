@@ -1682,4 +1682,6 @@
     <string name="ai_nano_failed">Nie udało się przygotować %1$s: %2$s</string>
     <string name="ai_nano_background">Android pobiera go sam i może czekać na Wi-Fi: to może chwilę potrwać. Przycisk włączy się, gdy będzie gotowy.</string>
     <string name="ai_nano_retry">Spróbuj ponownie</string>
+    <string name="editor_keep_order_liked_slow">Polubione utwory są zapisywane po jednym na sekundę, aby zachować kolejność: pierwsza duża synchronizacja jest wolna (ok. 10 minut na 600 utworów).</string>
+    <string name="editor_keep_order_liked_fast">Wyłączone: polubione są zapisywane partiami z pełną prędkością, ale Spotify może pomieszać kolejność.</string>
 </resources>

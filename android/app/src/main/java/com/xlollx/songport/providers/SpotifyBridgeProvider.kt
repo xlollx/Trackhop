@@ -153,8 +153,8 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
         if (tracks.isEmpty()) return
         // Liked songs are listed by the second they were saved, and Spotify shuffles those saved in the
         // same second (issue #34, as with the developer sign-in): one per call, a second apart, in the
-        // order given (the engine sends the oldest first).
-        if (playlistId == MusicProvider.LIKED_ID) {
+        // order given (the engine sends the oldest first). Only when the job keeps the order.
+        if (playlistId == MusicProvider.LIKED_ID && MusicProvider.addsInOrder()) {
             for (t in tracks) {
                 val wait = lastLikedSave + likedSpacingMs - System.currentTimeMillis()
                 if (wait > 0) kotlinx.coroutines.delay(wait)

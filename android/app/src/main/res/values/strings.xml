@@ -1634,4 +1634,6 @@
     <string name="ai_nano_failed">%1$s could not be prepared: %2$s</string>
     <string name="ai_nano_background">Android downloads it by itself and may wait for Wi-Fi: this can take a while. The button turns on as soon as it is ready.</string>
     <string name="ai_nano_retry">Try again</string>
+    <string name="editor_keep_order_liked_slow">Liked songs are saved one per second to keep the order: a big first sync is slow (about 10 minutes per 600 songs).</string>
+    <string name="editor_keep_order_liked_fast">Off: liked songs are saved in batches at full speed, but Spotify may mix up their order.</string>
 </resources>

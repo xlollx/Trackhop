@@ -286,8 +286,11 @@ class MemoryService(override val serviceId: String) : MusicProvider {
     /** Thrown by [addTracks] when set: a service that refuses every addition. */
     var addFailure: Exception? = null
     var addCalls = 0
+    /** Whether each add came while the job keeps the order (MusicProvider.OrderedAdds). */
+    val addsInOrder = ArrayList<Boolean>()
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         addCalls++
+        addsInOrder += MusicProvider.addsInOrder()
         addFailure?.let { throw it }
         lists.getOrPut(playlistId) { ArrayList() } += tracks
     }

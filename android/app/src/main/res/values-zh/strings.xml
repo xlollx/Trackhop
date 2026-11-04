@@ -1611,4 +1611,6 @@
     <string name="ai_nano_failed">无法准备 %1$s：%2$s</string>
     <string name="ai_nano_background">Android 会自行下载，可能会等待 Wi-Fi，需要一些时间。准备好后按钮会立即可用。</string>
     <string name="ai_nano_retry">重试</string>
+    <string name="editor_keep_order_liked_slow">为保持顺序，喜欢的歌曲每秒保存一首：首次大规模同步较慢（每 600 首约 10 分钟）。</string>
+    <string name="editor_keep_order_liked_fast">关闭：喜欢的歌曲会批量全速保存，但 Spotify 可能会打乱顺序。</string>
 </resources>

@@ -1634,4 +1634,6 @@
     <string name="ai_nano_failed">Non sono riuscito a preparare %1$s: %2$s</string>
     <string name="ai_nano_background">Android lo scarica da solo e può aspettare il Wi-Fi: può volerci un po\'. Il pulsante si attiva appena è pronto.</string>
     <string name="ai_nano_retry">Riprova</string>
+    <string name="editor_keep_order_liked_slow">I brani preferiti vengono salvati uno al secondo per mantenere l\'ordine: una prima sincronizzazione grande è lenta (circa 10 minuti ogni 600 brani).</string>
+    <string name="editor_keep_order_liked_fast">Disattivato: i preferiti vengono salvati a blocchi alla massima velocità, ma Spotify può mescolarne l\'ordine.</string>
 </resources>

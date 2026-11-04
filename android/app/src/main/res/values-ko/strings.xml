@@ -1610,4 +1610,6 @@
     <string name="ai_nano_failed">%1$s을(를) 준비하지 못했습니다: %2$s</string>
     <string name="ai_nano_background">Android가 직접 다운로드하며 Wi-Fi를 기다릴 수 있어 시간이 걸릴 수 있습니다. 준비되면 버튼이 활성화됩니다.</string>
     <string name="ai_nano_retry">다시 시도</string>
+    <string name="editor_keep_order_liked_slow">순서를 유지하기 위해 좋아요 곡을 1초에 한 곡씩 저장합니다. 첫 대규모 동기화는 느립니다(600곡에 약 10분).</string>
+    <string name="editor_keep_order_liked_fast">끄면: 좋아요 곡을 묶음으로 최대 속도로 저장하지만 Spotify가 순서를 섞을 수 있습니다.</string>
 </resources>

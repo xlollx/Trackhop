@@ -1243,8 +1243,16 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     if (mirror && !bidirectional && !archive) {
                         SwitchRow(stringResource(R.string.editor_follows), stringResource(R.string.editor_follows_desc), follows) { follows = it }
                     }
-                    if (Providers.byId(dstProvider)?.canReorder == true && !archive) {
+                    // Liked songs on a service that orders them by the second of saving (Spotify): the
+                    // switch decides between one a second, in order, and batches at full speed.
+                    val likedSpacing = if (!createNew && dstPlaylist?.id == MusicProvider.LIKED_ID) Providers.byId(dstProvider)?.addSpacingMs(MusicProvider.LIKED_ID) ?: 0 else 0
+                    if ((Providers.byId(dstProvider)?.canReorder == true || likedSpacing > 0) && !archive) {
                         SwitchRow(stringResource(R.string.editor_keep_order), stringResource(R.string.editor_keep_order_desc), keepOrder, help = { HelpButton(Helps.keepOrder) }) { keepOrder = it }
+                        if (likedSpacing > 0) Text(
+                            stringResource(if (keepOrder) R.string.editor_keep_order_liked_slow else R.string.editor_keep_order_liked_fast),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (keepOrder) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                     val dstProviderObj = Providers.byId(dstProvider)
                     if (mirror && !archive && dstProviderObj != null && !dstProviderObj.canRemoveTracks) {

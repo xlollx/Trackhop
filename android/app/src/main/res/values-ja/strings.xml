@@ -1611,4 +1611,6 @@
     <string name="ai_nano_failed">%1$s を準備できませんでした: %2$s</string>
     <string name="ai_nano_background">Android が自動でダウンロードします。Wi-Fi を待つことがあり、時間がかかる場合があります。準備ができるとボタンが有効になります。</string>
     <string name="ai_nano_retry">再試行</string>
+    <string name="editor_keep_order_liked_slow">順番を保つため、お気に入りの曲は1秒に1曲ずつ保存されます。最初の大きな同期は時間がかかります（600曲で約10分）。</string>
+    <string name="editor_keep_order_liked_fast">オフ：お気に入りの曲はまとめて高速に保存されますが、Spotify が順番を入れ替えることがあります。</string>
 </resources>

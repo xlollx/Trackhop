@@ -456,7 +456,8 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
             // in the same second as it likes (issue #34: liked songs came out shuffled). Tracks are
             // saved one per request, a second apart, in the order given (the engine sends the oldest
             // first): slower, but the order comes out as in the source.
-            val perRequest = if (method == "PUT" && type == "track") 1 else 40
+            // Only when the job keeps the order: otherwise 40 a request, at full speed.
+            val perRequest = if (method == "PUT" && type == "track" && MusicProvider.addsInOrder()) 1 else 40
             ids.chunked(perRequest).forEach { chunk ->
                 if (perRequest == 1) {
                     val wait = lastLibrarySave + librarySpacingMs - System.currentTimeMillis()

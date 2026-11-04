@@ -205,7 +205,7 @@ class SpotifyContractTest : ContractTest() {
         sp.librarySpacingMs = 0
         val tracks = (0 until 90).map { Track(id(it), "S") }
         repeat(93) { ok("") }
-        sp.addTracks(env, MusicProvider.LIKED_ID, tracks)
+        kotlinx.coroutines.withContext(MusicProvider.OrderedAdds) { sp.addTracks(env, MusicProvider.LIKED_ID, tracks) }
         sp.removeTracks(env, MusicProvider.LIKED_ID, tracks)
         // Saved one per request, in the order given, so each track gets its own second (issue #34).
         val saves = (0 until 90).map { val r = next(); assertCall(r, "PUT", api, "/v1/me/library"); r.query("uris") }
@@ -215,11 +215,23 @@ class SpotifyContractTest : ContractTest() {
         noMoreRequests()
     }
 
+    @Test fun likedTracksGoInFortiesWhenTheJobDoesNotKeepTheOrder() = runBlocking {
+        sp.librarySpacingMs = 1_000
+        val tracks = (0 until 90).map { Track(id(it), "S") }
+        repeat(3) { ok("") }
+        val start = System.currentTimeMillis()
+        sp.addTracks(env, MusicProvider.LIKED_ID, tracks)
+        assert(System.currentTimeMillis() - start < 1_000) { "unordered saves were spaced" }
+        val sizes = (0 until 3).map { val r = next(); assertCall(r, "PUT", api, "/v1/me/library"); r.query("uris")!!.split(",").size }
+        assertEquals(listOf(40, 40, 10), sizes)
+        noMoreRequests()
+    }
+
     @Test fun likedSavesAreSpacedSoEachHasItsOwnSecond() = runBlocking {
         sp.librarySpacingMs = 300
         repeat(3) { ok("") }
         val start = System.currentTimeMillis()
-        sp.addTracks(env, MusicProvider.LIKED_ID, (0 until 3).map { Track(id(it), "S") })
+        kotlinx.coroutines.withContext(MusicProvider.OrderedAdds) { sp.addTracks(env, MusicProvider.LIKED_ID, (0 until 3).map { Track(id(it), "S") }) }
         assert(System.currentTimeMillis() - start >= 550) { "the saves were not spaced" }
         repeat(3) { next() }
     }
@@ -227,7 +239,7 @@ class SpotifyContractTest : ContractTest() {
     @Test fun likedUrisNameTheTracks() = runBlocking {
         sp.librarySpacingMs = 0
         ok(""); ok("")
-        sp.addTracks(env, MusicProvider.LIKED_ID, listOf(Track(id(1), "S"), Track(id(2), "T")))
+        kotlinx.coroutines.withContext(MusicProvider.OrderedAdds) { sp.addTracks(env, MusicProvider.LIKED_ID, listOf(Track(id(1), "S"), Track(id(2), "T"))) }
         assertEquals("spotify:track:${id(1)}", next().query("uris"))
         assertEquals("spotify:track:${id(2)}", next().query("uris"))
     }

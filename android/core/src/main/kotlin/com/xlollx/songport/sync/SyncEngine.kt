@@ -490,7 +490,7 @@ class SyncEngine(
         store.putMatches(newCache - unsure)
         // A service that saves one track at a time to keep the order (Spotify's liked songs): a big
         // first sync takes a while, and the person should know it's expected.
-        val spacing = dst.addSpacingMs(targetId)
+        val spacing = if (job.keepOrder) dst.addSpacingMs(targetId) else 0
         if (spacing > 0 && toAdd.size >= SLOW_ADD_NOTE_FROM) {
             notes += str("note_slow_ordered_adds", dst.displayName, toAdd.size, ((toAdd.size * spacing + 59_999) / 60_000).toInt())
         }
@@ -893,11 +893,14 @@ class SyncEngine(
             // Verso una playlist un blocco di 50 e' una chiamata sola. Verso i "brani preferiti" ogni
             // brano e' una chiamata a parte: blocchi piccoli, cosi' l'avanzamento si muove ogni pochi
             // brani invece di restare fermo per minuti.
-            val chunkSize = if (MusicProvider.isLibrary(targetId)) 10 else 50
+            val chunkSize = if (MusicProvider.isLibrary(targetId) && job.keepOrder) 10 else 50
             var blockWaits = 0
             // I "brani preferiti" mostrano per primo l'ultimo aggiunto: si aggiunge dall'ultimo al primo,
             // cosi' l'ordine dell'origine (il piu' recente in cima) si ritrova uguale nella destinazione.
             val additions = if (MusicProvider.isLibrary(targetId)) plan.toAdd.asReversed() else plan.toAdd
+            // Keeping the order, a service that orders by the second of saving (Spotify's liked songs)
+            // saves one track at a time; without it, in batches at full speed (MusicProvider.addsInOrder).
+            kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
                 if (addStopped != null) break
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
@@ -948,6 +951,7 @@ class SyncEngine(
                     }
                 }
                 onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, plan.toAdd.size))
+            }
             }
         }
         if (alreadyThere.isNotEmpty()) {

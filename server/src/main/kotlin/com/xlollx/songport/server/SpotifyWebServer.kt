@@ -146,8 +146,8 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
         // Liked songs: one per call, a second apart, oldest first, or Spotify shuffles those saved in
-        // the same second (issue #34).
-        if (playlistId == MusicProvider.LIKED_ID) {
+        // the same second (issue #34). Only when the job keeps the order.
+        if (playlistId == MusicProvider.LIKED_ID && MusicProvider.addsInOrder()) {
             for (t in tracks) {
                 val wait = lastLikedSave + likedSpacingMs - System.currentTimeMillis()
                 if (wait > 0) kotlinx.coroutines.delay(wait)

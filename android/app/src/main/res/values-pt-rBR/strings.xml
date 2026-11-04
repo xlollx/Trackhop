@@ -1642,4 +1642,6 @@
     <string name="ai_nano_failed">Não foi possível preparar o %1$s: %2$s</string>
     <string name="ai_nano_background">O Android baixa sozinho e pode esperar o Wi-Fi: isso pode demorar. O botão é ativado assim que estiver pronto.</string>
     <string name="ai_nano_retry">Tentar de novo</string>
+    <string name="editor_keep_order_liked_slow">As músicas curtidas são salvas uma por segundo para manter a ordem: uma primeira sincronização grande é lenta (cerca de 10 minutos a cada 600 músicas).</string>
+    <string name="editor_keep_order_liked_fast">Desativado: as curtidas são salvas em lotes na velocidade máxima, mas o Spotify pode embaralhar a ordem.</string>
 </resources>

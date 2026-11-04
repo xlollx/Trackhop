@@ -89,8 +89,9 @@ interface MusicProvider {
 
     /**
      * Milliseconds the service needs between two tracks added to [playlistId], when it adds them one
-     * at a time on purpose (Spotify's liked songs, to keep their order): the engine warns that a big
-     * first sync is slow. 0 for a normal target.
+     * at a time on purpose when the job keeps the source order (Spotify's liked songs, see
+     * [MusicProvider.OrderedAdds]): the editor and the engine warn that a big first sync is slow.
+     * 0 for a normal target.
      */
     fun addSpacingMs(playlistId: String): Long = 0
     /** Dominio su cui l'utente fara' davvero il login (mostrato prima di aprire il browser). */
@@ -281,7 +282,20 @@ interface MusicProvider {
     /** Ricostruisce i campi nativi (es. URI) di un brano noto solo per id (dalla cache abbinamenti). */
     fun rehydrate(track: Track): Track = track
 
+    /**
+     * In the coroutine context while a sync job that keeps the source order adds tracks: a service
+     * that lists by the second of saving (Spotify's liked songs) then saves one track a second, in
+     * order. Without it, the same tracks go in batches at full speed, in no guaranteed order.
+     */
+    object OrderedAdds : kotlin.coroutines.CoroutineContext.Element {
+        object Key : kotlin.coroutines.CoroutineContext.Key<OrderedAdds>
+        override val key: kotlin.coroutines.CoroutineContext.Key<*> get() = Key
+    }
+
     companion object {
+        /** True inside [OrderedAdds]. */
+        suspend fun addsInOrder(): Boolean = kotlin.coroutines.coroutineContext[OrderedAdds.Key] != null
+
         const val LIKED_ID = "__liked__"
         const val ALBUMS_ID = "__albums__"
         const val ARTISTS_ID = "__artists__"

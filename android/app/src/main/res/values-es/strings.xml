@@ -1642,4 +1642,6 @@
     <string name="ai_nano_failed">No se pudo preparar %1$s: %2$s</string>
     <string name="ai_nano_background">Android lo descarga por su cuenta y puede esperar al Wi-Fi: puede tardar un poco. El botón se activa en cuanto esté listo.</string>
     <string name="ai_nano_retry">Reintentar</string>
+    <string name="editor_keep_order_liked_slow">Las canciones que te gustan se guardan una por segundo para mantener el orden: una primera sincronización grande es lenta (unos 10 minutos cada 600 canciones).</string>
+    <string name="editor_keep_order_liked_fast">Desactivado: se guardan en bloques a toda velocidad, pero Spotify puede mezclar el orden.</string>
 </resources>
