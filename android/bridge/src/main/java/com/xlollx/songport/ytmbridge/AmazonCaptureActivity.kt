@@ -333,16 +333,34 @@ class AmazonCaptureActivity : ComponentActivity() {
                 catch(e) { return clean(b).slice(0, 4000); }
               };
               var of = window.fetch;
+              // A body as text, whatever the page passed: a string, form fields, a form, a Request.
+              var bodyText = function(b){
+                if (b == null) return Promise.resolve(null);
+                if (typeof b === 'string') return Promise.resolve(b);
+                try { if (b instanceof URLSearchParams) return Promise.resolve(b.toString()); } catch(e){}
+                try { if (b instanceof FormData) { var o = []; b.forEach(function(v, k){ o.push(encodeURIComponent(k) + '=' + encodeURIComponent(typeof v === 'string' ? v : '[file]')); }); return Promise.resolve(o.join('&')); } } catch(e){}
+                try { if (b instanceof Blob) return b.text(); } catch(e){}
+                try { if (b instanceof ArrayBuffer || ArrayBuffer.isView(b)) return Promise.resolve(new TextDecoder().decode(b)); } catch(e){}
+                return Promise.resolve(String(b));
+              };
               if (of) window.fetch = function(input, init){
                 var url = (typeof input === 'string') ? input : (input && input.url) || '';
                 var method = (init && init.method) || (input && input.method) || 'GET';
-                var body = init && init.body;
                 var reqHeaders = hdrs((init && init.headers) || (input && input.headers));
-                var p = of.apply(this, arguments);
-                if (match(url)) p.then(function(r){
-                  try { r.clone().text().then(function(t){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(body), status: r.status, response: answer(t)}); })
-                    .catch(function(e){ send({t: Date.now(), url: clean(abs(url)), method: method, status: r.status, error: String(e)}); }); } catch(e){ send({t: Date.now(), url: clean(abs(url)), method: method, error: String(e)}); }
-                });
+                var watched = match(url);
+                var bodyP = !watched ? null : (init && init.body != null) ? bodyText(init.body)
+                  : (input && typeof input !== 'string' && input.clone && method !== 'GET') ? input.clone().text().catch(function(){ return null; }) : Promise.resolve(null);
+                // Another site's player that cancels each request once it has its answer (Qobuz) would
+                // cancel this copy too: its signal is left out, here only.
+                var args = arguments;
+                if (watched && window.__capSite && init && init.signal) { var i2 = Object.assign({}, init); delete i2.signal; args = [input, i2]; }
+                var p = of.apply(this, args);
+                if (watched) p.then(function(r){
+                  var done = function(text, err){
+                    bodyP.then(function(bt){ send({t: Date.now(), url: clean(abs(url)), method: method, headers: reqHeaders, body: redact(bt), status: r.status, response: text == null ? null : answer(text), error: err}); });
+                  };
+                  try { r.clone().text().then(function(t){ done(t); }).catch(function(e){ done(null, String(e)); }); } catch(e){ done(null, String(e)); }
+                }).catch(function(e){ bodyP.then(function(bt){ send({t: Date.now(), url: clean(abs(url)), method: method, body: redact(bt), error: String(e)}); }); });
                 return p;
               };
               var oo = XMLHttpRequest.prototype.open, os = XMLHttpRequest.prototype.send;
