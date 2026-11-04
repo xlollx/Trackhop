@@ -294,7 +294,7 @@ object GeneratedCovers {
         c.drawRect(0f, 0f, w, w, Paint().apply { shader = LinearGradient(0f, 0f, w, w, intArrayOf(pal[0], pal[4]), null, Shader.TileMode.CLAMP) })
         c.drawCircle(w * 0.2f, w * 0.15f, w * 0.7f, Paint().apply { shader = RadialGradient(w * 0.2f, w * 0.15f, w * 0.7f, intArrayOf(withAlpha(pal[1], 150), withAlpha(pal[1], 0)), null, Shader.TileMode.CLAMP) })
         val r = w * 0.40f
-        val cx = w * (0.54f + rnd.nextFloat() * 0.08f)
+        val cx = w * 0.5f
         val cy = w * 0.40f
         // The disc, its shadow, its grooves and two sheens.
         c.drawCircle(cx, cy + 10f * s, r, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x66000000 })
