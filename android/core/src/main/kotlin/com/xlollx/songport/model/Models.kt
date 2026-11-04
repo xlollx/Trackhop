@@ -94,6 +94,12 @@ data class SyncJob(
      * instead of waiting for a confirmation in the preview.
      */
     val followsChanges: Boolean = false,
+    /**
+     * Keep every track ever seen (an archive of a Discover Weekly, a Release Radar, a daylist or a
+     * chart): the target only grows. Nothing is ever removed from it, whatever [mirrorRemovals] says,
+     * and it is never put in the source's order ([keepOrder]): what is new goes at the end.
+     */
+    val archive: Boolean = false,
     val wifiOnly: Boolean = false,
     val enabled: Boolean = true,
     val lastRunEpoch: Long = 0,

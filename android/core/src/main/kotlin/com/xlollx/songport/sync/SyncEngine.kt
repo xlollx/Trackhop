@@ -193,6 +193,16 @@ class SyncEngine(
     /** Below this many removals a scheduled run proceeds whatever the share of the target they are. */
     private val REMOVAL_CAP_MIN = 10
 
+    /**
+     * Source and target are the same connector (the same account): a source track's id is valid on
+     * the target as it is, so it is neither searched nor matched by name. Files are left out: a file
+     * playlist's ids are its own lines, not a catalogue's.
+     */
+    private fun sameAccount(job: SyncJob, src: MusicProvider, dst: MusicProvider): Boolean =
+        src.id == dst.id && dst.serviceId != LocalFilesProvider.serviceId &&
+            // Liked songs into saved albums asks for albums, not the same ids.
+            MusicProvider.libraryKind(job.source.playlistId) == MusicProvider.libraryKind(job.target.playlistId)
+
     private fun providers(job: SyncJob): Pair<MusicProvider, MusicProvider> {
         val src = Providers.byId(job.source.provider) ?: throw ProviderException("Unknown service: ${job.source.provider}")
         val dst = Providers.byId(job.target.provider) ?: throw ProviderException("Unknown service: ${job.target.provider}")
@@ -263,6 +273,9 @@ class SyncEngine(
         if (!src.canRead(env, srcPlaylistId)) throw ProviderException(str("error_not_connected", src.displayName))
         if (!dst.isConnected(env)) throw ProviderException(str("error_not_connected", dst.displayName))
 
+        // Source and target on the same account are fine (Discover Weekly kept in a playlist of the same
+        // Spotify), as long as they are two playlists: one playlist synced onto itself has nothing to do.
+        if (src.id == dst.id && job.target.playlistId == srcPlaylistId) throw ProviderException(str("error_same_playlist"))
         val notes = ArrayList<String>()
 
         onProgress(Progress(Progress.Step.FETCH_SOURCE))
@@ -340,6 +353,7 @@ class SyncEngine(
         val last = if (targetCreated) null else store.lastWrites(job.id)?.takeIf { it.targetId == listedId }
         val unlistedAfterAdd = LinkedHashMap<String, Track>()
 
+        val direct = sameAccount(job, src, dst)
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
             val key = FileStore.cacheKey(src.id, s.id, dst.id)
@@ -349,7 +363,8 @@ class SyncEngine(
                 newCache[key] = cachedId
                 continue
             }
-            val found = cachedId?.let { dstById[it] } ?: index.best(s, policy = job.policy)
+            // On the same account a source track is already a target track: its own id, if the target has it.
+            val found = cachedId?.let { dstById[it] } ?: (if (direct) dstById[s.id] else null) ?: index.best(s, policy = job.policy)
             if (found != null) {
                 matchedDstIds += found.id
                 newCache[key] = found.id
@@ -361,7 +376,7 @@ class SyncEngine(
         val unmatched = ArrayList<Track>()
         val uncertain = ArrayList<MatchReview>()
         var searched = 0
-        val interrupted = searchMissing(src, dst, toSearch, job.policy, onProgress) { s, found, score ->
+        val interrupted = searchMissing(src, dst, toSearch, job.policy, onProgress, direct) { s, found, score ->
             searched++
             SyncState.item(
                 job.id,
@@ -412,7 +427,8 @@ class SyncEngine(
         val paired = job.linkedJobId?.let { store.job(it) } != null
         // Another sync writes to this playlist too: what matches none of this source may be its.
         val sharing = JobConflicts.sharingTarget(store.data.jobs, job)
-        if (job.mirrorRemovals) {
+        // An archive keeps every track it was ever given: nothing goes, whatever the switches say.
+        if (job.mirrorRemovals && !job.archive) {
             // An entry the service lists by id alone cannot be told apart from one of the source's
             // under another id: it stays (see MusicProvider.listsUntitledEntries).
             val untitled = if (dst.listsUntitledEntries) dstTracks.count { it.id !in matchedDstIds && it.title.isBlank() } else 0
@@ -541,7 +557,7 @@ class SyncEngine(
         val unmatched = ArrayList<Track>()
         val uncertain = ArrayList<MatchReview>()
         val newCache = HashMap<String, String>()
-        searchMissing(src, dst, srcTracks, job.policy, onProgress) { s, found, score ->
+        searchMissing(src, dst, srcTracks, job.policy, onProgress, sameAccount(job, src, dst)) { s, found, score ->
             if (found != null) {
                 toAdd[found.id] = found
                 // Unsure matches stay out of the cache: the run reviews them unless the preview settles them.
@@ -574,7 +590,10 @@ class SyncEngine(
 
     private suspend fun searchMissing(
         src: MusicProvider, dst: MusicProvider, toSearch: List<Track>, policy: MatchPolicy,
-        onProgress: (Progress) -> Unit, onResult: (Track, Track?, Double?) -> Unit,
+        onProgress: (Progress) -> Unit,
+        /** Source and target on the same account ([sameAccount]): each track is its own match. */
+        direct: Boolean = false,
+        onResult: (Track, Track?, Double?) -> Unit,
     ): String? {
         val parallel = dst.searchParallelism.coerceIn(1, 8)
         var consecutiveErrors = 0
@@ -601,7 +620,10 @@ class SyncEngine(
                 chunk.map { s ->
                     async {
                         val cached = store.cachedMatch(src.id, s.id, dst.id)
-                        if (cached != null) {
+                        if (direct && s.id.isNotBlank()) {
+                            // Source and target on the same account: the track is the source's own, nothing to search.
+                            Result.success<Pair<Track?, Double?>>(s.copy(itemId = null) to null)
+                        } else if (cached != null) {
                             // Abbinato in passato (o confermato a mano): lo aggiungiamo senza ripetere la ricerca.
                             Result.success<Pair<Track?, Double?>>(dst.rehydrate(s.copy(id = cached, uri = null, itemId = null)) to null)
                         } else if (store.cachedMiss(src.id, s.id, dst.id)) {
@@ -945,7 +967,7 @@ class SyncEngine(
             val stillOpen = provisional.unmatchedTracks.map { it.id }.toHashSet()
             unmatched.retainAll { it.id in stillOpen }
         }
-        if (job.keepOrder && dst.canReorder && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
+        if (job.keepOrder && !job.archive && dst.canReorder && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
             alignOrder(src, dst, targetId, plan.sourceOrder, notes, onProgress)
         }
         val reviews = provisional?.reviewTracks ?: plan.uncertain
