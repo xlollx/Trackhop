@@ -2,6 +2,9 @@
 
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.background
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.graphics.Bitmap
@@ -186,19 +189,22 @@ internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy
         if (busy) CircularProgressIndicator(Modifier.size(18.dp))
         Button(enabled = !busy, onClick = onRender) { Text(renderLabel) }
     } else if (busy) CircularProgressIndicator(Modifier.size(18.dp))
-    if (bmp != null) {
+    // While a card is being drawn its place is kept (chips, a blank of the card's shape, the buttons
+    // greyed): appearing late, it pushed everything below it down under a finger already on its way.
+    if (bmp != null || (busy && onRender == null)) {
         if (formats.size > 1) androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             FilterChip(selected = format == Cards.Format.STORY, onClick = { format = Cards.Format.STORY }, label = { Text(stringResource(R.string.card_format_story)) })
             FilterChip(selected = format == Cards.Format.SQUARE, onClick = { format = Cards.Format.SQUARE }, label = { Text(stringResource(R.string.card_format_square)) })
         }
-        Image(
-            bmp.asImageBitmap(), contentDescription = previewDescription,
-            modifier = Modifier.fillMaxWidth().aspectRatio(format.width.toFloat() / format.height).clip(RoundedCornerShape(16.dp)),
-        )
+        val shape = Modifier.fillMaxWidth().aspectRatio(format.width.toFloat() / format.height).clip(RoundedCornerShape(16.dp))
+        if (bmp != null) Image(bmp.asImageBitmap(), contentDescription = previewDescription, modifier = shape)
+        else androidx.compose.foundation.layout.Box(shape.background(MaterialTheme.colorScheme.surfaceVariant))
         // Wraps at a large font size instead of squeezing a button into a column of letters.
-        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Button(onClick = { Cards.share(ctx, bmp, name) }) { Text(stringResource(R.string.card_share)) }
-            OutlinedButton(onClick = { save.launch("$name.png") }) { Text(stringResource(R.string.card_save)) }
+        // Until the card is there the buttons keep their room but are not shown nor offered.
+        val hidden = if (bmp == null) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier
+        androidx.compose.foundation.layout.FlowRow(hidden, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Button(enabled = bmp != null, onClick = { bmp?.let { Cards.share(ctx, it, name) } }) { Text(stringResource(R.string.card_share)) }
+            OutlinedButton(enabled = bmp != null, onClick = { save.launch("$name.png") }) { Text(stringResource(R.string.card_save)) }
         }
     }
 }

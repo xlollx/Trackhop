@@ -297,7 +297,9 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
             previewDescription = listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
             formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
         )
-        if (bitmaps != null) OutlinedButton(enabled = !rendering, onClick = { variant++ }) { Text(stringResource(R.string.card_cover_another)) }
+        // Always there (greyed while the card is drawn): appearing late, it pushed what is below it down
+        // under a finger already on its way (the history's delete button).
+        OutlinedButton(enabled = bitmaps != null && !rendering, onClick = { variant++ }) { Text(stringResource(R.string.card_cover_another)) }
     }
 
     // A new one: the services to read, chosen every time (the last choice comes back ticked).
