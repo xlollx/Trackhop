@@ -1,0 +1,1 @@
+Website-Mitschnitt: Passwörter, E-Mails, Geburtsdaten und Captchas werden jetzt auch in Anmeldeformularen entfernt, deren Feldnamen kodiert sind.

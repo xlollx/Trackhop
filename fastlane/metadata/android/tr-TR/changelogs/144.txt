@@ -1,0 +1,1 @@
+Bir siteyi yakala: parolalar, e-postalar, doğum tarihleri ve captcha'lar artık alan adları kodlanmış giriş formlarından da siliniyor.

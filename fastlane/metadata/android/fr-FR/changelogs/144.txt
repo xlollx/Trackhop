@@ -1,0 +1,1 @@
+Capturer un site web : mots de passe, e-mails, dates de naissance et captchas sont désormais retirés aussi des formulaires dont les noms de champs sont encodés.

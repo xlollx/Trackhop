@@ -1,0 +1,1 @@
+Capturar um site: senhas, e-mails, datas de nascimento e captchas agora são removidos também de formulários com nomes de campo codificados.

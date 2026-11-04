@@ -1,0 +1,1 @@
+Capturar un sitio web: ahora se eliminan también contraseñas, correos, fechas de nacimiento y captchas de los formularios con nombres de campo codificados.

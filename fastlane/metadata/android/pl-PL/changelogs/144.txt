@@ -1,0 +1,1 @@
+Przechwytywanie strony: hasła, e-maile, daty urodzenia i captcha są teraz usuwane także z formularzy z zakodowanymi nazwami pól.

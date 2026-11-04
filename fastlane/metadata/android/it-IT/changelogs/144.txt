@@ -1,0 +1,1 @@
+Cattura un sito: password, email, date di nascita e captcha vengono tolti anche dai moduli di accesso con nomi dei campi codificati.
