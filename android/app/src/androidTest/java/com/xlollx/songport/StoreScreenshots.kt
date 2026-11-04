@@ -300,8 +300,8 @@ class StoreScreenshots {
                 if (opened) { n++; File(dir, "$n.png").outputStream().use { after!!.compress(Bitmap.CompressFormat.PNG, 100, it) } }
             }
         }
-        // 5 Tools.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)) { waitText(s(R.string.tools_poster_title)); snap() }
+        // 5 Discover.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) { waitText(s(R.string.discover_wrapped_title)); snap() }
         // 6 A friend's Spotify track, into a YouTube Music playlist.
         open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/${spotify.id(0)}")) {
             step("shot $n") { waitText("Master of Puppets", 20_000); Thread.sleep(4000) }
@@ -318,7 +318,7 @@ class StoreScreenshots {
             snap(2000)
         }
         // 8 The playlist poster.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)) {
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) {
             step("shot $n") {
                 waitText(s(R.string.tools_poster_title))
                 compose.onNodeWithText(s(R.string.tools_poster_title)).performScrollTo().performClick()
@@ -404,7 +404,7 @@ class StoreScreenshots {
         }
         fun toolsPages(theme: String) {
             tab(MainActivity.TAB_TOOLS) {
-                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.tools_poster_title)).fetchSemanticsNodes().isNotEmpty() }
+                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.tools_manage_title)).fetchSemanticsNodes().isNotEmpty() }
                 snap("tools_${theme}_1")
                 scrollTo(s(R.string.tools_section_clean)); snap("tools_${theme}_2")
                 toBottom(s(R.string.tools_section_safety)); snap("tools_${theme}_3")

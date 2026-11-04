@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Settings
@@ -256,6 +257,8 @@ class MainActivity : ComponentActivity() {
         /** Non e' una scheda: la notifica di esito chiede cosi' la schermata del registro. */
         const val TAB_LOG = 3
         const val TAB_SETTINGS = 4
+        /** Discover: in the middle of the bar, but a new number, so the older ones keep meaning what they did. */
+        const val TAB_DISCOVER = 5
 
         @Volatile var unlockedThisProcess = false
     }
@@ -321,11 +324,13 @@ private fun MainScreen(
     var previewJob by rememberSaveable(stateSaver = JobSaver) { mutableStateOf<SyncJob?>(null) }
     // A sync's target playlist, opened from the track count on its card.
     var targetJob by rememberSaveable(stateSaver = JobSaver) { mutableStateOf<SyncJob?>(null) }
-    // Two playlist links shared at once: "how compatible are we?" in Tools.
+    // Two playlist links shared at once: "how compatible are we?" in Discover.
     // Saved, so a rotation keeps the comparison; dropped once its page is left.
     var compareLinks by rememberSaveable { mutableStateOf<Pair<String, String>?>(null) }
     // A tool page open in Tools: it brings its own top bar.
     var toolSubpage by remember { mutableStateOf(false) }
+    // The same for a card's page in Discover.
+    var discoverSubpage by remember { mutableStateOf(false) }
     var addConnector by rememberSaveable { mutableStateOf(false) }
     // A single track shared from a service's app: which of your playlists it goes to.
     var sharedTrack by remember { mutableStateOf<Pair<MusicProvider, com.xlollx.songport.model.Track>?>(null) }
@@ -365,7 +370,7 @@ private fun MainScreen(
         // cancel it at its first suspension (the "link received" note, a setlist download).
         shareScope.launch {
             val links = Regex("""https?://\S+|spotify:playlist:\S+""").findAll(text).map { it.value }.filter { PlaylistLinks.parse(it) != null }.distinct().toList()
-            if (links.size >= 2) { compareLinks = links[0] to links[1]; tab = MainActivity.TAB_TOOLS; return@launch }
+            if (links.size >= 2) { compareLinks = links[0] to links[1]; tab = MainActivity.TAB_DISCOVER; return@launch }
             // A service this build cannot read (SoundCloud on Google Play, unless a plugin serves it) is
             // no link it can use; a SoundCloud short link is followed to its set first.
             val soundCloud = com.xlollx.songport.sync.SoundCloudPublic
@@ -599,6 +604,7 @@ private fun MainScreen(
     val tabs = listOf(
         Triple(R.string.tab_syncs, Icons.Filled.Sync, MainActivity.TAB_SYNCS),
         Triple(R.string.tab_accounts, Icons.Filled.AccountCircle, MainActivity.TAB_ACCOUNTS),
+        Triple(R.string.tab_discover, Icons.Filled.AutoAwesome, MainActivity.TAB_DISCOVER),
         Triple(R.string.tab_tools, Icons.Filled.Build, MainActivity.TAB_TOOLS),
         Triple(R.string.tab_settings, Icons.Filled.Settings, MainActivity.TAB_SETTINGS),
     )
@@ -606,7 +612,7 @@ private fun MainScreen(
     Scaffold(
         topBar = {
             // An open tool shows its own bar with the way back: no tab header above it.
-            if (!(tab == MainActivity.TAB_TOOLS && toolSubpage)) {
+            if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
                 AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label)) {
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
@@ -640,7 +646,7 @@ private fun MainScreen(
             ) {
                 HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 AdBanner()
-                // At a large font size the four labels no longer fit side by side: only the
+                // At a large font size the five labels no longer fit side by side: only the
                 // selected tab keeps its label, the others are their icon (still read out by name).
                 val bigText = LocalDensity.current.fontScale > 1.3f
                 NavigationBar(containerColor = Color.Transparent, windowInsets = NavigationBarDefaults.windowInsets) {
@@ -713,7 +719,17 @@ private fun MainScreen(
                     onTour = if (!data.settings.tourDone) ({ com.xlollx.songport.ui.Tour.start() }) else null,
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true })
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, compareLinks = compareLinks, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onCompareClosed = { compareLinks = null }, onBackup = { backupOpen = true })
+                MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
+                    snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it },
+                    onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
+                    // "Make a shared playlist": the songs in common, as a file playlist, the source of a new sync.
+                    onNewSyncFromFile = { name, id ->
+                        tab = MainActivity.TAB_SYNCS
+                        editing = newJob().copy(name = name, source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id))
+                        snackScope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_compat_shared_made)) }
+                    },
+                )
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true })
             } } }
             }

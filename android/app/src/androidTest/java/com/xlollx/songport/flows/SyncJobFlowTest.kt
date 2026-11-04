@@ -181,9 +181,16 @@ class SyncJobFlowTest : FlowTest() {
     @Test
     fun tabsKeepTheirPlaceAcrossARotation() {
         launch(tabIntent(MainActivity.TAB_TOOLS))
-        waitText(s(R.string.tools_poster_title))
+        waitText(s(R.string.tools_manage_title))
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitText(s(R.string.tools_poster_title))
+        waitText(s(R.string.tools_manage_title))
         assertTrue(compose.onAllNodesWithText(s(R.string.tab_tools)).fetchSemanticsNodes().isNotEmpty())
+        // Discover too: a card's page open before the rotation is still open after it.
+        click(s(R.string.tab_discover))
+        waitText(s(R.string.discover_wrapped_title))
+        click(s(R.string.tools_poster_title))
+        waitText(s(R.string.card_ai_cover))
+        rotate(UiAutomation.ROTATION_FREEZE_0)
+        waitText(s(R.string.card_ai_cover))
     }
 }

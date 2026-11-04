@@ -39,7 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The two cards of Tools: "how compatible are we" (two playlists in, a score and a card out) and
+ * The two cards of Discover: "how compatible are we" (two playlists in, a score and a card out) and
  * the playlist poster with its QR code; and the poster's "cover drawn by your AI" option, with a
  * fake AI: its picture is already in the app's session cache, and any request it would make goes
  * to a closed local port through the closed network.
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith
 class CardsFlowTest : FlowTest() {
 
     private fun openTool(title: Int) {
-        launch(tabIntent(MainActivity.TAB_TOOLS))
+        launch(tabIntent(MainActivity.TAB_DISCOVER))
         waitText(s(title))
         click(s(title))
     }

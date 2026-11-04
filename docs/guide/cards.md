@@ -1,7 +1,22 @@
 # Cards: "how compatible are we?" and the playlist poster
 
-Two tools in the Tools tab that end in an image to share, in the story format (1080×1920) or the
+Two cards of the Discover tab that end in an image to share, in the story format (1080×1920) or the
 square one (1080×1080). Nothing is created or changed on any service: they only read.
+
+Discover holds a few more, all computed on the phone:
+
+- **Your Wrapped, whenever you want**: top artist, top decade, songs in your playlists, services and a
+  playful "musical age" (the median release year of your songs, minus 17), on a story card.
+- **Universal link**: a playlist or a song as a `trackhop.org/open#…` link. The songs travel in the
+  part after `#`, which browsers never send to a server; the page lists them with buttons that search
+  each one on Spotify, Apple Music, YouTube Music, Deezer, TIDAL or Amazon Music. A long playlist is cut
+  to what a chat app lets through, and the page says so.
+- **Playlist roast**: with the AI you set up for the Playlist generator, a short affectionate roast of a
+  playlist. Only a summary goes to your AI: name, counts, top artists, decades and twenty titles.
+- **Vanished songs**: songs in an older backup copy of a playlist and missing from the newest one, and
+  songs a Mirror sync removed, each with "Search on…".
+- **Two subscriptions?**: how much the liked songs and playlists of two of your services overlap, and
+  what both cost at the prices you type (kept on the phone). It never says which one to keep.
 
 ## How compatible are we?
 

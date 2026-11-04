@@ -80,7 +80,7 @@ class CardPick(val provider: MusicProvider, val playlist: Playlist, val pastedLi
  */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, onPick: (CardPick?) -> Unit) {
+internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, onPick: (CardPick?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val connected = remember { Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" } }
@@ -178,9 +178,9 @@ private fun PlaylistSource(label: String, initialLink: String?, snackbar: Snackb
  * the preview.
  */
 @Composable
-internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null) {
+internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null, formats: List<Cards.Format> = Cards.Format.entries) {
     val ctx = LocalContext.current
-    var format by remember { mutableStateOf(Cards.Format.STORY) }
+    var format by remember { mutableStateOf(formats.first()) }
     val bmp = bitmaps?.get(format)
     val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
         if (uri != null && bmp != null) Cards.save(ctx, bmp, uri)
@@ -190,7 +190,7 @@ internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy
         Button(enabled = !busy, onClick = onRender) { Text(renderLabel) }
     } else if (busy) CircularProgressIndicator(Modifier.size(18.dp))
     if (bmp != null) {
-        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (formats.size > 1) androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             FilterChip(selected = format == Cards.Format.STORY, onClick = { format = Cards.Format.STORY }, label = { Text(stringResource(R.string.card_format_story)) })
             FilterChip(selected = format == Cards.Format.SQUARE, onClick = { format = Cards.Format.SQUARE }, label = { Text(stringResource(R.string.card_format_square)) })
         }
@@ -221,7 +221,7 @@ private fun qrUrl(ctx: android.content.Context, pick: CardPick): String? {
 
 /** "How compatible are we?": two playlists in, a score and a card out. */
 @Composable
-fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, String>? = null) {
+fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, String>? = null, onMakeShared: ((name: String, tracks: List<Track>) -> Unit)? = null) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var a by remember { mutableStateOf<CardPick?>(null) }
@@ -282,6 +282,15 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                     }
                     Suggestions(stringResource(R.string.card_compat_for, a?.playlist?.name.orEmpty()), r.forA)
                     Suggestions(stringResource(R.string.card_compat_for, b?.playlist?.name.orEmpty()), r.forB)
+                    // The songs in common as a playlist of their own, synced wherever the user chooses.
+                    if (onMakeShared != null && r.common.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        Text(stringResource(R.string.discover_compat_shared_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        OutlinedButton(onClick = {
+                            val name = ctx.getString(R.string.discover_compat_shared_name, a?.playlist?.name.orEmpty(), b?.playlist?.name.orEmpty())
+                            onMakeShared(name, r.common.map { it.a })
+                        }) { Text(stringResource(R.string.discover_compat_shared)) }
+                    }
                 }
             }
         }

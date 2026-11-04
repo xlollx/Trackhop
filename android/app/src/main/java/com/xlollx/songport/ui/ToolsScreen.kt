@@ -33,9 +33,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -107,8 +105,6 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     BACKUP(Icons.Filled.Backup, R.string.backup_title, R.string.backup_row_desc, false),
     DEDUPE(Icons.Filled.CleaningServices, R.string.tools_dedupe_title, R.string.tools_row_dedupe, true),
     SCAN(Icons.Filled.ContentCopy, R.string.tools_scan_title, R.string.tools_row_scan, true),
-    COMPAT(Icons.Filled.Favorite, R.string.tools_compat_title, R.string.tools_row_compat, false),
-    POSTER(Icons.Filled.QrCode2, R.string.tools_poster_title, R.string.tools_row_poster, false),
     STATS(Icons.Filled.Insights, R.string.stats_title, R.string.stats_row_desc, false),
     UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true);
 
@@ -131,7 +127,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, compareLinks: Pair<String, String>? = null, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onCompareClosed: () -> Unit = {}, onBackup: () -> Unit = {}) {
+fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}) {
     val ctx = LocalContext.current
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     var selectedId by rememberSaveable { mutableStateOf(connected.firstOrNull()?.id) }
@@ -140,12 +136,9 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onT
     var open by rememberSaveable { mutableStateOf<Tool?>(null) }
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()
-    // Two playlist links shared together open the comparison straight away.
-    LaunchedEffect(compareLinks) { if (compareLinks != null) open = Tool.COMPAT }
 
     val current = open
-    // Leaving a tool's page; the shared links are done with once their comparison is closed.
-    fun close() { if (open == Tool.COMPAT) onCompareClosed(); open = null }
+    fun close() { open = null }
     // A tool's page has its own top bar with the way back: the tab's "Tools" header steps aside,
     // so there is one header, not two stacked.
     DisposableEffect(current != null) {
@@ -184,8 +177,6 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onT
                     Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }
                     Tool.BACKUP -> Unit
                     Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
-                    Tool.COMPAT -> CompatibilityCard(local, compareLinks)
-                    Tool.POSTER -> PosterCard(local)
                     else -> {}
                 }
             }
@@ -237,8 +228,6 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onT
         }
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
-            ToolRow(Tool.COMPAT, provider) { open = Tool.COMPAT }
-            ToolRow(Tool.POSTER, provider) { open = Tool.POSTER }
             ToolRow(Tool.AI, provider, beta = true) { open = Tool.AI }
         }
 

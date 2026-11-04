@@ -163,7 +163,7 @@ class NewFeaturesFlowTest : FlowTest() {
         waitText(s(R.string.stats_tracks_moved))
         assertTrue(exists(s(R.string.stats_syncs_done)))
         back()
-        waitText(s(R.string.tools_poster_title))
+        waitText(s(R.string.tools_manage_title))
     }
 
     @Test
