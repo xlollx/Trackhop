@@ -151,7 +151,7 @@ fun DiscoverScreen(
                         val id = LocalFilesProvider.importTracks(ctx, name, tracks)
                         onNewSyncFromFile(name, id)
                     }
-                    DiscoverCard.ROAST -> RoastPage(local, ai)
+                    DiscoverCard.ROAST -> RoastPage(local, ai, onSetUpAi)
                     DiscoverCard.VANISHED -> VanishedPage(onBackup)
                     DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
                     DiscoverCard.POSTER -> PosterCard(local)

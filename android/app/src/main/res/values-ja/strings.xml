@@ -1608,4 +1608,7 @@
     <string name="discover_roast_report_send">送信</string>
     <string name="whats_new_114_roast_title">Roastカードがきれいに</string>
     <string name="whats_new_114_roast_body">Roastカードにプレイリストのカバーと主要アーティストのアルバムが、その色合いで表示されるようになりました。</string>
+    <string name="ai_nano_failed">%1$s を準備できませんでした: %2$s</string>
+    <string name="ai_nano_background">Android が自動でダウンロードします。Wi-Fi を待つことがあり、時間がかかる場合があります。準備ができるとボタンが有効になります。</string>
+    <string name="ai_nano_retry">再試行</string>
 </resources>

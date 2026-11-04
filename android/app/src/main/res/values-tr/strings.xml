@@ -1629,4 +1629,7 @@
     <string name="discover_roast_report_send">Gönder</string>
     <string name="whats_new_114_roast_title">Daha güzel bir Roast kartı</string>
     <string name="whats_new_114_roast_body">Roast kartı artık çalma listesinin kapağını ve öne çıkan sanatçıların albümlerini, kendi renkleriyle gösteriyor.</string>
+    <string name="ai_nano_failed">%1$s hazırlanamadı: %2$s</string>
+    <string name="ai_nano_background">Android bunu kendisi indirir ve Wi-Fi bekleyebilir: biraz sürebilir. Hazır olduğunda düğme etkinleşir.</string>
+    <string name="ai_nano_retry">Tekrar dene</string>
 </resources>

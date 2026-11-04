@@ -1631,4 +1631,7 @@
     <string name="discover_roast_report_send">Invia</string>
     <string name="whats_new_114_roast_title">Una card del Roast più bella</string>
     <string name="whats_new_114_roast_body">La card del Roast ora mostra la copertina della playlist e gli album dei suoi artisti principali, nei loro colori.</string>
+    <string name="ai_nano_failed">Non sono riuscito a preparare %1$s: %2$s</string>
+    <string name="ai_nano_background">Android lo scarica da solo e può aspettare il Wi-Fi: può volerci un po\'. Il pulsante si attiva appena è pronto.</string>
+    <string name="ai_nano_retry">Riprova</string>
 </resources>

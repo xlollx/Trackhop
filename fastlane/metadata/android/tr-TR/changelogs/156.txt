@@ -1,0 +1,1 @@
+Gemini Nano: Roast ve oluşturucu artık "Hazırlanıyor"da takılı görünmüyor. İndirmeyi gösterir, Android modeli hâlâ indiriyorsa söyler (Wi-Fi bekleyebilir), hata olursa Tekrar dene sunar, kendi anahtarını önerir ve Nano hazır olunca kendiliğinden etkinleşir. Roast, poster ve evrensel bağlantı sekme değişince seçili listeyi hatırlar.

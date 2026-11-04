@@ -1608,4 +1608,7 @@
     <string name="discover_roast_report_send">发送</string>
     <string name="whats_new_114_roast_title">更好看的吐槽卡片</string>
     <string name="whats_new_114_roast_body">吐槽卡片现在会以其配色显示歌单封面和主要艺人的专辑。</string>
+    <string name="ai_nano_failed">无法准备 %1$s：%2$s</string>
+    <string name="ai_nano_background">Android 会自行下载，可能会等待 Wi-Fi，需要一些时间。准备好后按钮会立即可用。</string>
+    <string name="ai_nano_retry">重试</string>
 </resources>

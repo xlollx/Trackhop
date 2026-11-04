@@ -75,23 +75,37 @@ import kotlinx.coroutines.withContext
 class CardPick(val provider: MusicProvider, val playlist: Playlist, val pastedLink: String? = null)
 
 /**
+ * The playlist last chosen on each page that names a [PlaylistSource] memory, for as long as the app
+ * runs: going to another tab and back left the page on "Link" with nothing chosen.
+ */
+internal object PickMemory {
+    private val picks = HashMap<String, CardPick>()
+    @Synchronized fun get(key: String?): CardPick? = key?.let { picks[it] }
+    @Synchronized fun set(key: String?, pick: CardPick?) { if (key == null) return; if (pick == null) picks.remove(key) else picks[key] = pick }
+}
+
+/**
  * Where a card's playlist comes from: a pasted public link, or one of the user's own playlists on
  * a connected service. [initialLink] pre-fills and resolves a link handed in from the share sheet.
+ * [memory]: the page's key in [PickMemory], so the choice is still there when the page comes back.
  */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, onPick: (CardPick?) -> Unit) {
+internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, memory: String? = null, onPick: (CardPick?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val connected = remember { Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" } }
-    var mode by remember { mutableStateOf<String?>(null) } // null = link, else provider id
-    var link by remember { mutableStateOf(initialLink.orEmpty()) }
-    var picked by remember { mutableStateOf<CardPick?>(null) }
+    // A choice kept from before, unless a link came in from the share sheet: that one wins.
+    val kept = remember { if (initialLink.isNullOrBlank()) PickMemory.get(memory) else null }
+    var mode by remember { mutableStateOf(kept?.takeIf { it.pastedLink == null }?.provider?.id?.takeIf { id -> connected.any { it.id == id } }) } // null = link, else provider id
+    var link by remember { mutableStateOf(initialLink ?: kept?.pastedLink.orEmpty()) }
+    var picked by remember { mutableStateOf(kept?.takeIf { it.pastedLink != null || mode != null }) }
     var busy by remember { mutableStateOf(false) }
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
-    fun choose(p: CardPick?) { picked = p; onPick(p) }
+    fun choose(p: CardPick?) { picked = p; PickMemory.set(memory, p); onPick(p) }
+    LaunchedEffect(Unit) { picked?.let(onPick) }
 
     suspend fun resolve(text: String) {
         busy = true
@@ -178,7 +192,7 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
  * the preview.
  */
 @Composable
-internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null, formats: List<Cards.Format> = Cards.Format.entries) {
+internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null, formats: List<Cards.Format> = Cards.Format.entries, enabled: Boolean = true) {
     val ctx = LocalContext.current
     var format by remember { mutableStateOf(formats.first()) }
     val bmp = bitmaps?.get(format)
@@ -187,7 +201,7 @@ internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy
     }
     if (onRender != null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (busy) CircularProgressIndicator(Modifier.size(18.dp))
-        Button(enabled = !busy, onClick = onRender) { Text(renderLabel) }
+        Button(enabled = !busy && enabled, onClick = onRender) { Text(renderLabel) }
     } else if (busy) CircularProgressIndicator(Modifier.size(18.dp))
     // While a card is being drawn its place is kept (chips, a blank of the card's shape, the buttons
     // greyed): appearing late, it pushed everything below it down under a finger already on its way.
@@ -433,7 +447,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.tools_poster_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; bitmaps = null; drawn = null; variant = 0 }
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster") { pick = it; bitmaps = null; drawn = null; variant = 0 }
         CoverArtChoice(art, ai, aiSupport, enabled = !busy) {
             art = it; bitmaps = null; drawn = null
             runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }

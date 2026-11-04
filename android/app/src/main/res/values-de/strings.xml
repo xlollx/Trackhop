@@ -1631,4 +1631,7 @@
     <string name="discover_roast_report_send">Senden</string>
     <string name="whats_new_114_roast_title">Eine schönere Roast-Karte</string>
     <string name="whats_new_114_roast_body">Die Roast-Karte zeigt jetzt das Cover der Playlist und die Alben ihrer Top-Künstler, in ihren Farben.</string>
+    <string name="ai_nano_failed">%1$s konnte nicht vorbereitet werden: %2$s</string>
+    <string name="ai_nano_background">Android lädt es selbst herunter und wartet eventuell auf WLAN: Das kann dauern. Die Schaltfläche wird aktiv, sobald es bereit ist.</string>
+    <string name="ai_nano_retry">Erneut versuchen</string>
 </resources>

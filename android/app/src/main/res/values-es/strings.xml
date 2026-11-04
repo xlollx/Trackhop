@@ -1639,4 +1639,7 @@
     <string name="discover_roast_report_send">Enviar</string>
     <string name="whats_new_114_roast_title">Una tarjeta de Roast más bonita</string>
     <string name="whats_new_114_roast_body">La tarjeta del Roast ahora muestra la portada de la playlist y los álbumes de sus artistas principales, con sus colores.</string>
+    <string name="ai_nano_failed">No se pudo preparar %1$s: %2$s</string>
+    <string name="ai_nano_background">Android lo descarga por su cuenta y puede esperar al Wi-Fi: puede tardar un poco. El botón se activa en cuanto esté listo.</string>
+    <string name="ai_nano_retry">Reintentar</string>
 </resources>

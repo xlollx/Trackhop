@@ -883,22 +883,50 @@ fun AiCountField(value: Int, onChange: (Int) -> Unit) {
 
 
 /**
- * Gemini Nano's state on screen: starts the download when the phone can fetch it and shows a
- * "getting ready" line meanwhile. True once it is ready to answer.
+ * Gemini Nano's state on screen: starts the download when the phone can fetch it and says where it
+ * stands meanwhile (bytes, Android still fetching it, or why it failed, with "try again"). Asks
+ * AICore again every few seconds, so the screen moves on by itself once the model is there.
+ * [onUseKey]: the way out for whoever does not want to wait. True once it is ready to answer.
  */
 @Composable
-fun NanoStatus(): Boolean {
-    LaunchedEffect(Unit) { NanoAi.prepare() }
+fun NanoStatus(onUseKey: (() -> Unit)? = null): Boolean {
+    LaunchedEffect(Unit) {
+        NanoAi.prepare()
+        while (NanoAi.state != AiClient.LocalState.READY) {
+            kotlinx.coroutines.delay(NANO_POLL_MS)
+            NanoAi.poll()
+        }
+    }
     val state = NanoAi.state
     if (state == AiClient.LocalState.READY) return true
+    val failed = NanoAi.error
     val total = NanoAi.total
-    val progress = if (total > 0) " ${NanoAi.downloaded / 1_000_000}/${total / 1_000_000} MB" else ""
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        CircularProgressIndicator(Modifier.size(12.dp)); Spacer(Modifier.width(6.dp))
-        Text(stringResource(R.string.ai_nano_preparing, NanoAi.NAME) + progress, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val small = MaterialTheme.typography.bodySmall
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        if (failed != null) {
+            Text(stringResource(R.string.ai_nano_failed, NanoAi.NAME, failed), style = small, color = MaterialTheme.colorScheme.error)
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (total > 0) CircularProgressIndicator(progress = { (NanoAi.downloaded.toFloat() / total).coerceIn(0f, 1f) }, modifier = Modifier.size(12.dp))
+                else CircularProgressIndicator(Modifier.size(12.dp))
+                Spacer(Modifier.width(6.dp))
+                val progress = if (total > 0) " ${NanoAi.downloaded / 1_000_000}/${total / 1_000_000} MB" else ""
+                Text(stringResource(R.string.ai_nano_preparing, NanoAi.NAME) + progress, style = small, color = muted)
+            }
+            // No bytes counted: Android fetches the model by itself, and may wait for Wi-Fi to do it.
+            if (total <= 0) Text(stringResource(R.string.ai_nano_background), style = small, color = muted)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (failed != null) TextButton(onClick = { NanoAi.retry() }) { Text(stringResource(R.string.ai_nano_retry)) }
+            if (onUseKey != null) TextButton(onClick = onUseKey) { Text(stringResource(R.string.ai_nano_use_key)) }
+        }
     }
     return false
 }
+
+/** How often a screen waiting for Gemini Nano asks AICore again. */
+private const val NANO_POLL_MS = 8_000L
 
 /** The key typed in [AiSetupDialog] and not saved yet, kept across a remade activity in memory only. */
 object AiSetupDraft {

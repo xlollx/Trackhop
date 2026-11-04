@@ -36,6 +36,11 @@ object NanoAi : AiClient.LocalModel {
         private set
     var total by mutableLongStateOf(0L)
         private set
+    /** Why the last attempt to get the model failed (null: none, or it was retried since). */
+    var error by mutableStateOf<String?>(null)
+        private set
+
+    @Volatile private var preparing = false
 
     private var client: GenerativeModel? = null
     private val lock = Mutex()
@@ -64,8 +69,26 @@ object NanoAi : AiClient.LocalModel {
 
     /** Starts fetching the model when it is not on the phone yet; [state] and the byte counts follow. */
     fun prepare() {
-        if (state == LocalState.DOWNLOADABLE || state == LocalState.DOWNLOADING) scope.launch { runCatching { ready() } }
+        if (preparing || state == LocalState.READY || state == LocalState.NONE) return
+        preparing = true
+        error = null
+        scope.launch {
+            try { ready() } catch (e: Throwable) { error = e.message ?: e.javaClass.simpleName } finally { preparing = false }
+        }
     }
+
+    /**
+     * While a screen waits for the model: asks AICore again (it may have finished the download in
+     * the background, or need it started again after a failure the user has not retried yet).
+     */
+    suspend fun poll() {
+        if (state == LocalState.READY || preparing) return
+        lock.withLock { refresh() }
+        if (error == null) prepare()
+    }
+
+    /** "Try again" after a failure. */
+    fun retry() { error = null; prepare() }
 
     private suspend fun ready() = lock.withLock {
         if (state == LocalState.READY) return@withLock

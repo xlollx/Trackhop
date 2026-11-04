@@ -1607,4 +1607,7 @@
     <string name="discover_roast_report_send">보내기</string>
     <string name="whats_new_114_roast_title">더 예뻐진 Roast 카드</string>
     <string name="whats_new_114_roast_body">이제 Roast 카드에 플레이리스트 커버와 주요 아티스트의 앨범이 그 색감으로 표시됩니다.</string>
+    <string name="ai_nano_failed">%1$s을(를) 준비하지 못했습니다: %2$s</string>
+    <string name="ai_nano_background">Android가 직접 다운로드하며 Wi-Fi를 기다릴 수 있어 시간이 걸릴 수 있습니다. 준비되면 버튼이 활성화됩니다.</string>
+    <string name="ai_nano_retry">다시 시도</string>
 </resources>

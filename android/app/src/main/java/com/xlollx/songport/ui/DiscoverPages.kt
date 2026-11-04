@@ -466,7 +466,7 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
     }
 
     Intro(stringResource(R.string.discover_link_intro))
-    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it }
+    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link") { pick = it }
     if (busy) Busy(stringResource(R.string.loading))
     val b = built
     val name = pick?.playlist?.name.orEmpty()
@@ -529,6 +529,13 @@ private fun CoverSearchRow() = Column(Modifier.fillMaxWidth()) {
     LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 6.dp))
 }
 
+/** The last roast, its playlist and its card, kept in memory while the app runs. */
+private object RoastKept {
+    @Volatile var text: String? = null
+    @Volatile var playlistId: String? = null
+    @Volatile var bitmaps: Map<Cards.Format, Bitmap>? = null
+}
+
 /** How long the roast's covers are looked up at most. */
 private const val ROAST_COVER_WAIT_MS = 20_000L
 private const val ROAST_COVERS = 6
@@ -540,7 +547,7 @@ private const val ROAST_COVERS = 6
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
+internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetUpAi: () -> Unit = {}) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val store = remember { Store.get(ctx) }
@@ -548,8 +555,10 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     var pick by remember { mutableStateOf<CardPick?>(null) }
     var busy by remember { mutableStateOf(false) }
     var coverSearch by remember { mutableStateOf(false) }
-    var roast by rememberSaveable { mutableStateOf<String?>(null) }
-    var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
+    // The last roast and its card stay for as long as the app runs: another tab and back kept nothing.
+    var roast by remember { mutableStateOf(RoastKept.text) }
+    var bitmaps by remember { mutableStateOf(RoastKept.bitmaps) }
+    fun forget() { roast = null; bitmaps = null; RoastKept.text = null; RoastKept.bitmaps = null; RoastKept.playlistId = null }
     // One roast, as it always was: the levels and the explicit switch were tried and dropped.
     val level = AiRoast.Level.DEFAULT
     val explicit = false
@@ -570,6 +579,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
                 val language = locale(ctx).getDisplayLanguage(Locale.ENGLISH)
                 val text = AiRoast.roast(ai, name, tracks, language, lv, ex)
                 roast = text
+                RoastKept.text = text; RoastKept.playlistId = p.playlist.id
                 // The covers: best effort and short, the card is drawn without them too.
                 val urls = ArrayList<String>()
                 var own: Bitmap? = null
@@ -593,6 +603,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
                     artists = com.xlollx.songport.sync.CoverPrompt.topArtists(tracks),
                 )
                 bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.roast(ctx, card, it) } }
+                if (RoastKept.playlistId == p.playlist.id) RoastKept.bitmaps = bitmaps
             } catch (e: CancellationException) { throw e } catch (e: AiRoast.Refused) {
                 // A refusal or an empty answer: a friendly word, a lower level when there is one.
                 snackbar.showSnackbar(ctx.getString(R.string.discover_roast_refused), withDismissAction = true, duration = SnackbarDuration.Long)
@@ -604,9 +615,13 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     }
 
     Intro(stringResource(R.string.discover_roast_intro, ai.label))
-    val ready = !ai.local || NanoStatus()
+    val ready = !ai.local || NanoStatus(onUseKey = onSetUpAi)
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar) { pick = it; roast = null; bitmaps = null }
+    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast") {
+        // The same playlist coming back (from the memory) keeps its roast; another one clears it.
+        if (it == null || it.playlist.id != RoastKept.playlistId) forget()
+        pick = it
+    }
     roast?.let { text ->
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -629,7 +644,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
             confirmButton = { TextButton(onClick = {
                 askReport = false
                 // The roast goes from the screen, and the prefilled report opens.
-                roast = null; bitmaps = null
+                forget()
                 openUrl(ctx, roastReportUrl(ai))
             }) { Text(stringResource(R.string.discover_roast_report_send)) } },
             dismissButton = { TextButton(onClick = { askReport = false }) { Text(stringResource(R.string.cancel)) } },
@@ -637,7 +652,8 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?) {
     }
     if (coverSearch) CoverSearchRow()
     CardActions(
-        bitmaps, "trackhop-roast", busy || pick == null || !ready, onRender = { run() },
+        // Spinning only while it works: waiting for a playlist or for Nano just greys the button.
+        bitmaps, "trackhop-roast", busy, onRender = { run() }, enabled = pick != null && ready,
         renderLabel = stringResource(if (roast == null) R.string.discover_roast_run else R.string.discover_roast_again),
         previewDescription = roast,
     )

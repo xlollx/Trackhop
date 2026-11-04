@@ -1679,4 +1679,7 @@
     <string name="discover_roast_report_send">Wyślij</string>
     <string name="whats_new_114_roast_title">Ładniejsza karta Roast</string>
     <string name="whats_new_114_roast_body">Karta Roast pokazuje teraz okładkę playlisty i albumy jej głównych wykonawców, w ich kolorach.</string>
+    <string name="ai_nano_failed">Nie udało się przygotować %1$s: %2$s</string>
+    <string name="ai_nano_background">Android pobiera go sam i może czekać na Wi-Fi: to może chwilę potrwać. Przycisk włączy się, gdy będzie gotowy.</string>
+    <string name="ai_nano_retry">Spróbuj ponownie</string>
 </resources>

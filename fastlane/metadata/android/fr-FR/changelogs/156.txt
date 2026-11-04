@@ -1,0 +1,1 @@
+Gemini Nano : le Roast et le générateur ne semblent plus bloqués sur « Préparation ». Ils montrent le téléchargement, signalent quand Android télécharge encore le modèle (parfois en Wi-Fi), affichent l'erreur avec Réessayer, proposent votre clé et s'activent dès que Nano est prêt. Roast, affiche et lien universel gardent la playlist choisie en changeant d'onglet.

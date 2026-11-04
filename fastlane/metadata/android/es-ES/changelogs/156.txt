@@ -1,0 +1,1 @@
+Gemini Nano: el Roast y el generador ya no parecen atascados en "Preparando". Muestran la descarga, avisan cuando Android aún descarga el modelo (puede esperar al Wi-Fi), muestran el error con Reintentar, ofrecen usar tu clave y se activan solos cuando Nano está listo. Roast, póster y enlace universal recuerdan la playlist elegida al cambiar de pestaña.

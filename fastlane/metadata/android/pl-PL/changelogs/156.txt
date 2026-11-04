@@ -1,0 +1,1 @@
+Gemini Nano: Roast i generator nie wyglądają już na zawieszone na „Przygotowuję”. Pokazują pobieranie, informują, gdy Android wciąż pobiera model (może czekać na Wi-Fi), pokazują błąd z „Spróbuj ponownie”, proponują własny klucz i włączają się same, gdy Nano jest gotowy. Roast, plakat i link uniwersalny pamiętają playlistę po zmianie karty.

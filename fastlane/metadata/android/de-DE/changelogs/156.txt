@@ -1,0 +1,1 @@
+Gemini Nano: Roast und Generator hängen nicht mehr scheinbar bei „Vorbereiten“. Sie zeigen den Download, sagen, wenn Android das Modell noch lädt (evtl. erst im WLAN), zeigen Fehler mit „Erneut versuchen“, bieten den eigenen Schlüssel an und werden aktiv, sobald Nano bereit ist. Roast, Poster und Universal-Link behalten die gewählte Playlist beim Tabwechsel.
