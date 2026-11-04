@@ -1638,4 +1638,10 @@
     <string name="web_page_crashed">Strona przestała działać i została zamknięta. Spróbuj ponownie.</string>
     <string name="onboarding_docs_site_desc">Poradniki, nowości i opis wszystkich funkcji</string>
     <string name="onboarding_docs_github_desc">Kod źródłowy, wydania i zgłoszenia</string>
+    <string name="discover_roast_no_ai_tap">Wymaga klucza AI: dotknij, aby go dodać. Google Gemini (AI Studio) i Groq dają darmowe klucze.</string>
+    <string name="ai_nano_desc">Bez klucza: %1$s działa na tym telefonie, a to, co wpiszesz, zostaje na nim. To mały model, więc listy są krótsze i częściej chybione; z własnym kluczem wyniki są lepsze.</string>
+    <string name="ai_nano_label">%1$s · na tym telefonie</string>
+    <string name="ai_nano_use_key">Użyj mojego klucza</string>
+    <string name="ai_nano_preparing">Przygotowuję %1$s na tym telefonie…</string>
+    <string name="ai_nano_private">Działa na tym telefonie: playlista nie jest nigdzie wysyłana.</string>
 </resources>

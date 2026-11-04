@@ -354,6 +354,7 @@ private fun MainScreen(
     }
     // An idea for one service (ServiceIdeas), from the Syncs tab or the first sign-in: its page, filled in.
     var dedupeFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var aiSetupAsked by rememberSaveable { mutableStateOf(false) }
     var wrappedAsked by rememberSaveable { mutableStateOf(false) }
     fun openIdea(idea: com.xlollx.songport.ui.Idea) {
         when (idea.kind) {
@@ -760,6 +761,7 @@ private fun MainScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
                     openWrapped = wrappedAsked, onWrappedOpened = { wrappedAsked = false },
+                    onSetUpAi = { aiSetupAsked = true; tab = MainActivity.TAB_TOOLS },
                     // "Make a shared playlist": the songs in common, as a file playlist, the source of a new sync.
                     onNewSyncFromFile = { name, id ->
                         tab = MainActivity.TAB_SYNCS
@@ -767,7 +769,7 @@ private fun MainScreen(
                         snackScope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_compat_shared_made)) }
                     },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true })
             } } }
             }

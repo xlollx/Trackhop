@@ -1588,4 +1588,10 @@
     <string name="web_page_crashed">Sayfa çalışmayı durdurdu ve kapatıldı. Lütfen tekrar dene.</string>
     <string name="onboarding_docs_site_desc">Kılavuzlar, haberler ve tüm özelliklerin açıklaması</string>
     <string name="onboarding_docs_github_desc">Kaynak kodu, sürümler ve sorun bildirimleri</string>
+    <string name="discover_roast_no_ai_tap">Bir yapay zekâ anahtarı gerekir: eklemek için dokun. Google Gemini (AI Studio) ve Groq ücretsiz anahtar verir.</string>
+    <string name="ai_nano_desc">Anahtar gerekmez: %1$s bu telefonda çalışır ve yazdıkların telefonda kalır. Küçük bir model olduğu için listeler daha kısa olur ve daha sık yanılır; kendi anahtarınla sonuçlar daha iyi olur.</string>
+    <string name="ai_nano_label">%1$s · bu telefonda</string>
+    <string name="ai_nano_use_key">Anahtarımı kullan</string>
+    <string name="ai_nano_preparing">%1$s bu telefonda hazırlanıyor…</string>
+    <string name="ai_nano_private">Bu telefonda çalışır: çalma listesi hiçbir yere gönderilmez.</string>
 </resources>

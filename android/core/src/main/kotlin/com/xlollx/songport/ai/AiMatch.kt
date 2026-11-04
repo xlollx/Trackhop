@@ -37,12 +37,13 @@ object AiMatch {
         val found = ArrayList<Track>()
         val missing = ArrayList<Track>()
         var alreadyThere = 0
-        for (round in 0 until 3 + want / AiClient.ROUND) {
+        val size = AiClient.roundFor(c)
+        for (round in 0 until 3 + want / size) {
             val need = want - found.size
             if (need <= 0) break
             onProgress(found.size, want)
             val ask = prompt.copy(
-                count = minOf(need, AiClient.ROUND),
+                count = minOf(need, size),
                 existing = (prompt.existing + found.map { it.toString() }).distinct().take(300),
                 unavailable = missing.map { it.toString() }.distinct().take(100),
             )

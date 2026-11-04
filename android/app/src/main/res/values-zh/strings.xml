@@ -1567,4 +1567,10 @@
     <string name="web_page_crashed">页面已停止运行并被关闭。请重试。</string>
     <string name="onboarding_docs_site_desc">指南、新闻和所有功能说明</string>
     <string name="onboarding_docs_github_desc">源代码、版本和问题反馈</string>
+    <string name="discover_roast_no_ai_tap">需要 AI 密钥：点按即可添加。Google Gemini（AI Studio）和 Groq 提供免费密钥。</string>
+    <string name="ai_nano_desc">无需密钥：%1$s 在这部手机上运行，你输入的内容不会离开手机。它是小模型，生成的列表更短、出错更多；使用你自己的密钥效果更好。</string>
+    <string name="ai_nano_label">%1$s · 在这部手机上</string>
+    <string name="ai_nano_use_key">使用我的密钥</string>
+    <string name="ai_nano_preparing">正在这部手机上准备 %1$s…</string>
+    <string name="ai_nano_private">在这部手机上运行：播放列表不会发送到任何地方。</string>
 </resources>

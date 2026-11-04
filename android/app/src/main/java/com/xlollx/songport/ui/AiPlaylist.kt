@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.ai.AiClient
 import com.xlollx.songport.ai.AiMatch
+import com.xlollx.songport.ai.NanoAi
 import com.xlollx.songport.data.Store
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.PlaylistRef
@@ -104,6 +105,8 @@ object AiDraft {
     /** Outcome of the last model check: the configuration tried and its error (null = fine). */
     var checked by mutableStateOf<Pair<AiClient.Config, String?>?>(null)
     var checking by mutableStateOf(false)
+    /** Asked from elsewhere (the Roast without an AI): open on "With your AI" with the setup dialog. */
+    var setupAsked by mutableStateOf(false)
 
     /** Keyless mode (ArtistMix): null = not chosen yet, which means keyless while no AI is set up. */
     var keyless by mutableStateOf<Boolean?>(null)
@@ -176,6 +179,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
     // Errors of a request that may have finished while another tab was open.
     LaunchedEffect(d.error) { d.error?.let { snackbar.showSnackbar(it); d.error = null } }
 
+    LaunchedEffect(d.setupAsked) { if (d.setupAsked) { d.keyless = false; setupOpen = true; d.setupAsked = false } }
     if (setupOpen) AiSetupDialog(config, onDismiss = { setupOpen = false }) { config = it; d.models = emptyList(); setupOpen = false }
     d.proposed?.let { list ->
         AiReviewDialog(list, target.label(ctx), onDismiss = { d.proposed = null }) { kept ->
@@ -239,27 +243,41 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                 KeylessForm(targets, target)
                 return@Column
             }
-            Text(stringResource(R.string.ai_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // The user's key first; without one, Gemini Nano when the phone has it.
+            val c = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
+            Text(stringResource(if (c?.local == true) R.string.ai_nano_desc else R.string.ai_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(10.dp))
-            val c = config
-            if (c == null || !c.complete) {
+            if (c == null) {
+                // Not a dead end: where free keys are, then the setup.
+                Text(stringResource(R.string.ai_free_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                     Button(onClick = { setupOpen = true }) { Text(stringResource(R.string.ai_setup)) }
                 }
                 return@Column
             }
-            // Provider and model on one line; the model is a menu right here, the rest is in the dialog.
-            ModelRow(c, onChange = { setupOpen = true }) { m -> AiClient.save(ctx, c.copy(model = m)); config = c.copy(model = m); d.checked = null }
-            // The model is tried with a one-word request whenever it changes: a wrong key, an exhausted
-            // quota or a retired model show up here, not after the playlist has been described.
-            LaunchedEffect(c.vendor, c.model, c.apiKey, c.baseUrl) {
-                if (d.checked?.first == c) return@LaunchedEffect
-                d.checking = true
-                val r = AiClient.check(c)
-                d.checked = c to r
-                d.checking = false
+            var ready = true
+            if (c.local) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.ai_nano_label, c.label), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { setupOpen = true }) { Text(stringResource(R.string.ai_nano_use_key)) }
+                }
+                ready = NanoStatus()
+            } else {
+                // Provider and model on one line; the model is a menu right here, the rest is in the dialog.
+                ModelRow(c, onChange = { setupOpen = true }) { m -> AiClient.save(ctx, c.copy(model = m)); config = c.copy(model = m); d.checked = null }
+                // The model is tried with a one-word request whenever it changes: a wrong key, an exhausted
+                // quota or a retired model show up here, not after the playlist has been described.
+                LaunchedEffect(c.vendor, c.model, c.apiKey, c.baseUrl) {
+                    if (d.checked?.first == c) return@LaunchedEffect
+                    d.checking = true
+                    val r = AiClient.check(c)
+                    d.checked = c to r
+                    d.checking = false
+                }
             }
             when {
+                c.local -> Unit
                 d.checking -> Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(12.dp)); Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.ai_checking), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -300,7 +318,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                     )
                     Spacer(Modifier.width(8.dp))
                 }
-                Button(enabled = !d.busy && d.prompt.isNotBlank(), onClick = {
+                Button(enabled = !d.busy && ready && d.prompt.isNotBlank(), onClick = {
                     d.busy = true; d.step = ""
                     val app = ctx.applicationContext
                     val seedLines = d.seeds.lines().map { it.trim() }.filter { it.isNotEmpty() }
@@ -676,7 +694,8 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
     val app = ctx.applicationContext
     val d = AiDraft
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
-    var setupOpen by remember { mutableStateOf(config?.complete != true) }
+    val use = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
+    var setupOpen by remember { mutableStateOf(use == null) }
     var count by remember { mutableStateOf(10f) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -684,10 +703,11 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
     val fileId = job.source.playlistId
 
     if (setupOpen) {
-        AiSetupDialog(config, onDismiss = { if (config?.complete == true) setupOpen = false else onClose() }) { config = it; d.models = emptyList(); setupOpen = false }
+        AiSetupDialog(config, onDismiss = { if (use != null) setupOpen = false else onClose() }) { config = it; d.models = emptyList(); setupOpen = false }
         return
     }
-    val c = config ?: return
+    val c = use ?: return
+    val ready = !c.local || NanoAi.state == AiClient.LocalState.READY
     val target = Providers.byId(job.target.provider)
     proposed?.let { list ->
         AiReviewDialog(list, target?.label(ctx) ?: job.target.provider, onDismiss = { proposed = null }) { kept ->
@@ -714,6 +734,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text(job.aiPrompt.orEmpty(), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
+                if (c.local) NanoStatus()
                 AiCountField(count.toInt()) { count = it.toFloat() }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
@@ -721,7 +742,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
         confirmButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (busy) { CircularProgressIndicator(Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)) }
-                TextButton(enabled = !busy && fileId != null, onClick = {
+                TextButton(enabled = !busy && ready && fileId != null, onClick = {
                     busy = true; error = null
                     d.scope.launch {
                         val outcome = runCatching {
@@ -756,7 +777,8 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
     val app = ctx.applicationContext
     val d = AiDraft
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
-    var setupOpen by remember { mutableStateOf(config?.complete != true) }
+    val use = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
+    var setupOpen by remember { mutableStateOf(use == null) }
     var prompt by remember { mutableStateOf("") }
     var count by remember { mutableStateOf(10f) }
     var busy by remember { mutableStateOf(false) }
@@ -768,10 +790,11 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
     var existing by remember { mutableStateOf<List<Track>>(emptyList()) }
 
     if (setupOpen) {
-        AiSetupDialog(config, onDismiss = { if (config?.complete == true) setupOpen = false else onClose() }) { config = it; d.models = emptyList(); setupOpen = false }
+        AiSetupDialog(config, onDismiss = { if (use != null) setupOpen = false else onClose() }) { config = it; d.models = emptyList(); setupOpen = false }
         return
     }
-    val c = config ?: return
+    val c = use ?: return
+    val ready = !c.local || NanoAi.state == AiClient.LocalState.READY
     proposed?.let { list ->
         AiReviewDialog(list, provider.label(ctx), onDismiss = { proposed = null }) { kept ->
             proposed = null
@@ -804,6 +827,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
+                if (c.local) NanoStatus()
                 AiCountField(count.toInt()) { count = it.toFloat() }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
@@ -811,7 +835,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
         confirmButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (busy) { CircularProgressIndicator(Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text(step, style = MaterialTheme.typography.bodySmall); Spacer(Modifier.width(8.dp)) }
-                TextButton(enabled = !busy, onClick = {
+                TextButton(enabled = !busy && ready, onClick = {
                     busy = true; error = null; step = ""
                     d.scope.launch {
                         val outcome = runCatching {
@@ -857,6 +881,24 @@ fun AiCountField(value: Int, onChange: (Int) -> Unit) {
     )
 }
 
+
+/**
+ * Gemini Nano's state on screen: starts the download when the phone can fetch it and shows a
+ * "getting ready" line meanwhile. True once it is ready to answer.
+ */
+@Composable
+fun NanoStatus(): Boolean {
+    LaunchedEffect(Unit) { NanoAi.prepare() }
+    val state = NanoAi.state
+    if (state == AiClient.LocalState.READY) return true
+    val total = NanoAi.total
+    val progress = if (total > 0) " ${NanoAi.downloaded / 1_000_000}/${total / 1_000_000} MB" else ""
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        CircularProgressIndicator(Modifier.size(12.dp)); Spacer(Modifier.width(6.dp))
+        Text(stringResource(R.string.ai_nano_preparing, NanoAi.NAME) + progress, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    return false
+}
 
 /** The key typed in [AiSetupDialog] and not saved yet, kept across a remade activity in memory only. */
 object AiSetupDraft {

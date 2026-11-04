@@ -102,6 +102,8 @@ fun DiscoverScreen(
     /** Asked from elsewhere (an idea on the Syncs tab): the Wrapped opens, once. */
     openWrapped: Boolean = false,
     onWrappedOpened: () -> Unit = {},
+    /** No AI to use: where the key is set up (Tools › Playlist generator). */
+    onSetUpAi: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     var open by rememberSaveable { mutableStateOf<DiscoverCard?>(null) }
@@ -116,8 +118,10 @@ fun DiscoverScreen(
         onSubpage(current != null)
         onDispose { onSubpage(false) }
     }
-    // The user's AI, read again whenever the list shows (it may have been set up in Tools meanwhile).
-    val ai = remember(current) { AiClient.config(ctx)?.takeIf { it.complete } }
+    // The user's AI, read again whenever the list shows (it may have been set up in Tools meanwhile);
+    // without a key, Gemini Nano when the phone has it.
+    val saved = remember(current) { AiClient.config(ctx)?.takeIf { it.complete } }
+    val ai = AiClient.pick(saved, com.xlollx.songport.ai.NanoAi.state, com.xlollx.songport.ai.NanoAi.NAME)
 
     if (current != null) {
         val local = remember { SnackbarHostState() }
@@ -171,8 +175,10 @@ fun DiscoverScreen(
         for (row in cards.chunked(2)) {
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 for (card in row) {
-                    val disabledWhy = if (card.ai && ai == null) stringResource(R.string.discover_roast_no_ai) else null
-                    DiscoverTile(card, disabledWhy, Modifier.weight(1f).fillMaxHeight()) { open = card }
+                    // No AI at all: the card still opens, on the place where a key is set up.
+                    val noAi = card.ai && ai == null
+                    val disabledWhy = if (noAi) stringResource(R.string.discover_roast_no_ai_tap) else null
+                    DiscoverTile(card, disabledWhy, Modifier.weight(1f).fillMaxHeight()) { if (noAi) onSetUpAi() else open = card }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
@@ -202,13 +208,13 @@ private fun WrappedHero(onOpen: () -> Unit) {
     }
 }
 
-/** One card of the grid: its emoji on a tinted tile, name, one line of what it does; dimmed with the reason when it cannot be used. */
+/** One card of the grid: its emoji on a tinted tile, name, one line of what it does; dimmed with the reason when it cannot be used yet (still tappable). */
 @Composable
 private fun DiscoverTile(card: DiscoverCard, disabledWhy: String?, modifier: Modifier, onClick: () -> Unit) {
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val enabled = disabledWhy == null
     Card(
-        onClick = onClick, enabled = enabled, modifier = modifier, shape = RoundedCornerShape(20.dp),
+        onClick = onClick, modifier = modifier, shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer, disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(Modifier.fillMaxWidth()) {

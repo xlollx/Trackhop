@@ -1590,4 +1590,10 @@
     <string name="web_page_crashed">La pagina ha smesso di funzionare ed è stata chiusa. Riprova.</string>
     <string name="onboarding_docs_site_desc">Guide, novità e tutte le funzioni spiegate</string>
     <string name="onboarding_docs_github_desc">Codice sorgente, versioni e segnalazioni</string>
+    <string name="discover_roast_no_ai_tap">Serve una chiave AI: tocca per aggiungerla. Google Gemini (AI Studio) e Groq danno chiavi gratuite.</string>
+    <string name="ai_nano_desc">Nessuna chiave: %1$s funziona su questo telefono e ciò che scrivi resta qui. È un modello piccolo, quindi le liste sono più corte e sbaglia più spesso; con una tua chiave i risultati sono migliori.</string>
+    <string name="ai_nano_label">%1$s · su questo telefono</string>
+    <string name="ai_nano_use_key">Usa la mia chiave</string>
+    <string name="ai_nano_preparing">Preparo %1$s su questo telefono…</string>
+    <string name="ai_nano_private">Funziona su questo telefono: la playlist non viene inviata da nessuna parte.</string>
 </resources>
