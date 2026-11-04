@@ -127,8 +127,16 @@ object AiRoast {
         val trimmed = answer.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val start = trimmed.indexOf('{'); val end = trimmed.lastIndexOf('}')
         if (start >= 0 && end > start) runCatching { parseJson(trimmed.substring(start, end + 1))["roast"].str }.getOrNull()?.let { return it.trim() }
+        // JSON the parser refuses (a stray quote: `{ "  "roast": "..." }`, seen with real AIs): the
+        // text after "roast": is taken anyway, so the card never shows braces and keys.
+        LOOSE_ROAST.find(trimmed)?.let { m ->
+            return m.groupValues[1].replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\").trim()
+        }
         return trimmed.trim('"').trim()
     }
+
+    /** "roast": "<text>" up to the last quote, for answers that are almost JSON. */
+    private val LOOSE_ROAST = Regex("""["']?roast["']?\s*:\s*"([\s\S]*)"\s*}?\s*$""")
 
     suspend fun roast(
         c: AiClient.Config, name: String, tracks: List<Track>, language: String,

@@ -348,6 +348,10 @@ class DiscoverTest {
     @Test fun roastAnswerIsUnwrapped() {
         assertEquals("You love it.", AiRoast.parse("```json\n{\"roast\": \"You love it.\"}\n```"))
         assertEquals("Plain text.", AiRoast.parse("Plain text."))
+        // Almost JSON, as an AI really answered (a stray quote before the key): the text, no braces.
+        assertEquals("EUROBEAT? Sei bloccato in un loop di 'BOOM BOOM JAPAN'.",
+            AiRoast.parse("{\n\"  \"roast\": \"EUROBEAT? Sei bloccato in un loop di 'BOOM BOOM JAPAN'.\"\n}"))
+        assertEquals("Line one\nline \"two\"", AiRoast.parse("{ roast: \"Line one\\nline \\\"two\\\"\" "))
     }
 
     @Test fun everyRoastLevelKeepsTheSafetyRules() {
