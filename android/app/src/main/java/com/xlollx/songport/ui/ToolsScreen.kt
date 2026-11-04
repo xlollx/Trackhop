@@ -99,7 +99,7 @@ import kotlinx.coroutines.withContext
  */
 private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVector, val titleRes: Int, val descRes: Int, val needsService: Boolean) {
     FILES(Icons.Filled.Folder, R.string.files_title, R.string.tools_row_files, false),
-    AI(Icons.Filled.AutoAwesome, R.string.ai_title, R.string.ai_row_desc, false),
+    AI(Icons.Filled.AutoAwesome, R.string.ai_title, R.string.lb_row_desc, false),
     MANAGE(Icons.Filled.Edit, R.string.tools_manage_title, R.string.tools_row_manage, true),
     EXPORT(Icons.Filled.Download, R.string.tools_export_title, R.string.tools_row_export, true),
     MAKE(Icons.Filled.PlaylistAdd, R.string.tools_make_title, R.string.tools_row_make, true),

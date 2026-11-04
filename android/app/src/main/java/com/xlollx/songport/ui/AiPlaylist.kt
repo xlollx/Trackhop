@@ -70,6 +70,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Scheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -103,6 +104,21 @@ object AiDraft {
     var checked by mutableStateOf<Pair<AiClient.Config, String?>?>(null)
     var checking by mutableStateOf(false)
 
+    /** Keyless mode (ArtistMix): null = not chosen yet, which means keyless while no AI is set up. */
+    var keyless by mutableStateOf<Boolean?>(null)
+    /** Keyless seeds: typed artists, or (true) the top artists of one of the user's playlists. */
+    var mixFromPlaylist by mutableStateOf(false)
+    var mixArtists by mutableStateOf("")
+    var mixCount by mutableStateOf(25)
+    var mixLeaning by mutableStateOf(com.xlollx.songport.ai.ArtistMix.Leaning.BALANCED)
+    var mixSourceId by mutableStateOf("")
+    var mixPlaylistId by mutableStateOf("")
+    var mixPlaylistName by mutableStateOf("")
+    /** The seed artists of the list under review, for its default name. */
+    var mixLabel by mutableStateOf("")
+    /** True while the list under review comes from the keyless mode. */
+    var proposedKeyless by mutableStateOf(false)
+
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var loaded = false
 
@@ -117,14 +133,26 @@ object AiDraft {
         name = p.getString("name", "") ?: ""
         count = p.getFloat("count", 25f)
         targetId = p.getString("target", "") ?: ""
+        keyless = if (p.contains("keyless")) p.getBoolean("keyless", true) else null
+        mixFromPlaylist = p.getBoolean("mix_from_playlist", false)
+        mixArtists = p.getString("mix_artists", "") ?: ""
+        mixCount = p.getInt("mix_count", 25)
+        mixLeaning = com.xlollx.songport.ai.ArtistMix.Leaning.of(p.getString("mix_leaning", null))
+        mixSourceId = p.getString("mix_source", "") ?: ""
+        mixPlaylistId = p.getString("mix_playlist", "") ?: ""
+        mixPlaylistName = p.getString("mix_playlist_name", "") ?: ""
     }
 
     fun persist(ctx: Context) {
         prefs(ctx).edit().putString("prompt", prompt).putString("seeds", seeds).putString("name", name)
-            .putFloat("count", count).putString("target", targetId).apply()
+            .putFloat("count", count).putString("target", targetId)
+            .also { e -> keyless?.let { e.putBoolean("keyless", it) } }
+            .putBoolean("mix_from_playlist", mixFromPlaylist).putString("mix_artists", mixArtists).putInt("mix_count", mixCount)
+            .putString("mix_leaning", mixLeaning.name).putString("mix_source", mixSourceId)
+            .putString("mix_playlist", mixPlaylistId).putString("mix_playlist_name", mixPlaylistName).apply()
     }
 
-    fun clearText(ctx: Context) { prompt = ""; seeds = ""; name = ""; persist(ctx) }
+    fun clearText(ctx: Context) { prompt = ""; seeds = ""; name = ""; mixArtists = ""; persist(ctx) }
 }
 
 /**
@@ -151,7 +179,10 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
     d.proposed?.let { list ->
         AiReviewDialog(list, target.label(ctx), onDismiss = { d.proposed = null }) { kept ->
             d.proposed = null
-            val finalName = d.name.trim().ifBlank { ctx.getString(R.string.ai_default_name) }
+            val keylessList = d.proposedKeyless
+            val finalName = d.name.trim().ifBlank {
+                if (keylessList && d.mixLabel.isNotBlank()) ctx.getString(R.string.lb_default_name, d.mixLabel) else ctx.getString(R.string.ai_default_name)
+            }
             val app = ctx.applicationContext
             d.scope.launch {
                 try {
@@ -170,7 +201,8 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                             name = finalName,
                             source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = fileId, playlistName = fileId),
                             target = PlaylistRef(provider = target.id, playlistId = created.id, playlistName = created.name),
-                            aiPrompt = d.prompt.trim(),
+                            // A keyless list has no description to extend it with.
+                            aiPrompt = if (keylessList) null else d.prompt.trim(),
                         )
                         Store.get(app).upsertJob(job)
                         d.busy = false
@@ -194,6 +226,18 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                 StatusPill(stringResource(R.string.beta), Tone.Neutral)
             }
             Spacer(Modifier.height(6.dp))
+            // Two ways in: no key at all (open music data), or the user's own AI. Without an AI set up,
+            // the keyless one is where the card opens.
+            val keyless = d.keyless ?: (config?.complete != true)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = keyless, onClick = { d.keyless = true; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_mode_keyless)) })
+                FilterChip(selected = !keyless, onClick = { d.keyless = false; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_mode_ai)) })
+            }
+            Spacer(Modifier.height(6.dp))
+            if (keyless) {
+                KeylessForm(targets, target)
+                return@Column
+            }
             Text(stringResource(R.string.ai_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(10.dp))
             val c = config
@@ -269,12 +313,152 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                         d.busy = false; d.step = ""
                         outcome.onFailure { e -> d.error = e.message ?: app.getString(R.string.error_generic) }
                         val tracks = outcome.getOrNull() ?: return@launch
-                        if (tracks.isEmpty()) d.error = app.getString(R.string.ai_empty) else d.proposed = tracks
+                        if (tracks.isEmpty()) d.error = app.getString(R.string.ai_empty) else { d.proposedKeyless = false; d.proposed = tracks }
                     }
                 }) { Text(stringResource(R.string.ai_generate)) }
             }
         }
     }
+}
+
+/**
+ * The generator without a key: seed artists (typed, or the top artists of a playlist of the
+ * user's), a length and how adventurous; [ArtistMixSource] builds the list from MusicBrainz and
+ * ListenBrainz, the destination is searched for it, and the same review and creation follow.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun KeylessForm(targets: List<MusicProvider>, target: MusicProvider) {
+    val ctx = LocalContext.current
+    val d = AiDraft
+    Text(stringResource(R.string.lb_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Spacer(Modifier.height(10.dp))
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(selected = !d.mixFromPlaylist, onClick = { d.mixFromPlaylist = false; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_seed_from_artists)) })
+        FilterChip(selected = d.mixFromPlaylist, onClick = { d.mixFromPlaylist = true; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_seed_from_playlist)) })
+    }
+    Spacer(Modifier.height(6.dp))
+    if (!d.mixFromPlaylist) {
+        OutlinedTextField(
+            value = d.mixArtists, onValueChange = { d.mixArtists = it; d.persist(ctx) }, minLines = 1, maxLines = 5,
+            label = { Text(stringResource(R.string.lb_seed_artists)) }, supportingText = { Text(stringResource(R.string.lb_seed_artists_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    } else {
+        SeedPlaylistPicker()
+    }
+    Spacer(Modifier.height(8.dp))
+    Text(stringResource(R.string.lb_length), style = MaterialTheme.typography.bodyMedium)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        com.xlollx.songport.ai.ArtistMix.LENGTHS.forEach { n ->
+            FilterChip(selected = d.mixCount == n, onClick = { d.mixCount = n; d.persist(ctx) }, label = { Text(n.toString()) })
+        }
+    }
+    Spacer(Modifier.height(4.dp))
+    Text(stringResource(R.string.lb_leaning), style = MaterialTheme.typography.bodyMedium)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            com.xlollx.songport.ai.ArtistMix.Leaning.FAMILIAR to R.string.lb_familiar,
+            com.xlollx.songport.ai.ArtistMix.Leaning.BALANCED to R.string.lb_balanced,
+            com.xlollx.songport.ai.ArtistMix.Leaning.DISCOVERY to R.string.lb_discovery,
+        ).forEach { (l, res) ->
+            FilterChip(selected = d.mixLeaning == l, onClick = { d.mixLeaning = l; d.persist(ctx) }, label = { Text(stringResource(res)) })
+        }
+    }
+    Text(stringResource(R.string.lb_leaning_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Spacer(Modifier.height(8.dp))
+    Text(stringResource(R.string.ai_target), style = MaterialTheme.typography.bodyMedium)
+    Spacer(Modifier.height(4.dp))
+    ServicePicker(targets, target.id, { d.targetId = it; d.persist(ctx) })
+    Spacer(Modifier.height(8.dp))
+    OutlinedTextField(
+        value = d.name, onValueChange = { d.name = it; d.persist(ctx) }, singleLine = true,
+        label = { Text(stringResource(R.string.editor_new_playlist_name)) },
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Spacer(Modifier.height(10.dp))
+    val ready = if (d.mixFromPlaylist) d.mixPlaylistId.isNotEmpty() else d.mixArtists.isNotBlank()
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+        if (d.busy) {
+            CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+            Text(d.step.ifEmpty { stringResource(R.string.ai_generating) }, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f, fill = false))
+            Spacer(Modifier.width(8.dp))
+        }
+        Button(enabled = !d.busy && ready, onClick = {
+            d.busy = true; d.step = ""
+            val app = ctx.applicationContext
+            val count = d.mixCount
+            val leaning = d.mixLeaning
+            val fromPlaylist = d.mixFromPlaylist
+            val source = Providers.byId(d.mixSourceId)
+            val playlistId = d.mixPlaylistId
+            val typed = d.mixArtists
+            d.scope.launch {
+                val outcome = runCatching {
+                    val exclude = if (fromPlaylist && source != null) source.tracks(app, playlistId) else emptyList()
+                    val seeds = if (fromPlaylist) com.xlollx.songport.ai.ArtistMix.topArtists(exclude) else com.xlollx.songport.ai.ArtistMix.parseSeeds(typed)
+                    if (seeds.isEmpty()) throw com.xlollx.songport.model.ProviderException(app.getString(if (fromPlaylist) R.string.lb_playlist_empty else R.string.lb_seed_needed))
+                    val r = com.xlollx.songport.ai.ArtistMixSource.generate(app.env, com.xlollx.songport.ai.ArtistMixSource.Request(seeds, count, leaning, exclude)) { step, done, total ->
+                        d.step = when (step) {
+                            com.xlollx.songport.ai.ArtistMixSource.Step.ARTISTS -> app.getString(R.string.lb_step_artists, done, total)
+                            com.xlollx.songport.ai.ArtistMixSource.Step.SIMILAR -> app.getString(R.string.lb_step_similar, done, total)
+                            else -> app.getString(R.string.lb_step_tracks, done, total)
+                        }
+                    }
+                    if (r.unknown.isNotEmpty()) d.error = app.getString(R.string.lb_unknown_some, r.unknown.joinToString(", "))
+                    d.mixLabel = r.seeds.take(2).joinToString(", ") { it.name }
+                    // A file takes the list as it is; a service gets only what it has, checked before the review.
+                    if (target.id == LocalFilesProvider.id) r.tracks.take(count)
+                    else com.xlollx.songport.ai.ArtistMixSource.onService(app.env, target, r.tracks, count, exclude) { found, want ->
+                        d.step = app.getString(R.string.ai_checking_availability, target.label(app), "$found/$want")
+                    }.found
+                }
+                d.busy = false; d.step = ""
+                outcome.onFailure { e -> if (e is kotlinx.coroutines.CancellationException) throw e; d.error = e.message ?: app.getString(R.string.error_generic) }
+                val tracks = outcome.getOrNull() ?: return@launch
+                if (tracks.isEmpty()) d.error = app.getString(R.string.lb_nothing) else { d.proposedKeyless = true; d.proposed = tracks }
+            }
+        }) { Text(stringResource(R.string.ai_generate)) }
+    }
+}
+
+/** "A playlist of mine": a connected service, then one of its playlists, loaded when the service is chosen. */
+@Composable
+private fun SeedPlaylistPicker() {
+    val ctx = LocalContext.current
+    val d = AiDraft
+    val sources = remember {
+        (Providers.connectors().filter { (!it.requiresAuth || it.isConnected(ctx)) && !it.linkOnly } + LocalFilesProvider).distinctBy { it.id }
+    }
+    val source = sources.firstOrNull { it.id == d.mixSourceId } ?: sources.firstOrNull { it.requiresAuth } ?: sources.firstOrNull() ?: return
+    var lists by remember(source.id) { mutableStateOf<List<Playlist>?>(null) }
+    var open by remember { mutableStateOf(false) }
+    LaunchedEffect(source.id) {
+        if (d.mixSourceId != source.id) d.mixSourceId = source.id
+        lists = runCatching { source.playlists(ctx.applicationContext) }.getOrElse { e ->
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            d.error = e.message ?: ctx.getString(R.string.error_generic); emptyList()
+        }
+    }
+    ServicePicker(sources, source.id, { id ->
+        if (id != d.mixSourceId) { d.mixSourceId = id; d.mixPlaylistId = ""; d.mixPlaylistName = ""; d.persist(ctx) }
+    })
+    androidx.compose.foundation.layout.Box {
+        OutlinedButton(enabled = lists != null, onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
+            if (lists == null) { CircularProgressIndicator(Modifier.size(14.dp)); Spacer(Modifier.width(6.dp)) }
+            Text(d.mixPlaylistName.ifEmpty { stringResource(R.string.lb_playlist_pick) }, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            lists.orEmpty().forEach { p ->
+                DropdownMenuItem(
+                    text = { Text(if (p.trackCount >= 0) "${p.name} (${p.trackCount})" else p.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    onClick = { open = false; d.mixPlaylistId = p.id; d.mixPlaylistName = p.name; d.persist(ctx) },
+                )
+            }
+        }
+    }
+    Text(stringResource(R.string.lb_playlist_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 /** "Fornitore · modello  Cambia": il modello si sceglie da un menu letto dall'API, il resto nel dialogo. */
