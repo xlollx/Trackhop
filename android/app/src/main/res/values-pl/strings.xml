@@ -1084,8 +1084,7 @@
     <string name="pill_not_found">Nieznalezione: %1$d</string>
     <string name="pill_incomplete">Niedokończona</string>
     <string name="onboarding_docs_title">Dokumentacja i kod</string>
-    <string name="onboarding_docs_body">Chcesz poczytać o każdej funkcji albo zajrzeć do kodu? Dokumentacja i kod źródłowy są na GitHubie.</string>
-    <string name="onboarding_docs_open">Otwórz na GitHubie</string>
+    <string name="onboarding_docs_body">Chcesz poczytać o każdej funkcji albo o kodzie? Poradniki i nowości są na stronie, kod źródłowy na GitHubie.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">Pomoc: %1$s</string>
     <string name="help_example">Przykład:</string>
@@ -1637,4 +1636,6 @@
     <string name="whats_new_113_covers_body">Pięć stylów okładki do plakatu, bez AI i bez wysyłania czegokolwiek, oraz okładki wybrane spośród artystów, których playlista naprawdę ma.</string>
     <string name="discover_wrapped_covers">Szukam okładek…</string>
     <string name="web_page_crashed">Strona przestała działać i została zamknięta. Spróbuj ponownie.</string>
+    <string name="onboarding_docs_site_desc">Poradniki, nowości i opis wszystkich funkcji</string>
+    <string name="onboarding_docs_github_desc">Kod źródłowy, wydania i zgłoszenia</string>
 </resources>

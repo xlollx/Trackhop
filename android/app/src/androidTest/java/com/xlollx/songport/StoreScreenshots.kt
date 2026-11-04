@@ -419,12 +419,24 @@ class StoreScreenshots {
                 snap("syncs_${theme}_update", 3000)
             }
         }
+        // The welcome's last page: the website and GitHub cards.
+        fun welcomeLinks(theme: String) {
+            store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
+            tab(MainActivity.TAB_SYNCS) {
+                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.onboarding_next)).fetchSemanticsNodes().isNotEmpty() }
+                repeat(4) { compose.onAllNodesWithText(s(R.string.onboarding_next)).onFirst().performClick(); compose.waitForIdle(); Thread.sleep(500) }
+                compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.onboarding_docs_github_desc)).fetchSemanticsNodes().isNotEmpty() }
+                snap("welcome_links_$theme")
+            }
+            store.updateSettings { it.copy(onboardingDone = true) }; store.flush()
+        }
         for (theme in listOf("DARK", "LIGHT")) {
             store.updateSettings { it.copy(themeMode = theme) }; store.flush()
             val t = theme.lowercase()
             syncsTop(t)
             settingsPages(t)
             toolsPages(t)
+            welcomeLinks(t)
         }
         // A large font: nothing cut, nothing under the bottom bar.
         store.updateSettings { it.copy(themeMode = "DARK") }; store.flush()

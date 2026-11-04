@@ -1042,8 +1042,7 @@
     <string name="pill_not_found">Not found: %1$d</string>
     <string name="pill_incomplete">Not finished</string>
     <string name="onboarding_docs_title">Documentation and code</string>
-    <string name="onboarding_docs_body">Want to read about every feature, or the code? Documentation and source code are on GitHub.</string>
-    <string name="onboarding_docs_open">Open on GitHub</string>
+    <string name="onboarding_docs_body">Want to read about every feature, or the code? Guides and news are on the website, the source code on GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">Help: %1$s</string>
     <string name="help_example">Example:</string>
@@ -1589,4 +1588,6 @@
     <string name="whats_new_113_covers_body">Five cover styles for the poster, with no AI and nothing sent anywhere, and covers picked from the artists your playlist really has.</string>
     <string name="discover_wrapped_covers">Looking for the covers…</string>
     <string name="web_page_crashed">The page stopped working and was closed. Please try again.</string>
+    <string name="onboarding_docs_site_desc">Guides, news and every feature explained</string>
+    <string name="onboarding_docs_github_desc">Source code, releases and issues</string>
 </resources>

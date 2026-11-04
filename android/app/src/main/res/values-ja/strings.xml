@@ -1022,8 +1022,7 @@
     <string name="pill_not_found">見つからず：%1$d</string>
     <string name="pill_incomplete">未完了</string>
     <string name="onboarding_docs_title">ドキュメントとコード</string>
-    <string name="onboarding_docs_body">すべての機能について読んだり、コードを見たりしたいですか？ドキュメントとソースコードは GitHub にあります。</string>
-    <string name="onboarding_docs_open">GitHub で開く</string>
+    <string name="onboarding_docs_body">各機能やコードについて知りたいですか？ガイドとお知らせはウェブサイトに、ソースコードはGitHubにあります。</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">ヘルプ：%1$s</string>
     <string name="help_example">例：</string>
@@ -1566,4 +1565,6 @@
     <string name="whats_new_113_covers_body">ポスター用の5つのカバースタイル。AI不要で何も送信しません。カバーはプレイリストに多いアーティストから選びます。</string>
     <string name="discover_wrapped_covers">ジャケットを探しています…</string>
     <string name="web_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
+    <string name="onboarding_docs_site_desc">ガイド、お知らせ、すべての機能の説明</string>
+    <string name="onboarding_docs_github_desc">ソースコード、リリース、Issue</string>
 </resources>

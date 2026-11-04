@@ -1042,8 +1042,7 @@
     <string name="pill_not_found">Non trovati: %1$d</string>
     <string name="pill_incomplete">Non finita</string>
     <string name="onboarding_docs_title">Documentazione e codice</string>
-    <string name="onboarding_docs_body">Vuoi leggere di ogni funzione, o il codice? Documentazione e codice sorgente sono su GitHub.</string>
-    <string name="onboarding_docs_open">Apri su GitHub</string>
+    <string name="onboarding_docs_body">Vuoi saperne di più su ogni funzione, o sul codice? Guide e novità sono sul sito, il codice sorgente su GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">Aiuto: %1$s</string>
     <string name="help_example">Esempio:</string>
@@ -1589,4 +1588,6 @@
     <string name="whats_new_113_covers_body">Cinque stili di copertina per il poster, senza AI e senza mandare niente a nessuno, e copertine scelte tra gli artisti che la playlist ha davvero.</string>
     <string name="discover_wrapped_covers">Cerco le copertine…</string>
     <string name="web_page_crashed">La pagina ha smesso di funzionare ed è stata chiusa. Riprova.</string>
+    <string name="onboarding_docs_site_desc">Guide, novità e tutte le funzioni spiegate</string>
+    <string name="onboarding_docs_github_desc">Codice sorgente, versioni e segnalazioni</string>
 </resources>

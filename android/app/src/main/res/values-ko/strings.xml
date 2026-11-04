@@ -1021,8 +1021,7 @@
     <string name="pill_not_found">찾지 못함: %1$d</string>
     <string name="pill_incomplete">완료되지 않음</string>
     <string name="onboarding_docs_title">문서와 코드</string>
-    <string name="onboarding_docs_body">모든 기능에 대해 읽거나 코드를 보고 싶으신가요? 문서와 소스 코드는 GitHub에 있어요.</string>
-    <string name="onboarding_docs_open">GitHub에서 열기</string>
+    <string name="onboarding_docs_body">모든 기능이나 코드에 대해 알고 싶으신가요? 가이드와 소식은 웹사이트에, 소스 코드는 GitHub에 있습니다.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">도움말: %1$s</string>
     <string name="help_example">예:</string>
@@ -1565,4 +1564,6 @@
     <string name="whats_new_113_covers_body">포스터용 커버 스타일 5가지, AI 없이 아무것도 보내지 않습니다. 커버는 플레이리스트에 실제로 많은 아티스트에서 고릅니다.</string>
     <string name="discover_wrapped_covers">커버를 찾는 중…</string>
     <string name="web_page_crashed">페이지가 작동을 멈춰 닫혔습니다. 다시 시도해 주세요.</string>
+    <string name="onboarding_docs_site_desc">가이드, 소식, 모든 기능 설명</string>
+    <string name="onboarding_docs_github_desc">소스 코드, 릴리스, 이슈</string>
 </resources>

@@ -48,7 +48,8 @@ class OnboardingFlowTest : FlowTest() {
         waitNode("page 5 of 5", hasContentDescription(s(R.string.onboarding_page, 5, 5)))
         // Where the documentation and the code are: a link to open, or not.
         compose.onNodeWithText(s(R.string.onboarding_docs_title)).assertIsDisplayed()
-        assertTrue(exists(s(R.string.onboarding_docs_open)))
+        assertTrue(exists(s(R.string.onboarding_docs_site_desc)))
+        assertTrue(exists(s(R.string.onboarding_docs_github_desc)))
         assertFalse("not done until Start", store.data.settings.onboardingDone)
         // On the last page Skip gives way to Start.
         assertFalse("Skip still shown on the last page", exists(s(R.string.onboarding_skip)))

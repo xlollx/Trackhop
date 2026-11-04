@@ -1049,8 +1049,7 @@
     <string name="pill_not_found">Introuvables : %1$d</string>
     <string name="pill_incomplete">Inachevée</string>
     <string name="onboarding_docs_title">Documentation et code</string>
-    <string name="onboarding_docs_body">Envie de lire sur chaque fonction, ou de voir le code ? La documentation et le code source sont sur GitHub.</string>
-    <string name="onboarding_docs_open">Ouvrir sur GitHub</string>
+    <string name="onboarding_docs_body">Envie d\'en savoir plus sur chaque fonction, ou sur le code ? Guides et nouveautés sont sur le site, le code source sur GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">Aide : %1$s</string>
     <string name="help_example">Exemple :</string>
@@ -1597,4 +1596,6 @@
     <string name="whats_new_113_covers_body">Cinq styles de pochette pour l\'affiche, sans IA et sans rien envoyer, et des pochettes choisies parmi les artistes vraiment présents dans la playlist.</string>
     <string name="discover_wrapped_covers">Je cherche les pochettes…</string>
     <string name="web_page_crashed">La page a cessé de fonctionner et a été fermée. Réessayez.</string>
+    <string name="onboarding_docs_site_desc">Guides, nouveautés et toutes les fonctions expliquées</string>
+    <string name="onboarding_docs_github_desc">Code source, versions et signalements</string>
 </resources>

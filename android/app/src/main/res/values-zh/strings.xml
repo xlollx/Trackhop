@@ -1022,8 +1022,7 @@
     <string name="pill_not_found">未找到：%1$d</string>
     <string name="pill_incomplete">未完成</string>
     <string name="onboarding_docs_title">文档和代码</string>
-    <string name="onboarding_docs_body">想了解每项功能，或者看看代码？文档和源代码都在 GitHub 上。</string>
-    <string name="onboarding_docs_open">在 GitHub 上打开</string>
+    <string name="onboarding_docs_body">想了解每个功能或代码？指南和新闻在网站上，源代码在 GitHub 上。</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">帮助：%1$s</string>
     <string name="help_example">示例：</string>
@@ -1566,4 +1565,6 @@
     <string name="whats_new_113_covers_body">海报有五种封面样式，无需 AI，不发送任何数据；封面从歌单里真正常见的艺人中挑选。</string>
     <string name="discover_wrapped_covers">正在查找封面…</string>
     <string name="web_page_crashed">页面已停止运行并被关闭。请重试。</string>
+    <string name="onboarding_docs_site_desc">指南、新闻和所有功能说明</string>
+    <string name="onboarding_docs_github_desc">源代码、版本和问题反馈</string>
 </resources>

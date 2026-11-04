@@ -1082,8 +1082,7 @@
     <string name="pill_not_found">Не найдено: %1$d</string>
     <string name="pill_incomplete">Не завершено</string>
     <string name="onboarding_docs_title">Документация и код</string>
-    <string name="onboarding_docs_body">Хотите прочитать о каждой функции или посмотреть код? Документация и исходный код — на GitHub.</string>
-    <string name="onboarding_docs_open">Открыть на GitHub</string>
+    <string name="onboarding_docs_body">Хотите узнать о каждой функции или о коде? Руководства и новости — на сайте, исходный код — на GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
     <string name="help_cd">Справка: %1$s</string>
     <string name="help_example">Пример:</string>
@@ -1635,4 +1634,6 @@
     <string name="whats_new_113_covers_body">Пять стилей обложки для постера, без ИИ и без отправки данных, а обложки выбираются из исполнителей, которых в плейлисте больше всего.</string>
     <string name="discover_wrapped_covers">Ищу обложки…</string>
     <string name="web_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
+    <string name="onboarding_docs_site_desc">Руководства, новости и описание всех функций</string>
+    <string name="onboarding_docs_github_desc">Исходный код, версии и сообщения о проблемах</string>
 </resources>
