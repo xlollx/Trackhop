@@ -1,0 +1,1 @@
+Spotify'da beğenilen şarkılar kaynağın sırasını korur (saniyede bir: büyük bir ilk eşitleme daha yavaştır, Trackhop bunu belirtir). YouTube: "operation aborted" ile reddedilen ekleme yeniden denenir. Qobuz girişi katlanabilir telefon ve tabletlerde de çalışır.

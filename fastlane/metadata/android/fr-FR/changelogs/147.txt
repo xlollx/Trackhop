@@ -1,0 +1,1 @@
+Les titres likés sur Spotify gardent l'ordre de la source (un par seconde : une grosse première synchro est plus lente, et Trackhop le signale). YouTube : un ajout refusé avec « operation aborted » est réessayé. La connexion à Qobuz marche aussi sur pliables et tablettes.

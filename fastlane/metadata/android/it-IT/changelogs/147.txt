@@ -1,0 +1,1 @@
+I brani preferiti su Spotify mantengono l'ordine della sorgente (uno al secondo: una prima sync grande è più lenta, e Trackhop lo avvisa). YouTube: un'aggiunta rifiutata con "operation aborted" viene ritentata. L'accesso a Qobuz funziona anche su pieghevoli e tablet.

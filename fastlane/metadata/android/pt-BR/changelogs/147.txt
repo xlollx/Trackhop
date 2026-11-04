@@ -1,0 +1,1 @@
+As músicas curtidas no Spotify mantêm a ordem da origem (uma por segundo: uma primeira sincronização grande é mais lenta, e o Trackhop avisa). YouTube: uma adição recusada com "operation aborted" é tentada de novo. O login no Qobuz funciona também em dobráveis e tablets.

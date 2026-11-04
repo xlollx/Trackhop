@@ -1,0 +1,1 @@
+Polubione utwory w Spotify zachowują kolejność źródła (jeden na sekundę: duża pierwsza synchronizacja trwa dłużej, Trackhop o tym informuje). YouTube: dodanie odrzucone z „operation aborted” jest ponawiane. Logowanie do Qobuz działa też na składanych telefonach i tabletach.

@@ -1,0 +1,1 @@
+Spotify liked songs keep the source's order (saved one a second: a big first sync is slower, and Trackhop says so). YouTube: an add refused with "operation aborted" is tried again. Qobuz sign-in works on foldables and tablets too.

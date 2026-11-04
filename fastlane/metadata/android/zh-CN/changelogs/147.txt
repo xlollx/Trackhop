@@ -1,0 +1,1 @@
+Spotify 喜欢的歌曲保持来源顺序（每秒保存一首：首次大量同步较慢，Trackhop 会提示）。YouTube：被 "operation aborted" 拒绝的添加会重试。Qobuz 登录在折叠屏和平板上也可用。

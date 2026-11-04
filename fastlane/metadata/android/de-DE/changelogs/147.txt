@@ -1,0 +1,1 @@
+Lieblingssongs auf Spotify behalten die Reihenfolge der Quelle (einer pro Sekunde: eine große erste Synchronisierung dauert länger, Trackhop weist darauf hin). YouTube: Ein mit „operation aborted“ abgelehntes Hinzufügen wird wiederholt. Die Qobuz-Anmeldung klappt auch auf Foldables und Tablets.

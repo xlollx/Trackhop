@@ -1,0 +1,1 @@
+Spotify 좋아요 곡이 원본 순서를 유지합니다(초당 한 곡 저장: 처음 큰 동기화는 더 느리며 Trackhop이 알려 줍니다). YouTube: "operation aborted"로 거부된 추가를 다시 시도합니다. 폴더블과 태블릿에서도 Qobuz 로그인이 됩니다.
