@@ -276,7 +276,7 @@ object AiClient {
     }
 
     /** Una richiesta, una risposta testuale, qualunque sia il fornitore. */
-    private suspend fun complete(c: Config, system: String, user: String): String {
+    internal suspend fun complete(c: Config, system: String, user: String): String {
         return when (c.vendor) {
             Vendor.ANTHROPIC -> {
                 val body = jsonObj(

@@ -1,0 +1,240 @@
+---
+layout: null
+sitemap: false
+permalink: /open
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#5b3fd9">
+<title>Shared music · Trackhop</title>
+<meta property="og:title" content="Music shared with Trackhop">
+<meta property="og:description" content="Open these songs on your own music service.">
+<meta property="og:image" content="{{ '/store/icon512.png' | absolute_url }}">
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="48x48">
+<!-- The universal link's page. The playlist or track travels in the address's fragment (after "#"),
+     which the browser never sends to any server: this page only decodes it, here, and lists it with
+     links that search each song on the visitor's service. Format: android/core/.../UniversalLink.kt.
+     No external scripts, no cookies, nothing stored but the visitor's chosen service (localStorage). -->
+<style>
+:root{--bg:#f6f4fb;--card:#fff;--ink:#1c1a22;--ink2:#5d5868;--line:#e4e0ee;--pri:#5b3fd9;--on-pri:#fff;--chip:#ece8f8}
+@media (prefers-color-scheme:dark){:root{--bg:#141218;--card:#1f1d25;--ink:#e9e4f2;--ink2:#aca6b8;--line:#35323e;--pri:#cfbcff;--on-pri:#2b1a63;--chip:#2c2935}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+main{max-width:640px;margin:0 auto;padding:0 16px 40px}
+.hero{margin:0 -16px 16px;padding:28px 20px 22px;color:#fff;background:linear-gradient(135deg,#4338ca,#7c3aed 55%,#db2777);border-radius:0 0 24px 24px}
+.hero small{display:block;opacity:.85;letter-spacing:.08em;text-transform:uppercase;font-size:12px;font-weight:600}
+.hero h1{margin:6px 0 4px;font-size:26px;line-height:1.15;word-break:break-word}
+.hero p{margin:0;opacity:.9;font-size:14px}
+h2{font-size:14px;margin:18px 0 8px;color:var(--ink2);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;min-height:40px}
+.chip[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--on-pri);font-weight:600}
+ol{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+.n{width:26px;text-align:right;color:var(--ink2);font-size:13px;flex:none}
+.t{flex:1;min-width:0}
+.t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t span{display:block;color:var(--ink2);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.go{flex:none;text-decoration:none;background:var(--chip);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;min-height:40px;display:inline-flex;align-items:center}
+.single{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.single .t b{font-size:20px;white-space:normal}
+.single .t span{white-space:normal;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.grid a{text-decoration:none;text-align:center;background:var(--chip);color:var(--ink);border-radius:14px;padding:12px 8px;font-weight:600;font-size:14px}
+.note{color:var(--ink2);font-size:13px;margin:10px 2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;border:0}
+.btn.p{background:var(--pri);color:var(--on-pri)}
+.btn.s{background:transparent;color:var(--pri);border:1px solid var(--line)}
+footer{margin-top:28px;text-align:center;color:var(--ink2);font-size:13px}
+footer a{color:inherit}
+.err{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+</style>
+</head>
+<body>
+<main id="app">
+  <div class="hero"><small id="kicker">Trackhop</small><h1 id="title">…</h1><p id="sub"></p></div>
+  <noscript><div class="err">This page needs JavaScript to read the songs from its address.</div></noscript>
+</main>
+<script>
+(function () {
+  "use strict";
+  // The services, in the app's order (ServiceSearch.kt): the same search addresses.
+  var SITES = [
+    ["spotify", "Spotify", "https://open.spotify.com/search/{q}"],
+    ["apple", "Apple Music", "https://music.apple.com/search?term={q}"],
+    ["ytm", "YouTube Music", "https://music.youtube.com/search?q={q}"],
+    ["deezer", "Deezer", "https://www.deezer.com/search/{q}"],
+    ["tidal", "TIDAL", "https://listen.tidal.com/search?q={q}"],
+    ["amazon", "Amazon Music", "https://music.amazon.com/search/{q}"]
+  ];
+  var T = {
+    en: { kicker: "Shared with Trackhop", track: "A song for you", tracks: "{n} songs", first: "The first {k} of {n} songs (a link holds that many)",
+          pick: "Open on", open: "Open", copyList: "Copy the list", copied: "Copied", get: "Copy it with Trackhop",
+          privacy: "The songs came in this page's address and go nowhere else: no account, no tracking.",
+          bad: "This link is incomplete or damaged: ask for it again.", old: "This browser is too old to read the link. Try another one." },
+    it: { kicker: "Condiviso con Trackhop", track: "Una canzone per te", tracks: "{n} brani", first: "I primi {k} di {n} brani (un link ne contiene tanti così)",
+          pick: "Apri su", open: "Apri", copyList: "Copia l'elenco", copied: "Copiato", get: "Copiala con Trackhop",
+          privacy: "I brani sono arrivati nell'indirizzo di questa pagina e non vanno da nessun'altra parte: niente account, niente tracciamento.",
+          bad: "Questo link è incompleto o danneggiato: chiedilo di nuovo.", old: "Questo browser è troppo vecchio per leggere il link. Provane un altro." },
+    es: { kicker: "Compartido con Trackhop", track: "Una canción para ti", tracks: "{n} canciones", first: "Las primeras {k} de {n} canciones (un enlace no admite más)",
+          pick: "Abrir en", open: "Abrir", copyList: "Copiar la lista", copied: "Copiado", get: "Cópiala con Trackhop",
+          privacy: "Las canciones llegaron en la dirección de esta página y no van a ningún otro sitio: sin cuenta, sin rastreo.",
+          bad: "Este enlace está incompleto o dañado: pídelo de nuevo.", old: "Este navegador es demasiado antiguo para leer el enlace. Prueba con otro." },
+    pt: { kicker: "Compartilhado com o Trackhop", track: "Uma música para você", tracks: "{n} músicas", first: "As primeiras {k} de {n} músicas (um link não comporta mais)",
+          pick: "Abrir no", open: "Abrir", copyList: "Copiar a lista", copied: "Copiado", get: "Copie com o Trackhop",
+          privacy: "As músicas vieram no endereço desta página e não vão para nenhum outro lugar: sem conta, sem rastreamento.",
+          bad: "Este link está incompleto ou danificado: peça de novo.", old: "Este navegador é antigo demais para ler o link. Tente outro." },
+    fr: { kicker: "Partagé avec Trackhop", track: "Une chanson pour toi", tracks: "{n} titres", first: "Les {k} premiers titres sur {n} (un lien n'en contient pas plus)",
+          pick: "Ouvrir sur", open: "Ouvrir", copyList: "Copier la liste", copied: "Copié", get: "Copiez-la avec Trackhop",
+          privacy: "Les titres sont arrivés dans l'adresse de cette page et ne vont nulle part ailleurs : ni compte, ni pistage.",
+          bad: "Ce lien est incomplet ou abîmé : redemandez-le.", old: "Ce navigateur est trop ancien pour lire le lien. Essayez-en un autre." },
+    de: { kicker: "Geteilt mit Trackhop", track: "Ein Song für dich", tracks: "{n} Titel", first: "Die ersten {k} von {n} Titeln (mehr passt nicht in einen Link)",
+          pick: "Öffnen in", open: "Öffnen", copyList: "Liste kopieren", copied: "Kopiert", get: "Mit Trackhop übernehmen",
+          privacy: "Die Titel kamen in der Adresse dieser Seite und gehen nirgendwo sonst hin: kein Konto, kein Tracking.",
+          bad: "Dieser Link ist unvollständig oder beschädigt: bitte erneut anfordern.", old: "Dieser Browser ist zu alt, um den Link zu lesen. Versuche einen anderen." }
+  };
+  var lang = (navigator.language || "en").slice(0, 2).toLowerCase();
+  var L = T[lang] || T.en;
+  document.documentElement.lang = T[lang] ? lang : "en";
+  function fmt(s, v) { return s.replace(/\{(\w+)\}/g, function (_, k) { return v[k]; }); }
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    for (var k in attrs || {}) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  var app = document.getElementById("app");
+  function fail(msg) {
+    document.getElementById("title").textContent = "Trackhop";
+    app.appendChild(el("div", { "class": "err" }, msg));
+    app.appendChild(footer());
+  }
+  function footer() {
+    var f = el("footer");
+    f.appendChild(el("p", null, L.privacy));
+    var a = el("a", { href: "/" }, "trackhop.org");
+    f.appendChild(a);
+    return f;
+  }
+  function search(site, item) {
+    var artist = (item.artist || "").split(", ")[0];
+    var q = (artist + " " + item.title).replace(/[\/\\]+/g, " ").replace(/\s+/g, " ").trim();
+    return site[2].replace("{q}", encodeURIComponent(q));
+  }
+  function b64(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function inflate(bytes) {
+    var ds = new DecompressionStream("deflate-raw");
+    var stream = new Blob([bytes]).stream().pipeThrough(ds);
+    return new Response(stream).arrayBuffer().then(function (buf) { return new TextDecoder("utf-8").decode(buf); });
+  }
+  function parse(text) {
+    var lines = text.split("\n");
+    var head = lines[0].split("\t");
+    if (head.length < 4 || head[0] !== "1") throw new Error("format");
+    var name = head.slice(3).join("\t");
+    var items = lines.slice(1).map(function (l) { var f = l.split("\t"); return { title: f[0] || "", artist: f[1] || "", isrc: f[2] || "" }; })
+      .filter(function (i) { return i.title; });
+    return { single: head[1] === "T", total: parseInt(head[2], 10) || items.length, name: name, items: items };
+  }
+  function chosen() {
+    try { var id = localStorage.getItem("service"); for (var i = 0; i < SITES.length; i++) if (SITES[i][0] === id) return SITES[i]; } catch (e) {}
+    return SITES[0];
+  }
+  function remember(site) { try { localStorage.setItem("service", site[0]); } catch (e) {} }
+
+  function render(data) {
+    var site = chosen();
+    document.getElementById("kicker").textContent = L.kicker;
+    document.getElementById("title").textContent = data.single ? data.items[0].title : (data.name || "Playlist");
+    document.title = (data.single ? data.items[0].title : data.name) + " · Trackhop";
+    var sub = document.getElementById("sub");
+    if (data.single) sub.textContent = data.items[0].artist;
+    else sub.textContent = data.items.length < data.total ? fmt(L.first, { k: data.items.length, n: data.total }) : fmt(L.tracks, { n: data.total });
+
+    if (data.single) {
+      var box = el("div", { "class": "single" });
+      var t = el("div", { "class": "t" });
+      t.appendChild(el("span", null, L.track));
+      box.appendChild(t);
+      var grid = el("div", { "class": "grid" });
+      SITES.forEach(function (s) {
+        var a = el("a", { href: search(s, data.items[0]), rel: "noopener noreferrer", target: "_blank" }, s[1]);
+        a.addEventListener("click", function () { remember(s); });
+        grid.appendChild(a);
+      });
+      box.appendChild(grid);
+      app.appendChild(box);
+    } else {
+      app.appendChild(el("h2", null, L.pick));
+      var chips = el("div", { "class": "chips", role: "group", "aria-label": L.pick });
+      var list = el("ol");
+      function fill() {
+        list.textContent = "";
+        data.items.forEach(function (item, i) {
+          var li = el("li");
+          li.appendChild(el("span", { "class": "n" }, String(i + 1)));
+          var t = el("div", { "class": "t" });
+          t.appendChild(el("b", null, item.title));
+          t.appendChild(el("span", null, item.artist));
+          li.appendChild(t);
+          li.appendChild(el("a", { "class": "go", href: search(site, item), rel: "noopener noreferrer", target: "_blank", "aria-label": L.open + ": " + item.title + " – " + site[1] }, L.open));
+          list.appendChild(li);
+        });
+      }
+      SITES.forEach(function (s) {
+        var c = el("button", { "class": "chip", type: "button", "aria-pressed": String(s === site) }, s[1]);
+        c.addEventListener("click", function () {
+          site = s; remember(s);
+          Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute("aria-pressed", String(b === c)); });
+          fill();
+        });
+        chips.appendChild(c);
+      });
+      app.appendChild(chips);
+      list.style.marginTop = "14px";
+      fill();
+      app.appendChild(list);
+    }
+
+    var actions = el("div", { "class": "actions" });
+    var get = el("a", { "class": "btn p", href: "/" }, L.get);
+    actions.appendChild(get);
+    if (!data.single && navigator.clipboard) {
+      var copy = el("button", { "class": "btn s", type: "button" }, L.copyList);
+      copy.addEventListener("click", function () {
+        // "Artist - Title" lines: what Trackhop turns into a playlist when shared to it as text.
+        var text = data.items.map(function (i) { return (i.artist ? i.artist + " - " : "") + i.title; }).join("\n");
+        navigator.clipboard.writeText(text).then(function () { copy.textContent = L.copied; });
+      });
+      actions.appendChild(copy);
+    }
+    app.appendChild(actions);
+    app.appendChild(footer());
+  }
+
+  // Another link opened in the same tab changes only the fragment: read the page again.
+  window.addEventListener("hashchange", function () { location.reload(); });
+  var hash = location.hash.replace(/^#/, "");
+  if (!hash) { fail(L.bad); return; }
+  if (typeof DecompressionStream === "undefined") { fail(L.old); return; }
+  var bytes;
+  try { bytes = b64(hash); } catch (e) { fail(L.bad); return; }
+  inflate(bytes).then(parse).then(render, function () { fail(L.bad); });
+})();
+</script>
+</body>
+</html>
