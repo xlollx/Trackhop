@@ -1636,4 +1636,5 @@
     <string name="web_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
     <string name="onboarding_docs_site_desc">Руководства, новости и описание всех функций</string>
     <string name="onboarding_docs_github_desc">Исходный код, версии и сообщения о проблемах</string>
+    <string name="service_pause_until">%1$s просит паузу примерно до %2$s: слишком много запросов при первой большой синхронизации. Ничего не потеряно: запустите синхронизацию снова после этого времени, и она продолжится.</string>
 </resources>

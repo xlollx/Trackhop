@@ -269,10 +269,13 @@ class MemoryService(override val serviceId: String) : MusicProvider {
         val all = lists[playlistId]?.toList() ?: throw ProviderException("$serviceId: no playlist $playlistId")
         return shortReads.removeFirstOrNull()?.let { all.take(it) } ?: all
     }
+    /** When set, every search fails with this message (a service asking for a pause, say). */
+    var searchError: String? = null
     /** Titles whose search fails, as a service refusing them would. */
     val failingSearches = HashSet<String>()
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         if (track.title in failingSearches) throw ProviderException("$serviceId: search refused (HTTP 400)")
+        searchError?.let { throw ProviderException(it) }
         val wanted = Matcher.normalizeTitle(track.title)
         return catalogue.filter { Matcher.normalizeTitle(it.title) == wanted }
     }

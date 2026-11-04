@@ -1598,4 +1598,5 @@
     <string name="web_page_crashed">La page a cessé de fonctionner et a été fermée. Réessayez.</string>
     <string name="onboarding_docs_site_desc">Guides, nouveautés et toutes les fonctions expliquées</string>
     <string name="onboarding_docs_github_desc">Code source, versions et signalements</string>
+    <string name="service_pause_until">%1$s demande une pause jusqu\'à %2$s environ : trop de requêtes lors d\'une première grosse synchronisation. Rien n\'est perdu : relance la synchronisation après cette heure et elle reprendra.</string>
 </resources>

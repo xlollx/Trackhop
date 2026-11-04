@@ -1590,4 +1590,5 @@
     <string name="web_page_crashed">Die Seite funktioniert nicht mehr und wurde geschlossen. Versuche es noch einmal.</string>
     <string name="onboarding_docs_site_desc">Anleitungen, Neuigkeiten und alle Funktionen erklärt</string>
     <string name="onboarding_docs_github_desc">Quellcode, Versionen und Meldungen</string>
+    <string name="service_pause_until">%1$s bittet um eine Pause bis etwa %2$s: zu viele Anfragen bei einer ersten großen Synchronisierung. Nichts geht verloren: starte die Synchronisierung danach erneut, sie macht dort weiter.</string>
 </resources>

@@ -1567,4 +1567,5 @@
     <string name="web_page_crashed">页面已停止运行并被关闭。请重试。</string>
     <string name="onboarding_docs_site_desc">指南、新闻和所有功能说明</string>
     <string name="onboarding_docs_github_desc">源代码、版本和问题反馈</string>
+    <string name="service_pause_until">%1$s 要求暂停到约 %2$s：首次大规模同步时请求过多。不会丢失任何内容：在该时间之后重新运行同步即可继续。</string>
 </resources>

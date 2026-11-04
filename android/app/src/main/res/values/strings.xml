@@ -1590,4 +1590,5 @@
     <string name="web_page_crashed">The page stopped working and was closed. Please try again.</string>
     <string name="onboarding_docs_site_desc">Guides, news and every feature explained</string>
     <string name="onboarding_docs_github_desc">Source code, releases and issues</string>
+    <string name="service_pause_until">%1$s is asking for a pause until about %2$s: too many requests on a first big sync. Nothing is lost: run the sync again after that time and it carries on.</string>
 </resources>

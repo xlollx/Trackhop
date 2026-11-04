@@ -43,6 +43,8 @@ import java.util.UUID
 private val WAIT_SECONDS = intArrayOf(10, 20, 40, 60, 120)
 /** Quante attese dichiarate dal servizio (blocco dell'indirizzo) si accettano prima di fermarsi con quanto fatto. */
 private const val MAX_BLOCK_WAITS = 8
+/** Longer than this, a declared pause stops the sync with its end time instead of waiting it out. */
+private const val LONG_PAUSE_SECONDS = 1800
 /** Additions from which a slow, one-at-a-time target (see MusicProvider.addSpacingMs) is worth a note. */
 private const val SLOW_ADD_NOTE_FROM = 60
 /** How many added tracks a report keeps for its list: enough to read, small enough for a stored report. */
@@ -651,6 +653,17 @@ class SyncEngine(
             // Un blocco dichiarato dal servizio ("retry in N s") si rispetta alla lettera: e' l'unico
             // modo perche' scada. Le altre pause seguono la scala crescente.
             val asked = declaredWait(throttled?.message)
+            // A pause of hours (Spotify on a first big sync): waiting it out in 30-minute rounds looked
+            // stuck. The sync stops now and says until when; what was matched so far is kept.
+            val askedRaw = declaredSeconds(throttled?.message)
+            if (throttled != null && askedRaw != null && askedRaw > LONG_PAUSE_SECONDS) {
+                saveMisses()
+                val until = java.time.LocalTime.now().plusSeconds(askedRaw.toLong()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                val msg = env.text("service_pause_until", dst.displayName, until)
+                env.log("engine", "${dst.displayName} asks for a pause of ${askedRaw}s (until $until): sync stopped")
+                if (done <= 0) throw ProviderException(msg)
+                return msg
+            }
             if (throttled != null && asked != null && blockWaits < MAX_BLOCK_WAITS) {
                 blockWaits++
                 env.log("engine", "${dst.displayName} is blocked: ${throttled.message?.take(200)}; waiting ${asked}s")
@@ -831,6 +844,10 @@ class SyncEngine(
 
     /** "Artista – Titolo", come nella vista dal vivo della fase di ricerca. */
     private fun Track.live(): String = listOfNotNull(artists.firstOrNull(), title).joinToString(" – ")
+
+    /** The wait the service declared ("retry in N s"), as it is; null if it says none. */
+    private fun declaredSeconds(msg: String?): Int? =
+        Regex("retry in (\\d+) s", RegexOption.IGNORE_CASE).find(msg ?: "")?.groupValues?.get(1)?.toIntOrNull()
 
     /** Secondi di attesa dichiarati dal servizio ("Retry in N s"), entro limiti ragionevoli; null se non li dichiara. */
     private fun declaredWait(msg: String?): Int? =

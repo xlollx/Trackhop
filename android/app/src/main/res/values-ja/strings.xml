@@ -1567,4 +1567,5 @@
     <string name="web_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
     <string name="onboarding_docs_site_desc">ガイド、お知らせ、すべての機能の説明</string>
     <string name="onboarding_docs_github_desc">ソースコード、リリース、Issue</string>
+    <string name="service_pause_until">%1$sが%2$s頃まで休止を求めています：初回の大きな同期でリクエストが多すぎました。データは失われません。その時刻以降にもう一度同期すると続きから再開します。</string>
 </resources>

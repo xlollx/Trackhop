@@ -1,0 +1,46 @@
+name: Suggest a service
+description: A music service you would like Trackhop to sync with. Italiano va benissimo.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Requests for the same service are counted, so add a 👍 to an existing issue if there is one.
+  - type: input
+    id: service
+    attributes:
+      label: Service
+      placeholder: "e.g. Napster, Boomplay, KKBOX"
+    validations:
+      required: true
+  - type: input
+    id: country
+    attributes:
+      label: Your country
+      description: Some services work differently, or only, in some countries.
+    validations:
+      required: true
+  - type: dropdown
+    id: api
+    attributes:
+      label: Does it have an official API for developers?
+      options: ["Yes", "No", "I don't know"]
+    validations:
+      required: true
+  - type: input
+    id: web
+    attributes:
+      label: Web player or website
+      description: Optional. The address where you listen in a browser, if there is one.
+      placeholder: "https://…"
+  - type: textarea
+    id: use
+    attributes:
+      label: What you would sync
+      description: Optional. From and to which services, playlists or liked songs, how many songs roughly.
+  - type: checkboxes
+    id: tests
+    attributes:
+      label: Helping out
+      options:
+        - label: I have an account and I'm happy to try a test version if you ask me to.
