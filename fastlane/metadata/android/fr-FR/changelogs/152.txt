@@ -1,0 +1,1 @@
+Wrapped : la carte prend les couleurs des pochettes de vos artistes préférés, avec une pochette dessinée en haut dans cinq styles (mosaïque, dégradé, géométrique, typographique, vinyle). Affiche : le disque vinyle est centré.
