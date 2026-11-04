@@ -1,0 +1,1 @@
+修复：Trackhop 内的网页（登录、Amazon Music）停止运行时，只关闭该页面，不再关闭整个应用。Spotify 自动生成的歌单（daylist、Discover Weekly 等）任何人都无法修改，因此不再提供双向同步。

@@ -1,0 +1,1 @@
+Corretto: quando una pagina web dentro Trackhop (un accesso, Amazon Music) smette di funzionare, si chiude solo quella pagina e non tutta l'app. Il two-way non viene più proposto sulle playlist create da Spotify (daylist, Discover Weekly…), che Spotify non lascia modificare a nessuno.

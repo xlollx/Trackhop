@@ -1,0 +1,1 @@
+Poprawiono: gdy strona internetowa w Trackhop (logowanie, Amazon Music) przestaje działać, zamyka się tylko ta strona, a nie cała aplikacja. Synchronizacja dwukierunkowa nie jest już proponowana dla playlist tworzonych przez Spotify (daylist, Discover Weekly…), których Spotify nie pozwala nikomu zmieniać.

@@ -1,0 +1,1 @@
+수정: Trackhop 안의 웹 페이지(로그인, Amazon Music)가 작동을 멈추면 앱 전체가 아니라 그 페이지만 닫힙니다. Spotify가 만드는 플레이리스트(daylist, Discover Weekly 등)는 누구도 수정할 수 없으므로 양방향 동기화가 더 이상 제공되지 않습니다.

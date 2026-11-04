@@ -1,0 +1,1 @@
+Behoben: Wenn eine Webseite in Trackhop (eine Anmeldung, Amazon Music) nicht mehr funktioniert, schließt sich nur diese Seite, nicht die ganze App. Zwei-Wege-Sync wird für Playlists von Spotify selbst (daylist, Discover Weekly…) nicht mehr angeboten, da Spotify sie von niemandem ändern lässt.

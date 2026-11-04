@@ -1,0 +1,1 @@
+Fixed: when a web page inside Trackhop (a sign-in, Amazon Music) stops working, only that page closes, not the whole app. Two-way sync is no longer offered on playlists Spotify makes (daylist, Discover Weekly…), which Spotify does not let anyone change.
