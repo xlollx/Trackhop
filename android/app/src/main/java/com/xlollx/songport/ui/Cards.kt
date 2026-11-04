@@ -107,14 +107,14 @@ object Cards {
     }
 
     /**
-     * Up to [want] covers of different albums, in playlist order: a playlist often opens with
-     * several tracks of one album, and a mosaic of the same picture says nothing. Tracks of an
-     * album already shown are skipped, and so is an image identical to one already picked; at
-     * most [maxLookups] tracks are looked up, four at a time. Fewer than [want] found: the card
-     * shows the first one alone.
+     * Up to [want] covers of different albums that stand for the playlist: the artists that
+     * appear most first, one album each, then the others ([com.xlollx.songport.sync.CoverPicks.order];
+     * [variant] varies the picks a little). A cover that does not load, or repeats an image already
+     * picked, is skipped; at most [maxLookups] tracks are looked up, four at a time. Fewer than
+     * four found: the poster shows the first one alone.
      */
-    suspend fun distinctCovers(tracks: List<Track>, serviceId: String, want: Int = 4, maxLookups: Int = 16): List<Bitmap> {
-        val candidates = tracks.distinctBy { com.xlollx.songport.sync.CoverPicks.albumKey(it) }.take(maxLookups)
+    suspend fun distinctCovers(tracks: List<Track>, serviceId: String, want: Int = 4, maxLookups: Int = 16, variant: Int = 0): List<Bitmap> {
+        val candidates = com.xlollx.songport.sync.CoverPicks.order(tracks, variant).take(maxLookups)
         val picked = ArrayList<Bitmap>()
         for (batch in candidates.chunked(4)) {
             val got = kotlinx.coroutines.coroutineScope { batch.map { t -> async { trackCover(t, serviceId) } }.map { it.await() } }
