@@ -7,6 +7,7 @@ description: Logos, screenshots and the facts about Trackhop, the free and open-
 
 Writing about Trackhop or showing it in a video? Everything you need is on this page, free to use.
 Questions, a test setup or an interview: **[xlollx@trackhop.org](mailto:xlollx@trackhop.org)**.
+News and posts on Instagram: **[@trackhop.app](https://www.instagram.com/trackhop.app/)**.
 
 <p><a class="press-dl" href="/assets/press/Trackhop-press-kit.zip" download>Download the press kit (.zip, 2.4 MB)</a><br>
 <small>Logo, banners (wide and square), 10 phone and 5 desktop screenshots</small></p>
@@ -46,6 +47,7 @@ with no account, no subscription and no server in between: everything runs on yo
 | Services | Spotify, YouTube Music, Apple Music, TIDAL, Deezer, Amazon Music, SoundCloud, Qobuz, Navidrome/Subsonic, Jellyfin, Plex, Last.fm and ListenBrainz (as sources), playlist files |
 | Languages | English, Italian, Spanish, Portuguese, French, German, Polish, Russian, Turkish, Japanese, Korean, Chinese |
 | Website | [trackhop.org](https://trackhop.org) |
+| Instagram | [@trackhop.app](https://www.instagram.com/trackhop.app/) |
 | Source code | [github.com/xlollx/Trackhop](https://github.com/xlollx/Trackhop) |
 
 The Google Play, AppGallery and Microsoft Store versions use each service's official API only. The

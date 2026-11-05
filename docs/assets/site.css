@@ -113,6 +113,7 @@ body.drawer-open { overflow: hidden; }
 .foot { border-top: 1px solid var(--line); margin-top: 64px; padding: 28px 16px 40px; text-align: center; color: var(--ink-3); font-size: 14px; }
 .foot div { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
 .foot a { color: var(--ink-2); }
+.foot a.ig { display: inline-flex; align-items: center; gap: 5px; }
 .foot p { max-width: 640px; margin: 0 auto; }
 
 /* Markdown pages */
