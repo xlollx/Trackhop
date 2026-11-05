@@ -3,7 +3,7 @@
 Trackhop is built in five flavors from one code base (same package id `com.xlollx.songport`, same
 signing key). Two of them are for these stores:
 
-| Flavor | Store | Asset in each GitHub Release | Differences from the Play build |
+| Flavor | Store | Asset (prerelease `builds-v<version>` of each release) | Differences from the Play build |
 |---|---|---|---|
 | `galaxy` | Samsung Galaxy Store | `Trackhop-v<version>-galaxy.apk` | no Google Play update library (the store updates the app) |
 | `appgallery` | Huawei AppGallery | `Trackhop-v<version>-appgallery.apk` | as `galaxy`, and no ML Kit, so no Gemini Nano (Huawei phones have no Google services) |
@@ -12,6 +12,9 @@ Both follow the store rules of the Play build (`BuildConfig.STORE_BUILD`): offic
 connectors only through the Bridge, no link to external payments (no Ko-fi), the report flag on the
 Roast. Same listing texts, screenshots and privacy policy as Google Play
 ([play-store-listing.md](play-store-listing.md), `docs/store/play/`, `docs/privacy-policy.md`).
+
+The app's own release `v<version>` keeps a single APK (the `full` one): Obtainium follows it and
+skips prereleases, so it never has to ask which APK to install.
 
 Signing: both APKs carry the release workflow's key, the same as the GitHub and F-Droid APKs, so a
 user can move between GitHub, F-Droid, Galaxy Store and AppGallery without uninstalling. Google Play
@@ -30,7 +33,7 @@ to re-sign with a key of its own, decline when possible.
      icon 512×512 (`docs/store/icon512.png`), screenshots (`docs/store/play/<locale>/`), category
      **Music**, age rating (no ads, no purchases, no user interaction: the lowest), privacy policy URL,
      support e-mail.
-   - Binary: upload `Trackhop-v<version>-galaxy.apk` from the GitHub Release.
+   - Binary: upload `Trackhop-v<version>-galaxy.apk` from the GitHub prerelease `builds-v<version>`.
    - Countries: all; price: free.
 4. **Submit for review**. Samsung tests on real devices; expect a few days and sometimes a request
    for test instructions: reuse the reviewer note of the Play listing (files work without any account).
@@ -50,7 +53,7 @@ without a key, as on Play.
      content rating questionnaire (no ads, no purchases).
    - **Distribution countries/regions**: all except **Chinese mainland** (it needs a Chinese software
      copyright certificate and an ICP filing).
-   - Package: upload `Trackhop-v<version>-appgallery.apk`.
+   - Package: upload `Trackhop-v<version>-appgallery.apk` from the GitHub prerelease `builds-v<version>`.
    - Paid/free: free; no in-app purchases.
 4. **Submit**. Review takes a few days; they check that the app works without Google services
    (sign-in pages open in the browser; Gemini Nano is simply not offered).
