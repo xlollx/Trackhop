@@ -12,6 +12,10 @@ tab_computer: Desktop
 tab_server: Self-hosted
 play_alt: "Google Play: coming soon"
 play_note: 'In testing · from Google Play? Add the <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">plugin</a>'
+galaxy_alt: "Samsung Galaxy Store: coming soon"
+galaxy_note: "In preparation"
+appgallery_alt: "Huawei AppGallery: coming soon"
+appgallery_note: "In preparation · no Google services needed"
 fdroid_alt: Get it on F-Droid
 fdroid_note: Built from source · new versions a few days later
 obtainium_alt: Get it on Obtainium

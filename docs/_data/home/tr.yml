@@ -10,6 +10,10 @@ tab_computer: Bilgisayar
 tab_server: Kendi sunucun
 play_alt: "Google Play: çok yakında"
 play_note: 'Test aşamasında · Google Play''den mi? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Eklentiyi</a> ekle'
+galaxy_alt: "Samsung Galaxy Store: çok yakında"
+galaxy_note: "Hazırlanıyor"
+appgallery_alt: "Huawei AppGallery: çok yakında"
+appgallery_note: "Hazırlanıyor · Google hizmetleri gerekmez"
 fdroid_alt: F-Droid'den edin
 fdroid_note: Kaynak koddan derlenir · yeni sürümler birkaç gün sonra
 obtainium_alt: Obtainium ile edin

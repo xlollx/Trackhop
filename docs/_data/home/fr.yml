@@ -10,6 +10,10 @@ tab_computer: Ordinateur
 tab_server: Auto-hébergé
 play_alt: "Google Play : bientôt disponible"
 play_note: 'En test · installé depuis Google Play ? Ajoutez le <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">plugin</a>'
+galaxy_alt: "Samsung Galaxy Store : bientôt disponible"
+galaxy_note: "En préparation"
+appgallery_alt: "Huawei AppGallery : bientôt disponible"
+appgallery_note: "En préparation · sans services Google"
 fdroid_alt: Disponible sur F-Droid
 fdroid_note: Compilé depuis le code source · nouvelles versions quelques jours plus tard
 obtainium_alt: Obtenir avec Obtainium

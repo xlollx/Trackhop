@@ -10,6 +10,10 @@ tab_computer: デスクトップ
 tab_server: セルフホスト
 play_alt: "Google Play：近日公開"
 play_note: 'テスト中 · Google Play 版をお使いなら<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">プラグイン</a>を追加'
+galaxy_alt: "Samsung Galaxy Store：近日公開"
+galaxy_note: "準備中"
+appgallery_alt: "Huawei AppGallery：近日公開"
+appgallery_note: "準備中 · Google サービス不要"
 fdroid_alt: F-Droid で入手
 fdroid_note: ソースからビルド · 新バージョンは数日遅れで公開
 obtainium_alt: Obtainium で入手

@@ -10,6 +10,10 @@ tab_computer: Komputer
 tab_server: Własny serwer
 play_alt: "Google Play: już wkrótce"
 play_note: 'W fazie testów · z Google Play? Dodaj <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">wtyczkę</a>'
+galaxy_alt: "Samsung Galaxy Store: już wkrótce"
+galaxy_note: "W przygotowaniu"
+appgallery_alt: "Huawei AppGallery: już wkrótce"
+appgallery_note: "W przygotowaniu · bez usług Google"
 fdroid_alt: Pobierz z F-Droid
 fdroid_note: Budowany z kodu źródłowego · nowe wersje kilka dni później
 obtainium_alt: Pobierz przez Obtainium

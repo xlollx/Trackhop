@@ -10,6 +10,10 @@ tab_computer: 桌面版
 tab_server: 自托管
 play_alt: "Google Play：即将上架"
 play_note: '测试中 · 用的是 Google Play 版？请添加<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">插件</a>'
+galaxy_alt: "Samsung Galaxy Store：即将上架"
+galaxy_note: "准备中"
+appgallery_alt: "华为应用市场 AppGallery：即将上架"
+appgallery_note: "准备中 · 无需 Google 服务"
 fdroid_alt: 在 F-Droid 上获取
 fdroid_note: 从源码构建 · 新版本会晚几天
 obtainium_alt: 在 Obtainium 上获取
