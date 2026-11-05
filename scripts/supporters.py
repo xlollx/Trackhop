@@ -18,6 +18,24 @@ FILE = ROOT / "docs" / "_data" / "supporters.yml"
 README = ROOT / "README.md"
 MAX = 40
 
+# A supporter who gave no name (Ko-fi shows "Somebody" or "Someone") still gets a thank-you, under a
+# nickname of their own: the next one of these not yet used, then the list again with a number.
+ANONYMOUS = ("someone", "somebody", "anonymous")
+NICKNAMES = [
+    "Anonymous Mixtape", "Anonymous Encore", "Anonymous B-side", "Anonymous Bassline",
+    "Anonymous Night Owl", "Anonymous Vinyl", "Anonymous Chorus", "Anonymous Remix",
+    "Anonymous Groove", "Anonymous Headphones", "Anonymous Bridge", "Anonymous Hidden Track",
+]
+
+
+def nickname(have):
+    for n in range(1, 1000):
+        for base in NICKNAMES:
+            name = base if n == 1 else f"{base} {n}"
+            if name.casefold() not in have:
+                return name
+    return None
+
 
 def clean(name):
     name = re.sub(r"[\x00-\x1f\x7f]", "", str(name or "")).strip()
@@ -34,8 +52,9 @@ def add(names):
     added = []
     for raw in names:
         name = clean(raw)
-        # Ko-fi shows a private supporter as "Someone".
-        if not name or name.casefold() in ("someone", "anonymous") or name.casefold() in have:
+        if name.casefold() in ANONYMOUS:
+            name = nickname(have)
+        if not name or name.casefold() in have:
             continue
         have.add(name.casefold())
         added.append(name)
