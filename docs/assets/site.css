@@ -284,3 +284,16 @@ ul.press .press-kind.article { background: #5b3fd9; }
 .get .store-bridge img { height: 26px; width: 26px; border-radius: 6px; flex: none; }
 .get .store-bridge span { flex: 1; }
 .get .store-bridge .arrow { flex: none; font-size: 1.2rem; opacity: .7; }
+
+/* Press kit page */
+.press-dl { display: inline-block; padding: 10px 18px; border-radius: 999px; background: var(--accent, #7a35e6); color: #fff !important; font-weight: 700; text-decoration: none; }
+.press-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; margin: 12px 0 18px; }
+.press-row figure { margin: 0; text-align: center; }
+.press-row figcaption { font-size: .85rem; margin-top: 6px; }
+.press-row img { display: block; border-radius: 12px; }
+.press-mark { background: #111; padding: 20px; box-sizing: border-box; }
+.press-row.phones a { flex: 1 1 140px; max-width: 200px; }
+.press-row.phones img { width: 100%; height: auto; border: 1px solid var(--line, #ccc); }
+.press-row.desk a { flex: 1 1 280px; }
+.press-row.desk img { width: 100%; height: auto; border: 1px solid var(--line, #ccc); }
+.press-wide { width: 100%; height: auto; border-radius: 12px; }
