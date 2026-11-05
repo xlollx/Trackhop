@@ -136,7 +136,9 @@ object AiRoast {
     }
 
     /** "roast": "<text>" up to the last quote, for answers that are almost JSON. */
-    private val LOOSE_ROAST = Regex("""["']?roast["']?\s*:\s*"([\s\S]*)"\s*}?\s*$""")
+    // The closing brace is escaped: Android's regex engine (ICU) refuses a bare "}" that Java accepts,
+    // and this object could not even load there (every Roast closed the app, 1.14.3 to 1.14.6).
+    private val LOOSE_ROAST = Regex("""["']?roast["']?\s*:\s*"([\s\S]*)"\s*\}?\s*$""")
 
     suspend fun roast(
         c: AiClient.Config, name: String, tracks: List<Track>, language: String,
