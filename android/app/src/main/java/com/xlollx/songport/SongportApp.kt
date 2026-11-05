@@ -7,6 +7,8 @@ import com.xlollx.songport.sync.Scheduler
 class SongportApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Why the app last closed, in the diagnostics log (Settings › Help): the first thing a report needs.
+        com.xlollx.songport.data.CrashLog.install(this)
         // The engine's platform: build-time credentials, resource names, and the connectors this build offers.
         com.xlollx.songport.platform.BuildDefaults.values = com.xlollx.songport.platform.AndroidEnv.buildDefaults()
         com.xlollx.songport.platform.Res.init(this)

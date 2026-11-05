@@ -618,6 +618,10 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                 snackbar.showSnackbar(ctx.getString(R.string.discover_roast_refused), withDismissAction = true, duration = SnackbarDuration.Long)
             } catch (e: Exception) {
                 snackbar.showSnackbar(errorText(ctx, e))
+            } catch (e: Throwable) {
+                // An Error (out of memory, a library's own) would close the app: logged and said instead.
+                com.xlollx.songport.data.Diagnostics.log(ctx, "roast", com.xlollx.songport.data.CrashLog.describe(e))
+                snackbar.showSnackbar(ctx.getString(R.string.error_generic) + " (" + e.javaClass.simpleName + ")")
             }
             busy = false
         }
