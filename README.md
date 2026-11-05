@@ -47,6 +47,9 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 <!-- supporters:end -->
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
+<p align="center"><b>Follow Trackhop</b>: new versions, tips and what's coming next<br>
+<a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a></p>
+
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
 
 <p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements"></p>
@@ -191,12 +194,6 @@ Videos and articles that mention Trackhop (made one? open an issue and tell me):
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
 - ▶ [Melhores 8 APLICATIVOS para CELULAR em 2026 #44 Grátis](https://www.youtube.com/watch?v=jzWL9qPXKH8): ODORIZZI, YouTube (Portuguese)
 
-## Follow Trackhop
-
-New versions, tips and what's coming next, in English:
-
-<a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a>
-
 ## Feedback
 
 Trackhop is stable and used every day. Every library, phone and habit is a little different, so
@@ -220,7 +217,6 @@ reports are what make it better: if something does not work as it should, say so
 ## Contents
 - [Music services at a glance](#music-services-at-a-glance)
 - [They talk about Trackhop](#they-talk-about-trackhop)
-- [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
 - [Supported services and their limits](#supported-services-and-their-limits)
