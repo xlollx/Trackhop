@@ -1,0 +1,1 @@
+Düzeltildi: Roast uygulamayı kapatıyordu. Çalma listesi oluşturucu: Gemini Nano ile yeniden istediğin listeyi tarif ettiğin alanda açılıyor ve liste hazır olunca haber veriyor.

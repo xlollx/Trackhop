@@ -1,0 +1,1 @@
+Corregido: el Roast cerraba la app. Generador de playlists: con Gemini Nano vuelve a abrirse en el campo donde describes la playlist que quieres, y te avisa cuando está lista.

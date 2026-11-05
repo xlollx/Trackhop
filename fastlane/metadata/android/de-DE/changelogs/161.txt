@@ -1,0 +1,1 @@
+Behoben: Der Roast hat die App geschlossen. Playlist-Generator: Mit Gemini Nano öffnet er wieder beim Feld, in dem du die gewünschte Playlist beschreibst, und sagt dir, wann sie fertig ist.
