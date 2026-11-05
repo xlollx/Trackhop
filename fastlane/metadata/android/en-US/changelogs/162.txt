@@ -1,1 +1,1 @@
-Review of saved albums and followed artists: pasting a song's link now finds its album or artist on the target service, instead of failing with an error. A sync's colour chosen before its first run is no longer reset when that run ends.
+Review of saved albums and followed artists: pasting a song's link now finds its album or artist on the target service, instead of failing with an error. A sync's colour chosen before its first run is no longer reset when that run ends. The Roast no longer shows the AI's raw reply when it answers in an unexpected format.

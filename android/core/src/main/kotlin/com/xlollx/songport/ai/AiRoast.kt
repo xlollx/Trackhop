@@ -126,11 +126,20 @@ object AiRoast {
     fun parse(answer: String): String {
         val trimmed = answer.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val start = trimmed.indexOf('{'); val end = trimmed.lastIndexOf('}')
-        if (start >= 0 && end > start) runCatching { parseJson(trimmed.substring(start, end + 1))["roast"].str }.getOrNull()?.let { return it.trim() }
+        if (start >= 0 && end > start) runCatching {
+            val obj = parseJson(trimmed.substring(start, end + 1)) as? kotlinx.serialization.json.JsonObject
+            // "roast" as asked; a model that names its key otherwise (Gemini Nano once wrote a word in
+            // Sinhala) or adds a "one_liner": the longest text in the object is the roast.
+            obj?.get("roast").str ?: obj?.values?.mapNotNull { it.str }?.maxByOrNull { it.length }
+        }.getOrNull()?.takeIf { it.isNotBlank() }?.let { return it.trim() }
         // JSON the parser refuses (a stray quote: `{ "  "roast": "..." }`, seen with real AIs): the
         // text after "roast": is taken anyway, so the card never shows braces and keys.
         LOOSE_ROAST.find(trimmed)?.let { m ->
             return m.groupValues[1].replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\").trim()
+        }
+        // Broken JSON with another key: the longest quoted value after a key.
+        LOOSE_VALUE.findAll(trimmed).map { it.groupValues[1] }.maxByOrNull { it.length }?.takeIf { it.length > 40 }?.let { v ->
+            return v.replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\").trim()
         }
         return trimmed.trim('"').trim()
     }
@@ -138,6 +147,9 @@ object AiRoast {
     /** "roast": "<text>" up to the last quote, for answers that are almost JSON. */
     // The closing brace is escaped: Android's regex engine (ICU) refuses a bare "}" that Java accepts,
     // and this object could not even load there (every Roast closed the app, 1.14.3 to 1.14.6).
+    /** `"any key": "value"`, the value read up to its closing quote (escaped quotes kept). */
+    private val LOOSE_VALUE = Regex("""["'][^"'\n]{1,40}["']\s*:\s*"((?:[^"\\]|\\.)*)"""")
+
     private val LOOSE_ROAST = Regex("""["']?roast["']?\s*:\s*"([\s\S]*)"\s*\}?\s*$""")
 
     suspend fun roast(

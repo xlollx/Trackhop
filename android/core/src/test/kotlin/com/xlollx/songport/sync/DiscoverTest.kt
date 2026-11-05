@@ -375,6 +375,12 @@ class DiscoverTest {
     @Test fun roastAnswerIsUnwrapped() {
         assertEquals("You love it.", AiRoast.parse("```json\n{\"roast\": \"You love it.\"}\n```"))
         assertEquals("Plain text.", AiRoast.parse("Plain text."))
+        // Gemini Nano, 05/11: another key (a word in Sinhala) and an extra one-liner.
+        val nano = "{\n  \"නිවේදනය\": \"Ascolta questa playlist, 'Rap'. Sembra che tu abbia deciso che la tua vita è una sequenza di beat sgranati.\",\n  \"one_liner\": \"La tua playlist non è musica.\"\n}"
+        assertEquals("Ascolta questa playlist, 'Rap'. Sembra che tu abbia deciso che la tua vita è una sequenza di beat sgranati.", AiRoast.parse(nano))
+        // The same, broken (a stray quote): the longest value after a key, still no braces.
+        val broken = "{ \"\"x\": \"Your playlist sounds like a ringtone collection from a phone nobody bought.\", \"one_liner\": \"Bleh.\" "
+        assertEquals("Your playlist sounds like a ringtone collection from a phone nobody bought.", AiRoast.parse(broken))
         // Almost JSON, as an AI really answered (a stray quote before the key): the text, no braces.
         assertEquals("EUROBEAT? Sei bloccato in un loop di 'BOOM BOOM JAPAN'.",
             AiRoast.parse("{\n\"  \"roast\": \"EUROBEAT? Sei bloccato in un loop di 'BOOM BOOM JAPAN'.\"\n}"))
