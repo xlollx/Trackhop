@@ -47,6 +47,8 @@ private const val MAX_BLOCK_WAITS = 8
 private const val LONG_PAUSE_SECONDS = 1800
 /** How long to suggest waiting after a long block with no declared end (Apple web: about an hour). */
 private const val LONG_BLOCK_SECONDS = 3600L
+/** The longest gap between two searches after a service refused them: long enough to get an answer. */
+private const val MAX_SEARCH_SPACING_MS = 10_000L
 /** Additions from which a slow, one-at-a-time target (see MusicProvider.addSpacingMs) is worth a note. */
 private const val SLOW_ADD_NOTE_FROM = 60
 /** How many added tracks a report keeps for its list: enough to read, small enough for a stored report. */
@@ -628,6 +630,11 @@ class SyncEngine(
         var waits = 0
         var blockWaits = 0
         var sinceWait = 0
+        // The pace the service tolerates. A service that answers 429 gets its own pace: the wait
+        // alone is not enough, because the next attempt at the same speed gets the same answer.
+        // So the gap grows on every refusal and relaxes again as the service answers.
+        val baseSpacing = dst.searchSpacingMs
+        val spacing = java.util.concurrent.atomic.AtomicLong(baseSpacing)
         val chunks = toSearch.chunked(parallel)
         var ci = 0
         val startedAt = System.currentTimeMillis()
@@ -661,7 +668,7 @@ class SyncEngine(
                             val slots = searchSlots.getOrPut(dst.id) { kotlinx.coroutines.sync.Semaphore(parallel) }
                             slots.withPermit {
                                 runCatching { searchScored(dst, s, policy) }.map { it?.track to it?.score }
-                                    .also { if (dst.searchSpacingMs > 0) kotlinx.coroutines.delay(dst.searchSpacingMs) }
+                                    .also { val gap = spacing.get(); if (gap > 0) kotlinx.coroutines.delay(gap) }
                             }
                         }
                     }
@@ -703,13 +710,22 @@ class SyncEngine(
             }
             if (throttled != null && asked == null && waits < WAIT_SECONDS.size) {
                 val seconds = WAIT_SECONDS[waits++]
-                env.log("engine", "${dst.displayName} is throttling: ${throttled.message?.take(200)}; waiting ${seconds}s")
+                // The wait alone changes nothing: the same speed gets the same refusal. The gap
+                // between the searches grows, so the next attempt asks less at once.
+                val gap = minOf(MAX_SEARCH_SPACING_MS, maxOf(baseSpacing * 3, spacing.get() * 3, baseSpacing + 500))
+                spacing.set(gap)
+                env.log("engine", "${dst.displayName} is throttling: ${throttled.message?.take(200)}; waiting ${seconds}s, then ${gap} ms between searches")
                 sinceWait = 0
                 for (s in 1..seconds) {
                     onProgress(Progress(Progress.Step.WAITING, s, seconds))
                     kotlinx.coroutines.delay(1000)
                 }
                 continue
+            }
+            if (throttled == null) {
+                // The service answers again: relax the pace, slowly, back to what it tolerates.
+                val gap = spacing.get()
+                if (gap > baseSpacing) spacing.set(maxOf(baseSpacing, gap * 3 / 4))
             }
             if (throttled == null && ++sinceWait >= RESET_AFTER_CHUNKS) { waits = 0; sinceWait = 0 }
             ci++
