@@ -33,7 +33,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
-  <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from Microsoft"></a>
+  <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.0/Trackhop-Desktop-v1.7.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
