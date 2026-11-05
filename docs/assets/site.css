@@ -299,3 +299,6 @@ ul.press .press-kind.article { background: #5b3fd9; }
 .press-row.desk img { width: 100%; height: auto; border: 1px solid var(--line, #ccc); }
 .press-wide { width: 100%; height: auto; border-radius: 12px; }
 
+/* What people say: the comments collage, a phone-sized picture. */
+.say-shot { display: block; max-width: 340px; }
+.say-shot img { display: block; width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line, #ccc); }

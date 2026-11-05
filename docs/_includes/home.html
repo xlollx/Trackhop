@@ -259,6 +259,14 @@ The Desktop version is set here, once, for every language.
 </section>
 {%- endif %}
 
+<section class="section" id="say">
+  <div class="wrap">
+    <h2>{{ h.say_title | default: en.say_title }}</h2>
+    <p class="intro">{{ h.say_intro | default: en.say_intro }}</p>
+    <a class="say-shot" href="/assets/what-people-say.webp"><img src="/assets/what-people-say.webp" width="1080" height="1720" loading="lazy" alt="{{ h.say_alt | default: en.say_alt | escape }}"></a>
+  </div>
+</section>
+
 <section class="section" id="follow">
   <div class="wrap">
     <h2>{{ h.social_title | default: en.social_title }}</h2>

@@ -191,6 +191,12 @@ Videos and articles that mention Trackhop (made one? open an issue and tell me):
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
 - ▶ [Melhores 8 APLICATIVOS para CELULAR em 2026 #44 Grátis](https://www.youtube.com/watch?v=jzWL9qPXKH8): ODORIZZI, YouTube (Portuguese)
 
+## What people say
+
+Comments under videos about Trackhop and messages from supporters (names and pictures hidden):
+
+<img src="docs/assets/what-people-say.webp" width="320" alt="Comments from people who use Trackhop: &quot;Track Hop is absolute gem&quot;, &quot;the greatest thing that's ever happened to me&quot;, &quot;one of the best discoveries&quot;, and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is">
+
 ## Follow Trackhop
 
 New versions, tips and what's coming next, in English:
@@ -220,6 +226,7 @@ reports are what make it better: if something does not work as it should, say so
 ## Contents
 - [Music services at a glance](#music-services-at-a-glance)
 - [They talk about Trackhop](#they-talk-about-trackhop)
+- [What people say](#what-people-say)
 - [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)

@@ -135,3 +135,6 @@ press_intro: "Trackhop\u3092\u7D39\u4ECB\u3057\u3066\u3044\u308B\u52D5\u753B\u30
 social_title: 'Trackhop をフォロー'
 social_note: '新しいバージョン、ヒント、今後の予定（英語）。'
 instagram_alt: 'Instagram で Trackhop をフォロー'
+say_title: 'みんなの声'
+say_intro: 'Trackhop を紹介した動画へのコメントと、支援者からのメッセージ。名前と写真は隠しています。'
+say_alt: 'Trackhop を使う人のコメントと、自動同期と安全性をほめる支援者からの2つのメッセージ'
