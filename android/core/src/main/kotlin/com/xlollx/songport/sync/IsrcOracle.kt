@@ -53,7 +53,8 @@ object IsrcOracle {
     private suspend fun lookup(t: Track): String? {
         val artist = t.artists.firstOrNull()?.let { Matcher.searchArtist(it) }.orEmpty()
         val title = Matcher.searchTitle(t.title)
-        val q = if (artist.isBlank()) title else "artist:\"$artist\" track:\"$title\""
+        // Deezer's artist:"…" filter answers nothing (#46): the title filtered, the artist as plain words.
+        val q = if (artist.isBlank()) title else "track:\"$title\" $artist"
         val resp = Http.send("GET", "https://api.deezer.com/search?limit=8&q=" + Http.enc(q))
         if (!resp.ok) return null
         val candidates = parseJson(resp.body)["data"].arr.mapNotNull { d ->

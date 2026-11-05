@@ -216,7 +216,7 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
                     toAlbum(j)?.let { return listOf(it) }
                 }
                 val artist = track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }
-                var j = dz(ctx, "GET", "/search/album", mapOf("q" to "album:\"${Matcher.searchTitle(track.title)}\"" + (artist?.let { " artist:\"$it\"" } ?: ""), "limit" to "5"))
+                var j = dz(ctx, "GET", "/search/album", mapOf("q" to "album:\"${Matcher.searchTitle(track.title)}\"" + (artist?.let { " $it" } ?: ""), "limit" to "5"))
                 var res = j["data"].arr.mapNotNull { toAlbum(it) }
                 if (res.isEmpty()) {
                     j = dz(ctx, "GET", "/search/album", mapOf("q" to listOfNotNull(artist, Matcher.searchTitle(track.title)).joinToString(" "), "limit" to "5"))
@@ -239,9 +239,10 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
         }
         val title = Matcher.searchTitle(track.title)
         val artist = track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }
+        // Deezer's artist:"…" filter answers nothing (#46): the title filtered, the artist as plain words.
         val fielded = buildString {
             append("track:\"").append(title).append('"')
-            if (!artist.isNullOrBlank()) append(" artist:\"").append(artist).append('"')
+            if (!artist.isNullOrBlank()) append(' ').append(artist)
         }
         var j = dz(ctx, "GET", "/search/track", mapOf("q" to fielded, "limit" to "5"))
         var res = j["data"].arr.mapNotNull { toTrack(it) }

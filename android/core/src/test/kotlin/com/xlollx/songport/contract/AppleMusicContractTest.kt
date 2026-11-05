@@ -121,6 +121,35 @@ class AppleMusicContractTest : ContractTest() {
         try { am.playlists(env); fail() } catch (e: ProviderException) { assertTrue(e.message, e.message!!.startsWith("Apple Music API 500: <html>")) }
     }
 
+    @Test fun emptyLibraryPlaylistIsEmptyNotAnError() = runBlocking {
+        // Apple's answer for the tracks of a library playlist with no song in it (#46).
+        json("""{"errors":[{"id":"X","title":"Not Found","detail":"No related resources found for tracks","status":"404","code":"40403"}]}""", 404)
+        assertEquals(emptyList<Track>(), am.tracks(env, "p.EMPTY"))
+        assertCall(next(), "GET", api, "/v1/me/library/playlists/p.EMPTY/tracks")
+    }
+
+    @Test fun goneLibraryPlaylistIsStillAnError() = runBlocking {
+        json("""{"errors":[{"id":"X","title":"Not Found","detail":"Resource with requested id was not found","status":"404","code":"40400"}]}""", 404)
+        try { am.tracks(env, "p.GONE"); fail() } catch (e: ProviderException) { assertTrue(e.message, e.message!!.contains("404")) }
+    }
+
+    @Test fun webRouteSendsTheUserTokenOnLibraryCallsOnly() = runBlocking {
+        // The web route's extra headers: the catalogue refuses a search carrying the user's token (429 42900, #46).
+        val web = object : AppleMusicProvider() {
+            override fun apiHeaders(ctx: com.xlollx.songport.platform.Env, user: Boolean) =
+                if (user) mapOf("media-user-token" to "MUT") else emptyMap()
+        }
+        json("""{"data":[{"id":"1","type":"songs","attributes":{"name":"A","artistName":"B","isrc":"USUM71703861"}}]}""")
+        web.search(env, Track("x", "A", listOf("B"), isrc = "usum71703861"))
+        val search = next()
+        assertTrue(search.pathOnly().startsWith("/v1/catalog/"))
+        assertNull(search.getHeader("media-user-token"))
+        assertNull(search.getHeader("Music-User-Token"))
+        json("""{"data":[]}""")
+        web.playlists(env)
+        assertEquals("MUT", next().getHeader("media-user-token"))
+    }
+
     @Test fun searchByIsrcFilter() = runBlocking {
         json("""{"data":[{"id":"1","type":"songs","attributes":{"name":"A","artistName":"B","isrc":"USUM71703861"}}]}""")
         assertEquals(listOf("1"), am.search(env, Track("x", "A", listOf("B"), isrc = "usum71703861")).map { it.id })

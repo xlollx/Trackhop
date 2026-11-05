@@ -173,7 +173,10 @@ class DeezerContractTest : ContractTest() {
         assertEquals("/track/isrc:FRZ000000007", next().pathOnly())
         val s = next()
         assertCall(s, "GET", api, "/search/track")
-        assertTrue(s.query("q")!!.startsWith("track:\""))
+        val q = s.query("q")!!
+        assertTrue(q.startsWith("track:\""))
+        // Deezer's artist:"…" filter answers nothing (#46): the artist goes as plain words.
+        assertTrue(q, !q.contains("artist:") && q.endsWith("\" nandu"))
     }
 
     @Test fun httpErrorIsAClearError() = runBlocking {

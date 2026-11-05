@@ -112,9 +112,15 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
      */
     /** The web route sends every call to the player's own backend, with the player's headers. */
     protected open fun apiUrl(url: String): String = url
-    protected open fun apiHeaders(ctx: Env): Map<String, String> = emptyMap()
+    /** [user]: a library call (/v1/me/…). The catalogue refuses a request that carries the user's token. */
+    protected open fun apiHeaders(ctx: Env, user: Boolean): Map<String, String> = emptyMap()
 
-    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null): JsonElement {
+    /**
+     * [emptyOn40403]: Apple answers the tracks of a library playlist that holds no song with 404
+     * "No related resources found for tracks" (code 40403); a playlist that is gone answers 40400 on
+     * itself. The first is an empty list, not an error.
+     */
+    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null, emptyOn40403: Boolean = false): JsonElement {
         // The web route fetches its tokens over the network: never on the caller's (main) thread.
         val dev = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { developerToken(ctx) }
         if (dev.isBlank()) throw ProviderException(ctx.text("apple_token_missing"))
@@ -127,8 +133,10 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
                 ?: throw ProviderException(ctx.text("error_not_connected", displayName))
             headers["Music-User-Token"] = mut
         }
-        headers.putAll(apiHeaders(ctx))
+        headers.putAll(apiHeaders(ctx, needsUser))
         val resp = Http.send(method, apiUrl(url), headers, body?.let { Http.jsonBody(it.toString()) })
+        if (emptyOn40403 && resp.code == 404 && runCatching { parseJson(resp.body)["errors"][0]["code"].str }.getOrNull() == "40403")
+            return parseJson("""{"data":[]}""")
         if (!resp.ok) {
             val detail = runCatching { parseJson(resp.body)["errors"][0]["detail"].str }.getOrNull() ?: resp.body.take(200).ifBlank { "no detail" }
             // 401 sul developer token = scaduto; 403 con user token = sessione da rifare.
@@ -248,7 +256,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         var url: String? = if (catalog) "$API/v1/catalog/${storefront(ctx)}/playlists/$playlistId/tracks?limit=100"
         else "$API/v1/me/library/playlists/$playlistId/tracks?limit=100"
         while (url != null) {
-            val j = api(ctx, "GET", url)
+            val j = api(ctx, "GET", url, emptyOn40403 = !catalog)
             for (d in j["data"].arr) {
                 val t = if (catalog) catalogTrack(d) else libraryTrack(d)
                 if (t != null && t.title.isNotBlank()) out += t

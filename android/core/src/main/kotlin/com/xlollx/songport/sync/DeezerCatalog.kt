@@ -28,7 +28,8 @@ object DeezerCatalog {
         val artist = t.artists.firstOrNull()?.let { Matcher.searchArtist(it) }.orEmpty()
         val title = Matcher.searchTitle(t.title)
         if (title.isBlank()) return null
-        val q = if (artist.isBlank()) title else "artist:\"$artist\" track:\"$title\""
+        // Deezer's artist:"…" filter answers nothing (#46): the title filtered, the artist as plain words.
+        val q = if (artist.isBlank()) title else "track:\"$title\" $artist"
         val resp = runCatching { Http.send("GET", "$API/search?limit=8&q=" + Http.enc(q), maxRateLimitRetries = 0) }.getOrNull() ?: return null
         if (!resp.ok) return null
         val hits = parseJson(resp.body)["data"].arr

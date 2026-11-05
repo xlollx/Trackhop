@@ -68,11 +68,13 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
     override fun canRead(ctx: Env, playlistId: String): Boolean = isConnected(ctx)
 
     // The player's token is bound to its origin: api.music.apple.com answers it with a bare 401. Every
-    // call goes to the player's own backend instead, with the headers the player sends.
+    // call goes to the player's own backend instead, with the headers the player sends. The user's
+    // token only on library calls: the catalogue answers a search that carries it with 429 42900
+    // "Request is forbidden", which no waiting gets past (#46).
     override fun apiUrl(url: String): String = url.replace("https://api.music.apple.com", AMP)
-    override fun apiHeaders(ctx: Env): Map<String, String> = mapOf(
+    override fun apiHeaders(ctx: Env, user: Boolean): Map<String, String> = mapOf(
         "Origin" to "https://music.apple.com", "Referer" to "https://music.apple.com/",
-        "media-user-token" to (runCatching { userToken(ctx) }.getOrNull() ?: ""),
+        "media-user-token" to (if (user) runCatching { userToken(ctx) }.getOrNull() ?: "" else ""),
     ).filterValues { it.isNotEmpty() }
 
     // The web player's backend (amp-api.music.apple.com) takes the same two tokens and, unlike the
