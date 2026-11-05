@@ -110,9 +110,7 @@ jobs:
         # repository's variables. The APK for direct download is the "full" flavor, built with none of
         # them: F-Droid rebuilds it from source with the defaults in app/build.gradle and publishes it
         # only if it comes out identical (1.3.6 did not: a stale PRIVACY_POLICY_URL variable).
-        # The Huawei AppGallery build is an APK of the "appgallery" flavor, built like the Play AAB (the
-        # "galaxy" flavor stays in the code but is not released: Samsung takes Android apps from companies
-        # only). F-Droid's is the "fdroid" flavor (no ML Kit),
+        # The Huawei AppGallery build is an APK of the "appgallery" flavor, built like the Play AAB. F-Droid's is the "fdroid" flavor (no ML Kit),
         # built like the GitHub APK: with no repository variables, so F-Droid's rebuild comes out equal.
         run: |
           gradle bundlePlayRelease assembleAppgalleryRelease --no-daemon --stacktrace

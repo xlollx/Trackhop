@@ -1,6 +1,6 @@
 # Huawei AppGallery (and why not the Samsung Galaxy Store)
 
-Trackhop is built in five flavors from one code base (same package id `com.xlollx.songport`, same
+Trackhop is built in four flavors from one code base (same package id `com.xlollx.songport`, same
 signing key). One of them is for Huawei's store:
 
 | Flavor | Store | Asset (prerelease `builds-v<version>` of each release) | Differences from the Play build |
@@ -24,8 +24,8 @@ its own, decline when possible.
 **Samsung Galaxy Store: not possible for now.** Seller Portal takes Android apps only from a
 "Corporate Commercial Distribution Seller" (a registered company); private sellers can publish themes
 and watch faces only (checked 05/11/2026). Samsung phones have Google Play, so their users are covered
-by Play, GitHub and F-Droid. The `galaxy` flavor (as `play` without Google Play's update library)
-stays in the code, not released, should that change.
+by Play, GitHub and F-Droid. A `galaxy` flavor (as `play` without Google Play's update library)
+existed briefly and was removed; it can be restored from commit e4f9584d (1.14.4) should that change.
 
 ## Huawei AppGallery
 

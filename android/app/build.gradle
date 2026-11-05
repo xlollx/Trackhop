@@ -76,23 +76,17 @@ android {
     // or describes any companion app; plugin-based services appear only if the user already has a
     // plugin installed. "full" (GitHub Releases) may point to where to get one.
     flavorDimensions = ["dist"]
-    // Five builds, one code base (same package id, same signing key):
+    // Four builds, one code base (same package id, same signing key):
     //  full        GitHub Releases: web connectors built in, Gemini Nano, Ko-fi, its own update check.
     //  fdroid      F-Droid: as full, without Google's ML Kit (F-Droid allows no non-free library), so
     //              without Gemini Nano. Released next to full as Trackhop-v<version>-fdroid.apk.
     //  play        Google Play: official APIs only (web connectors through the Bridge), no Ko-fi,
     //              Gemini Nano, Google Play's update check.
-    //  galaxy      Samsung Galaxy Store: as play, without Google Play's update library. Not released:
-    //              Samsung takes Android apps from companies only (docs/other-stores.md).
-    //  appgallery  Huawei AppGallery: as galaxy, without ML Kit (Huawei phones have no Google services).
-    // STORE_BUILD: the store rules (play, galaxy, appgallery): no web connectors, no external payments.
+    //  appgallery  Huawei AppGallery: as play, without Google Play's update library and without ML Kit
+    //              (Huawei phones have no Google services).
+    // STORE_BUILD: the store rules (play, appgallery): no web connectors, no external payments.
     productFlavors {
         play {
-            dimension "dist"
-            buildConfigField "boolean", "PLUGIN_LINKS", "false"
-            buildConfigField "boolean", "STORE_BUILD", "true"
-        }
-        galaxy {
             dimension "dist"
             buildConfigField "boolean", "PLUGIN_LINKS", "false"
             buildConfigField "boolean", "STORE_BUILD", "true"
@@ -116,7 +110,8 @@ android {
     }
 
     // Shared sources: full's for fdroid, the stores' common part (BuiltIn, texts) for the three store
-    // builds, and Gemini Nano real (src/mlkit) or empty (src/nomlkit).
+    // builds, and Gemini Nano real (src/mlkit) or empty (src/nomlkit). appgallery's own update stub is
+    // in src/appgallery.
     sourceSets {
         fdroid {
             java.srcDirs += ['src/full/java', 'src/nomlkit/java']
@@ -128,12 +123,8 @@ android {
             java.srcDirs += ['src/storeCommon/java', 'src/mlkit/java']
             res.srcDirs += ['src/storeCommon/res']
         }
-        galaxy {
-            java.srcDirs += ['src/storeCommon/java', 'src/stores/java', 'src/mlkit/java']
-            res.srcDirs += ['src/storeCommon/res']
-        }
         appgallery {
-            java.srcDirs += ['src/storeCommon/java', 'src/stores/java', 'src/nomlkit/java']
+            java.srcDirs += ['src/storeCommon/java', 'src/nomlkit/java']
             res.srcDirs += ['src/storeCommon/res']
         }
     }
@@ -258,7 +249,6 @@ dependencies {
     // services on Huawei phones): those take the empty NanoAi from src/nomlkit.
     fullImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
     playImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
-    galaxyImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
 
     // GitHub/F-Droid build: YouTube Music, Amazon Music and the Spotify/Apple web sign-in run inside
     // the app. The Play build does not include them and uses the separate Bridge app when installed.

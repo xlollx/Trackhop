@@ -370,7 +370,7 @@ User-facing page: [trackhop.org/plugins](https://trackhop.org/plugins).
 
 ### Store builds and direct downloads
 
-The store flavors (`play` for Google Play, `appgallery` for AppGallery, and `galaxy`, not released)
+The store flavors (`play` for Google Play, `appgallery` for Huawei AppGallery)
 never name, link to or describe any plugin; plugin
 services appear only when a plugin is already installed, with generic wording, and it contains no
 code that uses unofficial interfaces. The `full` flavor (GitHub Releases) and the `fdroid` flavor
@@ -599,13 +599,12 @@ PY
 
 ## Builds
 
-One code base, five flavors (`android/app/build.gradle`), same package id and signing key:
+One code base, four flavors (`android/app/build.gradle`), same package id and signing key:
 `full` (GitHub Releases: web connectors built in, Gemini Nano, Ko-fi), `fdroid` (as `full`
 without Google's ML Kit, so without Gemini Nano: F-Droid allows no non-free library),
 `play` (Google Play: official APIs only, web connectors through the Bridge, no external payments),
-`appgallery` (Huawei AppGallery: as `play` without Google Play's update library and without ML Kit)
-and `galaxy` (as `play` without Google Play's update library, for the Samsung Galaxy Store: kept in
-the code but not released, since Samsung takes Android apps from companies only). Each release `v<version>` carries the `full` APK and the
+`appgallery` (Huawei AppGallery: as `play` without Google Play's update library and without ML Kit).
+No Samsung Galaxy Store: it takes Android apps from companies only. Each release `v<version>` carries the `full` APK and the
 `play` AAB (one APK only, for Obtainium); the `fdroid` and `appgallery` APKs go to the
 prerelease `builds-v<version>`. Store steps: [docs/other-stores.md](docs/other-stores.md).
 
