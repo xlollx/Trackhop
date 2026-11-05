@@ -277,10 +277,10 @@ ul.press small { display: block; color: var(--ink-2); margin-top: 2px; }
 ul.press .press-kind.article { background: #5b3fd9; }
 
 /* Under the Play and AppGallery badges: those builds need the Bridge for the web connectors. */
-.get .store-bridge { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 12px 14px; border: 1px dashed rgba(255,255,255,.35); border-radius: 14px; background: rgba(0,0,0,.22); text-align: center; }
-.get .store-bridge p { margin: 0; font-size: .88rem; line-height: 1.4; }
-.get .bridge-btn { display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px 7px 8px; border-radius: 999px;
-  background: linear-gradient(90deg,#4f2fd8,#7a35e6 45%,#d6286f); color: #fff; font-weight: 700; font-size: .92rem; text-decoration: none; }
-.get .bridge-btn:hover { filter: brightness(1.1); }
-.get .bridge-btn img { height: 28px; width: 28px; border-radius: 7px; }
+.get .store-bridge { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(255,255,255,.06);
+  color: inherit; text-decoration: none; font-size: .82rem; line-height: 1.35; opacity: .95; }
+.get .store-bridge:hover { background: rgba(255,255,255,.12); }
+.get .store-bridge img { height: 26px; width: 26px; border-radius: 6px; flex: none; }
+.get .store-bridge span { flex: 1; }
+.get .store-bridge .arrow { flex: none; font-size: 1.2rem; opacity: .7; }

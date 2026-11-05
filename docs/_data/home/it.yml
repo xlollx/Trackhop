@@ -14,8 +14,7 @@ play_alt: "Google Play: in arrivo"
 play_note: 'In test'
 appgallery_alt: "Huawei AppGallery: in arrivo"
 appgallery_note: "In preparazione · senza servizi Google"
-store_bridge: '<b>Google Play o AppGallery?</b> Installa anche <b>Trackhop Bridge</b>: aggiunge YouTube Music, Amazon Music, SoundCloud e gli accessi rapidi. F-Droid, Obtainium e GitHub non ne hanno bisogno.'
-store_bridge_button: 'Scarica Trackhop Bridge'
+store_bridge: '<b>Google Play o AppGallery?</b> Aggiungi Trackhop Bridge per YouTube Music, Amazon Music e altro'
 fdroid_alt: Disponibile su F-Droid
 fdroid_note: Compilato dal sorgente · le nuove versioni arrivano qualche giorno dopo
 obtainium_alt: Disponibile su Obtainium

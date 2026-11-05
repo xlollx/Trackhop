@@ -12,8 +12,7 @@ play_alt: "Google Play：近日公開"
 play_note: 'テスト中'
 appgallery_alt: "Huawei AppGallery：近日公開"
 appgallery_note: "準備中 · Google サービス不要"
-store_bridge: '<b>Google Play 版・AppGallery 版をお使いですか？</b> <b>Trackhop Bridge</b> も入れてください。YouTube Music、Amazon Music、SoundCloud、クイックサインインが使えるようになります。F-Droid・Obtainium・GitHub 版には不要です。'
-store_bridge_button: 'Trackhop Bridge を入手'
+store_bridge: '<b>Google Play 版・AppGallery 版なら</b> Trackhop Bridge で YouTube Music や Amazon Music などを追加'
 fdroid_alt: F-Droid で入手
 fdroid_note: ソースからビルド · 新バージョンは数日遅れで公開
 obtainium_alt: Obtainium で入手
