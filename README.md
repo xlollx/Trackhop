@@ -25,8 +25,10 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>Installed Trackhop from Google Play or AppGallery?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Qobuz, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
-  <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for the store versions"></a>
+  <b>Google Play or AppGallery? Install Trackhop Bridge too.</b><br>
+  The store versions use official APIs only. The free Bridge plugin adds the rest: YouTube Music, Amazon Music, SoundCloud, quick sign-ins with no keys, TikTok and more.<br>
+  F-Droid, Obtainium and GitHub already have everything built in: no Bridge needed.<br><br>
+  <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for Google Play and AppGallery"></a>
 </p>
 
 <p align="center">
@@ -112,11 +114,11 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - **[Obtainium](https://github.com/ImranR98/Obtainium)**: add `https://github.com/xlollx/Trackhop` and
   each release reaches the phone by itself.
 - **[Releases](https://github.com/xlollx/Trackhop/releases/latest)**: the signed APK of every version.
-- **Google Play version**: the same app limited to official APIs (store rules), with a small ad.
-  Using it and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
+- **Google Play and AppGallery versions**: the same app limited to official APIs (store rules).
+  Using one and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
   (GitHub only, read its notes first), or switch to the F-Droid/GitHub build above, which has them
-  built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares the two.
+  built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
   next to the clock and the same web page as the server. Version 1.7.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.7.0)):

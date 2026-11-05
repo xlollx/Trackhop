@@ -9,9 +9,11 @@ tab_phone: Android
 tab_computer: 데스크톱
 tab_server: 셀프 호스팅
 play_alt: "Google Play: 곧 출시"
-play_note: '테스트 중 · Google Play 버전이라면 <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">플러그인</a>을 추가하세요'
+play_note: '테스트 중'
 appgallery_alt: "Huawei AppGallery: 곧 출시"
 appgallery_note: "준비 중 · Google 서비스 없이 작동"
+store_bridge: '<b>Google Play 또는 AppGallery 버전인가요?</b> <b>Trackhop Bridge</b>도 설치하세요. YouTube Music, Amazon Music, SoundCloud와 빠른 로그인이 추가됩니다. F-Droid, Obtainium, GitHub 버전에는 필요 없습니다.'
+store_bridge_button: 'Trackhop Bridge 받기'
 fdroid_alt: F-Droid에서 받기
 fdroid_note: 소스에서 빌드 · 새 버전은 며칠 늦게 올라와요
 obtainium_alt: Obtainium에서 받기

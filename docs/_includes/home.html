@@ -32,6 +32,10 @@ The Desktop version is set here, once, for every language.
             <span class="soon"><img src="/assets/badges/appgallery-soon.svg" alt="{{ h.appgallery_alt | default: en.appgallery_alt }}"></span>
             <small>{{ h.appgallery_note | default: en.appgallery_note }}</small>
           </div>
+          <div class="store-bridge">
+            <p>{{ h.store_bridge | default: en.store_bridge }}</p>
+            <a class="bridge-btn" href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="/assets/bridge-icon.png" alt="" width="28" height="28">{{ h.store_bridge_button | default: en.store_bridge_button }}</a>
+          </div>
           <div class="col">
             <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="/assets/badges/fdroid.svg" alt="{{ h.fdroid_alt | default: en.fdroid_alt }}"></a>
             <small>{{ h.fdroid_note | default: en.fdroid_note }}</small>

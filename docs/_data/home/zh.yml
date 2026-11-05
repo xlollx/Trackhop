@@ -9,9 +9,11 @@ tab_phone: Android
 tab_computer: 桌面版
 tab_server: 自托管
 play_alt: "Google Play：即将上架"
-play_note: '测试中 · 用的是 Google Play 或 AppGallery 版？请添加<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">插件</a>'
+play_note: '测试中'
 appgallery_alt: "华为应用市场 AppGallery：即将上架"
 appgallery_note: "准备中 · 无需 Google 服务"
+store_bridge: '<b>用的是 Google Play 或 AppGallery 版？</b>请同时安装 <b>Trackhop Bridge</b>：它会加入 YouTube Music、Amazon Music、SoundCloud 和快捷登录。F-Droid、Obtainium 和 GitHub 版不需要它。'
+store_bridge_button: '获取 Trackhop Bridge'
 fdroid_alt: 在 F-Droid 上获取
 fdroid_note: 从源码构建 · 新版本会晚几天
 obtainium_alt: 在 Obtainium 上获取

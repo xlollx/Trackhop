@@ -9,9 +9,11 @@ tab_phone: Android
 tab_computer: Компьютер
 tab_server: Свой сервер
 play_alt: "Google Play: скоро"
-play_note: 'На тестировании · из Google Play? Добавьте <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">плагин</a>'
+play_note: 'На тестировании'
 appgallery_alt: "Huawei AppGallery: скоро"
 appgallery_note: "Готовится · без сервисов Google"
+store_bridge: '<b>Google Play или AppGallery?</b> Установите ещё <b>Trackhop Bridge</b>: он добавляет YouTube Music, Amazon Music, SoundCloud и быстрый вход. Версиям из F-Droid, Obtainium и GitHub он не нужен.'
+store_bridge_button: 'Скачать Trackhop Bridge'
 fdroid_alt: Скачать в F-Droid
 fdroid_note: Собирается из исходников · новые версии через несколько дней
 obtainium_alt: Скачать через Obtainium

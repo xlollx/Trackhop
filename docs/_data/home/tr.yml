@@ -9,9 +9,11 @@ tab_phone: Android
 tab_computer: Bilgisayar
 tab_server: Kendi sunucun
 play_alt: "Google Play: çok yakında"
-play_note: 'Test aşamasında · Google Play''den mi? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Eklentiyi</a> ekle'
+play_note: 'Test aşamasında'
 appgallery_alt: "Huawei AppGallery: çok yakında"
 appgallery_note: "Hazırlanıyor · Google hizmetleri gerekmez"
+store_bridge: '<b>Google Play veya AppGallery mi?</b> <b>Trackhop Bridge</b>''i de kur: YouTube Music, Amazon Music, SoundCloud ve hızlı girişi ekler. F-Droid, Obtainium ve GitHub sürümlerinin buna ihtiyacı yok.'
+store_bridge_button: 'Trackhop Bridge''i indir'
 fdroid_alt: F-Droid'den edin
 fdroid_note: Kaynak koddan derlenir · yeni sürümler birkaç gün sonra
 obtainium_alt: Obtainium ile edin

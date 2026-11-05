@@ -275,3 +275,12 @@ ul.press .press-kind { flex: none; width: 36px; height: 36px; border-radius: 50%
 ul.press strong { display: block; font-weight: 600; line-height: 1.3; }
 ul.press small { display: block; color: var(--ink-2); margin-top: 2px; }
 ul.press .press-kind.article { background: #5b3fd9; }
+
+/* Under the Play and AppGallery badges: those builds need the Bridge for the web connectors. */
+.get .store-bridge { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 1px dashed rgba(255,255,255,.35); border-radius: 14px; background: rgba(0,0,0,.22); text-align: center; }
+.get .store-bridge p { margin: 0; font-size: .88rem; line-height: 1.4; }
+.get .bridge-btn { display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px 7px 8px; border-radius: 999px;
+  background: linear-gradient(90deg,#4f2fd8,#7a35e6 45%,#d6286f); color: #fff; font-weight: 700; font-size: .92rem; text-decoration: none; }
+.get .bridge-btn:hover { filter: brightness(1.1); }
+.get .bridge-btn img { height: 28px; width: 28px; border-radius: 7px; }
