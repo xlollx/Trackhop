@@ -10,8 +10,6 @@ tab_computer: Bilgisayar
 tab_server: Kendi sunucun
 play_alt: "Google Play: çok yakında"
 play_note: 'Test aşamasında · Google Play''den mi? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Eklentiyi</a> ekle'
-galaxy_alt: "Samsung Galaxy Store: çok yakında"
-galaxy_note: "Hazırlanıyor"
 appgallery_alt: "Huawei AppGallery: çok yakında"
 appgallery_note: "Hazırlanıyor · Google hizmetleri gerekmez"
 fdroid_alt: F-Droid'den edin
@@ -120,7 +118,7 @@ start_intro: 'Android 8.0 veya üstü; İngilizce, İtalyanca, Fransızca, Alman
 start_apk: veya GitHub'dan APK
 step_by_step: 'Adım adım: <a href="/guide/spotify-to-youtube-music">Spotify''dan YouTube Music''e</a> · <a href="/guide/apple-music-to-spotify">Apple Music''ten Spotify''a</a> · <a href="/guide/spotify-to-tidal">Spotify''dan TIDAL''a</a> · <a href="/guide/spotify-to-apple-music">Spotify''dan Apple Music''e</a> · <a href="/guide/youtube-music-to-spotify">YouTube Music''ten Spotify''a</a> · <a href="/guide/deezer-to-spotify">Deezer''dan Spotify''a</a> · <a href="/guide/amazon-music-to-spotify">Amazon Music''ten Spotify''a</a> · <a href="/guide/spotify-to-navidrome-jellyfin">Spotify''dan Navidrome, Jellyfin veya Plex''e</a> · <a href="/guide/export-playlist-csv">bir çalma listesini CSV veya M3U''ya</a> · <a href="/guide/shazam">Shazam''larını bir çalma listesine</a>. Türkçe rehber: <a href="/guide/calma-listesi-aktarma">Spotify, YouTube Music, Apple Music ve Deezer arasında çalma listesi aktarma, ücretsiz</a>.'
 no_phone: 'Yanında Android telefon yok mu? Windows veya Linux''ta <a href="#docker">Trackhop Desktop''u dene</a> ya da Docker sürümünü.'
-play_bridge: 'Google Play, Galaxy Store ya da AppGallery sürümünü mü kullanıyorsun? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Trackhop Bridge''i indir</strong></a>: YouTube Music, Amazon Music ve geliştirici anahtarı olmadan Spotify ile Apple Music ekleyen eklenti (resmî olmayan web arayüzleri: önce notlarını oku).'
+play_bridge: 'Google Play ya da AppGallery sürümünü mü kullanıyorsun? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Trackhop Bridge''i indir</strong></a>: YouTube Music, Amazon Music ve geliştirici anahtarı olmadan Spotify ile Apple Music ekleyen eklenti (resmî olmayan web arayüzleri: önce notlarını oku).'
 thanks_title: Teşekkürler
 thanks_how: 'Trackhop''un ücretsiz kalmasını sağlayan herkese. Adının burada olmasını ister misin? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> veya <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport artık Trackhop.</strong> Aynı uygulama, aynı kod, aynı güncellemeler: yalnızca ad değişti, çünkü aynı alanda "SongPort" adlı ilgisiz bir servis var. Kurulu uygulaman normal şekilde güncellenir ve tüm verilerini korur, eski bağlantılar da çalışmaya devam eder.'

@@ -1,47 +1,31 @@
-# Samsung Galaxy Store and Huawei AppGallery
+# Huawei AppGallery (and why not the Samsung Galaxy Store)
 
 Trackhop is built in five flavors from one code base (same package id `com.xlollx.songport`, same
-signing key). Two of them are for these stores:
+signing key). One of them is for Huawei's store:
 
 | Flavor | Store | Asset (prerelease `builds-v<version>` of each release) | Differences from the Play build |
 |---|---|---|---|
-| `galaxy` | Samsung Galaxy Store | `Trackhop-v<version>-galaxy.apk` | no Google Play update library (the store updates the app) |
-| `appgallery` | Huawei AppGallery | `Trackhop-v<version>-appgallery.apk` | as `galaxy`, and no ML Kit, so no Gemini Nano (Huawei phones have no Google services) |
+| `appgallery` | Huawei AppGallery | `Trackhop-v<version>-appgallery.apk` | no Google Play update library and no ML Kit, so no Gemini Nano (Huawei phones have no Google services) |
 
-Both follow the store rules of the Play build (`BuildConfig.STORE_BUILD`): official APIs only, web
-connectors only through the Bridge, no link to external payments (no Ko-fi), the report flag on the
-Roast. Same listing texts, screenshots and privacy policy as Google Play
-([play-store-listing.md](play-store-listing.md), `docs/store/play/`, `docs/privacy-policy.md`).
+It follows the store rules of the Play build (`BuildConfig.STORE_BUILD`): official APIs only, web
+connectors only through the Bridge (which needs no Google services either), no link to external
+payments (no Ko-fi), the report flag on the Roast. Same listing texts, screenshots and privacy policy
+as Google Play ([play-store-listing.md](play-store-listing.md), `docs/store/play/`,
+`docs/privacy-policy.md`).
 
 The app's own release `v<version>` keeps a single APK (the `full` one): Obtainium follows it and
 skips prereleases, so it never has to ask which APK to install.
 
-Signing: both APKs carry the release workflow's key, the same as the GitHub and F-Droid APKs, so a
-user can move between GitHub, F-Droid, Galaxy Store and AppGallery without uninstalling. Google Play
-re-signs with its own app signing key: moving to or from Play needs an uninstall. If a store offers
-to re-sign with a key of its own, decline when possible.
+Signing: the AppGallery APK carries the release workflow's key, the same as the GitHub and F-Droid
+APKs, so a user can move between them without uninstalling. Google Play re-signs with its own app
+signing key: moving to or from Play needs an uninstall. If AppGallery offers to re-sign with a key of
+its own, decline when possible.
 
-## Samsung Galaxy Store
-
-1. **Account**: seller.samsungapps.com › Sign up with a Samsung account. Choose **Private seller**
-   (individual) and a free app only: no tax or bank details needed. The account is approved in a few
-   days.
-2. **Trader status (EU)**: Seller Portal asks for it as Google Play does. No ads and no in-app
-   purchases: **non-trader**.
-3. **Add new application** › Android › default language English. Fill in:
-   - App information: title *Trackhop*, short and full description (from `fastlane/metadata/android/<locale>/`),
-     icon 512×512 (`docs/store/icon512.png`), screenshots (`docs/store/play/<locale>/`), category
-     **Music**, age rating (no ads, no purchases, no user interaction: the lowest), privacy policy URL,
-     support e-mail.
-   - Binary: upload `Trackhop-v<version>-galaxy.apk` from the GitHub prerelease `builds-v<version>`.
-   - Countries: all; price: free.
-4. **Submit for review**. Samsung tests on real devices; expect a few days and sometimes a request
-   for test instructions: reuse the reviewer note of the Play listing (files work without any account).
-5. Each update: new binary in the same app, with the release notes of
-   `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt`.
-
-Gemini Nano: the `galaxy` build includes ML Kit, so recent Galaxy phones with AICore get the AI
-without a key, as on Play.
+**Samsung Galaxy Store: not possible for now.** Seller Portal takes Android apps only from a
+"Corporate Commercial Distribution Seller" (a registered company); private sellers can publish themes
+and watch faces only (checked 05/11/2026). Samsung phones have Google Play, so their users are covered
+by Play, GitHub and F-Droid. The `galaxy` flavor (as `play` without Google Play's update library)
+stays in the code, not released, should that change.
 
 ## Huawei AppGallery
 
@@ -61,7 +45,6 @@ without a key, as on Play.
 
 ## Later: uploads from the release workflow
 
-Both stores have publishing APIs (Huawei: AppGallery Connect Publishing API with an API client;
-Samsung: Galaxy Store Developer API, Content Publish, with a service account). Once the first manual
-uploads are accepted, the release workflow can send each new APK like `play.yml` does for Google
-Play, with their keys as repository secrets.
+AppGallery Connect has a Publishing API (with an API client). Once the first manual upload is
+accepted, the release workflow can send each new APK like `play.yml` does for Google Play, with the
+client's key as a repository secret.

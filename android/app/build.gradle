@@ -82,7 +82,8 @@ android {
     //              without Gemini Nano. Released next to full as Trackhop-v<version>-fdroid.apk.
     //  play        Google Play: official APIs only (web connectors through the Bridge), no Ko-fi,
     //              Gemini Nano, Google Play's update check.
-    //  galaxy      Samsung Galaxy Store: as play, without Google Play's update library.
+    //  galaxy      Samsung Galaxy Store: as play, without Google Play's update library. Not released:
+    //              Samsung takes Android apps from companies only (docs/other-stores.md).
     //  appgallery  Huawei AppGallery: as galaxy, without ML Kit (Huawei phones have no Google services).
     // STORE_BUILD: the store rules (play, galaxy, appgallery): no web connectors, no external payments.
     productFlavors {

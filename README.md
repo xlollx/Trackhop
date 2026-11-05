@@ -18,15 +18,14 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <!-- Google Play: replace with the official badge linking to the listing once it is public. -->
   <img src="docs/assets/badges/play-soon.svg" height="56" alt="Google Play: coming soon">
-  <!-- Samsung Galaxy Store and Huawei AppGallery: official badges once the listings are public (docs/other-stores.md). -->
-  <img src="docs/assets/badges/galaxy-soon.svg" height="56" alt="Samsung Galaxy Store: coming soon">
+  <!-- Huawei AppGallery: official badge once the listing is public (docs/other-stores.md). -->
   <img src="docs/assets/badges/appgallery-soon.svg" height="56" alt="Huawei AppGallery: coming soon">
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
 </p>
 
 <p align="center">
-  <b>Installed Trackhop from Google Play, the Galaxy Store or AppGallery?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Qobuz, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
+  <b>Installed Trackhop from Google Play or AppGallery?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Qobuz, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
   <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for the store versions"></a>
 </p>
 
@@ -60,7 +59,7 @@ any build: development lives on voluntary donations.
 **Read** = use it as a source · **Write** = create playlists and add tracks · **Remove** = mirror removals.
 "All builds" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker. The *quick sign-in*
 routes go through the service's own web player: they are not official interfaces and live in the GitHub and
-F-Droid builds, Desktop and Docker (and, for the store apps on Google Play, Galaxy Store and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
+F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
 
 | Service | Read | Write | Remove | How you connect | Where |
 |---|:-:|:-:|:-:|---|---|
@@ -291,7 +290,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 |---------|--------|-------|----------------------|--------|
 | Spotify | complete | OAuth PKCE on Spotify's sign-in page, shown inside the app (a browser tab handed "Continue with Facebook" to the Facebook app, which then failed) | `SPOTIFY_CLIENT_ID`, redirect `songport://callback` | An app in *Development Mode* accepts 5 users and its owner needs Spotify Premium (February 2026 rules). *Extended Quota Mode* requires a registered company and 250,000 monthly active users. Since July 2026 the quota is counted per developer account, not per client ID. That is why the app walks each user through creating their own client ID: on Spotify this is the normal path. |
 | Apple Music | read and add, beta | MusicKit JS in an in-app WebView | `APPLE_DEVELOPER_TOKEN` (ES256 JWT, Apple Developer Program) | The API cannot remove tracks from a playlist: mirror syncs towards Apple Music only add and say so in the report. The developer token expires after at most 6 months. An Apple Music subscription is required. Library tracks do not expose an ISRC. |
-| YouTube Music | built into the GitHub/F-Droid build; in the store builds (Play, Galaxy Store, AppGallery) via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
+| YouTube Music | built into the GitHub/F-Droid build; in the store builds (Play, AppGallery) via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
 | YouTube Music (Google API) | via YouTube Data API v3 | Google OAuth | `GOOGLE_CLIENT_ID` (Android OAuth client: package + SHA-1), YouTube Data API enabled, OAuth verification for the `youtube` scope | 10,000 units per day per project (search 100, insert 50), shared by every user of the same build. With own credentials the quota is the user's. No ISRC. |
 | Spotify (web) | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Spotify sign-in on Spotify's page | nothing, and no Premium | Talks to the web player's own backend (the GraphQL gateway and the playlist store open.spotify.com uses), with the player's session token and client token; the query hashes are read from the player's own code. Since December 2025 Spotify refuses first-party tokens on the public Web API, which is why this route no longer touches it. No ISRC on this route: matching is by title, artist and duration. Not an official route, against Spotify's terms, may break without notice. |
 | Apple Music (web) | read and add, built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above. Not an official route, against Apple's terms, may break without notice. |
@@ -330,7 +329,7 @@ developer account to register, a paid program, a daily quota to share. For those
 **open connector interface**: a separate app, a *plugin*, holds the sign-in to a service and answers
 Trackhop's requests for playlists and tracks.
 
-The store builds (Google Play, Galaxy Store, AppGallery) never include, download or install a plugin. It discovers one that the user
+The store builds (Google Play, AppGallery) never include, download or install a plugin. It discovers one that the user
 has already installed and then offers its services in the account picker, next to the official
 routes, which stay available and unchanged. The GitHub and F-Droid build carries the reference
 plugin's connectors inside instead (see below), so it needs no second app.
@@ -371,7 +370,7 @@ User-facing page: [trackhop.org/plugins](https://trackhop.org/plugins).
 
 ### Store builds and direct downloads
 
-The store flavors (`play` for Google Play, `galaxy` for the Galaxy Store, `appgallery` for AppGallery)
+The store flavors (`play` for Google Play, `appgallery` for AppGallery, and `galaxy`, not released)
 never name, link to or describe any plugin; plugin
 services appear only when a plugin is already installed, with generic wording, and it contains no
 code that uses unofficial interfaces. The `full` flavor (GitHub Releases) and the `fdroid` flavor
@@ -604,9 +603,10 @@ One code base, five flavors (`android/app/build.gradle`), same package id and si
 `full` (GitHub Releases: web connectors built in, Gemini Nano, Ko-fi), `fdroid` (as `full`
 without Google's ML Kit, so without Gemini Nano: F-Droid allows no non-free library),
 `play` (Google Play: official APIs only, web connectors through the Bridge, no external payments),
-`galaxy` (Samsung Galaxy Store: as `play` without Google Play's update library) and `appgallery`
-(Huawei AppGallery: as `galaxy` without ML Kit). Each release `v<version>` carries the `full` APK and the
-`play` AAB (one APK only, for Obtainium); the `fdroid`, `galaxy` and `appgallery` APKs go to the
+`appgallery` (Huawei AppGallery: as `play` without Google Play's update library and without ML Kit)
+and `galaxy` (as `play` without Google Play's update library, for the Samsung Galaxy Store: kept in
+the code but not released, since Samsung takes Android apps from companies only). Each release `v<version>` carries the `full` APK and the
+`play` AAB (one APK only, for Obtainium); the `fdroid` and `appgallery` APKs go to the
 prerelease `builds-v<version>`. Store steps: [docs/other-stores.md](docs/other-stores.md).
 
 ## Publishing on Google Play

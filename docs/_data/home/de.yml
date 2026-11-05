@@ -10,8 +10,6 @@ tab_computer: Desktop
 tab_server: Selbst gehostet
 play_alt: "Google Play: bald verfügbar"
 play_note: 'In der Testphase · aus Google Play? Installiere das <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Plugin</a>'
-galaxy_alt: "Samsung Galaxy Store: bald verfügbar"
-galaxy_note: "In Vorbereitung"
 appgallery_alt: "Huawei AppGallery: bald verfügbar"
 appgallery_note: "In Vorbereitung · ohne Google-Dienste"
 fdroid_alt: Jetzt bei F-Droid
@@ -120,7 +118,7 @@ start_intro: 'Android 8.0 oder neuer, auf Englisch, Italienisch, Französisch, D
 start_apk: oder die APK von GitHub
 step_by_step: 'Schritt für Schritt: <a href="/guide/spotify-to-youtube-music">Spotify zu YouTube Music</a> · <a href="/guide/apple-music-to-spotify">Apple Music zu Spotify</a> · <a href="/guide/spotify-to-tidal">Spotify zu TIDAL</a> · <a href="/guide/spotify-to-apple-music">Spotify zu Apple Music</a> · <a href="/guide/youtube-music-to-spotify">YouTube Music zu Spotify</a> · <a href="/guide/deezer-to-spotify">Deezer zu Spotify</a> · <a href="/guide/amazon-music-to-spotify">Amazon Music zu Spotify</a> · <a href="/guide/spotify-to-navidrome-jellyfin">Spotify zu Navidrome, Jellyfin oder Plex</a> · <a href="/guide/export-playlist-csv">eine Playlist als CSV oder M3U</a> · <a href="/guide/shazam">deine Shazams in einer Playlist</a>. Auf Deutsch: <a href="/guide/playlists-uebertragen">Playlists übertragen</a>.'
 no_phone: 'Kein Android-Handy zur Hand? <a href="#docker">Probier Trackhop Desktop</a> unter Windows oder Linux aus, oder die Docker-Version.'
-play_bridge: 'Du nutzt die Version aus Google Play, dem Galaxy Store oder der AppGallery? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Lade Trackhop Bridge herunter</strong></a>, das Plugin, das YouTube Music, Amazon Music sowie Spotify und Apple Music ohne Entwicklerschlüssel hinzufügt (inoffizielle Weboberflächen: lies zuerst die Hinweise).'
+play_bridge: 'Du nutzt die Version aus Google Play oder der AppGallery? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Lade Trackhop Bridge herunter</strong></a>, das Plugin, das YouTube Music, Amazon Music sowie Spotify und Apple Music ohne Entwicklerschlüssel hinzufügt (inoffizielle Weboberflächen: lies zuerst die Hinweise).'
 thanks_title: Danke
 thanks_how: 'an alle, die Trackhop kostenlos halten. Möchtest du deinen Namen hier sehen? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> oder <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport heißt jetzt Trackhop.</strong> Gleiche App, gleicher Code, gleiche Updates: nur der Name hat sich geändert, weil ein anderer, nicht verwandter Dienst namens „SongPort“ im selben Bereich unterwegs ist. Deine installierte App aktualisiert sich ganz normal und behält alle Daten, und alte Links funktionieren weiter.'

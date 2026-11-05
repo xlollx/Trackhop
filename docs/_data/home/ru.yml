@@ -10,8 +10,6 @@ tab_computer: Компьютер
 tab_server: Свой сервер
 play_alt: "Google Play: скоро"
 play_note: 'На тестировании · из Google Play? Добавьте <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">плагин</a>'
-galaxy_alt: "Samsung Galaxy Store: скоро"
-galaxy_note: "Готовится"
 appgallery_alt: "Huawei AppGallery: скоро"
 appgallery_note: "Готовится · без сервисов Google"
 fdroid_alt: Скачать в F-Droid
@@ -120,7 +118,7 @@ start_intro: 'Android 8.0 или новее, на английском, итал
 start_apk: или APK с GitHub
 step_by_step: 'Пошагово: <a href="/guide/spotify-to-youtube-music">из Spotify в YouTube Music</a> · <a href="/guide/apple-music-to-spotify">из Apple Music в Spotify</a> · <a href="/guide/spotify-to-tidal">из Spotify в TIDAL</a> · <a href="/guide/spotify-to-apple-music">из Spotify в Apple Music</a> · <a href="/guide/youtube-music-to-spotify">из YouTube Music в Spotify</a> · <a href="/guide/deezer-to-spotify">из Deezer в Spotify</a> · <a href="/guide/amazon-music-to-spotify">из Amazon Music в Spotify</a> · <a href="/guide/spotify-to-navidrome-jellyfin">из Spotify в Navidrome, Jellyfin или Plex</a> · <a href="/guide/export-playlist-csv">плейлист в CSV или M3U</a> · <a href="/guide/shazam">ваши Shazam в плейлисте</a>. Руководство на русском: <a href="/guide/perenos-pleylistov">Перенос плейлистов между Spotify, YouTube Music, Apple Music и Deezer бесплатно</a>.'
 no_phone: 'Нет под рукой Android-телефона? <a href="#docker">Попробуйте Trackhop Desktop</a> на Windows или Linux либо версию для Docker.'
-play_bridge: 'Пользуетесь версией из Google Play, Galaxy Store или AppGallery? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Скачайте Trackhop Bridge</strong></a> — плагин, который добавляет YouTube Music, Amazon Music, а также Spotify и Apple Music без ключей разработчика (неофициальные веб-интерфейсы: сначала прочитайте его примечания).'
+play_bridge: 'Пользуетесь версией из Google Play или AppGallery? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Скачайте Trackhop Bridge</strong></a> — плагин, который добавляет YouTube Music, Amazon Music, а также Spotify и Apple Music без ключей разработчика (неофициальные веб-интерфейсы: сначала прочитайте его примечания).'
 thanks_title: Спасибо
 thanks_how: 'всем, благодаря кому Trackhop остаётся бесплатным. Хотите видеть здесь своё имя? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> или <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport теперь называется Trackhop.</strong> То же приложение, тот же код, те же обновления: изменилось только название, потому что в той же области работает посторонний сервис под названием «SongPort». Установленное приложение обновится как обычно и сохранит все данные, а старые ссылки продолжат работать.'

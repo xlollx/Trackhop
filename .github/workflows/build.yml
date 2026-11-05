@@ -110,11 +110,12 @@ jobs:
         # repository's variables. The APK for direct download is the "full" flavor, built with none of
         # them: F-Droid rebuilds it from source with the defaults in app/build.gradle and publishes it
         # only if it comes out identical (1.3.6 did not: a stale PRIVACY_POLICY_URL variable).
-        # The store builds (Samsung Galaxy Store, Huawei AppGallery) are APKs of the "galaxy" and
-        # "appgallery" flavors, built like the Play AAB. F-Droid's is the "fdroid" flavor (no ML Kit),
+        # The Huawei AppGallery build is an APK of the "appgallery" flavor, built like the Play AAB (the
+        # "galaxy" flavor stays in the code but is not released: Samsung takes Android apps from companies
+        # only). F-Droid's is the "fdroid" flavor (no ML Kit),
         # built like the GitHub APK: with no repository variables, so F-Droid's rebuild comes out equal.
         run: |
-          gradle bundlePlayRelease assembleGalaxyRelease assembleAppgalleryRelease --no-daemon --stacktrace
+          gradle bundlePlayRelease assembleAppgalleryRelease --no-daemon --stacktrace
           env -u SPOTIFY_CLIENT_ID -u TIDAL_CLIENT_ID -u DEEZER_APP_ID -u DEEZER_REDIRECT_URL \
               -u GOOGLE_CLIENT_ID -u APPLE_DEVELOPER_TOKEN -u LASTFM_API_KEY -u ADMOB_APP_ID \
               -u ADMOB_BANNER_ID -u ADMOB_TEST_DEVICES -u ADMOB_LIVE -u PRIVACY_POLICY_URL -u KOFI_URL -u SPONSORS_URL \
@@ -164,10 +165,9 @@ jobs:
           # The other builds go to a prerelease of their own (next steps), so the app's release keeps a
           # single APK: Obtainium, which follows the latest release and skips prereleases, never has
           # to ask which one. F-Droid's (no ML Kit): fdroiddata's Binaries line names
-          # builds-v%v/Trackhop-v%v-fdroid.apk from 1.14.4. Galaxy and AppGallery: docs/other-stores.md.
+          # builds-v%v/Trackhop-v%v-fdroid.apk from 1.14.4. AppGallery: docs/other-stores.md.
           mkdir -p "$GITHUB_WORKSPACE/builds"
           cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk "$GITHUB_WORKSPACE/builds/Trackhop-$tag-fdroid.apk"
-          cp app/build/outputs/apk/galaxy/release/app-galaxy-release.apk "$GITHUB_WORKSPACE/builds/Trackhop-$tag-galaxy.apk"
           cp app/build/outputs/apk/appgallery/release/app-appgallery-release.apk "$GITHUB_WORKSPACE/builds/Trackhop-$tag-appgallery.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "$GITHUB_WORKSPACE/Trackhop-$tag-play.aab"
 
@@ -182,19 +182,18 @@ jobs:
             Trackhop-*.aab
           generate_release_notes: true
 
-      - name: Release of the other builds (F-Droid, Samsung, Huawei)
+      - name: Release of the other builds (F-Droid, Huawei)
         if: ${{ steps.rel.outputs.tag != '' }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: builds-${{ steps.rel.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Trackhop ${{ steps.rel.outputs.tag }} – F-Droid, Samsung and Huawei builds
+          name: Trackhop ${{ steps.rel.outputs.tag }} – F-Droid and Huawei builds
           prerelease: true
           make_latest: false
           body: |
             The same Trackhop ${{ steps.rel.outputs.tag }}, built for other channels. For a direct download use the main release.
             - `-fdroid.apk`: what F-Droid publishes (no Google ML Kit, so no Gemini Nano).
-            - `-galaxy.apk`: Samsung Galaxy Store.
             - `-appgallery.apk`: Huawei AppGallery (no Google services).
           files: builds/Trackhop-*.apk
 

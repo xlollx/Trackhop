@@ -3,18 +3,19 @@
 Trackhop comes in two kinds of builds for phones, with the same code and the same look. What changes
 is which services they can reach, and how.
 
-| | GitHub and F-Droid | Stores: Google Play, Samsung Galaxy Store, Huawei AppGallery |
+| | GitHub and F-Droid | Stores: Google Play, Huawei AppGallery |
 |---|---|---|
 | Spotify, YouTube Music, Apple Music, Amazon Music through their web players | **built in**: sign in and go | through an optional connector plugin |
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
 | Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | no |
 | LiveOne (web player), NetEase Cloud Music and QQ Music links | yes | no |
-| Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play and Galaxy Store: yes · AppGallery: no |
+| Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play: yes · AppGallery: no |
 | Ads | none | none |
 | Updates | F-Droid, Obtainium or the GitHub release page | the store |
 
-The Galaxy Store and AppGallery listings are in preparation.
+The AppGallery listing is in preparation. Samsung phones: Google Play, GitHub or F-Droid (the Galaxy
+Store takes Android apps from companies only).
 
 **Which one to choose.** If you want to move playlists between the big streaming services without
 setting anything up, take the [GitHub or F-Droid build](https://github.com/xlollx/Trackhop/releases/latest):
@@ -28,7 +29,7 @@ tracks and needs a developer token, Amazon Music has no open API at all.
 
 ## Switching between builds
 
-The GitHub, F-Droid, Galaxy Store and AppGallery builds share the same signing key: one installs
+The GitHub, F-Droid and AppGallery builds share the same signing key: one installs
 over the other. Google Play signs with its own key, so Play and the others cannot update each other.
 To move to or from Play, export a backup (Settings › Backups), uninstall, install the other build
 and restore the backup. Syncs, settings and history come back; services have to be signed in again.
