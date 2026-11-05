@@ -82,6 +82,15 @@ The Desktop version is set here, once, for every language.
         </div>
         <p class="more">{{ h.server_more | default: en.server_more }}</p>
       </div>
+      <div class="social">
+        <p class="social-title">{{ h.social_title | default: en.social_title }}</p>
+        <div class="get cols">
+          <div class="col">
+            <a href="https://www.instagram.com/trackhop.app/" target="_blank" rel="noopener"><img src="/assets/badges/instagram.svg" alt="{{ h.instagram_alt | default: en.instagram_alt }}"></a>
+            <small>{{ h.social_note | default: en.social_note }}</small>
+          </div>
+        </div>
+      </div>
       <script>
         (function () {
           var tabs = document.querySelectorAll(".platforms [data-tab]");

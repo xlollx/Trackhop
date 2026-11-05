@@ -298,3 +298,7 @@ ul.press .press-kind.article { background: #5b3fd9; }
 .press-row.desk a { flex: 1 1 280px; }
 .press-row.desk img { width: 100%; height: auto; border: 1px solid var(--line, #ccc); }
 .press-wide { width: 100%; height: auto; border-radius: 12px; }
+
+/* Follow: the social badges, apart from the store tabs. */
+.social { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.18); }
+.social-title { margin: 0 0 8px; font-weight: 600; font-size: .95rem; }

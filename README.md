@@ -41,6 +41,11 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
 
+<p align="center">
+  <b>Follow Trackhop</b> for new versions and tips<br>
+  <a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a>
+</p>
+
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
 THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape

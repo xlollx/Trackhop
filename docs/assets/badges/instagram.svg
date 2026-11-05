@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 58" width="168" height="58" role="img" aria-label="FOLLOW US ON Instagram">
+  <defs>
+    <radialGradient id="ig" cx="0.25" cy="1.05" r="1.25">
+      <stop offset="0" stop-color="#FEDA75"/><stop offset=".25" stop-color="#FA7E1E"/><stop offset=".5" stop-color="#D62976"/>
+      <stop offset=".75" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/>
+    </radialGradient>
+  </defs>
+  <rect x="1" y="1" width="166" height="56" rx="8" fill="#000" stroke="#a6a6a6" stroke-width="1.5"/>
+  <g transform="translate(10 10)">
+    <rect width="38" height="38" rx="10" fill="url(#ig)"/>
+    <rect x="7" y="7" width="24" height="24" rx="7" fill="none" stroke="#fff" stroke-width="2.8"/>
+    <circle cx="19" cy="19" r="5.8" fill="none" stroke="#fff" stroke-width="2.8"/>
+    <circle cx="26.3" cy="11.7" r="1.7" fill="#fff"/>
+  </g>
+  <text x="58" y="23" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" letter-spacing=".6">FOLLOW US ON</text>
+  <text x="57" y="44" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="600">Instagram</text>
+</svg>
