@@ -1494,7 +1494,8 @@
     <string name="discover_wrapped_no_age">Twoje serwisy nie podają, kiedy wyszły utwory, więc tym razem bez wieku muzycznego.</string>
     <string name="discover_link_intro">Wybierz playlistę: Trackhop tworzy link do strony na trackhop.org, która wyświetla jej utwory i otwiera każdy w serwisie odbiorcy. Utwory podróżują w samym linku: żaden serwer ich nie przechowuje.</string>
     <string name="discover_link_ready">Link gotowy: %1$d utw.</string>
-    <string name="discover_link_capped">Link zawiera pierwsze %1$d z %2$d utworów: dłuższy nie przeszedłby przez komunikatory.</string>
+    <string name="discover_link_parts">Ta playlista jest za długa na jeden link: trafia do %1$d linków. Udostępnij je po kolei; dłuższy link nie przeszedłby przez komunikatory.</string>
+    <string name="discover_link_part">Link %1$d z %2$d · utwory %3$d–%4$d</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">Udostępnij link</string>
     <string name="discover_link_copy">Kopiuj</string>

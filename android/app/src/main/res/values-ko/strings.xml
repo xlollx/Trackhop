@@ -1422,7 +1422,8 @@
     <string name="discover_wrapped_no_age">서비스가 곡의 발매 연도를 알려 주지 않아 이번에는 음악 나이가 없습니다.</string>
     <string name="discover_link_intro">플레이리스트를 고르면 Trackhop이 trackhop.org 페이지로 가는 링크를 만듭니다. 그 페이지는 곡 목록을 보여 주고 받는 사람의 서비스에서 각 곡을 엽니다. 곡은 링크 자체에 담겨 전달되며 어떤 서버도 저장하지 않습니다.</string>
     <string name="discover_link_ready">링크 준비 완료: %1$d곡.</string>
-    <string name="discover_link_capped">링크에는 %2$d곡 중 처음 %1$d곡이 담겼습니다. 더 길면 채팅 앱에서 전달되지 않습니다.</string>
+    <string name="discover_link_parts">이 플레이리스트는 링크 하나에 담기엔 너무 길어 %1$d개의 링크로 나뉩니다. 차례로 공유하세요. 더 긴 링크는 채팅 앱에서 전달되지 않습니다.</string>
+    <string name="discover_link_part">링크 %1$d/%2$d · %3$d–%4$d번 곡</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">링크 공유</string>
     <string name="discover_link_copy">복사</string>

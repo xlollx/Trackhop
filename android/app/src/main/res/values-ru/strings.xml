@@ -1492,7 +1492,8 @@
     <string name="discover_wrapped_no_age">Ваши сервисы не сообщают, когда вышли треки, поэтому в этот раз без музыкального возраста.</string>
     <string name="discover_link_intro">Выберите плейлист: Trackhop создаст ссылку на страницу trackhop.org, которая покажет его треки и откроет каждый в сервисе получателя. Треки передаются внутри самой ссылки: никакой сервер их не хранит.</string>
     <string name="discover_link_ready">Ссылка готова: треков — %1$d.</string>
-    <string name="discover_link_capped">В ссылке первые %1$d из %2$d треков: более длинная не пройдёт через мессенджеры.</string>
+    <string name="discover_link_parts">Этот плейлист слишком длинный для одной ссылки: он разбит на %1$d ссылки. Отправьте их по очереди; более длинная ссылка не пройдёт через мессенджеры.</string>
+    <string name="discover_link_part">Ссылка %1$d из %2$d · треки %3$d–%4$d</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">Поделиться ссылкой</string>
     <string name="discover_link_copy">Копировать</string>

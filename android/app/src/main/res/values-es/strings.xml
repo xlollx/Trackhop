@@ -1454,7 +1454,8 @@
     <string name="discover_wrapped_no_age">Tus servicios no dicen cuándo salieron tus canciones, así que esta vez no hay edad musical.</string>
     <string name="discover_link_intro">Elige una playlist: Trackhop crea un enlace a una página de trackhop.org que muestra sus canciones y abre cada una en el servicio de quien la recibe. Las canciones viajan dentro del propio enlace: ningún servidor las guarda.</string>
     <string name="discover_link_ready">Enlace listo: %1$d canciones.</string>
-    <string name="discover_link_capped">El enlace lleva las primeras %1$d de %2$d canciones: uno más largo no pasaría por las apps de chat.</string>
+    <string name="discover_link_parts">Esta playlist es demasiado larga para un solo enlace: viaja en %1$d enlaces. Compártelos uno tras otro; un enlace más largo no pasaría por las apps de chat.</string>
+    <string name="discover_link_part">Enlace %1$d de %2$d · canciones %3$d–%4$d</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">Compartir el enlace</string>
     <string name="discover_link_copy">Copiar</string>

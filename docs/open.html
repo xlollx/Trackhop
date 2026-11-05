@@ -76,27 +76,27 @@ footer a{color:inherit}
     ["amazon", "Amazon Music", "https://music.amazon.com/search/{q}"]
   ];
   var T = {
-    en: { kicker: "Shared with Trackhop", track: "A song for you", tracks: "{n} songs", first: "The first {k} of {n} songs (a link holds that many)",
+    en: { kicker: "Shared with Trackhop", track: "A song for you", tracks: "{n} songs", first: "The first {k} of {n} songs (a link holds that many)", part: "Link {p} of {q} · songs {a}–{b} of {n}",
           pick: "Open on", open: "Open", copyList: "Copy the list", copied: "Copied", get: "Copy it with Trackhop",
           privacy: "The songs came in this page's address and go nowhere else: no account, no tracking.",
           bad: "This link is incomplete or damaged: ask for it again.", old: "This browser is too old to read the link. Try another one." },
-    it: { kicker: "Condiviso con Trackhop", track: "Una canzone per te", tracks: "{n} brani", first: "I primi {k} di {n} brani (un link ne contiene tanti così)",
+    it: { kicker: "Condiviso con Trackhop", track: "Una canzone per te", tracks: "{n} brani", first: "I primi {k} di {n} brani (un link ne contiene tanti così)", part: "Link {p} di {q} · brani {a}–{b} di {n}",
           pick: "Apri su", open: "Apri", copyList: "Copia l'elenco", copied: "Copiato", get: "Copiala con Trackhop",
           privacy: "I brani sono arrivati nell'indirizzo di questa pagina e non vanno da nessun'altra parte: niente account, niente tracciamento.",
           bad: "Questo link è incompleto o danneggiato: chiedilo di nuovo.", old: "Questo browser è troppo vecchio per leggere il link. Provane un altro." },
-    es: { kicker: "Compartido con Trackhop", track: "Una canción para ti", tracks: "{n} canciones", first: "Las primeras {k} de {n} canciones (un enlace no admite más)",
+    es: { kicker: "Compartido con Trackhop", track: "Una canción para ti", tracks: "{n} canciones", first: "Las primeras {k} de {n} canciones (un enlace no admite más)", part: "Enlace {p} de {q} · canciones {a}–{b} de {n}",
           pick: "Abrir en", open: "Abrir", copyList: "Copiar la lista", copied: "Copiado", get: "Cópiala con Trackhop",
           privacy: "Las canciones llegaron en la dirección de esta página y no van a ningún otro sitio: sin cuenta, sin rastreo.",
           bad: "Este enlace está incompleto o dañado: pídelo de nuevo.", old: "Este navegador es demasiado antiguo para leer el enlace. Prueba con otro." },
-    pt: { kicker: "Compartilhado com o Trackhop", track: "Uma música para você", tracks: "{n} músicas", first: "As primeiras {k} de {n} músicas (um link não comporta mais)",
+    pt: { kicker: "Compartilhado com o Trackhop", track: "Uma música para você", tracks: "{n} músicas", first: "As primeiras {k} de {n} músicas (um link não comporta mais)", part: "Link {p} de {q} · músicas {a}–{b} de {n}",
           pick: "Abrir no", open: "Abrir", copyList: "Copiar a lista", copied: "Copiado", get: "Copie com o Trackhop",
           privacy: "As músicas vieram no endereço desta página e não vão para nenhum outro lugar: sem conta, sem rastreamento.",
           bad: "Este link está incompleto ou danificado: peça de novo.", old: "Este navegador é antigo demais para ler o link. Tente outro." },
-    fr: { kicker: "Partagé avec Trackhop", track: "Une chanson pour toi", tracks: "{n} titres", first: "Les {k} premiers titres sur {n} (un lien n'en contient pas plus)",
+    fr: { kicker: "Partagé avec Trackhop", track: "Une chanson pour toi", tracks: "{n} titres", first: "Les {k} premiers titres sur {n} (un lien n'en contient pas plus)", part: "Lien {p} sur {q} · titres {a} à {b} sur {n}",
           pick: "Ouvrir sur", open: "Ouvrir", copyList: "Copier la liste", copied: "Copié", get: "Copiez-la avec Trackhop",
           privacy: "Les titres sont arrivés dans l'adresse de cette page et ne vont nulle part ailleurs : ni compte, ni pistage.",
           bad: "Ce lien est incomplet ou abîmé : redemandez-le.", old: "Ce navigateur est trop ancien pour lire le lien. Essayez-en un autre." },
-    de: { kicker: "Geteilt mit Trackhop", track: "Ein Song für dich", tracks: "{n} Titel", first: "Die ersten {k} von {n} Titeln (mehr passt nicht in einen Link)",
+    de: { kicker: "Geteilt mit Trackhop", track: "Ein Song für dich", tracks: "{n} Titel", first: "Die ersten {k} von {n} Titeln (mehr passt nicht in einen Link)", part: "Link {p} von {q} · Titel {a}–{b} von {n}",
           pick: "Öffnen in", open: "Öffnen", copyList: "Liste kopieren", copied: "Kopiert", get: "Mit Trackhop übernehmen",
           privacy: "Die Titel kamen in der Adresse dieser Seite und gehen nirgendwo sonst hin: kein Konto, kein Tracking.",
           bad: "Dieser Link ist unvollständig oder beschädigt: bitte erneut anfordern.", old: "Dieser Browser ist zu alt, um den Link zu lesen. Versuche einen anderen." }
@@ -148,7 +148,11 @@ footer a{color:inherit}
     var name = head.slice(3).join("\t");
     var items = lines.slice(1).map(function (l) { var f = l.split("\t"); return { title: f[0] || "", artist: f[1] || "", isrc: f[2] || "" }; })
       .filter(function (i) { return i.title; });
-    return { single: head[1] === "T", total: parseInt(head[2], 10) || items.length, name: name, items: items };
+    // "P:2:3:301": the second of three links of a long playlist, starting at its 301st song.
+    var kind = head[1].split(":");
+    var parts = parseInt(kind[2], 10) > 1 ? parseInt(kind[2], 10) : 1;
+    return { single: kind[0] === "T", total: parseInt(head[2], 10) || items.length, name: name, items: items,
+             part: parts > 1 ? (parseInt(kind[1], 10) || 1) : 1, parts: parts, first: parts > 1 ? (parseInt(kind[3], 10) || 1) : 1 };
   }
   function chosen() {
     try { var id = localStorage.getItem("service"); for (var i = 0; i < SITES.length; i++) if (SITES[i][0] === id) return SITES[i]; } catch (e) {}
@@ -160,9 +164,10 @@ footer a{color:inherit}
     var site = chosen();
     document.getElementById("kicker").textContent = L.kicker;
     document.getElementById("title").textContent = data.single ? data.items[0].title : (data.name || "Playlist");
-    document.title = (data.single ? data.items[0].title : data.name) + " · Trackhop";
+    document.title = (data.single ? data.items[0].title : data.name + (data.parts > 1 ? " (" + data.part + "/" + data.parts + ")" : "")) + " · Trackhop";
     var sub = document.getElementById("sub");
     if (data.single) sub.textContent = data.items[0].artist;
+    else if (data.parts > 1) sub.textContent = fmt(L.part, { p: data.part, q: data.parts, a: data.first, b: data.first + data.items.length - 1, n: data.total });
     else sub.textContent = data.items.length < data.total ? fmt(L.first, { k: data.items.length, n: data.total }) : fmt(L.tracks, { n: data.total });
 
     if (data.single) {
@@ -186,7 +191,7 @@ footer a{color:inherit}
         list.textContent = "";
         data.items.forEach(function (item, i) {
           var li = el("li");
-          li.appendChild(el("span", { "class": "n" }, String(i + 1)));
+          li.appendChild(el("span", { "class": "n" }, String(data.first + i)));
           var t = el("div", { "class": "t" });
           t.appendChild(el("b", null, item.title));
           t.appendChild(el("span", null, item.artist));

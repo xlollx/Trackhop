@@ -67,6 +67,33 @@ class DiscoverTest {
         assertEquals("Song number 1 with a fairly long title", back.items.first().title)
     }
 
+    @Test fun aLongPlaylistIsSplitIntoLinksThatHoldEverySong() {
+        val tracks = (1..556).map { t("$it", "Rap song $it", "Rapper ${it % 40}, Feat ${it * 3}", "QZ" + it.toString().padStart(10, '0')) }
+        val parts = UniversalLink.buildParts("Rap", tracks)
+        assertTrue(parts.size > 1)
+        var next = 1
+        val all = mutableListOf<UniversalLink.Item>()
+        parts.forEachIndexed { i, p ->
+            assertTrue(p.url.substringAfter('#').length <= UniversalLink.PART_FRAGMENT)
+            assertEquals(i + 1, p.part); assertEquals(parts.size, p.parts); assertEquals(next, p.first)
+            val back = UniversalLink.parse(p.url)!!
+            assertEquals(556, back.total); assertEquals(p.part, back.part); assertEquals(parts.size, back.parts); assertEquals(next, back.first)
+            assertFalse(back.single)
+            all += back.items
+            next = p.last + 1
+        }
+        assertEquals(557, next)
+        assertEquals((1..556).map { "Rap song $it" }, all.map { it.title })
+    }
+
+    @Test fun aShortPlaylistIsOneLinkWithTheOldHeader() {
+        val parts = UniversalLink.buildParts("Mix", listOf(t("1", "Song", "X")))
+        assertEquals(1, parts.size)
+        assertEquals(UniversalLink.build("Mix", listOf(t("1", "Song", "X"))).url, parts[0].url)
+        val back = UniversalLink.parse(parts[0].url)!!
+        assertEquals(1, back.part); assertEquals(1, back.parts); assertEquals(1, back.first)
+    }
+
     @Test fun singleTrackLink() {
         val built = UniversalLink.buildTrack(t("1", "Bohemian Rhapsody", "Queen", "GBUM71029604"))
         val back = UniversalLink.parse(built.url)!!

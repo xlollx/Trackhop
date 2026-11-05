@@ -1444,7 +1444,8 @@
     <string name="discover_wrapped_no_age">Servislerin şarkılarının ne zaman çıktığını söylemiyor, bu yüzden bu sefer müzik yaşı yok.</string>
     <string name="discover_link_intro">Bir çalma listesi seç: Trackhop, trackhop.org\'da şarkılarını listeleyen ve her birini alan kişinin servisinde açan bir sayfaya bağlantı oluşturur. Şarkılar bağlantının içinde taşınır: hiçbir sunucu onları saklamaz.</string>
     <string name="discover_link_ready">Bağlantı hazır: %1$d şarkı.</string>
-    <string name="discover_link_capped">Bağlantı %2$d şarkının ilk %1$d tanesini içerir: daha uzunu sohbet uygulamalarından geçmez.</string>
+    <string name="discover_link_parts">Bu çalma listesi tek bir bağlantı için çok uzun: %1$d bağlantıya bölünür. Bunları art arda paylaş; daha uzun bir bağlantı sohbet uygulamalarından geçmez.</string>
+    <string name="discover_link_part">Bağlantı %1$d/%2$d · şarkı %3$d–%4$d</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">Bağlantıyı paylaş</string>
     <string name="discover_link_copy">Kopyala</string>

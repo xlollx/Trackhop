@@ -1423,7 +1423,8 @@
     <string name="discover_wrapped_no_age">你的服务没有提供歌曲的发行年份，所以这次没有音乐年龄。</string>
     <string name="discover_link_intro">选择一个歌单：Trackhop 会生成一个指向 trackhop.org 页面的链接，页面会列出歌曲，并在接收者的服务上逐首打开。歌曲就装在链接里传递：没有任何服务器保存它们。</string>
     <string name="discover_link_ready">链接已就绪：%1$d 首歌曲。</string>
-    <string name="discover_link_capped">链接包含 %2$d 首中的前 %1$d 首：再长就无法通过聊天应用发送了。</string>
+    <string name="discover_link_parts">这个歌单太长，一个链接放不下：它被分成 %1$d 个链接。请依次分享；更长的链接在聊天应用中无法发送。</string>
+    <string name="discover_link_part">链接 %1$d / %2$d · 第 %3$d–%4$d 首</string>
     <string name="discover_link_message">%1$s：%2$s</string>
     <string name="discover_link_share">分享链接</string>
     <string name="discover_link_copy">复制</string>

@@ -448,17 +448,18 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
     val clipboard = LocalClipboardManager.current
     var pick by remember { mutableStateOf<CardPick?>(null) }
     var tracks by remember { mutableStateOf<List<Track>?>(null) }
-    var built by remember { mutableStateOf<UniversalLink.Built?>(null) }
+    // One link, or several for a long playlist (each one gets through chat apps on its own).
+    var built by remember { mutableStateOf<List<UniversalLink.Built>>(emptyList()) }
     var busy by remember { mutableStateOf(false) }
 
     LaunchedEffect(pick) {
-        tracks = null; built = null
+        tracks = null; built = emptyList()
         val p = pick ?: return@LaunchedEffect
         busy = true
         try {
             val t = p.provider.tracks(ctx, p.playlist.id)
             tracks = t
-            built = withContext(Dispatchers.Default) { UniversalLink.build(p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, t) }
+            built = withContext(Dispatchers.Default) { UniversalLink.buildParts(p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, t) }
         } catch (e: CancellationException) { throw e } catch (e: Exception) {
             snackbar.showSnackbar(errorText(ctx, e))
         }
@@ -468,25 +469,32 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
     Intro(stringResource(R.string.discover_link_intro))
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link") { pick = it }
     if (busy) Busy(stringResource(R.string.loading))
-    val b = built
+    val parts = built
     val name = pick?.playlist?.name.orEmpty()
-    if (b != null) {
+    if (parts.isNotEmpty()) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    if (b.capped) stringResource(R.string.discover_link_capped, b.included, b.total)
-                    else stringResource(R.string.discover_link_ready, b.included),
+                    if (parts.size > 1) stringResource(R.string.discover_link_parts, parts.size)
+                    else stringResource(R.string.discover_link_ready, parts[0].included),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Button(onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, name, b.url)) }) {
-                        Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.discover_link_share))
+                parts.forEach { b ->
+                    if (parts.size > 1) Text(
+                        stringResource(R.string.discover_link_part, b.part, b.parts, b.first, b.last),
+                        style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 4.dp),
+                    )
+                    val label = if (parts.size > 1) stringResource(R.string.discover_link_part_name, name, b.part, b.parts) else name
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Button(onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, label, b.url)) }) {
+                            Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.discover_link_share))
+                        }
+                        OutlinedButton(onClick = {
+                            clipboard.setText(AnnotatedString(b.url))
+                            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_link_copied)) }
+                        }) { Text(stringResource(R.string.discover_link_copy)) }
                     }
-                    OutlinedButton(onClick = {
-                        clipboard.setText(AnnotatedString(b.url))
-                        scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_link_copied)) }
-                    }) { Text(stringResource(R.string.discover_link_copy)) }
                 }
             }
         }

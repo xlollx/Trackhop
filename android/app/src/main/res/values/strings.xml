@@ -1446,7 +1446,9 @@
     <string name="discover_wrapped_no_age">Your services did not say when your songs came out, so no musical age this time.</string>
     <string name="discover_link_intro">Pick a playlist: Trackhop makes a link to a page on trackhop.org that lists its songs and opens each one on the service of whoever receives it. The songs travel inside the link itself: no server keeps them.</string>
     <string name="discover_link_ready">Link ready: %1$d songs.</string>
-    <string name="discover_link_capped">The link holds the first %1$d of %2$d songs: a longer one would not get through chat apps.</string>
+    <string name="discover_link_parts">This playlist is too long for one link: it travels in %1$d links. Share them one after another; a longer link would not get through chat apps.</string>
+    <string name="discover_link_part">Link %1$d of %2$d · songs %3$d–%4$d</string>
+    <string name="discover_link_part_name" translatable="false">%1$s (%2$d/%3$d)</string>
     <string name="discover_link_message">%1$s: %2$s</string>
     <string name="discover_link_share">Share the link</string>
     <string name="discover_link_copy">Copy</string>
