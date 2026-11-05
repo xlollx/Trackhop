@@ -1,0 +1,1 @@
+Evrensel bağlantı: uzun bir çalma listesi artık 300 şarkıda kesilmiyor. Birkaç bağlantıya bölünüyor ("Rap (1/3)", "Rap (2/3)"…), her biri WhatsApp ve Telegram için yeterince kısa; sayfa her birinin hangi şarkıları içerdiğini gösteriyor.

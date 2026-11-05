@@ -1,0 +1,1 @@
+Enlace universal: una playlist larga ya no se corta en 300 canciones. Viaja en varios enlaces ("Rap (1/3)", "Rap (2/3)"…), cada uno lo bastante corto para WhatsApp y Telegram, y la página muestra qué canciones lleva cada uno.
