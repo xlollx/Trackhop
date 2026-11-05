@@ -1416,6 +1416,8 @@
     <string name="settings_automation">Automação (Tasker, MacroDroid…)</string>
     <string name="settings_automation_summary">Permite que apps de automação executem suas syncs e saibam quando uma termina. Qualquer app do celular pode enviar estes comandos, então fica desligado até você ativar.</string>
     <string name="settings_automation_how">Envie um intent de broadcast: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = nome) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Toque e segure o ícone do app para atalhos das últimas syncs.</string>
+    <string name="settings_automation_commands">Comandos para Tasker / MacroDroid</string>
+    <string name="settings_automation_copy">Copiar</string>
     <string name="automation_shortcut_run">Executar %1$s</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid e atalhos</string>
     <string name="whats_new_110_automation_body">Inicie syncs a partir de apps de automação e reaja quando uma termina (Configurações › Automação, desligado até você ativar), e toque e segure o ícone para atalhos das últimas syncs.</string>

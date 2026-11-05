@@ -1406,6 +1406,8 @@
     <string name="settings_automation">Otomasyon (Tasker, MacroDroid…)</string>
     <string name="settings_automation_summary">Otomasyon uygulamalarının eşitlemelerini başlatmasını ve biri bittiğinde haber almasını sağlar. Telefondaki her uygulama bu komutları gönderebileceği için sen açana kadar kapalıdır.</string>
     <string name="settings_automation_how">Bir broadcast intent gönder: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = ad) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Son eşitlemelerin kısayolları için uygulama simgesine uzun bas.</string>
+    <string name="settings_automation_commands">Tasker / MacroDroid komutları</string>
+    <string name="settings_automation_copy">Kopyala</string>
     <string name="automation_shortcut_run">%1$s başlat</string>
     <string name="whats_new_110_automation_title">Tasker, MacroDroid ve kısayollar</string>
     <string name="whats_new_110_automation_body">Eşitlemeleri otomasyon uygulamalarından başlat ve biri bittiğinde tepki ver (Ayarlar › Otomasyon, sen açana kadar kapalı); son eşitlemelerin kısayolları için simgeye uzun bas.</string>

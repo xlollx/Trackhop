@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -240,8 +241,22 @@ fun SettingsScreen(
                 }
             }
             if (settings.automation) {
-                Text(stringResource(R.string.settings_automation_how), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 56.dp, end = 16.dp, bottom = 8.dp))
+                // The intents' names are for whoever sets up Tasker or MacroDroid: folded away, with a copy button.
+                var howOpen by rememberSaveable { mutableStateOf(false) }
+                val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+                Column(Modifier.padding(start = 56.dp, end = 16.dp, bottom = 8.dp)) {
+                    TextButton(onClick = { howOpen = !howOpen }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                        Text(stringResource(R.string.settings_automation_commands))
+                        Icon(if (howOpen) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null)
+                    }
+                    if (howOpen) {
+                        val how = stringResource(R.string.settings_automation_how)
+                        Text(how, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { clipboard.setText(androidx.compose.ui.text.AnnotatedString(how)) }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                            Text(stringResource(R.string.settings_automation_copy))
+                        }
+                    }
+                }
             }
             PrefSwitch(Icons.Filled.MusicOff, stringResource(R.string.settings_unplayable), stringResource(R.string.settings_unplayable_summary), settings.unplayableCheck) { v ->
                 store.updateSettings { it.copy(unplayableCheck = v) }; Scheduler.applyUnplayable(ctx)

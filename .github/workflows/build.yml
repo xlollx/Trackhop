@@ -2,23 +2,60 @@ name: Build
 
 # Compila Trackhop. Parte a ogni push su main, sulle pull request e a mano
 # da GitHub -> Actions -> "Build" -> "Run workflow".
+#
+# Jobs (05/11/2026, from ~17 min a run to ~3 for a plain push and ~10 for a release):
+# - check: whether this push is a release (versionName with no tag yet) and whether the release key exists;
+# - test: unit tests and the debug APK, on every run;
+# - release-store / release-direct: the signed builds, only for a release (or by hand, "signed"),
+#   side by side and alongside the tests;
+# - publish: the GitHub releases, only when the tests and both signed builds passed;
+# - play / appgallery / virustotal: after publish, as before.
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      signed:
+        description: 'Also build the signed APK (a test build, no release)'
+        type: boolean
+        default: false
 
 # contents: write is needed to create the tag and the GitHub Release; nothing else is granted.
 permissions:
   contents: write
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     outputs:
-      # Set only when this run made the release, for the VirusTotal job.
+      # Set only when this push makes a release.
       tag: ${{ steps.rel.outputs.tag }}
+      key: ${{ steps.key.outputs.present }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Release key present?
+        id: key
+        run: |
+          if [ -n "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Decide whether to publish a release
+        id: rel
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.key.outputs.present == 'true' }}
+        run: |
+          v=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' android/app/build.gradle | head -1)
+          if [ -z "$v" ]; then echo "versionName not found"; exit 1; fi
+          if git ls-remote --exit-code --tags origin "refs/tags/v$v" >/dev/null; then
+            echo "Tag v$v already exists: nothing to publish."
+          else
+            echo "tag=v$v" >> "$GITHUB_OUTPUT"
+          fi
+
+  test:
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: android
@@ -67,7 +104,8 @@ jobs:
 
       - name: Test unitari
         # :bridge:testDebugUnitTest: the web connectors' contract tests (Robolectric, local mock server only).
-        run: gradle :core:test :ytm:test testFullDebugUnitTest :bridge:testDebugUnitTest --no-daemon --stacktrace
+        # The daemon stays up between the steps of this job: the next build starts warm.
+        run: gradle :core:test :ytm:test testFullDebugUnitTest :bridge:testDebugUnitTest --stacktrace
 
       - name: Chiave di debug fissa (se configurata)
         # Con il secret DEBUG_KEYSTORE_BASE64 la firma dell'APK debug resta uguale tra le build,
@@ -76,7 +114,7 @@ jobs:
         run: echo "$DEBUG_KEYSTORE_BASE64" | base64 -d > app/debug.keystore
 
       - name: Build APK debug (full flavor)
-        run: gradle assembleFullDebug --no-daemon --stacktrace
+        run: gradle assembleFullDebug --stacktrace
 
       - name: Carica l'APK come artifact
         # Se la quota artifact dell'account e' piena l'upload fallisce, ma la build e' comunque valida.
@@ -89,48 +127,104 @@ jobs:
           # Gli APK pesano: senza scadenza breve si satura la quota artifact dell'account.
           retention-days: 7
 
-      # ---- Release per il Play Store (solo se e' configurata la chiave di upload nei Secrets) ----
-      - name: Verifica presenza chiave di release
-        id: key
+  release-store:
+    # The store builds: the "play" AAB (Google Play) and the "appgallery" APK (Huawei), built with the
+    # repository's variables. Only for a release.
+    needs: check
+    if: ${{ needs.check.outputs.tag != '' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    env:
+      SPOTIFY_CLIENT_ID: ${{ vars.SPOTIFY_CLIENT_ID }}
+      TIDAL_CLIENT_ID: ${{ vars.TIDAL_CLIENT_ID }}
+      DEEZER_APP_ID: ${{ vars.DEEZER_APP_ID }}
+      DEEZER_REDIRECT_URL: ${{ vars.DEEZER_REDIRECT_URL }}
+      GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+      APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
+      LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
+      PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
+      KOFI_URL: ${{ vars.KOFI_URL }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Installa platform e build-tools
         run: |
-          if [ -n "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
-
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" > /dev/null
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
       - name: Decodifica keystore di upload
-        if: steps.key.outputs.present == 'true'
         run: echo "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
-
-      - name: Build AAB e APK release firmati
-        if: steps.key.outputs.present == 'true'
+      - name: Build AAB (Play) e APK (AppGallery) firmati
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/upload.jks
           KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
-        # The AAB for Google Play is the "play" flavor (no plugin references), built with the
-        # repository's variables. The APK for direct download is the "full" flavor, built with none of
-        # them: F-Droid rebuilds it from source with the defaults in app/build.gradle and publishes it
-        # only if it comes out identical (1.3.6 did not: a stale PRIVACY_POLICY_URL variable).
-        # The Huawei AppGallery build is an APK of the "appgallery" flavor, built like the Play AAB. F-Droid's is the "fdroid" flavor (no ML Kit),
-        # built like the GitHub APK: with no repository variables, so F-Droid's rebuild comes out equal.
-        run: |
-          gradle bundlePlayRelease assembleAppgalleryRelease --no-daemon --stacktrace
-          env -u SPOTIFY_CLIENT_ID -u TIDAL_CLIENT_ID -u DEEZER_APP_ID -u DEEZER_REDIRECT_URL \
-              -u GOOGLE_CLIENT_ID -u APPLE_DEVELOPER_TOKEN -u LASTFM_API_KEY -u ADMOB_APP_ID \
-              -u ADMOB_BANNER_ID -u ADMOB_TEST_DEVICES -u ADMOB_LIVE -u PRIVACY_POLICY_URL -u KOFI_URL -u SPONSORS_URL \
-            gradle assembleFullRelease assembleFdroidRelease --no-daemon --stacktrace
-
-      - name: Carica l'AAB come artifact
-        if: steps.key.outputs.present == 'true'
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
+        run: gradle bundlePlayRelease assembleAppgalleryRelease --stacktrace
+      - uses: actions/upload-artifact@v7
         with:
-          name: Trackhop-release-aab
-          path: android/app/build/outputs/bundle/playRelease/app-play-release.aab
+          name: release-store
+          path: |
+            android/app/build/outputs/bundle/playRelease/app-play-release.aab
+            android/app/build/outputs/apk/appgallery/release/app-appgallery-release.apk
           if-no-files-found: error
           retention-days: 14
 
-      - name: Carica l'APK release come artifact
-        if: steps.key.outputs.present == 'true'
+  release-direct:
+    # The direct builds: the "full" APK (GitHub, Obtainium) and the "fdroid" APK. Built with NONE of the
+    # repository's variables (this job sets no env): F-Droid rebuilds from source with the defaults in
+    # app/build.gradle and publishes only if it comes out identical (1.3.6 did not: a stale
+    # PRIVACY_POLICY_URL variable). Also by hand ("signed"), for a test build without a release.
+    needs: check
+    if: ${{ needs.check.outputs.tag != '' || (github.event_name == 'workflow_dispatch' && inputs.signed && needs.check.outputs.key == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Installa platform e build-tools
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" > /dev/null
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+      - name: Decodifica keystore di upload
+        run: echo "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+      - name: Build APK (GitHub, F-Droid) firmati
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/upload.jks
+          KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+        run: gradle assembleFullRelease assembleFdroidRelease --stacktrace
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-direct
+          path: |
+            android/app/build/outputs/apk/full/release/app-full-release.apk
+            android/app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: The signed APK alone, for a test build
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -139,87 +233,83 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      # ---- GitHub Release: on a push to main whose versionName has no tag yet, create the tag and
-      # publish the signed APK (direct download) and the AAB (for the Play Console). ----
-      - name: Decide whether to publish a release
-        id: rel
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.key.outputs.present == 'true' }}
-        run: |
-          v=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' app/build.gradle | head -1)
-          if [ -z "$v" ]; then echo "versionName not found"; exit 1; fi
-          if git ls-remote --exit-code --tags origin "refs/tags/v$v" >/dev/null; then
-            echo "Tag v$v already exists: nothing to publish."
-          else
-            echo "tag=v$v" >> "$GITHUB_OUTPUT"
-          fi
-
+  publish:
+    # Only when the tests and both signed builds passed: a release never goes out untested.
+    needs: [check, test, release-store, release-direct]
+    if: ${{ needs.check.outputs.tag != '' }}
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ needs.check.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-store
+          path: store
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-direct
+          path: direct
       - name: Name release assets after the version
-        if: ${{ steps.rel.outputs.tag != '' }}
         # "Trackhop-v<version>.apk" and "-play.aab": F-Droid's metadata names Trackhop-v%v.apk in its
         # Binaries line since fdroiddata!55131 (the versions up to 1.5.2 keep Songport-v<version>.apk).
+        # The other builds go to a prerelease of their own, so the app's release keeps a single APK:
+        # Obtainium, which follows the latest release and skips prereleases, never has to ask which one.
+        # F-Droid's (no ML Kit): fdroiddata's Binaries line names builds-v%v/Trackhop-v%v-fdroid.apk
+        # from 1.14.4. AppGallery: docs/other-stores.md.
         run: |
-          tag="${{ steps.rel.outputs.tag }}"
-          cp app/build/outputs/apk/full/release/app-full-release.apk "$GITHUB_WORKSPACE/Trackhop-$tag.apk"
-          # The other builds go to a prerelease of their own (next steps), so the app's release keeps a
-          # single APK: Obtainium, which follows the latest release and skips prereleases, never has
-          # to ask which one. F-Droid's (no ML Kit): fdroiddata's Binaries line names
-          # builds-v%v/Trackhop-v%v-fdroid.apk from 1.14.4. AppGallery: docs/other-stores.md.
-          mkdir -p "$GITHUB_WORKSPACE/builds"
-          cp app/build/outputs/apk/fdroid/release/app-fdroid-release.apk "$GITHUB_WORKSPACE/builds/Trackhop-$tag-fdroid.apk"
-          cp app/build/outputs/apk/appgallery/release/app-appgallery-release.apk "$GITHUB_WORKSPACE/builds/Trackhop-$tag-appgallery.apk"
-          cp app/build/outputs/bundle/playRelease/app-play-release.aab "$GITHUB_WORKSPACE/Trackhop-$tag-play.aab"
-
+          tag="${{ needs.check.outputs.tag }}"
+          find store direct -type f | sort
+          cp "$(find direct -name app-full-release.apk)" "Trackhop-$tag.apk"
+          cp "$(find store -name app-play-release.aab)" "Trackhop-$tag-play.aab"
+          mkdir -p builds
+          cp "$(find direct -name app-fdroid-release.apk)" "builds/Trackhop-$tag-fdroid.apk"
+          cp "$(find store -name app-appgallery-release.apk)" "builds/Trackhop-$tag-appgallery.apk"
+          ls -l Trackhop-* builds
       - name: GitHub Release
-        if: ${{ steps.rel.outputs.tag != '' }}
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.rel.outputs.tag }}
+          tag_name: ${{ needs.check.outputs.tag }}
           target_commitish: ${{ github.sha }}
           files: |
             Trackhop-*.apk
             Trackhop-*.aab
           generate_release_notes: true
-
       - name: Release of the other builds (F-Droid, Huawei)
-        if: ${{ steps.rel.outputs.tag != '' }}
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: builds-${{ steps.rel.outputs.tag }}
+          tag_name: builds-${{ needs.check.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Trackhop ${{ steps.rel.outputs.tag }} – F-Droid and Huawei builds
+          name: Trackhop ${{ needs.check.outputs.tag }} – F-Droid and Huawei builds
           prerelease: true
           make_latest: false
           body: |
-            The same Trackhop ${{ steps.rel.outputs.tag }}, built for other channels. For a direct download use the main release.
+            The same Trackhop ${{ needs.check.outputs.tag }}, built for other channels. For a direct download use the main release.
             - `-fdroid.apk`: what F-Droid publishes (no Google ML Kit, so no Gemini Nano).
             - `-appgallery.apk`: Huawei AppGallery (no Google services).
           files: builds/Trackhop-*.apk
 
   play:
     # The new release's bundle to Google Play (play.yml). Skipped until PLAY_SERVICE_ACCOUNT_JSON exists.
-    needs: build
-    if: ${{ needs.build.outputs.tag != '' }}
+    needs: publish
     uses: ./.github/workflows/play.yml
     with:
-      tag: ${{ needs.build.outputs.tag }}
+      tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
   appgallery:
     # The new release's appgallery APK to Huawei AppGallery (appgallery.yml), submitted for review.
     # Skipped until the AGC_CLIENT_ID and AGC_CLIENT_SECRET secrets exist.
-    needs: build
-    if: ${{ needs.build.outputs.tag != '' }}
+    needs: publish
     uses: ./.github/workflows/appgallery.yml
     with:
-      tag: ${{ needs.build.outputs.tag }}
+      tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml): the results go into its notes
     # and the README's badge. Skipped until the VT_API_KEY secret exists.
-    needs: build
-    if: ${{ needs.build.outputs.tag != '' }}
+    needs: publish
     uses: ./.github/workflows/virustotal.yml
     with:
-      tag: ${{ needs.build.outputs.tag }}
+      tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit

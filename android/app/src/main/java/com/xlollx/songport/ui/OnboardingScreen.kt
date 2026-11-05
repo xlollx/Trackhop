@@ -255,8 +255,9 @@ private fun DocsPage() {
             Text(stringResource(R.string.onboarding_docs_body), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(4.dp))
             LinkCard(
-                mark = { Icon(Icons.Filled.Language, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp)) },
-                markColor = MaterialTheme.colorScheme.primary,
+                // The app's own icon, as on the site, filling the disc.
+                mark = { Image(androidx.compose.ui.res.painterResource(R.drawable.trackhop_icon), null, Modifier.size(44.dp), contentScale = androidx.compose.ui.layout.ContentScale.Crop) },
+                markColor = Color.Transparent,
                 title = "trackhop.org",
                 desc = stringResource(R.string.onboarding_docs_site_desc),
                 onClick = { open(SITE_URL) },
