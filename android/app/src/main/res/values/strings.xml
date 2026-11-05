@@ -1433,7 +1433,14 @@
     <string name="discover_subs_desc">How much your libraries overlap, with the prices you type in.</string>
     <string name="discover_poster_desc">The cover as a poster to print or share.</string>
     <string name="discover_ai_tag">AI</string>
-    <string name="discover_roast_no_ai">Needs your own AI key: set it up in Tools › Playlist generator.</string>
+    <string name="oli_row">Supervision: Oli 🐾</string>
+    <string name="oli_title">Chief Listening Officer of Trackhop 🎧</string>
+    <string name="oli_pet">Tap the photo to pet Oli</string>
+    <string name="oli_purring">Purr… purr… 💜</string>
+    <string name="oli_photo">Oli, the developer\'s cat</string>
+    <string name="oli_roast_title">No AI? Then Oli does the roast. 😼</string>
+    <string name="oli_roast_body">This look is Oli\'s verdict on your playlists. For a roast in words, set up an AI: Google Gemini (AI Studio) and Groq give free keys.</string>
+    <string name="oli_roast_set_up">Set up an AI</string>
     <string name="discover_reading">Reading %1$s: %2$d of %3$d playlists…</string>
     <string name="discover_no_services">Connect a music service first, in Accounts.</string>
     <string name="discover_wrapped_intro">Trackhop reads your liked songs and your playlists on the services you connected, here on the phone, and makes a card of them. Nothing is uploaded.</string>

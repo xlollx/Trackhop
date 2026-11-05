@@ -175,10 +175,10 @@ fun DiscoverScreen(
         for (row in cards.chunked(2)) {
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 for (card in row) {
-                    // No AI at all: the card still opens, on the place where a key is set up.
+                    // No AI at all: the card still opens, on Oli's verdict and the way to an AI (OliRoast).
                     val noAi = card.ai && ai == null
                     val disabledWhy = if (noAi) stringResource(R.string.discover_roast_no_ai_tap) else null
-                    DiscoverTile(card, disabledWhy, Modifier.weight(1f).fillMaxHeight()) { if (noAi) onSetUpAi() else open = card }
+                    DiscoverTile(card, disabledWhy, Modifier.weight(1f).fillMaxHeight()) { open = card }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }

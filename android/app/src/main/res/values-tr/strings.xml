@@ -1431,7 +1431,14 @@
     <string name="discover_subs_desc">Kitaplıklarının ne kadar örtüştüğü, senin girdiğin fiyatlarla.</string>
     <string name="discover_poster_desc">Kapak, basmak ya da paylaşmak için poster olarak.</string>
     <string name="discover_ai_tag">YZ</string>
-    <string name="discover_roast_no_ai">Kendi yapay zekâ anahtarın gerekir: Araçlar › Çalma listesi oluşturucu bölümünden ayarla.</string>
+    <string name="oli_row">Denetim: Oli 🐾</string>
+    <string name="oli_title">Trackhop\'un Baş Dinleme Sorumlusu 🎧</string>
+    <string name="oli_pet">Oli\'yi sevmek için fotoğrafa dokun</string>
+    <string name="oli_purring">Mırr… mırr… 💜</string>
+    <string name="oli_photo">Geliştiricinin kedisi Oli</string>
+    <string name="oli_roast_title">Yapay zekâ yok mu? O zaman roast\'u Oli yapar. 😼</string>
+    <string name="oli_roast_body">Bu bakış, Oli\'nin çalma listelerin hakkındaki kararı. Sözlü bir roast için bir yapay zekâ kur: Google Gemini (AI Studio) ve Groq ücretsiz anahtar veriyor.</string>
+    <string name="oli_roast_set_up">Yapay zekâ kur</string>
     <string name="discover_reading">%1$s okunuyor: %3$d çalma listesinden %2$d…</string>
     <string name="discover_no_services">Önce Hesaplar\'dan bir müzik servisi bağla.</string>
     <string name="discover_wrapped_intro">Trackhop bağlı servislerdeki beğenilen şarkılarını ve çalma listelerini burada, telefonda okur ve onlardan bir kart yapar. Hiçbir şey yüklenmez.</string>

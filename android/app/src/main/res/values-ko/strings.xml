@@ -1409,7 +1409,14 @@
     <string name="discover_subs_desc">내가 입력한 가격과 함께 보는 라이브러리 겹침 정도.</string>
     <string name="discover_poster_desc">커버를 인쇄하거나 공유할 포스터로.</string>
     <string name="discover_ai_tag">AI</string>
-    <string name="discover_roast_no_ai">본인의 AI 키가 필요합니다: 도구 › 플레이리스트 생성기에서 설정하세요.</string>
+    <string name="oli_row">감독: Oli 🐾</string>
+    <string name="oli_title">Trackhop의 최고 청취 책임자 🎧</string>
+    <string name="oli_pet">사진을 탭해 Oli를 쓰다듬어 보세요</string>
+    <string name="oli_purring">골골… 골골… 💜</string>
+    <string name="oli_photo">개발자의 고양이 Oli</string>
+    <string name="oli_roast_title">AI가 없나요? 그럼 Oli가 로스트합니다. 😼</string>
+    <string name="oli_roast_body">이 눈빛이 당신의 플레이리스트에 대한 Oli의 평가입니다. 말로 된 로스트를 원하면 AI를 설정하세요. Google Gemini(AI Studio)와 Groq는 무료 키를 제공합니다.</string>
+    <string name="oli_roast_set_up">AI 설정</string>
     <string name="discover_reading">%1$s 읽는 중: 플레이리스트 %3$d개 중 %2$d개…</string>
     <string name="discover_no_services">먼저 계정에서 음악 서비스를 연결하세요.</string>
     <string name="discover_wrapped_intro">Trackhop이 연결된 서비스의 좋아요 표시한 곡과 플레이리스트를 이 휴대폰에서 읽어 카드로 만듭니다. 아무것도 업로드되지 않습니다.</string>

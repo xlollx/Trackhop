@@ -1433,7 +1433,14 @@
     <string name="discover_subs_desc">Wie sehr sich deine Mediatheken überschneiden, mit den Preisen, die du eingibst.</string>
     <string name="discover_poster_desc">Das Cover als Poster zum Drucken oder Teilen.</string>
     <string name="discover_ai_tag">KI</string>
-    <string name="discover_roast_no_ai">Braucht deinen eigenen KI-Schlüssel: richte ihn unter Werkzeuge › Playlist-Generator ein.</string>
+    <string name="oli_row">Aufsicht: Oli 🐾</string>
+    <string name="oli_title">Chief Listening Officer von Trackhop 🎧</string>
+    <string name="oli_pet">Tippe auf das Foto, um Oli zu streicheln</string>
+    <string name="oli_purring">Schnurr… schnurr… 💜</string>
+    <string name="oli_photo">Oli, die Katze des Entwicklers</string>
+    <string name="oli_roast_title">Keine KI? Dann übernimmt Oli den Roast. 😼</string>
+    <string name="oli_roast_body">Dieser Blick ist Olis Urteil über deine Playlists. Für einen Roast in Worten richte eine KI ein: Google Gemini (AI Studio) und Groq bieten kostenlose Schlüssel.</string>
+    <string name="oli_roast_set_up">KI einrichten</string>
     <string name="discover_reading">Lese %1$s: %2$d von %3$d Playlists…</string>
     <string name="discover_no_services">Verbinde zuerst einen Musikdienst, unter Konten.</string>
     <string name="discover_wrapped_intro">Trackhop liest deine Lieblingssongs und Playlists bei den verbundenen Diensten, hier auf dem Handy, und macht daraus eine Karte. Nichts wird hochgeladen.</string>

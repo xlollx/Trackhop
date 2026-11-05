@@ -1410,7 +1410,14 @@
     <string name="discover_subs_desc">ライブラリの重なり具合を、あなたが入力した料金とともに。</string>
     <string name="discover_poster_desc">カバーを印刷やシェア用のポスターに。</string>
     <string name="discover_ai_tag">AI</string>
-    <string name="discover_roast_no_ai">ご自身の AI キーが必要です：ツール › プレイリスト生成 で設定してください。</string>
+    <string name="oli_row">監修：Oli 🐾</string>
+    <string name="oli_title">Trackhop のチーフ・リスニング・オフィサー 🎧</string>
+    <string name="oli_pet">写真をタップして Oli をなでる</string>
+    <string name="oli_purring">ゴロゴロ… ゴロゴロ… 💜</string>
+    <string name="oli_photo">開発者の猫、Oli</string>
+    <string name="oli_roast_title">AI がない？それなら Oli がロースト。😼</string>
+    <string name="oli_roast_body">このまなざしが、あなたのプレイリストへの Oli の評価です。言葉でのローストには AI を設定してください。Google Gemini（AI Studio）と Groq は無料のキーを提供しています。</string>
+    <string name="oli_roast_set_up">AI を設定</string>
     <string name="discover_reading">%1$s を読み込み中：%3$d 件中 %2$d 件のプレイリスト…</string>
     <string name="discover_no_services">まずアカウントで音楽サービスを接続してください。</string>
     <string name="discover_wrapped_intro">Trackhop が接続済みサービスのお気に入りの曲とプレイリストをこのスマホ上で読み込み、カードにします。何もアップロードされません。</string>

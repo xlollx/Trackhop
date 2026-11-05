@@ -1410,7 +1410,14 @@
     <string name="discover_subs_desc">你的曲库重叠了多少，配上你自己输入的价格。</string>
     <string name="discover_poster_desc">把封面做成可打印或分享的海报。</string>
     <string name="discover_ai_tag">AI</string>
-    <string name="discover_roast_no_ai">需要你自己的 AI 密钥：请在 工具 › 歌单生成器 中设置。</string>
+    <string name="oli_row">监督：Oli 🐾</string>
+    <string name="oli_title">Trackhop 首席聆听官 🎧</string>
+    <string name="oli_pet">点按照片摸摸 Oli</string>
+    <string name="oli_purring">呼噜… 呼噜… 💜</string>
+    <string name="oli_photo">开发者的猫 Oli</string>
+    <string name="oli_roast_title">没有 AI？那就让 Oli 来吐槽。😼</string>
+    <string name="oli_roast_body">这个眼神就是 Oli 对你歌单的评价。想要文字吐槽，请设置 AI：Google Gemini（AI Studio）和 Groq 提供免费密钥。</string>
+    <string name="oli_roast_set_up">设置 AI</string>
     <string name="discover_reading">正在读取 %1$s：第 %2$d / %3$d 个歌单…</string>
     <string name="discover_no_services">请先在“账号”中连接一个音乐服务。</string>
     <string name="discover_wrapped_intro">Trackhop 会在手机上读取你已连接服务中的喜欢的歌曲和歌单，并生成一张卡片。不会上传任何内容。</string>

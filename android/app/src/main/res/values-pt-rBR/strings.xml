@@ -1441,7 +1441,14 @@
     <string name="discover_subs_desc">Quanto as suas bibliotecas se sobrepõem, com os preços que você digita.</string>
     <string name="discover_poster_desc">A capa como pôster para imprimir ou compartilhar.</string>
     <string name="discover_ai_tag">IA</string>
-    <string name="discover_roast_no_ai">Precisa da sua própria chave de IA: configure em Ferramentas › Gerador de playlists.</string>
+    <string name="oli_row">Supervisão: Oli 🐾</string>
+    <string name="oli_title">Chief Listening Officer do Trackhop 🎧</string>
+    <string name="oli_pet">Toque na foto para fazer carinho no Oli</string>
+    <string name="oli_purring">Purr… purr… 💜</string>
+    <string name="oli_photo">Oli, o gato do desenvolvedor</string>
+    <string name="oli_roast_title">Sem IA? Então quem faz o roast é o Oli. 😼</string>
+    <string name="oli_roast_body">Esse olhar é o veredito do Oli sobre suas playlists. Para um roast em palavras, configure uma IA: Google Gemini (AI Studio) e Groq dão chaves gratuitas.</string>
+    <string name="oli_roast_set_up">Configurar uma IA</string>
     <string name="discover_reading">Lendo %1$s: %2$d de %3$d playlists…</string>
     <string name="discover_no_services">Primeiro conecte um serviço de música, em Contas.</string>
     <string name="discover_wrapped_intro">O Trackhop lê as suas músicas curtidas e as suas playlists nos serviços conectados, aqui no celular, e faz um cartão com elas. Nada é enviado.</string>

@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -430,19 +431,26 @@ fun SettingsScreen(
             // Seven taps on the version show the traffic captures (with developer options on): a tool
             // for the developer, which records what is done on a site, kept out of everyone's way.
             var versionTaps by remember { mutableIntStateOf(0) }
+            // A long press on the logo shows Oli (Oli.kt): its own gesture, apart from the seven taps.
+            var oliOpen by remember { mutableStateOf(false) }
+            fun versionTap() {
+                versionTaps++
+                if (versionTaps >= 7) {
+                    versionTaps = 0
+                    val already = settings.captureUnlocked
+                    if (!already) store.updateSettings { it.copy(captureUnlocked = true, developerOptions = true) }
+                    android.widget.Toast.makeText(ctx, ctx.getString(if (already) R.string.capture_already_unlocked else R.string.capture_unlocked), android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
             PrefRow(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
-                leading = { BrandMark(40.dp) }, chevron = false,
-                onClick = {
-                    versionTaps++
-                    if (versionTaps >= 7) {
-                        versionTaps = 0
-                        val already = settings.captureUnlocked
-                        if (!already) store.updateSettings { it.copy(captureUnlocked = true, developerOptions = true) }
-                        android.widget.Toast.makeText(ctx, ctx.getString(if (already) R.string.capture_already_unlocked else R.string.capture_unlocked), android.widget.Toast.LENGTH_SHORT).show()
-                    }
+                leading = {
+                    Box(Modifier.combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
                 },
+                chevron = false,
+                onClick = { versionTap() },
             )
+            if (oliOpen) OliDialog { oliOpen = false }
             // The GitHub build's update check (the Play build follows Google Play): an arrow in the top bar.
             if (com.xlollx.songport.update.AppUpdates.configurable) {
                 var updates by remember { mutableStateOf(com.xlollx.songport.update.AppUpdates.enabled(ctx)) }
@@ -466,6 +474,7 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.Code, stringResource(R.string.settings_source_code), ATTRIBUTION, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE_URL))) }
             }
+            PrefRow(null, stringResource(R.string.oli_row), stringResource(R.string.oli_title), leading = { OliHead() }, chevron = false) { oliOpen = true }
             PrefRow(Icons.Filled.Policy, stringResource(R.string.settings_privacy_policy), null, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PRIVACY_POLICY_URL))) }
             }
