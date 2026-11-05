@@ -33,6 +33,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -259,6 +263,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
             // The user's key first; without one, Gemini Nano when the phone has it.
             val c = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
             Text(stringResource(if (c?.local == true) R.string.ai_nano_desc else R.string.ai_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (c?.local == true) { Spacer(Modifier.height(6.dp)); NanoSmallNote() }
             Spacer(Modifier.height(10.dp))
             if (c == null) {
                 // Not a dead end: where free keys are, then the setup.
@@ -946,4 +951,17 @@ object AiSetupDraft {
     @Volatile var key: String? = null
     /** Set when the dialog is closed on purpose (saved or cancelled), so the draft is dropped. */
     @Volatile var closing = false
+}
+
+/** Said wherever Gemini Nano answers (generator, Roast): a small model, with the way to a better one. */
+@Composable
+internal fun NanoSmallNote() {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(10.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Icon(Icons.Filled.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(8.dp))
+        Text(stringResource(R.string.ai_nano_small), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }

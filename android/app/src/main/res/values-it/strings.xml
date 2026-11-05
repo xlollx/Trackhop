@@ -1631,6 +1631,7 @@
     <string name="ai_nano_use_key">Usa la mia chiave</string>
     <string name="ai_nano_preparing">Preparo %1$s su questo telefono…</string>
     <string name="ai_nano_private">Funziona su questo telefono: la playlist non viene inviata da nessuna parte.</string>
+    <string name="ai_nano_small">Gemini Nano è un modello piccolo che gira sul telefono: le risposte possono essere meno precise, inventare dettagli o uscire strane. Per risultati migliori usa una tua chiave AI (Google Gemini e Groq ne danno gratis).</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>

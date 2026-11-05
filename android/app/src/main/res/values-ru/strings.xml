@@ -1677,6 +1677,7 @@
     <string name="ai_nano_use_key">Использовать мой ключ</string>
     <string name="ai_nano_preparing">Готовлю %1$s на этом телефоне…</string>
     <string name="ai_nano_private">Работает на этом телефоне: плейлист никуда не отправляется.</string>
+    <string name="ai_nano_small">Gemini Nano — небольшая модель, работающая на телефоне: её ответы могут быть менее точными, выдумывать детали или выходить странными. Для лучших результатов используйте свой ключ ИИ (Google Gemini и Groq дают бесплатные).</string>
     <string name="whats_new_114_nano_title">ИИ без ключа</string>
     <string name="whats_new_114_nano_body">На телефонах с Gemini Nano Roast и генератор плейлистов теперь работают прямо на устройстве: без ключа, и ничего не покидает телефон. На остальных Roast сразу ведёт к настройке бесплатного ключа.</string>
     <string name="whats_new_114_tips_title">Виджеты, ярлыки и автоматизация</string>

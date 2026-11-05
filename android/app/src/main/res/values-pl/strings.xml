@@ -1679,6 +1679,7 @@
     <string name="ai_nano_use_key">Użyj mojego klucza</string>
     <string name="ai_nano_preparing">Przygotowuję %1$s na tym telefonie…</string>
     <string name="ai_nano_private">Działa na tym telefonie: playlista nie jest nigdzie wysyłana.</string>
+    <string name="ai_nano_small">Gemini Nano to mały model działający na telefonie: jego odpowiedzi mogą być mniej dokładne, zmyślać szczegóły lub wychodzić dziwnie. Dla lepszych wyników użyj własnego klucza AI (Google Gemini i Groq dają je za darmo).</string>
     <string name="whats_new_114_nano_title">AI bez klucza</string>
     <string name="whats_new_114_nano_body">Na telefonach z Gemini Nano Roast i generator playlist działają teraz bezpośrednio na telefonie: bez klucza i nic nie opuszcza urządzenia. Na innych Roast od razu prowadzi do ustawienia darmowego klucza.</string>
     <string name="whats_new_114_tips_title">Widżety, skróty i automatyzacje</string>

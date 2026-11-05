@@ -630,6 +630,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
     Intro(stringResource(R.string.discover_roast_intro, ai.label))
     val ready = !ai.local || NanoStatus(onUseKey = onSetUpAi)
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (ai.local) NanoSmallNote()
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast") {
         // The same playlist coming back (from the memory) keeps its roast; another one clears it.
         if (it == null || it.playlist.id != RoastKept.playlistId) forget()
