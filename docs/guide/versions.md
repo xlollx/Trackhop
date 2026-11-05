@@ -1,44 +1,48 @@
 # Which Trackhop? Versions, plugins and community
 
-Trackhop comes in two builds for phones, with the same code and the same look. What changes is
-which services they can reach, and how.
+Trackhop comes in two kinds of builds for phones, with the same code and the same look. What changes
+is which services they can reach, and how.
 
-| | GitHub and F-Droid | Google Play |
+| | GitHub and F-Droid | Stores: Google Play, Samsung Galaxy Store, Huawei AppGallery |
 |---|---|---|
 | Spotify, YouTube Music, Apple Music, Amazon Music through their web players | **built in**: sign in and go | through an optional connector plugin |
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
 | Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | no |
 | LiveOne (web player), NetEase Cloud Music and QQ Music links | yes | no |
-| Ads | none | a small banner |
-| Updates | F-Droid, Obtainium or the GitHub release page | Google Play |
+| Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play and Galaxy Store: yes · AppGallery: no |
+| Ads | none | none |
+| Updates | F-Droid, Obtainium or the GitHub release page | the store |
+
+The Galaxy Store and AppGallery listings are in preparation.
 
 **Which one to choose.** If you want to move playlists between the big streaming services without
 setting anything up, take the [GitHub or F-Droid build](https://github.com/xlollx/Trackhop/releases/latest):
-everything is inside. The Play build suits people who sync with their own music server, with files,
-or through the services' official APIs, and who prefer installing from Google Play.
+everything is inside. The store builds suit people who sync with their own music server, with files,
+or through the services' official APIs, and who prefer installing from their phone's store.
 
 The official APIs have limits that are not Trackhop's choice: Spotify accepts five users per
 developer app unless you register your own (the app guides you, and Spotify requires Premium for
 it), YouTube's daily quota is shared by everyone using the same key, Apple Music cannot remove
 tracks and needs a developer token, Amazon Music has no open API at all.
 
-## Switching from Play to the GitHub build
+## Switching between builds
 
-The two builds are signed by different keys, so one cannot update the other. Before switching,
-export a backup (Settings › Backups), uninstall, install the other build and restore the backup.
-Syncs, settings and history come back; services have to be signed in again.
+The GitHub, F-Droid, Galaxy Store and AppGallery builds share the same signing key: one installs
+over the other. Google Play signs with its own key, so Play and the others cannot update each other.
+To move to or from Play, export a backup (Settings › Backups), uninstall, install the other build
+and restore the backup. Syncs, settings and history come back; services have to be signed in again.
 
 ## Connector plugins
 
 Trackhop has an open connector interface: a separate app can hold the sign-in to a service and
-answer Trackhop's requests for playlists and tracks. The Play build lists the plugins installed on
-the phone in Settings › Plugins and offers their services in Accounts; it never names, links or
-downloads one. How the interface works, and the plugins known so far, are on the
+answer Trackhop's requests for playlists and tracks. The store builds list the plugins installed on
+the phone in Settings › Plugins and offer their services in Accounts; they never name, link or
+download one. How the interface works, and the plugins known so far, are on the
 [connector plugins](../plugins) page.
 
 The reference plugin is **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**, by the
-same author: it gives the Play build the same web connectors the GitHub build carries inside. It is
+same author: it gives the store builds the same web connectors the GitHub build carries inside. It is
 distributed on GitHub only. Read its notes before installing: those web interfaces are not official
 APIs, they are against the services' terms, and they can stop working without notice.
 

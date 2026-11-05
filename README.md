@@ -26,8 +26,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>Installed Trackhop from Google Play?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Qobuz, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
-  <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for the Google Play version"></a>
+  <b>Installed Trackhop from Google Play, the Galaxy Store or AppGallery?</b> Add the plugin for everything the GitHub version has: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Qobuz, Spotify and Apple Music without developer keys, public NetEase, QQ Music and Anghami links, TikTok:<br><br>
+  <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="docs/store/get-trackhop-bridge.png" width="480" alt="Get Trackhop Bridge, the plugin for the store versions"></a>
 </p>
 
 <p align="center">
@@ -60,7 +60,7 @@ any build: development lives on voluntary donations.
 **Read** = use it as a source · **Write** = create playlists and add tracks · **Remove** = mirror removals.
 "All builds" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker. The *quick sign-in*
 routes go through the service's own web player: they are not official interfaces and live in the GitHub and
-F-Droid builds, Desktop and Docker (and, for the Google Play app, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
+F-Droid builds, Desktop and Docker (and, for the store apps on Google Play, Galaxy Store and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
 
 | Service | Read | Write | Remove | How you connect | Where |
 |---|:-:|:-:|:-:|---|---|
@@ -274,7 +274,7 @@ reports are what make it better: if something does not work as it should, say so
 | Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF and plain text. |
 | | setlist.fm | Share or paste a setlist.fm link: the concert becomes a playlist to sync anywhere. |
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
-| | TikTok | Share a TikTok video (GitHub and F-Droid builds, Google Play with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
+| | TikTok | Share a TikTok video (GitHub and F-Droid builds, store builds with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
 | Widget and shortcuts | Home widget and long-press on the icon | Last sync, "Sync all", "New sync". |
 | Diagnostics | "Share technical details" in the log | Version, device, services, last runs, error log; no tokens. |
 | | "Test the connection" per account | Account, playlist list and one search, with the service's answer on failure. |
@@ -291,7 +291,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 |---------|--------|-------|----------------------|--------|
 | Spotify | complete | OAuth PKCE on Spotify's sign-in page, shown inside the app (a browser tab handed "Continue with Facebook" to the Facebook app, which then failed) | `SPOTIFY_CLIENT_ID`, redirect `songport://callback` | An app in *Development Mode* accepts 5 users and its owner needs Spotify Premium (February 2026 rules). *Extended Quota Mode* requires a registered company and 250,000 monthly active users. Since July 2026 the quota is counted per developer account, not per client ID. That is why the app walks each user through creating their own client ID: on Spotify this is the normal path. |
 | Apple Music | read and add, beta | MusicKit JS in an in-app WebView | `APPLE_DEVELOPER_TOKEN` (ES256 JWT, Apple Developer Program) | The API cannot remove tracks from a playlist: mirror syncs towards Apple Music only add and say so in the report. The developer token expires after at most 6 months. An Apple Music subscription is required. Library tracks do not expose an ISRC. |
-| YouTube Music | built into the GitHub/F-Droid build; in the Play build via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
+| YouTube Music | built into the GitHub/F-Droid build; in the store builds (Play, Galaxy Store, AppGallery) via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
 | YouTube Music (Google API) | via YouTube Data API v3 | Google OAuth | `GOOGLE_CLIENT_ID` (Android OAuth client: package + SHA-1), YouTube Data API enabled, OAuth verification for the `youtube` scope | 10,000 units per day per project (search 100, insert 50), shared by every user of the same build. With own credentials the quota is the user's. No ISRC. |
 | Spotify (web) | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Spotify sign-in on Spotify's page | nothing, and no Premium | Talks to the web player's own backend (the GraphQL gateway and the playlist store open.spotify.com uses), with the player's session token and client token; the query hashes are read from the player's own code. Since December 2025 Spotify refuses first-party tokens on the public Web API, which is why this route no longer touches it. No ISRC on this route: matching is by title, artist and duration. Not an official route, against Spotify's terms, may break without notice. |
 | Apple Music (web) | read and add, built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above. Not an official route, against Apple's terms, may break without notice. |
@@ -330,7 +330,7 @@ developer account to register, a paid program, a daily quota to share. For those
 **open connector interface**: a separate app, a *plugin*, holds the sign-in to a service and answers
 Trackhop's requests for playlists and tracks.
 
-The Google Play build never includes, downloads or installs a plugin. It discovers one that the user
+The store builds (Google Play, Galaxy Store, AppGallery) never include, download or install a plugin. It discovers one that the user
 has already installed and then offers its services in the account picker, next to the official
 routes, which stay available and unchanged. The GitHub and F-Droid build carries the reference
 plugin's connectors inside instead (see below), so it needs no second app.
@@ -369,12 +369,13 @@ and the sync engine gets only data or short-lived tokens.
 
 User-facing page: [trackhop.org/plugins](https://trackhop.org/plugins).
 
-### Two distributions of Trackhop
+### Store builds and direct downloads
 
-The `play` flavor, the one for Google Play, never names, links to or describes any plugin; plugin
+The store flavors (`play` for Google Play, `galaxy` for the Galaxy Store, `appgallery` for AppGallery)
+never name, link to or describe any plugin; plugin
 services appear only when a plugin is already installed, with generic wording, and it contains no
-code that uses unofficial interfaces. The `full` flavor, the APK on GitHub Releases and on F-Droid,
-has the web connectors built in and no ads. See
+code that uses unofficial interfaces. The `full` flavor (GitHub Releases) and the `fdroid` flavor
+(F-Droid, without ML Kit) have the web connectors built in. No build has ads. See
 [Publishing on Google Play](#publishing-on-google-play).
 
 ## Automation: REST API and webhook
@@ -702,7 +703,7 @@ services mentioned in this project are trademarks of their respective owners.
 (`android/ytm/.../Shazam.kt`) is a port to Kotlin of [SongRec](https://github.com/marin-m/SongRec)
 by Marin M. (GPL-3.0), whose author worked out Shazam's signature format. It talks to Shazam's
 unofficial endpoint, so it is only in the builds that use unofficial services (GitHub, F-Droid,
-Docker, Desktop outside the Microsoft Store, and the Google Play build through the plugin). MP3s are
+Docker, Desktop outside the Microsoft Store, and the store builds through the plugin). MP3s are
 decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) (LGPL-2.1).
 
 ## Known limits

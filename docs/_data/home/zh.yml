@@ -9,7 +9,7 @@ tab_phone: Android
 tab_computer: 桌面版
 tab_server: 自托管
 play_alt: "Google Play：即将上架"
-play_note: '测试中 · 用的是 Google Play 版？请添加<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">插件</a>'
+play_note: '测试中 · 用的是 Google Play、Galaxy Store 或 AppGallery 版？请添加<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">插件</a>'
 galaxy_alt: "Samsung Galaxy Store：即将上架"
 galaxy_note: "准备中"
 appgallery_alt: "华为应用市场 AppGallery：即将上架"
