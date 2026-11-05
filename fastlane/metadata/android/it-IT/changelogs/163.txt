@@ -1,0 +1,1 @@
+Apple Music: le ricerche non si fermano più dopo poche decine di brani e una playlist nuova o vuota non chiude più la sync con un errore. La registrazione esatta di un brano (ISRC) ora si trova molto più spesso, per tutti i servizi. Grazie a dazzlejacket per la segnalazione dettagliata (#46).

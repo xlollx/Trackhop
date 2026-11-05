@@ -1,0 +1,1 @@
+Apple Music: searches no longer stop after a few dozen songs, and a new or empty playlist no longer ends a sync with an error. The exact recording of a song (ISRC) is now found far more often, for every service. Thanks to dazzlejacket for the detailed report (#46).

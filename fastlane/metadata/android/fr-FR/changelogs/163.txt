@@ -1,0 +1,1 @@
+Apple Music : les recherches ne s'arrêtent plus après quelques dizaines de titres, et une playlist nouvelle ou vide ne termine plus une synchro par une erreur. L'enregistrement exact d'un titre (ISRC) est trouvé bien plus souvent, pour tous les services. Merci à dazzlejacket pour le rapport détaillé (#46).

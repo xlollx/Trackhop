@@ -1,0 +1,1 @@
+Apple Music: wyszukiwanie nie zatrzymuje się już po kilkudziesięciu utworach, a nowa lub pusta playlista nie kończy synchronizacji błędem. Dokładne nagranie utworu (ISRC) jest teraz znajdowane znacznie częściej, dla wszystkich serwisów. Dziękuję dazzlejacket za szczegółowe zgłoszenie (#46).

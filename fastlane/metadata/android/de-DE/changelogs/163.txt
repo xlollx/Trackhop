@@ -1,0 +1,1 @@
+Apple Music: Suchen brechen nicht mehr nach ein paar Dutzend Titeln ab, und eine neue oder leere Playlist beendet einen Sync nicht mehr mit einem Fehler. Die genaue Aufnahme eines Titels (ISRC) wird jetzt viel öfter gefunden, für alle Dienste. Danke an dazzlejacket für den ausführlichen Bericht (#46).

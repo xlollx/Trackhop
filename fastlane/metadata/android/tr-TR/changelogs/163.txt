@@ -1,0 +1,1 @@
+Apple Music: aramalar artık birkaç düzine şarkıdan sonra durmuyor; yeni veya boş bir çalma listesi de senkronizasyonu artık hatayla bitirmiyor. Bir şarkının tam kaydı (ISRC) artık tüm servislerde çok daha sık bulunuyor. Ayrıntılı rapor için dazzlejacket'a teşekkürler (#46).

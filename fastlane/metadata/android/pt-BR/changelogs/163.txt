@@ -1,0 +1,1 @@
+Apple Music: as buscas não param mais depois de algumas dezenas de músicas, e uma playlist nova ou vazia não encerra mais uma sincronização com erro. A gravação exata de uma música (ISRC) agora é encontrada com muito mais frequência, em todos os serviços. Obrigado a dazzlejacket pelo relato detalhado (#46).
