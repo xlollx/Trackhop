@@ -37,7 +37,7 @@ with no account, no subscription and no server in between: everything runs on yo
 
 | | Trackhop |
 |---|---|
-| Developer | xlollx, independent developer |
+| Developer | xlollx, independent Italian developer |
 | First release | September 2026 |
 | Price | Free, no in-app purchases, no ads |
 | License | AGPL-3.0-only |
