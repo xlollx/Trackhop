@@ -50,7 +50,7 @@ Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, A
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase
 Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
-this build: development lives on voluntary donations.
+any build: development lives on voluntary donations.
 
 ### Music services at a glance
 
@@ -449,13 +449,13 @@ Details and more examples: [Docker guide › API](https://trackhop.org/guide/doc
 - No intermediate server: requests go from the phone to the connected services.
 - Before every "Connect" a sheet shows the domain that will open and what the app receives.
 - Optional fingerprint, face or PIN lock on launch (`BiometricPrompt`).
-- No key or secret in the repository: client IDs, developer token, AdMob IDs and signing keys come
+- No key or secret in the repository: client IDs, developer token and signing keys come
   from the build (GitHub Actions variables and secrets).
 
 ## Architecture
 
 ```
-MainActivity (tabs: Syncs, Accounts, Tools, Log, Settings)                      AdBanner (AdMob + UMP)
+MainActivity (tabs: Syncs, Accounts, Tools, Log, Settings)
     │
     ├── SyncEditor / Preview / Review ──▶ Store (store.json: jobs, reports, match cache, settings)
     │
@@ -490,7 +490,7 @@ Trackhop/
     ├── ytm/                       # the YouTube Music web client without Android, shared by bridge/ and server/
     ├── bridge/                    # the built-in web connectors (GitHub/F-Droid build): WebView sign-ins and players
     └── app/
-        ├── build.gradle           # build parameters: client IDs, AdMob, release signing from env/secrets
+        ├── build.gradle           # build parameters: client IDs, release signing from env/secrets
         ├── proguard-rules.pro
         └── src/
             ├── main/AndroidManifest.xml
@@ -567,7 +567,6 @@ the full procedure (Android client, verification, quota) is in `docs/google-shar
 | `TIDAL_CLIENT_ID` | developer.tidal.com → Dashboard → Create app | `songport://callback` |
 | `DEEZER_APP_ID`, `DEEZER_REDIRECT_URL` | developers.deezer.com → My Apps. Publish `docs/deezer-redirect.html` on an https host and use that URL as redirect and "Application domain". | the https URL of the page |
 | `LASTFM_API_KEY` | last.fm/api/account/create | none |
-| `ADMOB_APP_ID`, `ADMOB_BANNER_ID` | AdMob | |
 | `PRIVACY_POLICY_URL`, `KOFI_URL` | public URLs of the privacy policy and the donation page; an empty `KOFI_URL` hides the button | |
 
 With a public repository, register only the SHA-1 of the upload key and of Play App Signing in the
@@ -585,36 +584,15 @@ print(jwt.encode({"iss": TEAM_ID, "iat": int(time.time()), "exp": int(time.time(
 PY
 ```
 
-## Ads, consent and donations
+## Donations, no ads
 
-- **The GitHub build (`full` flavor) has no ads and does not include the ads SDK.** AdMob serves ads
-  only to apps listed on Google Play or the App Store; in a directly downloaded APK the SDK would bring
-  only the consent form and Google's code. `src/full/.../ads/Ads.kt` is an empty twin of the real one,
-  and the ads dependencies are `playImplementation`.
-- The Play build (`play` flavor, `src/play/.../ads/Ads.kt`) shows one adaptive banner at the bottom of
-  the main screen. No interstitials, videos or full-screen ads.
-- Before loading ads the app asks for consent through Google UMP; without consent no ads are
-  requested. *Settings* shows "Ad privacy options" where regulations require it.
-- Release builds carry Trackhop's own AdMob ids (defaults in `app/build.gradle`; a fork sets its own
-  through the `ADMOB_APP_ID` and `ADMOB_BANNER_ID` variables). Debug builds always use Google's test
-  ids, whatever the variables say. Never test with real ids: list the developer's phones in
-  `ADMOB_TEST_DEVICES` (comma-separated hashed ids, printed by the SDK in logcat on the first request,
-  or register the phones in AdMob → Settings → Test devices) so they get test ads with the real units.
-- Going live also needs, in AdMob: a **GDPR message** under *Privacy & messaging* for this app
-  (without it European users get no consent form, so the app requests no ads for them), the app
-  **linked to its Play listing** once published, and an **app-ads.txt** at the root of the developer
-  website named in the listing (`https://<domain>/app-ads.txt`, one line:
-  `google.com, pub-<publisher id>, DIRECT, f08c47fec0942fa0`). A GitHub Pages *project* site does not
-  work for that, the file must be at the domain root, for instance a `<user>.github.io` repository.
-- On first launch a card explains how the app is funded (the ads in the Play build, donations in the
-  GitHub one) and offers a button to a donation page (Ko-fi). Donating is voluntary and unlocks
-  nothing. *Settings* has the Ko-fi button and GitHub Sponsors (`KOFI_URL`, `SPONSORS_URL`), and the
-  repository's *Sponsor* button (`.github/FUNDING.yml`) offers both.
+- No ads in any build, the Google Play one included (dropped in 1.14.3, 05/11/2026): no advertising SDK,
+  no consent form, no advertising ID. `app/src/main/.../ads/Ads.kt` is an empty stub the screens still call.
 - In the GitHub build only, the first successful sync that adds at least 100 tracks arms a one-time
   card on the Syncs screen ("You just moved 1,322 tracks") with a coffee button (`sync/SupportPrompt.kt`).
   Either answer closes it for good.
-- Before publishing on Google Play, check its payments policy on links to external donation pages:
-  if they are not allowed there, hide the donation buttons in the `play` flavor.
+- The Play build shows no donation button, card or coffee text (`BuildConfig.FLAVOR == "play"`): it
+  never points to payments outside Google Play.
 
 ## Publishing on Google Play
 
@@ -652,7 +630,7 @@ variables and the `ghcr.io/xlollx/songport` image, which is still published next
    ```
    Secrets: `UPLOAD_KEYSTORE_BASE64`, `UPLOAD_KEYSTORE_PASSWORD`, `UPLOAD_KEY_ALIAS`, `UPLOAD_KEY_PASSWORD`.
    With Play App Signing, also register Play's SHA-1 in the Google OAuth client.
-2. Variables: `ADMOB_APP_ID`, `ADMOB_BANNER_ID`, `PRIVACY_POLICY_URL`, `KOFI_URL`. Service client IDs are
+2. Variables: `PRIVACY_POLICY_URL`, `KOFI_URL`. Service client IDs are
    optional (see [API configuration](#api-configuration)).
 3. Bump `versionCode` and `versionName` in `app/build.gradle` for every release.
 4. Play Console: declare ads, fill in *Data safety* and the foreground service declaration

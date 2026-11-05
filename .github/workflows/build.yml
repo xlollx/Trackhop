@@ -34,10 +34,6 @@ jobs:
       # Apple Music: JWT con scadenza (max 6 mesi), quindi sta nei Secrets non nelle Variables.
       APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
       LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
-      # AdMob: se assenti si usano gli ID di TEST di Google (annunci di prova).
-      ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID }}
-      ADMOB_BANNER_ID: ${{ vars.ADMOB_BANNER_ID }}
-      ADMOB_TEST_DEVICES: ${{ vars.ADMOB_TEST_DEVICES }}
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
       # Keystore di debug (base64) per una firma stabile dell'APK debug; facoltativo.

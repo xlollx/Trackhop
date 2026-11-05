@@ -1,0 +1,1 @@
+Roast: yapay zekâ biraz bozuk JSON ile yanıt verse de kartta yalnızca roast görünür, parantez ve "roast": görünmez.

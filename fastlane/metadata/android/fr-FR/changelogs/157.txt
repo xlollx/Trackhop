@@ -1,0 +1,1 @@
+Roast : si l'IA répond avec un JSON un peu cassé, la carte montre seulement le roast, jamais d'accolades ni "roast":.

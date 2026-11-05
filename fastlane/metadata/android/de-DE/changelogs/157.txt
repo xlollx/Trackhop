@@ -1,0 +1,1 @@
+Roast: Antwortet die KI mit leicht fehlerhaftem JSON, zeigt die Karte nur den Roast, nie Klammern und "roast":.

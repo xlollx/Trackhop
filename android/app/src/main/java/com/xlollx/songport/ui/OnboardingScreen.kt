@@ -229,8 +229,9 @@ private fun TrustPage() {
             Text(stringResource(R.string.onboarding_credentials), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
             // Con gli annunci si spiega perche' ci sono; senza, che l'app vive di contributi volontari.
-            Text(stringResource(if (Ads.enabled) R.string.ads_why_title else R.string.free_why_title), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(if (Ads.enabled) R.string.ads_why_body else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.free_why_title), style = MaterialTheme.typography.titleMedium)
+            // The Play build never points to payments outside Google Play: no coffee there.
+            Text(stringResource(if (com.xlollx.songport.BuildConfig.FLAVOR == "play") R.string.settings_free_note else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (BuildConfig.KOFI_URL.isNotBlank()) {
                 TextButton(onClick = { openSupport(ctx) }, modifier = Modifier.heightIn(min = 48.dp)) {
                     Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(18.dp))

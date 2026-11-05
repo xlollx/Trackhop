@@ -2,8 +2,9 @@
 
 The app is **Trackhop** on Google Play as everywhere else. Same code,
 same name, same package id `com.xlollx.songport`, same signing key as every other build: the `play`
-flavor only drops the built-in web connectors, describes plugin-based services generically and
-adds the AdMob banner with the UMP consent form. Upload **only the `play` AAB** (the
+flavor only drops the built-in web connectors and describes plugin-based services generically.
+No ads in any build since 1.14.3 (05/11/2026: ads would have made the developer a trader under
+Google Play's rules). Upload **only the `play` AAB** (the
 `Trackhop-release-aab` artifact of a CI run on `main`, or `Trackhop-vX-play.aab` in a GitHub Release (`Songport-vX-play.aab` up to 1.5.2)).
 
 Rule for everything below: the listing describes official-API services and files only. No companion
@@ -82,7 +83,7 @@ Trackhop non è affiliata a Spotify, Apple, Google/YouTube, TIDAL o Deezer. I no
 marchi dei rispettivi proprietari e sono usati solo per indicare la compatibilità.
 
 ### Category and tags
-Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free app, contains ads.
+Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free app, no ads.
 
 ### Graphics
 - Icon 512×512: `docs/store/icon512.png` (also `fastlane/metadata/android/en-US/images/icon.png`).
@@ -99,44 +100,42 @@ Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free a
 | Declaration | Answer |
 |---|---|
 | Privacy policy | URL of the published `docs/privacy-policy.md` (it names Trackhop and its former name, Songport). Same URL as the `PRIVACY_POLICY_URL` repository variable, which the app shows in Settings. |
-| Ads | **Yes**, the app contains ads (AdMob banner, one per screen at most). |
+| Ads | **No**, the app contains no ads (removed in 1.14.3). |
 | App access | **All or some functionality is restricted**. Instructions for the reviewer: "Every feature can be exercised with playlist files (Files › Import, or share a text with one track per line) without any account. Music services require the reviewer's own account and, for Spotify, YouTube Music, TIDAL and Deezer, a free developer key created through the in-app wizard (about two minutes). No credentials can be supplied by the developer: the app has no accounts of its own." |
-| Content rating (IARC) | Category **Utility, Productivity, Communication or Other**. Violence, sexuality, language, controlled substances: none. Users cannot interact with or share content with other users: **No**. Shares location: **No**. Digital purchases: **No**. Contains ads: **Yes**. Expected result: PEGI 3 / Everyone. |
-| Target audience | **18 and over** only (optionally 16–17 too). Not designed for children; the app then needs no Families policy and the ads can stay personalised. "Could the store listing unintentionally appeal to children?" **No**. |
+| Content rating (IARC) | Category **Utility, Productivity, Communication or Other**. Violence, sexuality, language, controlled substances: none. Users cannot interact with or share content with other users: **No**. Shares location: **No**. Digital purchases: **No**. Contains ads: **No**. Expected result: PEGI 3 / Everyone. |
+| Target audience | **18 and over** only (optionally 16–17 too). Not designed for children; the app then needs no Families policy. "Could the store listing unintentionally appeal to children?" **No**. |
 | News app | No. |
 | COVID-19 contact tracing | No. |
 | Data safety | See the next section. |
 | Government app | No. |
 | Financial features | None. |
 | Health | None. |
-| Advertising ID | **Yes**, the app uses the advertising ID (Google Mobile Ads SDK, which declares `com.google.android.gms.permission.AD_ID`). Purposes: advertising or marketing; analytics; fraud prevention. |
+| Advertising ID | **No**: no advertising SDK, and the manifest has no `com.google.android.gms.permission.AD_ID` (checked on the merged manifest of 1.14.3). |
 | Foreground service permissions | Type **`dataSync`** (`FOREGROUND_SERVICE_DATA_SYNC`). Task: "user-initiated and scheduled playlist synchronisation between music services; a sync of a large playlist can exceed the background work limits and would otherwise be killed half-way, leaving the target playlist inconsistent". Play asks for a short video showing the feature: record a sync from Syncs › Run (the notification appears) with any screen recorder and upload it unlisted on YouTube or Drive. |
 | Photo and video permissions | Not applicable: files are chosen through the system picker (Storage Access Framework), no `READ_MEDIA_*` permission. |
 
 Permissions in the manifest, for reference: INTERNET, ACCESS_NETWORK_STATE, POST_NOTIFICATIONS
 (asked on first use, not at start), WAKE_LOCK, USE_BIOMETRIC, FOREGROUND_SERVICE,
-FOREGROUND_SERVICE_DATA_SYNC, plus AD_ID merged in by the ads SDK.
+FOREGROUND_SERVICE_DATA_SYNC.
 
 ## Data safety – answers
 
-The app itself collects nothing: no account, no server, no analytics, no crash reporting. What is
-declared comes from the Google Mobile Ads SDK alone, as in Google's own data disclosure for AdMob
-(check their page when filling the form, the list moves).
+The app itself collects nothing: no account, no server, no analytics, no crash reporting, no ads.
+The only declaration left comes from Google's ML Kit (Gemini Nano on the phone, 1.14+), which sends
+Google technical usage data; check Google's ML Kit data disclosure when filling the form
+(https://developers.google.com/ml-kit/android-data-disclosure), the list moves.
 
-- Does your app collect or share any of the required user data types? **Yes**.
+- Does your app collect or share any of the required user data types? **Yes** (ML Kit's diagnostics).
 - Is all of the user data collected by your app encrypted in transit? **Yes**.
-- Do you provide a way for users to request that their data is deleted? The developer holds no data at
-  all; the ads data is tied to the advertising ID, which the user resets or deletes in Android
-  settings, and the user can refuse or withdraw consent in Settings › Ads. Answer **Yes** and point to
-  that in the explanation, or **No** with the note that no data is retained by the developer: both are
-  honest, the first reads better.
+- Do you provide a way for users to request that their data is deleted? The developer holds no data
+  at all: **No**, with that note.
 
 | Data type | Collected | Shared | Purpose | Optional? | Processed ephemerally |
 |---|---|---|---|---|---|
-| Location › Approximate location (derived from IP by the ads SDK) | yes | yes (Google) | advertising, analytics, fraud prevention | yes (consent can be refused; the banner then shows non-personalised ads) | no |
-| Device or other IDs (advertising ID) | yes | yes (Google) | advertising, analytics, fraud prevention | yes | no |
-| App activity › App interactions (ad views and taps) | yes | yes (Google) | advertising, analytics | yes | no |
-| App info and performance › Diagnostics | yes | yes (Google) | analytics, fraud prevention | yes | no |
+| App info and performance › Diagnostics (ML Kit) | yes | no | analytics | no | no |
+
+The rows for the ads SDK (approximate location, advertising ID, ad interactions) go away with 1.14.3:
+remove them from the form when that version is uploaded.
 
 Not collected: personal info, financial info, health, messages, photos, audio, files, contacts,
 calendar, browsing history, search history, installed apps. Playlist contents, tokens and the AI key
@@ -152,7 +151,7 @@ has run.
    document, phone and e-mail verification. The developer name and a contact e-mail are shown on the
    listing; the console says during sign-up which other details become public for your account type.
 2. **Create the app**: name *Trackhop*, default language English (United States), App, Free. Declare
-   it has ads. Add Italian as a second listing language.
+   it has no ads. Add Italian as a second listing language.
 3. **Store listing**: texts above, icon, feature graphic, screenshots (see Graphics), category, contact
    e-mail, privacy policy URL.
 4. **App content**: every row of the table above, in one sitting (the console blocks releases while
@@ -174,13 +173,8 @@ has run.
 8. **Production release**: upload the AAB (a newer one if the version moved on), release notes
    (`fastlane/metadata/android/*/changelogs/<versionCode>.txt` is a good start), countries (all),
    roll out. First review takes from a few hours to a week.
-9. **AdMob**: AdMob account, app *Trackhop* (Android), one banner ad unit; the ids go to the repository
-   variables `ADMOB_APP_ID` and `ADMOB_BANNER_ID` if they differ from the defaults in
-   `android/app/build.gradle`. Release builds show Google's **test** ads until the repository
-   variable `ADMOB_LIVE` is set to `true`: keep it off for the closed test (testers, paid ones above
-   all, tapping real ads would count as invalid traffic) and turn it on for the first production AAB. Publish the GDPR message under
-   Privacy & messaging (the app shows it through UMP). After the listing is live, link the AdMob app
-   to the Play listing.
+9. **No AdMob**: ads were dropped in 1.14.3 (05/11/2026). If the AdMob app was created, it can stay unused or be removed; nothing in the build points to it.
+
 10. **Later**: keep `docs/privacy-policy.md` online at the same URL; every release goes through CI the
     same way, and the AAB keeps the same upload key.
 
@@ -189,7 +183,6 @@ Repository settings already in place: `UPLOAD_KEYSTORE_BASE64`, `UPLOAD_KEYSTORE
 `PRIVACY_POLICY_URL`, `KOFI_URL`; optional `APPLE_DEVELOPER_TOKEN` (JWT, expires in 6 months) and
 the service client ids, which users can replace with their own in the app.
 
-Before the first production upload, tested on the `play` build: AdMob consent form with an EU VPN
-(and the banner showing test ads), Spotify login with a user's own key, Apple Music login, manual
+Before the first production upload, tested on the `play` build: Spotify login with a user's own key, Apple Music login, manual
 sync, scheduled sync (wait one hour), import from a public link, file import/export, playlist
 generator with a free Gemini key.

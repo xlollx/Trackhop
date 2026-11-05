@@ -1,0 +1,1 @@
+Roast: si la IA responde con un JSON algo roto, la tarjeta muestra solo el roast, nunca llaves ni "roast":.

@@ -1,0 +1,1 @@
+Roast: gdy AI odpowie lekko uszkodzonym JSON-em, karta pokazuje tylko roast, bez nawiasów i "roast":.

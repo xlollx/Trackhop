@@ -1,0 +1,1 @@
+Roast: se l'AI risponde con un JSON un po' sbagliato, la card mostra solo il roast, mai graffe e "roast":.

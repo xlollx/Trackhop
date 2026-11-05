@@ -2,7 +2,6 @@ package com.xlollx.songport.sync
 
 import com.xlollx.songport.providers.*
 import com.xlollx.songport.BuildConfig
-import com.xlollx.songport.ads.Ads
 import com.xlollx.songport.data.Store
 import com.xlollx.songport.model.SyncReport
 
@@ -15,7 +14,7 @@ object SupportPrompt {
     /** Brani aggiunti da una sola sync perche' valga la pena chiedere. */
     const val MIN_ADDED = 100
 
-    fun available(): Boolean = !Ads.enabled && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())
+    fun available(): Boolean = BuildConfig.FLAVOR != "play" && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())
 
     /** Chiamato a fine sync: arma la richiesta se e' la prima sync grande e non e' mai stata mostrata. */
     fun offer(store: Store, report: SyncReport) {

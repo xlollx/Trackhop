@@ -1,0 +1,1 @@
+Roast: when the AI answers with slightly broken JSON, the card shows only the roast, never braces and "roast":.

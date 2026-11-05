@@ -8,13 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Build GitHub: nessuna pubblicita' e nessun SDK pubblicitario. AdMob serve annunci solo alle app
- * pubblicate su Google Play o sull'App Store, quindi in un APK scaricato da GitHub l'SDK porterebbe
- * soltanto il modulo del consenso e il codice di Google, senza alcun annuncio. Stessa interfaccia
- * della versione Play (src/play), cosi' il resto dell'app non distingue le due build.
+ * No ads in any build, Google Play's included (the user's choice, 05/11/2026: the AdMob banner made
+ * the developer a trader under Google Play's rules). No advertising SDK, no consent form: this is
+ * the interface the rest of the app still calls, so the screens need no change.
  */
 object Ads {
-    /** False in questa build: niente nota sugli annunci, niente opzioni privacy degli annunci. */
+    /** Always false: no note about ads, no ads privacy options. */
     const val enabled = false
 
     private val none = MutableStateFlow(false)

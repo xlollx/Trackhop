@@ -48,7 +48,7 @@ the notes in `play/whatsnew/<versionCode>/` (en-US and it-IT, written for Play: 
 changelog of each version).
 
 The `play` flavour is published as **Trackhop**, like every other build: same package id, no built-in
-web connectors, AdMob banner. Listing texts, Data safety answers and the closed-test kit are in `docs/play-store-listing.md`
+web connectors, no ads. Listing texts, Data safety answers and the closed-test kit are in `docs/play-store-listing.md`
 and `docs/play-testers.md`.
 
 ## Store graphics

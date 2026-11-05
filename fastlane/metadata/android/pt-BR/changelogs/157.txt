@@ -1,0 +1,1 @@
+Roast: se a IA responder com um JSON um pouco quebrado, o cartão mostra só o roast, nunca chaves e "roast":.

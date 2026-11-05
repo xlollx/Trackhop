@@ -269,7 +269,7 @@ fun SettingsScreen(
         PrefSection(
             stringResource(R.string.settings_section_privacy),
             accent = JobColor.TEAL,
-            footer = stringResource(if (Ads.enabled) R.string.settings_ads_note else R.string.settings_free_note),
+            footer = stringResource(R.string.settings_free_note),
         ) {
             PrefSwitch(Icons.Filled.Lock, stringResource(R.string.security_lock), stringResource(R.string.security_lock_desc), settings.appLock) { v ->
                 if (v && !LockActivity.available(ctx)) {

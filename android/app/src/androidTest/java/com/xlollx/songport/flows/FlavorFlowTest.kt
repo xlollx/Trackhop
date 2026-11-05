@@ -116,7 +116,7 @@ class FlavorFlowTest : FlowTest() {
     fun pluginsSectionOnlyInThePlayBuild() {
         installConnectors()
         launch(tabIntent(MainActivity.TAB_SETTINGS))
-        waitText(s(if (full) R.string.settings_free_note else R.string.settings_ads_note))
+        waitText(s(R.string.settings_free_note))
         // What a plugin is, as the section's description (1.2.8), and where plugins are published,
         // as its footer (1.2.6): each its own line.
         assertEquals("the neutral plugins section", !full, exists(s(R.string.plugins_desc)))
@@ -148,8 +148,8 @@ class FlavorFlowTest : FlowTest() {
     fun aboutTheAdsOrTheirAbsence() {
         installConnectors()
         launch(tabIntent(MainActivity.TAB_SETTINGS))
-        val note = s(if (full) R.string.settings_free_note else R.string.settings_ads_note)
-        waitText(note)
-        assertEquals(!full, com.xlollx.songport.ads.Ads.enabled)
+        // No ads in either build since 05/11/2026.
+        waitText(s(R.string.settings_free_note))
+        assertEquals(false, com.xlollx.songport.ads.Ads.enabled)
     }
 }

@@ -1,10 +1,10 @@
 # Trackhop – Privacy Policy / Informativa sulla privacy
 
-_Last updated / Ultimo aggiornamento: 2026-11-04_
+_Last updated / Ultimo aggiornamento: 2026-11-05_
 
 ## English
 
-_This policy covers the app **Trackhop** (called Songport up to version 1.1), published on GitHub, F-Droid and Google Play: the same app, with the one difference described under "Advertising data"._
+_This policy covers the app **Trackhop** (called Songport up to version 1.1), published on GitHub, F-Droid and Google Play: the same app, with no ads and no advertising SDK in any version._
 
 **Controller**: the independent developer of Trackhop (contact on the Google Play listing).
 
@@ -54,14 +54,9 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   artists, titles) is processed on the phone and is not sent anywhere. ML Kit may send Google technical usage
   data (for example which feature ran and whether it worked, not your playlists), under Google's terms:
   https://developers.google.com/ml-kit/terms.
-- **Advertising data** (Google Play version only; the version downloaded from GitHub contains no
-  advertising SDK and collects no advertising data): the app shows one banner via Google AdMob. The Google Mobile Ads SDK may collect
-  the advertising ID, IP address, device and app information to serve and measure ads, according to the
-  consent you give in the GDPR form (Google UMP). See https://policies.google.com/technologies/partner-sites.
-  You can change your choice in *Settings › Ad privacy options*.
 
 **What we do NOT do**: no Trackhop account, no developer servers, no collection of e-mail,
-contacts, location or files; no sale of data.
+contacts, location or files; no ads and no advertising ID; no sale of data.
 
 **Third parties**: requests go directly to the official APIs of the connected services (Spotify,
 Apple, Google/YouTube, TIDAL, Deezer) under their own policies. Use of the YouTube API is subject to the
@@ -75,7 +70,7 @@ Questions: contact on the Play Store listing.
 
 ## Italiano
 
-_Questa informativa riguarda l'app **Trackhop** (chiamata Songport fino alla versione 1.1), pubblicata su GitHub, F-Droid e Google Play: la stessa app, con l'unica differenza descritta in "Dati pubblicitari"._
+_Questa informativa riguarda l'app **Trackhop** (chiamata Songport fino alla versione 1.1), pubblicata su GitHub, F-Droid e Google Play: la stessa app, senza pubblicità né SDK pubblicitari in nessuna versione._
 
 **Titolare**: lo sviluppatore indipendente dell'app Trackhop (contatti nella scheda Google Play).
 
@@ -121,15 +116,9 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   lavora (nome della playlist, artisti, titoli) è elaborato sul telefono e non viene inviato altrove. ML Kit può
   inviare a Google dati tecnici d'uso (per esempio quale funzione è stata usata e se ha funzionato, non le tue
   playlist), secondo i termini di Google: https://developers.google.com/ml-kit/terms.
-- **Dati pubblicitari** (solo nella versione Google Play; la versione scaricata da GitHub non contiene
-  alcun SDK pubblicitario e non raccoglie dati pubblicitari): l'app mostra un banner tramite Google AdMob. L'SDK Google Mobile Ads può
-  raccogliere l'identificatore pubblicitario, indirizzo IP, informazioni sul dispositivo e sull'app per
-  fornire e misurare gli annunci, in base al consenso espresso tramite il modulo GDPR (Google UMP).
-  Informativa Google: https://policies.google.com/technologies/partner-sites.
-  Il consenso può essere modificato in *Impostazioni › Opzioni privacy annunci*.
 
 **Cosa NON facciamo**: nessun account Trackhop, nessun server dello sviluppatore, nessuna
-raccolta di e-mail, contatti, posizione o file; nessuna vendita di dati.
+raccolta di e-mail, contatti, posizione o file; nessuna pubblicità e nessun identificatore pubblicitario; nessuna vendita di dati.
 
 **Terze parti**: le richieste vanno direttamente alle API ufficiali dei servizi collegati (Spotify,
 Apple, Google/YouTube, TIDAL, Deezer), soggette alle rispettive informative. L'uso dell'API di YouTube è

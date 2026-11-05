@@ -569,7 +569,7 @@ fun UpdatePill() {
  */
 @Composable
 fun CoffeePill() {
-    if (com.xlollx.songport.ads.Ads.enabled || com.xlollx.songport.BuildConfig.KOFI_URL.isBlank()) return
+    if (com.xlollx.songport.BuildConfig.FLAVOR == "play" || com.xlollx.songport.BuildConfig.KOFI_URL.isBlank()) return
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val dark = LocalAppDark.current
     val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_button)
