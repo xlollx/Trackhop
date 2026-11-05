@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -430,10 +431,10 @@ fun SettingsScreen(
             // Seven taps on the version show the traffic captures (with developer options on): a tool
             // for the developer, which records what is done on a site, kept out of everyone's way.
             var versionTaps by remember { mutableIntStateOf(0) }
-            // A long press on this row shows Oli (Oli.kt): its own gesture, apart from the seven taps.
-            // Once found, Oli also gets a row of their own at the end of this box.
+            // A long press on the logo shows Oli (Oli.kt): its own gesture, apart from the seven taps.
+            // Oli's own row at the end of this box shows up by chance, once in a thousand openings.
             var oliOpen by remember { mutableStateOf(false) }
-            var oliFound by remember { mutableStateOf(oliFound(ctx)) }
+            val oliRow = remember { kotlin.random.Random.nextInt(1000) == 0 }
             fun versionTap() {
                 versionTaps++
                 if (versionTaps >= 7) {
@@ -445,9 +446,10 @@ fun SettingsScreen(
             }
             PrefRow(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
-                leading = { BrandMark(40.dp) },
+                leading = {
+                    Box(Modifier.combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
+                },
                 chevron = false,
-                onLongClick = { oliOpen = true; if (!oliFound) { oliFound = true; setOliFound(ctx) } },
                 onClick = { versionTap() },
             )
             if (oliOpen) OliDialog { oliOpen = false }
@@ -487,7 +489,7 @@ fun SettingsScreen(
             if (BuildConfig.SPONSORS_URL.isNotBlank()) {
                 PrefRow(Icons.Filled.VolunteerActivism, stringResource(R.string.support_sponsors), null, trailing = { ExternalMark() }) { openSponsors(ctx) }
             }
-            if (oliFound) {
+            if (oliRow) {
                 PrefRow(null, stringResource(R.string.oli_row), stringResource(R.string.oli_title), leading = { OliHead() }, chevron = false) { oliOpen = true }
             }
         }

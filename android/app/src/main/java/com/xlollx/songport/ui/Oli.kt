@@ -42,19 +42,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*
- * Oli, the developer's cat and Trackhop's Chief Listening Officer: a long press on the version row in
- * Settings › About (the seven taps on it stay for the developer tools), then a "Supervision" row at
- * the end of that box for whoever found it, and the Roast page when there is no AI to roast with.
+ * Oli, the developer's cat and Trackhop's Chief Listening Officer: a long press on the logo in
+ * Settings › About (the seven taps on the version stay for the developer tools), a "Supervision" row
+ * at the end of that box once in a thousand openings, and the Roast page when there is no AI.
  */
-
-private const val OLI_PREFS = "oli"
-
-/** Whether Oli was found once (the long press): only then the Supervision row shows. */
-internal fun oliFound(ctx: android.content.Context) =
-    ctx.getSharedPreferences(OLI_PREFS, android.content.Context.MODE_PRIVATE).getBoolean("found", false)
-
-internal fun setOliFound(ctx: android.content.Context) =
-    ctx.getSharedPreferences(OLI_PREFS, android.content.Context.MODE_PRIVATE).edit().putBoolean("found", true).apply()
 
 /** Oli's head, round: the Supervision row's icon. */
 @Composable
