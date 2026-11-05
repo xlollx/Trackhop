@@ -1,0 +1,1 @@
+F-Droid：F-Droid は Google のライブラリ（ML Kit）を認めていないため、このバージョンは Gemini Nano なしでビルドされています。ローストとプレイリスト生成は 1.14 以前と同じく自分の AI キーで使えます。GitHub の APK には Gemini Nano が含まれます。

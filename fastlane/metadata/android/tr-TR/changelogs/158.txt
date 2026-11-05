@@ -1,0 +1,1 @@
+F-Droid: F-Droid Google kitaplıklarına (ML Kit) izin vermediği için bu sürüm Gemini Nano olmadan derlendi. Roast ve çalma listesi oluşturucu 1.14 öncesindeki gibi kendi yapay zekâ anahtarınla çalışır. GitHub'daki APK Gemini Nano'yu korur.

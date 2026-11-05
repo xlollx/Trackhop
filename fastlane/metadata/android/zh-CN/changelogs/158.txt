@@ -1,0 +1,1 @@
+F-Droid：由于 F-Droid 不允许 Google 库（ML Kit），此版本在构建时不含 Gemini Nano。吐槽和歌单生成器与 1.14 之前一样使用你自己的 AI 密钥。GitHub 上的 APK 仍包含 Gemini Nano。

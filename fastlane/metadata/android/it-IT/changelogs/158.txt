@@ -1,0 +1,1 @@
+F-Droid: questa versione è costruita senza Gemini Nano, perché F-Droid non ammette librerie di Google (ML Kit). Roast e generatore di playlist funzionano con la tua chiave AI, come prima della 1.14. L'APK su GitHub mantiene Gemini Nano.
