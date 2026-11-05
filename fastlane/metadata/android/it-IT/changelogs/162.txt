@@ -1,1 +1,1 @@
-Revisione di album salvati e artisti seguiti: incollando il link di un brano ora si trova il suo album o artista sul servizio di destinazione, invece di dare errore.
+Revisione di album salvati e artisti seguiti: incollando il link di un brano ora si trova il suo album o artista sul servizio di destinazione, invece di dare errore. Il colore scelto per una sync prima della sua prima esecuzione non torna più a quello predefinito quando l'esecuzione finisce.

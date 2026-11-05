@@ -1,1 +1,1 @@
-Revisão de álbuns salvos e artistas seguidos: colar o link de uma música agora encontra o álbum ou artista dela no serviço de destino, em vez de dar erro.
+Revisão de álbuns salvos e artistas seguidos: colar o link de uma música agora encontra o álbum ou artista dela no serviço de destino, em vez de dar erro. A cor escolhida para uma sincronização antes da primeira execução não volta mais ao padrão quando ela termina.

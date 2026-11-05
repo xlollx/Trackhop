@@ -49,6 +49,19 @@ class RemovalSafetyTest {
             mirrorRemovals = mirror, linkedJobId = linked, followsChanges = follows,
         ).also { env.store.upsertJob(it) }
 
+    /** The owner's case (05/11): a colour picked while the first run was making the target stays. */
+    @Test fun aColourChosenDuringTheFirstRunIsKept() = runBlocking {
+        src.lists["p"] = mutableListOf(t("a", "Alpha"))
+        dst.catalogue += t("da", "Alpha")
+        val j = SyncJob(id = "job-colour", name = "test", source = PlaylistRef("msrc", "p", "p"), target = PlaylistRef("mdst", null, "New"))
+            .also { env.store.upsertJob(it) }
+        dst.onCreate = { env.store.upsertJob(env.store.job(j.id)!!.copy(color = "teal")) }
+        engine.run(j)
+        val after = env.store.job(j.id)!!
+        assertEquals("teal", after.color)
+        assertTrue(after.target.playlistId != null)
+    }
+
     /** The source lists 2 of the target's 20 tracks: 18 removals, held back by the cap. */
     private fun largeRemoval() {
         src.lists["p"] = mutableListOf(t("a", "Alpha"), t("b", "Beta"))
@@ -279,7 +292,10 @@ class MemoryService(override val serviceId: String) : MusicProvider {
         val wanted = Matcher.normalizeTitle(track.title)
         return catalogue.filter { Matcher.normalizeTitle(it.title) == wanted }
     }
+    /** Runs inside [createPlaylist]: what the user does while the first run makes the target. */
+    var onCreate: (() -> Unit)? = null
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
+        onCreate?.invoke()
         lists[name] = ArrayList()
         return Playlist(name, name, 0)
     }

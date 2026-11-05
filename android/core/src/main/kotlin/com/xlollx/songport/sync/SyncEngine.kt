@@ -318,10 +318,13 @@ class SyncEngine(
             val created = patient(onProgress) { dst.createPlaylist(env, name, description.ifBlank { MusicProvider.description(str("app_name")) }) }
             targetId = created.id
             targetCreated = true
-            store.upsertJob(job.copy(
-                name = job.name.ifBlank { name },
-                source = job.source.copy(playlistName = srcName),
-                target = job.target.copy(playlistId = created.id, playlistName = created.name),
+            // From the stored job, not the one this run started with: whatever was changed meanwhile
+            // (the card's colour, its schedule) stays; only what this step learnt is written.
+            val stored = store.job(job.id) ?: job
+            store.upsertJob(stored.copy(
+                name = stored.name.ifBlank { name },
+                source = stored.source.copy(playlistName = srcName),
+                target = stored.target.copy(playlistId = created.id, playlistName = created.name),
                 sourceCover = info?.imageUrl,
             ))
             val cover = info?.imageUrl ?: (if (dst.canSetCover) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
