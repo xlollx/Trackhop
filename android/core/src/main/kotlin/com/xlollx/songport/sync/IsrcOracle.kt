@@ -40,10 +40,14 @@ object IsrcOracle {
             val (isrc, at) = saved.substringBefore('|') to (saved.substringAfter('|', "0").toLongOrNull() ?: 0)
             if (System.currentTimeMillis() - at < TTL_MS) { synchronized(memory) { memory[k] = isrc }; return isrc.ifEmpty { null } }
         }
-        val isrc = runCatching { lookup(t) }.getOrElse { e ->
+        val isrc = try {
+            lookup(t) ?: ""
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e // The scope ended: it is not a failed lookup, it is the end of the run.
+        } catch (e: Exception) {
             env.log("isrc", "lookup failed for ${t.title.take(40)}: ${e.message?.take(80)}")
             return null // Not remembered: a network hiccup is not "no ISRC".
-        } ?: ""
+        }
         synchronized(memory) { memory[k] = isrc }
         if (prefs.size >= MAX) prefs.clear()
         prefs[k] = "$isrc|${System.currentTimeMillis()}"
