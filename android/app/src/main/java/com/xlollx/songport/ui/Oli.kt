@@ -42,10 +42,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*
- * Oli, the developer's cat and Trackhop's Chief Listening Officer: a long press on the logo in
- * Settings › About (the seven taps on the version stay for the developer tools), the "Supervision"
- * row under it, and the Roast page when there is no AI to roast with.
+ * Oli, the developer's cat and Trackhop's Chief Listening Officer: a long press on the version row in
+ * Settings › About (the seven taps on it stay for the developer tools), then a "Supervision" row at
+ * the end of that box for whoever found it, and the Roast page when there is no AI to roast with.
  */
+
+private const val OLI_PREFS = "oli"
+
+/** Whether Oli was found once (the long press): only then the Supervision row shows. */
+internal fun oliFound(ctx: android.content.Context) =
+    ctx.getSharedPreferences(OLI_PREFS, android.content.Context.MODE_PRIVATE).getBoolean("found", false)
+
+internal fun setOliFound(ctx: android.content.Context) =
+    ctx.getSharedPreferences(OLI_PREFS, android.content.Context.MODE_PRIVATE).edit().putBoolean("found", true).apply()
 
 /** Oli's head, round: the Supervision row's icon. */
 @Composable
@@ -54,7 +63,25 @@ internal fun OliHead(size: androidx.compose.ui.unit.Dp = 40.dp) = Image(
     Modifier.size(size).clip(CircleShape), contentScale = ContentScale.Crop,
 )
 
-/** Oli in full, with the title; a tap on the photo purrs (a few soft haptic ticks, no permission needed). */
+/**
+ * A purr on the vibrator: short soft pulses in pairs, like breathing in and out. Returns how long it
+ * lasts, or 0 when the phone has no vibrator to use (the dialog then falls back on touch feedback).
+ */
+private fun purr(ctx: android.content.Context): Long {
+    val vibrator = if (android.os.Build.VERSION.SDK_INT >= 31) {
+        ctx.getSystemService(android.os.VibratorManager::class.java)?.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION") ctx.getSystemService(android.os.Vibrator::class.java)
+    }
+    if (vibrator == null || !vibrator.hasVibrator()) return 0L
+    val timings = LongArray(24) { i -> longArrayOf(35, 45, 35, 170)[i % 4] }
+    val amplitudes = IntArray(24) { i -> intArrayOf(90, 0, 60, 0)[i % 4] }
+    val effect = if (vibrator.hasAmplitudeControl()) android.os.VibrationEffect.createWaveform(timings, amplitudes, -1)
+    else android.os.VibrationEffect.createWaveform(timings, -1)
+    return runCatching { vibrator.vibrate(effect); timings.sum() }.getOrDefault(0L)
+}
+
+/** Oli in full, with the title; a tap on the photo purrs. */
 @Composable
 internal fun OliDialog(onDismiss: () -> Unit) {
     val view = LocalView.current
@@ -68,11 +95,15 @@ internal fun OliDialog(onDismiss: () -> Unit) {
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).clickable {
                         if (purring) return@clickable
                         purring = true
+                        val ms = purr(view.context)
                         scope.launch {
-                            repeat(12) {
-                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                                delay(if (it % 2 == 0) 70 else 180)
-                            }
+                            if (ms == 0L) {
+                                // No vibrator to drive: the system's touch feedback, if it is on.
+                                repeat(12) {
+                                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                    delay(if (it % 2 == 0) 70 else 180)
+                                }
+                            } else delay(ms)
                             purring = false
                         }
                     },
