@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d parça önerildi: %2$s hedefine senkronizasyon başladı, Senkronizasyonlar\'dan izleyin.</string>
     <string name="ai_checking_availability">%1$s üzerinde kontrol ediliyor: %2$s</string>
     <string name="ai_done_created">%1$d parça “%2$s” çalma listesinde, %3$s üzerinde. Senkronizasyon listeyi ve çalma listesini eşli tutar.</string>
+    <string name="ai_done_title">Tamam!</string>
+    <string name="ai_done_open">Eşitlemeye git</string>
+    <string name="ai_done_close">Kapat</string>
     <string name="ai_default_name">AI mix</string>
     <string name="settings_ai_desc">Araçlar\'daki çalma listesi oluşturucu için anahtarınız ve modeliniz.</string>
     <string name="ai_review_title">Önerilen çalma listesi</string>

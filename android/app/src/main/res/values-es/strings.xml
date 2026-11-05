@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d canciones propuestas: la sincronización hacia %2$s ha empezado, síguela en Sincros.</string>
     <string name="ai_checking_availability">Comprobando en %1$s: %2$s</string>
     <string name="ai_done_created">%1$d canciones en «%2$s» en %3$s. La sincronización mantiene emparejadas la lista y la playlist.</string>
+    <string name="ai_done_title">¡Hecho!</string>
+    <string name="ai_done_open">Ir a la sincronización</string>
+    <string name="ai_done_close">Cerrar</string>
     <string name="ai_default_name">Mix IA</string>
     <string name="settings_ai_desc">Tu clave y modelo para el generador de playlists en Herramientas.</string>
     <string name="ai_review_title">Playlist propuesta</string>

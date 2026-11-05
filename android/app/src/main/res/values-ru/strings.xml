@@ -390,6 +390,9 @@
     <string name="ai_done_sync">%1$d треков предложено: синхронизация в %2$s запущена, следите за ней в «Синхронизациях».</string>
     <string name="ai_checking_availability">Проверка на %1$s: %2$s</string>
     <string name="ai_done_created">%1$d треков в «%2$s» на %3$s. Синхронизация держит список и плейлист связанными.</string>
+    <string name="ai_done_title">Готово!</string>
+    <string name="ai_done_open">Перейти к синхронизации</string>
+    <string name="ai_done_close">Закрыть</string>
     <string name="ai_default_name">Микс ИИ</string>
     <string name="settings_ai_desc">Ваш ключ и модель для генератора плейлистов в «Инструментах».</string>
     <string name="ai_review_title">Предложенный плейлист</string>

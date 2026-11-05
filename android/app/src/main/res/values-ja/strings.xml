@@ -381,6 +381,9 @@
     <string name="ai_done_sync">%1$d 曲を提案しました。%2$s への同期を開始しました。「同期」で確認できます。</string>
     <string name="ai_checking_availability">%1$s で確認中: %2$s</string>
     <string name="ai_done_created">%3$s の「%2$s」に %1$d 曲。同期がリストとプレイリストを結び付けます。</string>
+    <string name="ai_done_title">完了！</string>
+    <string name="ai_done_open">同期を開く</string>
+    <string name="ai_done_close">閉じる</string>
     <string name="ai_default_name">AI ミックス</string>
     <string name="settings_ai_desc">「ツール」のプレイリスト生成に使うキーとモデル。</string>
     <string name="ai_review_title">提案されたプレイリスト</string>

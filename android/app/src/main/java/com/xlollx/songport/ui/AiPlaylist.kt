@@ -122,6 +122,8 @@ object AiDraft {
     var mixLabel by mutableStateOf("")
     /** True while the list under review comes from the keyless mode. */
     var proposedKeyless by mutableStateOf(false)
+    /** The playlist just made ("12 songs in … on Spotify"): shown in a "Done" dialog, not a jump away. */
+    var done by mutableStateOf<String?>(null)
 
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var loaded = false
@@ -180,6 +182,16 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
     LaunchedEffect(d.error) { d.error?.let { snackbar.showSnackbar(it); d.error = null } }
 
     LaunchedEffect(d.setupAsked) { if (d.setupAsked) { d.keyless = false; setupOpen = true; d.setupAsked = false } }
+    d.done?.let { text ->
+        AlertDialog(
+            onDismissRequest = { d.done = null },
+            icon = { Icon(Icons.Filled.CheckCircle, null, tint = Tones.onSuccessContainer()) },
+            title = { Text(stringResource(R.string.ai_done_title)) },
+            text = { Text(text) },
+            confirmButton = { TextButton(onClick = { d.done = null; onSyncStarted() }) { Text(stringResource(R.string.ai_done_open)) } },
+            dismissButton = { TextButton(onClick = { d.done = null }) { Text(stringResource(R.string.ai_done_close)) } },
+        )
+    }
     if (setupOpen) AiSetupDialog(config, onDismiss = { setupOpen = false }) { config = it; d.models = emptyList(); setupOpen = false }
     d.proposed?.let { list ->
         AiReviewDialog(list, target.label(ctx), onDismiss = { d.proposed = null }) { kept ->
@@ -212,8 +224,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                         Store.get(app).upsertJob(job)
                         d.busy = false
                         d.clearText(app)
-                        onSyncStarted()
-                        snackbar.showSnackbar(app.getString(R.string.ai_done_created, kept.size, created.name, target.label(app)))
+                        d.done = app.getString(R.string.ai_done_created, kept.size, created.name, target.label(app))
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                     d.busy = false
@@ -233,7 +244,8 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             // Two ways in: no key at all (open music data), or the user's own AI. Without an AI set up,
             // the keyless one is where the card opens.
-            val keyless = d.keyless ?: (config?.complete != true)
+            // Gemini Nano on the phone counts as an AI: the card then opens on the description.
+            val keyless = d.keyless ?: (AiClient.pick(config, NanoAi.state, NanoAi.NAME) == null)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = keyless, onClick = { d.keyless = true; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_mode_keyless)) })
                 FilterChip(selected = !keyless, onClick = { d.keyless = false; d.persist(ctx) }, label = { Text(stringResource(R.string.lb_mode_ai)) })

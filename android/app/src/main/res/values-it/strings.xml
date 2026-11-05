@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d brani proposti: la sync verso %2$s è partita, seguila in Sync.</string>
     <string name="ai_checking_availability">Verifica su %1$s: %2$s</string>
     <string name="ai_done_created">%1$d brani in “%2$s” su %3$s. La sync tiene appaiati l\'elenco e la playlist.</string>
+    <string name="ai_done_title">Fatto!</string>
+    <string name="ai_done_open">Vai alla sync</string>
+    <string name="ai_done_close">Chiudi</string>
     <string name="ai_default_name">Mix AI</string>
     <string name="settings_ai_desc">La tua chiave e il modello per il generatore di playlist in Strumenti.</string>
     <string name="ai_review_title">Playlist proposta</string>

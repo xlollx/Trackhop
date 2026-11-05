@@ -381,6 +381,9 @@
     <string name="ai_done_sync">%1$d곡이 제안됐어요. %2$s 대상 동기화가 시작됐으니 동기화 탭에서 확인하세요.</string>
     <string name="ai_checking_availability">%1$s에서 확인 중: %2$s</string>
     <string name="ai_done_created">%1$d곡을 “%2$s”에 담았어요 (%3$s). 동기화가 목록과 플레이리스트를 함께 유지해요.</string>
+    <string name="ai_done_title">완료!</string>
+    <string name="ai_done_open">동기화로 이동</string>
+    <string name="ai_done_close">닫기</string>
     <string name="ai_default_name">AI 믹스</string>
     <string name="settings_ai_desc">도구의 플레이리스트 생성기에 쓰는 내 키와 모델.</string>
     <string name="ai_review_title">제안된 플레이리스트</string>

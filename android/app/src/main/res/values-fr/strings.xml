@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d titres proposés : la synchro vers %2$s a démarré, suivez-la dans Synchros.</string>
     <string name="ai_checking_availability">Vérification sur %1$s : %2$s</string>
     <string name="ai_done_created">%1$d titres dans « %2$s » sur %3$s. La synchro garde la liste et la playlist appariées.</string>
+    <string name="ai_done_title">C\'est fait !</string>
+    <string name="ai_done_open">Voir la synchronisation</string>
+    <string name="ai_done_close">Fermer</string>
     <string name="ai_default_name">Mix IA</string>
     <string name="settings_ai_desc">Votre clé et votre modèle pour le générateur de playlists dans Outils.</string>
     <string name="ai_review_title">Playlist proposée</string>

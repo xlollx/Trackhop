@@ -390,6 +390,9 @@
     <string name="ai_done_sync">Zaproponowano %1$d utworów: synchronizacja do %2$s wystartowała, śledź ją w Synchronizacjach.</string>
     <string name="ai_checking_availability">Sprawdzanie w %1$s: %2$s</string>
     <string name="ai_done_created">%1$d utworów w „%2$s” w %3$s. Synchronizacja utrzymuje listę i playlistę w parze.</string>
+    <string name="ai_done_title">Gotowe!</string>
+    <string name="ai_done_open">Przejdź do synchronizacji</string>
+    <string name="ai_done_close">Zamknij</string>
     <string name="ai_default_name">Miks AI</string>
     <string name="settings_ai_desc">Twój klucz i model dla generatora playlist w Narzędziach.</string>
     <string name="ai_review_title">Proponowana playlista</string>

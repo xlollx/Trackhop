@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d faixas propostas: a sincronização para %2$s começou, acompanhe em Sincronizações.</string>
     <string name="ai_checking_availability">Verificando no %1$s: %2$s</string>
     <string name="ai_done_created">%1$d faixas em “%2$s” no %3$s. A sincronização mantém a lista e a playlist pareadas.</string>
+    <string name="ai_done_title">Pronto!</string>
+    <string name="ai_done_open">Ir para a sincronização</string>
+    <string name="ai_done_close">Fechar</string>
     <string name="ai_default_name">Mix de AI</string>
     <string name="settings_ai_desc">Sua chave e modelo para o gerador de playlists em Ferramentas.</string>
     <string name="ai_review_title">Playlist proposta</string>

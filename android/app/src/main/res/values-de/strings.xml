@@ -384,6 +384,9 @@
     <string name="ai_done_sync">%1$d Titel vorgeschlagen: Die Sync nach %2$s läuft, verfolge sie unter Syncs.</string>
     <string name="ai_checking_availability">Prüfung auf %1$s: %2$s</string>
     <string name="ai_done_created">%1$d Titel in „%2$s“ auf %3$s. Die Synchronisation hält Liste und Playlist zusammen.</string>
+    <string name="ai_done_title">Fertig!</string>
+    <string name="ai_done_open">Zur Synchronisierung</string>
+    <string name="ai_done_close">Schließen</string>
     <string name="ai_default_name">KI-Mix</string>
     <string name="settings_ai_desc">Dein Schlüssel und Modell für den Playlist-Generator unter Werkzeuge.</string>
     <string name="ai_review_title">Vorgeschlagene Playlist</string>

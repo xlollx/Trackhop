@@ -381,6 +381,9 @@
     <string name="ai_done_sync">已提出 %1$d 首歌曲：到 %2$s 的同步已开始，请在“同步”中查看。</string>
     <string name="ai_checking_availability">正在 %1$s 上核对：%2$s</string>
     <string name="ai_done_created">%1$d 首曲目已加入 %3$s 的“%2$s”。同步会让列表与歌单保持配对。</string>
+    <string name="ai_done_title">完成！</string>
+    <string name="ai_done_open">前往同步</string>
+    <string name="ai_done_close">关闭</string>
     <string name="ai_default_name">AI 混音集</string>
     <string name="settings_ai_desc">用于“工具”中歌单生成器的密钥和模型。</string>
     <string name="ai_review_title">建议的歌单</string>
