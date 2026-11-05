@@ -46,6 +46,9 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
   radio player would; the audio is not kept. The songs heard are saved in a playlist file on the device.
+- **Pictures from trackhop.org**: when no AI is set up, the Roast page shows a photo from
+  trackhop.org (a short list and the picture, asked at most once a day and kept on the device). It is an
+  anonymous request for a picture: nothing about you, your accounts or your playlists is sent.
 - **Connections log**: the app keeps, on the device, the list of host names it has contacted and how
   many times (Settings › Developer options › Show connections), so you can verify the above yourself. Only host
   names, never content; you can clear it at any time.
@@ -108,6 +111,10 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per
   leggere il titolo della canzone in onda, come farebbe qualsiasi lettore radio; l'audio non viene
   conservato. Le canzoni ascoltate sono salvate in un file playlist sul dispositivo.
+- **Immagini da trackhop.org**: senza un'AI impostata, la pagina del Roast mostra una foto presa da
+  trackhop.org (un breve elenco e l'immagine, chiesti al massimo una volta al giorno e conservati sul
+  dispositivo). È una richiesta anonima di un'immagine: non viene inviato nulla su di te, sui tuoi account o
+  sulle tue playlist.
 - **Registro delle connessioni**: l'app conserva, sul dispositivo, l'elenco degli host che ha contattato e quante
   volte (Impostazioni › Opzioni sviluppatore › Mostra le connessioni), così puoi verificare tu stesso quanto sopra. Solo nomi
   di host, mai contenuti; puoi svuotarlo quando vuoi.

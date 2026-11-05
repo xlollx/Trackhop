@@ -2,6 +2,7 @@ package com.xlollx.songport.ui
 
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -110,18 +112,91 @@ internal fun OliDialog(onDismiss: () -> Unit) {
     }
 }
 
+/**
+ * The Roast page's photos, from the site so they can change without an app update: the list is
+ * docs/assets/oli/roast.json (`{"photos": ["roast-1.jpg", …]}`), and each opening shows the next one
+ * in turn. List and photos are kept in the cache; the list is asked again at most once a day. Without
+ * network, or with a file that fails, the photo in the app. Anonymous requests for pictures, nothing sent.
+ */
+private object OliPhoto {
+    private const val BASE = "https://trackhop.org/assets/oli/"
+    private const val MAX_BYTES = 3_000_000
+    private const val DAY_MS = 24 * 60 * 60 * 1000L
+    private val QUOTED = Regex("\"([A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp))\"")
+
+    private fun dir(ctx: android.content.Context) = java.io.File(ctx.cacheDir, "oli").apply { mkdirs() }
+    private fun prefs(ctx: android.content.Context) = ctx.getSharedPreferences("oli", android.content.Context.MODE_PRIVATE)
+
+    private fun fetch(url: String): ByteArray? {
+        com.xlollx.songport.net.HostLog.record("trackhop.org")
+        val c = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+        c.connectTimeout = 8000; c.readTimeout = 8000
+        return try {
+            if (c.responseCode != 200) null
+            else c.inputStream.use { input ->
+                val out = java.io.ByteArrayOutputStream()
+                val buf = ByteArray(16 * 1024)
+                while (true) {
+                    val n = input.read(buf)
+                    if (n < 0) break
+                    out.write(buf, 0, n)
+                    if (out.size() > MAX_BYTES) return null
+                }
+                out.toByteArray()
+            }
+        } finally { c.disconnect() }
+    }
+
+    /** The site's list, from the cache or (at most once a day) from the site. */
+    private fun list(ctx: android.content.Context): List<String> {
+        val f = java.io.File(dir(ctx), "roast.json")
+        if (!f.exists() || System.currentTimeMillis() - f.lastModified() > DAY_MS) {
+            runCatching { fetch(BASE + "roast.json") }.getOrNull()?.let { f.writeBytes(it) }
+                ?: run { if (f.exists()) f.setLastModified(System.currentTimeMillis()) }
+        }
+        // The names in "photos", in order (the file is ours and tiny: a match on quoted file names is enough).
+        return runCatching {
+            val photos = f.readText().substringAfter("\"photos\"", "")
+            QUOTED.findAll(photos).map { it.groupValues[1] }.toList()
+        }.getOrDefault(emptyList())
+    }
+
+    /** The next photo in turn, or null for the one in the app. Runs on a background thread. */
+    fun next(ctx: android.content.Context): android.graphics.Bitmap? = runCatching {
+        val photos = list(ctx)
+        if (photos.isEmpty()) return null
+        val p = prefs(ctx)
+        val i = p.getInt("next", 0)
+        p.edit().putInt("next", (i + 1) % photos.size).apply()
+        val name = photos[i % photos.size]
+        val f = java.io.File(dir(ctx), name)
+        if (!f.exists()) fetch(BASE + name)?.takeIf { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) != null }?.let { f.writeBytes(it) }
+        if (f.exists()) android.graphics.BitmapFactory.decodeFile(f.path) else null
+    }.getOrNull()
+}
+
 /** The Roast with no AI at all: Oli's verdict, a look, and the way to an AI for one in words. */
 @Composable
 internal fun OliRoast(onSetUpAi: () -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    var photo by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    var loaded by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        photo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { OliPhoto.next(ctx) }?.asImageBitmap()
+        loaded = true
+    }
     Card(Modifier.fillMaxWidth()) {
         Column(
             Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Image(
-                painterResource(R.drawable.oli_smirk), stringResource(R.string.oli_photo),
-                Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop,
-            )
+            // A blank circle for the moment the next photo is read, so the app's photo does not flash first.
+            val shot = photo
+            when {
+                shot != null -> Image(shot, stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                loaded -> Image(painterResource(R.drawable.oli_smirk), stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                else -> androidx.compose.foundation.layout.Box(Modifier.size(200.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant))
+            }
             Text(stringResource(R.string.oli_roast_title), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
             Text(
                 stringResource(R.string.oli_roast_body), style = MaterialTheme.typography.bodyMedium,
