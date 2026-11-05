@@ -2,7 +2,7 @@
 # The brand surfaces, from one set of parameters: the app icon as PNG (store, site), the feature
 # graphics (EN and IT, Play and F-Droid), GitHub's social preview and, on request, previews for review.
 #
-#   scripts/store_graphics.sh            # writes the icon and the feature graphics into the repo
+#   scripts/store_graphics.sh            # writes the icon, the feature graphics and the square banners into the repo
 #   scripts/store_graphics.sh preview DIR  # also icon previews (48/108/512 px, themed) into DIR
 #
 # Needs ImageMagick 6 (`convert`) and the DejaVu fonts. No Android SDK: the icon's PNGs are drawn
@@ -158,6 +158,32 @@ feature() {
   done
 }
 
+# -------------------------------------------------------------------------------------- square
+# square OUT TITLE LEAD SUB: 1080×1080 for Instagram and other square feeds. The tile centred at
+# the top, the band crossing its upper-right corner as on the icon; the three lines centred under
+# it on the dark side, with the same soft shadow. The contrast of each line is printed: keep ≥ 4.5:1.
+square() {
+  local out=$1 title=$2 lead=$3 sub=$4 w=1080 h=1080 side=440
+  local tx=$(( (w - side) / 2 )) ty=120
+  beam "$tmp/q_bg.png" $w $h $w 360 "$BEAM_SWEEP"
+  tile "$tmp/q_tile.png" $side
+  convert "$tmp/q_bg.png" "$tmp/q_tile.png" -geometry "+$tx+$ty" -composite "$tmp/q_base.png"
+  convert -size "${w}x${h}" xc:none -fill white -gravity North \
+    -font "$FONT_BOLD" -pointsize 150 -annotate +0+610 "$title" \
+    -font "$FONT" -pointsize 50 -annotate +0+810 "$lead" \
+    -font "$FONT" -pointsize 32 -annotate +0+900 "$sub" "$tmp/q_text.png"
+  convert "$tmp/q_text.png" -fill black -colorize 100 -channel A -evaluate multiply 0.55 +channel \
+    -blur 0x6 -repage +4+6 -background none -flatten "$tmp/q_shadow.png"
+  convert "$tmp/q_base.png" "$tmp/q_shadow.png" -composite "$tmp/q_text.png" -composite -depth 8 -strip "$out"
+  convert "$tmp/q_base.png" "$tmp/q_shadow.png" -composite "$tmp/q_under.png"
+  local name box bw bh bx by
+  for name in title lead sub; do
+    case $name in title) box="960x190+60+600" ;; lead) box="960x70+60+800" ;; sub) box="960x50+60+890" ;; esac
+    IFS='x+' read -r bw bh bx by <<<"$box"
+    printf '  %s: %s: contrast %.1f:1\n' "$(basename "$out")" "$name" "$(contrast "$tmp/q_under.png" "$bx" "$by" "$bw" "$bh")"
+  done
+}
+
 # ------------------------------------------------------------------------------------------- main
 icon_canvas "$tmp/icon_canvas.png"
 icon_png "$root/docs/store/icon512.png" 512
@@ -173,6 +199,11 @@ echo "feature graphics: docs/store/feature_{en,it}.png, fastlane en-US/it-IT fea
 # GitHub's social preview (Settings › General › Social preview), uploaded by hand.
 feature "$root/docs/store/social_preview.png" "Trackhop" "Your playlists, on every service." "Free · Manual or scheduled sync · No subscription" 1280 640
 echo "social preview: docs/store/social_preview.png"
+
+# Square, for Instagram (also in the press kit).
+square "$root/docs/store/square_en.png" "Trackhop" "Your playlists, on every service." "Free · Manual or scheduled sync · No subscription"
+square "$root/docs/store/square_it.png" "Trackhop" "Le tue playlist, su ogni servizio." "Gratis · Manuale o programmata · Senza abbonamento"
+echo "square: docs/store/square_{en,it}.png"
 
 if [ "${1:-}" = preview ]; then
   dir=${2:?preview DIR}; mkdir -p "$dir"

@@ -8,8 +8,8 @@ description: Logos, screenshots and the facts about Trackhop, the free and open-
 Writing about Trackhop or showing it in a video? Everything you need is on this page, free to use.
 Questions, a test setup or an interview: **[xlollx@trackhop.org](mailto:xlollx@trackhop.org)**.
 
-<p><a class="press-dl" href="/assets/press/Trackhop-press-kit.zip" download>Download the press kit (.zip, 2 MB)</a><br>
-<small>Logo, banner, 10 phone and 5 desktop screenshots</small></p>
+<p><a class="press-dl" href="/assets/press/Trackhop-press-kit.zip" download>Download the press kit (.zip, 2.4 MB)</a><br>
+<small>Logo, banners (wide and square), 10 phone and 5 desktop screenshots</small></p>
 
 ## In three lines
 
@@ -67,6 +67,13 @@ Please keep the icon as it is: no recolouring, stretching or added effects.
 ## Banner
 
 <a href="/store/feature_en.png" download><img src="/store/feature_en.png" alt="Trackhop banner: Your playlists, everywhere" class="press-wide"></a>
+
+Square, for Instagram and other social feeds (1080 × 1080):
+
+<div class="press-row">
+  <figure><a href="/store/square_en.png" download><img src="/store/square_en.png" alt="Trackhop square banner in English" width="240" height="240" loading="lazy"></a><figcaption><a href="/store/square_en.png" download>English</a></figcaption></figure>
+  <figure><a href="/store/square_it.png" download><img src="/store/square_it.png" alt="Trackhop square banner in Italian" width="240" height="240" loading="lazy"></a><figcaption><a href="/store/square_it.png" download>Italian</a></figcaption></figure>
+</div>
 
 ## Screenshots
 
