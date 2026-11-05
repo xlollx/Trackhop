@@ -432,9 +432,7 @@ fun SettingsScreen(
             // for the developer, which records what is done on a site, kept out of everyone's way.
             var versionTaps by remember { mutableIntStateOf(0) }
             // A long press on the logo shows Oli (Oli.kt): its own gesture, apart from the seven taps.
-            // Oli's own row at the end of this box shows up by chance, once in a thousand openings.
             var oliOpen by remember { mutableStateOf(false) }
-            val oliRow = remember { kotlin.random.Random.nextInt(1000) == 0 }
             fun versionTap() {
                 versionTaps++
                 if (versionTaps >= 7) {
@@ -488,9 +486,6 @@ fun SettingsScreen(
             // Per chi ha un account GitHub: anche un contributo mensile.
             if (BuildConfig.SPONSORS_URL.isNotBlank()) {
                 PrefRow(Icons.Filled.VolunteerActivism, stringResource(R.string.support_sponsors), null, trailing = { ExternalMark() }) { openSponsors(ctx) }
-            }
-            if (oliRow) {
-                PrefRow(null, stringResource(R.string.oli_row), stringResource(R.string.oli_title), leading = { OliHead() }, chevron = false) { oliOpen = true }
             }
         }
         Spacer(Modifier.height(8.dp))

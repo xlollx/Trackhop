@@ -43,16 +43,9 @@ import kotlinx.coroutines.launch
 
 /*
  * Oli, the developer's cat and Trackhop's Chief Listening Officer: a long press on the logo in
- * Settings › About (the seven taps on the version stay for the developer tools), a "Supervision" row
- * at the end of that box once in a thousand openings, and the Roast page when there is no AI.
+ * Settings › About (the seven taps on the version stay for the developer tools), and the Roast page
+ * when there is no AI.
  */
-
-/** Oli's head, round: the Supervision row's icon. */
-@Composable
-internal fun OliHead(size: androidx.compose.ui.unit.Dp = 40.dp) = Image(
-    painterResource(R.drawable.oli_head), null,
-    Modifier.size(size).clip(CircleShape), contentScale = ContentScale.Crop,
-)
 
 /**
  * A purr on the vibrator: short soft pulses in pairs, like breathing in and out. Returns how long it
