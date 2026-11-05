@@ -39,7 +39,7 @@ Works with Spotify, Apple Music, YouTube Music, TIDAL, Deezer, personal Navidrom
 and Plex servers, Last.fm and ListenBrainz as sources, and files. Some connectors are marked beta in
 the app: they work, but they have had less use than the others.
 
-Free, no subscriptions, no in-app purchases: the app is supported by a single small banner ad.
+Free, no subscriptions, no in-app purchases, no ads.
 No account to create and no server of ours: everything stays on your phone, access tokens are
 encrypted with the Android Keystore and never pass through anyone else. You sign in on each
 service's own page; for Spotify, YouTube Music, TIDAL and Deezer you create a free key in your own
@@ -70,8 +70,7 @@ Compatibile con Spotify, Apple Music, YouTube Music, TIDAL, Deezer, server perso
 Navidrome/Subsonic, Jellyfin e Plex, Last.fm e ListenBrainz come sorgenti, e file. Alcuni connettori
 sono indicati come beta nell'app: funzionano, ma sono stati usati meno degli altri.
 
-Gratuita, senza abbonamenti né acquisti in-app: l'app si sostiene con un solo piccolo banner
-pubblicitario. Nessun account da creare e nessun server nostro: tutto resta sul tuo telefono, i token
+Gratuita, senza abbonamenti, acquisti in-app né pubblicità. Nessun account da creare e nessun server nostro: tutto resta sul tuo telefono, i token
 di accesso sono cifrati con l'Android Keystore e non passano da nessun altro. Accedi sulla pagina di
 ogni servizio; per Spotify, YouTube Music, TIDAL e Deezer crei una chiave gratuita a tuo nome in
 circa due minuti, e l'app ti guida passo passo.
