@@ -43,8 +43,12 @@ existed briefly and was removed; it can be restored from commit e4f9584d (1.14.4
    (sign-in pages open in the browser; Gemini Nano is simply not offered).
 5. Each update: new version in the same app, new APK, release notes from fastlane.
 
-## Later: uploads from the release workflow
+## Uploads from the release workflow
 
-AppGallery Connect has a Publishing API (with an API client). Once the first manual upload is
-accepted, the release workflow can send each new APK like `play.yml` does for Google Play, with the
-client's key as a repository secret.
+`appgallery.yml` (called by `build.yml` after each new release, or by hand: *Actions › AppGallery ›
+Run workflow*) downloads `Trackhop-v<version>-appgallery.apk` from the prerelease, uploads it to the
+app's draft version through the Publishing API, sets the notes from `play/whatsnew/<versionCode>/`
+and submits it for review. It needs an API client: AppGallery Connect › Users and permissions › API
+key › Connect API, role App administrator, with its ID and secret as the repository secrets
+`AGC_CLIENT_ID` and `AGC_CLIENT_SECRET`. A version still in review blocks a new submission: the run
+then leaves the upload as a draft and says so.

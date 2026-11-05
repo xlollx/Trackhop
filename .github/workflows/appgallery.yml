@@ -1,0 +1,114 @@
+# A new app release to Huawei AppGallery: the appgallery APK of the release's prerelease
+# (builds-v<version>/Trackhop-v<version>-appgallery.apk) uploaded as the app's new version, with the
+# notes written for the stores (play/whatsnew/<versionCode>/, en-US and it-IT), then submitted for review.
+# Called by build.yml after a new release; by hand (Actions › AppGallery › Run workflow) for any tag,
+# with "submit" off to upload without sending it to review.
+# Skipped until the AGC_CLIENT_ID and AGC_CLIENT_SECRET secrets exist: an AppGallery Connect API client
+# (Users and permissions › API key › Connect API, role App administrator; docs/other-stores.md).
+# A version still in review blocks a new submission: the upload stays as a draft and the run says so.
+name: AppGallery
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'App release tag, e.g. v1.14.5'
+        type: string
+        required: true
+      submit:
+        description: 'Submit the version for review after the upload'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+      SUBMIT: ${{ github.event_name != 'workflow_dispatch' || inputs.submit }}
+      HAS_KEY: ${{ secrets.AGC_CLIENT_ID != '' && secrets.AGC_CLIENT_SECRET != '' }}
+      GH_TOKEN: ${{ github.token }}
+      API: https://connect-api.cloud.huawei.com/api
+      PACKAGE: com.xlollx.songport
+    steps:
+      - name: No API client
+        if: ${{ env.HAS_KEY != 'true' }}
+        run: |
+          echo "::notice::AGC_CLIENT_ID / AGC_CLIENT_SECRET are not set: $TAG was not sent to AppGallery (docs/other-stores.md)."
+
+      # The notes come from the branch this runs on (main): they may be written after the tag.
+      - uses: actions/checkout@v7
+        if: ${{ env.HAS_KEY == 'true' }}
+
+      - name: The release's APK and its notes
+        if: ${{ env.HAS_KEY == 'true' }}
+        run: |
+          mkdir -p dist
+          gh release download "builds-$TAG" --repo "$GITHUB_REPOSITORY" --pattern "Trackhop-$TAG-appgallery.apk" --dir dist
+          git fetch -q --depth 1 origin "refs/tags/$TAG:refs/tags/$TAG"
+          code=$(git show "$TAG:android/app/build.gradle" | sed -n 's/.*versionCode \([0-9]*\).*/\1/p' | head -1)
+          echo "CODE=$code" >> "$GITHUB_ENV"
+          ls -l dist
+
+      - name: Upload, notes, submit
+        if: ${{ env.HAS_KEY == 'true' }}
+        env:
+          CLIENT_ID: ${{ secrets.AGC_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.AGC_CLIENT_SECRET }}
+        run: |
+          set -euo pipefail
+          ok() { [ "$(jq -r '.ret.code // .code // 0' <<<"$1")" = "0" ]; }
+
+          token=$(jq -n --arg id "$CLIENT_ID" --arg s "$CLIENT_SECRET" '{grant_type:"client_credentials",client_id:$id,client_secret:$s}' \
+            | curl -sS -X POST "$API/oauth2/v1/token" -H 'Content-Type: application/json' -d @- | jq -r '.access_token // empty')
+          [ -n "$token" ] || { echo "::error::No access token: check the API client's ID and secret."; exit 1; }
+          echo "::add-mask::$token"
+          H=(-H "client_id: $CLIENT_ID" -H "Authorization: Bearer $token")
+
+          res=$(curl -sS "${H[@]}" "$API/publish/v2/appid-list?packageName=$PACKAGE")
+          app=$(jq -r '.appids[0].value // empty' <<<"$res")
+          [ -n "$app" ] || { echo "::error::No AppGallery app for $PACKAGE: $(jq -c .ret <<<"$res")"; exit 1; }
+          echo "App ID $app"
+
+          file=$(ls dist/*.apk); name=$(basename "$file"); size=$(stat -c %s "$file")
+          res=$(curl -sS "${H[@]}" "$API/publish/v2/upload-url/for-obs?appId=$app&fileName=$name&contentLength=$size")
+          ok "$res" || { echo "::error::No upload address: $(jq -c .ret <<<"$res")"; exit 1; }
+          url=$(jq -r '.urlInfo.url' <<<"$res"); object=$(jq -r '.urlInfo.objectId' <<<"$res")
+          mapfile -t uh < <(jq -r '.urlInfo.headers | to_entries[] | "\(.key): \(.value)"' <<<"$res")
+          hargs=(); for h in "${uh[@]}"; do hargs+=(-H "$h"); done
+          curl -sS --fail -X PUT "${hargs[@]}" --data-binary @"$file" "$url" -o /dev/null
+          echo "Uploaded $name ($size bytes)"
+
+          body=$(jq -n --arg n "$name" --arg o "$object" '{fileType:5, files:[{fileName:$n, fileDestUrl:$o}]}')
+          res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$body" "$API/publish/v2/app-file-info?appId=$app")
+          ok "$res" || { echo "::error::The APK was not attached to the version: $(jq -c .ret <<<"$res")"; exit 1; }
+          echo "APK attached to the draft version"
+
+          for f in play/whatsnew/$CODE/whatsnew-*; do
+            [ -f "$f" ] || { echo "::warning::No notes in play/whatsnew/$CODE"; break; }
+            lang=${f##*whatsnew-}
+            body=$(jq -n --arg l "$lang" --rawfile t "$f" '{lang:$l, newFeatures:($t|rtrimstr("\n"))}')
+            res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$body" "$API/publish/v2/app-language-info?appId=$app")
+            ok "$res" && echo "Notes $lang" || echo "::warning::Notes $lang not set: $(jq -c .ret <<<"$res")"
+          done
+
+          if [ "$SUBMIT" != "true" ]; then
+            echo "::notice::$TAG uploaded to AppGallery as a draft, not submitted."
+            exit 0
+          fi
+          # The package is checked by AppGallery after the upload: submitting too early is refused, so try for a while.
+          for i in $(seq 1 20); do
+            res=$(curl -sS -X POST "${H[@]}" "$API/publish/v2/app-submit?appId=$app")
+            if ok "$res"; then echo "::notice::$TAG submitted to AppGallery for review."; exit 0; fi
+            echo "Not yet ($i): $(jq -c .ret <<<"$res")"
+            sleep 30
+          done
+          echo "::warning::$TAG is uploaded but could not be submitted (a version still in review?): submit it in AppGallery Connect. Last answer: $(jq -c .ret <<<"$res")"

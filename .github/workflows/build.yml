@@ -204,6 +204,16 @@ jobs:
       tag: ${{ needs.build.outputs.tag }}
     secrets: inherit
 
+  appgallery:
+    # The new release's appgallery APK to Huawei AppGallery (appgallery.yml), submitted for review.
+    # Skipped until the AGC_CLIENT_ID and AGC_CLIENT_SECRET secrets exist.
+    needs: build
+    if: ${{ needs.build.outputs.tag != '' }}
+    uses: ./.github/workflows/appgallery.yml
+    with:
+      tag: ${{ needs.build.outputs.tag }}
+    secrets: inherit
+
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml): the results go into its notes
     # and the README's badge. Skipped until the VT_API_KEY secret exists.
