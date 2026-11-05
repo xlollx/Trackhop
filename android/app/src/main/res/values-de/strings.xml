@@ -1440,7 +1440,7 @@
     <string name="oli_pet">Tippe auf das Foto, um Oli zu streicheln</string>
     <string name="oli_purring">Schnurr… schnurr… 💜</string>
     <string name="oli_photo">Oli, die Katze des Entwicklers</string>
-    <string name="oli_roast_title">Oli hat deine Playlist gehört. Oli schreit. 🙀</string>
+    <string name="oli_roast_title">Oli hat bei deiner Playlist auf Play gedrückt. Das ist das Ergebnis.</string>
     <string name="oli_roast_body">Das ist Olis Urteil über deine Playlists. Für einen Roast in Worten richte eine KI ein: Google Gemini (AI Studio) und Groq bieten kostenlose Schlüssel.</string>
     <string name="oli_roast_set_up">KI einrichten</string>
     <string name="discover_reading">Lese %1$s: %2$d von %3$d Playlists…</string>

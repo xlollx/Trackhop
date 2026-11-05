@@ -1416,7 +1416,7 @@
     <string name="oli_pet">사진을 탭해 Oli를 쓰다듬어 보세요</string>
     <string name="oli_purring">골골… 골골… 💜</string>
     <string name="oli_photo">개발자의 고양이 Oli</string>
-    <string name="oli_roast_title">Oli가 당신의 플레이리스트를 들었습니다. Oli가 비명을 지르고 있어요. 🙀</string>
+    <string name="oli_roast_title">Oli가 당신의 플레이리스트를 재생했어요. 결과는 보시는 대로입니다.</string>
     <string name="oli_roast_body">이것이 당신의 플레이리스트에 대한 Oli의 평가입니다. 말로 된 로스트를 원하면 AI를 설정하세요. Google Gemini(AI Studio)와 Groq는 무료 키를 제공합니다.</string>
     <string name="oli_roast_set_up">AI 설정</string>
     <string name="discover_reading">%1$s 읽는 중: 플레이리스트 %3$d개 중 %2$d개…</string>

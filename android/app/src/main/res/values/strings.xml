@@ -1440,7 +1440,7 @@
     <string name="oli_pet">Tap the photo to pet Oli</string>
     <string name="oli_purring">Purr… purr… 💜</string>
     <string name="oli_photo">Oli, the developer\'s cat</string>
-    <string name="oli_roast_title">Oli heard your playlist. Oli is screaming. 🙀</string>
+    <string name="oli_roast_title">Oli pressed play on your playlist. This is the result.</string>
     <string name="oli_roast_body">That is Oli\'s verdict on your playlists. For a roast in words, set up an AI: Google Gemini (AI Studio) and Groq give free keys.</string>
     <string name="oli_roast_set_up">Set up an AI</string>
     <string name="discover_reading">Reading %1$s: %2$d of %3$d playlists…</string>

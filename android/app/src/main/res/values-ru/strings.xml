@@ -1486,7 +1486,7 @@
     <string name="oli_pet">Нажмите на фото, чтобы погладить Oli</string>
     <string name="oli_purring">Мрр… мрр… 💜</string>
     <string name="oli_photo">Oli, кот разработчика</string>
-    <string name="oli_roast_title">Oli послушал твой плейлист. Oli кричит. 🙀</string>
+    <string name="oli_roast_title">Oli включил твой плейлист. Вот результат.</string>
     <string name="oli_roast_body">Это вердикт Oli вашим плейлистам. Для роаста словами настройте ИИ: Google Gemini (AI Studio) и Groq дают бесплатные ключи.</string>
     <string name="oli_roast_set_up">Настроить ИИ</string>
     <string name="discover_reading">Чтение %1$s: %2$d из %3$d плейлистов…</string>

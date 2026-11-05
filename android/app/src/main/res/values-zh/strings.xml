@@ -1417,7 +1417,7 @@
     <string name="oli_pet">点按照片摸摸 Oli</string>
     <string name="oli_purring">呼噜… 呼噜… 💜</string>
     <string name="oli_photo">开发者的猫 Oli</string>
-    <string name="oli_roast_title">Oli 听了你的歌单。Oli 正在尖叫。🙀</string>
+    <string name="oli_roast_title">Oli 点开了你的歌单。结果就是这样。</string>
     <string name="oli_roast_body">这就是 Oli 对你歌单的评价。想要文字吐槽，请设置 AI：Google Gemini（AI Studio）和 Groq 提供免费密钥。</string>
     <string name="oli_roast_set_up">设置 AI</string>
     <string name="discover_reading">正在读取 %1$s：第 %2$d / %3$d 个歌单…</string>

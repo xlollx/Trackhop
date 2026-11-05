@@ -1417,7 +1417,7 @@
     <string name="oli_pet">写真をタップして Oli をなでる</string>
     <string name="oli_purring">ゴロゴロ… ゴロゴロ… 💜</string>
     <string name="oli_photo">開発者の猫、Oli</string>
-    <string name="oli_roast_title">Oli があなたのプレイリストを聴きました。Oli は叫んでいます。🙀</string>
+    <string name="oli_roast_title">Oli があなたのプレイリストを再生しました。その結果がこれです。</string>
     <string name="oli_roast_body">これがあなたのプレイリストへの Oli の評価です。言葉でのローストには AI を設定してください。Google Gemini（AI Studio）と Groq は無料のキーを提供しています。</string>
     <string name="oli_roast_set_up">AI を設定</string>
     <string name="discover_reading">%1$s を読み込み中：%3$d 件中 %2$d 件のプレイリスト…</string>

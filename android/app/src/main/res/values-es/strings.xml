@@ -1448,7 +1448,7 @@
     <string name="oli_pet">Toca la foto para acariciar a Oli</string>
     <string name="oli_purring">Purr… purr… 💜</string>
     <string name="oli_photo">Oli, el gato del desarrollador</string>
-    <string name="oli_roast_title">Oli escuchó tu playlist. Oli está gritando. 🙀</string>
+    <string name="oli_roast_title">Oli le dio al play en tu playlist. Este es el resultado.</string>
     <string name="oli_roast_body">Ese es el veredicto de Oli sobre tus playlists. Para un roast con palabras, configura una IA: Google Gemini (AI Studio) y Groq dan claves gratuitas.</string>
     <string name="oli_roast_set_up">Configurar una IA</string>
     <string name="discover_reading">Leyendo %1$s: %2$d de %3$d playlists…</string>
