@@ -41,11 +41,6 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
 
-<p align="center">
-  <b>Follow Trackhop</b> for new versions and tips<br>
-  <a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a>
-</p>
-
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
 THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape
@@ -196,6 +191,12 @@ Videos and articles that mention Trackhop (made one? open an issue and tell me):
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
 - ▶ [Melhores 8 APLICATIVOS para CELULAR em 2026 #44 Grátis](https://www.youtube.com/watch?v=jzWL9qPXKH8): ODORIZZI, YouTube (Portuguese)
 
+## Follow Trackhop
+
+New versions, tips and what's coming next, in English:
+
+<a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a>
+
 ## Feedback
 
 Trackhop is stable and used every day. Every library, phone and habit is a little different, so
@@ -219,6 +220,7 @@ reports are what make it better: if something does not work as it should, say so
 ## Contents
 - [Music services at a glance](#music-services-at-a-glance)
 - [They talk about Trackhop](#they-talk-about-trackhop)
+- [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
 - [Supported services and their limits](#supported-services-and-their-limits)

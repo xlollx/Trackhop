@@ -82,15 +82,6 @@ The Desktop version is set here, once, for every language.
         </div>
         <p class="more">{{ h.server_more | default: en.server_more }}</p>
       </div>
-      <div class="social">
-        <p class="social-title">{{ h.social_title | default: en.social_title }}</p>
-        <div class="get cols">
-          <div class="col">
-            <a href="https://www.instagram.com/trackhop.app/" target="_blank" rel="noopener"><img src="/assets/badges/instagram.svg" alt="{{ h.instagram_alt | default: en.instagram_alt }}"></a>
-            <small>{{ h.social_note | default: en.social_note }}</small>
-          </div>
-        </div>
-      </div>
       <script>
         (function () {
           var tabs = document.querySelectorAll(".platforms [data-tab]");
@@ -267,6 +258,16 @@ The Desktop version is set here, once, for every language.
   </div>
 </section>
 {%- endif %}
+
+<section class="section" id="follow">
+  <div class="wrap">
+    <h2>{{ h.social_title | default: en.social_title }}</h2>
+    <p class="intro">{{ h.social_note | default: en.social_note }}</p>
+    <div class="get" style="filter: none">
+      <a href="https://www.instagram.com/trackhop.app/" target="_blank" rel="noopener"><img src="/assets/badges/instagram.svg" alt="{{ h.instagram_alt | default: en.instagram_alt }}"></a>
+    </div>
+  </div>
+</section>
 
 <section class="section" id="docker">
   <div class="wrap">
