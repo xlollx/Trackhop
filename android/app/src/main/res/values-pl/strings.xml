@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">W schowku nie ma linku. Skopiuj link do utworu w aplikacji, a potem dotknij Wklej link.</string>
     <string name="link_other_service">Ten link nie prowadzi do utworu w %1$s</string>
     <string name="link_track_unknown">Utwór z linku</string>
+    <string name="link_song_not_album">To link do utworu, a jego albumu lub wykonawcy nie ma w %1$s: wyszukaj po nazwie.</string>
     <string name="search_album_section">Z albumu „%1$s” w %2$s · utwory: %3$d</string>
     <string name="search_album_missing">Nie znaleziono albumu „%1$s” w %2$s</string>
     <string name="search_other_results">Inne wyniki</string>

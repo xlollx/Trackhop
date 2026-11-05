@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">Negli appunti non c\'è un link. Copia il link del brano nell\'app, poi tocca Incolla link.</string>
     <string name="link_other_service">Questo link non è un brano di %1$s</string>
     <string name="link_track_unknown">Brano dal link</string>
+    <string name="link_song_not_album">Questo è il link di un brano, e il suo album o artista non si trova su %1$s: cercalo per nome.</string>
     <string name="search_album_section">Dall\'album «%1$s» su %2$s · %3$d brani</string>
     <string name="search_album_missing">Album «%1$s» non trovato su %2$s</string>
     <string name="search_other_results">Altri risultati</string>

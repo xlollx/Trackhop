@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">The clipboard holds no link. Copy the track\'s link in the app, then tap Paste link.</string>
     <string name="link_other_service">This link is not a %1$s track</string>
     <string name="link_track_unknown">Track from the link</string>
+    <string name="link_song_not_album">This is a song\'s link, and its album or artist was not found on %1$s: search for it by name.</string>
     <string name="search_album_section">From the album “%1$s” on %2$s · %3$d tracks</string>
     <string name="search_album_missing">Album “%1$s” not found on %2$s</string>
     <string name="search_other_results">Other results</string>

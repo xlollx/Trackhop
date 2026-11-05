@@ -1,0 +1,1 @@
+Revisión de álbumes guardados y artistas seguidos: al pegar el enlace de una canción ahora se encuentra su álbum o artista en el servicio de destino, en lugar de dar error.

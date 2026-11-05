@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">В буфере обмена нет ссылки. Скопируйте ссылку на трек в приложении, затем нажмите «Вставить ссылку».</string>
     <string name="link_other_service">Эта ссылка не ведёт на трек %1$s</string>
     <string name="link_track_unknown">Трек по ссылке</string>
+    <string name="link_song_not_album">Это ссылка на трек, а его альбом или исполнитель не найден в %1$s: найдите его по названию.</string>
     <string name="search_album_section">Из альбома «%1$s» на %2$s · треков: %3$d</string>
     <string name="search_album_missing">Альбом «%1$s» не найден на %2$s</string>
     <string name="search_other_results">Другие результаты</string>

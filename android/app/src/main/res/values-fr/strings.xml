@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">Le presse-papiers ne contient pas de lien. Copiez le lien du morceau dans l\'application, puis touchez Coller le lien.</string>
     <string name="link_other_service">Ce lien n\'est pas un morceau de %1$s</string>
     <string name="link_track_unknown">Morceau du lien</string>
+    <string name="link_song_not_album">C\'est le lien d\'un titre, et son album ou artiste est introuvable sur %1$s : cherchez-le par son nom.</string>
     <string name="search_album_section">De l\'album « %1$s » sur %2$s · %3$d morceaux</string>
     <string name="search_album_missing">Album « %1$s » introuvable sur %2$s</string>
     <string name="search_other_results">Autres résultats</string>

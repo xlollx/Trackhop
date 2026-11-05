@@ -1132,7 +1132,22 @@ class SyncEngine(
         }
         // Il link del brano incollato: si aggiunge quello, letto dal servizio quando possibile. I link
         // brevi delle app (amzn.eu, spotify.link...) si seguono fino all'indirizzo vero.
+        val kind = source?.kind?.ifEmpty { null } ?: MusicProvider.libraryKind(playlistId).orEmpty()
         (TrackLinks.parse(query) ?: resolveShortLink(query)?.let { TrackLinks.parse(it) })?.let { ref0 ->
+            // A song's link on an album or artist row (saved albums, followed artists): the song is
+            // not what goes there, its album or its artist is. They are looked up by name on the
+            // target; adding the song's own id as an album failed on the service (YouTube Music: 400).
+            if (kind == Track.KIND_ALBUM || kind == Track.KIND_ARTIST) {
+                val song = (if (TrackLinks.matches(ref0.service, dst.serviceId)) runCatching { dst.track(env, ref0.trackId) }.getOrNull() else null)
+                    ?: TrackLookup.describe(ref0, query)
+                    ?: throw ProviderException(str("link_song_not_album", dst.label(env)))
+                val wanted = if (kind == Track.KIND_ARTIST) Track(id = "", title = song.artists.firstOrNull().orEmpty(), kind = kind)
+                    else Track(id = "", title = song.album.ifBlank { song.title }, artists = song.artists.take(1), kind = kind)
+                if (wanted.title.isBlank()) throw ProviderException(str("link_song_not_album", dst.label(env)))
+                val found = runCatching { dst.search(env, wanted) }.getOrDefault(emptyList())
+                if (found.isEmpty()) throw ProviderException(str("link_song_not_album", dst.label(env)))
+                return TargetSearch(dedupe(found).map { hit(it, TargetSearch.Kind.SONG) })
+            }
             // A link from another service: song.link knows the same recording on the target service.
             val ref = if (TrackLinks.matches(ref0.service, dst.serviceId)) ref0
                 else TrackLinks.viaOdesli(query, dst.serviceId)
@@ -1140,7 +1155,6 @@ class SyncEngine(
             val t = runCatching { dst.track(env, ref.trackId) }.getOrNull()
             return TargetSearch(listOf(hit(t ?: dst.rehydrate(Track(id = ref.trackId, title = str("link_track_unknown"), album = ref.trackId)), TargetSearch.Kind.SONG)))
         }
-        val kind = source?.kind?.ifEmpty { null } ?: MusicProvider.libraryKind(playlistId).orEmpty()
         // An artist is searched by name alone: "Artist - Title" splitting would cut a name with a dash.
         val (artists, title) = if (kind == Track.KIND_ARTIST) emptyList<String>() to query.trim() else PlaylistFiles.splitArtistTitle(query)
         var songs = dst.search(env, Track(id = "", title = title, artists = artists, kind = kind))

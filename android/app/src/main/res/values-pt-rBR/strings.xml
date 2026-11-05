@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">A área de transferência não tem nenhum link. Copie o link da faixa no app e toque em Colar link.</string>
     <string name="link_other_service">Este link não é de uma faixa do %1$s</string>
     <string name="link_track_unknown">Faixa do link</string>
+    <string name="link_song_not_album">Este é o link de uma música, e o álbum ou artista dela não foi encontrado no %1$s: busque pelo nome.</string>
     <string name="search_album_section">Do álbum “%1$s” no %2$s · %3$d faixas</string>
     <string name="search_album_missing">Álbum “%1$s” não encontrado no %2$s</string>
     <string name="search_other_results">Outros resultados</string>

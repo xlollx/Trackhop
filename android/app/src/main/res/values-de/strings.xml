@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">In der Zwischenablage ist kein Link. Kopiere den Link des Titels in der App und tippe dann auf Link einfügen.</string>
     <string name="link_other_service">Dieser Link ist kein Titel von %1$s</string>
     <string name="link_track_unknown">Titel aus dem Link</string>
+    <string name="link_song_not_album">Das ist der Link zu einem Titel, und sein Album oder Künstler wurde auf %1$s nicht gefunden: Suche es per Name.</string>
     <string name="search_album_section">Aus dem Album „%1$s“ auf %2$s · %3$d Titel</string>
     <string name="search_album_missing">Album „%1$s“ auf %2$s nicht gefunden</string>
     <string name="search_other_results">Weitere Ergebnisse</string>

@@ -1,0 +1,1 @@
+Przegląd zapisanych albumów i obserwowanych wykonawców: wklejenie linku do utworu znajduje teraz jego album lub wykonawcę w usłudze docelowej zamiast kończyć się błędem.

@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">剪贴板中没有链接。请先在应用中复制歌曲链接，再点按“粘贴链接”。</string>
     <string name="link_other_service">此链接不是 %1$s 的歌曲</string>
     <string name="link_track_unknown">来自链接的歌曲</string>
+    <string name="link_song_not_album">这是一首歌曲的链接，在 %1$s 上找不到它的专辑或艺人：请按名称搜索。</string>
     <string name="search_album_section">来自 %2$s 上的专辑“%1$s” · %3$d 首歌曲</string>
     <string name="search_album_missing">在 %2$s 上未找到专辑“%1$s”</string>
     <string name="search_other_results">其他结果</string>

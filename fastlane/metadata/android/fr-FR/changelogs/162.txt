@@ -1,0 +1,1 @@
+Révision des albums enregistrés et des artistes suivis : coller le lien d'un titre trouve maintenant son album ou son artiste sur le service de destination, au lieu d'une erreur.

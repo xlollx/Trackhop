@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">Panoda bağlantı yok. Uygulamada parçanın bağlantısını kopyalayın, sonra Bağlantı yapıştır\'a dokunun.</string>
     <string name="link_other_service">Bu bağlantı bir %1$s parçası değil</string>
     <string name="link_track_unknown">Bağlantıdaki parça</string>
+    <string name="link_song_not_album">Bu bir şarkının bağlantısı ve albümü ya da sanatçısı %1$s üzerinde bulunamadı: adıyla ara.</string>
     <string name="search_album_section">“%1$s” albümünden, %2$s üzerinde · %3$d parça</string>
     <string name="search_album_missing">“%1$s” albümü %2$s üzerinde bulunamadı</string>
     <string name="search_other_results">Diğer sonuçlar</string>

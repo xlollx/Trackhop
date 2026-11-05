@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">クリップボードにリンクがありません。アプリで曲のリンクをコピーしてから、「リンクを貼り付け」をタップしてください。</string>
     <string name="link_other_service">このリンクは %1$s の曲ではありません</string>
     <string name="link_track_unknown">リンクの曲</string>
+    <string name="link_song_not_album">これは曲のリンクで、その曲のアルバムまたはアーティストが %1$s で見つかりませんでした。名前で検索してください。</string>
     <string name="search_album_section">%2$s のアルバム「%1$s」より · %3$d 曲</string>
     <string name="search_album_missing">%2$s でアルバム「%1$s」が見つかりません</string>
     <string name="search_other_results">その他の結果</string>

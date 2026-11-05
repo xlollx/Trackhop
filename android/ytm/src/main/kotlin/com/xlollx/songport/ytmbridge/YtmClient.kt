@@ -477,7 +477,11 @@ class YtmClient(private val host: YtmHost) {
     /** Saves or removes albums: a "like" on the album's playlist. [uris] carry playlist ids when known. */
     fun rateAlbums(browseIds: List<String>, uris: List<String?>, like: Boolean) {
         browseIds.forEachIndexed { i, id ->
-            val pl = uris.getOrNull(i)?.takeIf { !it.isNullOrBlank() && !it.startsWith("MPREb") } ?: albumPlaylistId(id)
+            val known = uris.getOrNull(i)?.takeIf { !it.isNullOrBlank() && !it.startsWith("MPREb") }
+            // Only an album's browse id (MPREb...) or its playlist (OLAK5uy...) can be saved: a song's
+            // video id here made Google answer "400: invalid argument".
+            if (known == null && !id.startsWith("MPREb")) throw BridgeException("$id is not an album")
+            val pl = known ?: albumPlaylistId(id)
                 ?: throw BridgeException("album $id has no playlist to like")
             call(if (like) "like/like" else "like/removelike", mapOf("target" to mapOf("playlistId" to pl)))
         }

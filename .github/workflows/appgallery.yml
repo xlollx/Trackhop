@@ -89,7 +89,14 @@ jobs:
 
           body=$(jq -n --arg n "$name" --arg o "$object" '{fileType:5, files:[{fileName:$n, fileDestUrl:$o}]}')
           res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$body" "$API/publish/v2/app-file-info?appId=$app")
-          ok "$res" || { echo "::error::The APK was not attached to the version: $(jq -c .ret <<<"$res")"; exit 1; }
+          if ! ok "$res"; then
+            # A version in review (or just published) cannot be edited: not this release's fault.
+            if grep -q "can't be edited\|can not be edited\|cannot be edited" <<<"$res"; then
+              echo "::warning::AppGallery: the current version is in review, so $TAG could not be attached yet. Run this workflow again for $TAG once the review is over."
+              exit 0
+            fi
+            echo "::error::The APK was not attached to the version: $(jq -c .ret <<<"$res")"; exit 1
+          fi
           echo "APK attached to the draft version"
 
           for f in play/whatsnew/$CODE/whatsnew-*; do

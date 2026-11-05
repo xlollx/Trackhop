@@ -255,6 +255,7 @@
     <string name="search_clipboard_empty">El portapapeles no contiene ningún enlace. Copia el enlace de la canción en la app y luego toca Pegar enlace.</string>
     <string name="link_other_service">Este enlace no es una canción de %1$s</string>
     <string name="link_track_unknown">Canción del enlace</string>
+    <string name="link_song_not_album">Este es el enlace de una canción, y su álbum o artista no aparece en %1$s: búscalo por nombre.</string>
     <string name="search_album_section">Del álbum “%1$s” en %2$s · %3$d canciones</string>
     <string name="search_album_missing">Álbum “%1$s” no encontrado en %2$s</string>
     <string name="search_other_results">Otros resultados</string>
