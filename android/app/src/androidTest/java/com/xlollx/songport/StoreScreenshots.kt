@@ -86,7 +86,7 @@ class StoreScreenshots {
     private val tidal = ShotProvider("tidal", "TIDAL", 0xFF111111, ShotProvider.IdStyle.NUMERIC)
 
     /** The Play build: no web connector, no plugin, a banner ad. */
-    private val play = BuildConfig.FLAVOR == "play"
+    private val play = BuildConfig.STORE_BUILD
     /** YouTube Music of the demo: the web connector in the full build, the official one in the Play build. */
     private val yt = if (play) "youtube" else "ytm"
     /** The fourth service: Amazon Music in the full build; TIDAL in the Play build, which reaches Amazon only through a plugin. */

@@ -79,7 +79,7 @@ class ShareIntentFlowTest : FlowTest() {
     @Test
     fun soundCloudSetLinkOnlyWhereTheBuildCarriesSoundCloud() {
         launch(shareIntent("https://soundcloud.com/${FakeWorld.PUBLIC_SOUNDCLOUD}"))
-        if (BuildConfig.FLAVOR == "full") {
+        if (!BuildConfig.STORE_BUILD) {
             expectEditorFrom("Night Drive")
         } else {
             // The Play build has no SoundCloud: the link is not one it can use.

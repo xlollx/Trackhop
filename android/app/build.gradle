@@ -38,13 +38,7 @@ def privacyUrl    = cfg('PRIVACY_POLICY_URL', 'https://trackhop.org/privacy-poli
 
 def hasReleaseKey = System.getenv('KEYSTORE_FILE') != null && !System.getenv('KEYSTORE_FILE').isEmpty()
 
-// Gemini Nano (ML Kit) in every build but F-Droid's: -PnoMlkit, or TRACKHOP_NO_MLKIT=true, leaves it out.
-def withMlkit = !project.hasProperty('noMlkit') && (System.getenv('TRACKHOP_NO_MLKIT') ?: 'false') != 'true'
-
 android {
-    // NanoAi: the real one (ML Kit) or the empty one for F-Droid, see withMlkit.
-    sourceSets.main.java.srcDirs += (withMlkit ? 'src/mlkit/java' : 'src/nomlkit/java')
-
     namespace 'com.xlollx.songport'
     compileSdk 36
 
@@ -82,15 +76,64 @@ android {
     // or describes any companion app; plugin-based services appear only if the user already has a
     // plugin installed. "full" (GitHub Releases) may point to where to get one.
     flavorDimensions = ["dist"]
+    // Five builds, one code base (same package id, same signing key):
+    //  full        GitHub Releases: web connectors built in, Gemini Nano, Ko-fi, its own update check.
+    //  fdroid      F-Droid: as full, without Google's ML Kit (F-Droid allows no non-free library), so
+    //              without Gemini Nano. Released next to full as Trackhop-v<version>-fdroid.apk.
+    //  play        Google Play: official APIs only (web connectors through the Bridge), no Ko-fi,
+    //              Gemini Nano, Google Play's update check.
+    //  galaxy      Samsung Galaxy Store: as play, without Google Play's update library.
+    //  appgallery  Huawei AppGallery: as galaxy, without ML Kit (Huawei phones have no Google services).
+    // STORE_BUILD: the store rules (play, galaxy, appgallery): no web connectors, no external payments.
     productFlavors {
         play {
             dimension "dist"
             buildConfigField "boolean", "PLUGIN_LINKS", "false"
+            buildConfigField "boolean", "STORE_BUILD", "true"
+        }
+        galaxy {
+            dimension "dist"
+            buildConfigField "boolean", "PLUGIN_LINKS", "false"
+            buildConfigField "boolean", "STORE_BUILD", "true"
+        }
+        appgallery {
+            dimension "dist"
+            buildConfigField "boolean", "PLUGIN_LINKS", "false"
+            buildConfigField "boolean", "STORE_BUILD", "true"
         }
         full {
             dimension "dist"
             isDefault = true
             buildConfigField "boolean", "PLUGIN_LINKS", "true"
+            buildConfigField "boolean", "STORE_BUILD", "false"
+        }
+        fdroid {
+            dimension "dist"
+            buildConfigField "boolean", "PLUGIN_LINKS", "true"
+            buildConfigField "boolean", "STORE_BUILD", "false"
+        }
+    }
+
+    // Shared sources: full's for fdroid, the stores' common part (BuiltIn, texts) for the three store
+    // builds, and Gemini Nano real (src/mlkit) or empty (src/nomlkit).
+    sourceSets {
+        fdroid {
+            java.srcDirs += ['src/full/java', 'src/nomlkit/java']
+            res.srcDirs += ['src/full/res']
+            manifest.srcFile 'src/full/AndroidManifest.xml'
+        }
+        full { java.srcDirs += ['src/mlkit/java'] }
+        play {
+            java.srcDirs += ['src/storeCommon/java', 'src/mlkit/java']
+            res.srcDirs += ['src/storeCommon/res']
+        }
+        galaxy {
+            java.srcDirs += ['src/storeCommon/java', 'src/stores/java', 'src/mlkit/java']
+            res.srcDirs += ['src/storeCommon/res']
+        }
+        appgallery {
+            java.srcDirs += ['src/storeCommon/java', 'src/stores/java', 'src/nomlkit/java']
+            res.srcDirs += ['src/storeCommon/res']
         }
     }
 
@@ -210,14 +253,16 @@ dependencies {
     // Gemini Nano on the phone (ML Kit GenAI Prompt API, through Android's AICore): an AI with no key for
     // the Roast and the generator, on the phones that have it. Proprietary, in both builds by choice.
     // beta2: later versions are built with Kotlin 2.3, which this project's Kotlin 2.1 cannot read.
-    // F-Droid does not allow it (not free software): its build passes -PnoMlkit (fdroiddata "gradleprops"),
-    // which leaves the library out and takes the empty NanoAi from src/nomlkit. The GitHub release
-    // carries that build too, as Trackhop-v<version>-fdroid.apk, for F-Droid's reproducible check.
-    if (withMlkit) implementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
+    // Not in the fdroid build (F-Droid allows no non-free library) nor in appgallery (no Google
+    // services on Huawei phones): those take the empty NanoAi from src/nomlkit.
+    fullImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
+    playImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
+    galaxyImplementation 'com.google.mlkit:genai-prompt:1.0.0-beta2'
 
     // GitHub/F-Droid build: YouTube Music, Amazon Music and the Spotify/Apple web sign-in run inside
     // the app. The Play build does not include them and uses the separate Bridge app when installed.
     fullImplementation project(':bridge')
+    fdroidImplementation project(':bridge')
 
     testImplementation 'junit:junit:4.13.2'
 

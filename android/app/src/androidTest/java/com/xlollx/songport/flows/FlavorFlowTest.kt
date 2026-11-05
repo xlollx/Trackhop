@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FlavorFlowTest : FlowTest() {
     override val connectedAtStart = emptyList<String>()
-    private val full get() = BuildConfig.FLAVOR == "full"
+    private val full get() = !BuildConfig.STORE_BUILD
 
     private fun openServicePicker() {
         installConnectors()

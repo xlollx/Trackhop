@@ -45,7 +45,7 @@ private val IDEA_SERVICES = listOf(
 
 /** The services this build can name: the Play build has no web connectors to suggest things for. */
 private fun ideaServices(): List<String> =
-    if (BuildConfig.FLAVOR == "play") IDEA_SERVICES - setOf("Amazon Music", "SoundCloud") else IDEA_SERVICES
+    if (BuildConfig.STORE_BUILD) IDEA_SERVICES - setOf("Amazon Music", "SoundCloud") else IDEA_SERVICES
 
 /** Which app and which build the idea comes from. */
 internal fun versionLine(): String = "Trackhop ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}), Android ${android.os.Build.VERSION.RELEASE}"

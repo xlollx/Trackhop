@@ -564,7 +564,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
     val explicit = false
     var askReport by remember { mutableStateOf(false) }
     // Only the Google Play build has the report (its AI-content policy); the full build shows nothing.
-    val reportable = com.xlollx.songport.BuildConfig.FLAVOR == "play"
+    val reportable = com.xlollx.songport.BuildConfig.STORE_BUILD
 
     if (ai == null) { Intro(stringResource(R.string.discover_roast_no_ai)); return }
 

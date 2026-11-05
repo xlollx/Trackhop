@@ -594,6 +594,16 @@ PY
 - The Play build shows no donation button, card or coffee text (`BuildConfig.FLAVOR == "play"`): it
   never points to payments outside Google Play.
 
+## Builds
+
+One code base, five flavors (`android/app/build.gradle`), same package id and signing key:
+`full` (GitHub Releases: web connectors built in, Gemini Nano, Ko-fi), `fdroid` (as `full`
+without Google's ML Kit, so without Gemini Nano: F-Droid allows no non-free library),
+`play` (Google Play: official APIs only, web connectors through the Bridge, no external payments),
+`galaxy` (Samsung Galaxy Store: as `play` without Google Play's update library) and `appgallery`
+(Huawei AppGallery: as `galaxy` without ML Kit). Each GitHub Release carries the `full` APK, the
+`play` AAB and the `fdroid`, `galaxy` and `appgallery` APKs. Store steps: [docs/other-stores.md](docs/other-stores.md).
+
 ## Publishing on Google Play
 
 ### Two distributions: `play` and `full`

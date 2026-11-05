@@ -14,7 +14,7 @@ object SupportPrompt {
     /** Brani aggiunti da una sola sync perche' valga la pena chiedere. */
     const val MIN_ADDED = 100
 
-    fun available(): Boolean = BuildConfig.FLAVOR != "play" && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())
+    fun available(): Boolean = !BuildConfig.STORE_BUILD && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())
 
     /** Chiamato a fine sync: arma la richiesta se e' la prima sync grande e non e' mai stata mostrata. */
     fun offer(store: Store, report: SyncReport) {
