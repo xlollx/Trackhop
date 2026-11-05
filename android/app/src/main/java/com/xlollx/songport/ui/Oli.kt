@@ -194,7 +194,7 @@ internal fun OliRoast(onSetUpAi: () -> Unit) {
             val shot = photo
             when {
                 shot != null -> Image(shot, stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
-                loaded -> Image(painterResource(R.drawable.oli_smirk), stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                loaded -> Image(painterResource(R.drawable.oli_roast), stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
                 else -> androidx.compose.foundation.layout.Box(Modifier.size(200.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant))
             }
             Text(stringResource(R.string.oli_roast_title), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)

@@ -1,4 +1,4 @@
 {
-  "_": "Photos of the Roast page without an AI, shown in turn by the app (one more each time the page opens). Add or remove names here: no app update needed. Square JPEGs, about 480 px, under 3 MB.",
-  "photos": ["roast-1.jpg", "roast-2.jpg", "roast-3.jpg", "roast-4.jpg"]
+  "_": "Photos of the Roast page without an AI, shown in turn by the app (one more each time the page opens). Add or remove names here: no app update needed. Square JPEGs, about 480 px, under 3 MB. Give a changed photo a new name: the app keeps the ones it already has.",
+  "photos": ["roast-2.jpg", "roast-5.jpg", "roast-4.jpg"]
 }
