@@ -4,6 +4,7 @@
 #
 #   scripts/store_graphics.sh            # writes the icon, the feature graphics and the square banners into the repo
 #   scripts/store_graphics.sh preview DIR  # also icon previews (48/108/512 px, themed) into DIR
+#   scripts/store_graphics.sh release OUT VERSION "Title|One line" …  # only a "what's new" post (below)
 #
 # Needs ImageMagick 6 (`convert`) and the DejaVu fonts. No Android SDK: the icon's PNGs are drawn
 # here from the same geometry as the vector drawables (res/drawable/ic_launcher_*.xml), so they
@@ -183,6 +184,49 @@ square() {
     printf '  %s: %s: contrast %.1f:1\n' "$(basename "$out")" "$name" "$(contrast "$tmp/q_under.png" "$bx" "$by" "$bw" "$bh")"
   done
 }
+
+# ------------------------------------------------------------------------------------- release
+# release OUT VERSION ITEM…: a 1080×1080 "what's new" post for Instagram, for each x.y.0 release.
+# Each ITEM is "Title|One line" (two lines take room: then three items at most); up to four fit. The header on the dark side under the band,
+# one glass card per item, the mark and the site at the bottom. Only what the store notes say: no
+# easter eggs, no unofficial connectors as the selling point.
+release() {
+  local out=$1 version=$2; shift 2
+  local w=1080 h=1080 x=64 cw=$((1080 - 128)) y=170 pad=22 gap=14 i=0
+  beam "$tmp/r_bg.png" $w $h $w 250 "$BEAM_SWEEP"
+  convert -size "${w}x${h}" xc:none "$tmp/r_cards.png"
+  convert -size "${w}x${h}" xc:none -fill "rgba(255,255,255,0.8)" -font "$FONT_BOLD" -pointsize 28 \
+    -annotate "+$x+$((y + 28))" "WHAT'S NEW" \
+    -fill white -pointsize 92 -annotate "+$((x - 4))+$((y + 128))" "Trackhop $version" "$tmp/r_text.png"
+  y=$((y + 172))
+  local item title body th bh ch
+  for item in "$@"; do
+    title=${item%%|*}; body=${item#*|}
+    convert -background none -fill white -font "$FONT_BOLD" -pointsize 34 -size $((cw - 2 * pad))x caption:"$title" "$tmp/r_t$i.png"
+    convert -background none -fill "rgba(255,255,255,0.88)" -font "$FONT" -pointsize 27 -interline-spacing 4 \
+      -size $((cw - 2 * pad))x caption:"$body" "$tmp/r_b$i.png"
+    th=$(identify -format %h "$tmp/r_t$i.png"); bh=$(identify -format %h "$tmp/r_b$i.png")
+    ch=$((pad + th + 8 + bh + pad))
+    convert "$tmp/r_cards.png" -fill "$TILE_FILL" -stroke "$TILE_LINE" -strokewidth 2 \
+      -draw "roundrectangle $x,$y $((x + cw)),$((y + ch)) 28,28" "$tmp/r_cards.png"
+    convert "$tmp/r_text.png" "$tmp/r_t$i.png" -geometry "+$((x + pad))+$((y + pad))" -composite \
+      "$tmp/r_b$i.png" -geometry "+$((x + pad))+$((y + pad + th + 8))" -composite "$tmp/r_text.png"
+    y=$((y + ch + gap)); i=$((i + 1))
+  done
+  [ $y -le 960 ] || echo "  $(basename "$out"): the cards run $((y - 960)) px into the footer: fewer or shorter items" >&2
+  mark "$tmp/r_mark.png" 84
+  convert "$tmp/r_text.png" "$tmp/r_mark.png" -geometry +48+968 -composite -fill white -font "$FONT_BOLD" -pointsize 38 \
+    -annotate +138+1024 "Trackhop" -font "$FONT" -pointsize 30 -gravity SouthEast -annotate +64+38 "trackhop.org" "$tmp/r_text.png"
+  convert "$tmp/r_text.png" -fill black -colorize 100 -channel A -evaluate multiply 0.5 +channel \
+    -blur 0x5 -repage +3+5 -background none -flatten "$tmp/r_shadow.png"
+  convert "$tmp/r_bg.png" "$tmp/r_cards.png" -composite "$tmp/r_shadow.png" -composite "$tmp/r_text.png" -composite \
+    -depth 8 -strip "$out"
+  printf '  %s: contrast under the header %.1f:1\n' "$(basename "$out")" "$(contrast "$tmp/r_bg.png" $x 200 760 150)"
+}
+
+if [ "${1:-}" = release ]; then
+  shift; release "$@"; exit 0
+fi
 
 # ------------------------------------------------------------------------------------------- main
 icon_canvas "$tmp/icon_canvas.png"
