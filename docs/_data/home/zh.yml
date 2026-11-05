@@ -21,7 +21,9 @@ github_alt: 从 GitHub 下载 APK
 github_note: 最新 APK，手动安装
 phone_more: 'Android 8.0 或更高版本 · <a href="/guide/versions">我该选哪个版本？</a>'
 windows_alt: 下载 Windows 版
-windows_note: '或 <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop、Chocolatey</a>'
+msstore_alt: '从 Microsoft 获取'
+msstore_note: '自动更新 · 仅官方连接'
+windows_note: '完整安装程序 · <a href="/guide/desktop#package-managers-and-stores">Scoop、Chocolatey</a>'
 mac_alt: 下载 macOS 版（Apple silicon）
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel 版</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: 下载 Linux 版

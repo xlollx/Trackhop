@@ -51,6 +51,10 @@ The Desktop version is set here, once, for every language.
       <div class="panel" data-panel="computer" role="tabpanel">
         <div class="get cols">
           <div class="col">
+            <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="/assets/badges/msstore.svg" alt="{{ h.msstore_alt | default: en.msstore_alt }}"></a>
+            <small>{{ h.msstore_note | default: en.msstore_note }}</small>
+          </div>
+          <div class="col">
             <a href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-windows.msi"><img src="/assets/badges/windows.svg" alt="{{ h.windows_alt | default: en.windows_alt }}"></a>
             <small>{{ h.windows_note | default: en.windows_note }}</small>
           </div>

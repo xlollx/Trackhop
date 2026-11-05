@@ -23,7 +23,9 @@ github_alt: Download the APK from GitHub
 github_note: The latest APK, to install by hand
 phone_more: 'Android 8.0 or newer · <a href="/guide/versions">Which version do I need?</a>'
 windows_alt: Get it for Windows
-windows_note: 'or <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+msstore_alt: 'Get it from Microsoft'
+msstore_note: 'Updates by itself · official connectors only'
+windows_note: 'Installer with everything · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
 mac_alt: Get it for macOS (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">for Intel</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Get it for Linux

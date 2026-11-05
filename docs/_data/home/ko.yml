@@ -21,7 +21,9 @@ github_alt: GitHub에서 APK 다운로드
 github_note: 최신 APK를 직접 설치
 phone_more: 'Android 8.0 이상 · <a href="/guide/versions">어떤 버전이 필요할까요?</a>'
 windows_alt: Windows용 받기
-windows_note: '또는 <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+msstore_alt: 'Microsoft에서 받기'
+msstore_note: '자동 업데이트 · 공식 연결만'
+windows_note: '모든 기능이 들어 있는 설치 파일 · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
 mac_alt: macOS용 받기 (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel용</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Linux용 받기

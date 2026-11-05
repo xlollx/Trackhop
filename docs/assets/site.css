@@ -259,8 +259,8 @@ a.card.link .go { margin-top: 12px; color: var(--accent); font-weight: 600; font
 .get .soon img { opacity: .85; }
 @media (max-width: 640px) { .platforms button { padding: 7px 11px; font-size: .88rem; } }
 @media (max-width: 640px) { .get.cols { grid-template-columns: repeat(2, 150px); } }
-.panel[data-panel="phone"] .get.cols { grid-template-columns: repeat(2, 172px); }
-@media (max-width: 640px) { .panel[data-panel="phone"] .get.cols { grid-template-columns: repeat(2, 150px); } }
+.panel[data-panel="phone"] .get.cols, .panel[data-panel="computer"] .get.cols { grid-template-columns: repeat(2, 172px); }
+@media (max-width: 640px) { .panel[data-panel="phone"] .get.cols, .panel[data-panel="computer"] .get.cols { grid-template-columns: repeat(2, 150px); } }
 
 /* "Translate this page" for visitors in another language (Google Translate link, no script). */
 .top nav a.xlate { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font-weight: 600; font-size: 13px; letter-spacing: .02em; }

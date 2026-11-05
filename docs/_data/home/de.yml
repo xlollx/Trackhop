@@ -21,7 +21,9 @@ github_alt: APK von GitHub herunterladen
 github_note: Die neueste APK zum Installieren von Hand
 phone_more: 'Android 8.0 oder neuer · <a href="/guide/versions">Welche Version brauche ich?</a>'
 windows_alt: Für Windows herunterladen
-windows_note: 'oder <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+msstore_alt: 'Bei Microsoft herunterladen'
+msstore_note: 'Aktualisiert sich selbst · nur offizielle Verbindungen'
+windows_note: 'Installer mit allem · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
 mac_alt: Für macOS herunterladen (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">für Intel</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Für Linux herunterladen

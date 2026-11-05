@@ -21,7 +21,9 @@ github_alt: APK'yı GitHub'dan indir
 github_note: Elle kurmak için en yeni APK
 phone_more: 'Android 8.0 veya üstü · <a href="/guide/versions">Hangi sürüme ihtiyacım var?</a>'
 windows_alt: Windows için indir
-windows_note: 'veya <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
+msstore_alt: 'Microsoft''tan edinin'
+msstore_note: 'Kendi güncellenir · yalnızca resmi bağlantılar'
+windows_note: 'Her şeyi içeren yükleyici · <a href="/guide/desktop#package-managers-and-stores">Scoop, Chocolatey</a>'
 mac_alt: macOS için indir (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel için</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Linux için indir

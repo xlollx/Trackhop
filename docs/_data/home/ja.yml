@@ -21,7 +21,9 @@ github_alt: GitHub から APK をダウンロード
 github_note: 最新の APK を手動でインストール
 phone_more: 'Android 8.0 以降 · <a href="/guide/versions">どのバージョンを選べばいい？</a>'
 windows_alt: Windows 版を入手
-windows_note: 'または <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · <a href="/guide/desktop#package-managers-and-stores">Scoop、Chocolatey</a>'
+msstore_alt: 'Microsoft から入手'
+msstore_note: '自動で更新 · 公式の接続のみ'
+windows_note: 'すべて入りのインストーラー · <a href="/guide/desktop#package-managers-and-stores">Scoop、Chocolatey</a>'
 mac_alt: macOS 版を入手（Apple silicon）
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel 版</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Linux 版を入手
