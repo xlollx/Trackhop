@@ -1,4 +1,56 @@
 {
-  "_": "Photos of the Roast page without an AI, shown in turn by the app (one more each time the page opens). Add or remove names here: no app update needed. Square JPEGs, about 480 px, under 3 MB. Give a changed photo a new name: the app keeps the ones it already has.",
-  "photos": ["roast-2.jpg", "roast-5.jpg", "roast-4.jpg"]
+ "_": "Photos of the Roast page without an AI, shown in turn by the app (one more each time the page opens), each with its own line (by language, 'en' as fallback). Add or remove entries here: no app update needed. Square JPEGs, about 480 px, under 3 MB. Give a changed photo a new name: the app keeps the ones it already has.",
+ "photos": [
+  {
+   "file": "roast-2.jpg",
+   "text": {
+    "en": "Oli heard your playlist. Oli is screaming. 🙀",
+    "it": "Oli ha sentito la tua playlist. Oli sta urlando. 🙀",
+    "de": "Oli hat deine Playlist gehört. Oli schreit. 🙀",
+    "es": "Oli escuchó tu playlist. Oli está gritando. 🙀",
+    "fr": "Oli a écouté ta playlist. Oli hurle. 🙀",
+    "ja": "Oli があなたのプレイリストを聴きました。Oli は叫んでいます。🙀",
+    "ko": "Oli가 당신의 플레이리스트를 들었습니다. Oli가 비명을 지르고 있어요. 🙀",
+    "pl": "Oli usłyszał twoją playlistę. Oli krzyczy. 🙀",
+    "pt": "O Oli ouviu sua playlist. O Oli está gritando. 🙀",
+    "ru": "Oli послушал твой плейлист. Oli кричит. 🙀",
+    "tr": "Oli çalma listeni dinledi. Oli çığlık atıyor. 🙀",
+    "zh": "Oli 听了你的歌单。Oli 正在尖叫。🙀"
+   }
+  },
+  {
+   "file": "roast-5.jpg",
+   "text": {
+    "en": "Oli tasted your playlist. Bleh. 😛",
+    "it": "Oli ha assaggiato la tua playlist. Bleah. 😛",
+    "de": "Oli hat deine Playlist probiert. Bäh. 😛",
+    "es": "Oli probó tu playlist. Puaj. 😛",
+    "fr": "Oli a goûté ta playlist. Beurk. 😛",
+    "ja": "Oli があなたのプレイリストを味見しました。べー。😛",
+    "ko": "Oli가 당신의 플레이리스트를 맛봤어요. 웩. 😛",
+    "pl": "Oli spróbował twojej playlisty. Bleh. 😛",
+    "pt": "O Oli provou sua playlist. Eca. 😛",
+    "ru": "Oli попробовал твой плейлист. Фу. 😛",
+    "tr": "Oli çalma listenin tadına baktı. Iyy. 😛",
+    "zh": "Oli 尝了尝你的歌单。呸。😛"
+   }
+  },
+  {
+   "file": "roast-4.jpg",
+   "text": {
+    "en": "Oli has listened. Oli is not impressed. 😼",
+    "it": "Oli ha ascoltato. Oli non è impressionato. 😼",
+    "de": "Oli hat zugehört. Oli ist nicht beeindruckt. 😼",
+    "es": "Oli ha escuchado. Oli no está impresionado. 😼",
+    "fr": "Oli a écouté. Oli n'est pas impressionné. 😼",
+    "ja": "Oli は聴きました。Oli は感心していません。😼",
+    "ko": "Oli가 들었습니다. Oli는 감흥이 없네요. 😼",
+    "pl": "Oli posłuchał. Oli nie jest pod wrażeniem. 😼",
+    "pt": "O Oli ouviu. O Oli não ficou impressionado. 😼",
+    "ru": "Oli послушал. Oli не впечатлён. 😼",
+    "tr": "Oli dinledi. Oli hiç etkilenmedi. 😼",
+    "zh": "Oli 听完了。Oli 不为所动。😼"
+   }
+  }
+ ]
 }

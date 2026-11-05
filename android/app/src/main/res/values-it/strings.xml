@@ -1440,8 +1440,8 @@
     <string name="oli_pet">Tocca la foto per accarezzare Oli</string>
     <string name="oli_purring">Purr… purr… 💜</string>
     <string name="oli_photo">Oli, il gatto dello sviluppatore</string>
-    <string name="oli_roast_title">Niente AI? Allora il roast lo fa Oli. 😼</string>
-    <string name="oli_roast_body">Questo sguardo è il giudizio di Oli sulle tue playlist. Per un roast a parole imposta un\'AI: Google Gemini (AI Studio) e Groq danno chiavi gratuite.</string>
+    <string name="oli_roast_title">Oli ha sentito la tua playlist. Oli sta urlando. 🙀</string>
+    <string name="oli_roast_body">Questo è il giudizio di Oli sulle tue playlist. Per un roast a parole imposta un\'AI: Google Gemini (AI Studio) e Groq danno chiavi gratuite.</string>
     <string name="oli_roast_set_up">Imposta un\'AI</string>
     <string name="discover_reading">Lettura di %1$s: %2$d playlist su %3$d…</string>
     <string name="discover_no_services">Prima collega un servizio musicale, in Account.</string>

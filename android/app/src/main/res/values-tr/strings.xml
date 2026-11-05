@@ -1438,8 +1438,8 @@
     <string name="oli_pet">Oli\'yi sevmek için fotoğrafa dokun</string>
     <string name="oli_purring">Mırr… mırr… 💜</string>
     <string name="oli_photo">Geliştiricinin kedisi Oli</string>
-    <string name="oli_roast_title">Yapay zekâ yok mu? O zaman roast\'u Oli yapar. 😼</string>
-    <string name="oli_roast_body">Bu bakış, Oli\'nin çalma listelerin hakkındaki kararı. Sözlü bir roast için bir yapay zekâ kur: Google Gemini (AI Studio) ve Groq ücretsiz anahtar veriyor.</string>
+    <string name="oli_roast_title">Oli çalma listeni dinledi. Oli çığlık atıyor. 🙀</string>
+    <string name="oli_roast_body">Bu, Oli\'nin çalma listelerin hakkındaki kararı. Sözlü bir roast için bir yapay zekâ kur: Google Gemini (AI Studio) ve Groq ücretsiz anahtar veriyor.</string>
     <string name="oli_roast_set_up">Yapay zekâ kur</string>
     <string name="discover_reading">%1$s okunuyor: %3$d çalma listesinden %2$d…</string>
     <string name="discover_no_services">Önce Hesaplar\'dan bir müzik servisi bağla.</string>

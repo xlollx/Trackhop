@@ -40,6 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.xlollx.songport.R
+import com.xlollx.songport.net.str
+import com.xlollx.songport.net.arr
+import com.xlollx.songport.net.get
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -122,7 +125,7 @@ private object OliPhoto {
     private const val BASE = "https://trackhop.org/assets/oli/"
     private const val MAX_BYTES = 3_000_000
     private const val DAY_MS = 24 * 60 * 60 * 1000L
-    private val QUOTED = Regex("\"([A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp))\"")
+    private val NAME = Regex("[A-Za-z0-9_-]+\\.(jpg|jpeg|png|webp)")
 
     private fun dir(ctx: android.content.Context) = java.io.File(ctx.cacheDir, "oli").apply { mkdirs() }
     private fun prefs(ctx: android.content.Context) = ctx.getSharedPreferences("oli", android.content.Context.MODE_PRIVATE)
@@ -147,31 +150,40 @@ private object OliPhoto {
         } finally { c.disconnect() }
     }
 
+    /** One photo of the list and its line in the phone's language (null: the app's own line). */
+    class Shot(val file: String, val line: String?)
+
     /** The site's list, from the cache or (at most once a day) from the site. */
-    private fun list(ctx: android.content.Context): List<String> {
+    private fun list(ctx: android.content.Context): List<Shot> {
         val f = java.io.File(dir(ctx), "roast.json")
         if (!f.exists() || System.currentTimeMillis() - f.lastModified() > DAY_MS) {
             runCatching { fetch(BASE + "roast.json") }.getOrNull()?.let { f.writeBytes(it) }
                 ?: run { if (f.exists()) f.setLastModified(System.currentTimeMillis()) }
         }
-        // The names in "photos", in order (the file is ours and tiny: a match on quoted file names is enough).
+        val lang = java.util.Locale.getDefault().language
         return runCatching {
-            val photos = f.readText().substringAfter("\"photos\"", "")
-            QUOTED.findAll(photos).map { it.groupValues[1] }.toList()
+            com.xlollx.songport.net.parseJson(f.readText())["photos"].arr.mapNotNull { e ->
+                // {"file": "…", "text": {"en": "…", "it": "…"}}, or just "file.jpg".
+                val file = e.str ?: e["file"].str ?: return@mapNotNull null
+                if (!NAME.matches(file)) return@mapNotNull null
+                val text = e["text"]
+                Shot(file, text[lang].str ?: text["en"].str)
+            }
         }.getOrDefault(emptyList())
     }
 
-    /** The next photo in turn, or null for the one in the app. Runs on a background thread. */
-    fun next(ctx: android.content.Context): android.graphics.Bitmap? = runCatching {
+    /** The next photo in turn with its line, or null for the app's own. Runs on a background thread. */
+    fun next(ctx: android.content.Context): Pair<android.graphics.Bitmap, String?>? = runCatching {
         val photos = list(ctx)
         if (photos.isEmpty()) return null
         val p = prefs(ctx)
         val i = p.getInt("next", 0)
         p.edit().putInt("next", (i + 1) % photos.size).apply()
-        val name = photos[i % photos.size]
-        val f = java.io.File(dir(ctx), name)
-        if (!f.exists()) fetch(BASE + name)?.takeIf { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) != null }?.let { f.writeBytes(it) }
-        if (f.exists()) android.graphics.BitmapFactory.decodeFile(f.path) else null
+        val shot = photos[i % photos.size]
+        val f = java.io.File(dir(ctx), shot.file)
+        if (!f.exists()) fetch(BASE + shot.file)?.takeIf { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) != null }?.let { f.writeBytes(it) }
+        val bmp = if (f.exists()) android.graphics.BitmapFactory.decodeFile(f.path) else null
+        bmp?.let { it to shot.line }
     }.getOrNull()
 }
 
@@ -180,9 +192,11 @@ private object OliPhoto {
 internal fun OliRoast(onSetUpAi: () -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     var photo by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    var line by remember { mutableStateOf<String?>(null) }
     var loaded by remember { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        photo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { OliPhoto.next(ctx) }?.asImageBitmap()
+        val next = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { OliPhoto.next(ctx) }
+        photo = next?.first?.asImageBitmap(); line = next?.second
         loaded = true
     }
     Card(Modifier.fillMaxWidth()) {
@@ -197,7 +211,7 @@ internal fun OliRoast(onSetUpAi: () -> Unit) {
                 loaded -> Image(painterResource(R.drawable.oli_roast), stringResource(R.string.oli_photo), Modifier.size(200.dp).clip(CircleShape), contentScale = ContentScale.Crop)
                 else -> androidx.compose.foundation.layout.Box(Modifier.size(200.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant))
             }
-            Text(stringResource(R.string.oli_roast_title), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+            if (loaded) Text(line ?: stringResource(R.string.oli_roast_title), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
             Text(
                 stringResource(R.string.oli_roast_body), style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center,
