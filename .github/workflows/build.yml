@@ -241,11 +241,11 @@ jobs:
     outputs:
       tag: ${{ needs.check.outputs.tag }}
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: release-store
           path: store
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: release-direct
           path: direct
