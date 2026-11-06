@@ -20,7 +20,7 @@ MAX = 40
 
 # A supporter who gave no name (Ko-fi shows "Somebody" or "Someone") still gets a thank-you, under a
 # nickname of their own: the next one of these not yet used, then the list again with a number.
-ANONYMOUS = ("someone", "somebody", "anonymous")
+ANONYMOUS = ("someone", "somebody", "anonymous", "supporter")
 NICKNAMES = [
     "Anonymous Mixtape", "Anonymous Encore", "Anonymous B-side", "Anonymous Bassline",
     "Anonymous Night Owl", "Anonymous Vinyl", "Anonymous Chorus", "Anonymous Remix",

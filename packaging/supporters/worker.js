@@ -17,10 +17,11 @@ export default {
     if (!env.KOFI_TOKEN || data.verification_token !== env.KOFI_TOKEN) {
       return new Response("Wrong verification token\n", { status: 403 });
     }
-    // A supporter who chose to stay private is never named.
-    if (!data.is_public) return new Response("ok\n");
-    const name = String(data.from_name || "").replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 40);
-    if (!name || /^(someone|anonymous)$/i.test(name)) return new Response("ok\n");
+    // A supporter who chose to stay private (a private message makes the whole support private on
+    // Ko-fi), or gave no name, is never named: they are thanked under a nickname
+    // ("Anonymous Mixtape"…, scripts/supporters.py).
+    const given = String(data.from_name || "").replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 40);
+    const name = !data.is_public || !given || /^(someone|somebody|anonymous|supporter)$/i.test(given) ? "Anonymous" : given;
     const r = await fetch("https://api.github.com/repos/xlollx/Trackhop/dispatches", {
       method: "POST",
       headers: {
