@@ -3,7 +3,8 @@
     android:minWidth="40dp" android:minHeight="40dp"
     android:targetCellWidth="1" android:targetCellHeight="1"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/glance_default_loading_layout"
+    android:initialLayout="@layout/widget_preview_all"
+    android:previewLayout="@layout/widget_preview_all"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_all_description" />
