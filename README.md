@@ -160,7 +160,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 1.7.1), separate from the app's.
+- Desktop and Docker have their **own version** (now 1.8.0), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
