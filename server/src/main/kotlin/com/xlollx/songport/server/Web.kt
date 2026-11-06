@@ -432,6 +432,13 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            // YouTube Music: the channel the account acts as (its own, or one of its brand accounts).
+            "channel" -> {
+                val ytm = provider as? YtmServerProvider ?: return send(r.ex, 404, page("Not found", ""))
+                val result = runCatching { runBlocking { ytm.setChannel(env, r.form["channel"].orEmpty(), r.form["name"]) } }
+                result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
             "quickconnect" -> quickConnectStart(r, provider)
             "rename" -> {
                 Accounts.rename(store, provider, r.form["name"].orEmpty())
@@ -512,10 +519,39 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
             p is OAuthProvider -> body.append(oauthSetup(p))
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")
         }
+        if (p is YtmServerProvider && p.isConnected(env)) body.append(ytmChannelCard(p))
         body.append(accountCard(p))
         body.append("""<p>${Html.postButton("/connectors/${q(p.id)}/remove", if (p.slot.isEmpty()) "Remove from the list" else env.text("account_remove"), "danger",
             confirm = if (p.slot.isEmpty()) "Remove this service from the list?" else "${env.text("account_remove")}?")}</p>""")
         send(r.ex, 200, page(p.label(env), body.toString()))
+    }
+
+    /**
+     * The channel the YouTube Music account acts as: its own, or a brand account where the playlists
+     * may live (issue #41). Read from Google when the page opens; a refusal is said, not fatal.
+     */
+    private fun ytmChannelCard(p: YtmServerProvider): String {
+        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/channel" class="card"><h3>Channel</h3>
+<p class="muted">Playlists are read from and written to this channel. A brand account is listed with its name; without a choice the account's own channel is used, as before.</p>""")
+        val channels = runCatching { runBlocking { p.channels(env) } }
+        channels.exceptionOrNull()?.let { e ->
+            sb.append("""<p class="muted">The channels could not be read: ${h(e.message ?: e.javaClass.simpleName)}</p>""")
+            p.channelName(env)?.let { sb.append("""<p>Current: <b>${h(it)}</b></p>""") }
+            return sb.append("</form>").toString()
+        }
+        val list = channels.getOrThrow()
+        val own = p.channel(env) == null
+        list.forEach { c ->
+            val checked = if (c.id.isEmpty()) own else c.selected
+            sb.append("""<label class="row"><input type="radio" name="channel" value="${h(c.id)}" data-name="${h(c.name)}"${if (checked) " checked" else ""}> ${h(c.name)}""")
+            c.byline?.let { sb.append(""" <span class="muted">${h(it)}</span>""") }
+            if (c.id.isEmpty()) sb.append(""" <span class="muted">(the account's own channel)</span>""")
+            sb.append("</label>")
+        }
+        if (list.none { it.id.isEmpty() }) sb.append("""<label class="row"><input type="radio" name="channel" value="" data-name=""${if (own) " checked" else ""}> The account's own channel</label>""")
+        sb.append("""<input type="hidden" name="name" value=""><p><button class="secondary">Use this channel</button></p></form>
+<script>(function(){var s=document.currentScript,f=s.previousElementSibling;if(!f)return;f.addEventListener('submit',function(){var r=f.querySelector('input[name=channel]:checked');if(r)f.querySelector('input[name=name]').value=r.getAttribute('data-name')||'';});})();</script>""")
+        return sb.toString()
     }
 
     private fun ytmNote(): String = """<div class="card"><p><span class="badge">unofficial</span> <span class="alpha">alpha</span></p>
