@@ -136,9 +136,6 @@ import androidx.compose.material.icons.outlined.PauseCircle
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Numbers
-import androidx.compose.material.icons.outlined.VerticalAlignTop
-import androidx.compose.material.icons.outlined.ArrowDownward
-import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
 import com.xlollx.songport.R
 import com.xlollx.songport.data.StoreData
@@ -261,8 +258,6 @@ fun SyncsScreen(
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
-    var dragging by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(order, dragging) { if (dragging == null && dragOrder != null && dragOrder == order) dragOrder = null }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
         val o = (dragOrder ?: order).toMutableList()
@@ -270,6 +265,9 @@ fun SyncsScreen(
         if (a >= 0 && b >= 0) { o.add(b, o.removeAt(a)); dragOrder = o }
         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
     }
+    // Any change of order while nothing is dragged (a move from the menu, the store's own list after a
+    // drop) ends the drag's own order: the list is the store's again.
+    LaunchedEffect(order) { if (!reorder.isAnyItemDragging) dragOrder = null }
     // A sync tapped in a widget (JobFocus): scrolled to and lit up for a moment.
     val focusAsked by JobFocus.request.collectAsState()
     var flashing by remember { mutableStateOf<String?>(null) }
@@ -416,11 +414,15 @@ fun SyncsScreen(
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
                 }.longPressDraggableHandle(
                     enabled = canDrag,
-                    onDragStarted = { dragging = job.id; haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
+                    onDragStarted = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
                     onDragStopped = {
-                        val to = dragOrder?.indexOf(job.id) ?: -1
-                        if (to >= 0 && dragOrder != order) Store.get(ctx).moveJob(job.id, to)
-                        dragging = null
+                        val dropped = dragOrder
+                        val to = dropped?.indexOf(job.id) ?: -1
+                        if (to >= 0 && dropped != order) {
+                            Store.get(ctx).moveJob(job.id, to)
+                            // The store's list takes over as soon as it shows the move; at the latest, now.
+                            scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
+                        } else dragOrder = null
                     },
                 )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
@@ -761,7 +763,6 @@ private fun JobCard(
                 ) {
                     Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now))
                 }
-                val position = data.jobs.indexOfFirst { it.id == job.id }
                 // The menu wears the card's colour: a teal card opens a teal-tinted menu.
                 OverflowMenu(
                     listOfNotNull(
@@ -771,12 +772,10 @@ private fun JobCard(
                         if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
                         MenuAction(stringResource(R.string.job_color), { colorOpen = true }, icon = Icons.Outlined.Palette),
-                        // The order is the list's, Sync all's and the widgets'.
-                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { onMove(job, position - 1, false) }, icon = Icons.Outlined.ArrowUpward) else null,
-                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { onMove(job, position + 1, false) }, icon = Icons.Outlined.ArrowDownward) else null,
-                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { onMove(job, 0, false) }, icon = Icons.Outlined.VerticalAlignTop) else null,
+                        // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
+                        // at a position typed as a number.
                         // Many syncs: a position typed as a number, quicker than many taps on the arrows.
-                        if (data.jobs.size > 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
+                        if (data.jobs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
                         MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
                     ),
                     enabled = !isRunning,

@@ -1278,9 +1278,6 @@
     <string name="note_unlikes_capped">Wstrzymano cofanie polubień: ta synchronizacja cofnęłaby polubienie %1$d z %2$d utworów w Polubionych utworach. Dotknij stanu synchronizacji, aby otworzyć podgląd i je zobaczyć; jeśli naprawdę mają zniknąć, zaznacz tam pole i uruchom ją. Jeśli źródło ich naprawdę nie straciło, serwis podał niepełną listę i nic nie powinno zniknąć.</string>
     <string name="sync_menu_disable">Wyłącz</string>
     <string name="sync_menu_enable">Włącz</string>
-    <string name="sync_menu_move_up">Przenieś w górę</string>
-    <string name="sync_menu_move_down">Przenieś w dół</string>
-    <string name="sync_menu_move_top">Przenieś na górę</string>
     <string name="sync_menu_move_to">Przenieś na pozycję…</string>
     <string name="move_to_now">Teraz %1$d z %2$d.</string>
     <string name="move_to_label">Pozycja (1–%1$d)</string>

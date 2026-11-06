@@ -1237,9 +1237,6 @@
     <string name="note_unlikes_capped">Descurtidas suspensas: esta execução descurtiria %1$d das %2$d músicas em Músicas curtidas. Toque no status da sincronização para abrir a prévia e vê-las; se devem mesmo sair, marque a caixa lá e execute. Se a origem não as perdeu de verdade, o serviço a listou de forma incompleta e nada deve sair.</string>
     <string name="sync_menu_disable">Desativar</string>
     <string name="sync_menu_enable">Ativar</string>
-    <string name="sync_menu_move_up">Mover para cima</string>
-    <string name="sync_menu_move_down">Mover para baixo</string>
-    <string name="sync_menu_move_top">Mover para o topo</string>
     <string name="sync_menu_move_to">Mover para a posição…</string>
     <string name="move_to_now">Agora é a %1$d de %2$d.</string>
     <string name="move_to_label">Posição (1–%1$d)</string>

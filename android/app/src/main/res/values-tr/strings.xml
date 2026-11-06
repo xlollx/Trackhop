@@ -1228,9 +1228,6 @@
     <string name="note_unlikes_capped">Beğeni kaldırmalar bekletildi: bu çalıştırma Beğenilen şarkılardaki %2$d şarkının %1$d tanesinin beğenisini kaldırırdı. Önizlemeyi açıp görmek için senkronizasyonun durumuna dokunun; gerçekten gitmeleri gerekiyorsa orada kutuyu işaretleyip çalıştırın. Kaynak bunları gerçekten kaybetmediyse hizmet listeyi eksik vermiştir ve hiçbir şey gitmemelidir.</string>
     <string name="sync_menu_disable">Devre dışı bırak</string>
     <string name="sync_menu_enable">Etkinleştir</string>
-    <string name="sync_menu_move_up">Yukarı taşı</string>
-    <string name="sync_menu_move_down">Aşağı taşı</string>
-    <string name="sync_menu_move_top">En üste taşı</string>
     <string name="sync_menu_move_to">Konuma taşı…</string>
     <string name="move_to_now">Şu an %2$d içinde %1$d.</string>
     <string name="move_to_label">Konum (1–%1$d)</string>

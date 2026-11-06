@@ -1237,9 +1237,6 @@
     <string name="note_unlikes_capped">«Me gusta» retenidos: esta ejecución quitaría el «me gusta» a %1$d de las %2$d canciones de Canciones que te gustan. Toca el estado de la sincronización para abrir la vista previa y verlas; si de verdad deben irse, marca allí la casilla y ejecútala. Si el origen no las ha perdido de verdad, el servicio lo listó de forma incompleta y no debe quitarse nada.</string>
     <string name="sync_menu_disable">Desactivar</string>
     <string name="sync_menu_enable">Activar</string>
-    <string name="sync_menu_move_up">Subir</string>
-    <string name="sync_menu_move_down">Bajar</string>
-    <string name="sync_menu_move_top">Mover al principio</string>
     <string name="sync_menu_move_to">Mover a la posición…</string>
     <string name="move_to_now">Ahora es la %1$d de %2$d.</string>
     <string name="move_to_label">Posición (1–%1$d)</string>
