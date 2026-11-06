@@ -86,14 +86,14 @@ class NewFeaturesFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Road Trip")
 
-        // The Disabled filter shows exactly those two.
-        click(s(R.string.filter_disabled))
+        // The Disabled filter (its chip says how many: "Disabled · 2") shows exactly those two.
+        click(s(R.string.filter_disabled) + " · 2")
         waitText(plural(R.plurals.filter_shown, 5, 2, 5))
         assertTrue(exists("Road Trip"))
         assertTrue(exists("Chill Evening"))
         assertFalse(exists("Workout Mix"))
         // Off again: every sync listed (the cards further down are not composed until scrolled to).
-        click(s(R.string.filter_disabled))
+        click(s(R.string.filter_disabled) + " · 2")
         waitGone(plural(R.plurals.filter_shown, 5, 2, 5))
 
         // On from the first card's menu: both halves on and scheduled, a snackbar says so.
@@ -113,7 +113,7 @@ class NewFeaturesFlowTest : FlowTest() {
         waitFor("both halves disabled") { store.data.jobs.filter { it.id == "job-0" || it.id == "job-1" }.none { it.enabled } }
         assertTrue(store.data.jobs.filter { it.id != "job-0" && it.id != "job-1" }.all { it.enabled })
         for (id in listOf("job-0", "job-1")) waitFor("$id work cancelled") { work(id).none { it == WorkInfo.State.ENQUEUED || it == WorkInfo.State.RUNNING } }
-        click(s(R.string.filter_disabled))
+        click(s(R.string.filter_disabled) + " · 2")
         waitText(plural(R.plurals.filter_shown, 5, 2, 5))
         assertTrue(exists("Road Trip"))
         assertFalse(exists("Workout Mix"))
