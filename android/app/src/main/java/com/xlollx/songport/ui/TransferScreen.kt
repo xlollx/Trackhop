@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -86,6 +87,7 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
     var checked by remember { mutableStateOf<Set<String>>(emptySet()) }
     var schedule by remember { mutableStateOf(Schedule.MANUAL) }
     var busy by remember { mutableStateOf(false) }
+    var confirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(srcId) {
         lists = null; error = null; checked = emptySet()
@@ -162,27 +164,65 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
                         if (busy) { CircularProgressIndicator(Modifier.width(20.dp).height(20.dp)); Spacer(Modifier.width(8.dp)) }
-                        Button(enabled = !busy && checked.isNotEmpty() && dst != null && src != null && srcId != dstId, onClick = {
-                            busy = true
-                            val chosen = all.filter { it.id in checked && dst?.supportsLibrary(it.id, asTarget = true) != false }
-                            scope.launch {
-                                val ids = chosen.map { pl ->
-                                    val job = existing[pl.id] ?: SyncJob(
-                                        id = UUID.randomUUID().toString(),
-                                        name = pl.name,
-                                        source = PlaylistRef(provider = srcId, playlistId = pl.id, playlistName = pl.name),
-                                        // Liked songs, albums and artists go to the same library slot on the target.
-                                        target = PlaylistRef(provider = dstId, playlistId = pl.id.takeIf { MusicProvider.isLibrary(it) }, playlistName = pl.name),
-                                        schedule = schedule,
-                                    ).also { store.upsertJob(it); Scheduler.apply(ctx, it) }
-                                    job.id
+                        Button(enabled = !busy && checked.isNotEmpty() && dst != null && src != null && srcId != dstId, onClick = { confirm = true }) {
+                            Text(pluralStringResource(R.plurals.transfer_run, checked.size, checked.size))
+                        }
+                    }
+                    // Second step: nothing is created until the summary is confirmed (05/11: syncs left on
+                    // Manual had to be fixed one by one after they had all started).
+                    if (confirm && src != null && dst != null) {
+                        val chosen = all.filter { it.id in checked && dst.supportsLibrary(it.id, asTarget = true) }
+                        val reused = chosen.count { it.id in existing }
+                        val fresh = chosen.size - reused
+                        var startNow by remember { mutableStateOf(true) }
+                        AlertDialog(
+                            onDismissRequest = { confirm = false },
+                            title = { Text(stringResource(R.string.transfer_confirm_title)) },
+                            text = {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(stringResource(R.string.transfer_confirm_route, src.label(ctx), dst.label(ctx)), style = MaterialTheme.typography.titleSmall)
+                                    if (fresh > 0) Text("• " + pluralStringResource(R.plurals.transfer_confirm_new, fresh, fresh))
+                                    if (reused > 0) Text("• " + pluralStringResource(if (startNow) R.plurals.transfer_confirm_rerun else R.plurals.transfer_confirm_kept, reused, reused))
+                                    if (fresh > 0) {
+                                        Text("• " + stringResource(R.string.editor_schedule) + ": " + scheduleLabel(schedule))
+                                        Text("• " + stringResource(R.string.transfer_confirm_adds_only, dst.label(ctx)))
+                                    }
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { startNow = !startNow }) {
+                                        Checkbox(checked = startNow, onCheckedChange = { startNow = it })
+                                        Text(stringResource(R.string.transfer_confirm_start_now))
+                                    }
                                 }
-                                Scheduler.runInSequence(ctx, ids)
-                                snackbar.showSnackbar(ctx.getString(R.string.transfer_started, ids.size))
-                                busy = false
-                                onDone()
-                            }
-                        }) { Text(pluralStringResource(R.plurals.transfer_run, checked.size, checked.size)) }
+                            },
+                            confirmButton = {
+                                TextButton(enabled = startNow || fresh > 0, onClick = {
+                                    confirm = false
+                                    busy = true
+                                    val run = startNow
+                                    scope.launch {
+                                        val ids = chosen.map { pl ->
+                                            val job = existing[pl.id] ?: SyncJob(
+                                                id = UUID.randomUUID().toString(),
+                                                name = pl.name,
+                                                source = PlaylistRef(provider = srcId, playlistId = pl.id, playlistName = pl.name),
+                                                // Liked songs, albums and artists go to the same library slot on the target.
+                                                target = PlaylistRef(provider = dstId, playlistId = pl.id.takeIf { MusicProvider.isLibrary(it) }, playlistName = pl.name),
+                                                schedule = schedule,
+                                            ).also { store.upsertJob(it); Scheduler.apply(ctx, it) }
+                                            job.id
+                                        }
+                                        if (run) {
+                                            Scheduler.runInSequence(ctx, ids)
+                                            snackbar.showSnackbar(ctx.getString(R.string.transfer_started, ids.size))
+                                        } else {
+                                            snackbar.showSnackbar(ctx.getString(R.string.transfer_created, fresh))
+                                        }
+                                        busy = false
+                                        onDone()
+                                    }
+                                }) { Text(stringResource(if (startNow) R.string.transfer_confirm_create_start else R.string.transfer_confirm_create)) }
+                            },
+                            dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.cancel)) } },
+                        )
                     }
                 }
             }

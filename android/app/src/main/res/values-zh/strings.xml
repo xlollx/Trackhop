@@ -351,6 +351,22 @@
         <item quantity="other">转移 %1$d 个歌单</item>
     </plurals>
     <string name="transfer_started">已创建并启动 %1$d 个同步任务：请在“同步”中查看。</string>
+    <string name="transfer_confirm_title">开始前确认</string>
+    <string name="transfer_confirm_route">从 %1$s 到 %2$s</string>
+    <string name="transfer_confirm_adds_only">只会添加歌曲：不会从 %1$s 删除任何内容。</string>
+    <string name="transfer_confirm_start_now">立即开始</string>
+    <string name="transfer_confirm_create">创建</string>
+    <string name="transfer_confirm_create_start">创建并开始</string>
+    <string name="transfer_created">已创建 %1$d 个同步任务：可随时在“同步”中运行。</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="other">%1$d 个新同步</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="other">%1$d 个已有同步：将再次运行</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="other">%1$d 个已有同步：保持不变</item>
+    </plurals>
     <string name="ai_title">歌单生成器</string>
     <string name="ai_desc">描述你想要的歌单，由你自己的 AI 来写；然后 Trackhop 像普通同步一样在你选择的服务上查找这些歌曲，所以 AI 弄错的内容会出现在待复查的歌曲中。Trackhop 没有自己的 AI：你用自己账号的密钥连接你的 AI（OpenAI、Anthropic、Google Gemini 或任何兼容 OpenAI 的服务器，包括本地服务器），只有你在这里输入的文字会被发送给它。</string>
     <string name="ai_setup">连接 AI</string>
@@ -1113,7 +1129,7 @@
     <string name="help_export_body">CSV 可用电子表格打开，M3U 可在大多数音乐播放器中打开，XSPF 和 JSPF 可在支持它们的播放器中打开，文本则每行一首歌。</string>
     <string name="help_make_body">用现有歌单在同一服务上新建一个歌单。这不是同步：结果之后不会更新。</string>
     <string name="help_make_example">把两个歌单合并成一个，或者把一个长歌单按每 50 首拆开。</string>
-    <string name="help_transfer_body">每个同步都会在目标中新建歌单，并且只添加歌曲；已经有同步的歌单会沿用那个同步。它们都会采用你在这里选择的计划。</string>
+    <string name="help_transfer_body">每个同步都会在目标中新建歌单，并且只添加歌曲；已经有同步的歌单会沿用那个同步。它们都会采用你在这里选择的计划。创建之前会显示摘要请你确认，也可以只创建而不立即开始。</string>
     <string name="help_transfer_example">用“每天”转移 20 个歌单，会创建 20 个每天运行的同步。</string>
     <string name="help_dedupe_body">立即移除重复的歌曲，不再另行确认：同一首歌出现两次（即使来自不同发行版本）时，保留第一首。现场版和混音版视为不同的歌曲。在 Spotify、Deezer 这类会连同所有副本一起移除歌曲的服务上，保留的那一首会移到末尾。</string>
     <string name="help_unplayable_body">对每首变灰的曲目，Trackhop 都会推荐一个可以播放的版本。在你应用之前不会有任何改变，“撤销上次修复”可以恢复原来的曲目。“不在你的套餐内”之类的原因来自服务。</string>

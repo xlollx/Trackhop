@@ -354,6 +354,25 @@
         <item quantity="other">Transfer %1$d playlists</item>
     </plurals>
     <string name="transfer_started">%1$d syncs created and started: follow them in Syncs.</string>
+    <string name="transfer_confirm_title">Check before you start</string>
+    <string name="transfer_confirm_route">From %1$s to %2$s</string>
+    <string name="transfer_confirm_adds_only">They only add tracks: nothing is removed from %1$s.</string>
+    <string name="transfer_confirm_start_now">Start them now</string>
+    <string name="transfer_confirm_create">Create</string>
+    <string name="transfer_confirm_create_start">Create and start</string>
+    <string name="transfer_created">%1$d syncs created: run them from Syncs whenever you like.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d new sync</item>
+        <item quantity="other">%1$d new syncs</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d already has a sync: it runs again</item>
+        <item quantity="other">%1$d already have a sync: they run again</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d already has a sync: it stays as it is</item>
+        <item quantity="other">%1$d already have a sync: they stay as they are</item>
+    </plurals>
     <string name="ai_title">Playlist generator</string>
     <string name="ai_desc">Describe the playlist you want and your own AI writes it; Trackhop then looks the tracks up on the service you choose, like a normal sync, so anything the AI got wrong ends up among the tracks to review. Trackhop has no AI of its own: you connect yours (OpenAI, Anthropic, Google Gemini or any OpenAI-compatible server, even a local one) with a key from your account, and only the text you type here is sent to it.</string>
     <string name="ai_setup">Connect an AI</string>
@@ -1133,7 +1152,7 @@
     <string name="help_export_body">CSV opens in spreadsheets, M3U in most music players, XSPF and JSPF in players that support them, and Text is one track per line.</string>
     <string name="help_make_body">Builds a new playlist on the same service from existing ones. It is not a sync: the result won\'t update later.</string>
     <string name="help_make_example">Merge two playlists into one, or split a long one into parts of 50.</string>
-    <string name="help_transfer_body">Each makes a new playlist on the target and only adds tracks; a playlist that already has a sync reuses it. They keep the schedule you choose here.</string>
+    <string name="help_transfer_body">Each makes a new playlist on the target and only adds tracks; a playlist that already has a sync reuses it. They keep the schedule you choose here. Before anything is created, a summary asks you to confirm, and you can create them without starting them.</string>
     <string name="help_transfer_example">Transferring 20 playlists with Daily creates 20 daily syncs.</string>
     <string name="help_dedupe_body">Removes the repeated tracks at once, with no further question: the same track twice, even as a different release, keeping the first copy. Live and remix versions count as different songs. On services that remove a track with all its copies, such as Spotify and Deezer, the kept copy moves to the end.</string>
     <string name="help_unplayable_body">For each greyed-out track Trackhop proposes a version that plays. Nothing changes until you apply, and Undo last fix puts the originals back. Reasons such as “Not in your plan” come from the service.</string>

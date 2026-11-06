@@ -360,6 +360,31 @@
         <item quantity="other">Przenieś %1$d playlisty</item>
     </plurals>
     <string name="transfer_started">Utworzono i uruchomiono synchronizacje: %1$d. Śledź je w Synchronizacjach.</string>
+    <string name="transfer_confirm_title">Sprawdź przed startem</string>
+    <string name="transfer_confirm_route">Z %1$s do %2$s</string>
+    <string name="transfer_confirm_adds_only">Tylko dodają: z %1$s nic nie jest usuwane.</string>
+    <string name="transfer_confirm_start_now">Uruchom od razu</string>
+    <string name="transfer_confirm_create">Utwórz</string>
+    <string name="transfer_confirm_create_start">Utwórz i uruchom</string>
+    <string name="transfer_created">Utworzono synchronizacje: %1$d. Uruchom je w Synchronizacjach, kiedy chcesz.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d nowa synchronizacja</item>
+        <item quantity="few">%1$d nowe synchronizacje</item>
+        <item quantity="many">%1$d nowych synchronizacji</item>
+        <item quantity="other">%1$d nowej synchronizacji</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d ma już synchronizację: uruchomi się ponownie</item>
+        <item quantity="few">%1$d mają już synchronizację: uruchomią się ponownie</item>
+        <item quantity="many">%1$d ma już synchronizację: uruchomią się ponownie</item>
+        <item quantity="other">%1$d ma już synchronizację: uruchomią się ponownie</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d ma już synchronizację: zostaje bez zmian</item>
+        <item quantity="few">%1$d mają już synchronizację: zostają bez zmian</item>
+        <item quantity="many">%1$d ma już synchronizację: zostają bez zmian</item>
+        <item quantity="other">%1$d ma już synchronizację: zostają bez zmian</item>
+    </plurals>
     <string name="ai_title">Generator playlist</string>
     <string name="ai_desc">Opisz playlistę, jakiej chcesz, a twoja własna AI ją napisze; Trackhop wyszuka potem utwory w wybranym serwisie, jak przy zwykłej synchronizacji, więc wszystko, co AI pomyliła, trafi do utworów do sprawdzenia. Trackhop nie ma własnej AI: podłączasz swoją (OpenAI, Anthropic, Google Gemini lub dowolny serwer zgodny z OpenAI, nawet lokalny) z kluczem ze swojego konta, a wysyłany jest do niej tylko tekst, który tu wpiszesz.</string>
     <string name="ai_setup">Podłącz AI</string>
@@ -1175,7 +1200,7 @@
     <string name="help_export_body">CSV otworzysz w arkuszach kalkulacyjnych, M3U w większości odtwarzaczy, XSPF i JSPF w odtwarzaczach, które je obsługują, a Tekst ma jeden utwór w wierszu.</string>
     <string name="help_make_body">Tworzy nową playlistę w tym samym serwisie na podstawie istniejących. To nie synchronizacja: wynik nie będzie później aktualizowany.</string>
     <string name="help_make_example">Połącz dwie playlisty w jedną albo podziel długą na części po 50.</string>
-    <string name="help_transfer_body">Każda tworzy nową playlistę w celu i tylko dodaje; playlista, która ma już synchronizację, używa jej ponownie. Wszystkie dostają harmonogram wybrany tutaj.</string>
+    <string name="help_transfer_body">Każda tworzy nową playlistę w celu i tylko dodaje; playlista, która ma już synchronizację, używa jej ponownie. Wszystkie dostają harmonogram wybrany tutaj. Zanim cokolwiek powstanie, podsumowanie poprosi o potwierdzenie; możesz też je utworzyć bez uruchamiania.</string>
     <string name="help_transfer_example">Przeniesienie 20 playlist z opcją Codziennie tworzy 20 codziennych synchronizacji.</string>
     <string name="help_dedupe_body">Od razu usuwa powtórzone utwory, bez dodatkowych pytań: ten sam utwór dwa razy, nawet z innego wydania, zostawiając pierwszą kopię. Wersje koncertowe i remiksy liczą się jako inne utwory. W serwisach, które usuwają utwór razem ze wszystkimi kopiami, jak Spotify i Deezer, zachowana kopia trafia na koniec.</string>
     <string name="help_unplayable_body">Dla każdego wyszarzonego utworu Trackhop proponuje wersję, którą da się odtworzyć. Nic się nie zmienia, dopóki nie zastosujesz, a Cofnij ostatnią poprawkę przywraca oryginały. Powody takie jak „Nie w twoim planie” podaje serwis.</string>

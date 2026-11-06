@@ -354,6 +354,25 @@
         <item quantity="other">Trasferisci %1$d playlist</item>
     </plurals>
     <string name="transfer_started">%1$d sync create e avviate: seguile in Sync.</string>
+    <string name="transfer_confirm_title">Controlla prima di iniziare</string>
+    <string name="transfer_confirm_route">Da %1$s a %2$s</string>
+    <string name="transfer_confirm_adds_only">Aggiungono soltanto: da %1$s non viene tolto nulla.</string>
+    <string name="transfer_confirm_start_now">Avviale subito</string>
+    <string name="transfer_confirm_create">Crea</string>
+    <string name="transfer_confirm_create_start">Crea e avvia</string>
+    <string name="transfer_created">%1$d sync create: avviale da Sync quando vuoi.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d nuova sync</item>
+        <item quantity="other">%1$d nuove sync</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d ha già una sync: viene rieseguita</item>
+        <item quantity="other">%1$d hanno già una sync: vengono rieseguite</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d ha già una sync: resta com\'è</item>
+        <item quantity="other">%1$d hanno già una sync: restano come sono</item>
+    </plurals>
     <string name="ai_title">Generatore di playlist</string>
     <string name="ai_desc">Descrivi la playlist che vuoi e la tua AI la scrive; Trackhop poi cerca i brani sul servizio che scegli, come in una sync normale, così quello che l\'AI ha sbagliato finisce tra i brani da rivedere. Trackhop non ha un\'AI propria: colleghi la tua (OpenAI, Anthropic, Google Gemini o un server compatibile con OpenAI, anche locale) con una chiave del tuo account, e le viene inviato solo il testo che scrivi qui.</string>
     <string name="ai_setup">Collega un\'AI</string>
@@ -1133,7 +1152,7 @@
     <string name="help_export_body">CSV si apre nei fogli di calcolo, M3U nella maggior parte dei lettori musicali, XSPF e JSPF nei lettori che li supportano, e Testo ha un brano per riga.</string>
     <string name="help_make_body">Crea una nuova playlist sullo stesso servizio a partire da quelle esistenti. Non è una sync: il risultato non si aggiornerà più.</string>
     <string name="help_make_example">Unisci due playlist in una, o dividine una lunga in parti da 50.</string>
-    <string name="help_transfer_body">Ognuna crea una nuova playlist sulla destinazione e aggiunge soltanto; una playlist che ha già una sync la riusa. Tutte tengono la pianificazione che scegli qui.</string>
+    <string name="help_transfer_body">Ognuna crea una nuova playlist sulla destinazione e aggiunge soltanto; una playlist che ha già una sync la riusa. Tutte tengono la pianificazione che scegli qui. Prima di creare qualcosa, un riepilogo chiede conferma, e puoi anche crearle senza avviarle.</string>
     <string name="help_transfer_example">Trasferire 20 playlist con Ogni giorno crea 20 sync giornaliere.</string>
     <string name="help_dedupe_body">Rimuove subito i brani ripetuti, senza altre domande: lo stesso brano due volte, anche in un\'altra edizione, tenendo la prima copia. Le versioni live e i remix contano come brani diversi. Sui servizi che tolgono un brano con tutte le sue copie, come Spotify e Deezer, la copia tenuta finisce in fondo.</string>
     <string name="help_unplayable_body">Per ogni brano in grigio Trackhop propone una versione che si può ascoltare. Nulla cambia finché non applichi, e Annulla ultima correzione rimette gli originali. Motivi come “Non nel tuo piano” arrivano dal servizio.</string>

@@ -354,6 +354,25 @@
         <item quantity="other">%1$d Playlists übertragen</item>
     </plurals>
     <string name="transfer_started">%1$d Syncs erstellt und gestartet: verfolge sie unter Syncs.</string>
+    <string name="transfer_confirm_title">Vor dem Start prüfen</string>
+    <string name="transfer_confirm_route">Von %1$s nach %2$s</string>
+    <string name="transfer_confirm_adds_only">Sie fügen nur hinzu: aus %1$s wird nichts entfernt.</string>
+    <string name="transfer_confirm_start_now">Gleich starten</string>
+    <string name="transfer_confirm_create">Erstellen</string>
+    <string name="transfer_confirm_create_start">Erstellen und starten</string>
+    <string name="transfer_created">%1$d Syncs erstellt: starte sie unter Syncs, wann du willst.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d neuer Sync</item>
+        <item quantity="other">%1$d neue Syncs</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d hat schon einen Sync: er läuft erneut</item>
+        <item quantity="other">%1$d haben schon einen Sync: sie laufen erneut</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d hat schon einen Sync: er bleibt unverändert</item>
+        <item quantity="other">%1$d haben schon einen Sync: sie bleiben unverändert</item>
+    </plurals>
     <string name="ai_title">Playlist-Generator</string>
     <string name="ai_desc">Beschreibe die gewünschte Playlist, und deine eigene KI schreibt sie; Trackhop sucht die Titel dann auf dem gewählten Dienst wie bei einer normalen Sync, sodass alles, was die KI falsch hatte, bei den zu prüfenden Titeln landet. Trackhop hat keine eigene KI: Du verbindest deine (OpenAI, Anthropic, Google Gemini oder einen OpenAI-kompatiblen Server, auch lokal) mit einem Schlüssel aus deinem Konto, und nur der hier eingegebene Text wird an sie gesendet.</string>
     <string name="ai_setup">KI verbinden</string>
@@ -1133,7 +1152,7 @@
     <string name="help_export_body">CSV öffnet sich in Tabellenprogrammen, M3U in den meisten Musikplayern, XSPF und JSPF in Playern, die sie unterstützen, und Text hat einen Titel pro Zeile.</string>
     <string name="help_make_body">Erstellt aus bestehenden Playlists eine neue Playlist beim selben Dienst. Das ist kein Sync: Das Ergebnis wird später nicht aktualisiert.</string>
     <string name="help_make_example">Zwei Playlists zu einer zusammenführen oder eine lange in Teile zu 50 aufteilen.</string>
-    <string name="help_transfer_body">Jeder legt eine neue Playlist im Ziel an und fügt nur hinzu; eine Playlist, die schon einen Sync hat, nutzt diesen. Alle übernehmen den Zeitplan, den du hier wählst.</string>
+    <string name="help_transfer_body">Jeder legt eine neue Playlist im Ziel an und fügt nur hinzu; eine Playlist, die schon einen Sync hat, nutzt diesen. Alle übernehmen den Zeitplan, den du hier wählst. Bevor etwas erstellt wird, fragt eine Zusammenfassung nach deiner Bestätigung; du kannst sie auch erstellen, ohne sie zu starten.</string>
     <string name="help_transfer_example">20 Playlists mit „Täglich“ zu übertragen, erstellt 20 tägliche Syncs.</string>
     <string name="help_dedupe_body">Entfernt die doppelten Titel sofort, ohne weitere Rückfrage: derselbe Titel zweimal, auch in einer anderen Veröffentlichung, wobei die erste Kopie bleibt. Live- und Remix-Versionen zählen als andere Songs. Bei Diensten, die einen Titel samt aller Kopien entfernen, etwa Spotify und Deezer, rückt die behaltene Kopie ans Ende.</string>
     <string name="help_unplayable_body">Für jeden ausgegrauten Titel schlägt Trackhop eine abspielbare Version vor. Nichts ändert sich, bis du übernimmst, und „Letzte Korrektur rückgängig“ holt die Originale zurück. Gründe wie „Nicht in deinem Abo“ kommen vom Dienst.</string>

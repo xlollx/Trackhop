@@ -354,6 +354,25 @@
         <item quantity="other">Transferir %1$d playlists</item>
     </plurals>
     <string name="transfer_started">%1$d sincronizações criadas e iniciadas: acompanhe em Sincronizações.</string>
+    <string name="transfer_confirm_title">Confira antes de começar</string>
+    <string name="transfer_confirm_route">De %1$s para %2$s</string>
+    <string name="transfer_confirm_adds_only">Elas só adicionam: nada é removido de %1$s.</string>
+    <string name="transfer_confirm_start_now">Iniciar agora</string>
+    <string name="transfer_confirm_create">Criar</string>
+    <string name="transfer_confirm_create_start">Criar e iniciar</string>
+    <string name="transfer_created">%1$d sincronizações criadas: execute em Sincronizações quando quiser.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d sincronização nova</item>
+        <item quantity="other">%1$d sincronizações novas</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d já tem sincronização: ela roda de novo</item>
+        <item quantity="other">%1$d já têm sincronização: elas rodam de novo</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d já tem sincronização: fica como está</item>
+        <item quantity="other">%1$d já têm sincronização: ficam como estão</item>
+    </plurals>
     <string name="ai_title">Gerador de playlists</string>
     <string name="ai_desc">Descreva a playlist que você quer e sua própria AI a escreve; o Trackhop então procura as faixas no serviço que você escolher, como numa sincronização normal, então o que a AI errou vai parar entre as faixas a revisar. O Trackhop não tem AI própria: você conecta a sua (OpenAI, Anthropic, Google Gemini ou qualquer servidor compatível com OpenAI, até um local) com uma chave da sua conta, e só o texto que você digita aqui é enviado a ela.</string>
     <string name="ai_setup">Conectar uma AI</string>
@@ -1140,7 +1159,7 @@
     <string name="help_export_body">CSV abre em planilhas, M3U na maioria dos players, XSPF e JSPF nos players que aceitam esses formatos, e Texto tem uma faixa por linha.</string>
     <string name="help_make_body">Cria uma playlist nova no mesmo serviço a partir de playlists existentes. Não é uma sincronização: o resultado não será atualizado depois.</string>
     <string name="help_make_example">Junte duas playlists em uma, ou divida uma longa em partes de 50.</string>
-    <string name="help_transfer_body">Cada uma cria uma playlist nova no destino e só adiciona; uma playlist que já tem sincronização reaproveita essa. Todas ficam com o agendamento que você escolher aqui.</string>
+    <string name="help_transfer_body">Cada uma cria uma playlist nova no destino e só adiciona; uma playlist que já tem sincronização reaproveita essa. Todas ficam com o agendamento que você escolher aqui. Antes de criar qualquer coisa, um resumo pede sua confirmação, e você também pode criá-las sem iniciar.</string>
     <string name="help_transfer_example">Transferir 20 playlists com Diariamente cria 20 sincronizações diárias.</string>
     <string name="help_dedupe_body">Remove na hora as faixas repetidas, sem mais perguntas: a mesma faixa duas vezes, mesmo de outra edição, mantendo a primeira cópia. Versões ao vivo e remixes contam como músicas diferentes. Nos serviços que removem uma faixa com todas as cópias, como Spotify e Deezer, a cópia mantida vai para o fim.</string>
     <string name="help_unplayable_body">Para cada faixa acinzentada, o Trackhop sugere uma versão que toca. Nada muda até você aplicar, e Desfazer última correção devolve as originais. Motivos como “Não no seu plano” vêm do serviço.</string>

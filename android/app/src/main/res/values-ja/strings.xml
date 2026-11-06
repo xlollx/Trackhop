@@ -351,6 +351,22 @@
         <item quantity="other">%1$d 個のプレイリストを転送</item>
     </plurals>
     <string name="transfer_started">%1$d 個の同期を作成して開始しました。「同期」で確認できます。</string>
+    <string name="transfer_confirm_title">開始前に確認</string>
+    <string name="transfer_confirm_route">%1$s → %2$s</string>
+    <string name="transfer_confirm_adds_only">追加するだけです。%1$s からは何も削除されません。</string>
+    <string name="transfer_confirm_start_now">すぐに開始</string>
+    <string name="transfer_confirm_create">作成</string>
+    <string name="transfer_confirm_create_start">作成して開始</string>
+    <string name="transfer_created">%1$d 個の同期を作成しました。好きなときに「同期」から実行できます。</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="other">新しい同期 %1$d 個</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="other">%1$d 個はすでに同期があり、もう一度実行されます</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="other">%1$d 個はすでに同期があり、そのまま残ります</item>
+    </plurals>
     <string name="ai_title">プレイリスト生成</string>
     <string name="ai_desc">欲しいプレイリストを説明すると、あなた自身の AI がそれを書きます。その後 Trackhop が通常の同期と同じように、選んだサービス上で曲を探すので、AI が間違えた曲は確認が必要な曲として残ります。Trackhop 自体に AI はありません。自分の AI（OpenAI、Anthropic、Google Gemini、または OpenAI 互換のサーバー、ローカルでも可）を自分のアカウントのキーで接続し、ここに入力した文章だけが送信されます。</string>
     <string name="ai_setup">AI を接続</string>
@@ -1113,7 +1129,7 @@
     <string name="help_export_body">CSV は表計算ソフトで、M3U はほとんどの音楽プレーヤーで、XSPF と JSPF は対応するプレーヤーで開けます。テキストは1行に1曲です。</string>
     <string name="help_make_body">既存のプレイリストから、同じサービス上に新しいプレイリストを作ります。同期ではないので、あとから更新されることはありません。</string>
     <string name="help_make_example">2つのプレイリストを1つにまとめたり、長いプレイリストを50曲ずつに分けたりできます。</string>
-    <string name="help_transfer_body">それぞれが同期先に新しいプレイリストを作り、曲を追加するだけです。すでに同期があるプレイリストは、その同期を使います。どれもここで選んだスケジュールになります。</string>
+    <string name="help_transfer_body">それぞれが同期先に新しいプレイリストを作り、曲を追加するだけです。すでに同期があるプレイリストは、その同期を使います。どれもここで選んだスケジュールになります。作成する前に概要が表示され、確認を求めます。開始せずに作成することもできます。</string>
     <string name="help_transfer_example">20個のプレイリストを「毎日」で転送すると、毎日実行される同期が20個作られます。</string>
     <string name="help_dedupe_body">重複した曲を、確認なしですぐに削除します。別のリリースでも同じ曲が2回あれば重複とみなし、最初の1曲を残します。ライブ版やリミックスは別の曲として扱います。Spotify や Deezer のように、曲をすべてのコピーごと削除するサービスでは、残した1曲が末尾に移動します。</string>
     <string name="help_unplayable_body">グレー表示の曲ごとに、再生できるバージョンを Trackhop が提案します。適用するまで何も変わらず、「前回の修正を元に戻す」で元の曲に戻せます。「プラン対象外」などの理由はサービスから届いたものです。</string>

@@ -354,6 +354,25 @@
         <item quantity="other">%1$d çalma listesini aktar</item>
     </plurals>
     <string name="transfer_started">%1$d senkronizasyon oluşturuldu ve başlatıldı: Senkronizasyonlar\'dan izleyin.</string>
+    <string name="transfer_confirm_title">Başlamadan önce kontrol et</string>
+    <string name="transfer_confirm_route">%1$s → %2$s</string>
+    <string name="transfer_confirm_adds_only">Yalnızca ekler: %1$s üzerinden hiçbir şey kaldırılmaz.</string>
+    <string name="transfer_confirm_start_now">Hemen başlat</string>
+    <string name="transfer_confirm_create">Oluştur</string>
+    <string name="transfer_confirm_create_start">Oluştur ve başlat</string>
+    <string name="transfer_created">%1$d senkronizasyon oluşturuldu: istediğinde Senkronizasyonlar\'dan çalıştır.</string>
+    <plurals name="transfer_confirm_new">
+        <item quantity="one">%1$d yeni senkronizasyon</item>
+        <item quantity="other">%1$d yeni senkronizasyon</item>
+    </plurals>
+    <plurals name="transfer_confirm_rerun">
+        <item quantity="one">%1$d listenin zaten senkronizasyonu var: yeniden çalışır</item>
+        <item quantity="other">%1$d listenin zaten senkronizasyonu var: yeniden çalışırlar</item>
+    </plurals>
+    <plurals name="transfer_confirm_kept">
+        <item quantity="one">%1$d listenin zaten senkronizasyonu var: olduğu gibi kalır</item>
+        <item quantity="other">%1$d listenin zaten senkronizasyonu var: oldukları gibi kalır</item>
+    </plurals>
     <string name="ai_title">Çalma listesi oluşturucu</string>
     <string name="ai_desc">İstediğiniz çalma listesini tarif edin, kendi yapay zekanız yazsın; Trackhop ardından parçaları seçtiğiniz serviste normal bir senkronizasyon gibi arar, böylece yapay zekanın yanlış yazdığı her şey incelenecek parçalar arasına düşer. Trackhop\'un kendi yapay zekası yoktur: kendi yapay zekanızı (OpenAI, Anthropic, Google Gemini veya OpenAI uyumlu herhangi bir sunucu, yerel bile olabilir) hesabınızdan aldığınız bir anahtarla bağlarsınız ve ona yalnızca burada yazdığınız metin gönderilir.</string>
     <string name="ai_setup">Yapay zeka bağla</string>
@@ -1131,7 +1150,7 @@
     <string name="help_export_body">CSV elektronik tablolarda, M3U çoğu müzik çalarda, XSPF ve JSPF bunları destekleyen çalarlarda açılır; Metin ise her satırda bir parça içerir.</string>
     <string name="help_make_body">Mevcut çalma listelerinden aynı serviste yeni bir çalma listesi oluşturur. Bu bir senkronizasyon değildir: sonuç daha sonra güncellenmez.</string>
     <string name="help_make_example">İki çalma listesini birleştirin ya da uzun bir listeyi 50\'şerlik parçalara bölün.</string>
-    <string name="help_transfer_body">Her biri hedefte yeni bir çalma listesi oluşturur ve yalnızca ekler; zaten senkronizasyonu olan bir çalma listesi onu yeniden kullanır. Hepsi burada seçtiğiniz zamanlamayı alır.</string>
+    <string name="help_transfer_body">Her biri hedefte yeni bir çalma listesi oluşturur ve yalnızca ekler; zaten senkronizasyonu olan bir çalma listesi onu yeniden kullanır. Hepsi burada seçtiğiniz zamanlamayı alır. Bir şey oluşturulmadan önce bir özet onay ister; ayrıca başlatmadan da oluşturabilirsin.</string>
     <string name="help_transfer_example">20 çalma listesini Her gün ile aktarmak 20 günlük senkronizasyon oluşturur.</string>
     <string name="help_dedupe_body">Tekrarlanan parçaları başka bir soru sormadan hemen kaldırır: aynı parça iki kez, farklı bir yayımdan olsa bile; ilk kopya kalır. Canlı ve remiks sürümler farklı şarkı sayılır. Spotify ve Deezer gibi bir parçayı tüm kopyalarıyla birlikte kaldıran servislerde tutulan kopya sona gider.</string>
     <string name="help_unplayable_body">Gri görünen her parça için Trackhop çalınabilen bir sürüm önerir. Siz uygulayana kadar hiçbir şey değişmez; Son düzeltmeyi geri al ise orijinalleri geri getirir. “Planında yok” gibi nedenler servisten gelir.</string>
