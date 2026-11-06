@@ -179,6 +179,15 @@ class DeezerContractTest : ContractTest() {
         assertTrue(q, !q.contains("artist:") && q.endsWith("\" nandu"))
     }
 
+    @Test fun anAddAnsweredWith502IsSentOnce() = runBlocking {
+        // #42: a POST that adds may have been applied before the 502; it is not repeated.
+        text("<html>Bad gateway</html>", 502)
+        val e = runCatching { dz.addTracks(env, "908622995", listOf(Track("1", "A", listOf("B")))) }.exceptionOrNull()
+        assertTrue(e?.message, e?.message?.contains("502") == true)
+        assertCall(next(), "POST", api, "/playlist/908622995/tracks")
+        noMoreRequests()
+    }
+
     @Test fun httpErrorIsAClearError() = runBlocking {
         text("<html>Bad gateway</html>", 502); text("<html>Bad gateway</html>", 502)
         try { dz.tracks(env, "9"); fail() } catch (e: ProviderException) { assertTrue(e.message!!.startsWith("Deezer API 502")) }

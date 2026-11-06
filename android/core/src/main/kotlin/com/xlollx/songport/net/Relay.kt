@@ -27,8 +27,8 @@ object Relay {
     /** True where the sources go through a plugin (Google Play): they then show only when it is there. */
     val throughPlugin: Boolean get() = via != null
 
-    suspend fun send(method: String, url: String, headers: Map<String, String> = emptyMap(), body: RequestBody? = null, maxRateLimitRetries: Int = 3): HttpResponse {
-        val v = via ?: return Http.send(method, url, headers, body, maxRateLimitRetries)
+    suspend fun send(method: String, url: String, headers: Map<String, String> = emptyMap(), body: RequestBody? = null, maxRateLimitRetries: Int = 3, retryServerErrors: Boolean = method != "POST" && method != "PATCH"): HttpResponse {
+        val v = via ?: return Http.send(method, url, headers, body, maxRateLimitRetries, retryServerErrors)
         val text = body?.let { b -> okio.Buffer().also { b.writeTo(it) }.readUtf8() }
         val a = v(Call(method, url, headers, text, body?.contentType()?.toString(), followRedirects = true))
         return HttpResponse(a.code, a.body, okhttp3.Headers.Builder().apply { a.headers.forEach { (k, value) -> runCatching { add(k, value) } } }.build())

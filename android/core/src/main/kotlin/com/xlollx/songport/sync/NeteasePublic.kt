@@ -93,7 +93,7 @@ object NeteasePublic {
         val out = HashMap<Long, Track>()
         for (chunk in ids.chunked(BATCH)) {
             val body = FormBody.Builder().add("c", chunk.joinToString(",", "[", "]") { """{"id":$it}""" }).build()
-            val r = Relay.send("POST", "$SITE/api/v3/song/detail", HEADERS, body, maxRateLimitRetries = 1)
+            val r = Relay.send("POST", "$SITE/api/v3/song/detail", HEADERS, body, maxRateLimitRetries = 1, retryServerErrors = true)
             if (!r.ok) throw Changed("song/detail HTTP ${r.code}")
             val j = runCatching { parseJson(r.body) }.getOrElse { throw Changed("song/detail not JSON") }
             j["songs"].arr.mapNotNull { parseTrack(it) }.forEach { out[it.id.toLong()] = it }

@@ -316,6 +316,13 @@ class SpotifyWebClient(private val host: Host) {
         if (code == 429) throw BridgeException("Spotify asks to slow down (429, retry in $wait s)")
         // A server error is often a moment's one (a 500 on the library while the next call works):
         // tried once more after a pause, and logged so a report shows whether it came back.
+        // Except a write that adds: it may have gone through before the error, and sent again it adds
+        // the same tracks twice (#42). It is not repeated; the next sync reads the playlist and adds
+        // only what is missing.
+        if (code >= 500 && operation in NOT_REPEATED) {
+            BridgeNet.log("spotify", "$operation: HTTP $code, outcome unknown: not sent again, the next sync adds what is missing")
+            throw BridgeException("Spotify $operation: HTTP $code, $OUTCOME_UNKNOWN")
+        }
         if (code >= 500 && retry) {
             BridgeNet.log("spotify", "$operation: HTTP $code, trying once more" + (lastClientTokenError?.let { " (no client token: $it)" } ?: ""))
             Thread.sleep(2_000)
@@ -599,6 +606,9 @@ class SpotifyWebClient(private val host: Host) {
                 ))
             } catch (e: BridgeException) {
                 if (e.message?.contains("no query hash") != true && e.message?.contains("429") == true) throw e
+                // A server error may hide an add that went through: the same tracks sent again by the
+                // other route would be there twice (#42).
+                if (e.message?.contains(OUTCOME_UNKNOWN) == true) throw e
                 // The store accepts the same change directly.
                 spclient("/playlist/v2/playlist/$id/changes", deltas(jsonObj(
                     "kind" to 2, "add" to jsonObj("items" to chunk.map { jsonObj("uri" to it, "attributes" to jsonObj("timestamp" to System.currentTimeMillis(), "formatAttributes" to emptyList<String>(), "availableSignals" to emptyList<String>())) }, "addLast" to true),
@@ -734,6 +744,9 @@ class SpotifyWebClient(private val host: Host) {
     }
 
     companion object {
+        /** Writes that add: never sent a second time after an answer that leaves their outcome unknown (#42). */
+        private val NOT_REPEATED = setOf("addToPlaylist")
+        private const val OUTCOME_UNKNOWN = "outcome unknown"
         /**
          * Searches spaced out, about three a second across every client of the process: a burst of
          * them makes Spotify block for half an hour (issue #30), a steady pace does not.

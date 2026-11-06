@@ -86,4 +86,14 @@ class SpotifyWebHashesTest {
         web.addToLibrary(listOf("spotify:track:2"))
         assertEquals(add, sentHash(BridgeMock.calls.filter { it.path!!.contains("pathfinder") }.last()))
     }
+
+    @Test fun anAddAnsweredWithAServerErrorIsNotSentAgain() {
+        // #42: the add may have gone through before the 500; sent again (or by the other route) the
+        // same tracks would be there twice. The next sync adds only what is missing.
+        BridgeMock.answer("""{"error":"internal"}""", 500)
+        val e = runCatching { web.addToPlaylist("pl1", listOf("spotify:track:1", "spotify:track:2")) }.exceptionOrNull()
+        org.junit.Assert.assertTrue(e?.message, e?.message?.contains("outcome unknown") == true)
+        assertEquals(1, BridgeMock.calls.count { it.path!!.contains("pathfinder") })
+        assertEquals(0, BridgeMock.calls.count { it.path!!.contains("/playlist/v2/") })
+    }
 }

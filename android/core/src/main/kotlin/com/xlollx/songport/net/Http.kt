@@ -71,6 +71,10 @@ object Http {
         headers: Map<String, String> = emptyMap(),
         body: RequestBody? = null,
         maxRateLimitRetries: Int = 3,
+        // A 502/503/504 is tried once more only where repeating cannot do harm. A POST (adding tracks
+        // to a playlist, creating one) may have been applied before the error: sent twice it can add
+        // the same tracks twice (#42, idea of BjoernHa). Reads sent as POST opt in.
+        retryServerErrors: Boolean = method != "POST" && method != "PATCH",
     ): HttpResponse = withContext(Dispatchers.IO) {
         var last: HttpResponse? = null
         for (attempt in 0..maxRateLimitRetries) {
@@ -94,7 +98,7 @@ object Http {
                 continue
             }
             // 502/503/504: quasi sempre un singhiozzo del servizio, un secondo tentativo basta.
-            if (out.code in listOf(502, 503, 504) && attempt < 1) {
+            if (retryServerErrors && out.code in listOf(502, 503, 504) && attempt < 1) {
                 pause(1500)
                 continue
             }
