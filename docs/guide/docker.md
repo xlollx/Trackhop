@@ -166,6 +166,10 @@ an **alpha** on the server.
    (in Firefox: *Raw* view, then select the value).
 5. In Trackhop, **Services**, **YouTube Music (unofficial, alpha)**, paste it in *Cookies* and press
    **Connect**. The page checks them with one call before saving.
+6. If your playlists live on a **brand account** (a channel of its own under the same Google
+   account), pick it under **Channel** on the same page once connected: the list shows the
+   account's own channel and its brand accounts by name. Without a choice the account's own channel
+   is used, as before.
 
 A `cookies.txt` export or the JSON export of a cookie-editor extension works too: paste the file's
 content. Only YouTube's and Google's cookies are kept. Optionally paste your browser's user agent

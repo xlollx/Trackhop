@@ -14,6 +14,7 @@ import com.xlollx.songport.platform.KeyValues
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.sync.Reorder
 import com.xlollx.songport.sync.TitleParser
+import com.xlollx.songport.ytmbridge.ChannelDto
 import com.xlollx.songport.ytmbridge.PlaylistDto
 import com.xlollx.songport.ytmbridge.RemoveItem
 import com.xlollx.songport.ytmbridge.TrackDto
@@ -91,6 +92,29 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
     }
 
     override fun disconnect(ctx: Env) { ctx.tokens.clear(id) }
+
+    /** The brand account's page id this account's calls are made as; null (the default) is its own channel. */
+    fun channel(ctx: Env): String? = ctx.tokens.get(id)?.extra?.get(CHANNEL)?.takeIf { it.isNotBlank() }
+    /** The chosen channel's name, for the page; null when none was chosen. */
+    fun channelName(ctx: Env): String? = if (channel(ctx) == null) null else ctx.tokens.get(id)?.extra?.get(CHANNEL_NAME)
+
+    /** The channels the signed-in account can act as, the chosen one marked. */
+    suspend fun channels(ctx: Env): List<ChannelDto> {
+        val chosen = channel(ctx).orEmpty()
+        return io(ctx) { c -> c.channels().map { it.copy(selected = it.id == chosen) } }
+    }
+
+    /**
+     * Makes this account's calls as [pageId] ("" for its own channel, as before any choice), kept in
+     * tokens.json under this account's id with the cookies, and names the account as that channel.
+     */
+    suspend fun setChannel(ctx: Env, pageId: String, name: String?) {
+        val t = session(ctx) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
+        val extra = t.extra - CHANNEL - CHANNEL_NAME + (if (pageId.isBlank()) emptyMap() else mapOf(CHANNEL to pageId.trim(), CHANNEL_NAME to name.orEmpty()))
+        ctx.tokens.set(id, t.copy(extra = extra))
+        val named = runCatching { io(ctx) { it.accountName() } }.getOrNull()
+        if (named != null) ctx.tokens.set(id, t.copy(extra = extra, userName = named))
+    }
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c ->
         c.playlists().map { Playlist(it.id, it.name, it.count) }
@@ -208,6 +232,9 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         const val SERVICE = "ytm"
         /** The browser's user agent, when the user gave it with the cookies. */
         const val UA = "userAgent"
+        /** The chosen brand account's page id and name, next to the cookies (none: the account's own channel). */
+        const val CHANNEL = "channel"
+        const val CHANNEL_NAME = "channelName"
 
         fun verification(ctx: Env): YtmVerificationStore = KeyValuesVerification(ctx.keyValues("ytm_verification"))
     }
@@ -223,6 +250,7 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         override val verification: YtmVerificationStore get() = verification(ctx)
         /** This person's data folder and this account: the client's cached player page never serves another. */
         override val cacheScope: String get() = ServerWebHost.scope(ctx, id)
+        override val channel: String? get() = tokens?.extra?.get(CHANNEL)?.takeIf { it.isNotBlank() }
         override val signInAgain = "paste fresh cookies in Services, YouTube Music"
         override val blockedHint =
             "Open music.youtube.com in a browser on the same network as this server, pass Google's check, then paste fresh cookies in Services, YouTube Music"
