@@ -321,4 +321,37 @@ class FakeServerProvidersTest {
         assertEquals(listOf("e"), found.map { it.id })
         assertEquals(listOf("energie", "Énergie"), requests.filter { it.path == "/Items" }.map { it.query["searchTerm"]?.single() })
     }
+
+    // ------------------------------------------------------------------ Jellyfin Quick Connect (#45)
+
+    @Test fun jellyfinQuickConnectSignsInOnceTheCodeIsApproved() = runBlocking {
+        var approved = false
+        answer = { r ->
+            when {
+                r.path == "/QuickConnect/Enabled" -> 200 to "true"
+                r.path == "/QuickConnect/Initiate" && r.method == "POST" -> 200 to """{"Secret":"s3cr3t","Code":"123456","Authenticated":false}"""
+                r.path == "/QuickConnect/Connect" -> 200 to """{"Secret":"s3cr3t","Code":"123456","Authenticated":$approved}"""
+                r.path == "/Users/AuthenticateWithQuickConnect" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1","Name":"lorenzo"}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        val qc = p.quickConnectStart(ctx, url)
+        assertEquals("123456", qc.code)
+        assertEquals(false, p.quickConnectPoll(ctx, qc))
+        approved = true
+        assertEquals(true, p.quickConnectPoll(ctx, qc))
+        assertEquals("s3cr3t", requests.last { it.path == "/QuickConnect/Connect" }.query["Secret"]?.single())
+        assertEquals("s3cr3t", parseJson(requests.single { it.path == "/Users/AuthenticateWithQuickConnect" }.body)["Secret"].str)
+        assertEquals("lorenzo", p.accountName(ctx))
+        // Signed in: the next call carries the token.
+        answer = { r -> if (r.path == "/Users/u1/Items") 200 to """{"Items":[]}""" else 404 to "" }
+        assertEquals(emptyList<String>(), p.playlists(ctx).map { it.name })
+    }
+
+    @Test fun jellyfinQuickConnectOffIsSaidPlainly() = runBlocking {
+        answer = { r -> if (r.path == "/QuickConnect/Enabled") 200 to "false" else 404 to "" }
+        val e = runCatching { JellyfinProvider().quickConnectStart(ctx, url) }.exceptionOrNull()
+        assertTrue(e?.message, e?.message?.contains("jellyfin_qc_off") == true)
+    }
 }

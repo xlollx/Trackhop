@@ -19,6 +19,7 @@ class EmbyProvider(slot: String = "") : JellyfinProvider(slot) {
     override val brandColor = 0xFF52B54B
     override val noteName = "provider_note_emby"
     override val beta = true
+    override val supportsQuickConnect: Boolean get() = false
     override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_emby", secretOptional = true)
 
     override fun headers(token: String?): Map<String, String> = embyHeaders(token)

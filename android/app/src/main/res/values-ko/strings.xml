@@ -1627,4 +1627,11 @@
     <string name="ai_nano_retry">다시 시도</string>
     <string name="editor_keep_order_liked_slow">순서를 유지하기 위해 좋아요 곡을 1초에 한 곡씩 저장합니다. 첫 대규모 동기화는 느립니다(600곡에 약 10분).</string>
     <string name="editor_keep_order_liked_fast">끄면: 좋아요 곡을 묶음으로 최대 속도로 저장하지만 Spotify가 순서를 섞을 수 있습니다.</string>
+    <string name="login_qc_button">Quick Connect로 로그인</string>
+    <string name="login_qc_hint">비밀번호 없이(예: 통합 로그인): Jellyfin이 주는 코드를 이미 로그인된 기기에서 승인합니다.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Jellyfin에 로그인된 기기에서 프로필 › Quick Connect를 열고 이 코드를 입력하세요:</string>
+    <string name="login_qc_waiting">승인을 기다리는 중…</string>
+    <string name="jellyfin_qc_off">이 Jellyfin 서버에서 Quick Connect가 꺼져 있습니다. 관리자가 대시보드 › 일반 › Quick Connect에서 켤 수 있습니다.</string>
+    <string name="jellyfin_qc_expired">Quick Connect 코드가 만료되었습니다. 다시 시도해 새 코드를 받으세요.</string>
 </resources>

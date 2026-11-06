@@ -90,6 +90,10 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     var secret by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    // Jellyfin Quick Connect (#45): the code to approve on a signed-in device, while waiting.
+    var qcCode by remember { mutableStateOf<String?>(null) }
+    var qcJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    val jellyfin = (provider as? JellyfinProvider)?.takeIf { it.supportsQuickConnect }
 
     Scaffold(
         topBar = {
@@ -141,6 +145,63 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                 if (busy) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.login_checking)) }
                 else Text(stringResource(R.string.login_submit))
             }
+            if (jellyfin != null) {
+                androidx.compose.material3.OutlinedButton(
+                    enabled = !busy && url.isNotBlank(),
+                    onClick = {
+                        busy = true; error = null
+                        qcJob = scope.launch {
+                            try {
+                                val qc = jellyfin.quickConnectStart(com.xlollx.songport.platform.AndroidEnv.of(ctx), url)
+                                qcCode = qc.code
+                                // Up to 5 minutes, every 3 s: the server forgets the code after a while anyway.
+                                var ok = false
+                                for (i in 0 until 100) {
+                                    kotlinx.coroutines.delay(3000)
+                                    if (jellyfin.quickConnectPoll(com.xlollx.songport.platform.AndroidEnv.of(ctx), qc)) { ok = true; break }
+                                }
+                                qcCode = null
+                                if (ok) onDone(ctx.getString(R.string.auth_done, provider.displayName))
+                                else { error = ctx.getString(R.string.jellyfin_qc_expired); busy = false }
+                            } catch (e: kotlinx.coroutines.CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                qcCode = null
+                                error = e.message ?: ctx.getString(R.string.error_generic)
+                                busy = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.login_qc_button)) }
+                Text(stringResource(R.string.login_qc_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
+    }
+    qcCode?.let { code ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.login_qc_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.login_qc_body))
+                    androidx.compose.foundation.text.selection.SelectionContainer {
+                        Text(code, style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.CenterHorizontally))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.login_qc_waiting), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { qcJob?.cancel(); qcCode = null; busy = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 }

@@ -1659,4 +1659,11 @@
     <string name="ai_nano_retry">Réessayer</string>
     <string name="editor_keep_order_liked_slow">Les titres likés sont enregistrés un par seconde pour garder l\'ordre : une première grosse synchronisation est lente (environ 10 minutes pour 600 titres).</string>
     <string name="editor_keep_order_liked_fast">Désactivé : ils sont enregistrés par lots à pleine vitesse, mais Spotify peut mélanger l\'ordre.</string>
+    <string name="login_qc_button">Se connecter avec Quick Connect</string>
+    <string name="login_qc_hint">Sans mot de passe, par exemple avec l\'authentification unique : Jellyfin te donne un code à approuver depuis un appareil déjà connecté.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Sur un appareil déjà connecté à Jellyfin, ouvre ton profil › Quick Connect et saisis ce code :</string>
+    <string name="login_qc_waiting">En attente d\'approbation…</string>
+    <string name="jellyfin_qc_off">Quick Connect est désactivé sur ce serveur Jellyfin. Un administrateur peut l\'activer dans Tableau de bord › Général › Quick Connect.</string>
+    <string name="jellyfin_qc_expired">Le code Quick Connect a expiré. Réessaie pour en obtenir un nouveau.</string>
 </resources>

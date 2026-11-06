@@ -1628,4 +1628,11 @@
     <string name="ai_nano_retry">重试</string>
     <string name="editor_keep_order_liked_slow">为保持顺序，喜欢的歌曲每秒保存一首：首次大规模同步较慢（每 600 首约 10 分钟）。</string>
     <string name="editor_keep_order_liked_fast">关闭：喜欢的歌曲会批量全速保存，但 Spotify 可能会打乱顺序。</string>
+    <string name="login_qc_button">使用 Quick Connect 登录</string>
+    <string name="login_qc_hint">无需密码（例如单点登录）：Jellyfin 会给你一个代码，在已登录的设备上批准即可。</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">在已登录 Jellyfin 的设备上，打开你的个人资料 › Quick Connect，输入此代码：</string>
+    <string name="login_qc_waiting">正在等待批准…</string>
+    <string name="jellyfin_qc_off">此 Jellyfin 服务器已关闭 Quick Connect。管理员可以在 控制台 › 常规 › Quick Connect 中开启。</string>
+    <string name="jellyfin_qc_expired">Quick Connect 代码已过期。请重试以获取新代码。</string>
 </resources>

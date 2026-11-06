@@ -1651,4 +1651,11 @@
     <string name="ai_nano_retry">Riprova</string>
     <string name="editor_keep_order_liked_slow">I brani preferiti vengono salvati uno al secondo per mantenere l\'ordine: una prima sincronizzazione grande è lenta (circa 10 minuti ogni 600 brani).</string>
     <string name="editor_keep_order_liked_fast">Disattivato: i preferiti vengono salvati a blocchi alla massima velocità, ma Spotify può mescolarne l\'ordine.</string>
+    <string name="login_qc_button">Accedi con Quick Connect</string>
+    <string name="login_qc_hint">Senza password, per esempio con l\'accesso unico (SSO): Jellyfin ti dà un codice da approvare da un dispositivo dove hai già fatto l\'accesso.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Su un dispositivo dove hai già fatto l\'accesso a Jellyfin, apri il tuo profilo › Quick Connect e inserisci questo codice:</string>
+    <string name="login_qc_waiting">In attesa dell\'approvazione…</string>
+    <string name="jellyfin_qc_off">Quick Connect è disattivato su questo server Jellyfin. Un amministratore può attivarlo in Dashboard › Generale › Quick Connect.</string>
+    <string name="jellyfin_qc_expired">Il codice Quick Connect è scaduto. Riprova per averne uno nuovo.</string>
 </resources>

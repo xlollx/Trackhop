@@ -1699,4 +1699,11 @@
     <string name="ai_nano_retry">Spróbuj ponownie</string>
     <string name="editor_keep_order_liked_slow">Polubione utwory są zapisywane po jednym na sekundę, aby zachować kolejność: pierwsza duża synchronizacja jest wolna (ok. 10 minut na 600 utworów).</string>
     <string name="editor_keep_order_liked_fast">Wyłączone: polubione są zapisywane partiami z pełną prędkością, ale Spotify może pomieszać kolejność.</string>
+    <string name="login_qc_button">Zaloguj przez Quick Connect</string>
+    <string name="login_qc_hint">Bez hasła, np. przy logowaniu jednokrotnym (SSO): Jellyfin poda kod do zatwierdzenia na urządzeniu, na którym już jesteś zalogowany.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Na urządzeniu zalogowanym do Jellyfin otwórz profil › Quick Connect i wpisz ten kod:</string>
+    <string name="login_qc_waiting">Czekam na zatwierdzenie…</string>
+    <string name="jellyfin_qc_off">Quick Connect jest wyłączony na tym serwerze Jellyfin. Administrator może go włączyć w Panel › Ogólne › Quick Connect.</string>
+    <string name="jellyfin_qc_expired">Kod Quick Connect wygasł. Spróbuj ponownie, aby dostać nowy.</string>
 </resources>

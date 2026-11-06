@@ -1628,4 +1628,11 @@
     <string name="ai_nano_retry">再試行</string>
     <string name="editor_keep_order_liked_slow">順番を保つため、お気に入りの曲は1秒に1曲ずつ保存されます。最初の大きな同期は時間がかかります（600曲で約10分）。</string>
     <string name="editor_keep_order_liked_fast">オフ：お気に入りの曲はまとめて高速に保存されますが、Spotify が順番を入れ替えることがあります。</string>
+    <string name="login_qc_button">Quick Connect でサインイン</string>
+    <string name="login_qc_hint">パスワード不要（シングルサインオンなど）：Jellyfin が表示するコードを、すでにサインインしている端末で承認します。</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Jellyfin にサインイン済みの端末で、プロフィール › Quick Connect を開き、このコードを入力してください：</string>
+    <string name="login_qc_waiting">承認を待っています…</string>
+    <string name="jellyfin_qc_off">この Jellyfin サーバーでは Quick Connect がオフになっています。管理者がダッシュボード › 全般 › Quick Connect でオンにできます。</string>
+    <string name="jellyfin_qc_expired">Quick Connect のコードの有効期限が切れました。もう一度試して新しいコードを取得してください。</string>
 </resources>

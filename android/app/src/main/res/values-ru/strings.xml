@@ -1697,4 +1697,11 @@
     <string name="ai_nano_retry">Повторить</string>
     <string name="editor_keep_order_liked_slow">Любимые треки сохраняются по одному в секунду, чтобы сохранить порядок: первая большая синхронизация идёт медленно (около 10 минут на 600 треков).</string>
     <string name="editor_keep_order_liked_fast">Выключено: любимые треки сохраняются пачками на полной скорости, но Spotify может перемешать порядок.</string>
+    <string name="login_qc_button">Войти через Quick Connect</string>
+    <string name="login_qc_hint">Без пароля, например при едином входе (SSO): Jellyfin выдаст код, который нужно подтвердить на устройстве, где вы уже вошли.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">На устройстве, где вы уже вошли в Jellyfin, откройте профиль › Quick Connect и введите этот код:</string>
+    <string name="login_qc_waiting">Ожидание подтверждения…</string>
+    <string name="jellyfin_qc_off">Quick Connect отключён на этом сервере Jellyfin. Администратор может включить его в Панель › Общие › Quick Connect.</string>
+    <string name="jellyfin_qc_expired">Срок действия кода Quick Connect истёк. Попробуйте снова, чтобы получить новый.</string>
 </resources>

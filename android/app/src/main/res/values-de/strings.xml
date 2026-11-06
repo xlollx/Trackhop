@@ -1651,4 +1651,11 @@
     <string name="ai_nano_retry">Erneut versuchen</string>
     <string name="editor_keep_order_liked_slow">Lieblingssongs werden einzeln pro Sekunde gespeichert, um die Reihenfolge zu halten: Eine große erste Synchronisierung dauert (etwa 10 Minuten pro 600 Songs).</string>
     <string name="editor_keep_order_liked_fast">Aus: Lieblingssongs werden in Blöcken mit voller Geschwindigkeit gespeichert, aber Spotify kann die Reihenfolge mischen.</string>
+    <string name="login_qc_button">Mit Quick Connect anmelden</string>
+    <string name="login_qc_hint">Ohne Passwort, zum Beispiel bei Single Sign-on: Jellyfin gibt dir einen Code, den du auf einem bereits angemeldeten Gerät bestätigst.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Öffne auf einem Gerät, auf dem du bei Jellyfin angemeldet bist, dein Profil › Quick Connect und gib diesen Code ein:</string>
+    <string name="login_qc_waiting">Warte auf Bestätigung…</string>
+    <string name="jellyfin_qc_off">Quick Connect ist auf diesem Jellyfin-Server ausgeschaltet. Ein Administrator kann es unter Dashboard › Allgemein › Quick Connect einschalten.</string>
+    <string name="jellyfin_qc_expired">Der Quick-Connect-Code ist abgelaufen. Versuche es erneut, um einen neuen zu bekommen.</string>
 </resources>

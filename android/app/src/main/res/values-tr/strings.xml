@@ -1649,4 +1649,11 @@
     <string name="ai_nano_retry">Tekrar dene</string>
     <string name="editor_keep_order_liked_slow">Sırayı korumak için beğenilen şarkılar saniyede bir kaydedilir: ilk büyük eşitleme yavaştır (600 şarkı için yaklaşık 10 dakika).</string>
     <string name="editor_keep_order_liked_fast">Kapalı: beğenilenler tam hızda toplu kaydedilir, ancak Spotify sırayı karıştırabilir.</string>
+    <string name="login_qc_button">Quick Connect ile giriş yap</string>
+    <string name="login_qc_hint">Parolasız, örneğin tek oturum açma (SSO) ile: Jellyfin, zaten oturum açtığın bir cihazdan onaylayacağın bir kod verir.</string>
+    <string name="login_qc_title">Quick Connect</string>
+    <string name="login_qc_body">Jellyfin\'de oturum açtığın bir cihazda profilini › Quick Connect\'i aç ve bu kodu gir:</string>
+    <string name="login_qc_waiting">Onay bekleniyor…</string>
+    <string name="jellyfin_qc_off">Bu Jellyfin sunucusunda Quick Connect kapalı. Bir yönetici Pano › Genel › Quick Connect bölümünden açabilir.</string>
+    <string name="jellyfin_qc_expired">Quick Connect kodunun süresi doldu. Yeni bir kod için tekrar dene.</string>
 </resources>

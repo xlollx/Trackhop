@@ -7,6 +7,7 @@ import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.arr
+import com.xlollx.songport.net.bool
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
 import com.xlollx.songport.net.jsonObj
@@ -59,6 +60,50 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         val j = parseJson(resp.body)
         val token = j["AccessToken"].str ?: throw ProviderException("$displayName: no token")
         save(ctx, Tokens(accessToken = token, userId = j["User"]["Id"].str ?: "", userName = user.trim(), extra = mapOf("url" to base)))
+    }
+
+    /**
+     * Quick Connect (#45): sign in with a short code approved from a device that is already signed in,
+     * with no password. For servers behind single sign-on, where the password is not a Jellyfin one.
+     * Emby has no Quick Connect.
+     */
+    open val supportsQuickConnect: Boolean get() = true
+
+    class QuickConnect(val base: String, val secret: String, val code: String)
+
+    /** Asks the server for a code to approve. Throws with a clear message when Quick Connect is off. */
+    suspend fun quickConnectStart(ctx: Env, url: String): QuickConnect {
+        val base = normalizeUrl(url)
+        val root = apiRoot(base)
+        val enabled = Http.send("GET", "$root/QuickConnect/Enabled", headers(null))
+        if (enabled.ok && enabled.body.trim().equals("false", ignoreCase = true)) throw ProviderException(ctx.text("jellyfin_qc_off"))
+        // POST since Jellyfin 10.9; 10.8 answered GET.
+        var resp = Http.send("POST", "$root/QuickConnect/Initiate", headers(null))
+        if (resp.code == 404 || resp.code == 405) resp = Http.send("GET", "$root/QuickConnect/Initiate", headers(null))
+        if (resp.code == 401 || resp.code == 403 || resp.code == 404) throw ProviderException(ctx.text("jellyfin_qc_off"))
+        if (!resp.ok) throw ProviderException("$displayName: Quick Connect failed (HTTP ${resp.code})")
+        val j = parseJson(resp.body)
+        val secret = j["Secret"].str ?: throw ProviderException("$displayName: Quick Connect failed (no secret)")
+        val code = j["Code"].str ?: throw ProviderException("$displayName: Quick Connect failed (no code)")
+        return QuickConnect(base, secret, code)
+    }
+
+    /** True once the code is approved and the sign-in saved; false while the server still waits. */
+    suspend fun quickConnectPoll(ctx: Env, qc: QuickConnect): Boolean {
+        val root = apiRoot(qc.base)
+        val r = Http.send("GET", "$root/QuickConnect/Connect?Secret=${Http.enc(qc.secret)}", headers(null))
+        if (r.code == 404) throw ProviderException(ctx.text("jellyfin_qc_expired"))
+        if (!r.ok) throw ProviderException("$displayName: Quick Connect failed (HTTP ${r.code})")
+        if (parseJson(r.body)["Authenticated"].bool != true) return false
+        val a = Http.send(
+            "POST", "$root/Users/AuthenticateWithQuickConnect", headers(null),
+            Http.jsonBody(jsonObj("Secret" to qc.secret).toString()),
+        )
+        if (!a.ok) throw ProviderException("$displayName: login failed (HTTP ${a.code})")
+        val j = parseJson(a.body)
+        val token = j["AccessToken"].str ?: throw ProviderException("$displayName: no token")
+        save(ctx, Tokens(accessToken = token, userId = j["User"]["Id"].str ?: "", userName = j["User"]["Name"].str ?: "", extra = mapOf("url" to qc.base)))
+        return true
     }
 
     protected suspend fun api(ctx: Env, method: String, path: String, body: JsonElement? = null): JsonElement {
