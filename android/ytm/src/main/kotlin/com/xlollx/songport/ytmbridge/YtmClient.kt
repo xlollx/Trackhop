@@ -143,7 +143,7 @@ class YtmClient(private val host: YtmHost) {
      * player's own and are refused far less often. Cached for an hour.
      */
     private fun visitor(ck: String?): Visitor {
-        val cached = if (ck != null) cachedVisitor else cachedAnonVisitor
+        val cached = if (ck != null) cachedVisitors[host.cacheScope] else cachedAnonVisitor
         cached?.takeIf { System.currentTimeMillis() - it.at < 3_600_000 }?.let { return it }
         val fresh = runCatching {
             val req = Request.Builder().url("${YtmAuth.ORIGIN}/").header("Cookie", ck ?: ANON_COOKIES).header("User-Agent", host.userAgent)
@@ -158,7 +158,7 @@ class YtmClient(private val host: YtmHost) {
             // In Europe an anonymous page is a consent screen without visitor data: ask the endpoint
             // the player itself uses to be assigned one.
             .let { if (ck == null && it.visitorData == null) it.copy(visitorData = anonymousVisitorId(it.clientVersion)) else it }
-        if (ck != null) cachedVisitor = fresh else cachedAnonVisitor = fresh
+        if (ck != null) cachedVisitors[host.cacheScope] = fresh else cachedAnonVisitor = fresh
         return fresh
     }
 
@@ -171,7 +171,7 @@ class YtmClient(private val host: YtmHost) {
         http.newCall(req).execute().use { resp -> parseJson(resp.body?.string() ?: "")["responseContext"]["visitorData"].str }
     }.getOrNull()
 
-    private fun invalidateVisitor(auth: Boolean) { if (auth) cachedVisitor = null else cachedAnonVisitor = null }
+    private fun invalidateVisitor(auth: Boolean) { if (auth) cachedVisitors.remove(host.cacheScope) else cachedAnonVisitor = null }
 
     /**
      * Adaptive pacing shared by the whole process, one lane per kind of request: anonymous searches
@@ -695,7 +695,8 @@ class YtmClient(private val host: YtmHost) {
         private val ANON_LANE = Lane(1_000, 6_000)
         @Volatile private var anonRefusedAt = 0L
         private const val ANON_COOLDOWN_MS = 5 * 60_000L
-        @Volatile private var cachedVisitor: Visitor? = null
+        /** The signed-in player page of each session (by [YtmHost.cacheScope]): never another account's. */
+        private val cachedVisitors = java.util.concurrent.ConcurrentHashMap<String, Visitor>()
         @Volatile private var cachedAnonVisitor: Visitor? = null
         /** Cookie jar of an anonymous visitor: only the consent choice, no account. */
         private const val ANON_COOKIES = "SOCS=CAI"

@@ -31,7 +31,8 @@ class AnghamiWebServerProvider(override val slot: String = "") : CookieConnector
     override val alpha: Boolean get() = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
-    override val supportsMultipleAccounts = false
+    /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
+    override val supportsMultipleAccounts = true
     override val authDomain = "anghami.com"
     override val searchParallelism = 2
     override val cookieSite = "play.anghami.com"
@@ -105,7 +106,7 @@ class AnghamiWebServerProvider(override val slot: String = "") : CookieConnector
         io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(tracks.map { it.id }, on = false) else c.remove(playlistId, tracks.map { it.id }) }
     }
 
-    private fun cache(ctx: Env): KeyValues = ctx.keyValues("anghami_web")
+    private fun cache(ctx: Env): KeyValues = ctx.keyValues(ServerWebHost.kvName("anghami_web", slot))
 
     private fun toTrack(t: TrackDto) = Track(id = t.id, title = t.title, artists = t.artists, album = t.album, durationMs = t.durationMs, year = t.year ?: 0)
 

@@ -38,7 +38,8 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
     override val alpha: Boolean get() = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
-    override val supportsMultipleAccounts = false
+    /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
+    override val supportsMultipleAccounts = true
     override val authDomain = "deezer.com"
     /** The gateway and the public API both dislike bursts. */
     override val searchParallelism = 2
@@ -62,11 +63,11 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
         val kv = cache(ctx)
         val user = withContext(Dispatchers.IO) {
             // A new session: the last one's gateway sid and user token go.
-            forget(kv)
+            forget(ctx, kv)
             try {
                 DeezerWebClient(ServerWebHost(ctx, id, kv, probe)).user(refresh = true)
             } catch (e: Exception) {
-                forget(kv)
+                forget(ctx, kv)
                 throw when {
                     e.message == DeezerWebClient.EXPIRED -> ProviderException(
                         "These Deezer cookies are signed out (the gateway answers as a visitor). Copy fresh ones from a browser where you are signed in to deezer.com.", e,
@@ -81,7 +82,7 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
 
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
-        forget(cache(ctx))
+        forget(ctx, cache(ctx))
     }
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c -> c.libraryPlaylists().map { toPlaylist(it) } }
@@ -132,12 +133,12 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
 
     private fun session(ctx: Env): Tokens? = ctx.tokens.get(id)?.takeIf { it.accessToken.isNotBlank() }
 
-    private fun cache(ctx: Env): KeyValues = ctx.keyValues("deezer_web")
+    private fun cache(ctx: Env): KeyValues = ctx.keyValues(ServerWebHost.kvName("deezer_web", slot))
 
-    /** Drops what the client keeps for a session: the gateway's sid and the user with its token (process-wide). */
-    private fun forget(kv: KeyValues) {
+    /** Drops what the client keeps for this account's session: the gateway's sid and the user with its token (process-wide, under this account's scope). */
+    private fun forget(ctx: Env, kv: KeyValues) {
         kv.clear()
-        DeezerWebClient.forget()
+        DeezerWebClient.forget(ServerWebHost.scope(ctx, id))
     }
 
     private fun toPlaylist(p: PlaylistDto) = Playlist(p.id, p.name, p.count, ownedByMe = p.owned, description = p.description)

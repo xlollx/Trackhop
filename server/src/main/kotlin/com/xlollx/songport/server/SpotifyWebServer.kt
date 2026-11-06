@@ -45,7 +45,8 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
     override val supportsLikedTarget = true
     override val supportsAlbums = true
     override val supportsArtists = true
-    override val supportsMultipleAccounts = false
+    /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
+    override val supportsMultipleAccounts = true
     override val canReorder = true
     override val canSetVisibility = true
     override val detectsUnplayable = true
@@ -72,13 +73,13 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
         val kv = cache(ctx)
         val (userId, name) = withContext(Dispatchers.IO) {
             // A new session: what the last one left (the page, the account id, the client token) goes.
-            forget(kv)
+            forget(ctx, kv)
             try {
                 val host = Host(ctx, kv, probe)
                 host.bearer()
                 SpotifyWebClient(host).profile()
             } catch (e: Exception) {
-                forget(kv)
+                forget(ctx, kv)
                 throw if (e is BridgeException) ProviderException("$displayName: ${e.message}", e) else e
             }
         }
@@ -87,7 +88,7 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
 
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
-        forget(cache(ctx))
+        forget(ctx, cache(ctx))
     }
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c -> c.libraryPlaylists().map { toPlaylist(it) } }
@@ -173,12 +174,12 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
 
     private fun session(ctx: Env): Tokens? = ctx.tokens.get(id)?.takeIf { it.accessToken.isNotBlank() }
 
-    private fun cache(ctx: Env): KeyValues = ctx.keyValues("spotify_web")
+    private fun cache(ctx: Env): KeyValues = ctx.keyValues(ServerWebHost.kvName("spotify_web", slot))
 
-    /** Drops what the client keeps for a session: its cached values and the player page (process-wide). */
-    private fun forget(kv: KeyValues) {
+    /** Drops what the client keeps for this account's session: its cached values and its player page (process-wide, under this account's scope). */
+    private fun forget(ctx: Env, kv: KeyValues) {
         kv.clear()
-        SpotifyWebClient.dropPage()
+        SpotifyWebClient.dropPage(ServerWebHost.scope(ctx, id))
     }
 
     private fun uriOf(t: Track): String = t.uri ?: when (t.kind) {
@@ -227,14 +228,14 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
             val client = SpotifyWebClient(this)
             var page = client.page()
             if (page.accessToken != null && page.expiresAt - 90_000 < System.currentTimeMillis()) {
-                SpotifyWebClient.dropPage()
+                SpotifyWebClient.dropPage(cacheScope)
                 page = client.page()
             }
             if (page.isAnonymous) throw BridgeException(EXPIRED)
             return page.accessToken ?: throw BridgeException(NO_TOKEN)
         }
 
-        override fun bearerRefused() = SpotifyWebClient.dropPage()
+        override fun bearerRefused() = SpotifyWebClient.dropPage(cacheScope)
     }
 
     companion object {

@@ -22,11 +22,11 @@ internal object Accounts {
 
     /**
      * True when this server can keep a second account of [p] apart from the first. The web
-     * connectors pasted from a browser ([CookieConnector]) are left out: their clients keep
-     * session values per service (the kv files "spotify_web", "deezer_web"…) and, for Spotify
-     * and Deezer, in the process itself, so two accounts would mix.
+     * connectors pasted from a browser ([CookieConnector]) do too: an extra account's cookies live
+     * in tokens.json under its id ("spotify_bridge@2"), its client's values in a kv file of its own
+     * ("spotify_web@2") and the clients' process-wide caches under its own scope ([ServerWebHost]).
      */
-    fun allowsAnother(p: MusicProvider): Boolean = p.requiresAuth && p.supportsMultipleAccounts && p !is CookieConnector && !p.linkOnly
+    fun allowsAnother(p: MusicProvider): Boolean = p.requiresAuth && p.supportsMultipleAccounts && !p.linkOnly
 
     /**
      * Adds a connector of [serviceId] and returns its id; null when there is no such service. With

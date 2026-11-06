@@ -333,10 +333,10 @@ class AccountsTest {
         assertTrue(Accounts.allowsAnother(Providers.byId("plex")!!))
         assertTrue(Accounts.allowsAnother(Providers.byId("subsonic")!!))
         assertTrue(Accounts.allowsAnother(Providers.byId("spotify")!!))
-        assertFalse(Accounts.allowsAnother(Providers.byId("ytm")!!))
         assertFalse(Accounts.allowsAnother(Providers.byId("csv")!!))
+        // The pasted-cookie connectors too: each account has its own cookies, kv file and caches.
         val cookies = Providers.services().filter { it is CookieConnector }
         assertTrue(cookies.size >= 6)
-        cookies.forEach { assertFalse(it.id, Accounts.allowsAnother(it)) }
+        cookies.forEach { assertTrue(it.id, Accounts.allowsAnother(it)) }
     }
 }

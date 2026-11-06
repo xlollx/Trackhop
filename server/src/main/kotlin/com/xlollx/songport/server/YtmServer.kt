@@ -49,7 +49,8 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
     override val supportsAlbums = true
     override val supportsArtists = true
     override val supportsRecent = true
-    override val supportsMultipleAccounts = false
+    /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
+    override val supportsMultipleAccounts = true
     override val canRenamePlaylists = true
     override val canDeletePlaylists = true
     override val canReorder = true
@@ -216,9 +217,12 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         private val tokens get() = fixed ?: session(ctx)
         override fun cookies(): String? = tokens?.accessToken
         override val userAgent: String get() = tokens?.extra?.get(UA) ?: YtmClient.USER_AGENT
-        override val interceptor: okhttp3.Interceptor? = null
+        // None on a server (the connections hook stays null); the tests put a stub behind it.
+        override val interceptor: okhttp3.Interceptor? get() = com.xlollx.songport.ytmbridge.BridgeNet.interceptor
         override val web: YtmWebTransport? = null
         override val verification: YtmVerificationStore get() = verification(ctx)
+        /** This person's data folder and this account: the client's cached player page never serves another. */
+        override val cacheScope: String get() = ServerWebHost.scope(ctx, id)
         override val signInAgain = "paste fresh cookies in Services, YouTube Music"
         override val blockedHint =
             "Open music.youtube.com in a browser on the same network as this server, pass Google's check, then paste fresh cookies in Services, YouTube Music"

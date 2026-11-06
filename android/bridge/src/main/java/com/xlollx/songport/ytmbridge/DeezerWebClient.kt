@@ -47,13 +47,13 @@ class DeezerWebClient(private val host: WebHost) {
 
     /** Who is signed in, with the gateway token. Cached ten minutes; a refused token fetches it again. */
     fun user(refresh: Boolean = false): User {
-        if (!refresh) cachedUsers[host.slot]?.let { (at, u) -> if (System.currentTimeMillis() - at < 600_000) return u }
+        if (!refresh) cachedUsers[host.cacheScope]?.let { (at, u) -> if (System.currentTimeMillis() - at < 600_000) return u }
         val r = gw("deezer.getUserData", jsonObj(), retry = false)
         val u = r["USER"]
         val id = u["USER_ID"].str?.takeIf { it.isNotBlank() && it != "0" } ?: throw BridgeException(EXPIRED)
         val token = r["checkForm"].str?.takeIf { it.isNotBlank() } ?: throw BridgeException("Deezer did not hand out a gateway token: sign out of Deezer and sign in again")
         val user = User(id, u["BLOG_NAME"].str?.takeIf { it.isNotBlank() } ?: u["FIRSTNAME"].str, token, u["LOVEDTRACKS_ID"].str)
-        cachedUsers[host.slot] = System.currentTimeMillis() to user
+        cachedUsers[host.cacheScope] = System.currentTimeMillis() to user
         return user
     }
 
@@ -85,7 +85,7 @@ class DeezerWebClient(private val host: WebHost) {
         if (error != null) {
             val keys = (j["error"] as? JsonObject)?.keys.orEmpty()
             if (retry && (keys.any { it in TOKEN_ERRORS } || error.contains("CSRF", true))) {
-                cachedUsers.remove(host.slot)
+                cachedUsers.remove(host.cacheScope)
                 return gw(method, args, retry = false)
             }
             if (keys.any { it in AUTH_ERRORS } || keys.any { it in TOKEN_ERRORS }) throw BridgeException(EXPIRED)
@@ -315,14 +315,14 @@ class DeezerWebClient(private val host: WebHost) {
         private val JSON = "application/json".toMediaType()
         private val TOKEN_ERRORS = setOf("VALID_TOKEN_REQUIRED", "INVALID_CSRF_TOKEN")
         private val AUTH_ERRORS = setOf("NEED_USER_AUTH_REQUIRED", "USER_AUTH_REQUIRED", "GATEWAY_ERROR_AUTH")
-        /** The signed-in user of each account (by [WebHost.slot]): one per session, never another's. */
+        /** The signed-in user of each account (by [WebHost.cacheScope]): one per session, never another's. */
         private val cachedUsers = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, User>>()
         /** Pauses: the public API's quota window, the gap between one-by-one writes. Shortened by the tests. */
         @Volatile var quotaWaitMs = 5_000L
         @Volatile var pauseMs = 120L
 
-        /** Forgets the account's cached user and token: after a sign-out, or a sign-in to another account. */
-        fun forget(slot: String = "") { cachedUsers.remove(slot) }
+        /** Forgets the account's cached user and token ([scope]: its host's [WebHost.cacheScope]): after a sign-out, or a sign-in to another account. */
+        fun forget(scope: String = "") { cachedUsers.remove(scope) }
 
         /** The gateway's `error`: an empty array or object when all is well, a map of codes to messages when not. */
         fun errorOf(e: JsonElement?): String? = when (e) {

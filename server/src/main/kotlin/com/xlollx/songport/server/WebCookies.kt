@@ -56,10 +56,23 @@ internal open class ServerWebHost(
     // KeyValues holds no null: an empty value is a forgotten one.
     override fun put(key: String, value: String?) { kv[key] = value.orEmpty() }
     override val userAgent: String get() = tokens?.extra?.get(UA) ?: USER_AGENT
+    /** The account's slot, as its id names it ("spotify_bridge@2" is slot "2"). */
+    override val slot: String get() = slotOf(id)
+    /** This person's data folder and this account: the clients' caches never serve another. */
+    override val cacheScope: String get() = scope(ctx, id)
 
     companion object {
         /** The browser's user agent, when the user gave it with the cookies. */
         const val UA = "userAgent"
+        /** The slot of a connector id: "" for "spotify_bridge", "2" for "spotify_bridge@2". */
+        fun slotOf(id: String): String = id.substringAfter('@', "")
+        /** What the clients' process-wide caches are kept under for [id] in [ctx]'s data folder (see [WebHost.cacheScope]). */
+        fun scope(ctx: Env, id: String): String = "${ctx.dataDir.path}:$id"
+        /**
+         * The kv file of one account's client values: the primary keeps the file it has always had
+         * ("spotify_web"), an extra account has its own next to it ("spotify_web@2").
+         */
+        fun kvName(base: String, slot: String): String = if (slot.isEmpty()) base else "$base@$slot"
         /** Desktop Chrome, as the app's web connectors say they are: the players turn other browsers away. */
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
     }

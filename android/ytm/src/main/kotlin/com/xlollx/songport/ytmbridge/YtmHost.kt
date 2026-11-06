@@ -24,6 +24,12 @@ interface YtmHost {
     val blockedHint: String?
     /** The diagnostics log, where there is one: what happened, never a cookie or an id. */
     fun log(message: String) {}
+    /**
+     * What the client's process-wide cache of the signed-in player page (visitor id, client version)
+     * is kept under: "" for the one account there has always been; an extra account, or on a server
+     * each person's data folder and account, has its own, so no session reads another's page.
+     */
+    val cacheScope: String get() = ""
 }
 
 /** Calls made by a browser engine: Chrome's fingerprint, the browser's own cookies and headers. */

@@ -128,9 +128,10 @@ delete or change those syncs first. The main account is removed as before.
 
 Extra accounts work for the official connections (Spotify, YouTube, TIDAL, Deezer with your own
 key, which every account of the service shares), the personal servers (Navidrome / Subsonic,
-Jellyfin, Emby, Plex), Last.fm and ListenBrainz. The connectors signed in with pasted cookies
-(YouTube Music, Spotify and Deezer web, LiveOne, Anghami, Qobuz) stay at one account each: their
-sessions are kept per service, so a second one would mix with the first.
+Jellyfin, Emby, Plex), Last.fm and ListenBrainz, and for the connectors signed in with pasted
+cookies (YouTube Music, Spotify and Deezer web, LiveOne, Anghami, Qobuz): each account pastes its
+own cookies, from a browser signed in to that account, and keeps its own session apart from the
+others.
 
 The extra accounts and their names are part of the set-up: *Tools › Backup & restore* and
 `GET /api/v1/config` carry them, without the sign-ins, as for the main ones. In

@@ -71,7 +71,7 @@ class SpotifyWebClient(private val host: Host) {
 
     /** The player page for this session, parsed. Cached for a few minutes: the bearer inside lasts an hour. */
     fun page(): Page {
-        cachedPages[host.slot]?.let { (at, p) -> if (System.currentTimeMillis() - at < 5 * 60_000) return p }
+        cachedPages[host.cacheScope]?.let { (at, p) -> if (System.currentTimeMillis() - at < 5 * 60_000) return p }
         val req = Request.Builder().url("https://open.spotify.com/")
             .header("User-Agent", host.userAgent).header("Cookie", cookies())
             .header("Accept", "text/html,application/xhtml+xml").header("Accept-Language", "en").build()
@@ -80,7 +80,7 @@ class SpotifyWebClient(private val host: Host) {
             r.body?.string() ?: ""
         }
         val p = Page(html)
-        cachedPages[host.slot] = System.currentTimeMillis() to p
+        cachedPages[host.cacheScope] = System.currentTimeMillis() to p
         return p
     }
 
@@ -797,9 +797,9 @@ class SpotifyWebClient(private val host: Host) {
         private val missedAt = java.util.concurrent.ConcurrentHashMap<String, Long>()
         val CHUNK_MAP = Regex("""\{\d+:"[^"]+"(?:,\d+:"[^"]+")*\}""")
         private val PAIR = Regex("""(\d+):"([^"]+)"""")
-        /** The player page of each account (by [WebHost.slot]): one per session, never another's. */
+        /** The player page of each account (by [WebHost.cacheScope]): one per session, never another's. */
         private val cachedPages = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Page>>()
-        /** Drops the account's cached page: its bearer was refused, the next call fetches a fresh one. */
-        fun dropPage(slot: String = "") { cachedPages.remove(slot) }
+        /** Drops the account's cached page ([scope]: its host's [WebHost.cacheScope]): its bearer was refused, the next call fetches a fresh one. */
+        fun dropPage(scope: String = "") { cachedPages.remove(scope) }
     }
 }
