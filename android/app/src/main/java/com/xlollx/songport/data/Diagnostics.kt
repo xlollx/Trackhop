@@ -133,7 +133,11 @@ object Diagnostics {
         if (sinceMs == null && all.size > shown.size) sb.appendLine("  (${all.size - shown.size} older lines: Log › Export log has them all)")
         shown.forEach { sb.appendLine("  $it") }
         synchronized(lock) { if (repeats > 0) sb.appendLine("  (the line above came $repeats more times)") }
-        return sb.toString()
+        // The net under the rule above: whatever a service's answer carried, no token, cookie, password,
+        // e-mail or address of the user's own servers leaves the phone in a report.
+        val env = com.xlollx.songport.platform.AndroidEnv.of(ctx)
+        val servers = Providers.all().mapNotNull { p -> runCatching { env.tokens.get(p.id)?.extra?.get("url") }.getOrNull() }
+        return com.xlollx.songport.data.Redact.text(sb.toString(), servers)
     }
 
     /**
