@@ -19,7 +19,12 @@ data class SyncFilter(
     /** Colour keys (SyncJob.color). */
     val colors: Set<String> = emptySet(),
 ) {
-    enum class Status { ERROR, RUNNING, DISABLED }
+    /**
+     * By the last run: UP_TO_DATE ran fine with nothing left to look at; NEEDS_FIX ran but left songs
+     * not found, matches to check or removals held back; ERROR failed; NEVER_RUN has not run yet.
+     * RUNNING and DISABLED are about now, whatever the last run was.
+     */
+    enum class Status { UP_TO_DATE, ERROR, NEEDS_FIX, RUNNING, NEVER_RUN, DISABLED }
 
     val isActive: Boolean get() = query.isNotBlank() || statuses.isNotEmpty() || services.isNotEmpty() || colors.isNotEmpty()
 
@@ -50,18 +55,9 @@ data class SyncFilter(
     ): List<SyncJob> {
         if (!isActive) return jobs
         val terms = terms(query)
-        val failed = if (Status.ERROR in statuses) {
-            val ids = jobs.mapNotNullTo(HashSet()) { it.lastReportId }
-            reports.filter { it.id in ids && !it.ok }.mapTo(HashSet()) { it.id }
-        } else emptySet()
+        val last = lastReports(jobs, reports)
         return jobs.filter { job ->
-            (statuses.isEmpty() || statuses.any { s ->
-                when (s) {
-                    Status.ERROR -> job.lastReportId in failed
-                    Status.RUNNING -> job.id in running
-                    Status.DISABLED -> !job.enabled
-                }
-            }) &&
+            (statuses.isEmpty() || statuses.any { s -> has(job, s, last, running) }) &&
                 (services.isEmpty() || job.source.provider in services || job.target.provider in services) &&
                 (colors.isEmpty() || job.color in colors) &&
                 (terms.isEmpty() || haystack(job, serviceName).let { h -> terms.all { it in h } })
@@ -69,6 +65,31 @@ data class SyncFilter(
     }
 
     companion object {
+        /** How many syncs each status holds now, for the numbers on the chips. */
+        fun counts(jobs: List<SyncJob>, reports: List<SyncReport>, running: Set<String>): Map<Status, Int> {
+            val last = lastReports(jobs, reports)
+            return Status.entries.associateWith { s -> jobs.count { has(it, s, last, running) } }
+        }
+
+        private fun lastReports(jobs: List<SyncJob>, reports: List<SyncReport>): Map<String, SyncReport> {
+            val ids = jobs.mapNotNullTo(HashSet()) { it.lastReportId }
+            return reports.filter { it.id in ids }.associateBy { it.id }
+        }
+
+        private fun has(job: SyncJob, s: Status, last: Map<String, SyncReport>, running: Set<String>): Boolean {
+            val r = job.lastReportId?.let { last[it] }
+            return when (s) {
+                Status.ERROR -> r != null && !r.ok
+                Status.NEEDS_FIX -> r != null && r.ok && needsFix(r)
+                Status.UP_TO_DATE -> r != null && r.ok && !needsFix(r) && !r.partial
+                Status.NEVER_RUN -> job.lastReportId == null
+                Status.RUNNING -> job.id in running
+                Status.DISABLED -> !job.enabled
+            }
+        }
+
+        private fun needsFix(r: SyncReport) = r.unmatched.isNotEmpty() || r.reviewTracks.isNotEmpty() || r.heldBack > 0
+
         /** The services the syncs use, each once, in the order the list shows them. */
         fun servicesInUse(jobs: List<SyncJob>): List<String> =
             jobs.flatMap { listOf(it.source.provider, it.target.provider) }.filter { it.isNotBlank() }.distinct()

@@ -952,6 +952,9 @@
     <string name="shazam_editor_suggest">Twoje Shazamy: %1$s</string>
     <string name="syncs_find_hint">Znajdź synchronizację</string>
     <string name="syncs_find_clear">Wyczyść wyszukiwanie</string>
+    <string name="filter_up_to_date">Aktualne</string>
+    <string name="filter_needs_fix">Do poprawy</string>
+    <string name="filter_never_run">Nieuruchomione</string>
     <string name="filter_errors">Błędy</string>
     <string name="filter_running">W toku</string>
     <string name="filter_disabled">Wyłączone</string>

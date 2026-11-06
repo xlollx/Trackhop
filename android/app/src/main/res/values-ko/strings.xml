@@ -907,6 +907,9 @@
     <string name="shazam_editor_suggest">내 Shazam: %1$s</string>
     <string name="syncs_find_hint">동기화 찾기</string>
     <string name="syncs_find_clear">검색어 지우기</string>
+    <string name="filter_up_to_date">최신</string>
+    <string name="filter_needs_fix">확인 필요</string>
+    <string name="filter_never_run">실행 안 함</string>
     <string name="filter_errors">오류</string>
     <string name="filter_running">실행 중</string>
     <string name="filter_disabled">사용 안 함</string>

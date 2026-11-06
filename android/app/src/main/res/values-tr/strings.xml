@@ -920,6 +920,9 @@
     <string name="shazam_editor_suggest">Shazam\'larınız: %1$s</string>
     <string name="syncs_find_hint">Senkronizasyon bul</string>
     <string name="syncs_find_clear">Aramayı temizle</string>
+    <string name="filter_up_to_date">Güncel</string>
+    <string name="filter_needs_fix">Düzeltilecek</string>
+    <string name="filter_never_run">Hiç çalışmadı</string>
     <string name="filter_errors">Hatalar</string>
     <string name="filter_running">Devam eden</string>
     <string name="filter_disabled">Devre dışı</string>

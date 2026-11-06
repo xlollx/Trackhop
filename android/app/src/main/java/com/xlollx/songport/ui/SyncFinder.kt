@@ -21,6 +21,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -88,7 +91,7 @@ val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
  * on, a line says how many cards are shown, with a way to clear it all.
  */
 @Composable
-fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, onChange: (SyncFilter) -> Unit) {
+fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<SyncFilter.Status, Int> = emptyMap(), onChange: (SyncFilter) -> Unit) {
     val ctx = LocalContext.current
     val keyboard = LocalSoftwareKeyboardController.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -120,9 +123,22 @@ fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, onChange: (S
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            StatusChip(stringResource(R.string.filter_errors), Icons.Filled.Warning, SyncFilter.Status.ERROR in filter.statuses) { onChange(filter.toggle(SyncFilter.Status.ERROR)) }
-            StatusChip(stringResource(R.string.filter_running), Icons.Filled.Sync, SyncFilter.Status.RUNNING in filter.statuses) { onChange(filter.toggle(SyncFilter.Status.RUNNING)) }
-            StatusChip(stringResource(R.string.filter_disabled), Icons.Filled.Block, SyncFilter.Status.DISABLED in filter.statuses) { onChange(filter.toggle(SyncFilter.Status.DISABLED)) }
+            // By status, each with how many syncs it holds; a status no sync is in shows only while chosen.
+            SyncFilter.Status.entries.forEach { s ->
+                val n = counts[s] ?: 0
+                if (n > 0 || s in filter.statuses || counts.isEmpty()) {
+                    val (label, icon) = when (s) {
+                        SyncFilter.Status.UP_TO_DATE -> R.string.filter_up_to_date to Icons.Filled.CheckCircle
+                        SyncFilter.Status.ERROR -> R.string.filter_errors to Icons.Filled.Warning
+                        SyncFilter.Status.NEEDS_FIX -> R.string.filter_needs_fix to Icons.Filled.Build
+                        SyncFilter.Status.RUNNING -> R.string.filter_running to Icons.Filled.Sync
+                        SyncFilter.Status.NEVER_RUN -> R.string.filter_never_run to Icons.Filled.Schedule
+                        SyncFilter.Status.DISABLED -> R.string.filter_disabled to Icons.Filled.Block
+                    }
+                    val text = stringResource(label)
+                    StatusChip(if (counts.isEmpty()) text else "$text · $n", icon, s in filter.statuses) { onChange(filter.toggle(s)) }
+                }
+            }
             val services = SyncFilter.servicesInUse(jobs)
             if (services.size > 1) {
                 services.forEach { id ->

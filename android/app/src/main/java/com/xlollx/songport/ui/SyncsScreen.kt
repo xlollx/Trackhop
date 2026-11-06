@@ -317,7 +317,7 @@ fun SyncsScreen(
             }
             // Under the hero and scrolling with the list, so it never fights the pinned pill below.
             if (finder) item(key = "finder") {
-                SyncFinder(data.jobs, effective, shown.size) { filter = it }
+                SyncFinder(data.jobs, effective, shown.size, remember(data.jobs, data.reports, runningIds) { SyncFilter.counts(data.jobs, data.reports, runningIds) }) { filter = it }
             }
             // "Sync all": a pill centred under the header that stays at the top while the list scrolls.
             // While syncs run it says how many, and a tap brings the first running card into view.

@@ -112,4 +112,30 @@ class SyncFilterTest {
         assertEquals(listOf("cafe", "mix"), SyncFilter.terms("  Café\tMIX "))
         assertTrue(SyncFilter.terms("   ").isEmpty())
     }
+
+    @Test fun statusesByTheLastRunWithCounts() {
+        val js = listOf(
+            job("ok", "Fine", report = "rok"),
+            job("nf", "Some missing", report = "rnf"),
+            job("hb", "Held back", report = "rhb"),
+            job("er", "Broken", report = "rer"),
+            job("nv", "New one"),
+            job("off", "Off", enabled = false, report = "rok2"),
+        )
+        val rs = listOf(
+            report("rok", "ok"), report("rok2", "off"), report("rer", "er", error = "boom"),
+            report("rnf", "nf").copy(unmatched = listOf("x")),
+            report("rhb", "hb").copy(heldBack = 3),
+        )
+        fun sel(vararg s: Status) = SyncFilter(statuses = s.toSet()).select(js, rs, setOf("nv")).joinToString(",") { it.id }
+        assertEquals("ok,off", sel(Status.UP_TO_DATE))
+        assertEquals("nf,hb", sel(Status.NEEDS_FIX))
+        assertEquals("er", sel(Status.ERROR))
+        assertEquals("nv", sel(Status.NEVER_RUN))
+        assertEquals("nv", sel(Status.RUNNING))
+        assertEquals("off", sel(Status.DISABLED))
+        val counts = SyncFilter.counts(js, rs, setOf("nv"))
+        assertEquals(2, counts[Status.UP_TO_DATE]); assertEquals(2, counts[Status.NEEDS_FIX]); assertEquals(1, counts[Status.ERROR])
+        assertEquals(1, counts[Status.NEVER_RUN]); assertEquals(1, counts[Status.RUNNING]); assertEquals(1, counts[Status.DISABLED])
+    }
 }
