@@ -3,6 +3,13 @@ package com.xlollx.songport.ytmbridge
 import kotlinx.serialization.Serializable
 
 /** What crosses the process boundary to Trackhop. Field names are the contract: do not rename. */
+/**
+ * A channel the signed-in YouTube account can act as ([YtmClient.channels]): [id] is the brand
+ * account's page id, "" for the account's own channel; [selected] as the player's switcher marks it.
+ */
+@Serializable
+data class ChannelDto(val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true)
+
 @Serializable
 data class PlaylistDto(
     val id: String, val name: String, val count: Int = -1,

@@ -1698,4 +1698,9 @@
     <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
     <string name="web_accounts_need_webview">Bu web bağlantısına başka bir hesap eklemek için tarayıcı profillerini ayrı tutan daha yeni bir Android System WebView gerekir.</string>
     <string name="web_accounts_need_plugin">Bu bağlantıya başka bir hesap eklemek için bağlantı eklentisinin daha yeni bir sürümü gerekir: güncelleyip yeniden deneyin.</string>
+    <!-- YouTube Music: the channel the account acts as (its own, or a brand account), in the connector's menu (issue #41). -->
+    <string name="ytm_channel">YouTube Music kanalı</string>
+    <string name="ytm_channel_hint">Çalma listeleri bu kanalda okunur ve yazılır. Marka hesabı kendi adıyla listelenir; seçim yapılmazsa eskisi gibi hesabın kendi kanalı kullanılır.</string>
+    <string name="ytm_channel_own">Hesabın kendi kanalı</string>
+    <string name="ytm_channel_failed">Kanallar okunamadı: %1$s</string>
 </resources>

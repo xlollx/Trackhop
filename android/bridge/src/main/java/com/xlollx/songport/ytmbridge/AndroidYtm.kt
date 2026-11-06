@@ -19,6 +19,7 @@ class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.
     }
     override val verification: YtmVerificationStore get() = verificationStore(ctx)
     override val cacheScope: String get() = slot
+    override val channel: String? get() = session.channel(ctx)
     override val signInAgain: String = "sign out of YouTube Music and sign in again"
     // In the app the way out is the "Verify with Google" screen, which the connector's menu offers.
     override val blockedHint: String? = null

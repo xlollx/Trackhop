@@ -24,6 +24,8 @@ Android 8.0 or newer.
 - **Quick route** (Spotify, Apple Music, YouTube Music, Amazon Music): you sign in on the service's own
   page inside the app, as in a browser. Nothing to create. It is not an official interface, so it can
   stop working when the site changes (the app warns before the first sign-in).
+  On YouTube Music, if your playlists live on a brand account (a channel of its own), pick it under
+  *YouTube Music channel* in the connector's menu on the Accounts page once signed in.
 - **Official route** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): you create a free developer
   key in your own name; the app walks you through it in about two minutes, step by step.
 
