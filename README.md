@@ -43,7 +43,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
-THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore
+THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side
 <!-- supporters:end -->
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
