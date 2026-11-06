@@ -34,7 +34,8 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
     override val alpha: Boolean get() = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
-    override val supportsMultipleAccounts = false
+    /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
+    override val supportsMultipleAccounts = true
     override val canCreatePlaylists = false
     override val canRemoveTracks = false
     override val authDomain = "liveone.com"
@@ -121,7 +122,7 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
         if (tracks.isNotEmpty()) throw ProviderException("$displayName: removing from the presets is not possible yet")
     }
 
-    private fun cache(ctx: Env): KeyValues = ctx.keyValues("liveone_web")
+    private fun cache(ctx: Env): KeyValues = ctx.keyValues(ServerWebHost.kvName("liveone_web", slot))
 
     private fun toTrack(t: TrackDto) = Track(id = t.id, title = t.title, artists = t.artists, album = t.album, durationMs = t.durationMs)
 

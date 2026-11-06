@@ -19,6 +19,12 @@ interface WebHost {
     val userAgent: String
     /** Which account of the service this is: "" for the primary (and on the server), "2", "3"… for an extra one. */
     val slot: String get() = ""
+    /**
+     * What the clients' process-wide caches (the player page, the signed-in user) are kept under:
+     * the account's slot, or on a server with several people each person's data folder and account,
+     * so no session ever reads another's.
+     */
+    val cacheScope: String get() = slot
 
     companion object {
         /** The value of cookie [name] in a `Cookie` header; null when absent or empty. */
