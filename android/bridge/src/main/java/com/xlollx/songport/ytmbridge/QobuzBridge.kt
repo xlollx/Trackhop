@@ -15,31 +15,37 @@ object QobuzBridge {
     /** What the session's "cookies" hold: the session lives in the token, not in cookies. */
     private const val MARK = "qobuz=1"
 
+    /** The session of one account: the primary's, or an extra slot's own (see [Slots]). */
+    fun session(slot: String): WebSession = session.forSlot(slot)
+
     /** The token and app id of a player request to [url] with [headers], when it carries a signed-in session. */
     fun fromRequest(url: String, headers: Map<String, String>?): Pair<String, String?>? = QobuzWebClient.sessionOf(url, headers)
 
     /** Keeps the token in [pasted] (with the player's app id, when known); what is wrong, or null. */
-    fun keep(ctx: Context, pasted: String, appId: String? = null, account: String? = null): String? {
+    fun keep(ctx: Context, pasted: String, appId: String? = null, account: String? = null, slot: String = Slots.PRIMARY): String? {
         val (token, seenApp) = QobuzWebClient.sessionIn(pasted) ?: return "no Qobuz session in it"
-        session.clear(ctx)
-        session.put(ctx, QobuzWebClient.TOKEN, token)
-        (appId ?: seenApp)?.let { session.put(ctx, QobuzWebClient.APP_ID, it) }
-        session.save(ctx, MARK, account ?: "Qobuz")
+        val sess = session(slot)
+        sess.clear(ctx)
+        sess.put(ctx, QobuzWebClient.TOKEN, token)
+        (appId ?: seenApp)?.let { sess.put(ctx, QobuzWebClient.APP_ID, it) }
+        sess.save(ctx, MARK, account ?: "Qobuz")
         return null
     }
 
     /** Names the account once the session has been tried. */
-    fun name(ctx: Context, account: String) { if (session.isConnected(ctx)) session.save(ctx, MARK, account) }
+    fun name(ctx: Context, account: String, slot: String = Slots.PRIMARY) { val sess = session(slot); if (sess.isConnected(ctx)) sess.save(ctx, MARK, account) }
 
     /** The app's side of [QobuzWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context): WebHost = object : WebHost {
-        override fun cookies(): String? = session.cookies(ctx)
-        override fun account(): String? = session.account(ctx)
-        override fun get(key: String): String? = session.get(ctx, key)
-        override fun put(key: String, value: String?) = session.put(ctx, key, value)
+    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+        private val sess = session(slot)
+        override fun cookies(): String? = sess.cookies(ctx)
+        override fun account(): String? = sess.account(ctx)
+        override fun get(key: String): String? = sess.get(ctx, key)
+        override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
+        override val slot: String get() = sess.slot
     }
 }
 
-/** The client as the app builds it, from a Context. */
-fun QobuzWebClient(ctx: Context): QobuzWebClient = QobuzWebClient(QobuzBridge.host(ctx))
+/** The client as the app builds it, from a Context; [slot] names an extra account. */
+fun QobuzWebClient(ctx: Context, slot: String = Slots.PRIMARY): QobuzWebClient = QobuzWebClient(QobuzBridge.host(ctx, slot))

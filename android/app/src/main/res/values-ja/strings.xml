@@ -1659,4 +1659,7 @@
     <string name="login_qc_waiting">承認を待っています…</string>
     <string name="jellyfin_qc_off">この Jellyfin サーバーでは Quick Connect がオフになっています。管理者がダッシュボード › 全般 › Quick Connect でオンにできます。</string>
     <string name="jellyfin_qc_expired">Quick Connect のコードの有効期限が切れました。もう一度試して新しいコードを取得してください。</string>
+    <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
+    <string name="web_accounts_need_webview">このウェブ連携で別のアカウントを追加するには、ブラウザーのプロファイルを分けて管理できる新しい Android System WebView が必要です。</string>
+    <string name="web_accounts_need_plugin">この連携で別のアカウントを追加するには、連携プラグインの新しいバージョンが必要です。更新してからもう一度お試しください。</string>
 </resources>

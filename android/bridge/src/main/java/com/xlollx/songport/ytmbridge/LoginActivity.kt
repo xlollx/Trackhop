@@ -27,21 +27,33 @@ class LoginActivity : ComponentActivity() {
     private lateinit var web: WebView
     private val handler = Handler(Looper.getMainLooper())
     private var done = false
+    /** The account this sign-in is for: "" for the one there has always been, "2", "3"… for an extra one (see [Slots]). */
+    private var slot: String = Slots.PRIMARY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        slot = Slots.valid(intent.getStringExtra(Slots.EXTRA))
+        if (slot.isNotEmpty() && !Slots.supported()) {
+            android.widget.Toast.makeText(this, Slots.UNSUPPORTED, android.widget.Toast.LENGTH_LONG).show()
+            setResult(RESULT_CANCELED); finish(); return
+        }
         // The liability notice comes first, also when Trackhop starts this screen directly.
         Disclaimer.require(this) { setup() }
     }
 
+    /** The cookie jar of this sign-in: the WebView's own, or the extra account's profile. */
+    private fun jar(): CookieManager = Slots.cookies(Session.PROFILE, slot)
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun setup() {
         web = WebView(this)
+        // An extra account signs in inside its own profile: set before anything loads.
+        Slots.apply(web, Session.PROFILE, slot)
         // In a frame that keeps clear of the status bar (the screen draws edge to edge).
         val root = android.widget.FrameLayout(this).apply { addView(web) }
         setContentView(root)
         BridgeInsets.fit(root)
-        CookieManager.getInstance().apply {
+        jar().apply {
             setAcceptCookie(true)
             setAcceptThirdPartyCookies(web, true)
         }
@@ -84,7 +96,7 @@ class LoginActivity : ComponentActivity() {
     /** Cookies can land a moment after the page reports finished: check a few times before giving up. */
     private fun pollCookies(attemptsLeft: Int) {
         if (done) return
-        val cookies = CookieManager.getInstance().getCookie(Session.ORIGIN)
+        val cookies = jar().getCookie(Session.ORIGIN)
         if (cookies != null && Session.sapisid(cookies) != null) {
             done = true
             finishWith(cookies)
@@ -94,10 +106,11 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun finishWith(cookies: String) {
-        Session.save(this, cookies, null)
+        val session = Session.forSlot(slot)
+        session.save(this, cookies, null)
         thread {
-            val name = runCatching { YtmClient(applicationContext).accountName() }.getOrNull()
-            Session.save(applicationContext, cookies, name)
+            val name = runCatching { YtmClient(applicationContext, slot).accountName() }.getOrNull()
+            session.save(applicationContext, cookies, name)
             runOnUiThread {
                 setResult(RESULT_OK)
                 finish()

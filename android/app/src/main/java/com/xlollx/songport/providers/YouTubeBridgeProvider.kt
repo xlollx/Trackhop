@@ -30,7 +30,7 @@ import kotlinx.serialization.json.JsonElement
  * tracks. No Google Cloud project, no quota. The official Data API route stays available as
  * [YouTubeProvider] for whoever prefers it.
  */
-class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider {
+class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
     override val canRenamePlaylists: Boolean get() = BridgePlugin.full
     override val canDeletePlaylists: Boolean get() = BridgePlugin.full
     override val serviceId = SERVICE
@@ -46,7 +46,11 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider {
     override val supportsAlbums: Boolean get() = BridgePlugin.full
     override val supportsArtists: Boolean get() = BridgePlugin.full
     override val supportsRecent: Boolean get() = BridgePlugin.full
-    override val supportsMultipleAccounts = false
+    /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
+    override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
+    override val statusMethod: String get() = STATUS
+    /** An extra account of a web connector is new: said so, as the other new connectors are. */
+    override val beta: Boolean get() = slot.isNotEmpty()
     override val authDomain = "accounts.google.com"
     override val revokeUrl = "https://myaccount.google.com/device-activity"
     override val installUrl = BridgePlugin.installUrl
@@ -72,7 +76,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider {
             installUrl?.let { ctx.android.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             return
         }
-        BridgePlugin.startLogin(ctx, LOGIN_ACTION)
+        BridgePlugin.startLogin(ctx, LOGIN_ACTION, slot)
     }
 
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the Bridge completes the login itself */ }
@@ -222,7 +226,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider {
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!installed(ctx)) throw ProviderException(ctx.text("ytm_not_installed"))
         val b = try {
-            BridgePlugin.call(ctx, method, arg, extras)
+            BridgePlugin.call(ctx, method, arg, extras, slot)
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
@@ -236,6 +240,8 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider {
         const val SERVICE = "ytm"
         const val PACKAGE = "com.xlollx.songport.ytmbridge"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.LOGIN"
+        /** The status call of this service, which says whether the connectors take extra accounts. */
+        const val STATUS = "status"
         fun installed(ctx: Env): Boolean = BridgePlugin.installed(ctx)
     }
 }

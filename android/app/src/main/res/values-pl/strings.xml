@@ -1739,4 +1739,7 @@
     <string name="login_qc_waiting">Czekam na zatwierdzenie…</string>
     <string name="jellyfin_qc_off">Quick Connect jest wyłączony na tym serwerze Jellyfin. Administrator może go włączyć w Panel › Ogólne › Quick Connect.</string>
     <string name="jellyfin_qc_expired">Kod Quick Connect wygasł. Spróbuj ponownie, aby dostać nowy.</string>
+    <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
+    <string name="web_accounts_need_webview">Kolejne konto tego połączenia internetowego wymaga nowszego Android System WebView, który rozdziela profile przeglądarki.</string>
+    <string name="web_accounts_need_plugin">Kolejne konto tego połączenia wymaga nowszej wersji wtyczki połączeń: zaktualizuj ją i spróbuj ponownie.</string>
 </resources>

@@ -7,14 +7,15 @@ import android.content.Context
  * session from the Keystore, the hidden WebView as the first route, Google's block in the app's
  * preferences, and the connections log on the HTTP client.
  */
-class AndroidYtmHost(private val ctx: Context) : YtmHost {
-    override fun cookies(): String? = Session.cookies(ctx)
+class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.PRIMARY) : YtmHost {
+    private val session = Session.forSlot(slot)
+    override fun cookies(): String? = session.cookies(ctx)
     override val userAgent: String get() = BridgeUa.desktop(ctx)
     override val interceptor: okhttp3.Interceptor? get() = BridgeNet.interceptor
     override val web: YtmWebTransport = object : YtmWebTransport {
-        override fun usable(): Boolean = YtmWeb.usable()
+        override fun usable(): Boolean = YtmWeb.usable(slot)
         override fun post(path: String, body: String, headers: Map<String, String>, credentials: Boolean): YtmWebTransport.Answer =
-            YtmWeb.post(ctx, path, body, headers, credentials).let { YtmWebTransport.Answer(it.code, it.body) }
+            YtmWeb.post(ctx, path, body, headers, credentials, slot = slot).let { YtmWebTransport.Answer(it.code, it.body) }
     }
     override val verification: YtmVerificationStore get() = verificationStore(ctx)
     override val signInAgain: String = "sign out of YouTube Music and sign in again"
@@ -23,8 +24,8 @@ class AndroidYtmHost(private val ctx: Context) : YtmHost {
     override fun log(message: String) = BridgeNet.log("ytm", message)
 }
 
-/** The client as the app has always built it, from a Context. */
-fun YtmClient(ctx: Context): YtmClient = YtmClient(AndroidYtmHost(ctx))
+/** The client as the app has always built it, from a Context; [slot] names an extra account (see [Slots]). */
+fun YtmClient(ctx: Context, slot: String = Slots.PRIMARY): YtmClient = YtmClient(AndroidYtmHost(ctx, slot))
 
 /** Google's block in plain preferences (a time and Google's page, nothing secret), as before the client moved. */
 private class PrefsVerificationStore(ctx: Context) : YtmVerificationStore {

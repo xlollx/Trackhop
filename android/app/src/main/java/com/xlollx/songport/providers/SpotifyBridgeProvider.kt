@@ -36,7 +36,7 @@ import kotlinx.serialization.json.JsonPrimitive
  * changes. The Bridge shows the notice before sign-in. The official path with your own client ID
  * stays available as [SpotifyProvider].
  */
-class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
+class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Spotify (web)" else "Spotify (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -48,7 +48,11 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
     override val supportsLikedTarget = true
     override val supportsAlbums = true
     override val supportsArtists = true
-    override val supportsMultipleAccounts = false
+    /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
+    override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
+    override val statusMethod: String get() = STATUS
+    /** An extra account of a web connector is new: said so, as the other new connectors are. */
+    override val beta: Boolean get() = slot.isNotEmpty()
     override val authDomain = "spotify.com"
     override val pluginBased = true
     override val installUrl = BridgePlugin.installUrl
@@ -68,7 +72,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
             installUrl?.let { ctx.android.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             return
         }
-        BridgePlugin.startLogin(ctx, LOGIN_ACTION)
+        BridgePlugin.startLogin(ctx, LOGIN_ACTION, slot)
     }
 
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the Bridge completes the login itself */ }
@@ -224,7 +228,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("ytm_not_installed"))
         val b = try {
-            BridgePlugin.call(ctx, method, arg, extras)
+            BridgePlugin.call(ctx, method, arg, extras, slot)
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
@@ -235,5 +239,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider {
     companion object {
         const val SERVICE = "spotify_bridge"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.SPOTIFY_LOGIN"
+        /** The status call of this service, which says whether the connectors take extra accounts. */
+        const val STATUS = "spotify.status"
     }
 }

@@ -91,12 +91,51 @@ object BridgePlugin {
     fun call(ctx: Context, method: String, arg: String? = null, extras: Bundle? = null): Bundle? =
         if (builtIn) BuiltIn.call(ctx, method, arg, extras)
         else ctx.contentResolver.call(authority(ctx), method, arg, extras)?.also {
-            if (method == "status" || method.endsWith(".status")) pluginVersion = it.getInt("version", 0)
+            if (method == "status" || method.endsWith(".status")) {
+                pluginVersion = it.getInt("version", 0)
+                // A plugin that says `slots` (true or false) keys its sessions by slot; an older one says nothing.
+                if (it.containsKey("slots")) pluginSlots = System.currentTimeMillis() to true
+            }
         }
 
-    /** Opens a connector's sign-in: the built-in screen, or the plugin's through its action. */
-    fun startLogin(ctx: Context, action: String) {
-        val intent = BuiltIn.loginIntent(ctx, action) ?: Intent(action).setPackage(packageName(ctx) ?: return)
+    // Whether the plugin takes a slot, and when that was last learnt; null until a status call answered.
+    @Volatile private var pluginSlots: Pair<Long, Boolean>? = null
+
+    /**
+     * True when the installed plugin keys its sessions by slot. A plugin from before slots would
+     * serve the primary account to every slot, so an extra account is never asked of it: asked
+     * through `net.status`, and asked again after a minute when it said no (it may be updated).
+     */
+    private fun pluginTakesSlots(ctx: Context): Boolean {
+        pluginSlots?.let { (at, ok) -> if (ok || System.currentTimeMillis() - at < 60_000) return ok }
+        val ok = runCatching { call(ctx, "net.status")?.containsKey("slots") == true }.getOrDefault(false)
+        pluginSlots = System.currentTimeMillis() to ok
+        return ok
+    }
+
+    /**
+     * The same call for one account of the service: an extra account ([slot] "2", "3"…) travels as
+     * the `slot` extra, which the connectors key their sessions by (see [WebAccounts]). The primary
+     * account (slot "") sends exactly what it always sent, so connectors from before slots serve it;
+     * an extra account is not sent to a plugin that would not tell it apart (an error says so instead).
+     */
+    fun call(ctx: Context, method: String, arg: String?, extras: Bundle?, slot: String): Bundle? {
+        if (slot.isEmpty()) return call(ctx, method, arg, extras)
+        if (!builtIn && !pluginTakesSlots(ctx)) return Bundle().apply { putString("error", ctx.getString(com.xlollx.songport.R.string.web_accounts_need_plugin)) }
+        return call(ctx, method, arg, withSlot(extras, slot))
+    }
+
+    /** [extras] with the `slot` extra when [slot] names an extra account; unchanged for the primary. */
+    fun withSlot(extras: Bundle?, slot: String): Bundle? =
+        if (slot.isEmpty()) extras else Bundle(extras ?: Bundle()).apply { putString(EXTRA_SLOT, slot) }
+
+    /** The extra naming the account in the connectors' calls and sign-ins, as the Bridge reads it. */
+    const val EXTRA_SLOT = "slot"
+
+    /** Opens a connector's sign-in: the built-in screen, or the plugin's through its action; for an extra account, with its slot. */
+    fun startLogin(ctx: Context, action: String, slot: String = "") {
+        val intent = BuiltIn.loginIntent(ctx, action, slot) ?: Intent(action).setPackage(packageName(ctx) ?: return)
+        if (slot.isNotEmpty()) intent.putExtra(EXTRA_SLOT, slot)
         ctx.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
@@ -104,5 +143,6 @@ object BridgePlugin {
     fun installed(env: Env): Boolean = installed(env.android)
     fun packageName(env: Env): String? = packageName(env.android)
     fun call(env: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle? = call(env.android, method, arg, extras)
-    fun startLogin(env: Env, action: String) = startLogin(env.android, action)
+    fun call(env: Env, method: String, arg: String?, extras: Bundle?, slot: String): Bundle? = call(env.android, method, arg, extras, slot)
+    fun startLogin(env: Env, action: String, slot: String = "") = startLogin(env.android, action, slot)
 }

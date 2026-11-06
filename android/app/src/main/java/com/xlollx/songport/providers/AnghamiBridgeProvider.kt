@@ -28,7 +28,7 @@ import kotlinx.serialization.json.JsonElement
  * Not an official route: Anghami's terms do not allow it and it can stop working when the player
  * changes. The sign-in screen shows the notice first.
  */
-class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider {
+class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Anghami (web)" else "Anghami (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -39,7 +39,9 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider {
     override val alpha = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
-    override val supportsMultipleAccounts = false
+    /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
+    override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
+    override val statusMethod: String get() = STATUS
     override val authDomain = "anghami.com"
     override val pluginBased = true
     override val searchParallelism = 2
@@ -51,7 +53,7 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider {
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "anghami.status").getBoolean("connected", false) }.getOrDefault(false)
     override fun accountName(ctx: Env): String? = runCatching { call(ctx, "anghami.status").getString("account") }.getOrNull()
 
-    override fun startAuth(ctx: Env) = BridgePlugin.startLogin(ctx, LOGIN_ACTION)
+    override fun startAuth(ctx: Env) = BridgePlugin.startLogin(ctx, LOGIN_ACTION, slot)
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the sign-in screen keeps the session itself */ }
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "anghami.disconnect") } }
 
@@ -127,7 +129,7 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider {
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("error_not_connected", displayName))
         val b = try {
-            BridgePlugin.call(ctx, method, arg, extras)
+            BridgePlugin.call(ctx, method, arg, extras, slot)
         } catch (e: Exception) {
             throw ProviderException("$displayName: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("$displayName: no answer")
@@ -138,6 +140,8 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider {
     companion object {
         const val SERVICE = "anghami_web"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.ANGHAMI_LOGIN"
+        /** The status call of this service, which says whether the connectors take extra accounts. */
+        const val STATUS = "anghami.status"
         /** The liked songs as the connectors name them. */
         private const val LIKED = "__liked__"
     }

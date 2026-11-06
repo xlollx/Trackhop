@@ -1659,4 +1659,7 @@
     <string name="login_qc_waiting">正在等待批准…</string>
     <string name="jellyfin_qc_off">此 Jellyfin 服务器已关闭 Quick Connect。管理员可以在 控制台 › 常规 › Quick Connect 中开启。</string>
     <string name="jellyfin_qc_expired">Quick Connect 代码已过期。请重试以获取新代码。</string>
+    <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
+    <string name="web_accounts_need_webview">要为此网页连接添加另一个账号，需要能够分隔浏览器配置文件的较新版本 Android System WebView。</string>
+    <string name="web_accounts_need_plugin">要为此连接添加另一个账号，需要较新版本的连接插件：请更新后重试。</string>
 </resources>

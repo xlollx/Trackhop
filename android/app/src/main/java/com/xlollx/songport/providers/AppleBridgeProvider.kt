@@ -23,14 +23,18 @@ import com.xlollx.songport.net.str
  * Not an official route: those tokens belong to the web player. The Bridge shows the notice before
  * sign-in. The official path with your own developer token stays available as [AppleMusicProvider].
  */
-class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
+class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAccounts.Connector {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Apple Music (web)" else "Apple Music (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
     override val routeNoteName: String? get() = "route_note_web"
     override val familyName: String get() = "Apple Music"
     override val noteName = "provider_note_apple_bridge"
-    override val supportsMultipleAccounts = false
+    /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
+    override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
+    override val statusMethod: String get() = STATUS
+    /** An extra account of a web connector is new: said so, as the other new connectors are. */
+    override val beta: Boolean get() = slot.isNotEmpty()
     override val pluginBased = true
     override val setupGuide: SetupGuide? = null
     override val installUrl = BridgePlugin.installUrl
@@ -132,7 +136,7 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
             installUrl?.let { ctx.android.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             return
         }
-        BridgePlugin.startLogin(ctx, LOGIN_ACTION)
+        BridgePlugin.startLogin(ctx, LOGIN_ACTION, slot)
     }
 
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the Bridge completes the login itself */ }
@@ -141,7 +145,7 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("ytm_not_installed"))
         val b = try {
-            BridgePlugin.call(ctx, method, arg, extras)
+            BridgePlugin.call(ctx, method, arg, extras, slot)
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
@@ -152,6 +156,8 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
     companion object {
         const val SERVICE = "apple_bridge"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.APPLE_LOGIN"
+        /** The status call of this service, which says whether the connectors take extra accounts. */
+        const val STATUS = "apple.status"
         private const val AMP = "https://amp-api.music.apple.com"
     }
 }

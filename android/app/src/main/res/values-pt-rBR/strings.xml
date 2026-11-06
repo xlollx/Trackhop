@@ -1693,4 +1693,7 @@
     <string name="login_qc_waiting">Aguardando aprovação…</string>
     <string name="jellyfin_qc_off">O Quick Connect está desativado neste servidor Jellyfin. Um administrador pode ativá-lo em Painel › Geral › Quick Connect.</string>
     <string name="jellyfin_qc_expired">O código do Quick Connect expirou. Tente de novo para receber um novo.</string>
+    <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
+    <string name="web_accounts_need_webview">Outra conta desta conexão web precisa de um Android System WebView mais recente, que mantenha os perfis do navegador separados.</string>
+    <string name="web_accounts_need_plugin">Outra conta desta conexão precisa de uma versão mais recente do plugin de conexões: atualize-o e tente de novo.</string>
 </resources>

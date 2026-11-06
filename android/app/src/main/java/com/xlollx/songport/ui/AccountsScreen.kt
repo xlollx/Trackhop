@@ -244,8 +244,11 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                             names.forEach { name ->
                                 val members = families.getValue(name)
                                 val allTaken = members.all { m -> !m.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == m.serviceId } }
-                                ServiceGridTile(members.first(), name, enabled = !allTaken) {
-                                    if (members.size == 1) onPick(members.first()) else family = name
+                                // A web connector that would take another account but cannot here opens
+                                // its route, where the line under it says why (see WebAccounts).
+                                val explained = allTaken && members.any { WebAccounts.reason(ctx, it) != null }
+                                ServiceGridTile(members.first(), name, enabled = !allTaken || explained) {
+                                    if (members.size == 1 && !explained) onPick(members.first()) else family = name
                                 }
                             }
                         }
@@ -295,6 +298,8 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                                     if (taken) Text(stringResource(R.string.connected), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 s.routeNoteRes?.let { Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                // A web connector that would take another account, but cannot here: why, in a line.
+                                if (taken) WebAccounts.reason(ctx, s)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary) }
                             }
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }

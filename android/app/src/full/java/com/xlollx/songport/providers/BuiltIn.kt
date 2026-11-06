@@ -32,16 +32,17 @@ object BuiltIn {
     fun call(ctx: Context, method: String, arg: String?, extras: Bundle?): Bundle =
         BridgeCore.call(ctx.applicationContext, method, arg, extras)
 
-    fun loginIntent(ctx: Context, action: String): Intent? = when (action) {
-        YouTubeBridgeProvider.LOGIN_ACTION -> Intent(ctx, LoginActivity::class.java)
+    /** The sign-in screen of [action]; [slot] names an extra account ("2", "3"…), "" the primary one. */
+    fun loginIntent(ctx: Context, action: String, slot: String = ""): Intent? = when (action) {
+        YouTubeBridgeProvider.LOGIN_ACTION -> Intent(ctx, LoginActivity::class.java).apply { if (slot.isNotEmpty()) putExtra(BridgePlugin.EXTRA_SLOT, slot) }
         AmazonBridgeProvider.LOGIN_ACTION -> Intent(ctx, AmazonLoginActivity::class.java)
-        SpotifyBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.SPOTIFY)
-        AppleBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.APPLE)
-        DeezerBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.DEEZER)
+        SpotifyBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.SPOTIFY, slot)
+        AppleBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.APPLE, slot)
+        DeezerBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.DEEZER, slot)
         SoundCloudBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.SOUNDCLOUD)
-        LiveOneBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.LIVEONE)
-        AnghamiBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.ANGHAMI)
-        QobuzBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.QOBUZ)
+        LiveOneBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.LIVEONE, slot)
+        AnghamiBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.ANGHAMI, slot)
+        QobuzBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.QOBUZ, slot)
         else -> null
     }
 

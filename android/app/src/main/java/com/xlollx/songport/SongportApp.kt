@@ -20,6 +20,8 @@ class SongportApp : Application() {
         // TikTok's pages: read here by the full build; on Google Play only through a connector plugin (BuiltIn.onAppStart).
         // The connections log (hosts only) starts before anything talks to the network.
         com.xlollx.songport.net.HostLog.init(this)
+        // The web connectors' extra accounts ask the connectors whether they can be added: from anywhere, with the app.
+        com.xlollx.songport.providers.WebAccounts.app = this
         com.xlollx.songport.providers.BuiltIn.onAppStart(this, com.xlollx.songport.net.HostLog.interceptor)
         // The sync cards' last "up to date" checks, so a card opens with them (FreshnessChecks).
         com.xlollx.songport.ui.FreshnessChecks.init(this)

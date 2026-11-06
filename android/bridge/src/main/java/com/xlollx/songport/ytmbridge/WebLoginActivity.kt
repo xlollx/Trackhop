@@ -48,6 +48,8 @@ class WebLoginActivity : ComponentActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var done = false
     private lateinit var service: String
+    /** The account this sign-in is for: "" for the one there has always been, "2", "3"… for an extra one (see [Slots]). */
+    private var slot: String = Slots.PRIMARY
     private lateinit var notice: android.widget.TextView
     private var seen: DataDome.Kind? = null
 
@@ -73,6 +75,12 @@ class WebLoginActivity : ComponentActivity() {
             ACTION_ANGHAMI -> ANGHAMI
             ACTION_QOBUZ -> QOBUZ
             else -> intent.getStringExtra(EXTRA_SERVICE) ?: SPOTIFY
+        }
+        // An extra account signs in inside its own WebView profile; SoundCloud serves one account.
+        slot = if (service == SOUNDCLOUD) Slots.PRIMARY else Slots.valid(intent.getStringExtra(Slots.EXTRA))
+        if (slot.isNotEmpty() && !Slots.supported()) {
+            android.widget.Toast.makeText(this, Slots.UNSUPPORTED, android.widget.Toast.LENGTH_LONG).show()
+            setResult(RESULT_CANCELED); finish(); return
         }
         // Deezer and SoundCloud came with a notice that names them: an acceptance of the older one does not cover them.
         Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI || service == QOBUZ) Disclaimer.VERSION else 1) { setup() }
@@ -120,12 +128,14 @@ class WebLoginActivity : ComponentActivity() {
         web = WebView(this).apply {
             layoutParams = android.widget.FrameLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
         }
+        // An extra account's page runs in that account's profile: set before anything loads.
+        Slots.apply(web, service, slot)
         frame.addView(web)
         root.addView(bar); root.addView(notice); root.addView(frame)
         setContentView(root)
         // Edge to edge: the bar would otherwise sit under the status bar, and the keyboard over the fields.
         BridgeInsets.fit(root)
-        CookieManager.getInstance().apply { setAcceptCookie(true); setAcceptThirdPartyCookies(web, true) }
+        jar().apply { setAcceptCookie(true); setAcceptThirdPartyCookies(web, true) }
         web.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
@@ -180,7 +190,7 @@ class WebLoginActivity : ComponentActivity() {
             // is where the Bridge takes it from, instead of guessing which script bundle holds it.
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 if (service == APPLE && request.url.host?.endsWith("music.apple.com") == true) {
-                    request.requestHeaders?.get("Authorization")?.let { AppleBridge.rememberDeveloperToken(applicationContext, it) }
+                    request.requestHeaders?.get("Authorization")?.let { AppleBridge.rememberDeveloperToken(applicationContext, it, slot) }
                 }
                 // SoundCloud's web app names itself with a client id on every API call, and signed in
                 // sends the account's token: both kept for ours (see [watchSoundCloud]).
@@ -201,7 +211,7 @@ class WebLoginActivity : ComponentActivity() {
             override fun onPageFinished(view: WebView, url: String) {
                 if (service == APPLE) view.evaluateJavascript(
                     "(function(){try{return MusicKit.getInstance().developerToken||''}catch(e){return ''}})()"
-                ) { v -> AppleBridge.rememberDeveloperToken(applicationContext, v?.trim('"')) }
+                ) { v -> AppleBridge.rememberDeveloperToken(applicationContext, v?.trim('"'), slot) }
                 check()
             }
         }
@@ -213,12 +223,14 @@ class WebLoginActivity : ComponentActivity() {
             override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
                 val popup = WebView(this@WebLoginActivity).apply {
                     layoutParams = android.widget.FrameLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
+                    // The popup shares the page's profile (and so its cookie jar), as it shares the default one.
+                    runCatching { Slots.apply(this, service, slot) }
                     settings.apply {
                         javaScriptEnabled = true; domStorageEnabled = true
                         setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true
                     }
                     identity(this)
-                    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    jar().setAcceptThirdPartyCookies(this, true)
                     webViewClient = object : SafeWebViewClient() {
                         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                             watchSoundCloud(request)
@@ -351,8 +363,11 @@ class WebLoginActivity : ComponentActivity() {
     }
 
     /** Which sources were tried, by name only: cookie names, hosts, header schemes and localStorage keys, never a value. */
+    /** The cookie jar of this sign-in: the WebView's own, or the extra account's profile. */
+    private fun jar(): CookieManager = Slots.cookies(service, slot)
+
     private fun noSessionReport(): String {
-        val cm = CookieManager.getInstance()
+        val cm = jar()
         val jars = SoundCloudBridge.COOKIE_SITES.joinToString(", ") { site ->
             val names = SoundCloudBridge.cookieNames(runCatching { cm.getCookie(site) }.getOrNull())
             "${site.substringAfter("://")} [${names.joinToString(" ")}]"
@@ -395,7 +410,7 @@ class WebLoginActivity : ComponentActivity() {
 
     /** Removes one cookie of [site]'s domain; true when there was one. */
     private fun dropCookie(site: String, name: String): Boolean = runCatching {
-        val cm = CookieManager.getInstance()
+        val cm = jar()
         if (WebSession.cookieValue(cm.getCookie(site), name) == null) return@runCatching false
         val domain = site.substringAfter("://").substringBefore('/')
         cm.setCookie(site, "$name=; Max-Age=0; Path=/")
@@ -415,7 +430,7 @@ class WebLoginActivity : ComponentActivity() {
             DEEZER -> DeezerBridge.ORIGIN
             else -> "https://open.spotify.com"
         }
-        val cookies = CookieManager.getInstance().getCookie(origin) ?: return false
+        val cookies = jar().getCookie(origin) ?: return false
         val ok = when (service) {
             APPLE -> AppleBridge.signedIn(cookies)
             DEEZER -> DeezerBridge.signedIn(cookies)
@@ -424,12 +439,13 @@ class WebLoginActivity : ComponentActivity() {
         if (!ok) return false
         done = true
         val sess = when (service) {
-            APPLE -> AppleBridge.session
-            DEEZER -> DeezerBridge.session
-            else -> SpotifyBridge.session
+            APPLE -> AppleBridge.session(slot)
+            DEEZER -> DeezerBridge.session(slot)
+            else -> SpotifyBridge.session(slot)
         }
         // A new sign-in may be another account: nothing cached from the previous one is reused.
-        if (service == DEEZER) { sess.put(applicationContext, "sid", null); DeezerWebClient.forget() }
+        if (service == DEEZER) { sess.put(applicationContext, "sid", null); DeezerWebClient.forget(slot) }
+        if (service == SPOTIFY) SpotifyBridge.invalidateToken(slot)
         signedIn(sess, cookies)
         return true
     }
@@ -464,14 +480,14 @@ class WebLoginActivity : ComponentActivity() {
     private fun verifyLiveOne(value: String, token: String) {
         val app = applicationContext
         thread {
-            val why = LiveOneBridge.keep(app, value) ?: runCatching { LiveOneWebClient(app).apply { wsToken(renew = true); presets() }; null }
+            val why = LiveOneBridge.keep(app, value, slot) ?: runCatching { LiveOneWebClient(app, slot).apply { wsToken(renew = true); presets() }; null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 liveOneReading = false
                 if (done || isFinishing) return@post
                 if (why == null) { finishLiveOne(); return@post }
                 liveOneRefused = token
-                LiveOneBridge.session.clear(app)
+                LiveOneBridge.session(slot).clear(app)
                 BridgeNet.log("liveone", "sign-in: the page's session was refused ($why); waiting for the page to renew it")
             }
         }
@@ -527,7 +543,7 @@ class WebLoginActivity : ComponentActivity() {
         if (done) return
         val app = applicationContext
         thread {
-            val why = AnghamiBridge.keep(app, sid, fingerprint) ?: runCatching { AnghamiWebClient(app).playlists(); null }
+            val why = AnghamiBridge.keep(app, sid, fingerprint, slot) ?: runCatching { AnghamiWebClient(app, slot).playlists(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 anghamiTrying = false
@@ -539,7 +555,7 @@ class WebLoginActivity : ComponentActivity() {
                     finish()
                     return@post
                 }
-                AnghamiBridge.session.clear(app)
+                AnghamiBridge.session(slot).clear(app)
                 if (fromPage) { anghamiRefused = sid; BridgeNet.log("anghami", "sign-in: the page's session was refused ($why)") }
                 else android.widget.Toast.makeText(this, "Anghami: $why", android.widget.Toast.LENGTH_LONG).show()
             }
@@ -579,20 +595,20 @@ class WebLoginActivity : ComponentActivity() {
         val app = applicationContext
         thread {
             var account: String? = null
-            val why = QobuzBridge.keep(app, token, appId) ?: runCatching { account = QobuzWebClient(app).probe(); null }
+            val why = QobuzBridge.keep(app, token, appId, slot = slot) ?: runCatching { account = QobuzWebClient(app, slot).probe(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 qobuzTrying = false
                 if (done || isFinishing) return@post
                 if (why == null) {
                     done = true
-                    account?.let { QobuzBridge.name(app, it) }
+                    account?.let { QobuzBridge.name(app, it, slot) }
                     BridgeNet.log("qobuz", "sign-in: session kept")
                     setResult(RESULT_OK)
                     finish()
                     return@post
                 }
-                QobuzBridge.session.clear(app)
+                QobuzBridge.session(slot).clear(app)
                 if (fromPage) { qobuzRefused = token; BridgeNet.log("qobuz", "sign-in: the page's session was refused ($why)") }
                 else android.widget.Toast.makeText(this, "Qobuz: $why", android.widget.Toast.LENGTH_LONG).show()
             }
@@ -603,12 +619,12 @@ class WebLoginActivity : ComponentActivity() {
         if (done) return
         val app = applicationContext
         thread {
-            val why = LiveOneBridge.keep(app, value) ?: runCatching { LiveOneWebClient(app).apply { wsToken(renew = true); presets() }; null }
+            val why = LiveOneBridge.keep(app, value, slot) ?: runCatching { LiveOneWebClient(app, slot).apply { wsToken(renew = true); presets() }; null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 if (done || isFinishing) return@post
                 if (why == null) return@post finishLiveOne()
-                LiveOneBridge.session.clear(app)
+                LiveOneBridge.session(slot).clear(app)
                 android.widget.Toast.makeText(this, "LiveOne: $why", android.widget.Toast.LENGTH_LONG).show()
             }
         }
@@ -620,7 +636,7 @@ class WebLoginActivity : ComponentActivity() {
      * id (already kept as the page's requests went by), the sign-in's user agent and the cookies.
      */
     private fun checkSoundCloud(): Boolean {
-        val cm = CookieManager.getInstance()
+        val cm = jar()
         val jars = SoundCloudBridge.COOKIE_SITES.associateWith { runCatching { cm.getCookie(it) }.getOrNull() }
         val found = SoundCloudBridge.pick(headerFound, jars, storageFound) ?: return false
         done = true
@@ -645,10 +661,10 @@ class WebLoginActivity : ComponentActivity() {
         thread {
             val account = runCatching {
                 when (service) {
-                    APPLE -> AppleBridge.storefront(app)?.let { "Apple Music (${it.uppercase()})" }
-                    DEEZER -> DeezerBridge.accountName(app)
+                    APPLE -> AppleBridge.storefront(app, slot)?.let { "Apple Music (${it.uppercase()})" }
+                    DEEZER -> DeezerBridge.accountName(app, slot)
                     SOUNDCLOUD -> SoundCloudBridge.accountName(app)
-                    else -> SpotifyBridge.accountInfo(app).let { (id, name) -> id?.let { sess.put(app, "userId", it) }; name }
+                    else -> SpotifyBridge.accountInfo(app, slot).let { (id, name) -> id?.let { sess.put(app, "userId", it) }; name }
                 }
             }.getOrNull()
             if (account != null) sess.save(app, cookies, account)
@@ -685,7 +701,8 @@ class WebLoginActivity : ComponentActivity() {
         const val ANGHAMI = "anghami"
         const val QOBUZ = "qobuz"
 
-        fun intent(ctx: android.content.Context, service: String): Intent =
+        /** The sign-in of [service], for the primary account or for the extra account [slot] (see [Slots]). */
+        fun intent(ctx: android.content.Context, service: String, slot: String = Slots.PRIMARY): Intent =
             Intent(ctx, WebLoginActivity::class.java).setAction(when (service) {
                 APPLE -> ACTION_APPLE
                 DEEZER -> ACTION_DEEZER
@@ -694,6 +711,6 @@ class WebLoginActivity : ComponentActivity() {
                 ANGHAMI -> ACTION_ANGHAMI
                 QOBUZ -> ACTION_QOBUZ
                 else -> ACTION_SPOTIFY
-            })
+            }).apply { if (slot.isNotEmpty()) putExtra(Slots.EXTRA, slot) }
     }
 }
