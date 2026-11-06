@@ -19,7 +19,8 @@ in the middle, free and open source.
   matched against **your own library** by ISRC, then title, artists and duration. Songs you do not
   own are listed, not faked.
 - **Your server → streaming**: the playlists you build at home, on the go too.
-- **Server ↔ server**: moving from Plex to Jellyfin, or keeping both.
+- **Server ↔ server**: moving from Plex to Jellyfin, or keeping both; also two servers of the same kind
+  (your Jellyfin and a friend's), each added as its own account.
 - **On a schedule**: hourly, every 6 hours, daily or weekly; additions only, or removals mirrored as
   well, with a safety check before a large deletion.
 - **Backups**: every playlist as dated files (CSV, M3U and more), on a schedule.

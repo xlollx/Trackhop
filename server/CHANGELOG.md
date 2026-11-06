@@ -5,6 +5,17 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.8.0
+
+- **More than one account per service** (#48): on the Services page, *Add another account* for Spotify, YouTube, TIDAL and Deezer (official), Navidrome/Subsonic, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, and the pasted-cookie connectors (YouTube Music, Spotify web, Deezer web, Qobuz, Anghami, LiveOne), each with its own sign-in, name and caches. Two Jellyfin servers can sync with each other. An extra account a sync uses can't be removed. `GET /api/v1/services` adds `serviceId` and `slot`.
+- **Jellyfin Quick Connect** on the web page: enter the server address, approve the code from a device already signed in (#45).
+- Between two accounts of the same streaming service, tracks are copied as they are, with no search.
+- **Weekly on a chosen day**: a weekly sync runs on the day ticked (today if none); older weekly syncs keep the day they last ran on.
+- **Order of the syncs**: ↑ ↓ on each card and a position field on the sync's page; Run all follows the order.
+- **Any colour** for a sync (the last swatch), shown on its card.
+- An add to a playlist answered with a server error is not sent again (the next run adds only what is missing; idea from #42).
+- Two people of a multi-user server no longer share the Spotify (web) player page in memory.
+
 ## 1.7.1
 
 - **Spotify**: with your own developer key, searches go one at a time and spaced, so a first big sync no longer gets the key blocked for a day; when Spotify still asks for a pause of hours, the sync stops at once and says until when. Playlists Spotify makes (daylist, Discover Weekly…) are never written to. With the browser sign-in, liked songs can keep the source's order.

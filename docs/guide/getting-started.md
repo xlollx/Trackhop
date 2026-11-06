@@ -28,17 +28,26 @@ Android 8.0 or newer.
   key in your own name; the app walks you through it in about two minutes, step by step.
 
 Personal servers (Navidrome/Subsonic, Jellyfin, Plex) need only the server address and your login.
+On **Jellyfin** you can also sign in with **Quick Connect**: enter the server address, then approve the
+code from a device where you are already signed in (no password, so it works with single sign-on).
 On **Ampache**, connected as a Subsonic server, the password is not your account password: see
 [Troubleshooting](troubleshooting#personal-servers).
 Files need nothing.
 
 After connecting, *⋮ → Test connection* on the account checks sign-in, playlists and search in one go.
 
+**More than one account of a service**: add the same service again (*Accounts → Add connector*), for
+example two Spotify accounts or two Jellyfin servers, and give each a name. A sync between two
+accounts of the same streaming service copies the tracks as they are, with no search; between two
+servers of your own the tracks are matched as usual. On Desktop and Docker the same is on the
+*Services* page (*Add another account*).
+
 ## The first sync
 
 *Syncs → New sync*: pick the source (a playlist, your liked songs, a library section, or a link), the
 target (an existing playlist or "create a new playlist"; leave the name empty to reuse the source's),
-and a schedule. Options worth knowing:
+and a schedule: every few hours, daily, **weekly on the day you pick** ("Every Saturday at 09:00"), or
+on chosen days. Options worth knowing:
 
 - **Mirror removals**: tracks removed from the source are removed from the target too. A run that
   would remove a large part of the target stops and waits for you to confirm it in the preview.
@@ -86,3 +95,10 @@ Settings › Appearance has the theme (follow the system, light or dark) and **D
 newer the app can take the colours of your wallpaper (Material You) instead of its own indigo and magenta. It is off
 by default; the title banner keeps the brand colours either way. The app follows the system font size, and above
 130% the bottom bar shows the name of the selected tab only.
+
+## Order and colours
+
+Sync all and the widgets follow the order of the list. Hold a card and drag it to its place, or use
+*⋮ → Move to position* and type the number. *⋮ → Colour* gives a card one of nine colours or any colour
+of your own (the last circle). On Desktop and Docker: the arrows on each card, or the position field
+on the sync's page.

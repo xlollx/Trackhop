@@ -28,6 +28,12 @@ Android 8.0 o successivo. Sul computer: [Trackhop Desktop](desktop) (Windows, ma
   gratuita a tuo nome; l'app ti guida passo per passo, in circa due minuti.
 
 I server personali (Navidrome/Subsonic, Jellyfin, Plex) chiedono solo l'indirizzo e il tuo accesso.
+Su **Jellyfin** puoi entrare anche con **Quick Connect**: scrivi l'indirizzo del server e approva il codice da un
+dispositivo dove hai già fatto l'accesso (niente password, quindi va anche con il single sign-on).
+
+**Più account dello stesso servizio**: aggiungi di nuovo lo stesso servizio (*Account → Aggiungi connettore*), per
+esempio due account Spotify o due server Jellyfin, e dai a ciascuno un nome. Tra due account dello stesso servizio
+musicale i brani si copiano così come sono, senza cercarli.
 I file non chiedono nulla. Dopo il collegamento, *⋮ → Prova connessione* controlla accesso, playlist e
 ricerca in un colpo solo.
 

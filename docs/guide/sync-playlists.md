@@ -13,7 +13,7 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
 
 - **Source and target**: any of Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer,
   Navidrome/Subsonic, Jellyfin, Plex; liked songs and saved albums too.
-- **Schedule**: hourly, every 6 hours, daily or weekly. On the phone, on [Trackhop Desktop](desktop)
+- **Schedule**: every few hours, daily, weekly on the day you pick, or on chosen days. On the phone, on [Trackhop Desktop](desktop)
   (while the computer is on) or on a [Docker server](docker) that is always on.
 - **Safe by default**: a preview before the first run; big removals wait for your confirmation; a
   run that could not read everything never removes anything.
