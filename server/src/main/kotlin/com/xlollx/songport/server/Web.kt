@@ -312,13 +312,20 @@ class Web(
         val steps = com.xlollx.songport.sync.Timing.STEPS.joinToString("") { m ->
             """<option value="$m"${if (m == current) " selected" else ""}>${h(com.xlollx.songport.sync.Timing.stepName(m))}</option>"""
         }
+        // A weekly sync from before days could be chosen shows the day it last ran on.
+        val ticked = job?.days?.ifEmpty { listOfNotNull(job.let(::weeklyDay)) }.orEmpty()
         val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").mapIndexed { i, d ->
-            """<label class="check" style="display:inline-flex;margin-right:10px"><input type="checkbox" name="day" value="${i + 1}"${if (job != null && (i + 1) in job.days) " checked" else ""}> $d</label>"""
+            """<label class="check" style="display:inline-flex;margin-right:10px"><input type="checkbox" name="day" value="${i + 1}"${if ((i + 1) in ticked) " checked" else ""}> $d</label>"""
         }.joinToString("")
         return """<label>Runs</label><select name="every">$steps</select>
 <label>At (for daily or longer, or on the days below)</label><input type="time" name="at" value="${h(job?.at ?: "09:00")}">
-<label>Only on these days (optional)</label><div>$days</div>"""
+<label>On these days (weekly: the day ticked, today if none; otherwise optional)</label><div>$days</div>"""
     }
+
+    /** The day of the week a weekly sync without days runs on: the day of its last run; null when it never ran or isn't weekly. */
+    private fun weeklyDay(job: SyncJob): Int? =
+        if (job.days.isEmpty() && com.xlollx.songport.sync.Timing.interval(job) >= 10080 && job.lastRunEpoch > 0)
+            java.time.Instant.ofEpochMilli(job.lastRunEpoch).atZone(java.time.ZoneId.systemDefault()).dayOfWeek.value else null
 
     /**
      * What the destination does when the source changes, as three choices: only add (the default),
@@ -346,7 +353,9 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
     /** A sync with the timing read from its form. */
     internal fun withTiming(job: SyncJob, r: Req): SyncJob {
         val every = r.form["every"]?.toIntOrNull() ?: return job
-        val days = r.rawForm.filter { it.first == "day" }.mapNotNull { it.second.toIntOrNull() }
+        val ticked = r.rawForm.filter { it.first == "day" }.mapNotNull { it.second.toIntOrNull() }
+        // Weekly runs on a day of the week ("every Saturday at 09:00"): the one ticked, else today.
+        val days = if (every >= 10080 && ticked.isEmpty()) listOf(weeklyDay(job) ?: java.time.LocalDate.now().dayOfWeek.value) else ticked
         return com.xlollx.songport.sync.Timing.apply(job, every, r.form["at"], days)
     }
 

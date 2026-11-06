@@ -1040,6 +1040,7 @@
     <string name="editor_mirror_two_way">双方向とは併用できません：もう一方に追加した曲が、コピーし戻される前に削除されるおそれがあります。</string>
     <string name="editor_twin_note">「%1$s」はこの双方向同期の逆方向側です。この設定に従うため、両方ともここで編集します。</string>
     <string name="editor_schedule_desc">最初の実行は保存から数分以内に始まり、その後はおおよそ間隔ごとに 1 回実行されます。正確な時刻は Android が決めます。</string>
+    <string name="editor_schedule_desc_timed">選んだ曜日の選んだ時刻に実行します。Android により数分遅れることがあり、省電力モードではさらに遅れます。</string>
     <string name="editor_wifi_only_desc">スケジュール実行は従量制でないネットワーク（通常は Wi‑Fi）を待ちます。「今すぐ実行」と「すべて同期」には適用されません。</string>
     <string name="pill_held_back">削除が保留中</string>
     <string name="pill_not_found">見つからず：%1$d</string>
@@ -1351,6 +1352,7 @@
     <string name="timing_days_label">この曜日だけ（任意）</string>
     <string name="search_listen">聴いてみる</string>
     <string name="timing_custom_days">曜日を指定</string>
+    <string name="timing_weekly_on">毎週%1$s %2$s</string>
     <string name="anghami_label">Anghami（公開リンク・非公式）</string>
     <string name="provider_note_anghami">Anghami の公開プレイリストを読み取り専用・ログインなしで：プレイリストのリンク（play.anghami.com/playlist/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
     <string name="anghami_not_public">この Anghami プレイリストは非公開か存在しません：公開リンクのみ使えます</string>

@@ -1109,6 +1109,7 @@
     <string name="editor_mirror_two_way">Не с двусторонней: трек, добавленный с другой стороны, может быть удалён до того, как его скопируют обратно.</string>
     <string name="editor_twin_note">«%1$s» — обратная половина этой двусторонней синхронизации. Она следует этим настройкам, поэтому обе настраиваются здесь.</string>
     <string name="editor_schedule_desc">Первый запуск начнётся через несколько минут после сохранения, затем примерно раз в интервал; точное время выбирает Android.</string>
+    <string name="editor_schedule_desc_timed">Запускается в выбранное время в выбранные дни; Android может начать на несколько минут позже, в режиме экономии энергии — позже.</string>
     <string name="editor_wifi_only_desc">Запуски по расписанию ждут безлимитную сеть, обычно Wi‑Fi. «Запустить» и «Синхронизировать всё» это не учитывают.</string>
     <string name="pill_held_back">Удаления ждут</string>
     <string name="pill_not_found">Не найдено: %1$d</string>
@@ -1426,6 +1427,7 @@
     <string name="timing_days_label">Только в эти дни (необязательно)</string>
     <string name="search_listen">Послушать</string>
     <string name="timing_custom_days">По выбранным дням</string>
+    <string name="timing_weekly_on">Каждую неделю: %1$s, в %2$s</string>
     <string name="anghami_label">Anghami (публичные ссылки, неофициально)</string>
     <string name="provider_note_anghami">Публичные плейлисты Anghami, только чтение и без входа: вставьте ссылку на плейлист (play.anghami.com/playlist/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
     <string name="anghami_not_public">Этот плейлист Anghami закрыт или не существует: работают только публичные ссылки</string>

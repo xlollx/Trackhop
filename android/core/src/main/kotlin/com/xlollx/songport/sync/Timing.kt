@@ -74,7 +74,7 @@ object Timing {
         // Every day of the week is daily.
         if (d.size == 7) { d = emptyList(); m = 1440 }
         return job.copy(
-            schedule = if (d.isNotEmpty()) Schedule.DAILY else legacy(m),
+            schedule = if (d.size == 1) Schedule.WEEKLY else if (d.isNotEmpty()) Schedule.DAILY else legacy(m),
             everyMinutes = m,
             at = if (d.isNotEmpty() || m >= 1440) (parseAt(at) ?: LocalTime.of(9, 0)).toString() else null,
             days = d,
@@ -93,8 +93,9 @@ object Timing {
         else -> "weekly"
     }
 
-    /** The whole timing in English: "every 3 h", "daily at 07:30", "Mon, Wed, Fri at 08:00". */
+    /** The whole timing in English: "every 3 h", "daily at 07:30", "every Sat at 09:00", "Mon, Wed, Fri at 08:00". */
     fun describe(job: SyncJob): String {
+        if (job.days.size == 1) return "every " + DAY_NAMES[(job.days[0] - 1).coerceIn(0, 6)] + " at " + (job.at ?: "09:00")
         if (job.days.isNotEmpty()) return job.days.joinToString(", ") { DAY_NAMES[(it - 1).coerceIn(0, 6)] } + " at " + (job.at ?: "09:00")
         val name = stepName(interval(job))
         return if (timed(job) && job.at != null) "$name at ${job.at}" else name

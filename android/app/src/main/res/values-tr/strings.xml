@@ -1061,6 +1061,7 @@
     <string name="editor_mirror_two_way">Çift yönlü ile olmaz: diğer tarafa eklenen bir parça geri kopyalanmadan önce kaldırılabilir.</string>
     <string name="editor_twin_note">“%1$s”, bu çift yönlü senkronizasyonun ters yarısıdır. Bu ayarları izler, bu yüzden ikisi de buradan düzenlenir.</string>
     <string name="editor_schedule_desc">İlk çalıştırma kaydettikten birkaç dakika sonra başlar, sonra yaklaşık her aralıkta bir kez; kesin zamanı Android seçer.</string>
+    <string name="editor_schedule_desc_timed">Seçtiğin saatte, seçtiğin günlerde çalışır; Android birkaç dakika geç başlatabilir, pil tasarrufunda daha fazla.</string>
     <string name="editor_wifi_only_desc">Zamanlanmış çalıştırmalar sınırsız bir ağı, genellikle Wi‑Fi\'ı bekler. Şimdi çalıştır ve Tümünü senkronize et bunu dikkate almaz.</string>
     <string name="pill_held_back">Kaldırmalar bekliyor</string>
     <string name="pill_not_found">Bulunamadı: %1$d</string>
@@ -1374,6 +1375,7 @@
     <string name="timing_days_label">Yalnızca bu günler (isteğe bağlı)</string>
     <string name="search_listen">Dinle</string>
     <string name="timing_custom_days">Seçili günlerde</string>
+    <string name="timing_weekly_on">Her hafta %1$s, saat %2$s</string>
     <string name="anghami_label">Anghami (herkese açık bağlantılar, resmî değil)</string>
     <string name="provider_note_anghami">Herkese açık Anghami listeleri, salt okunur ve giriş yapmadan: listenin bağlantısını (play.anghami.com/playlist/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
     <string name="anghami_not_public">Bu Anghami listesi gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>

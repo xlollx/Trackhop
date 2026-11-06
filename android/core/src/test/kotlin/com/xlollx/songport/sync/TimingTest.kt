@@ -66,4 +66,15 @@ class TimingTest {
         val never = Timing.apply(base, 1440, "07:30", emptyList())
         assertEquals(t("2026-11-04T07:30"), Timing.nextRun(never, t("2026-11-03T12:00"), rome))
     }
+
+    @Test fun weeklyOnTheChosenDay() {
+        // 2026-11-07 is a Saturday: "Every Saturday at 09:00", run last Saturday a little late.
+        val j = Timing.apply(base, 10080, "09:00", listOf(6)).copy(lastRunEpoch = t("2026-10-31T09:04"))
+        assertEquals(Schedule.WEEKLY, j.schedule)
+        assertEquals("every Sat at 09:00", Timing.describe(j))
+        assertEquals(t("2026-11-07T09:00"), Timing.nextRun(j, t("2026-11-03T12:00"), rome))
+        // Saved on a Wednesday, never run: the coming Saturday, not right away.
+        val fresh = Timing.apply(base, 10080, "09:00", listOf(6))
+        assertEquals(t("2026-11-07T09:00"), Timing.nextRun(fresh, t("2026-11-04T18:00"), rome))
+    }
 }

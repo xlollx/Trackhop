@@ -1040,6 +1040,7 @@
     <string name="editor_mirror_two_way">不能与“双向”同时使用：在另一侧添加的歌曲可能在被复制回去之前就被移除。</string>
     <string name="editor_twin_note">“%1$s”是这个双向同步的反向部分。它沿用这里的设置，所以两者都在这里编辑。</string>
     <string name="editor_schedule_desc">保存后几分钟内开始第一次运行，之后大约每个间隔运行一次；具体时间由 Android 决定。</string>
+    <string name="editor_schedule_desc_timed">在所选日期的所选时间运行；Android 可能会晚几分钟启动，省电模式下会更晚。</string>
     <string name="editor_wifi_only_desc">计划运行会等待不按流量计费的网络，通常是 Wi‑Fi。“立即运行”和“全部同步”不受此限制。</string>
     <string name="pill_held_back">删除待确认</string>
     <string name="pill_not_found">未找到：%1$d</string>
@@ -1351,6 +1352,7 @@
     <string name="timing_days_label">仅在这些日子（可选）</string>
     <string name="search_listen">试听</string>
     <string name="timing_custom_days">指定日期</string>
+    <string name="timing_weekly_on">每周%1$s %2$s</string>
     <string name="anghami_label">Anghami（公开链接，非官方）</string>
     <string name="provider_note_anghami">Anghami 的公开歌单，只读且无需登录：把歌单链接（play.anghami.com/playlist/…）粘贴为同步的来源。这不是官方接口：网站变化时可能失效。</string>
     <string name="anghami_not_public">这个 Anghami 歌单是私密的或不存在：只支持公开链接</string>

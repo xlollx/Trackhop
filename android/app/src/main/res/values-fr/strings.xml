@@ -1070,6 +1070,7 @@
     <string name="editor_mirror_two_way">Pas avec Bidirectionnelle : un titre ajouté de l\'autre côté pourrait être retiré avant d\'être recopié.</string>
     <string name="editor_twin_note">« %1$s » est la moitié inverse de cette sync bidirectionnelle. Elle suit ces réglages : les deux se modifient ici.</string>
     <string name="editor_schedule_desc">La première exécution démarre quelques minutes après l\'enregistrement, puis environ une fois par intervalle ; Android choisit le moment exact.</string>
+    <string name="editor_schedule_desc_timed">S\'exécute à l\'heure choisie, les jours choisis ; Android peut la lancer quelques minutes plus tard, davantage en économie d\'énergie.</string>
     <string name="editor_wifi_only_desc">Les exécutions planifiées attendent un réseau non limité, en général le Wi‑Fi. Lancer maintenant et Tout synchroniser n\'en tiennent pas compte.</string>
     <string name="pill_held_back">Retraits en attente</string>
     <string name="pill_not_found">Introuvables : %1$d</string>
@@ -1384,6 +1385,7 @@
     <string name="timing_days_label">Seulement ces jours-là (facultatif)</string>
     <string name="search_listen">L\'écouter</string>
     <string name="timing_custom_days">Jours choisis</string>
+    <string name="timing_weekly_on">Chaque %1$s à %2$s</string>
     <string name="anghami_label">Anghami (liens publics, non officiel)</string>
     <string name="provider_note_anghami">Playlists publiques d\'Anghami, en lecture seule et sans connexion : collez le lien de la playlist (play.anghami.com/playlist/…) comme source d\'une sync. Pas une interface officielle : elle peut cesser de fonctionner si le site change.</string>
     <string name="anghami_not_public">Cette playlist Anghami est privée ou n\'existe pas : seuls les liens publics fonctionnent</string>

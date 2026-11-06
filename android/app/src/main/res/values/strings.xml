@@ -1063,6 +1063,7 @@
     <string name="editor_mirror_two_way">Not with Two-way: a track added on the other side could be removed before it is copied back.</string>
     <string name="editor_twin_note">“%1$s” is the reverse half of this two-way sync. It follows these settings, so both are edited here.</string>
     <string name="editor_schedule_desc">The first run starts within minutes of saving, then about once per interval; Android picks the exact time.</string>
+    <string name="editor_schedule_desc_timed">Runs at the time you chose, on the chosen days; Android may start it a few minutes late, more on battery saver.</string>
     <string name="editor_wifi_only_desc">Scheduled runs wait for an unmetered network, usually Wi‑Fi. Run now and Sync all ignore this.</string>
     <string name="pill_held_back">Removals on hold</string>
     <string name="pill_not_found">Not found: %1$d</string>
@@ -1376,6 +1377,7 @@
     <string name="timing_days_label">Only on these days (optional)</string>
     <string name="search_listen">Listen to it</string>
     <string name="timing_custom_days">On chosen days</string>
+    <string name="timing_weekly_on">Every %1$s at %2$s</string>
     <string name="anghami_label">Anghami (public links, unofficial)</string>
     <string name="provider_note_anghami">Public Anghami playlists, read-only and without signing in: paste the playlist link (play.anghami.com/playlist/…) as the source of a sync. Not an official interface: it can stop working when the site changes.</string>
     <string name="anghami_not_public">This Anghami playlist is private or doesn\'t exist: only public links work</string>

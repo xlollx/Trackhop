@@ -872,7 +872,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     // The timing (sync/Timing): how often, at what time, on which days.
     var everyM by rememberSaveable { mutableStateOf(if (isNew && job.shazam) 60 else com.xlollx.songport.sync.Timing.interval(job)) }
     var atStr by rememberSaveable { mutableStateOf(job.at ?: "09:00") }
-    var daysCsv by rememberSaveable { mutableStateOf(job.days.joinToString(",")) }
+    var daysCsv by rememberSaveable { mutableStateOf((job.days.ifEmpty { listOfNotNull(legacyWeeklyDay(job) ?: java.time.LocalDate.now().dayOfWeek.value.takeIf { !isNew && com.xlollx.songport.sync.Timing.interval(job) >= 10080 }) }).joinToString(",")) }
     var mirror by rememberSaveable { mutableStateOf(job.mirrorRemovals) }
     var keepOrder by rememberSaveable { mutableStateOf(job.keepOrder) }
     var follows by rememberSaveable { mutableStateOf(job.followsChanges) }
@@ -1210,7 +1210,8 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         onEvery = { everyM = it; schedule = com.xlollx.songport.sync.Timing.legacy(it) },
                         onAt = { atStr = it }, onDays = { daysCsv = it })
                     if (everyM > 0 || daysCsv.isNotBlank()) {
-                        Text(stringResource(R.string.editor_schedule_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        // A sync at a time of day waits for that time; one by interval starts soon after saving.
+                        Text(stringResource(if (everyM >= 1440 || daysCsv.isNotBlank()) R.string.editor_schedule_desc_timed else R.string.editor_schedule_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 // Two-way and Mirror removals don't go together: a track added on the target could be

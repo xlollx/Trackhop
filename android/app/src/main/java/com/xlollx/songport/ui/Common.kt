@@ -449,18 +449,30 @@ private fun dayNames(days: List<Int>): String = days.joinToString(", ") {
     java.time.DayOfWeek.of(it.coerceIn(1, 7)).getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
 }
 
-/** A sync's timing in words, for its card: "Every 3 hours", "Daily at 07:30", "Mon, Wed, Fri at 08:00". */
+private fun fullDayName(day: Int): String =
+    java.time.DayOfWeek.of(day.coerceIn(1, 7)).getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, java.util.Locale.getDefault())
+        .let { n -> if (n.isNotEmpty() && n.first().isDigit()) java.time.DayOfWeek.of(day.coerceIn(1, 7)).getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.getDefault()) else n }
+
+/** The day a weekly sync saved before days could be chosen runs on: the day of its last run, else none. */
+fun legacyWeeklyDay(job: com.xlollx.songport.model.SyncJob): Int? =
+    if (job.days.isEmpty() && com.xlollx.songport.sync.Timing.interval(job) >= 10080 && job.lastRunEpoch > 0)
+        java.time.Instant.ofEpochMilli(job.lastRunEpoch).atZone(java.time.ZoneId.systemDefault()).dayOfWeek.value else null
+
+/** A sync's timing in words, for its card: "Every 3 hours", "Daily at 07:30", "Every Saturday at 09:00", "Mon, Wed, Fri at 08:00". */
 @Composable
 fun timingLabel(job: com.xlollx.songport.model.SyncJob): String {
     val T = com.xlollx.songport.sync.Timing
+    if (job.days.size == 1) return stringResource(R.string.timing_weekly_on, fullDayName(job.days[0]), job.at ?: "09:00")
     if (job.days.isNotEmpty()) return stringResource(R.string.timing_at, dayNames(job.days), job.at ?: "09:00")
+    legacyWeeklyDay(job)?.let { return stringResource(R.string.timing_weekly_on, fullDayName(it), job.at ?: "09:00") }
     val step = stepLabel(T.interval(job))
     return if (T.timed(job) && job.at != null) stringResource(R.string.timing_at, step, job.at!!) else step
 }
 
 /**
  * How often a sync runs: a slider that stops at manual, 1–23 hours, 1–6 days and a week, its value
- * read out above it; from a day up, the time of day; and, optionally, the days of the week.
+ * read out above it; from a day up, the time of day. Weekly runs on one day of the week (a row of
+ * days, one chosen: "Every Saturday at 09:00"); "On chosen days" takes two or more.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -468,23 +480,40 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
     val steps = com.xlollx.songport.sync.Timing.STEPS
     val index = steps.indexOf(every).takeIf { it >= 0 } ?: steps.indexOfFirst { it >= every }.coerceAtLeast(0)
     val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
+    val today = java.time.LocalDate.now().dayOfWeek.value
+    val weekly = days.size == 1 || (days.isEmpty() && every >= 10080)
+    val chosenDays = days.size >= 2
     val ctx = androidx.compose.ui.platform.LocalContext.current
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // The usual choices one tap away; the slider in between for the rest.
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(0, 60, 360, 1440, 10080).forEach { m ->
+            listOf(0, 60, 360, 1440).forEach { m ->
                 FilterChip(selected = every == m && days.isEmpty(), onClick = { onDays(""); onEvery(m) }, label = { Text(stepLabel(m)) })
             }
-            // Chosen days of the week: the day chips appear only with this one.
-            FilterChip(selected = days.isNotEmpty(), onClick = {
-                if (days.isEmpty()) onDays(java.time.LocalDate.now().dayOfWeek.value.toString())
+            FilterChip(selected = weekly, onClick = {
+                if (days.size != 1) { onEvery(10080); onDays(today.toString()) }
+            }, label = { Text(stepLabel(10080)) })
+            // Two or more days of the week.
+            FilterChip(selected = chosenDays, onClick = {
+                if (!chosenDays) { val first = days.firstOrNull() ?: today; onDays(listOf(first, first % 7 + 1).sorted().joinToString(",")) }
             }, label = { Text(stringResource(R.string.timing_custom_days)) })
         }
-        Text(if (days.isNotEmpty()) stringResource(R.string.timing_at, dayNames(days), at) else stepLabel(every),
-            style = MaterialTheme.typography.titleMedium)
+        Text(
+            when {
+                days.size == 1 -> stringResource(R.string.timing_weekly_on, fullDayName(days[0]), at)
+                days.isNotEmpty() -> stringResource(R.string.timing_at, dayNames(days), at)
+                else -> stepLabel(every)
+            },
+            style = MaterialTheme.typography.titleMedium,
+        )
         if (days.isEmpty()) Slider(
             value = index.toFloat(),
-            onValueChange = { onEvery(steps[kotlin.math.round(it).toInt().coerceIn(0, steps.size - 1)]) },
+            onValueChange = {
+                val m = steps[kotlin.math.round(it).toInt().coerceIn(0, steps.size - 1)]
+                onEvery(m)
+                // The slider's last stop is a week: it runs on a day, today's until another is picked.
+                if (m >= 10080) onDays(today.toString())
+            },
             valueRange = 0f..(steps.size - 1).toFloat(),
             steps = steps.size - 2,
         )
@@ -500,11 +529,12 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
                 (1..7).forEach { d ->
                     val on = d in days
                     FilterChip(selected = on, onClick = {
+                        if (days.size == 1) { onDays(d.toString()); return@FilterChip }
                         val next = if (on) days - d else (days + d).sorted()
                         when {
-                            // Every day is Daily; no day left goes back to Weekly.
+                            // Every day is Daily; one day left is Weekly on that day.
                             next.size == 7 -> { onDays(""); onEvery(1440) }
-                            next.isEmpty() -> { onDays(""); onEvery(10080) }
+                            next.isEmpty() -> onDays(today.toString())
                             else -> onDays(next.joinToString(","))
                         }
                     }, label = { Text(dayNames(listOf(d))) })
