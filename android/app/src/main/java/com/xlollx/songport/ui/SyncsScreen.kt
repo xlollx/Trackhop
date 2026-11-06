@@ -106,6 +106,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -255,6 +258,18 @@ fun SyncsScreen(
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
         Store.get(ctx).moveJob(job.id, to)
     }
+    // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
+    // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
+    var dragOrder by remember { mutableStateOf<List<String>?>(null) }
+    var dragging by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(order, dragging) { if (dragging == null && dragOrder != null && dragOrder == order) dragOrder = null }
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val reorder = rememberReorderableLazyListState(listState) { from, to ->
+        val o = (dragOrder ?: order).toMutableList()
+        val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
+        if (a >= 0 && b >= 0) { o.add(b, o.removeAt(a)); dragOrder = o }
+        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
+    }
     // A sync tapped in a widget (JobFocus): scrolled to and lit up for a moment.
     val focusAsked by JobFocus.request.collectAsState()
     var flashing by remember { mutableStateOf<String?>(null) }
@@ -379,7 +394,10 @@ fun SyncsScreen(
             if (support != null) item(key = "support") { SupportCard(support) }
             else if (nudge) item(key = "nudge") { CoffeeCard() }
             if (shown.isEmpty()) item(key = "nomatch") { SyncFinderEmpty { filter = SyncFilter() } }
-            items(shown, key = { it.id }) { job ->
+            // Dragging works on the whole list only: with a filter, the cards between are hidden.
+            val canDrag = !effective.isActive && shown.size >= 2
+            val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
+            items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
                 LaunchedEffect(flashing) {
                     if (flashing == job.id) {
@@ -390,13 +408,25 @@ fun SyncsScreen(
                         flashing = null
                     }
                 }
-                Box(Modifier.animateItem().then(
+                val lift by androidx.compose.animation.core.animateDpAsState(if (isDragging) 10.dp else 0.dp, label = "lift")
+                Box(Modifier.then(
                     if (flash.value > 0f) Modifier.border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = flash.value), MaterialTheme.shapes.large) else Modifier,
+                ).graphicsLayer {
+                    shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
+                    val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
+                }.longPressDraggableHandle(
+                    enabled = canDrag,
+                    onDragStarted = { dragging = job.id; haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
+                    onDragStopped = {
+                        val to = dragOrder?.indexOf(job.id) ?: -1
+                        if (to >= 0 && dragOrder != order) Store.get(ctx).moveJob(job.id, to)
+                        dragging = null
+                    },
                 )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
                     JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove)
                 }
-            }
+            } }
         }
     }
 }
