@@ -45,6 +45,8 @@ private val WAIT_SECONDS = intArrayOf(10, 20, 40, 60, 120)
 private const val MAX_BLOCK_WAITS = 8
 /** Longer than this, a declared pause stops the sync with its end time instead of waiting it out. */
 private const val LONG_PAUSE_SECONDS = 1800
+/** How long to suggest waiting after a long block with no declared end (Apple web: about an hour). */
+private const val LONG_BLOCK_SECONDS = 3600L
 /** Additions from which a slow, one-at-a-time target (see MusicProvider.addSpacingMs) is worth a note. */
 private const val SLOW_ADD_NOTE_FROM = 60
 /** How many added tracks a report keeps for its list: enough to read, small enough for a stored report. */
@@ -662,6 +664,17 @@ class SyncEngine(
             // A pause of hours (Spotify on a first big sync): waiting it out in 30-minute rounds looked
             // stuck. The sync stops now and says until when; what was matched so far is kept.
             val askedRaw = declaredSeconds(throttled?.message)
+            // Apple's web backend answers a long run of searches with 429 "Request is forbidden" and
+            // keeps refusing for an hour or more (#46, #47): no short wait gets past it. Stop at once and
+            // say it is the service's limit; what was matched so far is kept.
+            if (throttled != null && isLongBlock(throttled.message)) {
+                saveMisses()
+                val until = java.time.LocalTime.now().plusSeconds(LONG_BLOCK_SECONDS).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                val msg = env.text("service_search_limit", dst.displayName, until)
+                env.log("engine", "${dst.displayName} refuses searches for a while (${throttled.message?.take(120)}): sync stopped, try after $until")
+                if (done <= 0) throw ProviderException(msg)
+                return msg
+            }
             if (throttled != null && askedRaw != null && askedRaw > LONG_PAUSE_SECONDS) {
                 saveMisses()
                 val until = java.time.LocalTime.now().plusSeconds(askedRaw.toLong()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
@@ -866,6 +879,9 @@ class SyncEngine(
             kotlinx.coroutines.delay(1000)
         }
     }
+
+    /** A refusal that lasts an hour or more (Apple's web backend: 429 "Request is forbidden"). */
+    private fun isLongBlock(msg: String?): Boolean = msg?.contains("Request is forbidden", ignoreCase = true) == true
 
     /** Il servizio sta limitando le richieste (non un errore dell'app). */
     private fun isThrottle(msg: String?): Boolean {

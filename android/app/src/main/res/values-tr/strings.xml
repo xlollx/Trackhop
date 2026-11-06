@@ -1602,6 +1602,7 @@
     <string name="onboarding_docs_site_desc">Kılavuzlar, haberler ve tüm özelliklerin açıklaması</string>
     <string name="onboarding_docs_github_desc">Kaynak kodu, sürümler ve sorun bildirimleri</string>
     <string name="service_pause_until">%1$s yaklaşık %2$s saatine kadar ara istiyor: ilk büyük senkronizasyonda çok fazla istek oldu. Hiçbir şey kaybolmaz: bu saatten sonra senkronizasyonu yeniden başlatın, kaldığı yerden devam eder.</string>
+    <string name="service_search_limit">%1$s bir süre bağlantından gelen aramaları reddediyor: bu, kısa sürede çok fazla aramadan sonra hizmetin kendi sınırıdır, Trackhop hatası değildir. Genellikle bir iki saat içinde kalkar. Şimdiye kadar bulunan şarkılar korunur: senkronizasyonu yaklaşık %2$s sonrasında yeniden çalıştır, kaldığı yerden devam eder.</string>
     <string name="tips_pill">Biliyor muydunuz? Widget\'lar, kısayollar ve dahası</string>
     <string name="tips_pill_dismiss">Bu ipucunu gizle</string>
     <string name="tips_title">Biliyor muydunuz?</string>

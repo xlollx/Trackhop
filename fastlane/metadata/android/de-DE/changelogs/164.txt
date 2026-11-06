@@ -1,0 +1,1 @@
+Apple Music: Suchen laufen jetzt einzeln, etwa eine Sekunde auseinander, damit ein großer Sync Apple nicht mehr dazu bringt, sie eine Stunde lang abzulehnen. Lehnt Apple trotzdem ab, stoppt der Sync sofort und sagt, dass es Apples Limit ist und wann man es erneut versuchen kann; gefundene Titel bleiben. Danke an richardotomislav und nikkvfox (#46, #47).

@@ -1581,6 +1581,7 @@
     <string name="onboarding_docs_site_desc">ガイド、お知らせ、すべての機能の説明</string>
     <string name="onboarding_docs_github_desc">ソースコード、リリース、Issue</string>
     <string name="service_pause_until">%1$sが%2$s頃まで休止を求めています：初回の大きな同期でリクエストが多すぎました。データは失われません。その時刻以降にもう一度同期すると続きから再開します。</string>
+    <string name="service_search_limit">%1$s があなたの接続からの検索をしばらく拒否しています。短時間に多くの検索をしたときのサービス側の制限で、Trackhop のエラーではありません。通常は1〜2時間で解除されます。見つかった曲はそのまま残ります。%2$s ごろに同期をもう一度実行すると続きから再開します。</string>
     <string name="tips_pill">ご存じですか？ウィジェット、ショートカットなど</string>
     <string name="tips_pill_dismiss">このヒントを非表示</string>
     <string name="tips_title">ご存じですか？</string>

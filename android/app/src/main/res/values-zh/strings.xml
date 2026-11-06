@@ -1581,6 +1581,7 @@
     <string name="onboarding_docs_site_desc">指南、新闻和所有功能说明</string>
     <string name="onboarding_docs_github_desc">源代码、版本和问题反馈</string>
     <string name="service_pause_until">%1$s 要求暂停到约 %2$s：首次大规模同步时请求过多。不会丢失任何内容：在该时间之后重新运行同步即可继续。</string>
+    <string name="service_search_limit">%1$s 暂时拒绝来自你网络的搜索：这是服务在短时间内大量搜索后的自身限制，不是 Trackhop 的错误。通常一两个小时内就会解除。已找到的歌曲会保留：大约 %2$s 之后再次运行同步，会从中断处继续。</string>
     <string name="tips_pill">你知道吗？小部件、快捷方式等</string>
     <string name="tips_pill_dismiss">隐藏此提示</string>
     <string name="tips_title">你知道吗？</string>

@@ -1604,6 +1604,7 @@
     <string name="onboarding_docs_site_desc">Anleitungen, Neuigkeiten und alle Funktionen erklärt</string>
     <string name="onboarding_docs_github_desc">Quellcode, Versionen und Meldungen</string>
     <string name="service_pause_until">%1$s bittet um eine Pause bis etwa %2$s: zu viele Anfragen bei einer ersten großen Synchronisierung. Nichts geht verloren: starte die Synchronisierung danach erneut, sie macht dort weiter.</string>
+    <string name="service_search_limit">%1$s lehnt Suchanfragen von deiner Verbindung eine Weile ab: Das ist ein Limit des Dienstes nach vielen Suchen in kurzer Zeit, kein Fehler von Trackhop. Meist ist es nach ein bis zwei Stunden vorbei. Bereits gefundene Titel bleiben erhalten: Starte die Synchronisierung nach etwa %2$s erneut, sie macht dort weiter.</string>
     <string name="tips_pill">Schon gewusst? Widgets, Verknüpfungen und mehr</string>
     <string name="tips_pill_dismiss">Diesen Tipp ausblenden</string>
     <string name="tips_title">Schon gewusst?</string>

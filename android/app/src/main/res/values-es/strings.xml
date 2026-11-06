@@ -1612,6 +1612,7 @@
     <string name="onboarding_docs_site_desc">Guías, novedades y todas las funciones explicadas</string>
     <string name="onboarding_docs_github_desc">Código fuente, versiones e incidencias</string>
     <string name="service_pause_until">%1$s pide una pausa hasta las %2$s aprox.: demasiadas peticiones en una primera sincronización grande. No se pierde nada: vuelve a lanzar la sincronización después de esa hora y continuará.</string>
+    <string name="service_search_limit">%1$s está rechazando las búsquedas desde tu conexión durante un rato: es un límite del servicio tras muchas búsquedas en poco tiempo, no un error de Trackhop. Suele pasar en una o dos horas. Las canciones encontradas se conservan: vuelve a sincronizar hacia las %2$s y seguirá donde lo dejó.</string>
     <string name="tips_pill">¿Sabías que…? Widgets, accesos directos y más</string>
     <string name="tips_pill_dismiss">Ocultar este consejo</string>
     <string name="tips_title">¿Sabías que…?</string>

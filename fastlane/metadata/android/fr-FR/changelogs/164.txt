@@ -1,0 +1,1 @@
+Apple Music : les recherches passent maintenant une par une, à environ une seconde d'écart, pour qu'une grosse synchro ne pousse plus Apple à les refuser pendant une heure. Si Apple refuse quand même, la synchro s'arrête tout de suite et explique que c'est une limite d'Apple et quand réessayer ; les titres trouvés sont gardés. Merci à richardotomislav et nikkvfox (#46, #47).

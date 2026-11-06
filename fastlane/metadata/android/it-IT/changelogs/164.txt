@@ -1,0 +1,1 @@
+Apple Music: le ricerche ora vanno una alla volta, a circa un secondo di distanza, così una sincronizzazione grande non fa più rifiutare le ricerche ad Apple per un'ora. Se Apple dice comunque di no, la sync si ferma subito e spiega che è un limite di Apple e quando riprovare; i brani trovati restano. Grazie a richardotomislav e nikkvfox (#46, #47).

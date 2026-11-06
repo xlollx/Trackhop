@@ -1605,6 +1605,7 @@
     <string name="onboarding_docs_site_desc">Guides, news and every feature explained</string>
     <string name="onboarding_docs_github_desc">Source code, releases and issues</string>
     <string name="service_pause_until">%1$s is asking for a pause until about %2$s: too many requests on a first big sync. Nothing is lost: run the sync again after that time and it carries on.</string>
+    <string name="service_search_limit">%1$s is refusing searches from your connection for a while: that is the service\'s own limit after many searches in a short time, not a Trackhop error. It usually lifts within an hour or two. Songs found so far are kept: run the sync again after about %2$s and it carries on.</string>
     <string name="tips_pill">Did you know? Widgets, shortcuts and more</string>
     <string name="tips_pill_dismiss">Hide this tip</string>
     <string name="tips_title">Did you know?</string>

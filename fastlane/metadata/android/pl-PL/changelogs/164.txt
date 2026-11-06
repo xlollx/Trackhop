@@ -1,0 +1,1 @@
+Apple Music: wyszukiwania idą teraz pojedynczo, mniej więcej co sekundę, więc duża synchronizacja nie sprawia już, że Apple odrzuca je na godzinę. Jeśli Apple i tak odmówi, synchronizacja zatrzymuje się od razu i wyjaśnia, że to limit Apple i kiedy spróbować ponownie; znalezione utwory zostają. Dziękuję richardotomislav i nikkvfox (#46, #47).

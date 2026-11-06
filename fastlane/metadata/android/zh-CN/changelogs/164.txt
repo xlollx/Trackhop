@@ -1,0 +1,1 @@
+Apple Music：搜索现在逐个进行，间隔约一秒，大型同步不会再让 Apple 拒绝搜索一小时。如果 Apple 仍然拒绝，同步会立即停止，并说明这是 Apple 的限制以及何时重试；已找到的歌曲会保留。感谢 richardotomislav 和 nikkvfox 的报告（#46、#47）。

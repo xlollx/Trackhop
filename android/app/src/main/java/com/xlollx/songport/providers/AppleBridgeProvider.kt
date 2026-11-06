@@ -72,6 +72,11 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot) {
     // token only on library calls: the catalogue answers a search that carries it with 429 42900
     // "Request is forbidden", which no waiting gets past (#46).
     override fun apiUrl(url: String): String = url.replace("https://api.music.apple.com", AMP)
+
+    // One search at a time, about a second apart: a fast run of hundreds of searches makes Apple
+    // refuse them all for an hour or more (#46, #47). Slower on a first big sync, but it gets through.
+    override val searchParallelism: Int get() = 1
+    override val searchSpacingMs: Long get() = 1000
     override fun apiHeaders(ctx: Env, user: Boolean): Map<String, String> = mapOf(
         "Origin" to "https://music.apple.com", "Referer" to "https://music.apple.com/",
         "media-user-token" to (if (user) runCatching { userToken(ctx) }.getOrNull() ?: "" else ""),

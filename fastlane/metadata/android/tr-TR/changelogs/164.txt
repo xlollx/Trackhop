@@ -1,0 +1,1 @@
+Apple Music: aramalar artık tek tek, yaklaşık bir saniye arayla yapılıyor; böylece büyük bir senkronizasyon Apple'ın aramaları bir saat boyunca reddetmesine yol açmıyor. Apple yine de reddederse senkronizasyon hemen durur, bunun Apple'ın sınırı olduğunu ve ne zaman tekrar deneneceğini söyler; bulunan şarkılar korunur. richardotomislav ve nikkvfox'a teşekkürler (#46, #47).

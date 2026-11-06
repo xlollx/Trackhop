@@ -1,0 +1,1 @@
+Apple Music: searches now go one at a time, about a second apart, so a big sync no longer makes Apple refuse them for an hour. If Apple still says no, the sync stops at once and says it is Apple's own limit and when to try again; songs found so far are kept. Thanks to richardotomislav and nikkvfox for the reports (#46, #47).
