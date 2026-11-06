@@ -157,6 +157,14 @@ android {
         debug {
             signingConfig signingConfigs.debug
         }
+        // A test build to try before a release, installed next to Trackhop itself ("Trackhop Preview",
+        // its own data and sign-ins): ./gradlew :app:assembleFullPreview
+        preview {
+            initWith debug
+            applicationIdSuffix ".preview"
+            versionNameSuffix "-preview"
+            matchingFallbacks = ['debug']
+        }
         release {
             minifyEnabled true
             shrinkResources true
