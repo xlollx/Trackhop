@@ -1232,6 +1232,9 @@
     <string name="sync_menu_move_up">Sposta su</string>
     <string name="sync_menu_move_down">Sposta giù</string>
     <string name="sync_menu_move_top">Sposta in cima</string>
+    <string name="sync_menu_move_to">Sposta in posizione…</string>
+    <string name="move_to_now">Ora è la %1$d di %2$d.</string>
+    <string name="move_to_label">Posizione (1–%1$d)</string>
     <string name="sync_disabled_snack">Sync disattivata: non partirà più secondo la pianificazione</string>
     <string name="sync_enabled_snack">Sync attivata</string>
     <string name="sync_pause_all">Metti tutte in pausa</string>

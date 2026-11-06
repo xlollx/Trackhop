@@ -1239,6 +1239,9 @@
     <string name="sync_menu_move_up">Subir</string>
     <string name="sync_menu_move_down">Bajar</string>
     <string name="sync_menu_move_top">Mover al principio</string>
+    <string name="sync_menu_move_to">Mover a la posición…</string>
+    <string name="move_to_now">Ahora es la %1$d de %2$d.</string>
+    <string name="move_to_label">Posición (1–%1$d)</string>
     <string name="sync_disabled_snack">Sincronización desactivada: no se ejecutará según su programación</string>
     <string name="sync_enabled_snack">Sincronización activada</string>
     <string name="sync_pause_all">Pausar todas</string>

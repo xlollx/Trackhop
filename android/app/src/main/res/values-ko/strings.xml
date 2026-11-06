@@ -1208,6 +1208,9 @@
     <string name="sync_menu_move_up">위로 이동</string>
     <string name="sync_menu_move_down">아래로 이동</string>
     <string name="sync_menu_move_top">맨 위로 이동</string>
+    <string name="sync_menu_move_to">위치로 이동…</string>
+    <string name="move_to_now">현재 %2$d개 중 %1$d번째예요.</string>
+    <string name="move_to_label">위치(1–%1$d)</string>
     <string name="sync_disabled_snack">동기화를 껐어요: 예약된 일정에 실행되지 않아요</string>
     <string name="sync_enabled_snack">동기화를 켰어요</string>
     <string name="sync_pause_all">모두 일시정지</string>

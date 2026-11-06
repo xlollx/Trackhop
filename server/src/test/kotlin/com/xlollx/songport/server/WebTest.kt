@@ -161,6 +161,12 @@ class WebTest {
         assertEquals(listOf("c", "a", "b"), env.store.data.jobs.map { it.id })
         post("/syncs/b/move", "to=top", *origin)
         assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })
+        // A position as a number, from 1; out of range goes to the nearest end.
+        post("/syncs/a/move", "to=1", *origin)
+        assertEquals(listOf("a", "b", "c"), env.store.data.jobs.map { it.id })
+        post("/syncs/a/move", "to=99", *origin)
+        assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })
+        assertTrue(get("/syncs/a").body().contains("now 3 of 3"))
         // A link can't move anything: a GET only shows the sync.
         get("/syncs/a/move")
         assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })

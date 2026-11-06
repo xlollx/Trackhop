@@ -1239,6 +1239,9 @@
     <string name="sync_menu_move_up">Monter</string>
     <string name="sync_menu_move_down">Descendre</string>
     <string name="sync_menu_move_top">Placer en haut</string>
+    <string name="sync_menu_move_to">Déplacer à la position…</string>
+    <string name="move_to_now">Actuellement %1$d sur %2$d.</string>
+    <string name="move_to_label">Position (1–%1$d)</string>
     <string name="sync_disabled_snack">Synchro désactivée : elle ne s\'exécutera plus selon sa planification</string>
     <string name="sync_enabled_snack">Synchro activée</string>
     <string name="sync_pause_all">Tout mettre en pause</string>

@@ -1278,6 +1278,9 @@
     <string name="sync_menu_move_up">Переместить выше</string>
     <string name="sync_menu_move_down">Переместить ниже</string>
     <string name="sync_menu_move_top">Переместить в начало</string>
+    <string name="sync_menu_move_to">Переместить на позицию…</string>
+    <string name="move_to_now">Сейчас %1$d из %2$d.</string>
+    <string name="move_to_label">Позиция (1–%1$d)</string>
     <string name="sync_disabled_snack">Синхронизация отключена: по расписанию она запускаться не будет</string>
     <string name="sync_enabled_snack">Синхронизация включена</string>
     <string name="sync_pause_all">Приостановить все</string>

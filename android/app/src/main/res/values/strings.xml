@@ -1232,6 +1232,9 @@
     <string name="sync_menu_move_up">Move up</string>
     <string name="sync_menu_move_down">Move down</string>
     <string name="sync_menu_move_top">Move to the top</string>
+    <string name="sync_menu_move_to">Move to position…</string>
+    <string name="move_to_now">Now %1$d of %2$d.</string>
+    <string name="move_to_label">Position (1–%1$d)</string>
     <string name="sync_disabled_snack">Sync disabled: it won\'t run on its schedule</string>
     <string name="sync_enabled_snack">Sync enabled</string>
     <string name="sync_pause_all">Pause all</string>

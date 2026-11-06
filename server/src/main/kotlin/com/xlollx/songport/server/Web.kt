@@ -660,7 +660,13 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                     // The order of the list, of Run all and of the app's widgets, as in the app's card menu.
                     "move" -> {
                         val at = env.store.data.jobs.indexOfFirst { it.id == job.id }
-                        when (r.form["to"]) { "up" -> env.store.moveJob(job.id, at - 1); "down" -> env.store.moveJob(job.id, at + 1); "top" -> env.store.moveJob(job.id, 0) }
+                        when (val to = r.form["to"]) {
+                            "up" -> env.store.moveJob(job.id, at - 1)
+                            "down" -> env.store.moveJob(job.id, at + 1)
+                            "top" -> env.store.moveJob(job.id, 0)
+                            // A position typed as a number, counted from 1.
+                            else -> to?.trim()?.toIntOrNull()?.let { env.store.moveJob(job.id, it - 1) }
+                        }
                         redirect(r.ex, "/#sync-${job.id}")
                     }
                     else -> send(r.ex, 404, page("Not found", ""))
@@ -789,6 +795,12 @@ ${changesFields(null)}
         body.append(Html.postButton("/syncs/$id/toggle", if (job.enabled) "Turn off" else "Turn on", "secondary"))
         body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
+        // Its place in the list, as a number: quicker than the arrows with many syncs.
+        val all = env.store.data.jobs
+        if (all.size > 2) {
+            val at = all.indexOfFirst { it.id == job.id } + 1
+            body.append("""<form method="post" action="/syncs/$id/move" class="card row"><label for="pos">Position in the list (now $at of ${all.size})</label><input type="number" id="pos" name="to" min="1" max="${all.size}" value="$at" style="max-width:7em"> <button class="secondary">Move</button></form>""")
+        }
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}

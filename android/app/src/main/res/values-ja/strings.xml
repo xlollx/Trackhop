@@ -1209,6 +1209,9 @@
     <string name="sync_menu_move_up">上へ移動</string>
     <string name="sync_menu_move_down">下へ移動</string>
     <string name="sync_menu_move_top">先頭へ移動</string>
+    <string name="sync_menu_move_to">位置を指定して移動…</string>
+    <string name="move_to_now">現在 %2$d 件中 %1$d 番目です。</string>
+    <string name="move_to_label">位置（1〜%1$d）</string>
     <string name="sync_disabled_snack">同期を無効にしました：スケジュールでは実行されません</string>
     <string name="sync_enabled_snack">同期を有効にしました</string>
     <string name="sync_pause_all">すべて一時停止</string>

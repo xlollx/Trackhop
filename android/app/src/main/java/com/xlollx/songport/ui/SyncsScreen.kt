@@ -132,6 +132,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PauseCircle
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material.icons.outlined.VerticalAlignTop
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
@@ -244,13 +245,13 @@ fun SyncsScreen(
             lastOrder[0] = order
         }
     }
-    val onMove: (SyncJob, Int) -> Unit = { job, to ->
+    val onMove: (SyncJob, Int, Boolean) -> Unit = { job, to, follow ->
         val from = data.jobs.indexOfFirst { it.id == job.id }
         val here = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.index
-        // A card moved up from the top of the screen, or to the top of the list, is followed there;
-        // otherwise the screen stays where it is.
-        moveAnchor[0] = if (here != null && from > to && (to == 0 || here == listState.firstVisibleItemIndex))
-            (here - (from - to)).coerceAtLeast(0) to 0
+        // A card moved to a position by number, to the top of the list, or up from the top of the
+        // screen is followed there; otherwise the screen stays where it is.
+        val followIt = here != null && from >= 0 && (follow || (from > to && (to == 0 || here == listState.firstVisibleItemIndex)))
+        moveAnchor[0] = if (followIt) (here!! + (to - from)).coerceAtLeast(0) to 0
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
         Store.get(ctx).moveJob(job.id, to)
     }
@@ -498,11 +499,43 @@ private fun JobCard(
     onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onRun: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
     onReview: (String) -> Unit = {}, onOpenTarget: (SyncJob) -> Unit = {}, onOpenLog: () -> Unit = {},
     onToggleEnabled: (SyncJob) -> Unit = {},
-    onMove: (SyncJob, Int) -> Unit = { _, _ -> },
+    onMove: (SyncJob, Int, Boolean) -> Unit = { _, _, _ -> },
 ) {
     val ctx = LocalContext.current
     val isRunning = run != null
     var colorOpen by remember { mutableStateOf(false) }
+    var moveToOpen by remember { mutableStateOf(false) }
+    if (moveToOpen) {
+        val total = data.jobs.size
+        val now = data.jobs.indexOfFirst { it.id == job.id } + 1
+        var typed by remember { mutableStateOf(now.toString()) }
+        val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
+        AlertDialog(
+            onDismissRequest = { moveToOpen = false },
+            title = { Text(stringResource(R.string.sync_menu_move_to)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.move_to_now, now, total), style = MaterialTheme.typography.bodyMedium)
+                    OutlinedTextField(
+                        value = typed,
+                        onValueChange = { v -> typed = v.filter { it.isDigit() }.take(4) },
+                        label = { Text(stringResource(R.string.move_to_label, total)) },
+                        singleLine = true,
+                        isError = typed.isNotEmpty() && wanted == null,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = wanted != null && wanted != now, onClick = {
+                    moveToOpen = false
+                    onMove(job, wanted!! - 1, true)
+                }) { Text(stringResource(R.string.ok)) }
+            },
+            dismissButton = { TextButton(onClick = { moveToOpen = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
     if (colorOpen) JobColorDialog(job.color, onDismiss = { colorOpen = false }) { c ->
         // A two-way sync is one sync to the user: both halves take the colour.
         val store = Store.get(ctx)
@@ -709,9 +742,11 @@ private fun JobCard(
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
                         MenuAction(stringResource(R.string.job_color), { colorOpen = true }, icon = Icons.Outlined.Palette),
                         // The order is the list's, Sync all's and the widgets'.
-                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { onMove(job, position - 1) }, icon = Icons.Outlined.ArrowUpward) else null,
-                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { onMove(job, position + 1) }, icon = Icons.Outlined.ArrowDownward) else null,
-                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { onMove(job, 0) }, icon = Icons.Outlined.VerticalAlignTop) else null,
+                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { onMove(job, position - 1, false) }, icon = Icons.Outlined.ArrowUpward) else null,
+                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { onMove(job, position + 1, false) }, icon = Icons.Outlined.ArrowDownward) else null,
+                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { onMove(job, 0, false) }, icon = Icons.Outlined.VerticalAlignTop) else null,
+                        // Many syncs: a position typed as a number, quicker than many taps on the arrows.
+                        if (data.jobs.size > 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
                         MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
                     ),
                     enabled = !isRunning,

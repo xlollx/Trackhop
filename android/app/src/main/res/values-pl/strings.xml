@@ -1280,6 +1280,9 @@
     <string name="sync_menu_move_up">Przenieś w górę</string>
     <string name="sync_menu_move_down">Przenieś w dół</string>
     <string name="sync_menu_move_top">Przenieś na górę</string>
+    <string name="sync_menu_move_to">Przenieś na pozycję…</string>
+    <string name="move_to_now">Teraz %1$d z %2$d.</string>
+    <string name="move_to_label">Pozycja (1–%1$d)</string>
     <string name="sync_disabled_snack">Synchronizacja wyłączona: nie uruchomi się według harmonogramu</string>
     <string name="sync_enabled_snack">Synchronizacja włączona</string>
     <string name="sync_pause_all">Wstrzymaj wszystkie</string>
