@@ -57,6 +57,14 @@ Every service has `<service>.status` (`connected`, `account`, `version`: the plu
 and `<service>.disconnect`. Trackhop treats a service as served when its status answers `connected`
 at all; a plugin that does not know a service answers `error`.
 
+**Several accounts of one service** (Trackhop 1.15): every call may carry a `slot` extra (`"2"`, `"3"`…)
+naming an extra account of the service, which the plugin keeps apart from the first one (its own
+session, its own WebView profile); the login activities take the same `slot` extra. Absent or empty,
+the call is about the account there has always been, exactly as before. A plugin that keeps accounts
+apart says so with `slots` in its status answers (`true` for the services that take a slot, `false`
+for the ones that serve one account: Amazon Music, SoundCloud); Trackhop never sends a slot to a
+plugin whose status answers carry no `slots`, since it would serve the first account to every slot.
+
 | Namespace | Methods |
 |-----------|---------|
 | (none) YouTube Music | `status`, `disconnect`, `playlists`, `playlistInfo`, `tracks`, `search`, `stats`, `create`, `add`, `remove`, `rename`, `delete`, `visibility`, `reorder` |
