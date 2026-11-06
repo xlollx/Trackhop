@@ -186,6 +186,7 @@ common errors.
 
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
+- ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
 - ▶ [5 Android Apps You Didn't Know Your Phone Could Use](https://www.youtube.com/watch?v=q57RUuX3ZXI&t=199s): NextTech Hub, YouTube (English)
 - ✎ [The 15 Best Android Apps You Need in November 2026](https://www.geeky-gadgets.com/best-android-apps-november-2026/): Geeky Gadgets (English)
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
