@@ -921,6 +921,7 @@
     <string name="job_color_custom">Eigene Farbe</string>
     <string name="job_color_shade">Farbton: Sättigung waagerecht, Helligkeit senkrecht</string>
     <string name="job_color_hue">Farbe</string>
+    <string name="job_color_preview">So sieht die Karte aus</string>
     <string name="color_red">Rot</string>
     <string name="color_orange">Orange</string>
     <string name="color_yellow">Gelb</string>

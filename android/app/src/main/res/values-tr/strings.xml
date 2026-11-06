@@ -919,6 +919,7 @@
     <string name="job_color_custom">Kendi rengin</string>
     <string name="job_color_shade">Ton: yatayda doygunluk, dikeyde parlaklık</string>
     <string name="job_color_hue">Renk tonu</string>
+    <string name="job_color_preview">Kartın görünümü</string>
     <string name="color_red">Kırmızı</string>
     <string name="color_orange">Turuncu</string>
     <string name="color_yellow">Sarı</string>

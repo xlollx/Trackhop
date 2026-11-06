@@ -953,6 +953,7 @@
     <string name="job_color_custom">Свой цвет</string>
     <string name="job_color_shade">Оттенок: насыщенность по горизонтали, яркость по вертикали</string>
     <string name="job_color_hue">Тон</string>
+    <string name="job_color_preview">Так выглядит карточка</string>
     <string name="color_red">Красный</string>
     <string name="color_orange">Оранжевый</string>
     <string name="color_yellow">Жёлтый</string>

@@ -904,6 +904,7 @@
     <string name="job_color_custom">원하는 색</string>
     <string name="job_color_shade">색조: 가로는 채도, 세로는 밝기</string>
     <string name="job_color_hue">색상</string>
+    <string name="job_color_preview">카드 미리보기</string>
     <string name="color_red">빨강</string>
     <string name="color_orange">주황</string>
     <string name="color_yellow">노랑</string>

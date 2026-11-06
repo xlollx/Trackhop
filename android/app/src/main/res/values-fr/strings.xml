@@ -921,6 +921,7 @@
     <string name="job_color_custom">Couleur au choix</string>
     <string name="job_color_shade">Nuance : saturation à l\'horizontale, luminosité à la verticale</string>
     <string name="job_color_hue">Teinte</string>
+    <string name="job_color_preview">Aperçu de la carte</string>
     <string name="color_red">Rouge</string>
     <string name="color_orange">Orange</string>
     <string name="color_yellow">Jaune</string>

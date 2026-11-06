@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
@@ -85,10 +86,46 @@ object CustomColor {
     }
 
     /** The colour for dark mode: lifted towards white until it shows on a dark surface. */
-    fun forDark(c: Color): Color {
-        var x = c; var i = 0
-        while (luminance(x) < 0.28f && i++ < 10) x = lerp(x, Color.White, 0.15f)
-        return x
+    fun forDark(c: Color): Color = tone(c, dark = true)
+
+    /**
+     * The colour a card wears for a colour of the user's own: its hue, brought into the range of the
+     * nine ready colours, so a very dark or very pale choice (#000460, #EBECF5) still gives a card
+     * that reads as that colour rather than a dull grey. A grey stays a grey, at a visible lightness.
+     */
+    fun tone(c: Color, dark: Boolean): Color {
+        val (h, s, l) = hsl(c)
+        // Grey by how far apart its channels are (a pale lavender grey has a high HSL saturation).
+        val grey = maxOf(c.red, c.green, c.blue) - minOf(c.red, c.green, c.blue) < 0.08f
+        val sat = if (grey) 0f else s.coerceIn(0.45f, 0.85f)
+        val light = if (dark) l.coerceIn(0.62f, 0.76f) else l.coerceIn(0.40f, 0.56f)
+        return fromHsl(h, sat, light)
+    }
+
+    private fun hsl(c: Color): Triple<Float, Float, Float> {
+        val r = c.red; val g = c.green; val b = c.blue
+        val max = maxOf(r, g, b); val min = minOf(r, g, b)
+        val l = (max + min) / 2f
+        if (max == min) return Triple(0f, 0f, l)
+        val d = max - min
+        val s = if (l > 0.5f) d / (2f - max - min) else d / (max + min)
+        val h = when (max) {
+            r -> ((g - b) / d + (if (g < b) 6f else 0f))
+            g -> ((b - r) / d + 2f)
+            else -> ((r - g) / d + 4f)
+        } * 60f
+        return Triple(h, s, l)
+    }
+
+    private fun fromHsl(h: Float, s: Float, l: Float): Color {
+        val c = (1f - kotlin.math.abs(2f * l - 1f)) * s
+        val x = c * (1f - kotlin.math.abs((h / 60f) % 2f - 1f))
+        val m = l - c / 2f
+        val (r, g, b) = when {
+            h < 60f -> Triple(c, x, 0f); h < 120f -> Triple(x, c, 0f); h < 180f -> Triple(0f, c, x)
+            h < 240f -> Triple(0f, x, c); h < 300f -> Triple(x, 0f, c); else -> Triple(c, 0f, x)
+        }
+        return Color((r + m).coerceIn(0f, 1f), (g + m).coerceIn(0f, 1f), (b + m).coerceIn(0f, 1f))
     }
 }
 
@@ -97,7 +134,7 @@ object CustomColor {
 fun jobAccent(key: String?): Color? {
     val dark = LocalAppDark.current
     JobColor.of(key)?.let { return if (dark) it.dark else it.light }
-    return CustomColor.parse(key)?.let { if (dark) CustomColor.forDark(it) else it }
+    return CustomColor.parse(key)?.let { CustomColor.tone(it, dark) }
 }
 
 /** A card's background in that colour: the usual surface, tinted just enough to tell. */
@@ -248,6 +285,15 @@ fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> 
                         },
                         label = { Text("HEX") }, singleLine = true, modifier = Modifier.weight(1f),
                     )
+                }
+                // How a card will wear it, in this theme: the same tint and text colour as the list.
+                val key = CustomColor.key(color)
+                Box(
+                    Modifier.fillMaxWidth().height(44.dp).clip(RoundedCornerShape(14.dp)).background(jobContainer(key))
+                        .border(1.dp, jobAccent(key) ?: MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Text(stringResource(R.string.job_color_preview), Modifier.padding(horizontal = 14.dp), color = jobInk(key) ?: MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
                 }
             }
         },

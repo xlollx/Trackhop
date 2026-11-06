@@ -921,6 +921,7 @@
     <string name="job_color_custom">Color a tu gusto</string>
     <string name="job_color_shade">Matiz: saturación en horizontal, brillo en vertical</string>
     <string name="job_color_hue">Tono</string>
+    <string name="job_color_preview">Así se verá la tarjeta</string>
     <string name="color_red">Rojo</string>
     <string name="color_orange">Naranja</string>
     <string name="color_yellow">Amarillo</string>

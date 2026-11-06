@@ -921,6 +921,7 @@
     <string name="job_color_custom">Cor à sua escolha</string>
     <string name="job_color_shade">Matiz: saturação na horizontal, brilho na vertical</string>
     <string name="job_color_hue">Tom</string>
+    <string name="job_color_preview">Como o cartão fica</string>
     <string name="color_red">Vermelho</string>
     <string name="color_orange">Laranja</string>
     <string name="color_yellow">Amarelo</string>

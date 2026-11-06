@@ -905,6 +905,7 @@
     <string name="job_color_custom">好きな色</string>
     <string name="job_color_shade">濃淡：横が彩度、縦が明るさ</string>
     <string name="job_color_hue">色相</string>
+    <string name="job_color_preview">カードの見た目</string>
     <string name="color_red">赤</string>
     <string name="color_orange">オレンジ</string>
     <string name="color_yellow">黄</string>

@@ -955,6 +955,7 @@
     <string name="job_color_custom">Własny kolor</string>
     <string name="job_color_shade">Odcień: nasycenie w poziomie, jasność w pionie</string>
     <string name="job_color_hue">Barwa</string>
+    <string name="job_color_preview">Tak wygląda karta</string>
     <string name="color_red">Czerwony</string>
     <string name="color_orange">Pomarańczowy</string>
     <string name="color_yellow">Żółty</string>

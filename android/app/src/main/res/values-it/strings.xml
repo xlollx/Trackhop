@@ -921,6 +921,7 @@
     <string name="job_color_custom">Colore a scelta</string>
     <string name="job_color_shade">Sfumatura: saturazione in orizzontale, luminosità in verticale</string>
     <string name="job_color_hue">Tonalità</string>
+    <string name="job_color_preview">Come appare la card</string>
     <string name="color_red">Rosso</string>
     <string name="color_orange">Arancione</string>
     <string name="color_yellow">Giallo</string>

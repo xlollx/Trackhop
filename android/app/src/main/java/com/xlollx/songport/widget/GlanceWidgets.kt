@@ -113,7 +113,7 @@ object Widgets {
         fun service(id: String) = com.xlollx.songport.providers.Providers.byId(id)?.familyName ?: id
         val from = job.radio?.station ?: service(job.source.provider)
         val to = service(job.target.provider)
-        return Row(job.id, job.name, JobColor.of(job.color)?.light ?: com.xlollx.songport.ui.CustomColor.parse(job.color), status, last != null && !last.ok && job.id !in running, job.id in running,
+        return Row(job.id, job.name, JobColor.of(job.color)?.light ?: com.xlollx.songport.ui.CustomColor.parse(job.color)?.let { com.xlollx.songport.ui.CustomColor.tone(it, dark = false) }, status, last != null && !last.ok && job.id !in running, job.id in running,
             (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to,
             job.source.provider, job.target.provider)
     }

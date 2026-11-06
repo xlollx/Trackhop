@@ -220,6 +220,8 @@ dependencies {
     implementation platform('androidx.compose:compose-bom:2025.06.00')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.material3:material3'
+    // Hold a sync card and drag it to another place in the list (Apache-2.0, Maven Central).
+    implementation 'sh.calvin.reorderable:reorderable:3.0.0'
     implementation 'androidx.compose.material:material-icons-extended'
     // Backdrop blur for the glass navigation bar (Apache-2.0). 1.6.x is the line built for Compose 1.8 / Kotlin 2.1.
     implementation 'dev.chrisbanes.haze:haze:1.6.10'
