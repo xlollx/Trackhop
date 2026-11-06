@@ -639,7 +639,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                     "schedule" -> {
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
-                        val color = r.form["color"]?.takeIf { it in Html.JOB_COLORS }
+                        val color = r.form["color"]?.let { if (it == "custom") Html.customColor(r.form["customColor"]) else it.takeIf { k -> k in Html.JOB_COLORS } }
                         val timed = withTiming(job.copy(name = name, schedule = s, color = color), r)
                         // A radio sync's form has no choice about changes: its source only grows.
                         val saved = if (job.radio != null) timed else withChanges(timed, r)
@@ -793,7 +793,7 @@ ${changesFields(null)}
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
 ${changesFields(job)}"""}
-<label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}</div>
+<label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <p><button class="secondary">Save</button></p></form>""",
         )
         val reports = env.store.data.reports.filter { it.jobId == job.id }.take(10)

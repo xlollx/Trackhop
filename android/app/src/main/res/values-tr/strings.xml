@@ -916,6 +916,9 @@
     <string name="qqmusic_changed">QQ Music sitesini değiştirdi; Trackhop\'un güncellenmesi gerekiyor</string>
     <string name="job_color">Renk</string>
     <string name="job_color_default">Varsayılan</string>
+    <string name="job_color_custom">Kendi rengin</string>
+    <string name="job_color_shade">Ton: yatayda doygunluk, dikeyde parlaklık</string>
+    <string name="job_color_hue">Renk tonu</string>
     <string name="color_red">Kırmızı</string>
     <string name="color_orange">Turuncu</string>
     <string name="color_yellow">Sarı</string>

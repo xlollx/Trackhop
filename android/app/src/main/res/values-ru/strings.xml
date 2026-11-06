@@ -950,6 +950,9 @@
     <string name="qqmusic_changed">QQ Music изменил свой сайт; Trackhop нужно обновить</string>
     <string name="job_color">Цвет</string>
     <string name="job_color_default">По умолчанию</string>
+    <string name="job_color_custom">Свой цвет</string>
+    <string name="job_color_shade">Оттенок: насыщенность по горизонтали, яркость по вертикали</string>
+    <string name="job_color_hue">Тон</string>
     <string name="color_red">Красный</string>
     <string name="color_orange">Оранжевый</string>
     <string name="color_yellow">Жёлтый</string>

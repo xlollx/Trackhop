@@ -56,7 +56,23 @@ object Html {
     )
 
     /** The style attribute that gives a card a sync's colour, or "" for the default look. */
-    fun jobStyle(key: String?): String = JOB_COLORS[key]?.let { (light, dark) -> """ style="--job:$light;--job-dark:$dark"""" } ?: ""
+    fun jobStyle(key: String?): String = (JOB_COLORS[key] ?: customColor(key)?.let { it to forDark(it) })
+        ?.let { (light, dark) -> """ style="--job:$light;--job-dark:$dark"""" } ?: ""
+
+    /** A colour of the user's own, "#RRGGBB" as the app stores it; null for anything else. */
+    fun customColor(key: String?): String? = key?.trim()?.uppercase()?.takeIf { Regex("#[0-9A-F]{6}").matches(it) }
+
+    /** [hex] lifted towards white until it shows on a dark page, as the app does. */
+    private fun forDark(hex: String): String {
+        var r = hex.substring(1, 3).toInt(16); var g = hex.substring(3, 5).toInt(16); var b = hex.substring(5, 7).toInt(16)
+        fun lum(): Double {
+            fun ch(v: Int) = (v / 255.0).let { if (it <= 0.03928) it / 12.92 else Math.pow((it + 0.055) / 1.055, 2.4) }
+            return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b)
+        }
+        var i = 0
+        while (lum() < 0.28 && i++ < 10) { r += ((255 - r) * 0.15).toInt() + 1; g += ((255 - g) * 0.15).toInt() + 1; b += ((255 - b) * 0.15).toInt() + 1; r = minOf(r, 255); g = minOf(g, 255); b = minOf(b, 255) }
+        return "#%02X%02X%02X".format(r, g, b)
+    }
 
     /**
      * Where "Back" leads from [path] (no leading slash): the level above, by the page's own address
@@ -206,6 +222,9 @@ footer{max-width:920px;margin:24px auto;padding:0 16px 24px;color:var(--ink-3);f
 .dot.none{background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
 .swatches input:checked+.dot{outline:3px solid var(--ink);outline-offset:2px}
 .swatches input:focus-visible+.dot{outline:3px dashed var(--link);outline-offset:2px}
+.swatches input[type=color]{position:static;opacity:1;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer}
+.swatches input[type=color]::-webkit-color-swatch-wrapper{padding:3px}.swatches input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+.swatches input:checked+input[type=color]{outline:3px solid var(--ink);outline-offset:2px}
 a b,.card a{text-decoration:none}
 progress{width:100%;accent-color:var(--accent)}
 main.wide{max-width:1240px}

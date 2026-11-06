@@ -901,6 +901,9 @@
     <string name="qqmusic_changed">QQ Music이 사이트를 변경했습니다. Trackhop 업데이트가 필요합니다</string>
     <string name="job_color">색상</string>
     <string name="job_color_default">기본</string>
+    <string name="job_color_custom">원하는 색</string>
+    <string name="job_color_shade">색조: 가로는 채도, 세로는 밝기</string>
+    <string name="job_color_hue">색상</string>
     <string name="color_red">빨강</string>
     <string name="color_orange">주황</string>
     <string name="color_yellow">노랑</string>

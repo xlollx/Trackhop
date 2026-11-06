@@ -902,6 +902,9 @@
     <string name="qqmusic_changed">QQ音乐改版了；Trackhop 需要更新</string>
     <string name="job_color">颜色</string>
     <string name="job_color_default">默认</string>
+    <string name="job_color_custom">自选颜色</string>
+    <string name="job_color_shade">色调：横向为饱和度，纵向为亮度</string>
+    <string name="job_color_hue">色相</string>
     <string name="color_red">红色</string>
     <string name="color_orange">橙色</string>
     <string name="color_yellow">黄色</string>

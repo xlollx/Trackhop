@@ -166,6 +166,18 @@ class WebTest {
         assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })
     }
 
+    @Test fun aSyncTakesAColourOfItsOwn() {
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("k", "k", com.xlollx.songport.model.PlaylistRef("subsonic", "k", "k"), com.xlollx.songport.model.PlaylistRef("csv", "k", "k")))
+        post("/syncs/k/schedule", "name=k&color=custom&customColor=%23ff8800", *origin)
+        assertEquals("#FF8800", env.store.job("k")!!.color)
+        assertTrue(get("/").body().contains("--job:#FF8800"))
+        // Not a colour: no colour, rather than anything odd in the page.
+        post("/syncs/k/schedule", "name=k&color=custom&customColor=red%22%3E", *origin)
+        assertEquals(null, env.store.job("k")!!.color)
+        post("/syncs/k/schedule", "name=k&color=teal", *origin)
+        assertEquals("teal", env.store.job("k")!!.color)
+    }
+
     @Test fun reviewPicksIgnoresAndConfirms() {
         File(data, "csv").mkdirs()
         File(data, "csv/Out.csv").writeText("title,artist\n")

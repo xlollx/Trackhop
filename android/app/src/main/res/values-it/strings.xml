@@ -918,6 +918,9 @@
     <string name="qqmusic_changed">QQ Music ha cambiato il suo sito; Trackhop ha bisogno di un aggiornamento</string>
     <string name="job_color">Colore</string>
     <string name="job_color_default">Predefinito</string>
+    <string name="job_color_custom">Colore a scelta</string>
+    <string name="job_color_shade">Sfumatura: saturazione in orizzontale, luminosità in verticale</string>
+    <string name="job_color_hue">Tonalità</string>
     <string name="color_red">Rosso</string>
     <string name="color_orange">Arancione</string>
     <string name="color_yellow">Giallo</string>

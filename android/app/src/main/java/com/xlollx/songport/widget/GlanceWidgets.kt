@@ -88,7 +88,7 @@ object Widgets {
     }
 
     /** A sync as the widgets show it. */
-    class Row(val id: String, val name: String, val color: JobColor?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
+    class Row(val id: String, val name: String, val color: androidx.compose.ui.graphics.Color?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
         /** The services, "Spotify → TIDAL": syncs of one playlist to several services share a name. */
         val route: String, val target: String,
         /** The connectors' ids, for their marks. */
@@ -113,7 +113,7 @@ object Widgets {
         fun service(id: String) = com.xlollx.songport.providers.Providers.byId(id)?.familyName ?: id
         val from = job.radio?.station ?: service(job.source.provider)
         val to = service(job.target.provider)
-        return Row(job.id, job.name, JobColor.of(job.color), status, last != null && !last.ok && job.id !in running, job.id in running,
+        return Row(job.id, job.name, JobColor.of(job.color)?.light ?: com.xlollx.songport.ui.CustomColor.parse(job.color), status, last != null && !last.ok && job.id !in running, job.id in running,
             (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to,
             job.source.provider, job.target.provider)
     }
@@ -133,7 +133,7 @@ class RunSyncAction : ActionCallback {
 private val red = ColorProvider(Color(0xFFE5484D))
 
 @Composable
-private fun accent(c: JobColor?): ColorProvider = c?.let { ColorProvider(it.light) } ?: GlanceTheme.colors.primary
+private fun accent(c: androidx.compose.ui.graphics.Color?): ColorProvider = c?.let { ColorProvider(it) } ?: GlanceTheme.colors.primary
 
 @Composable
 private fun RunButton(job: String?, size: Int = 40) {

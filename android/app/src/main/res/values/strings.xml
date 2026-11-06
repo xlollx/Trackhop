@@ -918,6 +918,9 @@
     <string name="qqmusic_changed">QQ Music changed its site; Trackhop needs an update</string>
     <string name="job_color">Colour</string>
     <string name="job_color_default">Default</string>
+    <string name="job_color_custom">Your own colour</string>
+    <string name="job_color_shade">Shade: saturation across, brightness down</string>
+    <string name="job_color_hue">Hue</string>
     <string name="color_red">Red</string>
     <string name="color_orange">Orange</string>
     <string name="color_yellow">Yellow</string>
