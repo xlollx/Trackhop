@@ -272,6 +272,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("services") && method == "GET" -> json(200, JsonArray(Providers.connectors().map { p ->
             buildJsonObject {
                 put("id", p.id); put("name", p.label(env))
+                // Which service, and which of its accounts ("" the main one, "2", "3"… the others): id is "jellyfin@2".
+                put("serviceId", p.serviceId); put("slot", p.slot)
                 put("connected", !p.requiresAuth || p.isConnected(env))
                 put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
             }

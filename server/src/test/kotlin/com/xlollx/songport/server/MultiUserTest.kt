@@ -207,6 +207,38 @@ class MultiUserTest {
         HttpResponse.BodyHandlers.ofString(),
     )
 
+    @Test fun eachPersonsAccountsStayTheirs() {
+        val admin = signIn("admin", "admin-secret")
+        postPairs("/users", listOf("action" to "add", "name" to "anna", "password" to "anna-password") + Permissions.DEFAULT.map { "perm" to it }, admin)
+        val anna = signIn("anna", "anna-password")
+        // The admin: two Jellyfin servers, the second one named.
+        post("/connectors/add", mapOf("service" to "jellyfin"), admin)
+        assertEquals("/connectors/${enc("jellyfin@2")}", post("/connectors/add", mapOf("service" to "jellyfin@new", "name" to "Admin's friend"), admin).headers().firstValue("Location").get())
+        // Anna: a Jellyfin of her own, and one more, named her way.
+        post("/connectors/add", mapOf("service" to "jellyfin"), anna)
+        post("/connectors/add", mapOf("service" to "jellyfin@new", "name" to "Anna's parents"), anna)
+        post("/connectors/add", mapOf("service" to "jellyfin@new"), anna)
+
+        val adminList = get("/connectors", admin).body()
+        val annaList = get("/connectors", anna).body()
+        assertTrue(adminList.contains("Admin's friend") || adminList.contains("Admin&#39;s friend"))
+        assertFalse(adminList.contains("parents"))
+        assertFalse(adminList.contains("href=\"/connectors/${enc("jellyfin@3")}\""))
+        assertTrue(annaList.contains("parents"))
+        assertTrue(annaList.contains("href=\"/connectors/${enc("jellyfin@3")}\""))
+        assertFalse(annaList.contains("friend"))
+        // Each one's own settings, in their own folder.
+        hub.stop()
+        LocalKey.reset()
+        val adminStore = File(data, "store.json").readText()
+        val annaStore = File(data, "users/anna/store.json").readText()
+        assertTrue(adminStore.contains("Admin's friend") && !adminStore.contains("parents"))
+        assertTrue(annaStore.contains("Anna's parents") && !annaStore.contains("friend"))
+        val env = mapOf("SONGPORT_DATA" to data.path, "SONGPORT_PORT" to "0", "SONGPORT_PASSWORD" to "admin-secret", "SONGPORT_MULTIUSER" to "true")
+        hub = MultiUser.serve(Config(env), env)
+        base = "http://127.0.0.1:${hub.server!!.address.port}"
+    }
+
     @Test fun theAdminSetsWhatEachPersonMayUse() {
         val admin = signIn("admin", "admin-secret")
         // Anna: what a new person gets. Luca: the API only.
