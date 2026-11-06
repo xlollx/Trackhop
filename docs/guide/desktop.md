@@ -94,6 +94,11 @@ links; CSV files; YouTube Music with pasted cookies (unofficial, alpha). Deezer 
 the desktop (it wants an `https` redirect). Amazon Music, Spotify without a key and Apple Music
 are not there yet either: they need a browser inside the app, which is the next step.
 
+A service can be added more than once (two Jellyfin servers, two Spotify accounts), each with its
+own sign-in and name, and synced to each other; Jellyfin also signs in with Quick Connect. See
+[more than one account](docker#more-than-one-account-or-server) and
+[Quick Connect](docker#jellyfin-quick-connect).
+
 The **Microsoft Store** version offers only the official connections, the personal servers,
 Last.fm, ListenBrainz and files (store rules, as for the app on Google Play): for the unofficial ones
 (YouTube Music, Spotify and Deezer with cookies, SoundCloud links) use the installer or the ZIP.

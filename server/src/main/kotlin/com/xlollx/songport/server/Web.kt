@@ -8,6 +8,7 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.CredentialsProvider
+import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.OAuthProvider
@@ -73,6 +74,9 @@ class Web(
     /** SONGPORT_USER: the only user name the sign-in takes with [password]; null, any name. */
     private val user: String? = null,
 ) {
+    /** Jellyfin Quick Connect codes waiting for their approval (AccountsWeb.kt). */
+    internal val quickConnects = QuickConnects()
+
     /** The addresses a desktop install answers to; null (a server) answers to any. */
     @Volatile private var localHosts: Set<String>? = null
 
@@ -361,15 +365,28 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
         if (rest.isEmpty()) return connectorList(r)
         if (rest == listOf("add") && r.method == "POST") {
             val service = r.form["service"].orEmpty()
-            if (Providers.byId(service) != null && service !in store.data.settings.connectors) {
-                store.updateSettings { it.copy(connectors = it.connectors + service, connectorsInit = true) }
+            // "jellyfin@new" (or another=on): one more account of a service already on the list.
+            val another = service.endsWith(Accounts.ANOTHER) || r.form["another"] == "on"
+            val serviceId = service.removeSuffix(Accounts.ANOTHER)
+            if (!another) {
+                // As it always was: the service's main connector, added once.
+                if (Providers.byId(service) != null && service !in store.data.settings.connectors) {
+                    store.updateSettings { it.copy(connectors = it.connectors + service, connectorsInit = true) }
+                    r.form["name"]?.trim()?.takeIf { it.isNotEmpty() }?.let { n -> Providers.byId(service)?.let { Accounts.rename(store, it, n) } }
+                }
+                return redirect(r.ex, "/connectors/${q(service)}")
             }
-            return redirect(r.ex, "/connectors/${q(service)}")
+            val id = Accounts.add(store, serviceId, another = true, name = r.form["name"])
+                ?: return redirect(r.ex, "/connectors?err=${q("Unknown service.")}")
+            return redirect(r.ex, "/connectors/${q(id)}")
         }
         val provider = Providers.byId(rest[0]) ?: return send(r.ex, 404, page("Unknown service", "<p><a href=\"/connectors\">Back</a></p>"))
         val back = "/connectors/${q(provider.id)}"
+        // The Quick Connect code's page only shows what was asked for: the POST that asked changed things.
+        if (rest.drop(1) == listOf("quickconnect") && r.method == "GET") return quickConnectPage(r, provider)
         // Every action changes something: POST only, so a link or an image on another site can't.
         if (rest.size > 1 && r.method != "POST") return send(r.ex, 405, page("Not allowed", "<p><a href=\"$back\">Back</a></p>"))
+        if (rest.size == 3 && rest[1] == "quickconnect" && rest[2] == "poll") return quickConnectPoll(r, provider)
         when (rest.getOrNull(1)) {
             null -> connectorPage(r, provider)
             "settings" -> {
@@ -401,8 +418,14 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            "quickconnect" -> quickConnectStart(r, provider)
+            "rename" -> {
+                Accounts.rename(store, provider, r.form["name"].orEmpty())
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
             "remove" -> {
-                store.updateSettings { it.copy(connectors = it.connectors - provider.id) }
+                // An extra account that a sync uses is kept, as in the app: its syncs would stop finding it.
+                if (!Accounts.remove(env, provider)) return redirect(r.ex, "$back?err=${q(env.text("account_remove_blocked"))}")
                 redirect(r.ex, "/connectors")
             }
             else -> send(r.ex, 404, page("Not found", ""))
@@ -423,10 +446,14 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
         }
         // A link-only source (SoundCloud) is not added: it is offered when a sync is created.
         val available = Providers.services().filter { s -> !s.linkOnly && added.none { it.id == s.id } }
-        if (available.isNotEmpty()) {
+        // A service already on the list that can hold one more account: Jellyfin at home and at a friend's.
+        val more = Providers.services().filter { s -> Accounts.allowsAnother(s) && added.any { it.serviceId == s.serviceId } && s !in available }
+        if (available.isNotEmpty() || more.isNotEmpty()) {
             body.append("""<h2>Add a service</h2><form method="post" action="/connectors/add" class="card"><select name="service">""")
             available.forEach { body.append("""<option value="${h(it.id)}">${h(it.displayName)}${if (it is CookieConnector) " (unofficial, alpha)" else ""}</option>""") }
-            body.append("""</select><p><button>Add</button></p></form>""")
+            more.forEach { body.append("""<option value="${h(it.serviceId + Accounts.ANOTHER)}">${h(it.displayName)}: ${h(env.text("account_add"))}</option>""") }
+            body.append("""</select><label>${h(env.text("connector_name_label"))} (optional)</label><input type="text" name="name" maxlength="80" autocomplete="off">""")
+            body.append("""<p><button>Add</button></p></form>""")
         }
         send(r.ex, 200, page("Services", body.toString()))
     }
@@ -465,11 +492,15 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
                     """<label>${h(env.text(f.secretLabelName))}</label><input type="password" name="secret" autocomplete="new-password"${if (f.secretOptional) "" else " required"}>""",
                 )
                 body.append("""<p><button>${h(env.text("login_submit"))}</button></p></form>""")
+                // Jellyfin without a password (single sign-on): a code approved from a device already signed in.
+                if (p is JellyfinProvider && p.supportsQuickConnect) body.append(quickConnectForm(p))
             }
             p is OAuthProvider -> body.append(oauthSetup(p))
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")
         }
-        body.append("""<p>${Html.postButton("/connectors/${q(p.id)}/remove", "Remove from the list", "danger", confirm = "Remove this service from the list?")}</p>""")
+        body.append(accountCard(p))
+        body.append("""<p>${Html.postButton("/connectors/${q(p.id)}/remove", if (p.slot.isEmpty()) "Remove from the list" else env.text("account_remove"), "danger",
+            confirm = if (p.slot.isEmpty()) "Remove this service from the list?" else "${env.text("account_remove")}?")}</p>""")
         send(r.ex, 200, page(p.label(env), body.toString()))
     }
 
@@ -698,6 +729,9 @@ ${changesFields(null)}
             .getOrElse { return redirect(r.ex, "$back&err=${q("${src.label(env)}: ${it.message}")}") }
             ?: return redirect(r.ex, "$back&err=${q("Pick a playlist.")}")
         if (dstId == null && !dst.canCreatePlaylists) return redirect(r.ex, "$back&err=${q("Pick a playlist.")}")
+        // As in the app: two playlists of one account are fine (an archive of Discover Weekly), and so
+        // are two accounts of one service (two Jellyfin servers); one playlist onto itself is not.
+        if (src.id == dst.id && dstId == srcId) return redirect(r.ex, "$back&err=${q(env.text("error_same_playlist"))}")
         val dstName = dstId?.let { id ->
             runCatching { runBlocking { (dst.libraryEntries(env, true) + dst.playlists(env).filter { it.ownedByMe }).firstOrNull { it.id == id }?.name } }
                 .getOrElse { return redirect(r.ex, "$back&err=${q("${dst.label(env)}: ${it.message}")}") }

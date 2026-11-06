@@ -114,6 +114,39 @@ running the service's own web player inside the phone's browser engine: there is
 on a server. Apple Music's official route signs in with Apple's MusicKit JS, which needs one too.
 Keep those syncs in the app.
 
+### More than one account or server
+
+A service can be on the list more than once: two Jellyfin servers (yours and your parents'), two
+Spotify accounts, Navidrome at home and at the office. In **Services**, pick
+*Jellyfin: Add another account* in **Add a service** (or **Add another account** at the foot of the
+service's page), give it a name if you like ("Jellyfin di casa"), then sign in to it as to the
+first. Each account keeps its own sign-in; the name can be changed later on its page.
+
+New syncs offer every account on both sides, so a playlist can go from one Jellyfin server to the
+other. Only a playlist onto itself is refused. An extra account that a sync uses cannot be removed:
+delete or change those syncs first. The main account is removed as before.
+
+Extra accounts work for the official connections (Spotify, YouTube, TIDAL, Deezer with your own
+key, which every account of the service shares), the personal servers (Navidrome / Subsonic,
+Jellyfin, Emby, Plex), Last.fm and ListenBrainz. The connectors signed in with pasted cookies
+(YouTube Music, Spotify and Deezer web, LiveOne, Anghami, Qobuz) stay at one account each: their
+sessions are kept per service, so a second one would mix with the first.
+
+The extra accounts and their names are part of the set-up: *Tools › Backup & restore* and
+`GET /api/v1/config` carry them, without the sign-ins, as for the main ones. In
+`GET /api/v1/services` an extra account's `id` is `jellyfin@2`, with `serviceId` and `slot`; that id
+is the one to use in the other calls. A data folder from an older version reads as it did.
+With [several people](#several-people-on-one-server), each person's accounts are their own.
+
+### Jellyfin Quick Connect
+
+Jellyfin behind single sign-on, or a user without a Jellyfin password: on the Jellyfin service's
+page, under the sign-in form, enter the server's address and choose **Sign in with Quick Connect**.
+Trackhop shows a code; on a device where you are already signed in to Jellyfin, open your profile ›
+*Quick Connect* and enter it. The page notices the approval within a few seconds and signs in. If
+Quick Connect is off on the server, the page says so (an administrator turns it on in
+*Dashboard › General*). Emby has no Quick Connect.
+
 ## YouTube Music (unofficial)
 
 The server talks to music.youtube.com the way the app's built-in YouTube Music connector does,
@@ -523,7 +556,7 @@ the container. The same token lets an AI assistant use Trackhop at `/mcp` (Model
 | `POST /api/v1/syncs/<id>/run` | Starts it (202) |
 | `POST /api/v1/syncs/run-all` | Starts every enabled sync |
 | `GET /api/v1/runs/<id>` | A run: added, removed, not found, with the tracks |
-| `GET /api/v1/services` | The services and whether they are connected |
+| `GET /api/v1/services` | The services and whether they are connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`) |
 | `GET /api/v1/files`, `GET /api/v1/files/<name>.csv?format=m3u` | The File playlists, in any export format |
 | `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201) |
 | `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
