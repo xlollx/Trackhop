@@ -240,7 +240,7 @@ class RemovalSafetyTest {
 }
 
 /** A music service in memory: a catalogue searched by normalised title, and playlists. */
-class MemoryService(override val serviceId: String) : MusicProvider {
+open class MemoryService(override val serviceId: String) : MusicProvider {
     /** Versions a test sets per playlist (MusicProvider.playlistVersion); none by default. */
     val versions = HashMap<String, String>()
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? = versions[playlistId]

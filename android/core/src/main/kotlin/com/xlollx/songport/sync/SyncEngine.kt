@@ -209,9 +209,20 @@ class SyncEngine(
      * playlist's ids are its own lines, not a catalogue's.
      */
     private fun sameAccount(job: SyncJob, src: MusicProvider, dst: MusicProvider): Boolean =
-        src.id == dst.id && dst.serviceId != LocalFilesProvider.serviceId &&
+        (src.id == dst.id || sameCatalogue(src, dst)) && dst.serviceId != LocalFilesProvider.serviceId &&
             // Liked songs into saved albums asks for albums, not the same ids.
             MusicProvider.libraryKind(job.source.playlistId) == MusicProvider.libraryKind(job.target.playlistId)
+
+    /**
+     * Two accounts of one service whose ids are the service's own, the same for every account (a
+     * Spotify track id, a YouTube video id): from one account to the other a track is its own match,
+     * as on one account. Not a server of one's own (two Jellyfin servers number their tracks each
+     * their own way), nor Apple Music, whose library ids belong to the account.
+     */
+    private fun sameCatalogue(src: MusicProvider, dst: MusicProvider): Boolean =
+        src.serviceId == dst.serviceId && src.serviceId in GLOBAL_IDS
+
+    private val GLOBAL_IDS = setOf("spotify", "spotify_bridge", "ytm", "youtube", "deezer", "deezer_bridge", "tidal", "qobuz_web")
 
     private fun providers(job: SyncJob): Pair<MusicProvider, MusicProvider> {
         val src = Providers.byId(job.source.provider) ?: throw ProviderException("Unknown service: ${job.source.provider}")
