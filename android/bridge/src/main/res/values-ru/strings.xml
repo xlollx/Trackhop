@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Почти готово: плеер запускается, не закрывайте этот экран, пока он не закроется сам. Если плеер спросит, кто слушает, выберите свой профиль.</string>
     <string name="bridge_login_done">Готово</string>
     <string name="bridge_login_not_signed_in">Сессии пока нет: сначала завершите вход на этой странице.</string>
+    <string name="bridge_login_stay">Остаться</string>
+    <string name="bridge_login_leave">Выйти</string>
     <string name="bridge_login_blocked">%1$s заблокировал этот вход как необычную активность. Подождите немного и попробуйте снова, лучше через Wi-Fi и без VPN; если появится головоломка, решите её.</string>
     <string name="bridge_language_system">Язык системы</string>
     <string name="bridge_verify_hint">Google заблокировал этот сетевой адрес из-за необычного трафика. Блокировка снимается сама через несколько минут после прекращения запросов: Trackhop приостанавливает все вызовы YouTube Music на столько, сколько требует Google. Если страница Google предлагает проверку, её прохождение здесь снимает блокировку сразу.</string>

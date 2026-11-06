@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Fast fertig: Der Player startet, lass diesen Bildschirm offen, bis er sich von selbst schließt. Fragt der Player, wer zuhört, wähle dein Profil.</string>
     <string name="bridge_login_done">Fertig</string>
     <string name="bridge_login_not_signed_in">Noch keine Sitzung: Schließe zuerst die Anmeldung auf dieser Seite ab.</string>
+    <string name="bridge_login_stay">Bleiben</string>
+    <string name="bridge_login_leave">Verlassen</string>
     <string name="bridge_login_blocked">%1$s hat diese Anmeldung als ungewöhnliche Aktivität blockiert. Warte eine Weile und versuche es dann erneut, am besten im WLAN und ohne VPN; wenn ein Rätsel erscheint, löse es.</string>
     <string name="bridge_language_system">Systemsprache</string>
     <string name="bridge_verify_hint">Google hat die Netzadresse dieses Telefons wegen ungewöhnlichen Verkehrs gesperrt. Die Sperre endet von selbst einige Minuten nachdem die Anfragen aufhören: Trackhop setzt alle Aufrufe an YouTube Music so lange aus, wie Google es verlangt. Bietet Googles Seite eine Überprüfung an, hebt sie hier die Sperre sofort auf.</string>

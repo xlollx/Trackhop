@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">もう少しで完了です：プレーヤーを起動しています。この画面が自動的に閉じるまで開いたままにしてください。プレーヤーに誰が聴いているかを尋ねられたら、ご自身のプロフィールを選んでください。</string>
     <string name="bridge_login_done">完了</string>
     <string name="bridge_login_not_signed_in">まだセッションがありません。先にこのページでログインを完了してください。</string>
+    <string name="bridge_login_stay">このまま続ける</string>
+    <string name="bridge_login_leave">終了</string>
     <string name="bridge_login_blocked">%1$s はこのログインを不審なアクティビティとしてブロックしました。しばらく待ってから、できれば Wi-Fi で VPN を使わずにもう一度お試しください。パズルが表示されたら解いてください。</string>
     <string name="bridge_language_system">システムの言語</string>
     <string name="bridge_verify_hint">Google が異常なトラフィックのため、このネットワークアドレスをブロックしました。リクエストが止まってから数分で、ブロックは自動的に解除されます。Trackhop は Google が求める間、YouTube Music へのすべての通信を一時停止します。Google のページに確認手続きが表示されている場合は、ここで完了するとすぐにブロックが解除されます。</string>

@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Presque terminé : le lecteur démarre, laissez cet écran ouvert jusqu\'à ce qu\'il se ferme tout seul. Si le lecteur demande qui écoute, choisissez votre profil.</string>
     <string name="bridge_login_done">Terminé</string>
     <string name="bridge_login_not_signed_in">Aucune session : terminez d\'abord la connexion sur cette page.</string>
+    <string name="bridge_login_stay">Rester</string>
+    <string name="bridge_login_leave">Quitter</string>
     <string name="bridge_login_blocked">%1$s a bloqué cette connexion comme activité inhabituelle. Patientez un moment, puis réessayez, de préférence en Wi-Fi et sans VPN ; si un puzzle apparaît, résolvez-le.</string>
     <string name="bridge_language_system">Langue du système</string>
     <string name="bridge_verify_hint">Google a bloqué l\'adresse réseau de ce téléphone pour un trafic inhabituel. Le blocage se lève tout seul quelques minutes après l\'arrêt des requêtes : Trackhop suspend tous les appels à YouTube Music le temps indiqué par Google. Si la page de Google propose une vérification, la faire ici lève le blocage immédiatement.</string>

@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Quase lá: o player está iniciando, deixe esta tela aberta até ela fechar sozinha. Se o player perguntar quem está ouvindo, escolha seu perfil.</string>
     <string name="bridge_login_done">Concluído</string>
     <string name="bridge_login_not_signed_in">Ainda sem sessão: conclua o login nesta página primeiro.</string>
+    <string name="bridge_login_stay">Ficar</string>
+    <string name="bridge_login_leave">Sair</string>
     <string name="bridge_login_blocked">%1$s bloqueou este login como atividade incomum. Espere um pouco e tente de novo, de preferência no Wi-Fi e sem VPN; se aparecer um quebra-cabeça, resolva-o.</string>
     <string name="bridge_language_system">Idioma do sistema</string>
     <string name="bridge_verify_hint">O Google bloqueou este endereço de rede por tráfego incomum. O bloqueio some sozinho alguns minutos depois que as requisições param: o Trackhop pausa todas as chamadas ao YouTube Music pelo tempo que o Google pedir. Se a página do Google oferecer uma verificação, concluí-la aqui remove o bloqueio na hora.</string>

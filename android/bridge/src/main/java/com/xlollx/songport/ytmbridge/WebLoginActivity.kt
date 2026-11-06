@@ -312,7 +312,9 @@ class WebLoginActivity : ComponentActivity() {
         val changed = if (google) BridgeUa.native(view) else BridgeUa.desktopAgain(this, view)
         if (!changed) return false
         BridgeNet.log(service, if (google) "sign-in: Google's page, with the phone's own browser identity" else "sign-in: back from Google, desktop identity again")
-        if (!request.method.equals("GET", ignoreCase = true)) return false
+        // Back from Google the page goes on as it is (the identity counts from the next load): a
+        // second load of Google's answer would only add a step to Back, and Google refuses it (400).
+        if (!google || !request.method.equals("GET", ignoreCase = true)) return false
         view.loadUrl(url.toString())
         return true
     }
@@ -381,7 +383,13 @@ class WebLoginActivity : ComponentActivity() {
     /** DONE without a session: said to the person (in words that name no app), and for SoundCloud, what was tried. */
     private fun noSession() {
         if (service == SOUNDCLOUD) BridgeNet.log("soundcloud", noSessionReport())
-        android.widget.Toast.makeText(this, R.string.bridge_login_not_signed_in, android.widget.Toast.LENGTH_LONG).show()
+        // Always a way out: a sign-in that cannot finish ("No Spotify account found" after Google, a
+        // page whose Back only leads to redirects) must not keep the user on this screen.
+        android.app.AlertDialog.Builder(this)
+            .setMessage(R.string.bridge_login_not_signed_in)
+            .setPositiveButton(R.string.bridge_login_stay, null)
+            .setNegativeButton(R.string.bridge_login_leave) { _, _ -> setResult(RESULT_CANCELED); finish() }
+            .show()
     }
 
     /** Which sources were tried, by name only: cookie names, hosts, header schemes and localStorage keys, never a value. */

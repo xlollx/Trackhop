@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">即将完成：播放器正在启动，请保持此界面打开，直到它自动关闭。如果播放器询问谁在收听，请选择你的个人资料。</string>
     <string name="bridge_login_done">完成</string>
     <string name="bridge_login_not_signed_in">尚无会话：请先在此页面上完成登录。</string>
+    <string name="bridge_login_stay">留下</string>
+    <string name="bridge_login_leave">退出</string>
     <string name="bridge_login_blocked">%1$s 将此次登录判定为异常活动并已阻止。请稍等一段时间后重试，最好使用 Wi-Fi 且不开 VPN；如果出现拼图验证，请完成它。</string>
     <string name="bridge_language_system">系统语言</string>
     <string name="bridge_verify_hint">Google 因异常流量屏蔽了此网络地址。请求停止几分钟后，屏蔽会自动解除：Trackhop 会按照 Google 要求的时长暂停所有 YouTube Music 请求。如果 Google 的页面提供验证，在这里完成验证即可立即解除屏蔽。</string>

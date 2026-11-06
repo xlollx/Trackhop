@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Quasi fatto: il player si sta avviando, lascia aperta questa schermata finché non si chiude da sola. Se il player chiede chi sta ascoltando, scegli il tuo profilo.</string>
     <string name="bridge_login_done">Fatto</string>
     <string name="bridge_login_not_signed_in">Nessuna sessione: completa prima l\'accesso in questa pagina.</string>
+    <string name="bridge_login_stay">Resta</string>
+    <string name="bridge_login_leave">Esci</string>
     <string name="bridge_login_blocked">%1$s ha bloccato questo accesso come attività insolita. Aspetta un po\', poi riprova, meglio in Wi-Fi e senza VPN; se compare un puzzle, risolvilo.</string>
     <string name="bridge_language_system">Lingua di sistema</string>
     <string name="bridge_verify_hint">Google ha bloccato l\'indirizzo di rete di questo telefono per traffico insolito. Il blocco scade da solo qualche minuto dopo che le richieste si fermano: Trackhop sospende tutte le chiamate a YouTube Music per il tempo indicato da Google. Se la pagina di Google offre una verifica, completarla qui toglie il blocco subito.</string>

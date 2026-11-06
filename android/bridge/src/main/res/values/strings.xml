@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Almost done: the player is starting, leave this screen open until it closes by itself. If the player asks who is listening, pick your profile.</string>
     <string name="bridge_login_done">Done</string>
     <string name="bridge_login_not_signed_in">No session yet: complete the sign-in on this page first.</string>
+    <string name="bridge_login_stay">Stay</string>
+    <string name="bridge_login_leave">Leave</string>
     <string name="bridge_login_blocked">%1$s blocked this sign-in as unusual activity. Wait a while, then try again, preferably on Wi-Fi and without a VPN; if a puzzle appears, solve it.</string>
     <string name="bridge_language_system">System language</string>
     <string name="bridge_verify_hint">Google has blocked this network address for unusual traffic. The block lifts by itself a few minutes after the requests stop: Trackhop pauses all YouTube Music calls for as long as Google asks. If Google\'s page offers a verification, completing it here lifts the block at once.</string>

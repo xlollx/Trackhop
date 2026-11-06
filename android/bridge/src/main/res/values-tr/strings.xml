@@ -12,6 +12,8 @@
     <string name="bridge_login_finishing">Neredeyse bitti: oynatıcı başlıyor, kendiliğinden kapanana kadar bu ekranı açık bırakın. Oynatıcı kimin dinlediğini sorarsa profilinizi seçin.</string>
     <string name="bridge_login_done">Bitti</string>
     <string name="bridge_login_not_signed_in">Henüz oturum yok: önce bu sayfada oturum açmayı tamamlayın.</string>
+    <string name="bridge_login_stay">Kal</string>
+    <string name="bridge_login_leave">Çık</string>
     <string name="bridge_login_blocked">%1$s bu oturum açmayı olağan dışı etkinlik olarak engelledi. Biraz bekleyin, ardından tercihen Wi-Fi üzerinden ve VPN olmadan tekrar deneyin; bir bulmaca çıkarsa çözün.</string>
     <string name="bridge_language_system">Sistem dili</string>
     <string name="bridge_verify_hint">Google, olağan dışı trafik nedeniyle bu ağ adresini engelledi. Engel, istekler durduktan birkaç dakika sonra kendiliğinden kalkar: Trackhop, Google istediği sürece tüm YouTube Music çağrılarını duraklatır. Google\'ın sayfası bir doğrulama sunuyorsa, burada tamamlamak engeli hemen kaldırır.</string>
