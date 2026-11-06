@@ -34,6 +34,9 @@ object BridgeUa {
 
     /** The desktop identity on a WebView: the string, and the client hints where the WebView supports setting them. */
     fun apply(ctx: Context, web: WebView) {
+        // The WebView's own client hints, kept to give back on Google's sign-in pages ([native]).
+        val own = applied[web]?.native ?: if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA))
+            runCatching { WebSettingsCompat.getUserAgentMetadata(web.settings) }.getOrNull() else null
         val ua = desktop(ctx)
         web.settings.userAgentString = ua
         val (major, full) = version(ua)
@@ -53,9 +56,44 @@ object BridgeUa {
         }
         dropAppHeader(web)
         // The page-side view of the same hints, for a WebView that cannot set them natively.
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) runCatching {
+        val script = if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) runCatching {
             WebViewCompat.addDocumentStartJavaScript(web, hintsScript(major, full, "Windows", false, "", "15.0.0", "x86"), setOf("*"))
-        }
+        }.getOrNull() else null
+        applied[web] = Applied(own, script)
+    }
+
+    /** What [apply] changed on a WebView, to undo on Google's pages. Main thread only, as WebViews are. */
+    private class Applied(val native: UserAgentMetadata?, val script: androidx.webkit.ScriptHandler?, var isNative: Boolean = false)
+    private val applied = java.util.WeakHashMap<WebView, Applied>()
+
+    /**
+     * Google's own sign-in ("Continue with Google" on Spotify, Deezer…) turns a desktop identity on a
+     * phone away: "This browser or app may not be secure". There the WebView is itself again, as in
+     * the YouTube Music sign-in that Google accepts: its own user agent and client hints. True when
+     * something changed, so the page is loaded again with it. [desktopAgain] undoes it.
+     */
+    fun native(web: WebView): Boolean {
+        val a = applied[web] ?: return false
+        if (a.isNative) return false
+        web.settings.userAgentString = null
+        a.native?.let { md -> runCatching { WebSettingsCompat.setUserAgentMetadata(web.settings, md) } }
+        runCatching { a.script?.remove() }
+        a.isNative = true
+        return true
+    }
+
+    /** Back to the desktop identity after Google's pages; true when something changed. */
+    fun desktopAgain(ctx: Context, web: WebView): Boolean {
+        val a = applied[web] ?: return false
+        if (!a.isNative) return false
+        apply(ctx, web)
+        return true
+    }
+
+    /** Google's sign-in hosts, where [native] applies. */
+    fun isGoogleSignIn(host: String?): Boolean {
+        val h = host?.lowercase() ?: return false
+        return h == "accounts.google.com" || h.endsWith(".google.com") || h == "google.com" || h == "accounts.youtube.com" || h.endsWith(".gstatic.com")
     }
 
     /**

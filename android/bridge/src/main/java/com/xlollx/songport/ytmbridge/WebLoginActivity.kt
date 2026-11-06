@@ -169,6 +169,7 @@ class WebLoginActivity : ComponentActivity() {
         }
         web.webViewClient = object : SafeWebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                if (googleIdentity(view, request)) return true
                 val scheme = request.url.scheme
                 // SoundCloud's mobile site offers its app ("Listen in app", banners) by intent://,
                 // a store or a deep-link address, tapped or not: the sign-in stays on this page.
@@ -238,6 +239,7 @@ class WebLoginActivity : ComponentActivity() {
                             return null
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                            if (googleIdentity(view, request)) return true
                             if (service != SOUNDCLOUD || !SoundCloudBridge.isAppHandoff(request.url.toString())) return false
                             // A window opened only to hand over to the app goes away; the sign-in stays.
                             BridgeNet.log("soundcloud", "sign-in: a link to the app or a store (${request.url.scheme}://${request.url.host.orEmpty()}) was kept from leaving")
@@ -295,6 +297,26 @@ class WebLoginActivity : ComponentActivity() {
      *   everything else said Android. A plain mobile browser has nothing to disagree with.
      * - Spotify and Deezer: desktop Chrome, as before (Spotify refuses a "wv" user agent).
      */
+    /**
+     * "Continue with Google": Google refuses its sign-in to a desktop identity on a phone ("This
+     * browser or app may not be secure"), so on Google's pages the view is the phone's own WebView,
+     * as in the YouTube Music sign-in, and the desktop identity comes back on the service's pages.
+     * Only page loads by GET are loaded again with the other identity (a form's POST goes on as it is).
+     * True when this call loaded the page itself.
+     */
+    private fun googleIdentity(view: WebView, request: WebResourceRequest): Boolean {
+        if (!request.isForMainFrame || service == APPLE || service == SOUNDCLOUD) return false
+        val url = request.url
+        if (url.scheme != "https") return false
+        val google = BridgeUa.isGoogleSignIn(url.host)
+        val changed = if (google) BridgeUa.native(view) else BridgeUa.desktopAgain(this, view)
+        if (!changed) return false
+        BridgeNet.log(service, if (google) "sign-in: Google's page, with the phone's own browser identity" else "sign-in: back from Google, desktop identity again")
+        if (!request.method.equals("GET", ignoreCase = true)) return false
+        view.loadUrl(url.toString())
+        return true
+    }
+
     private fun identity(w: WebView) {
         when (service) {
             APPLE -> Unit
