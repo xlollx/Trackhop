@@ -5,6 +5,15 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.7.1
+
+- **Spotify**: with your own developer key, searches go one at a time and spaced, so a first big sync no longer gets the key blocked for a day; when Spotify still asks for a pause of hours, the sync stops at once and says until when. Playlists Spotify makes (daylist, Discover Weekly…) are never written to. With the browser sign-in, liked songs can keep the source's order.
+- **YouTube Music**: searches are asked again with your session when YouTube shows visitors no results.
+- **Exact recordings found far more often**: the lookup of a song's ISRC (and Deezer search) no longer uses Deezer's artist filter, which answers nothing.
+- **Apple Music**: an empty library playlist is read as empty instead of failing the run; when Apple refuses searches for a while, the sync stops with a clear message saying it is Apple's limit and when to try again.
+- Review: a song's link pasted on an album or artist row finds its album or artist.
+- A sync's colour changed before its first run is no longer reset when that run ends.
+
 ## 1.7.0
 
 - **Keep every track (archive)**: a sync whose target only grows, for playlists that change by themselves (Discover Weekly, daylist, charts). The sync forms ask what to do when the source changes: only add, copy the latest version, or keep every track. API `archive` and `followsChanges` fields; `trackhop show` says it.
