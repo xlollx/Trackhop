@@ -446,6 +446,12 @@ private fun MainScreen(
     val requestedTab by tabRequests.collectAsState()
     LaunchedEffect(requestedTab) {
         if (requestedTab >= 0) {
+            // A widget, a notification or a shortcut asked for a tab: the pages left open over the tabs
+            // (How to, the log, a tool…) would hide it, so they close. The sync editor and a setup
+            // guide stay open: closing them would lose what was being typed.
+            previewJob = null; targetJob = null; unmatchedReport = null; filesOpen = false; logOpen = false
+            howToOpen = false; manageProvider = null; scanProvider = null; unplayableProvider = null
+            transferOpen = false; statsOpen = false; backupOpen = false; tipsOpen = false
             // Il registro non e' piu' una scheda: la notifica lo apre sopra le Opzioni, da cui si raggiunge.
             if (requestedTab == MainActivity.TAB_LOG) { tab = MainActivity.TAB_SETTINGS; logOpen = true } else tab = requestedTab
             tabRequests.value = -1
