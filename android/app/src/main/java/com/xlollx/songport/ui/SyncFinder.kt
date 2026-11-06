@@ -153,8 +153,9 @@ fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<
                 }
             }
             val inUse = SyncFilter.colorsInUse(jobs)
-            JobColor.entries.filter { it.key in inUse }.forEach { c ->
-                ColorDot(c, c.key in filter.colors) { onChange(filter.toggleColor(c.key)) }
+            // The nine ready colours in their order, then the user's own colours (#RRGGBB) as on their cards.
+            (JobColor.entries.map { it.key }.filter { it in inUse } + inUse.filter { CustomColor.parse(it) != null }).forEach { key ->
+                ColorDot(key, key in filter.colors) { onChange(filter.toggleColor(key)) }
             }
         }
         if (filter.isActive) {
@@ -183,9 +184,11 @@ private fun StatusChip(label: String, icon: ImageVector, selected: Boolean, onCl
 
 /** A colour to filter by: a dot in a 48dp target, ticked when on; TalkBack reads its name. */
 @Composable
-private fun ColorDot(c: JobColor, selected: Boolean, onToggle: () -> Unit) {
-    val color = if (LocalAppDark.current) c.dark else c.light
-    val name = stringResource(R.string.filter_color, stringResource(c.label))
+private fun ColorDot(key: String, selected: Boolean, onToggle: () -> Unit) {
+    // The colour the cards wear (a colour of one's own as its card shows it).
+    val color = jobAccent(key) ?: MaterialTheme.colorScheme.outline
+    val label = JobColor.of(key)?.let { stringResource(it.label) } ?: (stringResource(R.string.job_color_custom) + " " + key)
+    val name = stringResource(R.string.filter_color, label)
     Box(
         Modifier.size(48.dp).clip(CircleShape)
             .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onToggle() })

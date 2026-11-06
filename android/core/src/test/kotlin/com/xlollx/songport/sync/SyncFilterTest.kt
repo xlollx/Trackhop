@@ -73,6 +73,13 @@ class SyncFilterTest {
         assertEquals("bde", ids(SyncFilter(services = setOf("tidal", "plex"))))
     }
 
+    /** A colour of one's own (#RRGGBB) is a colour like the others: listed in use, and filtered on. */
+    @Test fun ownColoursAreFilteredToo() {
+        val mine = jobs + job("f", "Mine", color = "#FF8800")
+        assertEquals(setOf("teal", "red", "#FF8800"), SyncFilter.colorsInUse(mine))
+        assertEquals("f", SyncFilter(colors = setOf("#FF8800")).select(mine, reports, emptySet()) { names[it] ?: it }.joinToString("") { it.id })
+    }
+
     @Test fun colorsKeepOnlyThoseColours() {
         assertEquals("ad", ids(SyncFilter(colors = setOf("teal"))))
         assertEquals("abd", ids(SyncFilter(colors = setOf("teal", "red"))))
