@@ -632,6 +632,7 @@ class SyncEngine(
         var ci = 0
         val startedAt = System.currentTimeMillis()
         var searched = 0
+        var takenAsIs = 0
         // Ricerche finite senza esito in questa esecuzione: ricordate, cosi' una ripresa o il giro di
         // domani non le ripetono (le "non trovate" altrimenti si ricercavano ogni volta).
         val misses = ArrayList<String>()
@@ -745,7 +746,9 @@ class SyncEngine(
                     // from earlier runs (or a recent miss) asked nothing of it.
                     val remembered = (found != null && score == null) || score == MISS_SCORE
                     if (!remembered) { consecutiveErrors = 0; searchedHere++ }
-                    if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dst.id) == null) searched++
+                    // Same account or same catalogue: taken as it is, not a search (the log said "1328 searches in 0s").
+                    if (direct && s.id.isNotBlank()) takenAsIs++
+                    else if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dst.id) == null) searched++
                     if (found == null && score != MISS_SCORE) misses += FileStore.cacheKey(src.id, s.id, dst.id)
                     if (misses.size >= 50) saveMisses()
                     onResult(s, found, if (score == MISS_SCORE) null else score)
@@ -753,6 +756,7 @@ class SyncEngine(
             }
         }
         saveMisses()
+        if (takenAsIs > 0) env.log("engine", "${dst.displayName}: $takenAsIs ${tracksWord(takenAsIs)} taken as they are, no search")
         if (searched > 0) {
             val secs = (System.currentTimeMillis() - startedAt) / 1000
             env.log("engine", "${dst.displayName}: $searched searches in ${secs}s (${if (searched > 0) secs * 1000 / searched else 0} ms each), $waits waits" + if (errors > 0) ", $errors failed" else "")
