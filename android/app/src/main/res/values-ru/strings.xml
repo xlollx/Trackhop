@@ -1704,4 +1704,7 @@
     <string name="login_qc_waiting">Ожидание подтверждения…</string>
     <string name="jellyfin_qc_off">Quick Connect отключён на этом сервере Jellyfin. Администратор может включить его в Панель › Общие › Quick Connect.</string>
     <string name="jellyfin_qc_expired">Срок действия кода Quick Connect истёк. Попробуйте снова, чтобы получить новый.</string>
+    <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
+    <string name="web_accounts_need_webview">Для ещё одного аккаунта этого веб-подключения нужен более новый Android System WebView, который разделяет профили браузера.</string>
+    <string name="web_accounts_need_plugin">Для ещё одного аккаунта этого подключения нужна более новая версия плагина подключений: обновите его и попробуйте снова.</string>
 </resources>

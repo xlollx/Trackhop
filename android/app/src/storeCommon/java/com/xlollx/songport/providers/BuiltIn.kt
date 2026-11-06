@@ -16,7 +16,7 @@ object BuiltIn {
         throw IllegalStateException("no built-in connectors in this build")
 
     @Suppress("UNUSED_PARAMETER")
-    fun loginIntent(ctx: Context, action: String): Intent? = null
+    fun loginIntent(ctx: Context, action: String, slot: String = ""): Intent? = null
 
     @Suppress("UNUSED_PARAMETER")
     fun extraActions(ctx: Context, serviceId: String, developer: Boolean): List<Pair<String, Intent>> = emptyList()

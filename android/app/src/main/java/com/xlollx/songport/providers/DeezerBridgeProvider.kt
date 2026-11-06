@@ -32,7 +32,7 @@ import kotlinx.serialization.json.JsonElement
  * Not an official route: Deezer's terms do not allow it and it can stop working when the player
  * changes. The Bridge shows the notice before sign-in.
  */
-class DeezerBridgeProvider(override val slot: String = "") : MusicProvider {
+class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Deezer (web)" else "Deezer (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -43,7 +43,9 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider {
     override val alpha = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
-    override val supportsMultipleAccounts = false
+    /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
+    override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
+    override val statusMethod: String get() = STATUS
     override val authDomain = "deezer.com"
     override val pluginBased = true
     override val installUrl = BridgePlugin.installUrl
@@ -62,7 +64,7 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider {
             installUrl?.let { ctx.android.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             return
         }
-        BridgePlugin.startLogin(ctx, LOGIN_ACTION)
+        BridgePlugin.startLogin(ctx, LOGIN_ACTION, slot)
     }
 
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the connector completes the login itself */ }
@@ -160,7 +162,7 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider {
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("ytm_not_installed"))
         val b = try {
-            BridgePlugin.call(ctx, method, arg, extras)
+            BridgePlugin.call(ctx, method, arg, extras, slot)
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
@@ -171,5 +173,7 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider {
     companion object {
         const val SERVICE = "deezer_bridge"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.DEEZER_LOGIN"
+        /** The status call of this service, which says whether the connectors take extra accounts. */
+        const val STATUS = "deezer.status"
     }
 }
