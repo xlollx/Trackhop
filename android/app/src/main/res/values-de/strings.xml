@@ -1665,6 +1665,14 @@
     <string name="ai_nano_preparing">%1$s wird auf diesem Handy vorbereitet…</string>
     <string name="ai_nano_private">Läuft auf diesem Handy: Die Playlist wird nirgendwohin gesendet.</string>
     <string name="ai_nano_small">Gemini Nano ist ein kleines Modell, das auf dem Handy läuft: Seine Antworten können ungenauer sein, Details erfinden oder seltsam ausfallen. Für bessere Ergebnisse nutze einen eigenen KI-Schlüssel (Google Gemini und Groq bieten kostenlose).</string>
+    <string name="whats_new_115_accounts_title">Mehrere Konten pro Dienst</string>
+    <string name="whats_new_115_accounts_body">Füge ein zweites Spotify-Konto oder einen weiteren Jellyfin-Server hinzu und synchronisiere zwischen ihnen: Jedes Konto hat seine eigene Anmeldung.</string>
+    <string name="whats_new_115_weekly_title">Wöchentlich, an deinem Tag</string>
+    <string name="whats_new_115_weekly_body">Wähle, an welchem Tag ein wöchentlicher Sync läuft: „Jeden Samstag um 09:00“.</string>
+    <string name="whats_new_115_colours_title">Deine Farben, deine Reihenfolge</string>
+    <string name="whats_new_115_colours_body">Gib einem Sync jede beliebige Farbe und verschiebe Syncs nach oben oder unten: „Alle synchronisieren“ und die Widgets folgen der Reihenfolge.</string>
+    <string name="whats_new_115_transfer_title">Übertragungen erst prüfen</string>
+    <string name="whats_new_115_transfer_body">„Viele Playlists übertragen“ zeigt vor dem Erstellen eine Zusammenfassung und kann die Syncs anlegen, ohne sie zu starten.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
     <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
     <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>

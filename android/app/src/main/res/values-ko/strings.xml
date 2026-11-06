@@ -1638,6 +1638,14 @@
     <string name="ai_nano_preparing">이 휴대폰에서 %1$s 준비 중…</string>
     <string name="ai_nano_private">이 휴대폰에서 실행됩니다. 플레이리스트는 어디에도 전송되지 않습니다.</string>
     <string name="ai_nano_small">Gemini Nano는 휴대폰에서 실행되는 작은 모델이라 답변이 덜 정확하거나, 세부 내용을 지어내거나, 이상하게 나올 수 있습니다. 더 나은 결과를 원하면 직접 AI 키를 사용하세요(Google Gemini와 Groq는 무료로 제공합니다).</string>
+    <string name="whats_new_115_accounts_title">서비스마다 여러 계정</string>
+    <string name="whats_new_115_accounts_body">두 번째 Spotify 계정이나 다른 Jellyfin 서버를 추가하고 서로 동기화하세요. 계정마다 로그인이 따로 있어요.</string>
+    <string name="whats_new_115_weekly_title">매주, 원하는 요일에</string>
+    <string name="whats_new_115_weekly_body">매주 동기화가 실행될 요일을 고르세요: “매주 토요일 09:00”.</string>
+    <string name="whats_new_115_colours_title">원하는 색, 원하는 순서</string>
+    <string name="whats_new_115_colours_body">동기화에 원하는 색을 정하고 위아래로 순서를 바꾸세요. 모두 동기화와 위젯도 이 순서를 따라요.</string>
+    <string name="whats_new_115_transfer_title">전송 전에 먼저 확인</string>
+    <string name="whats_new_115_transfer_body">여러 플레이리스트 전송은 만들기 전에 요약을 보여 주고, 시작하지 않고 만들기만 할 수도 있어요.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
     <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
     <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>

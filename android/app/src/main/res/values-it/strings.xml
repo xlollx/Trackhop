@@ -1665,6 +1665,14 @@
     <string name="ai_nano_preparing">Preparo %1$s su questo telefono…</string>
     <string name="ai_nano_private">Funziona su questo telefono: la playlist non viene inviata da nessuna parte.</string>
     <string name="ai_nano_small">Gemini Nano è un modello piccolo che gira sul telefono: le risposte possono essere meno precise, inventare dettagli o uscire strane. Per risultati migliori usa una tua chiave AI (Google Gemini e Groq ne danno gratis).</string>
+    <string name="whats_new_115_accounts_title">Più account per servizio</string>
+    <string name="whats_new_115_accounts_body">Aggiungi un secondo account Spotify o un altro server Jellyfin e sincronizza tra loro: ogni account ha il suo accesso.</string>
+    <string name="whats_new_115_weekly_title">Ogni settimana, nel tuo giorno</string>
+    <string name="whats_new_115_weekly_body">Scegli in che giorno parte una sync settimanale: «Ogni sabato alle 09:00».</string>
+    <string name="whats_new_115_colours_title">I tuoi colori, il tuo ordine</string>
+    <string name="whats_new_115_colours_body">Dai a una sync qualunque colore con il selettore e sposta le sync su o giù: Sincronizza tutto e i widget seguono l\'ordine.</string>
+    <string name="whats_new_115_transfer_title">Trasferimenti controllati prima</string>
+    <string name="whats_new_115_transfer_body">Trasferisci molte playlist mostra un riepilogo prima di creare qualcosa e può creare le sync senza avviarle.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>

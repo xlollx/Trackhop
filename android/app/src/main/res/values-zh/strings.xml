@@ -1639,6 +1639,14 @@
     <string name="ai_nano_preparing">正在这部手机上准备 %1$s…</string>
     <string name="ai_nano_private">在这部手机上运行：播放列表不会发送到任何地方。</string>
     <string name="ai_nano_small">Gemini Nano 是在手机上运行的小模型：回答可能不够准确、编造细节或格式怪异。想要更好的结果，请使用你自己的 AI 密钥（Google Gemini 和 Groq 提供免费密钥）。</string>
+    <string name="whats_new_115_accounts_title">一个服务多个账号</string>
+    <string name="whats_new_115_accounts_body">添加第二个 Spotify 账号或另一台 Jellyfin 服务器，并在它们之间同步：每个账号各自登录。</string>
+    <string name="whats_new_115_weekly_title">每周，在你选的那天</string>
+    <string name="whats_new_115_weekly_body">选择每周同步在哪一天运行：“每周星期六 09:00”。</string>
+    <string name="whats_new_115_colours_title">你的颜色，你的顺序</string>
+    <string name="whats_new_115_colours_body">用取色器给同步任务任意颜色，并上下移动同步任务：“全部同步”和小组件都按这个顺序。</string>
+    <string name="whats_new_115_transfer_title">转移前先确认</string>
+    <string name="whats_new_115_transfer_body">批量转移歌单会在创建前显示摘要，也可以只创建同步任务而不立即开始。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>

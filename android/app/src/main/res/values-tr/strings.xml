@@ -1663,6 +1663,14 @@
     <string name="ai_nano_preparing">%1$s bu telefonda hazırlanıyor…</string>
     <string name="ai_nano_private">Bu telefonda çalışır: çalma listesi hiçbir yere gönderilmez.</string>
     <string name="ai_nano_small">Gemini Nano telefonda çalışan küçük bir model: yanıtları daha az isabetli olabilir, ayrıntı uydurabilir ya da tuhaf çıkabilir. Daha iyi sonuçlar için kendi yapay zekâ anahtarını kullan (Google Gemini ve Groq ücretsiz veriyor).</string>
+    <string name="whats_new_115_accounts_title">Hizmet başına birden fazla hesap</string>
+    <string name="whats_new_115_accounts_body">İkinci bir Spotify hesabı veya başka bir Jellyfin sunucusu ekle ve aralarında senkronize et: her hesabın kendi oturumu olur.</string>
+    <string name="whats_new_115_weekly_title">Haftalık, senin gününde</string>
+    <string name="whats_new_115_weekly_body">Haftalık bir senkronizasyonun hangi gün çalışacağını seç: “Her hafta cumartesi, saat 09:00”.</string>
+    <string name="whats_new_115_colours_title">Senin renklerin, senin sıran</string>
+    <string name="whats_new_115_colours_body">Bir senkronizasyona seçiciyle istediğin rengi ver, senkronizasyonları yukarı veya aşağı taşı: Tümünü senkronize et ve widget\'lar bu sırayı izler.</string>
+    <string name="whats_new_115_transfer_title">Aktarımlar önce kontrol edilir</string>
+    <string name="whats_new_115_transfer_body">Çok sayıda çalma listesini aktar, bir şey oluşturmadan önce özet gösterir ve senkronizasyonları başlatmadan oluşturabilir.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
     <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
     <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>
