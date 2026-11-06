@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -36,64 +35,73 @@ import java.util.concurrent.TimeUnit
  * a hook on fetch/XMLHttpRequest inside the page.
  */
 object SpotifyBridge {
-    val session = WebSession("spotify", listOf("open.spotify.com", "accounts.spotify.com", "www.spotify.com", "spotify.com"))
+    /** The service's name in its sessions' storage and in the WebView profiles of its extra accounts. */
+    const val PROFILE = "spotify"
+    val session = WebSession(PROFILE, listOf("open.spotify.com", "accounts.spotify.com", "www.spotify.com", "spotify.com"))
     const val LOGIN_URL = "https://accounts.spotify.com/login?continue=https%3A%2F%2Fopen.spotify.com%2F"
     /** Desktop Chrome: the web player refuses any user agent marked as a WebView ("wv"). */
     const val USER_AGENT = BridgeUa.FALLBACK
 
     class Token(val value: String, val expiresAt: Long)
 
-    @Volatile private var cached: Token? = null
-    /** The last failed capture and its reason: within [FAIL_COOLDOWN_MS] the same answer is given without loading the player again. */
-    @Volatile private var lastFailure: Pair<Long, String>? = null
+    /** The token of each account (by slot), and its last failed capture with the reason: within
+     * [FAIL_COOLDOWN_MS] the same answer is given without loading the player again. */
+    private val cached = java.util.concurrent.ConcurrentHashMap<String, Token>()
+    private val lastFailure = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, String>>()
     private const val FAIL_COOLDOWN_MS = 20_000L
     private val http = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).withHook().build()
+
+    /** The session of one account: the primary's, or an extra slot's own (see [Slots]). */
+    fun session(slot: String): WebSession = session.forSlot(slot)
 
     fun signedIn(cookies: String?): Boolean = WebSession.cookieValue(cookies, "sp_dc") != null
 
     /** The bearer was refused (401): the next [token] captures a fresh one. */
-    fun invalidateToken() { cached = null; SpotifyWebClient.dropPage() }
+    fun invalidateToken(slot: String = Slots.PRIMARY) { cached.remove(slot); SpotifyWebClient.dropPage(slot) }
 
     /** A valid access token, from cache or freshly captured. Blocking; never call on the main thread. */
     @Synchronized
-    fun token(ctx: Context): Token {
-        if (!session.isConnected(ctx)) throw BridgeException("not connected")
-        cached?.takeIf { it.expiresAt - 90_000 > System.currentTimeMillis() }?.let { return it }
-        lastFailure?.let { (at, why) -> if (System.currentTimeMillis() - at < FAIL_COOLDOWN_MS) throw BridgeException(why) }
-        val t = try { capture(ctx.applicationContext) } catch (e: BridgeException) { lastFailure = System.currentTimeMillis() to (e.message ?: "no token"); throw e }
-        lastFailure = null
-        cached = t
+    fun token(ctx: Context, slot: String = Slots.PRIMARY): Token {
+        if (!session(slot).isConnected(ctx)) throw BridgeException("not connected")
+        cached[slot]?.takeIf { it.expiresAt - 90_000 > System.currentTimeMillis() }?.let { return it }
+        lastFailure[slot]?.let { (at, why) -> if (System.currentTimeMillis() - at < FAIL_COOLDOWN_MS) throw BridgeException(why) }
+        val t = try { capture(ctx.applicationContext, slot) } catch (e: BridgeException) { lastFailure[slot] = System.currentTimeMillis() to (e.message ?: "no token"); throw e }
+        lastFailure.remove(slot)
+        cached[slot] = t
         return t
     }
 
     /** The app's side of [SpotifyWebClient]: the WebView sign-in in [session], the token the player hands out. */
-    fun host(ctx: Context): SpotifyWebClient.Host = object : SpotifyWebClient.Host {
-        override fun cookies(): String? = session.cookies(ctx)
-        override fun account(): String? = session.account(ctx)
-        override fun get(key: String): String? = session.get(ctx, key)
-        override fun put(key: String, value: String?) = session.put(ctx, key, value)
+    fun host(ctx: Context, slot: String = Slots.PRIMARY): SpotifyWebClient.Host = object : SpotifyWebClient.Host {
+        private val sess = session(slot)
+        override fun cookies(): String? = sess.cookies(ctx)
+        override fun account(): String? = sess.account(ctx)
+        override fun get(key: String): String? = sess.get(ctx, key)
+        override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
-        override fun bearer(): String = token(ctx).value
-        override fun bearerRefused() = invalidateToken()
+        override val slot: String get() = sess.slot
+        override fun bearer(): String = token(ctx, sess.slot).value
+        override fun bearerRefused() = invalidateToken(sess.slot)
     }
 
     /** Username and display name, from the account page (the Web API refuses this token since December 2025). */
-    fun accountInfo(ctx: Context): Pair<String?, String?> = SpotifyWebClient(ctx.applicationContext).profile()
+    fun accountInfo(ctx: Context, slot: String = Slots.PRIMARY): Pair<String?, String?> = SpotifyWebClient(ctx.applicationContext, slot).profile()
 
     private val SESSION_SCRIPT = Regex("""<script[^>]*id="session"[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
     private val TOKEN_URL = Regex("""^(?:https?://open\.spotify\.com)?/(?:api/token|get_access_token)(?:[?#]|$)""")
 
     /** The session block the web player's HTML ships with, fetched with the saved cookies. No WebView. */
-    private fun fromHtml(app: Context): Token? {
-        val p = SpotifyWebClient(app).page()
+    private fun fromHtml(app: Context, slot: String): Token? {
+        val p = SpotifyWebClient(app, slot).page()
         if (p.isAnonymous) return null
         val value = p.accessToken ?: return null
         return Token(value, p.expiresAt)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    private fun capture(app: Context): Token {
-        runCatching { fromHtml(app) }.getOrNull()?.let { return it }
+    private fun capture(app: Context, slot: String): Token {
+        runCatching { fromHtml(app, slot) }.getOrNull()?.let { return it }
+        val sess = session(slot)
         val latch = CountDownLatch(1)
         var result: Token? = null
         var error: String? = null
@@ -116,11 +124,11 @@ object SpotifyBridge {
             @JavascriptInterface
             fun seen(json: String) {
                 val j = runCatching { parseJson(json) as? JsonObject }.getOrNull() ?: return
-                val client = SpotifyWebClient(app)
+                val client = SpotifyWebClient(app, slot)
                 val op = j["op"].str; val hash = j["hash"].str
                 if (op != null && hash != null) client.rememberHash(op, hash)
                 j["clientToken"].str?.takeIf { it.isNotBlank() }?.let { client.rememberClientToken(it, System.currentTimeMillis() + 13L * 24 * 3600_000) }
-                j["appVersion"].str?.takeIf { it.isNotBlank() }?.let { session.put(app, "appVersion", it) }
+                j["appVersion"].str?.takeIf { it.isNotBlank() }?.let { sess.put(app, "appVersion", it) }
             }
         }
 
@@ -133,15 +141,15 @@ object SpotifyBridge {
                 val h = request.requestHeaders
                 val ct = h.entries.firstOrNull { it.key.equals("client-token", true) }?.value
                 val ver = h.entries.firstOrNull { it.key.equals("spotify-app-version", true) }?.value
-                if (!ct.isNullOrBlank()) SpotifyWebClient(app).rememberClientToken(ct, System.currentTimeMillis() + 13L * 24 * 3600_000)
-                if (!ver.isNullOrBlank()) session.put(app, "appVersion", ver)
+                if (!ct.isNullOrBlank()) SpotifyWebClient(app, slot).rememberClientToken(ct, System.currentTimeMillis() + 13L * 24 * 3600_000)
+                if (!ver.isNullOrBlank()) sess.put(app, "appVersion", ver)
                 return null
             }
             if (!TOKEN_URL.containsMatchIn(url) || request.method != "GET") return null
             return try {
                 val b = Request.Builder().url(url)
                 request.requestHeaders.forEach { (k, v) -> if (!k.equals("Cookie", true)) b.header(k, v) }
-                CookieManager.getInstance().getCookie(url)?.let { b.header("Cookie", it) }
+                sess.jar().getCookie(url)?.let { b.header("Cookie", it) }
                 http.newCall(b.build()).execute().use { resp ->
                     val body = resp.body?.string() ?: ""
                     sink.token(body)
@@ -156,6 +164,8 @@ object SpotifyBridge {
             try {
                 val w = WebView(app)
                 web = w
+                // An extra account's player runs in that account's profile: set before anything loads.
+                Slots.apply(w, PROFILE, slot)
                 w.settings.apply { javaScriptEnabled = true; domStorageEnabled = true }
                 BridgeUa.apply(app, w)
                 w.addJavascriptInterface(sink, "SpBridge")
@@ -233,5 +243,5 @@ object SpotifyBridge {
     """.trimIndent()
 }
 
-/** The client as the app has always built it, from a Context. */
-fun SpotifyWebClient(ctx: Context): SpotifyWebClient = SpotifyWebClient(SpotifyBridge.host(ctx))
+/** The client as the app has always built it, from a Context; [slot] names an extra account. */
+fun SpotifyWebClient(ctx: Context, slot: String = Slots.PRIMARY): SpotifyWebClient = SpotifyWebClient(SpotifyBridge.host(ctx, slot))

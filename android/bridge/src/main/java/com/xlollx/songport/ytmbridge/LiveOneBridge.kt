@@ -19,6 +19,9 @@ object LiveOneBridge {
     /** Reads the player's session entry: run on www.liveone.com once signed in. */
     const val STORAGE_SCRIPT = "(function(){try{return localStorage.getItem('slackerUser')||localStorage.getItem('refresh_token')||''}catch(e){return ''}})()"
 
+    /** The session of one account: the primary's, or an extra slot's own (see [Slots]). */
+    fun session(slot: String): WebSession = session.forSlot(slot)
+
     /** True when [pasted] (the page's `slackerUser`, or a refresh token) is a session to keep. */
     fun usable(pasted: String?): Boolean {
         val token = pasted?.let { LiveOneWebClient.tokenIn(it) } ?: return false
@@ -26,26 +29,29 @@ object LiveOneBridge {
     }
 
     /** Keeps the refresh token in [pasted]; null when there is none, or what is wrong with it. */
-    fun keep(ctx: Context, pasted: String): String? {
+    fun keep(ctx: Context, pasted: String, slot: String = Slots.PRIMARY): String? {
         val token = LiveOneWebClient.tokenIn(pasted) ?: return "no LiveOne session in it"
         LiveOneWebClient.problemWith(token)?.let { return it }
         val account = LiveOneWebClient.accountOf(token) ?: return "no LiveOne account in it"
-        session.clear(ctx)
-        session.put(ctx, LiveOneWebClient.REFRESH, token)
-        session.put(ctx, LiveOneWebClient.ACCOUNT, account)
-        session.save(ctx, MARK, "LiveOne $account")
+        val sess = session(slot)
+        sess.clear(ctx)
+        sess.put(ctx, LiveOneWebClient.REFRESH, token)
+        sess.put(ctx, LiveOneWebClient.ACCOUNT, account)
+        sess.save(ctx, MARK, "LiveOne $account")
         return null
     }
 
     /** The app's side of [LiveOneWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context): WebHost = object : WebHost {
-        override fun cookies(): String? = session.cookies(ctx)
-        override fun account(): String? = session.account(ctx)
-        override fun get(key: String): String? = session.get(ctx, key)
-        override fun put(key: String, value: String?) = session.put(ctx, key, value)
+    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+        private val sess = session(slot)
+        override fun cookies(): String? = sess.cookies(ctx)
+        override fun account(): String? = sess.account(ctx)
+        override fun get(key: String): String? = sess.get(ctx, key)
+        override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
+        override val slot: String get() = sess.slot
     }
 }
 
-/** The client as the app builds it, from a Context. */
-fun LiveOneWebClient(ctx: Context): LiveOneWebClient = LiveOneWebClient(LiveOneBridge.host(ctx))
+/** The client as the app builds it, from a Context; [slot] names an extra account. */
+fun LiveOneWebClient(ctx: Context, slot: String = Slots.PRIMARY): LiveOneWebClient = LiveOneWebClient(LiveOneBridge.host(ctx, slot))

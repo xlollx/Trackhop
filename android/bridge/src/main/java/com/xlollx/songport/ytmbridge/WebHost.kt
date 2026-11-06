@@ -17,6 +17,8 @@ interface WebHost {
     fun put(key: String, value: String?)
     /** The desktop Chrome user agent the requests carry. */
     val userAgent: String
+    /** Which account of the service this is: "" for the primary (and on the server), "2", "3"… for an extra one. */
+    val slot: String get() = ""
 
     companion object {
         /** The value of cookie [name] in a `Cookie` header; null when absent or empty. */

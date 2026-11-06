@@ -14,6 +14,9 @@ object AnghamiBridge {
     /** What the session's "cookies" hold: the session lives in the sid, not in cookies. */
     private const val MARK = "anghami=1"
 
+    /** The session of one account: the primary's, or an extra slot's own (see [Slots]). */
+    fun session(slot: String): WebSession = session.forSlot(slot)
+
     /** The sid and fingerprint of a player request to [url], when it carries a signed-in session. */
     fun fromRequest(url: String): Pair<String, String?>? {
         val host = runCatching { java.net.URI(url).host }.getOrNull() ?: return null
@@ -22,24 +25,27 @@ object AnghamiBridge {
     }
 
     /** Keeps the sid in [pasted] (with the player's fingerprint, when known); what is wrong, or null. */
-    fun keep(ctx: Context, pasted: String, fingerprint: String? = null): String? {
+    fun keep(ctx: Context, pasted: String, fingerprint: String? = null, slot: String = Slots.PRIMARY): String? {
         val sid = AnghamiWebClient.sidIn(pasted) ?: return "no Anghami session in it"
-        session.clear(ctx)
-        session.put(ctx, AnghamiWebClient.SID, sid)
-        fingerprint?.let { session.put(ctx, AnghamiWebClient.FP, it) }
-        session.save(ctx, MARK, "Anghami")
+        val sess = session(slot)
+        sess.clear(ctx)
+        sess.put(ctx, AnghamiWebClient.SID, sid)
+        fingerprint?.let { sess.put(ctx, AnghamiWebClient.FP, it) }
+        sess.save(ctx, MARK, "Anghami")
         return null
     }
 
     /** The app's side of [AnghamiWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context): WebHost = object : WebHost {
-        override fun cookies(): String? = session.cookies(ctx)
-        override fun account(): String? = session.account(ctx)
-        override fun get(key: String): String? = session.get(ctx, key)
-        override fun put(key: String, value: String?) = session.put(ctx, key, value)
+    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+        private val sess = session(slot)
+        override fun cookies(): String? = sess.cookies(ctx)
+        override fun account(): String? = sess.account(ctx)
+        override fun get(key: String): String? = sess.get(ctx, key)
+        override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
+        override val slot: String get() = sess.slot
     }
 }
 
-/** The client as the app builds it, from a Context. */
-fun AnghamiWebClient(ctx: Context): AnghamiWebClient = AnghamiWebClient(AnghamiBridge.host(ctx))
+/** The client as the app builds it, from a Context; [slot] names an extra account. */
+fun AnghamiWebClient(ctx: Context, slot: String = Slots.PRIMARY): AnghamiWebClient = AnghamiWebClient(AnghamiBridge.host(ctx, slot))
