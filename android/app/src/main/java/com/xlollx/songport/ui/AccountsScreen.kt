@@ -78,6 +78,7 @@ import com.xlollx.songport.auth.AuthEvents
 import com.xlollx.songport.auth.AuthFlow
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.providers.BridgePlugin
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
@@ -416,8 +417,13 @@ private fun ProviderCard(
                 } else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
+                // YouTube Music: the channel the account acts as (its own, or a brand account), where the connectors offer it.
+                var choosingChannel by remember { mutableStateOf(false) }
+                val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
+                if (choosingChannel && p is YouTubeBridgeProvider) YtmChannelDialog(p, onDismiss = { choosingChannel = false }) { choosingChannel = false; onChanged() }
                 val actions = listOfNotNull(
                     if (connected) MenuAction(stringResource(R.string.account_test), { testing = true }) else null,
+                    if (channels) MenuAction(stringResource(R.string.ytm_channel), { choosingChannel = true }) else null,
                     if (p.setupGuide != null && p.slot.isEmpty() && configured) MenuAction(stringResource(R.string.setup_cta), { onSetup(p) }) else null,
                     if (connected && p.revokeUrl != null) MenuAction(stringResource(R.string.account_revoke, p.displayName), {
                         ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.revokeUrl)))

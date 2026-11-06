@@ -1673,4 +1673,9 @@
     <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
     <string name="web_accounts_need_webview">이 웹 연결에 다른 계정을 추가하려면 브라우저 프로필을 분리할 수 있는 최신 Android System WebView가 필요합니다.</string>
     <string name="web_accounts_need_plugin">이 연결에 다른 계정을 추가하려면 연결 플러그인의 최신 버전이 필요합니다. 업데이트한 뒤 다시 시도하세요.</string>
+    <!-- YouTube Music: the channel the account acts as (its own, or a brand account), in the connector's menu (issue #41). -->
+    <string name="ytm_channel">YouTube Music 채널</string>
+    <string name="ytm_channel_hint">재생목록은 이 채널에서 읽고 씁니다. 브랜드 계정은 이름과 함께 표시됩니다. 선택하지 않으면 이전처럼 계정 자체의 채널이 사용됩니다.</string>
+    <string name="ytm_channel_own">계정 자체의 채널</string>
+    <string name="ytm_channel_failed">채널을 읽을 수 없습니다: %1$s</string>
 </resources>

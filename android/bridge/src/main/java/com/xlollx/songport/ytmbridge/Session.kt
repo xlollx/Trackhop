@@ -43,6 +43,21 @@ open class YtmSessionStore(val slot: String) {
         prefs(ctx).edit().putString("cookies", cookies).putString("account", account).apply()
     }
 
+    /**
+     * The channel this account's calls are made as: a brand account's page id, chosen by the
+     * person ([YtmClient.channels]); null (every session so far) is the account's own channel.
+     */
+    fun channel(ctx: Context): String? = prefs(ctx).getString("channel", null)?.takeIf { it.isNotBlank() }
+    /** The chosen channel's name, for the screens; null when none was chosen. */
+    fun channelName(ctx: Context): String? = if (channel(ctx) == null) null else prefs(ctx).getString("channelName", null)
+
+    /** Keeps the chosen channel; a blank [pageId] is the account's own channel, as before any choice. */
+    fun setChannel(ctx: Context, pageId: String?, name: String?) {
+        val e = prefs(ctx).edit()
+        if (pageId.isNullOrBlank()) e.remove("channel").remove("channelName") else e.putString("channel", pageId).putString("channelName", name)
+        e.apply()
+    }
+
     /** The cookie jar this account's pages use: the WebView's own for the primary, the slot's profile otherwise. */
     fun jar() = Slots.cookies(Session.PROFILE, slot)
 

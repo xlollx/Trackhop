@@ -83,6 +83,29 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
 
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "disconnect") } }
 
+    /** A channel the account can act as: its own ([id] "") or a brand account (its page id). */
+    class Channel(val id: String, val name: String, val byline: String?, val selected: Boolean)
+
+    /**
+     * True when the connectors offer the choice of the channel: the built-in ones do, a plugin says
+     * so with `channels` in its status answer (an older Bridge says nothing and offers nothing).
+     */
+    fun channelsSupported(ctx: Env): Boolean =
+        BridgePlugin.installed(ctx) && runCatching { call(ctx, "status").containsKey("channels") }.getOrDefault(false)
+
+    /** The chosen channel's name, for the card; null for the account's own channel (the default). */
+    fun channelName(ctx: Env): String? = runCatching { call(ctx, "status").getString("channelName") }.getOrNull()
+
+    /** The channels the signed-in account can act as, the chosen one marked. Blocking: off the main thread. */
+    fun channels(ctx: Env): List<Channel> = parseJson(call(ctx, "channels").getString("json") ?: "[]").arr.mapNotNull { j ->
+        Channel(j["id"].str ?: return@mapNotNull null, j["name"].str ?: return@mapNotNull null, j["byline"].str, j["selected"].bool == true)
+    }
+
+    /** Makes the account's calls as [channel] ("" for its own channel). Blocking: off the main thread. */
+    fun setChannel(ctx: Env, channel: Channel) {
+        call(ctx, "channel", channel.id, Bundle().apply { putString("name", channel.name) })
+    }
+
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "playlists") { j ->
         j.arr.mapNotNull { p ->
             val id = p["id"].str ?: return@mapNotNull null

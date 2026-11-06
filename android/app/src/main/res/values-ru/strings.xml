@@ -1752,4 +1752,9 @@
     <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
     <string name="web_accounts_need_webview">Для ещё одного аккаунта этого веб-подключения нужен более новый Android System WebView, который разделяет профили браузера.</string>
     <string name="web_accounts_need_plugin">Для ещё одного аккаунта этого подключения нужна более новая версия плагина подключений: обновите его и попробуйте снова.</string>
+    <!-- YouTube Music: the channel the account acts as (its own, or a brand account), in the connector's menu (issue #41). -->
+    <string name="ytm_channel">Канал YouTube Music</string>
+    <string name="ytm_channel_hint">Плейлисты читаются и записываются на этом канале. Аккаунт бренда показан под своим именем; без выбора используется собственный канал аккаунта, как и раньше.</string>
+    <string name="ytm_channel_own">Собственный канал аккаунта</string>
+    <string name="ytm_channel_failed">Не удалось прочитать каналы: %1$s</string>
 </resources>

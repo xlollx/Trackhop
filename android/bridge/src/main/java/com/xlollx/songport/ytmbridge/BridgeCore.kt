@@ -45,8 +45,25 @@ object BridgeCore {
                     putString("account", ytm.account(ctx))
                     putInt("version", VERSION)
                     putBoolean("slots", slotsFor(method))
+                    // The channel the calls are made as (a brand account), and that this Bridge offers the choice.
+                    putBoolean("channels", true)
+                    ytm.channel(ctx)?.let { putString("channel", it); putString("channelName", ytm.channelName(ctx)) }
                 }
                 "disconnect" -> { ytm.clear(ctx); Bundle() }
+                // The channels the account can act as; the chosen one is marked by the stored choice, not by Google's switcher.
+                "channels" -> {
+                    val chosen = ytm.channel(ctx).orEmpty()
+                    ok(json.encodeToString(client.channels().map { it.copy(selected = it.id == chosen) }))
+                }
+                // Keeps the chosen channel (arg: its page id, "" or absent for the account's own) and names the account as it.
+                "channel" -> {
+                    val pageId = arg?.trim().orEmpty()
+                    val name = extras?.getString("name")
+                    ytm.setChannel(ctx, pageId, name)
+                    val cookies = ytm.cookies(ctx)
+                    if (cookies != null) runCatching { YtmClient(ctx, slot).accountName() }.getOrNull()?.let { ytm.save(ctx, cookies, it) }
+                    Bundle().apply { putString("channel", ytm.channel(ctx)); putString("channelName", ytm.channelName(ctx)); putString("account", ytm.account(ctx)) }
+                }
                 "playlists" -> ok(json.encodeToString(client.playlists()))
                 "playlistInfo" -> ok(json.encodeToString(client.playlistInfo(arg ?: return err("missing playlist id"))))
                 "tracks" -> {

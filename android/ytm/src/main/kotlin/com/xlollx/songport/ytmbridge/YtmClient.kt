@@ -30,6 +30,9 @@ class YtmClient(private val host: YtmHost) {
 
     private fun cookies(): String = host.cookies() ?: throw BridgeException("not connected")
 
+    /** The brand account the signed-in calls are made as, when one was chosen (see [YtmHost.channel]). */
+    private val channel: String? get() = host.channel?.takeIf { it.isNotBlank() }
+
     /** Thrown on 403/429: the service is refusing requests for now, not a broken session. */
     class Throttled(message: String) : Exception(message)
 
@@ -52,7 +55,11 @@ class YtmClient(private val host: YtmHost) {
                     put("platform", "DESKTOP")
                     v.visitorData?.let { put("visitorData", it) }
                 },
-                "user" to mapOf("lockedSafetyMode" to false),
+                // A chosen brand account (channels): the player names it in the context and in a header.
+                "user" to buildMap<String, Any?> {
+                    put("lockedSafetyMode", false)
+                    if (ck != null) channel?.let { put("onBehalfOfUser", it) }
+                },
             ),
             *body.toList().toTypedArray(),
         )
@@ -68,6 +75,7 @@ class YtmClient(private val host: YtmHost) {
         ).apply {
             v.visitorData?.let { put("X-Goog-Visitor-Id", it) }
             if (ck != null) { put("Authorization", YtmAuth.authorization(ck)); put("X-Goog-AuthUser", "0") }
+            if (ck != null) channel?.let { put("X-Goog-PageId", it) }
         }
         val body = payload.toString()
         val req = Request.Builder()
@@ -285,6 +293,26 @@ class YtmClient(private val host: YtmHost) {
 
     fun accountName(): String? =
         runCatching { call("account/account_menu").findFirst("accountName").runsText() }.getOrNull()
+
+    /**
+     * The channels the signed-in Google account can act as: its own and its brand accounts, as the
+     * player's account switcher lists them (`account/accounts_list`). A brand account carries the
+     * page id the calls are made with ([ChannelDto.id]); the account's own channel has none ("").
+     * Parsed by renderer name, wherever Google puts them; an account without brand accounts lists
+     * just itself.
+     */
+    fun channels(): List<ChannelDto> {
+        val resp = call("account/accounts_list", mapOf("accountReadMask" to mapOf("returnOwner" to true, "returnBrandAccounts" to true, "returnPersonaAccounts" to true)))
+        val out = LinkedHashMap<String, ChannelDto>()
+        for (item in resp.findAll("accountItem")) {
+            val name = item["accountName"].runsText() ?: item["accountName"]["simpleText"].str ?: continue
+            val pageId = item.findAll("pageIdToken").firstNotNullOfOrNull { it["pageId"].str }.orEmpty()
+            val byline = item["accountByline"].runsText() ?: item["accountByline"]["simpleText"].str
+            val selected = item["isSelected"]?.toString() == "true"
+            out.putIfAbsent(pageId, ChannelDto(pageId, name, byline, selected, item["hasChannel"]?.toString() != "false"))
+        }
+        return out.values.toList()
+    }
 
     // ------------------------------------------------------------------ playlists
 

@@ -1701,4 +1701,9 @@
     <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
     <string name="web_accounts_need_webview">Another account of this web connector needs a newer Android System WebView, one that keeps browser profiles apart.</string>
     <string name="web_accounts_need_plugin">Another account of this connector needs a newer version of the connector plugin: update it, then try again.</string>
+    <!-- YouTube Music: the channel the account acts as (its own, or a brand account), in the connector's menu (issue #41). -->
+    <string name="ytm_channel">YouTube Music channel</string>
+    <string name="ytm_channel_hint">Playlists are read from and written to this channel. A brand account is listed with its name; without a choice the account\'s own channel is used, as before.</string>
+    <string name="ytm_channel_own">This account\'s own channel</string>
+    <string name="ytm_channel_failed">The channels could not be read: %1$s</string>
 </resources>

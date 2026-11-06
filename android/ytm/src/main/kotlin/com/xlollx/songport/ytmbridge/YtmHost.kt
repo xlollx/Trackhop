@@ -30,6 +30,12 @@ interface YtmHost {
      * each person's data folder and account, has its own, so no session reads another's page.
      */
     val cacheScope: String get() = ""
+    /**
+     * The channel the account's calls are made as ([YtmClient.channels]): the page id of a brand
+     * account the person chose, sent as `onBehalfOfUser`; null (the default, and every session from
+     * before this existed) is the account's own channel, with nothing added to the calls.
+     */
+    val channel: String? get() = null
 }
 
 /** Calls made by a browser engine: Chrome's fingerprint, the browser's own cookies and headers. */

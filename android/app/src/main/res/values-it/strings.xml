@@ -1700,4 +1700,9 @@
     <!-- Another account of a web connector: why it cannot be added here (the picker, under the greyed route). -->
     <string name="web_accounts_need_webview">Un altro account di questo collegamento web richiede un Android System WebView più recente, che tenga separati i profili del browser.</string>
     <string name="web_accounts_need_plugin">Un altro account di questo collegamento richiede una versione più recente del plugin dei collegamenti: aggiornalo e riprova.</string>
+    <!-- YouTube Music: the channel the account acts as (its own, or a brand account), in the connector's menu (issue #41). -->
+    <string name="ytm_channel">Canale di YouTube Music</string>
+    <string name="ytm_channel_hint">Le playlist vengono lette e scritte su questo canale. Un account del brand compare con il suo nome; senza una scelta si usa il canale dell\'account, come prima.</string>
+    <string name="ytm_channel_own">Il canale dell\'account</string>
+    <string name="ytm_channel_failed">Impossibile leggere i canali: %1$s</string>
 </resources>
