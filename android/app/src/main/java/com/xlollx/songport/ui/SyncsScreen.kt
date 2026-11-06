@@ -231,6 +231,29 @@ fun SyncsScreen(
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    // Moving a card (its menu's Move up/down): the list keeps its scroll position, so only the two
+    // cards trade places. Left alone, the list would follow the card at its top by key, and a card
+    // moved above it would make the whole list jump.
+    val moveAnchor = remember { arrayOfNulls<Pair<Int, Int>>(1) }
+    val order = remember(data.jobs) { data.jobs.map { it.id } }
+    val lastOrder = remember { arrayOf(order) }
+    SideEffect {
+        if (order != lastOrder[0]) {
+            moveAnchor[0]?.let { (i, o) -> listState.requestScrollToItem(i, o) }
+            moveAnchor[0] = null
+            lastOrder[0] = order
+        }
+    }
+    val onMove: (SyncJob, Int) -> Unit = { job, to ->
+        val from = data.jobs.indexOfFirst { it.id == job.id }
+        val here = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.index
+        // A card moved up from the top of the screen, or to the top of the list, is followed there;
+        // otherwise the screen stays where it is.
+        moveAnchor[0] = if (here != null && from > to && (to == 0 || here == listState.firstVisibleItemIndex))
+            (here - (from - to)).coerceAtLeast(0) to 0
+        else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        Store.get(ctx).moveJob(job.id, to)
+    }
     // A sync tapped in a widget (JobFocus): scrolled to and lit up for a moment.
     val focusAsked by JobFocus.request.collectAsState()
     var flashing by remember { mutableStateOf<String?>(null) }
@@ -370,7 +393,7 @@ fun SyncsScreen(
                     if (flash.value > 0f) Modifier.border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = flash.value), MaterialTheme.shapes.large) else Modifier,
                 )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
-                    JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled)
+                    JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove)
                 }
             }
         }
@@ -475,6 +498,7 @@ private fun JobCard(
     onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onRun: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
     onReview: (String) -> Unit = {}, onOpenTarget: (SyncJob) -> Unit = {}, onOpenLog: () -> Unit = {},
     onToggleEnabled: (SyncJob) -> Unit = {},
+    onMove: (SyncJob, Int) -> Unit = { _, _ -> },
 ) {
     val ctx = LocalContext.current
     val isRunning = run != null
@@ -685,9 +709,9 @@ private fun JobCard(
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
                         MenuAction(stringResource(R.string.job_color), { colorOpen = true }, icon = Icons.Outlined.Palette),
                         // The order is the list's, Sync all's and the widgets'.
-                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { Store.get(ctx).moveJob(job.id, position - 1) }, icon = Icons.Outlined.ArrowUpward) else null,
-                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { Store.get(ctx).moveJob(job.id, position + 1) }, icon = Icons.Outlined.ArrowDownward) else null,
-                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { Store.get(ctx).moveJob(job.id, 0) }, icon = Icons.Outlined.VerticalAlignTop) else null,
+                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { onMove(job, position - 1) }, icon = Icons.Outlined.ArrowUpward) else null,
+                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { onMove(job, position + 1) }, icon = Icons.Outlined.ArrowDownward) else null,
+                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { onMove(job, 0) }, icon = Icons.Outlined.VerticalAlignTop) else null,
                         MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
                     ),
                     enabled = !isRunning,
