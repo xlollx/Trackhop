@@ -152,6 +152,20 @@ class WebTest {
         assertTrue(get("/").body().contains("Download CSV"))
     }
 
+    @Test fun syncsMoveUpAndDownTheList() {
+        fun job(id: String) = com.xlollx.songport.model.SyncJob(id, id, com.xlollx.songport.model.PlaylistRef("subsonic", id, id), com.xlollx.songport.model.PlaylistRef("csv", id, id))
+        listOf("a", "b", "c").forEach { env.store.upsertJob(job(it)) }
+        assertTrue(post("/syncs/c/move", "to=up", *origin).statusCode() in 300..399)
+        assertEquals(listOf("a", "c", "b"), env.store.data.jobs.map { it.id })
+        post("/syncs/a/move", "to=down", *origin)
+        assertEquals(listOf("c", "a", "b"), env.store.data.jobs.map { it.id })
+        post("/syncs/b/move", "to=top", *origin)
+        assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })
+        // A link can't move anything: a GET only shows the sync.
+        get("/syncs/a/move")
+        assertEquals(listOf("b", "c", "a"), env.store.data.jobs.map { it.id })
+    }
+
     @Test fun reviewPicksIgnoresAndConfirms() {
         File(data, "csv").mkdirs()
         File(data, "csv/Out.csv").writeText("title,artist\n")

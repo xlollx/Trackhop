@@ -1226,6 +1226,9 @@
     <string name="note_unlikes_capped">Rimozioni dai preferiti sospese: questa esecuzione toglierebbe dai preferiti %1$d dei %2$d brani nei Brani preferiti. Tocca lo stato della sync per aprire l\'anteprima e vederli; se vanno tolti davvero, spunta lì “Togli questi brani dai preferiti” ed eseguila. Se l\'origine non li ha persi davvero, il servizio l\'ha elencata in modo incompleto e non va tolto nulla.</string>
     <string name="sync_menu_disable">Disattiva</string>
     <string name="sync_menu_enable">Attiva</string>
+    <string name="sync_menu_move_up">Sposta su</string>
+    <string name="sync_menu_move_down">Sposta giù</string>
+    <string name="sync_menu_move_top">Sposta in cima</string>
     <string name="sync_disabled_snack">Sync disattivata: non partirà più secondo la pianificazione</string>
     <string name="sync_enabled_snack">Sync attivata</string>
     <string name="sync_pause_all">Metti tutte in pausa</string>

@@ -1202,6 +1202,9 @@
     <string name="note_unlikes_capped">좋아요 취소 보류: 이번 실행은 좋아요 표시한 곡 %2$d곡 중 %1$d곡의 좋아요를 취소하게 돼요. 동기화 상태를 눌러 미리보기에서 확인하고, 정말 취소해야 한다면 거기서 상자를 체크한 뒤 실행하세요. 원본에서 실제로 사라진 게 아니라면 서비스가 목록을 일부만 보낸 것이니 아무것도 취소하면 안 돼요.</string>
     <string name="sync_menu_disable">사용 안 함</string>
     <string name="sync_menu_enable">사용</string>
+    <string name="sync_menu_move_up">위로 이동</string>
+    <string name="sync_menu_move_down">아래로 이동</string>
+    <string name="sync_menu_move_top">맨 위로 이동</string>
     <string name="sync_disabled_snack">동기화를 껐어요: 예약된 일정에 실행되지 않아요</string>
     <string name="sync_enabled_snack">동기화를 켰어요</string>
     <string name="sync_pause_all">모두 일시정지</string>

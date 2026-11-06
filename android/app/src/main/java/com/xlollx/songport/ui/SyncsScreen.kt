@@ -132,6 +132,9 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PauseCircle
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.VerticalAlignTop
+import androidx.compose.material.icons.outlined.ArrowDownward
+import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
 import com.xlollx.songport.R
 import com.xlollx.songport.data.StoreData
@@ -671,6 +674,7 @@ private fun JobCard(
                 ) {
                     Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now))
                 }
+                val position = data.jobs.indexOfFirst { it.id == job.id }
                 // The menu wears the card's colour: a teal card opens a teal-tinted menu.
                 OverflowMenu(
                     listOfNotNull(
@@ -680,6 +684,10 @@ private fun JobCard(
                         if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
                         MenuAction(stringResource(R.string.job_color), { colorOpen = true }, icon = Icons.Outlined.Palette),
+                        // The order is the list's, Sync all's and the widgets'.
+                        if (position > 0) MenuAction(stringResource(R.string.sync_menu_move_up), { Store.get(ctx).moveJob(job.id, position - 1) }, icon = Icons.Outlined.ArrowUpward) else null,
+                        if (position in 0 until data.jobs.size - 1) MenuAction(stringResource(R.string.sync_menu_move_down), { Store.get(ctx).moveJob(job.id, position + 1) }, icon = Icons.Outlined.ArrowDownward) else null,
+                        if (position > 1) MenuAction(stringResource(R.string.sync_menu_move_top), { Store.get(ctx).moveJob(job.id, 0) }, icon = Icons.Outlined.VerticalAlignTop) else null,
                         MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
                     ),
                     enabled = !isRunning,

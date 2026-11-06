@@ -1203,6 +1203,9 @@
     <string name="note_unlikes_capped">お気に入りの解除を保留しました：この実行ではお気に入りの曲 %2$d 曲のうち %1$d 曲のお気に入りが解除されます。同期のステータスをタップしてプレビューで確認し、本当に解除するならそこでボックスにチェックを入れて実行してください。同期元から実際には消えていない場合はサービスの一覧が不完全なので、何も解除すべきではありません。</string>
     <string name="sync_menu_disable">無効にする</string>
     <string name="sync_menu_enable">有効にする</string>
+    <string name="sync_menu_move_up">上へ移動</string>
+    <string name="sync_menu_move_down">下へ移動</string>
+    <string name="sync_menu_move_top">先頭へ移動</string>
     <string name="sync_disabled_snack">同期を無効にしました：スケジュールでは実行されません</string>
     <string name="sync_enabled_snack">同期を有効にしました</string>
     <string name="sync_pause_all">すべて一時停止</string>

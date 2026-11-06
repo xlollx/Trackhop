@@ -1226,6 +1226,9 @@
     <string name="note_unlikes_capped">Unlikes held back: this run would unlike %1$d of the %2$d songs in Liked songs. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Unlike these songs” there and run it. If the source has not really lost them, the service listed it incompletely and nothing should go.</string>
     <string name="sync_menu_disable">Disable</string>
     <string name="sync_menu_enable">Enable</string>
+    <string name="sync_menu_move_up">Move up</string>
+    <string name="sync_menu_move_down">Move down</string>
+    <string name="sync_menu_move_top">Move to the top</string>
     <string name="sync_disabled_snack">Sync disabled: it won\'t run on its schedule</string>
     <string name="sync_enabled_snack">Sync enabled</string>
     <string name="sync_pause_all">Pause all</string>

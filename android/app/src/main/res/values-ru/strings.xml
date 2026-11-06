@@ -1272,6 +1272,9 @@
     <string name="note_unlikes_capped">Снятие отметок «нравится» отложено: эта синхронизация сняла бы отметку с %1$d из %2$d треков в «Любимых треках». Нажмите на статус синхронизации, чтобы открыть предпросмотр и увидеть их; если их действительно нужно убрать, отметьте там флажок и запустите. Если источник на самом деле их не терял, сервис выдал неполный список, и ничего убирать не нужно.</string>
     <string name="sync_menu_disable">Отключить</string>
     <string name="sync_menu_enable">Включить</string>
+    <string name="sync_menu_move_up">Переместить выше</string>
+    <string name="sync_menu_move_down">Переместить ниже</string>
+    <string name="sync_menu_move_top">Переместить в начало</string>
     <string name="sync_disabled_snack">Синхронизация отключена: по расписанию она запускаться не будет</string>
     <string name="sync_enabled_snack">Синхронизация включена</string>
     <string name="sync_pause_all">Приостановить все</string>

@@ -204,6 +204,17 @@ open class FileStore(dir: File) {
         else d.copy(jobs = d.jobs + job)
     }
 
+    /**
+     * Puts a sync at [toIndex] in the list (clamped): the order of the Syncs list, Sync all and the
+     * widgets. The other syncs keep their order.
+     */
+    fun moveJob(id: String, toIndex: Int) = update { d ->
+        val job = d.jobs.firstOrNull { it.id == id } ?: return@update d
+        val rest = d.jobs.filter { it.id != id }
+        val at = toIndex.coerceIn(0, rest.size)
+        d.copy(jobs = rest.take(at) + job + rest.drop(at))
+    }
+
     fun deleteJob(id: String) = update { d -> d.copy(jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id) }
 
     /** The user saw, in the preview, that the target of [jobId] lists far fewer tracks than before, and runs it anyway. */

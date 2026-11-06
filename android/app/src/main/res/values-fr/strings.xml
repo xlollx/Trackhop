@@ -1233,6 +1233,9 @@
     <string name="note_unlikes_capped">Retraits de likes suspendus : cette exécution retirerait le like de %1$d des %2$d titres de Titres likés. Touchez l\'état de la synchro pour ouvrir l\'aperçu et les voir ; s\'ils doivent vraiment partir, cochez la case et lancez-la. Si la source ne les a pas vraiment perdus, le service l\'a listée de façon incomplète et rien ne doit partir.</string>
     <string name="sync_menu_disable">Désactiver</string>
     <string name="sync_menu_enable">Activer</string>
+    <string name="sync_menu_move_up">Monter</string>
+    <string name="sync_menu_move_down">Descendre</string>
+    <string name="sync_menu_move_top">Placer en haut</string>
     <string name="sync_disabled_snack">Synchro désactivée : elle ne s\'exécutera plus selon sa planification</string>
     <string name="sync_enabled_snack">Synchro activée</string>
     <string name="sync_pause_all">Tout mettre en pause</string>

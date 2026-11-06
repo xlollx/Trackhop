@@ -1226,6 +1226,9 @@
     <string name="note_unlikes_capped">„Gefällt mir“-Entfernungen zurückgehalten: Dieser Lauf würde bei %1$d der %2$d Lieblingssongs das „Gefällt mir“ entfernen. Tippe auf den Status der Synchronisierung, um die Vorschau zu öffnen und sie zu sehen; wenn sie wirklich weg sollen, hake dort das Kästchen an und starte sie. Hat die Quelle sie nicht wirklich verloren, hat der Dienst sie unvollständig aufgelistet, und nichts sollte entfernt werden.</string>
     <string name="sync_menu_disable">Deaktivieren</string>
     <string name="sync_menu_enable">Aktivieren</string>
+    <string name="sync_menu_move_up">Nach oben</string>
+    <string name="sync_menu_move_down">Nach unten</string>
+    <string name="sync_menu_move_top">Ganz nach oben</string>
     <string name="sync_disabled_snack">Synchronisierung deaktiviert: Sie läuft nicht mehr nach Zeitplan</string>
     <string name="sync_enabled_snack">Synchronisierung aktiviert</string>
     <string name="sync_pause_all">Alle pausieren</string>

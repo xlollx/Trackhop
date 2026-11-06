@@ -1203,6 +1203,9 @@
     <string name="note_unlikes_capped">已暂缓取消喜欢：本次运行将取消“喜欢的歌曲”%2$d 首中 %1$d 首的喜欢。点按同步的状态打开预览查看；如果确实要取消，请在那里勾选方框后运行。如果来源并未真正失去这些歌曲，说明服务返回的列表不完整，不应取消任何内容。</string>
     <string name="sync_menu_disable">停用</string>
     <string name="sync_menu_enable">启用</string>
+    <string name="sync_menu_move_up">上移</string>
+    <string name="sync_menu_move_down">下移</string>
+    <string name="sync_menu_move_top">移到顶部</string>
     <string name="sync_disabled_snack">已停用同步：不会再按计划运行</string>
     <string name="sync_enabled_snack">已启用同步</string>
     <string name="sync_pause_all">全部暂停</string>

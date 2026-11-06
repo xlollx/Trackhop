@@ -285,12 +285,17 @@ class Web(
         // A playlist written to File: its CSV, a click away.
         val file = if (Providers.byId(job.target.provider) is LocalFilesProvider) csvFiles().firstOrNull { it.nameWithoutExtension == job.target.playlistId } else null
         val download = file?.let { """ <a class="button secondary" href="/files/${q(it.name)}" download>Download CSV</a>""" } ?: ""
-        return """<div class="card"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}<b>${h(job.name)}</b></a><br>
+        // Up and down in the list: the order Run all and the app's widgets follow.
+        val all = env.store.data.jobs
+        val at = all.indexOfFirst { it.id == job.id }
+        val moves = (if (at > 0) " " + Html.postButton("/syncs/${q(job.id)}/move", "↑", "secondary", mapOf("to" to "up")) else "") +
+            (if (at in 0 until all.size - 1) " " + Html.postButton("/syncs/${q(job.id)}/move", "↓", "secondary", mapOf("to" to "down")) else "")
+        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
-<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download</div></div></div></div>"""
+<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
 
     private fun progressText(jobId: String): String {
@@ -652,6 +657,12 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         redirect(r.ex, "$back?ok=${q("Saved: ${com.xlollx.songport.sync.RadioTitles.describe(radio)}.")}")
                     }
                     "delete" -> { env.store.deleteJob(job.id); redirect(r.ex, "/") }
+                    // The order of the list, of Run all and of the app's widgets, as in the app's card menu.
+                    "move" -> {
+                        val at = env.store.data.jobs.indexOfFirst { it.id == job.id }
+                        when (r.form["to"]) { "up" -> env.store.moveJob(job.id, at - 1); "down" -> env.store.moveJob(job.id, at + 1); "top" -> env.store.moveJob(job.id, 0) }
+                        redirect(r.ex, "/#sync-${job.id}")
+                    }
                     else -> send(r.ex, 404, page("Not found", ""))
                 }
             }
