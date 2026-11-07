@@ -259,6 +259,7 @@
     <string name="files_manage">Manage</string>
     <string name="files_search">Search</string>
     <string name="files_group_other">Other</string>
+    <string name="files_send_to">Send to a service</string>
     <string name="review_now">%1$d to fix · Start now</string>
     <string name="review_summary">%1$d not found · %2$d to double-check</string>
     <string name="review_tap_hint">Accept a proposal with one tap, or open a track to search %1$s. Every choice is remembered for the next syncs.</string>

@@ -259,6 +259,7 @@
     <string name="files_manage">管理</string>
     <string name="files_search">検索</string>
     <string name="files_group_other">その他</string>
+    <string name="files_send_to">サービスに送る</string>
     <string name="review_now">要修正 %1$d 件 · 今すぐ開始</string>
     <string name="review_summary">見つからない曲 %1$d 件 · 要確認 %2$d 件</string>
     <string name="review_tap_hint">候補をワンタップで承認するか、曲を開いて %1$s で検索します。選んだ内容はすべて記憶され、次回以降の同期に使われます。</string>

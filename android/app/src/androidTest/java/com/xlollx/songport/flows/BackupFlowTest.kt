@@ -174,4 +174,60 @@ class BackupFlowTest : FlowTest() {
         val t = LocalFilesProvider.exportText(app, runBlocking { LocalFilesProvider.playlists(app) }.single().id, LocalFilesProvider.Export.CSV)
         assertTrue(t, t.contains("Hysteria") && t.contains("Absolution"))
     }
+
+    /** Pastes a list of three songs as a file playlist. */
+    private fun pasteAFilePlaylist(name: String = "From the file") {
+        openTool(R.string.files_title)
+        click(s(R.string.paste_list))
+        waitText(s(R.string.paste_list_hint))
+        compose.onNode(hasSetTextAction() and hasText(s(R.string.paste_list_name))).performTextReplacement(name)
+        val lines = (0 until 3).joinToString("\n") { "${Demo.SONGS[it].artist} - ${Demo.SONGS[it].title}" }
+        compose.onNode(hasSetTextAction() and hasText(s(R.string.paste_list_text))).performTextReplacement(lines)
+        click(s(R.string.import_action))
+        waitText(s(R.string.csv_imported, 3))
+    }
+
+    /**
+     * A file playlist to a service: the way a CSV imported on the phone reaches Apple Music. The
+     * editor opens with the file as the source and the first service that can be written to as the
+     * target: the songs are looked up and added.
+     */
+    @Test
+    fun aFilePlaylistIsSentToAService() {
+        pasteAFilePlaylist()
+        // The snackbar offers the way to a service.
+        click(s(R.string.files_send_to))
+        waitText(s(R.string.editor_source))
+        waitText(s(R.string.editor_playlist))
+        // The file is the source: its name is in the playlist field.
+        waitFor("the file is the source") {
+            compose.onAllNodes(hasText(s(R.string.editor_playlist)) and hasText("From the file")).fetchSemanticsNodes().isNotEmpty()
+        }
+        click(s(R.string.save))
+        // A new sync shows what its first run would do.
+        waitText(s(R.string.preview_add, 3), ms = 30_000)
+        val job = store.data.jobs.single()
+        assertEquals("file", job.source.provider)
+        assertEquals("spotify", job.target.provider)
+    }
+
+    /** A new sync can read from a file: "File" is one of the sources, with the file playlists in it. */
+    @Test
+    fun aNewSyncCanReadFromAFilePlaylist() {
+        pasteAFilePlaylist()
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText(s(R.string.empty_syncs_title))
+        click(s(R.string.new_sync))
+        waitText(s(R.string.editor_title_new))
+        // The files are a source like the services: the tile is there.
+        assertTrue("the file is one of the sources", exists("File"))
+        click("File")
+        waitText(s(R.string.editor_playlist))
+        click(s(R.string.editor_playlist))
+        waitText("From the file")
+        click("From the file")
+        waitFor("the file chosen as source") {
+            compose.onAllNodes(hasText(s(R.string.editor_playlist)) and hasText("From the file")).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
 }

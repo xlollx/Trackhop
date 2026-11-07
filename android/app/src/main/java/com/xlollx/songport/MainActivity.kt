@@ -297,6 +297,21 @@ private fun MainScreen(
     }
     // The screen on top survives a rotation and a fold: jobs travel as JSON, providers by id.
     var editing by rememberSaveable(stateSaver = JobSaver) { mutableStateOf<SyncJob?>(null) }
+    // A file playlist to a service: the editor opens with the file as the source and the first
+    // service that can be written to as the target. From a CSV on the phone to Apple Music, the
+    // way the app always promised ("import a file, then use it as a sync source").
+    val sendToService: (String, String) -> Unit = { id, name ->
+        // A service with an account that can take a new playlist: not the files themselves, not a
+        // read-only source, not one that writes to a single fixed list (Last.fm's loved tracks).
+        val target = Providers.connectors().firstOrNull {
+            it.serviceId != LocalFilesProvider.serviceId && it.requiresAuth && it.isConnected(ctx) && it.canWrite && it.canCreatePlaylists
+        }
+        editing = newJob().copy(
+            name = name,
+            source = PlaylistRef(LocalFilesProvider.id, id, name),
+            target = PlaylistRef(target?.id.orEmpty()),
+        )
+    }
     // The "↔" card whose Edit opened its original sync instead: the editor names it in a note.
     var editingTwinId by rememberSaveable { mutableStateOf<String?>(null) }
     var wizardFor by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
@@ -596,7 +611,10 @@ private fun MainScreen(
                 )
                 wizard != null -> SetupWizardScreen(wizard) { wizardFor = null }
                 unmatched != null -> UnmatchedScreen(unmatched) { unmatchedReport = null }
-                filesOpen -> FilesScreen { filesOpen = false }
+                filesOpen -> FilesScreen(onClose = { filesOpen = false }, onSendTo = { id, name ->
+                    filesOpen = false
+                    sendToService(id, name)
+                })
                 logOpen -> LogScreen(data, onClose = { logOpen = false }) { unmatchedReport = it }
                 howToOpen -> com.xlollx.songport.ui.HowToScreen(onClose = { howToOpen = false }) {
                     com.xlollx.songport.ui.TourOffer { com.xlollx.songport.ui.Tour.start() }
@@ -772,7 +790,7 @@ private fun MainScreen(
                     // Opening the page counts as seen: the pill does not come back.
                     onTips = { store.updateSettings { it.copy(tipsPillDismissed = true) }; tipsOpen = true },
                 )
-                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true })
+                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService)
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
@@ -785,7 +803,7 @@ private fun MainScreen(
                         snackScope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_compat_shared_made)) }
                     },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } }

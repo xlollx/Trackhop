@@ -134,7 +134,13 @@ object LocalFilesProvider : MusicProvider {
     // --- import/export per la UI (Storage Access Framework) ---
 
     /** Importa un file in qualsiasi formato riconosciuto. @return numero di brani importati. */
-    fun importFile(ctx: Env, fileName: String, text: String): Int {
+    fun importFile(ctx: Env, fileName: String, text: String): Int = importFileAsPlaylist(ctx, fileName, text).trackCount
+
+    /**
+     * Come [importFile], ma restituisce anche la playlist creata: l'id serve per usarla subito
+     * come origine di una sync (inviare un file importato a un servizio senza sceglierlo a mano).
+     */
+    fun importFileAsPlaylist(ctx: Env, fileName: String, text: String): Playlist {
         val settings = ctx.store.data.settings
         val tracks = PlaylistFiles.parse(fileName, text, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns))
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })
@@ -142,7 +148,7 @@ object LocalFilesProvider : MusicProvider {
         var n = 2
         while (file(ctx, candidate).exists()) { candidate = "$base ($n)"; n++ }
         write(file(ctx, candidate), CsvCodec.encode(tracks))
-        return tracks.size
+        return Playlist(candidate, candidate, tracks.size)
     }
 
     /** Salva una lista di brani come nuovo file (nome reso unico). @return id della playlist creata. */

@@ -309,9 +309,40 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         }
         // Solo id di catalogo: un brano trovato nella libreria altrui non e' aggiungibile.
         tracks.chunked(25).forEach { chunk ->
-            api(ctx, "POST", "$API/v1/me/library/playlists/$playlistId/tracks",
-                jsonObj("data" to jsonArr(chunk.map { mapOf("id" to it.id, "type" to "songs") })))
+            addChunk(ctx, playlistId, chunk)
         }
+    }
+
+    /**
+     * A playlist created a moment ago can be invisible to the library for a few seconds: Apple
+     * answers 404 "No related resources found for tracks" while it catches up. The write landed,
+     * the next write does not see it yet. So the same request is repeated after a short wait,
+     * a few times, before the failure is passed on.
+     */
+    private suspend fun addChunk(ctx: Env, playlistId: String, chunk: List<Track>) {
+        var attempt = 0
+        while (true) {
+            try {
+                api(ctx, "POST", "$API/v1/me/library/playlists/$playlistId/tracks",
+                    jsonObj("data" to jsonArr(chunk.map { mapOf("id" to it.id, "type" to "songs") })))
+                return
+            } catch (e: ProviderException) {
+                if (attempt < LIBRARY_LAG_RETRIES && isLibraryLag(e)) {
+                    attempt++
+                    val wait = 2_000L * attempt
+                    ctx.log("apple", "Apple does not see the playlist yet (${e.message?.take(90)}); retrying in ${wait / 1000}s")
+                    kotlinx.coroutines.delay(wait)
+                    continue
+                }
+                throw e
+            }
+        }
+    }
+
+    /** Apple's own "the library has not caught up with the write" answer. */
+    private fun isLibraryLag(e: ProviderException): Boolean {
+        val m = e.message ?: return false
+        return m.contains("404") && m.contains("No related resources", true)
     }
 
     /** L'API Apple Music non espone la rimozione di brani da una playlist (vedi canRemoveTracks). */
@@ -324,5 +355,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         private const val API = "https://api.music.apple.com"
         /** Prefisso degli id delle playlist del catalogo (pubbliche/editoriali). */
         private const val CATALOG_PREFIX = "pl."
+        /** How many times a write waits for a playlist the library has not seen yet. */
+        private const val LIBRARY_LAG_RETRIES = 4
     }
 }

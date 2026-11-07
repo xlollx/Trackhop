@@ -1250,7 +1250,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     RadioStationCard(radioStation, radioStream, onChange = null)
                 } else {
                     // Il servizio di un link incollato puo' non essere fra quelli collegati (playlist pubblica).
-                    val srcProviders = (available + listOfNotNull(Providers.byId(srcProvider))).distinctBy { it.id }
+                    // I file locali sono un'origine come le altre: un CSV importato sul telefono e' una
+                    // lista da cui leggere, e l'app lo promette ("importa un file, poi usalo come
+                    // origine della sync"). Senza questo non si poteva scegliere "File" come origine.
+                    val srcProviders = (available + listOfNotNull(Providers.byId(srcProvider), Providers.byId(LocalFilesProvider.id))).distinctBy { it.id }
                     ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
                         onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
                         shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam() },

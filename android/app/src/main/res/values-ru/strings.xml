@@ -259,6 +259,7 @@
     <string name="files_manage">Управлять</string>
     <string name="files_search">Поиск</string>
     <string name="files_group_other">Другое</string>
+    <string name="files_send_to">Отправить в сервис</string>
     <string name="review_now">К исправлению: %1$d · Начать</string>
     <string name="review_summary">Не найдено: %1$d · проверить: %2$d</string>
     <string name="review_tap_hint">Примите предложение одним нажатием или откройте трек, чтобы искать на %1$s. Каждый выбор запоминается для следующих синхронизаций.</string>

@@ -259,6 +259,7 @@
     <string name="files_manage">Gérer</string>
     <string name="files_search">Rechercher</string>
     <string name="files_group_other">Autres</string>
+    <string name="files_send_to">Envoyer vers un service</string>
     <string name="review_now">%1$d à régler · Commencer</string>
     <string name="review_summary">%1$d introuvables · %2$d à vérifier</string>
     <string name="review_tap_hint">Acceptez une proposition d\'un geste, ou ouvrez un morceau pour le chercher sur %1$s. Chaque choix est mémorisé pour les prochaines syncs.</string>

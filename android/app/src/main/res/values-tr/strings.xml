@@ -259,6 +259,7 @@
     <string name="files_manage">Yönet</string>
     <string name="files_search">Ara</string>
     <string name="files_group_other">Diğer</string>
+    <string name="files_send_to">Bir hizmete gönder</string>
     <string name="review_now">%1$d düzeltilecek · Şimdi başla</string>
     <string name="review_summary">%1$d bulunamadı · %2$d kontrol edilecek</string>
     <string name="review_tap_hint">Bir öneriyi tek dokunuşla kabul edin veya %1$s üzerinde aramak için bir parçayı açın. Her seçim sonraki senkronizasyonlar için hatırlanır.</string>
