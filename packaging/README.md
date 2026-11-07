@@ -205,10 +205,13 @@ version, URL and hash and commits. `packaging/scoop/trackhop.json` here is only 
      trust to run its own runtime."
 6. Submit; certification takes a few days.
 
-**Each release:** by hand for now: download the release's `.msix` and upload it in a new submission
-(*Update*) in Partner Center. The automation below needs an Entra ID tenant, which this personal
-account could only get through a paid route, so its secrets are not set. Once they exist it is
-automatic: `msstore.yml` (called by `desktop.yml`)
+**Each release:** by hand: download the release's `.msix` and upload it in a new submission
+(*Update*) in Partner Center. `msstore.yml` opens an issue assigned to the owner with the file and
+these steps, so it is not forgotten. The API needs a Microsoft Entra application with the Manager
+role, and an individual developer account does not offer one (07/11/2026: a tenant can be created
+for free, but *User management* shows only *Users*, with no developer roles; see also
+[windows-dev-docs#6153](https://github.com/MicrosoftDocs/windows-dev-docs/issues/6153)). With a
+company account, once the four secrets exist it is automatic: `msstore.yml` (called by `desktop.yml`)
 downloads the release's `.msix`, uploads it with the Microsoft Store Developer CLI
 (`msstore publish <msix> -id 9PFX74Q2XN9P`) and submits it to certification. A draft waiting in Partner
 Center is replaced (the CLI makes a new submission from the last published one), so edit the listing

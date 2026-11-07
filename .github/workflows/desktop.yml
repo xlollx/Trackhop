@@ -192,8 +192,12 @@ jobs:
     secrets: inherit
 
   msstore:
-    # The new release's .msix to the Microsoft Store (msstore.yml). Skipped until the MSSTORE_* secrets exist.
+    # The new release's .msix to the Microsoft Store (msstore.yml); without the MSSTORE_* secrets, an
+    # issue reminding the owner to upload it by hand.
     needs: release
+    permissions:
+      contents: read
+      issues: write
     if: ${{ needs.release.outputs.version != '' }}
     uses: ./.github/workflows/msstore.yml
     with:
