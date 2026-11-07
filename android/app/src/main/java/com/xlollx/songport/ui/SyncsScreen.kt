@@ -266,6 +266,7 @@ fun SyncsScreen(
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
+        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "move ${from.key}@${from.index} -> ${to.key}@${to.index} ($a -> $b)")
         if (a >= 0 && b >= 0) {
             // A lazy list keeps its first visible item in view by key: when that item is one of the two
             // swapping (the card half under the pill at the end of the list), the list would follow it,
@@ -426,10 +427,14 @@ fun SyncsScreen(
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
                 }.longPressDraggableHandle(
                     enabled = canDrag,
-                    onDragStarted = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
+                    onDragStarted = {
+                        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    },
                     onDragStopped = {
                         val dropped = dragOrder
                         val to = dropped?.indexOf(job.id) ?: -1
+                        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
                         if (to >= 0 && dropped != orderNow()) {
                             Store.get(ctx).moveJob(job.id, to)
                             // The store's list takes over as soon as it shows the move; at the latest, now.

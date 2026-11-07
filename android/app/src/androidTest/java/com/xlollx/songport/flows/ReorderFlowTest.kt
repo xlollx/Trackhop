@@ -37,21 +37,25 @@ class ReorderFlowTest : FlowTest() {
 
     private fun order() = store.data.jobs.map { it.id }
 
-    /** The cards laid out now (the lazy list composes only those on screen), top to bottom, with their titles' tops. */
-    private fun cardsOnScreen(): List<Pair<Int, Float>> = (1..n).mapNotNull { i ->
-        compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()?.let { i to it.boundsInRoot.top }
-    }.sortedBy { it.second }
+    /** Where the list shows its first card: below the app's header (its title). */
+    private fun listTop(): Float = compose.onAllNodes(hasText("Trackhop")).fetchSemanticsNodes().minOf { it.boundsInRoot.bottom }
+
+    /** The cards whose titles show on screen (below the header), top to bottom, with their titles' tops. */
+    private fun cardsOnScreen(): List<Pair<Int, Float>> {
+        val top = listTop()
+        return (1..n).mapNotNull { i ->
+            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()?.boundsInRoot?.takeIf { it.center.y > top }?.let { i to it.top }
+        }.sortedBy { it.second }
+    }
 
     /**
-     * Holds card [i] by its schedule line on the left (clear of the Sync-all pill, which may cover
-     * its title) and drags it by [dy] pixels in small steps, then lets go.
+     * Holds card [i] by the left end of its title (clear of the Sync-all pill, which may cover the
+     * rest of it) and drags it by [dy] pixels in small steps, then lets go.
      */
     private fun drag(i: Int, dy: Float) {
-        val title = compose.onAllNodes(hasText("Sync number $i")).onFirst().fetchSemanticsNode().boundsInRoot
-        val line = compose.onAllNodes(hasText("Manual only", substring = true)).fetchSemanticsNodes()
-            .map { it.boundsInRoot }.filter { it.top > title.top }.minByOrNull { it.top } ?: throw AssertionError("no schedule line under card $i")
+        android.util.Log.d("Reorder", "test: drag $i by $dy, order ${order()}")
         compose.onAllNodes(hasText("Sync number $i")).onFirst().performTouchInput {
-            down(Offset(line.left - title.left + 24f, line.center.y - title.top))
+            down(Offset(12f, height / 2f))
             advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
             val steps = 30
             repeat(steps) { moveBy(Offset(0f, dy / steps)); advanceEventTime(16) }
@@ -59,6 +63,7 @@ class ReorderFlowTest : FlowTest() {
             up()
         }
         compose.waitForIdle()
+        android.util.Log.d("Reorder", "test: after drag, order ${order()}")
     }
 
     @Test
