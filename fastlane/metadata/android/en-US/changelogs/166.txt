@@ -1,0 +1,1 @@
+Choose the YouTube Music channel a connection uses, brand accounts included (#41, thanks g0lxs): Accounts › YouTube Music › ⋮ › YouTube Music channel. Dragging a card at the end of the list works again. No more empty banner after leaving a sign-in.

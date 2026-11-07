@@ -5,6 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.8.1
+
+- **YouTube Music channel** (#41): on the YouTube Music service page, choose which channel the account acts as, its own or a brand account under it; syncs, playlists and likes then use that channel.
+
 ## 1.8.0
 
 - **More than one account per service** (#48): on the Services page, *Add another account* for Spotify, YouTube, TIDAL and Deezer (official), Navidrome/Subsonic, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, and the pasted-cookie connectors (YouTube Music, Spotify web, Deezer web, Qobuz, Anghami, LiveOne), each with its own sign-in, name and caches. Two Jellyfin servers can sync with each other. An extra account a sync uses can't be removed. `GET /api/v1/services` adds `serviceId` and `slot`.

@@ -1,0 +1,1 @@
+Escolha o canal do YouTube Music de uma conexão, contas de marca incluídas (#41, valeu g0lxs): Contas › YouTube Music › ⋮. Arrastar um card no fim da lista voltou a funcionar. Sem aviso vazio ao sair de um login.
