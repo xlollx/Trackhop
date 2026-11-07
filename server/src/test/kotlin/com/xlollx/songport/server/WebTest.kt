@@ -270,6 +270,27 @@ class WebTest {
         assertEquals(200, get("/tools/export").statusCode())
     }
 
+    // #49: "Artist - Album - Title" names, read as chosen on the upload form; the choice is kept.
+    @Test fun uploadReadsThreePartNamesAsChosen() {
+        val boundary = "----trackhop"
+        fun upload(name: String, text: String, names: String) = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofByteArray((
+                    "--$boundary\r\nContent-Disposition: form-data; name=\"names\"\r\n\r\n$names\r\n" +
+                        "--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"$name\"\r\nContent-Type: text/plain\r\n\r\n$text\r\n--$boundary--\r\n"
+                    ).toByteArray(Charsets.UTF_8))).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        assertEquals(303, upload("One.txt", "Band - Album - Song\n", "ARTIST_ALBUM_TITLE").statusCode())
+        val one = com.xlollx.songport.sync.CsvCodec.parse(File(data, "csv/One.csv").readText()).single()
+        assertEquals("Song", one.title)
+        assertEquals("Album", one.album)
+        assertEquals("ARTIST_ALBUM_TITLE", env.store.data.settings.fileNameLayout)
+        assertTrue(get("/connectors/csv").body().contains("""<option value="ARTIST_ALBUM_TITLE" selected>"""))
+        assertEquals(303, upload("Two.txt", "Band - Album - Song\n", "ARTIST_TITLE").statusCode())
+        assertEquals("Album - Song", com.xlollx.songport.sync.CsvCodec.parse(File(data, "csv/Two.csv").readText()).single().title)
+    }
+
     @Test fun toolsFindAndRemoveDuplicatesInTheBackground() {
         File(data, "csv").mkdirs()
         File(data, "csv/Dup.csv").writeText("title,artist\nSong,Band\nOther,Band\nSong,Band\n")

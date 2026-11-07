@@ -1706,4 +1706,9 @@
     <string name="ytm_channel_hint">Playlists are read from and written to this channel. A brand account is listed with its name; without a choice the account\'s own channel is used, as before.</string>
     <string name="ytm_channel_own">This account\'s own channel</string>
     <string name="ytm_channel_failed">The channels could not be read: %1$s</string>
+    <string name="files_names">Track names in files</string>
+    <string name="files_names_auto">Automatic</string>
+    <string name="files_names_two">Artist - Title</string>
+    <string name="files_names_three">Artist - Album - Title</string>
+    <string name="files_names_saved">Used from the next import. Import a file again to read it this way.</string>
 </resources>

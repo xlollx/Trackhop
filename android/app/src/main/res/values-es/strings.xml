@@ -1713,4 +1713,9 @@
     <string name="ytm_channel_hint">Las playlists se leen y se escriben en este canal. Una cuenta de marca aparece con su nombre; sin elección se usa el canal propio de la cuenta, como antes.</string>
     <string name="ytm_channel_own">El canal propio de la cuenta</string>
     <string name="ytm_channel_failed">No se pudieron leer los canales: %1$s</string>
+    <string name="files_names">Nombres de canciones en archivos</string>
+    <string name="files_names_auto">Automático</string>
+    <string name="files_names_two">Artista - Título</string>
+    <string name="files_names_three">Artista - Álbum - Título</string>
+    <string name="files_names_saved">Se aplica desde la próxima importación. Importa de nuevo un archivo para leerlo así.</string>
 </resources>

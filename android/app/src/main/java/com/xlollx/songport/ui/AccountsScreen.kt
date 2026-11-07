@@ -482,6 +482,28 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
         }
     }
 
+    // How "A - B - C" names in imported files are read (#49).
+    var namesOpen by remember { mutableStateOf(false) }
+    if (namesOpen) {
+        val store = remember { Store.get(ctx) }
+        val settings by store.state.collectAsState()
+        ChoiceDialog(
+            title = stringResource(R.string.files_names),
+            options = listOf(
+                com.xlollx.songport.sync.PlaylistFiles.NameLayout.AUTO to stringResource(R.string.files_names_auto),
+                com.xlollx.songport.sync.PlaylistFiles.NameLayout.ARTIST_TITLE to stringResource(R.string.files_names_two),
+                com.xlollx.songport.sync.PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE to stringResource(R.string.files_names_three),
+            ),
+            selected = com.xlollx.songport.sync.PlaylistFiles.NameLayout.of(settings.settings.fileNameLayout),
+            onDismiss = { namesOpen = false },
+            onSelect = { v ->
+                namesOpen = false
+                store.updateSettings { it.copy(fileNameLayout = v.name) }
+                scope.launch { snackbar.showSnackbar(ctx.getString(R.string.files_names_saved)) }
+            },
+        )
+    }
+
     var pasteOpen by remember { mutableStateOf(false) }
     if (pasteOpen) PasteListDialog(
         onDismiss = { pasteOpen = false },
@@ -512,7 +534,10 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
                 ProviderBadge(LocalFilesProvider, 40.dp)
                 Spacer(Modifier.width(12.dp))
                 Text(LocalFilesProvider.label(ctx), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                if (onRemove != null) OverflowMenu(listOf(MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true)))
+                OverflowMenu(listOfNotNull(
+                    MenuAction(stringResource(R.string.files_names), { namesOpen = true }),
+                    onRemove?.let { MenuAction(stringResource(R.string.account_remove), it, destructive = true) },
+                ))
             }
             Spacer(Modifier.height(6.dp))
             Text(stringResource(LocalFilesProvider.noteRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

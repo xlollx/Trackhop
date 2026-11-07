@@ -1678,4 +1678,9 @@
     <string name="ytm_channel_hint">재생목록은 이 채널에서 읽고 씁니다. 브랜드 계정은 이름과 함께 표시됩니다. 선택하지 않으면 이전처럼 계정 자체의 채널이 사용됩니다.</string>
     <string name="ytm_channel_own">계정 자체의 채널</string>
     <string name="ytm_channel_failed">채널을 읽을 수 없습니다: %1$s</string>
+    <string name="files_names">파일의 곡 이름</string>
+    <string name="files_names_auto">자동</string>
+    <string name="files_names_two">아티스트 - 제목</string>
+    <string name="files_names_three">아티스트 - 앨범 - 제목</string>
+    <string name="files_names_saved">다음 가져오기부터 적용됩니다. 이 방식으로 읽으려면 파일을 다시 가져오세요.</string>
 </resources>

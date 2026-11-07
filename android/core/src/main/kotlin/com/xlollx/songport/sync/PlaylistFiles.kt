@@ -71,9 +71,45 @@ object PlaylistFiles {
         }
     }
 
-    fun parse(fileName: String, text: String): List<Track> = parseClean(fileName, text.removePrefix("\uFEFF"))
+    /**
+     * How a name with three parts, "A - B - C", reads in the formats that only carry a name (M3U,
+     * PLS, plain text): [ARTIST_TITLE] keeps "B - C" as the title, as for "Artist - Song - Radio
+     * Edit"; [ARTIST_ALBUM_TITLE] takes B as the album; [AUTO] decides per file, the album layout
+     * when most names have three parts (#49).
+     */
+    enum class NameLayout { AUTO, ARTIST_TITLE, ARTIST_ALBUM_TITLE;
+        companion object { fun of(name: String?): NameLayout = entries.firstOrNull { it.name == name } ?: AUTO }
+    }
 
-    private fun parseClean(fileName: String, text: String): List<Track> = when (detect(fileName, text)) {
+    fun parse(fileName: String, text: String, layout: NameLayout = NameLayout.AUTO): List<Track> {
+        val clean = text.removePrefix("\uFEFF")
+        val format = detect(fileName, clean)
+        val tracks = parseClean(format, clean)
+        return if (format == Format.M3U || format == Format.PLS || format == Format.TEXT) withLayout(tracks, layout) else tracks
+    }
+
+    /**
+     * The tracks read from names, with "Album - Title" titles split when [layout] says so (AUTO: at
+     * least two names and four in five of them have a third part). Tracks with an album already (a
+     * library path) or without an artist are left as they are.
+     */
+    fun withLayout(tracks: List<Track>, layout: NameLayout): List<Track> {
+        if (layout == NameLayout.ARTIST_TITLE) return tracks
+        fun splittable(t: Track) = t.artists.isNotEmpty() && t.album.isBlank() && DASH.split(t.title, 2).let { it.size == 2 && it.all(String::isNotBlank) }
+        if (layout == NameLayout.AUTO) {
+            val named = tracks.count { it.artists.isNotEmpty() && it.album.isBlank() }
+            val three = tracks.count(::splittable)
+            if (three < 2 || three * 5 < named * 4) return tracks
+        }
+        return tracks.map { t ->
+            if (!splittable(t)) return@map t
+            val (album, rest) = DASH.split(t.title, 2)
+            val title = withoutTrackNumber(rest.trim()).ifBlank { rest.trim() }
+            CsvCodec.withStableId(t.copy(title = title, album = album.trim()))
+        }
+    }
+
+    private fun parseClean(format: Format, text: String): List<Track> = when (format) {
         Format.M3U -> parseM3u(text)
         Format.PLS -> parsePls(text)
         Format.ITUNES_XML -> parseItunesXml(text)

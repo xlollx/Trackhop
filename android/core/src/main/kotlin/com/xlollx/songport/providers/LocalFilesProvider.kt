@@ -134,7 +134,7 @@ object LocalFilesProvider : MusicProvider {
 
     /** Importa un file in qualsiasi formato riconosciuto. @return numero di brani importati. */
     fun importFile(ctx: Env, fileName: String, text: String): Int {
-        val tracks = PlaylistFiles.parse(fileName, text)
+        val tracks = PlaylistFiles.parse(fileName, text, PlaylistFiles.NameLayout.of(ctx.store.data.settings.fileNameLayout))
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })
         var candidate = base
         var n = 2

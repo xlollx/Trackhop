@@ -50,6 +50,8 @@ data class Settings(
     val backupFolder: String = "",
     /** Ogni quanto copiare i backup nella cartella; MANUAL = solo a richiesta. */
     val backupSchedule: com.xlollx.songport.model.Schedule = com.xlollx.songport.model.Schedule.MANUAL,
+    /** How imported M3U, PLS and text files read "A - B - C" names: a PlaylistFiles.NameLayout name (#49). */
+    val fileNameLayout: String = "AUTO",
     /** Once a week, look through the playlists for tracks the services no longer play, and say so; never change anything. */
     val unplayableCheck: Boolean = false,
     /** Sync che ha fatto scattare la richiesta di contributo, finche' l'utente non risponde. */

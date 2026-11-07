@@ -1759,4 +1759,9 @@
     <string name="ytm_channel_hint">Playlisty są odczytywane i zapisywane na tym kanale. Konto marki pojawia się ze swoją nazwą; bez wyboru używany jest, jak dotąd, własny kanał konta.</string>
     <string name="ytm_channel_own">Własny kanał konta</string>
     <string name="ytm_channel_failed">Nie udało się odczytać kanałów: %1$s</string>
+    <string name="files_names">Nazwy utworów w plikach</string>
+    <string name="files_names_auto">Automatycznie</string>
+    <string name="files_names_two">Wykonawca - Tytuł</string>
+    <string name="files_names_three">Wykonawca - Album - Tytuł</string>
+    <string name="files_names_saved">Działa od następnego importu. Zaimportuj plik ponownie, aby odczytać go w ten sposób.</string>
 </resources>

@@ -1679,4 +1679,9 @@
     <string name="ytm_channel_hint">播放列表在此频道上读取和写入。品牌账号会以其名称列出；未选择时，照旧使用账号自己的频道。</string>
     <string name="ytm_channel_own">账号自己的频道</string>
     <string name="ytm_channel_failed">无法读取频道：%1$s</string>
+    <string name="files_names">文件中的曲名</string>
+    <string name="files_names_auto">自动</string>
+    <string name="files_names_two">艺人 - 标题</string>
+    <string name="files_names_three">艺人 - 专辑 - 标题</string>
+    <string name="files_names_saved">从下次导入开始生效。重新导入文件即可按此方式读取。</string>
 </resources>

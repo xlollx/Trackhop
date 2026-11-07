@@ -1703,4 +1703,9 @@
     <string name="ytm_channel_hint">Çalma listeleri bu kanalda okunur ve yazılır. Marka hesabı kendi adıyla listelenir; seçim yapılmazsa eskisi gibi hesabın kendi kanalı kullanılır.</string>
     <string name="ytm_channel_own">Hesabın kendi kanalı</string>
     <string name="ytm_channel_failed">Kanallar okunamadı: %1$s</string>
+    <string name="files_names">Dosyalardaki parça adları</string>
+    <string name="files_names_auto">Otomatik</string>
+    <string name="files_names_two">Sanatçı - Başlık</string>
+    <string name="files_names_three">Sanatçı - Albüm - Başlık</string>
+    <string name="files_names_saved">Bir sonraki içe aktarmadan itibaren geçerli. Bu şekilde okumak için dosyayı yeniden içe aktarın.</string>
 </resources>

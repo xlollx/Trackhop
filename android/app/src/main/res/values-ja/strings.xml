@@ -1679,4 +1679,9 @@
     <string name="ytm_channel_hint">プレイリストはこのチャンネルで読み書きされます。ブランド アカウントは名前付きで表示されます。選択しない場合は、これまでどおりアカウント自身のチャンネルが使われます。</string>
     <string name="ytm_channel_own">アカウント自身のチャンネル</string>
     <string name="ytm_channel_failed">チャンネルを読み取れませんでした: %1$s</string>
+    <string name="files_names">ファイル内の曲名</string>
+    <string name="files_names_auto">自動</string>
+    <string name="files_names_two">アーティスト - タイトル</string>
+    <string name="files_names_three">アーティスト - アルバム - タイトル</string>
+    <string name="files_names_saved">次回のインポートから適用されます。この形式で読み込むには、ファイルをもう一度インポートしてください。</string>
 </resources>

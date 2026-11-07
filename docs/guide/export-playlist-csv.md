@@ -32,4 +32,10 @@ A CSV, M3U, XSPF, JSPF, iTunes XML, JSON or plain-text list can also be the **so
 *Tools → File playlists → Import*, then sync it to any service. That is how you move a playlist
 from a service Trackhop cannot reach, or restore one from a backup.
 
+M3U, PLS and text files often carry only a name per track. "Artist - Title" is read as it is
+written; names in three parts, "Artist - Album - Title", are read that way when most lines of the
+file have three parts, so an occasional "Song - Radio Edit" stays part of the title. To choose it
+yourself: the File card's ⋮ menu › *Track names in files* in the app, or the choice under the upload
+button on Desktop and Docker. It applies to the next import: import a file again to read it anew.
+
 [Getting started](getting-started) · [All guide pages](./)

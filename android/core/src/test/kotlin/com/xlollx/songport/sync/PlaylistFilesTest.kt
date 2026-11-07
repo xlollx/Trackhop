@@ -262,4 +262,54 @@ class PlaylistFilesTest {
         assertEquals(named(tracks), named(back))
         assertEquals(listOf(8_000L, 8_000L), back.map { it.durationMs })
     }
+
+    // #49: names laid out "Artist - Album - Track".
+    @Test fun threePartNamesReadAsArtistAlbumTitleWhenMostLinesHaveThem() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:200,Radiohead - OK Computer - Karma Police
+            a.mp3
+            #EXTINF:210,Daft Punk - Discovery - 01 - One More Time
+            b.mp3
+            #EXTINF:180,Muse - Absolution - Hysteria
+            c.mp3
+        """.trimIndent()
+        val t = PlaylistFiles.parse("mix.m3u", m3u)
+        assertEquals(listOf("Karma Police", "One More Time", "Hysteria"), t.map { it.title })
+        assertEquals(listOf("OK Computer", "Discovery", "Absolution"), t.map { it.album })
+        assertEquals(listOf("Radiohead"), t[0].artists)
+        assertEquals(200_000L, t[0].durationMs)
+        assertEquals(PlaylistFiles.parse("x.txt", "Radiohead - Karma Police")[0].id.length, t[0].id.length)
+    }
+
+    @Test fun aFewThreePartNamesStayTitlesInAutomatic() {
+        val text = "Daft Punk - One More Time - Radio Edit\nNirvana - Smells Like Teen Spirit\nMuse - Hysteria\nAdele - Hello\n"
+        val t = PlaylistFiles.parse("list.txt", text)
+        assertEquals("One More Time - Radio Edit", t[0].title)
+        assertEquals("", t[0].album)
+    }
+
+    @Test fun theLayoutCanBeChosen() {
+        val text = "Daft Punk - One More Time - Radio Edit\nNirvana - Smells Like Teen Spirit\n"
+        val three = PlaylistFiles.parse("list.txt", text, PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE)
+        assertEquals("Radio Edit", three[0].title)
+        assertEquals("One More Time", three[0].album)
+        assertEquals("Smells Like Teen Spirit", three[1].title)
+        val two = PlaylistFiles.parse("list.txt", "A - B - C\nD - E - F\n", PlaylistFiles.NameLayout.ARTIST_TITLE)
+        assertEquals(listOf("B - C", "E - F"), two.map { it.title })
+        assertEquals(PlaylistFiles.NameLayout.AUTO, PlaylistFiles.NameLayout.of("nonsense"))
+    }
+
+    @Test fun columnsAreNeverSplit() {
+        val csv = "title,artist\nOne More Time - Radio Edit,Daft Punk\nSong - Live,Band\n"
+        val t = PlaylistFiles.parse("x.csv", csv, PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE)
+        assertEquals(listOf("One More Time - Radio Edit", "Song - Live"), t.map { it.title })
+    }
+
+    @Test fun libraryPathsKeepTheirFolders() {
+        val m3u = "Radiohead/OK Computer/06 Karma Police.mp3\nMuse/Absolution/Hysteria.mp3\n"
+        val t = PlaylistFiles.parse("lib.m3u", m3u)
+        assertEquals(listOf("Karma Police", "Hysteria"), t.map { it.title })
+        assertEquals(listOf("OK Computer", "Absolution"), t.map { it.album })
+    }
 }

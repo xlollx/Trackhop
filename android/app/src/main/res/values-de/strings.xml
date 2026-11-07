@@ -1705,4 +1705,9 @@
     <string name="ytm_channel_hint">Playlists werden auf diesem Kanal gelesen und geschrieben. Ein Brand-Konto erscheint mit seinem Namen; ohne Auswahl wird wie bisher der eigene Kanal des Kontos verwendet.</string>
     <string name="ytm_channel_own">Der eigene Kanal des Kontos</string>
     <string name="ytm_channel_failed">Die Kanäle konnten nicht gelesen werden: %1$s</string>
+    <string name="files_names">Titelnamen in Dateien</string>
+    <string name="files_names_auto">Automatisch</string>
+    <string name="files_names_two">Interpret - Titel</string>
+    <string name="files_names_three">Interpret - Album - Titel</string>
+    <string name="files_names_saved">Gilt ab dem nächsten Import. Importiere eine Datei erneut, um sie so zu lesen.</string>
 </resources>
