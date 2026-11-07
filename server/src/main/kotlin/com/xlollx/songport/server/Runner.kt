@@ -48,6 +48,7 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
     private suspend fun run(job: SyncJob, scheduled: Boolean) {
         try {
             env.log("sync", "start ${job.name} (${if (scheduled) "scheduled" else "manual"})")
+            Api.notifyStarted(env, job, scheduled)
             val report = SyncEngine(env).run(job, unattended = scheduled) { p ->
                 SyncState.progress(job.id, p)
                 if (p.step == Progress.Step.WAITING) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)

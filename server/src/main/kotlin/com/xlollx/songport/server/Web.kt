@@ -724,7 +724,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         }
     }
 
-    private fun usable(p: MusicProvider) = !p.requiresAuth || p.isConnected(env)
+    internal fun usable(p: MusicProvider) = !p.requiresAuth || p.isConnected(env)
 
     /** What a link to a playlist on [src] looks like, for the form's hint. */
     private fun linkHint(src: MusicProvider): String = when (src.serviceId) {
@@ -735,7 +735,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
     }
 
     /** The playlist a pasted link names on [src]: the link itself, or where a short link lands. */
-    private suspend fun linkedPlaylist(src: MusicProvider, text: String): String? {
+    internal suspend fun linkedPlaylist(src: MusicProvider, text: String): String? {
         PlaylistLinks.parse(text)?.takeIf { it.providerId == src.serviceId }?.let { return it.playlistId }
         if (src.serviceId == SoundCloudPublic.SERVICE) return SoundCloudPublic.pathFromLink(text)
         val url = Regex("""https?://[^\s<>"']+""").find(text)?.value ?: return null
@@ -825,7 +825,7 @@ ${changesFields(null)}
     }
 
     /** A sync that repeats another, or shares its target with one that mirrors removals: said once, saved all the same. */
-    private fun conflictWarning(job: SyncJob): String? = when (val c = JobConflicts.of(env.store.data.jobs, job)) {
+    internal fun conflictWarning(job: SyncJob): String? = when (val c = JobConflicts.of(env.store.data.jobs, job)) {
         is JobConflicts.Conflict.Duplicate -> env.text("conflict_duplicate", c.other.name)
         is JobConflicts.Conflict.SharedTarget -> env.text("conflict_shared_target", c.others.joinToString(", ") { it.name })
         null -> null

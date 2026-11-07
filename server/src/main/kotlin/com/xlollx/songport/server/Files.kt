@@ -106,22 +106,9 @@ internal fun Web.bulkFiles(r: Web.Req) {
             redirect(r.ex, "/connectors/csv?ok=${q("Deleted ${files.size} files.")}")
         }
         "zip" -> {
-            val format = ExportFormat.of(r.form["format"])
-            val bytes = java.io.ByteArrayOutputStream()
-            java.util.zip.ZipOutputStream(bytes).use { zip ->
-                val used = HashSet<String>()
-                files.forEach { f ->
-                    val text = if (format == ExportFormat.CSV) f.readText() else format.encode(f.nameWithoutExtension, CsvCodec.parse(f.readText()))
-                    var entry = "${f.nameWithoutExtension}.${format.ext}"
-                    var n = 2
-                    while (!used.add(entry)) entry = "${f.nameWithoutExtension} (${n++}).${format.ext}"
-                    zip.putNextEntry(java.util.zip.ZipEntry(entry))
-                    zip.write(text.toByteArray(Charsets.UTF_8))
-                    zip.closeEntry()
-                }
-            }
+            val bytes = zipOf(files, ExportFormat.of(r.form["format"]))
             r.ex.responseHeaders.set("Content-Disposition", "attachment; filename=\"Trackhop playlists.zip\"")
-            sendBytes(r.ex, 200, bytes.toByteArray(), "application/zip")
+            sendBytes(r.ex, 200, bytes, "application/zip")
         }
         else -> redirect(r.ex, "/connectors/csv")
     }

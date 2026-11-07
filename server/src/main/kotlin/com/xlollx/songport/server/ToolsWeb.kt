@@ -58,13 +58,7 @@ private fun Web.backupTool(r: Web.Req) {
             "settings" -> {
                 val schedule = Schedule.entries.firstOrNull { it.name == r.form["schedule"] && it in BACKUP_SCHEDULES } ?: Schedule.MANUAL
                 val folder = r.form["folder"].orEmpty().trim()
-                if (folder.isNotEmpty() && !java.io.File(folder).isDirectory) return redirect(r.ex, "/tools/backup?err=${q("$folder is not a folder here.")}")
-                if (folder.isNotEmpty() && !env.may(Permissions.FOLDERS)) return redirect(r.ex, "/tools/backup?err=${q("Folders on the server are not turned on for you: ask the admin.")}")
-                // On a server shared by several people, nobody copies files into the others' part of the data volume.
-                if (folder.isNotEmpty() && sharedRoot != null) {
-                    val f = java.io.File(folder).canonicalFile
-                    if (f.startsWith(sharedRoot.canonicalFile) && !f.startsWith(env.dataDir.canonicalFile)) return redirect(r.ex, "/tools/backup?err=${q("$folder is part of Trackhop's own data: choose another folder, such as /backups/${account?.name ?: "you"}.")}")
-                }
+                if (folder.isNotEmpty()) backupFolderProblem(folder)?.let { return redirect(r.ex, "/tools/backup?err=${q(it)}") }
                 env.store.updateSettings { it.copy(backupSchedule = schedule, backupFolder = folder) }
                 return redirect(r.ex, "/tools/backup?ok=${q("Saved.")}")
             }

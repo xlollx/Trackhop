@@ -78,7 +78,7 @@ internal object ApiPlaylists {
         result.exceptionOrNull()?.let { error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") }
     }
 
-    private fun track(t: Track) = buildJsonObject {
+    internal fun track(t: Track) = buildJsonObject {
         put("id", t.id); put("title", t.title)
         put("artists", buildJsonArray { t.artists.forEach { add(it) } })
         put("album", t.album)
@@ -93,7 +93,10 @@ internal object ApiPlaylists {
     }
 
     /** The "tracks" array of the body: objects with title/artist, link or id, or plain strings ("Artist - Title" or a link). */
-    private fun wanted(body: JsonObject): List<JsonObject> = body["tracks"]?.jsonArray?.mapNotNull { e ->
+    private fun wanted(body: JsonObject): List<JsonObject> = body["tracks"]?.jsonArray?.mapNotNull { asWanted(it) }.orEmpty()
+
+    /** One track as asked for: an object with title/artist, link or id, or a string ("Artist - Title" or a link). */
+    internal fun asWanted(e: kotlinx.serialization.json.JsonElement): JsonObject? =
         when (e) {
             is JsonPrimitive -> e.contentOrNull?.let { s ->
                 if (TrackLinks.parse(s) != null) buildJsonObject { put("link", s) }
@@ -102,13 +105,17 @@ internal object ApiPlaylists {
             is JsonObject -> e
             else -> null
         }
-    }.orEmpty()
 
     private fun JsonObject.str(key: String) = this[key]?.jsonPrimitive?.contentOrNull?.trim()?.takeIf { it.isNotEmpty() }
-    private fun describe(o: JsonObject) = o.str("link") ?: o.str("id") ?: listOfNotNull(o.str("artist"), o.str("title")).joinToString(" - ")
+    internal fun describe(o: JsonObject) = o.str("link") ?: o.str("id") ?: listOfNotNull(o.str("artist"), o.str("title")).joinToString(" - ")
+
+    /** The track [o] names on [p]: its id there, or what a link or title and artist find there as a sync would. */
+    internal suspend fun find(env: ServerEnv, p: MusicProvider, o: JsonObject): Track? =
+        o.str("id")?.let { id -> p.track(env, id) ?: Track(id = id, title = id) }
+            ?: source(env, o)?.let { src -> Matcher.best(src, p.search(env, src)) }
 
     /** What [o] names, as a track to look for: from a link (read on its own service), or title and artist. */
-    private suspend fun source(env: ServerEnv, o: JsonObject): Track? {
+    internal suspend fun source(env: ServerEnv, o: JsonObject): Track? {
         o.str("link")?.let { link ->
             val ref = TrackLinks.parse(link) ?: return null
             val from = Providers.connectors().firstOrNull { it.serviceId == ref.service && (!it.requiresAuth || it.isConnected(env)) } ?: return null
@@ -126,8 +133,7 @@ internal object ApiPlaylists {
         val present = if (duplicates) emptySet() else p.tracks(env, playlistId).map { it.id }.toSet()
         val found = ArrayList<Track>(); val notFound = ArrayList<String>(); val already = ArrayList<String>()
         for (o in asked) {
-            val hit = o.str("id")?.let { id -> p.track(env, id) ?: Track(id = id, title = id) }
-                ?: source(env, o)?.let { src -> Matcher.best(src, p.search(env, src)) }
+            val hit = find(env, p, o)
             when {
                 hit == null -> notFound += describe(o)
                 hit.id in present || found.any { it.id == hit.id } && !duplicates -> already += "${hit.artistLine} - ${hit.title}"

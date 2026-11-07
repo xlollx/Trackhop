@@ -58,9 +58,21 @@ object Api {
     }
 
     fun webhook(env: ServerEnv): String = env.keyValues(KV)["webhook"].orEmpty()
-    fun setWebhook(env: ServerEnv, url: String, secret: String?) {
+    fun setWebhook(env: ServerEnv, url: String, secret: String?, events: Set<String>? = null) {
         env.keyValues(KV)["webhook"] = url
         if (secret != null) env.keyValues(KV)["secret"] = secret
+        if (events != null) env.keyValues(KV)["events"] = EVENTS.filter { it in events }.joinToString(",")
+    }
+
+    fun hasSecret(env: ServerEnv) = !env.keyValues(KV)["secret"].isNullOrEmpty()
+
+    /** What the webhook is told about: every event a receiver can ask for, and the two it gets unless it asks otherwise. */
+    val EVENTS = listOf("sync.started", "sync.finished", "sync.failed", "backup.finished")
+    private val DEFAULT_EVENTS = setOf("sync.finished", "backup.finished")
+
+    fun events(env: ServerEnv): Set<String> {
+        val saved = env.keyValues(KV)["events"] ?: return DEFAULT_EVENTS
+        return saved.split(',').map { it.trim() }.filter { it in EVENTS }.toSet()
     }
 
     // ------------------------------------------------------------------ JSON
@@ -71,6 +83,13 @@ object Api {
         put("source", ref(env, j.source.provider, j.source.playlistId, j.source.playlistName))
         put("target", ref(env, j.target.provider, j.target.playlistId, j.target.playlistName))
         put("schedule", j.schedule.name.lowercase())
+        // The timing in full: every N minutes, at a time of day, on chosen days (1 = Monday).
+        put("timing", com.xlollx.songport.sync.Timing.describe(j))
+        put("every", com.xlollx.songport.sync.Timing.interval(j))
+        put("at", j.at?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("days", buildJsonArray { j.days.forEach { add(it) } })
+        put("color", j.color?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("position", env.store.data.jobs.indexOfFirst { it.id == j.id } + 1)
         put("mirrorRemovals", j.mirrorRemovals)
         // The source changes by itself (a daylist): with mirrorRemovals, big removals need no confirmation.
         put("followsChanges", j.followsChanges)
@@ -104,6 +123,7 @@ object Api {
     fun run(r: SyncReport, tracks: Boolean = true): JsonObject = buildJsonObject {
         put("id", r.id)
         put("syncId", r.jobId)
+        put("syncName", r.jobName)
         put("started", r.startedEpoch)
         put("durationMs", r.durationMs)
         put("ok", r.ok)
@@ -113,9 +133,15 @@ object Api {
         put("removed", r.removed)
         put("notFound", r.unmatched.size)
         put("toCheck", r.reviewTracks.size)
+        put("targetTracks", r.targetCount)
+        put("partial", r.partial)
         if (tracks) {
-            put("notFoundTracks", buildJsonArray { r.unmatchedTracks.forEach { add(buildJsonObject { put("artist", it.artistLine); put("title", it.title) }) } })
-            put("addedTracks", buildJsonArray { r.addedTracks.forEach { add(buildJsonObject { put("artist", it.artistLine); put("title", it.title) }) } })
+            put("notFoundTracks", buildJsonArray { r.unmatchedTracks.forEach { add(trackRef(it)) } })
+            put("addedTracks", buildJsonArray { r.addedTracks.forEach { add(trackRef(it)) } })
+            put("removedTracks", buildJsonArray { r.removedTracks.forEach { add(trackRef(it)) } })
+            put("toCheckTracks", buildJsonArray { r.reviewTracks.forEach { m -> add(buildJsonObject { put("source", trackRef(m.source)); put("match", trackRef(m.chosen)); put("score", m.score) }) } })
+            // What the run had to say along the way (the page's grey lines under a run).
+            put("notes", buildJsonArray { r.notes.forEach { add(it) } })
         }
     }
 
@@ -155,24 +181,37 @@ object Api {
 
     private val client by lazy { HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build() }
 
-    /** Tells the webhook a run ended. Never fails the run: an error goes to the log. */
-    fun notify(env: ServerEnv, job: SyncJob, report: SyncReport) = post(env, buildJsonObject {
-        put("event", "sync.finished")
+    /**
+     * Tells the webhook a run ended (sync.finished), and, when it failed, sync.failed too for a
+     * receiver that only wants failures. Never fails the run: an error goes to the log.
+     */
+    fun notify(env: ServerEnv, job: SyncJob, report: SyncReport) {
+        for (event in listOfNotNull("sync.finished", "sync.failed".takeIf { !report.ok })) post(env, event, buildJsonObject {
+            put("event", event)
+            put("sync", buildJsonObject { put("id", job.id); put("name", job.name) })
+            put("run", run(report))
+        })
+    }
+
+    /** Tells the webhook a run started (by hand, by its schedule or by a call). */
+    fun notifyStarted(env: ServerEnv, job: SyncJob, scheduled: Boolean) = post(env, "sync.started", buildJsonObject {
+        put("event", "sync.started")
         put("sync", buildJsonObject { put("id", job.id); put("name", job.name) })
-        put("run", run(report))
+        put("scheduled", scheduled)
     })
 
     /** Tells the webhook a full backup ended: how many services, how many failures. */
-    fun notifyBackup(env: ServerEnv, services: Int, failures: Int) = post(env, buildJsonObject {
+    fun notifyBackup(env: ServerEnv, services: Int, failures: Int) = post(env, "backup.finished", buildJsonObject {
         put("event", "backup.finished")
         put("services", services)
         put("failures", failures)
         put("ok", failures == 0)
     })
 
-    private fun post(env: ServerEnv, event: JsonObject) {
+    private fun post(env: ServerEnv, name: String, event: JsonObject) {
         if (!env.may(Permissions.API)) return
         val url = webhook(env).ifEmpty { return }
+        if (name !in events(env)) return
         val body = event.toString()
         val req = HttpRequest.newBuilder(URI(url)).timeout(Duration.ofSeconds(20))
             .header("Content-Type", "application/json").header("User-Agent", "Trackhop")
@@ -191,6 +230,8 @@ private const val MAX_API_BODY = 20_000_000
 internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query: Map<String, String>) {
     fun json(code: Int, e: JsonElement) = send(ex, code, e.toString(), "application/json")
     fun error(code: Int, message: String) = json(code, buildJsonObject { put("error", message) })
+    // The calls' description is public: it holds nothing of the user's, and tools read it before a token is made.
+    if (path.drop(2) == listOf("openapi.json") && method == "GET") return send(ex, 200, ApiDocs.openApi(version, env.baseUrl).toString(), "application/json")
     // The command line on this machine (LocalKey) gets in without the API being turned on.
     val auth = ex.requestHeaders.getFirst("Authorization")
     if (!env.may(Permissions.API)) return error(403, "The API is not turned on for you on this server: ask its admin.")
@@ -201,6 +242,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     val running = SyncState.running.value
     val jobs = env.store.data.jobs
     val rest = path.drop(2)
+    if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
+    if (apiMore(ex, method, rest, query, ::json, ::error)) return
     when {
         rest == listOf("status") && method == "GET" -> json(200, buildJsonObject {
             put("version", version)
@@ -250,6 +293,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                 }
                 rest.size == 3 && rest[2] == "run" && method == "POST" -> {
                     val already = job.id in running
+                    // After a run stopped by the target's size check: the caller says the smaller target is real.
+                    if (query["anyway"] == "true") env.store.confirmTargetShrink(job.id)
                     runner.start(job)
                     json(202, buildJsonObject { put("started", !already); put("running", true) })
                 }
@@ -320,6 +365,10 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     }
 }
 
+private val WEBHOOK_EVENT_NAMES = mapOf(
+    "sync.started" to "A sync starts", "sync.finished" to "A sync ends", "sync.failed" to "A sync fails", "backup.finished" to "A full backup ends",
+)
+
 /** Tools › API: the token (made, shown once, revoked) and the webhook. */
 internal fun Web.apiPage(r: Web.Req) {
     if (!env.may(Permissions.API)) return send(r.ex, 403, page("API", NOT_ALLOWED))
@@ -331,13 +380,15 @@ internal fun Web.apiPage(r: Web.Req) {
             "webhook" -> {
                 val url = r.form["url"].orEmpty().trim()
                 if (url.isNotEmpty() && !url.startsWith("http://") && !url.startsWith("https://")) return redirect(r.ex, "/tools/api?err=${q("The address starts with http:// or https://.")}")
-                Api.setWebhook(env, url, r.form["secret"]?.trim()?.takeIf { it.isNotEmpty() })
+                // The events' boxes are on the form only from this version: an older form leaves them as they were.
+                val events = if (r.form["ev"] == "1") r.rawForm.filter { it.first == "event" }.map { it.second }.toSet() else null
+                Api.setWebhook(env, url, r.form["secret"]?.trim()?.takeIf { it.isNotEmpty() }, events)
                 return redirect(r.ex, "/tools/api?ok=${q("Saved.")}")
             }
         }
     }
     val body = StringBuilder(notice(r))
-    body.append("""<div class="card"><p>Other tools (Home Assistant, n8n, Node-RED, a script) can list the syncs, start them and read how they went, through a small JSON API at <code>${h(env.baseUrl)}/api/v1</code>. <a href="https://trackhop.org/guide/docker#api">The calls</a></p>""")
+    body.append("""<div class="card"><p>Other tools (Home Assistant, n8n, Node-RED, a script) can do what this page does, from the syncs and their runs to playlists, files and notifications, through a JSON API at <code>${h(env.baseUrl)}/api/v1</code>. <a href="https://trackhop.org/guide/docker#api">The calls</a> · <a href="/api/v1/openapi.json">OpenAPI description</a></p>""")
     if (shown != null) {
         body.append("""<div class="card ok"><b>Your token</b>: copy it now, it is not shown again.<pre>${h(shown)}</pre><span class="muted">Send it as <code>Authorization: Bearer …</code></span></div>""")
     }
@@ -348,9 +399,10 @@ internal fun Web.apiPage(r: Web.Req) {
     body.append("</div></div>")
     body.append(
         """<form method="post" action="/tools/api" class="card"><input type="hidden" name="action" value="webhook"><h3>Webhook</h3>
-<p class="muted">When a sync run ends, Trackhop POSTs it as JSON (<code>"event":"sync.finished"</code>) to this address. With a secret, the header <code>X-Trackhop-Signature: sha256=…</code> is the HMAC-SHA256 of the body.</p>
+<p class="muted">When something below happens, Trackhop POSTs it as JSON (<code>"event":"sync.finished"</code>) to this address. With a secret, the header <code>X-Trackhop-Signature: sha256=…</code> is the HMAC-SHA256 of the body.</p>
 <label>Address</label><input type="text" name="url" value="${h(Api.webhook(env))}" placeholder="https://homeassistant.local:8123/api/webhook/trackhop">
 <label>Secret (optional; leave empty to keep the current one)</label><input type="password" name="secret" autocomplete="off">
+<input type="hidden" name="ev" value="1"><fieldset><legend>Tell it when</legend>${Api.EVENTS.joinToString("") { e -> """<label class="check"><input type="checkbox" name="event" value="$e"${if (e in Api.events(env)) " checked" else ""}> ${WEBHOOK_EVENT_NAMES[e]} <code>$e</code></label>""" }}</fieldset>
 <p><button class="secondary">Save</button></p></form>""",
     )
     send(r.ex, 200, page("API", body.toString()))

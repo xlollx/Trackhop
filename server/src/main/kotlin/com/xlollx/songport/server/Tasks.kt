@@ -47,6 +47,9 @@ object Tasks {
 
     fun get(id: String?): Task? = id?.let { tasks[it] }
 
+    /** Every task kept: those running, and those ended in the last hour. */
+    fun all(): List<Task> = tasks.values.toList()
+
     /** True while a task with this title runs (one full backup at a time, say). */
     fun running(title: String): Boolean = tasks.values.any { it.title == title && !it.done }
 
