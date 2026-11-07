@@ -12,17 +12,21 @@ import com.xlollx.songport.MainActivity
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Cards held and dragged at the end of the list, where the upper card is the list's first visible
- * item, half under the Sync-all pill: the drop lands where it was let go (it used to snap back).
+ * Cards held and dragged at the end of the list, where the upper card on screen is the list's
+ * first visible item, half under the Sync-all pill (07/11 report): the card dragged down past the
+ * next one stays there instead of snapping back, and the last card dragged up lands above it.
  */
 @RunWith(AndroidJUnit4::class)
 class ReorderFlowTest : FlowTest() {
 
-    private fun seed(n: Int) = store.update { d ->
+    private val n = 6
+
+    private fun seed() = store.update { d ->
         d.copy(jobs = (1..n).map { i -> SyncJob("job-$i", "Sync number $i", PlaylistRef("spotify", FakeWorld.SPOTIFY_ROAD, "Road Trip"), PlaylistRef("deezer", "d$i", "Road Trip $i")) })
     }
 
@@ -31,10 +35,23 @@ class ReorderFlowTest : FlowTest() {
         compose.waitForIdle()
     }
 
-    /** Holds the card titled [name] and drags it by [dy] pixels in small steps, then lets go. */
-    private fun drag(name: String, dy: Float) {
-        compose.onAllNodes(hasText(name)).onFirst().performTouchInput {
-            down(center)
+    private fun order() = store.data.jobs.map { it.id }
+
+    /** The cards laid out now (the lazy list composes only those on screen), top to bottom, with their titles' tops. */
+    private fun cardsOnScreen(): List<Pair<Int, Float>> = (1..n).mapNotNull { i ->
+        compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()?.let { i to it.boundsInRoot.top }
+    }.sortedBy { it.second }
+
+    /**
+     * Holds card [i] by its schedule line on the left (clear of the Sync-all pill, which may cover
+     * its title) and drags it by [dy] pixels in small steps, then lets go.
+     */
+    private fun drag(i: Int, dy: Float) {
+        val title = compose.onAllNodes(hasText("Sync number $i")).onFirst().fetchSemanticsNode().boundsInRoot
+        val line = compose.onAllNodes(hasText("Manual only", substring = true)).fetchSemanticsNodes()
+            .map { it.boundsInRoot }.filter { it.top > title.top }.minByOrNull { it.top } ?: throw AssertionError("no schedule line under card $i")
+        compose.onAllNodes(hasText("Sync number $i")).onFirst().performTouchInput {
+            down(Offset(line.left - title.left + 24f, line.center.y - title.top))
             advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
             val steps = 30
             repeat(steps) { moveBy(Offset(0f, dy / steps)); advanceEventTime(16) }
@@ -44,42 +61,49 @@ class ReorderFlowTest : FlowTest() {
         compose.waitForIdle()
     }
 
-    private fun order() = store.data.jobs.map { it.id }
-
     @Test
-    fun theUpperCardAtTheEndGoesLastAndBackUp() {
-        seed(5)
+    fun theFirstVisibleCardDraggedDownStaysWhereItIsLetGo() {
+        seed()
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         toTheEnd()
-        waitText("Sync number 5")
-        val height = compose.onAllNodes(hasText("Sync number 4")).onFirst().fetchSemanticsNode().let { n ->
-            var p = n; repeat(6) { p.parent?.let { p = it } }; p.boundsInRoot.height
-        }.coerceAtLeast(400f)
-        drag("Sync number 4", height * 1.2f)
-        waitFor("job-4 last") { order().last() == "job-4" }
-        assertEquals(listOf("job-1", "job-2", "job-3", "job-5", "job-4"), order())
-        toTheEnd()
-        drag("Sync number 4", -height * 1.2f)
-        waitFor("job-4 back before job-5") { order().takeLast(2) == listOf("job-4", "job-5") }
+        waitText("Sync number $n")
+        val cards = cardsOnScreen()
+        assertTrue("several cards on screen: $cards", cards.size >= 2)
+        val (upper, upperTop) = cards.first()
+        val (next, nextTop) = cards[1]
+        drag(upper, (nextTop - upperTop) * 1.3f)
+        waitFor("job-$upper after job-$next") { order().indexOf("job-$upper") == order().indexOf("job-$next") + 1 }
     }
 
-    // The case reported on 07/11: two cards swapped once (here by the store, as the menu does) while
-    // the list is open, then dragged back to the order they had when the list was drawn: kept.
     @Test
-    fun aDropBackToAnEarlierOrderIsKept() {
-        seed(5)
+    fun theLastCardDraggedUpLandsAboveTheFirstVisible() {
+        seed()
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
-        store.moveJob("job-5", 3)
-        waitFor("job-5 before job-4") { order().takeLast(2) == listOf("job-5", "job-4") }
         toTheEnd()
-        waitText("Sync number 5")
-        val height = compose.onAllNodes(hasText("Sync number 5")).onFirst().fetchSemanticsNode().let { n ->
-            var p = n; repeat(6) { p.parent?.let { p = it } }; p.boundsInRoot.height
-        }.coerceAtLeast(400f)
-        drag("Sync number 5", height * 1.2f)
-        waitFor("job-5 last again") { order().last() == "job-5" }
-        assertEquals(listOf("job-1", "job-2", "job-3", "job-4", "job-5"), order())
+        waitText("Sync number $n")
+        val cards = cardsOnScreen()
+        val (prev, prevTop) = cards[cards.size - 2]
+        val (last, lastTop) = cards.last()
+        drag(last, -(lastTop - prevTop) * 1.3f)
+        waitFor("job-$last before job-$prev") { order().indexOf("job-$last") == order().indexOf("job-$prev") - 1 }
+    }
+
+    // Two cards swapped while the list is open (by the store, as the menu does), then dragged back to
+    // the order they had when the list was drawn: kept.
+    @Test
+    fun aDropBackToAnEarlierOrderIsKept() {
+        seed()
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        store.moveJob("job-$n", n - 2)
+        waitFor("job-$n before job-${n - 1}") { order().takeLast(2) == listOf("job-$n", "job-${n - 1}") }
+        toTheEnd()
+        waitText("Sync number $n")
+        val cards = cardsOnScreen().toMap()
+        drag(n, (cards.getValue(n - 1) - cards.getValue(n)) * 1.3f)
+        waitFor("job-$n last again") { order().last() == "job-$n" }
+        assertEquals((1..n).map { "job-$it" }, order())
     }
 }
