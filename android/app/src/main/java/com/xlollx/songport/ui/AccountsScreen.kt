@@ -484,6 +484,19 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
 
     // How "A - B - C" names in imported files are read (#49).
     var namesOpen by remember { mutableStateOf(false) }
+    var patternsOpen by remember { mutableStateOf(false) }
+    if (patternsOpen) {
+        val store = remember { Store.get(ctx) }
+        FilePatternsDialog(
+            initial = store.state.value.settings.fileNamePatterns,
+            onDismiss = { patternsOpen = false },
+            onSave = { lines ->
+                patternsOpen = false
+                store.updateSettings { it.copy(fileNameLayout = com.xlollx.songport.sync.PlaylistFiles.NameLayout.CUSTOM.name, fileNamePatterns = lines) }
+                scope.launch { snackbar.showSnackbar(ctx.getString(R.string.files_names_saved)) }
+            },
+        )
+    }
     if (namesOpen) {
         val store = remember { Store.get(ctx) }
         val settings by store.state.collectAsState()
@@ -493,11 +506,14 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
                 com.xlollx.songport.sync.PlaylistFiles.NameLayout.AUTO to stringResource(R.string.files_names_auto),
                 com.xlollx.songport.sync.PlaylistFiles.NameLayout.ARTIST_TITLE to stringResource(R.string.files_names_two),
                 com.xlollx.songport.sync.PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE to stringResource(R.string.files_names_three),
+                com.xlollx.songport.sync.PlaylistFiles.NameLayout.CUSTOM to stringResource(R.string.files_names_custom),
             ),
             selected = com.xlollx.songport.sync.PlaylistFiles.NameLayout.of(settings.settings.fileNameLayout),
             onDismiss = { namesOpen = false },
             onSelect = { v ->
                 namesOpen = false
+                // Own patterns: chosen once they are written (and editable each time it is picked).
+                if (v == com.xlollx.songport.sync.PlaylistFiles.NameLayout.CUSTOM) { patternsOpen = true; return@ChoiceDialog }
                 store.updateSettings { it.copy(fileNameLayout = v.name) }
                 scope.launch { snackbar.showSnackbar(ctx.getString(R.string.files_names_saved)) }
             },

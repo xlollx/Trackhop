@@ -1718,4 +1718,12 @@
     <string name="files_names_two">Artista - Título</string>
     <string name="files_names_three">Artista - Álbum - Título</string>
     <string name="files_names_saved">Vale a partir da próxima importação. Importe o arquivo de novo para lê-lo assim.</string>
+    <string name="files_names_custom">Seus próprios padrões…</string>
+    <string name="files_patterns_title">Seus padrões</string>
+    <string name="files_patterns_hint">Um por linha, testados em ordem; uma linha que nenhum lê é lida como de costume. Marcadores: {artist}, {album}, {title} (obrigatório), {track}, {year}, {disc}, {any}; / entre pastas. Ou uma expressão regular depois de re: com grupos como (?&lt;artist&gt;…) e (?&lt;title&gt;…).</string>
+    <string name="files_patterns_examples">Exemplos</string>
+    <string name="files_patterns_try">Teste uma linha do seu arquivo</string>
+    <string name="files_patterns_result">Artista: %1$s · Álbum: %2$s · Título: %3$s</string>
+    <string name="files_patterns_nomatch">Nenhum padrão lê esta linha: ela será lida como de costume.</string>
+    <string name="files_patterns_error">Linha %1$d: %2$s</string>
 </resources>

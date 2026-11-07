@@ -1708,4 +1708,12 @@
     <string name="files_names_two">Sanatçı - Başlık</string>
     <string name="files_names_three">Sanatçı - Albüm - Başlık</string>
     <string name="files_names_saved">Bir sonraki içe aktarmadan itibaren geçerli. Bu şekilde okumak için dosyayı yeniden içe aktarın.</string>
+    <string name="files_names_custom">Kendi kalıplarınız…</string>
+    <string name="files_patterns_title">Kalıplarınız</string>
+    <string name="files_patterns_hint">Her satıra bir tane, sırayla denenir; hiçbirinin okumadığı satır her zamanki gibi okunur. Yer tutucular: {artist}, {album}, {title} (gerekli), {track}, {year}, {disc}, {any}; klasörler arasında /. Ya da re: ardından (?&lt;artist&gt;…) ve (?&lt;title&gt;…) gibi gruplarla bir düzenli ifade.</string>
+    <string name="files_patterns_examples">Örnekler</string>
+    <string name="files_patterns_try">Dosyanızdan bir satırla deneyin</string>
+    <string name="files_patterns_result">Sanatçı: %1$s · Albüm: %2$s · Başlık: %3$s</string>
+    <string name="files_patterns_nomatch">Bu satırı okuyan kalıp yok: her zamanki gibi okunacak.</string>
+    <string name="files_patterns_error">Satır %1$d: %2$s</string>
 </resources>

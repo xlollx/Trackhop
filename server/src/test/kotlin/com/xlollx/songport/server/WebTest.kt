@@ -291,6 +291,28 @@ class WebTest {
         assertEquals("Album - Song", com.xlollx.songport.sync.CsvCodec.parse(File(data, "csv/Two.csv").readText()).single().title)
     }
 
+    @Test fun uploadWithTheUsersOwnPatterns() {
+        val boundary = "----trackhop"
+        fun upload(name: String, text: String, patterns: String) = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofByteArray((
+                    "--$boundary\r\nContent-Disposition: form-data; name=\"names\"\r\n\r\nCUSTOM\r\n" +
+                        "--$boundary\r\nContent-Disposition: form-data; name=\"patterns\"\r\n\r\n$patterns\r\n" +
+                        "--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"$name\"\r\nContent-Type: text/plain\r\n\r\n$text\r\n--$boundary--\r\n"
+                    ).toByteArray(Charsets.UTF_8))).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        val bad = upload("Bad.txt", "Song (Band)\n", "{artist} - {album}")
+        assertTrue(bad.headers().firstValue("Location").orElse("").contains("err="))
+        assertFalse(File(data, "csv/Bad.csv").exists())
+        assertEquals(303, upload("Mine.txt", "Song (Band)\n", "{title} ({artist})").statusCode())
+        val t = com.xlollx.songport.sync.CsvCodec.parse(File(data, "csv/Mine.csv").readText()).single()
+        assertEquals("Song", t.title)
+        assertEquals("Band", t.artistLine)
+        assertEquals("CUSTOM", env.store.data.settings.fileNameLayout)
+        assertTrue(get("/connectors/csv").body().contains("{title} ({artist})"))
+    }
+
     @Test fun toolsFindAndRemoveDuplicatesInTheBackground() {
         File(data, "csv").mkdirs()
         File(data, "csv/Dup.csv").writeText("title,artist\nSong,Band\nOther,Band\nSong,Band\n")

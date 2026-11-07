@@ -42,4 +42,19 @@ An M3U that lists only file paths is read from its folders: the artist is the fo
 (folders in between, such as a discography, are skipped), the album the folder of the file (a
 *Disc 1* folder counts as the album above it; a year before the name, "1977 - ", is left out).
 
+For any other layout, write your own patterns (*Your own patterns…* in the same menu, or under the
+upload button): one per line, tried in order, read from the end of the path or name. `{artist}`,
+`{album}` and `{title}` are read, `{track}`, `{year}`, `{disc}` and `{any}` are skipped, and `/`
+separates folders:
+
+```
+{artist}/{album}/{track} {title}
+{artist} - {album} - {track} {title}
+{title} ({artist})
+```
+
+Or a regular expression after `re:` with named groups, such as
+`re:^(?<artist>.+?) _ (?<title>.+)$`. In the app, a line pasted under *Try a line from your file*
+shows at once what each pattern reads. A line none of them reads is read as usual.
+
 [Getting started](getting-started) · [All guide pages](./)

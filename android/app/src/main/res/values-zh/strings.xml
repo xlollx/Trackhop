@@ -1684,4 +1684,12 @@
     <string name="files_names_two">艺人 - 标题</string>
     <string name="files_names_three">艺人 - 专辑 - 标题</string>
     <string name="files_names_saved">从下次导入开始生效。重新导入文件即可按此方式读取。</string>
+    <string name="files_names_custom">自定义模式…</string>
+    <string name="files_patterns_title">你的模式</string>
+    <string name="files_patterns_hint">每行一个，按顺序尝试；没有模式能读取的行按常规方式读取。占位符：{artist}、{album}、{title}（必填）、{track}、{year}、{disc}、{any}；文件夹之间用 /。也可以在 re: 后写正则表达式，使用 (?&lt;artist&gt;…) 和 (?&lt;title&gt;…) 等分组。</string>
+    <string name="files_patterns_examples">示例</string>
+    <string name="files_patterns_try">用文件中的一行试试</string>
+    <string name="files_patterns_result">艺人：%1$s · 专辑：%2$s · 标题：%3$s</string>
+    <string name="files_patterns_nomatch">没有模式能读取这一行：将按常规方式读取。</string>
+    <string name="files_patterns_error">第 %1$d 行：%2$s</string>
 </resources>

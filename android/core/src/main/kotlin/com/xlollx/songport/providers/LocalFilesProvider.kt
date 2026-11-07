@@ -4,6 +4,7 @@ import com.xlollx.songport.platform.Env
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.sync.CsvCodec
+import com.xlollx.songport.sync.NamePatterns
 import com.xlollx.songport.sync.PlaylistFiles
 import java.io.File
 
@@ -134,7 +135,8 @@ object LocalFilesProvider : MusicProvider {
 
     /** Importa un file in qualsiasi formato riconosciuto. @return numero di brani importati. */
     fun importFile(ctx: Env, fileName: String, text: String): Int {
-        val tracks = PlaylistFiles.parse(fileName, text, PlaylistFiles.NameLayout.of(ctx.store.data.settings.fileNameLayout))
+        val settings = ctx.store.data.settings
+        val tracks = PlaylistFiles.parse(fileName, text, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns))
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })
         var candidate = base
         var n = 2

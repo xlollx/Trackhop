@@ -75,17 +75,22 @@ object PlaylistFiles {
      * How a name with three parts, "A - B - C", reads in the formats that only carry a name (M3U,
      * PLS, plain text): [ARTIST_TITLE] keeps "B - C" as the title, as for "Artist - Song - Radio
      * Edit"; [ARTIST_ALBUM_TITLE] takes B as the album; [AUTO] decides per file, the album layout
-     * when most names have three parts (#49).
+     * when most names have three parts (#49); [CUSTOM] reads with the user's [NamePatterns] first.
      */
-    enum class NameLayout { AUTO, ARTIST_TITLE, ARTIST_ALBUM_TITLE;
+    enum class NameLayout { AUTO, ARTIST_TITLE, ARTIST_ALBUM_TITLE, CUSTOM;
         companion object { fun of(name: String?): NameLayout = entries.firstOrNull { it.name == name } ?: AUTO }
     }
 
-    fun parse(fileName: String, text: String, layout: NameLayout = NameLayout.AUTO): List<Track> {
+    fun parse(fileName: String, text: String, layout: NameLayout = NameLayout.AUTO, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
         val clean = text.removePrefix("\uFEFF")
         val format = detect(fileName, clean)
-        val tracks = parseClean(format, clean)
-        return if (format == Format.M3U || format == Format.PLS || format == Format.TEXT) withLayout(tracks, layout) else tracks
+        val custom = if (layout == NameLayout.CUSTOM) patterns else emptyList()
+        val tracks = parseClean(format, clean, custom)
+        return when {
+            format != Format.M3U && format != Format.PLS && format != Format.TEXT -> tracks
+            layout == NameLayout.CUSTOM -> tracks
+            else -> withLayout(tracks, layout)
+        }
     }
 
     /**
@@ -94,7 +99,7 @@ object PlaylistFiles {
      * library path) or without an artist are left as they are.
      */
     fun withLayout(tracks: List<Track>, layout: NameLayout): List<Track> {
-        if (layout == NameLayout.ARTIST_TITLE) return tracks
+        if (layout == NameLayout.ARTIST_TITLE || layout == NameLayout.CUSTOM) return tracks
         fun splittable(t: Track) = t.artists.isNotEmpty() && t.album.isBlank() && DASH.split(t.title, 2).let { it.size == 2 && it.all(String::isNotBlank) }
         if (layout == NameLayout.AUTO) {
             val named = tracks.count { it.artists.isNotEmpty() && it.album.isBlank() }
@@ -109,22 +114,22 @@ object PlaylistFiles {
         }
     }
 
-    private fun parseClean(format: Format, text: String): List<Track> = when (format) {
-        Format.M3U -> parseM3u(text)
-        Format.PLS -> parsePls(text)
+    private fun parseClean(format: Format, text: String, patterns: List<NamePatterns.Pattern>): List<Track> = when (format) {
+        Format.M3U -> parseM3u(text, patterns)
+        Format.PLS -> parsePls(text, patterns)
         Format.ITUNES_XML -> parseItunesXml(text)
         Format.XSPF -> parseXspf(text)
         Format.OPML -> parseOpml(text)
         Format.JSON -> parseJson(text)
         Format.CSV -> CsvCodec.parse(text)
-        Format.TEXT -> parseText(text)
+        Format.TEXT -> parseText(text, patterns)
     }
 
     // ---------------------------------------------------------------- M3U
 
     private val EXTINF = Regex("""^#EXTINF:\s*(-?\d+(?:\.\d+)?)?\s*(?:[^,]*)?,\s*(.*)$""")
 
-    fun parseM3u(text: String): List<Track> {
+    fun parseM3u(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
         val out = ArrayList<Track>()
         var pendingSeconds = 0L
         var pendingLabel: String? = null
@@ -137,7 +142,8 @@ object PlaylistFiles {
                 pendingLabel = m.groupValues[2].trim().ifBlank { null }
                 continue
             }
-            val t = pendingLabel?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
+            val t = (pendingLabel?.let { NamePatterns.read(it, patterns) } ?: NamePatterns.read(line, patterns))?.track()
+                ?: pendingLabel?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
                 ?: fromPath(line)
             if (t.title.isNotBlank()) out += CsvCodec.withStableId(t.copy(durationMs = pendingSeconds * 1000))
             pendingSeconds = 0
@@ -151,14 +157,15 @@ object PlaylistFiles {
     private val PLS_ENTRY = Regex("""^(file|title|length)(\d+)\s*=\s*(.*)$""", RegexOption.IGNORE_CASE)
 
     /** PLS (Winamp, VLC, Clementine): File1=…, Title1=Artist - Title, Length1=seconds. */
-    fun parsePls(text: String): List<Track> {
+    fun parsePls(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
         val entries = java.util.TreeMap<Int, MutableMap<String, String>>()
         for (raw in text.lineSequence()) {
             val m = PLS_ENTRY.find(raw.trim()) ?: continue
             entries.getOrPut(m.groupValues[2].toInt()) { HashMap() }[m.groupValues[1].lowercase()] = m.groupValues[3].trim()
         }
         return entries.values.mapNotNull { e ->
-            val t = e["title"]?.takeIf { it.isNotBlank() }?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
+            val t = (e["title"]?.takeIf { it.isNotBlank() }?.let { NamePatterns.read(it, patterns) } ?: e["file"]?.let { NamePatterns.read(it, patterns) })?.track()
+                ?: e["title"]?.takeIf { it.isNotBlank() }?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
                 ?: e["file"]?.let { fromPath(it) } ?: return@mapNotNull null
             val secs = e["length"]?.toLongOrNull()?.takeIf { it > 0 } ?: 0
             t.takeIf { it.title.isNotBlank() }?.let { CsvCodec.withStableId(it.copy(durationMs = secs * 1000)) }
@@ -440,15 +447,15 @@ object PlaylistFiles {
 
     private val LIST_PREFIX = Regex("""^\s*\d+\s*[.)\-]\s+""")
 
-    fun parseText(text: String): List<Track> {
+    fun parseText(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
         val out = ArrayList<Track>()
         for (raw in text.lineSequence()) {
             val line = LIST_PREFIX.replace(raw.trim(), "").trim()
             if (line.isEmpty() || line.startsWith("#")) continue
             // JSON punctuation or a JSON object is not a track name.
             if (line.first() in "[]{}" || line == "```" || line.startsWith("```")) continue
-            val (artists, title) = splitArtistTitle(line)
-            if (title.isNotBlank()) out += CsvCodec.withStableId(Track(id = "", title = title, artists = artists))
+            val t = NamePatterns.read(line, patterns)?.track() ?: splitArtistTitle(line).let { (artists, title) -> Track(id = "", title = title, artists = artists) }
+            if (t.title.isNotBlank()) out += CsvCodec.withStableId(t)
         }
         return out
     }

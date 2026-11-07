@@ -52,6 +52,8 @@ data class Settings(
     val backupSchedule: com.xlollx.songport.model.Schedule = com.xlollx.songport.model.Schedule.MANUAL,
     /** How imported M3U, PLS and text files read "A - B - C" names: a PlaylistFiles.NameLayout name (#49). */
     val fileNameLayout: String = "AUTO",
+    /** The user's patterns for CUSTOM, one per entry, tried in order (sync.NamePatterns). */
+    val fileNamePatterns: List<String> = emptyList(),
     /** Once a week, look through the playlists for tracks the services no longer play, and say so; never change anything. */
     val unplayableCheck: Boolean = false,
     /** Sync che ha fatto scattare la richiesta di contributo, finche' l'utente non risponde. */

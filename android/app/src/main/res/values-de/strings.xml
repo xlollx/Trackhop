@@ -1710,4 +1710,12 @@
     <string name="files_names_two">Interpret - Titel</string>
     <string name="files_names_three">Interpret - Album - Titel</string>
     <string name="files_names_saved">Gilt ab dem nächsten Import. Importiere eine Datei erneut, um sie so zu lesen.</string>
+    <string name="files_names_custom">Eigene Muster…</string>
+    <string name="files_patterns_title">Deine Muster</string>
+    <string name="files_patterns_hint">Eins pro Zeile, der Reihe nach probiert; eine Zeile, die keines liest, wird wie üblich gelesen. Platzhalter: {artist}, {album}, {title} (nötig), {track}, {year}, {disc}, {any}; / zwischen Ordnern. Oder ein regulärer Ausdruck nach re: mit Gruppen wie (?&lt;artist&gt;…) und (?&lt;title&gt;…).</string>
+    <string name="files_patterns_examples">Beispiele</string>
+    <string name="files_patterns_try">Teste eine Zeile aus deiner Datei</string>
+    <string name="files_patterns_result">Interpret: %1$s · Album: %2$s · Titel: %3$s</string>
+    <string name="files_patterns_nomatch">Kein Muster liest diese Zeile: Sie wird wie üblich gelesen.</string>
+    <string name="files_patterns_error">Zeile %1$d: %2$s</string>
 </resources>

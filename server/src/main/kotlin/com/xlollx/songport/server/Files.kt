@@ -5,6 +5,7 @@ import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.CsvCodec
+import com.xlollx.songport.sync.NamePatterns
 import com.xlollx.songport.sync.PlaylistFiles
 import kotlinx.coroutines.runBlocking
 
@@ -56,6 +57,12 @@ internal fun Web.fileList(): String {
 <input type="file" name="file" required>
 <label>Names like “A - B - C” in M3U, PLS and text files</label><select name="names">${nameLayoutOptions()}</select>
 <p class="muted">Automatic reads them as Artist - Album - Title when most lines have three parts. A file already added is not changed: upload it again.</p>
+<details${if (env.store.data.settings.fileNameLayout == "CUSTOM") " open" else ""}><summary>Your own patterns</summary>
+<p class="muted">Used when “Your own patterns” is chosen above. One per line, tried in order; a line none of them reads is read as usual.
+Placeholders: <code>{artist}</code>, <code>{album}</code>, <code>{title}</code> (needed), <code>{track}</code>, <code>{year}</code>, <code>{disc}</code>, <code>{any}</code>; <code>/</code> between folders.
+Examples: <code>{artist}/{album}/{track} {title}</code> · <code>{artist} - {album} - {track} {title}</code> · <code>{title} ({artist})</code>.
+Or a regular expression after <code>re:</code> with named groups, such as <code>re:^(?&lt;artist&gt;.+?) _ (?&lt;title&gt;.+)$</code>.</p>
+<textarea name="patterns" rows="4" spellcheck="false" style="font-family:monospace">${h(env.store.data.settings.fileNamePatterns.joinToString("\n"))}</textarea></details>
 <p><button>Upload</button></p></form>""",
     )
     return sb.toString()
@@ -90,13 +97,24 @@ private fun Web.nameLayoutOptions(): String {
         PlaylistFiles.NameLayout.AUTO to "Automatic",
         PlaylistFiles.NameLayout.ARTIST_TITLE to "Artist - Title",
         PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE to "Artist - Album - Title",
+        PlaylistFiles.NameLayout.CUSTOM to "Your own patterns",
     ).joinToString("") { (v, label) -> """<option value="${v.name}"${if (v == saved) " selected" else ""}>${h(label)}</option>""" }
 }
 
 internal fun Web.upload(r: Web.Req) {
     val file = r.files["file"] ?: return redirect(r.ex, "/connectors/csv?err=${q("Choose a file.")}")
-    // The choice is kept for the next upload, as the app keeps it.
-    r.form["names"]?.let { PlaylistFiles.NameLayout.of(it).name }?.let { v -> env.store.updateSettings { it.copy(fileNameLayout = v) } }
+    // The choice is kept for the next upload, as the app keeps it; bad patterns are refused, with why.
+    r.form["patterns"]?.let { raw ->
+        val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }
+        lines.forEachIndexed { i, l ->
+            NamePatterns.compile(l).exceptionOrNull()?.let { return redirect(r.ex, "/connectors/csv?err=${q("Pattern on line ${i + 1}: ${it.message}")}") }
+        }
+        env.store.updateSettings { it.copy(fileNamePatterns = lines) }
+    }
+    r.form["names"]?.let { PlaylistFiles.NameLayout.of(it).name }?.let { v ->
+        if (v == "CUSTOM" && env.store.data.settings.fileNamePatterns.isEmpty()) return redirect(r.ex, "/connectors/csv?err=${q("Write at least one pattern under “Your own patterns”.")}")
+        env.store.updateSettings { it.copy(fileNameLayout = v) }
+    }
     val text = PlaylistFiles.decode(file.bytes)
     val n = runCatching { LocalFilesProvider.importFile(env, file.name.substringAfterLast('/').substringAfterLast('\\'), text) }
         .getOrElse { return redirect(r.ex, "/connectors/csv?err=${q(it.message ?: "Could not read the file.")}") }

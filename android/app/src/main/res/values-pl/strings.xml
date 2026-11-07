@@ -1764,4 +1764,12 @@
     <string name="files_names_two">Wykonawca - Tytuł</string>
     <string name="files_names_three">Wykonawca - Album - Tytuł</string>
     <string name="files_names_saved">Działa od następnego importu. Zaimportuj plik ponownie, aby odczytać go w ten sposób.</string>
+    <string name="files_names_custom">Własne wzorce…</string>
+    <string name="files_patterns_title">Twoje wzorce</string>
+    <string name="files_patterns_hint">Jeden w wierszu, próbowane po kolei; wiersz, którego żaden nie odczyta, jest czytany jak zwykle. Znaczniki: {artist}, {album}, {title} (wymagany), {track}, {year}, {disc}, {any}; / między folderami. Albo wyrażenie regularne po re: z grupami takimi jak (?&lt;artist&gt;…) i (?&lt;title&gt;…).</string>
+    <string name="files_patterns_examples">Przykłady</string>
+    <string name="files_patterns_try">Wypróbuj wiersz ze swojego pliku</string>
+    <string name="files_patterns_result">Wykonawca: %1$s · Album: %2$s · Tytuł: %3$s</string>
+    <string name="files_patterns_nomatch">Żaden wzorzec nie odczytuje tego wiersza: zostanie odczytany jak zwykle.</string>
+    <string name="files_patterns_error">Wiersz %1$d: %2$s</string>
 </resources>

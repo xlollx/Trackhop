@@ -1710,4 +1710,12 @@
     <string name="files_names_two">Artista - Titolo</string>
     <string name="files_names_three">Artista - Album - Titolo</string>
     <string name="files_names_saved">Vale dalla prossima importazione. Importa di nuovo un file per leggerlo così.</string>
+    <string name="files_names_custom">I tuoi modelli…</string>
+    <string name="files_patterns_title">I tuoi modelli</string>
+    <string name="files_patterns_hint">Uno per riga, provati in ordine; una riga che nessuno legge viene letta come al solito. Segnaposto: {artist}, {album}, {title} (obbligatorio), {track}, {year}, {disc}, {any}; / tra le cartelle. Oppure un\'espressione regolare dopo re: con gruppi come (?&lt;artist&gt;…) e (?&lt;title&gt;…).</string>
+    <string name="files_patterns_examples">Esempi</string>
+    <string name="files_patterns_try">Prova con una riga del tuo file</string>
+    <string name="files_patterns_result">Artista: %1$s · Album: %2$s · Titolo: %3$s</string>
+    <string name="files_patterns_nomatch">Nessun modello legge questa riga: verrà letta come al solito.</string>
+    <string name="files_patterns_error">Riga %1$d: %2$s</string>
 </resources>
