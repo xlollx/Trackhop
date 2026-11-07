@@ -13,6 +13,36 @@ ITEM = "Q142072916"
 UA = "TrackhopRelease/1.0 (https://github.com/xlollx/Trackhop)"
 STABLE, DOCKER = "Q2804309", "Q15206305"
 
+# Facts the item should always carry; each one is added only when missing.
+ITEM_FACTS = [("P400", DOCKER)] + [("P407", q) for q in (  # the app's languages
+    "Q1860", "Q188", "Q1321", "Q150", "Q652", "Q5287", "Q9176", "Q809", "Q750553", "Q7737", "Q256", "Q13414913")]
+STRING_FACTS = [
+    ("P2003", "trackhop.app"),                                # Instagram
+    ("P2078", "https://trackhop.org/guide/"),                 # user manual
+    ("P1401", "https://github.com/xlollx/Trackhop/issues"),   # issue tracker
+    ("P5885", "9pfx74q2xn9p"),                                # Microsoft Store
+    ("P4435", "trackhop"),                                    # Snap Store
+    ("P10766", "trackhop"),                                   # Chocolatey
+    ("P8778", "xlollx/trackhop"),                             # Docker Hub
+    ("P9618", "songport"),                                    # AlternativeTo (page still under the old name)
+]
+DESCRIPTIONS = {
+    "en": "free and open-source app that keeps music playlists in sync across streaming services",
+    "it": "app libera e open source che tiene sincronizzate le playlist tra servizi musicali",
+    "de": "freie Open-Source-App, die Musik-Playlists zwischen Streamingdiensten synchron hält",
+    "es": "aplicación libre y de código abierto que mantiene sincronizadas las listas de reproducción entre servicios de música en streaming",
+    "fr": "application libre et open source qui garde les playlists musicales synchronisées entre services de streaming",
+    "pt": "aplicação livre e de código aberto que mantém as listas de reprodução sincronizadas entre serviços de streaming de música",
+    "pt-br": "aplicativo livre e de código aberto que mantém playlists de música sincronizadas entre serviços de streaming",
+    "pl": "wolna aplikacja o otwartym kodzie źródłowym, która synchronizuje playlisty muzyczne między serwisami streamingowymi",
+    "ru": "свободное приложение с открытым исходным кодом для синхронизации музыкальных плейлистов между стриминговыми сервисами",
+    "tr": "müzik çalma listelerini akış hizmetleri arasında eşitleyen özgür ve açık kaynaklı uygulama",
+    "ja": "音楽ストリーミングサービス間でプレイリストを同期する、自由でオープンソースのアプリ",
+    "ko": "음악 스트리밍 서비스 간에 재생 목록을 동기화하는 자유 오픈 소스 앱",
+    "zh": "在各音乐流媒体服务之间同步播放列表的自由开源应用",
+    "zh-hans": "在各音乐流媒体服务之间同步播放列表的自由开源应用",
+}
+
 jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
 
@@ -83,29 +113,42 @@ def main():
         if c["mainsnak"].get("datavalue", {}).get("value", {}).get("id") == DOCKER:
             data["claims"].append({"id": c["id"], "remove": ""})
             done.append("Docker moved from operating system to platform")
-    if not any(c["mainsnak"].get("datavalue", {}).get("value", {}).get("id") == DOCKER for c in claims.get("P400", [])):
-        data["claims"].append({"mainsnak": item_snak("P400", DOCKER), "type": "statement", "rank": "normal"})
-        if "Docker moved from operating system to platform" not in done:
-            done.append("platform Docker")
-    if not claims.get("P2003"):
-        data["claims"].append({"mainsnak": string_snak("P2003", "trackhop.app"), "type": "statement", "rank": "normal"})
-        done.append("Instagram username")
-    if "it" not in entity.get("labels", {}):
-        data["labels"] = {"it": {"language": "it", "value": "Trackhop"}}
-        done.append("Italian label")
-    if "it" not in entity.get("descriptions", {}):
-        data["descriptions"] = {"it": {"language": "it", "value": "app libera e open source che tiene sincronizzate le playlist tra servizi musicali"}}
-        done.append("Italian description")
-    if not any(a["value"] == "Songport" for a in entity.get("aliases", {}).get("it", [])):
-        data["aliases"] = {"it": [{"language": "it", "value": "Songport", "add": ""}]}
-        done.append("Italian alias")
+    def has(prop, value):
+        for c in claims.get(prop, []):
+            v = c["mainsnak"].get("datavalue", {}).get("value")
+            if v == value or (isinstance(v, dict) and v.get("id") == value):
+                return True
+        return False
+
+    for prop, qid in ITEM_FACTS:
+        if not has(prop, qid):
+            data["claims"].append({"mainsnak": item_snak(prop, qid), "type": "statement", "rank": "normal"})
+            done.append(prop)
+    for prop, value in STRING_FACTS:
+        if not has(prop, value):
+            data["claims"].append({"mainsnak": string_snak(prop, value), "type": "statement", "rank": "normal"})
+            done.append(prop)
+
+    # The name is the same everywhere ("mul"); descriptions are added for missing languages only,
+    # so a hand-made edit on the item is never overwritten.
+    if "mul" not in entity.get("labels", {}):
+        data["labels"] = {"mul": {"language": "mul", "value": "Trackhop"}}
+        done.append("label")
+    if not any(a["value"] == "Songport" for a in entity.get("aliases", {}).get("mul", [])):
+        data["aliases"] = {"mul": [{"language": "mul", "value": "Songport", "add": ""}]}
+        done.append("alias")
+    missing = {lang: {"language": lang, "value": text} for lang, text in DESCRIPTIONS.items()
+               if lang not in entity.get("descriptions", {})}
+    if missing:
+        data["descriptions"] = missing
+        done.append("descriptions " + ", ".join(sorted(missing)))
 
     if not data["claims"]:
         del data["claims"]
     if len(data) == 0:
         print(f"{ITEM} is already up to date ({version}).")
         return
-    summary = "Trackhop " + version + ": " + (", ".join(done) if done else "newest version preferred")
+    summary = "Trackhop " + version + ": " + (", ".join(dict.fromkeys(done)) if done else "newest version preferred")
     api({"action": "wbeditentity", "id": ITEM, "data": json.dumps(data), "token": csrf, "summary": summary,
          "baserevid": entity["lastrevid"]}, post=True)
     print(f"{ITEM} updated: {summary}")
