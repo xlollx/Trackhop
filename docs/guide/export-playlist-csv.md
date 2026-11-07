@@ -38,4 +38,8 @@ file have three parts, so an occasional "Song - Radio Edit" stays part of the ti
 yourself: the File card's ⋮ menu › *Track names in files* in the app, or the choice under the upload
 button on Desktop and Docker. It applies to the next import: import a file again to read it anew.
 
+An M3U that lists only file paths is read from its folders: the artist is the folder below *Music*
+(folders in between, such as a discography, are skipped), the album the folder of the file (a
+*Disc 1* folder counts as the album above it; a year before the name, "1977 - ", is left out).
+
 [Getting started](getting-started) · [All guide pages](./)

@@ -312,4 +312,32 @@ class PlaylistFilesTest {
         assertEquals(listOf("Karma Police", "Hysteria"), t.map { it.title })
         assertEquals(listOf("OK Computer", "Absolution"), t.map { it.album })
     }
+
+    // #49, the reporter's own lines: library paths with discographies, disc folders, years and
+    // "Artist - Album - 02 Title" file names.
+    @Test fun libraryPathsAsTheyComeFromAPhone() {
+        val m3u = listOf(
+            "F9FF-3A77/Music/Childish Gambino/2016.12 - Awaken, My Love!/06 Redbone.m4a",
+            "#EXT-X-RATING:0",
+            "F9FF-3A77/Music/Diamond Jack Soundtrack/Connor Spiotto - The Villain I Appear to Be.mp3",
+            "#EXT-X-RATING:0",
+            "F9FF-3A77/Music/Sault/SAULT - 'NINE'/SAULT - 'NINE' - 02 London Gangs.mp3",
+            "#EXT-X-RATING:0",
+            "F9FF-3A77/Music/Sex Pistols/1977 - Never Mind The Bollocks and Spunk (Released 1996)/(Disc 1) Never Mind The Bollocks (Original)/10. Pretty Vacant.mp3",
+            "#EXT-X-RATING:0",
+            "F9FF-3A77/Music/Deftones/Deftones - Discography/Demo albums/1993 - (Like) Linus/01 - Like (Linus) -A.mp3",
+        ).joinToString("\n")
+        val t = PlaylistFiles.parse("mine.m3u", m3u)
+        assertEquals(listOf("Redbone", "The Villain I Appear to Be", "London Gangs", "Pretty Vacant", "Like (Linus) -A"), t.map { it.title })
+        assertEquals(listOf("Childish Gambino", "Connor Spiotto", "SAULT", "Sex Pistols", "Deftones"), t.map { it.artistLine })
+        assertEquals(listOf("Awaken, My Love!", "", "'NINE'", "Never Mind The Bollocks and Spunk (Released 1996)", "(Like) Linus"), t.map { it.album })
+    }
+
+    @Test fun pathsOutsideAMusicFolderKeepTheOldReading() {
+        assertEquals("Artist", PlaylistFiles.fromPath("Artist/Album/01 Title.mp3").artistLine)
+        assertEquals("Album", PlaylistFiles.fromPath("Artist/Album/01 Title.mp3").album)
+        assertEquals(emptyList<String>(), PlaylistFiles.fromPath("/storage/emulated/0/Download/Title.mp3").artists)
+        assertEquals(emptyList<String>(), PlaylistFiles.fromPath("Music/Some Album/Title.mp3").artists)
+        assertEquals("1989", PlaylistFiles.fromPath("Music/Taylor Swift/1989/Style.mp3").album)
+    }
 }

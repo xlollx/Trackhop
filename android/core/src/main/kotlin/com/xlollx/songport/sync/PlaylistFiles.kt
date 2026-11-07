@@ -184,22 +184,61 @@ object PlaylistFiles {
         else -> NUMBER.replace(name, "")
     }.trim()
 
+    /** The folder a music library starts in: the next folder is the artist's. */
+    private val MUSIC_ROOTS = setOf("music", "my music", "musik", "musique", "musica", "música", "muziek", "mp3")
+    /** "(Disc 1) …", "CD2", "Disk 3": a disc of the album above it, not an album. */
+    private val DISC_FOLDER = Regex("""^[(\[]?\s*(?:disc|disk|cd)\s*\d+\b""", RegexOption.IGNORE_CASE)
+    /** "1977 - ", "2016.12 - ", "[1993] ": the year a folder name starts with, before the album's. */
+    private val YEAR_PREFIX = Regex("""^(?:\d{4}(?:[.-]\d{1,2}){0,2}\s+[-–—]\s+|[\[(]\d{4}[\])]\s*[-–—]?\s*)(?=\S)""")
+
+    private fun same(a: String, b: String): Boolean {
+        fun key(s: String) = s.lowercase().filter { it.isLetterOrDigit() }
+        return key(a).isNotEmpty() && key(a) == key(b)
+    }
+
     /**
-     * A track from a path without #EXTINF: "Artist - Title.mp3" as named, or the usual library layout
-     * Artist/Album/01 Title.mp3, relative or absolute, a file: URI or percent-encoded.
+     * A track from a path without #EXTINF: "Artist - Title.mp3" as named, or a library layout:
+     * Music/Artist/Album/01 Title.mp3, with folders between the artist and the album (a
+     * discography, "Demo albums") or a disc folder below the album, "1977 - " years before album
+     * names, and files named "Artist - Album - 02 Title" (#49). Relative or absolute, a file: URI or
+     * percent-encoded.
      */
     fun fromPath(path: String): Track {
         val p = (if (path.contains("://") || path.startsWith("file:")) runCatching { java.net.URLDecoder.decode(path.replace("+", "%2B"), "UTF-8") }.getOrDefault(path) else path)
             .replace('\\', '/').replace(URL_OR_DRIVE, "")
         val parts = p.split('/').filter { it.isNotBlank() }
         val name = withoutTrackNumber(parts.lastOrNull().orEmpty().substringBeforeLast('.').replace('_', ' ').trim())
+        val folders = parts.dropLast(1)
+        // "0" of /storage/emulated/0 and drive letters are not names; "1989" can be an album.
+        val generic = { f: String -> f.lowercase() in ROOT_FOLDERS || (f.length < 4 && f.all { it.isDigit() || it == ':' }) }
+
+        // The artist's and the album's folders: below a music root the first folder is the artist;
+        // otherwise the two folders above the file, as before.
+        val root = folders.indexOfLast { it.lowercase() in MUSIC_ROOTS }
+        val below = if (root >= 0) folders.drop(root + 1) else folders
+        var albumAt = below.lastIndex
+        if (albumAt >= 1 && DISC_FOLDER.containsMatchIn(below[albumAt])) albumAt--
+        val artistFolder = (if (root >= 0) below.firstOrNull()?.takeIf { albumAt >= 1 } else below.getOrNull(albumAt - 1))
+            ?.takeUnless(generic)
+        val albumFolder = below.getOrNull(albumAt)?.takeIf { artistFolder != null && !generic(it) }?.let { f ->
+            val noYear = YEAR_PREFIX.replace(f, "").trim()
+            // "SAULT - 'NINE'" in the folder of SAULT: the album is 'NINE'.
+            DASH.split(noYear, 2).let { d -> if (d.size == 2 && same(d[0], artistFolder!!)) d[1].trim() else noYear }
+        }.orEmpty()
+
+        // "Artist - Album - 02 Title": three parts whose artist or album the folders confirm.
+        val dashed = DASH.split(name)
+        if (dashed.size >= 3 && artistFolder != null && (same(dashed[0], artistFolder) || same(dashed[1], albumFolder))) {
+            val title = withoutTrackNumber(dashed.drop(2).joinToString(" - ")).ifBlank { dashed.drop(2).joinToString(" - ") }
+            return Track(id = "", title = title, artists = CsvCodec.splitArtists(dashed[0]), album = dashed[1].trim())
+        }
         val (artists, title) = splitArtistTitle(name)
-        if (artists.isNotEmpty() || parts.size < 3) return Track(id = "", title = title, artists = artists)
-        val album = parts[parts.size - 2]
-        val artist = parts[parts.size - 3]
-        val generic = { f: String -> f.lowercase() in ROOT_FOLDERS || f.all { it.isDigit() || it == ':' } }
-        if (generic(album) || generic(artist)) return Track(id = "", title = title)
-        return Track(id = "", title = title, artists = listOf(artist), album = album)
+        if (artists.isNotEmpty()) {
+            val album = if (artistFolder != null && artists.any { same(it, artistFolder) }) albumFolder else ""
+            return Track(id = "", title = title, artists = artists, album = album)
+        }
+        if (artistFolder == null || albumFolder.isEmpty()) return Track(id = "", title = title)
+        return Track(id = "", title = title, artists = listOf(artistFolder), album = albumFolder)
     }
 
     fun toM3u(tracks: List<Track>): String = buildString {
