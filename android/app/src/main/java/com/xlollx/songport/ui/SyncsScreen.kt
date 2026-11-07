@@ -259,8 +259,12 @@ fun SyncsScreen(
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    // The store's order as it is now: the drag callbacks below can outlive the composition they were
+    // made in, and an order captured then is stale once a card has moved since (a drop back to that
+    // old order was taken for "no change" and the card snapped back).
+    val orderNow = { Store.get(ctx).data.jobs.map { it.id } }
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
-        val o = (dragOrder ?: order).toMutableList()
+        val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
         if (a >= 0 && b >= 0) {
             // A lazy list keeps its first visible item in view by key: when that item is one of the two
@@ -426,7 +430,7 @@ fun SyncsScreen(
                     onDragStopped = {
                         val dropped = dragOrder
                         val to = dropped?.indexOf(job.id) ?: -1
-                        if (to >= 0 && dropped != order) {
+                        if (to >= 0 && dropped != orderNow()) {
                             Store.get(ctx).moveJob(job.id, to)
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
