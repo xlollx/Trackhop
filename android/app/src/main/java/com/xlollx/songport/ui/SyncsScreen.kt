@@ -106,6 +106,10 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.ui.graphics.graphicsLayer
@@ -259,10 +263,23 @@ fun SyncsScreen(
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    // The store's order as it is now: the drag callbacks below can outlive the composition they were
+    // made in, and an order captured then is stale once a card has moved since (a drop back to that
+    // old order was taken for "no change" and the card snapped back).
+    val orderNow = { Store.get(ctx).data.jobs.map { it.id } }
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
-        val o = (dragOrder ?: order).toMutableList()
+        val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
-        if (a >= 0 && b >= 0) { o.add(b, o.removeAt(a)); dragOrder = o }
+        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "move ${from.key}@${from.index} -> ${to.key}@${to.index} ($a -> $b)")
+        if (a >= 0 && b >= 0) {
+            // A lazy list keeps its first visible item in view by key: when that item is one of the two
+            // swapping (the card half under the pill at the end of the list), the list would follow it,
+            // the card under the finger would jump and the drop could land back where it started.
+            // Held by position instead, the list stays still and only the cards change places.
+            val first = listState.firstVisibleItemIndex
+            if (from.index == first || to.index == first) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
+            o.add(b, o.removeAt(a)); dragOrder = o
+        }
         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
     }
     // Any change of order while nothing is dragged (a move from the menu, the store's own list after a
@@ -412,13 +429,34 @@ fun SyncsScreen(
                 ).graphicsLayer {
                     shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
+                }.pointerInput(job.id, canDrag) {
+                    // A card held while partly above the list's top (the one half under the pill at the
+                    // end of the list) is brought into view while the finger is still, before the hold
+                    // becomes a drag. Left to the drag library, the list is scrolled under the card as
+                    // the drag starts and the card stays where the finger is, over the card above: the
+                    // first move swapped the two, and the card dragged down came back where it was.
+                    if (!canDrag) return@pointerInput
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        val still = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis * 3 / 4) {
+                            while (true) {
+                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+                                if (!c.pressed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
+                            }
+                        } == null
+                        if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
+                    }
                 }.longPressDraggableHandle(
                     enabled = canDrag,
-                    onDragStarted = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) },
+                    onDragStarted = {
+                        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    },
                     onDragStopped = {
                         val dropped = dragOrder
                         val to = dropped?.indexOf(job.id) ?: -1
-                        if (to >= 0 && dropped != order) {
+                        if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
+                        if (to >= 0 && dropped != orderNow()) {
                             Store.get(ctx).moveJob(job.id, to)
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
