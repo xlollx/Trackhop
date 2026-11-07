@@ -69,7 +69,8 @@ class ServerLoginActivity : ComponentActivity() {
         startActivity(
             Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                putExtra(MainActivity.EXTRA_MESSAGE, message)
+                // Back without signing in says nothing (an empty message showed as an empty banner).
+                if (message.isNotBlank()) putExtra(MainActivity.EXTRA_MESSAGE, message)
                 putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)
             }
         )
