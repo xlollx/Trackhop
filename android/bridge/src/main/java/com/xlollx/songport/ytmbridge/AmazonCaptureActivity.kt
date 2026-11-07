@@ -188,7 +188,7 @@ class AmazonCaptureActivity : ComponentActivity() {
         @JavascriptInterface
         fun log(line: String) {
             if (file.exists() && file.length() > MAX_BYTES) return
-            val safe = SECRETS.fold(TOKEN.replace(line, "\"accessToken\":\"[redacted]\"")) { s, r -> r.replace(s, "[redacted]") }
+            val safe = cleanLine(line)
             synchronized(this) { file.appendText(safe.replace('\n', ' ') + "\n") }
             count++
             runOnUiThread { refresh() }
@@ -213,7 +213,7 @@ class AmazonCaptureActivity : ComponentActivity() {
                 val i = kv.indexOf('=')
                 if (i < 0) kv else {
                     val name = runCatching { java.net.URLDecoder.decode(kv.substring(0, i), "UTF-8") }.getOrDefault(kv.substring(0, i))
-                    if (PERSONAL.containsMatchIn(name)) kv.substring(0, i) + "=[redacted]" else kv
+                    if (PERSONAL.containsMatchIn(name) || name.lowercase() in SESSION_NAMES) kv.substring(0, i) + "=[redacted]" else kv
                 }
             }
             return url.substring(0, q + 1) + query
@@ -229,6 +229,26 @@ class AmazonCaptureActivity : ComponentActivity() {
         const val EXTRA_URL = "url"
         private const val MAX_BYTES = 6L * 1024 * 1024
         private val TOKEN = Regex("\"accessToken\"\\s*:\\s*\"[^\"]*\"")
+
+        /**
+         * Session names whose values are the account itself (Anghami's `sid`, the player's
+         * `fingerprint` and device id): blanked in addresses and bodies, the names kept, so a capture
+         * still shows where the session travels (#53) without carrying it.
+         */
+        private val SESSION_NAMES = setOf("sid", "fingerprint", "udid", "deviceid", "sessionid", "session_id")
+        private val SESSION_VALUES = SESSION_NAMES.flatMap { n ->
+            listOf(
+                Regex("""(?i)(?<=(?:[?&;]|\\u0026)$n=)[^&"\s\\]+"""),
+                // JSON, also inside a string (a request body): "sid":"…" or \"sid\":\"…\"
+                Regex("""(?i)(?<="$n\\?"\s?:\s?\\?")[^"\\]+"""),
+            )
+        }
+
+        /** A line of the capture as it is written: tokens, JWTs and session values blanked. */
+        fun cleanLine(line: String): String {
+            val tokens = SECRETS.fold(TOKEN.replace(line, "\"accessToken\":\"[redacted]\"")) { s, r -> r.replace(s, "[redacted]") }
+            return SESSION_VALUES.fold(tokens) { s, r -> r.replace(s, "[redacted]") }
+        }
         /** Bearer tokens, JWTs and Amazon access tokens (Atna|…, Atza|…) wherever they appear. */
         private val SECRETS = listOf(
             Regex("Bearer\\s+[A-Za-z0-9._~+/=|-]+"),
