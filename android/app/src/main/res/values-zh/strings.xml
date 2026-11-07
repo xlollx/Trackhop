@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">你在 Last.fm 上最近的 200 条播放记录</string>
     <string name="lastfm_top_month">本月最常听</string>
     <string name="lastfm_top_month_desc">你在 Last.fm 上最近 30 天最常听的 100 首曲目</string>
+    <string name="route_note_lastfm">你自己的免费 API 密钥。可作为来源；用密码登录后，也可作为喜爱曲目的目标。</string>
+    <string name="login_password_lastfm">密码（可选，用于标记喜爱曲目）</string>
+    <string name="setup_field_shared_secret">Shared secret（可选，用于标记喜爱曲目）</string>
+    <string name="lastfm_loved_target_desc">Trackhop 会替你在 Last.fm 上标记这些曲目为喜爱（♥）</string>
+    <string name="lastfm_needs_password">要标记喜爱曲目，请同时输入密码重新连接 Last.fm。</string>
+    <string name="lastfm_password_note">密码只用一次，用于从 Last.fm 获取会话，不会被保存。</string>
+    <string name="lastfm_session_expired">Last.fm 已结束会话：请用密码重新连接以标记喜爱曲目。</string>
+    <string name="lastfm_no_secret">在 Last.fm 上标记喜爱曲目需要你的 API 密钥的 shared secret：请在密钥旁添加。</string>
+    <string name="lastfm_love_title">也标记喜爱曲目</string>
     <string name="pill_source_empty">来源为空</string>
     <string name="transfer_unsupported">在 %1$s 上不可用</string>
     <string name="tracks_count">%1$d 首歌曲</string>
@@ -498,7 +507,7 @@
     <string name="provider_note_subsonic">你自己的音乐服务器：Navidrome、Airsonic、Gonic、LMS、Funkwhale 以及任何支持 Subsonic API 的服务器。无需注册，没有配额。加星标的歌曲视为喜欢的歌曲。</string>
     <string name="provider_note_jellyfin">你的 Jellyfin 服务器。无需注册，没有配额。收藏视为喜欢的歌曲。</string>
     <string name="provider_note_plex">你的 Plex Media Server，需使用你的 X-Plex-Token。可以在服务器上读取、创建和更新音乐歌单。</string>
-    <string name="provider_note_lastfm">Last.fm 个人资料中喜爱的歌曲，仅可作为来源。需要免费的 Last.fm API 密钥。</string>
+    <string name="provider_note_lastfm">将 Last.fm 个人资料中的喜爱曲目作为来源。用密码登录后，喜爱曲目也可作为目标：Trackhop 会替你标记。需要免费的 Last.fm API 密钥。</string>
     <string name="provider_note_listenbrainz">ListenBrainz 用户的歌单和喜爱的曲目。提供用户令牌后，也可以写入喜爱的曲目（以喜欢的歌曲为目标）。</string>
     <string name="login_title">登录 %1$s</string>
     <string name="login_url">服务器地址</string>
@@ -511,7 +520,7 @@
     <string name="login_hint_subsonic">请输入你的 Navidrome、Airsonic 或其他兼容 Subsonic 的服务器地址（例如 https://music.example.com），以及用户名和密码。密码永远不会以原文发送：每个请求都使用加盐哈希。Ampache：请使用在“偏好设置”→“账户”中设置的 Subsonic 密码或 API 密钥，而不是账户密码。</string>
     <string name="login_hint_jellyfin">请输入你的 Jellyfin 服务器地址（例如 https://jellyfin.example.com），以及用户名和密码。</string>
     <string name="login_hint_plex">请输入你的 Plex Media Server 地址（例如 http://192.168.1.10:32400）和你的 X-Plex-Token。Plex 的支持页面（“Finding an authentication token”）介绍了如何找到该令牌。</string>
-    <string name="login_hint_lastfm">请输入要读取其喜爱歌曲的 Last.fm 用户名。该个人资料必须公开。</string>
+    <string name="login_hint_lastfm">输入你的 Last.fm 用户名。只读取喜爱曲目时密码可留空（个人资料须公开）。填写密码后 Trackhop 还能标记喜爱曲目：密码只用一次来获取会话，不会被保存。</string>
     <string name="login_hint_listenbrainz">输入要读取其歌单和喜爱曲目的 ListenBrainz 用户名。添加你的用户令牌（listenbrainz.org → Settings）即可同时写入喜爱的曲目。</string>
     <string name="listenbrainz_token_needed">ListenBrainz 需要你的用户令牌才能写入喜爱的曲目：请在“账号”中添加（listenbrainz.org → Settings）。</string>
     <string name="login_token_optional">用户令牌（可选）</string>
@@ -701,7 +710,7 @@
     <string-array name="setup_steps_lastfm">
         <item>登录 last.fm 并打开 API 账号创建页面。</item>
         <item>填写表单：联系邮箱、应用名称和描述可随意填写。“Callback URL”和“Application homepage”可以留空。提交。</item>
-        <item>将“API key”复制到这里。不需要“Shared secret”。</item>
+        <item>将“API key”复制到这里，并把“Shared secret”填入第二个字段：只有标记喜爱曲目时才需要。</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">更多</string>

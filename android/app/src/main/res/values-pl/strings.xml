@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Twoje ostatnie 200 scrobbli na Last.fm</string>
     <string name="lastfm_top_month">Najczęściej słuchane w tym miesiącu</string>
     <string name="lastfm_top_month_desc">Twoje 100 najczęściej słuchanych utworów z ostatnich 30 dni na Last.fm</string>
+    <string name="route_note_lastfm">Twój własny darmowy klucz API. Źródło, a po zalogowaniu hasłem także cel dla ulubionych utworów.</string>
+    <string name="login_password_lastfm">Hasło (opcjonalne, by oznaczać utwory jako ulubione)</string>
+    <string name="setup_field_shared_secret">Shared secret (opcjonalny, by oznaczać utwory jako ulubione)</string>
+    <string name="lastfm_loved_target_desc">Trackhop oznacza te utwory jako ulubione (♥) na Last.fm za Ciebie</string>
+    <string name="lastfm_needs_password">Aby oznaczać utwory jako ulubione, połącz ponownie Last.fm, podając też hasło.</string>
+    <string name="lastfm_password_note">Jest użyte raz, aby uzyskać sesję od Last.fm, i nie jest przechowywane.</string>
+    <string name="lastfm_session_expired">Last.fm zakończył sesję: połącz go ponownie z hasłem, aby oznaczać utwory jako ulubione.</string>
+    <string name="lastfm_no_secret">Oznaczanie utworów jako ulubione na Last.fm wymaga shared secret Twojego klucza API: dodaj go obok klucza.</string>
+    <string name="lastfm_love_title">Oznaczaj też utwory jako ulubione</string>
     <string name="pill_source_empty">Puste źródło</string>
     <string name="transfer_unsupported">niedostępne w %1$s</string>
     <string name="tracks_count">Utwory: %1$d</string>
@@ -524,7 +533,7 @@
     <string name="provider_note_subsonic">Twój własny serwer muzyczny: Navidrome, Airsonic, Gonic, LMS, Funkwhale i wszystko, co obsługuje Subsonic API. Bez rejestracji, bez limitów. Utwory oznaczone gwiazdką liczą się jako polubione.</string>
     <string name="provider_note_jellyfin">Twój serwer Jellyfin. Bez rejestracji, bez limitów. Ulubione liczą się jako polubione utwory.</string>
     <string name="provider_note_plex">Twój Plex Media Server z twoim X-Plex-Token. Playlisty muzyczne są odczytywane, tworzone i aktualizowane na serwerze.</string>
-    <string name="provider_note_lastfm">Ulubione utwory z profilu Last.fm, tylko jako źródło. Wymaga bezpłatnego klucza API Last.fm.</string>
+    <string name="provider_note_lastfm">Ulubione utwory profilu Last.fm jako źródło. Po zalogowaniu hasłem Ulubione utwory są też celem: Trackhop oznacza je za Ciebie. Wymaga darmowego klucza API Last.fm.</string>
     <string name="provider_note_listenbrainz">Playlisty i ulubione utwory użytkownika ListenBrainz. Z twoim tokenem użytkownika ulubione utwory można też zapisywać (polubione utwory jako cel).</string>
     <string name="login_title">Zaloguj się do %1$s</string>
     <string name="login_url">Adres serwera</string>
@@ -537,7 +546,7 @@
     <string name="login_hint_subsonic">Wpisz adres swojego serwera Navidrome, Airsonic lub innego zgodnego z Subsonic (na przykład https://music.example.com), nazwę użytkownika i hasło. Hasło nigdy nie jest wysyłane w czystej postaci: każde żądanie używa solonego hasha. Ampache: użyj hasła Subsonic lub klucza API ustawionego w Preferencje → Konto, a nie hasła do konta.</string>
     <string name="login_hint_jellyfin">Wpisz adres swojego serwera Jellyfin (na przykład https://jellyfin.example.com), nazwę użytkownika i hasło.</string>
     <string name="login_hint_plex">Wpisz adres swojego Plex Media Server (na przykład http://192.168.1.10:32400) i swój X-Plex-Token. Plex wyjaśnia, jak znaleźć token, na swoich stronach pomocy („Finding an authentication token”).</string>
-    <string name="login_hint_lastfm">Wpisz nazwę użytkownika Last.fm, którego ulubione utwory chcesz odczytywać. Profil musi być publiczny.</string>
+    <string name="login_hint_lastfm">Wpisz swoją nazwę użytkownika Last.fm. Aby tylko czytać ulubione utwory, zostaw hasło puste (profil musi być publiczny). Z hasłem Trackhop może też oznaczać utwory: jest użyte raz, aby uzyskać sesję, i nie jest przechowywane.</string>
     <string name="login_hint_listenbrainz">Wpisz nazwę użytkownika ListenBrainz, którego playlisty i ulubione utwory chcesz odczytywać. Dodaj swój token użytkownika (listenbrainz.org → Settings), aby także zapisywać ulubione utwory.</string>
     <string name="listenbrainz_token_needed">ListenBrainz wymaga twojego tokena użytkownika, aby zapisywać ulubione utwory: dodaj go w zakładce Konta (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Token użytkownika (opcjonalnie)</string>
@@ -733,7 +742,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Zaloguj się na last.fm i otwórz stronę tworzenia konta API.</item>
         <item>Wypełnij formularz: e-mail kontaktowy, nazwa i opis aplikacji są dowolne. „Callback URL” i „Application homepage” mogą zostać puste. Wyślij.</item>
-        <item>Skopiuj tutaj „API key”. „Shared secret” nie jest potrzebny.</item>
+        <item>Skopiuj tutaj \"API key\", a w drugie pole \"Shared secret\": jest potrzebny tylko do oznaczania utworów jako ulubione.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Więcej</string>

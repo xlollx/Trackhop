@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Last.fm에 기록된 최근 200곡</string>
     <string name="lastfm_top_month">이번 달 많이 들은 곡</string>
     <string name="lastfm_top_month_desc">Last.fm에서 최근 30일 동안 가장 많이 들은 100곡</string>
+    <string name="route_note_lastfm">본인의 무료 API 키. 소스로 쓰이며, 비밀번호로 로그인하면 좋아하는 트랙의 대상도 됩니다.</string>
+    <string name="login_password_lastfm">비밀번호 (선택, 트랙을 좋아요 하려면)</string>
+    <string name="setup_field_shared_secret">Shared secret (선택, 트랙을 좋아요 하려면)</string>
+    <string name="lastfm_loved_target_desc">Trackhop이 Last.fm에서 이 트랙들을 대신 좋아요(♥) 합니다</string>
+    <string name="lastfm_needs_password">트랙을 좋아요 하려면 비밀번호도 입력해 Last.fm을 다시 연결하세요.</string>
+    <string name="lastfm_password_note">Last.fm 세션을 받기 위해 한 번만 사용되며 저장되지 않습니다.</string>
+    <string name="lastfm_session_expired">Last.fm이 세션을 종료했습니다. 트랙을 좋아요 하려면 비밀번호로 다시 연결하세요.</string>
+    <string name="lastfm_no_secret">Last.fm에서 트랙을 좋아요 하려면 API 키의 shared secret이 필요합니다. 키 옆에 추가하세요.</string>
+    <string name="lastfm_love_title">트랙도 좋아요 하기</string>
     <string name="pill_source_empty">원본이 비어 있음</string>
     <string name="transfer_unsupported">%1$s에서는 사용할 수 없음</string>
     <string name="tracks_count">%1$d곡</string>
@@ -497,7 +506,7 @@
     <string name="provider_note_subsonic">내 음악 서버: Navidrome, Airsonic, Gonic, LMS, Funkwhale 등 Subsonic API를 쓰는 모든 서버. 등록도 할당량도 없어요. 별표한 곡은 좋아요 표시한 곡으로 취급해요.</string>
     <string name="provider_note_jellyfin">내 Jellyfin 서버. 등록도 할당량도 없어요. 즐겨찾기는 좋아요 표시한 곡으로 취급해요.</string>
     <string name="provider_note_plex">X-Plex-Token으로 연결하는 내 Plex Media Server. 음악 플레이리스트를 서버에서 읽고, 만들고, 업데이트해요.</string>
-    <string name="provider_note_lastfm">Last.fm 프로필의 좋아하는 트랙, 원본으로만 사용. 무료 Last.fm API 키가 필요해요.</string>
+    <string name="provider_note_lastfm">Last.fm 프로필의 좋아하는 트랙을 소스로 사용합니다. 비밀번호로 로그인하면 대상도 되어 Trackhop이 대신 좋아요 합니다. 무료 Last.fm API 키가 필요합니다.</string>
     <string name="provider_note_listenbrainz">ListenBrainz 사용자의 플레이리스트와 좋아하는 트랙. 사용자 토큰이 있으면 좋아하는 트랙을 쓸 수도 있어요(대상으로 좋아요 표시한 곡).</string>
     <string name="login_title">%1$s에 로그인</string>
     <string name="login_url">서버 주소</string>
@@ -510,7 +519,7 @@
     <string name="login_hint_subsonic">Navidrome, Airsonic 등 Subsonic 호환 서버의 주소(예: https://music.example.com), 사용자 이름, 비밀번호를 입력하세요. 비밀번호는 그대로 전송되지 않고 요청마다 솔트를 더한 해시를 사용해요. Ampache는 계정 비밀번호가 아니라 환경설정 → 계정에서 설정한 Subsonic 비밀번호나 API 키를 입력하세요.</string>
     <string name="login_hint_jellyfin">Jellyfin 서버의 주소(예: https://jellyfin.example.com), 사용자 이름, 비밀번호를 입력하세요.</string>
     <string name="login_hint_plex">Plex Media Server의 주소(예: http://192.168.1.10:32400)와 X-Plex-Token을 입력하세요. 토큰 찾는 방법은 Plex 지원 페이지(“Finding an authentication token”)에 있어요.</string>
-    <string name="login_hint_lastfm">좋아하는 트랙을 읽을 Last.fm 사용자 이름을 입력하세요. 프로필이 공개여야 해요.</string>
+    <string name="login_hint_lastfm">Last.fm 사용자 이름을 입력하세요. 좋아하는 트랙만 읽으려면 비밀번호를 비워 두세요(프로필이 공개여야 함). 비밀번호가 있으면 Trackhop이 트랙을 좋아요 할 수 있습니다. 세션을 받기 위해 한 번만 사용되며 저장되지 않습니다.</string>
     <string name="login_hint_listenbrainz">플레이리스트와 좋아하는 트랙을 읽을 ListenBrainz 사용자 이름을 입력하세요. 좋아하는 트랙도 쓰려면 사용자 토큰(listenbrainz.org → Settings)을 추가하세요.</string>
     <string name="listenbrainz_token_needed">ListenBrainz에 좋아하는 트랙을 쓰려면 사용자 토큰이 필요해요. 계정에서 추가하세요(listenbrainz.org → Settings).</string>
     <string name="login_token_optional">사용자 토큰(선택)</string>
@@ -700,7 +709,7 @@
     <string-array name="setup_steps_lastfm">
         <item>last.fm에 로그인하고 API 계정 생성 페이지를 여세요.</item>
         <item>양식을 채우세요. 연락 이메일, 애플리케이션 이름과 설명은 자유예요. “Callback URL”과 “Application homepage”는 비워도 돼요. 제출하세요.</item>
-        <item>“API key”를 여기에 복사하세요. “Shared secret”은 필요 없어요.</item>
+        <item>\"API key\"를 여기에 복사하고 두 번째 칸에 \"Shared secret\"을 넣으세요. 트랙을 좋아요 할 때만 필요합니다.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">더보기</string>

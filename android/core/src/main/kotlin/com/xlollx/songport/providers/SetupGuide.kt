@@ -21,6 +21,10 @@ data class SetupGuide(
     val fieldLabelName: String,
     /** Google: serve anche il client secret dell'app "Desktop". */
     val needsSecret: Boolean = false,
+    /** The secret field may stay empty (Last.fm: its shared secret is needed only to love tracks). */
+    val secretOptional: Boolean = false,
+    /** The secret field's label (name of a string); null = "Client secret". */
+    val secretLabelName: String? = null,
     /** Deezer: l'utente deve fornire anche il proprio URL di redirect https. */
     val needsRedirectUrl: Boolean = false,
     /** Campo lungo su piu' righe (il JWT di Apple Music). */

@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Your latest 200 scrobbles on Last.fm</string>
     <string name="lastfm_top_month">Most played this month</string>
     <string name="lastfm_top_month_desc">Your 100 most played tracks of the last 30 days on Last.fm</string>
+    <string name="route_note_lastfm">Your own free API key. A source, and a target for loved tracks once you sign in with your password.</string>
+    <string name="login_password_lastfm">Password (optional, to love tracks)</string>
+    <string name="setup_field_shared_secret">Shared secret (optional, to love tracks)</string>
+    <string name="lastfm_loved_target_desc">Trackhop loves (♥) these tracks on Last.fm for you</string>
+    <string name="lastfm_needs_password">To love tracks, connect Last.fm again with your password too.</string>
+    <string name="lastfm_password_note">It is used once to get a session from Last.fm and is not kept.</string>
+    <string name="lastfm_session_expired">Last.fm ended the session: connect it again with your password to love tracks.</string>
+    <string name="lastfm_no_secret">Loving tracks on Last.fm needs the shared secret of your API key: add it next to the key.</string>
+    <string name="lastfm_love_title">Love tracks too</string>
     <string name="pill_source_empty">Source empty</string>
     <string name="transfer_unsupported">not available on %1$s</string>
     <string name="tracks_count">%1$d tracks</string>
@@ -506,7 +515,7 @@
     <string name="provider_note_subsonic">Your own music server: Navidrome, Airsonic, Gonic, LMS, Funkwhale and anything speaking the Subsonic API. No registration, no quota. Starred songs count as liked songs.</string>
     <string name="provider_note_jellyfin">Your Jellyfin server. No registration, no quota. Favourites count as liked songs.</string>
     <string name="provider_note_plex">Your Plex Media Server, with your X-Plex-Token. Music playlists are read, created and updated on the server.</string>
-    <string name="provider_note_lastfm">Loved tracks of a Last.fm profile, as a source only. Needs a free Last.fm API key.</string>
+    <string name="provider_note_lastfm">Loved tracks of a Last.fm profile as a source. Signed in with your password, Loved tracks is also a target: Trackhop loves the tracks for you. Needs a free Last.fm API key.</string>
     <string name="provider_note_listenbrainz">Playlists and loved tracks of a ListenBrainz user. With your user token, loved tracks can also be written (liked songs as target).</string>
     <string name="login_title">Sign in to %1$s</string>
     <string name="login_url">Server address</string>
@@ -519,7 +528,7 @@
     <string name="login_hint_subsonic">Enter the address of your Navidrome, Airsonic or other Subsonic-compatible server (for example https://music.example.com), your username and password. The password is never sent as-is: each request uses a salted hash. Ampache: use the Subsonic password or API key set in Preferences → Account, not your account password.</string>
     <string name="login_hint_jellyfin">Enter the address of your Jellyfin server (for example https://jellyfin.example.com), your username and password.</string>
     <string name="login_hint_plex">Enter the address of your Plex Media Server (for example http://192.168.1.10:32400) and your X-Plex-Token. Plex explains how to find the token in its support pages ("Finding an authentication token").</string>
-    <string name="login_hint_lastfm">Enter the Last.fm username whose loved tracks you want to read. The profile must be public.</string>
+    <string name="login_hint_lastfm">Enter your Last.fm username. To only read loved tracks, leave the password empty (the profile must be public). With the password Trackhop can also love tracks: it is used once to get a session and is not kept.</string>
     <string name="login_hint_listenbrainz">Enter the ListenBrainz username whose playlists and loved tracks you want to read. Add your user token (listenbrainz.org → Settings) to also write loved tracks.</string>
     <string name="listenbrainz_token_needed">ListenBrainz needs your user token to write loved tracks: add it in Accounts (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">User token (optional)</string>
@@ -711,7 +720,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Sign in at last.fm and open the API account creation page.</item>
         <item>Fill in the form: contact e-mail, application name and description are up to you. "Callback URL" and "Application homepage" can stay empty. Submit.</item>
-        <item>Copy the "API key" here. The "Shared secret" is not needed.</item>
+        <item>Copy the \"API key\" here, and the \"Shared secret\" in the second field: it is needed only to love tracks.</item>
     </string-array>
     <!-- Restyling: status pills, empty screens, header -->
     <string name="more_actions">More</string>

@@ -71,6 +71,7 @@ jobs:
       # Apple Music: JWT con scadenza (max 6 mesi), quindi sta nei Secrets non nelle Variables.
       APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
       LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
+      LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
       # Keystore di debug (base64) per una firma stabile dell'APK debug; facoltativo.
@@ -144,6 +145,7 @@ jobs:
       GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
       LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
+      LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
     steps:

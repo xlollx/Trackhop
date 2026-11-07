@@ -80,7 +80,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Emby** (beta) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
-| **Last.fm** | ✓ | — | — | Your username (loved tracks, scrobbles, top tracks) | All builds |
+| **Last.fm** | ✓ | ✓ (loved tracks) | ✓ (loved tracks) | Your username (loved tracks, scrobbles, top tracks); your password too to love tracks | All builds |
 | **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
@@ -321,7 +321,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
 | Emby | beta | server URL, user, password | nothing | Jellyfin's API (Emby is where Jellyfin forked from) under `/emby`, with `X-Emby-Authorization`/`X-Emby-Token`; favourites supported. Not yet tried on a real Emby server. |
 | Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
-| Last.fm | read-only | username | `LASTFM_API_KEY` or a key entered by the user | Loved tracks, recent scrobbles and the month's most played; source only. |
+| Last.fm | read; loves with a session | username (+ password once, for a session) | `LASTFM_API_KEY` + `LASTFM_SHARED_SECRET`, or a key and secret entered by the user | Loved tracks, recent scrobbles and the month's most played as sources; Loved tracks as a target (track.love / track.unlove) once signed in with the password, which is used once for `auth.getMobileSession` and not kept. |
 | ListenBrainz | read-only, beta | username | nothing | Playlists and loved tracks, source only. |
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
 | SoundCloud | your account (sets, likes: read, create, add, remove; beta) built into the GitHub/F-Droid build and in the Trackhop Bridge; public links read-only on every non-Play build and the server; unofficial | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
@@ -589,7 +589,7 @@ the full procedure (Android client, verification, quota) is in `docs/google-shar
 | `APPLE_DEVELOPER_TOKEN` (secret) | Apple Developer → Keys → MusicKit → `.p8` key, Key ID and Team ID, then the JWT below | none |
 | `TIDAL_CLIENT_ID` | developer.tidal.com → Dashboard → Create app | `songport://callback` |
 | `DEEZER_APP_ID`, `DEEZER_REDIRECT_URL` | developers.deezer.com → My Apps. Publish `docs/deezer-redirect.html` on an https host and use that URL as redirect and "Application domain". | the https URL of the page |
-| `LASTFM_API_KEY` | last.fm/api/account/create | none |
+| `LASTFM_API_KEY`, `LASTFM_SHARED_SECRET` (secret) | last.fm/api/account/create (the secret is the key's "Shared secret": only for loving tracks) | none |
 | `PRIVACY_POLICY_URL`, `KOFI_URL` | public URLs of the privacy policy and the donation page; an empty `KOFI_URL` hides the button | |
 
 With a public repository, register only the SHA-1 of the upload key and of Play App Signing in the

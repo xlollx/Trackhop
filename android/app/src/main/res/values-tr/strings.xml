@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Last.fm’deki son 200 scrobble’ın</string>
     <string name="lastfm_top_month">Ayın en çok dinlenenleri</string>
     <string name="lastfm_top_month_desc">Last.fm’de son 30 günde en çok dinlediğin 100 parça</string>
+    <string name="route_note_lastfm">Kendi ücretsiz API anahtarın. Bir kaynak; parolanla giriş yaptıktan sonra sevilen parçalar için bir hedef.</string>
+    <string name="login_password_lastfm">Parola (isteğe bağlı, parçaları sevmek için)</string>
+    <string name="setup_field_shared_secret">Shared secret (isteğe bağlı, parçaları sevmek için)</string>
+    <string name="lastfm_loved_target_desc">Trackhop bu parçaları Last.fm\'de senin yerine sever (♥)</string>
+    <string name="lastfm_needs_password">Parçaları sevmek için Last.fm\'i parolanla da yeniden bağla.</string>
+    <string name="lastfm_password_note">Last.fm\'den bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
+    <string name="lastfm_session_expired">Last.fm oturumu sonlandırdı: parçaları sevmek için parolanla yeniden bağla.</string>
+    <string name="lastfm_no_secret">Last.fm\'de parça sevmek için API anahtarının shared secret değeri gerekir: anahtarın yanına ekle.</string>
+    <string name="lastfm_love_title">Parçaları da sev</string>
     <string name="pill_source_empty">Kaynak boş</string>
     <string name="transfer_unsupported">%1$s üzerinde kullanılamaz</string>
     <string name="tracks_count">%1$d parça</string>
@@ -506,7 +515,7 @@
     <string name="provider_note_subsonic">Kendi müzik sunucunuz: Navidrome, Airsonic, Gonic, LMS, Funkwhale ve Subsonic API konuşan her şey. Kayıt yok, kota yok. Yıldızlı şarkılar beğenilen şarkı sayılır.</string>
     <string name="provider_note_jellyfin">Jellyfin sunucunuz. Kayıt yok, kota yok. Favoriler beğenilen şarkı sayılır.</string>
     <string name="provider_note_plex">X-Plex-Token\'ınızla Plex Media Server\'ınız. Müzik çalma listeleri sunucuda okunur, oluşturulur ve güncellenir.</string>
-    <string name="provider_note_lastfm">Bir Last.fm profilinin sevilen parçaları, yalnızca kaynak olarak. Ücretsiz bir Last.fm API anahtarı gerektirir.</string>
+    <string name="provider_note_lastfm">Bir Last.fm profilinin sevilen parçaları kaynak olarak. Parolanla giriş yapınca Sevilen parçalar bir hedef de olur: Trackhop parçaları senin yerine sever. Ücretsiz bir Last.fm API anahtarı gerekir.</string>
     <string name="provider_note_listenbrainz">Bir ListenBrainz kullanıcısının çalma listeleri ve sevilen parçaları. Kullanıcı jetonunuzla sevilen parçalar yazılabilir de (hedef olarak beğenilen şarkılar).</string>
     <string name="login_title">%1$s hesabında oturum aç</string>
     <string name="login_url">Sunucu adresi</string>
@@ -519,7 +528,7 @@
     <string name="login_hint_subsonic">Navidrome, Airsonic veya başka bir Subsonic uyumlu sunucunuzun adresini (örneğin https://music.example.com), kullanıcı adınızı ve şifrenizi girin. Şifre asla olduğu gibi gönderilmez: her istek tuzlanmış bir hash kullanır. Ampache: hesap şifrenizi değil, Tercihler → Hesap bölümünde belirlediğiniz Subsonic şifresini veya API anahtarını kullanın.</string>
     <string name="login_hint_jellyfin">Jellyfin sunucunuzun adresini (örneğin https://jellyfin.example.com), kullanıcı adınızı ve şifrenizi girin.</string>
     <string name="login_hint_plex">Plex Media Server adresinizi (örneğin http://192.168.1.10:32400) ve X-Plex-Token\'ınızı girin. Plex, jetonu nasıl bulacağınızı destek sayfalarında açıklar (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Sevilen parçalarını okumak istediğiniz Last.fm kullanıcı adını girin. Profil herkese açık olmalıdır.</string>
+    <string name="login_hint_lastfm">Last.fm kullanıcı adını gir. Yalnızca sevilen parçaları okumak için parolayı boş bırak (profil herkese açık olmalı). Parolayla Trackhop parçaları da sevebilir: bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
     <string name="login_hint_listenbrainz">Çalma listelerini ve sevilen parçalarını okumak istediğiniz ListenBrainz kullanıcı adını girin. Sevilen parçaları yazmak için de kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
     <string name="listenbrainz_token_needed">ListenBrainz, sevilen parçaları yazmak için kullanıcı jetonunuzu gerektirir: Hesaplar\'dan ekleyin (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Kullanıcı jetonu (isteğe bağlı)</string>
@@ -711,7 +720,7 @@
     <string-array name="setup_steps_lastfm">
         <item>last.fm adresinde oturum açın ve API hesabı oluşturma sayfasını açın.</item>
         <item>Formu doldurun: iletişim e-postası, uygulama adı ve açıklaması size kalmış. \"Callback URL\" ve \"Application homepage\" boş kalabilir. Gönderin.</item>
-        <item>\"API key\" değerini buraya kopyalayın. \"Shared secret\" gerekmez.</item>
+        <item>\"API key\" değerini buraya, \"Shared secret\" değerini ikinci alana kopyala: yalnızca parça sevmek için gerekir.</item>
     </string-array>
     <string name="more_actions">Daha fazla</string>
     <string name="pill_ok">Güncel</string>

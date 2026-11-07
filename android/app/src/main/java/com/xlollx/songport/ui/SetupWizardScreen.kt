@@ -80,14 +80,18 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
         val id = clientId.trim()
         val sec = secret.trim()
         val url = redirectUrl.trim()
-        if (id.isEmpty() || (guide.needsSecret && sec.isEmpty()) || (guide.needsRedirectUrl && url.isEmpty())) {
+        if (id.isEmpty() || (guide.needsSecret && !guide.secretOptional && sec.isEmpty()) || (guide.needsRedirectUrl && url.isEmpty())) {
             error = ctx.getString(R.string.setup_field_required)
             return false
         }
         store.updateSettings { s ->
             s.copy(
                 clientIds = s.clientIds + (provider.serviceId to id),
-                clientSecrets = if (guide.needsSecret) s.clientSecrets + (provider.serviceId to sec) else s.clientSecrets,
+                clientSecrets = when {
+                    !guide.needsSecret -> s.clientSecrets
+                    sec.isEmpty() -> s.clientSecrets - provider.serviceId
+                    else -> s.clientSecrets + (provider.serviceId to sec)
+                },
                 deezerRedirectUrl = if (guide.needsRedirectUrl) url else s.deezerRedirectUrl,
             )
         }
@@ -167,7 +171,7 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
                 OutlinedTextField(
                     value = secret,
                     onValueChange = { secret = it; error = null },
-                    label = { Text(stringResource(R.string.setup_field_secret)) },
+                    label = { Text(stringResource(guide.secretLabelRes)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )

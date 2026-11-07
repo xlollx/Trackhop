@@ -119,6 +119,18 @@ class WebTest {
         assertFalse(get("/connectors").body().contains("href=\"/connectors/csv\""))
     }
 
+    /** Last.fm read with the user name only offers the password, once, to love tracks (#51); with a session, it does not. */
+    @Test fun lastFmOffersLovingTracks() {
+        assertEquals(303, post("/connectors/add", "service=lastfm", *origin).statusCode())
+        env.tokens.set("lastfm", com.xlollx.songport.data.Tokens("RJ", userName = "RJ"))
+        val page = get("/connectors/lastfm").body()
+        assertTrue(page, page.contains("lastfm_love_title"))
+        assertTrue(page.contains("""<input type="hidden" name="user" value="RJ">"""))
+        assertTrue(page.contains("""name="secret" autocomplete="current-password" required"""))
+        env.tokens.set("lastfm", com.xlollx.songport.data.Tokens("RJ", userName = "RJ", extra = mapOf("sk" to "SK")))
+        assertFalse(get("/connectors/lastfm").body().contains("lastfm_love_title"))
+    }
+
     @Test fun aSyncOnlyTakesListedPlaylists() {
         assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
         File(data, "csv").mkdirs()

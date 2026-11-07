@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Last.fm の最新 200 件の再生記録</string>
     <string name="lastfm_top_month">今月よく聴いた曲</string>
     <string name="lastfm_top_month_desc">Last.fm で過去 30 日間によく聴いた上位 100 曲</string>
+    <string name="route_note_lastfm">自分の無料 API キー。ソースとして使え、パスワードでサインインするとラブしたトラックの保存先にもなります。</string>
+    <string name="login_password_lastfm">パスワード（任意、トラックをラブするため）</string>
+    <string name="setup_field_shared_secret">Shared secret（任意、トラックをラブするため）</string>
+    <string name="lastfm_loved_target_desc">Trackhop がこれらのトラックを Last.fm であなたの代わりにラブ（♥）します</string>
+    <string name="lastfm_needs_password">トラックをラブするには、パスワードも入力して Last.fm を接続し直してください。</string>
+    <string name="lastfm_password_note">Last.fm のセッションを取得するために一度だけ使われ、保存されません。</string>
+    <string name="lastfm_session_expired">Last.fm がセッションを終了しました。トラックをラブするにはパスワードで接続し直してください。</string>
+    <string name="lastfm_no_secret">Last.fm でトラックをラブするには API キーの shared secret が必要です。キーの横に追加してください。</string>
+    <string name="lastfm_love_title">トラックもラブする</string>
     <string name="pill_source_empty">同期元が空です</string>
     <string name="transfer_unsupported">%1$s では利用できません</string>
     <string name="tracks_count">%1$d 曲</string>
@@ -498,7 +507,7 @@
     <string name="provider_note_subsonic">ご自身の音楽サーバー：Navidrome、Airsonic、Gonic、LMS、Funkwhale など、Subsonic API に対応したサーバー。登録も割り当ても不要です。スターを付けた曲はお気に入りの曲として扱われます。</string>
     <string name="provider_note_jellyfin">ご自身の Jellyfin サーバー。登録も割り当ても不要です。お気に入りはお気に入りの曲として扱われます。</string>
     <string name="provider_note_plex">ご自身の Plex Media Server に X-Plex-Token で接続します。音楽プレイリストをサーバー上で読み込み、作成、更新できます。</string>
-    <string name="provider_note_lastfm">Last.fm プロフィールの Love した曲（同期元専用）。無料の Last.fm API キーが必要です。</string>
+    <string name="provider_note_lastfm">Last.fm プロフィールのラブしたトラックをソースとして使えます。パスワードでサインインすると保存先にもなり、Trackhop があなたの代わりにラブします。無料の Last.fm API キーが必要です。</string>
     <string name="provider_note_listenbrainz">ListenBrainz ユーザーのプレイリストと Love した曲。ユーザートークンがあれば Love した曲の書き込みもできます（お気に入りを転送先に）。</string>
     <string name="login_title">%1$s にログイン</string>
     <string name="login_url">サーバーのアドレス</string>
@@ -511,7 +520,7 @@
     <string name="login_hint_subsonic">Navidrome、Airsonic などの Subsonic 互換サーバーのアドレス（例：https://music.example.com）、ユーザー名、パスワードを入力してください。パスワードがそのまま送信されることはなく、各リクエストにはソルト付きハッシュが使われます。Ampache の場合は、アカウントのパスワードではなく、「設定」→「アカウント」で設定した Subsonic パスワードまたは API キーを使ってください。</string>
     <string name="login_hint_jellyfin">Jellyfin サーバーのアドレス（例：https://jellyfin.example.com）、ユーザー名、パスワードを入力してください。</string>
     <string name="login_hint_plex">Plex Media Server のアドレス（例：http://192.168.1.10:32400）と X-Plex-Token を入力してください。トークンの確認方法は Plex のサポートページ（「Finding an authentication token」）で説明されています。</string>
-    <string name="login_hint_lastfm">Love した曲を読み込む Last.fm のユーザー名を入力してください。プロフィールは公開されている必要があります。</string>
+    <string name="login_hint_lastfm">Last.fm のユーザー名を入力してください。ラブしたトラックを読むだけならパスワードは空のままで構いません（プロフィールは公開が必要）。パスワードがあれば Trackhop がトラックをラブできます。セッション取得のために一度だけ使われ、保存されません。</string>
     <string name="login_hint_listenbrainz">プレイリストと Love した曲を読み取る ListenBrainz のユーザー名を入力してください。ユーザートークン（listenbrainz.org → Settings）を追加すると Love した曲の書き込みもできます。</string>
     <string name="listenbrainz_token_needed">Love した曲を書き込むには ListenBrainz のユーザートークンが必要です。「アカウント」で追加してください（listenbrainz.org → Settings）。</string>
     <string name="login_token_optional">ユーザートークン（任意）</string>
@@ -701,7 +710,7 @@
     <string-array name="setup_steps_lastfm">
         <item>last.fm にログインし、API アカウントの作成ページを開きます。</item>
         <item>フォームに入力します。連絡先メールアドレス、アプリケーション名、説明は自由です。「Callback URL」と「Application homepage」は空欄のままで構いません。送信します。</item>
-        <item>「API key」をここにコピーします。「Shared secret」は不要です。</item>
+        <item>「API key」をここにコピーし、2 番目の欄に「Shared secret」を入力します。トラックをラブする場合だけ必要です。</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">その他</string>
