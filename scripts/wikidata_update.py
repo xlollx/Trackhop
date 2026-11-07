@@ -122,7 +122,9 @@ def ensure_logo(user, password):
         out = api({"action": "upload", "filename": LOGO_FILE, "text": LOGO_PAGE, "comment": "Logo of Trackhop",
                    "token": csrf}, url=COMMONS, upload=(LOGO_FILE, svg, "image/svg+xml"))["upload"]
     except SystemExit as e:  # an upload problem never stops the Wikidata edit
-        print("Commons: " + str(e))
+        hint = (" (the account exists on Commons only after opening commons.wikimedia.org once while signed in)"
+                if "login refused" in str(e) else "")
+        print("Commons: " + str(e).replace("Wikidata login", "login") + hint)
         return False
     if out.get("result") != "Success":
         print("Commons: logo not uploaded: " + json.dumps(out.get("warnings", out)))
