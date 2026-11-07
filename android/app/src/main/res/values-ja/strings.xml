@@ -1729,4 +1729,8 @@
     <string name="preview_tile_unlike">高評価を解除予定</string>
     <string name="preview_tile_present">追加済み</string>
     <string name="preview_step_match">曲を照合しています</string>
+    <string name="start_over">最初からやり直す</string>
+    <string name="start_over_title">%1$s を最初からやり直しますか？</string>
+    <string name="start_over_body">Trackhop はサインアウトし、%1$s のウェブサイト用に保存している Cookie とデータを消去します。ここで一度もサインインしていない状態に戻ります。%1$s のアカウントとプレイリストには影響しません。その後、もう一度サインインしてください。</string>
+    <string name="start_over_done">%1$s：やり直しました。準備ができたら再度サインインしてください。</string>
 </resources>

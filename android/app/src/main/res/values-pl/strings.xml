@@ -1821,4 +1821,8 @@
     <string name="preview_tile_unlike">do odpolubienia</string>
     <string name="preview_tile_present">już są</string>
     <string name="preview_step_match">Dopasowywanie utworów</string>
+    <string name="start_over">Zacznij od nowa</string>
+    <string name="start_over_title">Zacząć od nowa z %1$s?</string>
+    <string name="start_over_body">Trackhop wyloguje się i zapomni pliki cookie oraz dane, które przechowuje dla strony %1$s, tak jakbyś nigdy się tu nie logował. Twoje konto %1$s i jego playlisty pozostaną nietknięte. Potem zaloguj się ponownie.</string>
+    <string name="start_over_done">%1$s: zaczęto od nowa. Zaloguj się ponownie, kiedy chcesz.</string>
 </resources>

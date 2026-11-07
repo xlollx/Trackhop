@@ -36,7 +36,7 @@ import kotlinx.serialization.json.JsonPrimitive
  * changes. The Bridge shows the notice before sign-in. The official path with your own client ID
  * stays available as [SpotifyProvider].
  */
-class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
+class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector, StartsOver {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Spotify (web)" else "Spotify (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -78,6 +78,8 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the Bridge completes the login itself */ }
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "spotify.disconnect") } }
 
+    // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
+    override fun startOver(ctx: Env) { runCatching { call(ctx, "spotify.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "spotify.playlists") { j ->
         j.arr.mapNotNull { p -> toPlaylist(p) }
     }

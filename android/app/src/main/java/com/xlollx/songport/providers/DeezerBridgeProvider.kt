@@ -32,7 +32,7 @@ import kotlinx.serialization.json.JsonElement
  * Not an official route: Deezer's terms do not allow it and it can stop working when the player
  * changes. The Bridge shows the notice before sign-in.
  */
-class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
+class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector, StartsOver {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Deezer (web)" else "Deezer (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -70,6 +70,8 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebA
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the connector completes the login itself */ }
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "deezer.disconnect") } }
 
+    // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
+    override fun startOver(ctx: Env) { runCatching { call(ctx, "deezer.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "deezer.playlists") { j -> j.arr.mapNotNull { toPlaylist(it) } }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =

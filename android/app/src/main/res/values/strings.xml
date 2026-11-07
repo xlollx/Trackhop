@@ -1760,4 +1760,8 @@
     <string name="preview_tile_unlike">to unlike</string>
     <string name="preview_tile_present">already there</string>
     <string name="preview_step_match">Matching the tracks</string>
+    <string name="start_over">Start over</string>
+    <string name="start_over_title">Start over with %1$s?</string>
+    <string name="start_over_body">Trackhop signs out and forgets the cookies and data it keeps for %1$s\'s website, as if you had never signed in here. Your %1$s account and its playlists are not touched. Then sign in again.</string>
+    <string name="start_over_done">%1$s: started over. Sign in again when you\'re ready.</string>
 </resources>

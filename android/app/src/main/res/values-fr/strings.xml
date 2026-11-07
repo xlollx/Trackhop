@@ -1767,4 +1767,8 @@
     <string name="preview_tile_unlike">à retirer des favoris</string>
     <string name="preview_tile_present">déjà là</string>
     <string name="preview_step_match">Correspondance des titres</string>
+    <string name="start_over">Repartir de zéro</string>
+    <string name="start_over_title">Repartir de zéro avec %1$s ?</string>
+    <string name="start_over_body">Trackhop se déconnecte et oublie les cookies et les données qu\'il garde pour le site de %1$s, comme si tu ne t\'étais jamais connecté ici. Ton compte %1$s et ses playlists ne sont pas touchés. Reconnecte-toi ensuite.</string>
+    <string name="start_over_done">%1$s : reparti de zéro. Reconnecte-toi quand tu veux.</string>
 </resources>

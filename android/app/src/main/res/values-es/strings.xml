@@ -1767,4 +1767,8 @@
     <string name="preview_tile_unlike">por quitar de me gusta</string>
     <string name="preview_tile_present">ya están</string>
     <string name="preview_step_match">Emparejando las canciones</string>
+    <string name="start_over">Empezar de cero</string>
+    <string name="start_over_title">¿Empezar de cero con %1$s?</string>
+    <string name="start_over_body">Trackhop cierra la sesión y olvida las cookies y los datos que guarda del sitio web de %1$s, como si nunca hubieras iniciado sesión aquí. Tu cuenta de %1$s y sus listas no se tocan. Después, vuelve a iniciar sesión.</string>
+    <string name="start_over_done">%1$s: empezado de cero. Vuelve a iniciar sesión cuando quieras.</string>
 </resources>

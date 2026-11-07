@@ -1767,4 +1767,8 @@
     <string name="preview_tile_unlike">a descurtir</string>
     <string name="preview_tile_present">já estão lá</string>
     <string name="preview_step_match">Combinando as faixas</string>
+    <string name="start_over">Recomeçar do zero</string>
+    <string name="start_over_title">Recomeçar do zero com %1$s?</string>
+    <string name="start_over_body">O Trackhop sai da conta e esquece os cookies e os dados que guarda do site do %1$s, como se você nunca tivesse entrado aqui. Sua conta do %1$s e as playlists dela não são tocadas. Depois, entre de novo.</string>
+    <string name="start_over_done">%1$s: recomeçado. Entre de novo quando quiser.</string>
 </resources>

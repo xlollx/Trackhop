@@ -1757,4 +1757,8 @@
     <string name="preview_tile_unlike">beğeniden çıkarılacak</string>
     <string name="preview_tile_present">zaten var</string>
     <string name="preview_step_match">Parçalar eşleştiriliyor</string>
+    <string name="start_over">Baştan başla</string>
+    <string name="start_over_title">%1$s ile baştan başlansın mı?</string>
+    <string name="start_over_body">Trackhop oturumu kapatır ve %1$s web sitesi için tuttuğu çerezleri ve verileri unutur; burada hiç oturum açmamışsın gibi olur. %1$s hesabına ve çalma listelerine dokunulmaz. Ardından yeniden oturum aç.</string>
+    <string name="start_over_done">%1$s: baştan başlatıldı. Hazır olduğunda yeniden oturum aç.</string>
 </resources>

@@ -187,6 +187,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                     onRename = { renaming = p },
                     onRemove = { remove(p) },
                     onChanged = { refresh++ },
+                    onMessage = { m -> scope.launch { snackbar.showSnackbar(m) } },
                 )
             }
         }
@@ -356,6 +357,7 @@ private fun ProviderCard(
     onRename: () -> Unit,
     onRemove: () -> Unit,
     onChanged: () -> Unit,
+    onMessage: (String) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     // Letture dal token cifrato: una volta per scheda, non a ogni ridisegno (key(refresh) le rinnova).
@@ -423,6 +425,24 @@ private fun ProviderCard(
                 var choosingChannel by remember { mutableStateOf(false) }
                 val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
                 if (choosingChannel && p is YouTubeBridgeProvider) YtmChannelDialog(p, onDismiss = { choosingChannel = false }) { choosingChannel = false; onChanged() }
+                var startingOver by remember { mutableStateOf(false) }
+                val cardScope = rememberCoroutineScope()
+                if (startingOver && p is com.xlollx.songport.providers.StartsOver) AlertDialog(
+                    onDismissRequest = { startingOver = false },
+                    title = { Text(stringResource(R.string.start_over_title, p.label(ctx))) },
+                    text = { Text(stringResource(R.string.start_over_body, p.displayName)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            startingOver = false
+                            cardScope.launch {
+                                kotlinx.coroutines.withContext(Dispatchers.IO) { p.startOver(ctx.env) }
+                                onMessage(ctx.getString(R.string.start_over_done, p.label(ctx)))
+                                onChanged()
+                            }
+                        }) { Text(stringResource(R.string.start_over)) }
+                    },
+                    dismissButton = { TextButton(onClick = { startingOver = false }) { Text(stringResource(R.string.cancel)) } },
+                )
                 val actions = listOfNotNull(
                     if (connected) MenuAction(stringResource(R.string.account_test), { testing = true }) else null,
                     if (channels) MenuAction(stringResource(R.string.ytm_channel), { choosingChannel = true }) else null,
@@ -430,6 +450,9 @@ private fun ProviderCard(
                     if (connected && p.revokeUrl != null) MenuAction(stringResource(R.string.account_revoke, p.displayName), {
                         ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.revokeUrl)))
                     }) else null,
+                    // A web connector starts over: signed out, its sites' data forgotten (connected or not:
+                    // a site can remember a sign-in the connector never got, #53).
+                    if (p is com.xlollx.songport.providers.StartsOver) MenuAction(stringResource(R.string.start_over), { startingOver = true }) else null,
                     MenuAction(stringResource(R.string.connector_rename), onRename),
                     MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
                 ).let { base ->

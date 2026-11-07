@@ -23,7 +23,7 @@ import com.xlollx.songport.net.str
  * Not an official route: those tokens belong to the web player. The Bridge shows the notice before
  * sign-in. The official path with your own developer token stays available as [AppleMusicProvider].
  */
-class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAccounts.Connector {
+class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAccounts.Connector, StartsOver {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Apple Music (web)" else "Apple Music (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -142,6 +142,8 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAcco
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the Bridge completes the login itself */ }
     override fun disconnect(ctx: Env) { cache = null; runCatching { call(ctx, "apple.disconnect") } }
 
+    // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
+    override fun startOver(ctx: Env) { cache = null; runCatching { call(ctx, "apple.reset") }.onFailure { disconnect(ctx) } }
     private fun call(ctx: Env, method: String, arg: String? = null, extras: Bundle? = null): Bundle {
         if (!BridgePlugin.installed(ctx)) throw ProviderException(ctx.text("ytm_not_installed"))
         val b = try {

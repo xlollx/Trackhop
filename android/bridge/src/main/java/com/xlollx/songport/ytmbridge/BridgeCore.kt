@@ -36,6 +36,8 @@ object BridgeCore {
         // The account the call is about: absent (every Trackhop before 1.15) means the primary one.
         val slot = Slots.of(extras)
         if (slot.isNotEmpty() && serviceOf(method) !in SLOT_SERVICES) return err(ONE_ACCOUNT)
+        // "Start over": the disconnect, then the sites' stored data too (see [WebReset]).
+        if (method.endsWith(".reset")) return runCatching { reset(ctx, method, arg, extras, slot) }.getOrElse { err(it.message ?: it.javaClass.simpleName) }
         return try {
             val client = YtmClient(ctx, slot)
             val ytm = Session.forSlot(slot)
@@ -491,4 +493,27 @@ object BridgeCore {
 
     private fun ok(jsonText: String) = Bundle().apply { putString("json", jsonText) }
     private fun err(message: String) = Bundle().apply { putString("error", message) }
+
+    /** The web connectors a start over applies to, with the session of [slot]. YouTube Music and Amazon are not among them. */
+    fun resettable(service: String, slot: String): WebSession? = when (service) {
+        "anghami" -> AnghamiBridge.session(slot)
+        "qobuz" -> QobuzBridge.session(slot)
+        "liveone" -> LiveOneBridge.session(slot)
+        "deezer" -> DeezerBridge.session(slot)
+        "spotify" -> SpotifyBridge.session(slot)
+        "apple" -> AppleBridge.session(slot)
+        "soundcloud" -> SoundCloudBridge.session
+        else -> null
+    }
+
+    private fun reset(ctx: Context, method: String, arg: String?, extras: Bundle?, slot: String): Bundle {
+        val svc = serviceOf(method)
+        val session = resettable(svc, slot) ?: return err("unknown method $method")
+        val cookies = WebReset.cookieCount(session)
+        val out = call(ctx, "$svc.disconnect", arg, extras)
+        if (out.containsKey("error")) return out
+        val sites = WebReset.forgetStorage(session)
+        BridgeNet.log(svc, "start over${if (slot.isEmpty()) "" else " (account $slot)"}: session forgotten, $cookies cookies and the data of $sites sites cleared")
+        return Bundle().apply { putInt("cookies", cookies); putInt("sites", sites) }
+    }
 }

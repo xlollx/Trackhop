@@ -28,7 +28,7 @@ import kotlinx.serialization.json.JsonElement
  * Not an official route: Anghami's terms do not allow it and it can stop working when the player
  * changes. The sign-in screen shows the notice first.
  */
-class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector {
+class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, WebAccounts.Connector, StartsOver {
     override val serviceId = SERVICE
     override val displayName = if (BridgePlugin.builtIn) "Anghami (web)" else "Anghami (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -57,6 +57,8 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the sign-in screen keeps the session itself */ }
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "anghami.disconnect") } }
 
+    // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
+    override fun startOver(ctx: Env) { runCatching { call(ctx, "anghami.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "anghami.playlists") { j ->
         j.arr.mapNotNull { p -> p["id"].str?.let { Playlist(it, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) } }
     }

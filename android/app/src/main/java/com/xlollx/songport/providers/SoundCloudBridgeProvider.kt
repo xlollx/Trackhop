@@ -37,7 +37,7 @@ import kotlinx.serialization.json.JsonElement
  * the public-link reader's parser: few ISRCs, so the matching uses title, artist and duration.
  * Not an official interface: it can stop working when SoundCloud changes its web app.
  */
-class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider {
+class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, StartsOver {
     override val serviceId = SoundCloudPublic.SERVICE
     override val displayName = if (BridgePlugin.builtIn) "SoundCloud (web)" else "SoundCloud (plugin)"
     override val route: MusicProvider.Route? get() = MusicProvider.Route.EASY
@@ -91,6 +91,8 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider {
     override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) { /* the connector completes the login itself */ }
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "soundcloud.disconnect") } }
 
+    // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
+    override fun startOver(ctx: Env) { runCatching { call(ctx, "soundcloud.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "soundcloud.playlists") { j -> j.arr.mapNotNull { toPlaylist(it) } }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =

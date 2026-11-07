@@ -1759,4 +1759,8 @@
     <string name="preview_tile_unlike">da togliere dai preferiti</string>
     <string name="preview_tile_present">già presenti</string>
     <string name="preview_step_match">Abbinamento dei brani</string>
+    <string name="start_over">Pulisci e ricomincia</string>
+    <string name="start_over_title">Ricominciare da zero con %1$s?</string>
+    <string name="start_over_body">Trackhop esce e dimentica i cookie e i dati che tiene per il sito di %1$s, come se non avessi mai fatto l\'accesso qui. Il tuo account %1$s e le sue playlist non vengono toccati. Poi accedi di nuovo.</string>
+    <string name="start_over_done">%1$s: ripulito. Accedi di nuovo quando vuoi.</string>
 </resources>

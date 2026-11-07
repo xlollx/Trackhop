@@ -1819,4 +1819,8 @@
     <string name="preview_tile_unlike">убрать из любимых</string>
     <string name="preview_tile_present">уже есть</string>
     <string name="preview_step_match">Сопоставление треков</string>
+    <string name="start_over">Начать заново</string>
+    <string name="start_over_title">Начать заново с %1$s?</string>
+    <string name="start_over_body">Trackhop выйдет из аккаунта и забудет cookie и данные, которые хранит для сайта %1$s, как будто вы здесь никогда не входили. Ваш аккаунт %1$s и его плейлисты не затрагиваются. Затем войдите снова.</string>
+    <string name="start_over_done">%1$s: начато заново. Войдите снова, когда будете готовы.</string>
 </resources>

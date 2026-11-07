@@ -61,6 +61,12 @@ class WebSession private constructor(private val name: String, private val domai
         prefs(ctx).edit().putString("cookies", cookies).putString("account", account).apply()
     }
 
+    /** The service this session is for, as its profile and file are named ("anghami", "spotify_web"…). */
+    val serviceName: String get() = name
+
+    /** The sites whose cookies are this session's (and are cleared with it). */
+    val sites: List<String> get() = domains
+
     /** The cookie jar this account's pages use: the WebView's own for the primary, the slot's profile otherwise. */
     fun jar(): CookieManager = Slots.cookies(name, slot)
 
