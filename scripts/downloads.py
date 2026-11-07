@@ -5,7 +5,7 @@
 
 Adds up every GitHub release asset (APK, Desktop) and the Docker Hub pulls. Stores that publish no
 count (F-Droid, Snap, Microsoft Store) are not in it, so the total only ever undercounts.
-Writes OUT_DIR/downloads.json (a shields.io endpoint) and OUT_DIR/downloads-detail.json.
+Writes OUT_DIR/downloads.json and OUT_DIR/stars.json (shields.io endpoints) and OUT_DIR/downloads-detail.json.
 """
 import json
 import os
@@ -57,4 +57,8 @@ if __name__ == "__main__":
         {"schemaVersion": 1, "label": "downloads", "message": short(total), "color": "brightgreen"}) + "\n")
     (out / "downloads-detail.json").write_text(json.dumps(
         {"total": total, **parts, "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")}, indent=2) + "\n")
-    print(total, parts)
+    # Stars too: shields.io's own GitHub badge often shows "invalid" when its GitHub quota runs out.
+    stars = get(f"https://api.github.com/repos/{REPO}")["stargazers_count"]
+    (out / "stars.json").write_text(json.dumps(
+        {"schemaVersion": 1, "label": "stars", "message": str(stars), "color": "e3b341"}) + "\n")
+    print(total, parts, "stars", stars)
