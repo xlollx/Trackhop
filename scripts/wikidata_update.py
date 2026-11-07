@@ -53,6 +53,10 @@ def main():
     login = api({"action": "login", "lgname": user, "lgpassword": password, "lgtoken": token}, post=True)["login"]
     if login.get("result") != "Success":
         raise SystemExit("Wikidata login refused: " + login.get("reason", login.get("result", "")))
+    rights = api({"action": "query", "meta": "userinfo", "uiprop": "rights"})["query"]["userinfo"].get("rights", [])
+    if "edit" not in rights:
+        raise SystemExit("Wikidata: signed in, but the bot password cannot edit. On Special:BotPasswords, "
+                         "tick 'Edit existing pages' and 'Create, edit, and move pages', then save.")
     csrf = api({"action": "query", "meta": "tokens"})["query"]["tokens"]["csrftoken"]
     entity = api({"action": "wbgetentities", "ids": ITEM})["entities"][ITEM]
     claims = entity.get("claims", {})
