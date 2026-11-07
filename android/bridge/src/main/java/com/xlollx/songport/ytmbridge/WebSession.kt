@@ -71,6 +71,9 @@ class WebSession private constructor(private val name: String, private val domai
     fun jar(): CookieManager = Slots.cookies(name, slot)
 
     /** Forgets the session here and the service's cookies in its WebView jar (other services keep theirs). */
+    /** Forgets what was kept (the session's values), leaving the cookie jar as it is. */
+    fun forgetStored(ctx: Context) { prefs(ctx).edit().clear().apply() }
+
     fun clear(ctx: Context) {
         prefs(ctx).edit().clear().apply()
         runCatching {

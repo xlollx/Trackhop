@@ -316,7 +316,7 @@ object BridgeCore {
                     putInt("version", VERSION)
                     putBoolean("slots", slotsFor(method))
                 }
-                "anghami.disconnect" -> { AnghamiBridge.session(slot).clear(ctx); anghamiCache.clear(); Bundle() }
+                "anghami.disconnect" -> { AnghamiBridge.session(slot).clear(ctx); anghamiCache.clear(); WebEngine.reset("anghami", slot); Bundle() }
                 "anghami.playlists" -> ok(json.encodeToString(AnghamiWebClient(ctx, slot).playlists()))
                 "anghami.tracks" -> {
                     val id = arg ?: return err("missing playlist id")

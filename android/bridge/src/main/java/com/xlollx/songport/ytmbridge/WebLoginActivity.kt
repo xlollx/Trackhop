@@ -571,6 +571,7 @@ class WebLoginActivity : ComponentActivity() {
         BridgeNet.log("anghami", "sign-in: gateway call seen ($from, ${request?.method ?: "?"}) type=$type sid=${AnghamiWebClient.sidShape(sid)} params=${params.joinToString(",")} headers=${headers.joinToString(",")}")
     }
     private var anghamiRefused: String? = null
+    private val anghamiTries = HashMap<String, Int>()
     private fun watchAnghami(url: String, request: WebResourceRequest? = null, from: String = "page") {
         if (service != ANGHAMI || done || anghamiTrying) return
         anghamiSeen(url, request, from)
@@ -608,8 +609,16 @@ class WebLoginActivity : ComponentActivity() {
                     finish()
                     return@post
                 }
-                AnghamiBridge.session(slot).clear(app)
-                if (fromPage) { anghamiRefused = sid; BridgeNet.log("anghami", "sign-in: the page's session was refused ($why)") }
+                // Only what was kept: the page's own cookies stay (it is signed in, and a bot check
+                // may have left some), or the next try starts from a page that lost them.
+                AnghamiBridge.session(slot).forgetStored(app)
+                // A session Anghami ended is not tried again; one that failed otherwise (the engine
+                // starting, a timeout) gets a few more tries as the page goes on.
+                val tries = anghamiTries.merge(sid, 1, Int::plus) ?: 1
+                if (fromPage) {
+                    if (why == AnghamiWebClient.EXPIRED || tries >= 3) anghamiRefused = sid
+                    BridgeNet.log("anghami", "sign-in: the page's session was refused ($why), try $tries")
+                }
                 else android.widget.Toast.makeText(this, "Anghami: $why", android.widget.Toast.LENGTH_LONG).show()
             }
         }

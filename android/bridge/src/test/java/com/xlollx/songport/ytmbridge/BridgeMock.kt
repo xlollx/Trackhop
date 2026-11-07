@@ -26,6 +26,8 @@ object BridgeMock {
     @Volatile var fixed: (RecordedRequest) -> MockResponse? = { null }
 
     fun install() {
+        // No browser engine in a JVM test: the web clients' calls go by plain HTTP, to the mock server.
+        WebEngine.enabled = false
         if (BridgeNet.interceptor != null) return
         BridgeNet.interceptor = Interceptor { chain ->
             val s = server ?: throw java.io.IOException("no mock server: requests never leave the test")
