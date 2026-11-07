@@ -1692,6 +1692,14 @@
     <string name="whats_new_115_colours_body">Give a sync any colour from a picker, and hold a card to drag it to its place: Sync all and the widgets follow the order.</string>
     <string name="whats_new_115_transfer_title">Transfers checked first</string>
     <string name="whats_new_115_transfer_body">Transfer many playlists shows a summary before anything is created, and can create the syncs without starting them.</string>
+    <string name="whats_new_116_files_title">Files read your way</string>
+    <string name="whats_new_116_files_body">Trackhop reads artist and album from file names and folders, or from your own patterns. Select several files at once, or send one straight to a service.</string>
+    <string name="whats_new_116_lastfm_title">Love tracks on Last.fm</string>
+    <string name="whats_new_116_lastfm_body">Sync the songs you like on any service into your Last.fm loved tracks.</string>
+    <string name="whats_new_116_preview_title">A clearer preview</string>
+    <string name="whats_new_116_preview_body">After you create a sync you see where it goes, what it will do and what changes, with Run now at the bottom.</string>
+    <string name="whats_new_116_restart_title">Start over</string>
+    <string name="whats_new_116_restart_body">A web sign-in that won\'t connect? ⋮ › Start over forgets what the page remembered. Anghami connects with Google too.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
     <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
     <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>

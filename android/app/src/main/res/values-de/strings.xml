@@ -1691,6 +1691,14 @@
     <string name="whats_new_115_colours_body">Gib einem Sync jede beliebige Farbe und halte eine Karte gedrückt, um sie an ihren Platz zu ziehen: „Alle synchronisieren“ und die Widgets folgen der Reihenfolge.</string>
     <string name="whats_new_115_transfer_title">Übertragungen erst prüfen</string>
     <string name="whats_new_115_transfer_body">„Viele Playlists übertragen“ zeigt vor dem Erstellen eine Zusammenfassung und kann die Syncs anlegen, ohne sie zu starten.</string>
+    <string name="whats_new_116_files_title">Dateien, wie du sie benennst</string>
+    <string name="whats_new_116_files_body">Trackhop liest Künstler und Album aus Dateinamen und Ordnern oder aus deinen eigenen Mustern. Wähle mehrere Dateien auf einmal aus oder sende eine direkt an einen Dienst.</string>
+    <string name="whats_new_116_lastfm_title">Titel auf Last.fm lieben</string>
+    <string name="whats_new_116_lastfm_body">Synchronisiere die Titel, die dir bei einem beliebigen Dienst gefallen, mit deinen Lieblingstiteln auf Last.fm.</string>
+    <string name="whats_new_116_preview_title">Eine klarere Vorschau</string>
+    <string name="whats_new_116_preview_body">Nach dem Erstellen einer Synchronisierung siehst du, wohin sie geht, was sie tut und was sich ändert, mit Jetzt ausführen unten.</string>
+    <string name="whats_new_116_restart_title">Neu anfangen</string>
+    <string name="whats_new_116_restart_body">Eine Web-Anmeldung verbindet sich nicht? ⋮ › Neu anfangen vergisst, was sich die Seite gemerkt hat. Anghami verbindet sich auch mit Google.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
     <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
     <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>

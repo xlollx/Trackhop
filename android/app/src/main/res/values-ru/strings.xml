@@ -1743,6 +1743,14 @@
     <string name="whats_new_115_colours_body">Задайте синхронизации любой цвет и удерживайте карточку, чтобы перетащить её на место: «Синхронизировать всё» и виджеты следуют этому порядку.</string>
     <string name="whats_new_115_transfer_title">Перенос с проверкой</string>
     <string name="whats_new_115_transfer_body">Перенос многих плейлистов сначала показывает сводку и может создать синхронизации, не запуская их.</string>
+    <string name="whats_new_116_files_title">Файлы по-вашему</string>
+    <string name="whats_new_116_files_body">Trackhop берёт исполнителя и альбом из имён файлов и папок или из ваших собственных шаблонов. Выбирайте несколько файлов сразу или отправляйте файл прямо в сервис.</string>
+    <string name="whats_new_116_lastfm_title">Любимые треки на Last.fm</string>
+    <string name="whats_new_116_lastfm_body">Синхронизируйте понравившиеся треки из любого сервиса с любимыми треками на Last.fm.</string>
+    <string name="whats_new_116_preview_title">Понятнее предпросмотр</string>
+    <string name="whats_new_116_preview_body">После создания синхронизации видно, куда она идёт, что сделает и что изменится, а внизу — «Запустить».</string>
+    <string name="whats_new_116_restart_title">Начать заново</string>
+    <string name="whats_new_116_restart_body">Вход через сайт не подключается? ⋮ › «Начать заново» забывает то, что запомнила страница. Anghami теперь подключается и через Google.</string>
     <string name="whats_new_114_nano_title">ИИ без ключа</string>
     <string name="whats_new_114_nano_body">На телефонах с Gemini Nano Roast и генератор плейлистов теперь работают прямо на устройстве: без ключа, и ничего не покидает телефон. На остальных Roast сразу ведёт к настройке бесплатного ключа.</string>
     <string name="whats_new_114_tips_title">Виджеты, ярлыки и автоматизация</string>

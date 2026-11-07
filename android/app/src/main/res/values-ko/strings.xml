@@ -1664,6 +1664,14 @@
     <string name="whats_new_115_colours_body">동기화에 원하는 색을 정하고, 카드를 길게 눌러 원하는 자리로 끌어 옮기세요. 모두 동기화와 위젯도 이 순서를 따라요.</string>
     <string name="whats_new_115_transfer_title">전송 전에 먼저 확인</string>
     <string name="whats_new_115_transfer_body">여러 플레이리스트 전송은 만들기 전에 요약을 보여 주고, 시작하지 않고 만들기만 할 수도 있어요.</string>
+    <string name="whats_new_116_files_title">원하는 방식으로 읽는 파일</string>
+    <string name="whats_new_116_files_body">Trackhop은 파일 이름과 폴더, 또는 직접 만든 패턴에서 아티스트와 앨범을 읽습니다. 여러 파일을 한 번에 선택하거나 하나를 바로 서비스로 보낼 수 있습니다.</string>
+    <string name="whats_new_116_lastfm_title">Last.fm에서 곡 좋아요</string>
+    <string name="whats_new_116_lastfm_body">어느 서비스에서든 좋아요한 곡을 Last.fm의 좋아하는 곡과 동기화합니다.</string>
+    <string name="whats_new_116_preview_title">더 명확한 미리보기</string>
+    <string name="whats_new_116_preview_body">동기화를 만들면 어디로 가는지, 무엇을 하는지, 무엇이 바뀌는지 보이고 아래에 지금 실행이 있습니다.</string>
+    <string name="whats_new_116_restart_title">처음부터 다시</string>
+    <string name="whats_new_116_restart_body">웹 로그인이 연결되지 않나요? ⋮ › 처음부터 다시를 누르면 페이지가 기억하던 내용을 지웁니다. Anghami도 Google로 연결됩니다.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
     <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
     <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>

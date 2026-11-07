@@ -1665,6 +1665,14 @@
     <string name="whats_new_115_colours_body">用取色器给同步任务任意颜色，长按卡片即可拖动到想要的位置：“全部同步”和小组件都按这个顺序。</string>
     <string name="whats_new_115_transfer_title">转移前先确认</string>
     <string name="whats_new_115_transfer_body">批量转移歌单会在创建前显示摘要，也可以只创建同步任务而不立即开始。</string>
+    <string name="whats_new_116_files_title">按你的方式读取文件</string>
+    <string name="whats_new_116_files_body">Trackhop 会从文件名和文件夹，或你自己的规则中读取艺人和专辑。可以一次选择多个文件，或把某个文件直接发送到服务。</string>
+    <string name="whats_new_116_lastfm_title">在 Last.fm 上喜爱歌曲</string>
+    <string name="whats_new_116_lastfm_body">把你在任何服务上喜欢的歌曲同步到 Last.fm 的喜爱歌曲。</string>
+    <string name="whats_new_116_preview_title">更清晰的预览</string>
+    <string name="whats_new_116_preview_body">创建同步后，你会看到它去往哪里、会做什么、有哪些变化，底部有“立即运行”。</string>
+    <string name="whats_new_116_restart_title">清除并重新开始</string>
+    <string name="whats_new_116_restart_body">网页登录连不上？⋮ ›“清除并重新开始”会清除页面记住的内容。Anghami 也能用 Google 连接了。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>

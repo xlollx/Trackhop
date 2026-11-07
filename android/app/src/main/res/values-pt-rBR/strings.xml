@@ -1699,6 +1699,14 @@
     <string name="whats_new_115_colours_body">Dê a uma sincronização qualquer cor pelo seletor e segure um cartão para arrastá-lo até o lugar: Sincronizar tudo e os widgets seguem a ordem.</string>
     <string name="whats_new_115_transfer_title">Transferências conferidas antes</string>
     <string name="whats_new_115_transfer_body">Transferir muitas playlists mostra um resumo antes de criar qualquer coisa e pode criar as sincronizações sem iniciá-las.</string>
+    <string name="whats_new_116_files_title">Arquivos do seu jeito</string>
+    <string name="whats_new_116_files_body">O Trackhop lê artista e álbum dos nomes de arquivos e pastas, ou dos seus próprios padrões. Selecione vários arquivos de uma vez ou envie um direto para um serviço.</string>
+    <string name="whats_new_116_lastfm_title">Ame faixas no Last.fm</string>
+    <string name="whats_new_116_lastfm_body">Sincronize as músicas que você curte em qualquer serviço com suas faixas amadas no Last.fm.</string>
+    <string name="whats_new_116_preview_title">Uma prévia mais clara</string>
+    <string name="whats_new_116_preview_body">Ao criar uma sincronização você vê para onde vai, o que vai fazer e o que muda, com Executar agora embaixo.</string>
+    <string name="whats_new_116_restart_title">Recomeçar do zero</string>
+    <string name="whats_new_116_restart_body">Um login pela web que não conecta? ⋮ › Recomeçar do zero esquece o que a página lembrava. O Anghami também conecta com o Google.</string>
     <string name="whats_new_114_nano_title">IA sem chave</string>
     <string name="whats_new_114_nano_body">Em celulares com Gemini Nano, o Roast e o gerador de playlists agora funcionam no próprio aparelho: sem chave e nada sai do dispositivo. Nos outros, o Roast leva direto para configurar uma chave gratuita.</string>
     <string name="whats_new_114_tips_title">Widgets, atalhos e automações</string>

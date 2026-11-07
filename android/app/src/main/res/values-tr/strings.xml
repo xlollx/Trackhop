@@ -1689,6 +1689,14 @@
     <string name="whats_new_115_colours_body">Bir senkronizasyona seçiciyle istediğin rengi ver, bir kartı basılı tutup yerine sürükle: Tümünü senkronize et ve widget\'lar bu sırayı izler.</string>
     <string name="whats_new_115_transfer_title">Aktarımlar önce kontrol edilir</string>
     <string name="whats_new_115_transfer_body">Çok sayıda çalma listesini aktar, bir şey oluşturmadan önce özet gösterir ve senkronizasyonları başlatmadan oluşturabilir.</string>
+    <string name="whats_new_116_files_title">Dosyalar senin düzeninde</string>
+    <string name="whats_new_116_files_body">Trackhop sanatçıyı ve albümü dosya adlarından ve klasörlerden ya da kendi kalıplarından okur. Birden çok dosyayı aynı anda seç veya birini doğrudan bir servise gönder.</string>
+    <string name="whats_new_116_lastfm_title">Last.fm\'de parça sev</string>
+    <string name="whats_new_116_lastfm_body">Herhangi bir serviste beğendiğin şarkıları Last.fm\'deki sevdiğin parçalarla eşitle.</string>
+    <string name="whats_new_116_preview_title">Daha net bir önizleme</string>
+    <string name="whats_new_116_preview_body">Bir eşitleme oluşturduğunda nereye gittiğini, ne yapacağını ve neyin değişeceğini görürsün; Şimdi çalıştır altta.</string>
+    <string name="whats_new_116_restart_title">Baştan başla</string>
+    <string name="whats_new_116_restart_body">Web girişi bağlanmıyor mu? ⋮ › Baştan başla, sayfanın hatırladıklarını unutur. Anghami artık Google ile de bağlanıyor.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
     <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
     <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>

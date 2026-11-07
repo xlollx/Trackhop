@@ -20,6 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Inventory2
@@ -104,6 +108,17 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.16",
+                listOf(
+                    Item(Icons.Filled.FolderOpen, JobColor.TEAL, R.string.whats_new_116_files_title, R.string.whats_new_116_files_body),
+                    Item(Icons.Filled.Favorite, JobColor.PINK, R.string.whats_new_116_lastfm_title, R.string.whats_new_116_lastfm_body),
+                    Item(Icons.Filled.Visibility, JobColor.BLUE, R.string.whats_new_116_preview_title, R.string.whats_new_116_preview_body),
+                    // Start over is offered on the web sign-ins, there only where they are (built in, or the plugin has them).
+                    Item(Icons.Filled.RestartAlt, JobColor.ORANGE, R.string.whats_new_116_restart_title, R.string.whats_new_116_restart_body,
+                        shown = { c -> anghamiAvailable(c) }),
+                ),
+            ),
             Release(
                 "1.15",
                 listOf(

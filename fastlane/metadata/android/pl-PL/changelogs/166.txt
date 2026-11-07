@@ -1,0 +1,1 @@
+Pliki po twojemu (#49, dzięki thebrowndad): wykonawca i album z nazw plików i folderów albo z twoich wzorców. Zaznacz kilka plików lub wyślij jeden do serwisu. Ulubione Last.fm jako cel (#51, dzięki romainharlaut). Anghami loguje przez Google (#53); ⋮ › Zacznij od nowa resetuje logowanie przez stronę. Czytelniejszy podgląd. Przeciąganie karty na końcu listy znów działa.
