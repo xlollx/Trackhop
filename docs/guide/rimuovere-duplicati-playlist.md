@@ -49,8 +49,9 @@ Subsonic, Jellyfin, Emby e Plex. Scegli il servizio in cima a *Strumenti* e segu
 
 ## E su Apple Music?
 
-Apple non permette alle app di togliere brani da una playlist, quindi lì *Rimuovi duplicati* è
-disattivato. Puoi comunque ottenere una copia pulita: *Strumenti → Nuova playlist da… → Copia*,
+Con l'accesso con ID Apple, *Rimuovi duplicati* funziona come sugli altri servizi. Con un
+developer token è disattivato: l'API di Apple non permette alle app di togliere brani da una
+playlist. Puoi comunque ottenere una copia pulita: *Strumenti → Nuova playlist da… → Copia*,
 scegli la playlist e spunta **Salta i doppi**. Trackhop crea una nuova playlist con una sola copia
 di ogni brano; se vuoi, poi elimini la vecchia dall'app Musica.
 

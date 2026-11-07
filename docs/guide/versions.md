@@ -24,8 +24,8 @@ or through the services' official APIs, and who prefer installing from their pho
 
 The official APIs have limits that are not Trackhop's choice: Spotify accepts five users per
 developer app unless you register your own (the app guides you, and Spotify requires Premium for
-it), YouTube's daily quota is shared by everyone using the same key, Apple Music cannot remove
-tracks and needs a developer token, Amazon Music has no open API at all.
+it), YouTube's daily quota is shared by everyone using the same key, Apple Music needs a
+developer token and cannot remove tracks that way (the Apple ID sign-in can), Amazon Music has no open API at all.
 
 ## Switching between builds
 

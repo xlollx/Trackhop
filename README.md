@@ -70,8 +70,8 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | | ✓ | ✓ | ✓ | Official: your own free developer key (Spotify requires Premium for it) | All builds |
 | **YouTube Music** | ✓ | ✓ | ✓ | Quick sign-in with your Google account | GitHub, F-Droid, Desktop, Docker · plugin |
 | | ✓ | ✓ | ✓ | Official: your own Google API key | All builds |
-| **Apple Music** | ✓ | ✓ | — | Quick sign-in with your Apple ID (Apple's API cannot remove tracks) | GitHub, F-Droid · plugin |
-| | ✓ | ✓ | — | Official: Apple developer token | All builds |
+| **Apple Music** | ✓ | ✓ | ✓ | Quick sign-in with your Apple ID | GitHub, F-Droid · plugin |
+| | ✓ | ✓ | — | Official: Apple developer token (Apple's API cannot remove tracks) | All builds |
 | **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
 | **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
 | **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |
@@ -312,7 +312,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | YouTube Music | built into the GitHub/F-Droid build; in the store builds (Play, AppGallery) via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
 | YouTube Music (Google API) | via YouTube Data API v3 | Google OAuth | `GOOGLE_CLIENT_ID` (Android OAuth client: package + SHA-1), YouTube Data API enabled, OAuth verification for the `youtube` scope | 10,000 units per day per project (search 100, insert 50), shared by every user of the same build. With own credentials the quota is the user's. No ISRC. |
 | Spotify (web) | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Spotify sign-in on Spotify's page | nothing, and no Premium | Talks to the web player's own backend (the GraphQL gateway and the playlist store open.spotify.com uses), with the player's session token and client token; the query hashes are read from the player's own code. Since December 2025 Spotify refuses first-party tokens on the public Web API, which is why this route no longer touches it. No ISRC on this route: matching is by title, artist and duration. Not an official route, against Spotify's terms, may break without notice. |
-| Apple Music (web) | read and add, built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above. Not an official route, against Apple's terms, may break without notice. |
+| Apple Music (web) | read, add and remove; rename and delete playlists; built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above, with removals, renames and deletions sent to the web player's own backend (amp-api.music.apple.com), as music.apple.com does. Not an official route, against Apple's terms, may break without notice. |
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
 | TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
 | Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
@@ -738,8 +738,8 @@ decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) 
   tracks can take an hour or two.
 - Spotify: a Spotify developer client in development mode serves 5 users only; each user needs their
   own, or the Bridge sign-in.
-- Apple Music: tracks can be added but not removed; the developer token must be regenerated every
-  6 months.
+- Apple Music with a developer token: tracks can be added but not removed, and the token must be
+  regenerated every 6 months. The Apple ID sign-in removes tracks too.
 - Amazon Music: through the Bridge only, mapped from the web player's own calls; search results are
   what its player would show, playlist by playlist.
 - Qobuz: no open API, files only.

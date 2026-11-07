@@ -29,7 +29,8 @@ limiti di brani. Non servono Mac né iPhone.
 
 - I brani si abbinano con il codice ISRC dove c'è, poi con titolo, artista e durata: niente viene
   aggiunto a caso.
-- Apple Music permette di aggiungere ma non di togliere brani da una playlist: verso Apple Music la
-  sync aggiunge le novità e segnala quelle uscite.
+- Con l'accesso con ID Apple, verso Apple Music la sync toglie anche i brani usciti dalla playlist
+  Spotify. Con un developer token no: l'API di Apple permette di aggiungere ma non di togliere
+  brani da una playlist, quindi la sync aggiunge le novità e segnala quelle uscite.
 
 [Trasferire playlist tra tutti i servizi](trasferire-playlist) · [Tutte le pagine della guida](./)

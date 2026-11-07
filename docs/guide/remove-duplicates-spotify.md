@@ -47,8 +47,9 @@ Plex. Pick the service at the top of *Tools* and follow the same steps.
 
 ## And on Apple Music?
 
-Apple does not let apps remove tracks from a playlist, so *Remove duplicates* is greyed out there.
-You can still get a clean copy: *Tools → New playlist from… → Copy*, choose the playlist and tick
+With the Apple ID sign-in, *Remove duplicates* works as on the other services. With a developer
+token it is greyed out: Apple's API does not let apps remove tracks from a playlist. You can still
+get a clean copy: *Tools → New playlist from… → Copy*, choose the playlist and tick
 **Skip duplicates**. Trackhop creates a new playlist with one copy of each song; delete the old one
 in the Music app afterwards if you like.
 
