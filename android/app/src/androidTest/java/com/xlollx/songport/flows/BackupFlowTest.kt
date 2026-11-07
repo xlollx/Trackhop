@@ -207,7 +207,7 @@ class BackupFlowTest : FlowTest() {
         // A new sync shows what its first run would do.
         waitText(s(R.string.preview_add, 3), ms = 30_000)
         val job = store.data.jobs.single()
-        assertEquals("file", job.source.provider)
+        assertEquals(LocalFilesProvider.id, job.source.provider)
         assertEquals("spotify", job.target.provider)
     }
 
