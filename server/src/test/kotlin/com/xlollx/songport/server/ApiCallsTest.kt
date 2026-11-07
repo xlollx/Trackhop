@@ -250,5 +250,11 @@ class ApiCallsTest {
             val a = call("GET", c.path.removePrefix("/"))
             assertFalse("${c.path}: ${a.text}", a.text.contains("Unknown call"))
         }
+        // And the guide names each of them.
+        val guide = listOf(File("../docs/guide/docker.md"), File("docs/guide/docker.md")).first { it.isFile || it.path.startsWith("docs") }
+        if (guide.isFile) {
+            val text = guide.readText()
+            for (c in ApiDocs.CALLS) assertTrue("guide lacks ${c.method} ${c.path}", text.contains("${c.method} /api/v1${c.path}"))
+        }
     }
 }

@@ -546,48 +546,167 @@ test. For the whole run as JSON (Home Assistant, n8n), use the [webhook](#api) i
 
 ## API
 
-Other tools (Home Assistant, n8n, Node-RED, a script) can list the syncs, start them and read how
-they went. Turn it on in **Tools › API**: make a token (shown once; only its hash is kept) and send
+Other tools (Home Assistant, n8n, Node-RED, a script) can do what the page does: make and change
+syncs, run them and review what they did, read and edit playlists, bring in files, set up
+notifications. Turn it on in **Tools › API**: make a token (shown once; only its hash is kept) and send
 it as `Authorization: Bearer <token>`. It is separate from the page's password; on Trackhop Desktop
 only the computer itself can reach it. From a terminal or a script, the [`trackhop` command](cli)
 does the same with less typing: `docker exec trackhop trackhop run --all`, no token needed inside
 the container. The same token lets an AI assistant use Trackhop at `/mcp` (Model Context Protocol): [how](cli#with-an-ai-assistant-mcp).
 
+Every call is also described in `GET /api/v1/openapi.json` (OpenAPI 3, no token needed: it holds
+nothing of yours), for the tools that read one, such as Postman or a generated client. Ids in paths
+are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spotify`, `ytm`,
+`navidrome_1`…), a playlist's `id`. Refusals answer `{"error": "why"}` with a 4xx code.
+
+**General**
+
 | Call | What it does |
 |---|---|
-| `GET /api/v1/status` | Version, number of syncs, the ones running, the last run's time |
-| `GET /api/v1/syncs` | Every sync: source, target, schedule, `mirrorRemovals`, `followsChanges`, `archive` (keeps every track), running, last result |
-| `GET /api/v1/syncs/<id>` | One sync and its last 20 runs |
-| `POST /api/v1/syncs/<id>/run` | Starts it (202) |
-| `POST /api/v1/syncs/run-all` | Starts every enabled sync |
-| `GET /api/v1/runs/<id>` | A run: added, removed, not found, with the tracks |
-| `GET /api/v1/services` | The services and whether they are connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`) |
-| `GET /api/v1/files`, `GET /api/v1/files/<name>.csv?format=m3u` | The File playlists, in any export format |
-| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201) |
-| `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
-| `GET /api/v1/backup`, `POST /api/v1/backup` | The last full backup and its schedule; starts one (202, with a task id) |
-| `GET /api/v1/tasks/<id>` | A background task (a backup, lyrics): progress, done, error |
-| `GET /api/v1/lyrics`, `POST /api/v1/lyrics` | The music folder and the last lyrics run (files, saved, synced, plain, not found); starts one (202, with a task id): `?folder=Queen/Jazz` for one folder, `&synced=true` for synced lyrics only, `&retry=true` to ask again for the ones not found. [Lyrics](#lyrics) |
-| `GET /api/v1/config` (`?history=true`) | The whole set-up as a `.trackhop` file, as *Tools › Backup & restore* saves it |
-| `GET /api/v1/notifications` | The [notification channels](#notifications), their tokens masked |
-| `POST /api/v1/notifications/<id>/test` | Sends a test message through one (200, or 502 with the service's answer) |
-| `GET /api/v1/metrics` | Prometheus metrics: syncs, running, and per sync the last run's time, result, added, removed and not found |
-| `GET /api/v1/services/<service>/playlists` | A connected service's playlists (and its liked songs, saved albums… where it has them) |
-| `POST /api/v1/services/<service>/playlists` | Creates a playlist: `{"name": "…"}` (201, with its id) |
-| `GET /api/v1/services/<service>/playlists/<id>/tracks` | The playlist's tracks: id, title, artists, album, duration, ISRC |
-| `POST /api/v1/services/<service>/playlists/<id>/tracks` | Adds tracks, searched and matched as a sync does: `{"tracks": [{"title": "…", "artist": "…"}, {"link": "https://open.spotify.com/track/…"}, {"id": "…"}, "Artist - Title"]}`. Tracks already there are skipped (`"allowDuplicates": true` to add them anyway); the answer lists what was added, already there and not found |
-| `DELETE /api/v1/services/<service>/playlists/<id>/tracks` | Removes tracks named by id, or by title and artist matched against the playlist (`POST …/tracks/remove` does the same, for tools that cannot send a body with DELETE) |
-| `PATCH`, `DELETE /api/v1/services/<service>/playlists/<id>` | Renames (`{"name": "…"}`) or deletes a playlist, where the service allows it |
-| `GET /health` | `ok`, with no token: for Docker's health check, Uptime Kuma or a reverse proxy |
+| `GET /api/v1/status` | Version, how many syncs, which are running, the last run. |
+| `GET /api/v1/metrics` | The syncs as Prometheus metrics (text). |
+| `GET /api/v1/stats` | Your numbers: tracks moved, time saved, busiest route, top artists. |
+| `GET /api/v1/tasks` | The background tasks (backups, duplicates, lyrics), running or ended in the last hour. |
+| `GET /api/v1/tasks/{task}` | One background task: its progress, whether it is done, its error. |
+| `GET /api/v1/log` | The server's last log lines (admin only). |
+
+**Syncs**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/syncs` | Every sync with its source, target, timing and last result. |
+| `POST /api/v1/syncs` | Make a sync. |
+| `POST /api/v1/syncs/run-all` | Start every sync that is turned on. |
+| `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
+| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color. |
+| `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are). |
+| `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check. |
+| `POST /api/v1/syncs/{sync}/stop` | Stop a running sync. |
+| `POST /api/v1/syncs/{sync}/pause` | Pause a running sync. |
+| `POST /api/v1/syncs/{sync}/resume` | Resume a paused sync. |
+| `POST /api/v1/syncs/{sync}/enable` | Turn a sync's schedule on. |
+| `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off. |
+| `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
+| `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
+
+**Runs**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/syncs/{sync}/runs` | A sync's runs, newest first. |
+| `GET /api/v1/runs` | Every run, newest first; sync= for one sync's. |
+| `GET /api/v1/runs/{run}` | One run with its tracks (added, removed, not found, to check) and its notes. |
+| `GET /api/v1/runs/{run}/review` | A run's review: not found, to check, removed. |
+| `POST /api/v1/runs/{run}/review` | Review a run: ignore, keep, discard, pick, replace or restore. |
+
+**Services**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
+| `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
+| `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
+| `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
+| `POST /api/v1/convert` | Several tracks on another service. |
+
+**Playlists**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/services/{service}/playlists` | A service's playlists and library entries. |
+| `POST /api/v1/services/{service}/playlists` | Make a playlist. |
+| `PATCH /api/v1/services/{service}/playlists/{playlist}` | Rename a playlist. |
+| `DELETE /api/v1/services/{service}/playlists/{playlist}` | Delete a playlist. |
+| `GET /api/v1/services/{service}/playlists/{playlist}/tracks` | A playlist's tracks. |
+| `POST /api/v1/services/{service}/playlists/{playlist}/tracks` | Adds tracks, searched and matched as a sync does: `{"tracks": [{"title": "…", "artist": "…"}, {"link": "https://open.spotify.com/track/…"}, {"id": "…"}, "Artist - Title"]}`. Tracks already there are skipped (`"allowDuplicates": true` to add them anyway); the answer lists what was added, already there and not found. |
+| `DELETE /api/v1/services/{service}/playlists/{playlist}/tracks` | Remove tracks. |
+| `POST /api/v1/services/{service}/playlists/{playlist}/tracks/remove` | Remove tracks (for tools that cannot send a body with DELETE). |
+| `GET /api/v1/services/{service}/playlists/{playlist}/duplicates` | The tracks a playlist holds more than once. |
+| `POST /api/v1/services/{service}/playlists/{playlist}/duplicates/remove` | Remove the extra copies (a background task). |
+| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf or txt. |
+
+**Files**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/files` | The File playlists. |
+| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf or txt. |
+| `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body. |
+| `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
+| `DELETE /api/v1/files/{file}` | Delete a File playlist. |
+| `POST /api/v1/files/zip` | Several File playlists in one .zip, in a format. |
+| `GET /api/v1/files/settings` | How names in imported files are read: the layout and your own patterns. |
+| `PUT /api/v1/files/settings` | Set the layout (AUTO, ARTIST_TITLE, ARTIST_ALBUM_TITLE, CUSTOM) and the patterns. |
+| `POST /api/v1/files/try` | Try patterns on a line from a file, without saving them. |
+
+**Backups**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/backup` | The full backup: running, last run, schedule. |
+| `POST /api/v1/backup` | Back up every playlist now (a background task). |
+| `GET /api/v1/config` | The whole set-up as a .trackhop file; history=true with the runs. |
+| `POST /api/v1/config` | Bring a .trackhop file back in (the body); dryRun=true only says what it holds. |
+
+**Settings**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/settings` | The settings the page offers. |
+| `PATCH /api/v1/settings` | Change settings: theme, backupSchedule, backupFolder, updatesCheck. |
+
+**Notifications**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/webhook` | The webhook: address, whether a secret is set, its events. |
+| `PUT /api/v1/webhook` | Set the webhook. |
+| `DELETE /api/v1/webhook` | Turn the webhook off. |
+| `GET /api/v1/notifications` | The notification channels, their tokens masked. |
+| `GET /api/v1/notifications/kinds` | The kinds of channel, their settings and the events. |
+| `POST /api/v1/notifications` | Add a channel. |
+| `PATCH /api/v1/notifications/{channel}` | Change a channel (a secret left out keeps its value). |
+| `DELETE /api/v1/notifications/{channel}` | Remove a channel. |
+| `POST /api/v1/notifications/{channel}/test` | Send a test message. |
+
+**Lyrics**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/lyrics` | Lyrics for the music folder (Docker, admin): state and last run. |
+| `POST /api/v1/lyrics` | Looks for lyrics now (202, with a task id): `?folder=Queen/Jazz` for one folder, `&synced=true` for synced lyrics only, `&retry=true` to ask again for the ones not found. [Lyrics](#lyrics) |
+`GET /health` answers `ok` with no token: for Docker's health check, Uptime Kuma or a reverse proxy.
 
 ```sh
 curl -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8080/api/v1/syncs
 curl -X POST -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8080/api/v1/syncs/run-all
 ```
 
-**Webhook.** With an address set in Tools › API, every finished run is POSTed there as JSON
-(`"event": "sync.finished"`, the sync, and the run with its added and not-found tracks), and every
-full backup as `"event": "backup.finished"` (services, failures). With a secret, `X-Trackhop-Signature: sha256=<hex>` is the HMAC-SHA256 of the body. In Home Assistant, a
+**Making and changing a sync.** The same checks as the page: the playlists must be ones the
+services list, a playlist cannot sync onto itself. Without `target.playlist`, a new playlist is
+made at the first run. The timing is `schedule` (`manual`, `hourly`, `every_6h`, `daily`,
+`weekly`) or `every` in minutes, with `at` (`"07:30"`) and `days` (1 = Monday … 7 = Sunday);
+`changes` is `add` (only add), `mirror` (also remove what leaves the source) or `archive` (keep
+every track ever seen); `color` a name (`teal`) or `#RRGGBB`. A `PATCH` changes only what it names.
+
+```sh
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"source": {"service": "spotify", "playlist": "37i9dQZEVXcJZyENOWUFo7"}, "target": {"service": "ytm"},
+       "name": "Discover Weekly", "schedule": "weekly", "days": [1], "at": "08:00", "changes": "archive"}' \
+  http://127.0.0.1:8080/api/v1/syncs
+```
+
+**Reviewing a run.** `GET /api/v1/runs/{run}/review` lists what a run could not find, the matches
+to check and what it removed, each with its source id; `POST` the same address does what the
+page's review does: `{"action": "ignore", "tracks": ["<id>"]}` (or `"tracks": "all"`), `keep` and
+`discard` for matches to check, `pick` and `replace` with `"choice": "Artist - Title"` (or a link,
+or the track's id on the destination), and `restore` to put back what the run removed.
+
+**Webhook.** With an address set in Tools › API (or `PUT /api/v1/webhook`), Trackhop POSTs its
+events there as JSON: `sync.finished` (the sync, and the run with its added and not-found tracks)
+and `backup.finished` (services, failures) unless you choose otherwise; `sync.started` and
+`sync.failed` (a failed run sends both `sync.finished` and `sync.failed`) when you tick them. With a
+secret, `X-Trackhop-Signature: sha256=<hex>` is the HMAC-SHA256 of the body. In Home Assistant, a
 *Webhook* trigger with that address starts an automation (a notification when tracks were not
 found, say); a `rest_command` that POSTs to `/api/v1/syncs/run-all` starts every sync from one.
 
@@ -603,9 +722,8 @@ scrape_configs:
       - targets: ["trackhop:8080"]
 ```
 
-**Playlists and tracks.** `<service>` is an id from `GET /api/v1/services` (`spotify`, `ytm`,
-`navidrome_1`…). A Home Assistant button that adds the song playing in the kitchen to a playlist,
-or a script that collects the songs a radio played:
+**Playlists and tracks.** A Home Assistant button that adds the song playing in the kitchen to a
+playlist, or a script that collects the songs a radio played:
 
 ```sh
 curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -613,11 +731,15 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/jso
   http://127.0.0.1:8080/api/v1/services/ytm/playlists/PLxxxxxxxx/tracks
 ```
 
-**Scripts.** Push a playlist file and sync it, or save the set-up every night:
+`GET /api/v1/convert?track=Daft%20Punk%20-%20Digital%20Love&to=tidal` finds a track on another
+service as a sync would, with how sure the match is.
+
+**Scripts.** Push a playlist file and sync it, save the set-up every night, bring it back elsewhere:
 
 ```sh
 curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @mix.m3u http://127.0.0.1:8080/api/v1/files/mix.m3u
 curl -H "Authorization: Bearer $TOKEN" -o trackhop-$(date +%F).trackhop http://127.0.0.1:8080/api/v1/config
+curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @trackhop.trackhop "http://127.0.0.1:8080/api/v1/config?dryRun=true"
 ```
 
 ## Not there yet

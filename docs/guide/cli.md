@@ -1,6 +1,6 @@
 ---
 title: Sync playlists from the command line (the trackhop command)
-description: Run your playlist syncs, list them and add or remove tracks from a terminal, a script or a scheduled task, with the trackhop command of Trackhop Desktop and the Docker server. Free and open source.
+description: Make, run and review playlist syncs, edit playlists and files, and set up notifications from a terminal, a script or a scheduled task, with the trackhop command of Trackhop Desktop and the Docker server. Free and open source.
 ---
 
 # The `trackhop` command
@@ -49,12 +49,41 @@ Without it, the admin's.
 |---|---|
 | `trackhop syncs` | Every sync: its route, schedule, last run and result, next run. |
 | `trackhop show <sync>` | One sync, with its last runs. |
-| `trackhop run <sync>…` | Starts these syncs. `--wait` waits until they end and prints the result. |
+| `trackhop run <sync>…` | Starts these syncs. `--wait` waits until they end and prints the result; `--anyway` runs one that stopped because its destination looked much smaller than before (you say the smaller one is right). |
 | `trackhop run --all` | Starts every sync that is turned on (with `--wait` too). |
+| `trackhop new <service> <playlist> <service> [<playlist>]` | Makes a sync from a playlist (or a link to a public one) to a playlist; without the second playlist, a new one is made at the first run. Options below. |
+| `trackhop edit <sync> [options]` | Changes a sync: only what you name. |
 | `trackhop enable <sync>`, `trackhop disable <sync>` | Turns a sync's schedule on or off. |
+| `trackhop delete <sync>` | Deletes a sync; its playlists stay as they are. |
+| `trackhop move <sync> <position>` | Moves it in the list (the order of *Sync all* and of the widgets): a number from 1, or `up`, `down`, `top`, `bottom`. |
+| `trackhop stop <sync>`, `pause`, `resume` | Stops, pauses or resumes a sync that is running. |
+| `trackhop preview <sync>` | What a run would add, remove, not find and want checked now, changing nothing. |
+
+The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or
+`--every MINUTES`; `--at 07:30`; `--days mon,fri` (or `1,5`); `--changes add|mirror|archive` (only
+add, also remove what leaves the source, or keep every track ever seen); `--follows` (with mirror:
+the source changes by itself, a daylist); `--color teal` or `--color '#12A594'` (`none` takes it off).
+
+```
+trackhop new spotify "Discover Weekly" ytm --name "Discover Weekly" --schedule weekly --days mon --at 08:00 --changes archive
+trackhop edit "Road trip" --every 180
+```
 
 A `<sync>` is its name, the start of its name, or its id. When a name could mean more than one sync,
 the command lists them and asks you to say which.
+
+**Runs and review**
+
+| Command | What it does |
+|---|---|
+| `trackhop runs [<sync>]` | The runs, newest first (`--limit`, `--offset` for more). |
+| `trackhop report <run>` | One run: what it added and removed, what it could not find or wants checked, its notes. |
+| `trackhop review <sync>` | The newest run with something to review (or `--run ID`): the tracks not found, the matches to check, the tracks removed, numbered. |
+| `trackhop review <sync> ignore <n>…` | Tracks not found, not searched for again (`all` for every one). |
+| `trackhop review <sync> keep <n>…`, `discard <n>…` | A match to check is right, or wrong (then removed). |
+| `trackhop review <sync> pick <n> <track>` | The track to add for one not found: `"Artist - Title"`, a link, or its id on the destination. |
+| `trackhop review <sync> replace <n> <track>` | The right track for a match to check. |
+| `trackhop review <sync> restore` | Puts back what the run removed. |
 
 **Services and playlists**
 
@@ -66,32 +95,79 @@ the command lists them and asks you to say which.
 | `trackhop add <service> <playlist> <track>…` | Adds tracks. A track is `"Artist - Title"` (searched and matched as a sync does), a link from any service, or its id on that service. Tracks already there are not added again. |
 | `trackhop remove <service> <playlist> <track>…` | Removes tracks, named the same way. |
 | `trackhop create <service> <name>` | A new playlist. |
+| `trackhop search <service> <words>…` | Looks for a track on a service, with how well each result matches. |
+| `trackhop convert <service> <track>…` | The same tracks on another service: their ids there, and how sure each match is. |
+| `trackhop duplicates <service> <playlist>` | The tracks a playlist has more than once; `--remove` takes the extra copies out (`--wait` to wait for the end). |
+| `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf` or `txt` (or from the file's extension); to the screen without `<file>`. |
 
-A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`…, as `trackhop services` shows); a
-`<playlist>` its name or id.
+A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
+shows); a `<playlist>` its name or id.
 
 **Files and backups**
 
 | Command | What it does |
 |---|---|
 | `trackhop files` | The playlist files of the File service. |
-| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text. |
+| `trackhop files get <name> [<file>]` | One, in a format (`--format`); to the screen without `<file>`. |
+| `trackhop files rm <name>…` | Deletes them. |
+| `trackhop files zip <file.zip> [<name>…]` | Several (all without names) in one .zip, in a format. |
+| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON or text. |
+| `trackhop patterns` | How track names in imported files are read, and your own patterns ([how they work](export-playlist-csv#and-back-in)). |
+| `trackhop patterns set <pattern>…`, `patterns clear` | Your own patterns, tried in order (each in quotes: `'{artist}/{album}/{track} {title}'`), or back to automatic. |
+| `trackhop patterns layout <layout>` | `auto`, `artist_title`, `artist_album_title` or `custom`. |
+| `trackhop patterns try <line>` | Reads a line or a path from a file with your patterns (or with `--pattern P`, repeated): what is the artist, the album, the title. Saves nothing. |
 | `trackhop backup` | Backs up every playlist now (`--wait` to wait for the end). |
 | `trackhop config [<file>]` | Your whole set-up as one file, as Backup & restore makes it; to the screen without `<file>`. |
-| `trackhop notify` | The [notification channels](docker#notifications), their tokens masked. |
-| `trackhop notify test <channel>` | Sends a test message through a channel, named by its name or id; fails (exit 1) with the service's answer if it did not arrive. |
+| `trackhop config import <file>` | Brings a set-up back in: syncs with the same id are replaced, the others added. `--dry-run` only says what the file holds. |
 
-**Other:** `trackhop status` (version, syncs, what is running), `trackhop help`, `trackhop --version`.
+**Notifications**
+
+| Command | What it does |
+|---|---|
+| `trackhop notify` | The [notification channels](docker#notifications), their tokens masked. |
+| `trackhop notify kinds` | The kinds of channel (Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover) and their settings. |
+| `trackhop notify add <kind> --set key=value…` | Adds a channel: `--name`, `--set` for each setting (`--set topic=trackhop-…`), `--events changes,failed,review,removals`. |
+| `trackhop notify edit <channel> …` | Changes one; a token left out keeps its value. |
+| `trackhop notify on <channel>`, `off`, `rm` | Turns it on or off, or removes it. |
+| `trackhop notify test <channel>` | Sends a test message through a channel, named by its name or id; fails (exit 1) with the service's answer if it did not arrive. |
+| `trackhop webhook` | The [webhook](docker#api): its address, whether it is signed, its events. |
+| `trackhop webhook set <url>` | Sets it: `--secret S` to sign, `--events sync.started,sync.finished,sync.failed,backup.finished`. |
+| `trackhop webhook off` | Turns it off. |
+
+**Other**
+
+| Command | What it does |
+|---|---|
+| `trackhop status` | Version, syncs, what is running. |
+| `trackhop stats` | Your numbers: tracks moved, time saved, busiest route, top artists. |
+| `trackhop settings`, `settings set <key> <value>` | The settings: `theme` (`system`, `light`, `dark`), `backupSchedule` (`manual`, `daily`, `weekly`), `backupFolder`, `updatesCheck`. |
+| `trackhop tasks`, `trackhop task <id>` | The background tasks (backups, duplicates) and one of them. |
+| `trackhop log` | The server's last log lines (`--lines N`); the admin's only on a shared server. |
+| `trackhop help [<command>]` | Every command, or all about one (`trackhop review --help` too). |
+| `trackhop completion bash\|zsh\|fish` | Tab completion for your shell (below). |
+| `trackhop --version` | The version. |
 
 ## In scripts
 
-- `--json` prints what the API answers, for `jq` or your own code.
+- `--json` prints what the API answers, for `jq` or your own code, with every command.
+- Options take their value after a space or an `=` (`--every=180`); after `--`, every word is a
+  word, even one that starts with dashes.
 - The exit code: `0` done, `1` failed (a sync that ended with an error, a call refused, a sync or
   playlist not found), `2` wrong use, `3` no Trackhop reached.
 
 ```
 # Every night at 3, in cron: run everything and keep a log.
 0 3 * * * docker exec trackhop trackhop run --all --wait >> /var/log/trackhop.log 2>&1
+```
+
+## Tab completion
+
+`trackhop completion` prints what your shell needs to complete the commands and options with Tab:
+
+```
+trackhop completion bash > /etc/bash_completion.d/trackhop        # bash (or source it from ~/.bashrc)
+trackhop completion zsh > "${fpath[1]}/_trackhop"                 # zsh
+trackhop completion fish > ~/.config/fish/completions/trackhop.fish
 ```
 
 ## A server elsewhere
@@ -116,14 +192,23 @@ tools allow:
 
 | Tool | What it does |
 |---|---|
-| `status` | Version, syncs, what is running |
+| `status`, `get_stats` | Version, syncs, what is running; your numbers |
 | `list_syncs`, `get_sync` | The syncs, their schedule and their last results |
 | `run_sync`, `run_all_syncs` | Run one, or all those turned on (optionally waiting for the result) |
-| `set_sync_enabled` | Turn a sync's schedule on or off |
+| `create_sync`, `edit_sync`, `move_sync` | Make a sync, change it (name, timing, removals, colour), move it in the list |
+| `set_sync_enabled`, `stop_sync`, `pause_sync`, `resume_sync` | Turn a sync's schedule on or off; stop, pause or resume a run |
+| `preview_sync` | What a run would do now, changing nothing |
+| `list_runs`, `get_run`, `get_review` | The runs, one run's tracks and notes, what it left to review |
 | `list_services`, `list_playlists`, `get_playlist_tracks` | Services, playlists, tracks |
+| `search_tracks`, `convert_tracks` | Look for a track on a service; find tracks on another service |
 | `create_playlist`, `add_tracks` | A new playlist; tracks found and added ("Artist - Title", a link, an id) |
-| `remove_tracks` | Tracks removed from a playlist (marked as destructive: assistants ask before) |
+| `find_duplicates`, `export_playlist` | A playlist's duplicates; a playlist as a file's text |
+| `list_files`, `get_file_patterns`, `set_file_patterns`, `try_file_patterns` | The File playlists, and how names in imported files are read |
+| `get_settings`, `change_setting` | The settings |
+| `list_notification_channels`, `test_notification` | The notification channels, and a test message |
+| `list_tasks`, `get_task` | The background tasks |
 | `backup_playlists` | Back up every playlist now |
+| `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files` | Changes that remove something (marked as destructive: assistants ask before) |
 
 **On the same computer** (Trackhop Desktop, or Docker on this machine), the assistant starts the
 command itself, `trackhop mcp`. In Claude Desktop, *Settings › Developer › Edit config*, add:

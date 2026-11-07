@@ -399,9 +399,10 @@ code that uses unofficial interfaces. The `full` flavor (GitHub Releases) and th
 ## Automation: REST API and webhook
 
 Trackhop Desktop and the Docker server expose a REST API, so other tools (Home Assistant, n8n,
-Node-RED, a cron script) can list the syncs, start them and read how they went, and work on the
-playlists of every connected service: create them, add tracks by title and artist or by a link
-from any service (matched as a sync matches them), remove tracks, rename and delete. The Android
+Node-RED, a cron script) can do what the web page does: make, change, run and review syncs, and
+work on the playlists of every connected service: create them, add tracks by title and artist or by
+a link from any service (matched as a sync matches them), remove tracks, rename and delete; bring in
+files, set up notifications. Every call is described in `/api/v1/openapi.json`. The Android
 app has none: it has no server to answer.
 
 Turn it on in **Tools › API** on the web page: make a token (shown once, only its SHA-256 hash is

@@ -60,6 +60,7 @@ internal object ApiDocs {
         Call("GET", "/files", "Files", "The File playlists."),
         Call("GET", "/files/{file}", "Files", "A File playlist, in a format: csv, m3u, xspf, jspf or txt.", listOf("format")),
         Call("PUT", "/files/{file}", "Files", "Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body."),
+        Call("POST", "/files/{file}", "Files", "The same as PUT, for tools that only POST."),
         Call("DELETE", "/files/{file}", "Files", "Delete a File playlist."),
         Call("POST", "/files/zip", "Files", "Several File playlists in one .zip, in a format.", body = "{\"files\"?: [names], \"format\"?}"),
         Call("GET", "/files/settings", "Files", "How names in imported files are read: the layout and your own patterns."),
