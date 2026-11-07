@@ -54,7 +54,8 @@ class CliCommandsTest {
     private fun cli(vararg args: String): Ran {
         val out = ByteArrayOutputStream(); val err = ByteArrayOutputStream()
         val code = Cli.run(args.toList(), emptyMap(), PrintStream(out, true, "UTF-8"), PrintStream(err, true, "UTF-8")) { data }
-        return Ran(code, out.toString("UTF-8"), err.toString("UTF-8"))
+        // println ends lines with \r\n on Windows: compared as \n.
+        return Ran(code, out.toString("UTF-8").replace("\r\n", "\n"), err.toString("UTF-8").replace("\r\n", "\n"))
     }
 
     @Test fun aSyncIsMadeChangedMovedPreviewedAndDeleted() {
