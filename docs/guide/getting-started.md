@@ -38,6 +38,16 @@ Files need nothing.
 
 After connecting, *⋮ → Test connection* on the account checks sign-in, playlists and search in one go.
 
+**Start over**: a web sign-in can remember an earlier account (for example one signed in with Google)
+and take you straight back into it. *⋮ → Start over* on the connector signs out and forgets what
+Trackhop kept of that site, even when the connector shows as not connected; then connect again. Your
+account on the service is not touched.
+
+**Last.fm**: your user name is enough to read your loved tracks. Add your password too and *Loved
+tracks* becomes a target: a sync from your liked songs elsewhere loves the same tracks on Last.fm (the
+password is used once to get a session and is not kept). Where the app has no Last.fm key of its own,
+the sign-in asks for your API key and its shared secret, with a button to make them on Last.fm.
+
 **More than one account of a service**: add the same service again (*Accounts → Add connector*), for
 example two Spotify accounts or two Jellyfin servers, and give each a name. A sync between two
 accounts of the same streaming service copies the tracks as they are, with no search; between two
@@ -62,9 +72,10 @@ on chosen days. Options worth knowing:
   Music, Deezer).
 - **Wi-Fi only**, **Enabled**, and the matching rules.
 
-Open the **preview** before the first run: it shows what will be added and removed. Tracks that were
-not found go to the **review**, where you search the target yourself or pick a suggestion; the app
-remembers your choice.
+Saving opens the **preview**: at the top, where the tracks go from and to, and the steps while it works
+them out; then the numbers (to add, to remove, already there, not found) and the lists themselves.
+*Run now* stays at the bottom. Tracks that were not found go to the **review**, where you search the
+target yourself or pick a suggestion; the app remembers your choice.
 
 ## With one service
 
@@ -102,5 +113,6 @@ by default; the title banner keeps the brand colours either way. The app follows
 
 Sync all and the widgets follow the order of the list. Hold a card and drag it to its place, or use
 *⋮ → Move to position* and type the number. *⋮ → Colour* gives a card one of nine colours or any colour
-of your own (the last circle). On Desktop and Docker: the arrows on each card, or the position field
+of your own (the last circle). With several syncs, the filter above the list can show only the cards of
+one colour. On Desktop and Docker: the arrows on each card, or the position field
 on the sync's page.

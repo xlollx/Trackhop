@@ -37,6 +37,15 @@ musicale i brani si copiano così come sono, senza cercarli.
 I file non chiedono nulla. Dopo il collegamento, *⋮ → Prova connessione* controlla accesso, playlist e
 ricerca in un colpo solo.
 
+**Pulisci e ricomincia**: un accesso web può ricordare un account precedente (per esempio entrato con Google) e
+rimandarti subito lì. *⋮ → Pulisci e ricomincia* sul connettore scollega e dimentica ciò che Trackhop teneva di quel
+sito, anche quando il connettore risulta scollegato; poi collegalo di nuovo. Il tuo account sul servizio non viene toccato.
+
+**Last.fm**: basta il nome utente per leggere i brani amati. Aggiungi anche la password e *Brani amati* diventa una
+destinazione: una sync dai brani che ti piacciono altrove li ama anche su Last.fm (la password serve una volta sola per
+ottenere una sessione e non viene conservata). Se l'app non ha una chiave Last.fm sua, l'accesso chiede la tua API key
+e lo shared secret, con un pulsante per crearli su Last.fm.
+
 ## La prima sincronizzazione
 
 *Sync → Nuova sync*: scegli la sorgente (una playlist, i brani che ti piacciono, una sezione della
@@ -48,7 +57,8 @@ vuoto per usare quello della sorgente) e la frequenza. Opzioni utili:
 - **Mantieni l'ordine della sorgente**: dopo l'aggiunta, la destinazione viene riordinata come la sorgente.
 - **Solo Wi-Fi**, **Attiva** e le regole di abbinamento.
 
-Apri l'**anteprima** prima della prima esecuzione: mostra cosa verrà aggiunto e tolto. I brani non
+Salvando si apre l'**anteprima**: in alto, da dove a dove vanno i brani e i passaggi mentre li calcola; poi i
+numeri (da aggiungere, da togliere, già presenti, non trovati) e gli elenchi. *Esegui ora* resta in basso. I brani non
 trovati finiscono nella **revisione**, dove cerchi tu sulla destinazione o scegli un suggerimento; l'app
 ricorda la tua scelta.
 

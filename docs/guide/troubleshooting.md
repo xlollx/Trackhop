@@ -56,6 +56,14 @@ that in Trackhop as the password. The username stays the same.
 **Plex: where does a new playlist go?** A sync to "create a new playlist" makes a music playlist on
 the server, as Plex's own apps do; it shows up under *Playlists* in Plex.
 
+## A web sign-in does not connect
+
+The quick routes sign in on the service's own page. If the page remembers an old account (often one
+signed in with Google) and the connector stays not connected, use *⋮ → Start over* on the connector:
+it signs out and forgets what Trackhop kept of that site, then connect again. Your account on the
+service is not touched. If it still does not connect, [report it](reporting-a-problem) from
+*Settings → Diagnostics*: the report says how far the sign-in got.
+
 ## Scheduled syncs do not run
 
 Some phones (Samsung, Xiaomi, Huawei, Oppo) stop background apps. *Settings → Battery* excludes

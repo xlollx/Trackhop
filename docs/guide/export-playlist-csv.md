@@ -32,6 +32,14 @@ A CSV, M3U, XSPF, JSPF, iTunes XML, JSON or plain-text list can also be the **so
 *Tools → File playlists → Import*, then sync it to any service. That is how you move a playlist
 from a service Trackhop cannot reach, or restore one from a backup.
 
+Once imported, *Send to a service* turns a list into the source of a new sync, with the first
+service that can make playlists as the target: it is offered right after an import or a pasted list,
+and in each list's ⋮ menu. On Desktop and Docker it is the *Send to a service* link next to each file.
+
+To tidy up, hold a list to select several (*Select shown* takes every list on screen), then *Export
+to a folder* in the format you choose, or delete them at once. On Desktop and Docker, tick the files
+and download them as one `.zip` or delete them.
+
 M3U, PLS and text files often carry only a name per track. "Artist - Title" is read as it is
 written; names in three parts, "Artist - Album - Title", are read that way when most lines of the
 file have three parts, so an occasional "Song - Radio Edit" stays part of the title. To choose it
