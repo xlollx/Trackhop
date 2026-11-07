@@ -63,4 +63,23 @@ class ReorderFlowTest : FlowTest() {
         drag("Sync number 4", -height * 1.2f)
         waitFor("job-4 back before job-5") { order().takeLast(2) == listOf("job-4", "job-5") }
     }
+
+    // The case reported on 07/11: two cards swapped once (here by the store, as the menu does) while
+    // the list is open, then dragged back to the order they had when the list was drawn: kept.
+    @Test
+    fun aDropBackToAnEarlierOrderIsKept() {
+        seed(5)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        store.moveJob("job-5", 3)
+        waitFor("job-5 before job-4") { order().takeLast(2) == listOf("job-5", "job-4") }
+        toTheEnd()
+        waitText("Sync number 5")
+        val height = compose.onAllNodes(hasText("Sync number 5")).onFirst().fetchSemanticsNode().let { n ->
+            var p = n; repeat(6) { p.parent?.let { p = it } }; p.boundsInRoot.height
+        }.coerceAtLeast(400f)
+        drag("Sync number 5", height * 1.2f)
+        waitFor("job-5 last again") { order().last() == "job-5" }
+        assertEquals(listOf("job-1", "job-2", "job-3", "job-4", "job-5"), order())
+    }
 }
