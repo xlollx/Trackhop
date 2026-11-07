@@ -1745,4 +1745,9 @@
         <item quantity="one">%d fichier exporté</item>
         <item quantity="other">%d fichiers exportés</item>
     </plurals>
+    <string name="preview_tile_add">à ajouter</string>
+    <string name="preview_tile_remove">à retirer</string>
+    <string name="preview_tile_unlike">à retirer des favoris</string>
+    <string name="preview_tile_present">déjà là</string>
+    <string name="preview_step_match">Correspondance des titres</string>
 </resources>

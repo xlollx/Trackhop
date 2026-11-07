@@ -1706,4 +1706,9 @@
     <plurals name="files_exported_n">
         <item quantity="other">파일 %d개를 내보냈습니다</item>
     </plurals>
+    <string name="preview_tile_add">추가 예정</string>
+    <string name="preview_tile_remove">삭제 예정</string>
+    <string name="preview_tile_unlike">좋아요 취소 예정</string>
+    <string name="preview_tile_present">이미 있음</string>
+    <string name="preview_step_match">곡을 매칭하는 중</string>
 </resources>

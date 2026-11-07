@@ -1,6 +1,28 @@
 package com.xlollx.songport.ui
 
 import com.xlollx.songport.providers.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -92,47 +114,77 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.preview_title, job.name)) },
+                title = { Text(stringResource(R.string.preview_title, job.name), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
                 actions = { HelpButton(Helps.preview, Helps.previewRun, label = stringResource(R.string.preview)) },
             )
         },
-    ) { padding ->
-        Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            when {
-                error != null -> Text(error!!, color = MaterialTheme.colorScheme.error)
-                p == null -> Row(verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator(Modifier.size(20.dp))
-                    Spacer(Modifier.width(10.dp))
-                    Text(progress?.let { progressLabel(it) } ?: stringResource(R.string.preview_computing))
+        // Run now stays in reach under a long list; the confirmations it depends on sit above it.
+        bottomBar = {
+            if (p != null && hasWork) Surface(tonalElevation = 3.dp) {
+                Button(
+                    onClick = {
+                        if (p.removalsNeedConfirmation && confirmRemovals) store.confirmRemovals(job.id, p.toRemove.map { it.id })
+                        if (p.targetShrunkFrom > 0 && confirmShrink) store.confirmTargetShrink(job.id)
+                        onRun(job)
+                    },
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).heightIn(min = 52.dp),
+                ) {
+                    Icon(Icons.Filled.PlayArrow, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.run_now))
                 }
+            }
+        },
+    ) { padding ->
+        Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            RouteCard(job, newTarget = job.target.playlistId == null)
+            when {
+                error != null -> Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
+                    Text(error!!, color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.padding(16.dp))
+                }
+                p == null -> PlanSteps(progress)
                 else -> {
-                    Card(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            if (job.target.playlistId == null) Text(stringResource(R.string.preview_target_new), style = MaterialTheme.typography.bodyMedium)
-                            Text(stringResource(R.string.preview_present, p.alreadyPresent))
-                            Text(stringResource(R.string.preview_add, p.toAdd.size))
-                            if (job.mirrorRemovals) Text(stringResource(if (unlikes) R.string.preview_unlike else R.string.preview_remove, p.toRemove.size))
-                            // A large share of the target: a normal run holds these back unless the box below is ticked.
-                            if (p.removalsNeedConfirmation) {
-                                Text(
-                                    stringResource(if (unlikes) R.string.preview_unlike_warning else R.string.preview_remove_warning, p.toRemove.size, p.targetCount),
-                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
-                                )
-                            }
-                            Text(stringResource(R.string.preview_unmatched, p.unmatched.size))
-                            if (p.uncertain.isNotEmpty()) Text(stringResource(R.string.preview_uncertain, p.uncertain.size), color = MaterialTheme.colorScheme.tertiary)
-                            if (p.ignored > 0) Text(stringResource(R.string.preview_ignored, p.ignored))
-                            p.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary) }
-                            if (!hasWork) { Spacer(Modifier.height(6.dp)); Text(stringResource(R.string.preview_nothing)) }
-                            if (dst?.serviceId == YouTubeProvider.SERVICE) {
-                                QuotaCard(
-                                    used = QuotaMeter.used(data, YouTubeProvider.SERVICE),
-                                    sharedCredentials = !dst.usesOwnCredentials(ctx),
-                                    estimate = QuotaMeter.estimateAdd(p.toAdd.size),
-                                )
-                            }
+                    // The plan in figures, as on the card after a run.
+                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Stat("+${p.toAdd.size}", stringResource(R.string.preview_tile_add), Modifier.weight(1f), tint = MaterialTheme.colorScheme.primary)
+                        if (job.mirrorRemovals) Stat(
+                            "−${p.toRemove.size}", stringResource(if (unlikes) R.string.preview_tile_unlike else R.string.preview_tile_remove), Modifier.weight(1f),
+                            tint = if (p.removalsNeedConfirmation) MaterialTheme.colorScheme.error else null,
+                        )
+                        Stat("${p.alreadyPresent}", stringResource(R.string.preview_tile_present), Modifier.weight(1f))
+                        Stat("${p.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), tint = if (p.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null)
+                    }
+                    if (!hasWork) Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+                            Spacer(Modifier.width(12.dp))
+                            Text(stringResource(R.string.preview_nothing), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
                         }
+                    }
+                    // What else is worth knowing before running: each on its own line, the warnings first.
+                    val infos = buildList {
+                        if (p.removalsNeedConfirmation) add(stringResource(if (unlikes) R.string.preview_unlike_warning else R.string.preview_remove_warning, p.toRemove.size, p.targetCount) to true)
+                        if (p.uncertain.isNotEmpty()) add(stringResource(R.string.preview_uncertain, p.uncertain.size) to false)
+                        if (p.ignored > 0) add(stringResource(R.string.preview_ignored, p.ignored) to false)
+                        p.notes.forEach { add(it to false) }
+                    }
+                    infos.forEach { (text, warn) ->
+                        Row(verticalAlignment = Alignment.Top) {
+                            Icon(
+                                if (warn) Icons.Filled.Warning else Icons.Outlined.Info, null, Modifier.size(18.dp).padding(top = 2.dp),
+                                tint = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(text, style = MaterialTheme.typography.bodySmall, color = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    if (dst?.serviceId == YouTubeProvider.SERVICE) {
+                        QuotaCard(
+                            used = QuotaMeter.used(data, YouTubeProvider.SERVICE),
+                            sharedCredentials = !dst.usesOwnCredentials(ctx),
+                            estimate = QuotaMeter.estimateAdd(p.toAdd.size),
+                        )
                     }
                     if (hasWork) {
                         // The one place large removals are confirmed: a deliberate tick, then Run now.
@@ -160,11 +212,6 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                                 Text(stringResource(R.string.preview_shrunk_confirm, p.targetCount, p.targetShrunkFrom), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                             }
                         }
-                        Button(onClick = {
-                            if (p.removalsNeedConfirmation && confirmRemovals) store.confirmRemovals(job.id, p.toRemove.map { it.id })
-                            if (p.targetShrunkFrom > 0 && confirmShrink) store.confirmTargetShrink(job.id)
-                            onRun(job)
-                        }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.run_now)) }
                     }
                     if (p.uncertain.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -196,12 +243,83 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                             )
                         }
                     }
-                    TrackList(stringResource(R.string.preview_add, p.toAdd.size), p.toAdd)
-                    TrackList(stringResource(R.string.preview_remove, p.toRemove.size), p.toRemove)
-                    TrackList(stringResource(R.string.preview_unmatched, p.unmatched.size), p.unmatched)
+                    TrackList(stringResource(R.string.preview_add, p.toAdd.size), p.toAdd, MaterialTheme.colorScheme.primary)
+                    TrackList(stringResource(if (unlikes) R.string.preview_unlike else R.string.preview_remove, p.toRemove.size), p.toRemove, MaterialTheme.colorScheme.error)
+                    TrackList(stringResource(R.string.preview_unmatched, p.unmatched.size), p.unmatched, MaterialTheme.colorScheme.tertiary)
                 }
             }
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+/** From where to where: each side's service mark and playlist; a target still to make says so. */
+@Composable
+private fun RouteCard(job: SyncJob, newTarget: Boolean) {
+    val ctx = LocalContext.current
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            listOf(job.source, job.target).forEachIndexed { i, ref ->
+                val provider = Providers.byId(ref.provider)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ProviderBadge(provider, 36.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(ref.playlistName.ifBlank { job.name }, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(provider?.label(ctx) ?: ref.provider, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+                if (i == 0) Icon(Icons.Filled.ArrowDownward, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp).size(20.dp))
+            }
+            if (newTarget) Text(stringResource(R.string.preview_target_new), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+/**
+ * What the preview is doing while it works it out: reading the source, reading the target, matching
+ * the tracks; the step under way turns, the ones done are ticked, matching fills a bar as it goes.
+ */
+@Composable
+private fun PlanSteps(progress: Progress?) {
+    val step = when (progress?.step) {
+        null, Progress.Step.FETCH_SOURCE -> 0
+        Progress.Step.CREATE_TARGET, Progress.Step.FETCH_TARGET -> 1
+        Progress.Step.WAITING -> -1
+        else -> 2
+    }
+    // A pause asked by the service keeps the step it came in.
+    var last by remember { mutableStateOf(0) }
+    val current = if (step < 0) last else step.also { last = it }
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp).semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            listOf(
+                stringResource(R.string.progress_fetch_source),
+                stringResource(R.string.progress_fetch_target),
+                if (current == 2 && progress != null && progress.total > 0) stringResource(R.string.progress_matching, progress.done, progress.total) else stringResource(R.string.preview_step_match),
+            ).forEachIndexed { i, label ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+                        when {
+                            i < current -> Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                            i == current -> CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.5.dp)
+                            else -> Box(Modifier.size(18.dp).border(2.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape))
+                        }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        label, style = MaterialTheme.typography.bodyMedium,
+                        color = if (i > current) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                if (i == 2 && current == 2) progress?.percent?.let { pc ->
+                    LinearProgressIndicator(progress = { pc / 100f }, modifier = Modifier.fillMaxWidth().padding(start = 36.dp))
+                }
+            }
+            if (progress?.step == Progress.Step.WAITING) Text(
+                stringResource(R.string.progress_waiting, (progress.total - progress.done).coerceAtLeast(0)),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -213,11 +331,29 @@ private fun progressLabel(p: Progress): String = when (p.step) {
     else -> stringResource(R.string.progress_fetch_source)
 }
 
+/** One list of the plan in a card: a coloured mark, title and artist per track; the first few, then all on a tap. */
 @Composable
-private fun TrackList(title: String, tracks: List<Track>, max: Int = 30) {
+private fun TrackList(title: String, tracks: List<Track>, accent: Color, first: Int = 8) {
     if (tracks.isEmpty()) return
-    Spacer(Modifier.height(6.dp))
-    Text(title, style = MaterialTheme.typography.titleMedium)
-    tracks.take(max).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
-    if (tracks.size > max) Text(stringResource(R.string.preview_more, tracks.size - max), style = MaterialTheme.typography.bodySmall)
+    var all by remember(tracks) { mutableStateOf(false) }
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+        Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
+                Spacer(Modifier.width(10.dp))
+                Text(title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.semantics { heading() })
+            }
+            Spacer(Modifier.height(6.dp))
+            (if (all) tracks.take(500) else tracks.take(first)).forEach { t ->
+                Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp).semantics(mergeDescendants = true) {}) {
+                    Text(t.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    val sub = listOf(t.artistLine, t.album).filter { it.isNotBlank() }.joinToString(" · ")
+                    if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+            if (!all && tracks.size > first) TextButton(onClick = { all = true }, modifier = Modifier.padding(start = 8.dp)) {
+                Text(stringResource(R.string.preview_more, tracks.size - first))
+            }
+        }
+    }
 }

@@ -1799,4 +1799,9 @@
         <item quantity="many">Wyeksportowano %d plików</item>
         <item quantity="other">Wyeksportowano %d pliku</item>
     </plurals>
+    <string name="preview_tile_add">do dodania</string>
+    <string name="preview_tile_remove">do usunięcia</string>
+    <string name="preview_tile_unlike">do odpolubienia</string>
+    <string name="preview_tile_present">już są</string>
+    <string name="preview_step_match">Dopasowywanie utworów</string>
 </resources>

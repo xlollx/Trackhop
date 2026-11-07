@@ -1738,4 +1738,9 @@
         <item quantity="one">%d file exported</item>
         <item quantity="other">%d files exported</item>
     </plurals>
+    <string name="preview_tile_add">to add</string>
+    <string name="preview_tile_remove">to remove</string>
+    <string name="preview_tile_unlike">to unlike</string>
+    <string name="preview_tile_present">already there</string>
+    <string name="preview_step_match">Matching the tracks</string>
 </resources>

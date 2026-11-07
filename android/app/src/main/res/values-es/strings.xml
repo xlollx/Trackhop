@@ -1745,4 +1745,9 @@
         <item quantity="one">%d archivo exportado</item>
         <item quantity="other">%d archivos exportados</item>
     </plurals>
+    <string name="preview_tile_add">por añadir</string>
+    <string name="preview_tile_remove">por quitar</string>
+    <string name="preview_tile_unlike">por quitar de me gusta</string>
+    <string name="preview_tile_present">ya están</string>
+    <string name="preview_step_match">Emparejando las canciones</string>
 </resources>

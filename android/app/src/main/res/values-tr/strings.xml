@@ -1735,4 +1735,9 @@
         <item quantity="one">%d dosya dışa aktarıldı</item>
         <item quantity="other">%d dosya dışa aktarıldı</item>
     </plurals>
+    <string name="preview_tile_add">eklenecek</string>
+    <string name="preview_tile_remove">kaldırılacak</string>
+    <string name="preview_tile_unlike">beğeniden çıkarılacak</string>
+    <string name="preview_tile_present">zaten var</string>
+    <string name="preview_step_match">Parçalar eşleştiriliyor</string>
 </resources>

@@ -1797,4 +1797,9 @@
         <item quantity="many">Экспортировано %d файлов</item>
         <item quantity="other">Экспортировано %d файла</item>
     </plurals>
+    <string name="preview_tile_add">добавить</string>
+    <string name="preview_tile_remove">удалить</string>
+    <string name="preview_tile_unlike">убрать из любимых</string>
+    <string name="preview_tile_present">уже есть</string>
+    <string name="preview_step_match">Сопоставление треков</string>
 </resources>

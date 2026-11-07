@@ -1737,4 +1737,9 @@
         <item quantity="one">%d file esportato</item>
         <item quantity="other">%d file esportati</item>
     </plurals>
+    <string name="preview_tile_add">da aggiungere</string>
+    <string name="preview_tile_remove">da rimuovere</string>
+    <string name="preview_tile_unlike">da togliere dai preferiti</string>
+    <string name="preview_tile_present">già presenti</string>
+    <string name="preview_step_match">Abbinamento dei brani</string>
 </resources>

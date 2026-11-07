@@ -1745,4 +1745,9 @@
         <item quantity="one">%d arquivo exportado</item>
         <item quantity="other">%d arquivos exportados</item>
     </plurals>
+    <string name="preview_tile_add">a adicionar</string>
+    <string name="preview_tile_remove">a remover</string>
+    <string name="preview_tile_unlike">a descurtir</string>
+    <string name="preview_tile_present">já estão lá</string>
+    <string name="preview_step_match">Combinando as faixas</string>
 </resources>

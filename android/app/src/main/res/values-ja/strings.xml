@@ -1707,4 +1707,9 @@
     <plurals name="files_exported_n">
         <item quantity="other">%d 件のファイルをエクスポートしました</item>
     </plurals>
+    <string name="preview_tile_add">追加予定</string>
+    <string name="preview_tile_remove">削除予定</string>
+    <string name="preview_tile_unlike">高評価を解除予定</string>
+    <string name="preview_tile_present">追加済み</string>
+    <string name="preview_step_match">曲を照合しています</string>
 </resources>

@@ -262,7 +262,15 @@ fun SyncsScreen(
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
         val o = (dragOrder ?: order).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
-        if (a >= 0 && b >= 0) { o.add(b, o.removeAt(a)); dragOrder = o }
+        if (a >= 0 && b >= 0) {
+            // A lazy list keeps its first visible item in view by key: when that item is one of the two
+            // swapping (the card half under the pill at the end of the list), the list would follow it,
+            // the card under the finger would jump and the drop could land back where it started.
+            // Held by position instead, the list stays still and only the cards change places.
+            val first = listState.firstVisibleItemIndex
+            if (from.index == first || to.index == first) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
+            o.add(b, o.removeAt(a)); dragOrder = o
+        }
         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
     }
     // Any change of order while nothing is dragged (a move from the menu, the store's own list after a
@@ -1837,7 +1845,7 @@ private fun RunStats(
 }
 
 @Composable
-private fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null) {
+internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null) {
     Column(
         modifier.fillMaxHeight().clip(RoundedCornerShape(16.dp))
             .let { if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) }
