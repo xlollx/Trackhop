@@ -46,11 +46,20 @@ internal fun Web.fileList(sample: String = ""): String {
         val n = CsvCodec.parse(f.readText()).size
         val links = ExportFormat.entries.joinToString(" · ") { """<a href="/files/${q(f.name)}?format=${it.ext}" download>${it.label}</a>""" }
         sb.append(
-            """<div class="row"><div><b>${h(f.nameWithoutExtension)}</b> <span class="muted">$n tracks</span><br><span class="muted">Download: </span>$links</div>""" +
+            // The box belongs to the "bulk" form below (a form cannot hold the row's own Delete form).
+            """<div class="row"><label class="inline"><input type="checkbox" form="bulk" name="f:${h(f.name)}" aria-label="Select ${h(f.nameWithoutExtension)}"></label>""" +
+                """<div><b>${h(f.nameWithoutExtension)}</b> <span class="muted">$n tracks</span><br><span class="muted">Download: </span>$links</div>""" +
                 Html.postButton("/files/${q(f.name)}", "Delete", "danger", fields = mapOf("action" to "delete"), confirm = "Delete ${f.nameWithoutExtension}? A sync that uses it stops finding it.") +
                 "</div>",
         )
     }
+    if (files.size > 1) sb.append(
+        """<form id="bulk" method="post" action="/files/bulk" onsubmit="return event.submitter.value != 'delete' || confirm('Delete the ticked files? Syncs that use them stop finding them.')">""" +
+            """<p class="muted">With the ticked files: <select name="format" aria-label="Format">""" +
+            ExportFormat.entries.joinToString("") { """<option value="${it.ext}">${it.label}</option>""" } +
+            """</select> <button class="secondary" name="action" value="zip">Download as .zip</button> """ +
+            """<button class="danger" name="action" value="delete">Delete</button></p></form>""",
+    )
     sb.append(
         """<p class="muted">Playlists saved inside Trackhop. A sync whose target is File writes its playlist here; a file uploaded here can be the source of a sync to any service.</p></div>
 <form method="post" action="/files" enctype="multipart/form-data" class="card"><label>Add a playlist file: CSV, M3U, PLS, XSPF, JSPF or JSON, iTunes XML, OPML, or a text list of “Artist - Title”</label>
@@ -83,6 +92,39 @@ internal fun Web.attachment(r: Web.Req, fileName: String, text: String, mime: St
     val ascii = fileName.replace(Regex("[^A-Za-z0-9._ ()-]"), "_")
     r.ex.responseHeaders.set("Content-Disposition", "attachment; filename=\"$ascii\"; filename*=UTF-8''${q(fileName).replace("+", "%20")}")
     send(r.ex, 200, text, mime)
+}
+
+/** The ticked files of the list: deleted, or downloaded together as a .zip in one format. */
+internal fun Web.bulkFiles(r: Web.Req) {
+    val names = r.form.filter { (k, v) -> k.startsWith("f:") && v.isNotEmpty() }.keys.map { it.removePrefix("f:") }.toSet()
+    val files = csvFiles().filter { it.name in names }
+    if (files.isEmpty()) return redirect(r.ex, "/connectors/csv?err=${q("Tick the files first.")}")
+    when (r.form["action"]) {
+        "delete" -> {
+            files.forEach { it.delete() }
+            env.log("files", "deleted ${files.size} files")
+            redirect(r.ex, "/connectors/csv?ok=${q("Deleted ${files.size} files.")}")
+        }
+        "zip" -> {
+            val format = ExportFormat.of(r.form["format"])
+            val bytes = java.io.ByteArrayOutputStream()
+            java.util.zip.ZipOutputStream(bytes).use { zip ->
+                val used = HashSet<String>()
+                files.forEach { f ->
+                    val text = if (format == ExportFormat.CSV) f.readText() else format.encode(f.nameWithoutExtension, CsvCodec.parse(f.readText()))
+                    var entry = "${f.nameWithoutExtension}.${format.ext}"
+                    var n = 2
+                    while (!used.add(entry)) entry = "${f.nameWithoutExtension} (${n++}).${format.ext}"
+                    zip.putNextEntry(java.util.zip.ZipEntry(entry))
+                    zip.write(text.toByteArray(Charsets.UTF_8))
+                    zip.closeEntry()
+                }
+            }
+            r.ex.responseHeaders.set("Content-Disposition", "attachment; filename=\"Trackhop playlists.zip\"")
+            sendBytes(r.ex, 200, bytes.toByteArray(), "application/zip")
+        }
+        else -> redirect(r.ex, "/connectors/csv")
+    }
 }
 
 internal fun Web.fileAction(r: Web.Req, name: String) {

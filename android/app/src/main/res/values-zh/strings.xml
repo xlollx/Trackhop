@@ -1692,4 +1692,19 @@
     <string name="files_patterns_result">艺人：%1$s · 专辑：%2$s · 标题：%3$s</string>
     <string name="files_patterns_nomatch">没有模式能读取这一行：将按常规方式读取。</string>
     <string name="files_patterns_error">第 %1$d 行：%2$s</string>
+    <string name="files_select">选择</string>
+    <string name="files_export_folder">导出到文件夹</string>
+    <string name="files_delete_confirm">使用这些文件的同步将找不到它们。此操作无法撤销。</string>
+    <plurals name="files_selected">
+        <item quantity="other">已选择 %d 项</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="other">删除 %d 个文件</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="other">已删除 %d 个文件</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="other">已导出 %d 个文件</item>
+    </plurals>
 </resources>

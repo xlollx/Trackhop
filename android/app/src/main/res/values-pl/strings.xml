@@ -1772,4 +1772,31 @@
     <string name="files_patterns_result">Wykonawca: %1$s · Album: %2$s · Tytuł: %3$s</string>
     <string name="files_patterns_nomatch">Żaden wzorzec nie odczytuje tego wiersza: zostanie odczytany jak zwykle.</string>
     <string name="files_patterns_error">Wiersz %1$d: %2$s</string>
+    <string name="files_select">Zaznacz</string>
+    <string name="files_export_folder">Eksportuj do folderu</string>
+    <string name="files_delete_confirm">Synchronizacje używające tych plików przestaną je znajdować. Tego nie można cofnąć.</string>
+    <plurals name="files_selected">
+        <item quantity="one">Zaznaczono %d</item>
+        <item quantity="few">Zaznaczono %d</item>
+        <item quantity="many">Zaznaczono %d</item>
+        <item quantity="other">Zaznaczono %d</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="one">Usuń %d plik</item>
+        <item quantity="few">Usuń %d pliki</item>
+        <item quantity="many">Usuń %d plików</item>
+        <item quantity="other">Usuń %d pliku</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="one">Usunięto %d plik</item>
+        <item quantity="few">Usunięto %d pliki</item>
+        <item quantity="many">Usunięto %d plików</item>
+        <item quantity="other">Usunięto %d pliku</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="one">Wyeksportowano %d plik</item>
+        <item quantity="few">Wyeksportowano %d pliki</item>
+        <item quantity="many">Wyeksportowano %d plików</item>
+        <item quantity="other">Wyeksportowano %d pliku</item>
+    </plurals>
 </resources>

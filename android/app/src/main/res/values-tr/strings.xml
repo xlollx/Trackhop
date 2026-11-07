@@ -1716,4 +1716,23 @@
     <string name="files_patterns_result">Sanatçı: %1$s · Albüm: %2$s · Başlık: %3$s</string>
     <string name="files_patterns_nomatch">Bu satırı okuyan kalıp yok: her zamanki gibi okunacak.</string>
     <string name="files_patterns_error">Satır %1$d: %2$s</string>
+    <string name="files_select">Seç</string>
+    <string name="files_export_folder">Bir klasöre dışa aktar</string>
+    <string name="files_delete_confirm">Bu dosyaları kullanan senkronizasyonlar onları artık bulamaz. Geri alınamaz.</string>
+    <plurals name="files_selected">
+        <item quantity="one">%d seçildi</item>
+        <item quantity="other">%d seçildi</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="one">%d dosyayı sil</item>
+        <item quantity="other">%d dosyayı sil</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="one">%d dosya silindi</item>
+        <item quantity="other">%d dosya silindi</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="one">%d dosya dışa aktarıldı</item>
+        <item quantity="other">%d dosya dışa aktarıldı</item>
+    </plurals>
 </resources>

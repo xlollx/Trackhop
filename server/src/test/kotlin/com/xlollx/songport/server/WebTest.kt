@@ -318,6 +318,25 @@ class WebTest {
         assertTrue(get(tried.headers().firstValue("Location").get().removePrefix(base)).body().contains("value=\"Music/Muse/Absolution/03 Hysteria.mp3\""))
     }
 
+    @Test fun tickedFilesDownloadAsAZipAndDeleteAtOnce() {
+        File(data, "csv").mkdirs()
+        listOf("One", "Two", "Three").forEach { File(data, "csv/$it.csv").writeText("title,artist\n$it,Band\n") }
+        val page = get("/connectors/csv").body()
+        assertTrue(page.contains("""name="f:One.csv""""))
+        assertTrue(page.contains("""<form id="bulk""""))
+        val zip = client.send(
+            HttpRequest.newBuilder(URI("$base/files/bulk")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "application/x-www-form-urlencoded").POST(HttpRequest.BodyPublishers.ofString("f%3AOne.csv=on&f%3ATwo.csv=on&format=m3u&action=zip")).build(),
+            HttpResponse.BodyHandlers.ofByteArray(),
+        )
+        assertEquals(200, zip.statusCode())
+        val names = java.util.zip.ZipInputStream(zip.body().inputStream()).use { z -> generateSequence { z.nextEntry?.name }.toList() }
+        assertEquals(listOf("One.m3u", "Two.m3u"), names.sorted())
+        assertEquals(303, post("/files/bulk", "f%3AOne.csv=on&f%3AThree.csv=on&action=delete", *origin).statusCode())
+        assertEquals(listOf("Two.csv"), File(data, "csv").list()!!.toList())
+        assertTrue(post("/files/bulk", "action=delete", *origin).headers().firstValue("Location").orElse("").contains("err="))
+    }
+
     @Test fun toolsFindAndRemoveDuplicatesInTheBackground() {
         File(data, "csv").mkdirs()
         File(data, "csv/Dup.csv").writeText("title,artist\nSong,Band\nOther,Band\nSong,Band\n")

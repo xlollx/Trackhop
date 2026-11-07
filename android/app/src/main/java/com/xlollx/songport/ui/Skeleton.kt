@@ -77,3 +77,18 @@ fun SkeletonRows(count: Int = 12, leading: Dp = 22.dp, modifier: Modifier = Modi
 
 private val TITLE = floatArrayOf(0.72f, 0.55f, 0.84f, 0.63f, 0.78f, 0.5f, 0.68f)
 private val SUB = floatArrayOf(0.42f, 0.6f, 0.35f, 0.52f, 0.46f, 0.38f, 0.57f)
+
+/**
+ * The sync editor's playlist choice before the service answers: the Playlists/Library switch and
+ * the playlist field, so the page keeps its shape instead of a lone "Loading…" line.
+ */
+@Composable
+fun SkeletonPicker(modifier: Modifier = Modifier) {
+    val brush = shimmer()
+    val loading = stringResource(R.string.loading)
+    Column(modifier.fillMaxWidth().semantics { contentDescription = loading }) {
+        Spacer(Modifier.fillMaxWidth().height(40.dp).clip(RoundedCornerShape(20.dp)).background(brush))
+        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(4.dp)).background(brush))
+    }
+}

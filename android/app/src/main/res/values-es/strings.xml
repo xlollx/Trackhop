@@ -1726,4 +1726,23 @@
     <string name="files_patterns_result">Artista: %1$s · Álbum: %2$s · Título: %3$s</string>
     <string name="files_patterns_nomatch">Ningún patrón lee esta línea: se leerá como siempre.</string>
     <string name="files_patterns_error">Línea %1$d: %2$s</string>
+    <string name="files_select">Seleccionar</string>
+    <string name="files_export_folder">Exportar a una carpeta</string>
+    <string name="files_delete_confirm">Las sincronizaciones que usan estos archivos dejarán de encontrarlos. No se puede deshacer.</string>
+    <plurals name="files_selected">
+        <item quantity="one">%d seleccionado</item>
+        <item quantity="other">%d seleccionados</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="one">Eliminar %d archivo</item>
+        <item quantity="other">Eliminar %d archivos</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="one">%d archivo eliminado</item>
+        <item quantity="other">%d archivos eliminados</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="one">%d archivo exportado</item>
+        <item quantity="other">%d archivos exportados</item>
+    </plurals>
 </resources>

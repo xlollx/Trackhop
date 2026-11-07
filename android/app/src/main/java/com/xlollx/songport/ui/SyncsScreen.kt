@@ -1622,9 +1622,7 @@ private const val RADIO_KEY = "radio:"
 @Composable
 private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, onlyOwned: Boolean = false, provider: String? = null, onSelect: (Playlist) -> Unit) {
     when (loaded) {
-        Loaded.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.width(20.dp).height(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading))
-        }
+        Loaded.Loading -> SkeletonPicker()
         is Loaded.Failed -> Text(loaded.message, color = MaterialTheme.colorScheme.error)
         is Loaded.Ok -> {
             var expanded by remember { mutableStateOf(false) }

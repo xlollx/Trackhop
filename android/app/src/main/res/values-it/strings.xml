@@ -1718,4 +1718,23 @@
     <string name="files_patterns_result">Artista: %1$s · Album: %2$s · Titolo: %3$s</string>
     <string name="files_patterns_nomatch">Nessun modello legge questa riga: verrà letta come al solito.</string>
     <string name="files_patterns_error">Riga %1$d: %2$s</string>
+    <string name="files_select">Seleziona</string>
+    <string name="files_export_folder">Esporta in una cartella</string>
+    <string name="files_delete_confirm">Le sync che usano questi file non li troveranno più. Non si può annullare.</string>
+    <plurals name="files_selected">
+        <item quantity="one">%d selezionato</item>
+        <item quantity="other">%d selezionati</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="one">Elimina %d file</item>
+        <item quantity="other">Elimina %d file</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="one">%d file eliminato</item>
+        <item quantity="other">%d file eliminati</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="one">%d file esportato</item>
+        <item quantity="other">%d file esportati</item>
+    </plurals>
 </resources>

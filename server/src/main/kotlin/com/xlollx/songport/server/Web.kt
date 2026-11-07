@@ -167,6 +167,7 @@ class Web(
             path[0] == "connectors" -> connectors(r, path.drop(1))
             // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
             path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
+            path == listOf("files", "bulk") && method == "POST" -> bulkFiles(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
             path.size == 2 && path[0] == "files" && method == "POST" -> fileAction(r, path[1])
             path == listOf("files") && method == "POST" -> upload(r)
@@ -205,6 +206,16 @@ class Web(
         ex.responseHeaders.set("X-Frame-Options", "DENY")
         // Not "no-referrer": with it browsers send "Origin: null" on this page's own forms, which
         // [sameOrigin] must refuse. "same-origin" still tells other sites nothing.
+        ex.responseHeaders.set("Referrer-Policy", "same-origin")
+        ex.sendResponseHeaders(code, bytes.size.toLong())
+        ex.responseBody.use { it.write(bytes) }
+    }
+
+    /** A download that is not text (a .zip): the same headers as [send], without a charset. */
+    internal fun sendBytes(ex: HttpExchange, code: Int, bytes: ByteArray, type: String) {
+        ex.responseHeaders.set("Content-Type", type)
+        ex.responseHeaders.set("Cache-Control", "no-store")
+        ex.responseHeaders.set("X-Frame-Options", "DENY")
         ex.responseHeaders.set("Referrer-Policy", "same-origin")
         ex.sendResponseHeaders(code, bytes.size.toLong())
         ex.responseBody.use { it.write(bytes) }

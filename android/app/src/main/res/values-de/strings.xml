@@ -1718,4 +1718,23 @@
     <string name="files_patterns_result">Interpret: %1$s · Album: %2$s · Titel: %3$s</string>
     <string name="files_patterns_nomatch">Kein Muster liest diese Zeile: Sie wird wie üblich gelesen.</string>
     <string name="files_patterns_error">Zeile %1$d: %2$s</string>
+    <string name="files_select">Auswählen</string>
+    <string name="files_export_folder">In einen Ordner exportieren</string>
+    <string name="files_delete_confirm">Syncs, die diese Dateien nutzen, finden sie nicht mehr. Das lässt sich nicht rückgängig machen.</string>
+    <plurals name="files_selected">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
+    <plurals name="files_delete_n">
+        <item quantity="one">%d Datei löschen</item>
+        <item quantity="other">%d Dateien löschen</item>
+    </plurals>
+    <plurals name="files_deleted_n">
+        <item quantity="one">%d Datei gelöscht</item>
+        <item quantity="other">%d Dateien gelöscht</item>
+    </plurals>
+    <plurals name="files_exported_n">
+        <item quantity="one">%d Datei exportiert</item>
+        <item quantity="other">%d Dateien exportiert</item>
+    </plurals>
 </resources>
