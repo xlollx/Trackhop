@@ -155,17 +155,21 @@ class WebLoginActivity : ComponentActivity() {
             // tie this one to it: the sign-in starts as a new visitor. The account's cookies stay.
             val dropped = dropCookie(SoundCloudBridge.SITE, "datadome")
             BridgeNet.log("soundcloud", "sign-in started as the phone's WebView (${BridgeUa.describe()}; ${if (dropped) "old DataDome cookie removed" else "no DataDome cookie"})")
-            // A page with a service worker makes its API calls from there, out of the WebViewClient's
-            // sight: those are observed the same way (and also go on as they were made).
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE) &&
-                WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST)) runCatching {
-                ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(object : ServiceWorkerClientCompat() {
-                    override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? {
-                        watchSoundCloud(request)
-                        return null
-                    }
-                })
-            }
+        }
+        // A page with a service worker makes its API calls from there, out of the WebViewClient's
+        // sight: those are observed the same way (and also go on as they were made). Anghami's and
+        // Qobuz's players can do it too (#53: signed in, the app never saw Anghami's session).
+        if (service in WATCHED_IN_WORKER &&
+            WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE) &&
+            WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST)) runCatching {
+            ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(object : ServiceWorkerClientCompat() {
+                override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? {
+                    watchSoundCloud(request)
+                    watchAnghami(request.url.toString(), request, "worker")
+                    watchQobuz(request)
+                    return null
+                }
+            })
         }
         web.webViewClient = object : SafeWebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -196,7 +200,7 @@ class WebLoginActivity : ComponentActivity() {
                 // SoundCloud's web app names itself with a client id on every API call, and signed in
                 // sends the account's token: both kept for ours (see [watchSoundCloud]).
                 watchSoundCloud(request)
-                watchAnghami(request.url.toString())
+                watchAnghami(request.url.toString(), request)
                 // Qobuz: the session travels as headers of the player's API calls, not in their address.
                 watchQobuz(request)
                 watchBotCheck(request.url.toString())
@@ -548,9 +552,26 @@ class WebLoginActivity : ComponentActivity() {
      * refuses is not tried again.
      */
     @Volatile private var anghamiTrying = false
+    private val anghamiLogged = AtomicInteger()
+
+    /**
+     * #53: signed in (with Google, too), the app never saw the session. The first gateway calls are
+     * described in the log by the names of what they carry (parameters, headers, never a value), so
+     * the next report says where Anghami puts it now.
+     */
+    private fun anghamiSeen(url: String, request: WebResourceRequest?, from: String) {
+        val uri = runCatching { java.net.URI(url) }.getOrNull() ?: return
+        if (uri.host?.endsWith("anghami.com") != true || "gateway" !in uri.path.orEmpty()) return
+        if (anghamiLogged.incrementAndGet() > 6) return
+        val params = uri.rawQuery.orEmpty().split('&').mapNotNull { it.substringBefore('=').takeIf { k -> k.isNotBlank() } }
+        val type = uri.rawQuery.orEmpty().split('&').firstOrNull { it.startsWith("type=") }?.substringAfter('=').orEmpty()
+        val headers = request?.requestHeaders?.keys?.sorted().orEmpty()
+        BridgeNet.log("anghami", "sign-in: gateway call seen ($from, ${request?.method ?: "?"}) type=$type params=${params.joinToString(",")} headers=${headers.joinToString(",")}")
+    }
     private var anghamiRefused: String? = null
-    private fun watchAnghami(url: String) {
+    private fun watchAnghami(url: String, request: WebResourceRequest? = null, from: String = "page") {
         if (service != ANGHAMI || done || anghamiTrying) return
+        anghamiSeen(url, request, from)
         val (sid, fingerprint) = AnghamiBridge.fromRequest(url) ?: return
         if (sid == anghamiRefused) return
         anghamiTrying = true
@@ -704,7 +725,7 @@ class WebLoginActivity : ComponentActivity() {
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
         // The service-worker observer was this screen's: it goes with it.
-        if (serviceOrNull() == SOUNDCLOUD && WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST)) runCatching {
+        if (serviceOrNull() in WATCHED_IN_WORKER && WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST)) runCatching {
             ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(object : ServiceWorkerClientCompat() {
                 override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? = null
             })
@@ -730,6 +751,9 @@ class WebLoginActivity : ComponentActivity() {
         const val LIVEONE = "liveone"
         const val ANGHAMI = "anghami"
         const val QOBUZ = "qobuz"
+
+        /** The services whose players may call their API from a service worker, watched there too. */
+        private val WATCHED_IN_WORKER = setOf(SOUNDCLOUD, ANGHAMI, QOBUZ)
 
         /** The sign-in of [service], for the primary account or for the extra account [slot] (see [Slots]). */
         fun intent(ctx: android.content.Context, service: String, slot: String = Slots.PRIMARY): Intent =
