@@ -305,6 +305,15 @@ jobs:
       tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
+  wikidata:
+    # The new version on Trackhop's Wikidata item (wikidata.yml). Does nothing without the
+    # WIKIDATA_USER / WIKIDATA_PASSWORD secrets, and never fails the release.
+    needs: publish
+    uses: ./.github/workflows/wikidata.yml
+    with:
+      version: ${{ needs.publish.outputs.tag }}
+    secrets: inherit
+
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml): the results go into its notes
     # and the README's badge. Skipped until the VT_API_KEY secret exists.
