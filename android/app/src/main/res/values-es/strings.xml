@@ -1720,7 +1720,7 @@
     <string name="files_names_saved">Se aplica desde la próxima importación. Importa de nuevo un archivo para leerlo así.</string>
     <string name="files_names_custom">Tus propios patrones…</string>
     <string name="files_patterns_title">Tus patrones</string>
-    <string name="files_patterns_hint">Uno por línea, probados en orden; una línea que ninguno lee se lee como siempre. Marcadores: {artist}, {album}, {title} (obligatorio), {track}, {year}, {disc}, {any}; / entre carpetas. O una expresión regular tras re: con grupos como (?&lt;artist&gt;…) y (?&lt;title&gt;…).</string>
+    <string name="files_patterns_hint">Uno por línea, probados en orden; una línea que ninguno lee se lee como siempre. Se leen: {artist}, {album}, {title} (obligatorio), {albumartist}. Se saltan: cualquier otro {nombre}, como {track}, {year} o {disc}; * es cualquier texto, **/ cualquier carpeta. [ ] marca una parte opcional, / va entre carpetas; espacios, guiones y mayúsculas son flexibles. O una expresión regular tras re: con grupos como (?&lt;artist&gt;…) y (?&lt;title&gt;…).</string>
     <string name="files_patterns_examples">Ejemplos</string>
     <string name="files_patterns_try">Prueba una línea de tu archivo</string>
     <string name="files_patterns_result">Artista: %1$s · Álbum: %2$s · Título: %3$s</string>

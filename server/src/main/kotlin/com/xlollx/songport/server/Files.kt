@@ -38,7 +38,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
 
 internal fun Web.csvFiles() = LocalFilesProvider.dir(env).listFiles { f -> f.isFile && f.extension == "csv" }.orEmpty().sortedBy { it.name.lowercase() }
 
-internal fun Web.fileList(): String {
+internal fun Web.fileList(sample: String = ""): String {
     val files = csvFiles()
     val sb = StringBuilder("""<div class="card">""")
     if (files.isEmpty()) sb.append("""<p class="muted">No playlist files yet.</p>""")
@@ -59,10 +59,13 @@ internal fun Web.fileList(): String {
 <p class="muted">Automatic reads them as Artist - Album - Title when most lines have three parts. A file already added is not changed: upload it again.</p>
 <details${if (env.store.data.settings.fileNameLayout == "CUSTOM") " open" else ""}><summary>Your own patterns</summary>
 <p class="muted">Used when “Your own patterns” is chosen above. One per line, tried in order; a line none of them reads is read as usual.
-Placeholders: <code>{artist}</code>, <code>{album}</code>, <code>{title}</code> (needed), <code>{track}</code>, <code>{year}</code>, <code>{disc}</code>, <code>{any}</code>; <code>/</code> between folders.
-Examples: <code>{artist}/{album}/{track} {title}</code> · <code>{artist} - {album} - {track} {title}</code> · <code>{title} ({artist})</code>.
+Read: <code>{artist}</code>, <code>{album}</code>, <code>{title}</code> (needed), <code>{albumartist}</code>. Skipped: any other <code>{name}</code>, such as <code>{track}</code>, <code>{year}</code> or <code>{disc}</code>; <code>*</code> is any text, <code>**/</code> any folders.
+<code>[ ]</code> marks an optional part (<code>\[ \]</code> are brackets), <code>/</code> goes between folders; spaces, dashes and capitals are loose; the pattern is matched against the end of the path.
+Examples: <code>{artist}/{album}/{track} {title}</code> · <code>Music/{artist}/**/{year} - {album}/[Disc {disc}/]{track} {title}</code> · <code>{artist} - {album} - {track} {title}</code> · <code>{title} ({artist})</code>.
 Or a regular expression after <code>re:</code> with named groups, such as <code>re:^(?&lt;artist&gt;.+?) _ (?&lt;title&gt;.+)$</code>.</p>
-<textarea name="patterns" rows="4" spellcheck="false" style="font-family:monospace">${h(env.store.data.settings.fileNamePatterns.joinToString("\n"))}</textarea></details>
+<textarea name="patterns" rows="4" spellcheck="false" style="font-family:monospace">${h(env.store.data.settings.fileNamePatterns.joinToString("\n"))}</textarea>
+<label>Try a line from your file</label><input name="sample" value="${h(sample)}" spellcheck="false">
+<p><button class="secondary" formaction="/files/try" formnovalidate>Try the patterns</button></p></details>
 <p><button>Upload</button></p></form>""",
     )
     return sb.toString()
@@ -99,6 +102,21 @@ private fun Web.nameLayoutOptions(): String {
         PlaylistFiles.NameLayout.ARTIST_ALBUM_TITLE to "Artist - Album - Title",
         PlaylistFiles.NameLayout.CUSTOM to "Your own patterns",
     ).joinToString("") { (v, label) -> """<option value="${v.name}"${if (v == saved) " selected" else ""}>${h(label)}</option>""" }
+}
+
+/** The patterns in the form, saved when they all compile, tried on the sample line: what each field reads. */
+internal fun Web.tryPatterns(r: Web.Req) {
+    val lines = r.form["patterns"].orEmpty().lines().map { it.trim() }.filter { it.isNotEmpty() }
+    val sample = r.form["sample"].orEmpty().trim()
+    val back = "/connectors/csv?sample=${q(sample)}"
+    lines.forEachIndexed { i, l ->
+        NamePatterns.compile(l).exceptionOrNull()?.let { return redirect(r.ex, "$back&err=${q("Pattern on line ${i + 1}: ${it.message}")}") }
+    }
+    env.store.updateSettings { it.copy(fileNamePatterns = lines) }
+    if (sample.isEmpty()) return redirect(r.ex, "$back&ok=${q("Patterns saved. Write a line to try them on.")}")
+    val read = NamePatterns.read(sample, NamePatterns.compileAll(lines))
+        ?: return redirect(r.ex, "$back&err=${q("No pattern reads this line: it would be read as usual.")}")
+    redirect(r.ex, "$back&ok=${q("Artist: ${read.artist.ifEmpty { "–" }} · Album: ${read.album.ifEmpty { "–" }} · Title: ${read.title}")}")
 }
 
 internal fun Web.upload(r: Web.Req) {

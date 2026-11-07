@@ -1764,7 +1764,7 @@
     <string name="files_names_saved">Действует со следующего импорта. Импортируйте файл заново, чтобы прочитать его так.</string>
     <string name="files_names_custom">Свои шаблоны…</string>
     <string name="files_patterns_title">Ваши шаблоны</string>
-    <string name="files_patterns_hint">По одному в строке, проверяются по порядку; строка, которую не читает ни один, читается как обычно. Метки: {artist}, {album}, {title} (обязательно), {track}, {year}, {disc}, {any}; / между папками. Или регулярное выражение после re: с группами вроде (?&lt;artist&gt;…) и (?&lt;title&gt;…).</string>
+    <string name="files_patterns_hint">По одному в строке, проверяются по порядку; строка, которую не читает ни один, читается как обычно. Читаются: {artist}, {album}, {title} (обязательно), {albumartist}. Пропускаются: любые другие {имя}, например {track}, {year} или {disc}; * — любой текст, **/ — любые папки. [ ] — необязательная часть, / — между папками; пробелы, тире и регистр гибкие. Или регулярное выражение после re: с группами вроде (?&lt;artist&gt;…) и (?&lt;title&gt;…).</string>
     <string name="files_patterns_examples">Примеры</string>
     <string name="files_patterns_try">Проверьте строку из своего файла</string>
     <string name="files_patterns_result">Исполнитель: %1$s · Альбом: %2$s · Название: %3$s</string>

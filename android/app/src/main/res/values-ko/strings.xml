@@ -1685,7 +1685,7 @@
     <string name="files_names_saved">다음 가져오기부터 적용됩니다. 이 방식으로 읽으려면 파일을 다시 가져오세요.</string>
     <string name="files_names_custom">나만의 패턴…</string>
     <string name="files_patterns_title">패턴</string>
-    <string name="files_patterns_hint">한 줄에 하나씩, 순서대로 시도합니다. 어느 것도 맞지 않는 줄은 평소대로 읽습니다. 자리표시자: {artist}, {album}, {title}(필수), {track}, {year}, {disc}, {any}; 폴더 사이는 /. 또는 re: 뒤에 (?&lt;artist&gt;…), (?&lt;title&gt;…) 같은 그룹이 있는 정규식.</string>
+    <string name="files_patterns_hint">한 줄에 하나씩, 순서대로 시도합니다. 어느 것도 맞지 않는 줄은 평소대로 읽습니다. 읽는 것: {artist}, {album}, {title}(필수), {albumartist}. 건너뛰는 것: {track}, {year}, {disc} 등 그 밖의 {이름}; * 는 아무 텍스트, **/ 는 아무 폴더. [ ] 는 생략 가능한 부분, / 는 폴더 사이; 공백, 대시, 대소문자는 유연하게 처리합니다. 또는 re: 뒤에 (?&lt;artist&gt;…), (?&lt;title&gt;…) 같은 그룹이 있는 정규식.</string>
     <string name="files_patterns_examples">예시</string>
     <string name="files_patterns_try">파일의 한 줄로 시험해 보기</string>
     <string name="files_patterns_result">아티스트: %1$s · 앨범: %2$s · 제목: %3$s</string>

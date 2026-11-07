@@ -311,6 +311,11 @@ class WebTest {
         assertEquals("Band", t.artistLine)
         assertEquals("CUSTOM", env.store.data.settings.fileNameLayout)
         assertTrue(get("/connectors/csv").body().contains("{title} ({artist})"))
+        // Trying a line: what the patterns read, said on the page, the line kept in the field.
+        val tried = post("/files/try", "patterns=${java.net.URLEncoder.encode("{artist}/{album}/{track} {title}", "UTF-8")}&sample=${java.net.URLEncoder.encode("Music/Muse/Absolution/03 Hysteria.mp3", "UTF-8")}", *origin)
+        val where = java.net.URLDecoder.decode(tried.headers().firstValue("Location").orElse(""), "UTF-8")
+        assertTrue(where, where.contains("Artist: Muse · Album: Absolution · Title: Hysteria"))
+        assertTrue(get(tried.headers().firstValue("Location").get().removePrefix(base)).body().contains("value=\"Music/Muse/Absolution/03 Hysteria.mp3\""))
     }
 
     @Test fun toolsFindAndRemoveDuplicatesInTheBackground() {

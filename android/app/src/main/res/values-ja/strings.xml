@@ -1686,7 +1686,7 @@
     <string name="files_names_saved">次回のインポートから適用されます。この形式で読み込むには、ファイルをもう一度インポートしてください。</string>
     <string name="files_names_custom">独自のパターン…</string>
     <string name="files_patterns_title">パターン</string>
-    <string name="files_patterns_hint">1行に1つ、順番に試します。どれにも合わない行は通常どおり読み込みます。プレースホルダー: {artist}、{album}、{title}(必須)、{track}、{year}、{disc}、{any}。フォルダーの区切りは /。または re: の後に (?&lt;artist&gt;…) や (?&lt;title&gt;…) などのグループを持つ正規表現。</string>
+    <string name="files_patterns_hint">1行に1つ、順番に試します。どれにも合わない行は通常どおり読み込みます。読み取る: {artist}、{album}、{title}(必須)、{albumartist}。読み飛ばす: {track}、{year}、{disc} などその他の {名前}。* は任意の文字列、**/ は任意のフォルダー。[ ] は省略可能な部分、/ はフォルダーの区切り。スペース、ダッシュ、大文字小文字は柔軟に扱います。または re: の後に (?&lt;artist&gt;…) や (?&lt;title&gt;…) などのグループを持つ正規表現。</string>
     <string name="files_patterns_examples">例</string>
     <string name="files_patterns_try">ファイルの1行で試す</string>
     <string name="files_patterns_result">アーティスト: %1$s · アルバム: %2$s · タイトル: %3$s</string>

@@ -165,6 +165,8 @@ class Web(
             path == listOf("quit") && onQuit != null && method == "POST" -> quit(r, onQuit)
             path == listOf("show") && onShow != null && method == "POST" -> { onShow(); send(ex, 200, "ok", "text/plain") }
             path[0] == "connectors" -> connectors(r, path.drop(1))
+            // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
+            path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
             path.size == 2 && path[0] == "files" && method == "POST" -> fileAction(r, path[1])
             path == listOf("files") && method == "POST" -> upload(r)
@@ -496,7 +498,7 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
             body.append("</div>")
         }
         when {
-            p is LocalFilesProvider -> body.append(fileList())
+            p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty()))
             !p.requiresAuth -> Unit
             p.isConnected(env) -> body.append(
                 """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +

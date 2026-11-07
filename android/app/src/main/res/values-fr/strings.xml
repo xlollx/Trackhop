@@ -1720,7 +1720,7 @@
     <string name="files_names_saved">S\'applique à la prochaine importation. Importez à nouveau un fichier pour le lire ainsi.</string>
     <string name="files_names_custom">Vos propres modèles…</string>
     <string name="files_patterns_title">Vos modèles</string>
-    <string name="files_patterns_hint">Un par ligne, essayés dans l\'ordre ; une ligne qu\'aucun ne lit est lue comme d\'habitude. Marqueurs : {artist}, {album}, {title} (requis), {track}, {year}, {disc}, {any} ; / entre les dossiers. Ou une expression régulière après re: avec des groupes comme (?&lt;artist&gt;…) et (?&lt;title&gt;…).</string>
+    <string name="files_patterns_hint">Un par ligne, essayés dans l\'ordre ; une ligne qu\'aucun ne lit est lue comme d\'habitude. Lus : {artist}, {album}, {title} (requis), {albumartist}. Ignorés : tout autre {nom}, comme {track}, {year} ou {disc} ; * est un texte quelconque, **/ des dossiers quelconques. [ ] marque une partie facultative, / se place entre les dossiers ; espaces, tirets et majuscules sont souples. Ou une expression régulière après re: avec des groupes comme (?&lt;artist&gt;…) et (?&lt;title&gt;…).</string>
     <string name="files_patterns_examples">Exemples</string>
     <string name="files_patterns_try">Essayez une ligne de votre fichier</string>
     <string name="files_patterns_result">Artiste : %1$s · Album : %2$s · Titre : %3$s</string>

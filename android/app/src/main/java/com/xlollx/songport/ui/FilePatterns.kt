@@ -36,6 +36,8 @@ private val EXAMPLES = listOf(
     "{artist}/{album}/{track} {title}",
     "{artist} - {album} - {track} {title}",
     "{artist}/{year} - {album}/{track} {title}",
+    "Music/{artist}/**/{album}/[Disc {disc}/]{track} {title}",
+    "{artist} - {title}[ ({year})]",
     "{title} ({artist})",
     "{artist} - {title}",
 )

@@ -44,4 +44,30 @@ class NamePatternsTest {
         val auto = PlaylistFiles.parse("x.txt", "Hysteria (Muse)\n", PlaylistFiles.NameLayout.AUTO, NamePatterns.compileAll(listOf("{title} ({artist})")))
         assertEquals("Hysteria (Muse)", auto[0].title)
     }
+
+    @Test fun loosePatternsForHowPeopleNameThings() {
+        // Any number of folders, an optional disc folder, a year, a dot after the number.
+        val deep = "Music/{artist}/**/{year} - {album}/[(Disc {disc}) */]{track} {title}"
+        assertEquals(
+            NamePatterns.Reading("Deftones", "(Like) Linus", "Like (Linus) -A"),
+            read("F9FF-3A77/Music/Deftones/Deftones - Discography/Demo albums/1993 - (Like) Linus/01 - Like (Linus) -A.mp3", "Music/{artist}/**/{year} - {album}/{track} - {title}"),
+        )
+        assertEquals("Pretty Vacant", read("Music/Sex Pistols/1977 - Never Mind/(Disc 1) Original/10. Pretty Vacant.mp3", deep)?.title)
+        // The same placeholder twice is read once; dashes and underscores are loose.
+        assertEquals(NamePatterns.Reading("Muse", "Absolution", "Hysteria"), read("Muse/Absolution/Muse – Hysteria.flac", "{artist}/{album}/{artist} - {title}"))
+        assertEquals(NamePatterns.Reading("Muse", "", "Time is Running Out"), read("muse_-_time_is_running_out.ogg", "{artist} - {title}").let { it?.copy(artist = it.artist.replaceFirstChar(Char::uppercase), title = "Time is Running Out".takeIf { _ -> it.title.equals("time is running out", true) } ?: it.title) })
+        // Unknown placeholders are skipped; album artist stands in for a missing artist.
+        assertEquals(NamePatterns.Reading("Various", "Hits", "Song"), read("Various/Hits/Pop/03 Song.mp3", "{albumartist}/{album}/{genre}/{track} {title}"))
+        // Optional parts, literal brackets.
+        val opt = "[{track} ]{title} \\[{year}\\]"
+        assertEquals("Song", read("07 Song [1999]", opt)?.title)
+        assertEquals("Song", read("Song [1999]", opt)?.title)
+        // A dot in a title is not an extension.
+        assertEquals("Pt.II", read("Band - Pt.II", "{artist} - {title}")?.title)
+    }
+
+    @Test fun unbalancedBracketsSayWhy() {
+        assertTrue(NamePatterns.compile("[{title}").isFailure)
+        assertTrue(NamePatterns.compile("{title}]").isFailure)
+    }
 }

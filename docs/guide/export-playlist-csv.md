@@ -43,18 +43,29 @@ An M3U that lists only file paths is read from its folders: the artist is the fo
 *Disc 1* folder counts as the album above it; a year before the name, "1977 - ", is left out).
 
 For any other layout, write your own patterns (*Your own patterns…* in the same menu, or under the
-upload button): one per line, tried in order, read from the end of the path or name. `{artist}`,
-`{album}` and `{title}` are read, `{track}`, `{year}`, `{disc}` and `{any}` are skipped, and `/`
-separates folders:
+upload button): one per line, tried in order, matched against the end of the path or name (the
+file's extension left out), so the folders above do not need writing. A line none of them reads is
+read as usual.
+
+- `{artist}`, `{album}`, `{title}` (needed) and `{albumartist}` are read; any other `{name}`, such as
+  `{track}`, `{year}`, `{disc}` or `{genre}`, is skipped, as is `*` (any text) and `**/` (any
+  number of folders).
+- `[ … ]` is an optional part (`\[` and `\]` are brackets); `/` goes between folders.
+- Spaces match spaces or underscores, a dash matches -, – or — with or without spaces, capitals do
+  not matter, and a placeholder written twice is read the first time.
 
 ```
 {artist}/{album}/{track} {title}
-{artist} - {album} - {track} {title}
+Music/{artist}/**/{year} - {album}/[Disc {disc}/]{track} {title}
+{artist}/{album}/{artist} - {title}
+{artist} - {title}[ ({year})]
 {title} ({artist})
 ```
 
-Or a regular expression after `re:` with named groups, such as
-`re:^(?<artist>.+?) _ (?<title>.+)$`. In the app, a line pasted under *Try a line from your file*
-shows at once what each pattern reads. A line none of them reads is read as usual.
+With `**/` between the artist and the album, start from the folder above the artist (`Music/`),
+or the first folder of the path is read as the artist. Or a regular expression after `re:` with
+named groups, such as `re:^(?<artist>.+?) _ (?<title>.+)$`. To check them, paste a line from your
+file under *Try a line from your file* (the app shows at once what it reads; on Desktop and Docker,
+*Try the patterns*).
 
 [Getting started](getting-started) · [All guide pages](./)

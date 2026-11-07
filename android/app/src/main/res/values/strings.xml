@@ -1713,7 +1713,7 @@
     <string name="files_names_saved">Used from the next import. Import a file again to read it this way.</string>
     <string name="files_names_custom">Your own patterns…</string>
     <string name="files_patterns_title">Your patterns</string>
-    <string name="files_patterns_hint">One per line, tried in order; a line none of them reads is read as usual. Placeholders: {artist}, {album}, {title} (needed), {track}, {year}, {disc}, {any}; / between folders. Or a regular expression after re: with groups such as (?&lt;artist&gt;…) and (?&lt;title&gt;…).</string>
+    <string name="files_patterns_hint">One per line, tried in order; a line none of them reads is read as usual. Read: {artist}, {album}, {title} (needed), {albumartist}. Skipped: any other {name}, such as {track}, {year} or {disc}; * is any text, **/ any folders. [ ] marks an optional part, / goes between folders; spaces, dashes and capitals are loose. Or a regular expression after re: with groups such as (?&lt;artist&gt;…) and (?&lt;title&gt;…).</string>
     <string name="files_patterns_examples">Examples</string>
     <string name="files_patterns_try">Try a line from your file</string>
     <string name="files_patterns_result">Artist: %1$s · Album: %2$s · Title: %3$s</string>
