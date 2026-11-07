@@ -48,7 +48,7 @@ internal fun Web.fileList(sample: String = ""): String {
         sb.append(
             // The box belongs to the "bulk" form below (a form cannot hold the row's own Delete form).
             """<div class="row"><label class="inline"><input type="checkbox" form="bulk" name="f:${h(f.name)}" aria-label="Select ${h(f.nameWithoutExtension)}"></label>""" +
-                """<div><b>${h(f.nameWithoutExtension)}</b> <span class="muted">$n tracks</span><br><span class="muted">Download: </span>$links</div>""" +
+                """<div><b>${h(f.nameWithoutExtension)}</b> <span class="muted">$n tracks</span><br><span class="muted">Download: </span>$links · <a href="/syncs/new?src=csv&amp;srcPlaylist=${q(f.nameWithoutExtension)}">Send to a service</a></div>""" +
                 Html.postButton("/files/${q(f.name)}", "Delete", "danger", fields = mapOf("action" to "delete"), confirm = "Delete ${f.nameWithoutExtension}? A sync that uses it stops finding it.") +
                 "</div>",
         )

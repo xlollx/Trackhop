@@ -330,6 +330,20 @@ class WebTest {
         assertTrue(get(tried.headers().firstValue("Location").get().removePrefix(base)).body().contains("value=\"Music/Muse/Absolution/03 Hysteria.mp3\""))
     }
 
+    // "Send to a service" from a File playlist: the new-sync form starts with File as the source and
+    // that file picked, and offers neither File nor a target that cannot make a playlist.
+    @Test fun aFileIsSentToAServiceFromItsPage() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/Road trip.csv").writeText("title,artist\nSong,Band\n")
+        val page = get("/connectors/csv").body()
+        assertTrue(page, page.contains("/syncs/new?src=csv&amp;srcPlaylist=Road%20trip") || page.contains("/syncs/new?src=csv&amp;srcPlaylist=Road+trip"))
+        val form = get("/syncs/new?src=csv&srcPlaylist=Road+trip").body()
+        assertTrue(form, form.contains("""<option value="csv" selected>"""))
+        assertTrue(form, form.contains("""name="srcPlaylist" value="Road trip""""))
+        assertTrue(form, !Regex("""<select name="dst">.*?value="csv"""", RegexOption.DOT_MATCHES_ALL).containsMatchIn(form.substringAfter("""<select name="dst">""").substringBefore("</select>").let { """<select name="dst">$it""" }))
+    }
+
     @Test fun tickedFilesDownloadAsAZipAndDeleteAtOnce() {
         File(data, "csv").mkdirs()
         listOf("One", "Two", "Three").forEach { File(data, "csv/$it.csv").writeText("title,artist\n$it,Band\n") }

@@ -73,7 +73,7 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     val tracks = runCatching { runBlocking { service.tracks(env, playlist.id) } }
         .getOrElse { return send(r.ex, 200, page(playlist.name, """<div class="card err">${h(it.message)}</div>""")) }
     val body = StringBuilder(notice(r))
-    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}">Sync it to another service</a></p>""")
+    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a></p>""")
     val owned = playlist.ownedByMe && !MusicProvider.isLibrary(playlist.id)
     if (owned && service.canRenamePlaylists) {
         body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="rename"><label>Name</label><input type="text" name="name" value="${h(playlist.name)}"><p><button class="secondary">Rename</button></p></form>""")

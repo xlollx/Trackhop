@@ -759,15 +759,20 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         val list = (connected + Providers.services().filter { it.linkOnly }).distinctBy { it.id }
         val src = r.query["src"]?.let { Providers.byId(it) }
         val dst = r.query["dst"]?.let { Providers.byId(it) }
+        // "Send to a service" from a File playlist: that file is the source, chosen beforehand.
+        val srcPlaylist = r.query["srcPlaylist"].orEmpty()
         val body = StringBuilder(notice(r))
         if (connected.isEmpty()) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
             return send(r.ex, 200, page("New sync", body.toString()))
         }
         if (src == null || dst == null) {
-            fun options(writable: Boolean) = list.filter { !writable || it.canWrite }.joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
+            // A file sent to a service goes to a service, not back into File (nor to Last.fm's loved tracks).
+            fun options(writable: Boolean) = list.filter { !writable || (it.canWrite && (src == null || it.id != src.id) && (srcPlaylist.isEmpty() || it.canCreatePlaylists)) }
+                .joinToString("") { """<option value="${h(it.id)}"${if (!writable && it.id == src?.id) " selected" else ""}>${h(it.label(env))}</option>""" }
             body.append(
                 """<form method="get" action="/syncs/new" class="card"><label>From</label><select name="src">${options(false)}</select>
+${if (srcPlaylist.isNotEmpty()) """<input type="hidden" name="srcPlaylist" value="${h(srcPlaylist)}">""" else ""}
 <label>To</label><select name="dst">${options(true)}</select><p><button>Next</button></p></form>""",
             )
             return send(r.ex, 200, page("New sync", body.toString()))
@@ -776,15 +781,15 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         val dstLists = runCatching { runBlocking { dst.libraryEntries(env, true) + dst.playlists(env).filter { it.ownedByMe } } }
         srcLists.exceptionOrNull()?.let { body.append("""<div class="card err">${h(src.label(env))}: ${h(it.message)}</div>""") }
         dstLists.exceptionOrNull()?.let { body.append("""<div class="card err">${h(dst.label(env))}: ${h(it.message)}</div>""") }
-        fun opts(ps: List<Playlist>) = ps.joinToString("") { p ->
-            """<option value="${h(p.id)}">${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>"""
+        fun opts(ps: List<Playlist>, chosen: String = "") = ps.joinToString("") { p ->
+            """<option value="${h(p.id)}"${if (chosen.isNotEmpty() && p.id == chosen) " selected" else ""}>${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>"""
         }
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == Schedule.DAILY) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs" class="card">
 <input type="hidden" name="src" value="${h(src.id)}"><input type="hidden" name="dst" value="${h(dst.id)}">
 ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input type="url" name="srcLink" required placeholder="${linkHint(src)}">"""
-            else """<label>From ${h(src.label(env))}</label><select name="srcPlaylist" required>${opts(srcLists.getOrDefault(emptyList()))}</select>"""}
+            else """<label>From ${h(src.label(env))}</label><select name="srcPlaylist" required>${opts(srcLists.getOrDefault(emptyList()), srcPlaylist)}</select>"""}
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
