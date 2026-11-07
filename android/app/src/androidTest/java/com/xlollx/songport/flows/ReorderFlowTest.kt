@@ -115,7 +115,14 @@ class ReorderFlowTest : FlowTest() {
         waitFor("job-$n before job-${n - 1}") { order().takeLast(2) == listOf("job-$n", "job-${n - 1}") }
         toTheEnd()
         waitText("Sync number $n")
-        val cards = cardsOnScreen().toMap()
+        // The store's order is not yet the list's: the positions are read once the cards show it
+        // (read before, card n still sat below n - 1 and the drag went the wrong way).
+        var cards = emptyMap<Int, Float>()
+        waitFor("card $n drawn above card ${n - 1}") {
+            cards = cardsOnScreen().toMap()
+            val upper = cards[n]; val lower = cards[n - 1]
+            upper != null && lower != null && upper < lower
+        }
         drag(n, (cards.getValue(n - 1) - cards.getValue(n)) * 1.3f)
         waitFor("job-$n last again") { order().last() == "job-$n" }
         assertEquals((1..n).map { "job-$it" }, order())
