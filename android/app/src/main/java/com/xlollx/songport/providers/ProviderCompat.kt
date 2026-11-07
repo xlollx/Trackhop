@@ -68,5 +68,6 @@ val MusicProvider.notConfiguredRes: Int? get() = notConfiguredName?.let { Res.id
 val SetupGuide.whyRes: Int get() = Res.id(whyName)
 val SetupGuide.stepsArrayRes: Int get() = Res.id(stepsArrayName, "array")
 val SetupGuide.fieldLabelRes: Int get() = Res.id(fieldLabelName)
+val SetupGuide.secretLabelRes: Int get() = secretLabelName?.let { Res.id(it) } ?: com.xlollx.songport.R.string.setup_field_secret
 val LoginForm.secretLabelRes: Int get() = Res.id(secretLabelName)
 val LoginForm.hintRes: Int get() = Res.id(hintName)

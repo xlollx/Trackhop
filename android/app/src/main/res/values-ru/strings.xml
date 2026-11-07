@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Ваши последние 200 скробблов на Last.fm</string>
     <string name="lastfm_top_month">Самое слушаемое за месяц</string>
     <string name="lastfm_top_month_desc">100 треков, которые вы слушали чаще всего за последние 30 дней на Last.fm</string>
+    <string name="route_note_lastfm">Ваш собственный бесплатный API-ключ. Источник, а после входа с паролем — и цель для любимых треков.</string>
+    <string name="login_password_lastfm">Пароль (необязательно, чтобы отмечать любимые треки)</string>
+    <string name="setup_field_shared_secret">Shared secret (необязательно, чтобы отмечать любимые треки)</string>
+    <string name="lastfm_loved_target_desc">Trackhop отмечает эти треки как любимые (♥) на Last.fm за вас</string>
+    <string name="lastfm_needs_password">Чтобы отмечать любимые треки, подключите Last.fm заново, указав и пароль.</string>
+    <string name="lastfm_password_note">Он используется один раз для получения сеанса Last.fm и не сохраняется.</string>
+    <string name="lastfm_session_expired">Last.fm завершил сеанс: подключите его снова с паролем, чтобы отмечать любимые треки.</string>
+    <string name="lastfm_no_secret">Для отметки любимых треков на Last.fm нужен shared secret вашего API-ключа: добавьте его рядом с ключом.</string>
+    <string name="lastfm_love_title">Отмечать и любимые треки</string>
     <string name="pill_source_empty">Источник пуст</string>
     <string name="transfer_unsupported">недоступно на %1$s</string>
     <string name="tracks_count">Треков: %1$d</string>
@@ -524,7 +533,7 @@
     <string name="provider_note_subsonic">Ваш собственный музыкальный сервер: Navidrome, Airsonic, Gonic, LMS, Funkwhale и всё, что поддерживает Subsonic API. Без регистрации и квот. Отмеченные звёздочкой треки считаются любимыми.</string>
     <string name="provider_note_jellyfin">Ваш сервер Jellyfin. Без регистрации и квот. Избранное считается любимыми треками.</string>
     <string name="provider_note_plex">Ваш Plex Media Server с вашим X-Plex-Token. Музыкальные плейлисты читаются, создаются и обновляются на сервере.</string>
-    <string name="provider_note_lastfm">Любимые треки профиля Last.fm, только как источник. Нужен бесплатный ключ Last.fm API.</string>
+    <string name="provider_note_lastfm">Любимые треки профиля Last.fm как источник. После входа с паролем «Любимые треки» становятся и целью: Trackhop отмечает треки за вас. Нужен бесплатный API-ключ Last.fm.</string>
     <string name="provider_note_listenbrainz">Плейлисты и любимые треки пользователя ListenBrainz. С вашим пользовательским токеном любимые треки можно и записывать (любимые треки как цель).</string>
     <string name="login_title">Вход в %1$s</string>
     <string name="login_url">Адрес сервера</string>
@@ -537,7 +546,7 @@
     <string name="login_hint_subsonic">Введите адрес вашего сервера Navidrome, Airsonic или другого Subsonic-совместимого (например, https://music.example.com), имя пользователя и пароль. Пароль никогда не передаётся как есть: в каждом запросе используется хеш с солью. Ampache: используйте пароль Subsonic или ключ API из «Настройки» → «Учётная запись», а не пароль от учётной записи.</string>
     <string name="login_hint_jellyfin">Введите адрес вашего сервера Jellyfin (например, https://jellyfin.example.com), имя пользователя и пароль.</string>
     <string name="login_hint_plex">Введите адрес вашего Plex Media Server (например, http://192.168.1.10:32400) и ваш X-Plex-Token. Как найти токен, Plex объясняет на страницах поддержки («Finding an authentication token»).</string>
-    <string name="login_hint_lastfm">Введите имя пользователя Last.fm, чьи любимые треки нужно читать. Профиль должен быть публичным.</string>
+    <string name="login_hint_lastfm">Введите имя пользователя Last.fm. Чтобы только читать любимые треки, оставьте пароль пустым (профиль должен быть открытым). С паролем Trackhop может и отмечать треки: он используется один раз для получения сеанса и не сохраняется.</string>
     <string name="login_hint_listenbrainz">Введите имя пользователя ListenBrainz, чьи плейлисты и любимые треки нужно читать. Добавьте свой пользовательский токен (listenbrainz.org → Settings), чтобы также записывать любимые треки.</string>
     <string name="listenbrainz_token_needed">ListenBrainz нужен ваш пользовательский токен, чтобы записывать любимые треки: добавьте его в «Аккаунтах» (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Пользовательский токен (необязательно)</string>
@@ -733,7 +742,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Войдите на last.fm и откройте страницу создания API-аккаунта.</item>
         <item>Заполните форму: контактный e-mail, название и описание приложения на ваше усмотрение. «Callback URL» и «Application homepage» можно оставить пустыми. Отправьте.</item>
-        <item>Скопируйте сюда «API key». «Shared secret» не нужен.</item>
+        <item>Скопируйте сюда «API key», а во второе поле — «Shared secret»: он нужен только для отметки любимых треков.</item>
     </string-array>
     <string name="more_actions">Ещё</string>
     <string name="pill_ok">Актуально</string>

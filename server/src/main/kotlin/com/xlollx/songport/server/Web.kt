@@ -9,6 +9,7 @@ import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.CredentialsProvider
 import com.xlollx.songport.providers.JellyfinProvider
+import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.OAuthProvider
@@ -533,6 +534,14 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")
         }
         if (p is YtmServerProvider && p.isConnected(env)) body.append(ytmChannelCard(p))
+        // Last.fm read with the user name only: the password, once, makes Loved tracks a target (#51).
+        if (p is LastFmProvider && p.isConnected(env) && !p.canLove(env)) body.append(
+            """<form method="post" action="/connectors/${q(p.id)}/connect" class="card"><h3>${h(env.text("lastfm_love_title"))}</h3>
+<p class="muted">${h(env.text("lastfm_needs_password"))} ${h(env.text("lastfm_password_note"))}</p>
+<input type="hidden" name="user" value="${h(p.accountName(env).orEmpty())}">
+<label>${h(env.text("login_password"))}</label><input type="password" name="secret" autocomplete="current-password" required>
+<p><button class="secondary">${h(env.text("login_submit"))}</button></p></form>""",
+        )
         body.append(accountCard(p))
         body.append("""<p>${Html.postButton("/connectors/${q(p.id)}/remove", if (p.slot.isEmpty()) "Remove from the list" else env.text("account_remove"), "danger",
             confirm = if (p.slot.isEmpty()) "Remove this service from the list?" else "${env.text("account_remove")}?")}</p>""")

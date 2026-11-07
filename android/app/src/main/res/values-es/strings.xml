@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Tus últimos 200 scrobbles en Last.fm</string>
     <string name="lastfm_top_month">Lo más escuchado del mes</string>
     <string name="lastfm_top_month_desc">Tus 100 temas más escuchados de los últimos 30 días en Last.fm</string>
+    <string name="route_note_lastfm">Tu propia API key gratuita. Un origen, y un destino para las canciones que te encantan tras iniciar sesión con tu contraseña.</string>
+    <string name="login_password_lastfm">Contraseña (opcional, para marcar canciones con ♥)</string>
+    <string name="setup_field_shared_secret">Shared secret (opcional, para marcar canciones con ♥)</string>
+    <string name="lastfm_loved_target_desc">Trackhop marca estas canciones con ♥ en Last.fm por ti</string>
+    <string name="lastfm_needs_password">Para marcar canciones con ♥, vuelve a conectar Last.fm también con tu contraseña.</string>
+    <string name="lastfm_password_note">Se usa una sola vez para obtener una sesión de Last.fm y no se guarda.</string>
+    <string name="lastfm_session_expired">Last.fm cerró la sesión: vuelve a conectarlo con tu contraseña para marcar canciones con ♥.</string>
+    <string name="lastfm_no_secret">Marcar canciones con ♥ en Last.fm necesita el shared secret de tu API key: añádelo junto a la clave.</string>
+    <string name="lastfm_love_title">Marcar canciones con ♥ también</string>
     <string name="pill_source_empty">Origen vacío</string>
     <string name="transfer_unsupported">no disponible en %1$s</string>
     <string name="tracks_count">%1$d canciones</string>
@@ -506,7 +515,7 @@
     <string name="provider_note_subsonic">Tu propio servidor de música: Navidrome, Airsonic, Gonic, LMS, Funkwhale y cualquiera que hable la API de Subsonic. Sin registro ni cuota. Las canciones con estrella cuentan como canciones que te gustan.</string>
     <string name="provider_note_jellyfin">Tu servidor Jellyfin. Sin registro ni cuota. Los favoritos cuentan como canciones que te gustan.</string>
     <string name="provider_note_plex">Tu Plex Media Server, con tu X-Plex-Token. Las playlists de música se leen, se crean y se actualizan en el servidor.</string>
-    <string name="provider_note_lastfm">Canciones favoritas de un perfil de Last.fm, solo como origen. Necesita una clave de API gratuita de Last.fm.</string>
+    <string name="provider_note_lastfm">Las canciones que te encantan de un perfil de Last.fm como origen. Con la contraseña, también son un destino: Trackhop las marca con ♥ por ti. Necesita una API key gratuita de Last.fm.</string>
     <string name="provider_note_listenbrainz">Playlists y canciones amadas de un usuario de ListenBrainz. Con tu token de usuario también se pueden escribir las canciones amadas (favoritas como destino).</string>
     <string name="login_title">Iniciar sesión en %1$s</string>
     <string name="login_url">Dirección del servidor</string>
@@ -519,7 +528,7 @@
     <string name="login_hint_subsonic">Introduce la dirección de tu servidor Navidrome, Airsonic u otro compatible con Subsonic (por ejemplo https://musica.ejemplo.com), tu nombre de usuario y tu contraseña. La contraseña nunca se envía tal cual: cada solicitud usa un hash con sal. Ampache: usa la contraseña de Subsonic o la clave API definidas en Preferencias → Cuenta, no la contraseña de tu cuenta.</string>
     <string name="login_hint_jellyfin">Introduce la dirección de tu servidor Jellyfin (por ejemplo https://jellyfin.ejemplo.com), tu nombre de usuario y tu contraseña.</string>
     <string name="login_hint_plex">Introduce la dirección de tu Plex Media Server (por ejemplo http://192.168.1.10:32400) y tu X-Plex-Token. Plex explica cómo encontrar el token en sus páginas de ayuda (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Introduce el nombre de usuario de Last.fm cuyas canciones favoritas quieres leer. El perfil debe ser público.</string>
+    <string name="login_hint_lastfm">Escribe tu usuario de Last.fm. Para solo leer las canciones que te encantan, deja la contraseña vacía (el perfil debe ser público). Con la contraseña Trackhop también puede marcarlas con ♥: se usa una vez para obtener una sesión y no se guarda.</string>
     <string name="login_hint_listenbrainz">Escribe el nombre de usuario de ListenBrainz cuyas playlists y canciones amadas quieres leer. Añade tu token de usuario (listenbrainz.org → Settings) para escribir también las canciones amadas.</string>
     <string name="listenbrainz_token_needed">ListenBrainz necesita tu token de usuario para escribir las canciones amadas: añádelo en Cuentas (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Token de usuario (opcional)</string>
@@ -711,7 +720,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Inicia sesión en last.fm y abre la página para crear una cuenta de API.</item>
         <item>Rellena el formulario: el correo de contacto, el nombre y la descripción de la aplicación son a tu elección. \"Callback URL\" y \"Application homepage\" pueden quedar vacíos. Envíalo.</item>
-        <item>Copia aquí la \"API key\". No hace falta el \"Shared secret\".</item>
+        <item>Copia aquí la \"API key\" y en el segundo campo el \"Shared secret\": solo hace falta para marcar canciones con ♥.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Más</string>

@@ -89,7 +89,7 @@ Only this computer can reach the page: it listens on `127.0.0.1` and asks for no
 ## Services
 
 As on the [server](docker#services): Spotify, YouTube and TIDAL with your own key; Navidrome and
-other Subsonic servers, Jellyfin, Plex; Last.fm and ListenBrainz as sources; SoundCloud public
+other Subsonic servers, Jellyfin, Plex; Last.fm (a source, and a target for loved tracks) and ListenBrainz as a source; SoundCloud public
 links; CSV files; YouTube Music with pasted cookies (unofficial, alpha). Deezer is not there yet on
 the desktop (it wants an `https` redirect). Amazon Music, Spotify without a key and Apple Music
 are not there yet either: they need a browser inside the app, which is the next step.

@@ -85,6 +85,7 @@ version running, and the app version whose engine it uses.
 | `SONGPORT_PORT` | `8080` | Port inside the container. |
 | `SONGPORT_DATA` | `/data` | Where everything is kept (the volume). |
 | `SPOTIFY_CLIENT_ID`, `TIDAL_CLIENT_ID`, `DEEZER_APP_ID`, `GOOGLE_CLIENT_ID`, `LASTFM_API_KEY` | none | Your keys, if you'd rather pass them here than type them in the page. |
+| `LASTFM_SHARED_SECRET` | none | The "Shared secret" of your Last.fm API key: needed only to love tracks on Last.fm. |
 | `DEEZER_REDIRECT_URL` | `<SONGPORT_URL>/callback` | Deezer's redirect, which must be `https`. |
 
 Everything lives in the `/data` volume: `store.json` (syncs, reports, match cache, settings),
@@ -100,7 +101,8 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | TIDAL | yes | Your own key from developer.tidal.com |
 | Deezer | yes (beta) | Your own app, and an `https` address |
 | Navidrome / Subsonic, Jellyfin, Plex | yes | The server's address and your login |
-| Last.fm, ListenBrainz | yes, as sources | Your user name |
+| Last.fm | yes, as a source; Loved tracks also as a target | Your user name; to love tracks, your password once (only the session Last.fm gives back is kept) and `LASTFM_SHARED_SECRET` |
+| ListenBrainz | yes, as a source | Your user name |
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
 | NetEase Cloud Music, QQ Music | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
 | CSV files | yes | Put them in `csv/` inside the data volume |

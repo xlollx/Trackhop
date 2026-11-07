@@ -89,6 +89,15 @@
     <string name="lastfm_recent_desc">Tes 200 derniers scrobbles sur Last.fm</string>
     <string name="lastfm_top_month">Les plus écoutés du mois</string>
     <string name="lastfm_top_month_desc">Tes 100 titres les plus écoutés des 30 derniers jours sur Last.fm</string>
+    <string name="route_note_lastfm">Ta propre clé API gratuite. Une source, et une destination pour les titres aimés une fois connecté avec ton mot de passe.</string>
+    <string name="login_password_lastfm">Mot de passe (facultatif, pour aimer des titres)</string>
+    <string name="setup_field_shared_secret">Shared secret (facultatif, pour aimer des titres)</string>
+    <string name="lastfm_loved_target_desc">Trackhop aime (♥) ces titres sur Last.fm pour toi</string>
+    <string name="lastfm_needs_password">Pour aimer des titres, reconnecte Last.fm avec ton mot de passe aussi.</string>
+    <string name="lastfm_password_note">Il sert une seule fois à obtenir une session de Last.fm et n\'est pas conservé.</string>
+    <string name="lastfm_session_expired">Last.fm a mis fin à la session : reconnecte-le avec ton mot de passe pour aimer des titres.</string>
+    <string name="lastfm_no_secret">Aimer des titres sur Last.fm demande le shared secret de ta clé API : ajoute-le à côté de la clé.</string>
+    <string name="lastfm_love_title">Aimer aussi des titres</string>
     <string name="pill_source_empty">Source vide</string>
     <string name="transfer_unsupported">indisponible sur %1$s</string>
     <string name="tracks_count">%1$d titres</string>
@@ -506,7 +515,7 @@
     <string name="provider_note_subsonic">Votre propre serveur musical : Navidrome, Airsonic, Gonic, LMS, Funkwhale et tout ce qui parle l\'API Subsonic. Aucune inscription, aucun quota. Les titres marqués d\'une étoile comptent comme titres likés.</string>
     <string name="provider_note_jellyfin">Votre serveur Jellyfin. Aucune inscription, aucun quota. Les favoris comptent comme titres likés.</string>
     <string name="provider_note_plex">Votre Plex Media Server, avec votre X-Plex-Token. Les playlists musicales sont lues, créées et mises à jour sur le serveur.</string>
-    <string name="provider_note_lastfm">Titres aimés d\'un profil Last.fm, comme source uniquement. Nécessite une clé API Last.fm gratuite.</string>
+    <string name="provider_note_lastfm">Les titres aimés d\'un profil Last.fm comme source. Connecté avec ton mot de passe, Titres aimés devient aussi une destination : Trackhop aime les titres pour toi. Nécessite une clé API Last.fm gratuite.</string>
     <string name="provider_note_listenbrainz">Playlists et titres aimés d\'un utilisateur ListenBrainz. Avec votre jeton utilisateur, les titres aimés peuvent aussi être écrits (titres aimés comme destination).</string>
     <string name="login_title">Se connecter à %1$s</string>
     <string name="login_url">Adresse du serveur</string>
@@ -519,7 +528,7 @@
     <string name="login_hint_subsonic">Saisissez l\'adresse de votre serveur Navidrome, Airsonic ou autre serveur compatible Subsonic (par exemple https://music.example.com), votre nom d\'utilisateur et votre mot de passe. Le mot de passe n\'est jamais envoyé tel quel : chaque requête utilise un hachage salé. Ampache : utilisez le mot de passe Subsonic ou la clé API définis dans Préférences → Compte, pas le mot de passe de votre compte.</string>
     <string name="login_hint_jellyfin">Saisissez l\'adresse de votre serveur Jellyfin (par exemple https://jellyfin.example.com), votre nom d\'utilisateur et votre mot de passe.</string>
     <string name="login_hint_plex">Saisissez l\'adresse de votre Plex Media Server (par exemple http://192.168.1.10:32400) et votre X-Plex-Token. Plex explique comment trouver le token dans ses pages d\'assistance (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Saisissez le nom d\'utilisateur Last.fm dont vous voulez lire les titres aimés. Le profil doit être public.</string>
+    <string name="login_hint_lastfm">Saisis ton nom d\'utilisateur Last.fm. Pour seulement lire les titres aimés, laisse le mot de passe vide (le profil doit être public). Avec le mot de passe, Trackhop peut aussi aimer des titres : il sert une fois à obtenir une session et n\'est pas conservé.</string>
     <string name="login_hint_listenbrainz">Saisissez le nom d\'utilisateur ListenBrainz dont lire les playlists et les titres aimés. Ajoutez votre jeton utilisateur (listenbrainz.org → Settings) pour écrire aussi les titres aimés.</string>
     <string name="listenbrainz_token_needed">ListenBrainz a besoin de votre jeton utilisateur pour écrire les titres aimés : ajoutez-le dans Comptes (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Jeton utilisateur (facultatif)</string>
@@ -711,7 +720,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Connectez-vous sur last.fm et ouvrez la page de création de compte API.</item>
         <item>Remplissez le formulaire : e-mail de contact, nom et description de l\'application sont libres. \"Callback URL\" et \"Application homepage\" peuvent rester vides. Envoyez.</item>
-        <item>Copiez l\'\"API key\" ici. Le \"Shared secret\" n\'est pas nécessaire.</item>
+        <item>Copie ici la \"API key\", et le \"Shared secret\" dans le second champ : il ne sert qu\'à aimer des titres.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Plus</string>
