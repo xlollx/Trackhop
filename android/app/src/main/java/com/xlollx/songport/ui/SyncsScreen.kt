@@ -429,6 +429,11 @@ fun SyncsScreen(
                     enabled = canDrag,
                     onDragStarted = {
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
+                        // A card held while partly above the list's top (the one half under the pill at
+                        // the end of the list) is brought into view at once. Left to the drag library, it
+                        // is scrolled in with an animation first, and the card is not taken until it ends:
+                        // a move made meanwhile changes nothing and the card goes back on release.
+                        listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
