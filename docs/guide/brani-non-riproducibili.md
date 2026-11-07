@@ -65,7 +65,7 @@ Quando non esiste una versione convincente, Trackhop lo dice e lascia a te la de
 | Servizio | Cosa trova |
 |---|---|
 | Spotify | Brani non riproducibili, con il motivo (paese, piano, filtro espliciti) |
-| Apple Music | Playlist della libreria; Apple non permette alle app di togliere brani, quindi la versione che si ascolta viene aggiunta e quella grigia resta |
+| Apple Music | Playlist della libreria. Con l'accesso con ID Apple quella grigia viene sostituita; con un developer token l'API di Apple non permette di togliere brani, quindi la versione che si ascolta viene aggiunta e quella grigia resta |
 | TIDAL, Deezer | Brani non più disponibili |
 | YouTube, YouTube Music | Video privati ed eliminati, voci in grigio |
 

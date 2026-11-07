@@ -63,7 +63,7 @@ When no convincing version exists, Trackhop says so and leaves the decision to y
 | Service | What it finds |
 |---|---|
 | Spotify | Unplayable tracks, with the reason (country, plan, explicit filter) |
-| Apple Music | Library playlists; Apple does not let apps remove tracks, so the playable version is added and the grey one stays |
+| Apple Music | Library playlists. With the Apple ID sign-in the grey one is replaced; with a developer token Apple's API cannot remove tracks, so the playable version is added and the grey one stays |
 | TIDAL, Deezer | Tracks no longer available |
 | YouTube, YouTube Music | Private and deleted videos, greyed-out entries |
 

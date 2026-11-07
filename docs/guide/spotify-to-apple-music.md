@@ -29,8 +29,9 @@ source, no Trackhop account and no limit on the number of tracks.
 - Tracks are matched by the recording's ISRC code where Apple Music has it, then by title, artist
   and duration: nothing is added by guesswork, and what was not found stays in the review with
   suggestions.
-- Apple Music lets apps add to a playlist but not remove from it: a sync towards Apple Music adds
-  new songs, and says so in its report when a song left the Spotify playlist.
+- With the Apple ID sign-in, a sync towards Apple Music also removes the songs that left the Spotify
+  playlist. With a developer token it cannot: Apple's API lets apps add to a playlist but not remove
+  from it, so the sync adds new songs and says so in its report when a song left.
 - Apple Music is reached from the phone only: [Trackhop Desktop](desktop) and [Docker](docker) do
   not sign in to it.
 

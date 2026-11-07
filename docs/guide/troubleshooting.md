@@ -21,8 +21,9 @@ route (*Spotify (web)*), which reads any playlist the account can open.
 **"The library requires an active Apple Music subscription" (CloudLibrary).** Apple only lets
 subscribers read and edit a library. Without a subscription Apple Music cannot be a source or a target.
 
-**Tracks are not removed from Apple Music.** Apple's API cannot remove tracks from a playlist: mirror
-syncs towards Apple Music only add, and the report says so.
+**Tracks are not removed from Apple Music.** With a developer token, Trackhop uses Apple's API,
+which cannot remove tracks from a playlist: mirror syncs towards Apple Music only add, and the
+report says so. Connect Apple Music with the Apple ID sign-in instead and removals go through.
 
 ## Amazon Music
 

@@ -34,7 +34,7 @@ included where the service has them) and tap **Check**.
 | Spotify | Yes, with the reason (country, plan, explicit filter) | Both the official route and the web route |
 | Deezer | Yes | |
 | TIDAL | Yes | |
-| Apple Music | Library playlists only | Apple does not let apps remove tracks: the playable version is added, the dead entry stays |
+| Apple Music | Library playlists only | With a developer token, Apple's API cannot remove tracks: the playable version is added, the dead entry stays. The Apple ID sign-in replaces it. |
 | YouTube | Private and deleted videos | |
 | YouTube Music | Greyed-out entries | GitHub/F-Droid build |
 | Amazon Music, Navidrome/Subsonic, Jellyfin, Plex | No | The tool says so instead of guessing |

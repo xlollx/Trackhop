@@ -25,8 +25,9 @@ them in sync**. It runs on an Android phone: free, open source, no account and n
 
 ## Good to know
 
-- Apple Music lets apps add to a playlist but not remove from it: towards Apple Music a sync adds
-  new songs and reports the ones that left.
+- Towards Apple Music, a sync removes the songs that left when you signed in with your Apple ID.
+  With a developer token, Apple's API lets apps add to a playlist but not remove from it: the sync
+  adds new songs and reports the ones that left.
 - YouTube Music mixes songs and videos: a video's title is read as "artist - title", and doubtful
   matches go to the review instead of being added.
 - Apple Music is reached from the phone only.
