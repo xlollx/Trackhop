@@ -700,7 +700,7 @@ source code under the same license, and so must a modified version that people u
 1.6.2 and server 1.0.0 were published under the GPL-3.0-only and stay available under it.
 
 The app icon (`android/app/src/main/res/mipmap*`, `android/app/src/main/res/drawable/ic_launcher*`,
-`fastlane/metadata/android/en-US/images/icon.png`, `docs/store/icon512.png`) and the feature
+`fastlane/metadata/android/en-US/images/icon.png`, `docs/store/icon512.png`, `docs/store/logo.svg`) and the feature
 graphics (`fastlane/metadata/android/*/images/featureGraphic.png`, `docs/store/feature_*.png`) are
 © 2026 xlollx and licensed under [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 (CC BY-SA 4.0): they may be copied, redistributed and adapted with attribution and under the same
