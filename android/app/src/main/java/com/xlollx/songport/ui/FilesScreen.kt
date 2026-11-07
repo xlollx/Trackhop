@@ -67,13 +67,13 @@ import kotlinx.coroutines.withContext
 /**
  * The file playlists (imports and backups), on their own screen: a search field, one section per
  * origin ("Spotify - Rap" sits under "Spotify" as "Rap"), one compact row per playlist and a menu
- * with export and delete. Dozens of backups stay browsable instead of stretching a card for pages.
+ * with send, export and delete. Dozens of backups stay browsable instead of stretching a card for pages.
  * A long press (or Select in a row's menu) starts a selection: whole groups or everything shown can
  * be ticked, then deleted at once or exported into a folder.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun FilesScreen(onClose: () -> Unit) {
+fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
@@ -240,6 +240,7 @@ fun FilesScreen(onClose: () -> Unit) {
                             FileRow(
                                 title = latest.title, entry = latest,
                                 selecting = selected.isNotEmpty(), checked = latest.id in selected, onToggle = { toggle(latest.id) },
+                                onSend = { onSendTo(latest.id, latest.title) },
                                 onExport = { format -> exporting = latest.id; export(format, latest.name) },
                                 onDelete = { LocalFilesProvider.delete(ctx, latest.id); version++ },
                             )
@@ -255,6 +256,7 @@ fun FilesScreen(onClose: () -> Unit) {
                                     FileRow(
                                         title = null, entry = v,
                                         selecting = selected.isNotEmpty(), checked = v.id in selected, onToggle = { toggle(v.id) },
+                                        onSend = { onSendTo(v.id, v.name) },
                                         onExport = { format -> exporting = v.id; export(format, v.name) },
                                         onDelete = { LocalFilesProvider.delete(ctx, v.id); version++ },
                                     )
@@ -278,6 +280,7 @@ fun FilesScreen(onClose: () -> Unit) {
 private fun FileRow(
     title: String?, entry: LocalFilesProvider.Entry,
     selecting: Boolean, checked: Boolean, onToggle: () -> Unit,
+    onSend: () -> Unit,
     onExport: (LocalFilesProvider.Export) -> Unit, onDelete: () -> Unit,
 ) {
     Row(
@@ -301,6 +304,11 @@ private fun FileRow(
         Box {
             IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.csv_export)) }
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                // The way from an imported list to a service: the editor opens with this file as source.
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.files_send_to)) },
+                    onClick = { menu = false; onSend() },
+                )
                 DropdownMenuItem(text = { Text(stringResource(R.string.files_select)) }, onClick = { menu = false; onToggle() })
                 ExportMenuItem { menu = false; choosing = true }
                 DropdownMenuItem(

@@ -55,6 +55,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -93,7 +95,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}) {
+fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -171,7 +173,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         item(key = "intro") { TrustBanner() }
         items(providers, key = { it.id }) { p ->
             key(refresh) {
-                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles)
+                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
                 else if (!p.requiresAuth) PlainSourceCard(p, onRemove = { remove(p) })
                 else ProviderCard(
@@ -454,12 +456,29 @@ private fun ProviderCard(
 
 /** File playlists: import, paste, export, delete. Shown in Tools always and in Accounts when the File connector is added. */
 @Composable
-internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = null, onManage: () -> Unit = {}) {
+internal fun FilesCard(
+    snackbar: SnackbarHostState,
+    onRemove: (() -> Unit)? = null,
+    onManage: () -> Unit = {},
+    onSendTo: (id: String, name: String) -> Unit = { _, _ -> },
+) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var lists by remember { mutableStateOf<List<Playlist>>(emptyList()) }
     var version by remember { mutableIntStateOf(0) }
     LaunchedEffect(version) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
+
+    // "Send to a service" right after the import: the list is there, where should it go?
+    fun offerSend(id: String, name: String, tracks: Int) {
+        scope.launch {
+            val res = snackbar.showSnackbar(
+                message = ctx.getString(R.string.csv_imported, tracks),
+                actionLabel = ctx.getString(R.string.files_send_to),
+                duration = SnackbarDuration.Long,
+            )
+            if (res == SnackbarResult.ActionPerformed) onSendTo(id, name)
+        }
+    }
 
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
@@ -472,12 +491,14 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
                 runCatching {
                     // Bytes, not a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.
                     val text = ctx.contentResolver.openInputStream(uri)?.use { com.xlollx.songport.sync.PlaylistFiles.decode(it.readBytes()) } ?: ""
-                    LocalFilesProvider.importFile(ctx, displayName(ctx, uri), text)
+                    LocalFilesProvider.importFileAsPlaylist(ctx, displayName(ctx, uri), text)
                 }
             }
             onMain {
-                result.onSuccess { n -> version++; snackbar.showSnackbar(ctx.getString(R.string.csv_imported, n)) }
-                    .onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+                result.onSuccess { pl ->
+                    version++
+                    offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
+                }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
             }
         }
     }
@@ -528,14 +549,15 @@ internal fun FilesCard(snackbar: SnackbarHostState, onRemove: (() -> Unit)? = nu
             scope.launch {
                 try {
                     val link = com.xlollx.songport.sync.SetlistImport.linkIn(text)
-                    val n = if (link != null) {
+                    val pl = if (link != null) {
                         val s = com.xlollx.songport.sync.SetlistImport.fetch(link)
-                        withContext(Dispatchers.IO) { LocalFilesProvider.importTracks(ctx, if (name.isBlank()) s.name else name, s.tracks) }
-                        s.tracks.size
-                    } else withContext(Dispatchers.IO) { LocalFilesProvider.importFile(ctx, "$name.txt", text) }
+                        val id = withContext(Dispatchers.IO) { LocalFilesProvider.importTracks(ctx, if (name.isBlank()) s.name else name, s.tracks) }
+                        Playlist(id, id, s.tracks.size)
+                    } else withContext(Dispatchers.IO) { LocalFilesProvider.importFileAsPlaylist(ctx, "$name.txt", text) }
                     onMain {
                         version++
-                        snackbar.showSnackbar(ctx.getString(R.string.csv_imported, n))
+                        // A pasted list, like an imported file, can go straight to a service.
+                        offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                     onMain { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }

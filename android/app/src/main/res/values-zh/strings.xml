@@ -252,6 +252,7 @@
     <string name="files_manage">管理</string>
     <string name="files_search">搜索</string>
     <string name="files_group_other">其他</string>
+    <string name="files_send_to">发送到服务</string>
     <string name="review_now">%1$d 首待处理 · 立即开始</string>
     <string name="review_summary">%1$d 首未找到 · %2$d 首待核对</string>
     <string name="review_tap_hint">点按一下即可接受建议，或打开某首歌曲在 %1$s 上搜索。每次选择都会被记住，用于之后的同步。</string>

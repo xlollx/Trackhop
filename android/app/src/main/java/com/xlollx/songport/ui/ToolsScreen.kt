@@ -127,7 +127,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}) {
+fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}) {
     val ctx = LocalContext.current
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     var selectedId by rememberSaveable { mutableStateOf(connected.firstOrNull()?.id) }
@@ -184,7 +184,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onT
                     ServicePicker(connected, provider.id, { selectedId = it })
                 }
                 when (current) {
-                    Tool.FILES -> FilesCard(local, onManage = onManageFiles)
+                    Tool.FILES -> FilesCard(local, onManage = onManageFiles, onSendTo = onSendTo)
                     Tool.AI -> AiPlaylistCard(local, onSyncStarted)
                     Tool.EXPORT -> provider?.let { ExportCard(it, local) }
                     Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }

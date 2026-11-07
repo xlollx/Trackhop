@@ -252,6 +252,7 @@
     <string name="files_manage">Zarządzaj</string>
     <string name="files_search">Szukaj</string>
     <string name="files_group_other">Inne</string>
+    <string name="files_send_to">Wyślij do serwisu</string>
     <string name="review_now">Do poprawy: %1$d · Zacznij teraz</string>
     <string name="review_summary">Nie znaleziono: %1$d · do sprawdzenia: %2$d</string>
     <string name="review_tap_hint">Zaakceptuj propozycję jednym dotknięciem lub otwórz utwór, aby przeszukać %1$s. Każdy wybór jest zapamiętywany na kolejne synchronizacje.</string>

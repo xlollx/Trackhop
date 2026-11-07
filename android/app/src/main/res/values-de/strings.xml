@@ -252,6 +252,7 @@
     <string name="files_manage">Verwalten</string>
     <string name="files_search">Suchen</string>
     <string name="files_group_other">Andere</string>
+    <string name="files_send_to">An einen Dienst senden</string>
     <string name="review_now">%1$d zu klären · Jetzt beginnen</string>
     <string name="review_summary">%1$d nicht gefunden · %2$d zu prüfen</string>
     <string name="review_tap_hint">Nimm einen Vorschlag mit einem Tippen an oder öffne einen Titel, um ihn auf %1$s zu suchen. Jede Wahl wird für die nächsten Syncs gemerkt.</string>

@@ -252,6 +252,7 @@
     <string name="files_manage">Gestionar</string>
     <string name="files_search">Buscar</string>
     <string name="files_group_other">Otras</string>
+    <string name="files_send_to">Enviar a un servicio</string>
     <string name="review_now">%1$d por arreglar · Empezar ya</string>
     <string name="review_summary">%1$d no encontradas · %2$d por revisar</string>
     <string name="review_tap_hint">Acepta una propuesta con un toque, o abre una canción para buscarla en %1$s. Cada elección se recuerda para las próximas sincronizaciones.</string>

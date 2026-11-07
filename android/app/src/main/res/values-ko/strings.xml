@@ -252,6 +252,7 @@
     <string name="files_manage">관리</string>
     <string name="files_search">검색</string>
     <string name="files_group_other">기타</string>
+    <string name="files_send_to">서비스로 보내기</string>
     <string name="review_now">%1$d곡 해결 필요 · 지금 시작</string>
     <string name="review_summary">%1$d곡 찾지 못함 · %2$d곡 재확인 필요</string>
     <string name="review_tap_hint">한 번 눌러 제안을 수락하거나, 곡을 열어 %1$s에서 검색하세요. 선택은 다음 동기화에도 기억돼요.</string>
