@@ -106,6 +106,10 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.ui.graphics.graphicsLayer
@@ -425,15 +429,27 @@ fun SyncsScreen(
                 ).graphicsLayer {
                     shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
+                }.pointerInput(job.id, canDrag) {
+                    // A card held while partly above the list's top (the one half under the pill at the
+                    // end of the list) is brought into view while the finger is still, before the hold
+                    // becomes a drag. Left to the drag library, the list is scrolled under the card as
+                    // the drag starts and the card stays where the finger is, over the card above: the
+                    // first move swapped the two, and the card dragged down came back where it was.
+                    if (!canDrag) return@pointerInput
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        val still = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis * 3 / 4) {
+                            while (true) {
+                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+                                if (!c.pressed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
+                            }
+                        } == null
+                        if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
+                    }
                 }.longPressDraggableHandle(
                     enabled = canDrag,
                     onDragStarted = {
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
-                        // A card held while partly above the list's top (the one half under the pill at
-                        // the end of the list) is brought into view at once. Left to the drag library, it
-                        // is scrolled in with an animation first, and the card is not taken until it ends:
-                        // a move made meanwhile changes nothing and the card goes back on release.
-                        listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
