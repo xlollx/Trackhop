@@ -14,7 +14,13 @@ UA = "TrackhopRelease/1.0 (https://github.com/xlollx/Trackhop)"
 STABLE, DOCKER = "Q2804309", "Q15206305"
 
 # Facts the item should always carry; each one is added only when missing.
-ITEM_FACTS = [("P400", DOCKER)] + [("P407", q) for q in (  # the app's languages
+ITEM_FACTS = [
+    ("P400", DOCKER), ("P400", "Q94"),        # platforms: Docker, Android
+    ("P750", "Q1386210"), ("P750", "Q135288"),  # distributed by F-Droid, Microsoft Store
+    ("P479", "Q165970"),                      # input device: touchscreen
+    ("P437", "Q54820071"),                    # distribution format: digital download
+    ("P6216", "Q50423863"),                   # copyright status: copyrighted (AGPL is a copyright licence)
+] + [("P407", q) for q in (  # the app's languages
     "Q1860", "Q188", "Q1321", "Q150", "Q652", "Q5287", "Q9176", "Q809", "Q750553", "Q7737", "Q256", "Q13414913")]
 STRING_FACTS = [
     ("P2003", "trackhop.app"),                                # Instagram
@@ -25,6 +31,13 @@ STRING_FACTS = [
     ("P10766", "trackhop"),                                   # Chocolatey
     ("P8778", "xlollx/trackhop"),                             # Docker Hub
     ("P9618", "songport"),                                    # AlternativeTo (page still under the old name)
+]
+# Qualifiers some statements should carry: (property, value of the statement, qualifier, item).
+QUALIFIERS = [
+    ("P1324", "https://github.com/xlollx/Trackhop", "P8423", "Q186055"),   # version control: Git
+    ("P1324", "https://github.com/xlollx/Trackhop", "P10627", "Q364"),     # web interface: GitHub
+    ("P5885", "9pfx74q2xn9p", "P400", "Q1406"),                           # Microsoft Store: Windows
+    ("P856", "https://trackhop.org", "P407", "Q20923490"),                 # website: multiple languages
 ]
 DESCRIPTIONS = {
     "en": "free and open-source app that keeps music playlists in sync across streaming services",
@@ -66,6 +79,11 @@ def string_snak(prop, value):
     return {"snaktype": "value", "property": prop, "datavalue": {"type": "string", "value": value}}
 
 
+def release_reference(version):
+    url = "https://github.com/xlollx/Trackhop/releases/tag/v" + version
+    return {"snaks": {"P854": [string_snak("P854", url)]}}
+
+
 def time_snak(prop, day):
     return {"snaktype": "value", "property": prop, "datavalue": {"type": "time", "value": {
         "time": "+" + day + "T00:00:00Z", "timezone": 0, "before": 0, "after": 0, "precision": 11,
@@ -95,15 +113,20 @@ def main():
     # The version: one statement per release, the newest preferred, the others normal.
     versions = claims.get("P348", [])
     current = [c for c in versions if c["mainsnak"].get("datavalue", {}).get("value") == version]
+    changed = {}  # statement id -> statement, so a statement touched twice is sent once
     for c in versions:
         want = "preferred" if c in current else "normal"
         if c.get("rank") != want:
             c["rank"] = want
-            data["claims"].append(c)
+            changed[c["id"]] = c
+        if c in current and not c.get("references"):
+            c["references"] = [release_reference(version)]
+            changed[c["id"]] = c
     if not current:
         data["claims"].append({
             "mainsnak": string_snak("P348", version), "type": "statement", "rank": "preferred",
             "qualifiers": {"P577": [time_snak("P577", day)], "P548": [item_snak("P548", STABLE)]},
+            "references": [release_reference(version)],
         })
         done.append(f"version {version} ({day})")
 
@@ -128,6 +151,20 @@ def main():
         if not has(prop, value):
             data["claims"].append({"mainsnak": string_snak(prop, value), "type": "statement", "rank": "normal"})
             done.append(prop)
+
+    for prop, value, qprop, qid in QUALIFIERS:
+        for c in claims.get(prop, []):
+            v = c["mainsnak"].get("datavalue", {}).get("value")
+            if v not in (value, value + "/"):
+                continue
+            if any(q.get("datavalue", {}).get("value", {}).get("id") == qid for q in c.get("qualifiers", {}).get(qprop, [])):
+                continue
+            c = changed.get(c["id"], c)
+            c.setdefault("qualifiers", {}).setdefault(qprop, []).append(item_snak(qprop, qid))
+            c.pop("qualifiers-order", None)
+            changed[c["id"]] = c
+            done.append(prop + " " + qprop)
+    data["claims"].extend(changed.values())
 
     # The name is the same everywhere ("mul"); descriptions are added for missing languages only,
     # so a hand-made edit on the item is never overwritten.
