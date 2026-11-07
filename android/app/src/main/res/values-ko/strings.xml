@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Last.fm 세션을 받기 위해 한 번만 사용되며 저장되지 않습니다.</string>
     <string name="lastfm_session_expired">Last.fm이 세션을 종료했습니다. 트랙을 좋아요 하려면 비밀번호로 다시 연결하세요.</string>
     <string name="lastfm_no_secret">Last.fm에서 트랙을 좋아요 하려면 API 키의 shared secret이 필요합니다. 키 옆에 추가하세요.</string>
+    <string name="lastfm_key_title">Last.fm API 키</string>
+    <string name="lastfm_key_body">곡을 \'좋아요\' 하려면 본인의 키가 필요합니다. 무료이고 1분이면 됩니다. Last.fm을 열어 양식을 작성하고(앱 이름은 자유, 예: Trackhop. 다른 칸은 비워 둬도 됩니다) API key와 Shared secret을 여기에 복사하세요.</string>
+    <string name="lastfm_key_create">Last.fm에서 키 받기</string>
+    <string name="lastfm_key_have">이미 있어요</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">붙여넣기</string>
     <string name="lastfm_love_title">트랙도 좋아요 하기</string>
     <string name="pill_source_empty">원본이 비어 있음</string>
     <string name="transfer_unsupported">%1$s에서는 사용할 수 없음</string>

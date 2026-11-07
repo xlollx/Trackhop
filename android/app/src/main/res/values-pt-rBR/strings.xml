@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Ela é usada uma vez para obter uma sessão do Last.fm e não é guardada.</string>
     <string name="lastfm_session_expired">O Last.fm encerrou a sessão: conecte de novo com a senha para amar faixas.</string>
     <string name="lastfm_no_secret">Amar faixas no Last.fm precisa do shared secret da sua API key: adicione-o ao lado da chave.</string>
+    <string name="lastfm_key_title">Sua chave de API do Last.fm</string>
+    <string name="lastfm_key_body">Para amar faixas, você precisa de uma chave própria: é grátis e leva um minuto. Abra o Last.fm, preencha o formulário (qualquer nome de app, ex. Trackhop; os outros campos podem ficar vazios) e copie aqui a API key e o shared secret.</string>
+    <string name="lastfm_key_create">Obter uma chave no Last.fm</string>
+    <string name="lastfm_key_have">Já tenho uma</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Colar</string>
     <string name="lastfm_love_title">Amar faixas também</string>
     <string name="pill_source_empty">Origem vazia</string>
     <string name="transfer_unsupported">não disponível no %1$s</string>

@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Il sert une seule fois à obtenir une session de Last.fm et n\'est pas conservé.</string>
     <string name="lastfm_session_expired">Last.fm a mis fin à la session : reconnecte-le avec ton mot de passe pour aimer des titres.</string>
     <string name="lastfm_no_secret">Aimer des titres sur Last.fm demande le shared secret de ta clé API : ajoute-le à côté de la clé.</string>
+    <string name="lastfm_key_title">Ta clé API Last.fm</string>
+    <string name="lastfm_key_body">Pour aimer des titres, il faut ta propre clé : c\'est gratuit et ça prend une minute. Ouvre Last.fm, remplis le formulaire (nom d\'app au choix, ex. Trackhop ; les autres champs peuvent rester vides), puis copie ici l\'API key et le shared secret.</string>
+    <string name="lastfm_key_create">Obtenir une clé sur Last.fm</string>
+    <string name="lastfm_key_have">J\'en ai déjà une</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Coller</string>
     <string name="lastfm_love_title">Aimer aussi des titres</string>
     <string name="pill_source_empty">Source vide</string>
     <string name="transfer_unsupported">indisponible sur %1$s</string>

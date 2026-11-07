@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Last.fm\'den bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
     <string name="lastfm_session_expired">Last.fm oturumu sonlandırdı: parçaları sevmek için parolanla yeniden bağla.</string>
     <string name="lastfm_no_secret">Last.fm\'de parça sevmek için API anahtarının shared secret değeri gerekir: anahtarın yanına ekle.</string>
+    <string name="lastfm_key_title">Last.fm API anahtarın</string>
+    <string name="lastfm_key_body">Parçaları sevmek için kendi anahtarın gerekir: ücretsizdir ve bir dakika sürer. Last.fm\'i aç, formu doldur (uygulama adı serbest, ör. Trackhop; diğer alanlar boş kalabilir), sonra API key ve shared secret\'ı buraya kopyala.</string>
+    <string name="lastfm_key_create">Last.fm\'den anahtar al</string>
+    <string name="lastfm_key_have">Zaten var</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Yapıştır</string>
     <string name="lastfm_love_title">Parçaları da sev</string>
     <string name="pill_source_empty">Kaynak boş</string>
     <string name="transfer_unsupported">%1$s üzerinde kullanılamaz</string>

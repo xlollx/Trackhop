@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">It is used once to get a session from Last.fm and is not kept.</string>
     <string name="lastfm_session_expired">Last.fm ended the session: connect it again with your password to love tracks.</string>
     <string name="lastfm_no_secret">Loving tracks on Last.fm needs the shared secret of your API key: add it next to the key.</string>
+    <string name="lastfm_key_title">Your Last.fm API key</string>
+    <string name="lastfm_key_body">Loving tracks needs a key of your own: it\'s free and takes a minute. Open Last.fm, fill in the form (any app name, e.g. Trackhop; the other fields can stay empty), then copy the API key and the shared secret here.</string>
+    <string name="lastfm_key_create">Get a key on Last.fm</string>
+    <string name="lastfm_key_have">I already have one</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Paste</string>
     <string name="lastfm_love_title">Love tracks too</string>
     <string name="pill_source_empty">Source empty</string>
     <string name="transfer_unsupported">not available on %1$s</string>

@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">密码只用一次，用于从 Last.fm 获取会话，不会被保存。</string>
     <string name="lastfm_session_expired">Last.fm 已结束会话：请用密码重新连接以标记喜爱曲目。</string>
     <string name="lastfm_no_secret">在 Last.fm 上标记喜爱曲目需要你的 API 密钥的 shared secret：请在密钥旁添加。</string>
+    <string name="lastfm_key_title">你的 Last.fm API 密钥</string>
+    <string name="lastfm_key_body">要“喜爱”歌曲需要你自己的密钥：免费，一分钟即可。打开 Last.fm 填写表单（应用名称随意，例如 Trackhop；其他栏可留空），然后把 API key 和 Shared secret 复制到这里。</string>
+    <string name="lastfm_key_create">在 Last.fm 获取密钥</string>
+    <string name="lastfm_key_have">我已经有了</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">粘贴</string>
     <string name="lastfm_love_title">也标记喜爱曲目</string>
     <string name="pill_source_empty">来源为空</string>
     <string name="transfer_unsupported">在 %1$s 上不可用</string>

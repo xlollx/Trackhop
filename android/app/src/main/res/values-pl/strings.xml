@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Jest użyte raz, aby uzyskać sesję od Last.fm, i nie jest przechowywane.</string>
     <string name="lastfm_session_expired">Last.fm zakończył sesję: połącz go ponownie z hasłem, aby oznaczać utwory jako ulubione.</string>
     <string name="lastfm_no_secret">Oznaczanie utworów jako ulubione na Last.fm wymaga shared secret Twojego klucza API: dodaj go obok klucza.</string>
+    <string name="lastfm_key_title">Twój klucz API Last.fm</string>
+    <string name="lastfm_key_body">Do oznaczania utworów jako ulubione potrzebny jest własny klucz: jest darmowy i zajmuje minutę. Otwórz Last.fm, wypełnij formularz (dowolna nazwa aplikacji, np. Trackhop; pozostałe pola mogą zostać puste), a potem skopiuj tutaj API key i shared secret.</string>
+    <string name="lastfm_key_create">Zdobądź klucz na Last.fm</string>
+    <string name="lastfm_key_have">Mam już klucz</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Wklej</string>
     <string name="lastfm_love_title">Oznaczaj też utwory jako ulubione</string>
     <string name="pill_source_empty">Puste źródło</string>
     <string name="transfer_unsupported">niedostępne w %1$s</string>

@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Last.fm のセッションを取得するために一度だけ使われ、保存されません。</string>
     <string name="lastfm_session_expired">Last.fm がセッションを終了しました。トラックをラブするにはパスワードで接続し直してください。</string>
     <string name="lastfm_no_secret">Last.fm でトラックをラブするには API キーの shared secret が必要です。キーの横に追加してください。</string>
+    <string name="lastfm_key_title">Last.fm の API キー</string>
+    <string name="lastfm_key_body">曲を「Love」するには自分のキーが必要です（無料・1分ほど）。Last.fm を開いてフォームに入力し（アプリ名は自由、例: Trackhop。他の欄は空欄で可）、API key と Shared secret をここにコピーしてください。</string>
+    <string name="lastfm_key_create">Last.fm でキーを取得</string>
+    <string name="lastfm_key_have">すでに持っています</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">貼り付け</string>
     <string name="lastfm_love_title">トラックもラブする</string>
     <string name="pill_source_empty">同期元が空です</string>
     <string name="transfer_unsupported">%1$s では利用できません</string>

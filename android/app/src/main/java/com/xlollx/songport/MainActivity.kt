@@ -229,7 +229,7 @@ class MainActivity : ComponentActivity() {
                 i.action = null
             }
         }
-        i?.getStringExtra(EXTRA_MESSAGE)?.let { messages.value = it; i.removeExtra(EXTRA_MESSAGE) }
+        i?.getStringExtra(EXTRA_MESSAGE)?.let { if (it.isNotBlank()) messages.value = it; i.removeExtra(EXTRA_MESSAGE) }
         if (i?.hasExtra(EXTRA_TAB) == true) { tabRequests.value = i.getIntExtra(EXTRA_TAB, 0); i.removeExtra(EXTRA_TAB) }
         i?.getStringExtra(EXTRA_TOOL)?.let { toolRequests.value = it; i.removeExtra(EXTRA_TOOL) }
         // A sync tapped in a widget: the Syncs tab, scrolled to its card, which lights up.
@@ -439,7 +439,7 @@ private fun MainScreen(
     }
 
     val message by messages.collectAsState()
-    LaunchedEffect(message) { message?.let { snackbar.showSnackbar(it); messages.value = null } }
+    LaunchedEffect(message) { message?.let { if (it.isNotBlank()) snackbar.showSnackbar(it); messages.value = null } }
     // Esiti dei login che non tornano da un'Activity (flusso loopback di Google).
     val authMessage by AuthEvents.message.collectAsState()
     LaunchedEffect(authMessage) { authMessage?.let { snackbar.showSnackbar(it); AuthEvents.consume() } }

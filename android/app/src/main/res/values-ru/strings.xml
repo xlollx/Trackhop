@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Он используется один раз для получения сеанса Last.fm и не сохраняется.</string>
     <string name="lastfm_session_expired">Last.fm завершил сеанс: подключите его снова с паролем, чтобы отмечать любимые треки.</string>
     <string name="lastfm_no_secret">Для отметки любимых треков на Last.fm нужен shared secret вашего API-ключа: добавьте его рядом с ключом.</string>
+    <string name="lastfm_key_title">Ваш API-ключ Last.fm</string>
+    <string name="lastfm_key_body">Чтобы отмечать треки как любимые, нужен собственный ключ: это бесплатно и займёт минуту. Откройте Last.fm, заполните форму (любое имя приложения, например Trackhop; остальные поля можно оставить пустыми) и скопируйте сюда API key и shared secret.</string>
+    <string name="lastfm_key_create">Получить ключ на Last.fm</string>
+    <string name="lastfm_key_have">У меня уже есть</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Вставить</string>
     <string name="lastfm_love_title">Отмечать и любимые треки</string>
     <string name="pill_source_empty">Источник пуст</string>
     <string name="transfer_unsupported">недоступно на %1$s</string>

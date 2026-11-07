@@ -69,7 +69,8 @@ class ServerLoginActivity : ComponentActivity() {
         startActivity(
             Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                putExtra(MainActivity.EXTRA_MESSAGE, message)
+                // Back without signing in says nothing (an empty message showed as an empty banner).
+                if (message.isNotBlank()) putExtra(MainActivity.EXTRA_MESSAGE, message)
                 putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)
             }
         )
@@ -94,6 +95,12 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     var qcCode by remember { mutableStateOf<String?>(null) }
     var qcJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     val jellyfin = (provider as? JellyfinProvider)?.takeIf { it.supportsQuickConnect }
+    // Last.fm with the password needs a key and its shared secret: asked here when the build has none.
+    val lastfm = provider.serviceId == LastFmProvider.SERVICE
+    val keyMissing = remember { lastfm && !com.xlollx.songport.ui.LastFmKey.complete(ctx) }
+    var lfKey by remember { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedKey(ctx) else "") }
+    var lfSecret by remember { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedSecret(ctx) else "") }
+    val askKey = keyMissing && secret.isNotBlank()
 
     Scaffold(
         topBar = {
@@ -125,13 +132,16 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth(),
             )
+            if (askKey) com.xlollx.songport.ui.LastFmKeyCard(lfKey, { lfKey = it; error = null }, lfSecret, { lfSecret = it; error = null }, enabled = !busy)
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             Button(
-                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (!form.needsUser || user.isNotBlank()) && (!form.needsSecret || form.secretOptional || secret.isNotBlank()),
+                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (!form.needsUser || user.isNotBlank()) && (!form.needsSecret || form.secretOptional || secret.isNotBlank()) &&
+                    (!askKey || (lfKey.isNotBlank() && lfSecret.isNotBlank())),
                 onClick = {
                     busy = true
                     scope.launch {
                         try {
+                            if (askKey) com.xlollx.songport.ui.LastFmKey.save(ctx, lfKey, lfSecret)
                             provider.login(ctx, url, user, secret)
                             onDone(ctx.getString(R.string.auth_done, provider.displayName))
                         } catch (e: Exception) {

@@ -97,6 +97,13 @@
     <string name="lastfm_password_note">Se usa una sola vez para obtener una sesión de Last.fm y no se guarda.</string>
     <string name="lastfm_session_expired">Last.fm cerró la sesión: vuelve a conectarlo con tu contraseña para marcar canciones con ♥.</string>
     <string name="lastfm_no_secret">Marcar canciones con ♥ en Last.fm necesita el shared secret de tu API key: añádelo junto a la clave.</string>
+    <string name="lastfm_key_title">Tu clave API de Last.fm</string>
+    <string name="lastfm_key_body">Para marcar canciones como favoritas necesitas una clave propia: es gratis y lleva un minuto. Abre Last.fm, rellena el formulario (cualquier nombre de app, p. ej. Trackhop; los demás campos pueden quedar vacíos) y copia aquí la API key y el shared secret.</string>
+    <string name="lastfm_key_create">Obtener una clave en Last.fm</string>
+    <string name="lastfm_key_have">Ya tengo una</string>
+    <string name="lastfm_key_api">API key</string>
+    <string name="lastfm_key_secret">Shared secret</string>
+    <string name="lastfm_key_paste">Pegar</string>
     <string name="lastfm_love_title">Marcar canciones con ♥ también</string>
     <string name="pill_source_empty">Origen vacío</string>
     <string name="transfer_unsupported">no disponible en %1$s</string>
