@@ -1,0 +1,36 @@
+name: Wikidata
+
+# Keeps Trackhop's Wikidata item (Q142072916) on the released version: called by build.yml after each
+# app release, or by hand. Uses a bot password (secrets WIKIDATA_USER, WIKIDATA_PASSWORD); without
+# them it does nothing. Never fails a release: a refusal from Wikidata is only reported here.
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version on the item, e.g. 1.15.0
+        type: string
+        required: true
+      date:
+        description: Its release date, YYYY-MM-DD (empty = today)
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - name: Update the item
+        env:
+          WIKIDATA_USER: ${{ secrets.WIKIDATA_USER }}
+          WIKIDATA_PASSWORD: ${{ secrets.WIKIDATA_PASSWORD }}
+        run: python3 scripts/wikidata_update.py "${{ inputs.version }}" "${{ inputs.date }}"

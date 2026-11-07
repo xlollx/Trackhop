@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: read
+  issues: write   # the reminder issue when the package goes up by hand
 
 jobs:
   publish:
@@ -44,6 +45,27 @@ jobs:
         if: ${{ env.HAS_KEYS != 'true' }}
         run: |
           Write-Output "::notice::The MSSTORE_* secrets are not all set: server-v$env:VERSION was not sent to the Microsoft Store (packaging/README.md, Microsoft Store)."
+
+      # An individual Partner Center account cannot have the Entra application the API needs, so the
+      # package goes up by hand: an issue assigned to the owner says so, with the file and the steps.
+      - name: Reminder to upload by hand
+        if: ${{ env.HAS_KEYS != 'true' }}
+        run: |
+          $title = "Microsoft Store: upload Trackhop Desktop $env:VERSION"
+          $open = gh issue list --repo "$env:GITHUB_REPOSITORY" --state open --search $title --json title | ConvertFrom-Json | Where-Object { $_.title -eq $title }
+          if ($open) { Write-Output "Already open: $title"; exit 0 }
+          $msix = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/server-v$env:VERSION/Trackhop-Desktop-v$env:VERSION-windows.msix"
+          $body = @"
+          Trackhop Desktop **$env:VERSION** is out; the Microsoft Store still has the previous version.
+
+          1. Download the package: $msix
+          2. Open [Partner Center › Apps and games](https://partner.microsoft.com/dashboard/apps-and-games/overview) › **Trackhop Desktop** › **Update** (start a new submission).
+          3. **Packages**: remove the old ``.msix``, upload this one, **Save**.
+          4. Wait for the package check, then **Submit for certification**.
+
+          Close this issue once it is submitted.
+          "@
+          gh issue create --repo "$env:GITHUB_REPOSITORY" --title $title --body $body --assignee "$env:GITHUB_REPOSITORY_OWNER"
 
       - name: The release's package
         if: ${{ env.HAS_KEYS == 'true' }}

@@ -34,9 +34,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
@@ -122,14 +122,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 1.7.1 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.7.1)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.7.1/Trackhop-Desktop-v1.7.1-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 1.8.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.8.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -160,7 +160,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 1.7.1), separate from the app's.
+- Desktop and Docker have their **own version** (now 1.8.0), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
@@ -187,6 +187,7 @@ common errors.
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
 - ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
+- ▶ [Spotify, Apple Music, YouTube Music… what if your playlists could live across ALL of them?](https://x.com/leviackermanft/status/2118310574035759436): Levi (@leviackermanft), X (English)
 - ▶ [5 Android Apps You Didn't Know Your Phone Could Use](https://www.youtube.com/watch?v=q57RUuX3ZXI&t=199s): NextTech Hub, YouTube (English)
 - ✎ [The 15 Best Android Apps You Need in November 2026](https://www.geeky-gadgets.com/best-android-apps-november-2026/): Geeky Gadgets (English)
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
@@ -194,9 +195,9 @@ Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
 ## What people say
 
-Comments under videos about Trackhop and messages from supporters (names and pictures hidden):
+Comments under videos and posts about Trackhop, and messages from supporters (names and pictures hidden):
 
-<img src="docs/assets/what-people-say.webp" width="320" alt="Comments from people who use Trackhop: &quot;Track Hop is absolute gem&quot;, &quot;the greatest thing that's ever happened to me&quot;, &quot;one of the best discoveries&quot;, and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is">
+<img src="docs/assets/what-people-say.webp" width="320" alt="Comments from people who use Trackhop: &quot;Track Hop is absolute gem&quot;, &quot;the greatest thing that's ever happened to me&quot;, &quot;one of the best discoveries&quot;, and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is, and posts on X calling it &quot;a game changer for music lovers who use multiple platforms&quot;">
 
 ## Follow Trackhop
 
@@ -699,7 +700,7 @@ source code under the same license, and so must a modified version that people u
 1.6.2 and server 1.0.0 were published under the GPL-3.0-only and stay available under it.
 
 The app icon (`android/app/src/main/res/mipmap*`, `android/app/src/main/res/drawable/ic_launcher*`,
-`fastlane/metadata/android/en-US/images/icon.png`, `docs/store/icon512.png`) and the feature
+`fastlane/metadata/android/en-US/images/icon.png`, `docs/store/icon512.png`, `docs/store/logo.svg`) and the feature
 graphics (`fastlane/metadata/android/*/images/featureGraphic.png`, `docs/store/feature_*.png`) are
 © 2026 xlollx and licensed under [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 (CC BY-SA 4.0): they may be copied, redistributed and adapted with attribution and under the same
