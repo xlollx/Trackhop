@@ -26,7 +26,7 @@ object AnghamiBridge {
 
     /** Keeps the sid in [pasted] (with the player's fingerprint, when known); what is wrong, or null. */
     fun keep(ctx: Context, pasted: String, fingerprint: String? = null, slot: String = Slots.PRIMARY): String? {
-        val sid = AnghamiWebClient.sidIn(pasted) ?: return "no Anghami session in it"
+        val sid = AnghamiWebClient.sidIn(pasted) ?: AnghamiWebClient.sidValue(pasted) ?: return "no Anghami session in it"
         val sess = session(slot)
         sess.clear(ctx)
         sess.put(ctx, AnghamiWebClient.SID, sid)

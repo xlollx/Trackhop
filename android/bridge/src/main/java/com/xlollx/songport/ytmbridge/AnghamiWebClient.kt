@@ -146,6 +146,22 @@ class AnghamiWebClient(private val host: WebHost) {
         fun sidIn(text: String?): String? = text?.let { SID_SHAPE.find(it)?.value }
 
         /**
+         * The sid a request of the player carries in its `sid` parameter: Anghami's known shape, or
+         * (#53, after a sign-in with Google the shape was another) any long value but the anonymous
+         * `emptysid-…` one sent before signing in. Whatever it is, it is tried before it is kept.
+         */
+        fun sidValue(value: String?): String? {
+            val v = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            sidIn(v)?.let { return it }
+            return v.takeIf { !it.startsWith("emptysid", ignoreCase = true) && it.length >= 20 && it.none { c -> c.isWhitespace() || c == '&' || c == '"' } }
+        }
+
+        /** The sid's shape for the log, never its value: the lengths of its ':'-separated parts. */
+        fun sidShape(value: String?): String = value?.let { v ->
+            if (v.startsWith("emptysid", ignoreCase = true)) "anonymous" else v.split(':').joinToString(":") { it.length.toString() } + " chars"
+        } ?: "none"
+
+        /**
          * The session in [text]: the sid, with the fingerprint it was used with when [text] is a whole
          * request address of the player (`…gateway.php?…&fingerprint=…&sid=…`); null without a sid.
          */
@@ -156,7 +172,7 @@ class AnghamiWebClient(private val host: WebHost) {
                 val k = runCatching { URLDecoder.decode(kv.substringBefore('='), "UTF-8") }.getOrDefault("")
                 k to runCatching { URLDecoder.decode(kv.substringAfter('='), "UTF-8") }.getOrDefault("")
             }
-            val sid = sidIn(params["sid"]) ?: sidIn(t) ?: return null
+            val sid = sidValue(params["sid"]) ?: sidIn(t) ?: return null
             return sid to params["fingerprint"]?.takeIf { it.isNotBlank() && params["sid"] != null }
         }
 

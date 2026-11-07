@@ -142,4 +142,17 @@ class AnghamiWebClientContractTest {
         assertEquals(sid to "fp-1", AnghamiBridge.fromRequest(url))
         assertNull(AnghamiBridge.fromRequest("https://example.com/x?sid=" + sid))
     }
+
+    // #53: signed in with Google, the player's sid had another shape: a long value in the request's
+    // sid is taken (and tried), the anonymous one never.
+    @Test fun aSidOfAnotherShapeInTheRequestIsTaken() {
+        val other = "Zq81kLmN0pQrStUvWxYz.0123456789abcdefABCDEF"
+        val url = "https://coussa.anghami.com/gateway.php?type=GETplaylists&fingerprint=fp-2&sid=" + java.net.URLEncoder.encode(other, "UTF-8")
+        assertEquals(other to "fp-2", AnghamiWebClient.sessionIn(url))
+        assertEquals(other to "fp-2", AnghamiBridge.fromRequest(url))
+        assertNull(AnghamiBridge.fromRequest("https://coussa.anghami.com/gateway.php?type=GETtelcos&sid=emptysid-1793719859-oyRcdrr7"))
+        assertNull(AnghamiWebClient.sidValue("short"))
+        assertEquals("anonymous", AnghamiWebClient.sidShape("emptysid-1-x"))
+        assertEquals("2:6:40 chars", AnghamiWebClient.sidShape("ab:cdefgh:" + "x".repeat(40)))
+    }
 }

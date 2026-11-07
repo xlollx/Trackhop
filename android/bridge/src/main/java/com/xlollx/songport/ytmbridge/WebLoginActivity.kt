@@ -149,7 +149,8 @@ class WebLoginActivity : ComponentActivity() {
         identity(web)
         // Qobuz's web player wants a window at least 1024 px wide ("download the app" otherwise,
         // issue #37 on a foldable): the page is given a desktop one, as the capture screen does.
-        val desktopEarly = service != QOBUZ || DesktopPage.apply(web)
+        // Anghami's mobile page comes out cut in the sign-in (#53), its desktop one works as in a capture.
+        val desktopEarly = (service != QOBUZ && service != ANGHAMI) || DesktopPage.apply(web)
         if (service == SOUNDCLOUD) {
             // A DataDome cookie from an earlier attempt (as desktop Chrome, or already flagged) would
             // tie this one to it: the sign-in starts as a new visitor. The account's cookies stay.
@@ -566,7 +567,8 @@ class WebLoginActivity : ComponentActivity() {
         val params = uri.rawQuery.orEmpty().split('&').mapNotNull { it.substringBefore('=').takeIf { k -> k.isNotBlank() } }
         val type = uri.rawQuery.orEmpty().split('&').firstOrNull { it.startsWith("type=") }?.substringAfter('=').orEmpty()
         val headers = request?.requestHeaders?.keys?.sorted().orEmpty()
-        BridgeNet.log("anghami", "sign-in: gateway call seen ($from, ${request?.method ?: "?"}) type=$type params=${params.joinToString(",")} headers=${headers.joinToString(",")}")
+        val sid = uri.rawQuery.orEmpty().split('&').firstOrNull { it.startsWith("sid=") }?.substringAfter('=')?.let { runCatching { java.net.URLDecoder.decode(it, "UTF-8") }.getOrNull() }
+        BridgeNet.log("anghami", "sign-in: gateway call seen ($from, ${request?.method ?: "?"}) type=$type sid=${AnghamiWebClient.sidShape(sid)} params=${params.joinToString(",")} headers=${headers.joinToString(",")}")
     }
     private var anghamiRefused: String? = null
     private fun watchAnghami(url: String, request: WebResourceRequest? = null, from: String = "page") {
