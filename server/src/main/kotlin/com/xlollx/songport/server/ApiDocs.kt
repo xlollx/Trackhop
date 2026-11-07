@@ -106,7 +106,7 @@ internal object ApiDocs {
                             putJsonArray("tags") { add(c.tag) }
                             put("operationId", operationId(c))
                             putJsonArray("parameters") {
-                                Regex("""\{(\w+)}""").findAll(c.path).forEach { m ->
+                                Regex("""\{(\w+)\}""").findAll(c.path).forEach { m ->
                                     add(buildJsonObject { put("name", m.groupValues[1]); put("in", "path"); put("required", true); putJsonObject("schema") { put("type", "string") } })
                                 }
                                 c.query.forEach { q ->
