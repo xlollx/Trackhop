@@ -195,9 +195,9 @@ Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
 ## What people say
 
-Comments under videos about Trackhop and messages from supporters (names and pictures hidden):
+Comments under videos and posts about Trackhop, and messages from supporters (names and pictures hidden):
 
-<img src="docs/assets/what-people-say.webp" width="320" alt="Comments from people who use Trackhop: &quot;Track Hop is absolute gem&quot;, &quot;the greatest thing that's ever happened to me&quot;, &quot;one of the best discoveries&quot;, and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is">
+<img src="docs/assets/what-people-say.webp" width="320" alt="Comments from people who use Trackhop: &quot;Track Hop is absolute gem&quot;, &quot;the greatest thing that's ever happened to me&quot;, &quot;one of the best discoveries&quot;, and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is, and posts on X calling it &quot;a game changer for music lovers who use multiple platforms&quot;">
 
 ## Follow Trackhop
 
