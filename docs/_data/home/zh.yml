@@ -123,7 +123,7 @@ step_by_step: '分步教程：<a href="/guide/spotify-to-youtube-music">Spotify 
 no_phone: '手边没有 Android 手机？在 Windows 或 Linux 上<a href="#docker">试试 Trackhop Desktop</a>，或者使用 Docker 版。'
 play_bridge: '用的是 Google Play 版？<a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>下载 Trackhop Bridge</strong></a>，这个插件可以添加 YouTube Music、Amazon Music，以及无需开发者密钥的 Spotify 和 Apple Music（使用非官方网页接口：请先阅读说明）。'
 thanks_title: 感谢
-thanks_how: '感谢让 Trackhop 保持免费的各位。想让你的名字出现在这里？<a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> 或 <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>。'
+thanks_how: '感谢让 Trackhop 保持免费的各位。想让你的名字出现在这里？<a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> (银行卡或 PayPal) 或 <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>。'
 renamed: '<strong>Songport 现已更名为 Trackhop。</strong>同样的应用、同样的代码、同样的更新：只是改了名字，因为同一领域有一个毫不相关的服务叫“SongPort”。已安装的应用会照常更新并保留所有数据，旧链接也依然有效。'
 public_links: "公开链接"
 radio_shazam: "网络电台 · Shazam"
