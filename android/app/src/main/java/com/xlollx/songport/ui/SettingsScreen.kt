@@ -435,7 +435,8 @@ fun SettingsScreen(
         }
 
         // ---------------------------------------------------------------- About
-        val supportNote = if (BuildConfig.KOFI_URL.isNotBlank()) stringResource(R.string.support_body) else null
+        // Store builds (Play, AppGallery) never point to payments outside the store.
+        val supportNote = if (!BuildConfig.STORE_BUILD && BuildConfig.KOFI_URL.isNotBlank()) stringResource(R.string.support_body) else null
         PrefSection(stringResource(R.string.settings_about), footer = supportNote) {
             // Seven taps on the version show the traffic captures (with developer options on): a tool
             // for the developer, which records what is done on a site, kept out of everyone's way.
@@ -500,11 +501,11 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.Replay, stringResource(R.string.settings_show_onboarding), null) {
                 store.updateSettings { it.copy(onboardingDone = false) }
             }
-            if (BuildConfig.KOFI_URL.isNotBlank()) {
+            if (!BuildConfig.STORE_BUILD && BuildConfig.KOFI_URL.isNotBlank()) {
                 PrefRow(Icons.Filled.Favorite, stringResource(R.string.support_button), null, trailing = { ExternalMark() }) { openSupport(ctx) }
             }
             // Per chi ha un account GitHub: anche un contributo mensile.
-            if (BuildConfig.SPONSORS_URL.isNotBlank()) {
+            if (!BuildConfig.STORE_BUILD && BuildConfig.SPONSORS_URL.isNotBlank()) {
                 PrefRow(Icons.Filled.VolunteerActivism, stringResource(R.string.support_sponsors), null, trailing = { ExternalMark() }) { openSponsors(ctx) }
             }
         }
