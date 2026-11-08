@@ -62,6 +62,8 @@ import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.StarRate
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Verified
@@ -491,6 +493,17 @@ fun SettingsScreen(
             }
             PrefRow(Icons.Filled.Policy, stringResource(R.string.settings_privacy_policy), null, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PRIVACY_POLICY_URL))) }
+            }
+            // Rate where the app came from (Play, AppGallery); share a link to it with anyone.
+            if (com.xlollx.songport.update.AppUpdates.rateInStore) {
+                PrefRow(Icons.Filled.StarRate, stringResource(R.string.settings_rate), stringResource(R.string.settings_rate_summary), trailing = { ExternalMark() }) {
+                    com.xlollx.songport.update.AppUpdates.open(ctx)
+                }
+            }
+            PrefRow(Icons.Filled.Share, stringResource(R.string.settings_share_app), null) {
+                val text = ctx.getString(R.string.settings_share_app_text, com.xlollx.songport.update.AppUpdates.shareUrl(ctx))
+                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
+                runCatching { ctx.startActivity(Intent.createChooser(send, null)) }
             }
             PrefRow(Icons.Filled.Replay, stringResource(R.string.settings_show_onboarding), null) {
                 store.updateSettings { it.copy(onboardingDone = false) }

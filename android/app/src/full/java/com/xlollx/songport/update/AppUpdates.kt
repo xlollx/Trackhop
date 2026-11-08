@@ -23,6 +23,12 @@ object AppUpdates {
     /** This build has a setting for it (the Play build follows Google Play). */
     const val configurable = true
 
+    /** No store page to rate on (GitHub, F-Droid, Obtainium). */
+    const val rateInStore = false
+
+    /** The link "Share Trackhop" sends. */
+    fun shareUrl(ctx: Context) = "https://trackhop.org"
+
     private const val API = "https://api.github.com/repos/xlollx/Trackhop/releases/latest"
     private const val RELEASES = "https://github.com/xlollx/Trackhop/releases/latest"
     private const val EVERY_MS = 12 * 60 * 60 * 1000L

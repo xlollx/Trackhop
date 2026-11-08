@@ -1741,4 +1741,8 @@
     <string name="start_over_title">%1$s を最初からやり直しますか？</string>
     <string name="start_over_body">Trackhop はサインアウトし、%1$s のウェブサイト用に保存している Cookie とデータを消去します。ここで一度もサインインしていない状態に戻ります。%1$s のアカウントとプレイリストには影響しません。その後、もう一度サインインしてください。</string>
     <string name="start_over_done">%1$s：やり直しました。準備ができたら再度サインインしてください。</string>
+    <string name="settings_rate">Trackhop を評価</string>
+    <string name="settings_rate_summary">ストアで星やひと言をもらえると、ほかの人がアプリを見つけやすくなります。</string>
+    <string name="settings_share_app">Trackhop を共有</string>
+    <string name="settings_share_app_text">Trackhop は音楽サービス間でプレイリストを同期します: %1$s</string>
 </resources>

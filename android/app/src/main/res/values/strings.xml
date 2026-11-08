@@ -1772,4 +1772,8 @@
     <string name="start_over_title">Start over with %1$s?</string>
     <string name="start_over_body">Trackhop signs out and forgets the cookies and data it keeps for %1$s\'s website, as if you had never signed in here. Your %1$s account and its playlists are not touched. Then sign in again.</string>
     <string name="start_over_done">%1$s: started over. Sign in again when you\'re ready.</string>
+    <string name="settings_rate">Rate Trackhop</string>
+    <string name="settings_rate_summary">A few stars or a line on the store page help others find the app.</string>
+    <string name="settings_share_app">Share Trackhop</string>
+    <string name="settings_share_app_text">Trackhop keeps your playlists in sync across music services: %1$s</string>
 </resources>

@@ -1771,4 +1771,8 @@
     <string name="start_over_title">Mit %1$s neu anfangen?</string>
     <string name="start_over_body">Trackhop meldet sich ab und vergisst die Cookies und Daten, die es für die Website von %1$s speichert, als hättest du dich hier nie angemeldet. Dein %1$s-Konto und seine Playlists bleiben unberührt. Melde dich danach erneut an.</string>
     <string name="start_over_done">%1$s: neu gestartet. Melde dich wieder an, wenn du so weit bist.</string>
+    <string name="settings_rate">Trackhop bewerten</string>
+    <string name="settings_rate_summary">Ein paar Sterne oder eine Zeile im Store helfen anderen, die App zu finden.</string>
+    <string name="settings_share_app">Trackhop teilen</string>
+    <string name="settings_share_app_text">Trackhop hält deine Playlists zwischen Musikdiensten synchron: %1$s</string>
 </resources>

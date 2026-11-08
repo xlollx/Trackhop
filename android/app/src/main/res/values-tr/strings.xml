@@ -1769,4 +1769,8 @@
     <string name="start_over_title">%1$s ile baştan başlansın mı?</string>
     <string name="start_over_body">Trackhop oturumu kapatır ve %1$s web sitesi için tuttuğu çerezleri ve verileri unutur; burada hiç oturum açmamışsın gibi olur. %1$s hesabına ve çalma listelerine dokunulmaz. Ardından yeniden oturum aç.</string>
     <string name="start_over_done">%1$s: baştan başlatıldı. Hazır olduğunda yeniden oturum aç.</string>
+    <string name="settings_rate">Trackhop\'u değerlendir</string>
+    <string name="settings_rate_summary">Mağazada birkaç yıldız ya da bir satır, başkalarının uygulamayı bulmasına yardım eder.</string>
+    <string name="settings_share_app">Trackhop\'u paylaş</string>
+    <string name="settings_share_app_text">Trackhop çalma listelerini müzik servisleri arasında eşitler: %1$s</string>
 </resources>

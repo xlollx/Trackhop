@@ -1831,4 +1831,8 @@
     <string name="start_over_title">Начать заново с %1$s?</string>
     <string name="start_over_body">Trackhop выйдет из аккаунта и забудет cookie и данные, которые хранит для сайта %1$s, как будто вы здесь никогда не входили. Ваш аккаунт %1$s и его плейлисты не затрагиваются. Затем войдите снова.</string>
     <string name="start_over_done">%1$s: начато заново. Войдите снова, когда будете готовы.</string>
+    <string name="settings_rate">Оценить Trackhop</string>
+    <string name="settings_rate_summary">Пара звёзд или строчка в магазине помогут другим найти приложение.</string>
+    <string name="settings_share_app">Поделиться Trackhop</string>
+    <string name="settings_share_app_text">Trackhop синхронизирует ваши плейлисты между музыкальными сервисами: %1$s</string>
 </resources>

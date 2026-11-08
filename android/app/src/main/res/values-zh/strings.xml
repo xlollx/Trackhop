@@ -1741,4 +1741,8 @@
     <string name="start_over_title">要重新开始 %1$s 吗？</string>
     <string name="start_over_body">Trackhop 会退出登录，并清除为 %1$s 网站保存的 Cookie 和数据，就像你从未在这里登录过一样。你的 %1$s 账户及其歌单不受影响。之后请重新登录。</string>
     <string name="start_over_done">%1$s：已重新开始。准备好后请重新登录。</string>
+    <string name="settings_rate">为 Trackhop 评分</string>
+    <string name="settings_rate_summary">在商店给几颗星或留一句话，能帮助别人找到这个应用。</string>
+    <string name="settings_share_app">分享 Trackhop</string>
+    <string name="settings_share_app_text">Trackhop 可在各音乐服务之间同步你的歌单：%1$s</string>
 </resources>

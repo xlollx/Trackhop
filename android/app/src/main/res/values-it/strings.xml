@@ -1771,4 +1771,8 @@
     <string name="start_over_title">Ricominciare da zero con %1$s?</string>
     <string name="start_over_body">Trackhop esce e dimentica i cookie e i dati che tiene per il sito di %1$s, come se non avessi mai fatto l\'accesso qui. Il tuo account %1$s e le sue playlist non vengono toccati. Poi accedi di nuovo.</string>
     <string name="start_over_done">%1$s: ripulito. Accedi di nuovo quando vuoi.</string>
+    <string name="settings_rate">Valuta Trackhop</string>
+    <string name="settings_rate_summary">Qualche stella o una riga sulla pagina dello store aiutano altri a trovare l\'app.</string>
+    <string name="settings_share_app">Condividi Trackhop</string>
+    <string name="settings_share_app_text">Trackhop tiene sincronizzate le tue playlist tra i servizi musicali: %1$s</string>
 </resources>

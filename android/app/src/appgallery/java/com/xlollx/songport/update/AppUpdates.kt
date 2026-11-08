@@ -13,6 +13,12 @@ object AppUpdates {
     /** No setting: the store decides. */
     const val configurable = false
 
+    /** Settings › About shows "Rate Trackhop" (it opens [open], the AppGallery page). */
+    const val rateInStore = true
+
+    /** The link "Share Trackhop" sends. */
+    fun shareUrl(ctx: Context) = "https://trackhop.org"
+
     fun enabled(ctx: Context): Boolean = true
     fun setEnabled(ctx: Context, on: Boolean) = Unit
     fun handledElsewhere(ctx: Context): Boolean = true

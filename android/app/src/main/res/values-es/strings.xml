@@ -1779,4 +1779,8 @@
     <string name="start_over_title">¿Empezar de cero con %1$s?</string>
     <string name="start_over_body">Trackhop cierra la sesión y olvida las cookies y los datos que guarda del sitio web de %1$s, como si nunca hubieras iniciado sesión aquí. Tu cuenta de %1$s y sus listas no se tocan. Después, vuelve a iniciar sesión.</string>
     <string name="start_over_done">%1$s: empezado de cero. Vuelve a iniciar sesión cuando quieras.</string>
+    <string name="settings_rate">Valorar Trackhop</string>
+    <string name="settings_rate_summary">Unas estrellas o una línea en la tienda ayudan a otros a encontrar la app.</string>
+    <string name="settings_share_app">Compartir Trackhop</string>
+    <string name="settings_share_app_text">Trackhop mantiene tus listas sincronizadas entre servicios de música: %1$s</string>
 </resources>

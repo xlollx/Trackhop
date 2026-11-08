@@ -18,6 +18,12 @@ object AppUpdates {
     /** No setting: Google Play decides. */
     const val configurable = false
 
+    /** Settings › About shows "Rate Trackhop" (it opens [open], the Play page). */
+    const val rateInStore = true
+
+    /** The link "Share Trackhop" sends: the Play page, where this build comes from. */
+    fun shareUrl(ctx: Context) = "https://play.google.com/store/apps/details?id=${ctx.packageName}"
+
     fun enabled(ctx: Context): Boolean = true
     fun setEnabled(ctx: Context, on: Boolean) = Unit
     fun handledElsewhere(ctx: Context): Boolean = false
