@@ -792,7 +792,7 @@
     <string name="free_why_title">Бесплатно, без рекламы</string>
     <string name="free_why_body">В Trackhop нет рекламы, подписок и закрытых функций. Он живёт на добровольные взносы: если он экономит вам время, можете угостить разработчика кофе.</string>
     <string name="support_title">Нравится Trackhop?</string>
-    <string name="support_body">Если хотите, угостите разработчика кофе на Ko-fi. Совершенно необязательно: ничего не открывается, приложение остаётся полным для всех.</string>
+    <string name="support_body">Если хотите, угостите разработчика кофе на Ko-fi (карта или PayPal). Совершенно необязательно: ничего не открывается, приложение остаётся полным для всех.</string>
     <string name="support_button">Угостить кофе</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">Вы только что перенесли %1$s треков</string>

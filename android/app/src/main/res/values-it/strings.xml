@@ -770,7 +770,7 @@
     <string name="free_why_title">Gratis, senza pubblicità</string>
     <string name="free_why_body">Trackhop non ha pubblicità, abbonamenti né funzioni bloccate. Vive di contributi volontari: se ti fa risparmiare tempo, puoi offrire un caffè allo sviluppatore.</string>
     <string name="support_title">Ti piace Trackhop?</string>
-    <string name="support_body">Se ti va, offri un caffè allo sviluppatore su Ko-fi. Del tutto facoltativo: non si sblocca nulla, l\'app resta completa per tutti.</string>
+    <string name="support_body">Se ti va, offri un caffè allo sviluppatore su Ko-fi (carta o PayPal). Del tutto facoltativo: non si sblocca nulla, l\'app resta completa per tutti.</string>
     <string name="support_button">Offrimi un caffè</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">Hai appena spostato %1$s brani</string>

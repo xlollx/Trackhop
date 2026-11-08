@@ -759,7 +759,7 @@
     <string name="free_why_title">無料・広告なし</string>
     <string name="free_why_body">Trackhop には広告も、サブスクリプションも、機能制限もありません。任意の支援で運営されています。時間の節約になったなら、開発者にコーヒーをおごっていただけると嬉しいです。</string>
     <string name="support_title">Trackhop を気に入っていただけましたか？</string>
-    <string name="support_body">よろしければ、Ko-fi で開発者にコーヒーをおごってください。まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。</string>
+    <string name="support_body">よろしければ、Ko-fi (カードまたは PayPal) で開発者にコーヒーをおごってください。まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。</string>
     <string name="support_button">コーヒーをおごる</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">%1$s 曲を移しました</string>

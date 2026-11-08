@@ -758,7 +758,7 @@
     <string name="free_why_title">무료, 광고 없음</string>
     <string name="free_why_body">Trackhop에는 광고도 구독도 잠긴 기능도 없어요. 자발적인 후원으로 운영되니, 시간을 아껴 줬다면 개발자에게 커피 한 잔 사 주세요.</string>
     <string name="support_title">Trackhop이 마음에 드세요?</string>
-    <string name="support_body">원하시면 Ko-fi에서 개발자에게 커피 한 잔 사 주세요. 전적으로 선택 사항이에요. 잠금 해제되는 건 없고 앱은 누구에게나 똑같이 완전해요.</string>
+    <string name="support_body">원하시면 Ko-fi (카드 또는 PayPal)에서 개발자에게 커피 한 잔 사 주세요. 전적으로 선택 사항이에요. 잠금 해제되는 건 없고 앱은 누구에게나 똑같이 완전해요.</string>
     <string name="support_button">커피 한 잔 사 주기</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">방금 %1$s곡을 옮겼어요</string>

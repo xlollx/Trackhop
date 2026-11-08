@@ -770,7 +770,7 @@
     <string name="free_why_title">Free, no ads</string>
     <string name="free_why_body">Trackhop has no ads, no subscriptions and no locked features. It lives on voluntary contributions: if it saves you time, you can buy the developer a coffee.</string>
     <string name="support_title">Like Trackhop?</string>
-    <string name="support_body">If you feel like it, buy the developer a coffee on Ko-fi. Totally optional: nothing is unlocked, the app stays complete for everyone.</string>
+    <string name="support_body">If you feel like it, buy the developer a coffee on Ko-fi (card or PayPal). Totally optional: nothing is unlocked, the app stays complete for everyone.</string>
     <string name="support_button">Buy me a coffee</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">You just moved %1$s tracks</string>

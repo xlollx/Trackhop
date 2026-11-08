@@ -768,7 +768,7 @@
     <string name="free_why_title">Ücretsiz, reklamsız</string>
     <string name="free_why_body">Trackhop\'ta reklam, abonelik veya kilitli özellik yoktur. Gönüllü katkılarla yaşar: size zaman kazandırıyorsa geliştiriciye bir kahve ısmarlayabilirsiniz.</string>
     <string name="support_title">Trackhop\'u beğendiniz mi?</string>
-    <string name="support_body">İsterseniz Ko-fi üzerinden geliştiriciye bir kahve ısmarlayın. Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır.</string>
+    <string name="support_body">İsterseniz Ko-fi (kart veya PayPal) üzerinden geliştiriciye bir kahve ısmarlayın. Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır.</string>
     <string name="support_button">Bana bir kahve ısmarla</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">Az önce %1$s parça taşıdınız</string>
