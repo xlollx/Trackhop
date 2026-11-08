@@ -61,4 +61,8 @@ if __name__ == "__main__":
     stars = get(f"https://api.github.com/repos/{REPO}")["stargazers_count"]
     (out / "stars.json").write_text(json.dumps(
         {"schemaVersion": 1, "label": "stars", "message": str(stars), "color": "e3b341"}) + "\n")
-    print(total, parts, "stars", stars)
+    # The latest release's tag, for the README's release badge (drawn by scripts/badge_svg.py).
+    tag = get(f"https://api.github.com/repos/{REPO}/releases/latest").get("tag_name", "")
+    (out / "release.json").write_text(json.dumps(
+        {"schemaVersion": 1, "label": "release", "message": tag, "color": "blue"}) + "\n")
+    print(total, parts, "stars", stars, "release", tag)
