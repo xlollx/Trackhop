@@ -9,16 +9,18 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/release.svg" alt="Latest release"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
   <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
+  <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
   <a href="https://trackhop.org"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/languages.svg" alt="12 languages"></a>
-  <br>
   <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
+  <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
+  <br>
   <a href="https://trackhop.org/privacy-policy"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/privacy.svg" alt="Privacy: no account, no tracking"></a>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/reproducible.svg" alt="F-Droid: reproducible build"></a>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-app.svg" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-desktop.svg" alt="Trackhop Desktop's files on VirusTotal"></a>
-  <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
 </p>
 
 <p align="center">

@@ -55,6 +55,8 @@ if __name__ == "__main__":
     total = sum(parts.values())
     (out / "downloads.json").write_text(json.dumps(
         {"schemaVersion": 1, "label": "downloads", "message": short(total), "color": "brightgreen"}) + "\n")
+    (out / "docker.json").write_text(json.dumps(
+        {"schemaVersion": 1, "label": "docker pulls", "message": short(parts["docker"]), "color": "1d63ed"}) + "\n")
     (out / "downloads-detail.json").write_text(json.dumps(
         {"total": total, **parts, "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")}, indent=2) + "\n")
     # Stars too: shields.io's own GitHub badge often shows "invalid" when its GitHub quota runs out.
