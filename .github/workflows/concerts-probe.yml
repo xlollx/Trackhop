@@ -1,0 +1,64 @@
+# Temporary: how much of Italy's concerts the Ticketmaster Discovery API covers, and whether the
+# setlist.fm key works. Read-only; prints results only, never the keys. Removed after one run.
+name: Concerts probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      TM: ${{ secrets.TICKETMASTER_API_KEY }}
+      SF: ${{ secrets.SETLISTFM_API_KEY }}
+    steps:
+      - name: Probe
+        shell: python
+        run: |
+          import json, os, time, urllib.parse, urllib.request
+          def get(url, headers=None):
+              req = urllib.request.Request(url, headers=headers or {})
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      return json.load(r)
+              except urllib.error.HTTPError as e:
+                  return {"_error": e.code}
+          tm = os.environ.get("TM", "")
+          sf = os.environ.get("SF", "")
+          print("keys present:", bool(tm), bool(sf))
+          base = "https://app.ticketmaster.com/discovery/v2/events.json?"
+          def tm_q(**p):
+              p["apikey"] = tm
+              time.sleep(0.3)
+              return get(base + urllib.parse.urlencode(p))
+          print("\n== Music events listed by country (total) ==")
+          for cc in ["IT", "DE", "ES", "FR", "GB", "NL"]:
+              d = tm_q(countryCode=cc, classificationName="music", size=1)
+              print(cc, d.get("_error") or d.get("page", {}).get("totalElements"))
+          artists = ["Vasco Rossi", "Ultimo", "Cesare Cremonini", "Marco Mengoni", "Max Pezzali", "Tiziano Ferro",
+                     "Annalisa", "Lazza", "Coldplay", "Linkin Park", "Imagine Dragons", "Metallica", "Iron Maiden",
+                     "Dua Lipa", "Green Day"]
+          print("\n== Artists: events in Italy / in Europe (first Italian dates) ==")
+          for a in artists:
+              it = tm_q(keyword=a, countryCode="IT", classificationName="music", size=5, sort="date,asc")
+              eu = tm_q(keyword=a, classificationName="music", size=1)
+              n_it = it.get("_error") or it.get("page", {}).get("totalElements")
+              n_all = eu.get("_error") or eu.get("page", {}).get("totalElements")
+              first = []
+              for e in (it.get("_embedded") or {}).get("events", [])[:3]:
+                  v = ((e.get("_embedded") or {}).get("venues") or [{}])[0]
+                  first.append(f'{e.get("dates",{}).get("start",{}).get("localDate")} {(v.get("city") or {}).get("name")}')
+              print(f"{a}: IT={n_it} all={n_all} | " + "; ".join(first))
+          print("\n== setlist.fm ==")
+          for a in ["Coldplay", "Vasco Rossi"]:
+              time.sleep(1)
+              d = get("https://api.setlist.fm/rest/1.0/search/setlists?" + urllib.parse.urlencode({"artistName": a, "p": 1}),
+                      {"x-api-key": sf, "Accept": "application/json"})
+              if "_error" in d:
+                  print(a, "HTTP", d["_error"]); continue
+              s = (d.get("setlist") or [{}])[0]
+              songs = sum(len(x.get("song", [])) for x in (s.get("sets") or {}).get("set", []))
+              print(a, "setlists:", d.get("total"), "| latest:", s.get("eventDate"), (s.get("venue") or {}).get("name"), "songs:", songs)
