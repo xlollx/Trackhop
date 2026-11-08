@@ -3,8 +3,8 @@
 Trackhop's GitHub build (`full` flavor) is F-Droid compatible: only free libraries (AndroidX, Kotlin,
 OkHttp, Tink), no ads SDK, no trackers, no prebuilt binaries in the repository, no self-updater. It
 includes the web connectors (`android/bridge`), which use the services' web interfaces rather than
-official APIs: that is what the NonFreeNet anti-feature describes. The `play` flavor carries the ads
-SDK and is never built by F-Droid.
+official APIs: that is what the NonFreeNet anti-feature describes. The `play` flavor uses Google Play
+libraries and is never built by F-Droid.
 
 What F-Droid reads from this repository:
 

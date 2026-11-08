@@ -11,6 +11,10 @@ the Docker image carried the app's version.
 - **Webhook events**: `sync.started` and `sync.failed` next to `sync.finished` and `backup.finished`, chosen in Tools › API.
 - **The `trackhop` command** has a command for each of them (`new`, `edit`, `delete`, `move`, `stop`, `preview`, `runs`, `report`, `review`, `search`, `convert`, `duplicates`, `export`, `patterns`, `config import`, `notify add`, `webhook`, `settings`, `stats`…), `trackhop help <command>`, and Tab completion for bash, zsh and fish (`trackhop completion`). The MCP server offers the same to AI assistants.
 
+## 1.8.1
+
+- **YouTube Music channel** (#41): on the YouTube Music service page, choose which channel the account acts as, its own or a brand account under it; syncs, playlists and likes then use that channel.
+
 ## 1.8.0
 
 - **More than one account per service** (#48): on the Services page, *Add another account* for Spotify, YouTube, TIDAL and Deezer (official), Navidrome/Subsonic, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, and the pasted-cookie connectors (YouTube Music, Spotify web, Deezer web, Qobuz, Anghami, LiveOne), each with its own sign-in, name and caches. Two Jellyfin servers can sync with each other. An extra account a sync uses can't be removed. `GET /api/v1/services` adds `serviceId` and `slot`.

@@ -1,0 +1,1 @@
+Bir bağlantının kullandığı YouTube Music kanalını seç, marka hesapları dahil (#41, teşekkürler g0lxs): Hesaplar › YouTube Music › ⋮. Liste sonundaki kartı sürükleme düzeldi. Bir girişten çıktıktan sonra boş bant artık yok.

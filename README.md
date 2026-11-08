@@ -8,7 +8,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
   <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json&cacheSeconds=1800" alt="Downloads from GitHub and Docker Hub"></a>
-  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/github/stars/xlollx/Trackhop?style=flat&label=stars&color=e3b341" alt="GitHub stars"></a>
+  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fstars.json&cacheSeconds=1800&label=stars" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
@@ -34,9 +34,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
@@ -122,14 +122,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 1.8.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.8.0)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.0/Trackhop-Desktop-v1.8.0-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 1.8.1 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v1.8.1)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v1.8.1/Trackhop-Desktop-v1.8.1-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -160,7 +160,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 1.8.0), separate from the app's.
+- Desktop and Docker have their **own version** (now 1.8.1), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
@@ -186,9 +186,11 @@ common errors.
 
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
+- ✎ [A look at Trackhop: syncing playlists across music services on Android](https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html): Saudi Android (Arabic; title translated)
 - ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
 - ▶ [Spotify, Apple Music, YouTube Music… what if your playlists could live across ALL of them?](https://x.com/leviackermanft/status/2118310574035759436): Levi (@leviackermanft), X (English)
 - ▶ [5 Android Apps You Didn't Know Your Phone Could Use](https://www.youtube.com/watch?v=q57RUuX3ZXI&t=199s): NextTech Hub, YouTube (English)
+- ▶ [5 apps that make Android feel new | Part 1](https://www.tiktok.com/@palidev21/photo/7704019186749623583): palidev21, TikTok (English)
 - ✎ [The 15 Best Android Apps You Need in November 2026](https://www.geeky-gadgets.com/best-android-apps-november-2026/): Geeky Gadgets (English)
 - ▶ [Top 15 Best Android Apps - November 2026!](https://www.youtube.com/watch?v=1E6cT2HkVMM): HowToMen, YouTube (English)
 - ▶ [Melhores 8 APLICATIVOS para CELULAR em 2026 #44 Grátis](https://www.youtube.com/watch?v=jzWL9qPXKH8): ODORIZZI, YouTube (Portuguese)
@@ -241,7 +243,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Project layout](#project-layout)
 - [Building](#building)
 - [API configuration](#api-configuration)
-- [Ads, consent and donations](#ads-consent-and-donations)
+- [Donations](#donations)
 - [Publishing on Google Play](#publishing-on-google-play)
 - [Contributing](#contributing)
 - [Formerly Songport](#formerly-songport)
@@ -520,7 +522,6 @@ Trackhop/
             ├── main/java/com/xlollx/songport/
             │   ├── MainActivity.kt, SongportApp.kt, Notifications.kt
             │   ├── ai/AiClient.kt             # Playlist generator: the user's own AI provider (OpenAI-compatible, Anthropic, Gemini)
-            │   ├── ads/Ads.kt                 # UMP consent + adaptive banner
             │   ├── auth/                      # Pkce, AuthFlow, AuthCallbackActivity, AppleAuthActivity, LoopbackServer, ServerLoginActivity, LockActivity
             │   ├── data/                      # Store (JSON, coalesced writes), TokenStore (encrypted), Diagnostics
             │   ├── model/Models.kt            # Track, Playlist, SyncJob, SyncReport, SyncPlan
@@ -541,7 +542,7 @@ Requirements: JDK 17, Android SDK with platform 36. From `android/`:
 ```bash
 ./gradlew testFullDebugUnitTest   # unit tests (plain Kotlin, no emulator)
 ./gradlew assembleFullDebug       # GitHub build, APK in app/build/outputs/apk/full/debug/
-./gradlew assemblePlayDebug       # Google Play build, with the ads SDK
+./gradlew assemblePlayDebug       # Google Play build
 ```
 
 Or open `android/` in Android Studio. Without build variables the OAuth services show as
@@ -607,10 +608,8 @@ print(jwt.encode({"iss": TEAM_ID, "iat": int(time.time()), "exp": int(time.time(
 PY
 ```
 
-## Donations, no ads
+## Donations
 
-- No ads in any build, the Google Play one included (dropped in 1.14.3, 05/11/2026): no advertising SDK,
-  no consent form, no advertising ID. `app/src/main/.../ads/Ads.kt` is an empty stub the screens still call.
 - In the GitHub build only, the first successful sync that adds at least 100 tracks arms a one-time
   card on the Syncs screen ("You just moved 1,322 tracks") with a coffee button (`sync/SupportPrompt.kt`).
   Either answer closes it for good.
@@ -667,7 +666,7 @@ variables and the `ghcr.io/xlollx/songport` image, which is still published next
 2. Variables: `PRIVACY_POLICY_URL`, `KOFI_URL`. Service client IDs are
    optional (see [API configuration](#api-configuration)).
 3. Bump `versionCode` and `versionName` in `app/build.gradle` for every release.
-4. Play Console: declare ads, fill in *Data safety* and the foreground service declaration
+4. Play Console: fill in *Data safety* and the foreground service declaration
    (`dataSync` type, user-initiated); the policy is in `docs/privacy-policy.md`.
    Texts, answers, Data safety rows and the step-by-step checklist (including the closed test that
    personal developer accounts must run first) are in `docs/play-store-listing.md`.

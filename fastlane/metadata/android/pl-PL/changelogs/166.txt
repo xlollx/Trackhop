@@ -1,0 +1,1 @@
+Wybierz kanał YouTube Music dla połączenia, także konta marki (#41, dzięki g0lxs): Konta › YouTube Music › ⋮. Przeciąganie karty na końcu listy znów działa. Koniec z pustym paskiem po wyjściu z logowania.

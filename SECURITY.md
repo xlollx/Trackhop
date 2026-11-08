@@ -20,7 +20,6 @@ tagged commit here.
 ## What is not a vulnerability
 
 - Rate limits or quota errors returned by the music services
-- The advertising SDK collecting the data described in `docs/privacy-policy.md` after consent
 
 ## Keys and secrets
 

@@ -1,0 +1,1 @@
+Elige el canal de YouTube Music que usa una conexión, cuentas de marca incluidas (#41, gracias g0lxs): Cuentas › YouTube Music › ⋮. Arrastrar una tarjeta al final de la lista vuelve a funcionar. Ya no aparece un aviso vacío al salir de un inicio de sesión.

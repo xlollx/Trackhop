@@ -38,10 +38,10 @@ jobs:
             git fetch --depth=1 origin badges
             git worktree add badges FETCH_HEAD
             git -C badges checkout -q -B badges
-            cp out/downloads.json out/downloads-detail.json badges/
+            cp out/downloads.json out/downloads-detail.json out/stars.json badges/
             git -C badges add -A
             # Only the time changed: nothing to publish.
-            if git -C badges diff --cached --quiet -- downloads.json && \
+            if git -C badges diff --cached --quiet -- downloads.json stars.json && \
                [ "$(git -C badges diff --cached -- downloads-detail.json | grep -c '^[-+] *"\(total\|github\|docker\)"')" = 0 ]; then
               echo "No change."; exit 0
             fi
