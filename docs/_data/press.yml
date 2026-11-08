@@ -1,5 +1,11 @@
 # "They talk about Trackhop": videos and articles that mention it, newest first. Checked weekly.
 # kind: video or article; lang: the language it is in.
+- title: "نظرة على تطبيق Trackhop | مزامنة قوائم التشغيل بين خدمات الموسيقى على أندرويد"
+  source: Saudi Android (سعودي اندرويد)
+  url: https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html
+  kind: article
+  lang: ar
+  date: 2026-11-07
 - title: "Trackhop ~ FOSS Playlist Syncronization"
   source: The Audio File
   url: https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/
@@ -18,6 +24,12 @@
   kind: video
   lang: en
   date: 2026-11-04
+- title: "5 apps that make Android feel new 📱 | Part 1"
+  source: palidev21 (TikTok)
+  url: https://www.tiktok.com/@palidev21/photo/7704019186749623583
+  kind: video
+  lang: en
+  date: 2026-11-03
 - title: "The 15 Best Android Apps You Need in November 2026"
   source: Geeky Gadgets
   url: https://www.geeky-gadgets.com/best-android-apps-november-2026/
