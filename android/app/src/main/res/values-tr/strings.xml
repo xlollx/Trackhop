@@ -1769,4 +1769,5 @@
     <string name="settings_rate_summary">Mağazada birkaç yıldız ya da bir satır, başkalarının uygulamayı bulmasına yardım eder.</string>
     <string name="settings_share_app">Trackhop\'u paylaş</string>
     <string name="settings_share_app_text">Trackhop çalma listelerini müzik servisleri arasında eşitler: %1$s</string>
+    <string name="settings_website">Web sitesi</string>
 </resources>

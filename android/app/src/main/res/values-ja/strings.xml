@@ -1741,4 +1741,5 @@
     <string name="settings_rate_summary">ストアで星やひと言をもらえると、ほかの人がアプリを見つけやすくなります。</string>
     <string name="settings_share_app">Trackhop を共有</string>
     <string name="settings_share_app_text">Trackhop は音楽サービス間でプレイリストを同期します: %1$s</string>
+    <string name="settings_website">ウェブサイト</string>
 </resources>

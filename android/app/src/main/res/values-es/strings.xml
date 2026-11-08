@@ -1779,4 +1779,5 @@
     <string name="settings_rate_summary">Unas estrellas o una línea en la tienda ayudan a otros a encontrar la app.</string>
     <string name="settings_share_app">Compartir Trackhop</string>
     <string name="settings_share_app_text">Trackhop mantiene tus listas sincronizadas entre servicios de música: %1$s</string>
+    <string name="settings_website">Sitio web</string>
 </resources>

@@ -484,6 +484,12 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.Code, stringResource(R.string.settings_source_code), ATTRIBUTION, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE_URL))) }
             }
+            // Store builds have no Ko-fi row: the site is where anyone who wants can find more (and support).
+            if (BuildConfig.STORE_BUILD) {
+                PrefRow(Icons.Filled.Language, stringResource(R.string.settings_website), "trackhop.org", trailing = { ExternalMark() }) {
+                    runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://trackhop.org"))) }
+                }
+            }
             PrefRow(Icons.Filled.Policy, stringResource(R.string.settings_privacy_policy), null, trailing = { ExternalMark() }) {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PRIVACY_POLICY_URL))) }
             }

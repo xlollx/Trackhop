@@ -1741,4 +1741,5 @@
     <string name="settings_rate_summary">在商店给几颗星或留一句话，能帮助别人找到这个应用。</string>
     <string name="settings_share_app">分享 Trackhop</string>
     <string name="settings_share_app_text">Trackhop 可在各音乐服务之间同步你的歌单：%1$s</string>
+    <string name="settings_website">网站</string>
 </resources>

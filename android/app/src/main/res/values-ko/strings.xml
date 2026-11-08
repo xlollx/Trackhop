@@ -1740,4 +1740,5 @@
     <string name="settings_rate_summary">스토어에 별점이나 한 줄을 남기면 다른 사람이 앱을 찾기 쉬워집니다.</string>
     <string name="settings_share_app">Trackhop 공유</string>
     <string name="settings_share_app_text">Trackhop은 음악 서비스 간 플레이리스트를 동기화합니다: %1$s</string>
+    <string name="settings_website">웹사이트</string>
 </resources>

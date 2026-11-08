@@ -1772,4 +1772,5 @@
     <string name="settings_rate_summary">A few stars or a line on the store page help others find the app.</string>
     <string name="settings_share_app">Share Trackhop</string>
     <string name="settings_share_app_text">Trackhop keeps your playlists in sync across music services: %1$s</string>
+    <string name="settings_website">Website</string>
 </resources>

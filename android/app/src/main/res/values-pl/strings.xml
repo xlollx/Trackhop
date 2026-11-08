@@ -1833,4 +1833,5 @@
     <string name="settings_rate_summary">Kilka gwiazdek lub zdanie w sklepie pomaga innym znaleźć aplikację.</string>
     <string name="settings_share_app">Udostępnij Trackhop</string>
     <string name="settings_share_app_text">Trackhop synchronizuje Twoje playlisty między serwisami muzycznymi: %1$s</string>
+    <string name="settings_website">Strona internetowa</string>
 </resources>
