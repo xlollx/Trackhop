@@ -50,7 +50,7 @@ card3: "Her senkronizasyondan önce bir önizleme. Bulunamayan parçalar incelem
 card4_title: Hesapların sende kalır
 card4: Her servise kendi sayfasında giriş yaparsın. Erişim jetonları telefonda şifrelenir ve telefondan asla çıkmaz.
 card5_title: Kendi müzik sunucun
-card5: "Navidrome ve diğer Subsonic sunucuları, Jellyfin ve Plex, akış servislerinin yanında. Dosyalar da: CSV, M3U, XML, JSON."
+card5: "Navidrome ve diğer Subsonic sunucuları, Jellyfin ve Plex, akış servislerinin yanında. Dosyalar da: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Navidrome uygulama kataloğunda.</a>"
 card6_title: Çalma listesi araçları
 card6: Yedekler, kopyaları kaldırma, birleştirme, bölme ve sıralama, ayrıca kendi yapay zekâ anahtarınla çalışan bir çalma listesi oluşturucu.
 one_title: "Tek bir servisle bile"

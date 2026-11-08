@@ -52,7 +52,7 @@ card3: "A preview before every sync. Tracks that were not found go to a review: 
 card4_title: Your accounts stay yours
 card4: You sign in on each service's own page. Access tokens are encrypted on the phone and never leave it.
 card5_title: Your own music server
-card5: "Navidrome and other Subsonic servers, Jellyfin and Plex, next to the streaming services. Files too: CSV, M3U, XML, JSON."
+card5: "Navidrome and other Subsonic servers, Jellyfin and Plex, next to the streaming services. Files too: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Listed in the Navidrome app catalog.</a>"
 card6_title: Playlist tools
 card6: Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key.
 one_title: "Even with just one service"

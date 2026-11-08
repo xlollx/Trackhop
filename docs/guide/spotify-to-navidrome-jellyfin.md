@@ -8,7 +8,8 @@ description: Rebuild your Spotify playlists on your own Navidrome, Subsonic, Jel
 You discover music on Spotify but listen from your own server. Trackhop rebuilds your Spotify
 playlists on **Navidrome** (or any Subsonic server: Gonic, Airsonic, Ampache), **Jellyfin** or
 **Plex**, using the tracks in your own library, and keeps them in step as the Spotify playlist
-changes. It runs on your phone, or on the server itself with [Docker](docker).
+changes. It runs on your phone, or on the server itself with [Docker](docker). Trackhop is listed in the
+[Navidrome app catalog](https://www.navidrome.org/apps/).
 
 ## What you need
 

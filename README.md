@@ -55,7 +55,7 @@ Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, A
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase
 Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
-any build: development lives on voluntary donations.
+any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
 ### Music services at a glance
 

@@ -50,7 +50,7 @@ card3: "同期の前には必ずプレビュー。見つからなかった曲は
 card4_title: アカウントはあなたのもの
 card4: ログインは各サービスの公式ページで。アクセストークンはスマホ上で暗号化され、外に出ることはありません。
 card5_title: 自分の音楽サーバーにも
-card5: "ストリーミングサービスに加えて、Navidrome などの Subsonic サーバー、Jellyfin、Plex にも対応。ファイルも：CSV、M3U、XML、JSON。"
+card5: "ストリーミングサービスに加えて、Navidrome などの Subsonic サーバー、Jellyfin、Plex にも対応。ファイルも：CSV、M3U、XML、JSON。 <a href='https://www.navidrome.org/apps/'>Navidrome のアプリカタログに掲載。</a>"
 card6_title: プレイリストツール
 card6: バックアップ、重複の削除、結合・分割・並べ替え、そして自分の AI キーで動くプレイリスト生成。
 one_title: "サービスがひとつだけでも"

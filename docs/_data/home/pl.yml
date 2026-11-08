@@ -50,7 +50,7 @@ card3: "Podgląd przed każdą synchronizacją. Nieznalezione utwory trafiają d
 card4_title: Twoje konta pozostają Twoje
 card4: Logujesz się na stronie każdego serwisu. Tokeny dostępu są szyfrowane na telefonie i nigdy go nie opuszczają.
 card5_title: Twój własny serwer muzyczny
-card5: "Navidrome i inne serwery Subsonic, Jellyfin i Plex, obok serwisów streamingowych. Także pliki: CSV, M3U, XML, JSON."
+card5: "Navidrome i inne serwery Subsonic, Jellyfin i Plex, obok serwisów streamingowych. Także pliki: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Na liście aplikacji Navidrome.</a>"
 card6_title: Narzędzia do playlist
 card6: Kopie zapasowe, usuwanie duplikatów, łączenie, dzielenie i sortowanie oraz generator playlist działający na Twoim własnym kluczu AI.
 one_title: "Nawet z jednym serwisem"
