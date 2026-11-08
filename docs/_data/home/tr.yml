@@ -123,7 +123,7 @@ step_by_step: 'Adım adım: <a href="/guide/spotify-to-youtube-music">Spotify''d
 no_phone: 'Yanında Android telefon yok mu? Windows veya Linux''ta <a href="#docker">Trackhop Desktop''u dene</a> ya da Docker sürümünü.'
 play_bridge: 'Google Play ya da AppGallery sürümünü mü kullanıyorsun? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Trackhop Bridge''i indir</strong></a>: YouTube Music, Amazon Music ve geliştirici anahtarı olmadan Spotify ile Apple Music ekleyen eklenti (resmî olmayan web arayüzleri: önce notlarını oku).'
 thanks_title: Teşekkürler
-thanks_how: 'Trackhop''un ücretsiz kalmasını sağlayan herkese. Adının burada olmasını ister misin? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> veya <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
+thanks_how: 'Trackhop''un ücretsiz kalmasını sağlayan herkese. Adının burada olmasını ister misin? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> (kart veya PayPal) veya <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport artık Trackhop.</strong> Aynı uygulama, aynı kod, aynı güncellemeler: yalnızca ad değişti, çünkü aynı alanda "SongPort" adlı ilgisiz bir servis var. Kurulu uygulaman normal şekilde güncellenir ve tüm verilerini korur, eski bağlantılar da çalışmaya devam eder.'
 public_links: herkese açık bağlantılar
 radio_shazam: İnternet radyosu · Shazam

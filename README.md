@@ -45,7 +45,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <!-- supporters:start -->
 THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf
 <!-- supporters:end -->
-<br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
+<br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
 
@@ -609,6 +609,8 @@ PY
 
 ## Donations
 
+- Ko-fi (card or PayPal) and GitHub Sponsors. No other channel: a direct PayPal link would show the
+  developer's full name, so PayPal goes through Ko-fi.
 - In the GitHub build only, the first successful sync that adds at least 100 tracks arms a one-time
   card on the Syncs screen ("You just moved 1,322 tracks") with a coffee button (`sync/SupportPrompt.kt`).
   Either answer closes it for good.

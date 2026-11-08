@@ -123,7 +123,7 @@ step_by_step: 'Krok po kroku: <a href="/guide/spotify-to-youtube-music">ze Spoti
 no_phone: 'Nie masz pod ręką telefonu z Androidem? <a href="#docker">Wypróbuj Trackhop Desktop</a> na Windows lub Linuksie albo wersję Docker.'
 play_bridge: 'Korzystasz z wersji z Google Play lub AppGallery? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Pobierz Trackhop Bridge</strong></a>, wtyczkę, która dodaje YouTube Music, Amazon Music oraz Spotify i Apple Music bez kluczy deweloperskich (nieoficjalne interfejsy webowe: najpierw przeczytaj jej uwagi).'
 thanks_title: Dziękujemy
-thanks_how: 'osobom, dzięki którym Trackhop pozostaje darmowy. Chcesz zobaczyć tu swoje imię? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> lub <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
+thanks_how: 'osobom, dzięki którym Trackhop pozostaje darmowy. Chcesz zobaczyć tu swoje imię? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> (karta lub PayPal) lub <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport to teraz Trackhop.</strong> Ta sama aplikacja, ten sam kod, te same aktualizacje: zmieniła się tylko nazwa, bo niezwiązany z nami serwis o nazwie „SongPort” działa w tej samej dziedzinie. Zainstalowana aplikacja aktualizuje się normalnie i zachowuje wszystkie dane, a stare linki nadal działają.'
 public_links: linki publiczne
 radio_shazam: Radio internetowe · Shazam
