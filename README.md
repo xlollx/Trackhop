@@ -243,7 +243,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Project layout](#project-layout)
 - [Building](#building)
 - [API configuration](#api-configuration)
-- [Ads, consent and donations](#ads-consent-and-donations)
+- [Donations](#donations)
 - [Publishing on Google Play](#publishing-on-google-play)
 - [Contributing](#contributing)
 - [Formerly Songport](#formerly-songport)
@@ -521,7 +521,6 @@ Trackhop/
             ├── main/java/com/xlollx/songport/
             │   ├── MainActivity.kt, SongportApp.kt, Notifications.kt
             │   ├── ai/AiClient.kt             # Playlist generator: the user's own AI provider (OpenAI-compatible, Anthropic, Gemini)
-            │   ├── ads/Ads.kt                 # UMP consent + adaptive banner
             │   ├── auth/                      # Pkce, AuthFlow, AuthCallbackActivity, AppleAuthActivity, LoopbackServer, ServerLoginActivity, LockActivity
             │   ├── data/                      # Store (JSON, coalesced writes), TokenStore (encrypted), Diagnostics
             │   ├── model/Models.kt            # Track, Playlist, SyncJob, SyncReport, SyncPlan
@@ -542,7 +541,7 @@ Requirements: JDK 17, Android SDK with platform 36. From `android/`:
 ```bash
 ./gradlew testFullDebugUnitTest   # unit tests (plain Kotlin, no emulator)
 ./gradlew assembleFullDebug       # GitHub build, APK in app/build/outputs/apk/full/debug/
-./gradlew assemblePlayDebug       # Google Play build, with the ads SDK
+./gradlew assemblePlayDebug       # Google Play build
 ```
 
 Or open `android/` in Android Studio. Without build variables the OAuth services show as
@@ -608,10 +607,8 @@ print(jwt.encode({"iss": TEAM_ID, "iat": int(time.time()), "exp": int(time.time(
 PY
 ```
 
-## Donations, no ads
+## Donations
 
-- No ads in any build, the Google Play one included (dropped in 1.14.3, 05/11/2026): no advertising SDK,
-  no consent form, no advertising ID. `app/src/main/.../ads/Ads.kt` is an empty stub the screens still call.
 - In the GitHub build only, the first successful sync that adds at least 100 tracks arms a one-time
   card on the Syncs screen ("You just moved 1,322 tracks") with a coffee button (`sync/SupportPrompt.kt`).
   Either answer closes it for good.
@@ -668,7 +665,7 @@ variables and the `ghcr.io/xlollx/songport` image, which is still published next
 2. Variables: `PRIVACY_POLICY_URL`, `KOFI_URL`. Service client IDs are
    optional (see [API configuration](#api-configuration)).
 3. Bump `versionCode` and `versionName` in `app/build.gradle` for every release.
-4. Play Console: declare ads, fill in *Data safety* and the foreground service declaration
+4. Play Console: fill in *Data safety* and the foreground service declaration
    (`dataSync` type, user-initiated); the policy is in `docs/privacy-policy.md`.
    Texts, answers, Data safety rows and the step-by-step checklist (including the closed test that
    personal developer accounts must run first) are in `docs/play-store-listing.md`.

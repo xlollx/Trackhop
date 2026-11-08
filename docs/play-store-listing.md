@@ -3,8 +3,7 @@
 The app is **Trackhop** on Google Play as everywhere else. Same code,
 same name, same package id `com.xlollx.songport`, same signing key as every other build: the `play`
 flavor only drops the built-in web connectors and describes plugin-based services generically.
-No ads in any build since 1.14.3 (05/11/2026: ads would have made the developer a trader under
-Google Play's rules). Upload **only the `play` AAB** (the
+Upload **only the `play` AAB** (the
 `Trackhop-release-aab` artifact of a CI run on `main`, or `Trackhop-vX-play.aab` in a GitHub Release (`Songport-vX-play.aab` up to 1.5.2)).
 
 Rule for everything below: the listing describes official-API services and files only. No companion
@@ -99,7 +98,7 @@ Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free a
 | Declaration | Answer |
 |---|---|
 | Privacy policy | URL of the published `docs/privacy-policy.md` (it names Trackhop and its former name, Songport). Same URL as the `PRIVACY_POLICY_URL` repository variable, which the app shows in Settings. |
-| Ads | **No**, the app contains no ads (removed in 1.14.3). |
+| Ads | **No**, the app contains no ads. |
 | App access | **All or some functionality is restricted**. Instructions for the reviewer: "Every feature can be exercised with playlist files (Files › Import, or share a text with one track per line) without any account. Music services require the reviewer's own account and, for Spotify, YouTube Music, TIDAL and Deezer, a free developer key created through the in-app wizard (about two minutes). No credentials can be supplied by the developer: the app has no accounts of its own." |
 | Content rating (IARC) | Category **Utility, Productivity, Communication or Other**. Violence, sexuality, language, controlled substances: none. Users cannot interact with or share content with other users: **No**. Shares location: **No**. Digital purchases: **No**. Contains ads: **No**. Expected result: PEGI 3 / Everyone. |
 | Target audience | **18 and over** only (optionally 16–17 too). Not designed for children; the app then needs no Families policy. "Could the store listing unintentionally appeal to children?" **No**. |
@@ -109,7 +108,7 @@ Application · **Music & Audio** · tags: Music, Playlists, Productivity. Free a
 | Government app | No. |
 | Financial features | None. |
 | Health | None. |
-| Advertising ID | **No**: no advertising SDK, and the manifest has no `com.google.android.gms.permission.AD_ID` (checked on the merged manifest of 1.14.3). |
+| Advertising ID | **No**: no advertising SDK, and the manifest has no `com.google.android.gms.permission.AD_ID`. |
 | Foreground service permissions | Type **`dataSync`** (`FOREGROUND_SERVICE_DATA_SYNC`). Task: "user-initiated and scheduled playlist synchronisation between music services; a sync of a large playlist can exceed the background work limits and would otherwise be killed half-way, leaving the target playlist inconsistent". Play asks for a short video showing the feature: record a sync from Syncs › Run (the notification appears) with any screen recorder and upload it unlisted on YouTube or Drive. |
 | Photo and video permissions | Not applicable: files are chosen through the system picker (Storage Access Framework), no `READ_MEDIA_*` permission. |
 
@@ -132,9 +131,6 @@ Google technical usage data; check Google's ML Kit data disclosure when filling 
 | Data type | Collected | Shared | Purpose | Optional? | Processed ephemerally |
 |---|---|---|---|---|---|
 | App info and performance › Diagnostics (ML Kit) | yes | no | analytics | no | no |
-
-The rows for the ads SDK (approximate location, advertising ID, ad interactions) go away with 1.14.3:
-remove them from the form when that version is uploaded.
 
 Not collected: personal info, financial info, health, messages, photos, audio, files, contacts,
 calendar, browsing history, search history, installed apps. Playlist contents, tokens and the AI key
@@ -172,9 +168,7 @@ has run.
 8. **Production release**: upload the AAB (a newer one if the version moved on), release notes
    (`fastlane/metadata/android/*/changelogs/<versionCode>.txt` is a good start), countries (all),
    roll out. First review takes from a few hours to a week.
-9. **No AdMob**: ads were dropped in 1.14.3 (05/11/2026). If the AdMob app was created, it can stay unused or be removed; nothing in the build points to it.
-
-10. **Later**: keep `docs/privacy-policy.md` online at the same URL; every release goes through CI the
+9. **Later**: keep `docs/privacy-policy.md` online at the same URL; every release goes through CI the
     same way, and the AAB keeps the same upload key.
 
 Repository settings already in place: `UPLOAD_KEYSTORE_BASE64`, `UPLOAD_KEYSTORE_PASSWORD`,
