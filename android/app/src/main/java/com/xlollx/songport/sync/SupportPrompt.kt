@@ -7,8 +7,8 @@ import com.xlollx.songport.model.SyncReport
 
 /**
  * La richiesta di contributo, una volta sola nella vita dell'app: subito dopo la prima sync riuscita
- * che ha spostato tanti brani, quando l'utente ha appena visto il valore dell'app. Solo nella build
- * senza pubblicita': quella Play si sostiene col banner e non chiede altro.
+ * che ha spostato tanti brani, quando l'utente ha appena visto il valore dell'app. Solo nelle build
+ * GitHub e F-Droid: quella Play non rimanda a pagamenti fuori da Google Play.
  */
 object SupportPrompt {
     /** Brani aggiunti da una sola sync perche' valga la pena chiedere. */

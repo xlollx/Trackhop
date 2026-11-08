@@ -60,8 +60,7 @@ import java.util.Locale
  *
  * Run from the Play build (flavor "play") it takes the Play listing's pictures: only the services
  * that build reaches on its own (TIDAL where the full build shows Amazon Music, the official YouTube
- * connector, no web or plugin connector), no service picker (it lists what Play cannot reach) and no
- * banner ad.
+ * connector, no web or plugin connector), and no service picker (it lists what Play cannot reach).
  */
 @RunWith(AndroidJUnit4::class)
 class StoreScreenshots {
@@ -85,7 +84,7 @@ class StoreScreenshots {
     private val jellyfin = ShotProvider("jellyfin", "Jellyfin", 0xFF00A4DC, ShotProvider.IdStyle.UUID)
     private val tidal = ShotProvider("tidal", "TIDAL", 0xFF111111, ShotProvider.IdStyle.NUMERIC)
 
-    /** The Play build: no web connector, no plugin, a banner ad. */
+    /** The Play build: no web connector, no plugin. */
     private val play = BuildConfig.STORE_BUILD
     /** YouTube Music of the demo: the web connector in the full build, the official one in the Play build. */
     private val yt = if (play) "youtube" else "ytm"
@@ -95,7 +94,6 @@ class StoreScreenshots {
 
     @Test
     fun takeAll() {
-        if (play) hideAds()
         installDemo()
         // -e review true: only the pictures for checking the Settings and Tools layout (English,
         // dark and light, a large font, Tools with no service), kept apart from the store's.
@@ -463,18 +461,6 @@ class StoreScreenshots {
         tab(MainActivity.TAB_TOOLS) { snap("tools_noservice_dark") }
         store.updateSettings { it.copy(connectors = connectors) }; store.flush()
         resumed()?.let { a -> instr.runOnMainSync { a.finish() } }
-    }
-
-    /**
-     * The Play build's banner kept out of the pictures: its SDK is marked as started before any
-     * screen opens, so it never starts and no ad is asked for (the app's own Ads.start is left as is).
-     */
-    private fun hideAds() {
-        runCatching {
-            val ads = Class.forName("com.xlollx.songport.ads.Ads")
-            val started = ads.getDeclaredField("initialized").apply { isAccessible = true }
-            (started.get(null) as java.util.concurrent.atomic.AtomicBoolean).set(true)
-        }.onFailure { android.util.Log.w("StoreScreenshots", "ads not held back: $it") }
     }
 
     /** One fallible part of a picture: a miss is logged and the picture is taken anyway. */

@@ -144,14 +144,12 @@
     <string name="settings_language_system">系统语言</string>
     <string name="settings_advanced">服务密钥</string>
     <string name="settings_advanced_desc">Trackhop 不自带密钥：Spotify、YouTube、TIDAL、Deezer、Last.fm 和 Apple Music 的官方途径使用以你的名义免费创建的密钥，因此它们的限制和配额只属于你。你可以在这里查看和更改这些密钥。</string>
-    <string name="settings_privacy_options">广告隐私选项</string>
     <string name="settings_privacy_policy">隐私政策</string>
     <string name="settings_about">关于</string>
     <string name="settings_developer">开发者选项</string>
     <string name="settings_developer_switch">显示开发者工具</string>
     <string name="settings_developer_desc">连接日志、可分享的技术报告、网页连接器的流量捕获。关闭时不会碍事。</string>
     <string name="settings_version">版本 %1$s</string>
-    <string name="settings_ads_note">Trackhop 免费，无订阅。它依靠一个小横幅广告维持；不出售任何数据，除了广告和向你连接的音乐服务发送的请求外，没有任何数据离开你的手机。</string>
     <string name="settings_csv">文件</string>
     <string name="csv_import">导入文件</string>
     <string name="csv_export">导出</string>
@@ -756,9 +754,7 @@
     <string name="web_auth_hint">在 %1$s 的页面上登录。Trackhop 只会收到最后返回的确认。</string>
     <string name="show_details">详情</string>
     <string name="hide_details">隐藏详情</string>
-    <!-- Pubblicità e donazioni -->
-    <string name="ads_why_title">为什么有广告？</string>
-    <string name="ads_why_body">Trackhop 免费，无订阅，没有锁定的功能。一个小小的横幅广告（绝不全屏）用来支付开发者的咖啡钱，以及维持各服务正常运行所花费的时间。如果它打扰到你，请在 GitHub 上提交 issue。</string>
+    <!-- Donations -->
     <string name="settings_free_note">Trackhop 免费，无广告，无订阅。除了发往你所连接音乐服务的请求外，没有任何数据离开手机。</string>
     <string name="free_why_title">免费，无广告</string>
     <string name="free_why_body">Trackhop 没有广告，没有订阅，没有锁定的功能。它依靠自愿捐助维持：如果它为你节省了时间，可以请开发者喝杯咖啡。</string>

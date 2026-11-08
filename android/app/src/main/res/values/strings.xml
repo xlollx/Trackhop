@@ -144,14 +144,12 @@
     <string name="settings_language_system">System language</string>
     <string name="settings_advanced">Service keys</string>
     <string name="settings_advanced_desc">Trackhop ships without keys of its own: the official routes of Spotify, YouTube, TIDAL, Deezer, Last.fm and Apple Music use a free key created in your name, so their limits and quotas are yours alone. Here you can see and change them.</string>
-    <string name="settings_privacy_options">Ad privacy options</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About</string>
     <string name="settings_developer">Developer options</string>
     <string name="settings_developer_switch">Show developer tools</string>
     <string name="settings_developer_desc">Connections log, technical report to share, traffic capture for the web connectors. Off, they stay out of the way.</string>
     <string name="settings_version">Version %1$s</string>
-    <string name="settings_ads_note">Trackhop is free with no subscriptions. It is supported by a single small banner ad; no data is sold, and apart from the ad, nothing leaves your phone except the requests to the music services you connect.</string>
     <string name="settings_csv">Files</string>
     <string name="csv_import">Import file</string>
     <string name="csv_export">Export</string>
@@ -767,9 +765,7 @@
     <string name="web_auth_hint">Sign in on %1$s\'s own page. Trackhop only receives the confirmation that comes back at the end.</string>
     <string name="show_details">Details</string>
     <string name="hide_details">Hide details</string>
-    <!-- Ads and donations -->
-    <string name="ads_why_title">Why the ads?</string>
-    <string name="ads_why_body">Trackhop is free, with no subscriptions and no locked features. One small banner, never full-screen, pays for the developer\'s coffee and the hours spent keeping every service working. If it ever bothers you, open an issue on GitHub.</string>
+    <!-- Donations -->
     <string name="settings_free_note">Trackhop is free, with no ads and no subscriptions. Nothing leaves the phone except the requests to the music services you connect.</string>
     <string name="free_why_title">Free, no ads</string>
     <string name="free_why_body">Trackhop has no ads, no subscriptions and no locked features. It lives on voluntary contributions: if it saves you time, you can buy the developer a coffee.</string>

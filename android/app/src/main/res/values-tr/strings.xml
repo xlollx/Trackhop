@@ -144,14 +144,12 @@
     <string name="settings_language_system">Sistem dili</string>
     <string name="settings_advanced">Servis anahtarları</string>
     <string name="settings_advanced_desc">Trackhop kendi anahtarlarıyla gelmez: Spotify, YouTube, TIDAL, Deezer, Last.fm ve Apple Music\'in resmi yolları sizin adınıza oluşturulan ücretsiz bir anahtar kullanır; böylece limitler ve kotalar yalnızca size aittir. Burada bunları görebilir ve değiştirebilirsiniz.</string>
-    <string name="settings_privacy_options">Reklam gizliliği seçenekleri</string>
     <string name="settings_privacy_policy">Gizlilik politikası</string>
     <string name="settings_about">Hakkında</string>
     <string name="settings_developer">Geliştirici seçenekleri</string>
     <string name="settings_developer_switch">Geliştirici araçlarını göster</string>
     <string name="settings_developer_desc">Bağlantı günlüğü, paylaşılacak teknik rapor, web bağlayıcıları için trafik yakalama. Kapalıyken göz önünde durmazlar.</string>
     <string name="settings_version">Sürüm %1$s</string>
-    <string name="settings_ads_note">Trackhop ücretsizdir, abonelik yoktur. Tek bir küçük banner reklamla desteklenir; hiçbir veri satılmaz ve reklam dışında, bağladığınız müzik servislerine giden istekler hariç telefonunuzdan hiçbir şey çıkmaz.</string>
     <string name="settings_csv">Dosyalar</string>
     <string name="csv_import">Dosya içe aktar</string>
     <string name="csv_export">Dışa aktar</string>
@@ -766,8 +764,6 @@
     <string name="web_auth_hint">%1$s servisinin kendi sayfasında oturum açın. Trackhop yalnızca sonunda geri dönen onayı alır.</string>
     <string name="show_details">Ayrıntılar</string>
     <string name="hide_details">Ayrıntıları gizle</string>
-    <string name="ads_why_title">Reklamlar neden var?</string>
-    <string name="ads_why_body">Trackhop ücretsizdir; abonelik yok, kilitli özellik yok. Asla tam ekran olmayan tek bir küçük banner, geliştiricinin kahvesini ve her servisi çalışır tutmak için harcanan saatleri karşılar. Rahatsız ederse GitHub\'da bir konu açın.</string>
     <string name="settings_free_note">Trackhop ücretsizdir; reklam yok, abonelik yok. Bağladığınız müzik servislerine giden istekler dışında telefondan hiçbir şey çıkmaz.</string>
     <string name="free_why_title">Ücretsiz, reklamsız</string>
     <string name="free_why_body">Trackhop\'ta reklam, abonelik veya kilitli özellik yoktur. Gönüllü katkılarla yaşar: size zaman kazandırıyorsa geliştiriciye bir kahve ısmarlayabilirsiniz.</string>

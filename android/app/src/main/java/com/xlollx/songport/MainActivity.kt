@@ -66,10 +66,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.xlollx.songport.ads.AdBanner
 import com.xlollx.songport.auth.AuthEvents
 import com.xlollx.songport.auth.LockActivity
-import com.xlollx.songport.ads.Ads
 import com.xlollx.songport.data.Store
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
@@ -150,7 +148,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        Ads.start(this)
         // Asked for on the first sync run or schedule, not here (see NotificationAsk).
         NotificationAsk.request = { askNotificationPermission() }
         handleIntent(intent)
@@ -703,7 +700,6 @@ private fun MainScreen(
                     .hazeEffect(state = haze, style = HazeMaterials.thin(MaterialTheme.colorScheme.surface)),
             ) {
                 HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                AdBanner()
                 // At a large font size the five labels no longer fit side by side: only the
                 // selected tab keeps its label, the others are their icon (still read out by name).
                 val bigText = LocalDensity.current.fontScale > 1.3f

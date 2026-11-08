@@ -144,14 +144,12 @@
     <string name="settings_language_system">システムの言語</string>
     <string name="settings_advanced">サービスのキー</string>
     <string name="settings_advanced_desc">Trackhop 自体はキーを持っていません。Spotify、YouTube、TIDAL、Deezer、Last.fm、Apple Music の公式ルートは、あなたの名前で作成した無料のキーを使うため、制限や割り当てはあなた専用です。ここで確認・変更できます。</string>
-    <string name="settings_privacy_options">広告のプライバシー設定</string>
     <string name="settings_privacy_policy">プライバシーポリシー</string>
     <string name="settings_about">アプリについて</string>
     <string name="settings_developer">開発者向けオプション</string>
     <string name="settings_developer_switch">開発者向けツールを表示</string>
     <string name="settings_developer_desc">接続ログ、共有用の技術レポート、ウェブ接続のトラフィック記録。オフなら邪魔になりません。</string>
     <string name="settings_version">バージョン %1$s</string>
-    <string name="settings_ads_note">Trackhop は無料で、サブスクリプションもありません。小さなバナー広告1つで運営されています。データを販売することはなく、広告を除けば、接続した音楽サービスへのリクエスト以外、何も端末の外に送信されません。</string>
     <string name="settings_csv">ファイル</string>
     <string name="csv_import">ファイルをインポート</string>
     <string name="csv_export">エクスポート</string>
@@ -756,9 +754,7 @@
     <string name="web_auth_hint">%1$s のページでログインしてください。Trackhop が受け取るのは、最後に返ってくる確認だけです。</string>
     <string name="show_details">詳細</string>
     <string name="hide_details">詳細を隠す</string>
-    <!-- Pubblicità e donazioni -->
-    <string name="ads_why_title">広告を表示する理由</string>
-    <string name="ads_why_body">Trackhop は無料で、サブスクリプションも機能制限もありません。全画面広告は一切なく、小さなバナー1つが、開発者のコーヒー代と、すべてのサービスを動かし続けるための作業時間をまかなっています。気になる場合は、GitHub で issue を立ててください。</string>
+    <!-- Donations -->
     <string name="settings_free_note">Trackhop は無料で、広告もサブスクリプションもありません。接続した音楽サービスへのリクエスト以外、何も端末の外に送信されません。</string>
     <string name="free_why_title">無料・広告なし</string>
     <string name="free_why_body">Trackhop には広告も、サブスクリプションも、機能制限もありません。任意の支援で運営されています。時間の節約になったなら、開発者にコーヒーをおごっていただけると嬉しいです。</string>

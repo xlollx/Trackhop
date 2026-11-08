@@ -145,11 +145,9 @@ class FlavorFlowTest : FlowTest() {
     }
 
     @Test
-    fun aboutTheAdsOrTheirAbsence() {
+    fun aboutSaysTheAppIsFree() {
         installConnectors()
         launch(tabIntent(MainActivity.TAB_SETTINGS))
-        // No ads in either build since 05/11/2026.
         waitText(s(R.string.settings_free_note))
-        assertEquals(false, com.xlollx.songport.ads.Ads.enabled)
     }
 }

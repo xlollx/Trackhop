@@ -144,14 +144,12 @@
     <string name="settings_language_system">시스템 언어</string>
     <string name="settings_advanced">서비스 키</string>
     <string name="settings_advanced_desc">Trackhop에는 자체 키가 없어요. Spotify, YouTube, TIDAL, Deezer, Last.fm, Apple Music의 공식 경로는 내 이름으로 만든 무료 키를 쓰므로 한도와 할당량도 온전히 내 것입니다. 여기서 키를 확인하고 바꿀 수 있어요.</string>
-    <string name="settings_privacy_options">광고 개인정보 옵션</string>
     <string name="settings_privacy_policy">개인정보 처리방침</string>
     <string name="settings_about">정보</string>
     <string name="settings_developer">개발자 옵션</string>
     <string name="settings_developer_switch">개발자 도구 표시</string>
     <string name="settings_developer_desc">연결 로그, 공유용 기술 보고서, 웹 커넥터 트래픽 캡처. 끄면 보이지 않아요.</string>
     <string name="settings_version">버전 %1$s</string>
-    <string name="settings_ads_note">Trackhop은 구독 없이 무료예요. 작은 배너 광고 하나로 운영되며, 데이터를 팔지 않고 광고를 빼면 연결한 음악 서비스로 보내는 요청 외에는 아무것도 휴대폰 밖으로 나가지 않아요.</string>
     <string name="settings_csv">파일</string>
     <string name="csv_import">파일 가져오기</string>
     <string name="csv_export">내보내기</string>
@@ -755,9 +753,7 @@
     <string name="web_auth_hint">%1$s의 자체 페이지에서 로그인하세요. Trackhop은 마지막에 돌아오는 확인만 받아요.</string>
     <string name="show_details">자세히</string>
     <string name="hide_details">자세히 숨기기</string>
-    <!-- Pubblicità e donazioni -->
-    <string name="ads_why_title">광고는 왜 있나요?</string>
-    <string name="ads_why_body">Trackhop은 구독도 잠긴 기능도 없이 무료예요. 전체 화면이 아닌 작은 배너 하나가 개발자의 커피값과 모든 서비스가 계속 작동하게 하는 데 드는 시간을 보태요. 거슬린다면 GitHub에 이슈를 남겨 주세요.</string>
+    <!-- Donations -->
     <string name="settings_free_note">Trackhop은 광고도 구독도 없이 무료예요. 연결한 음악 서비스로 보내는 요청 외에는 아무것도 휴대폰 밖으로 나가지 않아요.</string>
     <string name="free_why_title">무료, 광고 없음</string>
     <string name="free_why_body">Trackhop에는 광고도 구독도 잠긴 기능도 없어요. 자발적인 후원으로 운영되니, 시간을 아껴 줬다면 개발자에게 커피 한 잔 사 주세요.</string>

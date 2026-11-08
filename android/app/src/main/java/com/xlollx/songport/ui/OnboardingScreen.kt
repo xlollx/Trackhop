@@ -71,14 +71,13 @@ import android.content.Intent
 import android.net.Uri
 import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.R
-import com.xlollx.songport.ads.Ads
 import kotlinx.coroutines.launch
 
 private const val PAGES = 5
 
 /**
  * First start, in five pages: what Trackhop does (the services it joins), the three moves, the
- * Discover tab, how logins are kept and why the app is free (or has ads), and where the
+ * Discover tab, how logins are kept and why the app is free, and where the
  * documentation and the code are. Skip goes straight to the app; the last page's button starts it.
  */
 @Composable
@@ -217,7 +216,7 @@ private fun DiscoverIntroPage() {
     }
 }
 
-/** Page 3: logins stay on the phone; why the app is free (or has ads). */
+/** Page 3: logins stay on the phone; why the app is free. */
 @Composable
 private fun TrustPage() {
     val ctx = LocalContext.current
@@ -228,7 +227,6 @@ private fun TrustPage() {
             Text(stringResource(R.string.onboarding_security), style = MaterialTheme.typography.bodyLarge)
             Text(stringResource(R.string.onboarding_credentials), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
-            // Con gli annunci si spiega perche' ci sono; senza, che l'app vive di contributi volontari.
             Text(stringResource(R.string.free_why_title), style = MaterialTheme.typography.titleMedium)
             // The Play build never points to payments outside Google Play: no coffee there.
             Text(stringResource(if (com.xlollx.songport.BuildConfig.STORE_BUILD) R.string.settings_free_note else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

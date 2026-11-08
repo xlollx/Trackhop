@@ -144,14 +144,12 @@
     <string name="settings_language_system">Systemsprache</string>
     <string name="settings_advanced">Dienst-Schlüssel</string>
     <string name="settings_advanced_desc">Trackhop wird ohne eigene Schlüssel ausgeliefert: Die offiziellen Wege von Spotify, YouTube, TIDAL, Deezer, Last.fm und Apple Music nutzen einen kostenlosen, auf deinen Namen erstellten Schlüssel, sodass deren Limits und Kontingente dir allein gehören. Hier kannst du sie einsehen und ändern.</string>
-    <string name="settings_privacy_options">Datenschutzoptionen für Werbung</string>
     <string name="settings_privacy_policy">Datenschutzerklärung</string>
     <string name="settings_about">Info</string>
     <string name="settings_developer">Entwickleroptionen</string>
     <string name="settings_developer_switch">Entwicklerwerkzeuge anzeigen</string>
     <string name="settings_developer_desc">Verbindungsprotokoll, technischer Bericht zum Teilen, Aufzeichnung des Datenverkehrs der Web-Konnektoren. Ausgeschaltet stören sie nicht.</string>
     <string name="settings_version">Version %1$s</string>
-    <string name="settings_ads_note">Trackhop ist kostenlos und ohne Abos. Finanziert wird es durch ein einzelnes kleines Werbebanner; es werden keine Daten verkauft, und abgesehen von der Werbung verlässt nichts dein Handy außer den Anfragen an die Musikdienste, die du verbindest.</string>
     <string name="settings_csv">Dateien</string>
     <string name="csv_import">Datei importieren</string>
     <string name="csv_export">Exportieren</string>
@@ -767,9 +765,7 @@
     <string name="web_auth_hint">Melde dich auf der Seite von %1$s an. Trackhop erhält nur die Bestätigung, die am Ende zurückkommt.</string>
     <string name="show_details">Details</string>
     <string name="hide_details">Details ausblenden</string>
-    <!-- Werbung und Spenden -->
-    <string name="ads_why_title">Warum Werbung?</string>
-    <string name="ads_why_body">Trackhop ist kostenlos, ohne Abos und ohne gesperrte Funktionen. Ein kleines Banner, nie im Vollbild, zahlt dem Entwickler den Kaffee und die Stunden, die es kostet, jeden Dienst am Laufen zu halten. Falls es dich je stört, eröffne ein Issue auf GitHub.</string>
+    <!-- Donations -->
     <string name="settings_free_note">Trackhop ist kostenlos, ohne Werbung und ohne Abo. Nichts verlässt das Telefon außer den Anfragen an die Musikdienste, die du verbindest.</string>
     <string name="free_why_title">Kostenlos, ohne Werbung</string>
     <string name="free_why_body">Trackhop hat keine Werbung, kein Abo und keine gesperrten Funktionen. Es lebt von freiwilligen Beiträgen: Wenn es dir Zeit spart, kannst du dem Entwickler einen Kaffee spendieren.</string>

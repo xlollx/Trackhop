@@ -95,7 +95,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.R
-import com.xlollx.songport.ads.Ads
 import com.xlollx.songport.auth.LockActivity
 import com.xlollx.songport.data.Store
 import com.xlollx.songport.data.StoreData
@@ -152,7 +151,6 @@ fun SettingsScreen(
     onAutomationFocused: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
-    val privacyRequired by Ads.privacyOptionsRequired.collectAsState()
     val scope = rememberCoroutineScope()
     val settings = data.settings
 
@@ -314,12 +312,6 @@ fun SettingsScreen(
                 },
                 confirmButton = { TextButton(onClick = { factsOpen = false }) { Text(stringResource(R.string.ok)) } },
             )
-            // Play build only, and only where the consent rules ask for it (UMP decides).
-            if (privacyRequired) {
-                PrefRow(Icons.Filled.PrivacyTip, stringResource(R.string.settings_privacy_options), null, trailing = { ExternalMark() }) {
-                    (ctx as? Activity)?.let { Ads.showPrivacyOptions(it) }
-                }
-            }
         }
 
         // ---------------------------------------------------------------- Plugins
