@@ -186,7 +186,7 @@ common errors.
 
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
-- ✎ [نظرة على تطبيق Trackhop | مزامنة قوائم التشغيل بين خدمات الموسيقى على أندرويد](https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html): Saudi Android (Arabic)
+- ✎ [A look at Trackhop: syncing playlists across music services on Android](https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html): Saudi Android (Arabic; title translated)
 - ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
 - ▶ [Spotify, Apple Music, YouTube Music… what if your playlists could live across ALL of them?](https://x.com/leviackermanft/status/2118310574035759436): Levi (@leviackermanft), X (English)
 - ▶ [5 Android Apps You Didn't Know Your Phone Could Use](https://www.youtube.com/watch?v=q57RUuX3ZXI&t=199s): NextTech Hub, YouTube (English)
