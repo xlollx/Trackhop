@@ -8,7 +8,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
   <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json&cacheSeconds=1800" alt="Downloads from GitHub and Docker Hub"></a>
-  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fstars.jsonstars.json&cacheSeconds=1800&style=flatcacheSeconds=1800stars.json&cacheSeconds=1800&style=flatlabel=stars" alt="GitHub stars"></a>
+  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fstars.json&cacheSeconds=1800&label=stars" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
