@@ -3,7 +3,7 @@
 depends on img.shields.io, which answers GitHub's image proxy with timeouts now and then.
 
     badge_svg.py DIR    every shields "endpoint" JSON in DIR (schemaVersion 1) gets an SVG next to it,
-                        plus license.svg; raw.githubusercontent.com serves them as image/svg+xml.
+                        plus the fixed ones in STATIC; raw.githubusercontent.com serves them as image/svg+xml.
 """
 import json
 import sys
@@ -12,6 +12,14 @@ from xml.sax.saxutils import escape
 
 # Labels the README used to set in the shields URL.
 LABELS = {"virustotal-app": "app on VirusTotal", "virustotal-desktop": "Desktop on VirusTotal"}
+# Badges whose text never changes (the README links each to its proof).
+STATIC = {
+    "license": ("license", "AGPL-3.0-only", "#007ec6"),
+    "navidrome": ("Navidrome apps", "listed", "#0b7dd8"),
+    "reproducible": ("F-Droid", "reproducible build", "#4c1"),
+    "privacy": ("privacy", "no account · no tracking", "#7a4fd1"),
+    "languages": ("languages", "12", "#e07a1f"),
+}
 COLORS = {"brightgreen": "#4c1", "green": "#97ca00", "yellow": "#dfb317", "orange": "#fe7d37",
           "red": "#e05d44", "blue": "#007ec6", "lightgrey": "#9f9f9f", "grey": "#555"}
 
@@ -20,7 +28,7 @@ _W = {**{c: 7.0 for c in "ABCDEFGHKNOPRSTUVXYZ"}, **{c: 7.6 for c in "MOQ"}, "W"
       "L": 6.1, "a": 6.6, "b": 6.8, "c": 5.7, "d": 6.8, "e": 6.6, "f": 3.8, "g": 6.8, "h": 6.9,
       "i": 3.0, "j": 3.8, "k": 6.4, "l": 3.0, "m": 10.6, "n": 6.9, "o": 6.6, "p": 6.8, "q": 6.8,
       "r": 4.7, "s": 5.7, "t": 4.3, "u": 6.9, "v": 6.4, "w": 8.9, "x": 6.4, "y": 6.4, "z": 5.7,
-      " ": 3.9, ".": 3.9, ",": 3.9, "-": 4.6, "+": 8.7, ":": 4.6, "(": 4.5, ")": 4.5, "/": 4.6,
+      " ": 3.9, "·": 3.9, ".": 3.9, ",": 3.9, "-": 4.6, "+": 8.7, ":": 4.6, "(": 4.5, ")": 4.5, "/": 4.6,
       **{c: 7.0 for c in "0123456789"}}
 
 
@@ -68,8 +76,9 @@ def main(folder):
         label = LABELS.get(f.stem, data.get("label", ""))
         f.with_suffix(".svg").write_text(svg(label, str(data.get("message", "")), color(data.get("color"))))
         made.append(f.stem)
-    (folder / "license.svg").write_text(svg("license", "AGPL-3.0-only", COLORS["blue"]))
-    print("badges:", ", ".join(made + ["license"]))
+    for name, (label, message, fill) in STATIC.items():
+        (folder / f"{name}.svg").write_text(svg(label, message, fill))
+    print("badges:", ", ".join(made + list(STATIC)))
 
 
 if __name__ == "__main__":

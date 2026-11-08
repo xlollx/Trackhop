@@ -13,6 +13,12 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-app.svg" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-desktop.svg" alt="Trackhop Desktop's files on VirusTotal"></a>
+  <br>
+  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
+  <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/reproducible.svg" alt="F-Droid: reproducible build"></a>
+  <a href="https://trackhop.org/privacy-policy"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/privacy.svg" alt="Privacy: no account, no tracking"></a>
+  <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
+  <a href="https://trackhop.org"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/languages.svg" alt="12 languages"></a>
 </p>
 
 <p align="center">

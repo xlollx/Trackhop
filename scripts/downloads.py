@@ -62,7 +62,12 @@ if __name__ == "__main__":
     (out / "stars.json").write_text(json.dumps(
         {"schemaVersion": 1, "label": "stars", "message": str(stars), "color": "e3b341"}) + "\n")
     # The latest release's tag, for the README's release badge (drawn by scripts/badge_svg.py).
-    tag = get(f"https://api.github.com/repos/{REPO}/releases/latest").get("tag_name", "")
+    latest = get(f"https://api.github.com/repos/{REPO}/releases/latest")
+    tag = latest.get("tag_name", "")
+    # When it last shipped, as "Nov 2026": a sign of life for the README's "updated" badge.
+    shipped = datetime.strptime(latest["published_at"][:10], "%Y-%m-%d").strftime("%b %Y") if latest.get("published_at") else ""
+    (out / "updated.json").write_text(json.dumps(
+        {"schemaVersion": 1, "label": "updated", "message": shipped, "color": "brightgreen"}) + "\n")
     (out / "release.json").write_text(json.dumps(
         {"schemaVersion": 1, "label": "release", "message": tag, "color": "blue"}) + "\n")
     print(total, parts, "stars", stars, "release", tag)
