@@ -23,6 +23,8 @@ Without API keys the OAuth services show as "Not configured"; files and personal
 
 ## Pull requests
 
+- A new pull request opens with a short [template](.github/pull_request_template.md): what changes, how it was
+  tested, and a checklist. Fill it in; delete what does not apply.
 - Keep each pull request to one change, with a test in `src/test` when the change has logic.
 - Strings shown to users go in all 12 languages (`android/app/src/main/res/values*/strings.xml`).
   A rough translation is fine: say so in the pull request and it gets checked.
