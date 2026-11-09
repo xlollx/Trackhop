@@ -685,11 +685,9 @@ variables and the `ghcr.io/xlollx/songport` image, which is still published next
 
 ## Contributing
 
-Issues and pull requests are welcome. For a new service: implement `MusicProvider` (or extend
-`OAuthProvider` / `CredentialsProvider`), register it in `Providers.configure`, add strings in both
-languages and, where useful, a test in `src/test`. Run `gradle testDebugUnitTest` before opening a
-pull request. Report vulnerabilities as described in [SECURITY.md](SECURITY.md), not in a public
-issue.
+Issues and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing and
+what a pull request needs. Report vulnerabilities as described in [SECURITY.md](SECURITY.md), not in a
+public issue.
 
 ## Formerly Songport
 
