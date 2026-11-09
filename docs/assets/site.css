@@ -67,11 +67,11 @@ a { color: var(--link); text-underline-offset: 2px; }
 .top nav a:hover { color: var(--ink); }
 .top nav { align-items: center; }
 /* The coffee link: a small warm pill, visible without shouting; on a phone only the cup. */
-.top nav a.coffee { padding: 4px 12px; border-radius: 999px; background: #ffe2a8; color: #4a2c00; font-weight: 600; font-size: 14px; }
-.top nav a.coffee:hover { background: #ffd47f; color: #4a2c00; }
-:root[data-theme="dark"] .top nav a.coffee { background: #4a3410; color: #ffdf9e; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .top nav a.coffee { background: #4a3410; color: #ffdf9e; } }
-@media (max-width: 480px) { .top nav a.coffee .long { display: none; } }
+.top nav .coffee { padding: 4px 12px; border-radius: 999px; background: #ffe2a8; color: #4a2c00; font-weight: 600; font-size: 14px; }
+.top nav .coffee:hover { background: #ffd47f; color: #4a2c00; }
+:root[data-theme="dark"] .top nav .coffee { background: #4a3410; color: #ffdf9e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .top nav .coffee { background: #4a3410; color: #ffdf9e; } }
+@media (max-width: 480px) { .top nav .coffee .long { display: none; } }
 /* The menu button (three bars) and the drawer with every page, from the right. */
 .top .menu { display: inline-flex; flex-direction: column; justify-content: center; gap: 4px; width: 38px; height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .top .menu span { display: block; height: 2px; border-radius: 2px; background: var(--ink); }
@@ -86,7 +86,7 @@ a { color: var(--link); text-underline-offset: 2px; }
 .drawer-nav a:hover { color: var(--link); }
 body.drawer-open { overflow: hidden; }
 /* On a phone the bar keeps one row: the text links live in the drawer, the cup and the menu stay. */
-@media (max-width: 560px) { .top nav { flex-wrap: nowrap; } .top nav > a:not(.coffee) { display: none; } }
+@media (max-width: 560px) { .top nav { flex-wrap: nowrap; } .top nav > a { display: none; } }
 /* The rename notice, once at the top of the hero, now a quiet note at the end of Get started. */
 /* Supporters on the home page: names only, a few at a time rolling upwards (all of them, still,
    with reduced motion). */
@@ -302,3 +302,16 @@ ul.press .press-kind.article { background: #5b3fd9; }
 /* What people say: the comments collage, a phone-sized picture. */
 .say-shot { display: block; max-width: 340px; }
 .say-shot img { display: block; width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line, #ccc); }
+
+/* "Support": a small menu with the two ways (Ko-fi, GitHub Sponsors), no script. */
+.support-menu { position: relative; }
+.support-menu > summary { list-style: none; cursor: pointer; }
+.support-menu > summary::-webkit-details-marker { display: none; }
+.support-menu .pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 300px; max-width: calc(100vw - 32px); background: var(--bg); color: var(--ink); border: 1px solid rgba(127,127,127,.35); border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.22); padding: 12px; line-height: 1.4; font-size: 14px; font-weight: 400; text-align: left; }
+.support-menu .pop p { margin: 0 0 4px; font-size: 13px; color: var(--ink-2); }
+.top nav .support-menu .pop a { display: flex; gap: 12px; align-items: center; padding: 10px 12px; margin-top: 8px; border-radius: 12px; text-decoration: none; color: var(--ink); background: var(--surface-2); }
+.top nav .support-menu .pop a:hover { filter: brightness(.95); }
+.support-menu .pop b { display: block; font-size: 15px; }
+.support-menu .pop small { display: block; font-size: 12px; color: var(--ink-2); }
+.support-menu .pop .i { font-size: 22px; }
+.top:has(.support-menu[open]) { overflow: visible; }
