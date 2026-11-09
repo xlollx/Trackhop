@@ -1804,4 +1804,6 @@
     <string name="notif_update_channel_desc">Trackhop\'un yeni sürümü çıktığında</string>
     <string name="notif_update_title">Trackhop %1$s çıktı</string>
     <string name="notif_update_text">İndirmek için dokunun</string>
+    <string name="crowd_title">%1$s eşitlemelerinin hepsi %2$s civarında başlıyor</string>
+    <string name="crowd_body">Birçok eşitleme aynı anda aynı servise ulaştığında servis bunu olağan dışı trafik sayıp bir süre bazılarını reddedebilir; bu yüzden birkaç eşitleme başarısız olur. Onları gün içine yay, birkaç dakika ya da bir saat arayla bile olsa: her eşitlemenin saati ⋮ › Düzenle içinde.</string>
 </resources>

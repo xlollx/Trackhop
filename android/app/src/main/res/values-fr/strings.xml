@@ -1814,4 +1814,6 @@
     <string name="notif_update_channel_desc">Quand une nouvelle version de Trackhop sort</string>
     <string name="notif_update_title">Trackhop %1$s est disponible</string>
     <string name="notif_update_text">Touchez pour la télécharger</string>
+    <string name="crowd_title">Les syncs avec %1$s démarrent toutes vers %2$s</string>
+    <string name="crowd_body">Quand beaucoup de syncs touchent le même service au même moment, il peut y voir un trafic inhabituel et en refuser certaines un moment : quelques syncs échouent. Répartissez-les dans la journée, même à quelques minutes ou une heure d\'écart : l\'heure de chaque sync est dans ⋮ › Modifier.</string>
 </resources>

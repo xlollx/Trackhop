@@ -347,6 +347,9 @@ fun SyncsScreen(
             JobFocus.request.value = null
             flashing = id
         }
+        val crowdPrefs = remember { ctx.getSharedPreferences("hints", android.content.Context.MODE_PRIVATE) }
+        var crowdSeen by remember { mutableStateOf(crowdPrefs.getString("seen", null)) }
+        val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs)?.takeIf { crowdKey(it) != crowdSeen } }
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
@@ -412,6 +415,8 @@ fun SyncsScreen(
             // Una volta sola, dopo la prima sync grande: il momento in cui si vede quanto tempo ha fatto risparmiare.
             if (support != null) item(key = "support") { SupportCard(support) }
             else if (nudge) item(key = "nudge") { CoffeeCard() }
+            // Many syncs reaching one service at once (issue #56): said once, until the group changes.
+            crowd?.let { c -> item(key = "crowd") { CrowdCard(c) { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) } } }
             if (shown.isEmpty()) item(key = "nomatch") { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
@@ -1813,6 +1818,27 @@ private fun CoffeeCard() {
 }
 
 /** La richiesta di contributo: cosa ha appena fatto l'app, perche' e' gratis, un tocco per offrire un caffe'. */
+private fun crowdKey(c: com.xlollx.songport.sync.Timing.Crowd) = c.service + "@" + c.at + ":" + c.jobIds.sorted().joinToString(",")
+
+/** Several syncs reach one service at the same time: why that can fail, and that spreading them helps. */
+@Composable
+private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit) {
+    val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Schedule, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.crowd_title, name, crowd.at), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+            Text(stringResource(R.string.crowd_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) {
+                Text(stringResource(R.string.whats_new_got_it), color = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+        }
+    }
+}
+
 @Composable
 private fun SupportCard(report: com.xlollx.songport.model.SyncReport) {
     val ctx = LocalContext.current

@@ -1776,4 +1776,6 @@
     <string name="notif_update_channel_desc">Trackhop 有新版本时</string>
     <string name="notif_update_title">Trackhop %1$s 已发布</string>
     <string name="notif_update_text">点按即可下载</string>
+    <string name="crowd_title">与 %1$s 相关的同步都在 %2$s 左右开始</string>
+    <string name="crowd_body">当许多同步同时访问同一个服务时，该服务可能会把它当作异常流量，并在一段时间内拒绝其中一部分，导致部分同步失败。请把它们分散在一天中，即使只间隔几分钟或一小时也有帮助：每个同步的时间可在 ⋮ › 编辑 中修改。</string>
 </resources>

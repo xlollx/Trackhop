@@ -1866,4 +1866,6 @@
     <string name="notif_update_channel_desc">Когда выходит новая версия Trackhop</string>
     <string name="notif_update_title">Вышел Trackhop %1$s</string>
     <string name="notif_update_text">Нажмите, чтобы скачать</string>
+    <string name="crowd_title">Синхронизации с %1$s стартуют почти одновременно, около %2$s</string>
+    <string name="crowd_body">Когда много синхронизаций обращаются к одному сервису в один момент, он может принять это за необычный трафик и на время отклонить часть запросов, и некоторые синхронизации не пройдут. Распределите их по дню, хотя бы на несколько минут или час: время каждой синхронизации — в ⋮ › Изменить.</string>
 </resources>

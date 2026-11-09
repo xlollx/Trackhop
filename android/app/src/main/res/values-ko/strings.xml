@@ -1775,4 +1775,6 @@
     <string name="notif_update_channel_desc">Trackhop 새 버전이 나오면</string>
     <string name="notif_update_title">Trackhop %1$s 출시</string>
     <string name="notif_update_text">탭하여 다운로드</string>
+    <string name="crowd_title">%1$s 동기화가 모두 %2$s쯤 시작돼요</string>
+    <string name="crowd_body">여러 동기화가 같은 서비스에 동시에 접속하면 서비스가 이를 비정상적인 트래픽으로 보고 한동안 일부를 거부할 수 있어서, 몇몇 동기화가 실패해요. 몇 분이나 한 시간 간격이라도 하루에 걸쳐 나눠 주세요. 각 동기화의 시간은 ⋮ › 편집에서 바꿀 수 있어요.</string>
 </resources>

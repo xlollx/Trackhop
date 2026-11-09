@@ -100,4 +100,34 @@ object Timing {
         val name = stepName(interval(job))
         return if (timed(job) && job.at != null) "$name at ${job.at}" else name
     }
+
+    /** Several syncs that reach one service at about the same time: what the Syncs screen warns about. */
+    data class Crowd(val service: String, val at: String, val jobIds: List<String>)
+
+    /**
+     * The largest group of at least [min] scheduled syncs that read or write the same online service
+     * and start within [windowMin] minutes of each other on a day they share, or null. Seen in issue
+     * #56: eleven syncs from one service at 09:00, and the service refused part of them. Files are
+     * left out (nothing goes over the network); syncs without a time of day (every few hours) too.
+     */
+    fun crowded(jobs: List<SyncJob>, windowMin: Int = 30, min: Int = 4): Crowd? {
+        class Slot(val job: SyncJob, val minute: Int, val days: Set<Int>)
+        val slots = jobs.filter { scheduled(it) && timed(it) }.mapNotNull { j ->
+            val t = parseAt(j.at) ?: return@mapNotNull null
+            Slot(j, t.hour * 60 + t.minute, j.days.toSet().ifEmpty { (1..7).toSet() })
+        }
+        var best: Crowd? = null
+        for (service in slots.flatMap { listOf(it.job.source.provider, it.job.target.provider) }.toSet() - LOCAL) {
+            val mine = slots.filter { it.job.source.provider == service || it.job.target.provider == service }.sortedBy { it.minute }
+            for (first in mine) {
+                val group = mine.filter { it.minute in first.minute..first.minute + windowMin && it.days.any { d -> d in first.days } }
+                if (group.size >= min && group.size > (best?.jobIds?.size ?: 0))
+                    best = Crowd(service, first.job.at!!.trim(), group.map { it.job.id })
+            }
+        }
+        return best
+    }
+
+    /** Services on the phone itself: files. */
+    private val LOCAL = setOf("csv")
 }
