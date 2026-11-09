@@ -94,6 +94,8 @@ class StoreScreenshots {
 
     @Test
     fun takeAll() {
+        // The Play listing shows no other brand's mark: initials on plain circles.
+        com.xlollx.songport.ui.LogoMode.neutral = play
         installDemo()
         // -e review true: only the pictures for checking the Settings and Tools layout (English,
         // dark and light, a large font, Tools with no service), kept apart from the store's.

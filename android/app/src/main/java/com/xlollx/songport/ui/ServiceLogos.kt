@@ -89,10 +89,19 @@ fun ServiceLogo(p: MusicProvider?, size: Dp = 36.dp, modifier: Modifier = Modifi
     ServiceLogo(p?.serviceId, p?.brandColor, p?.displayName.orEmpty(), size, modifier)
 
 /** The same mark from a service's id, colour and name: for a service this build does not carry. */
+/**
+ * Store listings' pictures (the Play screenshots) show no other brand's mark: with [neutral] on,
+ * every service is its initial on a plain circle. Set only by the screenshot test.
+ */
+object LogoMode {
+    @Volatile var neutral = false
+}
+
 @Composable
 fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 36.dp, modifier: Modifier = Modifier) {
-    val bg = if (brandColor != null) Color(brandColor) else MaterialTheme.colorScheme.surfaceVariant
-    val fg = if (bg.luminance() > 0.45f) Color(0xFF1C1B22) else Color.White
+    val neutral = LogoMode.neutral
+    val bg = if (brandColor != null && !neutral) Color(brandColor) else MaterialTheme.colorScheme.surfaceVariant
+    val fg = if (neutral) MaterialTheme.colorScheme.onSurfaceVariant else if (bg.luminance() > 0.45f) Color(0xFF1C1B22) else Color.White
     // A near-black mark (TIDAL) on a dark surface needs an edge to be seen.
     val edge = bg.luminance() < 0.03f
     Box(
@@ -101,7 +110,7 @@ fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 
             .semantics { if (name.isNotEmpty()) contentDescription = name },
         contentAlignment = Alignment.Center,
     ) {
-        val glyph = ServiceLogos.glyph(serviceId)
+        val glyph = if (neutral) null else ServiceLogos.glyph(serviceId)
         val generic = when (serviceId) { "csv" -> Icons.Filled.Folder; "subsonic" -> Icons.Filled.Dns; "charts" -> Icons.Filled.BarChart; else -> null }
         when {
             glyph != null -> Image(glyph, null, Modifier.size(size * 0.56f), colorFilter = ColorFilter.tint(fg))

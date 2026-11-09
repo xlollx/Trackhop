@@ -9,6 +9,7 @@ name: Screenshots
 # With flavor "play" it takes the Google Play listing's pictures from the Play build instead (only
 # the services that build reaches on its own, no ad) and commits them to docs/store/play/<locale>/,
 # leaving the fastlane pictures (the full build's, used by F-Droid) alone.
+# The Play pictures are 9:16 and show no other brand's mark (LogoMode.neutral: initials on plain circles).
 on:
   workflow_dispatch:
     inputs:
@@ -81,7 +82,9 @@ jobs:
           api-level: 34
           arch: x86_64
           target: google_apis
-          profile: pixel_7
+          # Play: 1080×1920 (9:16), the format Google Play recommends and within its 2:1 limit; the
+          # F-Droid pictures keep the taller phone.
+          profile: ${{ env.FLAVOR == 'play' && 'pixel_2' || 'pixel_7' }}
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           working-directory: android
