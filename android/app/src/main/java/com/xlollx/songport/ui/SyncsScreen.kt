@@ -60,7 +60,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -1934,5 +1934,35 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
     }
 }
 
-/** A long line on a sync's card scrolls slowly (pausing at each end) instead of being cut; a short one stays still. */
-private fun Modifier.cardMarquee() = this.basicMarquee(iterations = Int.MAX_VALUE, repeatDelayMillis = 2500, initialDelayMillis = 1500)
+/**
+ * A long line on a sync's card: it can be dragged sideways, and on its own it glides to the end and back,
+ * pausing at each end, slowly. A short line stays still. A drag stops the gliding for a while; a card
+ * scrolled away and back starts again from the beginning (basicMarquee stayed stuck half-way there).
+ * With animations turned off in Android, only the drag.
+ */
+@Composable
+private fun Modifier.cardMarquee(): Modifier {
+    val state = rememberScrollState()
+    val ctx = LocalContext.current
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val animate = remember { android.provider.Settings.Global.getFloat(ctx.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f }
+    LaunchedEffect(state.maxValue, animate) {
+        if (!animate || state.maxValue <= 0) return@LaunchedEffect
+        val pxPerSecond = with(density) { 32.dp.toPx() }
+        var pause = 1500L
+        while (true) {
+            kotlinx.coroutines.delay(pause)
+            pause = 1500L
+            val target = if (state.value < state.maxValue / 2) state.maxValue else 0
+            val ms = (kotlin.math.abs(target - state.value) / pxPerSecond * 1000).toInt().coerceAtLeast(300)
+            try {
+                state.animateScrollTo(target, androidx.compose.animation.core.tween(ms, easing = androidx.compose.animation.core.LinearEasing))
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // The finger took over: wait a little longer before gliding again from where it left.
+                if (!coroutineContext[kotlinx.coroutines.Job]!!.isActive) throw e
+                pause = 4000L
+            }
+        }
+    }
+    return this.horizontalScroll(state)
+}
