@@ -41,7 +41,7 @@ ricerca in un colpo solo.
 rimandarti subito lì. *⋮ → Pulisci e ricomincia* sul connettore scollega e dimentica ciò che Trackhop teneva di quel
 sito, anche quando il connettore risulta scollegato; poi collegalo di nuovo. Il tuo account sul servizio non viene toccato.
 
-**Last.fm**: basta il nome utente per leggere i brani amati. Aggiungi anche la password e *Brani amati* diventa una
+**Last.fm**: basta il nome utente per leggere i brani preferiti. Aggiungi anche la password e *Brani preferiti* diventa una
 destinazione: una sync dai brani che ti piacciono altrove li ama anche su Last.fm (la password serve una volta sola per
 ottenere una sessione e non viene conservata). Se l'app non ha una chiave Last.fm sua, l'accesso chiede la tua API key
 e lo shared secret, con un pulsante per crearli su Last.fm.

@@ -84,21 +84,21 @@
     <string name="followed_artists">Artisti seguiti</string>
     <string name="followed_podcasts">Podcast</string>
     <string name="recently_played">Ascoltati di recente</string>
-    <string name="lastfm_loved">Brani amati</string>
+    <string name="lastfm_loved">Brani preferiti</string>
     <string name="lastfm_loved_desc">I brani a cui hai messo il cuore (♥) su Last.fm</string>
     <string name="lastfm_recent_desc">I tuoi ultimi 200 ascolti registrati su Last.fm</string>
     <string name="lastfm_top_month">I più ascoltati del mese</string>
     <string name="lastfm_top_month_desc">I tuoi 100 brani più ascoltati negli ultimi 30 giorni su Last.fm</string>
-    <string name="route_note_lastfm">La tua API key gratuita. Un\'origine, e una destinazione per i brani amati dopo l\'accesso con la password.</string>
-    <string name="login_password_lastfm">Password (facoltativa, per amare i brani)</string>
-    <string name="setup_field_shared_secret">Shared secret (facoltativo, per amare i brani)</string>
-    <string name="lastfm_loved_target_desc">Trackhop ama (♥) questi brani su Last.fm per te</string>
-    <string name="lastfm_needs_password">Per amare i brani, collega di nuovo Last.fm anche con la password.</string>
+    <string name="route_note_lastfm">La tua API key gratuita. Un\'origine, e una destinazione per i brani preferiti dopo l\'accesso con la password.</string>
+    <string name="login_password_lastfm">Password (facoltativa, per segnare i brani come preferiti)</string>
+    <string name="setup_field_shared_secret">Shared secret (facoltativo, per segnare i brani come preferiti)</string>
+    <string name="lastfm_loved_target_desc">Trackhop segna per te questi brani come preferiti (♥) su Last.fm</string>
+    <string name="lastfm_needs_password">Per segnare i brani come preferiti, collega di nuovo Last.fm anche con la password.</string>
     <string name="lastfm_password_note">Serve una volta sola per ottenere una sessione da Last.fm e non viene conservata.</string>
-    <string name="lastfm_session_expired">Last.fm ha chiuso la sessione: collegalo di nuovo con la password per amare i brani.</string>
-    <string name="lastfm_no_secret">Per amare i brani su Last.fm serve lo shared secret della tua API key: aggiungilo accanto alla chiave.</string>
+    <string name="lastfm_session_expired">Last.fm ha chiuso la sessione: collegalo di nuovo con la password per segnare i brani come preferiti.</string>
+    <string name="lastfm_no_secret">Per segnare i brani come preferiti su Last.fm serve lo shared secret della tua API key: aggiungilo accanto alla chiave.</string>
     <string name="lastfm_key_title">La tua chiave API di Last.fm</string>
-    <string name="lastfm_key_body">Per amare i brani serve una tua chiave: è gratuita e ci vuole un minuto. Apri Last.fm, compila il modulo (nome dell\'app a piacere, es. Trackhop; gli altri campi possono restare vuoti), poi copia qui la API key e lo shared secret.</string>
+    <string name="lastfm_key_body">Per segnare i brani come preferiti serve una tua chiave: è gratuita e ci vuole un minuto. Apri Last.fm, compila il modulo (nome dell\'app a piacere, es. Trackhop; gli altri campi possono restare vuoti), poi copia qui la API key e lo shared secret.</string>
     <string name="lastfm_key_create">Crea una chiave su Last.fm</string>
     <string name="lastfm_key_have">Ce l\'ho già</string>
     <string name="lastfm_key_api">API key</string>
@@ -521,8 +521,8 @@
     <string name="provider_note_subsonic">Il tuo server musicale: Navidrome, Airsonic, Gonic, LMS, Funkwhale e tutto ciò che parla l\'API Subsonic. Nessuna registrazione, nessuna quota. I brani con la stella valgono come preferiti.</string>
     <string name="provider_note_jellyfin">Il tuo server Jellyfin. Nessuna registrazione, nessuna quota. I preferiti di Jellyfin valgono come brani preferiti.</string>
     <string name="provider_note_plex">Il tuo Plex Media Server, con il tuo X-Plex-Token. Le playlist musicali si leggono, si creano e si aggiornano sul server.</string>
-    <string name="provider_note_lastfm">I brani amati di un profilo Last.fm come origine. Con l\'accesso tramite password, Brani amati è anche una destinazione: Trackhop ama i brani per te. Serve una API key gratuita di Last.fm.</string>
-    <string name="provider_note_listenbrainz">Playlist e brani amati di un utente ListenBrainz. Con il tuo token utente si possono anche scrivere i brani amati (preferiti come destinazione).</string>
+    <string name="provider_note_lastfm">I brani preferiti di un profilo Last.fm come origine. Con l\'accesso tramite password, Brani preferiti è anche una destinazione: Trackhop li segna come preferiti per te. Serve una API key gratuita di Last.fm.</string>
+    <string name="provider_note_listenbrainz">Playlist e brani preferiti di un utente ListenBrainz. Con il tuo token utente si possono anche scrivere i brani preferiti (come destinazione).</string>
     <string name="login_title">Accesso a %1$s</string>
     <string name="login_url">Indirizzo del server</string>
     <string name="login_user">Nome utente</string>
@@ -534,9 +534,9 @@
     <string name="login_hint_subsonic">Inserisci l\'indirizzo del tuo server Navidrome, Airsonic o compatibile Subsonic (per esempio https://musica.esempio.it), nome utente e password. La password non viaggia mai in chiaro: ogni richiesta usa un hash con salt. Ampache: usa la password Subsonic o la chiave API impostate in Preferenze → Account, non la password dell\'account.</string>
     <string name="login_hint_jellyfin">Inserisci l\'indirizzo del tuo server Jellyfin (per esempio https://jellyfin.esempio.it), nome utente e password.</string>
     <string name="login_hint_plex">Inserisci l\'indirizzo del tuo Plex Media Server (per esempio http://192.168.1.10:32400) e il tuo X-Plex-Token. Plex spiega come trovarlo nelle pagine di supporto ("Finding an authentication token").</string>
-    <string name="login_hint_lastfm">Inserisci il tuo nome utente Last.fm. Per leggere soltanto i brani amati lascia vuota la password (il profilo deve essere pubblico). Con la password Trackhop può anche amare i brani: serve una volta sola per ottenere una sessione e non viene conservata.</string>
-    <string name="login_hint_listenbrainz">Inserisci il nome utente ListenBrainz di cui leggere playlist e brani amati. Aggiungi il tuo token utente (listenbrainz.org → Settings) per scrivere anche i brani amati.</string>
-    <string name="listenbrainz_token_needed">ListenBrainz ha bisogno del tuo token utente per scrivere i brani amati: aggiungilo in Account (listenbrainz.org → Settings).</string>
+    <string name="login_hint_lastfm">Inserisci il tuo nome utente Last.fm. Per leggere soltanto i brani preferiti lascia vuota la password (il profilo deve essere pubblico). Con la password Trackhop può anche segnare i brani come preferiti: serve una volta sola per ottenere una sessione e non viene conservata.</string>
+    <string name="login_hint_listenbrainz">Inserisci il nome utente ListenBrainz di cui leggere playlist e brani preferiti. Aggiungi il tuo token utente (listenbrainz.org → Settings) per scrivere anche i brani preferiti.</string>
+    <string name="listenbrainz_token_needed">ListenBrainz ha bisogno del tuo token utente per scrivere i brani preferiti: aggiungilo in Account (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Token utente (facoltativo)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz non ha accettato questo token.</string>
     <string name="setup_why_lastfm">Last.fm richiede una API key gratuita, rilasciata all\'istante, per leggere i profili pubblici.</string>
@@ -585,7 +585,7 @@
     <string name="route_note_spotify_api">La tua chiave API gratuita, creata su developer.spotify.com in un paio di minuti. Ufficiale e stabile. Spotify la fa creare solo agli account Premium (regola di Spotify da febbraio 2026): senza Premium, lì "Web API" resta grigio.</string>
     <string name="route_note_apple_api">Un token sviluppatore da un account Apple Developer (a pagamento). Ufficiale.</string>
     <string name="route_note_youtube_api">Una tua chiave Google Cloud (gratuita, pochi minuti). Ufficiale, ma la quota giornaliera è piccola: le sync grandi durano giorni.</string>
-    <string name="route_note_api_readonly">Una tua chiave API gratuita. Solo lettura: origine per playlist e brani amati.</string>
+    <string name="route_note_api_readonly">Una tua chiave API gratuita. Solo lettura: origine per playlist e brani preferiti.</string>
     <string name="route_note_server">Il tuo server: indirizzo, utente e password.</string>
     <string name="connector_name_label">Nome del connettore</string>
     <string name="connector_rename">Rinomina</string>
@@ -726,7 +726,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Accedi a last.fm e apri la pagina di creazione dell\'account API.</item>
         <item>Compila il modulo: e-mail di contatto, nome e descrizione dell\'applicazione sono liberi. "Callback URL" e "Application homepage" possono restare vuoti. Invia.</item>
-        <item>Copia qui la \"API key\" e nel secondo campo lo \"Shared secret\": serve solo per amare i brani.</item>
+        <item>Copia qui la \"API key\" e nel secondo campo lo \"Shared secret\": serve solo per segnare i brani come preferiti.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Altro</string>
@@ -1209,7 +1209,7 @@
     <string name="howto_accounts_summary">Connettori, strade, chiavi e sicurezza.</string>
     <string name="howto_accounts_body"># Connettori\nUn connettore è un account su un servizio. Dove il servizio lo consente puoi aggiungerne più d\'uno, per esempio due account Spotify, ciascuno con il suo nome. Tra due account dello stesso servizio, come due Spotify o due YouTube Music, i brani si copiano così come sono, senza cercarli.\n# Strade\nAlcuni servizi si raggiungono in due modi. Strada rapida: accedi sulla pagina del servizio, senza nulla da creare, ma può smettere di funzionare quando il sito cambia. Strada ufficiale: l\'API del servizio con una chiave gratuita a tuo nome; più stabile, qualche minuto per configurarla.\n# Pulisci e ricomincia\nUn sito può ricordare un accesso precedente, per esempio con Google, e rimandarti subito lì. ⋮ › Pulisci e ricomincia scollega e dimentica ciò che Trackhop teneva di quel sito; poi collegalo di nuovo. Il tuo account sul servizio non viene toccato.</string>
     <string name="howto_accounts_full">In questa versione le strade rapide di Spotify, YouTube Music, Amazon Music, Apple Music e Deezer sono integrate, come anche SoundCloud con il tuo account. Deezer (web) è in alpha, SoundCloud in beta.</string>
-    <string name="howto_accounts_body2"># La tua chiave\nTrackhop non include chiavi proprie. La procedura guidata ti accompagna nella pagina sviluppatori del servizio: copia lì l\'URI di reindirizzamento esattamente, poi incolla qui il Client ID (e il secret, dove richiesto).\n• Spotify permette di creare una chiave solo agli account Premium.\n• Il token sviluppatore di Apple scade dopo al massimo sei mesi: incollane uno nuovo in Opzioni › Avanzate › Chiavi dei servizi.\n• Sulla strada ufficiale di YouTube la quota giornaliera è tua, contata in unità.\nUn tuo server (Jellyfin, Plex, Navidrome…) chiede l\'indirizzo, il tuo utente e una password o un token.\nLast.fm: con il nome utente si leggono i brani amati; aggiungi la password per amare anche i brani (serve una volta sola e non viene conservata). Se questa versione non ha una chiave Last.fm sua, l\'accesso chiede la tua API key e lo shared secret, con il link per crearli.\n# Account al sicuro\nLe password si scrivono sulle pagine dei servizi, mai in Trackhop. Fanno eccezione i tuoi server e Last.fm, la cui password Trackhop usa solo per l\'accesso. I token sono cifrati sul telefono e non esiste un server di Trackhop. Prova il collegamento verifica un connettore; Scollega cancella l\'accesso, e Rimuovi questo account toglie anche la scheda. Opzioni › Avanzate › Mostra gli strumenti per sviluppatori › Mostra le connessioni elenca tutti gli host contattati dall\'app.</string>
+    <string name="howto_accounts_body2"># La tua chiave\nTrackhop non include chiavi proprie. La procedura guidata ti accompagna nella pagina sviluppatori del servizio: copia lì l\'URI di reindirizzamento esattamente, poi incolla qui il Client ID (e il secret, dove richiesto).\n• Spotify permette di creare una chiave solo agli account Premium.\n• Il token sviluppatore di Apple scade dopo al massimo sei mesi: incollane uno nuovo in Opzioni › Avanzate › Chiavi dei servizi.\n• Sulla strada ufficiale di YouTube la quota giornaliera è tua, contata in unità.\nUn tuo server (Jellyfin, Plex, Navidrome…) chiede l\'indirizzo, il tuo utente e una password o un token.\nLast.fm: con il nome utente si leggono i brani preferiti; aggiungi la password per segnare anche i brani come preferiti (serve una volta sola e non viene conservata). Se questa versione non ha una chiave Last.fm sua, l\'accesso chiede la tua API key e lo shared secret, con il link per crearli.\n# Account al sicuro\nLe password si scrivono sulle pagine dei servizi, mai in Trackhop. Fanno eccezione i tuoi server e Last.fm, la cui password Trackhop usa solo per l\'accesso. I token sono cifrati sul telefono e non esiste un server di Trackhop. Prova il collegamento verifica un connettore; Scollega cancella l\'accesso, e Rimuovi questo account toglie anche la scheda. Opzioni › Avanzate › Mostra gli strumenti per sviluppatori › Mostra le connessioni elenca tutti gli host contattati dall\'app.</string>
     <string name="howto_plugins_title">Plugin</string>
     <string name="howto_plugins_summary">Come altre app possono aggiungere servizi.</string>
     <string name="howto_plugins_body">Trackhop ha un\'interfaccia aperta per i connettori: app separate, fatte da chiunque, possono aggiungervi servizi.</string>
@@ -1688,8 +1688,8 @@
     <string name="whats_new_115_transfer_body">Trasferisci molte playlist mostra un riepilogo prima di creare qualcosa e può creare le sync senza avviarle.</string>
     <string name="whats_new_116_files_title">File letti a modo tuo</string>
     <string name="whats_new_116_files_body">Trackhop legge artista e album dai nomi dei file e dalle cartelle, oppure dai tuoi modelli. Seleziona più file insieme o inviane uno direttamente a un servizio.</string>
-    <string name="whats_new_116_lastfm_title">Ama i brani su Last.fm</string>
-    <string name="whats_new_116_lastfm_body">Sincronizza i brani che ti piacciono su qualsiasi servizio con i tuoi brani amati su Last.fm.</string>
+    <string name="whats_new_116_lastfm_title">I tuoi preferiti su Last.fm</string>
+    <string name="whats_new_116_lastfm_body">Sincronizza i brani che ti piacciono su qualsiasi servizio con i tuoi brani preferiti su Last.fm.</string>
     <string name="whats_new_116_preview_title">Un\'anteprima più chiara</string>
     <string name="whats_new_116_preview_body">Dopo aver creato una sync vedi dove va, cosa farà e cosa cambia, con Esegui ora in basso.</string>
     <string name="whats_new_116_restart_title">Pulisci e ricomincia</string>
