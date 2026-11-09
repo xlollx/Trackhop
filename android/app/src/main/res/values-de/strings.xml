@@ -1776,4 +1776,21 @@
     <string name="support_choose_body">Völlig freiwillig: Nichts wird freigeschaltet, die App bleibt für alle vollständig. Danke!</string>
     <string name="support_kofi_desc">Einmalig · Karte oder PayPal · ohne Konto</string>
     <string name="support_sponsors_desc">Monatlich oder einmalig · mit einem GitHub-Konto</string>
+    <string name="stat_in_playlist">in der Playlist</string>
+    <string name="settings_card_accent">Farbige Sync-Karten</string>
+    <string name="accent_classic">Klassischer Streifen</string>
+    <string name="accent_fade">Auslaufender Streifen</string>
+    <string name="accent_outline">Dünner Rahmen</string>
+    <string name="accent_crescent">Mondsichel</string>
+    <string name="accent_pill">Schwebender Balken</string>
+    <string name="accent_glow">Schein</string>
+    <string name="accent_wash">Farbverlauf</string>
+    <string name="accent_default">Wie in den Einstellungen</string>
+    <string name="job_accent_style">Wie die Karte ihre Farbe zeigt</string>
+    <string name="settings_run_history">Letzte Läufe auf Karten</string>
+    <string name="history_bars">Balken</string>
+    <string name="history_chart">Mini-Diagramm</string>
+    <string name="history_dots">Punkte</string>
+    <string name="history_text">Text</string>
+    <string name="run_history_text">Mit Änderungen: %1$d · Nichts Neues: %2$d · Fehlgeschlagen: %3$d</string>
 </resources>

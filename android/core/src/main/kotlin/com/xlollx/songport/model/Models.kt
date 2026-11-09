@@ -118,6 +118,8 @@ data class SyncJob(
     val keepOrder: Boolean = false,
     /** The card's colour, chosen by the user to tell syncs apart at a glance (a key like "teal"); null = the default look. */
     val color: String? = null,
+    /** How the card wears [color] (a CardAccent key in the app); null = the style chosen in Settings. */
+    val accentStyle: String? = null,
     /**
      * The "↔" half of a two-way pair, made by the editor from the sync [linkedJobId] names: it is
      * edited through that sync, and keeps its own name, ignore list and reports.

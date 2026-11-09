@@ -1746,4 +1746,21 @@
     <string name="support_choose_body">完全自愿：不会解锁任何内容，应用对所有人都是完整的。谢谢！</string>
     <string name="support_kofi_desc">一次性 · 银行卡或 PayPal · 无需账号</string>
     <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>
+    <string name="stat_in_playlist">歌单内</string>
+    <string name="settings_card_accent">彩色同步卡片</string>
+    <string name="accent_classic">经典色条</string>
+    <string name="accent_fade">渐隐色条</string>
+    <string name="accent_outline">细边框</string>
+    <string name="accent_crescent">弯月</string>
+    <string name="accent_pill">悬浮条</string>
+    <string name="accent_glow">光晕</string>
+    <string name="accent_wash">渐变</string>
+    <string name="accent_default">与设置相同</string>
+    <string name="job_accent_style">卡片显示颜色的方式</string>
+    <string name="settings_run_history">卡片上的历史运行</string>
+    <string name="history_bars">条形</string>
+    <string name="history_chart">迷你图表</string>
+    <string name="history_dots">圆点</string>
+    <string name="history_text">文字</string>
+    <string name="run_history_text">有变化: %1$d · 无变化: %2$d · 失败: %3$d</string>
 </resources>

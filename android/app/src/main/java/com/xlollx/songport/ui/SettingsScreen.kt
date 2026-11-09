@@ -171,6 +171,21 @@ fun SettingsScreen(
                 stringResource(if (dynamicColorAvailable) R.string.settings_dynamic_color_summary else R.string.settings_dynamic_color_unavailable),
                 settings.dynamicColor && dynamicColorAvailable, enabled = dynamicColorAvailable,
             ) { v -> store.updateSettings { it.copy(dynamicColor = v) } }
+            // How coloured sync cards wear their colour, and how their last runs show.
+            val accentChoices = CardAccent.entries.map { it.key to stringResource(it.label) }
+            var accentOpen by remember { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_card_accent), accentChoices.firstOrNull { it.first == settings.cardAccent }?.second ?: accentChoices.first().second) { accentOpen = true }
+            if (accentOpen) ChoiceDialog(stringResource(R.string.settings_card_accent), accentChoices, settings.cardAccent, onDismiss = { accentOpen = false }) { k ->
+                accentOpen = false
+                store.updateSettings { it.copy(cardAccent = k) }
+            }
+            val historyChoices = RunHistoryStyle.entries.map { it.key to stringResource(it.label) }
+            var historyOpen by remember { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_run_history), historyChoices.firstOrNull { it.first == settings.runHistoryStyle }?.second ?: historyChoices.first().second) { historyOpen = true }
+            if (historyOpen) ChoiceDialog(stringResource(R.string.settings_run_history), historyChoices, settings.runHistoryStyle, onDismiss = { historyOpen = false }) { k ->
+                historyOpen = false
+                store.updateSettings { it.copy(runHistoryStyle = k) }
+            }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
             var langOpen by remember { mutableStateOf(false) }
             val currentTag = AppLocale.current(ctx)

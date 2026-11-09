@@ -1838,4 +1838,21 @@
     <string name="support_choose_body">Całkowicie dobrowolnie: nic się nie odblokowuje, aplikacja pozostaje kompletna dla wszystkich. Dziękuję!</string>
     <string name="support_kofi_desc">Jednorazowo · karta lub PayPal · bez konta</string>
     <string name="support_sponsors_desc">Co miesiąc lub jednorazowo · z kontem GitHub</string>
+    <string name="stat_in_playlist">w playliście</string>
+    <string name="settings_card_accent">Kolorowe karty synchronizacji</string>
+    <string name="accent_classic">Klasyczny pasek</string>
+    <string name="accent_fade">Zanikający pasek</string>
+    <string name="accent_outline">Cienka ramka</string>
+    <string name="accent_crescent">Półksiężyc</string>
+    <string name="accent_pill">Pływający pasek</string>
+    <string name="accent_glow">Poświata</string>
+    <string name="accent_wash">Gradient</string>
+    <string name="accent_default">Jak w ustawieniach</string>
+    <string name="job_accent_style">Jak karta pokazuje kolor</string>
+    <string name="settings_run_history">Poprzednie uruchomienia na kartach</string>
+    <string name="history_bars">Paski</string>
+    <string name="history_chart">Mini wykres</string>
+    <string name="history_dots">Kropki</string>
+    <string name="history_text">Tekst</string>
+    <string name="run_history_text">Ze zmianami: %1$d · Bez zmian: %2$d · Nieudane: %3$d</string>
 </resources>

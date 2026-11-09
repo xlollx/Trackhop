@@ -1745,4 +1745,21 @@
     <string name="support_choose_body">전적으로 선택 사항이에요. 잠금 해제되는 건 없고 앱은 누구에게나 똑같이 완전해요. 감사합니다!</string>
     <string name="support_kofi_desc">일회성 · 카드 또는 PayPal · 계정 불필요</string>
     <string name="support_sponsors_desc">매월 또는 일회성 · GitHub 계정 필요</string>
+    <string name="stat_in_playlist">플레이리스트</string>
+    <string name="settings_card_accent">색상 동기화 카드</string>
+    <string name="accent_classic">클래식 띠</string>
+    <string name="accent_fade">흐려지는 띠</string>
+    <string name="accent_outline">얇은 테두리</string>
+    <string name="accent_crescent">초승달</string>
+    <string name="accent_pill">떠 있는 막대</string>
+    <string name="accent_glow">글로우</string>
+    <string name="accent_wash">그라데이션</string>
+    <string name="accent_default">설정과 동일</string>
+    <string name="job_accent_style">카드에 색을 표시하는 방식</string>
+    <string name="settings_run_history">카드의 지난 실행</string>
+    <string name="history_bars">막대</string>
+    <string name="history_chart">미니 차트</string>
+    <string name="history_dots">점</string>
+    <string name="history_text">텍스트</string>
+    <string name="run_history_text">변경 있음: %1$d · 변경 없음: %2$d · 실패: %3$d</string>
 </resources>

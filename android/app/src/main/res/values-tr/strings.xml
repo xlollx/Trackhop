@@ -1774,4 +1774,21 @@
     <string name="support_choose_body">Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır. Teşekkürler!</string>
     <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
+    <string name="stat_in_playlist">listede</string>
+    <string name="settings_card_accent">Renkli eşitleme kartları</string>
+    <string name="accent_classic">Klasik şerit</string>
+    <string name="accent_fade">Solan şerit</string>
+    <string name="accent_outline">İnce çerçeve</string>
+    <string name="accent_crescent">Hilal</string>
+    <string name="accent_pill">Yüzen çubuk</string>
+    <string name="accent_glow">Parıltı</string>
+    <string name="accent_wash">Renk geçişi</string>
+    <string name="accent_default">Ayarlardaki gibi</string>
+    <string name="job_accent_style">Kartın rengini gösterme biçimi</string>
+    <string name="settings_run_history">Kartlarda geçmiş çalıştırmalar</string>
+    <string name="history_bars">Çubuklar</string>
+    <string name="history_chart">Mini grafik</string>
+    <string name="history_dots">Noktalar</string>
+    <string name="history_text">Metin</string>
+    <string name="run_history_text">Değişiklikli: %1$d · Yenilik yok: %2$d · Başarısız: %3$d</string>
 </resources>

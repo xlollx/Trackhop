@@ -1836,4 +1836,21 @@
     <string name="support_choose_body">Совершенно необязательно: ничего не открывается, приложение остаётся полным для всех. Спасибо!</string>
     <string name="support_kofi_desc">Разово · карта или PayPal · без аккаунта</string>
     <string name="support_sponsors_desc">Ежемесячно или разово · нужен аккаунт GitHub</string>
+    <string name="stat_in_playlist">в плейлисте</string>
+    <string name="settings_card_accent">Цветные карточки синхронизаций</string>
+    <string name="accent_classic">Классическая полоса</string>
+    <string name="accent_fade">Затухающая полоса</string>
+    <string name="accent_outline">Тонкая рамка</string>
+    <string name="accent_crescent">Полумесяц</string>
+    <string name="accent_pill">Плавающая полоска</string>
+    <string name="accent_glow">Свечение</string>
+    <string name="accent_wash">Градиент</string>
+    <string name="accent_default">Как в настройках</string>
+    <string name="job_accent_style">Как карточка показывает цвет</string>
+    <string name="settings_run_history">Прошлые запуски на карточках</string>
+    <string name="history_bars">Полоски</string>
+    <string name="history_chart">Мини-график</string>
+    <string name="history_dots">Точки</string>
+    <string name="history_text">Текст</string>
+    <string name="run_history_text">С изменениями: %1$d · Без изменений: %2$d · С ошибкой: %3$d</string>
 </resources>

@@ -60,6 +60,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -634,15 +636,8 @@ private fun JobCard(
         // A coloured sync wears its colour on its controls too, as a gradient.
         val controls = jobControlBrush(job.color)
         val ink = jobInk(job.color)
-        val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Column(
-            Modifier.drawBehind {
-                // The chosen colour as a band along the card's leading edge, like a calendar's.
-                if (accent != null) {
-                    val w = 6.dp.toPx()
-                    drawRect(accent, topLeft = Offset(if (rtl) size.width - w else 0f, 0f), size = Size(w, size.height))
-                }
-            }.padding(20.dp),
+            Modifier.cardAccent(CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent), accent).padding(20.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.width(56.dp).height(36.dp)) {
@@ -667,7 +662,7 @@ private fun JobCard(
                             Icon(Icons.Filled.Radio, stringResource(R.string.radio_badge_desc), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.tertiary)
                             Spacer(Modifier.width(4.dp))
                         }
-                        Text(job.name.ifBlank { job.source.playlistName }, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(job.name.ifBlank { job.source.playlistName }, style = MaterialTheme.typography.titleLarge, maxLines = 1, modifier = Modifier.cardMarquee())
                     }
                     Text(
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
@@ -677,7 +672,7 @@ private fun JobCard(
                             (dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis,
+                        maxLines = 1, modifier = Modifier.cardMarquee(),
                     )
                 }
                 Spacer(Modifier.width(8.dp))
@@ -789,7 +784,7 @@ private fun JobCard(
                     (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                         (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
+                    maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),
                 )
                 FilledTonalIconButton(
                     onClick = { haptic(); onRun(job) }, enabled = !isRunning,
@@ -1018,6 +1013,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var wifiOnly by rememberSaveable { mutableStateOf(job.wifiOnly) }
     var enabled by rememberSaveable { mutableStateOf(job.enabled) }
     var color by rememberSaveable { mutableStateOf(job.color) }
+    var accentStyle by rememberSaveable { mutableStateOf(job.accentStyle) }
     var bidirectional by rememberSaveable { mutableStateOf(job.linkedJobId != null) }
     var policy by rememberSaveable(stateSaver = PolicySaver) { mutableStateOf(job.policy) }
     var matchingOpen by rememberSaveable { mutableStateOf(job.policy != com.xlollx.songport.model.MatchPolicy()) }
@@ -1125,7 +1121,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     job.copy(
                         name = name.ifBlank { defaultName }, source = source, target = target,
                         schedule = Schedule.MANUAL, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                        keepOrder = false, color = color, radio = radio, shazam = false, linkedJobId = null, archive = false,
+                        keepOrder = false, color = color, accentStyle = accentStyle, radio = radio, shazam = false, linkedJobId = null, archive = false,
                     ),
                     null,
                 )
@@ -1163,7 +1159,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             source = source,
             target = target,
             schedule = schedule, mirrorRemovals = mirror && !archive, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-            keepOrder = keepOrder && !archive, color = color, followsChanges = mirror && follows && !archive,
+            keepOrder = keepOrder && !archive, color = color, accentStyle = accentStyle, followsChanges = mirror && follows && !archive,
             archive = archive, shazam = shazamMode && !linkMode,
         ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
@@ -1179,7 +1175,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     twin = partner.twin || partner.name == "${job.name} ↔",
                     source = target, target = source,
                     schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                    linkedJobId = job.id, color = color,
+                    linkedJobId = job.id, color = color, accentStyle = accentStyle,
                     sourceVersion = if (moved) null else partner.sourceVersion,
                     targetVersion = if (moved) null else partner.targetVersion,
                 ).let { timed(it) }
@@ -1189,7 +1185,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 source = target,
                 target = source,
                 schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                linkedJobId = job.id, color = color, twin = true,
+                linkedJobId = job.id, color = color, accentStyle = accentStyle, twin = true,
             ).let { timed(it) }
         } else null
         saveHaptic()
@@ -1331,6 +1327,14 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") })
                 Text(stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
                 JobColorPicker(color) { color = it }
+                // With a colour: how the card wears it, or the style chosen in Settings.
+                if (color != null) {
+                    Text(stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
+                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(accentStyle == null, onClick = { accentStyle = null }, label = { Text(stringResource(R.string.accent_default)) })
+                        CardAccent.entries.forEach { a -> FilterChip(accentStyle == a.key, onClick = { accentStyle = a.key }, label = { Text(stringResource(a.label)) }) }
+                    }
+                }
                 // A radio sync runs by its window: days and hours instead of a schedule, and no
                 // removals, two-way or reordering (its source only grows).
                 if (radioMode) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1847,41 +1851,45 @@ private fun RunStats(
     // Each figure opens what it counts: the tracks added, removed or not found, or the playlist itself.
     // Equal heights: a label that needs two lines (German, large fonts) doesn't make its tile taller than the rest.
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Stat("+${r.added}", stringResource(R.string.stat_added), Modifier.weight(1f), brush, ink ?: MaterialTheme.colorScheme.primary, onAdded.takeIf { r.added > 0 })
-        Stat("−${r.removed}", stringResource(R.string.stat_removed), Modifier.weight(1f), brush, onClick = onRemoved.takeIf { r.removed > 0 })
+        Stat(if (r.added > 0) "+${r.added}" else "0", stringResource(R.string.stat_added), Modifier.weight(1f), brush, ink ?: MaterialTheme.colorScheme.primary, onAdded.takeIf { r.added > 0 })
+        Stat(if (r.removed > 0) "−${r.removed}" else "0", stringResource(R.string.stat_removed), Modifier.weight(1f), brush, onClick = onRemoved.takeIf { r.removed > 0 })
         Stat("${r.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), brush, if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
         // The tile opens the synced playlist, so it counts that one: what it held before the run, plus
         // and minus this run's changes. A source that replaces its songs (a daylist) without Mirror
         // removals leaves the target larger than the source: +43 on 50 reads 93, not 50.
         val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
-        Stat("$size", stringResource(R.string.stat_tracks), Modifier.weight(1f), brush, onClick = onTracks)
+        // Apart from this run's figures: a thin rule, then the playlist's size in an outlined tile.
+        androidx.compose.material3.VerticalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+        Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true)
     }
     if (history.size >= 2) {
         Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.semantics(mergeDescendants = true) {}) {
-            history.forEach { h ->
-                Box(
-                    Modifier.size(width = 14.dp, height = 6.dp).clip(RoundedCornerShape(3.dp)).background(
-                        if (h.ok) (ink ?: MaterialTheme.colorScheme.primary).copy(alpha = if (h.added + h.removed > 0) 1f else 0.4f)
-                        else MaterialTheme.colorScheme.error,
-                    ),
-                )
-            }
-            Spacer(Modifier.width(6.dp))
-            Text(
-                pluralStringResource(R.plurals.stat_history, history.size, history.size, history.count { !it.ok }),
-                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        val style = RunHistoryStyle.of(Store.get(LocalContext.current).state.collectAsState().value.settings.runHistoryStyle)
+        RunHistory(history, style, ink ?: MaterialTheme.colorScheme.primary,
+            pluralStringResource(R.plurals.stat_history, history.size, history.size, history.count { !it.ok }))
     }
 }
 
 @Composable
-internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null) {
+internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null, outlined: Boolean = false) {
+    val line = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     Column(
         modifier.fillMaxHeight().clip(RoundedCornerShape(16.dp))
-            .let { if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) }
+            .let {
+                when {
+                    // A state, not a result: no fill, a dashed outline.
+                    outlined -> it.drawBehind {
+                        val stroke = 1.5.dp.toPx()
+                        drawRoundRect(
+                            line, topLeft = Offset(stroke / 2, stroke / 2), size = Size(size.width - stroke, size.height - stroke),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx() - stroke / 2),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(stroke, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
+                        )
+                    }
+                    brush != null -> it.background(brush)
+                    else -> it.background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                }
+            }
             .let { if (onClick != null) it.clickable(onClickLabel = label, onClick = onClick) else it }
             .padding(vertical = 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1931,3 +1939,6 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
         }
     }
 }
+
+/** A long line on a sync's card scrolls slowly (pausing at each end) instead of being cut; a short one stays still. */
+private fun Modifier.cardMarquee() = this.basicMarquee(iterations = Int.MAX_VALUE, repeatDelayMillis = 2500, initialDelayMillis = 1500)

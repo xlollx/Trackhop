@@ -1777,4 +1777,21 @@
     <string name="support_choose_body">Totally optional: nothing is unlocked, the app stays complete for everyone. Thank you!</string>
     <string name="support_kofi_desc">One-off · card or PayPal · no account needed</string>
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
+    <string name="stat_in_playlist">in playlist</string>
+    <string name="settings_card_accent">Coloured sync cards</string>
+    <string name="accent_classic">Classic band</string>
+    <string name="accent_fade">Fading band</string>
+    <string name="accent_outline">Thin outline</string>
+    <string name="accent_crescent">Crescent</string>
+    <string name="accent_pill">Floating bar</string>
+    <string name="accent_glow">Glow</string>
+    <string name="accent_wash">Colour wash</string>
+    <string name="accent_default">As in Settings</string>
+    <string name="job_accent_style">How the card wears its colour</string>
+    <string name="settings_run_history">Past runs on cards</string>
+    <string name="history_bars">Bars</string>
+    <string name="history_chart">Mini chart</string>
+    <string name="history_dots">Dots</string>
+    <string name="history_text">Text</string>
+    <string name="run_history_text">With changes: %1$d · Nothing new: %2$d · Failed: %3$d</string>
 </resources>

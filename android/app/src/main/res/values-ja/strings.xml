@@ -1746,4 +1746,21 @@
     <string name="support_choose_body">まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。ありがとうございます!</string>
     <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
+    <string name="stat_in_playlist">プレイリスト内</string>
+    <string name="settings_card_accent">色付きの同期カード</string>
+    <string name="accent_classic">クラシックな帯</string>
+    <string name="accent_fade">フェードする帯</string>
+    <string name="accent_outline">細い枠線</string>
+    <string name="accent_crescent">三日月</string>
+    <string name="accent_pill">浮いたバー</string>
+    <string name="accent_glow">グロー</string>
+    <string name="accent_wash">グラデーション</string>
+    <string name="accent_default">設定と同じ</string>
+    <string name="job_accent_style">カードでの色の見せ方</string>
+    <string name="settings_run_history">カードの過去の実行</string>
+    <string name="history_bars">バー</string>
+    <string name="history_chart">ミニグラフ</string>
+    <string name="history_dots">ドット</string>
+    <string name="history_text">テキスト</string>
+    <string name="run_history_text">変更あり: %1$d · 変更なし: %2$d · 失敗: %3$d</string>
 </resources>

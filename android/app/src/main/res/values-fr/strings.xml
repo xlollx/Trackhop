@@ -1784,4 +1784,21 @@
     <string name="support_choose_body">Totalement facultatif : rien n\'est déverrouillé, l\'application reste complète pour tout le monde. Merci !</string>
     <string name="support_kofi_desc">Ponctuel · carte ou PayPal · sans compte</string>
     <string name="support_sponsors_desc">Mensuel ou ponctuel · avec un compte GitHub</string>
+    <string name="stat_in_playlist">dans la playlist</string>
+    <string name="settings_card_accent">Cartes de sync en couleur</string>
+    <string name="accent_classic">Bande classique</string>
+    <string name="accent_fade">Bande en fondu</string>
+    <string name="accent_outline">Contour fin</string>
+    <string name="accent_crescent">Croissant</string>
+    <string name="accent_pill">Barre flottante</string>
+    <string name="accent_glow">Halo</string>
+    <string name="accent_wash">Dégradé</string>
+    <string name="accent_default">Comme dans les réglages</string>
+    <string name="job_accent_style">Comment la carte porte sa couleur</string>
+    <string name="settings_run_history">Exécutions passées sur les cartes</string>
+    <string name="history_bars">Barres</string>
+    <string name="history_chart">Mini-graphique</string>
+    <string name="history_dots">Points</string>
+    <string name="history_text">Texte</string>
+    <string name="run_history_text">Avec changements : %1$d · Rien de nouveau : %2$d · Échouées : %3$d</string>
 </resources>

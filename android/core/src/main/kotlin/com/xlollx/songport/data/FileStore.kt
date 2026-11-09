@@ -70,6 +70,10 @@ data class Settings(
     val themeMode: String = "SYSTEM",
     /** Material You: the phone's own colours instead of the brand palette (Android 12+). */
     val dynamicColor: Boolean = false,
+    /** How coloured sync cards wear their colour (CardAccent key) unless a sync chooses its own. */
+    val cardAccent: String = "classic",
+    /** How the last runs show under a card's figures (RunHistoryStyle key). */
+    val runHistoryStyle: String = "bars",
     /** The refreshed sync cards (big numbers, run history): on unless turned off in Appearance. */
     val newLook: Boolean = true,
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */

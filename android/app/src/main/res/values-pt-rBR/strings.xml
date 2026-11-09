@@ -1784,4 +1784,21 @@
     <string name="support_choose_body">Totalmente opcional: nada é desbloqueado, o app continua completo para todo mundo. Obrigado!</string>
     <string name="support_kofi_desc">Uma vez · cartão ou PayPal · sem conta</string>
     <string name="support_sponsors_desc">Mensal ou uma vez · com uma conta do GitHub</string>
+    <string name="stat_in_playlist">na playlist</string>
+    <string name="settings_card_accent">Cartões de sync coloridos</string>
+    <string name="accent_classic">Faixa clássica</string>
+    <string name="accent_fade">Faixa que esmaece</string>
+    <string name="accent_outline">Contorno fino</string>
+    <string name="accent_crescent">Meia-lua</string>
+    <string name="accent_pill">Barra flutuante</string>
+    <string name="accent_glow">Brilho</string>
+    <string name="accent_wash">Degradê</string>
+    <string name="accent_default">Como nas Configurações</string>
+    <string name="job_accent_style">Como o cartão mostra a cor</string>
+    <string name="settings_run_history">Execuções anteriores nos cartões</string>
+    <string name="history_bars">Barras</string>
+    <string name="history_chart">Minigráfico</string>
+    <string name="history_dots">Pontos</string>
+    <string name="history_text">Texto</string>
+    <string name="run_history_text">Com mudanças: %1$d · Sem novidades: %2$d · Com falha: %3$d</string>
 </resources>

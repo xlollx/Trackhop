@@ -1784,4 +1784,21 @@
     <string name="support_choose_body">Totalmente opcional: no se desbloquea nada y la app sigue completa para todos. ¡Gracias!</string>
     <string name="support_kofi_desc">Una vez · tarjeta o PayPal · sin cuenta</string>
     <string name="support_sponsors_desc">Mensual o una vez · con una cuenta de GitHub</string>
+    <string name="stat_in_playlist">en la lista</string>
+    <string name="settings_card_accent">Tarjetas de sync con color</string>
+    <string name="accent_classic">Franja clásica</string>
+    <string name="accent_fade">Franja que se difumina</string>
+    <string name="accent_outline">Contorno fino</string>
+    <string name="accent_crescent">Media luna</string>
+    <string name="accent_pill">Barra flotante</string>
+    <string name="accent_glow">Halo</string>
+    <string name="accent_wash">Degradado</string>
+    <string name="accent_default">Como en Ajustes</string>
+    <string name="job_accent_style">Cómo muestra la tarjeta su color</string>
+    <string name="settings_run_history">Ejecuciones anteriores en las tarjetas</string>
+    <string name="history_bars">Barras</string>
+    <string name="history_chart">Minigráfico</string>
+    <string name="history_dots">Puntos</string>
+    <string name="history_text">Texto</string>
+    <string name="run_history_text">Con cambios: %1$d · Sin novedades: %2$d · Fallidas: %3$d</string>
 </resources>
