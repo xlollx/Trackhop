@@ -1998,11 +1998,11 @@ private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
     val tip = androidx.compose.material3.rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     LaunchedEffect(tip.isVisible) { if (tip.isVisible) { delay(3000); tip.dismiss() } }
-    androidx.compose.material3.TooltipBox(
+    // The placement (align, offset) goes on a Box of ours: TooltipBox gives its modifier to an inner anchor, where align is lost.
+    Box(modifier) { androidx.compose.material3.TooltipBox(
         positionProvider = androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = { PlainTooltip(caretSize = androidx.compose.material3.TooltipDefaults.caretSize) { Text(info.text) } },
         state = tip,
-        modifier = modifier,
     ) {
         Box(
             Modifier.size(20.dp).clip(CircleShape).background(toneBackground(info.tone))
@@ -2013,5 +2013,5 @@ private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
         ) {
             Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
         }
-    }
+    } }
 }
