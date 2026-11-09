@@ -779,22 +779,28 @@ private fun JobCard(
             // A radio sync while it listens: what is on air (or that it waits for Wi-Fi, or what went wrong).
             if (job.radio != null) RadioCardStatus(job)
             Spacer(Modifier.height(6.dp))
+            val schedule: @Composable (Modifier) -> Unit = { m ->
+                Row(m, verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.width(6.dp))
+                    val last = if (job.lastRunEpoch > 0) formatDate(job.lastRunEpoch) else stringResource(R.string.last_run_never)
+                    Text(
+                        // A two-way pair never removes, whatever an older version saved. A radio sync shows
+                        // its window (days and hours) where the others show their schedule.
+                        (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
+                            (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),
+                    )
+                }
+            }
+            // Status in the footer: the schedule gets its own line, beside the chip it was cut short.
+            if (!statusOnLogos) schedule(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 if (!statusOnLogos) {
                     StatusChip(status)
-                    Spacer(Modifier.width(8.dp))
-                }
-                Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.width(6.dp))
-                val last = if (job.lastRunEpoch > 0) formatDate(job.lastRunEpoch) else stringResource(R.string.last_run_never)
-                Text(
-                    // A two-way pair never removes, whatever an older version saved. A radio sync shows
-                    // its window (days and hours) where the others show their schedule.
-                    (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
-                        (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),
-                )
+                    Spacer(Modifier.weight(1f))
+                } else schedule(Modifier.weight(1f))
                 FilledTonalIconButton(
                     onClick = { haptic(); onRun(job) }, enabled = !isRunning,
                     modifier = Modifier.size(48.dp).let { m -> controls?.let { m.clip(CircleShape).background(it, alpha = if (isRunning) 0.4f else 1f) } ?: m },
