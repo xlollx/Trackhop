@@ -85,3 +85,26 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
+
+  # Only the number of open alerts per severity, in the log: the repository is public, so where an
+  # unfixed alert is stays in the Security tab (maintainers only). The evening check reads this line.
+  count:
+    name: Open alerts (count only)
+    needs: analyze
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      security-events: read
+    steps:
+      - name: Count
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          levels=$(gh api --paginate "repos/${{ github.repository }}/code-scanning/alerts?state=open&per_page=100" \
+            --jq '.[] | (.rule.security_severity_level // .rule.severity // "unknown")')
+          total=$(printf '%s' "$levels" | grep -c . || true)
+          by=$(printf '%s\n' "$levels" | grep . | sort | uniq -c | awk '{printf "%s=%s ", $2, $1}' || true)
+          line="CODE-SCANNING-OPEN total=$total ${by}"
+          echo "$line"
+          echo "$line" >> "$GITHUB_STEP_SUMMARY"
