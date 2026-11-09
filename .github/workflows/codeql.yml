@@ -1,0 +1,87 @@
+# CodeQL code scanning. GitHub's default setup cannot build this repository (its Gradle projects live
+# in android/ and server/, not at the root), so Kotlin/Java is built here by hand; the other
+# languages need no build.
+name: CodeQL
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: "37 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+          - language: python
+            build-mode: none
+          - language: ruby
+            build-mode: none
+          - language: java-kotlin
+            build-mode: manual
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup JDK 17
+        if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        if: matrix.build-mode == 'manual'
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+
+      - name: Android platform and build-tools
+        if: matrix.build-mode == 'manual'
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" > /dev/null
+
+      - name: Setup Gradle
+        if: matrix.build-mode == 'manual'
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+          cache-disabled: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      # CodeQL sees only what is compiled in this step: no build cache, every task runs.
+      - name: Build (Kotlin/Java)
+        if: matrix.build-mode == 'manual'
+        run: |
+          gradle -p server compileKotlin compileTestKotlin --no-daemon --no-build-cache --rerun-tasks
+          gradle -p android :app:compileFullDebugKotlin :bridge:compileDebugKotlin --no-daemon --no-build-cache --rerun-tasks
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
