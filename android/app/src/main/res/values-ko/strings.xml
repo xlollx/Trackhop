@@ -1783,4 +1783,5 @@
     <string name="spread_body">각 동기화가 앞의 동기화보다 조금 뒤에 시작해요. 요일, 빈도 등 나머지는 그대로예요.</string>
     <string name="spread_stays">%1$s (그대로)</string>
     <string name="spread_confirm">확인</string>
+    <string name="review_discard_busy">이 곡들을 찾으려고 %1$s의 플레이리스트를 읽는 중이에요. 긴 플레이리스트는 몇 초 걸려요.</string>
 </resources>

@@ -1874,4 +1874,5 @@
     <string name="spread_body">Каждая синхронизация начнётся чуть позже предыдущей. Дни, частота и всё остальное не меняются.</string>
     <string name="spread_stays">%1$s (без изменений)</string>
     <string name="spread_confirm">Подтвердить</string>
+    <string name="review_discard_busy">Читаю плейлист в %1$s, чтобы найти эти треки: для длинного плейлиста это займёт несколько секунд.</string>
 </resources>

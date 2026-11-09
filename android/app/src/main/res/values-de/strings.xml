@@ -1814,4 +1814,5 @@
     <string name="spread_body">Jeder Sync startet etwas nach dem vorherigen. Tage, Häufigkeit und alles andere bleiben gleich.</string>
     <string name="spread_stays">%1$s (bleibt)</string>
     <string name="spread_confirm">Bestätigen</string>
+    <string name="review_discard_busy">Lese die Playlist auf %1$s, um diese Titel zu finden: Bei einer langen Playlist dauert das ein paar Sekunden.</string>
 </resources>

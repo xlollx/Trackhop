@@ -1784,4 +1784,5 @@
     <string name="spread_body">各同期は前の同期の少し後に開始します。曜日、頻度、その他の設定は変わりません。</string>
     <string name="spread_stays">%1$s（そのまま）</string>
     <string name="spread_confirm">確定</string>
+    <string name="review_discard_busy">%1$s のプレイリストを読み込んで曲を探しています。長いプレイリストでは数秒かかります。</string>
 </resources>

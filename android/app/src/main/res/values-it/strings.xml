@@ -1814,4 +1814,5 @@
     <string name="spread_body">Ogni sync parte poco dopo la precedente. Giorni, frequenza e tutto il resto non cambiano.</string>
     <string name="spread_stays">%1$s (resta)</string>
     <string name="spread_confirm">Conferma</string>
+    <string name="review_discard_busy">Leggo la playlist su %1$s per trovare questi brani: con una playlist lunga ci vuole qualche secondo.</string>
 </resources>

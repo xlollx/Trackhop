@@ -197,7 +197,18 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
             AlertDialog(
                 onDismissRequest = { if (!busy) discarding = null },
                 title = { Text(stringResource(R.string.review_discard_title, dstName)) },
-                text = { Text(stringResource(if (removes) R.string.review_discard_body else R.string.review_discard_body_kept, dstName)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(stringResource(if (removes) R.string.review_discard_body else R.string.review_discard_body_kept, dstName))
+                        // The removal first reads the whole target playlist (a search result has no entry id):
+                        // seconds on a long one, so it says what it is doing instead of looking stuck.
+                        if (busy) Row(verticalAlignment = Alignment.CenterVertically) {
+                            androidx.compose.material3.CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(12.dp))
+                            Text(stringResource(R.string.review_discard_busy, dstName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                },
                 confirmButton = {
                     TextButton(enabled = !busy, onClick = {
                         busy = true

@@ -1784,4 +1784,5 @@
     <string name="spread_body">每个同步会比上一个稍晚开始。日期、频率和其他设置都不变。</string>
     <string name="spread_stays">%1$s（不变）</string>
     <string name="spread_confirm">确认</string>
+    <string name="review_discard_busy">正在读取 %1$s 上的歌单以找到这些歌曲：歌单较长时需要几秒钟。</string>
 </resources>

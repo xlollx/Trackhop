@@ -1812,4 +1812,5 @@
     <string name="spread_body">Her eşitleme bir öncekinden biraz sonra başlar. Günler, sıklık ve diğer her şey aynı kalır.</string>
     <string name="spread_stays">%1$s (aynı kalır)</string>
     <string name="spread_confirm">Onayla</string>
+    <string name="review_discard_busy">Bu parçaları bulmak için %1$s üzerindeki liste okunuyor: uzun bir listede birkaç saniye sürer.</string>
 </resources>

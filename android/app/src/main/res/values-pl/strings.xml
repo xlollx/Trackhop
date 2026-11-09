@@ -1876,4 +1876,5 @@
     <string name="spread_body">Każda synchronizacja startuje chwilę po poprzedniej. Dni, częstotliwość i cała reszta się nie zmieniają.</string>
     <string name="spread_stays">%1$s (bez zmian)</string>
     <string name="spread_confirm">Potwierdź</string>
+    <string name="review_discard_busy">Czytam playlistę w %1$s, żeby znaleźć te utwory: przy długiej playliście trwa to kilka sekund.</string>
 </resources>
