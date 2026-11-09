@@ -50,24 +50,44 @@ class QobuzWebClient(private val host: WebHost) {
         return b
     }
 
+    /** Qobuz's site turned a call away before the API saw it (a 403 that is not the API's JSON): it passes again later. */
+    private class Refused(message: String) : Exception(message)
+
     private fun read(req: Request): JsonElement {
-        val (code, body) = http.newCall(req).execute().use { it.code to it.body?.string().orEmpty() }
+        pace()
+        val (code, body, server) = http.newCall(req).execute().use { Triple(it.code, it.body?.string().orEmpty(), it.header("Server")) }
         if (code == 401) throw BridgeException(EXPIRED)
         if (code == 429) throw BridgeException("Qobuz asks to slow down (429): try again in a few minutes")
         val j = runCatching { parseJson(body) }.getOrNull()
+        if (code == 403 && problemIn(j) == null) {
+            // Seen from 07/11/2026 (issue #56): a 403 now and then, several syncs in a row, then fine again.
+            val page = body.replace(Regex("<[^>]*>"), " ").replace(Regex("\\s+"), " ").trim().take(80)
+            throw Refused("Qobuz HTTP 403 (" + listOfNotNull(server?.let { "server $it" }, page.takeIf { it.isNotEmpty() }).joinToString(": ").ifEmpty { "empty answer" } + ")")
+        }
         if (code !in 200..299) throw BridgeException(problemIn(j) ?: "Qobuz HTTP $code")
         if (j == null) throw BridgeException("Qobuz answered something that is not JSON")
         problemIn(j)?.let { throw BridgeException(it) }
         return j
     }
 
-    private fun get(path: String, params: Map<String, String> = emptyMap(), signed: Boolean = true): JsonElement =
-        read(request(path, params, signed).get().build())
+    /** A read: refused by the site, it is asked again after [retryWaitsMs] (a read changes nothing, so asking twice is safe). */
+    private fun get(path: String, params: Map<String, String> = emptyMap(), signed: Boolean = true): JsonElement {
+        var attempt = 0
+        while (true) {
+            try {
+                return read(request(path, params, signed).get().build())
+            } catch (e: Refused) {
+                val wait = retryWaitsMs.getOrNull(attempt++) ?: throw BridgeException("${e.message}, ${attempt} times: Qobuz's site refused the calls, the next sync tries again")
+                BridgeNet.log("qobuz", "${e.message}, asking again in ${wait / 1000} s")
+                Thread.sleep(wait)
+            }
+        }
+    }
 
-    /** A write, as a form: the way the open-source clients post to the same API. */
+    /** A write, as a form: the way the open-source clients post to the same API. Never sent twice: a refused write is reported. */
     private fun post(path: String, form: Map<String, String>): JsonElement {
         val body = FormBody.Builder().apply { form.forEach { (k, v) -> add(k, v) } }.build()
-        return read(request(path).post(body).build())
+        return try { read(request(path).post(body).build()) } catch (e: Refused) { throw BridgeException(e.message ?: "Qobuz HTTP 403") }
     }
 
     /** Every item of a paged listing ({limit, offset, total, items}), the listing found by [section] in each answer. */
@@ -182,6 +202,20 @@ class QobuzWebClient(private val host: WebHost) {
     }
 
     companion object {
+        /** Waits before asking again a read the site refused; the tests make them short. */
+        @Volatile internal var retryWaitsMs = longArrayOf(15_000, 45_000)
+
+        /** Calls one after another, at least this far apart, however many syncs read Qobuz at once (they used to start together at the scheduled time). */
+        @Volatile internal var gapMs = 400L
+        private val paceLock = Any()
+        private var lastCall = 0L
+
+        private fun pace() = synchronized(paceLock) {
+            val wait = lastCall + gapMs - System.currentTimeMillis()
+            if (wait > 0) Thread.sleep(wait)
+            lastCall = System.currentTimeMillis()
+        }
+
         const val SITE = "https://play.qobuz.com"
         const val LOGIN_URL = "https://play.qobuz.com/login"
         const val API_HOST = "www.qobuz.com"

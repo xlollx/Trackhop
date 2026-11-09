@@ -200,6 +200,29 @@ class QobuzWebClientContractTest {
         try { c.tracks("x"); fail() } catch (e: BridgeException) { assertEquals("Qobuz: Invalid or missing playlist_id parameter", e.message) }
     }
 
+    @Test fun aReadTheSiteRefusesIsAskedAgainAndAWriteIsNot() {
+        QobuzWebClient.retryWaitsMs = longArrayOf(1, 1)
+        QobuzWebClient.gapMs = 0
+        try {
+            // Refused once (an HTML page, not the API's JSON), then answered: the read goes through.
+            BridgeMock.answer("<html><body>Access denied</body></html>", code = 403, "Server" to "AkamaiGHost")
+            BridgeMock.answer("""{"user":{"id":1001},"tracks":{"offset":0,"limit":500,"total":1,"items":[${entry(21, 0, "Fav")}]}}""")
+            assertEquals(1, c.liked().size)
+            // Refused every time: after the retries, the reason with what the site said.
+            repeat(3) { BridgeMock.answer("<html><body>Access denied</body></html>", code = 403, "Server" to "AkamaiGHost") }
+            try { c.liked(); fail() } catch (e: BridgeException) {
+                assertTrue(e.message, e.message!!.startsWith("Qobuz HTTP 403 (server AkamaiGHost: Access denied), 3 times"))
+            }
+            // A write is never sent twice.
+            BridgeMock.answer("", code = 403)
+            BridgeMock.answer("""{"id":7100}""")
+            try { c.add("7100", listOf("11")); fail() } catch (e: BridgeException) { assertEquals("Qobuz HTTP 403 (empty answer)", e.message) }
+        } finally {
+            QobuzWebClient.retryWaitsMs = longArrayOf(15_000, 45_000)
+            QobuzWebClient.gapMs = 400
+        }
+    }
+
     @Test fun theSessionIsFoundInWhatIsPastedAndInThePlayersRequests() {
         val curl = "curl 'https://www.qobuz.com/api.json/0.2/playlist/getUserPlaylists?offset=0&limit=500' \\\n  -H 'accept: */*' \\\n" +
             "  -H 'x-app-id: 123456789' \\\n  -H 'x-user-auth-token: $token'"
