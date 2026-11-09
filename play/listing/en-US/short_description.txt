@@ -1,0 +1,1 @@
+Sync playlists across Spotify, Apple Music, YouTube Music, TIDAL and Deezer.

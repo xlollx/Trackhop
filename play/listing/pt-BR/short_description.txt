@@ -1,0 +1,1 @@
+Sincronize playlists entre Spotify, Apple Music, YouTube Music, TIDAL e Deezer.

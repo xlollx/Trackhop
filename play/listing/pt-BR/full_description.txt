@@ -1,0 +1,24 @@
+Mantenha suas playlists iguais em todos os serviços de música, sem refazer tudo à mão.
+
+- Escolha uma playlist de origem e uma de destino, ou deixe o app criá-la com o mesmo nome
+- Sincronize quando quiser ou programe: a cada hora, a cada 6 horas, todo dia ou toda semana no dia que você escolher
+- Só adições, remoções também, ou nos dois sentidos entre duas playlists; a ordem da origem é mantida onde o serviço permite
+- Músicas curtidas, álbuns salvos, artistas seguidos e podcasts como origem
+- Mais de uma conta no mesmo serviço, cada uma com seu próprio login
+- Cole o link de uma playlist pública, ou compartilhe de outro app, e sincronize na sua biblioteca
+- Prévia antes de cada sync: veja o que será adicionado ou removido e confirme
+- As faixas não encontradas ficam com você: procure no serviço de destino, escolha a certa e o app lembra
+- Gerador de playlists: descreva uma playlist, a sua própria IA (OpenAI, Anthropic, Google Gemini, qualquer servidor compatível ou IA no próprio celular, onde houver) sugere as faixas e o app confere se existem antes de criar qualquer coisa; do mesmo jeito você estende uma playlist existente
+- Gerencie suas playlists: renomeie, exclua, torne pública ou privada, remova faixas por título, artista ou álbum, tire duplicatas
+- Arquivos: importe e exporte CSV, M3U, XML do Apple Music/iTunes e JSON; backups datados de cada playlist, também na pasta que você escolher
+- Cartões de sync com suas cores e seu estilo, widgets e atalhos na tela inicial
+- Teste de conexão para cada conta e um resumo de cada sync
+
+Funciona com Spotify, Apple Music, YouTube Music, TIDAL, Deezer, servidores pessoais Navidrome/Subsonic, Jellyfin e Plex, Last.fm e ListenBrainz, e arquivos. Alguns conectores aparecem como beta no app: funcionam, mas foram menos usados que os outros.
+
+Grátis, sem assinatura, sem compras no app e sem anúncios.
+Nenhuma conta para criar e nenhum servidor nosso: tudo fica no seu celular, os tokens de acesso são criptografados com o Android Keystore e não passam por mais ninguém. Você entra na página de cada serviço; para Spotify, YouTube Music, TIDAL e Deezer você cria uma chave gratuita no seu nome em uns dois minutos, e o app mostra o caminho.
+
+As syncs programadas rodam no seu celular, sem servidores: se o celular estiver desligado ou a economia de bateria bloquear o app, elas continuam na primeira oportunidade.
+
+O Trackhop não é afiliado ao Spotify, Apple, Google/YouTube, TIDAL ou Deezer. Os nomes dos serviços são marcas dos respectivos donos e são usados só para indicar compatibilidade.

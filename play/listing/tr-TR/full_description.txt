@@ -1,0 +1,24 @@
+Çalma listelerini tüm müzik servislerinde aynı tut, elle yeniden oluşturmadan.
+
+- Bir kaynak ve bir hedef çalma listesi seç ya da uygulama aynı adla oluştursun
+- İstediğin zaman eşitle ya da planla: saatte bir, 6 saatte bir, her gün veya seçtiğin günde her hafta
+- Yalnızca ekleme, kaldırmaları da yansıtma ya da iki liste arasında iki yönlü; servis izin verdiği yerde kaynağın sırası korunur
+- Beğenilen şarkılar, kaydedilen albümler, takip edilen sanatçılar ve podcast'ler kaynak olarak
+- Aynı serviste birden fazla hesap, her biri kendi girişiyle
+- Herkese açık bir listenin bağlantısını yapıştır ya da başka bir uygulamadan paylaş ve kitaplığına eşitle
+- Her eşitlemeden önce önizleme: neyin ekleneceğini veya kaldırılacağını gör, sonra onayla
+- Bulunamayan parçaları sen düzeltirsin: hedef serviste ara, doğrusunu seç, uygulama hatırlar
+- Liste oluşturucu: bir listeyi anlat, kendi yapay zekân (OpenAI, Anthropic, Google Gemini, uyumlu herhangi bir sunucu ya da destekleyen telefonlarda cihaz üzerindeki yapay zekâ) parçaları önerir, uygulama bir şey oluşturmadan önce var olduklarını kontrol eder; mevcut bir listeyi de aynı şekilde uzatırsın
+- Listelerini yönet: yeniden adlandır, sil, herkese açık veya gizli yap, parçaları ad, sanatçı veya albüme göre kaldır, kopyaları temizle
+- Dosyalar: CSV, M3U, Apple Music/iTunes XML ve JSON içe ve dışa aktarma; her listenin tarihli yedekleri, seçtiğin bir klasöre de
+- Kendi renklerin ve tarzınla eşitleme kartları, ana ekran widget'ları ve kısayollar
+- Her hesap için bağlantı testi ve her eşitlemenin özeti
+
+Spotify, Apple Music, YouTube Music, TIDAL, Deezer, kişisel Navidrome/Subsonic, Jellyfin ve Plex sunucuları, Last.fm ve ListenBrainz ile dosyalarla çalışır. Bazı bağlayıcılar uygulamada beta olarak işaretlidir: çalışırlar ama diğerlerinden daha az kullanılmışlardır.
+
+Ücretsiz; abonelik, uygulama içi satın alma ve reklam yok.
+Oluşturulacak hesap yok, bizim sunucumuz yok: her şey telefonunda kalır, erişim token'ları Android Keystore ile şifrelenir ve başka kimseden geçmez. Her servise kendi sayfasında giriş yaparsın; Spotify, YouTube Music, TIDAL ve Deezer için kendi adına ücretsiz bir anahtarı yaklaşık iki dakikada oluşturursun, uygulama adım adım yol gösterir.
+
+Planlanmış eşitlemeler sunucu olmadan telefonunda çalışır: telefon kapalıysa ya da pil tasarrufu uygulamayı engellerse ilk fırsatta devam eder.
+
+Trackhop; Spotify, Apple, Google/YouTube, TIDAL veya Deezer ile bağlantılı değildir. Servis adları sahiplerinin ticari markalarıdır ve yalnızca uyumluluğu belirtmek için kullanılır.

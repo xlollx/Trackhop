@@ -1,0 +1,60 @@
+# The Google Play store listing from the repository (.github/scripts/play_listing.py): texts in
+# play/listing/<locale>/, phone screenshots in docs/store/play/<locale>/ (Screenshots workflow,
+# flavor play), feature graphics docs/store/feature_<lang>.png. By hand only.
+# "commit" off (the default): Google only validates the change and nothing is published.
+name: Google Play listing
+
+on:
+  workflow_dispatch:
+    inputs:
+      texts:
+        description: Title, short and full description
+        type: boolean
+        default: true
+      screenshots:
+        description: Phone screenshots (the first 8 of each language)
+        type: boolean
+        default: true
+      feature:
+        description: Feature graphics (where a docs/store/feature_<lang>.png exists)
+        type: boolean
+        default: false
+      commit:
+        description: Publish the change (off = validate only)
+        type: boolean
+        default: false
+      locales:
+        description: Only these languages, comma-separated (empty = all)
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: play-listing
+
+jobs:
+  listing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: pip install --quiet google-auth requests pillow
+      - name: Listing
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          TEXTS: ${{ inputs.texts }}
+          SHOTS: ${{ inputs.screenshots }}
+          FEATURE: ${{ inputs.feature }}
+          COMMIT: ${{ inputs.commit }}
+          LOCALES: ${{ inputs.locales }}
+        run: |
+          args=()
+          [ "$TEXTS" = true ] && args+=(--texts)
+          [ "$SHOTS" = true ] && args+=(--screenshots)
+          [ "$FEATURE" = true ] && args+=(--feature)
+          [ "$COMMIT" = true ] && args+=(--commit)
+          python .github/scripts/play_listing.py "${args[@]}" --locales "$LOCALES"
