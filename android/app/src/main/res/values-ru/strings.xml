@@ -758,7 +758,7 @@
     <string name="update_pill">Обновить</string>
     <string name="update_pill_desc">Доступна новая версия Trackhop: нажмите, чтобы обновить</string>
     <string name="settings_update_check">Проверять обновления</string>
-    <string name="settings_update_check_summary">Дважды в день спрашивает GitHub, есть ли новый Trackhop, и показывает стрелку вверху; нажатие скачивает его. Не выполняется, если приложение установлено через F-Droid или Obtainium: они обновляют его сами.</string>
+    <string name="settings_update_check_summary">Дважды в день спрашивает GitHub, есть ли новый Trackhop, и показывает стрелку вверху и уведомление один раз на каждую новую версию; нажатие скачивает его. Не выполняется, если приложение установлено через F-Droid или Obtainium: они обновляют его сами.</string>
     <string name="settings_update_check_elsewhere">Trackhop установлен через %1$s: он обновляет приложение и сообщает о новых версиях, поэтому стрелки здесь нет.</string>
     <string name="pill_error">Требует внимания</string>
     <string name="pill_never">Ещё не запускалась</string>
@@ -1856,4 +1856,8 @@
     <string name="settings_status_place">Состояние синхронизации на карточках</string>
     <string name="status_place_badge">Значок на логотипах</string>
     <string name="status_place_footer">Рядом с расписанием</string>
+    <string name="notif_update_channel">Обновления приложения</string>
+    <string name="notif_update_channel_desc">Когда выходит новая версия Trackhop</string>
+    <string name="notif_update_title">Вышел Trackhop %1$s</string>
+    <string name="notif_update_text">Нажмите, чтобы скачать</string>
 </resources>

@@ -737,7 +737,7 @@
     <string name="update_pill">Atualizar</string>
     <string name="update_pill_desc">Há uma nova versão do Trackhop: toque para atualizar</string>
     <string name="settings_update_check">Verificar atualizações</string>
-    <string name="settings_update_check_summary">Duas vezes por dia pergunta ao GitHub se existe um Trackhop mais novo e mostra uma seta no topo; um toque baixa. Não acontece se o F-Droid ou o Obtainium instalou o app: eles mesmos o atualizam.</string>
+    <string name="settings_update_check_summary">Duas vezes por dia pergunta ao GitHub se existe um Trackhop mais novo e mostra uma seta no topo, mais uma notificação a cada nova versão; um toque baixa. Não acontece se o F-Droid ou o Obtainium instalou o app: eles mesmos o atualizam.</string>
     <string name="settings_update_check_elsewhere">O Trackhop foi instalado pelo %1$s, que o mantém atualizado e avisa das novas versões: aqui não há seta.</string>
     <string name="pill_error">Precisa de atenção</string>
     <string name="pill_never">Ainda não executada</string>
@@ -1804,4 +1804,8 @@
     <string name="settings_status_place">Status da sync nos cartões</string>
     <string name="status_place_badge">Selo nos logos</string>
     <string name="status_place_footer">Ao lado do horário</string>
+    <string name="notif_update_channel">Atualizações do app</string>
+    <string name="notif_update_channel_desc">Quando sai uma nova versão do Trackhop</string>
+    <string name="notif_update_title">O Trackhop %1$s chegou</string>
+    <string name="notif_update_text">Toque para baixar</string>
 </resources>

@@ -736,7 +736,7 @@
     <string name="update_pill">Güncelle</string>
     <string name="update_pill_desc">Trackhop\'un yeni sürümü var: güncellemek için dokunun</string>
     <string name="settings_update_check">Güncellemeleri denetle</string>
-    <string name="settings_update_check_summary">Günde iki kez GitHub\'a daha yeni bir Trackhop olup olmadığını sorar ve üstte bir ok gösterir; dokunmak onu indirir. Uygulamayı F-Droid veya Obtainium yüklediyse yapılmaz: onlar kendileri günceller.</string>
+    <string name="settings_update_check_summary">Günde iki kez GitHub\'a daha yeni bir Trackhop olup olmadığını sorar ve üstte bir ok gösterir, her yeni sürüm için bir kez de bildirim gönderir; dokunmak onu indirir. Uygulamayı F-Droid veya Obtainium yüklediyse yapılmaz: onlar kendileri günceller.</string>
     <string name="settings_update_check_elsewhere">Trackhop %1$s ile yüklendi; onu güncel tutan ve yeni sürümleri bildiren odur: burada ok yok.</string>
     <string name="pill_error">İlgilenilmeli</string>
     <string name="pill_never">Henüz çalışmadı</string>
@@ -1794,4 +1794,8 @@
     <string name="settings_status_place">Kartlarda eşitleme durumu</string>
     <string name="status_place_badge">Logoların üzerinde rozet</string>
     <string name="status_place_footer">Zamanlamanın yanında</string>
+    <string name="notif_update_channel">Uygulama güncellemeleri</string>
+    <string name="notif_update_channel_desc">Trackhop\'un yeni sürümü çıktığında</string>
+    <string name="notif_update_title">Trackhop %1$s çıktı</string>
+    <string name="notif_update_text">İndirmek için dokunun</string>
 </resources>

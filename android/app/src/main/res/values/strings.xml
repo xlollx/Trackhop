@@ -737,7 +737,7 @@
     <string name="update_pill">Update</string>
     <string name="update_pill_desc">A new version of Trackhop is available: tap to update</string>
     <string name="settings_update_check">Check for updates</string>
-    <string name="settings_update_check_summary">Twice a day, asks GitHub whether a newer Trackhop exists and shows an arrow at the top; a tap downloads it. Not done when F-Droid or Obtainium installed the app: they update it themselves.</string>
+    <string name="settings_update_check_summary">Twice a day, asks GitHub whether a newer Trackhop exists and shows an arrow at the top, plus a notification once per new version; a tap downloads it. Not done when F-Droid or Obtainium installed the app: they update it themselves.</string>
     <string name="settings_update_check_elsewhere">%1$s installed Trackhop and keeps it up to date, so it tells you about new versions: no arrow here.</string>
     <string name="pill_error">Needs attention</string>
     <string name="pill_never">Not run yet</string>
@@ -1797,4 +1797,8 @@
     <string name="settings_status_place">Sync status on cards</string>
     <string name="status_place_badge">Badge on the logos</string>
     <string name="status_place_footer">Next to the schedule</string>
+    <string name="notif_update_channel">App updates</string>
+    <string name="notif_update_channel_desc">When a new version of Trackhop is out</string>
+    <string name="notif_update_title">Trackhop %1$s is out</string>
+    <string name="notif_update_text">Tap to download it</string>
 </resources>

@@ -249,6 +249,30 @@ object Notifications {
         ContextCompat.getSystemService(context, NotificationManager::class.java)?.notify(id, n)
     }
 
+    private const val UPDATE_CHANNEL_ID = "app_updates"
+    private const val UPDATE_ID = 4244
+
+    /** "Trackhop X is out": a tap downloads its APK. Its own channel, so it can be muted alone. False when it could not be posted. */
+    fun appUpdate(context: Context, version: String, url: String?): Boolean {
+        if (!canPost(context)) return false
+        val mgr = context.getSystemService(NotificationManager::class.java)
+        mgr.createNotificationChannel(
+            NotificationChannel(UPDATE_CHANNEL_ID, context.getString(R.string.notif_update_channel), NotificationManager.IMPORTANCE_DEFAULT)
+                .apply { description = context.getString(R.string.notif_update_channel_desc) }
+        )
+        val get = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url ?: "https://github.com/xlollx/Trackhop/releases/latest")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val pi = PendingIntent.getActivity(context, UPDATE_ID, get, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val n = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notif_update_title, version))
+            .setContentText(context.getString(R.string.notif_update_text))
+            .setContentIntent(pi)
+            .setAutoCancel(true)
+            .build()
+        mgr.notify(UPDATE_ID, n)
+        return true
+    }
+
     /** "N tracks can no longer be played": opens the Unplayable tracks tool. */
     fun unplayable(context: Context, id: Int, count: Int) {
         if (!canPost(context)) return

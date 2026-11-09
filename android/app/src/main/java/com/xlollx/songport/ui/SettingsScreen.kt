@@ -489,7 +489,7 @@ fun SettingsScreen(
                     updates && updater == null, enabled = updater == null,
                 ) { v ->
                     updates = v
-                    com.xlollx.songport.update.AppUpdates.setEnabled(ctx, v)
+                    com.xlollx.songport.update.AppUpdates.setEnabled(ctx, v); com.xlollx.songport.sync.Scheduler.applyUpdateCheck(ctx)
                     if (v) updatesScope.launch { com.xlollx.songport.update.AppUpdates.check(ctx, force = true) }
                 }
             }

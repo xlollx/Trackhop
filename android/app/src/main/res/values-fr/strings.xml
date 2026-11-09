@@ -737,7 +737,7 @@
     <string name="update_pill">Mettre à jour</string>
     <string name="update_pill_desc">Une nouvelle version de Trackhop est disponible : appuyez pour mettre à jour</string>
     <string name="settings_update_check">Rechercher les mises à jour</string>
-    <string name="settings_update_check_summary">Deux fois par jour, demande à GitHub s\'il existe un Trackhop plus récent et affiche une flèche en haut ; un appui le télécharge. Désactivé si F-Droid ou Obtainium a installé l\'app : ils la mettent à jour eux-mêmes.</string>
+    <string name="settings_update_check_summary">Deux fois par jour, demande à GitHub s\'il existe un Trackhop plus récent et affiche une flèche en haut, plus une notification par nouvelle version ; un appui le télécharge. Désactivé si F-Droid ou Obtainium a installé l\'app : ils la mettent à jour eux-mêmes.</string>
     <string name="settings_update_check_elsewhere">Trackhop a été installé par %1$s, qui le tient à jour et signale les nouvelles versions : pas de flèche ici.</string>
     <string name="pill_error">À vérifier</string>
     <string name="pill_never">Jamais lancée</string>
@@ -1804,4 +1804,8 @@
     <string name="settings_status_place">État de la sync sur les cartes</string>
     <string name="status_place_badge">Pastille sur les logos</string>
     <string name="status_place_footer">À côté de l\'horaire</string>
+    <string name="notif_update_channel">Mises à jour de l\'app</string>
+    <string name="notif_update_channel_desc">Quand une nouvelle version de Trackhop sort</string>
+    <string name="notif_update_title">Trackhop %1$s est disponible</string>
+    <string name="notif_update_text">Touchez pour la télécharger</string>
 </resources>

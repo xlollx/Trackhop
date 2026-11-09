@@ -158,11 +158,43 @@ class UnplayableWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
     }
 }
 
+/**
+ * The daily look for a newer Trackhop (the GitHub build only: stores and updaters tell about their
+ * own): a notification once per new version, so it is seen without opening the app. Tap downloads it.
+ */
+class UpdateCheckWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+    override suspend fun doWork(): Result {
+        val ctx = applicationContext
+        com.xlollx.songport.update.AppUpdates.check(ctx)
+        val found = com.xlollx.songport.update.UpdateState.available.value ?: return Result.success()
+        val name = found.versionName ?: return Result.success()
+        val prefs = ctx.getSharedPreferences("app_update_notice", Context.MODE_PRIVATE)
+        if (prefs.getString("notified", null) == name) return Result.success()
+        if (Notifications.appUpdate(ctx, name, found.url)) prefs.edit().putString("notified", name).apply()
+        return Result.success()
+    }
+}
+
 object Scheduler {
     /** The unique periodic work of a sync (the UI tests read its state). */
     internal fun name(jobId: String) = "sync-$jobId"
     private const val BACKUP_WORK = "backup-export"
     private const val UNPLAYABLE_WORK = "unplayable-check"
+    private const val UPDATE_WORK = "app-update-check"
+
+    /** The daily update notification on or off with Settings › About's switch (only builds that check GitHub themselves). */
+    fun applyUpdateCheck(ctx: Context) {
+        val wm = WorkManager.getInstance(ctx)
+        val u = com.xlollx.songport.update.AppUpdates
+        if (!u.configurable || !u.enabled(ctx) || u.handledElsewhere(ctx)) {
+            wm.cancelUniqueWork(UPDATE_WORK)
+            return
+        }
+        val req = PeriodicWorkRequestBuilder<UpdateCheckWorker>(1, TimeUnit.DAYS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .build()
+        wm.enqueueUniquePeriodicWork(UPDATE_WORK, ExistingPeriodicWorkPolicy.KEEP, req)
+    }
 
     /** Allinea il controllo settimanale dei brani non riproducibili alle impostazioni. */
     fun applyUnplayable(ctx: Context) {
@@ -236,6 +268,7 @@ object Scheduler {
         store.data.jobs.forEach { applyWork(ctx, it) }
         applyBackup(ctx)
         applyUnplayable(ctx)
+        applyUpdateCheck(ctx)
         // At every start of the process, in the background too: the radio's alarm armed, no listening started from here.
         RadioPlan.refresh(ctx, start = false)
     }
