@@ -1,5 +1,6 @@
 # Counts downloads (GitHub releases + Docker Hub pulls) into the "badges" branch:
-# downloads.json (the README's shields.io badge) and downloads-detail.json (the site's counter).
+# downloads.json, stars.json, release.json and their SVG badges for the README (scripts/badge_svg.py,
+# no shields.io: it timed out behind GitHub's image proxy), and downloads-detail.json (the site's counter).
 name: Downloads
 
 on:
@@ -38,10 +39,11 @@ jobs:
             git fetch --depth=1 origin badges
             git worktree add badges FETCH_HEAD
             git -C badges checkout -q -B badges
-            cp out/downloads.json out/downloads-detail.json out/stars.json badges/
+            cp out/downloads.json out/downloads-detail.json out/stars.json out/release.json out/updated.json out/docker.json badges/
+            python3 scripts/badge_svg.py badges
             git -C badges add -A
             # Only the time changed: nothing to publish.
-            if git -C badges diff --cached --quiet -- downloads.json stars.json && \
+            if git -C badges diff --cached --quiet -- downloads.json stars.json release.json updated.json docker.json '*.svg' && \
                [ "$(git -C badges diff --cached -- downloads-detail.json | grep -c '^[-+] *"\(total\|github\|docker\)"')" = 0 ]; then
               echo "No change."; exit 0
             fi

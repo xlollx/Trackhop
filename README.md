@@ -6,13 +6,21 @@
 On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center">
-  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://img.shields.io/github/v/release/xlollx/Trackhop?label=release" alt="Latest release"></a>
-  <a href="https://trackhop.org/#downloads"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fdownloads.json&cacheSeconds=1800" alt="Downloads from GitHub and Docker Hub"></a>
-  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fstars.json&cacheSeconds=1800&label=stars" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/release.svg" alt="Latest release"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
+  <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
-  <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-app.json&label=app%20on%20VirusTotal" alt="The app's files on VirusTotal"></a>
-  <a href="https://trackhop.org/guide/security"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fbadges%2Fvirustotal-desktop.json&label=Desktop%20on%20VirusTotal" alt="Trackhop Desktop's files on VirusTotal"></a>
+  <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
+  <a href="https://trackhop.org"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/languages.svg" alt="12 languages"></a>
+  <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
+  <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
+  <br>
+  <a href="https://trackhop.org/privacy-policy"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/privacy.svg" alt="Privacy: no account, no tracking"></a>
+  <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/reproducible.svg" alt="F-Droid: reproducible build"></a>
+  <br>
+  <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-app.svg" alt="The app's files on VirusTotal"></a>
+  <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-desktop.svg" alt="Trackhop Desktop's files on VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -55,7 +63,7 @@ Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, A
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase
 Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
-any build: development lives on voluntary donations.
+any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
 ### Music services at a glance
 

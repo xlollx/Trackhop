@@ -50,7 +50,7 @@ card3: "동기화 전에는 항상 미리보기. 찾지 못한 곡은 검토 목
 card4_title: 내 계정은 내 것
 card4: 로그인은 각 서비스의 공식 페이지에서 해요. 액세스 토큰은 휴대폰에 암호화되어 저장되고 밖으로 나가지 않아요.
 card5_title: 내 음악 서버까지
-card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Plex도 지원해요. 파일도 돼요: CSV, M3U, XML, JSON."
+card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Plex도 지원해요. 파일도 돼요: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Navidrome 앱 카탈로그에 등재.</a>"
 card6_title: 플레이리스트 도구
 card6: 백업, 중복 제거, 합치기·나누기·정렬, 그리고 내 AI 키로 동작하는 플레이리스트 생성기.
 one_title: "서비스가 하나뿐이어도"

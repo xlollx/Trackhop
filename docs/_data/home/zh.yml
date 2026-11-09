@@ -50,7 +50,7 @@ card3: "每次同步前都有预览。没找到的歌曲会进入待检查列表
 card4_title: 账号始终属于你
 card4: 在各服务自己的页面上登录。访问令牌在手机上加密保存，绝不离开手机。
 card5_title: 你自己的音乐服务器
-card5: "除了流媒体服务，还支持 Navidrome 等 Subsonic 服务器、Jellyfin 和 Plex。也支持文件：CSV、M3U、XML、JSON。"
+card5: "除了流媒体服务，还支持 Navidrome 等 Subsonic 服务器、Jellyfin 和 Plex。也支持文件：CSV、M3U、XML、JSON。 <a href='https://www.navidrome.org/apps/'>已收录于 Navidrome 应用目录。</a>"
 card6_title: 歌单工具
 card6: 备份、去重、合并、拆分和排序，以及用你自己的 AI 密钥驱动的歌单生成器。
 one_title: "只用一个服务也行"
