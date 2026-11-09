@@ -140,7 +140,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Files of both systems
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: Trackhop-Desktop-*
           path: dist
@@ -148,7 +148,7 @@ jobs:
 
       - name: Flatpak
         if: ${{ needs.flatpak.result == 'success' }}
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Trackhop-Flatpak
           path: flatpak
