@@ -74,6 +74,8 @@ data class Settings(
     val cardAccent: String = "classic",
     /** How the last runs show under a card's figures (RunHistoryStyle key). */
     val runHistoryStyle: String = "bars",
+    /** Where a sync card shows its status: "badge" on the services' logos, or "footer" as a pill by the schedule. */
+    val cardStatusPlace: String = "footer",
     /** The refreshed sync cards (big numbers, run history): on unless turned off in Appearance. */
     val newLook: Boolean = true,
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */

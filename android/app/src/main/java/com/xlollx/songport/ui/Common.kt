@@ -131,22 +131,30 @@ suspend fun <T> onMain(block: suspend kotlinx.coroutines.CoroutineScope.() -> T)
 enum class Tone { Ok, Error, Neutral, Accent, Warning }
 
 /** Etichetta di stato: colore + icona + testo, mai solo il colore. */
+/** A status tone's background, as pills and badges wear it. */
+@Composable
+fun toneBackground(tone: Tone): Color = when (tone) {
+    Tone.Ok -> Tones.successContainer()
+    Tone.Error -> MaterialTheme.colorScheme.errorContainer
+    Tone.Accent -> MaterialTheme.colorScheme.primaryContainer
+    Tone.Neutral -> MaterialTheme.colorScheme.surfaceContainerHighest
+    Tone.Warning -> MaterialTheme.colorScheme.tertiaryContainer
+}
+
+/** Text and icons on [toneBackground]. */
+@Composable
+fun toneContent(tone: Tone): Color = when (tone) {
+    Tone.Ok -> Tones.onSuccessContainer()
+    Tone.Error -> MaterialTheme.colorScheme.onErrorContainer
+    Tone.Accent -> MaterialTheme.colorScheme.onPrimaryContainer
+    Tone.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
+    Tone.Warning -> MaterialTheme.colorScheme.onTertiaryContainer
+}
+
 @Composable
 fun StatusPill(text: String, tone: Tone, icon: ImageVector? = null, modifier: Modifier = Modifier) {
-    val bg = when (tone) {
-        Tone.Ok -> Tones.successContainer()
-        Tone.Error -> MaterialTheme.colorScheme.errorContainer
-        Tone.Accent -> MaterialTheme.colorScheme.primaryContainer
-        Tone.Neutral -> MaterialTheme.colorScheme.surfaceContainerHighest
-        Tone.Warning -> MaterialTheme.colorScheme.tertiaryContainer
-    }
-    val fg = when (tone) {
-        Tone.Ok -> Tones.onSuccessContainer()
-        Tone.Error -> MaterialTheme.colorScheme.onErrorContainer
-        Tone.Accent -> MaterialTheme.colorScheme.onPrimaryContainer
-        Tone.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
-        Tone.Warning -> MaterialTheme.colorScheme.onTertiaryContainer
-    }
+    val bg = toneBackground(tone)
+    val fg = toneContent(tone)
     Row(
         modifier.clip(RoundedCornerShape(50)).background(bg).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -1855,4 +1855,7 @@
     <string name="history_text">Tekst</string>
     <string name="run_history_text">Ze zmianami: %1$d · Bez zmian: %2$d · Nieudane: %3$d</string>
     <string name="job_style">Styl</string>
+    <string name="settings_status_place">Stan synchronizacji na kartach</string>
+    <string name="status_place_badge">Plakietka na logach</string>
+    <string name="status_place_footer">Obok harmonogramu</string>
 </resources>

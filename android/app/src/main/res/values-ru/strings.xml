@@ -1853,4 +1853,7 @@
     <string name="history_text">Текст</string>
     <string name="run_history_text">С изменениями: %1$d · Без изменений: %2$d · С ошибкой: %3$d</string>
     <string name="job_style">Стиль</string>
+    <string name="settings_status_place">Состояние синхронизации на карточках</string>
+    <string name="status_place_badge">Значок на логотипах</string>
+    <string name="status_place_footer">Рядом с расписанием</string>
 </resources>

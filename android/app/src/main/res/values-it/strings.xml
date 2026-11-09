@@ -1793,4 +1793,7 @@
     <string name="history_text">Testo</string>
     <string name="run_history_text">Con novità: %1$d · Senza novità: %2$d · Fallite: %3$d</string>
     <string name="job_style">Stile</string>
+    <string name="settings_status_place">Stato delle sync sulle card</string>
+    <string name="status_place_badge">Bollino sui loghi</string>
+    <string name="status_place_footer">Accanto all\'orario</string>
 </resources>

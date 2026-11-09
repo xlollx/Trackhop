@@ -1801,4 +1801,7 @@
     <string name="history_text">Texto</string>
     <string name="run_history_text">Con cambios: %1$d · Sin novedades: %2$d · Fallidas: %3$d</string>
     <string name="job_style">Estilo</string>
+    <string name="settings_status_place">Estado de la sync en las tarjetas</string>
+    <string name="status_place_badge">Insignia sobre los logos</string>
+    <string name="status_place_footer">Junto al horario</string>
 </resources>

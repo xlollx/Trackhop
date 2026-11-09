@@ -1791,4 +1791,7 @@
     <string name="history_text">Metin</string>
     <string name="run_history_text">Değişiklikli: %1$d · Yenilik yok: %2$d · Başarısız: %3$d</string>
     <string name="job_style">Stil</string>
+    <string name="settings_status_place">Kartlarda eşitleme durumu</string>
+    <string name="status_place_badge">Logoların üzerinde rozet</string>
+    <string name="status_place_footer">Zamanlamanın yanında</string>
 </resources>

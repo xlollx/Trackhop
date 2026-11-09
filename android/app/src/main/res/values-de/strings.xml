@@ -1793,4 +1793,7 @@
     <string name="history_text">Text</string>
     <string name="run_history_text">Mit Änderungen: %1$d · Nichts Neues: %2$d · Fehlgeschlagen: %3$d</string>
     <string name="job_style">Stil</string>
+    <string name="settings_status_place">Sync-Status auf Karten</string>
+    <string name="status_place_badge">Abzeichen auf den Logos</string>
+    <string name="status_place_footer">Neben dem Zeitplan</string>
 </resources>

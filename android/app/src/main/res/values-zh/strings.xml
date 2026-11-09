@@ -1763,4 +1763,7 @@
     <string name="history_text">文字</string>
     <string name="run_history_text">有变化: %1$d · 无变化: %2$d · 失败: %3$d</string>
     <string name="job_style">样式</string>
+    <string name="settings_status_place">卡片上的同步状态</string>
+    <string name="status_place_badge">标志上的徽章</string>
+    <string name="status_place_footer">在计划旁边</string>
 </resources>

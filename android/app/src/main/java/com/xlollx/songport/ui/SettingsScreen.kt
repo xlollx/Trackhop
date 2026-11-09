@@ -179,6 +179,13 @@ fun SettingsScreen(
                 accentOpen = false
                 store.updateSettings { it.copy(cardAccent = k) }
             }
+            val placeChoices = listOf("footer" to stringResource(R.string.status_place_footer), "badge" to stringResource(R.string.status_place_badge))
+            var placeOpen by remember { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_status_place), placeChoices.firstOrNull { it.first == settings.cardStatusPlace }?.second ?: placeChoices.first().second) { placeOpen = true }
+            if (placeOpen) ChoiceDialog(stringResource(R.string.settings_status_place), placeChoices, settings.cardStatusPlace, onDismiss = { placeOpen = false }) { k ->
+                placeOpen = false
+                store.updateSettings { it.copy(cardStatusPlace = k) }
+            }
             val historyChoices = RunHistoryStyle.entries.map { it.key to stringResource(it.label) }
             var historyOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_run_history), historyChoices.firstOrNull { it.first == settings.runHistoryStyle }?.second ?: historyChoices.first().second) { historyOpen = true }

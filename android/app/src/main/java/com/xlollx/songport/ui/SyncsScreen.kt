@@ -60,6 +60,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.geometry.Offset
@@ -641,10 +643,39 @@ private fun JobCard(
         Column(
             Modifier.cardAccent(CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent), accent).padding(20.dp),
         ) {
+            // A run without errors can still leave something for the user: the status says what, and a
+            // tap leads where it is handled. Shown as a pill by the schedule, or as a badge on the logos.
+            val statusOnLogos = Store.get(ctx).state.collectAsState().value.settings.cardStatusPlace == "badge"
+            val status: CardStatusInfo = when (cardStatus(isRunning, job.enabled, report, run, radio = job.radio != null)) {
+                CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
+                CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
+                CardStatus.PAUSED -> CardStatusInfo(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
+                CardStatus.DISABLED -> CardStatusInfo(stringResource(R.string.disabled), Tone.Neutral, null)
+                CardStatus.NEVER -> CardStatusInfo(stringResource(R.string.pill_never), Tone.Neutral, null)
+                CardStatus.ERROR -> CardStatusInfo(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+                CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
+                CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onOpenLog)
+                CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report!!.id) }
+                CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
+                // Up to date only once checked: the source seen unchanged since the last run. Changed:
+                // a tap runs it. Not checkable (no version from the service, offline) or not checked
+                // yet: when it last ran, without the tick.
+                CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
+                    Freshness.State.CURRENT -> CardStatusInfo(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
+                    Freshness.State.CHANGED -> CardStatusInfo(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
+                    else -> CardStatusInfo(
+                        // Under a minute "0 min. ago" reads oddly: "Just ran" instead.
+                        if (System.currentTimeMillis() - job.lastRunEpoch < DateUtils.MINUTE_IN_MILLIS) stringResource(R.string.pill_just_ran)
+                        else stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)),
+                        Tone.Neutral, Icons.Filled.Schedule,
+                    )
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.width(56.dp).height(36.dp)) {
                     ProviderBadge(src, 34.dp)
                     Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 34.dp) }
+                    if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 6.dp))
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -676,34 +707,6 @@ private fun JobCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.cardMarquee(),
                     )
-                }
-                Spacer(Modifier.width(8.dp))
-                // A run without errors can still leave something for the user: the pill says what,
-                // and a tap leads where it is handled.
-                when (cardStatus(isRunning, job.enabled, report, run, radio = job.radio != null)) {
-                    CardStatus.RUNNING -> StatusPill(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
-                    CardStatus.PAUSING -> StatusPill(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
-                    CardStatus.PAUSED -> StatusPill(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
-                    CardStatus.DISABLED -> StatusPill(stringResource(R.string.disabled), Tone.Neutral)
-                    CardStatus.NEVER -> StatusPill(stringResource(R.string.pill_never), Tone.Neutral)
-                    CardStatus.ERROR -> StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
-                    CardStatus.HELD_BACK -> ActionPill(stringResource(R.string.pill_held_back), Tone.Warning) { onPreview(job) }
-                    CardStatus.INCOMPLETE -> ActionPill(stringResource(R.string.pill_incomplete), Tone.Warning, onClick = onOpenLog)
-                    CardStatus.NOT_FOUND -> ActionPill(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning) { onReview(report!!.id) }
-                    CardStatus.EMPTY_SOURCE -> StatusPill(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
-                    // Up to date only once checked: the source seen unchanged since the last run. Changed:
-                    // a tap runs it. Not checkable (no version from the service, offline) or not checked
-                    // yet: when it last ran, without the tick.
-                    CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
-                        Freshness.State.CURRENT -> StatusPill(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
-                        Freshness.State.CHANGED -> ActionPill(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
-                        else -> StatusPill(
-                            // Under a minute "0 min. ago" reads oddly: "Just ran" instead.
-                            if (System.currentTimeMillis() - job.lastRunEpoch < DateUtils.MINUTE_IN_MILLIS) stringResource(R.string.pill_just_ran)
-                            else stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)),
-                            Tone.Neutral, Icons.Filled.Schedule,
-                        )
-                    }
                 }
             }
             if (run != null) {
@@ -777,6 +780,10 @@ private fun JobCard(
             if (job.radio != null) RadioCardStatus(job)
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                if (!statusOnLogos) {
+                    StatusChip(status)
+                    Spacer(Modifier.width(8.dp))
+                }
                 Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(6.dp))
                 val last = if (job.lastRunEpoch > 0) formatDate(job.lastRunEpoch) else stringResource(R.string.last_run_never)
@@ -1965,4 +1972,30 @@ private fun Modifier.cardMarquee(): Modifier {
         }
     }
     return this.horizontalScroll(state)
+}
+
+/** What a sync's card says about it: a few words, their tone, an icon, and what a tap does (if anything). */
+private class CardStatusInfo(val text: String, val tone: Tone, val icon: ImageVector?, val onClick: (() -> Unit)? = null)
+
+@Composable
+private fun StatusChip(info: CardStatusInfo) {
+    val click = info.onClick
+    if (click != null) ActionPill(info.text, info.tone, info.icon ?: Icons.Filled.Warning, click) else StatusPill(info.text, info.tone, info.icon)
+}
+
+/** The status as a small badge on the services' logos: its icon in its tone; a tap acts, or says the words. */
+@Composable
+private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
+    val ctx = LocalContext.current
+    Box(
+        modifier.size(20.dp).clip(CircleShape).background(toneBackground(info.tone))
+            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            .clickable(onClickLabel = info.text) {
+                info.onClick?.invoke() ?: android.widget.Toast.makeText(ctx, info.text, android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .semantics { contentDescription = info.text },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
+    }
 }

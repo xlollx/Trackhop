@@ -1794,4 +1794,7 @@
     <string name="history_text">Text</string>
     <string name="run_history_text">With changes: %1$d · Nothing new: %2$d · Failed: %3$d</string>
     <string name="job_style">Style</string>
+    <string name="settings_status_place">Sync status on cards</string>
+    <string name="status_place_badge">Badge on the logos</string>
+    <string name="status_place_footer">Next to the schedule</string>
 </resources>
