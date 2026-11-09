@@ -126,16 +126,26 @@ ${refreshSeconds?.let { """<meta http-equiv="refresh" content="$it">""" } ?: ""}
 ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
 </head><body>
 <header class="top"><a class="brand" href="/"><span class="tile">$MARK</span>Trackhop${if (edition.stage.isNotEmpty()) """ <span class="${edition.stage}">${edition.stage}</span>""" else ""}</a>
-${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}</header>
+${if (showNav) "<nav>${nav(path, account)}</nav>" else ""}${supportMenu()}</header>
 $banner${if (edition.stage.isEmpty()) "" else """<p class="alpha-note">${if (edition.stage == "beta") "<strong>Beta.</strong> ${h(edition.product)} works for everyday use but is still young: things can change between releases." else "<strong>Alpha.</strong> ${h(edition.product)} is an early test version: things can break or change between releases."} Keep a copy of the data folder and <a href="https://trackhop.org/guide/reporting-a-problem">report what goes wrong</a>.</p>"""}
 <main${if (wide) " class=\"wide\"" else ""}>
 ${backTo(path)?.let { """<a class="back" href="${h(it)}">‹ Back</a>""" } ?: ""}
 <h1>${h(title)}</h1>
 $body
 </main>
-<footer><a class="coffee" href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">☕ Buy me a coffee</a> <span class="muted">Optional: nothing is unlocked, everything stays free.</span><br>
-${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop" title="Free software under the AGPL-3.0: this is its source code">Source code</a> · Trackhop by xlollx · <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">Sponsor</a>${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
+<footer>${supportMenu()}<br>
+${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="https://github.com/xlollx/Trackhop" title="Free software under the AGPL-3.0: this is its source code">Source code</a> · Trackhop by xlollx${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
 </body></html>"""
+
+    /**
+     * "Support Trackhop" at the top and in the footer: Ko-fi or GitHub Sponsors in a small menu
+     * (no script). Optional and unlocks nothing.
+     */
+    private fun supportMenu() = """<details class="support"><summary>☕ Support</summary><div class="pop">""" +
+        """<p>Optional: nothing is unlocked, everything stays free. Thank you!</p>""" +
+        """<a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener"><span class="i">☕</span><span><b>Ko-fi</b><small>One-off · card or PayPal · no account needed</small></span></a>""" +
+        """<a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener"><span class="i">♥</span><span><b>GitHub Sponsors</b><small>Monthly or one-off · with a GitHub account</small></span></a>""" +
+        """</div></details>"""
 
     /**
      * The app's look (ui/Theme.kt): its Material 3 colours, dark unless the system is light; large
@@ -212,8 +222,7 @@ code{background:var(--surface-2);padding:1px 6px;border-radius:6px;word-break:br
 ol li,ul li{margin:4px 0}
 details summary{cursor:pointer}
 footer{max-width:920px;margin:24px auto;padding:0 16px 24px;color:var(--ink-3);font-size:13px;line-height:2}
-.coffee{display:inline-block;padding:4px 12px;border-radius:999px;background:var(--surface-2);color:var(--ink);text-decoration:none;font-weight:600;line-height:1.5}
-.coffee:hover{background:var(--accent-2);color:var(--accent-2-ink)}
+.support{position:relative;display:inline-block}.support>summary{list-style:none;cursor:pointer;display:inline-block;padding:5px 14px;border-radius:999px;font-weight:600;font-size:14px;background:var(--surface-2);color:var(--ink)}.support>summary::-webkit-details-marker{display:none}.top .support>summary{background:#ffe2a8;color:#4a2c00}.top:has(.support[open]){overflow:visible}.support .pop{position:absolute;z-index:20;line-height:1.4;width:300px;max-width:calc(100vw - 32px);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.2);padding:12px;text-align:left;font-weight:400}.top .support .pop{right:0;top:calc(100% + 8px)}footer .support .pop{left:0;bottom:calc(100% + 8px)}.support .pop p{margin:0 0 4px;font-size:13px;color:var(--ink-3)}.support .pop a{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;text-decoration:none;color:var(--ink);background:var(--surface-2);margin-top:8px}.support .pop a:hover{background:var(--accent-2);color:var(--accent-2-ink)}.support .pop b{display:block;font-size:15px}.support .pop small{display:block;color:var(--ink-3);font-size:12px}.support .pop span.i{font-size:22px}
 .actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .swatches label{margin:0;display:inline-flex;cursor:pointer}
@@ -242,6 +251,6 @@ svg.activity .bar{fill:var(--accent)}
 svg.activity .col:hover .bar{fill:var(--link);filter:brightness(1.15)}
 svg.activity .axis{stroke:var(--line);stroke-width:1}
 svg.activity .tick{fill:var(--ink-3);font-size:10px}
-@media (max-width:560px){h1{font-size:22px}.top{padding:10px 12px}}
+@media (max-width:560px){h1{font-size:22px}.top{padding:10px 12px}.top>.support{position:absolute;top:14px;right:12px}}
 """
 }
