@@ -104,7 +104,7 @@
     <string name="lastfm_key_api">API key</string>
     <string name="lastfm_key_secret">Shared secret</string>
     <string name="lastfm_key_paste">Incolla</string>
-    <string name="lastfm_love_title">Ama anche i brani</string>
+    <string name="lastfm_love_title">Segna anche i preferiti</string>
     <string name="pill_source_empty">Sorgente vuota</string>
     <string name="transfer_unsupported">non disponibile su %1$s</string>
     <string name="tracks_count">%1$d brani</string>

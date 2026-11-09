@@ -89,22 +89,22 @@
     <string name="lastfm_recent_desc">Deine letzten 200 Scrobbles auf Last.fm</string>
     <string name="lastfm_top_month">Meistgehört diesen Monat</string>
     <string name="lastfm_top_month_desc">Deine 100 meistgehörten Titel der letzten 30 Tage auf Last.fm</string>
-    <string name="route_note_lastfm">Dein eigener kostenloser API-Schlüssel. Eine Quelle und, nach der Anmeldung mit Passwort, ein Ziel für geliebte Titel.</string>
-    <string name="login_password_lastfm">Passwort (optional, um Titel zu lieben)</string>
-    <string name="setup_field_shared_secret">Shared Secret (optional, um Titel zu lieben)</string>
-    <string name="lastfm_loved_target_desc">Trackhop liebt (♥) diese Titel auf Last.fm für dich</string>
-    <string name="lastfm_needs_password">Um Titel zu lieben, verbinde Last.fm erneut, auch mit deinem Passwort.</string>
+    <string name="route_note_lastfm">Dein eigener kostenloser API-Schlüssel. Eine Quelle und, nach der Anmeldung mit Passwort, ein Ziel für Lieblingstitel.</string>
+    <string name="login_password_lastfm">Passwort (optional, um Lieblingstitel zu markieren)</string>
+    <string name="setup_field_shared_secret">Shared Secret (optional, um Lieblingstitel zu markieren)</string>
+    <string name="lastfm_loved_target_desc">Trackhop markiert diese Titel auf Last.fm für dich als Lieblingstitel (♥)</string>
+    <string name="lastfm_needs_password">Um Lieblingstitel zu markieren, verbinde Last.fm erneut, auch mit deinem Passwort.</string>
     <string name="lastfm_password_note">Es wird einmal verwendet, um eine Sitzung von Last.fm zu erhalten, und nicht gespeichert.</string>
-    <string name="lastfm_session_expired">Last.fm hat die Sitzung beendet: verbinde es erneut mit deinem Passwort, um Titel zu lieben.</string>
-    <string name="lastfm_no_secret">Zum Lieben von Titeln auf Last.fm wird das Shared Secret deines API-Schlüssels benötigt: füge es neben dem Schlüssel hinzu.</string>
+    <string name="lastfm_session_expired">Last.fm hat die Sitzung beendet: verbinde es erneut mit deinem Passwort, um Lieblingstitel zu markieren.</string>
+    <string name="lastfm_no_secret">Zum Markieren von Lieblingstiteln auf Last.fm wird das Shared Secret deines API-Schlüssels benötigt: füge es neben dem Schlüssel hinzu.</string>
     <string name="lastfm_key_title">Dein Last.fm-API-Schlüssel</string>
-    <string name="lastfm_key_body">Zum Lieben von Titeln brauchst du einen eigenen Schlüssel: kostenlos und in einer Minute erledigt. Öffne Last.fm, fülle das Formular aus (beliebiger App-Name, z. B. Trackhop; die übrigen Felder können leer bleiben) und kopiere dann API key und Shared secret hierher.</string>
+    <string name="lastfm_key_body">Zum Markieren von Lieblingstiteln brauchst du einen eigenen Schlüssel: kostenlos und in einer Minute erledigt. Öffne Last.fm, fülle das Formular aus (beliebiger App-Name, z. B. Trackhop; die übrigen Felder können leer bleiben) und kopiere dann API key und Shared secret hierher.</string>
     <string name="lastfm_key_create">Schlüssel bei Last.fm holen</string>
     <string name="lastfm_key_have">Ich habe schon einen</string>
     <string name="lastfm_key_api">API key</string>
     <string name="lastfm_key_secret">Shared secret</string>
     <string name="lastfm_key_paste">Einfügen</string>
-    <string name="lastfm_love_title">Auch Titel lieben</string>
+    <string name="lastfm_love_title">Auch Lieblingstitel markieren</string>
     <string name="pill_source_empty">Quelle leer</string>
     <string name="transfer_unsupported">auf %1$s nicht verfügbar</string>
     <string name="tracks_count">%1$d Titel</string>
@@ -521,7 +521,7 @@
     <string name="provider_note_subsonic">Dein eigener Musikserver: Navidrome, Airsonic, Gonic, LMS, Funkwhale und alles, was die Subsonic-API spricht. Keine Registrierung, kein Kontingent. Markierte Songs zählen als Lieblingssongs.</string>
     <string name="provider_note_jellyfin">Dein Jellyfin-Server. Keine Registrierung, kein Kontingent. Favoriten zählen als Lieblingssongs.</string>
     <string name="provider_note_plex">Dein Plex Media Server mit deinem X-Plex-Token. Musik-Playlists werden auf dem Server gelesen, erstellt und aktualisiert.</string>
-    <string name="provider_note_lastfm">Geliebte Titel eines Last.fm-Profils als Quelle. Mit Passwort angemeldet sind die geliebten Titel auch ein Ziel: Trackhop liebt die Titel für dich. Erfordert einen kostenlosen Last.fm-API-Schlüssel.</string>
+    <string name="provider_note_lastfm">Lieblingstitel eines Last.fm-Profils als Quelle. Mit Passwort angemeldet sind die Lieblingstitel auch ein Ziel: Trackhop markiert sie für dich als Lieblingstitel. Erfordert einen kostenlosen Last.fm-API-Schlüssel.</string>
     <string name="provider_note_listenbrainz">Playlists und Lieblingstitel eines ListenBrainz-Nutzers. Mit deinem Nutzer-Token lassen sich Lieblingstitel auch schreiben (Lieblingssongs als Ziel).</string>
     <string name="login_title">Bei %1$s anmelden</string>
     <string name="login_url">Serveradresse</string>
@@ -534,7 +534,7 @@
     <string name="login_hint_subsonic">Gib die Adresse deines Navidrome-, Airsonic- oder anderen Subsonic-kompatiblen Servers ein (zum Beispiel https://music.example.com) sowie deinen Benutzernamen und dein Passwort. Das Passwort wird nie im Klartext gesendet: Jede Anfrage verwendet einen gesalzenen Hash. Ampache: Verwende das Subsonic-Passwort oder den API-Schlüssel aus Einstellungen → Konto, nicht dein Kontopasswort.</string>
     <string name="login_hint_jellyfin">Gib die Adresse deines Jellyfin-Servers ein (zum Beispiel https://jellyfin.example.com) sowie deinen Benutzernamen und dein Passwort.</string>
     <string name="login_hint_plex">Gib die Adresse deines Plex Media Servers ein (zum Beispiel http://192.168.1.10:32400) und deinen X-Plex-Token. Wie du den Token findest, erklärt Plex in seinen Support-Seiten (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Gib deinen Last.fm-Benutzernamen ein. Um nur geliebte Titel zu lesen, lass das Passwort leer (das Profil muss öffentlich sein). Mit Passwort kann Trackhop auch Titel lieben: es wird einmal für eine Sitzung verwendet und nicht gespeichert.</string>
+    <string name="login_hint_lastfm">Gib deinen Last.fm-Benutzernamen ein. Um nur Lieblingstitel zu lesen, lass das Passwort leer (das Profil muss öffentlich sein). Mit Passwort kann Trackhop auch Lieblingstitel markieren: es wird einmal für eine Sitzung verwendet und nicht gespeichert.</string>
     <string name="login_hint_listenbrainz">Gib den ListenBrainz-Nutzernamen ein, dessen Playlists und Lieblingstitel gelesen werden sollen. Füge dein Nutzer-Token (listenbrainz.org → Settings) hinzu, um Lieblingstitel auch zu schreiben.</string>
     <string name="listenbrainz_token_needed">ListenBrainz braucht dein Nutzer-Token, um Lieblingstitel zu schreiben: füge es unter Konten hinzu (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Nutzer-Token (optional)</string>
@@ -726,7 +726,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Melde dich auf last.fm an und öffne die Seite zum Erstellen eines API-Kontos.</item>
         <item>Fülle das Formular aus: Kontakt-E-Mail, Anwendungsname und Beschreibung sind dir überlassen. \"Callback URL\" und \"Application homepage\" können leer bleiben. Absenden.</item>
-        <item>Kopiere hier den \"API key\" und in das zweite Feld das \"Shared secret\": es wird nur zum Lieben von Titeln benötigt.</item>
+        <item>Kopiere hier den \"API key\" und in das zweite Feld das \"Shared secret\": es wird nur zum Markieren von Lieblingstiteln benötigt.</item>
     </string-array>
     <!-- Restyling: Status, leere Bildschirme, Kopfbereich -->
     <string name="more_actions">Mehr</string>
@@ -1209,7 +1209,7 @@
     <string name="howto_accounts_summary">Connectors, Wege, Schlüssel und Sicherheit.</string>
     <string name="howto_accounts_body"># Connectors\nEin Connector ist ein Konto bei einem Dienst. Wo der Dienst es erlaubt, kannst du mehrere hinzufügen, etwa zwei Spotify-Konten, jedes mit eigenem Namen. Zwischen zwei Konten desselben Dienstes, etwa zwei Spotify- oder zwei YouTube-Music-Konten, werden Titel direkt übernommen, ohne Suche.\n# Wege\nManche Dienste sind auf zwei Wegen erreichbar. Schneller Weg: Du meldest dich auf der Seite des Dienstes an, ohne etwas anzulegen, aber es kann aufhören zu funktionieren, wenn sich die Website ändert. Offizieller Weg: die API des Dienstes mit einem kostenlosen Schlüssel auf deinen Namen; stabiler, in ein paar Minuten eingerichtet.\n# Neu anfangen\nEine Website kann sich an eine frühere Anmeldung erinnern, etwa mit Google, und dich direkt wieder dorthin bringen. ⋮ › Neu anfangen meldet ab und vergisst, was Trackhop von dieser Website gespeichert hat; danach erneut verbinden. Dein Konto beim Dienst bleibt unberührt.</string>
     <string name="howto_accounts_full">In dieser Version sind die schnellen Wege für Spotify, YouTube Music, Amazon Music, Apple Music und Deezer eingebaut, ebenso SoundCloud mit deinem Konto. Deezer (web) ist in der Alpha, SoundCloud in der Beta.</string>
-    <string name="howto_accounts_body2"># Dein eigener Schlüssel\nTrackhop wird ohne eigene Schlüssel ausgeliefert. Die Einrichtungshilfe führt dich durch die Entwicklerseite des Dienstes: Kopiere die Weiterleitungs-URI exakt dorthin und füge dann hier die Client ID (und, wo verlangt, das Secret) ein.\n• Spotify erlaubt nur Premium-Konten, einen Schlüssel zu erstellen.\n• Apples Entwickler-Token läuft spätestens nach sechs Monaten ab: Füge unter Einstellungen › Erweitert › Dienst-Schlüssel ein neues ein.\n• Auf dem offiziellen YouTube-Weg gehört das Tageskontingent dir, gezählt in Einheiten.\nEin eigener Server (Jellyfin, Plex, Navidrome…) braucht seine Adresse, deinen Benutzer und ein Passwort oder Token.\nLast.fm: Mit dem Benutzernamen werden die geliebten Titel gelesen; gib auch dein Passwort ein, um Titel zu lieben (es wird einmal verwendet und nicht gespeichert). Hat diese Version keinen eigenen Last.fm-Schlüssel, fragt die Anmeldung nach deinem API key und Shared secret, mit einem Link zum Erstellen.\n# Konten sicher halten\nPasswörter gibst du auf den Seiten der Dienste ein, nie in Trackhop. Ausnahmen sind deine eigenen Server und Last.fm: Deren Passwort nutzt Trackhop nur zur Anmeldung. Tokens sind auf dem Handy verschlüsselt, und es gibt keinen Trackhop-Server. „Verbindung testen“ prüft einen Connector; „Trennen“ löscht seine Anmeldung, „Dieses Konto entfernen“ entfernt auch die Karte. Einstellungen › Erweitert › Entwicklerwerkzeuge anzeigen › Verbindungen anzeigen listet jeden Host, den die App kontaktiert hat.</string>
+    <string name="howto_accounts_body2"># Dein eigener Schlüssel\nTrackhop wird ohne eigene Schlüssel ausgeliefert. Die Einrichtungshilfe führt dich durch die Entwicklerseite des Dienstes: Kopiere die Weiterleitungs-URI exakt dorthin und füge dann hier die Client ID (und, wo verlangt, das Secret) ein.\n• Spotify erlaubt nur Premium-Konten, einen Schlüssel zu erstellen.\n• Apples Entwickler-Token läuft spätestens nach sechs Monaten ab: Füge unter Einstellungen › Erweitert › Dienst-Schlüssel ein neues ein.\n• Auf dem offiziellen YouTube-Weg gehört das Tageskontingent dir, gezählt in Einheiten.\nEin eigener Server (Jellyfin, Plex, Navidrome…) braucht seine Adresse, deinen Benutzer und ein Passwort oder Token.\nLast.fm: Mit dem Benutzernamen werden die Lieblingstitel gelesen; gib auch dein Passwort ein, um Lieblingstitel zu markieren (es wird einmal verwendet und nicht gespeichert). Hat diese Version keinen eigenen Last.fm-Schlüssel, fragt die Anmeldung nach deinem API key und Shared secret, mit einem Link zum Erstellen.\n# Konten sicher halten\nPasswörter gibst du auf den Seiten der Dienste ein, nie in Trackhop. Ausnahmen sind deine eigenen Server und Last.fm: Deren Passwort nutzt Trackhop nur zur Anmeldung. Tokens sind auf dem Handy verschlüsselt, und es gibt keinen Trackhop-Server. „Verbindung testen“ prüft einen Connector; „Trennen“ löscht seine Anmeldung, „Dieses Konto entfernen“ entfernt auch die Karte. Einstellungen › Erweitert › Entwicklerwerkzeuge anzeigen › Verbindungen anzeigen listet jeden Host, den die App kontaktiert hat.</string>
     <string name="howto_plugins_title">Plugins</string>
     <string name="howto_plugins_summary">Wie separate Apps Dienste hinzufügen können.</string>
     <string name="howto_plugins_body">Trackhop hat eine offene Connector-Schnittstelle: Separate Apps, von wem auch immer, können darüber Dienste hinzufügen.</string>
@@ -1688,7 +1688,7 @@
     <string name="whats_new_115_transfer_body">„Viele Playlists übertragen“ zeigt vor dem Erstellen eine Zusammenfassung und kann die Syncs anlegen, ohne sie zu starten.</string>
     <string name="whats_new_116_files_title">Dateien, wie du sie benennst</string>
     <string name="whats_new_116_files_body">Trackhop liest Künstler und Album aus Dateinamen und Ordnern oder aus deinen eigenen Mustern. Wähle mehrere Dateien auf einmal aus oder sende eine direkt an einen Dienst.</string>
-    <string name="whats_new_116_lastfm_title">Titel auf Last.fm lieben</string>
+    <string name="whats_new_116_lastfm_title">Deine Lieblingstitel auf Last.fm</string>
     <string name="whats_new_116_lastfm_body">Synchronisiere die Titel, die dir bei einem beliebigen Dienst gefallen, mit deinen Lieblingstiteln auf Last.fm.</string>
     <string name="whats_new_116_preview_title">Eine klarere Vorschau</string>
     <string name="whats_new_116_preview_body">Nach dem Erstellen einer Synchronisierung siehst du, wohin sie geht, was sie tut und was sich ändert, mit Jetzt ausführen unten.</string>

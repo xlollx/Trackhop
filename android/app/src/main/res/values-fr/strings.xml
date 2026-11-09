@@ -84,27 +84,27 @@
     <string name="followed_artists">Artistes suivis</string>
     <string name="followed_podcasts">Podcasts</string>
     <string name="recently_played">Écoutés récemment</string>
-    <string name="lastfm_loved">Titres aimés</string>
-    <string name="lastfm_loved_desc">Les titres que tu as aimés (♥) sur Last.fm</string>
+    <string name="lastfm_loved">Titres favoris</string>
+    <string name="lastfm_loved_desc">Les titres que tu as mis en favoris (♥) sur Last.fm</string>
     <string name="lastfm_recent_desc">Tes 200 derniers scrobbles sur Last.fm</string>
     <string name="lastfm_top_month">Les plus écoutés du mois</string>
     <string name="lastfm_top_month_desc">Tes 100 titres les plus écoutés des 30 derniers jours sur Last.fm</string>
-    <string name="route_note_lastfm">Ta propre clé API gratuite. Une source, et une destination pour les titres aimés une fois connecté avec ton mot de passe.</string>
-    <string name="login_password_lastfm">Mot de passe (facultatif, pour aimer des titres)</string>
-    <string name="setup_field_shared_secret">Shared secret (facultatif, pour aimer des titres)</string>
-    <string name="lastfm_loved_target_desc">Trackhop aime (♥) ces titres sur Last.fm pour toi</string>
-    <string name="lastfm_needs_password">Pour aimer des titres, reconnecte Last.fm avec ton mot de passe aussi.</string>
+    <string name="route_note_lastfm">Ta propre clé API gratuite. Une source, et une destination pour les titres favoris une fois connecté avec ton mot de passe.</string>
+    <string name="login_password_lastfm">Mot de passe (facultatif, pour ajouter des titres aux favoris)</string>
+    <string name="setup_field_shared_secret">Shared secret (facultatif, pour ajouter des titres aux favoris)</string>
+    <string name="lastfm_loved_target_desc">Trackhop ajoute pour toi ces titres à tes favoris (♥) sur Last.fm</string>
+    <string name="lastfm_needs_password">Pour ajouter des titres aux favoris, reconnecte Last.fm avec ton mot de passe aussi.</string>
     <string name="lastfm_password_note">Il sert une seule fois à obtenir une session de Last.fm et n\'est pas conservé.</string>
-    <string name="lastfm_session_expired">Last.fm a mis fin à la session : reconnecte-le avec ton mot de passe pour aimer des titres.</string>
-    <string name="lastfm_no_secret">Aimer des titres sur Last.fm demande le shared secret de ta clé API : ajoute-le à côté de la clé.</string>
+    <string name="lastfm_session_expired">Last.fm a mis fin à la session : reconnecte-le avec ton mot de passe pour ajouter des titres aux favoris.</string>
+    <string name="lastfm_no_secret">Ajouter des titres aux favoris sur Last.fm demande le shared secret de ta clé API : ajoute-le à côté de la clé.</string>
     <string name="lastfm_key_title">Ta clé API Last.fm</string>
-    <string name="lastfm_key_body">Pour aimer des titres, il faut ta propre clé : c\'est gratuit et ça prend une minute. Ouvre Last.fm, remplis le formulaire (nom d\'app au choix, ex. Trackhop ; les autres champs peuvent rester vides), puis copie ici l\'API key et le shared secret.</string>
+    <string name="lastfm_key_body">Pour ajouter des titres aux favoris, il faut ta propre clé : c\'est gratuit et ça prend une minute. Ouvre Last.fm, remplis le formulaire (nom d\'app au choix, ex. Trackhop ; les autres champs peuvent rester vides), puis copie ici l\'API key et le shared secret.</string>
     <string name="lastfm_key_create">Obtenir une clé sur Last.fm</string>
     <string name="lastfm_key_have">J\'en ai déjà une</string>
     <string name="lastfm_key_api">API key</string>
     <string name="lastfm_key_secret">Shared secret</string>
     <string name="lastfm_key_paste">Coller</string>
-    <string name="lastfm_love_title">Aimer aussi des titres</string>
+    <string name="lastfm_love_title">Ajouter aussi aux favoris</string>
     <string name="pill_source_empty">Source vide</string>
     <string name="transfer_unsupported">indisponible sur %1$s</string>
     <string name="tracks_count">%1$d titres</string>
@@ -121,7 +121,7 @@
     <string name="always_available">Toujours disponible</string>
 
     <string name="provider_note_spotify">Nécessite un compte Spotify. Playlists et titres likés.</string>
-    <string name="provider_note_ytm">Playlists et titres aimés de YouTube Music via l\'interface du lecteur web, intégrée à cette version : connectez-vous avec votre compte Google, sans projet Google Cloud ni quota. Ce n\'est pas une API officielle de Google : lisez l\'avertissement affiché avant la connexion.</string>
+    <string name="provider_note_ytm">Playlists et titres favoris de YouTube Music via l\'interface du lecteur web, intégrée à cette version : connectez-vous avec votre compte Google, sans projet Google Cloud ni quota. Ce n\'est pas une API officielle de Google : lisez l\'avertissement affiché avant la connexion.</string>
     <string name="ytm_not_installed_hint">Installez l\'application compagnon \"Trackhop Bridge\" depuis GitHub, puis revenez ici et appuyez sur Connecter. Vous préférez la voie officielle ? Utilisez la carte \"YouTube Music (API Google)\" ci-dessous.</string>
     <string name="ytm_not_installed">Trackhop Bridge n\'est pas installé.</string>
     <string name="ytm_install">Obtenir le Bridge</string>
@@ -286,7 +286,7 @@
     <string name="tools_pick_service">Service</string>
     <string name="files_row_desc">Listes importées et playlists écrites par une synchro vers « Fichier » : importer, coller, exporter.</string>
     <string name="ai_row_desc">Décrivez une playlist ; votre IA l\'écrit, Trackhop trouve les titres.</string>
-    <string name="tools_backup_row_desc">Toutes les playlists, titres aimés, albums et artistes de ce service enregistrés en fichiers datés.</string>
+    <string name="tools_backup_row_desc">Toutes les playlists, titres favoris, albums et artistes de ce service enregistrés en fichiers datés.</string>
     <string name="tools_none">Connectez d\'abord un service.</string>
     <string name="spotify_forbidden">Spotify a refusé la requête (%1$s). Depuis 2026, les apps en Development Mode ne lisent que les playlists que vous avez créées ou auxquelles vous collaborez (pas celles d\'autres utilisateurs ni de Spotify), et seulement pour les comptes du User Management de l\'app. Pour la playlist de quelqu\'un d\'autre, copiez ses titres dans une playlist à vous sur Spotify et synchronisez celle-ci.</string>
     <string name="spotify_scope_reconnect">Spotify a refusé la requête (%1$s) : cette permission a été ajoutée après votre connexion. Reconnectez Spotify dans Comptes et elle sera accordée.</string>
@@ -450,11 +450,11 @@
     <string name="tools_manage_desc">Vos playlists sur ce service en une seule liste : renommez-les ou supprimez-les quand le service le permet, ou exportez-les.</string>
     <string name="tools_manage_open">Ouvrir la liste</string>
     <string name="tools_scan_title">Doublons entre playlists</string>
-    <string name="tools_scan_desc">Lit une fois toutes les playlists de ce service et montre les titres présents dans plusieurs, et les titres aimés qui ne sont dans aucune playlist. Rien n\'est modifié. Sur YouTube, cela coûte du quota comme une sauvegarde complète.</string>
+    <string name="tools_scan_desc">Lit une fois toutes les playlists de ce service et montre les titres présents dans plusieurs, et les titres favoris qui ne sont dans aucune playlist. Rien n\'est modifié. Sur YouTube, cela coûte du quota comme une sauvegarde complète.</string>
     <string name="tools_scan_open">Voir</string>
     <string name="scan_title">Bibliothèque · %1$s</string>
     <string name="scan_reading">Lecture de %1$s…</string>
-    <string name="scan_summary">%1$d playlists lues · %2$d titres dans plusieurs playlists · %3$d titres aimés dans aucune</string>
+    <string name="scan_summary">%1$d playlists lues · %2$d titres dans plusieurs playlists · %3$d titres favoris dans aucune</string>
     <string name="scan_repeats">Dans plusieurs playlists (%1$d)</string>
     <string name="scan_orphans">Aimés, dans aucune playlist (%1$d)</string>
     <string name="scan_save">Enregistrer en fichier</string>
@@ -521,8 +521,8 @@
     <string name="provider_note_subsonic">Votre propre serveur musical : Navidrome, Airsonic, Gonic, LMS, Funkwhale et tout ce qui parle l\'API Subsonic. Aucune inscription, aucun quota. Les titres marqués d\'une étoile comptent comme titres likés.</string>
     <string name="provider_note_jellyfin">Votre serveur Jellyfin. Aucune inscription, aucun quota. Les favoris comptent comme titres likés.</string>
     <string name="provider_note_plex">Votre Plex Media Server, avec votre X-Plex-Token. Les playlists musicales sont lues, créées et mises à jour sur le serveur.</string>
-    <string name="provider_note_lastfm">Les titres aimés d\'un profil Last.fm comme source. Connecté avec ton mot de passe, Titres aimés devient aussi une destination : Trackhop aime les titres pour toi. Nécessite une clé API Last.fm gratuite.</string>
-    <string name="provider_note_listenbrainz">Playlists et titres aimés d\'un utilisateur ListenBrainz. Avec votre jeton utilisateur, les titres aimés peuvent aussi être écrits (titres aimés comme destination).</string>
+    <string name="provider_note_lastfm">Les titres favoris d\'un profil Last.fm comme source. Connecté avec ton mot de passe, Titres favoris devient aussi une destination : Trackhop les ajoute aux favoris pour toi. Nécessite une clé API Last.fm gratuite.</string>
+    <string name="provider_note_listenbrainz">Playlists et titres favoris d\'un utilisateur ListenBrainz. Avec votre jeton utilisateur, les titres favoris peuvent aussi être écrits (titres favoris comme destination).</string>
     <string name="login_title">Se connecter à %1$s</string>
     <string name="login_url">Adresse du serveur</string>
     <string name="login_user">Nom d\'utilisateur</string>
@@ -534,9 +534,9 @@
     <string name="login_hint_subsonic">Saisissez l\'adresse de votre serveur Navidrome, Airsonic ou autre serveur compatible Subsonic (par exemple https://music.example.com), votre nom d\'utilisateur et votre mot de passe. Le mot de passe n\'est jamais envoyé tel quel : chaque requête utilise un hachage salé. Ampache : utilisez le mot de passe Subsonic ou la clé API définis dans Préférences → Compte, pas le mot de passe de votre compte.</string>
     <string name="login_hint_jellyfin">Saisissez l\'adresse de votre serveur Jellyfin (par exemple https://jellyfin.example.com), votre nom d\'utilisateur et votre mot de passe.</string>
     <string name="login_hint_plex">Saisissez l\'adresse de votre Plex Media Server (par exemple http://192.168.1.10:32400) et votre X-Plex-Token. Plex explique comment trouver le token dans ses pages d\'assistance (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Saisis ton nom d\'utilisateur Last.fm. Pour seulement lire les titres aimés, laisse le mot de passe vide (le profil doit être public). Avec le mot de passe, Trackhop peut aussi aimer des titres : il sert une fois à obtenir une session et n\'est pas conservé.</string>
-    <string name="login_hint_listenbrainz">Saisissez le nom d\'utilisateur ListenBrainz dont lire les playlists et les titres aimés. Ajoutez votre jeton utilisateur (listenbrainz.org → Settings) pour écrire aussi les titres aimés.</string>
-    <string name="listenbrainz_token_needed">ListenBrainz a besoin de votre jeton utilisateur pour écrire les titres aimés : ajoutez-le dans Comptes (listenbrainz.org → Settings).</string>
+    <string name="login_hint_lastfm">Saisis ton nom d\'utilisateur Last.fm. Pour seulement lire les titres favoris, laisse le mot de passe vide (le profil doit être public). Avec le mot de passe, Trackhop peut aussi ajouter des titres aux favoris : il sert une fois à obtenir une session et n\'est pas conservé.</string>
+    <string name="login_hint_listenbrainz">Saisissez le nom d\'utilisateur ListenBrainz dont lire les playlists et les titres favoris. Ajoutez votre jeton utilisateur (listenbrainz.org → Settings) pour écrire aussi les titres favoris.</string>
+    <string name="listenbrainz_token_needed">ListenBrainz a besoin de votre jeton utilisateur pour écrire les titres favoris : ajoutez-le dans Comptes (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Jeton utilisateur (facultatif)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz n\'a pas accepté ce jeton.</string>
     <string name="setup_why_lastfm">Last.fm nécessite une clé API gratuite, délivrée immédiatement, pour lire les profils publics.</string>
@@ -585,7 +585,7 @@
     <string name="route_note_spotify_api">Votre propre clé API gratuite, créée sur developer.spotify.com en deux minutes. Officiel et stable. Spotify ne la laisse créer qu\'aux comptes Premium (règle de Spotify depuis février 2026) : sans Premium, « Web API » y reste grisé.</string>
     <string name="route_note_apple_api">Un jeton développeur d\'un compte Apple Developer (payant). Officiel.</string>
     <string name="route_note_youtube_api">Votre propre clé Google Cloud (gratuite, quelques minutes). Officiel, mais le quota quotidien est petit : les grosses synchros prennent des jours.</string>
-    <string name="route_note_api_readonly">Votre propre clé API gratuite. Lecture seule : une source pour les playlists et les titres aimés.</string>
+    <string name="route_note_api_readonly">Votre propre clé API gratuite. Lecture seule : une source pour les playlists et les titres favoris.</string>
     <string name="route_note_server">Votre propre serveur : adresse, utilisateur et mot de passe.</string>
     <string name="connector_name_label">Nom du connecteur</string>
     <string name="connector_rename">Renommer</string>
@@ -726,7 +726,7 @@
     <string-array name="setup_steps_lastfm">
         <item>Connectez-vous sur last.fm et ouvrez la page de création de compte API.</item>
         <item>Remplissez le formulaire : e-mail de contact, nom et description de l\'application sont libres. \"Callback URL\" et \"Application homepage\" peuvent rester vides. Envoyez.</item>
-        <item>Copie ici la \"API key\", et le \"Shared secret\" dans le second champ : il ne sert qu\'à aimer des titres.</item>
+        <item>Copie ici la \"API key\", et le \"Shared secret\" dans le second champ : il ne sert qu\'à ajouter des titres aux favoris.</item>
     </string-array>
     <!-- Restyling: stati, schermate vuote, intestazione -->
     <string name="more_actions">Plus</string>
@@ -1216,7 +1216,7 @@
     <string name="howto_accounts_summary">Connecteurs, voies, clés et sécurité.</string>
     <string name="howto_accounts_body"># Connecteurs\nUn connecteur, c\'est un compte sur un service. Quand le service le permet, vous pouvez en ajouter plusieurs, par exemple deux comptes Spotify, chacun avec son nom. Entre deux comptes du même service, par exemple deux comptes Spotify ou YouTube Music, les titres sont copiés tels quels, sans recherche.\n# Voies\nCertains services sont accessibles de deux façons. Voie rapide : vous vous connectez sur la page du service, rien à créer, mais cela peut cesser de fonctionner quand le site change. Voie officielle : l\'API du service avec une clé gratuite à votre nom ; plus stable, quelques minutes de configuration.\n# Repartir de zéro\nUn site peut se souvenir d\'une connexion précédente, par exemple avec Google, et t\'y ramener directement. ⋮ › Repartir de zéro déconnecte et oublie ce que Trackhop gardait de ce site ; reconnecte-le ensuite. Ton compte sur le service n\'est pas touché.</string>
     <string name="howto_accounts_full">Dans cette version, les voies rapides de Spotify, YouTube Music, Amazon Music, Apple Music et Deezer sont intégrées, tout comme SoundCloud avec votre compte. Deezer (web) est en alpha, SoundCloud en bêta.</string>
-    <string name="howto_accounts_body2"># Votre propre clé\nTrackhop est livré sans clés propres. L\'assistant vous guide sur la page développeur du service : copiez-y exactement l\'URI de redirection, puis collez ici le Client ID (et le secret, là où il est demandé).\n• Spotify ne permet de créer une clé qu\'aux comptes Premium.\n• Le jeton développeur d\'Apple expire au bout de six mois au plus : collez-en un nouveau dans Réglages › Avancé › Clés de service.\n• Sur la voie officielle de YouTube, le quota quotidien est à vous, compté en unités.\nVotre propre serveur (Jellyfin, Plex, Navidrome…) demande son adresse, votre utilisateur et un mot de passe ou un jeton.\nLast.fm : ton nom d\'utilisateur suffit pour lire les titres aimés ; ajoute ton mot de passe pour aussi aimer des titres (il sert une fois et n\'est pas conservé). Si cette version n\'a pas de clé Last.fm à elle, la connexion demande ton API key et ton shared secret, avec un lien pour les créer.\n# Des comptes protégés\nLes mots de passe se saisissent sur les pages des services, jamais dans Trackhop. Exceptions : tes propres serveurs et Last.fm, dont Trackhop n\'utilise le mot de passe que pour la connexion. Les jetons sont chiffrés sur le téléphone, et il n\'y a pas de serveur Trackhop. Tester la connexion vérifie un connecteur ; Déconnecter efface sa connexion, et Retirer ce compte retire aussi la carte. Réglages › Avancé › Afficher les outils développeur › Afficher les connexions liste tous les hôtes contactés par l\'application.</string>
+    <string name="howto_accounts_body2"># Votre propre clé\nTrackhop est livré sans clés propres. L\'assistant vous guide sur la page développeur du service : copiez-y exactement l\'URI de redirection, puis collez ici le Client ID (et le secret, là où il est demandé).\n• Spotify ne permet de créer une clé qu\'aux comptes Premium.\n• Le jeton développeur d\'Apple expire au bout de six mois au plus : collez-en un nouveau dans Réglages › Avancé › Clés de service.\n• Sur la voie officielle de YouTube, le quota quotidien est à vous, compté en unités.\nVotre propre serveur (Jellyfin, Plex, Navidrome…) demande son adresse, votre utilisateur et un mot de passe ou un jeton.\nLast.fm : ton nom d\'utilisateur suffit pour lire les titres favoris ; ajoute ton mot de passe pour aussi ajouter des titres aux favoris (il sert une fois et n\'est pas conservé). Si cette version n\'a pas de clé Last.fm à elle, la connexion demande ton API key et ton shared secret, avec un lien pour les créer.\n# Des comptes protégés\nLes mots de passe se saisissent sur les pages des services, jamais dans Trackhop. Exceptions : tes propres serveurs et Last.fm, dont Trackhop n\'utilise le mot de passe que pour la connexion. Les jetons sont chiffrés sur le téléphone, et il n\'y a pas de serveur Trackhop. Tester la connexion vérifie un connecteur ; Déconnecter efface sa connexion, et Retirer ce compte retire aussi la carte. Réglages › Avancé › Afficher les outils développeur › Afficher les connexions liste tous les hôtes contactés par l\'application.</string>
     <string name="howto_plugins_title">Plugins</string>
     <string name="howto_plugins_summary">Comment des applications séparées peuvent ajouter des services.</string>
     <string name="howto_plugins_body">Trackhop a une interface de connecteurs ouverte : des applications séparées, faites par n\'importe qui, peuvent y ajouter des services.</string>
@@ -1239,7 +1239,7 @@
     <string name="plugins_where">Les plugins sont publiés par leurs auteurs, pas par cette app : sur GitHub, ils portent le sujet « trackhop-plugin ».</string>
     <string name="provider_note_deezer_bridge">Connectez-vous sur la page de Deezer : aucune app développeur à créer (Deezer n\'en enregistre plus de nouvelles). Utilise la session du lecteur web : ce n\'est pas une voie officielle, c\'est contraire aux conditions de Deezer et cela peut cesser de fonctionner. Alpha. La voie officielle avec votre propre ID d\'app reste disponible sous \"Deezer\".</string>
     <string name="provider_note_liveone">LiveOne n\'a pas d\'API publique : connecte-toi sur la page de LiveOne et Trackhop utilise la session du lecteur web. Ce n\'est pas une voie officielle, c\'est contraire aux conditions de LiveOne et peut cesser de fonctionner. Alpha. Un compte gratuit synchronise ses presets, affichés comme titres favoris (ajout seulement) ; les playlists personnelles demandent l\'offre payante. Si la connexion avec Google n\'aboutit pas, copie depuis un ordinateur l\'entrée slackerUser du stockage local de www.liveone.com et utilise Coller.</string>
-    <string name="provider_note_soundcloud_account">Connectez-vous sur la page de SoundCloud : vos playlists et vos titres aimés deviennent des sources et des destinations. Utilise la session de l\'app web : ce n\'est pas une interface officielle, c\'est contraire aux conditions de SoundCloud et cela peut cesser de fonctionner. Bêta. Peu de titres SoundCloud ont un ISRC : la correspondance repose sur le titre, l\'artiste et la durée.</string>
+    <string name="provider_note_soundcloud_account">Connectez-vous sur la page de SoundCloud : vos playlists et vos titres favoris deviennent des sources et des destinations. Utilise la session de l\'app web : ce n\'est pas une interface officielle, c\'est contraire aux conditions de SoundCloud et cela peut cesser de fonctionner. Bêta. Peu de titres SoundCloud ont un ISRC : la correspondance repose sur le titre, l\'artiste et la durée.</string>
     <string name="alpha">alpha</string>
     <string name="alpha_note">Alpha : pas encore testé sur de vrais comptes. Essayez-le d\'abord sur une playlist de test et signalez les problèmes.</string>
     <string name="editor_mirror_liked_warning">Refléter dans Titres likés retire le like de tout ce qui s\'y trouve sans être dans la source.</string>
@@ -1409,17 +1409,17 @@
     <string name="provider_note_anghami">Playlists publiques d\'Anghami, en lecture seule et sans connexion : collez le lien de la playlist (play.anghami.com/playlist/…) comme source d\'une sync. Pas une interface officielle : elle peut cesser de fonctionner si le site change.</string>
     <string name="anghami_not_public">Cette playlist Anghami est privée ou n\'existe pas : seuls les liens publics fonctionnent</string>
     <string name="anghami_changed">Anghami a changé son site ; Trackhop doit être mis à jour</string>
-    <string name="provider_note_anghami_web">Anghami n\'a pas d\'API publique : connectez-vous sur la page d\'Anghami et Trackhop utilise la session du lecteur web. Pas une voie officielle, contraire aux conditions d\'Anghami, peut cesser de fonctionner. Alpha. Vos playlists et titres aimés, en lecture et écriture. Si la connexion n\'aboutit pas, copiez depuis un ordinateur l\'adresse d\'une requête gateway.php de play.anghami.com (elle contient sid=…) et utilisez Coller.</string>
+    <string name="provider_note_anghami_web">Anghami n\'a pas d\'API publique : connectez-vous sur la page d\'Anghami et Trackhop utilise la session du lecteur web. Pas une voie officielle, contraire aux conditions d\'Anghami, peut cesser de fonctionner. Alpha. Vos playlists et titres favoris, en lecture et écriture. Si la connexion n\'aboutit pas, copiez depuis un ordinateur l\'adresse d\'une requête gateway.php de play.anghami.com (elle contient sid=…) et utilisez Coller.</string>
     <string name="whats_new_18_schedule_title">Planification à votre façon</string>
     <string name="whats_new_18_schedule_body">Toutes les heures, toutes les 6 heures, chaque jour, chaque semaine ou les jours choisis, à l\'heure voulue.</string>
     <string name="whats_new_18_daylist_title">Des playlists qui changent seules</string>
     <string name="whats_new_18_daylist_body">Une daylist Spotify ou Discover Weekly restent synchronisées : nouveaux titres, nouveau nom et, sur Spotify, nouvelle pochette.</string>
     <string name="whats_new_18_emby_title">Emby</string>
     <string name="whats_new_18_emby_body">Votre serveur Emby comme source et destination, comme Jellyfin : playlists et favoris.</string>
-    <string name="whats_new_18_liked_title">Titres aimés sur YouTube</string>
-    <string name="whats_new_18_liked_body">Avec la connexion YouTube (API Google), vos titres aimés servent de source et de destination, sans les vidéos qui ne sont pas de la musique.</string>
+    <string name="whats_new_18_liked_title">Titres favoris sur YouTube</string>
+    <string name="whats_new_18_liked_body">Avec la connexion YouTube (API Google), vos titres favoris servent de source et de destination, sans les vidéos qui ne sont pas de la musique.</string>
     <string name="whats_new_18_anghami_title">Anghami</string>
-    <string name="whats_new_18_anghami_body">Connectez-vous à Anghami pour synchroniser vos playlists et titres aimés, ou collez le lien d\'une playlist publique.</string>
+    <string name="whats_new_18_anghami_body">Connectez-vous à Anghami pour synchroniser vos playlists et titres favoris, ou collez le lien d\'une playlist publique.</string>
     <string name="widget_running">En cours…</string>
     <string name="widget_no_syncs">Aucune synchro : créez-en une dans Trackhop.</string>
     <string name="widget_sync_gone">Cette synchro n\'existe plus : appui long sur le widget pour en choisir une autre.</string>
@@ -1470,7 +1470,7 @@
     <string name="capture_site_open">Ouvrir</string>
     <string name="capture_unlocked">Outils de capture déverrouillés : Options pour les développeurs › Capturer un site web.</string>
     <string name="capture_already_unlocked">Les outils de capture sont déjà déverrouillés.</string>
-    <string name="provider_note_qobuz_web">Qobuz réserve son API à ses partenaires : connectez-vous sur la page de Qobuz et Trackhop utilise la session du lecteur web. Pas une voie officielle, contraire aux conditions de Qobuz, peut cesser de fonctionner. Alpha. Vos playlists et titres favoris (comme titres aimés), en lecture et écriture ; recherche par ISRC. Si la connexion n\'aboutit pas, copiez depuis les outils de développement d\'un ordinateur une requête vers www.qobuz.com/api.json (en cURL : elle contient X-User-Auth-Token) et utilisez Coller.</string>
+    <string name="provider_note_qobuz_web">Qobuz réserve son API à ses partenaires : connectez-vous sur la page de Qobuz et Trackhop utilise la session du lecteur web. Pas une voie officielle, contraire aux conditions de Qobuz, peut cesser de fonctionner. Alpha. Vos playlists et titres favoris (comme titres favoris), en lecture et écriture ; recherche par ISRC. Si la connexion n\'aboutit pas, copiez depuis les outils de développement d\'un ordinateur une requête vers www.qobuz.com/api.json (en cURL : elle contient X-User-Auth-Token) et utilisez Coller.</string>
     <string name="whats_new_111_qobuz_title">Qobuz</string>
     <string name="whats_new_111_qobuz_body">Connecte-toi à Qobuz (aussi avec Google) et synchronise tes playlists et titres favoris avec n\'importe quel autre service. Via le lecteur web de Qobuz, sans clé de développeur.</string>
     <string name="note_slow_ordered_adds">%1$s enregistre les titres likés un par un pour garder leur ordre : ajouter %2$d titres prend environ %3$d minutes. C\'est normal, et seule une grosse première synchronisation est aussi lente : vous pouvez laisser Trackhop en arrière-plan.</string>
@@ -1696,8 +1696,8 @@
     <string name="whats_new_115_transfer_body">Transférer plusieurs playlists affiche un récapitulatif avant toute création et peut créer les synchros sans les lancer.</string>
     <string name="whats_new_116_files_title">Des fichiers lus à ta façon</string>
     <string name="whats_new_116_files_body">Trackhop lit l\'artiste et l\'album dans les noms de fichiers et les dossiers, ou selon tes propres modèles. Sélectionne plusieurs fichiers à la fois ou envoie-en un directement vers un service.</string>
-    <string name="whats_new_116_lastfm_title">Aimer des titres sur Last.fm</string>
-    <string name="whats_new_116_lastfm_body">Synchronise les titres que tu aimes sur n\'importe quel service avec tes titres aimés sur Last.fm.</string>
+    <string name="whats_new_116_lastfm_title">Tes favoris sur Last.fm</string>
+    <string name="whats_new_116_lastfm_body">Synchronise les titres que tu aimes sur n\'importe quel service avec tes titres favoris sur Last.fm.</string>
     <string name="whats_new_116_preview_title">Un aperçu plus clair</string>
     <string name="whats_new_116_preview_body">Après avoir créé une synchro, tu vois où elle va, ce qu\'elle fera et ce qui change, avec Lancer maintenant en bas.</string>
     <string name="whats_new_116_restart_title">Repartir de zéro</string>

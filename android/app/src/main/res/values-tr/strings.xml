@@ -84,27 +84,27 @@
     <string name="followed_artists">Takip edilen sanatçılar</string>
     <string name="followed_podcasts">Podcast\'ler</string>
     <string name="recently_played">Son çalınanlar</string>
-    <string name="lastfm_loved">Sevilen parçalar</string>
+    <string name="lastfm_loved">Favori parçalar</string>
     <string name="lastfm_loved_desc">Last.fm’de ♥ verdiğin parçalar</string>
     <string name="lastfm_recent_desc">Last.fm’deki son 200 scrobble’ın</string>
     <string name="lastfm_top_month">Ayın en çok dinlenenleri</string>
     <string name="lastfm_top_month_desc">Last.fm’de son 30 günde en çok dinlediğin 100 parça</string>
-    <string name="route_note_lastfm">Kendi ücretsiz API anahtarın. Bir kaynak; parolanla giriş yaptıktan sonra sevilen parçalar için bir hedef.</string>
-    <string name="login_password_lastfm">Parola (isteğe bağlı, parçaları sevmek için)</string>
-    <string name="setup_field_shared_secret">Shared secret (isteğe bağlı, parçaları sevmek için)</string>
-    <string name="lastfm_loved_target_desc">Trackhop bu parçaları Last.fm\'de senin yerine sever (♥)</string>
-    <string name="lastfm_needs_password">Parçaları sevmek için Last.fm\'i parolanla da yeniden bağla.</string>
+    <string name="route_note_lastfm">Kendi ücretsiz API anahtarın. Bir kaynak; parolanla giriş yaptıktan sonra favori parçalar için bir hedef.</string>
+    <string name="login_password_lastfm">Parola (isteğe bağlı, parçaları favorilere eklemek için)</string>
+    <string name="setup_field_shared_secret">Shared secret (isteğe bağlı, parçaları favorilere eklemek için)</string>
+    <string name="lastfm_loved_target_desc">Trackhop bu parçaları Last.fm\'de senin yerine favorilere ekler (♥)</string>
+    <string name="lastfm_needs_password">Parçaları favorilere eklemek için Last.fm\'i parolanla da yeniden bağla.</string>
     <string name="lastfm_password_note">Last.fm\'den bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
-    <string name="lastfm_session_expired">Last.fm oturumu sonlandırdı: parçaları sevmek için parolanla yeniden bağla.</string>
-    <string name="lastfm_no_secret">Last.fm\'de parça sevmek için API anahtarının shared secret değeri gerekir: anahtarın yanına ekle.</string>
+    <string name="lastfm_session_expired">Last.fm oturumu sonlandırdı: parçaları favorilere eklemek için parolanla yeniden bağla.</string>
+    <string name="lastfm_no_secret">Last.fm\'de parçaları favorilere eklemek için API anahtarının shared secret değeri gerekir: anahtarın yanına ekle.</string>
     <string name="lastfm_key_title">Last.fm API anahtarın</string>
-    <string name="lastfm_key_body">Parçaları sevmek için kendi anahtarın gerekir: ücretsizdir ve bir dakika sürer. Last.fm\'i aç, formu doldur (uygulama adı serbest, ör. Trackhop; diğer alanlar boş kalabilir), sonra API key ve shared secret\'ı buraya kopyala.</string>
+    <string name="lastfm_key_body">Parçaları favorilere eklemek için kendi anahtarın gerekir: ücretsizdir ve bir dakika sürer. Last.fm\'i aç, formu doldur (uygulama adı serbest, ör. Trackhop; diğer alanlar boş kalabilir), sonra API key ve shared secret\'ı buraya kopyala.</string>
     <string name="lastfm_key_create">Last.fm\'den anahtar al</string>
     <string name="lastfm_key_have">Zaten var</string>
     <string name="lastfm_key_api">API key</string>
     <string name="lastfm_key_secret">Shared secret</string>
     <string name="lastfm_key_paste">Yapıştır</string>
-    <string name="lastfm_love_title">Parçaları da sev</string>
+    <string name="lastfm_love_title">Favorilere de ekle</string>
     <string name="pill_source_empty">Kaynak boş</string>
     <string name="transfer_unsupported">%1$s üzerinde kullanılamaz</string>
     <string name="tracks_count">%1$d parça</string>
@@ -521,8 +521,8 @@
     <string name="provider_note_subsonic">Kendi müzik sunucunuz: Navidrome, Airsonic, Gonic, LMS, Funkwhale ve Subsonic API konuşan her şey. Kayıt yok, kota yok. Yıldızlı şarkılar beğenilen şarkı sayılır.</string>
     <string name="provider_note_jellyfin">Jellyfin sunucunuz. Kayıt yok, kota yok. Favoriler beğenilen şarkı sayılır.</string>
     <string name="provider_note_plex">X-Plex-Token\'ınızla Plex Media Server\'ınız. Müzik çalma listeleri sunucuda okunur, oluşturulur ve güncellenir.</string>
-    <string name="provider_note_lastfm">Bir Last.fm profilinin sevilen parçaları kaynak olarak. Parolanla giriş yapınca Sevilen parçalar bir hedef de olur: Trackhop parçaları senin yerine sever. Ücretsiz bir Last.fm API anahtarı gerekir.</string>
-    <string name="provider_note_listenbrainz">Bir ListenBrainz kullanıcısının çalma listeleri ve sevilen parçaları. Kullanıcı jetonunuzla sevilen parçalar yazılabilir de (hedef olarak beğenilen şarkılar).</string>
+    <string name="provider_note_lastfm">Bir Last.fm profilinin favori parçaları kaynak olarak. Parolanla giriş yapınca Favori parçalar bir hedef de olur: Trackhop parçaları senin yerine favorilere ekler. Ücretsiz bir Last.fm API anahtarı gerekir.</string>
+    <string name="provider_note_listenbrainz">Bir ListenBrainz kullanıcısının çalma listeleri ve favori parçaları. Kullanıcı jetonunuzla favori parçalar yazılabilir de (hedef olarak beğenilen şarkılar).</string>
     <string name="login_title">%1$s hesabında oturum aç</string>
     <string name="login_url">Sunucu adresi</string>
     <string name="login_user">Kullanıcı adı</string>
@@ -534,9 +534,9 @@
     <string name="login_hint_subsonic">Navidrome, Airsonic veya başka bir Subsonic uyumlu sunucunuzun adresini (örneğin https://music.example.com), kullanıcı adınızı ve şifrenizi girin. Şifre asla olduğu gibi gönderilmez: her istek tuzlanmış bir hash kullanır. Ampache: hesap şifrenizi değil, Tercihler → Hesap bölümünde belirlediğiniz Subsonic şifresini veya API anahtarını kullanın.</string>
     <string name="login_hint_jellyfin">Jellyfin sunucunuzun adresini (örneğin https://jellyfin.example.com), kullanıcı adınızı ve şifrenizi girin.</string>
     <string name="login_hint_plex">Plex Media Server adresinizi (örneğin http://192.168.1.10:32400) ve X-Plex-Token\'ınızı girin. Plex, jetonu nasıl bulacağınızı destek sayfalarında açıklar (\"Finding an authentication token\").</string>
-    <string name="login_hint_lastfm">Last.fm kullanıcı adını gir. Yalnızca sevilen parçaları okumak için parolayı boş bırak (profil herkese açık olmalı). Parolayla Trackhop parçaları da sevebilir: bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
-    <string name="login_hint_listenbrainz">Çalma listelerini ve sevilen parçalarını okumak istediğiniz ListenBrainz kullanıcı adını girin. Sevilen parçaları yazmak için de kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
-    <string name="listenbrainz_token_needed">ListenBrainz, sevilen parçaları yazmak için kullanıcı jetonunuzu gerektirir: Hesaplar\'dan ekleyin (listenbrainz.org → Settings).</string>
+    <string name="login_hint_lastfm">Last.fm kullanıcı adını gir. Yalnızca favori parçaları okumak için parolayı boş bırak (profil herkese açık olmalı). Parolayla Trackhop parçaları favorilere de ekleyebilir: bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
+    <string name="login_hint_listenbrainz">Çalma listelerini ve favori parçalarını okumak istediğiniz ListenBrainz kullanıcı adını girin. Favori parçaları yazmak için de kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
+    <string name="listenbrainz_token_needed">ListenBrainz, favori parçaları yazmak için kullanıcı jetonunuzu gerektirir: Hesaplar\'dan ekleyin (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Kullanıcı jetonu (isteğe bağlı)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz bu jetonu kabul etmedi.</string>
     <string name="setup_why_lastfm">Last.fm, herkese açık profilleri okumak için anında verilen ücretsiz bir API anahtarı gerektirir.</string>
@@ -585,7 +585,7 @@
     <string name="route_note_spotify_api">developer.spotify.com üzerinde yaklaşık iki dakikada oluşturulan, size ait ücretsiz API anahtarı. Resmi ve kararlı. Spotify bunu yalnızca Premium hesapların oluşturmasına izin verir (Şubat 2026\'dan beri bir Spotify kuralı): Premium olmadan \"Web API\" orada gri kalır.</string>
     <string name="route_note_apple_api">Bir Apple Developer hesabından (ücretli) geliştirici jetonu. Resmi.</string>
     <string name="route_note_youtube_api">Kendi Google Cloud anahtarınız (ücretsiz, birkaç dakika). Resmi, ancak günlük kota küçüktür: büyük senkronizasyonlar günler sürer.</string>
-    <string name="route_note_api_readonly">Size ait ücretsiz API anahtarı. Salt okunur: çalma listeleri ve sevilen parçalar için kaynak.</string>
+    <string name="route_note_api_readonly">Size ait ücretsiz API anahtarı. Salt okunur: çalma listeleri ve favori parçalar için kaynak.</string>
     <string name="route_note_server">Kendi sunucunuz: adres, kullanıcı adı ve şifre.</string>
     <string name="connector_name_label">Bağlayıcı adı</string>
     <string name="connector_rename">Yeniden adlandır</string>
@@ -726,7 +726,7 @@
     <string-array name="setup_steps_lastfm">
         <item>last.fm adresinde oturum açın ve API hesabı oluşturma sayfasını açın.</item>
         <item>Formu doldurun: iletişim e-postası, uygulama adı ve açıklaması size kalmış. \"Callback URL\" ve \"Application homepage\" boş kalabilir. Gönderin.</item>
-        <item>\"API key\" değerini buraya, \"Shared secret\" değerini ikinci alana kopyala: yalnızca parça sevmek için gerekir.</item>
+        <item>\"API key\" değerini buraya, \"Shared secret\" değerini ikinci alana kopyala: yalnızca parçaları favorilere eklemek için gerekir.</item>
     </string-array>
     <string name="more_actions">Daha fazla</string>
     <string name="pill_ok">Güncel</string>
@@ -1207,7 +1207,7 @@
     <string name="howto_accounts_summary">Bağlayıcılar, yollar, anahtarlar ve güvenlik.</string>
     <string name="howto_accounts_body"># Bağlayıcılar\nBağlayıcı, bir servisteki bir hesaptır. Servis izin veriyorsa birden çok ekleyebilirsiniz; örneğin her biri kendi adıyla iki Spotify hesabı. Aynı hizmetin iki hesabı arasında, örneğin iki Spotify veya iki YouTube Music hesabı, şarkılar arama yapılmadan olduğu gibi kopyalanır.\n# Yollar\nBazı servislere iki yoldan ulaşılır. Hızlı yol: servisin kendi sayfasında oturum açarsınız, oluşturacak bir şey yoktur, ama site değişince çalışmayı bırakabilir. Resmi yol: adınıza ücretsiz bir anahtarla servisin kendi API\'si; daha kararlıdır, kurulumu birkaç dakika sürer.\n# Baştan başla\nBir site önceki bir girişi (örneğin Google ile) hatırlayıp sizi doğrudan oraya götürebilir. ⋮ › Baştan başla oturumu kapatır ve Trackhop\'un o site için sakladıklarını siler; sonra yeniden bağlanın. Hizmetteki hesabınıza dokunulmaz.</string>
     <string name="howto_accounts_full">Bu sürümde Spotify, YouTube Music, Amazon Music, Apple Music ve Deezer için hızlı yollar yerleşiktir; hesabınızla SoundCloud da öyle. Deezer (web) alfa, SoundCloud beta aşamasındadır.</string>
-    <string name="howto_accounts_body2"># Kendi anahtarınız\nTrackhop kendi anahtarlarıyla gelmez. Kurulum rehberi sizi servisin geliştirici sayfasında yönlendirir: Yönlendirme URI\'sini oraya aynen kopyalayın, sonra Client ID\'yi (ve istenirse secret\'ı) buraya yapıştırın.\n• Spotify yalnızca Premium hesapların anahtar oluşturmasına izin verir.\n• Apple\'ın geliştirici belirtecinin süresi en fazla altı ayda dolar: yenisini Ayarlar › Gelişmiş › Servis anahtarları\'na yapıştırın.\n• Resmi YouTube yolunda günlük kota size aittir ve birimlerle sayılır.\nKendi sunucunuz (Jellyfin, Plex, Navidrome…) adresini, kullanıcı adınızı ve bir parola veya belirteç ister.\nLast.fm: kullanıcı adınızla sevilen parçalar okunur; parçaları sevmek için parolanızı da ekleyin (bir kez kullanılır ve saklanmaz). Bu sürümün kendi Last.fm anahtarı yoksa giriş, oluşturma bağlantısıyla birlikte API key ve shared secret\'ınızı ister.\n# Hesapları güvende tutmak\nParolalar servislerin kendi sayfalarına yazılır, asla Trackhop\'a değil. İstisnalar kendi sunucularınız ve Last.fm\'dir; Trackhop bunların parolasını yalnızca giriş için kullanır. Belirteçler telefonda şifrelidir ve bir Trackhop sunucusu yoktur. Bağlantıyı test et bir bağlayıcıyı denetler; Bağlantıyı kes oturumu siler, Bu hesabı kaldır ise kartı da kaldırır. Ayarlar › Gelişmiş › Geliştirici araçlarını göster › Bağlantıları göster, uygulamanın iletişim kurduğu her sunucuyu listeler.</string>
+    <string name="howto_accounts_body2"># Kendi anahtarınız\nTrackhop kendi anahtarlarıyla gelmez. Kurulum rehberi sizi servisin geliştirici sayfasında yönlendirir: Yönlendirme URI\'sini oraya aynen kopyalayın, sonra Client ID\'yi (ve istenirse secret\'ı) buraya yapıştırın.\n• Spotify yalnızca Premium hesapların anahtar oluşturmasına izin verir.\n• Apple\'ın geliştirici belirtecinin süresi en fazla altı ayda dolar: yenisini Ayarlar › Gelişmiş › Servis anahtarları\'na yapıştırın.\n• Resmi YouTube yolunda günlük kota size aittir ve birimlerle sayılır.\nKendi sunucunuz (Jellyfin, Plex, Navidrome…) adresini, kullanıcı adınızı ve bir parola veya belirteç ister.\nLast.fm: kullanıcı adınızla favori parçalar okunur; parçaları favorilere eklemek için parolanızı da ekleyin (bir kez kullanılır ve saklanmaz). Bu sürümün kendi Last.fm anahtarı yoksa giriş, oluşturma bağlantısıyla birlikte API key ve shared secret\'ınızı ister.\n# Hesapları güvende tutmak\nParolalar servislerin kendi sayfalarına yazılır, asla Trackhop\'a değil. İstisnalar kendi sunucularınız ve Last.fm\'dir; Trackhop bunların parolasını yalnızca giriş için kullanır. Belirteçler telefonda şifrelidir ve bir Trackhop sunucusu yoktur. Bağlantıyı test et bir bağlayıcıyı denetler; Bağlantıyı kes oturumu siler, Bu hesabı kaldır ise kartı da kaldırır. Ayarlar › Gelişmiş › Geliştirici araçlarını göster › Bağlantıları göster, uygulamanın iletişim kurduğu her sunucuyu listeler.</string>
     <string name="howto_plugins_title">Eklentiler</string>
     <string name="howto_plugins_summary">Ayrı uygulamaların nasıl servis ekleyebildiği.</string>
     <string name="howto_plugins_body">Trackhop\'un açık bir bağlayıcı arayüzü vardır: herkesin yapabileceği ayrı uygulamalar ona servis ekleyebilir.</string>
@@ -1686,8 +1686,8 @@
     <string name="whats_new_115_transfer_body">Çok sayıda çalma listesini aktar, bir şey oluşturmadan önce özet gösterir ve senkronizasyonları başlatmadan oluşturabilir.</string>
     <string name="whats_new_116_files_title">Dosyalar senin düzeninde</string>
     <string name="whats_new_116_files_body">Trackhop sanatçıyı ve albümü dosya adlarından ve klasörlerden ya da kendi kalıplarından okur. Birden çok dosyayı aynı anda seç veya birini doğrudan bir servise gönder.</string>
-    <string name="whats_new_116_lastfm_title">Last.fm\'de parça sev</string>
-    <string name="whats_new_116_lastfm_body">Herhangi bir serviste beğendiğin şarkıları Last.fm\'deki sevdiğin parçalarla eşitle.</string>
+    <string name="whats_new_116_lastfm_title">Last.fm\'deki favorilerin</string>
+    <string name="whats_new_116_lastfm_body">Herhangi bir serviste beğendiğin şarkıları Last.fm\'deki favori parçalarınla eşitle.</string>
     <string name="whats_new_116_preview_title">Daha net bir önizleme</string>
     <string name="whats_new_116_preview_body">Bir eşitleme oluşturduğunda nereye gittiğini, ne yapacağını ve neyin değişeceğini görürsün; Şimdi çalıştır altta.</string>
     <string name="whats_new_116_restart_title">Baştan başla</string>
