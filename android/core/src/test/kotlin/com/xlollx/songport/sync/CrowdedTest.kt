@@ -79,4 +79,20 @@ class CrowdedTest {
         assertTrue(times.values.all { it < "24:00" && it >= "22:00" })
         assertEquals(6, (jobs.map { times[it.id] ?: it.at }).toSet().size)
     }
+
+    @Test fun everyKindOfScheduleCountsWhenItStartsAtTheSameMoment() {
+        val zone = java.time.ZoneOffset.UTC
+        val now = java.time.LocalDateTime.of(2026, 11, 9, 7, 0).toInstant(zone).toEpochMilli()
+        val sixAm = now - 3_600_000L
+        // Two daily at 09:00 and two every 3 hours that last ran at 06:00: all four start at 09:00.
+        val every3h = (1..2).map { job("h$it", "x", null, 180).copy(lastRunEpoch = sixAm) }
+        val jobs = listOf(job("a", "x", "09:00"), job("b", "x", "09:00")) + every3h
+        val crowd = Timing.crowded(jobs, now = now, zone = zone)!!
+        assertEquals(setOf("a", "b", "h1", "h2"), crowd.jobIds.toSet())
+        assertEquals("09:00", crowd.at)
+        // Spreading moves the timed ones only: the ones every few hours keep their rhythm.
+        val times = Timing.spread(jobs, crowd, now = now, zone = zone)
+        assertTrue(times.keys.none { it.startsWith("h") })
+        assertNull(Timing.crowded(jobs.map { j -> times[j.id]?.let { j.copy(at = it) } ?: j }, now = now, zone = zone))
+    }
 }

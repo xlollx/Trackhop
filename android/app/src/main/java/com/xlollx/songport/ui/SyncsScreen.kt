@@ -1877,7 +1877,11 @@ private fun SpreadDialog(jobs: List<com.xlollx.songport.model.SyncJob>, crowd: c
                             Text(j.name.ifBlank { j.source.playlistName }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Spacer(Modifier.width(8.dp))
                             val new = times[j.id]
-                            if (new == null) Text(stringResource(R.string.spread_stays, j.at.orEmpty()), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            // A sync every few hours keeps its rhythm: it shows it, marked as staying.
+                            if (new == null) Text(
+                                stringResource(R.string.spread_stays, if (com.xlollx.songport.sync.Timing.timed(j)) j.at.orEmpty() else timingLabel(j)),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
+                            )
                             else {
                                 Text(j.at.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough)
                                 Text(" → ", color = MaterialTheme.colorScheme.onSurfaceVariant)

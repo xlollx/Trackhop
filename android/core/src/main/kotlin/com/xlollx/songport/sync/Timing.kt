@@ -108,33 +108,48 @@ object Timing {
     private val SPREAD_GAPS = listOf(15, 20, 30, 45, 60)
 
     /**
-     * The largest group of at least [min] scheduled syncs that read or write the same service and
-     * start within [windowMin] minutes of each other on one same day of the week, or null. Day by
-     * day, so a weekly Monday sync at 09:00 meets the daily ones at 09:00 on Mondays only (issue #56:
-     * eleven syncs from one service at 09:00, and the service turned part of them away). Only the
-     * services [sensitive] says turn bursts away; files never. Syncs without a time of day (every
-     * few hours) have no time to plan and are left out; one every few days counts on every day.
+     * The largest group of at least [min] syncs that read or write the same service and start within
+     * [windowMin] minutes of each other, or null: every start of every scheduled sync over the next
+     * [days] days is laid out, whatever its kind (daily, weekly, chosen days, every few days or every
+     * few hours), and the busiest half hour of each service is counted. Issue #56: eleven syncs of one
+     * service at 09:00, and the service turned part of them away. Only the services [sensitive] says
+     * turn bursts away; files never. [Crowd.at] is the time of day of that half hour's first start.
      */
-    fun crowded(jobs: List<SyncJob>, windowMin: Int = 30, min: Int = 4, sensitive: (String) -> Boolean = { true }): Crowd? {
-        class Slot(val job: SyncJob, val minute: Int, val days: Set<Int>)
-        val slots = jobs.filter { scheduled(it) && timed(it) }.mapNotNull { j ->
-            val t = parseAt(j.at) ?: return@mapNotNull null
-            Slot(j, t.hour * 60 + t.minute, j.days.toSet().ifEmpty { (1..7).toSet() })
-        }
+    fun crowded(
+        jobs: List<SyncJob>, windowMin: Int = 30, min: Int = 4, sensitive: (String) -> Boolean = { true },
+        now: Long = System.currentTimeMillis(), zone: ZoneId = ZoneId.systemDefault(), days: Int = 7,
+    ): Crowd? {
+        val until = now + days * 86_400_000L
+        val starts = jobs.flatMap { j -> starts(j, now, until, zone).map { j to it } }
+        val services = jobs.filter { scheduled(it) }.flatMap { listOf(it.source.provider, it.target.provider) }.toSet() - LOCAL
         var best: Crowd? = null
-        val services = slots.flatMap { listOf(it.job.source.provider, it.job.target.provider) }.toSet() - LOCAL
         for (service in services.filter(sensitive)) {
-            val mine = slots.filter { it.job.source.provider == service || it.job.target.provider == service }.sortedBy { it.minute }
-            for (day in 1..7) {
-                val today = mine.filter { day in it.days }
-                for (first in today) {
-                    val group = today.filter { it.minute in first.minute..first.minute + windowMin }
-                    if (group.size >= min && group.size > (best?.jobIds?.size ?: 0))
-                        best = Crowd(service, first.job.at!!.trim(), group.map { it.job.id })
+            val mine = starts.filter { (j, _) -> j.source.provider == service || j.target.provider == service }.sortedBy { it.second }
+            for ((i, first) in mine.withIndex()) {
+                val end = first.second + windowMin * 60_000L
+                val ids = LinkedHashSet<String>()
+                for (k in i until mine.size) { if (mine[k].second > end) break; ids += mine[k].first.id }
+                if (ids.size >= min && ids.size > (best?.jobIds?.size ?: 0)) {
+                    val t = Instant.ofEpochMilli(first.second).atZone(zone).toLocalTime()
+                    best = Crowd(service, String.format(java.util.Locale.ROOT, "%02d:%02d", t.hour, t.minute), ids.toList())
                 }
             }
         }
         return best
+    }
+
+    /** When [job] starts between [from] and [until]: from its next run on, one interval or one time of day after another. */
+    private fun starts(job: SyncJob, from: Long, until: Long, zone: ZoneId): List<Long> {
+        val out = ArrayList<Long>()
+        // Every few hours and never run: its rhythm starts with its first run, not known yet.
+        if (!timed(job) && job.lastRunEpoch <= 0) return out
+        var t = nextRun(job, from, zone)?.coerceAtLeast(from) ?: return out
+        while (t <= until && out.size < 400) {
+            out += t
+            t = (if (timed(job)) nextRun(job.copy(lastRunEpoch = t), t, zone) else t + interval(job) * 60_000L) ?: break
+            if (t <= out.last()) break
+        }
+        return out
     }
 
     /**
@@ -143,8 +158,12 @@ object Timing {
      * kept within the same day. The two halves of a two-way pair move together. Days, frequency and
      * everything else stay. Only the syncs whose time changes are in the answer, in [jobs]' order.
      */
-    fun spread(jobs: List<SyncJob>, crowd: Crowd, sensitive: (String) -> Boolean = { true }): Map<String, String> {
-        val group = jobs.filter { it.id in crowd.jobIds }
+    fun spread(
+        jobs: List<SyncJob>, crowd: Crowd, sensitive: (String) -> Boolean = { true },
+        now: Long = System.currentTimeMillis(), zone: ZoneId = ZoneId.systemDefault(),
+    ): Map<String, String> {
+        // Only syncs with a time of day can be given another one; those every few hours keep theirs.
+        val group = jobs.filter { it.id in crowd.jobIds && timed(it) }
         // One unit per pair: a half whose partner is in the group follows it.
         val units = group.filter { j -> j.linkedJobId == null || group.none { it.id == j.linkedJobId } || j.id < j.linkedJobId }
         val start = (parseAt(crowd.at) ?: LocalTime.of(9, 0)).let { it.hour * 60 + it.minute }
@@ -161,7 +180,7 @@ object Timing {
             }
             answer = times.filter { (id, at) -> group.firstOrNull { it.id == id }?.at?.trim() != at }
             val after = jobs.map { j -> times[j.id]?.let { j.copy(at = it) } ?: j }
-            val left = crowded(after, sensitive = sensitive)
+            val left = crowded(after, sensitive = sensitive, now = now, zone = zone)
             if (left == null || left.jobIds.none { it in crowd.jobIds }) break
         }
         return jobs.mapNotNull { j -> answer[j.id]?.let { j.id to it } }.toMap()
