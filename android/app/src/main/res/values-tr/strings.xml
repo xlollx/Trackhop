@@ -1781,7 +1781,6 @@
     <string name="accent_outline">İnce çerçeve</string>
     <string name="accent_crescent">Hilal</string>
     <string name="accent_pill">Yüzen çubuk</string>
-    <string name="accent_glow">Parıltı</string>
     <string name="accent_wash">Renk geçişi</string>
     <string name="accent_default">Ayarlardaki gibi</string>
     <string name="job_accent_style">Kartın rengini gösterme biçimi</string>

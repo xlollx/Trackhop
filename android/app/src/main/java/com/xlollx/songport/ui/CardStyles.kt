@@ -46,7 +46,6 @@ enum class CardAccent(val key: String, val label: Int) {
     OUTLINE("outline", R.string.accent_outline),
     CRESCENT("crescent", R.string.accent_crescent),
     PILL("pill", R.string.accent_pill),
-    GLOW("glow", R.string.accent_glow),
     WASH("wash", R.string.accent_wash);
 
     companion object {
@@ -102,7 +101,6 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accen
             val pw = 5.dp.toPx()
             drawRoundRect(accent, topLeft = Offset(if (rtl) size.width - 9.dp.toPx() - pw else 9.dp.toPx(), r), size = Size(pw, (size.height - 2 * r).coerceAtLeast(pw)), cornerRadius = CornerRadius(pw / 2))
         }
-        CardAccent.GLOW -> drawRect(Brush.radialGradient(listOf(accent.copy(alpha = 0.38f), Color.Transparent), center = Offset(x(0f), size.height / 2), radius = size.width * 0.55f))
         CardAccent.WASH -> drawRect(
             if (rtl) Brush.horizontalGradient(listOf(Color.Transparent, accent.copy(alpha = 0.40f)), startX = size.width * 0.55f, endX = size.width)
             else Brush.horizontalGradient(listOf(accent.copy(alpha = 0.40f), Color.Transparent), startX = 0f, endX = size.width * 0.45f),

@@ -1843,7 +1843,6 @@
     <string name="accent_outline">Тонкая рамка</string>
     <string name="accent_crescent">Полумесяц</string>
     <string name="accent_pill">Плавающая полоска</string>
-    <string name="accent_glow">Свечение</string>
     <string name="accent_wash">Градиент</string>
     <string name="accent_default">Как в настройках</string>
     <string name="job_accent_style">Как карточка показывает цвет</string>

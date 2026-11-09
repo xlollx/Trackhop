@@ -1783,7 +1783,6 @@
     <string name="accent_outline">Dünner Rahmen</string>
     <string name="accent_crescent">Mondsichel</string>
     <string name="accent_pill">Schwebender Balken</string>
-    <string name="accent_glow">Schein</string>
     <string name="accent_wash">Farbverlauf</string>
     <string name="accent_default">Wie in den Einstellungen</string>
     <string name="job_accent_style">Wie die Karte ihre Farbe zeigt</string>

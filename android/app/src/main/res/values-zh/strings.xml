@@ -1753,7 +1753,6 @@
     <string name="accent_outline">细边框</string>
     <string name="accent_crescent">弯月</string>
     <string name="accent_pill">悬浮条</string>
-    <string name="accent_glow">光晕</string>
     <string name="accent_wash">渐变</string>
     <string name="accent_default">与设置相同</string>
     <string name="job_accent_style">卡片显示颜色的方式</string>

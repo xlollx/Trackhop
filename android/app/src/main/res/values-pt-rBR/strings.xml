@@ -1791,7 +1791,6 @@
     <string name="accent_outline">Contorno fino</string>
     <string name="accent_crescent">Meia-lua</string>
     <string name="accent_pill">Barra flutuante</string>
-    <string name="accent_glow">Brilho</string>
     <string name="accent_wash">Degradê</string>
     <string name="accent_default">Como nas Configurações</string>
     <string name="job_accent_style">Como o cartão mostra a cor</string>

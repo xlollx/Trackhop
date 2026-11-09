@@ -1752,7 +1752,6 @@
     <string name="accent_outline">얇은 테두리</string>
     <string name="accent_crescent">초승달</string>
     <string name="accent_pill">떠 있는 막대</string>
-    <string name="accent_glow">글로우</string>
     <string name="accent_wash">그라데이션</string>
     <string name="accent_default">설정과 동일</string>
     <string name="job_accent_style">카드에 색을 표시하는 방식</string>

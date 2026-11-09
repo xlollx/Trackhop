@@ -1791,7 +1791,6 @@
     <string name="accent_outline">Contour fin</string>
     <string name="accent_crescent">Croissant</string>
     <string name="accent_pill">Barre flottante</string>
-    <string name="accent_glow">Halo</string>
     <string name="accent_wash">Dégradé</string>
     <string name="accent_default">Comme dans les réglages</string>
     <string name="job_accent_style">Comment la carte porte sa couleur</string>

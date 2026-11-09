@@ -1753,7 +1753,6 @@
     <string name="accent_outline">細い枠線</string>
     <string name="accent_crescent">三日月</string>
     <string name="accent_pill">浮いたバー</string>
-    <string name="accent_glow">グロー</string>
     <string name="accent_wash">グラデーション</string>
     <string name="accent_default">設定と同じ</string>
     <string name="job_accent_style">カードでの色の見せ方</string>

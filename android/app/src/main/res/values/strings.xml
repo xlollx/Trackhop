@@ -1784,7 +1784,6 @@
     <string name="accent_outline">Thin outline</string>
     <string name="accent_crescent">Crescent</string>
     <string name="accent_pill">Floating bar</string>
-    <string name="accent_glow">Glow</string>
     <string name="accent_wash">Colour wash</string>
     <string name="accent_default">As in Settings</string>
     <string name="job_accent_style">How the card wears its colour</string>
