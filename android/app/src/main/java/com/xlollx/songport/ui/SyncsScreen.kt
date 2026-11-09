@@ -88,6 +88,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
@@ -1991,17 +1992,26 @@ private fun StatusChip(info: CardStatusInfo) {
 
 /** The status as a small badge on the services' logos: its icon in its tone; a tap acts, or says the words. */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
-    val ctx = LocalContext.current
-    Box(
-        modifier.size(20.dp).clip(CircleShape).background(toneBackground(info.tone))
-            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
-            .clickable(onClickLabel = info.text) {
-                info.onClick?.invoke() ?: android.widget.Toast.makeText(ctx, info.text, android.widget.Toast.LENGTH_SHORT).show()
-            }
-            .semantics { contentDescription = info.text },
-        contentAlignment = Alignment.Center,
+    // A tap shows the status in a small bubble over the badge; it goes after a few seconds or a tap elsewhere.
+    val tip = androidx.compose.material3.rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(tip.isVisible) { if (tip.isVisible) { delay(3000); tip.dismiss() } }
+    androidx.compose.material3.TooltipBox(
+        positionProvider = androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { PlainTooltip(caretSize = androidx.compose.material3.TooltipDefaults.caretSize) { Text(info.text) } },
+        state = tip,
+        modifier = modifier,
     ) {
-        Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
+        Box(
+            Modifier.size(20.dp).clip(CircleShape).background(toneBackground(info.tone))
+                .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                .clickable(onClickLabel = info.text) { info.onClick?.invoke() ?: scope.launch { tip.show() } }
+                .semantics { contentDescription = info.text },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
+        }
     }
 }
