@@ -20,6 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Favorite
@@ -111,12 +114,17 @@ object WhatsNew {
             Release(
                 "1.16",
                 listOf(
+                    Item(Icons.Filled.Brush, JobColor.PURPLE, R.string.whats_new_116_style_title, R.string.whats_new_116_style_body),
+                    Item(Icons.Filled.ViewAgenda, JobColor.GREEN, R.string.whats_new_116_cards_title, R.string.whats_new_116_cards_body),
                     Item(Icons.Filled.FolderOpen, JobColor.TEAL, R.string.whats_new_116_files_title, R.string.whats_new_116_files_body),
                     Item(Icons.Filled.Favorite, JobColor.PINK, R.string.whats_new_116_lastfm_title, R.string.whats_new_116_lastfm_body),
                     Item(Icons.Filled.Visibility, JobColor.BLUE, R.string.whats_new_116_preview_title, R.string.whats_new_116_preview_body),
                     // Start over is offered on the web sign-ins, there only where they are (built in, or the plugin has them).
                     Item(Icons.Filled.RestartAlt, JobColor.ORANGE, R.string.whats_new_116_restart_title, R.string.whats_new_116_restart_body,
                         shown = { c -> anghamiAvailable(c) }),
+                    // Only where Trackhop checks GitHub itself: stores and updaters tell about their own versions.
+                    Item(Icons.Filled.NotificationsActive, JobColor.YELLOW, R.string.whats_new_116_update_title, R.string.whats_new_116_update_body,
+                        shown = { c -> com.xlollx.songport.update.AppUpdates.configurable && !com.xlollx.songport.update.AppUpdates.handledElsewhere(c) }),
                 ),
             ),
             Release(

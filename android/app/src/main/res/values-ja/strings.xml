@@ -1660,6 +1660,12 @@
     <string name="whats_new_115_colours_body">同期に好きな色を付け、カードを長押ししてドラッグで並べ替えられます。「すべて同期」とウィジェットもこの順番に従います。</string>
     <string name="whats_new_115_transfer_title">転送は先に確認</string>
     <string name="whats_new_115_transfer_body">複数のプレイリストの転送では、作成前に概要が表示され、開始せずに同期だけ作成することもできます。</string>
+    <string name="whats_new_116_style_title">カードを自分のスタイルに</string>
+    <string name="whats_new_116_style_body">⋮ › スタイルで、同期ごとに色とアクセントをプレビュー付きで選べます。設定では過去の実行の表示方法と状態の位置を選べます。</string>
+    <string name="whats_new_116_cards_title">見やすくなったカード</string>
+    <string name="whats_new_116_cards_body">プレイリスト内の曲数が追加・削除と分けて表示され、長い名前はスクロールして全体を読めます。</string>
+    <string name="whats_new_116_update_title">新しいバージョンをお知らせ</string>
+    <string name="whats_new_116_update_body">新しい Trackhop が出ると、通知で 1 回お知らせします。タップでダウンロードします。</string>
     <string name="whats_new_116_files_title">ファイルを自由に読み込み</string>
     <string name="whats_new_116_files_body">Trackhop はファイル名やフォルダ、または自分で決めたパターンからアーティストとアルバムを読み取ります。複数のファイルをまとめて選択したり、1つをそのままサービスに送ったりできます。</string>
     <string name="whats_new_116_lastfm_title">Last.fm で曲を Love</string>

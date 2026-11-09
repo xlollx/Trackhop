@@ -1686,6 +1686,12 @@
     <string name="whats_new_115_colours_body">Gib einem Sync jede beliebige Farbe und halte eine Karte gedrückt, um sie an ihren Platz zu ziehen: „Alle synchronisieren“ und die Widgets folgen der Reihenfolge.</string>
     <string name="whats_new_115_transfer_title">Übertragungen erst prüfen</string>
     <string name="whats_new_115_transfer_body">„Viele Playlists übertragen“ zeigt vor dem Erstellen eine Zusammenfassung und kann die Syncs anlegen, ohne sie zu starten.</string>
+    <string name="whats_new_116_style_title">Karten nach deinem Stil</string>
+    <string name="whats_new_116_style_body">⋮ › Stil gibt jedem Sync eine Farbe und einen Akzent, mit Vorschau. In den Einstellungen wählst du, wie letzte Läufe aussehen und wo der Status steht.</string>
+    <string name="whats_new_116_cards_title">Übersichtlichere Karten</string>
+    <string name="whats_new_116_cards_body">Die Titel in der Playlist stehen getrennt von Hinzugefügtem und Entferntem, und lange Namen laufen durch, damit du sie ganz lesen kannst.</string>
+    <string name="whats_new_116_update_title">Neue Versionen per Benachrichtigung</string>
+    <string name="whats_new_116_update_body">Erscheint ein neues Trackhop, sagt dir eine Benachrichtigung einmal Bescheid; ein Tipp lädt es herunter.</string>
     <string name="whats_new_116_files_title">Dateien, wie du sie benennst</string>
     <string name="whats_new_116_files_body">Trackhop liest Künstler und Album aus Dateinamen und Ordnern oder aus deinen eigenen Mustern. Wähle mehrere Dateien auf einmal aus oder sende eine direkt an einen Dienst.</string>
     <string name="whats_new_116_lastfm_title">Deine Lieblingstitel auf Last.fm</string>

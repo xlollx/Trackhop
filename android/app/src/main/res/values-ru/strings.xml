@@ -1738,6 +1738,12 @@
     <string name="whats_new_115_colours_body">Задайте синхронизации любой цвет и удерживайте карточку, чтобы перетащить её на место: «Синхронизировать всё» и виджеты следуют этому порядку.</string>
     <string name="whats_new_115_transfer_title">Перенос с проверкой</string>
     <string name="whats_new_115_transfer_body">Перенос многих плейлистов сначала показывает сводку и может создать синхронизации, не запуская их.</string>
+    <string name="whats_new_116_style_title">Карточки в вашем стиле</string>
+    <string name="whats_new_116_style_body">⋮ › Стиль задаёт каждой синхронизации цвет и акцент, с предпросмотром. В настройках выберите вид прошлых запусков и место состояния.</string>
+    <string name="whats_new_116_cards_title">Карточки стали понятнее</string>
+    <string name="whats_new_116_cards_body">Треки в плейлисте показаны отдельно от добавленных и удалённых, а длинные названия прокручиваются, чтобы их можно было прочитать целиком.</string>
+    <string name="whats_new_116_update_title">Уведомление о новых версиях</string>
+    <string name="whats_new_116_update_body">Когда выходит новый Trackhop, уведомление сообщит об этом один раз; нажатие скачивает его.</string>
     <string name="whats_new_116_files_title">Файлы по-вашему</string>
     <string name="whats_new_116_files_body">Trackhop берёт исполнителя и альбом из имён файлов и папок или из ваших собственных шаблонов. Выбирайте несколько файлов сразу или отправляйте файл прямо в сервис.</string>
     <string name="whats_new_116_lastfm_title">Любимые треки на Last.fm</string>

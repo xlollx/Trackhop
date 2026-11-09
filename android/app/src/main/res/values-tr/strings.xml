@@ -1684,6 +1684,12 @@
     <string name="whats_new_115_colours_body">Bir senkronizasyona seçiciyle istediğin rengi ver, bir kartı basılı tutup yerine sürükle: Tümünü senkronize et ve widget\'lar bu sırayı izler.</string>
     <string name="whats_new_115_transfer_title">Aktarımlar önce kontrol edilir</string>
     <string name="whats_new_115_transfer_body">Çok sayıda çalma listesini aktar, bir şey oluşturmadan önce özet gösterir ve senkronizasyonları başlatmadan oluşturabilir.</string>
+    <string name="whats_new_116_style_title">Kartlar senin tarzında</string>
+    <string name="whats_new_116_style_body">⋮ › Stil, her eşitlemeye önizlemeli bir renk ve vurgu verir. Ayarlar\'da geçmiş çalıştırmaların görünümünü ve durumun yerini seçersin.</string>
+    <string name="whats_new_116_cards_title">Daha net kartlar</string>
+    <string name="whats_new_116_cards_body">Listedeki parçalar eklenen ve kaldırılanlardan ayrı durur, uzun adlar da tamamını okuyabilmen için kayar.</string>
+    <string name="whats_new_116_update_title">Yeni sürüm bildirimi</string>
+    <string name="whats_new_116_update_body">Yeni bir Trackhop çıktığında bir bildirim bunu bir kez söyler; dokunmak onu indirir.</string>
     <string name="whats_new_116_files_title">Dosyalar senin düzeninde</string>
     <string name="whats_new_116_files_body">Trackhop sanatçıyı ve albümü dosya adlarından ve klasörlerden ya da kendi kalıplarından okur. Birden çok dosyayı aynı anda seç veya birini doğrudan bir servise gönder.</string>
     <string name="whats_new_116_lastfm_title">Last.fm\'deki favorilerin</string>

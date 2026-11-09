@@ -1659,6 +1659,12 @@
     <string name="whats_new_115_colours_body">동기화에 원하는 색을 정하고, 카드를 길게 눌러 원하는 자리로 끌어 옮기세요. 모두 동기화와 위젯도 이 순서를 따라요.</string>
     <string name="whats_new_115_transfer_title">전송 전에 먼저 확인</string>
     <string name="whats_new_115_transfer_body">여러 플레이리스트 전송은 만들기 전에 요약을 보여 주고, 시작하지 않고 만들기만 할 수도 있어요.</string>
+    <string name="whats_new_116_style_title">내 스타일대로 카드</string>
+    <string name="whats_new_116_style_body">⋮ › 스타일에서 동기화마다 색과 강조를 미리 보며 고를 수 있어요. 설정에서 지난 실행을 어떻게 보여 줄지, 상태를 어디에 둘지 정해요.</string>
+    <string name="whats_new_116_cards_title">더 깔끔해진 카드</string>
+    <string name="whats_new_116_cards_body">플레이리스트의 곡 수가 추가·삭제와 따로 보이고, 긴 이름은 스크롤되어 끝까지 읽을 수 있어요.</string>
+    <string name="whats_new_116_update_title">새 버전 알림</string>
+    <string name="whats_new_116_update_body">새 Trackhop이 나오면 알림으로 한 번 알려 줘요. 누르면 내려받아요.</string>
     <string name="whats_new_116_files_title">원하는 방식으로 읽는 파일</string>
     <string name="whats_new_116_files_body">Trackhop은 파일 이름과 폴더, 또는 직접 만든 패턴에서 아티스트와 앨범을 읽습니다. 여러 파일을 한 번에 선택하거나 하나를 바로 서비스로 보낼 수 있습니다.</string>
     <string name="whats_new_116_lastfm_title">Last.fm에서 곡 좋아요</string>

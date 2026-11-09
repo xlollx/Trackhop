@@ -1687,6 +1687,12 @@
     <string name="whats_new_115_colours_body">Give a sync any colour from a picker, and hold a card to drag it to its place: Sync all and the widgets follow the order.</string>
     <string name="whats_new_115_transfer_title">Transfers checked first</string>
     <string name="whats_new_115_transfer_body">Transfer many playlists shows a summary before anything is created, and can create the syncs without starting them.</string>
+    <string name="whats_new_116_style_title">Cards in your style</string>
+    <string name="whats_new_116_style_body">⋮ › Style gives each sync a colour and an accent, with a preview. In Settings, choose how past runs look and where the status sits.</string>
+    <string name="whats_new_116_cards_title">Clearer cards</string>
+    <string name="whats_new_116_cards_body">The tracks in the playlist stand apart from what was added or removed, and long names scroll so you can read them whole.</string>
+    <string name="whats_new_116_update_title">New versions, notified</string>
+    <string name="whats_new_116_update_body">When a new Trackhop is out, a notification tells you once; a tap downloads it.</string>
     <string name="whats_new_116_files_title">Files read your way</string>
     <string name="whats_new_116_files_body">Trackhop reads artist and album from file names and folders, or from your own patterns. Select several files at once, or send one straight to a service.</string>
     <string name="whats_new_116_lastfm_title">Love tracks on Last.fm</string>

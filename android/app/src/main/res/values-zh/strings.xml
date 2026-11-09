@@ -1660,6 +1660,12 @@
     <string name="whats_new_115_colours_body">用取色器给同步任务任意颜色，长按卡片即可拖动到想要的位置：“全部同步”和小组件都按这个顺序。</string>
     <string name="whats_new_115_transfer_title">转移前先确认</string>
     <string name="whats_new_115_transfer_body">批量转移歌单会在创建前显示摘要，也可以只创建同步任务而不立即开始。</string>
+    <string name="whats_new_116_style_title">随心设置卡片样式</string>
+    <string name="whats_new_116_style_body">⋮ › 样式可为每个同步选择颜色和强调样式，并可预览。在设置中可选择历史运行的显示方式和状态的位置。</string>
+    <string name="whats_new_116_cards_title">更清晰的卡片</string>
+    <string name="whats_new_116_cards_body">歌单内的曲目数与新增、移除分开显示，过长的名称会滚动，方便完整阅读。</string>
+    <string name="whats_new_116_update_title">新版本通知</string>
+    <string name="whats_new_116_update_body">有新版 Trackhop 时，会发送一次通知；点按即可下载。</string>
     <string name="whats_new_116_files_title">按你的方式读取文件</string>
     <string name="whats_new_116_files_body">Trackhop 会从文件名和文件夹，或你自己的规则中读取艺人和专辑。可以一次选择多个文件，或把某个文件直接发送到服务。</string>
     <string name="whats_new_116_lastfm_title">在 Last.fm 上喜爱歌曲</string>

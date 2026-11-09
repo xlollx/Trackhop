@@ -1694,6 +1694,12 @@
     <string name="whats_new_115_colours_body">Dale a una sincronización cualquier color con el selector y mantén pulsada una tarjeta para arrastrarla a su sitio: Sincronizar todo y los widgets siguen el orden.</string>
     <string name="whats_new_115_transfer_title">Transferencias revisadas antes</string>
     <string name="whats_new_115_transfer_body">Transferir muchas playlists muestra un resumen antes de crear nada y puede crear las sincronizaciones sin iniciarlas.</string>
+    <string name="whats_new_116_style_title">Tarjetas a tu estilo</string>
+    <string name="whats_new_116_style_body">⋮ › Estilo da a cada sync un color y un acento, con vista previa. En Ajustes eliges cómo se ven las ejecuciones anteriores y dónde va el estado.</string>
+    <string name="whats_new_116_cards_title">Tarjetas más claras</string>
+    <string name="whats_new_116_cards_body">Las canciones de la lista se separan de lo añadido o quitado, y los nombres largos se desplazan para leerlos enteros.</string>
+    <string name="whats_new_116_update_title">Aviso de versiones nuevas</string>
+    <string name="whats_new_116_update_body">Cuando sale un Trackhop nuevo, una notificación te avisa una vez; un toque lo descarga.</string>
     <string name="whats_new_116_files_title">Archivos a tu manera</string>
     <string name="whats_new_116_files_body">Trackhop lee el artista y el álbum de los nombres de archivo y las carpetas, o de tus propios patrones. Selecciona varios archivos a la vez o envía uno directamente a un servicio.</string>
     <string name="whats_new_116_lastfm_title">Marca favoritas en Last.fm</string>
