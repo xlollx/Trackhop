@@ -1,0 +1,38 @@
+# By hand: puts a line on top of old releases that people still reach through old links (videos,
+# articles), pointing to the latest version. Run it with the tags to mark; a tag already marked is
+# left alone.
+name: Old release note
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Tags to mark, separated by spaces (e.g. v1.6.2 v1.5.7)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  mark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAGS: ${{ inputs.tags }}
+        run: |
+          for tag in $TAGS; do
+            body=$(gh release view "$tag" -R "$GITHUB_REPOSITORY" --json body -q .body)
+            if printf '%s' "$body" | grep -q 'old-release-note'; then echo "$tag: already marked"; continue; fi
+            {
+              echo '<!-- old-release-note -->'
+              echo '> [!WARNING]'
+              echo "> **This is an old version.** Get the latest Trackhop from [the latest release](https://github.com/$GITHUB_REPOSITORY/releases/latest) or [trackhop.org](https://trackhop.org). Installed apps update themselves."
+              echo
+              printf '%s\n' "$body"
+            } > notes.md
+            gh release edit "$tag" -R "$GITHUB_REPOSITORY" --notes-file notes.md
+            echo "$tag: marked"
+          done
