@@ -18,6 +18,8 @@ data class SyncFilter(
     val services: Set<String> = emptySet(),
     /** Colour keys (SyncJob.color). */
     val colors: Set<String> = emptySet(),
+    /** These syncs only (the crowded-schedule card's "Show them"); empty: no such limit. */
+    val ids: Set<String> = emptySet(),
 ) {
     /**
      * By the last run: UP_TO_DATE ran fine with nothing left to look at; NEEDS_FIX ran but left songs
@@ -26,7 +28,7 @@ data class SyncFilter(
      */
     enum class Status { UP_TO_DATE, ERROR, NEEDS_FIX, RUNNING, NEVER_RUN, DISABLED }
 
-    val isActive: Boolean get() = query.isNotBlank() || statuses.isNotEmpty() || services.isNotEmpty() || colors.isNotEmpty()
+    val isActive: Boolean get() = query.isNotBlank() || statuses.isNotEmpty() || services.isNotEmpty() || colors.isNotEmpty() || ids.isNotEmpty()
 
     fun toggle(status: Status) = copy(statuses = statuses.toggled(status))
     fun toggleService(id: String) = copy(services = services.toggled(id))
@@ -39,7 +41,8 @@ data class SyncFilter(
     fun pruned(jobs: List<SyncJob>): SyncFilter {
         val s = services.intersect(servicesInUse(jobs).toSet())
         val c = colors.intersect(colorsInUse(jobs))
-        return if (s.size == services.size && c.size == colors.size) this else copy(services = s, colors = c)
+        val i = ids.intersect(jobs.map { it.id }.toSet())
+        return if (s.size == services.size && c.size == colors.size && i.size == ids.size) this else copy(services = s, colors = c, ids = i)
     }
 
     /**
@@ -60,6 +63,7 @@ data class SyncFilter(
             (statuses.isEmpty() || statuses.any { s -> has(job, s, last, running) }) &&
                 (services.isEmpty() || job.source.provider in services || job.target.provider in services) &&
                 (colors.isEmpty() || job.color in colors) &&
+                (ids.isEmpty() || job.id in ids) &&
                 (terms.isEmpty() || haystack(job, serviceName).let { h -> terms.all { it in h } })
         }
     }

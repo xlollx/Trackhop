@@ -1778,4 +1778,10 @@
     <string name="notif_update_text">タップしてダウンロード</string>
     <string name="crowd_title">%1$s の同期がすべて %2$s ごろに開始します</string>
     <string name="crowd_body">多くの同期が同じサービスに同時にアクセスすると、サービスが通常と異なるトラフィックとみなし、しばらく一部を拒否することがあります。その結果、いくつかの同期が失敗します。数分や 1 時間ずらすだけでも、1 日の中で分散させてください。各同期の時刻は ⋮ › 編集 で変更できます。</string>
+    <string name="crowd_show">表示</string>
+    <string name="crowd_spread">分散する</string>
+    <string name="spread_title">%1$s の同期を分散しますか？</string>
+    <string name="spread_body">各同期は前の同期の少し後に開始します。曜日、頻度、その他の設定は変わりません。</string>
+    <string name="spread_stays">%1$s（そのまま）</string>
+    <string name="spread_confirm">確定</string>
 </resources>

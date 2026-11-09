@@ -1808,4 +1808,10 @@
     <string name="notif_update_text">Zum Herunterladen tippen</string>
     <string name="crowd_title">Syncs mit %1$s starten alle gegen %2$s</string>
     <string name="crowd_body">Erreichen viele Syncs denselben Dienst im selben Moment, kann er das für ungewöhnlichen Verkehr halten und einige eine Weile abweisen, sodass manche Syncs fehlschlagen. Verteile sie über den Tag, schon wenige Minuten oder eine Stunde Abstand helfen: Die Uhrzeit jedes Syncs findest du unter ⋮ › Bearbeiten.</string>
+    <string name="crowd_show">Zeigen</string>
+    <string name="crowd_spread">Verteilen</string>
+    <string name="spread_title">Syncs mit %1$s verteilen?</string>
+    <string name="spread_body">Jeder Sync startet etwas nach dem vorherigen. Tage, Häufigkeit und alles andere bleiben gleich.</string>
+    <string name="spread_stays">%1$s (bleibt)</string>
+    <string name="spread_confirm">Bestätigen</string>
 </resources>

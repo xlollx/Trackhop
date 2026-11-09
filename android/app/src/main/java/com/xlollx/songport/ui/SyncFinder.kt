@@ -74,13 +74,14 @@ const val FIND_MIN_SYNCS = 5
 
 /** Keeps the filter across rotation and process death: only strings and lists of strings. */
 val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
-    save = { f -> listOf(f.query, ArrayList(f.statuses.map { it.name }), ArrayList(f.services), ArrayList(f.colors)) },
+    save = { f -> listOf(f.query, ArrayList(f.statuses.map { it.name }), ArrayList(f.services), ArrayList(f.colors), ArrayList(f.ids)) },
     restore = { l ->
         SyncFilter(
             query = l[0] as String,
             statuses = (l[1] as List<*>).mapNotNull { n -> SyncFilter.Status.entries.firstOrNull { it.name == n } }.toSet(),
             services = (l[2] as List<*>).filterIsInstance<String>().toSet(),
             colors = (l[3] as List<*>).filterIsInstance<String>().toSet(),
+            ids = (l.getOrNull(4) as? List<*>)?.filterIsInstance<String>()?.toSet().orEmpty(),
         )
     },
 )

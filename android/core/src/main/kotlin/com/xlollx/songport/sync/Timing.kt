@@ -104,28 +104,67 @@ object Timing {
     /** Several syncs that reach one service at about the same time: what the Syncs screen warns about. */
     data class Crowd(val service: String, val at: String, val jobIds: List<String>)
 
+    /** Gaps the spreading tries, in minutes: the shortest that leaves no crowd wins. */
+    private val SPREAD_GAPS = listOf(15, 20, 30, 45, 60)
+
     /**
-     * The largest group of at least [min] scheduled syncs that read or write the same online service
-     * and start within [windowMin] minutes of each other on a day they share, or null. Seen in issue
-     * #56: eleven syncs from one service at 09:00, and the service refused part of them. Files are
-     * left out (nothing goes over the network); syncs without a time of day (every few hours) too.
+     * The largest group of at least [min] scheduled syncs that read or write the same service and
+     * start within [windowMin] minutes of each other on one same day of the week, or null. Day by
+     * day, so a weekly Monday sync at 09:00 meets the daily ones at 09:00 on Mondays only (issue #56:
+     * eleven syncs from one service at 09:00, and the service turned part of them away). Only the
+     * services [sensitive] says turn bursts away; files never. Syncs without a time of day (every
+     * few hours) have no time to plan and are left out; one every few days counts on every day.
      */
-    fun crowded(jobs: List<SyncJob>, windowMin: Int = 30, min: Int = 4): Crowd? {
+    fun crowded(jobs: List<SyncJob>, windowMin: Int = 30, min: Int = 4, sensitive: (String) -> Boolean = { true }): Crowd? {
         class Slot(val job: SyncJob, val minute: Int, val days: Set<Int>)
         val slots = jobs.filter { scheduled(it) && timed(it) }.mapNotNull { j ->
             val t = parseAt(j.at) ?: return@mapNotNull null
             Slot(j, t.hour * 60 + t.minute, j.days.toSet().ifEmpty { (1..7).toSet() })
         }
         var best: Crowd? = null
-        for (service in slots.flatMap { listOf(it.job.source.provider, it.job.target.provider) }.toSet() - LOCAL) {
+        val services = slots.flatMap { listOf(it.job.source.provider, it.job.target.provider) }.toSet() - LOCAL
+        for (service in services.filter(sensitive)) {
             val mine = slots.filter { it.job.source.provider == service || it.job.target.provider == service }.sortedBy { it.minute }
-            for (first in mine) {
-                val group = mine.filter { it.minute in first.minute..first.minute + windowMin && it.days.any { d -> d in first.days } }
-                if (group.size >= min && group.size > (best?.jobIds?.size ?: 0))
-                    best = Crowd(service, first.job.at!!.trim(), group.map { it.job.id })
+            for (day in 1..7) {
+                val today = mine.filter { day in it.days }
+                for (first in today) {
+                    val group = today.filter { it.minute in first.minute..first.minute + windowMin }
+                    if (group.size >= min && group.size > (best?.jobIds?.size ?: 0))
+                        best = Crowd(service, first.job.at!!.trim(), group.map { it.job.id })
+                }
             }
         }
         return best
+    }
+
+    /**
+     * New times for the syncs of [crowd], for the user to confirm: the first keeps its time, each next
+     * one starts a gap later (15 minutes, longer when that still meets other syncs of the service),
+     * kept within the same day. The two halves of a two-way pair move together. Days, frequency and
+     * everything else stay. Only the syncs whose time changes are in the answer, in [jobs]' order.
+     */
+    fun spread(jobs: List<SyncJob>, crowd: Crowd, sensitive: (String) -> Boolean = { true }): Map<String, String> {
+        val group = jobs.filter { it.id in crowd.jobIds }
+        // One unit per pair: a half whose partner is in the group follows it.
+        val units = group.filter { j -> j.linkedJobId == null || group.none { it.id == j.linkedJobId } || j.id < j.linkedJobId }
+        val start = (parseAt(crowd.at) ?: LocalTime.of(9, 0)).let { it.hour * 60 + it.minute }
+        var answer: Map<String, String> = emptyMap()
+        for (gap in SPREAD_GAPS) {
+            val first = minOf(start, 1439 - (units.size - 1) * gap)
+            if (first < 0) break
+            val times = HashMap<String, String>()
+            units.forEachIndexed { i, u ->
+                val m = first + i * gap
+                val at = String.format(java.util.Locale.ROOT, "%02d:%02d", m / 60, m % 60)
+                times[u.id] = at
+                u.linkedJobId?.let { times[it] = at }
+            }
+            answer = times.filter { (id, at) -> group.firstOrNull { it.id == id }?.at?.trim() != at }
+            val after = jobs.map { j -> times[j.id]?.let { j.copy(at = it) } ?: j }
+            val left = crowded(after, sensitive = sensitive)
+            if (left == null || left.jobIds.none { it in crowd.jobIds }) break
+        }
+        return jobs.mapNotNull { j -> answer[j.id]?.let { j.id to it } }.toMap()
     }
 
     /** Services on the phone itself: files. */

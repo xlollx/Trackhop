@@ -1870,4 +1870,10 @@
     <string name="notif_update_text">Dotknij, aby pobrać</string>
     <string name="crowd_title">Synchronizacje z %1$s startują wszystkie około %2$s</string>
     <string name="crowd_body">Gdy wiele synchronizacji trafia do tego samego serwisu w tej samej chwili, serwis może uznać to za nietypowy ruch i na chwilę odrzucić część z nich, więc niektóre się nie udają. Rozłóż je w ciągu dnia, nawet o kilka minut lub godzinę: godzinę każdej synchronizacji zmienisz w ⋮ › Edytuj.</string>
+    <string name="crowd_show">Pokaż je</string>
+    <string name="crowd_spread">Rozłóż je</string>
+    <string name="spread_title">Rozłożyć synchronizacje z %1$s?</string>
+    <string name="spread_body">Każda synchronizacja startuje chwilę po poprzedniej. Dni, częstotliwość i cała reszta się nie zmieniają.</string>
+    <string name="spread_stays">%1$s (bez zmian)</string>
+    <string name="spread_confirm">Potwierdź</string>
 </resources>

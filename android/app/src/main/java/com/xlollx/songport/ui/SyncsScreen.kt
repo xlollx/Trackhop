@@ -303,7 +303,8 @@ fun SyncsScreen(
     val support = SupportPrompt.pending(Store.get(ctx))
     // One open in ten: a small card that goes away by itself at the next open.
     val nudge = support == null && data.settings.appOpens > 0 && SupportPrompt.nudge(Store.get(ctx))
-    val finder = data.jobs.size >= FIND_MIN_SYNCS
+    // Also with fewer syncs while the crowded-schedule card's "Show them" is on: its bar turns it off.
+    val finder = data.jobs.size >= FIND_MIN_SYNCS || filter.ids.isNotEmpty()
     // A colour or a service no sync uses any more has no chip to turn it off: it is dropped.
     val effective = if (finder) filter.pruned(data.jobs) else SyncFilter()
     val runningIds = running.keys
@@ -349,7 +350,9 @@ fun SyncsScreen(
         }
         val crowdPrefs = remember { ctx.getSharedPreferences("hints", android.content.Context.MODE_PRIVATE) }
         var crowdSeen by remember { mutableStateOf(crowdPrefs.getString("seen", null)) }
-        val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs)?.takeIf { crowdKey(it) != crowdSeen } }
+        val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
+        var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
+        spreading?.let { c -> SpreadDialog(data.jobs, c) { spreading = null } }
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
@@ -387,7 +390,7 @@ fun SyncsScreen(
             // While syncs run it says how many, and a tap brings the first running card into view.
             if (data.jobs.size >= 2) stickyHeader(key = "runall") {
                 // Index of the first card: hero, finder, pill, then the support card when there is one.
-                val firstCard = runAllIndex + 1 + (if (support != null || nudge) 1 else 0)
+                val firstCard = runAllIndex + 1 + (if (support != null || nudge) 1 else 0) + (if (crowd != null) 1 else 0)
                 // A card brought into view lands just under the pinned pill, not beneath it.
                 val tally = SyncState.tally(running.keys, pausedSet, parkedSet, stoppingSet)
                 RunAllPill(tally, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height }) {
@@ -416,7 +419,16 @@ fun SyncsScreen(
             if (support != null) item(key = "support") { SupportCard(support) }
             else if (nudge) item(key = "nudge") { CoffeeCard() }
             // Many syncs reaching one service at once (issue #56): said once, until the group changes.
-            crowd?.let { c -> item(key = "crowd") { CrowdCard(c) { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) } } }
+            crowd?.let { c ->
+                item(key = "crowd") {
+                    CrowdCard(
+                        c,
+                        onDismiss = { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) },
+                        onShow = { filter = SyncFilter(ids = c.jobIds.toSet()) },
+                        onSpread = { spreading = c },
+                    )
+                }
+            }
             if (shown.isEmpty()) item(key = "nomatch") { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
@@ -1820,23 +1832,75 @@ private fun CoffeeCard() {
 /** La richiesta di contributo: cosa ha appena fatto l'app, perche' e' gratis, un tocco per offrire un caffe'. */
 private fun crowdKey(c: com.xlollx.songport.sync.Timing.Crowd) = c.service + "@" + c.at + ":" + c.jobIds.sorted().joinToString(",")
 
-/** Several syncs reach one service at the same time: why that can fail, and that spreading them helps. */
+/** The services where many syncs at once can be turned away (MusicProvider.spreadSchedules). */
+private fun spreads(id: String): Boolean = Providers.byId(id)?.spreadSchedules == true
+
+/** Several syncs reach one service at the same time: why that can fail, and two ways out. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit) {
+private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit, onShow: () -> Unit, onSpread: () -> Unit) {
     val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
+    val ink = MaterialTheme.colorScheme.onSecondaryContainer
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Schedule, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Icon(Icons.Filled.Schedule, null, Modifier.size(20.dp), tint = ink)
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.crowd_title, name, crowd.at), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(stringResource(R.string.crowd_title, name, crowd.at), style = MaterialTheme.typography.titleMedium, color = ink)
             }
-            Text(stringResource(R.string.crowd_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-            TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) {
-                Text(stringResource(R.string.whats_new_got_it), color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text(stringResource(R.string.crowd_body), style = MaterialTheme.typography.bodyMedium, color = ink)
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), verticalArrangement = Arrangement.Center) {
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.whats_new_got_it), color = ink) }
+                TextButton(onClick = onShow) { Text(stringResource(R.string.crowd_show), color = ink) }
+                FilledTonalButton(onClick = onSpread) { Text(stringResource(R.string.crowd_spread)) }
             }
         }
     }
+}
+
+/** The new times, one row per sync, old one struck through: nothing changes until Confirm. */
+@Composable
+private fun SpreadDialog(jobs: List<com.xlollx.songport.model.SyncJob>, crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit) {
+    val ctx = LocalContext.current
+    val times = remember(jobs, crowd) { com.xlollx.songport.sync.Timing.spread(jobs, crowd, sensitive = ::spreads) }
+    val group = jobs.filter { it.id in crowd.jobIds }
+    val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.spread_title, name)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.spread_body), style = MaterialTheme.typography.bodyMedium)
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 360.dp)) {
+                    items(group, key = { it.id }) { j ->
+                        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(j.name.ifBlank { j.source.playlistName }, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Spacer(Modifier.width(8.dp))
+                            val new = times[j.id]
+                            if (new == null) Text(stringResource(R.string.spread_stays, j.at.orEmpty()), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            else {
+                                Text(j.at.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough)
+                                Text(" → ", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(new, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val store = Store.get(ctx)
+                jobs.filter { it.id in times }.forEach { j ->
+                    val moved = j.copy(at = times.getValue(j.id))
+                    store.upsertJob(moved)
+                    com.xlollx.songport.sync.Scheduler.apply(ctx, moved)
+                }
+                onDismiss()
+            }) { Text(stringResource(R.string.spread_confirm)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
 }
 
 @Composable

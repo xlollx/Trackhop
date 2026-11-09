@@ -1806,4 +1806,10 @@
     <string name="notif_update_text">İndirmek için dokunun</string>
     <string name="crowd_title">%1$s eşitlemelerinin hepsi %2$s civarında başlıyor</string>
     <string name="crowd_body">Birçok eşitleme aynı anda aynı servise ulaştığında servis bunu olağan dışı trafik sayıp bir süre bazılarını reddedebilir; bu yüzden birkaç eşitleme başarısız olur. Onları gün içine yay, birkaç dakika ya da bir saat arayla bile olsa: her eşitlemenin saati ⋮ › Düzenle içinde.</string>
+    <string name="crowd_show">Göster</string>
+    <string name="crowd_spread">Dağıt</string>
+    <string name="spread_title">%1$s eşitlemeleri dağıtılsın mı?</string>
+    <string name="spread_body">Her eşitleme bir öncekinden biraz sonra başlar. Günler, sıklık ve diğer her şey aynı kalır.</string>
+    <string name="spread_stays">%1$s (aynı kalır)</string>
+    <string name="spread_confirm">Onayla</string>
 </resources>

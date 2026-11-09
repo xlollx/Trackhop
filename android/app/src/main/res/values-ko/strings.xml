@@ -1777,4 +1777,10 @@
     <string name="notif_update_text">탭하여 다운로드</string>
     <string name="crowd_title">%1$s 동기화가 모두 %2$s쯤 시작돼요</string>
     <string name="crowd_body">여러 동기화가 같은 서비스에 동시에 접속하면 서비스가 이를 비정상적인 트래픽으로 보고 한동안 일부를 거부할 수 있어서, 몇몇 동기화가 실패해요. 몇 분이나 한 시간 간격이라도 하루에 걸쳐 나눠 주세요. 각 동기화의 시간은 ⋮ › 편집에서 바꿀 수 있어요.</string>
+    <string name="crowd_show">보기</string>
+    <string name="crowd_spread">분산하기</string>
+    <string name="spread_title">%1$s 동기화를 분산할까요?</string>
+    <string name="spread_body">각 동기화가 앞의 동기화보다 조금 뒤에 시작해요. 요일, 빈도 등 나머지는 그대로예요.</string>
+    <string name="spread_stays">%1$s (그대로)</string>
+    <string name="spread_confirm">확인</string>
 </resources>

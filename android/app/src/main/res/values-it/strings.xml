@@ -1808,4 +1808,10 @@
     <string name="notif_update_text">Tocca per scaricarlo</string>
     <string name="crowd_title">Le sync con %1$s partono tutte verso le %2$s</string>
     <string name="crowd_body">Quando tante sync raggiungono lo stesso servizio nello stesso momento, il servizio può scambiarlo per traffico anomalo e respingerne alcune per un po\', così qualche sync fallisce. Distribuiscile durante la giornata, anche a pochi minuti o a un\'ora di distanza: l\'orario di ogni sync è in ⋮ › Modifica.</string>
+    <string name="crowd_show">Mostrale</string>
+    <string name="crowd_spread">Distribuiscile</string>
+    <string name="spread_title">Distribuire le sync con %1$s?</string>
+    <string name="spread_body">Ogni sync parte poco dopo la precedente. Giorni, frequenza e tutto il resto non cambiano.</string>
+    <string name="spread_stays">%1$s (resta)</string>
+    <string name="spread_confirm">Conferma</string>
 </resources>

@@ -1809,4 +1809,10 @@
     <string name="notif_update_text">Tap to download it</string>
     <string name="crowd_title">Syncs with %1$s all start around %2$s</string>
     <string name="crowd_body">When many syncs reach the same service at the same moment, the service can take it for unusual traffic and turn some of them away for a while, so a few syncs fail. Spread them over the day, even a few minutes or an hour apart: each sync\'s time is in ⋮ › Edit.</string>
+    <string name="crowd_show">Show them</string>
+    <string name="crowd_spread">Spread them</string>
+    <string name="spread_title">Spread the syncs with %1$s?</string>
+    <string name="spread_body">Each sync starts a little after the one before. Days, frequency and everything else stay the same.</string>
+    <string name="spread_stays">%1$s (stays)</string>
+    <string name="spread_confirm">Confirm</string>
 </resources>
