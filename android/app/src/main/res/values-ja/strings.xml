@@ -1763,4 +1763,5 @@
     <string name="history_dots">ドット</string>
     <string name="history_text">テキスト</string>
     <string name="run_history_text">変更あり: %1$d · 変更なし: %2$d · 失敗: %3$d</string>
+    <string name="job_style">スタイル</string>
 </resources>

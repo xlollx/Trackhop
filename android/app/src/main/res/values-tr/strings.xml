@@ -1791,4 +1791,5 @@
     <string name="history_dots">Noktalar</string>
     <string name="history_text">Metin</string>
     <string name="run_history_text">Değişiklikli: %1$d · Yenilik yok: %2$d · Başarısız: %3$d</string>
+    <string name="job_style">Stil</string>
 </resources>

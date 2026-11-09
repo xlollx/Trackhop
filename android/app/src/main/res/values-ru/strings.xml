@@ -1853,4 +1853,5 @@
     <string name="history_dots">Точки</string>
     <string name="history_text">Текст</string>
     <string name="run_history_text">С изменениями: %1$d · Без изменений: %2$d · С ошибкой: %3$d</string>
+    <string name="job_style">Стиль</string>
 </resources>

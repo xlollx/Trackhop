@@ -608,10 +608,12 @@ private fun JobCard(
             dismissButton = { TextButton(onClick = { moveToOpen = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
-    if (colorOpen) JobColorDialog(job.color, onDismiss = { colorOpen = false }) { c ->
-        // A two-way sync is one sync to the user: both halves take the colour.
+    if (colorOpen) JobStyleDialog(
+        job.name.ifBlank { job.source.playlistName }, job.color, job.accentStyle, data.settings.cardAccent, onDismiss = { colorOpen = false },
+    ) { c, st ->
+        // A two-way sync is one sync to the user: both halves take the colour and its style.
         val store = Store.get(ctx)
-        data.jobs.filter { it.id == job.id || it.id == job.linkedJobId || it.linkedJobId == job.id }.forEach { store.upsertJob(it.copy(color = c)) }
+        data.jobs.filter { it.id == job.id || it.id == job.linkedJobId || it.linkedJobId == job.id }.forEach { store.upsertJob(it.copy(color = c, accentStyle = st)) }
     }
     var listOpen by remember { mutableStateOf<StatList?>(null) }
     listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
@@ -804,7 +806,7 @@ private fun JobCard(
                         MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
                         if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
-                        MenuAction(stringResource(R.string.job_color), { colorOpen = true }, icon = Icons.Outlined.Palette),
+                        MenuAction(stringResource(R.string.job_style), { colorOpen = true }, icon = Icons.Outlined.Palette),
                         // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
                         // at a position typed as a number.
                         // Many syncs: a position typed as a number, quicker than many taps on the arrows.
@@ -1327,14 +1329,6 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") })
                 Text(stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
                 JobColorPicker(color) { color = it }
-                // With a colour: how the card wears it, or the style chosen in Settings.
-                if (color != null) {
-                    Text(stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
-                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(accentStyle == null, onClick = { accentStyle = null }, label = { Text(stringResource(R.string.accent_default)) })
-                        CardAccent.entries.forEach { a -> FilterChip(accentStyle == a.key, onClick = { accentStyle = a.key }, label = { Text(stringResource(a.label)) }) }
-                    }
-                }
                 // A radio sync runs by its window: days and hours instead of a schedule, and no
                 // removals, two-way or reordering (its source only grows).
                 if (radioMode) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

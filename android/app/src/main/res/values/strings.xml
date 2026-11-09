@@ -1794,4 +1794,5 @@
     <string name="history_dots">Dots</string>
     <string name="history_text">Text</string>
     <string name="run_history_text">With changes: %1$d · Nothing new: %2$d · Failed: %3$d</string>
+    <string name="job_style">Style</string>
 </resources>

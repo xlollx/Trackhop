@@ -1855,4 +1855,5 @@
     <string name="history_dots">Kropki</string>
     <string name="history_text">Tekst</string>
     <string name="run_history_text">Ze zmianami: %1$d · Bez zmian: %2$d · Nieudane: %3$d</string>
+    <string name="job_style">Styl</string>
 </resources>

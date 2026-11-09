@@ -1793,4 +1793,5 @@
     <string name="history_dots">Pallini</string>
     <string name="history_text">Testo</string>
     <string name="run_history_text">Con novità: %1$d · Senza novità: %2$d · Fallite: %3$d</string>
+    <string name="job_style">Stile</string>
 </resources>

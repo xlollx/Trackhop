@@ -53,13 +53,14 @@ class NewFeaturesFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Road Trip")
         clickDesc(s(R.string.more_actions))
-        click(s(R.string.job_color))
+        click(s(R.string.job_style))
         waitNode("the colour swatches", hasContentDescription(s(R.string.job_color_default)))
         click(s(R.string.color_teal))
+        click(s(R.string.save))
         waitFor("teal stored") { store.data.jobs.single().color == "teal" }
         // Opened again, the picker has Teal ticked.
         clickDesc(s(R.string.more_actions))
-        click(s(R.string.job_color))
+        click(s(R.string.job_style))
         compose.onAllNodes(hasContentDescription(s(R.string.color_teal)) and hasClickAction()).onFirst().assertIsSelected()
         click(s(R.string.cancel))
     }

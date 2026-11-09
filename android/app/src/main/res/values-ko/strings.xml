@@ -1762,4 +1762,5 @@
     <string name="history_dots">점</string>
     <string name="history_text">텍스트</string>
     <string name="run_history_text">변경 있음: %1$d · 변경 없음: %2$d · 실패: %3$d</string>
+    <string name="job_style">스타일</string>
 </resources>

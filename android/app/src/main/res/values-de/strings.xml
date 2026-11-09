@@ -1793,4 +1793,5 @@
     <string name="history_dots">Punkte</string>
     <string name="history_text">Text</string>
     <string name="run_history_text">Mit Änderungen: %1$d · Nichts Neues: %2$d · Fehlgeschlagen: %3$d</string>
+    <string name="job_style">Stil</string>
 </resources>

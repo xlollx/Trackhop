@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -153,4 +158,61 @@ fun RunHistory(history: List<SyncReport>, style: RunHistoryStyle, ink: Color, la
         } else label
         Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
+}
+
+/**
+ * The card menu's "Style": the sync's colour and how its card wears it, with a small preview of the
+ * card as it will look. Saved together; the style choice shows only for a coloured sync.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+fun JobStyleDialog(name: String, color: String?, accentStyle: String?, settingsAccent: String, onDismiss: () -> Unit, onSave: (String?, String?) -> Unit) {
+    var c by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(color) }
+    var st by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(accentStyle) }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) },
+        text = {
+            androidx.compose.foundation.layout.Column(
+                Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                // The card in small, as the list will show it.
+                androidx.compose.material3.Card(
+                    Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
+                    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = jobContainer(c)),
+                ) {
+                    androidx.compose.foundation.layout.Column(
+                        Modifier.cardAccent(CardAccent.resolve(st, settingsAccent), jobAccent(c)).padding(horizontal = 20.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            val brush = jobControlBrush(c)
+                            listOf("+3", "0", "0").forEachIndexed { i, v ->
+                                Box(
+                                    Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(10.dp))
+                                        .let { if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) },
+                                    contentAlignment = Alignment.Center,
+                                ) { Text(v, fontWeight = FontWeight.Bold, color = if (i == 0) jobInk(c) ?: MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
+                            }
+                        }
+                    }
+                }
+                Text(androidx.compose.ui.res.stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
+                JobColorPicker(c) { c = it }
+                if (c != null) {
+                    Text(androidx.compose.ui.res.stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
+                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.FilterChip(st == null, onClick = { st = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
+                        CardAccent.entries.forEach { a ->
+                            androidx.compose.material3.FilterChip(st == a.key, onClick = { st = a.key }, label = { Text(androidx.compose.ui.res.stringResource(a.label)) })
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(c, st); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) } },
+    )
 }
