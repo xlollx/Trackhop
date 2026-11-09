@@ -1792,9 +1792,9 @@ private fun CoffeeCard() {
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                     TextButton(onClick = { SupportPrompt.closeNudge(store) }) { Text(stringResource(R.string.support_prompt_later)) }
                     TextButton(onClick = {
-                        if (BuildConfig.KOFI_URL.isNotBlank()) openSupport(ctx) else openSponsors(ctx)
+                        openSupport(ctx)
                         SupportPrompt.closeNudge(store)
-                    }) { Text(stringResource(R.string.support_button)) }
+                    }) { Text(stringResource(R.string.support_row)) }
                 }
             }
         }
@@ -1820,12 +1820,12 @@ private fun SupportCard(report: com.xlollx.songport.model.SyncReport) {
                 }
                 Spacer(Modifier.width(8.dp))
                 FilledTonalButton(onClick = {
-                    if (BuildConfig.KOFI_URL.isNotBlank()) openSupport(ctx) else openSponsors(ctx)
+                    openSupport(ctx)
                     SupportPrompt.close(store)
                 }) {
                     Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.support_button))
+                    Text(stringResource(R.string.support_row))
                 }
             }
         }

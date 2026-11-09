@@ -759,8 +759,7 @@
     <string name="free_why_title">無料・広告なし</string>
     <string name="free_why_body">Trackhop には広告も、サブスクリプションも、機能制限もありません。任意の支援で運営されています。時間の節約になったなら、開発者にコーヒーをおごっていただけると嬉しいです。</string>
     <string name="support_title">Trackhop を気に入っていただけましたか？</string>
-    <string name="support_body">よろしければ、Ko-fi (カードまたは PayPal) で開発者にコーヒーをおごってください。まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。</string>
-    <string name="support_button">コーヒーをおごる</string>
+    <string name="support_body">よろしければ、Ko-fi (カードまたは PayPal) か GitHub Sponsors で開発者を応援してください。まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">%1$s 曲を移しました</string>
     <string name="support_prompt_body">同期「%1$s」で移動しました。Trackhop は無料で広告もなく、任意の支援で運営されています。時間の節約になったなら、開発者にコーヒーをおごっていただけると嬉しいです。</string>
@@ -1742,4 +1741,9 @@
     <string name="settings_share_app">Trackhop を共有</string>
     <string name="settings_share_app_text">Trackhop は音楽サービス間でプレイリストを同期します: %1$s</string>
     <string name="settings_website">ウェブサイト</string>
+    <string name="support_row">Trackhop を応援</string>
+    <string name="support_pill">応援する</string>
+    <string name="support_choose_body">まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。ありがとうございます!</string>
+    <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
+    <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
 </resources>

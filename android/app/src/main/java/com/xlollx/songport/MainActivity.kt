@@ -176,6 +176,8 @@ class MainActivity : ComponentActivity() {
                     MainScreen(messages, tabRequests, sharedText, newSyncRequests, toolRequests)
                     // The guided first sync, over every screen of the app; nothing unless started.
                     com.xlollx.songport.ui.TourOverlay()
+                    // "Support Trackhop" from anywhere: Ko-fi or GitHub Sponsors.
+                    com.xlollx.songport.ui.SupportChooserHost()
                 }
             }
         }

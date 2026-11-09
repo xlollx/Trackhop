@@ -230,11 +230,11 @@ private fun TrustPage() {
             Text(stringResource(R.string.free_why_title), style = MaterialTheme.typography.titleMedium)
             // The Play build never points to payments outside Google Play: no coffee there.
             Text(stringResource(if (com.xlollx.songport.BuildConfig.STORE_BUILD) R.string.settings_free_note else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (!BuildConfig.STORE_BUILD && BuildConfig.KOFI_URL.isNotBlank()) {
+            if (!BuildConfig.STORE_BUILD && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())) {
                 TextButton(onClick = { openSupport(ctx) }, modifier = Modifier.heightIn(min = 48.dp)) {
                     Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.support_button))
+                    Text(stringResource(R.string.support_row))
                 }
             }
         }

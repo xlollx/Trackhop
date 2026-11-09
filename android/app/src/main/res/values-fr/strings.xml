@@ -770,8 +770,7 @@
     <string name="free_why_title">Gratuite, sans publicité</string>
     <string name="free_why_body">Trackhop n\'a ni publicité, ni abonnement, ni fonction bloquée. Elle vit de contributions volontaires : si elle vous fait gagner du temps, vous pouvez offrir un café au développeur.</string>
     <string name="support_title">Trackhop vous plaît ?</string>
-    <string name="support_body">Si le cœur vous en dit, offrez un café au développeur sur Ko-fi (carte ou PayPal). Totalement facultatif : rien n\'est déverrouillé, l\'application reste complète pour tout le monde.</string>
-    <string name="support_button">Offrir un café</string>
+    <string name="support_body">Si le cœur vous en dit, soutenez le développeur sur Ko-fi (carte ou PayPal) ou GitHub Sponsors. Totalement facultatif : rien n\'est déverrouillé, l\'application reste complète pour tout le monde.</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">Vous venez de déplacer %1$s morceaux</string>
     <string name="support_prompt_body">Avec la sync « %1$s ». Trackhop est gratuite et sans publicité, et vit de contributions volontaires : si elle vous a fait gagner du temps, vous pouvez offrir un café au développeur.</string>
@@ -1780,4 +1779,9 @@
     <string name="settings_share_app">Partager Trackhop</string>
     <string name="settings_share_app_text">Trackhop garde vos playlists synchronisées entre les services de musique : %1$s</string>
     <string name="settings_website">Site web</string>
+    <string name="support_row">Soutenir Trackhop</string>
+    <string name="support_pill">Soutenir</string>
+    <string name="support_choose_body">Totalement facultatif : rien n\'est déverrouillé, l\'application reste complète pour tout le monde. Merci !</string>
+    <string name="support_kofi_desc">Ponctuel · carte ou PayPal · sans compte</string>
+    <string name="support_sponsors_desc">Mensuel ou ponctuel · avec un compte GitHub</string>
 </resources>

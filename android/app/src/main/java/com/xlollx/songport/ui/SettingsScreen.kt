@@ -67,7 +67,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Verified
-import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -105,11 +104,6 @@ import com.xlollx.songport.sync.BackupExport
 import com.xlollx.songport.sync.Scheduler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-/** Apre la pagina Ko-fi: donazione volontaria, nessuna funzione legata. */
-fun openSupport(ctx: android.content.Context) = openUrl(ctx, BuildConfig.KOFI_URL)
-
-fun openSponsors(ctx: android.content.Context) = openUrl(ctx, BuildConfig.SPONSORS_URL)
 
 internal fun openUrl(ctx: android.content.Context, url: String) {
     if (url.isBlank()) return
@@ -507,12 +501,9 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.Replay, stringResource(R.string.settings_show_onboarding), null) {
                 store.updateSettings { it.copy(onboardingDone = false) }
             }
-            if (!BuildConfig.STORE_BUILD && BuildConfig.KOFI_URL.isNotBlank()) {
-                PrefRow(Icons.Filled.Favorite, stringResource(R.string.support_button), null, trailing = { ExternalMark() }) { openSupport(ctx) }
-            }
-            // Per chi ha un account GitHub: anche un contributo mensile.
-            if (!BuildConfig.STORE_BUILD && BuildConfig.SPONSORS_URL.isNotBlank()) {
-                PrefRow(Icons.Filled.VolunteerActivism, stringResource(R.string.support_sponsors), null, trailing = { ExternalMark() }) { openSponsors(ctx) }
+            // One row: Ko-fi or GitHub Sponsors, chosen in the sheet it opens.
+            if (!BuildConfig.STORE_BUILD && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())) {
+                PrefRow(Icons.Filled.Favorite, stringResource(R.string.support_row), null) { openSupport(ctx) }
             }
         }
         Spacer(Modifier.height(8.dp))

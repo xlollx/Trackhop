@@ -594,15 +594,15 @@ fun UpdatePill() {
 }
 
 /**
- * A small warm "☕ Ko-fi" pill for the Syncs header, as on the site: visible without shouting. Only
+ * A small warm "☕ Support" pill for the Syncs header (Ko-fi or GitHub Sponsors, in a sheet), as on the site: visible without shouting. Only
  * in the GitHub/F-Droid build: the Play build never points to payments outside Google Play.
  */
 @Composable
 fun CoffeePill() {
-    if (com.xlollx.songport.BuildConfig.STORE_BUILD || com.xlollx.songport.BuildConfig.KOFI_URL.isBlank()) return
+    if (com.xlollx.songport.BuildConfig.STORE_BUILD || (com.xlollx.songport.BuildConfig.KOFI_URL.isBlank() && com.xlollx.songport.BuildConfig.SPONSORS_URL.isBlank())) return
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val dark = LocalAppDark.current
-    val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_button)
+    val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_row)
     Box(
         Modifier.padding(end = 4.dp).heightIn(min = 48.dp).clip(RoundedCornerShape(999.dp))
             .clickable(onClickLabel = label) { openSupport(ctx) }
@@ -610,7 +610,7 @@ fun CoffeePill() {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            "☕ Ko-fi",
+            "☕ " + androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_pill),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
             color = if (dark) Color(0xFFFFDF9E) else Color(0xFF4A2C00),

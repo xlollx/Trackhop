@@ -759,8 +759,7 @@
     <string name="free_why_title">免费，无广告</string>
     <string name="free_why_body">Trackhop 没有广告，没有订阅，没有锁定的功能。它依靠自愿捐助维持：如果它为你节省了时间，可以请开发者喝杯咖啡。</string>
     <string name="support_title">喜欢 Trackhop 吗？</string>
-    <string name="support_body">如果你愿意，可以在 Ko-fi (银行卡或 PayPal) 上请开发者喝杯咖啡。完全自愿：不会解锁任何内容，应用对所有人都是完整的。</string>
-    <string name="support_button">请我喝杯咖啡</string>
+    <string name="support_body">如果你愿意，可以在 Ko-fi (银行卡或 PayPal) 或 GitHub Sponsors 上支持开发者。完全自愿：不会解锁任何内容，应用对所有人都是完整的。</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">你刚刚转移了 %1$s 首歌曲</string>
     <string name="support_prompt_body">通过同步“%1$s”。Trackhop 免费且无广告，依靠自愿捐助维持：如果它为你节省了时间，可以请开发者喝杯咖啡。</string>
@@ -1742,4 +1741,9 @@
     <string name="settings_share_app">分享 Trackhop</string>
     <string name="settings_share_app_text">Trackhop 可在各音乐服务之间同步你的歌单：%1$s</string>
     <string name="settings_website">网站</string>
+    <string name="support_row">支持 Trackhop</string>
+    <string name="support_pill">支持</string>
+    <string name="support_choose_body">完全自愿：不会解锁任何内容，应用对所有人都是完整的。谢谢！</string>
+    <string name="support_kofi_desc">一次性 · 银行卡或 PayPal · 无需账号</string>
+    <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>
 </resources>

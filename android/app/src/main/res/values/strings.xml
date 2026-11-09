@@ -770,8 +770,7 @@
     <string name="free_why_title">Free, no ads</string>
     <string name="free_why_body">Trackhop has no ads, no subscriptions and no locked features. It lives on voluntary contributions: if it saves you time, you can buy the developer a coffee.</string>
     <string name="support_title">Like Trackhop?</string>
-    <string name="support_body">If you feel like it, buy the developer a coffee on Ko-fi (card or PayPal). Totally optional: nothing is unlocked, the app stays complete for everyone.</string>
-    <string name="support_button">Buy me a coffee</string>
+    <string name="support_body">If you feel like it, support the developer on Ko-fi (card or PayPal) or GitHub Sponsors. Totally optional: nothing is unlocked, the app stays complete for everyone.</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">You just moved %1$s tracks</string>
     <string name="support_prompt_body">With the sync “%1$s”. Trackhop is free and ad-free, and it lives on voluntary contributions: if it saved you time, you can buy the developer a coffee.</string>
@@ -1773,4 +1772,9 @@
     <string name="settings_share_app">Share Trackhop</string>
     <string name="settings_share_app_text">Trackhop keeps your playlists in sync across music services: %1$s</string>
     <string name="settings_website">Website</string>
+    <string name="support_row">Support Trackhop</string>
+    <string name="support_pill">Support</string>
+    <string name="support_choose_body">Totally optional: nothing is unlocked, the app stays complete for everyone. Thank you!</string>
+    <string name="support_kofi_desc">One-off · card or PayPal · no account needed</string>
+    <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
 </resources>

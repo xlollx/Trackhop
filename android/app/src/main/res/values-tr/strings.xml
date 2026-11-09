@@ -768,8 +768,7 @@
     <string name="free_why_title">Ücretsiz, reklamsız</string>
     <string name="free_why_body">Trackhop\'ta reklam, abonelik veya kilitli özellik yoktur. Gönüllü katkılarla yaşar: size zaman kazandırıyorsa geliştiriciye bir kahve ısmarlayabilirsiniz.</string>
     <string name="support_title">Trackhop\'u beğendiniz mi?</string>
-    <string name="support_body">İsterseniz Ko-fi (kart veya PayPal) üzerinden geliştiriciye bir kahve ısmarlayın. Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır.</string>
-    <string name="support_button">Bana bir kahve ısmarla</string>
+    <string name="support_body">İsterseniz geliştiriciyi Ko-fi (kart veya PayPal) ya da GitHub Sponsors üzerinden destekleyin. Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır.</string>
     <string name="support_sponsors">GitHub Sponsors</string>
     <string name="support_prompt_title">Az önce %1$s parça taşıdınız</string>
     <string name="support_prompt_body">“%1$s” senkronizasyonuyla. Trackhop ücretsiz ve reklamsızdır, gönüllü katkılarla yaşar: size zaman kazandırdıysa geliştiriciye bir kahve ısmarlayabilirsiniz.</string>
@@ -1770,4 +1769,9 @@
     <string name="settings_share_app">Trackhop\'u paylaş</string>
     <string name="settings_share_app_text">Trackhop çalma listelerini müzik servisleri arasında eşitler: %1$s</string>
     <string name="settings_website">Web sitesi</string>
+    <string name="support_row">Trackhop\'u destekle</string>
+    <string name="support_pill">Destekle</string>
+    <string name="support_choose_body">Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır. Teşekkürler!</string>
+    <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
+    <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
 </resources>
