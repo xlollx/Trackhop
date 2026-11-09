@@ -88,7 +88,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
@@ -1992,26 +1991,68 @@ private fun StatusChip(info: CardStatusInfo) {
 
 /** The status as a small badge on the services' logos: its icon in its tone; a tap acts, or says the words. */
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
     // A tap shows the status in a small bubble over the badge; it goes after a few seconds or a tap elsewhere.
-    val tip = androidx.compose.material3.rememberTooltipState(isPersistent = true)
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(tip.isVisible) { if (tip.isVisible) { delay(3000); tip.dismiss() } }
-    // The placement (align, offset) goes on a Box of ours: TooltipBox gives its modifier to an inner anchor, where align is lost.
-    Box(modifier) { androidx.compose.material3.TooltipBox(
-        positionProvider = androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = { PlainTooltip(caretSize = androidx.compose.material3.TooltipDefaults.caretSize) { Text(info.text) } },
-        state = tip,
-    ) {
+    var tip by remember { mutableStateOf(false) }
+    LaunchedEffect(tip) { if (tip) { delay(3000); tip = false } }
+    Box(modifier) {
         Box(
             Modifier.size(20.dp).clip(CircleShape).background(toneBackground(info.tone))
                 .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
-                .clickable(onClickLabel = info.text) { info.onClick?.invoke() ?: scope.launch { tip.show() } }
+                .clickable(onClickLabel = info.text) { info.onClick?.invoke() ?: run { tip = true } }
                 .semantics { contentDescription = info.text },
             contentAlignment = Alignment.Center,
         ) {
             Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
         }
-    } }
+        if (tip) BubbleOver(info.text) { tip = false }
+    }
+}
+
+/**
+ * A small bubble above its parent (below when there is no room), its tip on the parent's centre even
+ * when the bubble is pushed in from the screen's edge. Material's tooltip put the tip off the badge.
+ */
+@Composable
+private fun BubbleOver(text: String, onDismiss: () -> Unit) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val gap = with(density) { 2.dp.roundToPx() }
+    val margin = with(density) { 8.dp.roundToPx() }
+    var tipX by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    var below by remember { mutableStateOf(false) }
+    val place = remember {
+        object : androidx.compose.ui.window.PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: androidx.compose.ui.unit.IntRect, windowSize: androidx.compose.ui.unit.IntSize,
+                layoutDirection: LayoutDirection, popupContentSize: androidx.compose.ui.unit.IntSize,
+            ): androidx.compose.ui.unit.IntOffset {
+                val mid = anchorBounds.center.x
+                val x = (mid - popupContentSize.width / 2).coerceIn(margin, maxOf(margin, windowSize.width - popupContentSize.width - margin))
+                val above = anchorBounds.top - popupContentSize.height - gap
+                below = above < 0
+                tipX = (mid - x).toFloat()
+                return androidx.compose.ui.unit.IntOffset(x, if (below) anchorBounds.bottom + gap else above)
+            }
+        }
+    }
+    val bg = MaterialTheme.colorScheme.inverseSurface
+    androidx.compose.ui.window.Popup(popupPositionProvider = place, onDismissRequest = onDismiss, properties = androidx.compose.ui.window.PopupProperties(focusable = true)) {
+        Box(
+            Modifier.drawBehind {
+                val c = 6.dp.toPx()
+                val r = 8.dp.toPx()
+                val top = if (below) c else 0f
+                val bottom = if (below) size.height else size.height - c
+                drawRoundRect(bg, topLeft = Offset(0f, top), size = Size(size.width, bottom - top), cornerRadius = androidx.compose.ui.geometry.CornerRadius(r))
+                val x = tipX.coerceIn(r, size.width - r)
+                val path = androidx.compose.ui.graphics.Path().apply {
+                    if (below) { moveTo(x - c, c); lineTo(x, 0f); lineTo(x + c, c) } else { moveTo(x - c, bottom); lineTo(x, size.height); lineTo(x + c, bottom) }
+                    close()
+                }
+                drawPath(path, bg)
+            }.padding(top = if (below) 6.dp else 0.dp, bottom = if (below) 0.dp else 6.dp).padding(horizontal = 10.dp, vertical = 6.dp),
+        ) {
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.inverseOnSurface)
+        }
+    }
 }
