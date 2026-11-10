@@ -56,9 +56,15 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.offset
@@ -115,7 +121,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
+import sh.calvin.reorderable.rememberReorderableLazyGridState
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -238,7 +244,11 @@ fun SyncsScreen(
         return
     }
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
-    val listState = rememberLazyListState()
+    // One column on a phone, as ever; two side by side in a window wide enough for two phones' worth
+    // of card. A grid either way, so the order, the dragging and the scrolling are the same code.
+    val columns = LocalWindowLayout.current.syncColumns
+    val wholeRow: androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
+    val listState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
     // Moving a card (its menu's Move up/down): the list keeps its scroll position, so only the two
     // cards trade places. Left alone, the list would follow the card at its top by key, and a card
@@ -271,7 +281,7 @@ fun SyncsScreen(
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
     // old order was taken for "no change" and the card snapped back).
     val orderNow = { Store.get(ctx).data.jobs.map { it.id } }
-    val reorder = rememberReorderableLazyListState(listState) { from, to ->
+    val reorder = rememberReorderableLazyGridState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "move ${from.key}@${from.index} -> ${to.key}@${to.index} ($a -> $b)")
@@ -281,7 +291,8 @@ fun SyncsScreen(
             // the card under the finger would jump and the drop could land back where it started.
             // Held by position instead, the list stays still and only the cards change places.
             val first = listState.firstVisibleItemIndex
-            if (from.index == first || to.index == first) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
+            val firstRow = first until first + columns
+            if (from.index in firstRow || to.index in firstRow) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
             o.add(b, o.removeAt(a)); dragOrder = o
         }
         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
@@ -353,13 +364,15 @@ fun SyncsScreen(
         val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
         var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
         spreading?.let { c -> SpreadDialog(data.jobs, c) { spreading = null } }
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
             state = listState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp + LocalBottomBarInset.current),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item(key = "hero") {
+            item(key = "hero", span = wholeRow) {
                 val n = data.jobs.size
                 val last = if (lastRun > 0) " · " + stringResource(R.string.hero_last, formatDate(lastRun)) else ""
                 // "Your numbers" once a sync has completed: before that there is nothing to count.
@@ -383,7 +396,7 @@ fun SyncsScreen(
                 }
             }
             // Under the hero and scrolling with the list, so it never fights the pinned pill below.
-            if (finder) item(key = "finder") {
+            if (finder) item(key = "finder", span = wholeRow) {
                 SyncFinder(data.jobs, effective, shown.size, remember(data.jobs, data.reports, runningIds) { SyncFilter.counts(data.jobs, data.reports, runningIds) }) { filter = it }
             }
             // "Sync all": a pill centred under the header that stays at the top while the list scrolls.
@@ -416,11 +429,11 @@ fun SyncsScreen(
                 }
             }
             // Una volta sola, dopo la prima sync grande: il momento in cui si vede quanto tempo ha fatto risparmiare.
-            if (support != null) item(key = "support") { SupportCard(support) }
-            else if (nudge) item(key = "nudge") { CoffeeCard() }
+            if (support != null) item(key = "support", span = wholeRow) { SupportCard(support) }
+            else if (nudge) item(key = "nudge", span = wholeRow) { CoffeeCard() }
             // Many syncs reaching one service at once (issue #56): said once, until the group changes.
             crowd?.let { c ->
-                item(key = "crowd") {
+                item(key = "crowd", span = wholeRow) {
                     CrowdCard(
                         c,
                         onDismiss = { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) },
@@ -429,7 +442,7 @@ fun SyncsScreen(
                     )
                 }
             }
-            if (shown.isEmpty()) item(key = "nomatch") { SyncFinderEmpty { filter = SyncFilter() } }
+            if (shown.isEmpty()) item(key = "nomatch", span = wholeRow) { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
@@ -465,7 +478,7 @@ fun SyncsScreen(
                                 if (!c.pressed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
                             }
                         } == null
-                        if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
+                        if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.y?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
                     }
                 }.longPressDraggableHandle(
                     enabled = canDrag,
@@ -605,7 +618,7 @@ private fun JobCard(
             onDismissRequest = { moveToOpen = false },
             title = { Text(stringResource(R.string.sync_menu_move_to)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.move_to_now, now, total), style = MaterialTheme.typography.bodyMedium)
                     OutlinedTextField(
                         value = typed,
@@ -966,7 +979,7 @@ private sealed class Loaded {
 }
 
 /** A playlist in the saved instance state, as JSON. */
-private val PlaylistSaver = androidx.compose.runtime.saveable.Saver<Playlist?, String>(
+internal val PlaylistSaver = androidx.compose.runtime.saveable.Saver<Playlist?, String>(
     save = { it?.let { p -> com.xlollx.songport.net.json.encodeToString(Playlist.serializer(), p) } },
     restore = { runCatching { com.xlollx.songport.net.json.decodeFromString(Playlist.serializer(), it) }.getOrNull() },
 )
@@ -1231,9 +1244,11 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cancel)) } },
             )
         },
-        // Save stays in reach at the bottom whatever the length of the form.
+        // Save stays in reach at the bottom whatever the length of the form. On a phone on its side
+        // the keyboard and this bar together would leave no room for the field being typed in: the
+        // bar steps aside while the keyboard is open.
         bottomBar = {
-            androidx.compose.material3.Surface(tonalElevation = 3.dp, shadowElevation = 6.dp) {
+            if (!(LocalWindowLayout.current.short && WindowInsets.isImeVisible)) androidx.compose.material3.Surface(tonalElevation = 3.dp, shadowElevation = 6.dp) {
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1748,7 +1763,8 @@ private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, o
 private fun LinkImportField(initial: String = "", keep: Boolean = false, onResolved: (String, Playlist, String) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    var text by remember { mutableStateOf(initial) }
+    // A link pasted and not looked up yet is still there after a rotation.
+    var text by rememberSaveable { mutableStateOf(initial) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 

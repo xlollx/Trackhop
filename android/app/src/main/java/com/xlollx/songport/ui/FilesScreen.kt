@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,7 +80,7 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
     val snackbar = remember { SnackbarHostState() }
     var lists by remember { mutableStateOf<List<LocalFilesProvider.Entry>>(emptyList()) }
     var version by remember { mutableIntStateOf(0) }
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     var openVersions by remember { mutableStateOf<Set<String>>(emptySet()) }
     // File ids ticked; not empty = selection mode (back clears it before leaving the screen).
     var selected by remember { mutableStateOf<Set<String>>(emptySet()) }

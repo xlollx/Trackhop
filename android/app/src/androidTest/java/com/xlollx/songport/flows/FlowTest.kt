@@ -248,6 +248,8 @@ abstract class FlowTest {
         val root = topOf(node).id
         val tabs = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)).fetchSemanticsNodes().filter { topOf(it).id == root }
         if (tabs.any { it.id == node.id }) return
+        // On its side (and on a tablet) the tabs are a rail at the left: nothing lies over the end of the page.
+        if (tabs.map { it.boundsInRoot.top }.distinct().size > 1) return
         val top = tabs.minOfOrNull { it.boundsInRoot.top } ?: return
         if (node.boundsInRoot.bottom <= top) return
         var p = node.parent

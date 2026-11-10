@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.providers.*
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -56,7 +57,8 @@ fun ExportFormatDialog(onDismiss: () -> Unit, onPick: (LocalFilesProvider.Export
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.export_choose)) },
         text = {
-            androidx.compose.foundation.layout.Column {
+            // Scrolls where the dialog is lower than the list (a phone on its side).
+            androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
                 LocalFilesProvider.Export.entries.forEach { fmt ->
                     Text(
                         formatLabel(fmt),

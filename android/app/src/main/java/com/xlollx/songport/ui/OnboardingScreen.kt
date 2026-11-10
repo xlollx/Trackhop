@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -136,6 +137,9 @@ private fun Dots(current: Int) {
     }
 }
 
+/** A page's text: a readable column in the middle of a wide screen, the full width on a phone. */
+private fun ColumnScope.readable(): Modifier = Modifier.widthIn(max = WindowLayout.READABLE_CONTENT).fillMaxWidth().align(Alignment.CenterHorizontally)
+
 /** The page's art on the brand beam, under the status bar. */
 @Composable
 private fun Hero(content: @Composable ColumnScope.() -> Unit) {
@@ -174,7 +178,7 @@ private fun WelcomePage() {
                 logos.forEach { ServiceLogo(it, 44.dp) }
             }
         }
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(stringResource(R.string.onboarding_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.onboarding_intro), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -194,7 +198,7 @@ private fun StepsPage() {
                 HeroIcon(Icons.Filled.Sync)
             }
         }
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             StepRow(Icons.Filled.AccountCircle, stringResource(R.string.onboarding_step1_title), stringResource(R.string.onboarding_step1_desc))
             StepRow(Icons.Filled.PlaylistAdd, stringResource(R.string.onboarding_step2_title), stringResource(R.string.onboarding_step2_desc))
             StepRow(Icons.Filled.Schedule, stringResource(R.string.onboarding_step3_title), stringResource(R.string.onboarding_step3_desc))
@@ -207,7 +211,7 @@ private fun StepsPage() {
 private fun DiscoverIntroPage() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.AutoAwesome, 72.dp) }
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text(stringResource(R.string.onboarding_discover_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             StepRow(Icons.Filled.AutoAwesome, stringResource(R.string.onboarding_discover_wrapped_title), stringResource(R.string.onboarding_discover_wrapped_desc))
             StepRow(Icons.Filled.Link, stringResource(R.string.onboarding_discover_link_title), stringResource(R.string.onboarding_discover_link_desc))
@@ -222,7 +226,7 @@ private fun TrustPage() {
     val ctx = LocalContext.current
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.Lock, 72.dp) }
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.security_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.onboarding_security), style = MaterialTheme.typography.bodyLarge)
             Text(stringResource(R.string.onboarding_credentials), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -248,7 +252,7 @@ private fun DocsPage() {
     fun open(url: String) = runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.Code, 72.dp) }
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.onboarding_docs_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.onboarding_docs_body), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(4.dp))

@@ -66,6 +66,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -136,7 +137,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             addConnector(store, service, name)
         }
     }
-    var renaming by remember { mutableStateOf<MusicProvider?>(null) }
+    var renaming by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
     renaming?.let { p ->
         NameDialog(stringResource(R.string.connector_rename), p.label(ctx), onDismiss = { renaming = null }) { name ->
             renaming = null
@@ -319,7 +320,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
 
 @Composable
 private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
-    var name by remember { mutableStateOf(initial) }
+    var name by rememberSaveable { mutableStateOf(initial) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -564,7 +565,7 @@ internal fun FilesCard(
         )
     }
 
-    var pasteOpen by remember { mutableStateOf(false) }
+    var pasteOpen by rememberSaveable { mutableStateOf(false) }
     if (pasteOpen) PasteListDialog(
         onDismiss = { pasteOpen = false },
         onImport = { name, text ->
@@ -667,13 +668,13 @@ private fun displayName(ctx: android.content.Context, uri: Uri): String {
 /** Un blocco di testo "Artista - Titolo" per riga diventa una playlist da file. */
 @Composable
 private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.paste_list)) },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(stringResource(R.string.paste_list_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, label = { Text(stringResource(R.string.paste_list_name)) }, modifier = Modifier.fillMaxWidth())

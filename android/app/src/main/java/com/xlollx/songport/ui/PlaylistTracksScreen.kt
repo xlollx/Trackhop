@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -70,7 +71,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
     var tracks by remember { mutableStateOf<List<Track>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var version by remember { mutableIntStateOf(0) }
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     // Selection by position: the same track can sit in a playlist twice.
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var confirming by remember { mutableStateOf(false) }

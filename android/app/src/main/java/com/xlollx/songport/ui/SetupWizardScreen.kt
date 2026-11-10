@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,9 +71,10 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
     ScreenBackHandler(onClose)
 
     val settings = store.data.settings
-    var clientId by remember { mutableStateOf(settings.clientIds[provider.serviceId].orEmpty()) }
-    var secret by remember { mutableStateOf(settings.clientSecrets[provider.serviceId].orEmpty()) }
-    var redirectUrl by remember { mutableStateOf(settings.deezerRedirectUrl.ifBlank { BuildConfig.DEEZER_REDIRECT_URL }) }
+    // Keys pasted and not saved yet survive a rotation; the secret in memory only, never in the saved state.
+    var clientId by rememberSaveable { mutableStateOf(settings.clientIds[provider.serviceId].orEmpty()) }
+    var secret by rememberUnsavedSecret("wizard:" + provider.serviceId) { settings.clientSecrets[provider.serviceId].orEmpty() }
+    var redirectUrl by rememberSaveable { mutableStateOf(settings.deezerRedirectUrl.ifBlank { BuildConfig.DEEZER_REDIRECT_URL }) }
     var error by remember { mutableStateOf<String?>(null) }
     var copied by remember { mutableStateOf(false) }
 

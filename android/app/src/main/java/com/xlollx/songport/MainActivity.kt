@@ -10,7 +10,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.VerticalDivider
+import com.xlollx.songport.ui.LocalWindowLayout
+import com.xlollx.songport.ui.ProviderSaver
+import com.xlollx.songport.ui.ReadableWidth
+import com.xlollx.songport.ui.WindowLayout
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
@@ -172,12 +190,22 @@ class MainActivity : ComponentActivity() {
             }
             AppTheme(mode = themeMode, dynamicColor = settings.settings.dynamicColor) {
                 val isLocked by locked.collectAsState()
-                if (isLocked) LockScreen { requestUnlock() } else Box(Modifier.fillMaxSize()) {
-                    MainScreen(messages, tabRequests, sharedText, newSyncRequests, toolRequests)
-                    // The guided first sync, over every screen of the app; nothing unless started.
-                    com.xlollx.songport.ui.TourOverlay()
-                    // "Support Trackhop" from anywhere: Ko-fi or GitHub Sponsors.
-                    com.xlollx.songport.ui.SupportChooserHost()
+                // The window's shape (phone, phone on its side, tablet), worked out here once for every screen.
+                val config = androidx.compose.ui.platform.LocalConfiguration.current
+                val layout = remember(config.screenWidthDp, config.screenHeightDp) { WindowLayout.of(config.screenWidthDp, config.screenHeightDp) }
+                if (isLocked) LockScreen { requestUnlock() } else CompositionLocalProvider(LocalWindowLayout provides layout) {
+                    // On its side the camera cutout and the three-button bar are at the left and right: the
+                    // app stays between them, on its own background (nothing to keep clear of when upright).
+                    Box(
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+                    ) {
+                        MainScreen(messages, tabRequests, sharedText, newSyncRequests, toolRequests)
+                        // The guided first sync, over every screen of the app; nothing unless started.
+                        com.xlollx.songport.ui.TourOverlay()
+                        // "Support Trackhop" from anywhere: Ko-fi or GitHub Sponsors.
+                        com.xlollx.songport.ui.SupportChooserHost()
+                    }
                 }
             }
         }
@@ -600,8 +628,10 @@ private fun MainScreen(
     if (overlay != null) {
         // The tabs' Scaffold (and its snackbar host) is not composed under a full-screen page: its
         // messages ("Link received: choose where to sync it.") show here, above the page's own bottom bar.
-        Box(Modifier.fillMaxSize()) {
-        BackAwareScreen(overlay) {
+        // In a wide window a page is a readable column in the middle; with the keyboard open it ends
+        // above it, so the field being typed in scrolls into view.
+        Box(Modifier.fillMaxSize().imePadding()) {
+        ReadableWidth { BackAwareScreen(overlay) {
             when {
                 preview != null -> PreviewScreen(preview, onClose = { previewJob = null }) { j -> Scheduler.runNow(ctx, j.id); previewJob = null }
                 targetOf != null && targetProvider != null && targetId != null -> com.xlollx.songport.ui.PlaylistTracksScreen(
@@ -649,7 +679,7 @@ private fun MainScreen(
                     },
                 )
             }
-        }
+        } }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 80.dp))
         }
         return
@@ -666,7 +696,43 @@ private fun MainScreen(
         Triple(R.string.tab_settings, Icons.Filled.Settings, MainActivity.TAB_SETTINGS),
     )
 
+    val layout = LocalWindowLayout.current
+    // At a large font size the five labels no longer fit side by side: only the
+    // selected tab keeps its label, the others are their icon (still read out by name).
+    val bigText = LocalDensity.current.fontScale > 1.3f
+    val tabModifier: (Int) -> Modifier = { index ->
+        if (index == MainActivity.TAB_ACCOUNTS) Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.ACCOUNTS_TAB) else Modifier
+    }
+    // Tapping Discover again while a card is open goes back to the list of cards.
+    val onTab: (Int) -> Unit = { index -> if (tab == index && index == MainActivity.TAB_DISCOVER) discoverHome++; tab = index }
+
+    Row(Modifier.fillMaxSize()) {
+    // Wider than a phone, or a phone on its side: the tabs stand at the side and leave the height to the content.
+    if (layout.rail) {
+        NavigationRail(containerColor = MaterialTheme.colorScheme.surface) {
+            // On a phone on its side with a large font the five tabs are taller than the screen: they scroll.
+            Column(
+                Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                tabs.forEach { (label, icon, index) ->
+                    val name = stringResource(label)
+                    NavigationRailItem(
+                        modifier = tabModifier(index),
+                        selected = tab == index,
+                        onClick = { onTab(index) },
+                        icon = { Icon(icon, contentDescription = if (bigText) name else null) },
+                        label = { TabLabel(name) },
+                        alwaysShowLabel = !bigText,
+                    )
+                }
+            }
+        }
+        VerticalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+    }
     Scaffold(
+        modifier = Modifier.weight(1f),
         topBar = {
             // An open tool shows its own bar with the way back: no tab header above it.
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
@@ -696,35 +762,21 @@ private fun MainScreen(
         bottomBar = {
             // Glass: the bar is translucent and blurs the content scrolling under it (Android 12+;
             // older phones get a plain translucent surface).
-            Column(
+            if (!layout.rail) Column(
                 Modifier
                     .onSizeChanged { barHeightPx = it.height }
                     .hazeEffect(state = haze, style = HazeMaterials.thin(MaterialTheme.colorScheme.surface)),
             ) {
                 HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                // At a large font size the five labels no longer fit side by side: only the
-                // selected tab keeps its label, the others are their icon (still read out by name).
-                val bigText = LocalDensity.current.fontScale > 1.3f
                 NavigationBar(containerColor = Color.Transparent, windowInsets = NavigationBarDefaults.windowInsets) {
                     tabs.forEach { (label, icon, index) ->
                         val name = stringResource(label)
                         NavigationBarItem(
-                            modifier = if (index == MainActivity.TAB_ACCOUNTS) Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.ACCOUNTS_TAB) else Modifier,
+                            modifier = tabModifier(index),
                             selected = tab == index,
-                            // Tapping Discover again while a card is open goes back to the list of cards.
-                            onClick = { if (tab == index && index == MainActivity.TAB_DISCOVER) discoverHome++; tab = index },
+                            onClick = { onTab(index) },
                             icon = { Icon(icon, contentDescription = if (bigText) name else null) },
-                            // Five tabs leave a long word ("Einstellungen") little room: it shrinks a
-                            // little to fit instead of losing its end.
-                            label = {
-                                val style = androidx.compose.material3.LocalTextStyle.current
-                                androidx.compose.foundation.text.BasicText(
-                                    name,
-                                    style = style.copy(color = androidx.compose.material3.LocalContentColor.current),
-                                    maxLines = 1,
-                                    autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp), maxFontSize = style.fontSize, stepSize = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
-                                )
-                            },
+                            label = { TabLabel(name) },
                             alwaysShowLabel = !bigText,
                         )
                     }
@@ -748,11 +800,15 @@ private fun MainScreen(
             }
         },
     ) { padding ->
-        val barInset = with(LocalDensity.current) { barHeightPx.toDp() }
+        // With the rail there is no bar to scroll under: the lists end above the system's own bar instead.
+        val barInset = if (layout.rail) WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            else with(LocalDensity.current) { barHeightPx.toDp() }
         // Only the top inset: the content runs under the glass bar, and each screen pads its own list by LocalBottomBarInset.
         CompositionLocalProvider(LocalBottomBarInset provides barInset) {
-            Box(Modifier.fillMaxSize().hazeSource(state = haze).padding(top = padding.calculateTopPadding())) {
-            TabContent(tab) { shown -> tabStates.SaveableStateProvider(shown) { when (shown) {
+            // With the keyboard open the tab ends above it, so the field being typed in scrolls into view.
+            Box(Modifier.fillMaxSize().hazeSource(state = haze).padding(top = padding.calculateTopPadding()).imePadding()) {
+            // A readable column in the middle of a wide window; the sync cards get room for two columns.
+            TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(
                     data = data,
                     // The "↔" half of a two-way pair is edited through its original: one set of settings for both.
@@ -804,22 +860,32 @@ private fun MainScreen(
                 MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
-            } } }
+            } } } }
             }
         }
     }
+    }
+}
+
+/**
+ * A tab's name under its icon. Five tabs leave a long word ("Einstellungen") little room: it
+ * shrinks a little to fit instead of losing its end.
+ */
+@Composable
+private fun TabLabel(name: String) {
+    val style = androidx.compose.material3.LocalTextStyle.current
+    androidx.compose.foundation.text.BasicText(
+        name,
+        style = style.copy(color = androidx.compose.material3.LocalContentColor.current),
+        maxLines = 1,
+        autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp), maxFontSize = style.fontSize, stepSize = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
+    )
 }
 
 /** A sync job in the saved instance state, as the JSON the store already writes. */
 private val JobSaver = Saver<SyncJob?, String>(
     save = { it?.let { j -> com.xlollx.songport.net.json.encodeToString(SyncJob.serializer(), j) } },
     restore = { runCatching { com.xlollx.songport.net.json.decodeFromString(SyncJob.serializer(), it) }.getOrNull() },
-)
-
-/** A provider in the saved instance state, by id. */
-private val ProviderSaver = Saver<MusicProvider?, String>(
-    save = { it?.id },
-    restore = { Providers.byId(it) },
 )
 
 private fun newJob() = SyncJob(

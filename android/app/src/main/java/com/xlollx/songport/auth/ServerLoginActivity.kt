@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -86,9 +88,10 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     val form = provider.loginForm
     val scope = rememberCoroutineScope()
     val ctx = androidx.compose.ui.platform.LocalContext.current
-    var url by remember { mutableStateOf("") }
-    var user by remember { mutableStateOf("") }
-    var secret by remember { mutableStateOf("") }
+    // What was typed survives a rotation; the password in memory only, never in the saved state.
+    var url by rememberSaveable { mutableStateOf("") }
+    var user by rememberSaveable { mutableStateOf("") }
+    var secret by com.xlollx.songport.ui.rememberUnsavedSecret("login:" + provider.id) { "" }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     // Jellyfin Quick Connect (#45): the code to approve on a signed-in device, while waiting.
@@ -98,11 +101,13 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     // Last.fm with the password needs a key and its shared secret: asked here when the build has none.
     val lastfm = provider.serviceId == LastFmProvider.SERVICE
     val keyMissing = remember { lastfm && !com.xlollx.songport.ui.LastFmKey.complete(ctx) }
-    var lfKey by remember { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedKey(ctx) else "") }
-    var lfSecret by remember { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedSecret(ctx) else "") }
+    var lfKey by rememberSaveable { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedKey(ctx) else "") }
+    var lfSecret by com.xlollx.songport.ui.rememberUnsavedSecret("login-lastfm:" + provider.id) { if (lastfm) com.xlollx.songport.ui.LastFmKey.savedSecret(ctx) else "" }
     val askKey = keyMissing && secret.isNotBlank()
 
     Scaffold(
+        // The form ends above the keyboard, so the field being typed in scrolls into view (a phone on its side above all).
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.login_title, provider.displayName)) },

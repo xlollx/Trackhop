@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.net.Uri
@@ -41,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,8 +76,9 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var version by remember { mutableIntStateOf(0) }
-    var renaming by remember { mutableStateOf<Playlist?>(null) }
-    var expanding by remember { mutableStateOf<Playlist?>(null) }
+    // The playlist open, being renamed or being extended is still so after a rotation.
+    var renaming by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
+    var expanding by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
     val aiReady = remember { com.xlollx.songport.ai.AiClient.config(ctx)?.complete == true } || com.xlollx.songport.ai.NanoAi.state.offered
     expanding?.let { pl ->
         AiExpandPlaylistDialog(provider, pl, onClose = { expanding = null }) { added, missing, alreadyThere ->
@@ -92,7 +95,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     }
     var deleting by remember { mutableStateOf<Playlist?>(null) }
     var busy by remember { mutableStateOf(false) }
-    var viewing by remember { mutableStateOf<Playlist?>(null) }
+    var viewing by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
     var choosingFormat by remember { mutableStateOf<Playlist?>(null) }
     viewing?.let { pl ->
         PlaylistTracksScreen(provider, pl, onClose = { viewing = null }, onChanged = { version++ })
@@ -126,7 +129,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     }
 
     renaming?.let { pl ->
-        var name by remember(pl.id) { mutableStateOf(pl.name) }
+        var name by rememberSaveable(pl.id) { mutableStateOf(pl.name) }
         AlertDialog(
             onDismissRequest = { renaming = null },
             title = { Text(stringResource(R.string.manage_rename)) },
@@ -164,7 +167,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.delete)) },
             text = {
-                Column {
+                Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
                     Text(stringResource(R.string.manage_delete_confirm, pl.name, provider.label(ctx)))
                     if (used > 0) {
                         Spacer(Modifier.padding(4.dp))

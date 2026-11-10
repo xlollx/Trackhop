@@ -96,3 +96,9 @@ fun TabContent(tab: Int, content: @Composable (Int) -> Unit) {
         label = "tab",
     ) { t -> content(t) }
 }
+
+/** A provider in the saved instance state, by id. */
+val ProviderSaver = androidx.compose.runtime.saveable.Saver<com.xlollx.songport.providers.MusicProvider?, String>(
+    save = { it?.id },
+    restore = { com.xlollx.songport.providers.Providers.byId(it) },
+)

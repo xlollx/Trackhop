@@ -397,10 +397,10 @@ fun SettingsScreen(
             if (settings.developerOptions && settings.captureUnlocked && com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, "https://x") != null) {
                 // A service being added (Qobuz…): its web player opens here and its calls are written
                 // to a file to share, without cookies, tokens or passwords.
-                var captureOpen by remember { mutableStateOf(false) }
+                var captureOpen by rememberSaveable { mutableStateOf(false) }
                 PrefRow(Icons.Filled.NetworkCheck, stringResource(R.string.capture_site_title), stringResource(R.string.capture_site_desc)) { captureOpen = true }
                 if (captureOpen) {
-                    var address by remember { mutableStateOf("https://play.qobuz.com") }
+                    var address by rememberSaveable { mutableStateOf("https://play.qobuz.com") }
                     AlertDialog(
                         onDismissRequest = { captureOpen = false },
                         title = { Text(stringResource(R.string.capture_site_title)) },
