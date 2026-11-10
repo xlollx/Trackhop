@@ -19,6 +19,7 @@ Send a *broadcast intent* (in Tasker: Task › System › Send Intent, target *B
 |---|---|---|
 | `com.xlollx.songport.action.RUN_ALL` | none | Runs every sync |
 | `com.xlollx.songport.action.RUN` | `sync` = the sync's name (any case) or its id | Runs that sync |
+| `com.xlollx.songport.action.RUN` | `tag` = `genre=metal` (or a key alone, `gym`) and/or `label` = a label's name | Runs the syncs with that tag or label that are turned on |
 
 A command sent while automation is off is ignored, and the log says so (Log › Export log).
 

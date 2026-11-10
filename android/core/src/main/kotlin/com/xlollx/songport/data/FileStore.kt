@@ -175,7 +175,11 @@ open class FileStore(dir: File) {
     fun update(fn: (StoreData) -> StoreData) {
         val next: StoreData
         synchronized(lock) {
-            next = fn(_state.value)
+            val before = _state.value
+            val made = fn(before)
+            // Whatever wrote the syncs or the labels, they are kept as Labels.normalized has them: a
+            // label gives its colour to the card, a ready colour is its own label, tags are tidy.
+            next = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
             _state.value = next
         }
         Providers.configure(next.settings.extraAccounts, next.settings.connectorNames, next.settings.connectors)
@@ -212,7 +216,6 @@ open class FileStore(dir: File) {
     fun job(id: String): SyncJob? = data.jobs.firstOrNull { it.id == id }
 
     fun upsertJob(job: SyncJob) = update { d ->
-        val job = com.xlollx.songport.sync.Labels.normalized(job, d.settings.labels)
         if (d.jobs.any { it.id == job.id }) d.copy(jobs = d.jobs.map { if (it.id == job.id) job else it })
         else d.copy(jobs = d.jobs + job)
     }

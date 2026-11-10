@@ -55,6 +55,56 @@ class LabelsTest {
         assertTrue(s.settings.labels.isEmpty())
     }
 
+    /** The whole way: a store file and a configuration file written by 1.16, read by this one. */
+    @Test fun anOldStoreAndAnOldBackupComeInWithTheirColours() {
+        val dir = java.nio.file.Files.createTempDirectory("labels").toFile()
+        java.io.File(dir, "store.json").writeText(
+            """{"jobs":[{"id":"a","name":"A","source":{"provider":"spotify","playlistId":"1"},"target":{"provider":"ytm"},"color":"pink"},
+            {"id":"b","name":"B","source":{"provider":"spotify","playlistId":"2"},"target":{"provider":"ytm"},"color":"#12AB34"}]}""",
+        )
+        val store = com.xlollx.songport.data.FileStore(dir)
+        assertEquals(listOf("pink", "#12AB34"), store.data.jobs.map { it.color })
+        assertEquals(listOf("pink", null), store.data.jobs.map { it.label })
+
+        val env = com.xlollx.songport.contract.ContractEnv()
+        // This device has a label of its own, worn by a sync: an old file must not take it away.
+        env.store.update { Labels.save(it.copy(jobs = listOf(job("mine", "#0000FF"))), "#0000FF", "Mine") { "l-1" }.first }
+        val old = ConfigBackup.read(
+            """{"format":"trackhop-config","version":1,"writtenBy":"Trackhop 1.16.0 (Android)","jobs":[
+            {"id":"x","name":"X","source":{"provider":"spotify","playlistId":"1"},"target":{"provider":"ytm"},"color":"red","accentStyle":"edge"},
+            {"id":"y","name":"Y","source":{"provider":"spotify","playlistId":"2"},"target":{"provider":"ytm"},"color":"#ABCDEF"},
+            {"id":"z","name":"Z","source":{"provider":"spotify","playlistId":"3"},"target":{"provider":"ytm"}}],"settings":{"cardAccent":"glow"}}""",
+        )
+        assertEquals(3, ConfigBackup.import(env, old).syncs)
+        val jobs = env.store.data.jobs.associateBy { it.id }
+        assertEquals(listOf("red", "#ABCDEF", null, "#0000FF"), listOf("x", "y", "z", "mine").map { jobs[it]!!.color })
+        assertEquals(listOf("red", null, null, "l-1"), listOf("x", "y", "z", "mine").map { jobs[it]!!.label })
+        assertEquals("edge", jobs["x"]!!.accentStyle)
+        assertEquals(listOf(Label("l-1", "#0000FF", "Mine")), env.store.data.settings.labels)
+
+        // And a file written now carries labels, tags and stars to another device.
+        env.store.update { d -> d.copy(jobs = d.jobs.map { if (it.id == "x") it.copy(favorite = true, tags = mapOf("genre" to "metal", "kids" to "")) else it }) }
+        env.store.update { Labels.save(it, "red", "Loud").first }
+        val other = com.xlollx.songport.contract.ContractEnv()
+        ConfigBackup.import(other, ConfigBackup.read(ConfigBackup.export(env, "test")))
+        val x = other.store.job("x")!!
+        assertTrue(x.favorite)
+        assertEquals(mapOf("genre" to "metal", "kids" to ""), x.tags)
+        assertEquals("Loud", Labels.name(x, other.store.data.settings.labels))
+        assertEquals("Mine", Labels.name(other.store.job("mine")!!, other.store.data.settings.labels))
+        assertEquals("#0000FF", other.store.job("mine")!!.color)
+    }
+
+    /** Whatever writes a sync, the store keeps it in order: the label's colour, a ready colour as its label. */
+    @Test fun theStoreKeepsSyncsInOrder() {
+        val store = com.xlollx.songport.data.FileStore(java.nio.file.Files.createTempDirectory("labels").toFile())
+        store.update { it.copy(jobs = listOf(job("a", "teal"), job("b", "#000000", label = "gone"))) }
+        assertEquals(listOf("teal", null), store.data.jobs.map { it.label })
+        store.upsertJob(job("c", "red", tags = mapOf(" Genre " to " Metal ")))
+        assertEquals("red", store.job("c")!!.label)
+        assertEquals(mapOf("Genre" to "Metal"), store.job("c")!!.tags)
+    }
+
     @Test fun aLabelThatIsGoneLeavesTheColour() {
         val j = Labels.normalized(job("a", "#102030", label = "l-gone"), emptyList())
         assertEquals("#102030", j.color)

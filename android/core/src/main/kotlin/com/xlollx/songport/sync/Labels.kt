@@ -60,6 +60,7 @@ object Labels {
      * colour of the user's own stays as it is, without a label. Tags are tidied ([cleanTags]).
      */
     fun normalized(job: SyncJob, labels: List<Label>): SyncJob {
+        if (job.label == null && job.color == null && job.tags.isEmpty()) return job
         val l = find(labels, job.label)
         val tags = cleanTags(job.tags)
         val label = l?.id ?: job.color?.takeIf { job.label == null && isBase(it) }
