@@ -296,6 +296,10 @@ fun SyncsScreen(
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
+    // The stretch the card held down stays in (starred or not, Labels.dragStretch): the cards of the other
+    // kind do not make way for it. Let them, and a starred tile dragged to the row below showed there, then
+    // jumped back to the last starred place on release, the tiles it had passed with it (10/11 report).
+    var dragStretch by remember { mutableStateOf<Boolean?>(null) }
     // Whether the card held down has changed places yet: a tile let go without one opens its menu.
     val swapped = remember { booleanArrayOf(false) }
     // The tile held down in the gesture under way: its release is the end of a hold, not a tap.
@@ -496,7 +500,7 @@ fun SyncsScreen(
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
-            items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag) { isDragging ->
+            items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag && (dragStretch ?: job.favorite) == job.favorite) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
                 LaunchedEffect(flashing) {
                     if (flashing == job.id) {
@@ -535,12 +539,14 @@ fun SyncsScreen(
                     onDragStarted = {
                         swapped[0] = false
                         heldTile[0] = job.id
+                        dragStretch = com.xlollx.songport.sync.Labels.dragStretch(Store.get(ctx).data.jobs, job.id)
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
                         // A tile held and let go without moving it: its menu, as a long press elsewhere.
                         if (minimal && !swapped[0]) tileMenu = job.id
+                        dragStretch = null
                         // Cleared once this release has been handled everywhere (the tile's own tap included).
                         scope.launch { heldTile[0] = null }
                         val dropped = dragOrder

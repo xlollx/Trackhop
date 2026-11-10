@@ -3,6 +3,7 @@ package com.xlollx.songport.flows
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performSemanticsAction
@@ -11,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.ui.JOB_TILE_TAG
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -20,14 +22,16 @@ import org.junit.runner.RunWith
  * Cards held and dragged at the end of the list, where the upper card on screen is partly under the
  * Sync-all pill (07/11 report): the card dragged down past the
  * next one stays there instead of snapping back, and the last card dragged up lands above it.
+ * And the tiles of the minimal view, two to a row (10/11 report): a tile dragged across a column and
+ * down a row lands there, and a starred one stays among the starred while it is dragged.
  */
 @RunWith(AndroidJUnit4::class)
 class ReorderFlowTest : FlowTest() {
 
     private val n = 6
 
-    private fun seed() = store.update { d ->
-        d.copy(jobs = (1..n).map { i -> SyncJob("job-$i", "Sync number $i", PlaylistRef("spotify", FakeWorld.SPOTIFY_ROAD, "Road Trip"), PlaylistRef("deezer", "d$i", "Road Trip $i")) })
+    private fun seed(starred: Set<Int> = emptySet()) = store.update { d ->
+        d.copy(jobs = (1..n).map { i -> SyncJob("job-$i", "Sync number $i", PlaylistRef("spotify", FakeWorld.SPOTIFY_ROAD, "Road Trip"), PlaylistRef("deezer", "d$i", "Road Trip $i"), favorite = i in starred) })
     }
 
     private fun toTheEnd() {
@@ -80,6 +84,69 @@ class ReorderFlowTest : FlowTest() {
         list.performTouchInput { advanceEventTime(100); up() }
         compose.waitForIdle()
         android.util.Log.d("Reorder", "test: after drag, order ${order()}")
+    }
+
+    private fun tile(i: Int) = compose.onAllNodes(hasTestTag(JOB_TILE_TAG) and hasText("Sync number $i")).onFirst()
+
+    private fun tileAt(i: Int): Offset = tile(i).fetchSemanticsNode().positionInRoot
+
+    /** The minimal view, its first tiles on screen, two to a row. */
+    private fun openTiles() {
+        store.updateSettings { it.copy(minimalSyncs = true) }
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        waitFor("tiles 1 to 4 on two rows") {
+            runCatching { tileAt(1).y == tileAt(2).y && tileAt(3).y > tileAt(1).y && tileAt(4).x == tileAt(2).x }.getOrDefault(false)
+        }
+    }
+
+    /**
+     * Holds tile [i] and drags it along each of [legs] in turn, a few pixels at a time with frames
+     * drawn in between, as a finger does; [held] runs at the end, before the tile is let go.
+     */
+    private fun dragTile(i: Int, legs: List<Offset>, held: () -> Unit = {}) {
+        tile(i).performTouchInput {
+            down(Offset(width * 0.3f, height / 2f))
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
+            moveBy(Offset(0f, 1f))
+        }
+        compose.waitForIdle()
+        val list = compose.onAllNodes(hasScrollAction()).onFirst()
+        for (leg in legs) repeat(10) {
+            list.performTouchInput { repeat(3) { advanceEventTime(16); moveBy(leg / 30f) } }
+            compose.waitForIdle()
+        }
+        held()
+        list.performTouchInput { advanceEventTime(100); up() }
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun aTileDraggedAcrossAColumnAndDownARowLandsThere() {
+        seed()
+        openTiles()
+        // Tile 1 (top left) to where tile 4 is (second row, right): across, then down.
+        val one = tileAt(1); val two = tileAt(2); val four = tileAt(4)
+        dragTile(1, listOf(Offset(two.x - one.x, 0f), Offset(0f, four.y - two.y)))
+        waitFor("job-1 fourth") { order().indexOf("job-1") == 3 }
+        assertEquals(listOf("job-2", "job-3", "job-4", "job-1", "job-5", "job-6"), order())
+        waitFor("tile 1 where tile 4 was") { tileAt(1).let { kotlin.math.abs(it.x - four.x) < 2f && kotlin.math.abs(it.y - four.y) < 2f } }
+    }
+
+    @Test
+    fun aStarredTileDraggedAmongTheOthersStaysAmongTheStarred() {
+        // Tiles 1 and 2 starred: the first row; the others below.
+        seed(starred = setOf(1, 2))
+        openTiles()
+        val one = tileAt(1); val two = tileAt(2); val four = tileAt(4)
+        dragTile(1, listOf(Offset(two.x - one.x, 0f), Offset(0f, four.y - two.y))) {
+            // Held over the second row: its tiles have not made way (they would jump back on release).
+            assertTrue("tile 3 still on the second row", tileAt(3).y > tileAt(2).y + 1f)
+            assertTrue("tile 4 still on the second row", tileAt(4).y > tileAt(2).y + 1f)
+        }
+        waitFor("job-1 after job-2") { order().take(2) == listOf("job-2", "job-1") }
+        assertEquals(listOf("job-2", "job-1", "job-3", "job-4", "job-5", "job-6"), order())
+        waitFor("tile 1 back on the first row, right") { tileAt(1).let { kotlin.math.abs(it.x - two.x) < 2f && kotlin.math.abs(it.y - two.y) < 2f } }
     }
 
     @Test

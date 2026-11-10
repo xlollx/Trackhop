@@ -236,6 +236,15 @@ object Labels {
         }
     }
 
+    /**
+     * The stretch of the list as shown ([favoritesFirst]) that [id], held in a drag, stays in: the
+     * starred (true) or the others (false); null when the list is one stretch. Only the syncs of that
+     * stretch make way for it: shown among the other kind, it would be put back at the edge of its
+     * own on release ([storeIndex]) and the syncs it had passed would jump back.
+     */
+    fun dragStretch(jobs: List<SyncJob>, id: String): Boolean? =
+        jobs.firstOrNull { it.id == id }?.favorite?.takeIf { jobs.any { it.favorite } && jobs.any { !it.favorite } }
+
     /** Starred syncs first; the others, and the starred among themselves, in the order given. */
     fun favoritesFirst(jobs: List<SyncJob>): List<SyncJob> =
         if (jobs.none { it.favorite } || jobs.all { it.favorite }) jobs else jobs.sortedByDescending { it.favorite }
