@@ -784,7 +784,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                     "stop" -> { SyncState.stop(job.id); redirect(r.ex, back) }
                     "pause" -> { SyncState.pause(job.id); redirect(r.ex, back) }
                     "resume" -> { SyncState.resume(job.id); redirect(r.ex, back) }
-                    "toggle" -> { env.store.upsertJob(job.copy(enabled = !job.enabled)); redirect(r.ex, back) }
+                    "toggle" -> { enablePair(job, !job.enabled); redirect(r.ex, back) }
                     "schedule" -> {
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
@@ -828,7 +828,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         runner.radio.tick(java.time.LocalDateTime.now())
                         redirect(r.ex, "$back?ok=${q("Saved: ${com.xlollx.songport.sync.RadioTitles.describe(radio)}.")}")
                     }
-                    "delete" -> { env.store.deleteJob(job.id); redirect(r.ex, "/") }
+                    "delete" -> { deletePair(job); redirect(r.ex, "/") }
                     // The order of the list, of Run all and of the app's widgets, as in the app's card menu.
                     "move" -> {
                         // Positions are those of the list as shown: the starred syncs first.
@@ -975,7 +975,7 @@ ${changesFields(null)}${pairFields(null)}
             body.append(if (SyncState.isPaused(job.id)) Html.postButton("/syncs/$id/resume", "Resume") else Html.postButton("/syncs/$id/pause", "Pause", "secondary"))
         }
         body.append(Html.postButton("/syncs/$id/toggle", if (job.enabled) "Turn off" else "Turn on", "secondary"))
-        body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = "Delete this sync? The playlists stay as they are."))
+        body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = if (halves(job).size > 1) "Delete this two-way sync and its other half? The playlists stay as they are." else "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
         // Its place in the list, as a number: quicker than the arrows with many syncs.
         val all = Labels.favoritesFirst(env.store.data.jobs)

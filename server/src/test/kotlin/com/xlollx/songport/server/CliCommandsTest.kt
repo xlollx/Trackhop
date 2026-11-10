@@ -153,6 +153,21 @@ class CliCommandsTest {
         assertTrue(on.second, on.first && on.second.contains("\"twoWayRemovals\": true"))
     }
 
+    @Test fun aPairIsToggledAndDeletedAsOneFromTheCommandLine() {
+        File(data, "csv/Other.csv").writeText("title,artist\nSong Nine,Band Z\n")
+        assertEquals(0, cli("new", "csv", "Road trip", "csv", "Other", "--name", "Both", "--two-way").code)
+        val both = env.store.data.jobs.first { it.name == "Both" }
+        val twin = both.linkedJobId!!
+        assertEquals(0, cli("disable", "Both").code)
+        assertFalse(env.store.job(both.id)!!.enabled || env.store.job(twin)!!.enabled)
+        // The assistant's tool, from the other half.
+        val api = Cli.connect(null, null) { data }
+        assertTrue(Mcp.run(api, Mcp.callFor("set_sync_enabled", Json.parseToJsonElement("""{"sync":"$twin","enabled":true}""").jsonObject)).first)
+        assertTrue(env.store.job(both.id)!!.enabled && env.store.job(twin)!!.enabled)
+        assertEquals(0, cli("delete", twin).code)
+        assertEquals(listOf("j1"), env.store.data.jobs.map { it.id })
+    }
+
     @Test fun heldRemovalsAreConfirmedFromTheCommandLine() {
         File(data, "csv/Mirror.csv").writeText("title,artist\nSong One,Band A\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
         env.store.upsertJob(SyncJob("m", "Mirrored", PlaylistRef(LocalFilesProvider.id, "Road trip", "Road trip"), PlaylistRef(LocalFilesProvider.id, "Mirror", "Mirror"), mirrorRemovals = true))

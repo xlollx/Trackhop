@@ -177,8 +177,8 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
         rest.size == 2 && rest[0] == "syncs" && rest[1] != "run-all" && rest[1] != "run" && (method == "PATCH" || method == "DELETE") -> {
             val job = env.store.job(rest[1]) ?: return true.also { error(404, "No sync with that id.") }
             if (method == "DELETE") {
-                if (runner.isRunning(job.id)) SyncState.stop(job.id)
-                env.store.deleteJob(job.id)
+                // Half of a two-way pair: the other half goes too, as in the app.
+                deletePair(job)
                 env.log("api", "deleted sync ${job.name}")
                 return true.also { json(200, buildJsonObject { put("deleted", job.id) }) }
             }

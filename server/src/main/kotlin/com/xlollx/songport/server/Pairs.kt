@@ -100,3 +100,16 @@ internal fun Web.settlePair(before: SyncJob?, saved: SyncJob) {
     // Turned off: what the pair had in common is forgotten, so turning it on again starts afresh.
     if (!saved.twoWayRemovals) store.dropPairState(saved)
 }
+
+/** [job] and the other half of its two-way pair, when it has one: what is deleted or turned on and off together, as in the app. */
+internal fun Web.halves(job: SyncJob): List<SyncJob> =
+    listOf(job) + env.store.data.jobs.filter { it.id != job.id && (it.id == job.linkedJobId || it.linkedJobId == job.id) }
+
+/** Deletes [job] and, for a pair, its other half (runs under way are stopped; the pair's state goes with them). The playlists stay. */
+internal fun Web.deletePair(job: SyncJob) = halves(job).forEach {
+    if (runner.isRunning(it.id)) SyncState.stop(it.id)
+    env.store.deleteJob(it.id)
+}
+
+/** Turns [job]'s schedule on or off, and its other half's with it. */
+internal fun Web.enablePair(job: SyncJob, on: Boolean) = halves(job).forEach { env.store.upsertJob(it.copy(enabled = on)) }

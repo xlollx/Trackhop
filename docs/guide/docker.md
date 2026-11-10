@@ -411,7 +411,7 @@ leave the home-screen app and not come back to it.
   yours, and Trackhop also makes the reverse sync (marked ↔), so what you add on either side reaches
   the other. The ↔ sync follows the first one's timing, colour, label, tags and star. With *removals
   too*, a track you remove on one side is removed on the other. Untick it and the ↔ sync is deleted;
-  the playlists stay as they are.
+  the playlists stay as they are. *Turn off* and *Delete* on either of the two act on both.
 - **Removals held back**: a run that would remove a quarter or more of the destination (or of what
   a two-way pair had in common) keeps those tracks, because a playlist the service listed only in
   part looks the same. The sync then says *N removals held back*: open it to see them, tick *Remove
@@ -597,13 +597,13 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `DELETE /api/v1/labels/{label}` | Delete a label: its syncs keep their colour, without the name. |
 | `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
 | `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite, twoWay, twoWayRemovals. |
-| `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are). |
+| `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are); the other half of a two-way pair goes with it. |
 | `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check; `{"confirmRemovals": true}` lets this run make the removals a run holds back. |
 | `POST /api/v1/syncs/{sync}/stop` | Stop a running sync. |
 | `POST /api/v1/syncs/{sync}/pause` | Pause a running sync. |
 | `POST /api/v1/syncs/{sync}/resume` | Resume a paused sync. |
-| `POST /api/v1/syncs/{sync}/enable` | Turn a sync's schedule on. |
-| `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off. |
+| `POST /api/v1/syncs/{sync}/enable` | Turn a sync's schedule on (both halves of a two-way pair). |
+| `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off (both halves of a two-way pair). |
 | `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
 | `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
 

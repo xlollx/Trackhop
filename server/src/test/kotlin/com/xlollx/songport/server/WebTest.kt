@@ -698,6 +698,29 @@ class WebTest {
         assertTrue(env.store.job(env.store.job(main.id)!!.linkedJobId!!)!!.twin)
     }
 
+    /** A pair is turned on and off, and deleted, as one on the page. */
+    @Test fun aPairIsToggledAndDeletedAsOneOnThePage() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/One.csv").writeText("title,artist\nSong,Someone\n")
+        File(data, "csv/Two.csv").writeText("title,artist\nOther,Someone\n")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("ab", "Pair", com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), com.xlollx.songport.model.PlaylistRef("csv", "Two", "Two"), linkedJobId = "ba"))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("ba", "Pair ↔", com.xlollx.songport.model.PlaylistRef("csv", "Two", "Two"), com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), linkedJobId = "ab", twin = true))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("solo", "Solo", com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), com.xlollx.songport.model.PlaylistRef("csv", null, "Copy")))
+        assertEquals(303, post("/syncs/ba/toggle", "", *origin).statusCode())
+        assertFalse(env.store.job("ab")!!.enabled || env.store.job("ba")!!.enabled)
+        assertTrue(env.store.job("solo")!!.enabled)
+        assertEquals(303, post("/syncs/ab/toggle", "", *origin).statusCode())
+        assertTrue(env.store.job("ab")!!.enabled && env.store.job("ba")!!.enabled)
+        assertTrue(get("/syncs/ab").body().contains("and its other half"))
+        assertFalse(get("/syncs/solo").body().contains("and its other half"))
+        env.store.putPairState(env.store.job("ab")!!, com.xlollx.songport.data.PairState("csv|One", "csv|Two", mapOf("1" to "1")))
+        assertEquals(303, post("/syncs/ba/delete", "", *origin).statusCode())
+        assertEquals(listOf("solo"), env.store.data.jobs.map { it.id })
+        assertTrue(env.store.data.pairStates.isEmpty())
+        assertTrue(File(data, "csv/Two.csv").isFile)
+    }
+
     /** Removals a run held back: the sync says how many, its page lists them, and a tick lets one run make them. */
     @Test fun heldRemovalsAreSeenAndConfirmedOnThePage() {
         assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())

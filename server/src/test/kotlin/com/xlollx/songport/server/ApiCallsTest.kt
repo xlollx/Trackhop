@@ -229,6 +229,31 @@ class ApiCallsTest {
         assertTrue(again.twin && !again.twoWayRemovals); assertEquals("Both ↔", again.name)
     }
 
+    /** A pair is turned on and off, and deleted, as one: from either half. */
+    @Test fun aPairIsToggledAndDeletedAsOne() {
+        fun pair(): Pair<String, String> {
+            val o = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"name":"Pair","twoWay":true,"twoWayRemovals":true}""").obj
+            return o.s("id")!! to o.s("linkedSyncId")!!
+        }
+        env.store.upsertJob(SyncJob("solo", "Solo", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", null, "Copy")))
+        val (a, b) = pair()
+        assertEquals(200, call("POST", "syncs/$b/disable").code)
+        assertFalse(env.store.job(a)!!.enabled || env.store.job(b)!!.enabled)
+        assertTrue(env.store.job("solo")!!.enabled)
+        assertEquals(200, call("POST", "syncs/$a/enable").code)
+        assertTrue(env.store.job(a)!!.enabled && env.store.job(b)!!.enabled)
+        // Deleted from the ↔ half: both go, with the pair's state; the others stay.
+        env.store.putPairState(env.store.job(a)!!, com.xlollx.songport.data.PairState("csv|In", "csv|Out", mapOf("1" to "1")))
+        assertEquals(200, call("DELETE", "syncs/$b").code)
+        assertEquals(listOf("solo"), env.store.data.jobs.map { it.id })
+        assertTrue(env.store.data.pairStates.isEmpty())
+        // And from the first half.
+        val (c, _) = pair()
+        assertEquals(200, call("DELETE", "syncs/$c").code)
+        assertEquals(listOf("solo"), env.store.data.jobs.map { it.id })
+        assertTrue(File(data, "csv/In.csv").isFile && File(data, "csv/Out.csv").isFile)
+    }
+
     /** Removals a run holds back are confirmed for one run started by a call; a scheduled run never makes them. */
     @Test fun heldRemovalsAreConfirmedForOneRun() {
         File(data, "csv/In.csv").writeText("title,artist\nSong,Band\nOther Song,Other Band\n")

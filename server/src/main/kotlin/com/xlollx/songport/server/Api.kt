@@ -348,7 +348,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                     put("runs", JsonArray(env.store.data.reports.filter { it.jobId == job.id }.take(20).map { Api.run(it, tracks = false) }))
                 })
                 rest.size == 3 && (rest[2] == "enable" || rest[2] == "disable") && method == "POST" -> {
-                    env.store.upsertJob(job.copy(enabled = rest[2] == "enable"))
+                    enablePair(job, rest[2] == "enable")
                     json(200, Api.job(env, env.store.job(job.id) ?: job, job.id in running))
                 }
                 rest.size == 3 && rest[2] == "run" && method == "POST" -> {
