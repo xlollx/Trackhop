@@ -56,6 +56,10 @@ import java.util.Currency
 private object RecordsKept {
     @Volatile var result: Records.Result? = null
     @Volatile var playlistId: String? = null
+    @Volatile var at = 0L
+
+    /** Discogs' terms: nothing shown more than six hours older than on Discogs, even with the app left open. */
+    fun fresh(): Records.Result? = result?.takeIf { System.currentTimeMillis() - at < Records.DISCOGS_TTL_MS }
 }
 
 /**
@@ -69,7 +73,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var pick by remember { mutableStateOf<CardPick?>(null) }
-    var result by remember { mutableStateOf(RecordsKept.result) }
+    var result by remember { mutableStateOf(RecordsKept.fresh()) }
     var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var tokenOpen by rememberSaveable { mutableStateOf(false) }
     if (tokenOpen) DiscogsTokenDialog { tokenOpen = false }
@@ -82,7 +86,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
                 val artists = Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id))
                 val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
                 val r = Records.find(ctx.env, artists, currency) { done, total -> progress = done to total }
-                result = r; RecordsKept.result = r; RecordsKept.playlistId = p.playlist.id
+                result = r; RecordsKept.result = r; RecordsKept.playlistId = p.playlist.id; RecordsKept.at = System.currentTimeMillis()
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
             } finally { progress = null }
