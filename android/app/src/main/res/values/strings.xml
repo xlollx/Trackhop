@@ -1997,4 +1997,33 @@
         <item quantity="one">Also %d notification channel: it stays off until you turn it on and enter its keys.</item>
         <item quantity="other">Also %d notification channels: they stay off until you turn them on and enter their keys.</item>
     </plurals>
+    <string name="discover_records_title">Records &amp; merch</string>
+    <string name="discover_records_desc">CDs, vinyl and shops of a playlist\'s artists</string>
+    <string name="records_intro">Pick a playlist: Trackhop finds its artists\' CDs, vinyl and cassettes on Discogs, and their official sites and shops. Only links: you buy on their sites.</string>
+    <string name="records_find">Find records</string>
+    <string name="records_none">Nothing on CD, vinyl or cassette on Discogs.</string>
+    <string name="records_not_for_sale">None for sale right now</string>
+    <plurals name="records_for_sale">
+        <item quantity="one">%1$d copy for sale from %2$s</item>
+        <item quantity="other">%1$d copies for sale from %2$s</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs didn\'t answer: try again later.</string>
+    <string name="records_not_asked">Not looked up this time: try again in a minute.</string>
+    <string name="records_slowed">Discogs asked to slow down: some artists have no records this time. Try again in a minute.</string>
+    <string name="records_token_refused">Discogs refused your token: check it in Settings › Service keys.</string>
+    <string name="records_no_token">Add your own Discogs token to see how many copies are for sale and to look up more artists.</string>
+    <string name="records_limited">Only the %1$d artists you play most were looked up, of %2$d.</string>
+    <string name="records_links">Official pages</string>
+    <string name="records_shop">Official shop</string>
+    <string name="records_search">Search the shops</string>
+    <string name="records_search_web">Web</string>
+    <string name="records_format_vinyl">Vinyl</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">Cassette</string>
+    <string name="records_token_title">Discogs token</string>
+    <string name="records_token_body">Optional. A personal access token from your Discogs account (Settings › Developers) shows how many copies are for sale and from what price, and looks up more artists. Trackhop only reads with it, and keeps it encrypted on this phone.</string>
+    <string name="records_token_get">Get a token</string>
+    <string name="records_token_field">Personal access token</string>
+    <string name="records_token_own">Using your token</string>
+    <string name="records_token_none">Not set: records without prices</string>
 </resources>

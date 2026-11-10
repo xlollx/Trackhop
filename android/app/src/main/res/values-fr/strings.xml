@@ -2004,4 +2004,33 @@
         <item quantity="one">Aussi %d canal de notification : il reste désactivé jusqu\'à ce que tu l\'actives et saisisses ses clés.</item>
         <item quantity="other">Aussi %d canaux de notification : ils restent désactivés jusqu\'à ce que tu les actives et saisisses leurs clés.</item>
     </plurals>
+    <string name="discover_records_title">Disques et merch</string>
+    <string name="discover_records_desc">CD, vinyles et boutiques des artistes d\'une playlist</string>
+    <string name="records_intro">Choisissez une playlist : Trackhop trouve sur Discogs les CD, vinyles et cassettes de ses artistes, ainsi que leurs sites et boutiques officiels. Seulement des liens : vous achetez sur leurs sites.</string>
+    <string name="records_find">Chercher des disques</string>
+    <string name="records_none">Rien en CD, vinyle ou cassette sur Discogs.</string>
+    <string name="records_not_for_sale">Aucun exemplaire en vente pour l\'instant</string>
+    <plurals name="records_for_sale">
+        <item quantity="one">%1$d exemplaire en vente dès %2$s</item>
+        <item quantity="other">%1$d exemplaires en vente dès %2$s</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs n\'a pas répondu : réessayez plus tard.</string>
+    <string name="records_not_asked">Pas cherché cette fois : réessayez dans une minute.</string>
+    <string name="records_slowed">Discogs a demandé de ralentir : certains artistes n\'ont pas de disques cette fois. Réessayez dans une minute.</string>
+    <string name="records_token_refused">Discogs a refusé votre jeton : vérifiez-le dans Réglages › Clés de service.</string>
+    <string name="records_no_token">Ajoutez votre propre jeton Discogs pour voir combien d\'exemplaires sont en vente et chercher plus d\'artistes.</string>
+    <string name="records_limited">Seuls les %1$d artistes que vous écoutez le plus ont été cherchés, sur %2$d.</string>
+    <string name="records_links">Pages officielles</string>
+    <string name="records_shop">Boutique officielle</string>
+    <string name="records_search">Chercher dans les boutiques</string>
+    <string name="records_search_web">Web</string>
+    <string name="records_format_vinyl">Vinyle</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">Cassette</string>
+    <string name="records_token_title">Jeton Discogs</string>
+    <string name="records_token_body">Facultatif. Un jeton d\'accès personnel de votre compte Discogs (Settings › Developers) montre combien d\'exemplaires sont en vente et à partir de quel prix, et cherche plus d\'artistes. Trackhop ne fait que lire avec, et le garde chiffré sur ce téléphone.</string>
+    <string name="records_token_get">Obtenir un jeton</string>
+    <string name="records_token_field">Jeton d\'accès personnel</string>
+    <string name="records_token_own">Votre jeton est utilisé</string>
+    <string name="records_token_none">Non défini : disques sans prix</string>
 </resources>

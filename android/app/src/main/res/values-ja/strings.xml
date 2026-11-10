@@ -1961,4 +1961,32 @@
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
+    <string name="discover_records_title">レコードとグッズ</string>
+    <string name="discover_records_desc">プレイリストのアーティストのCD・レコード・ショップ</string>
+    <string name="records_intro">プレイリストを選ぶと、Trackhop がそのアーティストの CD・レコード・カセットを Discogs で探し、公式サイトやショップも表示します。リンクのみで、購入は各サイトで行います。</string>
+    <string name="records_find">レコードを探す</string>
+    <string name="records_none">Discogs に CD・レコード・カセットはありません。</string>
+    <string name="records_not_for_sale">現在販売中のものはありません</string>
+    <plurals name="records_for_sale">
+        <item quantity="other">%1$d 点販売中（%2$s から）</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs から応答がありません。後でもう一度お試しください。</string>
+    <string name="records_not_asked">今回は検索していません。1 分後にもう一度お試しください。</string>
+    <string name="records_slowed">Discogs からペースを落とすよう求められました。今回は一部のアーティストのレコードがありません。1 分後にもう一度お試しください。</string>
+    <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › サービスのキーで確認してください。</string>
+    <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、より多くのアーティストを検索できます。</string>
+    <string name="records_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
+    <string name="records_links">公式ページ</string>
+    <string name="records_shop">公式ショップ</string>
+    <string name="records_search">ショップで検索</string>
+    <string name="records_search_web">ウェブ</string>
+    <string name="records_format_vinyl">レコード</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">カセット</string>
+    <string name="records_token_title">Discogs トークン</string>
+    <string name="records_token_body">任意です。Discogs アカウントの個人アクセストークン（Settings › Developers）で、販売中の点数と最低価格が表示され、より多くのアーティストを検索できます。Trackhop は読み取りにのみ使い、この端末に暗号化して保存します。</string>
+    <string name="records_token_get">トークンを取得</string>
+    <string name="records_token_field">個人アクセストークン</string>
+    <string name="records_token_own">自分のトークンを使用中</string>
+    <string name="records_token_none">未設定：価格なしで表示</string>
 </resources>

@@ -399,6 +399,10 @@ fun SettingsScreen(
                 var tmOpen by rememberSaveable { mutableStateOf(false) }
                 if (tmOpen) TicketmasterKeyDialog { tmOpen = false }
                 PrefRow(Icons.Filled.Key, stringResource(R.string.concerts_key_title), stringResource(remember(data.settings, tmOpen) { ticketmasterKeyState(ctx) })) { tmOpen = true }
+                // Records and merch (Discover): the user's own Discogs token, optional.
+                var dgOpen by rememberSaveable { mutableStateOf(false) }
+                if (dgOpen) DiscogsTokenDialog { dgOpen = false }
+                PrefRow(Icons.Filled.Key, stringResource(R.string.records_token_title), stringResource(remember(dgOpen) { discogsTokenState(ctx) })) { dgOpen = true }
                 Providers.all().filter { it.setupGuide != null && it.slot.isEmpty() }.forEach { p ->
                     val configured = remember(p.id, data.settings) { p.isConfigured(ctx) }
                     PrefRow(

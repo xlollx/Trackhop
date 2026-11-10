@@ -2066,4 +2066,35 @@
         <item quantity="many">А также %d каналов уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
         <item quantity="other">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
     </plurals>
+    <string name="discover_records_title">Пластинки и мерч</string>
+    <string name="discover_records_desc">CD, винил и магазины артистов плейлиста</string>
+    <string name="records_intro">Выберите плейлист: Trackhop найдёт на Discogs CD, винил и кассеты его артистов, а также их официальные сайты и магазины. Только ссылки: покупаете вы на их сайтах.</string>
+    <string name="records_find">Найти пластинки</string>
+    <string name="records_none">На Discogs нет CD, винила или кассет.</string>
+    <string name="records_not_for_sale">Сейчас нет в продаже</string>
+    <plurals name="records_for_sale">
+        <item quantity="one">В продаже: %1$d, от %2$s</item>
+        <item quantity="few">В продаже: %1$d, от %2$s</item>
+        <item quantity="many">В продаже: %1$d, от %2$s</item>
+        <item quantity="other">В продаже: %1$d, от %2$s</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs не ответил: попробуйте позже.</string>
+    <string name="records_not_asked">В этот раз не искали: попробуйте через минуту.</string>
+    <string name="records_slowed">Discogs попросил замедлиться: у некоторых артистов в этот раз нет пластинок. Попробуйте через минуту.</string>
+    <string name="records_token_refused">Discogs отклонил ваш токен: проверьте его в Настройки › Ключи сервисов.</string>
+    <string name="records_no_token">Добавьте свой токен Discogs, чтобы видеть, сколько экземпляров в продаже, и искать больше артистов.</string>
+    <string name="records_limited">Искали только %1$d самых слушаемых артистов из %2$d.</string>
+    <string name="records_links">Официальные страницы</string>
+    <string name="records_shop">Официальный магазин</string>
+    <string name="records_search">Искать в магазинах</string>
+    <string name="records_search_web">Веб</string>
+    <string name="records_format_vinyl">Винил</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">Кассета</string>
+    <string name="records_token_title">Токен Discogs</string>
+    <string name="records_token_body">Необязательно. Личный токен доступа вашего аккаунта Discogs (Settings › Developers) показывает, сколько экземпляров в продаже и от какой цены, и ищет больше артистов. Trackhop только читает с ним и хранит его зашифрованным на этом телефоне.</string>
+    <string name="records_token_get">Получить токен</string>
+    <string name="records_token_field">Личный токен доступа</string>
+    <string name="records_token_own">Используется ваш токен</string>
+    <string name="records_token_none">Не задан: пластинки без цен</string>
 </resources>

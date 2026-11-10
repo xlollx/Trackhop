@@ -2004,4 +2004,33 @@
         <item quantity="one">Também %d canal de notificação: fica desativado até você ativá-lo e inserir as chaves.</item>
         <item quantity="other">Também %d canais de notificação: ficam desativados até você ativá-los e inserir as chaves.</item>
     </plurals>
+    <string name="discover_records_title">Discos e merch</string>
+    <string name="discover_records_desc">CDs, vinis e lojas dos artistas de uma playlist</string>
+    <string name="records_intro">Escolha uma playlist: o Trackhop encontra no Discogs os CDs, vinis e fitas dos artistas, e os sites e lojas oficiais deles. Só links: você compra nos sites deles.</string>
+    <string name="records_find">Buscar discos</string>
+    <string name="records_none">Nada em CD, vinil ou fita no Discogs.</string>
+    <string name="records_not_for_sale">Nenhuma cópia à venda agora</string>
+    <plurals name="records_for_sale">
+        <item quantity="one">%1$d cópia à venda a partir de %2$s</item>
+        <item quantity="other">%1$d cópias à venda a partir de %2$s</item>
+    </plurals>
+    <string name="records_discogs_down">O Discogs não respondeu: tente mais tarde.</string>
+    <string name="records_not_asked">Não buscado desta vez: tente de novo em um minuto.</string>
+    <string name="records_slowed">O Discogs pediu para ir mais devagar: alguns artistas ficaram sem discos desta vez. Tente de novo em um minuto.</string>
+    <string name="records_token_refused">O Discogs recusou seu token: confira em Configurações › Chaves dos serviços.</string>
+    <string name="records_no_token">Adicione seu próprio token do Discogs para ver quantas cópias estão à venda e buscar mais artistas.</string>
+    <string name="records_limited">Só os %1$d artistas que você mais ouve foram buscados, de %2$d.</string>
+    <string name="records_links">Páginas oficiais</string>
+    <string name="records_shop">Loja oficial</string>
+    <string name="records_search">Buscar nas lojas</string>
+    <string name="records_search_web">Web</string>
+    <string name="records_format_vinyl">Vinil</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">Fita cassete</string>
+    <string name="records_token_title">Token do Discogs</string>
+    <string name="records_token_body">Opcional. Um token de acesso pessoal da sua conta Discogs (Settings › Developers) mostra quantas cópias estão à venda e a partir de qual preço, e busca mais artistas. O Trackhop só lê com ele e o guarda criptografado neste celular.</string>
+    <string name="records_token_get">Obter um token</string>
+    <string name="records_token_field">Token de acesso pessoal</string>
+    <string name="records_token_own">Usando seu token</string>
+    <string name="records_token_none">Não definido: discos sem preços</string>
 </resources>
