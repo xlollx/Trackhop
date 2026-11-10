@@ -204,10 +204,15 @@ class ServerGroupTransport(private val env: Env, private val groupId: String, ad
 
         fun forget(env: Env, groupId: String) { file(env, groupId).delete() }
 
-        /** The user's own server ("Coordinate with my server") and its API token, or a plain-words refusal. */
+        /**
+         * The user's own server ("Coordinate with my server") and its API token, or a plain-words
+         * refusal. The token goes only to that server: a group made on another one (the option
+         * since pointed elsewhere) is refused, not sent this server's token.
+         */
         private fun owner(env: Env, address: String): Pair<HttpUrl, String> {
             val c = ServerLocks.config(env) ?: throw ProviderException(env.text("server_err_unreachable"))
             val url = ServerLocks.normalize(address).toHttpUrlOrNull() ?: throw ProviderException(env.text("server_err_unreachable"))
+            if (url != ServerLocks.normalize(c.address).toHttpUrlOrNull()) throw ProviderException(env.text("server_err_off", env.text("server_locks_title")))
             return url to c.token
         }
 

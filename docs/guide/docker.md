@@ -930,10 +930,11 @@ services or other groups). Each member's Trackhop sends its signed changes and r
   ISRCs, each member's name and service, the curators' list, who made each change and when. It does not
   need to be trusted with who may write: each member checks the signatures and the curators' list,
   as with a shared folder. It only takes items that are signed by whoever they name, each once.
-- Nothing is removed by age. A mailbox stays under 200,000 items and 48 MB: when it gets there, it
-  keeps what the members would count (each track's latest action per curator, the newest curators'
-  list and member cards) and drops the rest. Calls are limited to 30 writes and 120 reads a minute
-  per group, 4 MB per call.
+- Nothing is removed by age. A mailbox stays under 100,000 items and 16 MB, and all of them
+  together under 256 MB: when one gets there, it keeps what the members would count (each track's
+  latest action per curator, the newest curators' list and member cards) and drops the rest. Calls
+  are limited to 30 writes and 120 reads a minute per group, 4 MB per call, 20,000 new items a
+  minute.
 - **A new key** (`POST /api/v1/groups/{group}/key`) ends the old one at once: members then need a
   new invite. Deleting the mailbox (`DELETE /api/v1/groups/{group}`) ends the group here. Turning
   the API off in Tools › API closes the mailboxes too, until a token is made again.

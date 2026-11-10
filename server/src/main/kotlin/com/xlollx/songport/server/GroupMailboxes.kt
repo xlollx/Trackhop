@@ -46,15 +46,33 @@ internal object GroupMailboxes {
     const val PREFIX = "thg_"
     /** One request's body at most. */
     const val MAX_BODY = 4 * 1024 * 1024
-    /** Items in one request at most (a member's whole log fits: FolderTransport.MAX_EVENTS). */
-    const val MAX_POST_ITEMS = 20_000 + 300
+    /** Items in one request at most: the app sends a member's log 5,000 events a call (ServerGroupTransport.MAX_SEND_EVENTS), with their card and the curators' list. */
+    const val MAX_POST_ITEMS = 5_000 + 300
     /** One item's JSON at most. */
     const val MAX_ITEM = 8 * 1024
-    /** A mailbox at most, in items and bytes, compacted first when it gets there. */
-    const val MAX_ITEMS = 200_000
-    const val MAX_BYTES = 48L * 1024 * 1024
+    /**
+     * A request's JSON before it is read: nested this deep at most, and with at most this many
+     * values an item, so that 4 MB of tiny values or brackets cannot become hundreds of MB in memory.
+     */
+    const val MAX_DEPTH = 8
+    const val MAX_VALUES_PER_ITEM = 32
+    /** A mailbox at most, in items and bytes, compacted first when it gets there (a busy group of members with thousands of tracks fits). */
+    const val MAX_ITEMS = 100_000
+    const val MAX_BYTES = 16L * 1024 * 1024
     /** [MAX_ITEMS], lower in tests. */
     @Volatile internal var maxItems = MAX_ITEMS
+    /** All the mailboxes of one person's Trackhop together, on disk at most. */
+    const val MAX_TOTAL_BYTES = 256L * 1024 * 1024
+    @Volatile internal var maxTotalBytes = MAX_TOTAL_BYTES
+    /** New items checked per mailbox and minute at most (each a signature to check): a member's first sync of a whole log fits. */
+    const val NEW_PER_MINUTE = 20_000
+    @Volatile internal var newPerMinute = NEW_PER_MINUTE
+    /** Mailboxes whose items stay in memory between calls; the others are read again from disk when asked. */
+    const val MAX_LOADED = 4
+    /** A full mailbox is compacted at most this often, unless it grew by a tenth since: each compaction reads it all. */
+    const val COMPACT_EVERY_MS = 5 * 60_000L
+    /** Compactions so far (tests). */
+    @Volatile internal var compactions = 0
     /** One answer of GET …/items at most: the rest follows with the cursor it gives. */
     const val PAGE_BYTES = 2 * 1024 * 1024
     /** Mailboxes on one person's Trackhop at most. */
@@ -77,7 +95,10 @@ internal object GroupMailboxes {
         var id = ""
         var name = ""
         var creator = ""
-        var capability = ""
+        /** The SHA-256 of the key: read without the lock by [opens], so a new key counts at once. */
+        @Volatile var capability = ""
+        /** Deleted: a call that found it before waits for the lock and then finds nothing. */
+        @Volatile var deleted = false
         var created = 0L
         var lastWrite = 0L
         var seq = 0L
@@ -85,14 +106,25 @@ internal object GroupMailboxes {
         val hashes = HashSet<String>()
         var bytes = 0L
         var loaded = false
+        /** When its items were last used, for [trim]. */
+        @Volatile var used = 0L
         val writes = ArrayDeque<Long>()
         val reads = ArrayDeque<Long>()
+        /** New items checked in the minute since [freshSince]. */
+        var freshSince = 0L
+        var freshCount = 0
+        /** The last compaction: when, and how many items it kept. */
+        var compactedAt = 0L
+        var compactedTo = 0
     }
 
     private val boxes = ConcurrentHashMap<String, Box>()
 
     /** Forgets what is in memory (tests: a restart reads the disk again). */
     internal fun unload() = boxes.clear()
+
+    /** Mailboxes whose items are in memory (tests). */
+    internal fun loadedCount() = boxes.values.count { it.loaded }
 
     private fun root(env: ServerEnv) = File(env.dataDir, "groups")
 
@@ -126,16 +158,33 @@ internal object GroupMailboxes {
         if (loaded) return this
         loaded = true
         val file = File(dir, "items.jsonl")
+        var bad = false
         if (file.isFile) file.forEachLine { line ->
+            fun skip() { bad = true }
             // A last line cut short by a crash is left out.
-            val o = runCatching { Json.parseToJsonElement(line).jsonObject }.getOrNull() ?: return@forEachLine
-            val seq = (o["s"] as? JsonPrimitive)?.longOrNull ?: return@forEachLine
-            val kind = (o["k"] as? JsonPrimitive)?.contentOrNull?.singleOrNull() ?: return@forEachLine
-            val v = o["v"] as? JsonObject ?: return@forEachLine
+            val o = runCatching { Json.parseToJsonElement(line).jsonObject }.getOrNull() ?: return@forEachLine skip()
+            val seq = (o["s"] as? JsonPrimitive)?.longOrNull ?: return@forEachLine skip()
+            val kind = (o["k"] as? JsonPrimitive)?.contentOrNull?.singleOrNull() ?: return@forEachLine skip()
+            val v = o["v"] as? JsonObject ?: return@forEachLine skip()
             add(Item(seq, kind, v.toString(), hashOf(kind, v.toString())))
         }
+        // Written again without the broken lines: a line appended after one cut short would be lost with it.
+        if (bad) write(file, items.joinToString("") { line(it) + "\n" })
         seq = maxOf(seq, items.lastOrNull()?.seq ?: 0)
         return this
+    }
+
+    /** Its items out of memory (they are on disk). */
+    private fun Box.unloadItems() {
+        items.clear(); items.trimToSize(); hashes.clear(); bytes = 0; loaded = false
+    }
+
+    /** Keeps the items of the [MAX_LOADED] mailboxes used last in memory; called holding no mailbox's lock. */
+    private fun trim() {
+        val loaded = boxes.values.filter { it.loaded }
+        if (loaded.size <= MAX_LOADED) return
+        // Ordered by a copy of when each was used: another call may change it meanwhile.
+        loaded.map { it to it.used }.sortedBy { it.second }.take(loaded.size - MAX_LOADED).forEach { (b, _) -> synchronized(b) { b.unloadItems() } }
     }
 
     private fun Box.add(item: Item) {
@@ -203,20 +252,25 @@ internal object GroupMailboxes {
 
     fun info(env: ServerEnv, id: String): JsonObject? = box(env, id)?.let { info(it) }
 
-    private fun info(b: Box): JsonObject = synchronized(b) {
+    private fun info(b: Box): JsonObject? = synchronized(b) {
+        if (b.deleted) return null
         b.load()
+        b.used = System.nanoTime()
         buildJsonObject {
             put("id", b.id); put("name", b.name); put("creator", b.creator)
             put("items", b.items.size); put("bytes", b.bytes); put("cursor", b.seq)
             put("created", b.created); put("lastWrite", b.lastWrite)
         }
-    }
+    }.also { trim() }
 
     /** A new key for the group: the old one stops working at once. Null when there is no such mailbox. */
     fun newKey(env: ServerEnv, id: String): String? {
         val b = box(env, id) ?: return null
         val capability = newCapability()
-        synchronized(b) { b.capability = sha256(capability); saveMeta(b) }
+        synchronized(b) {
+            if (b.deleted) return null
+            b.capability = sha256(capability); saveMeta(b)
+        }
         env.log("groups", "new key for the group mailbox ${b.name.ifEmpty { id }}: the old one no longer works")
         return capability
     }
@@ -225,6 +279,8 @@ internal object GroupMailboxes {
     fun delete(env: ServerEnv, id: String): Boolean {
         val b = box(env, id) ?: return false
         synchronized(b) {
+            if (b.deleted) return false
+            b.deleted = true
             boxes.remove(b.dir.absolutePath)
             b.dir.deleteRecursively()
         }
@@ -260,78 +316,153 @@ internal object GroupMailboxes {
      */
     fun read(env: ServerEnv, id: String, since: Long): String {
         val b = box(env, id) ?: throw Refused(404, "No mailbox for this group here.")
-        synchronized(b) {
-            if (!b.reads.allow(READS_PER_MINUTE, System.currentTimeMillis())) throw Refused(429, "Too many reads of this group: wait a minute.")
-            b.load()
-            val cards = StringBuilder(); val rosters = StringBuilder(); val events = StringBuilder()
-            var cursor = since
-            var size = 0L
-            var more = false
-            // Items are kept in the order of their numbers: the first after [since] is found by halves.
-            var i = b.items.binarySearchBy(since + 1) { it.seq }.let { if (it < 0) -it - 1 else it }
-            while (i < b.items.size) {
-                val item = b.items[i]
-                if (size > 0 && size + item.text.length > PAGE_BYTES) { more = true; break }
-                val to = when (item.kind) { 'c' -> cards; 'r' -> rosters; else -> events }
-                if (to.isNotEmpty()) to.append(',')
-                to.append(item.text)
-                size += item.text.length + 1
-                cursor = item.seq
-                i++
+        try {
+            synchronized(b) {
+                if (b.deleted) throw Refused(404, "No mailbox for this group here.")
+                if (!b.reads.allow(READS_PER_MINUTE, System.currentTimeMillis())) throw Refused(429, "Too many reads of this group: wait a minute.")
+                b.load()
+                b.used = System.nanoTime()
+                val cards = StringBuilder(); val rosters = StringBuilder(); val events = StringBuilder()
+                var cursor = since
+                var size = 0L
+                var more = false
+                // Items are kept in the order of their numbers: the first after [since] is found by halves.
+                var i = b.items.binarySearchBy(since + 1) { it.seq }.let { if (it < 0) -it - 1 else it }
+                while (i < b.items.size) {
+                    val item = b.items[i]
+                    if (size > 0 && size + item.text.length > PAGE_BYTES) { more = true; break }
+                    val to = when (item.kind) { 'c' -> cards; 'r' -> rosters; else -> events }
+                    if (to.isNotEmpty()) to.append(',')
+                    to.append(item.text)
+                    size += item.text.length + 1
+                    cursor = item.seq
+                    i++
+                }
+                return """{"cursor":$cursor,"more":$more,"cards":[$cards],"rosters":[$rosters],"events":[$events]}"""
             }
-            return """{"cursor":$cursor,"more":$more,"cards":[$cards],"rosters":[$rosters],"events":[$events]}"""
+        } finally {
+            trim()
         }
+    }
+
+    /**
+     * A write to the mailbox [id] counted before its body is read: none of a request's work for a
+     * caller past the minute's writes (or for a mailbox that is not here).
+     */
+    fun admitWrite(env: ServerEnv, id: String) {
+        val b = box(env, id) ?: throw Refused(404, "No mailbox for this group here.")
+        synchronized(b) {
+            if (b.deleted) throw Refused(404, "No mailbox for this group here.")
+            if (!b.writes.allow(WRITES_PER_MINUTE, System.currentTimeMillis())) throw Refused(429, "Too many writes to this group: wait a minute.")
+        }
+    }
+
+    /**
+     * True when [bytes] (a request's JSON, not read yet) nests at most [MAX_DEPTH] deep and holds at
+     * most [MAX_VALUES_PER_ITEM] values for each item a call may carry: brackets and commas outside
+     * strings, counted in one pass.
+     */
+    fun plainEnough(bytes: ByteArray): Boolean {
+        val most = MAX_POST_ITEMS.toLong() * MAX_VALUES_PER_ITEM
+        var depth = 0
+        var values = 0L
+        var inString = false
+        var escaped = false
+        for (b in bytes) {
+            val c = b.toInt().toChar()
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    c == '\\' -> escaped = true
+                    c == '"' -> inString = false
+                }
+                continue
+            }
+            when (c) {
+                '"' -> inString = true
+                '{', '[' -> { if (++depth > MAX_DEPTH) return false; values++ }
+                '}', ']' -> depth--
+                ',' -> values++
+            }
+            if (values > most) return false
+        }
+        return true
     }
 
     /**
      * What a member sends, checked: each item of a group's shape, for this group, of a sane size,
      * signed by whoever it names (an event by its author, a card by its member, a curators' list by
      * the group's creator). Whether that author may write is the members' check, not this one: a
-     * forgery is refused here so that it cannot crowd out real items in the members' reads.
+     * forgery is refused here so that it cannot crowd out real items in the members' reads. Only
+     * what the mailbox lacks is checked, and answered as (kind, JSON, hash).
      */
-    private fun items(b: Box, body: JsonObject): List<Pair<Char, JsonObject>> {
-        val out = ArrayList<Pair<Char, JsonObject>>()
+    private fun items(b: Box, body: JsonObject): List<Triple<Char, String, String>> {
+        // What the mailbox lacks, each once: only these are checked (a member sending its whole log again costs no signatures).
+        class Fresh(val kind: Char, val o: JsonObject, val text: String, val hash: String)
+        val fresh = ArrayList<Fresh>()
+        val seen = HashSet<String>()
+        var count = 0
         for ((field, kind) in listOf("cards" to 'c', "rosters" to 'r', "events" to 'e')) {
             val arr = body[field] ?: continue
             if (arr !is JsonArray) throw Refused(400, "\"$field\" is a list.")
-            if (out.size + arr.size > MAX_POST_ITEMS) throw Refused(413, "At most $MAX_POST_ITEMS items in one call.")
+            count += arr.size
+            if (count > MAX_POST_ITEMS) throw Refused(413, "At most $MAX_POST_ITEMS items in one call.")
             for (e in arr) {
                 val o = e as? JsonObject ?: throw Refused(400, "Each of \"$field\" is an object.")
-                if (o.toString().length > MAX_ITEM) throw Refused(400, "An item of \"$field\" is too large.")
-                val ok = runCatching {
-                    when (kind) {
-                        'c' -> codec.decodeFromJsonElement(MemberCard.serializer(), o).let { it.groupId == b.id && it.wellFormed() && it.verifies() }
-                        'r' -> codec.decodeFromJsonElement(Roster.serializer(), o).let { it.groupId == b.id && it.wellFormed() && it.verifies(b.creator) }
-                        else -> codec.decodeFromJsonElement(SharedEvent.serializer(), o).let { it.wellFormed() && it.verifies(b.id) }
-                    }
-                }.getOrDefault(false)
-                if (!ok) throw Refused(400, "An item of \"$field\" is not one of this group's.")
-                out += kind to o
+                val text = o.toString()
+                if (text.length > MAX_ITEM) throw Refused(400, "An item of \"$field\" is too large.")
+                val hash = hashOf(kind, text)
+                if (hash !in b.hashes && seen.add(hash)) fresh += Fresh(kind, o, text, hash)
             }
         }
-        return out
+        // The signatures checked in a minute are capped: the rest waits for the next call.
+        val now = System.currentTimeMillis()
+        if (now - b.freshSince >= 60_000) { b.freshSince = now; b.freshCount = 0 }
+        if (b.freshCount + fresh.size > newPerMinute) throw Refused(429, "Too many new items for this group in a minute: wait a minute.")
+        b.freshCount += fresh.size
+        val field = mapOf('c' to "cards", 'r' to "rosters", 'e' to "events")
+        return fresh.map { f ->
+            val o = f.o
+            val ok = runCatching {
+                when (f.kind) {
+                    'c' -> codec.decodeFromJsonElement(MemberCard.serializer(), o).let { it.groupId == b.id && it.wellFormed() && it.verifies() }
+                    'r' -> codec.decodeFromJsonElement(Roster.serializer(), o).let { it.groupId == b.id && it.wellFormed() && it.verifies(b.creator) }
+                    else -> codec.decodeFromJsonElement(SharedEvent.serializer(), o).let { it.wellFormed() && it.verifies(b.id) }
+                }
+            }.getOrDefault(false)
+            if (!ok) throw Refused(400, "An item of \"${field[f.kind]}\" is not one of this group's.")
+            Triple(f.kind, f.text, f.hash)
+        }
     }
 
     /** Stores what [body] holds that the mailbox lacks; answers how many were new and the newest number. */
     fun append(env: ServerEnv, id: String, body: JsonObject): Pair<Int, Long> {
         val b = box(env, id) ?: throw Refused(404, "No mailbox for this group here.")
-        synchronized(b) {
-            if (!b.writes.allow(WRITES_PER_MINUTE, System.currentTimeMillis())) throw Refused(429, "Too many writes to this group: wait a minute.")
-            b.load()
-            val fresh = items(b, body).map { (k, o) -> val t = o.toString(); Triple(k, t, hashOf(k, t)) }
-                .filter { it.third !in b.hashes }.distinctBy { it.third }
-            if (fresh.isEmpty()) return 0 to b.seq
-            val adding = fresh.sumOf { it.second.length.toLong() }
-            if (b.items.size + fresh.size > maxItems || b.bytes + adding > MAX_BYTES) {
-                compact(env, b, fresh)
-                if (b.items.size + fresh.size > maxItems || b.bytes + adding > MAX_BYTES) throw Refused(507, "This group's mailbox is full.")
+        try {
+            synchronized(b) {
+                if (b.deleted) throw Refused(404, "No mailbox for this group here.")
+                b.load()
+                b.used = System.nanoTime()
+                val fresh = items(b, body)
+                if (fresh.isEmpty()) return 0 to b.seq
+                val adding = fresh.sumOf { it.second.length.toLong() }
+                if (b.items.size + fresh.size > maxItems || b.bytes + adding > MAX_BYTES) {
+                    // Compacting reads the whole mailbox: not at every call of a writer who keeps it full.
+                    val now = System.currentTimeMillis()
+                    if (now - b.compactedAt >= COMPACT_EVERY_MS || b.items.size - b.compactedTo > maxItems / 10) compact(env, b, fresh)
+                    if (b.items.size + fresh.size > maxItems || b.bytes + adding > MAX_BYTES) throw Refused(507, "This group's mailbox is full.")
+                }
+                val total = root(env).listFiles()?.sumOf { File(it, "items.jsonl").length() } ?: 0L
+                if (total + adding > maxTotalBytes) throw Refused(507, "The group mailboxes on this Trackhop are full: its owner can delete some.")
+                val made = fresh.map { (k, t, h) -> Item(++b.seq, k, t, h) }
+                File(b.dir, "items.jsonl").appendText(made.joinToString("") { line(it) + "\n" })
+                made.forEach { b.add(it) }
+                b.lastWrite = System.currentTimeMillis()
+                saveMeta(b)
+                return made.size to b.seq
             }
-            val made = fresh.map { (k, t, h) -> Item(++b.seq, k, t, h) }
-            File(b.dir, "items.jsonl").appendText(made.joinToString("") { line(it) + "\n" })
-            made.forEach { b.add(it) }
-            b.lastWrite = System.currentTimeMillis()
-            saveMeta(b)
-            return made.size to b.seq
+        } finally {
+            trim()
         }
     }
 
@@ -372,6 +503,9 @@ internal object GroupMailboxes {
         b.items.clear(); b.hashes.clear(); b.bytes = 0
         left.forEach { b.add(it) }
         write(File(b.dir, "items.jsonl"), left.joinToString("") { line(it) + "\n" })
+        b.compactedAt = System.currentTimeMillis()
+        b.compactedTo = left.size
+        compactions++
         env.log("groups", "mailbox of ${b.name.ifEmpty { b.id }} compacted: ${before - left.size} items no member counts left out")
     }
 
@@ -404,8 +538,11 @@ internal fun Web.groupItems(ex: HttpExchange, method: String, id: String, query:
                 send(ex, 200, GroupMailboxes.read(env, id, since), "application/json")
             }
             "POST" -> {
+                // Counted before the body is read: a caller past the minute's writes costs no memory or parsing.
+                GroupMailboxes.admitWrite(env, id)
                 val bytes = ex.requestBody.readNBytes(GroupMailboxes.MAX_BODY + 1)
                 if (bytes.size > GroupMailboxes.MAX_BODY) return error(413, "At most ${GroupMailboxes.MAX_BODY / 1024 / 1024} MB in one call.")
+                if (!GroupMailboxes.plainEnough(bytes)) return error(400, "Too deep or too many values for the items one call may carry.")
                 val body = runCatching { Json.parseToJsonElement(String(bytes, Charsets.UTF_8)).jsonObject }.getOrNull()
                     ?: return error(400, "Send JSON: {\"cards\"?: […], \"rosters\"?: […], \"events\"?: […]}.")
                 val (added, cursor) = GroupMailboxes.append(env, id, body)

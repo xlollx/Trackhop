@@ -240,6 +240,25 @@ class ServerGroupTest {
         assertTrue(fake.boxes.isEmpty())
     }
 
+    @Test fun theApiTokenGoesOnlyToTheServerItIsFor() {
+        create("1")
+        // "Coordinate with my server" now points at another server, with that server's token.
+        val otherToken = "th_" + "c".repeat(32)
+        ServerLocks.save(ana.env, ServerLocks.Config("http://nas.invalid:8080", otherToken))
+        val calls = server.requestCount
+        try {
+            SharedGroups.newKey(ana.env, ana.group)
+            fail("the other server's token was sent to the group's server")
+        } catch (e: ProviderException) {
+            assertTrue(e.message, e.message!!.startsWith("server_err_off"))
+        }
+        assertEquals(calls, server.requestCount)
+        // The same server, written otherwise, is the same server.
+        ServerLocks.save(ana.env, ServerLocks.Config("$address/api/v1/", apiToken))
+        SharedGroups.newKey(ana.env, ana.group)
+        assertEquals(calls + 1, server.requestCount)
+    }
+
     @Test fun leavingForgetsTheMailboxState() {
         val invite = create("1")
         join(ben, invite)
