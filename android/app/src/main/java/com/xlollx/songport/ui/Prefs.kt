@@ -273,6 +273,10 @@ fun <T> ChoiceDialog(
     options: List<Pair<T, String>>,
     selected: T?,
     onDismiss: () -> Unit,
+    /** A line under the choices, to say more about them. */
+    note: String? = null,
+    /** Something small at the end of each choice's row (a preview of it). */
+    trailing: (@Composable (T) -> Unit)? = null,
     onSelect: (T) -> Unit,
 ) {
     AlertDialog(
@@ -289,9 +293,14 @@ fun <T> ChoiceDialog(
                     ) {
                         RadioButton(selected = value == selected, onClick = null)
                         Spacer(Modifier.width(12.dp))
-                        Text(label, style = MaterialTheme.typography.bodyLarge)
+                        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        if (trailing != null) trailing(value)
                     }
                 }
+                if (note != null) Text(
+                    note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp),
+                )
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },

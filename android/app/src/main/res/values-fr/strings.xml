@@ -1901,4 +1901,15 @@
     <string name="tools_wanted_no_album">Sans album</string>
     <string name="tools_wanted_export">Exporter la liste</string>
     <string name="tools_wanted_lidarr">Liste pour Lidarr</string>
+    <string name="settings_card_size">Taille des cartes</string>
+    <string name="card_size_large">Grande</string>
+    <string name="card_size_medium">Moyenne</string>
+    <string name="card_size_small">Petite</string>
+    <string name="card_size_landscape">Téléphone à l\'horizontale, les cartes sont petites pour en voir davantage.</string>
+    <string name="settings_minimal_view">Vue minimale</string>
+    <string name="settings_minimal_view_summary">Les sync en petites tuiles sur une grille : services, nom et état</string>
+    <string name="syncs_view_tiles">Afficher en tuiles</string>
+    <string name="syncs_view_cards">Afficher en cartes</string>
+    <string name="tile_next_run">Prochaine : %1$s</string>
+    <string name="tile_open">Voir la carte entière</string>
 </resources>

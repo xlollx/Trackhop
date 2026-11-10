@@ -52,14 +52,18 @@ class ReorderFlowTest : FlowTest() {
     }
 
     /**
-     * Holds card [i] near its left edge (clear of the Sync-all pill, which may cover the middle of it)
-     * and drags it by [dy] pixels as a finger does: a few pixels at a time, with frames drawn in
-     * between, then lets go.
+     * Holds card [i] near its left edge, where it shows: by its name, or just under the pinned
+     * Sync-all pill when its name has gone beneath it (the pill and its background take a touch
+     * there, as a finger finds). Then drags it by [dy] pixels as a finger does: a few pixels at a
+     * time, with frames drawn in between, and lets go.
      */
     private fun drag(i: Int, dy: Float) {
         android.util.Log.d("Reorder", "test: drag $i by $dy, order ${order()}")
-        compose.onAllNodes(hasText("Sync number $i")).onFirst().performTouchInput {
-            down(Offset(12f, height / 2f))
+        val name = compose.onAllNodes(hasText("Sync number $i")).onFirst()
+        val top = name.fetchSemanticsNode().positionInRoot.y
+        val clear = pinnedPillBottom()?.let { it + 4 * app.resources.displayMetrics.density }
+        name.performTouchInput {
+            down(Offset(12f, if (clear != null && top + height / 2f < clear) clear - top else height / 2f))
             advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
             moveBy(Offset(0f, 1f))
         }

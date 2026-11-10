@@ -45,6 +45,12 @@ data class WindowLayout(
     /** The sync cards side by side where there is room for two of a phone's width. */
     val syncColumns: Int get() = if (width == WidthClass.EXPANDED) 2 else 1
 
+    /**
+     * The largest sync card that leaves room for two in this window: a low window (a phone on its
+     * side, about 350 dp of list under the pinned pill) shows them [CardSize.SMALL].
+     */
+    val largestCard: CardSize get() = if (short) CardSize.SMALL else CardSize.LARGE
+
     /** The widest a page's content gets: a readable column, or room for the two columns of sync cards. */
     fun maxContentWidth(twoColumns: Boolean = false): Dp = if (twoColumns && syncColumns == 2) WIDE_CONTENT else READABLE_CONTENT
 
@@ -53,6 +59,11 @@ data class WindowLayout(
         val READABLE_CONTENT = 720.dp
         val WIDE_CONTENT = 1200.dp
         private const val SHORT_HEIGHT_DP = 480
+
+        /** The tiles view: as many columns of tiles at least [TILE_MIN_DP] wide as fit in [widthDp] of list, never fewer than two. */
+        const val TILE_MIN_DP = 160
+
+        fun tileColumns(widthDp: Int): Int = ((widthDp - 2 * 16 + 12) / (TILE_MIN_DP + 12)).coerceAtLeast(2)
 
         fun of(widthDp: Int, heightDp: Int): WindowLayout {
             val width = WidthClass.of(widthDp)

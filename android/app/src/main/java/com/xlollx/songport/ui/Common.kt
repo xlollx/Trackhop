@@ -307,8 +307,20 @@ fun OverflowMenu(
         IconButton(onClick = { open = true }, enabled = enabled) {
             Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions))
         }
+        OverflowDropdown(open, { open = false }, actions, container, iconTint, title)
+    }
+}
+
+/** [OverflowMenu]'s list of actions, opened by something else (a tile held down); anchored to the parent. */
+@Composable
+fun OverflowDropdown(
+    open: Boolean, onDismiss: () -> Unit, actions: List<MenuAction>,
+    container: Color = MaterialTheme.colorScheme.surfaceContainer,
+    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    title: String? = null,
+) {
         DropdownMenu(
-            expanded = open, onDismissRequest = { open = false },
+            expanded = open, onDismissRequest = onDismiss,
             shape = RoundedCornerShape(18.dp),
             containerColor = container,
             tonalElevation = 0.dp,
@@ -323,13 +335,12 @@ fun OverflowMenu(
                 )
             }
             val (plain, destructive) = actions.partition { !it.destructive }
-            plain.forEach { a -> OverflowItem(a, iconTint) { open = false; a.onClick() } }
+            plain.forEach { a -> OverflowItem(a, iconTint) { onDismiss(); a.onClick() } }
             if (destructive.isNotEmpty()) {
                 if (plain.isNotEmpty() || title != null) HorizontalDivider(Modifier.padding(horizontal = 12.dp, vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                destructive.forEach { a -> OverflowItem(a, iconTint) { open = false; a.onClick() } }
+                destructive.forEach { a -> OverflowItem(a, iconTint) { onDismiss(); a.onClick() } }
             }
         }
-    }
 }
 
 @Composable
@@ -370,7 +381,12 @@ fun BrandTile(size: Dp = 40.dp) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar(title: String, showBrand: Boolean = true, actions: @Composable RowScope.() -> Unit = {}) {
+fun AppTopBar(
+    title: String, showBrand: Boolean = true,
+    /** Set: the bar slides away as the page scrolls on and comes back as it scrolls back. */
+    scrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -382,7 +398,8 @@ fun AppTopBar(title: String, showBrand: Boolean = true, actions: @Composable Row
             }
         },
         actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface, scrolledContainerColor = MaterialTheme.colorScheme.surface),
+        scrollBehavior = scrollBehavior,
     )
 }
 
@@ -393,7 +410,12 @@ fun AppTopBar(title: String, showBrand: Boolean = true, actions: @Composable Row
  * on the dark side, where it reads above 7:1.
  */
 @Composable
-fun HeroHeader(title: String, subtitle: String, link: String? = null, onLink: (() -> Unit)? = null, content: (@Composable RowScope.() -> Unit)? = null) {
+fun HeroHeader(
+    title: String, subtitle: String, link: String? = null, onLink: (() -> Unit)? = null,
+    /** A small button at the end of the title's row (white on the beam). */
+    action: (@Composable () -> Unit)? = null,
+    content: (@Composable RowScope.() -> Unit)? = null,
+) {
     Box(
         Modifier.fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
@@ -404,7 +426,8 @@ fun HeroHeader(title: String, subtitle: String, link: String? = null, onLink: ((
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BrandTile(40.dp)
                 Spacer(Modifier.width(12.dp))
-                Text(title, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(title, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = if (action != null) Modifier.weight(1f) else Modifier)
+                action?.invoke()
             }
             Spacer(Modifier.height(4.dp))
             Text(subtitle, color = Color.White, style = MaterialTheme.typography.bodyMedium)

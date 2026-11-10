@@ -14,6 +14,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.layout.Arrangement
@@ -250,7 +260,13 @@ fun SyncsScreen(
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
     // One column on a phone, as ever; two side by side in a window wide enough for two phones' worth
     // of card. A grid either way, so the order, the dragging and the scrolling are the same code.
-    val columns = LocalWindowLayout.current.syncColumns
+    // The minimal view: tiles in as many columns as fit (two on a phone). The cards are as big as
+    // Settings says, but no bigger than the window allows (a phone on its side: two cards fit).
+    val window = LocalWindowLayout.current
+    val minimal = data.settings.minimalSyncs
+    val cardSize = CardSize.shown(data.settings.cardSize, window)
+    // How many columns the grid has now: set where its width is known, read by the drag below.
+    val gridColumns = remember { androidx.compose.runtime.mutableIntStateOf(window.syncColumns) }
     val wholeRow: androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
     val listState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
@@ -281,6 +297,13 @@ fun SyncsScreen(
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
+    // Whether the card held down has changed places yet: a tile let go without one opens its menu.
+    val swapped = remember { booleanArrayOf(false) }
+    // The tile held down in the gesture under way: its release is the end of a hold, not a tap.
+    val heldTile = remember { arrayOfNulls<String>(1) }
+    // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
+    var tileMenu by remember { mutableStateOf<String?>(null) }
+    var tileOpen by rememberSaveable { mutableStateOf<String?>(null) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
@@ -296,9 +319,10 @@ fun SyncsScreen(
             // the card under the finger would jump and the drop could land back where it started.
             // Held by position instead, the list stays still and only the cards change places.
             val first = listState.firstVisibleItemIndex
-            val firstRow = first until first + columns
+            val firstRow = first until first + gridColumns.intValue
             if (from.index in firstRow || to.index in firstRow) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
             o.add(b, o.removeAt(a)); dragOrder = o
+            swapped[0] = true
         }
         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
     }
@@ -370,6 +394,11 @@ fun SyncsScreen(
         val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
         var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
         spreading?.let { c -> SpreadDialog(data.jobs, c) { spreading = null } }
+        androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
+        val columns = if (minimal) WindowLayout.tileColumns(maxWidth.value.toInt()) else window.syncColumns
+        SideEffect { gridColumns.intValue = columns }
+        // A small card as wide as a phone on its side takes two lines: its figures go beside its name.
+        val wideCards = (maxWidth - 32.dp - 12.dp * (columns - 1)) / columns >= 560.dp
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             state = listState,
@@ -395,6 +424,15 @@ fun SyncsScreen(
                     HeroHeader(
                         stringResource(R.string.hero_title), ctx.resources.getQuantityString(R.plurals.hero_jobs, n, n) + last,
                         link = if (anyRun) stringResource(R.string.stats_hero_link) else null, onLink = onStats,
+                        // Cards or tiles, at a tap; remembered (also in Settings).
+                        action = if (n >= 2 || minimal) ({
+                            IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {
+                                Icon(
+                                    if (minimal) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
+                                    stringResource(if (minimal) R.string.syncs_view_cards else R.string.syncs_view_tiles), tint = Color.White,
+                                )
+                            }
+                        }) else null,
                     )
                     if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
                         ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
@@ -494,10 +532,16 @@ fun SyncsScreen(
                 }.longPressDraggableHandle(
                     enabled = canDrag,
                     onDragStarted = {
+                        swapped[0] = false
+                        heldTile[0] = job.id
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
+                        // A tile held and let go without moving it: its menu, as a long press elsewhere.
+                        if (minimal && !swapped[0]) tileMenu = job.id
+                        // Cleared once this release has been handled everywhere (the tile's own tap included).
+                        scope.launch { heldTile[0] = null }
                         val dropped = dragOrder
                         val to = dropped?.indexOf(job.id) ?: -1
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
@@ -509,9 +553,31 @@ fun SyncsScreen(
                     },
                 )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
-                    JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove)
+                    if (minimal) JobTile(
+                        job, data, running[job.id], run, menuOpen = tileMenu == job.id, onMenu = { tileMenu = if (it) job.id else null },
+                        canDrag = canDrag, onOpen = { if (heldTile[0] != job.id) tileOpen = job.id },
+                        onEdit, onPreview, onRun, onDelete, onReview, onOpenLog, onToggleEnabled, onMove,
+                    )
+                    else JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove, size = cardSize, wide = wideCards)
                 }
             } }
+        }
+        }
+    }
+    // A tile tapped: its whole card, as the list of cards shows it, in a sheet. Whatever leads to
+    // another page closes the sheet first; a run, a pause or a style change stay on it.
+    data.jobs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
+        val close = { tileOpen = null }
+        ModalBottomSheet(onDismissRequest = close, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
+                val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
+                JobCard(
+                    job, data, running[job.id], run,
+                    onEdit = { close(); onEdit(it) }, onPreview = { close(); onPreview(it) }, onRun = onRun,
+                    onDelete = { close(); onDelete(it) }, onReview = { close(); onReview(it) }, onOpenTarget = { close(); onOpenTarget(it) },
+                    onOpenLog = { close(); onOpenLog() }, onToggleEnabled = onToggleEnabled, onMove = onMove, size = cardSize,
+                )
+            }
         }
     }
 }
@@ -554,10 +620,12 @@ private class PullGuard : NestedScrollConnection {
 /**
  * The "sync all" pill: filled and inviting when idle, a quiet progress state while syncs run.
  *
- * It floats over the list: pinned, the cards scroll beneath it and show around it (an opaque band
- * edge to edge, from 1.3.2 to 1.4.0, looked like a bar across the screen and was dropped on the
- * owner's request). The pill keeps its shadow, and the "?" beside it sits on a small raised circle of
- * its own, so both read over any card.
+ * Pinned, it never covers a card (1.17 report: on a phone on its side it hid a card's name): the
+ * cards scroll away under the page's own background, which reaches from the top of the list to
+ * just under the pill and fades out over the next few dp (no more than a card's padding). No edge
+ * line and no tint, so it reads as where the list begins, not as a bar across the screen (the
+ * hard-edged band of 1.3.2–1.4.0, dropped on the owner's request). Touches there go to the pill and
+ * its "?", never to a card out of sight beneath.
  */
 @Composable
 private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -565,8 +633,26 @@ private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifi
     val runningCount = tally.total
     val busy = runningCount > 0
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
+    val bg = MaterialTheme.colorScheme.background
     Box(
-        modifier.fillMaxWidth().padding(top = 4.dp, bottom = 12.dp),
+        modifier.fillMaxWidth()
+            .then(
+                if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG)
+                    .drawBehind {
+                        // The list pads its items by 16dp on each side: the background covers that gutter as well.
+                        val gutter = 16.dp.toPx()
+                        val fade = PILL_FADE.toPx()
+                        drawRect(bg, topLeft = Offset(-gutter, 0f), size = Size(size.width + 2 * gutter, size.height))
+                        drawRect(
+                            Brush.verticalGradient(listOf(bg, bg.copy(alpha = 0f)), startY = size.height, endY = size.height + fade),
+                            topLeft = Offset(-gutter, size.height), size = Size(size.width + 2 * gutter, fade),
+                        )
+                    }
+                    // Taken here: a tap or a hold beside the pill must not reach a card hidden beneath.
+                    .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent(PointerEventPass.Final) } }
+                else Modifier,
+            )
+            .padding(top = 4.dp, bottom = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -608,16 +694,18 @@ private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifi
     }
 }
 
+/**
+ * A sync's menu, behind the card's "⋮" and a tile held down: [content] gets its actions, and the
+ * dialogs they open (Move to, Style, Delete, the AI's "add tracks") live here beside it.
+ */
 @Composable
-private fun JobCard(
-    job: SyncJob, data: StoreData, progress: Progress?, run: SyncState.Run?,
-    onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onRun: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
-    onReview: (String) -> Unit = {}, onOpenTarget: (SyncJob) -> Unit = {}, onOpenLog: () -> Unit = {},
-    onToggleEnabled: (SyncJob) -> Unit = {},
-    onMove: (SyncJob, Int, Boolean) -> Unit = { _, _, _ -> },
+private fun JobMenuHost(
+    job: SyncJob, data: StoreData,
+    onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
+    onToggleEnabled: (SyncJob) -> Unit, onMove: (SyncJob, Int, Boolean) -> Unit,
+    content: @Composable (List<MenuAction>) -> Unit,
 ) {
     val ctx = LocalContext.current
-    val isRunning = run != null
     var colorOpen by remember { mutableStateOf(false) }
     var moveToOpen by remember { mutableStateOf(false) }
     if (moveToOpen) {
@@ -661,22 +749,121 @@ private fun JobCard(
             com.xlollx.songport.sync.Labels.styled(d, ids, pick, labelName, recolor).let { n -> n.copy(jobs = n.jobs.map { if (it.id in ids) it.copy(accentStyle = st) else it }) }
         }
     }
-    var listOpen by remember { mutableStateOf<StatList?>(null) }
-    listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
     var confirmDelete by remember { mutableStateOf(false) }
-    var liveOpen by remember { mutableStateOf(false) }
-    if (liveOpen && isRunning) LiveSheet(job) { liveOpen = false }
     var extendOpen by remember { mutableStateOf(false) }
     if (extendOpen) AiExtendDialog(job) { extendOpen = false }
+    content(
+        listOfNotNull(
+            if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
+            MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
+            MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+            if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
+            else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
+            MenuAction(
+                stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
+                { Store.get(ctx).update { d -> halves(d).let { ids -> d.copy(jobs = d.jobs.map { if (it.id in ids) it.copy(favorite = !job.favorite) else it }) } } },
+                icon = if (job.favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+            ),
+            MenuAction(stringResource(R.string.job_style), { colorOpen = true }, icon = Icons.Outlined.Palette),
+            // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
+            // at a position typed as a number.
+            // Many syncs: a position typed as a number, quicker than many taps on the arrows.
+            if (data.jobs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
+            MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
+        ),
+    )
+    if (confirmDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text(stringResource(R.string.delete_confirm_title)) },
+            text = { Text(stringResource(R.string.delete_confirm_text)) },
+            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete(job) }) { Text(stringResource(R.string.yes)) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.no)) } },
+        )
+    }
+}
+
+/**
+ * What a sync's card (and its tile) says about it: [cardStatus] in a few words, with its tone and
+ * icon. A run without errors can still leave something for the user: the status says what, and a
+ * tap leads where it is handled.
+ */
+@Composable
+private fun statusInfo(
+    job: SyncJob, report: SyncReport?, run: SyncState.Run?,
+    onPreview: (SyncJob) -> Unit, onReview: (String) -> Unit, onOpenLog: () -> Unit, onRun: (SyncJob) -> Unit,
+): CardStatusInfo {
+    val haptic = rememberConfirmHaptic()
+    return when (cardStatus(run != null, job.enabled, report, run, radio = job.radio != null)) {
+        CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
+        CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
+        CardStatus.PAUSED -> CardStatusInfo(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
+        CardStatus.DISABLED -> CardStatusInfo(stringResource(R.string.disabled), Tone.Neutral, null)
+        CardStatus.NEVER -> CardStatusInfo(stringResource(R.string.pill_never), Tone.Neutral, null)
+        CardStatus.ERROR -> CardStatusInfo(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+        CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
+        CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onOpenLog)
+        CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
+        CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
+        // Up to date only once checked: the source seen unchanged since the last run. Changed:
+        // a tap runs it. Not checkable (no version from the service, offline) or not checked
+        // yet: when it last ran, without the tick.
+        CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
+            Freshness.State.CURRENT -> CardStatusInfo(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
+            Freshness.State.CHANGED -> CardStatusInfo(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
+            else -> CardStatusInfo(
+                // Under a minute "0 min. ago" reads oddly: "Just ran" instead.
+                if (System.currentTimeMillis() - job.lastRunEpoch < DateUtils.MINUTE_IN_MILLIS) stringResource(R.string.pill_just_ran)
+                else stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)),
+                Tone.Neutral, Icons.Filled.Schedule,
+            )
+        }
+    }
+}
+
+/**
+ * A sync's card, in the [size] the list shows (Settings › Card size, capped on a phone on its side):
+ * LARGE as it always was; MEDIUM tighter, with shorter figures; SMALL with its figures in one row
+ * of small marks and its status, schedule and buttons on one line.
+ */
+@Composable
+private fun JobCard(
+    job: SyncJob, data: StoreData, progress: Progress?, run: SyncState.Run?,
+    onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onRun: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
+    onReview: (String) -> Unit = {}, onOpenTarget: (SyncJob) -> Unit = {}, onOpenLog: () -> Unit = {},
+    onToggleEnabled: (SyncJob) -> Unit = {},
+    onMove: (SyncJob, Int, Boolean) -> Unit = { _, _, _ -> },
+    size: CardSize = CardSize.LARGE,
+    /** A small card with room to spare (a phone on its side, one column): its figures beside its name, two lines in all. */
+    wide: Boolean = false,
+) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove) { menu ->
+    val ctx = LocalContext.current
+    val isRunning = run != null
+    val large = size == CardSize.LARGE
+    val small = size == CardSize.SMALL
+    var listOpen by remember { mutableStateOf<StatList?>(null) }
+    listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
+    var liveOpen by remember { mutableStateOf(false) }
+    if (liveOpen && isRunning) LiveSheet(job) { liveOpen = false }
     val report = data.reports.firstOrNull { it.id == job.lastReportId }
     val src = Providers.byId(job.source.provider)
     val dst = Providers.byId(job.target.provider)
     val srcName = playlistDisplayName(job.source.playlistId, job.source.playlistName, job.source.provider)
     val dstName = job.target.playlistName.ifBlank { stringResource(R.string.editor_new_playlist) }
     val haptic = rememberConfirmHaptic()
+    // The last run's figures: each opens what it counts (the tracks added, removed, not found, the playlist).
+    val statsShown = run == null && report != null && data.settings.newLook && report.ok
+    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, report!!) }
+    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, report!!) }
+    val onNotFound = {
+        if (report!!.unmatchedTracks.isNotEmpty() || report.reviewTracks.isNotEmpty()) onReview(report.id)
+        else listOpen = StatList(StatList.Kind.NOT_FOUND, report)
+    }
+    val onTracks = if (job.target.playlistId != null) ({ onOpenTarget(job) }) else null
+    val marksBeside = small && wide && statsShown
     Card(
         // While running, a tap opens the live list of tracks processed so far.
-        Modifier.fillMaxWidth().animateContentSize().clickable(enabled = isRunning) { liveOpen = true },
+        Modifier.fillMaxWidth().testTag(JOB_CARD_TAG).animateContentSize().clickable(enabled = isRunning) { liveOpen = true },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
     ) {
@@ -685,66 +872,24 @@ private fun JobCard(
         val controls = jobControlBrush(job.color)
         val ink = jobInk(job.color)
         Column(
-            Modifier.cardAccent(CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent), accent).padding(20.dp),
+            Modifier.cardAccent(CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent), accent)
+                .padding(horizontal = if (large) 20.dp else 16.dp, vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> 12.dp }),
         ) {
-            // A run without errors can still leave something for the user: the status says what, and a
-            // tap leads where it is handled. Shown as a pill by the schedule, or as a badge on the logos.
+            // Shown as a pill by the schedule, or as a badge on the logos.
             val statusOnLogos = Store.get(ctx).state.collectAsState().value.settings.cardStatusPlace == "badge"
-            val status: CardStatusInfo = when (cardStatus(isRunning, job.enabled, report, run, radio = job.radio != null)) {
-                CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
-                CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
-                CardStatus.PAUSED -> CardStatusInfo(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
-                CardStatus.DISABLED -> CardStatusInfo(stringResource(R.string.disabled), Tone.Neutral, null)
-                CardStatus.NEVER -> CardStatusInfo(stringResource(R.string.pill_never), Tone.Neutral, null)
-                CardStatus.ERROR -> CardStatusInfo(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
-                CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
-                CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onOpenLog)
-                CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report!!.id) }
-                CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
-                // Up to date only once checked: the source seen unchanged since the last run. Changed:
-                // a tap runs it. Not checkable (no version from the service, offline) or not checked
-                // yet: when it last ran, without the tick.
-                CardStatus.OK -> when (FreshnessChecks.stateOf(job)) {
-                    Freshness.State.CURRENT -> CardStatusInfo(stringResource(R.string.pill_ok), Tone.Ok, Icons.Filled.CheckCircle)
-                    Freshness.State.CHANGED -> CardStatusInfo(stringResource(R.string.pill_changed), Tone.Accent, Icons.Filled.Sync) { haptic(); onRun(job) }
-                    else -> CardStatusInfo(
-                        // Under a minute "0 min. ago" reads oddly: "Just ran" instead.
-                        if (System.currentTimeMillis() - job.lastRunEpoch < DateUtils.MINUTE_IN_MILLIS) stringResource(R.string.pill_just_ran)
-                        else stringResource(R.string.pill_last_run, relativeTime(job.lastRunEpoch)),
-                        Tone.Neutral, Icons.Filled.Schedule,
-                    )
-                }
-            }
+            val status = statusInfo(job, report, run, onPreview, onReview, onOpenLog, onRun)
+            val logo = when (size) { CardSize.LARGE -> 34.dp; CardSize.MEDIUM -> 30.dp; CardSize.SMALL -> 28.dp }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(56.dp).height(36.dp)) {
-                    ProviderBadge(src, 34.dp)
-                    Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 34.dp) }
+                Box(Modifier.width(logo + 22.dp).height(logo + 2.dp)) {
+                    ProviderBadge(src, logo)
+                    Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo) }
                     if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 6.dp))
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(if (small) 10.dp else 12.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Written by the user's AI: a small spark before the name, and "add tracks" in the menu.
-                        if (job.aiPrompt != null) {
-                            Icon(Icons.Filled.AutoAwesome, stringResource(R.string.ai_badge_desc), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.tertiary)
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        // Every song the user Shazams: Shazam's mark, in the same place.
-                        if (job.shazam) {
-                            Icon(ShazamGlyph, stringResource(R.string.shazam_badge_desc), Modifier.size(16.dp), tint = shazamTint())
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        // The songs a radio plays: a radio, tinted like the AI's spark.
-                        if (job.radio != null) {
-                            Icon(Icons.Filled.Radio, stringResource(R.string.radio_badge_desc), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.tertiary)
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        // Starred: first in the list, and under "Favourites" in the filters.
-                        if (job.favorite) {
-                            Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(16.dp), tint = ink ?: MaterialTheme.colorScheme.tertiary)
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Text(job.name.ifBlank { job.source.playlistName }, style = MaterialTheme.typography.titleLarge, maxLines = 1, modifier = Modifier.cardMarquee())
+                        JobMarks(job, ink)
+                        Text(job.name.ifBlank { job.source.playlistName }, style = if (large) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium, maxLines = 1, modifier = Modifier.cardMarquee())
                     }
                     Text(
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
@@ -752,18 +897,23 @@ private fun JobCard(
                             ?: ((src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +
                             (if (job.linkedJobId != null) "  ↔  " else "  →  ") +
                             (dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = if (large) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.cardMarquee(),
                     )
                     // Its label's name and its tags, on one line: what the search and the filters go by.
+                    // A small card leaves them out: its colour still shows, and the search still finds them.
                     val groups = remember(job.label, job.tags, data.settings.labels) {
                         (listOf(com.xlollx.songport.sync.Labels.name(job, data.settings.labels)) + job.tags.map { tagText(it.key, it.value) }).filter { it.isNotEmpty() }.joinToString(" · ")
                     }
-                    if (groups.isNotEmpty()) Text(
+                    if (groups.isNotEmpty() && !small) Text(
                         groups, style = MaterialTheme.typography.bodySmall, color = ink ?: MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
+                }
+                if (marksBeside) {
+                    Spacer(Modifier.width(12.dp))
+                    SmallStats(job.color, report!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp))
                 }
             }
             if (run != null) {
@@ -772,7 +922,7 @@ private fun JobCard(
                 // engine waits does it read "Paused", with a bar that stands still.
                 val paused = run == SyncState.Run.PAUSED || run == SyncState.Run.PAUSING
                 val stopping = run == SyncState.Run.STOPPING
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(if (large) 12.dp else 8.dp))
                 val pct = progress?.percent
                 if (run == SyncState.Run.PAUSED) LinearProgressIndicator(
                     // Frozen where the sync stopped, greyed: determinate, never the moving bar.
@@ -798,29 +948,28 @@ private fun JobCard(
                     }
                     IconButton(enabled = !stopping, modifier = Modifier.size(48.dp), onClick = { SyncState.stop(job.id) }) { Icon(Icons.Filled.Stop, stringResource(R.string.sync_stop)) }
                 }
-            } else if (report != null && data.settings.newLook && report.ok) {
-                Spacer(Modifier.height(14.dp))
-                RunStats(
+            } else if (marksBeside) {
+                // Beside the name already.
+            } else if (statsShown) {
+                Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 10.dp; CardSize.SMALL -> 8.dp }))
+                if (small) SmallStats(job.color, report, onAdded, onRemoved, onNotFound, onTracks)
+                else RunStats(
                     job.color, report, data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
-                    onAdded = { listOpen = StatList(StatList.Kind.ADDED, report) },
-                    onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, report) },
-                    onNotFound = {
-                        if (report.unmatchedTracks.isNotEmpty() || report.reviewTracks.isNotEmpty()) onReview(report.id)
-                        else listOpen = StatList(StatList.Kind.NOT_FOUND, report)
-                    },
-                    onTracks = if (job.target.playlistId != null) ({ onOpenTarget(job) }) else null,
+                    onAdded = onAdded, onRemoved = onRemoved, onNotFound = onNotFound, onTracks = onTracks, compact = !large,
                 )
             } else if (report != null) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(if (small) 6.dp else 8.dp))
                 Text(
-                    Notifications.summary(ctx, report), style = MaterialTheme.typography.bodyMedium,
+                    Notifications.summary(ctx, report), style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
                     color = if (report.ok) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                    maxLines = if (small) 2 else Int.MAX_VALUE, overflow = TextOverflow.Ellipsis,
                 )
             }
             // Brani da sistemare a mano: raggiungibili appena la ricerca e' finita, anche mentre la
-            // sync sta ancora aggiungendo, e dopo, finche' ne restano.
+            // sync sta ancora aggiungendo, e dopo, finche' ne restano. A small card leads there from
+            // its "not found" mark and its status instead.
             val toFix = report?.takeIf { it.jobId == job.id }?.let { it.unmatchedTracks.size + it.reviewTracks.size } ?: 0
-            if (toFix > 0 && report != null) {
+            if (toFix > 0 && report != null && !small) {
                 Spacer(Modifier.height(6.dp))
                 FilledTonalButton(
                     onClick = { onReview(report.id) },
@@ -835,7 +984,7 @@ private fun JobCard(
             }
             // A radio sync while it listens: what is on air (or that it waits for Wi-Fi, or what went wrong).
             if (job.radio != null) RadioCardStatus(job)
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(if (small) 4.dp else 6.dp))
             val schedule: @Composable (Modifier) -> Unit = { m ->
                 Row(m, verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -854,11 +1003,15 @@ private fun JobCard(
                 }
             }
             // Status in the footer: the schedule gets its own line, beside the chip it was cut short.
-            if (!statusOnLogos) schedule(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp))
+            // A small card keeps them on one line with the buttons, the schedule gliding if long.
+            if (!statusOnLogos && !small) schedule(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 if (!statusOnLogos) {
                     StatusChip(status)
-                    Spacer(Modifier.weight(1f))
+                    if (small) {
+                        Spacer(Modifier.width(8.dp))
+                        schedule(Modifier.weight(1f))
+                    } else Spacer(Modifier.weight(1f))
                 } else schedule(Modifier.weight(1f))
                 FilledTonalIconButton(
                     onClick = { haptic(); onRun(job) }, enabled = !isRunning,
@@ -872,24 +1025,7 @@ private fun JobCard(
                 }
                 // The menu wears the card's colour: a teal card opens a teal-tinted menu.
                 OverflowMenu(
-                    listOfNotNull(
-                        if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
-                        MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
-                        MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
-                        if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
-                        else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
-                        MenuAction(
-                            stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
-                            { Store.get(ctx).update { d -> halves(d).let { ids -> d.copy(jobs = d.jobs.map { if (it.id in ids) it.copy(favorite = !job.favorite) else it }) } } },
-                            icon = if (job.favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        ),
-                        MenuAction(stringResource(R.string.job_style), { colorOpen = true }, icon = Icons.Outlined.Palette),
-                        // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
-                        // at a position typed as a number.
-                        // Many syncs: a position typed as a number, quicker than many taps on the arrows.
-                        if (data.jobs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
-                        MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
-                    ),
+                    menu,
                     enabled = !isRunning,
                     container = jobMenuContainer(job.color),
                     iconTint = ink ?: MaterialTheme.colorScheme.onSurfaceVariant,
@@ -898,16 +1034,145 @@ private fun JobCard(
             }
         }
     }
-    if (confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text(stringResource(R.string.delete_confirm_title)) },
-            text = { Text(stringResource(R.string.delete_confirm_text)) },
-            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete(job) }) { Text(stringResource(R.string.yes)) } },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.no)) } },
-        )
+}
+
+/** The small marks before a sync's name: written by an AI, every Shazam, a radio, starred. */
+@Composable
+private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.Dp = 16.dp) {
+    // Written by the user's AI: a small spark before the name, and "add tracks" in the menu.
+    if (job.aiPrompt != null) {
+        Icon(Icons.Filled.AutoAwesome, stringResource(R.string.ai_badge_desc), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
+        Spacer(Modifier.width(4.dp))
+    }
+    // Every song the user Shazams: Shazam's mark, in the same place.
+    if (job.shazam) {
+        Icon(ShazamGlyph, stringResource(R.string.shazam_badge_desc), Modifier.size(size), tint = shazamTint())
+        Spacer(Modifier.width(4.dp))
+    }
+    // The songs a radio plays: a radio, tinted like the AI's spark.
+    if (job.radio != null) {
+        Icon(Icons.Filled.Radio, stringResource(R.string.radio_badge_desc), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
+        Spacer(Modifier.width(4.dp))
+    }
+    // Starred: first in the list, and under "Favourites" in the filters.
+    if (job.favorite) {
+        Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(size), tint = ink ?: MaterialTheme.colorScheme.tertiary)
+        Spacer(Modifier.width(4.dp))
     }
 }
+
+/**
+ * A sync in the minimal view: a small tile in a grid with its services, its name and its status,
+ * wearing its colour as its card does, and a button to run it. A tap opens its whole card; held
+ * down (and let go without moving) it opens the card's menu, as the "⋮" does.
+ */
+@Composable
+private fun JobTile(
+    job: SyncJob, data: StoreData, progress: Progress?, run: SyncState.Run?,
+    menuOpen: Boolean, onMenu: (Boolean) -> Unit, canDrag: Boolean, onOpen: () -> Unit,
+    onEdit: (SyncJob) -> Unit, onPreview: (SyncJob) -> Unit, onRun: (SyncJob) -> Unit, onDelete: (SyncJob) -> Unit,
+    onReview: (String) -> Unit, onOpenLog: () -> Unit, onToggleEnabled: (SyncJob) -> Unit, onMove: (SyncJob, Int, Boolean) -> Unit,
+) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove) { menu ->
+    val ctx = LocalContext.current
+    val isRunning = run != null
+    val report = data.reports.firstOrNull { it.id == job.lastReportId }
+    val status = statusInfo(job, report, run, onPreview, onReview, onOpenLog, onRun)
+    val ink = jobInk(job.color)
+    val controls = jobControlBrush(job.color)
+    val haptic = rememberConfirmHaptic()
+    val name = job.name.ifBlank { job.source.playlistName }
+    val openLabel = stringResource(R.string.tile_open)
+    val moreLabel = stringResource(R.string.more_actions)
+    Box {
+        Card(
+            Modifier.fillMaxWidth().testTag(JOB_TILE_TAG)
+                // Held down: with a whole list a hold is the start of a drag (the menu opens if the tile is let go
+                // where it was); with a filter on nothing is dragged, and the hold opens the menu at once.
+                .then(
+                    if (canDrag) Modifier.clickable(onClickLabel = openLabel, onClick = onOpen)
+                    else Modifier.combinedClickable(onClickLabel = openLabel, onClick = onOpen, onLongClickLabel = moreLabel, onLongClick = { haptic(); onMenu(true) }),
+                )
+                .semantics { customActions = listOf(CustomAccessibilityAction(moreLabel) { onMenu(true); true }) },
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
+        ) {
+            Column(
+                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color))
+                    .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.width(46.dp).height(30.dp)) {
+                        ProviderBadge(Providers.byId(job.source.provider), 28.dp)
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(Providers.byId(job.target.provider), 28.dp) }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    // Running: the tile says how far it is; the button would only be greyed.
+                    FilledTonalIconButton(
+                        onClick = { haptic(); onRun(job) }, enabled = !isRunning,
+                        modifier = Modifier.size(48.dp).padding(4.dp).let { m -> controls?.let { m.clip(CircleShape).background(it, alpha = if (isRunning) 0.4f else 1f) } ?: m },
+                        colors = if (controls != null) IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = Color.Transparent, contentColor = ink ?: Color.Unspecified, disabledContainerColor = Color.Transparent,
+                        ) else IconButtonDefaults.filledTonalIconButtonColors(),
+                    ) { Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now), Modifier.size(20.dp)) }
+                }
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp) }
+                    // Two lines kept for every name, so the tiles of a row line up.
+                    Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(18.dp).clip(CircleShape).background(toneBackground(status.tone)), contentAlignment = Alignment.Center) {
+                        Icon(status.icon ?: Icons.Filled.Info, null, tint = toneContent(status.tone), modifier = Modifier.size(11.dp))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    val pct = progress?.percent
+                    Text(
+                        status.text + (if (isRunning && pct != null) " · $pct%" else ""),
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                // When it runs next, in short: only for a sync that runs by itself.
+                val next = remember(job, data.settings) { if (isRunning) null else com.xlollx.songport.sync.Timing.nextRun(job, System.currentTimeMillis()) }
+                if (isRunning) {
+                    Spacer(Modifier.height(8.dp))
+                    val pct = progress?.percent
+                    if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
+                    else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
+                } else if (next != null && job.radio == null) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        stringResource(R.string.tile_next_run, nextRunShort(ctx, next)),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+        OverflowDropdown(menuOpen && !isRunning, { onMenu(false) }, menu, jobMenuContainer(job.color), ink ?: MaterialTheme.colorScheme.onSurfaceVariant, name)
+    }
+}
+
+/** When a sync runs next, short: the time today, else the day and the time ("Sat 09:00"). */
+private fun nextRunShort(ctx: android.content.Context, at: Long): String {
+    val today = DateUtils.isToday(at)
+    return DateUtils.formatDateTime(
+        ctx, at,
+        DateUtils.FORMAT_SHOW_TIME or (if (today) 0 else DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_ABBREV_WEEKDAY),
+    )
+}
+
+/** The tiles of the minimal view (for the UI tests). */
+const val JOB_TILE_TAG = "job-tile"
+
+/** A sync's card (for the UI tests). */
+const val JOB_CARD_TAG = "job-card"
+
+/** The pinned Sync-all pill's background and where it ends (for the UI tests); the fade under it, inside a card's padding. */
+const val RUN_ALL_BAND_TAG = "run-all-band"
+val PILL_FADE = 10.dp
 
 /** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
 internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =
@@ -2010,25 +2275,27 @@ private fun SupportCard(report: com.xlollx.songport.model.SyncReport) {
 private fun RunStats(
     color: String?, r: SyncReport, history: List<SyncReport>,
     onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
+    /** A medium card: shorter tiles, closer to the run history. */
+    compact: Boolean = false,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
     // Each figure opens what it counts: the tracks added, removed or not found, or the playlist itself.
     // Equal heights: a label that needs two lines (German, large fonts) doesn't make its tile taller than the rest.
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Stat(if (r.added > 0) "+${r.added}" else "0", stringResource(R.string.stat_added), Modifier.weight(1f), brush, ink ?: MaterialTheme.colorScheme.primary, onAdded.takeIf { r.added > 0 })
-        Stat(if (r.removed > 0) "−${r.removed}" else "0", stringResource(R.string.stat_removed), Modifier.weight(1f), brush, onClick = onRemoved.takeIf { r.removed > 0 })
-        Stat("${r.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), brush, if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
+        Stat(if (r.added > 0) "+${r.added}" else "0", stringResource(R.string.stat_added), Modifier.weight(1f), brush, ink ?: MaterialTheme.colorScheme.primary, onAdded.takeIf { r.added > 0 }, compact = compact)
+        Stat(if (r.removed > 0) "−${r.removed}" else "0", stringResource(R.string.stat_removed), Modifier.weight(1f), brush, onClick = onRemoved.takeIf { r.removed > 0 }, compact = compact)
+        Stat("${r.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), brush, if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() }, compact = compact)
         // The tile opens the synced playlist, so it counts that one: what it held before the run, plus
         // and minus this run's changes. A source that replaces its songs (a daylist) without Mirror
         // removals leaves the target larger than the source: +43 on 50 reads 93, not 50.
         val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
         // Apart from this run's figures: a thin rule, then the playlist's size in an outlined tile.
         androidx.compose.material3.VerticalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-        Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true)
+        Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
     }
     if (history.size >= 2) {
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(if (compact) 8.dp else 10.dp))
         val style = RunHistoryStyle.of(Store.get(LocalContext.current).state.collectAsState().value.settings.runHistoryStyle)
         RunHistory(history, style, ink ?: MaterialTheme.colorScheme.primary,
             pluralStringResource(R.plurals.stat_history, history.size, history.size, history.count { !it.ok }))
@@ -2036,7 +2303,7 @@ private fun RunStats(
 }
 
 @Composable
-internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null, outlined: Boolean = false) {
+internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush? = null, tint: Color? = null, onClick: (() -> Unit)? = null, outlined: Boolean = false, compact: Boolean = false) {
     val line = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     Column(
         modifier.fillMaxHeight().clip(RoundedCornerShape(16.dp))
@@ -2056,20 +2323,59 @@ internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush
                 }
             }
             .let { if (onClick != null) it.clickable(onClickLabel = label, onClick = onClick) else it }
-            .padding(vertical = 10.dp, horizontal = 6.dp),
+            .padding(vertical = if (compact) 6.dp else 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         // A long figure ("+1150", "12345") shrinks to fit its tile instead of losing its last digits.
         val ink = tint ?: MaterialTheme.colorScheme.onSurface
-        val big = MaterialTheme.typography.headlineSmall
+        val big = if (compact) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall
         androidx.compose.foundation.text.BasicText(
             value,
             style = big.copy(fontWeight = FontWeight.Bold, color = ink, textAlign = TextAlign.Center),
             maxLines = 1,
             autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = 11.sp, maxFontSize = big.fontSize, stepSize = 1.sp),
         )
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+    }
+}
+
+/**
+ * A small card's figures: one row of small marks, each an icon and a number (added, removed, not
+ * found, then the playlist's size apart, outlined), read out with its words. Each opens what it
+ * counts, as the large card's tiles do.
+ */
+@Composable
+private fun SmallStats(
+    color: String?, r: SyncReport, onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+) {
+    val brush = jobControlBrush(color)
+    val ink = jobInk(color)
+    val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
+    val line = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+    @Composable
+    fun Mark(icon: ImageVector, value: Int, label: String, modifier: Modifier, tint: Color? = null, onClick: (() -> Unit)?, outlined: Boolean = false) {
+        val shape = RoundedCornerShape(10.dp)
+        Row(
+            modifier.height(28.dp).clip(shape)
+                .let { if (outlined) it.border(1.dp, line, shape) else if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) }
+                .let { if (onClick != null) it.clickable(onClickLabel = label, onClick = onClick) else it }
+                .semantics(mergeDescendants = true) { contentDescription = "$value $label" }
+                .padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(icon, null, Modifier.size(14.dp), tint = tint ?: MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.width(4.dp))
+            Text("$value", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = tint ?: MaterialTheme.colorScheme.onSurface, maxLines = 1)
+        }
+    }
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Mark(Icons.Filled.Add, r.added, stringResource(R.string.stat_added), Modifier.weight(1f), if (r.added > 0) ink ?: MaterialTheme.colorScheme.primary else null, onAdded.takeIf { r.added > 0 })
+        Mark(Icons.Filled.Remove, r.removed, stringResource(R.string.stat_removed), Modifier.weight(1f), onClick = onRemoved.takeIf { r.removed > 0 })
+        Mark(Icons.Filled.SearchOff, r.unmatched.size, stringResource(R.string.stat_not_found), Modifier.weight(1f), if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
+        Mark(Icons.AutoMirrored.Filled.QueueMusic, size, stringResource(R.string.stat_in_playlist), Modifier.weight(1.3f), onClick = onTracks, outlined = true)
     }
 }
 

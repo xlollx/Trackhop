@@ -66,6 +66,28 @@ enum class RunHistoryStyle(val key: String, val label: Int) {
     companion object { fun of(key: String?) = entries.firstOrNull { it.key == key } ?: BARS }
 }
 
+/**
+ * How big the sync cards are (Settings): [LARGE] is the card as it always was; [MEDIUM] the same
+ * card with tighter spacing and shorter figures; [SMALL] its figures in one row of small marks and
+ * its status, schedule and buttons on one line. Declared largest first: a later entry is smaller.
+ */
+enum class CardSize(val key: String, val label: Int) {
+    LARGE("large", R.string.card_size_large),
+    MEDIUM("medium", R.string.card_size_medium),
+    SMALL("small", R.string.card_size_small);
+
+    companion object {
+        fun of(key: String?) = entries.firstOrNull { it.key == key } ?: LARGE
+
+        /**
+         * The size the list shows: the one chosen, but no larger than the window allows
+         * ([WindowLayout.largestCard]: a phone on its side), so that two cards fit one above the other.
+         * A smaller choice is always kept.
+         */
+        fun shown(chosen: String?, layout: WindowLayout): CardSize = maxOf(of(chosen), layout.largestCard)
+    }
+}
+
 /** The card's colour drawn behind its content in the chosen [style]; the card clips it to its shape. */
 fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accent == null) this else drawBehind {
     val r = 28.dp.toPx() // MaterialTheme.shapes.large, the card's corners
@@ -257,3 +279,40 @@ fun JobStyleDialog(
 
 const val LABEL_NAME_TAG = "label-name"
 const val STYLE_CHOICES_TAG = "style-choices"
+
+/**
+ * A sync list in miniature for Settings › Card size: a phone's screen with as many cards of [cardSize]
+ * as fit on it, each with its logo, its name and its figures (boxes, or one line when Small). Decorative.
+ */
+@Composable
+fun CardSizePreview(cardSize: CardSize) {
+    val card = MaterialTheme.colorScheme.surfaceContainerHighest
+    val ink = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+    val accent = MaterialTheme.colorScheme.primary
+    val frame = MaterialTheme.colorScheme.outline
+    androidx.compose.foundation.Canvas(Modifier.size(width = 34.dp, height = 50.dp)) {
+        val px = 1.dp.toPx()
+        drawRoundRect(frame, cornerRadius = CornerRadius(5 * px), style = Stroke(1.5f * px))
+        val pad = 3.5f * px
+        val w = size.width - 2 * pad
+        val h = when (cardSize) { CardSize.LARGE -> 27; CardSize.MEDIUM -> 19; CardSize.SMALL -> 13 } * px
+        clipRect(pad, pad, size.width - pad, size.height - pad) {
+            var y = pad
+            while (y < size.height - pad) {
+                drawRoundRect(card, Offset(pad, y), Size(w, h), CornerRadius(3 * px))
+                drawCircle(accent, radius = 2 * px, center = Offset(pad + 4 * px, y + 4 * px))
+                drawRoundRect(ink, Offset(pad + 8 * px, y + 3 * px), Size(w * 0.55f, 2 * px), CornerRadius(px))
+                if (cardSize == CardSize.SMALL) {
+                    drawRoundRect(ink, Offset(pad + 3 * px, y + 8 * px), Size(w * 0.7f, 2 * px), CornerRadius(px))
+                } else {
+                    val top = y + 9 * px
+                    val bh = if (cardSize == CardSize.LARGE) 8 * px else 5 * px
+                    val bw = (w - 6 * px - 4 * px) / 3
+                    repeat(3) { i -> drawRoundRect(ink, Offset(pad + 3 * px + i * (bw + 2 * px), top), Size(bw, bh), CornerRadius(1.5f * px)) }
+                    if (cardSize == CardSize.LARGE) drawRoundRect(ink, Offset(pad + 3 * px, top + bh + 3 * px), Size(w * 0.4f, 2 * px), CornerRadius(px))
+                }
+                y += h + 2.5f * px
+            }
+        }
+    }
+}

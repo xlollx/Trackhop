@@ -1957,4 +1957,15 @@
     <string name="tools_wanted_no_album">Bez albumu</string>
     <string name="tools_wanted_export">Eksportuj listę</string>
     <string name="tools_wanted_lidarr">Lista dla Lidarra</string>
+    <string name="settings_card_size">Rozmiar kart</string>
+    <string name="card_size_large">Duże</string>
+    <string name="card_size_medium">Średnie</string>
+    <string name="card_size_small">Małe</string>
+    <string name="card_size_landscape">Gdy telefon leży poziomo, karty są małe, żeby zmieściło się ich więcej.</string>
+    <string name="settings_minimal_view">Widok minimalny</string>
+    <string name="settings_minimal_view_summary">Synchronizacje jako małe kafelki w siatce: serwisy, nazwa i stan</string>
+    <string name="syncs_view_tiles">Pokaż jako kafelki</string>
+    <string name="syncs_view_cards">Pokaż jako karty</string>
+    <string name="tile_next_run">Następna: %1$s</string>
+    <string name="tile_open">Pokaż całą kartę</string>
 </resources>

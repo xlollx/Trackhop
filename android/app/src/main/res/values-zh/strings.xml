@@ -1862,4 +1862,15 @@
     <string name="tools_wanted_no_album">无专辑</string>
     <string name="tools_wanted_export">导出列表</string>
     <string name="tools_wanted_lidarr">Lidarr 列表</string>
+    <string name="settings_card_size">卡片大小</string>
+    <string name="card_size_large">大</string>
+    <string name="card_size_medium">中</string>
+    <string name="card_size_small">小</string>
+    <string name="card_size_landscape">手机横放时卡片变小，可以显示更多。</string>
+    <string name="settings_minimal_view">简洁视图</string>
+    <string name="settings_minimal_view_summary">以网格小方块显示同步：服务、名称和状态</string>
+    <string name="syncs_view_tiles">以方块显示</string>
+    <string name="syncs_view_cards">以卡片显示</string>
+    <string name="tile_next_run">下次：%1$s</string>
+    <string name="tile_open">显示完整卡片</string>
 </resources>

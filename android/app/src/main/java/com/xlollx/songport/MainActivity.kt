@@ -1,5 +1,6 @@
 package com.xlollx.songport
 
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.xlollx.songport.providers.*
 import android.Manifest
 import android.content.Intent
@@ -294,7 +295,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
     messages: MutableStateFlow<String?>,
@@ -731,13 +732,17 @@ private fun MainScreen(
         }
         VerticalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
     }
+    // A phone on its side: on Syncs the bar slides away as the cards scroll, so two of them fit one above the other.
+    val barScroll = androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val barSlides = layout.short && tab == MainActivity.TAB_SYNCS
+    androidx.compose.runtime.LaunchedEffect(barSlides) { if (!barSlides) barScroll.state.heightOffset = 0f }
     Scaffold(
-        modifier = Modifier.weight(1f),
+        modifier = Modifier.weight(1f).then(if (barSlides) Modifier.nestedScroll(barScroll.nestedScrollConnection) else Modifier),
         topBar = {
             // An open tool shows its own bar with the way back: no tab header above it.
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
-                AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label)) {
+                AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label), scrollBehavior = if (barSlides) barScroll else null) {
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {
