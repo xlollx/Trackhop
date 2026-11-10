@@ -24,6 +24,10 @@ on:
         description: Up to 10 pictures in the repository, comma-separated, posted as an album
         type: string
         default: ''
+      edit:
+        description: Or rewrite a post the bot made (its link, e.g. https://t.me/trackhop_app/5), text only
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -34,8 +38,6 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.tag != '' && inputs.tag || github.ref }}
       - name: Post
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -44,4 +46,5 @@ jobs:
           TAG: ${{ inputs.tag }}
           TEXT: ${{ inputs.text }}
           IMAGES: ${{ inputs.images }}
+          EDIT: ${{ inputs.edit }}
         run: python3 .github/scripts/telegram_post.py

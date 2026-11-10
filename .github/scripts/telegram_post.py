@@ -7,7 +7,7 @@ A post on Trackhop's Telegram channel (.github/workflows/telegram.yml), in Engli
 Secret TELEGRAM_BOT_TOKEN (a bot made with @BotFather, admin of the channel with "Post messages"
 only) and variable TELEGRAM_CHANNEL (@name of the channel). Without them nothing is sent.
 """
-import json, os, re, sys, urllib.error, urllib.request
+import html, json, os, re, sys, urllib.error, urllib.request
 
 sys.stdout.reconfigure(line_buffering=True)
 from pathlib import Path
@@ -17,12 +17,27 @@ SITE = "https://trackhop.org"
 RELEASES = "https://github.com/xlollx/Trackhop/releases/tag/"
 
 
-def plain(md: str) -> str:
-    """Markdown to the plain text Telegram shows: no bold, links as their text, short bullets."""
-    t = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", md)
-    t = re.sub(r"\*\*|__|`", "", t)
-    t = re.sub(r"^\s*[-*]\s+", "• ", t, flags=re.M)
-    return re.sub(r"\n{3,}", "\n\n", t).strip()
+def bullets(notes: str) -> str:
+    """One line per sentence, issue numbers dropped: a release note read on a phone."""
+    notes = re.sub(r"\s*\(#\d+[^)]*\)", "", notes).strip()
+    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z\"“])", notes)
+    return "\n".join("• " + html.escape(p.strip().rstrip("."), quote=False) for p in parts if p.strip())
+
+
+def md_bullets(md: str) -> str:
+    """The server changelog's Markdown bullets to Telegram HTML: bold kept, links as their text."""
+    out = []
+    for line in md.strip().splitlines():
+        line = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", line.strip())
+        if not line: continue
+        line = re.sub(r"\s*\(#\d+[^)]*\)", "", re.sub(r"^[-*]\s+", "", line))
+        # Short on a phone: the bold title and its first clause; the full text is on the release page.
+        line = re.split(r";\s", line, maxsplit=1)[0].rstrip(".")
+        line = html.escape(line.replace("`", ""), quote=False)
+        line = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", line)
+        line = re.sub(r"(?<![*\w])\*([^*]+)\*(?!\w)", r"<i>\1</i>", line)
+        out.append("• " + line)
+    return "\n".join(out)
 
 
 def app_text(tag: str) -> str:
@@ -31,7 +46,8 @@ def app_text(tag: str) -> str:
     notes = ROOT / f"fastlane/metadata/android/en-US/changelogs/{code}.txt"
     body = notes.read_text().strip() if notes.exists() else ""
     v = tag.removeprefix("v")
-    return f"Trackhop {v} for Android is out\n\n{body}\n\nDownload: {RELEASES}{tag}\nAll the ways to get it: {SITE}"
+    return (f"🎉 <b>Trackhop {v} for Android</b>\n\n{bullets(body)}\n\n"
+            f"⬇️ <a href=\"{RELEASES}{tag}\">Download</a>  ·  🌐 <a href=\"{SITE}\">All the ways to get it</a>")
 
 
 def server_text(tag: str) -> str:
@@ -43,8 +59,9 @@ def server_text(tag: str) -> str:
             continue
         if keep:
             section.append(line)
-    return (f"Trackhop {v} for Desktop (Windows, macOS, Linux) and Docker is out\n\n{plain(chr(10).join(section))}\n\n"
-            f"Download: {RELEASES}{tag}\nDocker: docker pull ghcr.io/xlollx/trackhop:{v}\nGuides: {SITE}/guide/desktop · {SITE}/guide/docker")
+    return (f"🖥️ <b>Trackhop {v} for Desktop and Docker</b>\n<i>Windows, macOS, Linux</i>\n\n{md_bullets(chr(10).join(section))}\n\n"
+            f"⬇️ <a href=\"{RELEASES}{tag}\">Download</a>  ·  🐳 <code>docker pull ghcr.io/xlollx/trackhop:{v}</code>\n"
+            f"📖 <a href=\"{SITE}/guide/desktop\">Desktop guide</a>  ·  <a href=\"{SITE}/guide/docker\">Docker guide</a>")
 
 
 def call(token: str, method: str, data: bytes, ctype: str) -> None:
@@ -73,7 +90,8 @@ def multipart(fields: dict, files: list) -> tuple:
 
 
 def main():
-    tag, text, images = (os.environ.get(k, "").strip() for k in ("TAG", "TEXT", "IMAGES"))
+    tag, text, images, edit = (os.environ.get(k, "").strip() for k in ("TAG", "TEXT", "IMAGES", "EDIT"))
+    html_mode = not text  # a release post is written in Telegram's HTML; a given text goes as it is
     if not text:
         if tag.startswith("server-v"): text = server_text(tag)
         elif tag.startswith("v"): text = app_text(tag)
@@ -97,11 +115,18 @@ def main():
         sys.exit(f"Telegram refused the bot token: HTTP {e.code} (is TELEGRAM_BOT_TOKEN the one @BotFather gave?)")
     print(f"Bot @{me} posting to {chat}")
     if not pics:
-        data = json.dumps({"chat_id": chat, "text": text[:4096], "disable_web_page_preview": False}).encode()
-        call(token, "sendMessage", data, "application/json")
+        msg = {"chat_id": chat, "text": text[:4096], "link_preview_options": {"is_disabled": True}}
+        if html_mode: msg["parse_mode"] = "HTML"
+        if edit:
+            # Rewrites a post the bot made: its number, or its link (t.me/trackhop_app/12).
+            msg["message_id"] = int(re.sub(r".*/", "", edit))
+            call(token, "editMessageText", json.dumps(msg).encode(), "application/json")
+        else:
+            call(token, "sendMessage", json.dumps(msg).encode(), "application/json")
     else:
         # An album: the text as the first picture's caption (Telegram takes up to 1024 characters there).
-        media = [{"type": "photo", "media": f"attach://p{i}"} | ({"caption": text[:1024]} if i == 0 else {}) for i in range(len(pics))]
+        first = {"caption": text[:1024]} | ({"parse_mode": "HTML"} if html_mode else {})
+        media = [{"type": "photo", "media": f"attach://p{i}"} | (first if i == 0 else {}) for i in range(len(pics))]
         data, ctype = multipart({"chat_id": chat, "media": json.dumps(media)}, [(f"p{i}", p) for i, p in enumerate(pics)])
         call(token, "sendMediaGroup", data, ctype)
         if len(text) > 1024:
