@@ -1785,4 +1785,13 @@
     <string name="spread_stays">%1$s（不变）</string>
     <string name="spread_confirm">确认</string>
     <string name="review_discard_busy">正在读取 %1$s 上的歌单以找到这些歌曲：歌单较长时需要几秒钟。</string>
+    <string name="tools_mbtags_title">MusicBrainz 标签</string>
+    <string name="tools_row_mbtags">服务器上没有 MusicBrainz 标签的歌曲。</string>
+    <string name="tools_mbtags_desc">文件带有 MusicBrainz 标签时，即使标题写法不同，Trackhop 也能在你的服务器上找到完全相同的录音。这里列出没有标签的歌曲。你的文件绝不会被修改。</string>
+    <string name="tools_mbtags_scan">检查我的音乐库</string>
+    <string name="tools_mbtags_progress">已读取 %1$d 首歌曲…</string>
+    <string name="tools_mbtags_result">%2$d 首歌曲中有 %1$d 首没有 MusicBrainz 标签：</string>
+    <string name="tools_mbtags_all">全部 %1$d 首歌曲都有 MusicBrainz 标签。</string>
+    <string name="tools_mbtags_empty">此服务器没有列出歌曲。</string>
+    <string name="tools_mbtags_picard">用 Picard 添加标签</string>
 </resources>

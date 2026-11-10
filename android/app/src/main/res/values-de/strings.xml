@@ -1815,4 +1815,13 @@
     <string name="spread_stays">%1$s (bleibt)</string>
     <string name="spread_confirm">Bestätigen</string>
     <string name="review_discard_busy">Lese die Playlist auf %1$s, um diese Titel zu finden: Bei einer langen Playlist dauert das ein paar Sekunden.</string>
+    <string name="tools_mbtags_title">MusicBrainz-Tags</string>
+    <string name="tools_row_mbtags">Songs auf deinem Server ohne MusicBrainz-Tags.</string>
+    <string name="tools_mbtags_desc">Wenn deine Dateien MusicBrainz-Tags haben, findet Trackhop auf deinem Server genau die richtige Aufnahme, auch wenn der Titel anders geschrieben ist. Hier siehst du die Songs ohne Tags. Deine Dateien werden nie verändert.</string>
+    <string name="tools_mbtags_scan">Bibliothek prüfen</string>
+    <string name="tools_mbtags_progress">%1$d Songs gelesen…</string>
+    <string name="tools_mbtags_result">%1$d von %2$d Songs haben keine MusicBrainz-Tags:</string>
+    <string name="tools_mbtags_all">Alle %1$d Songs haben MusicBrainz-Tags.</string>
+    <string name="tools_mbtags_empty">Dieser Server hat seine Songs nicht aufgelistet.</string>
+    <string name="tools_mbtags_picard">Mit Picard taggen</string>
 </resources>

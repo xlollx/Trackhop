@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -106,7 +107,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     DEDUPE(Icons.Filled.CleaningServices, R.string.tools_dedupe_title, R.string.tools_row_dedupe, true),
     SCAN(Icons.Filled.ContentCopy, R.string.tools_scan_title, R.string.tools_row_scan, true),
     STATS(Icons.Filled.Insights, R.string.stats_title, R.string.stats_row_desc, false),
-    UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true);
+    UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true),
+    MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -116,6 +118,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
         MAKE -> p.canCreatePlaylists
         DEDUPE -> p.canRemoveTracks
         UNPLAYABLE -> p.detectsUnplayable
+        MBTAGS -> p.matchesByMbid
         else -> true
     }
 }
@@ -190,6 +193,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }
                     Tool.BACKUP -> Unit
                     Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
+                    Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
                     else -> {}
                 }
             }
@@ -238,6 +242,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         PrefSection(stringResource(R.string.tools_section_clean), accent = JobColor.ORANGE, description = stringResource(R.string.tools_section_clean_desc)) {
             ToolRow(Tool.DEDUPE, provider) { open = Tool.DEDUPE }
             ToolRow(Tool.UNPLAYABLE, provider) { onUnplayable(it!!) }
+            // Only for who has a personal server: nobody else has files to tag.
+            if (connected.any { it.matchesByMbid }) ToolRow(Tool.MBTAGS, provider) { open = Tool.MBTAGS }
         }
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
@@ -466,6 +472,66 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                         }
                     }) { Text(stringResource(R.string.tools_dedupe_remove, extras)) }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The songs of a personal server whose files carry no MusicBrainz tag: a sync finds those by title
+ * only. A count, the first of them, and where to learn tagging with Picard; the files are never touched.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun MbTagsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var result by remember(provider.id) { mutableStateOf<LibraryTools.MbidTags?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    var read by remember { mutableStateOf(0) }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.tools_mbtags_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(R.string.tools_mbtags_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (!provider.matchesByMbid) {
+                Spacer(Modifier.height(6.dp))
+                Text(stringResource(R.string.tools_unavailable_on, provider.displayName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                return@Column
+            }
+            val r = result
+            if (r != null) {
+                Spacer(Modifier.height(8.dp))
+                when {
+                    r.total == 0 -> Text(stringResource(R.string.tools_mbtags_empty))
+                    r.untagged.isEmpty() -> Text(stringResource(R.string.tools_mbtags_all, r.total))
+                    else -> {
+                        Text(stringResource(R.string.tools_mbtags_result, r.untagged.size, r.total), style = MaterialTheme.typography.bodyMedium)
+                        r.untagged.take(30).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
+                        if (r.untagged.size > 30) Text(stringResource(R.string.preview_more, r.untagged.size - 30), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            if (busy) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.tools_mbtags_progress, read), style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(Modifier.height(6.dp))
+            }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { openUrl(ctx, LibraryTools.PICARD_GUIDE) }) { Text(stringResource(R.string.tools_mbtags_picard)) }
+                Button(enabled = !busy, onClick = {
+                    busy = true; read = 0
+                    scope.launch {
+                        result = try { Tools.untaggedSongs(ctx, provider) { read = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); null
+                        }
+                        busy = false
+                    }
+                }) { Text(stringResource(R.string.tools_mbtags_scan)) }
             }
         }
     }

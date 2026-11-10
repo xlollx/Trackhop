@@ -1823,4 +1823,13 @@
     <string name="spread_stays">%1$s (mantém)</string>
     <string name="spread_confirm">Confirmar</string>
     <string name="review_discard_busy">Lendo a playlist no %1$s para achar essas faixas: com uma playlist longa leva alguns segundos.</string>
+    <string name="tools_mbtags_title">Tags do MusicBrainz</string>
+    <string name="tools_row_mbtags">Músicas do seu servidor sem tags do MusicBrainz.</string>
+    <string name="tools_mbtags_desc">Quando seus arquivos têm tags do MusicBrainz, o Trackhop encontra a gravação exata no seu servidor, mesmo que o título esteja escrito de outro jeito. Aqui estão as músicas sem elas. Seus arquivos nunca são alterados.</string>
+    <string name="tools_mbtags_scan">Verificar minha biblioteca</string>
+    <string name="tools_mbtags_progress">%1$d músicas lidas…</string>
+    <string name="tools_mbtags_result">%1$d de %2$d músicas não têm tags do MusicBrainz:</string>
+    <string name="tools_mbtags_all">Todas as %1$d músicas têm tags do MusicBrainz.</string>
+    <string name="tools_mbtags_empty">Este servidor não listou suas músicas.</string>
+    <string name="tools_mbtags_picard">Adicionar tags com o Picard</string>
 </resources>
