@@ -58,6 +58,8 @@ class GroupMailboxesTest {
     @After fun stop() {
         server.stop(0)
         GroupMailboxes.maxItems = GroupMailboxes.MAX_ITEMS
+        GroupMailboxes.maxTotalBytes = GroupMailboxes.MAX_TOTAL_BYTES
+        GroupMailboxes.newPerMinute = GroupMailboxes.NEW_PER_MINUTE
     }
 
     private class Answer(val code: Int, val text: String) {
@@ -276,5 +278,104 @@ class GroupMailboxesTest {
         assertEquals(401, api("POST", "groups", """{"group":"1111111111111111","creator":"${creator.id}"}""", bearer = "wrong").code)
         val listed = Json.parseToJsonElement(api("GET", "groups").text) as JsonArray
         assertEquals("Road trip", listed.single().jsonObject["name"]!!.jsonPrimitive.content)
+    }
+
+    @Test fun aGroupKeyReachesNoOtherCallThroughTheAddress() {
+        val key = make()
+        // Paths that would leave the group's items, said otherwise: none of them opens anything.
+        for (p in listOf("groups/$groupId/items/../../syncs", "groups/$groupId/items/..%2F..%2Fsyncs", "groups%2F$groupId%2Fkey",
+            "Groups/$groupId/items", "groups/$groupId/Items", "groups/$groupId/items/x", "groups/$groupId", "syncs?x=groups/$groupId/items")) {
+            val a = api("GET", p, bearer = key)
+            assertTrue("$p: ${a.code} ${a.text}", a.code == 403 || a.code == 401 || a.code == 404)
+        }
+        // Another group's id said otherwise (capitals, a longer one, a path in it): never this group's or another's items.
+        for (id in listOf(groupId.uppercase(), groupId + "0", "../$groupId", "0123456789abcdeｆ")) {
+            val a = api("GET", "groups/${java.net.URLEncoder.encode(id, "UTF-8")}/items", bearer = key)
+            assertTrue("$id: ${a.code} ${a.text}", a.code == 401 || a.code == 403)
+        }
+        // Only GET and POST.
+        assertEquals(405, api("PUT", "groups/$groupId/items", "{}", bearer = key).code)
+        assertEquals(405, api("DELETE", "groups/$groupId/items", bearer = key).code)
+        assertEquals(405, api("OPTIONS", "groups/$groupId/items", bearer = key).code)
+        // The same items with a slash more or less.
+        assertEquals(200, api("GET", "groups/$groupId/items/", bearer = key).code)
+        assertEquals(200, call("GET", "api/v1//groups//$groupId//items", bearer = key).code)
+    }
+
+    @Test fun writesAreCountedBeforeTheBodyIsRead() {
+        val key = make()
+        repeat(GroupMailboxes.WRITES_PER_MINUTE) { assertEquals(400, api("POST", "groups/$groupId/items", "not json", bearer = key).code) }
+        val a = api("POST", "groups/$groupId/items", "not json", bearer = key)
+        assertEquals(a.text, 429, a.code)
+    }
+
+    @Test fun aBodyTooDeepOrOfTooManyValuesIsNotRead() {
+        val key = make()
+        assertEquals(400, api("POST", "groups/$groupId/items", "{\"events\":" + "[".repeat(20) + "]".repeat(20) + "}", bearer = key).code)
+        val tiny = "{\"events\":[" + "{},".repeat(GroupMailboxes.MAX_POST_ITEMS * GroupMailboxes.MAX_VALUES_PER_ITEM) + "{}]}"
+        assertTrue(tiny.length < GroupMailboxes.MAX_BODY)
+        assertEquals(400, api("POST", "groups/$groupId/items", tiny, bearer = key).code)
+        // Brackets and commas inside text are not counted; a real call passes.
+        assertTrue(GroupMailboxes.plainEnough("{\"events\":[{\"title\":\"${"[{,".repeat(50_000)}\\\"]\"}]}".toByteArray()))
+        assertFalse(GroupMailboxes.plainEnough("{\"a\":\"\\\"\",\"b\":${"[".repeat(9)}${"]".repeat(9)}}".toByteArray()))
+        val c = MemberFile.codec
+        val real = (1..GroupMailboxes.MAX_POST_ITEMS - 300).map { c.encodeToString(SharedEvent.serializer(), event(creator, it.toLong(), it)) }
+        assertTrue(GroupMailboxes.plainEnough("{\"events\":[${real.joinToString(",")}]}".toByteArray()))
+    }
+
+    @Test fun aLogSentAgainIsNotCheckedAgainAndNewItemsAreCappedAMinute() {
+        val key = make()
+        GroupMailboxes.newPerMinute = 3
+        val three = json(events = (1..3).map { event(creator, it.toLong(), it) })
+        assertEquals(3, api("POST", "groups/$groupId/items", three, bearer = key).obj["added"]!!.jsonPrimitive.long.toInt())
+        // The same three again: nothing new to check, not counted.
+        assertEquals(200, api("POST", "groups/$groupId/items", three, bearer = key).code)
+        val more = api("POST", "groups/$groupId/items", json(events = (4..5).map { event(creator, it.toLong(), it) }), bearer = key)
+        assertEquals(more.text, 429, more.code)
+    }
+
+    @Test fun aMailboxKeptFullIsNotCompactedAtEveryWrite() {
+        val key = make()
+        val roster = Roster(groupId, 1, 1, listOf(Grant(creator.id))).signed(creator)
+        api("POST", "groups/$groupId/items", json(rosters = listOf(roster), events = listOf(event(creator, 1, 1), event(creator, 2, 2))), bearer = key)
+        GroupMailboxes.maxItems = 3
+        val before = GroupMailboxes.compactions
+        assertEquals(507, api("POST", "groups/$groupId/items", json(events = listOf(event(creator, 3, 3))), bearer = key).code)
+        assertEquals(before + 1, GroupMailboxes.compactions)
+        assertEquals(507, api("POST", "groups/$groupId/items", json(events = listOf(event(creator, 4, 4))), bearer = key).code)
+        assertEquals(before + 1, GroupMailboxes.compactions)
+    }
+
+    @Test fun allTheMailboxesTogetherAreCapped() {
+        val key = make()
+        val other = make("fedcba9876543210", "Other")
+        assertEquals(200, api("POST", "groups/$groupId/items", json(events = (1..5).map { event(creator, it.toLong(), it) }), bearer = key).code)
+        GroupMailboxes.maxTotalBytes = File(env.dataDir, "groups/$groupId/items.jsonl").length() + 100
+        val a = api("POST", "groups/fedcba9876543210/items", json(events = (1..5).map { event(creator, it.toLong(), it, group = "fedcba9876543210") }), bearer = other)
+        assertEquals(a.text, 507, a.code)
+    }
+
+    @Test fun onlyAFewMailboxesStayInMemory() {
+        val keys = (1..GroupMailboxes.MAX_LOADED + 2).map { n -> val id = "%016x".format(n); id to make(id, "G$n") }
+        keys.forEach { (id, k) -> assertEquals(200, api("GET", "groups/$id/items", bearer = k).code) }
+        assertTrue(GroupMailboxes.loadedCount() <= GroupMailboxes.MAX_LOADED)
+        // The owner's list reads them all, and keeps few.
+        assertEquals(keys.size, Json.parseToJsonElement(api("GET", "groups").text).jsonArray.size)
+        assertTrue(GroupMailboxes.loadedCount() <= GroupMailboxes.MAX_LOADED)
+        // One put out of memory is read again from disk.
+        val (id, k) = keys.first()
+        assertEquals(200, api("POST", "groups/$id/items", json(events = listOf(event(creator, 1, 1, group = id))), bearer = k).code)
+        keys.drop(1).forEach { (i, kk) -> api("GET", "groups/$i/items", bearer = kk) }
+        assertEquals(1, api("GET", "groups/$id/items", bearer = k).obj.count("events"))
+    }
+
+    @Test fun aLineCutShortByACrashDoesNotTakeTheNextOneWithIt() {
+        val key = make()
+        api("POST", "groups/$groupId/items", json(events = listOf(event(creator, 1, 1))), bearer = key)
+        File(env.dataDir, "groups/$groupId/items.jsonl").appendText("{\"s\":2,\"k\":\"e\",\"v\":{\"by\"")
+        GroupMailboxes.unload()
+        assertEquals(200, api("POST", "groups/$groupId/items", json(events = listOf(event(creator, 2, 2))), bearer = key).code)
+        GroupMailboxes.unload()
+        assertEquals(2, items(key).count("events"))
     }
 }
