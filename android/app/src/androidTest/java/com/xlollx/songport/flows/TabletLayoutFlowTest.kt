@@ -4,6 +4,7 @@ import android.app.UiAutomation
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
@@ -155,9 +156,11 @@ class TabletLayoutFlowTest : FlowTest() {
         click(s(R.string.editor_source_link))
         val link = "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
         compose.onAllNodes(hasSetTextAction() and hasText(s(R.string.link_paste))).onFirst().performTextReplacement(link)
+        waitNode("the link typed", hasSetTextAction() and hasText(link))
 
         rotate(UiAutomation.ROTATION_FREEZE_90)
         waitText(s(R.string.editor_title_new))
+        log("link field after the turn: " + compose.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().map { it.config.getOrNull(SemanticsProperties.EditableText)?.text to it.config.getOrNull(SemanticsProperties.Focused) })
         waitNode("the link typed", hasSetTextAction() and hasText(link))
 
         rotate(UiAutomation.ROTATION_FREEZE_0)

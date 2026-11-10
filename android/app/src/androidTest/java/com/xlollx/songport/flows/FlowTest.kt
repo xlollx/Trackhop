@@ -28,6 +28,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.printToString
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -226,6 +227,7 @@ abstract class FlowTest {
     protected fun tap(n: SemanticsNodeInteraction, what: String) {
         runCatching { n.performScrollTo() }
         clearOfBottomBar(n)
+        settle(n)
         try {
             n.performClick()
         } catch (e: AssertionError) {
@@ -235,6 +237,33 @@ abstract class FlowTest {
             n.performSemanticsAction(SemanticsActions.OnClick)
         }
         compose.waitForIdle()
+    }
+
+    /**
+     * Waits until [n] stands still. A page ends above the keyboard, so while the keyboard slides in
+     * or out (a field was just typed in) the page is still moving and a touch aimed at where the
+     * node was would land beside it; should the move push the node out of view, it is scrolled to again.
+     */
+    private fun settle(n: SemanticsNodeInteraction) {
+        var last = runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return
+        var still = 0
+        val end = System.currentTimeMillis() + 3_000
+        while (still < 3 && System.currentTimeMillis() < end) {
+            Thread.sleep(80)
+            compose.waitForIdle()
+            val now = runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return
+            if (now == last) still++ else { still = 0; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
+        }
+    }
+
+    /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
+    protected fun clickTile(label: String) {
+        val tile = hasText(label)
+        compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
+            runCatching { compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())[i].performScrollToNode(tile) }
+        }
+        compose.waitForIdle()
+        click(label)
     }
 
     private fun topOf(n: SemanticsNode): SemanticsNode { var p = n; while (p.parent != null) p = p.parent!!; return p }
