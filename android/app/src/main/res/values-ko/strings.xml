@@ -591,6 +591,7 @@
     <string name="sync_stopping">현재 단계 후 중지…</string>
     <string name="sync_pause_pending">현재 단계 후 일시정지</string>
     <string name="live_title">동기화 활동</string>
+    <string name="live_menu_note">동기화가 진행 중일 때는 메뉴가 닫혀 있어요. 끝나면 다시 열 수 있어요.</string>
     <string name="live_empty">아직 처리한 곡이 없어요.</string>
     <string name="live_found">찾음: %1$s</string>
     <string name="live_cached">이전 매칭에서: %1$s</string>

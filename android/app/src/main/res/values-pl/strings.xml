@@ -618,6 +618,7 @@
     <string name="sync_stopping">Zatrzymywanie po bieżącym kroku…</string>
     <string name="sync_pause_pending">Wstrzymana po bieżącym kroku</string>
     <string name="live_title">Aktywność synchronizacji</string>
+    <string name="live_menu_note">Gdy synchronizacja trwa, jej menu jest zamknięte: otworzy się ponownie, gdy się zakończy.</string>
     <string name="live_empty">Nie przetworzono jeszcze żadnego utworu.</string>
     <string name="live_found">Znaleziono: %1$s</string>
     <string name="live_cached">Z wcześniejszego dopasowania: %1$s</string>

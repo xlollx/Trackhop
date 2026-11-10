@@ -600,6 +600,7 @@
     <string name="sync_stopping">Geçerli adımdan sonra durdurulacak…</string>
     <string name="sync_pause_pending">Geçerli adımdan sonra duraklatılacak</string>
     <string name="live_title">Senkronizasyon etkinliği</string>
+    <string name="live_menu_note">Bir senkronizasyon sürerken menüsü kapalı kalır: bittiğinde yeniden açılır.</string>
     <string name="live_empty">Henüz parça işlenmedi.</string>
     <string name="live_found">Bulundu: %1$s</string>
     <string name="live_cached">Önceki bir eşleşmeden: %1$s</string>

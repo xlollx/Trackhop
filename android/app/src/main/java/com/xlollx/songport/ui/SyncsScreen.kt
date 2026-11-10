@@ -1258,6 +1258,12 @@ private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
                 HelpButton(Helps.cached)
             }
             Text(progressText(progress), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // Why the menu did not open: a hold on a running sync lands here (11/11 report).
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Top) {
+                Icon(Icons.Filled.Info, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp).padding(top = 1.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.live_menu_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             Spacer(Modifier.height(12.dp))
             if (items.isEmpty()) Text(stringResource(R.string.live_empty), style = MaterialTheme.typography.bodyMedium)
             LazyColumn(Modifier.fillMaxWidth().heightIn(max = 480.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

@@ -600,6 +600,7 @@
     <string name="sync_stopping">Arrêt à la fin de l\'étape en cours…</string>
     <string name="sync_pause_pending">En pause à la fin de l\'étape en cours</string>
     <string name="live_title">Activité de la sync</string>
+    <string name="live_menu_note">Pendant qu\'une sync tourne, son menu reste fermé : il se rouvre quand elle a fini.</string>
     <string name="live_empty">Aucun titre traité pour l\'instant.</string>
     <string name="live_found">Trouvé : %1$s</string>
     <string name="live_cached">D\'une correspondance précédente : %1$s</string>

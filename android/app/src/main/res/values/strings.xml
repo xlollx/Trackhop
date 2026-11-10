@@ -600,6 +600,7 @@
     <string name="sync_stopping">Stopping after the current step…</string>
     <string name="sync_pause_pending">Paused after the current step</string>
     <string name="live_title">Sync activity</string>
+    <string name="live_menu_note">While a sync is running its menu stays closed: it opens again once the run ends.</string>
     <string name="live_empty">No track processed yet.</string>
     <string name="live_found">Found: %1$s</string>
     <string name="live_cached">From a previous match: %1$s</string>

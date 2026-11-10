@@ -592,6 +592,7 @@
     <string name="sync_stopping">将在当前步骤完成后停止…</string>
     <string name="sync_pause_pending">将在当前步骤完成后暂停</string>
     <string name="live_title">同步动态</string>
+    <string name="live_menu_note">同步进行时，它的菜单保持关闭；同步结束后即可再次打开。</string>
     <string name="live_empty">尚未处理任何歌曲。</string>
     <string name="live_found">已找到：%1$s</string>
     <string name="live_cached">来自之前的匹配：%1$s</string>

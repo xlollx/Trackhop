@@ -600,6 +600,7 @@
     <string name="sync_stopping">Interruzione al termine del passo in corso…</string>
     <string name="sync_pause_pending">In pausa al termine del passo in corso</string>
     <string name="live_title">Attività della sync</string>
+    <string name="live_menu_note">Mentre una sync è in corso il suo menu resta chiuso: si riapre quando ha finito.</string>
     <string name="live_empty">Nessun brano ancora elaborato.</string>
     <string name="live_found">Trovato: %1$s</string>
     <string name="live_cached">Da un abbinamento precedente: %1$s</string>
