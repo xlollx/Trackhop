@@ -183,6 +183,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "api" -> apiPage(r)
         "config" -> configPage(r)
         "lyrics" -> lyricsPage(r)
+        "wanted" -> wantedPage(r)
         else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
     }
 }
@@ -195,6 +196,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
     tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
+    tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
     body.append("<h2>Make</h2>")
     tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")

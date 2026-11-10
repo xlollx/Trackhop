@@ -31,12 +31,14 @@ class MusicBrainzTest {
     private val hits: MutableList<Hit> = Collections.synchronizedList(ArrayList())
     /** ISRC to the answer: a status and the recording ids. */
     private var answer: (String) -> Pair<Int, List<String>> = { 404 to emptyList() }
+    /** The artist-credit each answered recording carries (asked with inc=artist-credits). */
+    private var credit = ""
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
         createContext("/") { ex ->
             hits += Hit(ex.requestURI.path, ex.requestHeaders.getFirst("User-Agent"), System.currentTimeMillis())
             val isrc = ex.requestURI.path.substringAfterLast('/')
             val (code, ids) = answer(isrc)
-            val body = (if (code == 200) """{"isrc":"$isrc","recordings":[${ids.joinToString(",") { """{"id":"$it","title":"x"}""" }}]}""" else """{"error":"x"}""").toByteArray()
+            val body = (if (code == 200) """{"isrc":"$isrc","recordings":[${ids.joinToString(",") { """{"id":"$it","title":"x"$credit}""" }}]}""" else """{"error":"x"}""").toByteArray()
             ex.sendResponseHeaders(code, body.size.toLong())
             ex.responseBody.use { it.write(body) }
         }
@@ -73,6 +75,19 @@ class MusicBrainzTest {
         val ua = hits.single().userAgent!!
         assertEquals("Trackhop/1.17.0 ( https://trackhop.org )", ua)
         assertFalse(ua, ua.contains('@'))
+    }
+
+    @Test fun theArtistsComeWithTheSameAnswerAndTheCacheIsReadWithoutAsking() = runBlocking {
+        val artist = "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+        answer = { 200 to listOf(a) }
+        credit = ""","artist-credit":[{"name":"The Beatles","artist":{"id":"$artist","name":"The Beatles"}}]"""
+        assertEquals(null, MusicBrainz.known(env, "GBAYE0601498"))
+        assertEquals(0, hits.size)
+        MusicBrainz.recordings(env, "GBAYE0601498")
+        assertEquals(1, hits.size)
+        MusicBrainz.reset()
+        assertEquals(MusicBrainz.Known(listOf(a), listOf(artist)), MusicBrainz.known(env, "gbaye0601498"))
+        assertEquals(1, hits.size)
     }
 
     @Test fun anAnswerIsRememberedAcrossRestarts() = runBlocking {

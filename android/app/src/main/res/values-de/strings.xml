@@ -1856,4 +1856,19 @@
     <string name="job_scheduled_on">Geplant auf %1$s</string>
     <string name="backup_device_other">dem anderen Gerät</string>
     <string name="note_duplicates_repaired">Duplikate aus dem Ziel entfernt: %1$d. Jeder dieser Titel war dort doppelt und ist in der Quelle einmal.</string>
+    <string name="tools_wanted_title">Fehlt auf meinem Server</string>
+    <string name="tools_row_wanted">Songs aus deinen Playlists, die dein eigener Server noch nicht hat.</string>
+    <string name="tools_wanted_desc">Was deine Syncs zu deinem eigenen Server nicht gefunden haben, jeder Song einmal. Hake ab, was du besorgt hast: Es verschwindet von der Liste. Nichts wird heruntergeladen oder gekauft.</string>
+    <string name="tools_wanted_no_server">Noch keine deiner Syncs geht zu deinem eigenen Server (Navidrome, Jellyfin, Emby, Plex, Lyrion oder Mopidy).</string>
+    <string name="tools_wanted_empty">Nichts fehlt: Dein Server hat alles.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">%1$d Song fehlt</item>
+        <item quantity="other">%1$d Songs fehlen</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Nach Album</string>
+    <string name="tools_wanted_show_got">Abgehakte zeigen</string>
+    <string name="tools_wanted_from">Aus %1$s · seit %2$s</string>
+    <string name="tools_wanted_no_album">Ohne Album</string>
+    <string name="tools_wanted_export">Liste exportieren</string>
+    <string name="tools_wanted_lidarr">Liste für Lidarr</string>
 </resources>

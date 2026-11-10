@@ -59,6 +59,34 @@ object Api {
         return MessageDigest.isEqual(hash(given).toByteArray(), stored.toByteArray())
     }
 
+    /**
+     * The key in the address of the "Missing on my server" list for Lidarr, whose Custom List only
+     * GETs a URL and cannot send a token: it opens that list and nothing else, and changes with the
+     * token (a new token, a new key; the API off, no key).
+     */
+    fun listKey(env: ServerEnv): String? {
+        val stored = env.keyValues(KV)["token"].orEmpty().ifEmpty { return null }
+        val mac = Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(stored.toByteArray(), "HmacSHA256")) }
+        return mac.doFinal("trackhop wanted list".toByteArray()).joinToString("") { "%02x".format(it) }.take(32)
+    }
+
+    private const val LIST_KEY = "ListKey "
+
+    /**
+     * The Authorization a call comes with; for GET /api/v1/wanted without one, its ?key= as
+     * "ListKey <key>", so a shared server can tell whose list it is from the key alone.
+     */
+    fun authOf(ex: HttpExchange): String? = ex.requestHeaders.getFirst("Authorization") ?: run {
+        if (ex.requestMethod.uppercase() != "GET" || ex.requestURI.path.trimEnd('/') != "/api/v1/wanted") return null
+        ex.requestURI.rawQuery.orEmpty().split('&').firstOrNull { it.startsWith("key=") }?.substringAfter('=')?.takeIf { it.isNotEmpty() }?.let { LIST_KEY + it }
+    }
+
+    fun listKeyMatches(env: ServerEnv, header: String?): Boolean {
+        val given = header?.takeIf { it.startsWith(LIST_KEY) }?.substring(LIST_KEY.length) ?: return false
+        val key = listKey(env) ?: return false
+        return MessageDigest.isEqual(given.toByteArray(), key.toByteArray())
+    }
+
     fun webhook(env: ServerEnv): String = env.keyValues(KV)["webhook"].orEmpty()
     fun setWebhook(env: ServerEnv, url: String, secret: String?, events: Set<String>? = null) {
         env.keyValues(KV)["webhook"] = url
@@ -69,7 +97,7 @@ object Api {
     fun hasSecret(env: ServerEnv) = !env.keyValues(KV)["secret"].isNullOrEmpty()
 
     /** What the webhook is told about: every event a receiver can ask for, and the two it gets unless it asks otherwise. */
-    val EVENTS = listOf("sync.started", "sync.finished", "sync.failed", "backup.finished")
+    val EVENTS = listOf("sync.started", "sync.finished", "sync.failed", "backup.finished", "wanted.added")
     private val DEFAULT_EVENTS = setOf("sync.finished", "backup.finished")
 
     fun events(env: ServerEnv): Set<String> {
@@ -235,6 +263,17 @@ object Api {
         })
     }
 
+    /** Tells the webhook a run put tracks on the "Missing on my server" list for the first time. */
+    fun notifyWanted(env: ServerEnv, job: SyncJob, added: List<com.xlollx.songport.sync.Wanted.Want>) {
+        if (added.isEmpty()) return
+        post(env, "wanted.added", buildJsonObject {
+            put("event", "wanted.added")
+            put("sync", buildJsonObject { put("id", job.id); put("name", job.name) })
+            put("count", added.size)
+            put("tracks", com.xlollx.songport.sync.Wanted.json(added))
+        })
+    }
+
     /** Tells the webhook a run started (by hand, by its schedule or by a call). */
     fun notifyStarted(env: ServerEnv, job: SyncJob, scheduled: Boolean) = post(env, "sync.started", buildJsonObject {
         put("event", "sync.started")
@@ -277,17 +316,19 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     // The calls' description is public: it holds nothing of the user's, and tools read it before a token is made.
     if (path.drop(2) == listOf("openapi.json") && method == "GET") return send(ex, 200, ApiDocs.openApi(version, env.baseUrl).toString(), "application/json")
     // The command line on this machine (LocalKey) gets in without the API being turned on.
-    val auth = ex.requestHeaders.getFirst("Authorization")
+    val auth = Api.authOf(ex)
     if (!env.may(Permissions.API)) return error(403, "The API is not turned on for you on this server: ask its admin.")
     if (!LocalKey.matches(auth, ex.remoteAddress?.address)) {
         if (!Api.enabled(env)) return error(403, "The API is off: make a token on the page, Tools › API.")
-        if (!Api.authorized(env, auth)) return error(401, "Send the API token as: Authorization: Bearer <token>")
+        // The list's own key (Lidarr's Custom List cannot send a token) opens GET /wanted only: authOf gives it for that call alone.
+        if (!Api.authorized(env, auth) && !Api.listKeyMatches(env, auth)) return error(401, "Send the API token as: Authorization: Bearer <token>")
     }
     val running = SyncState.running.value
     val jobs = env.store.data.jobs
     val rest = path.drop(2)
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
+    if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     when {
         rest == listOf("status") && method == "GET" -> json(200, buildJsonObject {
             put("version", version)
@@ -437,6 +478,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
 
 private val WEBHOOK_EVENT_NAMES = mapOf(
     "sync.started" to "A sync starts", "sync.finished" to "A sync ends", "sync.failed" to "A sync fails", "backup.finished" to "A full backup ends",
+    "wanted.added" to "New tracks are missing on your server",
 )
 
 /** Tools › API: the token (made, shown once, revoked) and the webhook. */

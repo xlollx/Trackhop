@@ -113,7 +113,7 @@ class Web(
     }
 
     /** True when this server's API would take [header] from [from]: its token, or the command line's key. */
-    fun acceptsApi(header: String?, from: InetAddress?): Boolean = env.may(Permissions.API) && (LocalKey.matches(header, from) || Api.authorized(env, header))
+    fun acceptsApi(header: String?, from: InetAddress?): Boolean = env.may(Permissions.API) && (LocalKey.matches(header, from) || Api.authorized(env, header) || Api.listKeyMatches(env, header))
 
     // ------------------------------------------------------------------ plumbing
 

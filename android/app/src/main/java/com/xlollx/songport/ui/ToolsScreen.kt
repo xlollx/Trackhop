@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -66,6 +67,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -108,7 +110,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     SCAN(Icons.Filled.ContentCopy, R.string.tools_scan_title, R.string.tools_row_scan, true),
     STATS(Icons.Filled.Insights, R.string.stats_title, R.string.stats_row_desc, false),
     UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true),
-    MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true);
+    MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
+    WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -149,6 +152,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         AiDraft.setupAsked = true; open = Tool.AI
         onAiSetupOpened()
     }
+    val hasServerSync = remember { com.xlollx.songport.data.Store.get(ctx) }.state.collectAsState().value.jobs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()
 
@@ -194,6 +198,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.BACKUP -> Unit
                     Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
                     Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
+                    Tool.WANTED -> WantedCard(local)
                     else -> {}
                 }
             }
@@ -230,6 +235,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.STATS, provider) { onStats() }
             ToolRow(Tool.MANAGE, provider) { onManage(it!!) }
             ToolRow(Tool.SCAN, provider) { onScan(it!!) }
+            // Only for who syncs to a server of their own: the songs it still lacks.
+            if (hasServerSync) ToolRow(Tool.WANTED, provider) { open = Tool.WANTED }
         }
 
         PrefSection(stringResource(R.string.tools_section_move), accent = JobColor.TEAL, description = stringResource(R.string.tools_section_move_desc)) {

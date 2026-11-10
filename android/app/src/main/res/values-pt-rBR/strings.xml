@@ -1864,4 +1864,19 @@
     <string name="job_scheduled_on">Agendada em %1$s</string>
     <string name="backup_device_other">o outro aparelho</string>
     <string name="note_duplicates_repaired">Duplicatas removidas do destino: %1$d. Cada uma dessas faixas estava lá duas vezes e está na origem uma vez só.</string>
+    <string name="tools_wanted_title">Faltando no meu servidor</string>
+    <string name="tools_row_wanted">Músicas das suas playlists que seu próprio servidor ainda não tem.</string>
+    <string name="tools_wanted_desc">O que suas sincronizações para o seu servidor não encontraram, cada música uma vez só. Marque o que você já conseguiu: sai da lista. Nada é baixado nem comprado.</string>
+    <string name="tools_wanted_no_server">Nenhuma das suas sincronizações vai para o seu próprio servidor ainda (Navidrome, Jellyfin, Emby, Plex, Lyrion ou Mopidy).</string>
+    <string name="tools_wanted_empty">Não falta nada: seu servidor tem tudo.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">%1$d música faltando</item>
+        <item quantity="other">%1$d músicas faltando</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Por álbum</string>
+    <string name="tools_wanted_show_got">Mostrar as que já tenho</string>
+    <string name="tools_wanted_from">De %1$s · desde %2$s</string>
+    <string name="tools_wanted_no_album">Sem álbum</string>
+    <string name="tools_wanted_export">Exportar a lista</string>
+    <string name="tools_wanted_lidarr">Lista para o Lidarr</string>
 </resources>

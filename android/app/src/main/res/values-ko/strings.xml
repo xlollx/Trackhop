@@ -1825,4 +1825,18 @@
     <string name="job_scheduled_on">%1$s에서 예약됨</string>
     <string name="backup_device_other">다른 기기</string>
     <string name="note_duplicates_repaired">대상에서 중복을 삭제했어요: %1$d개. 이 곡들은 대상에 두 번 있었고 원본에는 한 번만 있어요.</string>
+    <string name="tools_wanted_title">내 서버에 없는 곡</string>
+    <string name="tools_row_wanted">플레이리스트에는 있지만 내 서버에는 아직 없는 곡.</string>
+    <string name="tools_wanted_desc">내 서버로 가는 동기화가 찾지 못한 곡을 한 번씩만 모았습니다. 구한 곡에 체크하면 목록에서 빠집니다. 아무것도 다운로드하거나 구매하지 않습니다.</string>
+    <string name="tools_wanted_no_server">아직 내 서버(Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy)로 가는 동기화가 없습니다.</string>
+    <string name="tools_wanted_empty">빠진 곡이 없습니다. 서버에 모두 있습니다.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="other">%1$d곡 없음</item>
+    </plurals>
+    <string name="tools_wanted_by_album">앨범별</string>
+    <string name="tools_wanted_show_got">구한 곡도 보기</string>
+    <string name="tools_wanted_from">%1$s에서 · %2$s부터</string>
+    <string name="tools_wanted_no_album">앨범 없음</string>
+    <string name="tools_wanted_export">목록 내보내기</string>
+    <string name="tools_wanted_lidarr">Lidarr용 목록</string>
 </resources>

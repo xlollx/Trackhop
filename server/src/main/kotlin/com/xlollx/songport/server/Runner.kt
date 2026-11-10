@@ -61,7 +61,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                     env.log("sync", "${job.name}: ${seen.toRemove.size} removals confirmed by the caller")
                 }
             }
-            val report = SyncEngine(env).run(job, unattended = scheduled) { p ->
+            val engine = SyncEngine(env)
+            val report = engine.run(job, unattended = scheduled) { p ->
                 SyncState.progress(job.id, p)
                 if (p.step == Progress.Step.WAITING) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)
             }
@@ -71,6 +72,7 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                     (report.error?.let { " ERR $it" } ?: ""),
             )
             Api.notify(env, job, report)
+            Api.notifyWanted(env, job, engine.wantedAdded)
             // The channels the person set up (Notify.kt): in the background, never failing the run.
             Notify.afterRun(env, job, report)
             if (scheduled && !report.ok && isTransientNetwork(report.error)) {

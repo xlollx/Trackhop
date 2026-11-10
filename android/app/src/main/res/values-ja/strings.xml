@@ -1826,4 +1826,18 @@
     <string name="job_scheduled_on">%1$s でスケジュール中</string>
     <string name="backup_device_other">もう一方の端末</string>
     <string name="note_duplicates_repaired">同期先から重複を削除しました：%1$d 件。どの曲も同期先に 2 回あり、移動元には 1 回だけです。</string>
+    <string name="tools_wanted_title">サーバーにない曲</string>
+    <string name="tools_row_wanted">プレイリストにあって、自分のサーバーにまだない曲。</string>
+    <string name="tools_wanted_desc">自分のサーバーへの同期で見つからなかった曲を、1 曲ずつまとめます。手に入れた曲にチェックを入れるとリストから消えます。ダウンロードや購入は一切しません。</string>
+    <string name="tools_wanted_no_server">自分のサーバー（Navidrome、Jellyfin、Emby、Plex、Lyrion、Mopidy）への同期はまだありません。</string>
+    <string name="tools_wanted_empty">足りない曲はありません。サーバーにすべてそろっています。</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="other">%1$d 曲が足りません</item>
+    </plurals>
+    <string name="tools_wanted_by_album">アルバム別</string>
+    <string name="tools_wanted_show_got">入手済みも表示</string>
+    <string name="tools_wanted_from">%1$s から · %2$s 以降</string>
+    <string name="tools_wanted_no_album">アルバムなし</string>
+    <string name="tools_wanted_export">リストを書き出す</string>
+    <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
 </resources>

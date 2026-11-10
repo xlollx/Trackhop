@@ -1826,4 +1826,18 @@
     <string name="job_scheduled_on">已在 %1$s 上定时</string>
     <string name="backup_device_other">另一台设备</string>
     <string name="note_duplicates_repaired">已从目标中移除重复项：%1$d 个。这些歌曲在目标中各出现两次，而来源中只有一次。</string>
+    <string name="tools_wanted_title">我的服务器上缺少的歌曲</string>
+    <string name="tools_row_wanted">歌单里有、但你自己的服务器上还没有的歌曲。</string>
+    <string name="tools_wanted_desc">同步到你自己服务器时没找到的歌曲，每首只列一次。勾选已获得的歌曲，它就会从列表中移除。不会下载或购买任何东西。</string>
+    <string name="tools_wanted_no_server">还没有同步到你自己的服务器（Navidrome、Jellyfin、Emby、Plex、Lyrion 或 Mopidy）。</string>
+    <string name="tools_wanted_empty">没有缺少的歌曲：你的服务器全都有。</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="other">缺少 %1$d 首歌曲</item>
+    </plurals>
+    <string name="tools_wanted_by_album">按专辑</string>
+    <string name="tools_wanted_show_got">显示已获得的</string>
+    <string name="tools_wanted_from">来自 %1$s · 自 %2$s 起</string>
+    <string name="tools_wanted_no_album">无专辑</string>
+    <string name="tools_wanted_export">导出列表</string>
+    <string name="tools_wanted_lidarr">Lidarr 列表</string>
 </resources>

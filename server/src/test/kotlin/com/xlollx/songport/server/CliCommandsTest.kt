@@ -217,6 +217,27 @@ class CliCommandsTest {
         }
     }
 
+    @Test fun theTracksMissingOnTheServerFromTheCommandLine() {
+        assertEquals("Nothing missing on your server.", cli("wanted").out.trim())
+        val t = { id: String, title: String, artist: String, album: String -> com.xlollx.songport.model.Track(id, title, listOf(artist), album = album) }
+        env.store.update { d ->
+            d.copy(
+                jobs = listOf(com.xlollx.songport.model.SyncJob("w", "To Jellyfin", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("jellyfin", "t", "T"))),
+                reports = listOf(com.xlollx.songport.model.SyncReport("rw", "w", "To Jellyfin", 1_780_000_000_000, 10, sourceCount = 3,
+                    unmatchedTracks = listOf(t("1", "Paranoid", "Black Sabbath", "Paranoid"), t("2", "Iron Man", "Black Sabbath", "Paranoid")))) + d.reports,
+            )
+        }
+        val listed = cli("wanted")
+        assertEquals(listed.toString(), 0, listed.code)
+        assertTrue(listed.out, listed.out.contains("2 tracks missing") && listed.out.contains("Black Sabbath - Iron Man  [Paranoid]  <- To Jellyfin"))
+        assertTrue(cli("wanted", "--albums").out.contains("Black Sabbath - Paranoid\n  Black Sabbath - Iron Man  <- To Jellyfin"))
+        assertEquals("Black Sabbath - Iron Man\nBlack Sabbath - Paranoid\n", cli("wanted", "--format", "text").out)
+        assertTrue(cli("wanted", "--json", "--sync", "To Jellyfin").out.contains("\"count\": 2"))
+        assertEquals("0", Regex(""""count": (\d+)""").find(cli("wanted", "--json", "--since", "2026-06-01").out)!!.groupValues[1])
+        val tool = Mcp.run(Cli.connect(null, null) { data }, Mcp.callFor("list_missing_on_server", Json.parseToJsonElement("""{"format":"csv"}""").jsonObject))
+        assertTrue(tool.second, tool.first && tool.second.startsWith("title,artist,album"))
+    }
+
     @Test fun runsReportsAndTheReview() {
         assertEquals(0, cli("run", "j1", "--wait").code)
         val runs = cli("runs", "Road trip")
@@ -331,7 +352,7 @@ class CliCommandsTest {
         val tools = list["result"]!!.jsonObject["tools"]!!.jsonArray.map { it.jsonObject }
         fun hint(name: String, k: String) = tools.first { it["name"]!!.jsonPrimitive.content == name }["annotations"]!!.jsonObject[k]?.jsonPrimitive?.content
         for (t in listOf("delete_sync", "review_tracks", "remove_duplicates", "delete_files")) assertEquals(t, "true", hint(t, "destructiveHint"))
-        for (t in listOf("preview_sync", "list_runs", "get_review", "search_tracks", "convert_tracks", "find_duplicates", "find_untagged_songs", "export_playlist", "get_stats")) assertEquals(t, "true", hint(t, "readOnlyHint"))
+        for (t in listOf("preview_sync", "list_runs", "get_review", "search_tracks", "convert_tracks", "find_duplicates", "find_untagged_songs", "list_missing_on_server", "export_playlist", "get_stats")) assertEquals(t, "true", hint(t, "readOnlyHint"))
         // And they run the commands.
         val api = Cli.connect(null, null) { data }
         fun call(tool: String, args: String): Pair<Boolean, String> = Mcp.run(api, Mcp.callFor(tool, Json.parseToJsonElement(args).jsonObject))

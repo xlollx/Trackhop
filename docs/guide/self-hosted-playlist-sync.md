@@ -67,6 +67,20 @@ file has no tags, the sync matches by title, artists and duration as before. **T
 tags** counts and lists the songs on your server without tags. Trackhop only reads: it never
 rewrites a file's tags.
 
+## Missing on my server
+
+**Tools → Missing on my server** is the shopping list for your library: the tracks of your Spotify,
+Apple Music, TIDAL, Deezer or YouTube Music playlists that your Navidrome (or other Subsonic server),
+Jellyfin, Emby, Plex, Lyrion or Mopidy does not have. It is made from what your syncs to your server
+could not find, each track once even when several syncs or services want it: artist, title, album,
+length, ISRC, the MusicBrainz id when the syncs' lookups found it (this list never asks MusicBrainz
+itself), which syncs want it and since when. See it by album, tick what you got (it leaves the list)
+and download it as CSV, M3U, plain "Artist - Title" text or a list for Lidarr. On Docker and Desktop
+the same list is in the [API](docker#api) (`GET /api/v1/wanted`, also in Lidarr's *Custom List*
+shape), the [command line](cli) (`trackhop wanted`) and the AI assistant's tools, and the webhook
+can tell you when new tracks go missing (`wanted.added`). Trackhop downloads and buys nothing: what
+you do with the list is up to you.
+
 Step by step: [Spotify to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin).
 
 [All guide pages](./)

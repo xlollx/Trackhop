@@ -88,6 +88,11 @@ object Cli {
         Cmd("duplicates", "Services and playlists", listOf("duplicates <service> <playlist> [--remove [--wait]]"), "the tracks a playlist has more than once (--remove: the extra copies go)"),
         Cmd("mbtags", "Services and playlists", listOf("mbtags [<service>]"), "the songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags",
             "With the tags a sync finds the exact recording. Nothing is changed. <service> can be left out when only one such server is connected."),
+        Cmd("wanted", "Services and playlists", listOf("wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]"),
+            "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
+            "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
+                "lidarr is Lidarr's Custom List (artists with a known MusicBrainz id). --albums groups by album, --all shows the ticked ones too,\n" +
+                "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones."),
         Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|txt]"), "a playlist as a file (to stdout without <file>)"),
         Cmd("files", "Files and backups", listOf(
             "files",
@@ -133,8 +138,8 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label")
+    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals")
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since")
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

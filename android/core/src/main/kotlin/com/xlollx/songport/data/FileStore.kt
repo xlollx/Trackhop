@@ -144,7 +144,19 @@ data class StoreData(
     val wrapped: List<Wrapped.Saved> = emptyList(),
     /** What the two sides of a two-way pair with removals both held after its last complete run, by [FileStore.pairKey]. */
     val pairStates: Map<String, PairState> = emptyMap(),
+    /** The "Missing on my server" list's memory, by entry id (see sync/Wanted): when each was first seen, and the ones ticked. */
+    val wanted: Map<String, WantedMark> = emptyMap(),
+    /** When that list was first worked out (0 = never yet): what it held then is not news for the webhook. */
+    val wantedSince: Long = 0,
 )
+
+/**
+ * One entry of the "Missing on my server" list as this device remembers it: when it first showed up,
+ * and whether the user ticked it (got it: hidden). Like [LastWrites] it stays on the device: a
+ * configuration file leaves it out.
+ */
+@Serializable
+data class WantedMark(val firstSeen: Long, val got: Boolean = false)
 
 /**
  * The common state of a two-way pair: the tracks both playlists held after the last complete run

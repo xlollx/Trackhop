@@ -1864,4 +1864,19 @@
     <string name="job_scheduled_on">Programada en %1$s</string>
     <string name="backup_device_other">el otro dispositivo</string>
     <string name="note_duplicates_repaired">Duplicados quitados del destino: %1$d. Cada una de estas pistas estaba dos veces y en el origen está una sola.</string>
+    <string name="tools_wanted_title">Falta en mi servidor</string>
+    <string name="tools_row_wanted">Canciones de tus playlists que tu propio servidor aún no tiene.</string>
+    <string name="tools_wanted_desc">Lo que tus sincros hacia tu servidor no encontraron, cada canción una sola vez. Marca lo que ya tienes y sale de la lista. No se descarga ni se compra nada.</string>
+    <string name="tools_wanted_no_server">Ninguna de tus sincros va todavía a tu propio servidor (Navidrome, Jellyfin, Emby, Plex, Lyrion o Mopidy).</string>
+    <string name="tools_wanted_empty">No falta nada: tu servidor lo tiene todo.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">Falta %1$d canción</item>
+        <item quantity="other">Faltan %1$d canciones</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Por álbum</string>
+    <string name="tools_wanted_show_got">Mostrar lo que ya tengo</string>
+    <string name="tools_wanted_from">De %1$s · desde %2$s</string>
+    <string name="tools_wanted_no_album">Sin álbum</string>
+    <string name="tools_wanted_export">Exportar la lista</string>
+    <string name="tools_wanted_lidarr">Lista para Lidarr</string>
 </resources>

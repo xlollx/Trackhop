@@ -108,6 +108,10 @@ class SyncEngine(
     private val mbidTagged: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
     private val mbidBlind = java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>()
 
+    /** The tracks the last [run] put on the "Missing on my server" list for the first time (see [Wanted]): the server's webhook tells them. */
+    @Volatile var wantedAdded: List<Wanted.Want> = emptyList()
+        private set
+
     suspend fun run(job: SyncJob, unattended: Boolean = false, onProgress: (Progress) -> Unit = {}): SyncReport {
         val started = System.currentTimeMillis()
         val reportId = UUID.randomUUID().toString()
@@ -179,6 +183,8 @@ class SyncEngine(
             lock?.unlock()
         }
         store.addReport(report)
+        // A run towards the user's own server: its not found join the shopping list, dated today when new.
+        if (report.ok && Wanted.isServer(job.target.provider)) wantedAdded = runCatching { Wanted.refresh(store) { MusicBrainz.known(env, it) } }.getOrDefault(emptyList())
         if (report.error == null && dst0 != null) {
             // The target's version after our own writes: the next scheduled run compares against it.
             val latest = store.job(job.id) ?: job

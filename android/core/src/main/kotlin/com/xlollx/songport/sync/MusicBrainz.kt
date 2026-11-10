@@ -11,7 +11,7 @@ import com.xlollx.songport.platform.Env
 
 /**
  * The MusicBrainz recordings behind an ISRC, from the public MusicBrainz API (no key, no account):
- * `https://musicbrainz.org/ws/2/isrc/<ISRC>?fmt=json`.
+ * `https://musicbrainz.org/ws/2/isrc/<ISRC>?fmt=json&inc=artist-credits`.
  *
  * A personal server (Navidrome, Jellyfin, Emby, Plex) whose files were tagged with MusicBrainz
  * Picard or beets knows each file's recording id. A track coming from Spotify, Apple Music, TIDAL
@@ -30,6 +30,8 @@ object MusicBrainz {
         internal set
 
     private const val PREFS = "musicbrainz_isrc"
+    /** The artists of those recordings, by the same ISRC: given by the same answer, for the "Missing on my server" list (see [Wanted]). */
+    private const val ARTISTS = "musicbrainz_isrc_artists"
     private const val TTL_MS = 180L * 24 * 3_600_000
     /** "No recording" is asked again sooner: MusicBrainz gains ISRCs every day. */
     private const val NEGATIVE_TTL_MS = 30L * 24 * 3_600_000
@@ -66,14 +68,14 @@ object MusicBrainz {
             if (now() - at < (if (ids.isEmpty()) NEGATIVE_TTL_MS else TTL_MS)) { synchronized(memory) { memory[k] = ids }; return ids }
         }
         if (now() < restUntil) return emptyList()
-        val ids = try {
+        val found = try {
             pace.paced { lookup(k) }
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e // The run ended: not a failed lookup.
         } catch (e: Exception) {
             null
         }
-        if (ids == null) {
+        if (found == null) {
             // Not remembered: a busy MusicBrainz (503) or a network hiccup is not "no recording".
             if (++failures >= MAX_FAILURES) {
                 failures = 0
@@ -83,23 +85,47 @@ object MusicBrainz {
             return emptyList()
         }
         failures = 0
+        val (ids, artists) = found
         synchronized(memory) { memory[k] = ids }
         if (prefs.size >= MAX) prefs.clear()
         prefs[k] = "${ids.joinToString(",")}|${now()}"
+        val artistPrefs = env.keyValues(ARTISTS)
+        if (artistPrefs.size >= MAX) artistPrefs.clear()
+        if (artists.isNotEmpty()) artistPrefs[k] = artists.joinToString(",")
         return ids
     }
 
-    /** The ids, empty when MusicBrainz does not know the ISRC (404), null when it did not answer the question. */
-    private suspend fun lookup(isrc: String): List<String>? {
+    /** What this device already knows of an ISRC from earlier lookups: the recordings and their artists. */
+    data class Known(val recordings: List<String>, val artists: List<String>)
+
+    /**
+     * What the cache holds for [isrc], however old; null when it was never asked. Never asks
+     * MusicBrainz: the "Missing on my server" list reads only what the syncs already looked up.
+     */
+    fun known(env: Env, isrc: String?): Known? {
+        val k = isrc?.trim()?.uppercase()?.replace("-", "")?.takeIf { ISRC.matches(it) } ?: return null
+        val saved = synchronized(memory) { memory[k] }?.joinToString(",") ?: env.keyValues(PREFS)[k]?.substringBefore('|') ?: return null
+        val artists = env.keyValues(ARTISTS)[k].orEmpty()
+        return Known(saved.split(',').filter { it.isNotEmpty() }, artists.split(',').filter { it.isNotEmpty() })
+    }
+
+    /**
+     * The recording ids and their artists' ids, empty when MusicBrainz does not know the ISRC (404),
+     * null when it did not answer the question. The artists come with the same answer
+     * (`inc=artist-credits`): no request of their own.
+     */
+    private suspend fun lookup(isrc: String): Pair<List<String>, List<String>>? {
         // No retry inside: a second request right after a 503 would break the one-a-second rule.
         val r = Http.send(
-            "GET", "$base/isrc/$isrc?fmt=json",
+            "GET", "$base/isrc/$isrc?fmt=json&inc=artist-credits",
             mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to "application/json"),
             maxRateLimitRetries = 0, retryServerErrors = false,
         )
-        if (r.code == 404 || r.code == 400) return emptyList()
+        if (r.code == 404 || r.code == 400) return emptyList<String>() to emptyList()
         if (!r.ok) return null
-        return parseJson(r.body)["recordings"].arr.mapNotNull { mbid(it["id"].str) }.distinct()
+        val recordings = parseJson(r.body)["recordings"].arr
+        return recordings.mapNotNull { mbid(it["id"].str) }.distinct() to
+            recordings.flatMap { rec -> rec["artist-credit"].arr.mapNotNull { mbid(it["artist"]["id"].str) } }.distinct()
     }
 
     /** Tests: forgets what is in memory and any rest after failures. */
