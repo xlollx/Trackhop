@@ -58,8 +58,12 @@ class WebEngine(val config: Config) {
     private val pending = ConcurrentHashMap<String, CompletableFuture<Response>>()
     private val idle = Runnable { if (pending.isEmpty()) teardown("idle") }
 
-    /** False once the engine could not start in this process: callers fall back to plain HTTP. */
-    fun usable(): Boolean = enabled && !broken
+    /**
+     * Whether calls go through the engine at all (not in JVM tests). A start that failed fails that
+     * call only: the next one starts the engine again, so one bad start does not leave the service on
+     * plain HTTP for the rest of the process.
+     */
+    fun usable(): Boolean = enabled
 
     /**
      * Sends [method] [url] from the site's page. [body] goes as is with [contentType]; with
@@ -98,8 +102,8 @@ class WebEngine(val config: Config) {
      */
     fun warm(ctx: Context) {
         if (warmed) return
-        warmed = true
         teardown("warming")
+        warmed = true
         ensureStarted(ctx.applicationContext, config.fullUrl)
         Thread.sleep(WARM_SETTLE_MS)
         BridgeNet.log(config.service, "browser engine: the player's page loaded for its calls")
@@ -152,6 +156,8 @@ class WebEngine(val config: Config) {
     private fun notStarted() = BridgeException("the browser engine for ${config.service} could not be started")
 
     private fun teardown(why: String) {
+        // The next engine starts from the light page again: the player's page is loaded anew when asked.
+        warmed = false
         val w = web ?: return
         web = null; ready = null
         main.post { runCatching { w.destroy() } }

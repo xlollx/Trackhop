@@ -425,7 +425,8 @@ fun SyncsScreen(
                         c,
                         onDismiss = { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) },
                         onShow = { filter = SyncFilter(ids = c.jobIds.toSet()) },
-                        onSpread = { spreading = c },
+                        // Nothing to move (syncs every few hours only): no button that opens an empty list.
+                        onSpread = if (com.xlollx.songport.sync.Timing.spread(data.jobs, c, sensitive = ::spreads).isEmpty()) null else ({ spreading = c }),
                     )
                 }
             }
@@ -1830,7 +1831,7 @@ private fun CoffeeCard() {
 }
 
 /** La richiesta di contributo: cosa ha appena fatto l'app, perche' e' gratis, un tocco per offrire un caffe'. */
-private fun crowdKey(c: com.xlollx.songport.sync.Timing.Crowd) = c.service + "@" + c.at + ":" + c.jobIds.sorted().joinToString(",")
+private fun crowdKey(c: com.xlollx.songport.sync.Timing.Crowd) = c.service + ":" + c.jobIds.sorted().joinToString(",")
 
 /** The services where many syncs at once can be turned away (MusicProvider.spreadSchedules). */
 private fun spreads(id: String): Boolean = Providers.byId(id)?.spreadSchedules == true
@@ -1838,7 +1839,7 @@ private fun spreads(id: String): Boolean = Providers.byId(id)?.spreadSchedules =
 /** Several syncs reach one service at the same time: why that can fail, and two ways out. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit, onShow: () -> Unit, onSpread: () -> Unit) {
+private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: () -> Unit, onShow: () -> Unit, onSpread: (() -> Unit)?) {
     val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
     val ink = MaterialTheme.colorScheme.onSecondaryContainer
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
@@ -1852,7 +1853,7 @@ private fun CrowdCard(crowd: com.xlollx.songport.sync.Timing.Crowd, onDismiss: (
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), verticalArrangement = Arrangement.Center) {
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.whats_new_got_it), color = ink) }
                 TextButton(onClick = onShow) { Text(stringResource(R.string.crowd_show), color = ink) }
-                FilledTonalButton(onClick = onSpread) { Text(stringResource(R.string.crowd_spread)) }
+                if (onSpread != null) FilledTonalButton(onClick = onSpread) { Text(stringResource(R.string.crowd_spread)) }
             }
         }
     }
