@@ -327,6 +327,9 @@ object SharedGroups {
                         SharedEvent.of(op, t, me.id, ++seq, maxOf(now, (latest[key] ?: 0) + 1)).copy(key = key).signed(group.id, me)
                     }
                     val st = s.copy(events = GroupLog.compact(s.events + fresh), seq = seq, seen = s.seen + fresh.associate { it.id to now })
+                    // Kept before the folder is written: a number once signed is never given to another
+                    // action, even when the write fails half way (two events with one number: one is lost).
+                    save(env, group.id, st)
                     publish(env, group, st, SharedFolders.open(group.folder))
                 }
                 group.keepMine -> if (op == SharedEvent.ADD) {

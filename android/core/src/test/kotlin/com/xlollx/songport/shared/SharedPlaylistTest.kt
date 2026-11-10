@@ -407,6 +407,31 @@ class SharedPlaylistTest {
         assertTrue(SharedGroups.members(ana.group, ana.state()).first { it.id == me }.left)
     }
 
+    /** The folder cannot be written while Ana adds a song: her numbers stay used, and the song goes out on the next run. */
+    @Test fun aFailedWriteNeverGivesANumberTwice() {
+        group()
+        val seqBefore = ana.state().seq
+        ana.add("6")
+        try {
+            SharedFolders.opener = { ref ->
+                object : GroupFolder by DirFolder(File(ref)) {
+                    override fun write(name: String, bytes: ByteArray) = throw java.io.IOException("offline")
+                }
+            }
+            runBlocking { ana.engine.run(ana.env.store.job(ana.group.twinId)!!) }
+            assertFalse(File(folder, FolderTransport.fileName(ana.groupId, ana.group.me)).readText().contains("Song 6"))
+        } finally {
+            SharedFolders.opener = { DirFolder(File(it)) }
+        }
+        assertTrue(ana.state().seq > seqBefore)
+        everyone()
+        everyone()
+        assertTrue("6" in cleo.songs)
+        assertTrue("6" in ben.songs)
+        val anas = ana.state().events.filter { it.by == ana.group.me }
+        assertEquals(anas.size, anas.map { it.seq }.distinct().size)
+    }
+
     private fun assertThrowsProvider(block: () -> Unit) {
         val e = runCatching(block).exceptionOrNull()
         assertNotNull("expected a refusal", e)
