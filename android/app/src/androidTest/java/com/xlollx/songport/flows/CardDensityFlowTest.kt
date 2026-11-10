@@ -286,11 +286,13 @@ class CardDensityFlowTest : FlowTest() {
             j.color == "pink" && com.xlollx.songport.sync.Labels.name(j, store.data.settings.labels) == "Loud"
         }
 
-        // Move to: the number typed is still there after the turn back.
+        // Move to, upright again: the number typed is still there after a turn.
+        rotate(UiAutomation.ROTATION_FREEZE_0)
+        waitText("Sync number 1")
         clickDesc(s(R.string.more_actions))
         click(s(R.string.sync_menu_move_to))
         compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("3")
-        rotate(UiAutomation.ROTATION_FREEZE_0)
+        rotate(UiAutomation.ROTATION_FREEZE_90)
         waitNode("the position typed", androidx.compose.ui.test.hasSetTextAction() and hasText("3"))
         click(s(R.string.ok))
         waitFor("sync 1 moved to the end") { store.data.jobs.last().id == "job-1" }

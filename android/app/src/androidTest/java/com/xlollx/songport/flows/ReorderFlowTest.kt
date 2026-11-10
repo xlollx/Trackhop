@@ -17,8 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Cards held and dragged at the end of the list, where the upper card on screen is the list's
- * first visible item, half under the Sync-all pill (07/11 report): the card dragged down past the
+ * Cards held and dragged at the end of the list, where the upper card on screen is partly under the
+ * Sync-all pill (07/11 report): the card dragged down past the
  * next one stays there instead of snapping back, and the last card dragged up lands above it.
  */
 @RunWith(AndroidJUnit4::class)
@@ -46,8 +46,11 @@ class ReorderFlowTest : FlowTest() {
      */
     private fun cardsOnScreen(): List<Pair<Int, Float>> {
         val top = listTop()
+        // Under the pinned Sync-all pill nothing of a card shows: one counts once a good part of it is below.
+        val shows = (pinnedPillBottom() ?: top) + 48 * app.resources.displayMetrics.density
         return (1..n).mapNotNull { i ->
-            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()?.takeIf { it.boundsInRoot.center.y > top }?.let { i to it.positionInRoot.y }
+            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()
+                ?.takeIf { it.boundsInRoot.center.y > top && it.positionInRoot.y + it.size.height > shows }?.let { i to it.positionInRoot.y }
         }.sortedBy { it.second }
     }
 
