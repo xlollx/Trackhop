@@ -211,10 +211,14 @@ class NtfyServer(address: String) {
             val source = res.body?.source() ?: return emptyList()
             val out = ArrayList<NtfyMessage>()
             var read = 0L
-            while (read < MAX_POLL_BYTES) {
-                val line = source.readUtf8Line() ?: break
+            // A line longer than [MAX_LINE] is skipped without being held whole.
+            var skipping = false
+            while (read < MAX_POLL_BYTES && !source.exhausted()) {
+                val nl = source.indexOf('\n'.code.toByte(), 0, MAX_LINE)
+                if (nl < 0 && source.request(MAX_LINE)) { source.skip(MAX_LINE); read += MAX_LINE; skipping = true; continue }
+                val line = if (nl >= 0) source.readUtf8(nl).also { source.skip(1) } else source.readUtf8()
                 read += line.length + 1
-                if (line.length > NtfyWire.MAX_MESSAGE * 2) continue
+                if (skipping) { skipping = false; continue }
                 val o = runCatching { Json.parseToJsonElement(line).jsonObject }.getOrNull() ?: continue
                 if (o["event"]?.jsonPrimitive?.contentOrNull != "message") continue
                 val text = o["message"]?.jsonPrimitive?.contentOrNull ?: continue
@@ -226,6 +230,8 @@ class NtfyServer(address: String) {
 
     companion object {
         const val MAX_POLL_BYTES = 6L * 1024 * 1024
+        /** Longer than this, a line holds no message of ours (they stay near 3 KB). */
+        const val MAX_LINE = 16L * 1024
         private val TEXT = "text/plain; charset=utf-8".toMediaType()
 
         private val client by lazy {

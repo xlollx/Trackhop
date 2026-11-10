@@ -174,6 +174,15 @@ class NtfyGroupTest {
         assertTrue("messages: ${ntfy.published}", ntfy.published < 40)
     }
 
+    @Test fun aServerAnsweringNonsenseIsReadWithoutHarm() {
+        val other = MockWebServer()
+        other.enqueue(okhttp3.mockwebserver.MockResponse().setBody("x".repeat(100_000) + "\n" + "{\"event\":\"message\",\"time\":1,\"message\":\"hi\"}\nnot json\n"))
+        other.start()
+        try {
+            assertEquals(listOf("hi"), NtfyServer(other.url("/").toString()).poll("topic", "all").map { it.text })
+        } finally { other.shutdown() }
+    }
+
     @Test fun leavingForgetsTheChannelState() {
         val invite = create("1")
         join(ben, invite)
