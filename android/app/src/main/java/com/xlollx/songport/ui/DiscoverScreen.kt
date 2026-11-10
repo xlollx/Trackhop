@@ -72,6 +72,7 @@ import com.xlollx.songport.providers.importTracks
  */
 internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes: Int, val descRes: Int, val ai: Boolean = false) {
     WRAPPED("✨", 0xFF6B4BD8, R.string.discover_wrapped_title, R.string.discover_wrapped_desc),
+    RELEASES("🆕", 0xFF8E24AA, R.string.discover_releases_title, R.string.discover_releases_desc),
     LINK("🔗", 0xFF5B3FD9, R.string.discover_link_title, R.string.discover_link_desc),
     COMPAT("💞", 0xFFC2185B, R.string.tools_compat_title, R.string.discover_compat_desc),
     ROAST("🔥", 0xFFE65100, R.string.discover_roast_title, R.string.discover_roast_desc, ai = true),
@@ -97,6 +98,8 @@ fun DiscoverScreen(
     onGoToAccounts: () -> Unit = {},
     onBackup: () -> Unit = {},
     onNewSyncFromFile: (name: String, fileId: String) -> Unit = { _, _ -> },
+    /** A new sync opened in the editor, as the page sets it up (New releases: from its file, or the weekly one). */
+    onNewSync: (com.xlollx.songport.model.SyncJob.() -> com.xlollx.songport.model.SyncJob) -> Unit = {},
     /** Grows when the Discover tab is tapped again while it is open: back to the list of cards. */
     homeRequests: Int = 0,
     /** Asked from elsewhere (an idea on the Syncs tab): the Wrapped opens, once. */
@@ -145,6 +148,7 @@ fun DiscoverScreen(
             ) {
                 when (current) {
                     DiscoverCard.WRAPPED -> WrappedPage(local, onGoToAccounts)
+                    DiscoverCard.RELEASES -> ReleasesPage(local, onNewSync)
                     DiscoverCard.LINK -> UniversalLinkPage(local)
                     DiscoverCard.COMPAT -> CompatibilityCard(local, compareLinks) { name, tracks ->
                         // The songs in common become a file playlist, the source of a new sync to any service.

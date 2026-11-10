@@ -509,7 +509,9 @@ object Providers {
      * se il token o la sessione nell'app plugin sono ancora validi.
      */
     fun connectors(): List<MusicProvider> = connectorIds.mapNotNull { id -> cached.firstOrNull { it.id == id } }
+    /** The connector [id] names; also the "New releases" source, which every build has and no list shows. */
     fun byId(id: String): MusicProvider? = testDoubles.firstOrNull { it.id == id } ?: cached.firstOrNull { it.id == id }
+        ?: NewReleasesProvider.takeIf { id == it.id }
     /** Un'istanza per servizio (account principale). */
     fun services(): List<MusicProvider> = cached.filter { it.slot.isEmpty() }
     /** Tutte le istanze (account) di un servizio. */

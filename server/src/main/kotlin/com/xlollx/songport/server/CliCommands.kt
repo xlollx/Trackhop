@@ -55,6 +55,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "convert" -> { need(p, 2, "convert <service> <track>..."); convert(p[0], p.drop(1)) }
         "duplicates" -> { need(p, 2, "duplicates <service> <playlist> [--remove]"); duplicates(p[0], p[1], o) }
         "mbtags" -> mbTags(p.joinToString(" ").takeIf { it.isNotEmpty() })
+        "releases" -> { need(p, 2, "releases <service> <playlist> [--days 7|30|90] [--upcoming]"); releases(p[0], p.drop(1).joinToString(" "), o) }
         "wanted" -> wanted(o)
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
@@ -666,6 +667,21 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         if (groups.isEmpty()) out.println("No duplicates in ${pl.s("name")}.")
         groups.forEach { g -> out.println("${ref(g["track"]!!.jsonObject)}  x${g.n("copies")}") }
         if (groups.isNotEmpty()) out.println("${r.n("extraCopies")} extra copies${if (r.b("canRemove")) ": trackhop duplicates ${s.s("id")} \"${pl.s("name")}\" --remove" else ""}")
+        return 0
+    }
+
+    private fun releases(serviceAsk: String, playlistAsk: String, o: Cli.Opts): Int {
+        val s = service(serviceAsk)
+        val pl = playlist(s.s("id"), playlistAsk)
+        val days = o.value("days")?.let { d -> d.toIntOrNull()?.takeIf { it in 1..365 } ?: throw Cli.Failure(2, "--days is a number of days: 7, 30 or 90") } ?: 30
+        if (!asJson) out.println("Checking the artists of ${pl.s("name")} on Deezer and MusicBrainz (about a second each)...")
+        val r = api.get("releases?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}&days=$days" + if (o.has("upcoming")) "&upcoming=true" else "").jsonObject
+        if (asJson) return print(r).let { 0 }
+        val list = r["releases"]?.jsonArray.orEmpty().map { it.jsonObject }
+        val artists = r["artists"]?.jsonArray?.size ?: 0
+        if (list.isEmpty()) out.println("Nothing new from the $artists artists of ${pl.s("name")} in the last $days days.")
+        list.forEach { x -> out.println("${x.s("date")}  ${x.s("artist")} - ${x.s("title")}  (${x.s("type")}${if (x.b("upcoming")) ", coming soon" else ""})  ${x.s("link")}") }
+        if (r.n("unanswered") > 0) out.println("${r.n("unanswered")} of $artists artists could not be checked right now: try again later.")
         return 0
     }
 

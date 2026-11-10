@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.notify.Notify
 import com.xlollx.songport.model.Progress
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
@@ -73,8 +74,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
             )
             Api.notify(env, job, report)
             Api.notifyWanted(env, job, engine.wantedAdded)
-            // The channels the person set up (Notify.kt): in the background, never failing the run.
-            Notify.afterRun(env, job, report)
+            // The channels the person set up (core's Notify): in the background, never failing the run.
+            if (env.may(Permissions.API)) Notify.afterRun(env, job, report)
             if (scheduled && !report.ok && isTransientNetwork(report.error)) {
                 retryAt[job.id] = System.currentTimeMillis() + RETRY_MS
                 env.log("sync", "no network for ${job.name}: will retry")

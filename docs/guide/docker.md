@@ -545,7 +545,9 @@ found.
 A short message on your phone or in a chat when a sync ends with something to know: in
 **Settings › Notifications**, add as many channels as you like, each with its own events (a sync
 added or removed tracks, a sync failed or a sign-in expired, tracks to review, removals waiting for
-your confirmation), and try it with **Send test**. The message says the sync's name, `+added
+your confirmation, a weekly [New releases](new-releases) sync found new music of your artists), and
+try it with **Send test**. The Android app has the same channels, in *Settings › Notification
+channels*: there their keys are kept encrypted on the phone and never exported either. The message says the sync's name, `+added
 −removed` and the error's first line: never your tokens or your server's address. Sending happens
 apart from the sync (10 seconds at most per channel); a channel that fails is noted in the log and
 never fails the sync. Tokens are kept in the data folder like the sign-ins, shown masked
@@ -646,6 +648,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
+| `GET /api/v1/releases` | New releases: the albums, EPs and singles the artists of a playlist released lately (Deezer and MusicBrainz, no account). `?service=spotify&playlist=<id>` (or `playlist=spotify:<id>`), `days=30` (1 to 365), `upcoming=true` adds what is announced, `artists=50` (up to 100), `tracks=true` adds the songs. Each artist is cached a day; a first search takes about a second per artist. The answer's `source` is the source of a weekly "New releases" sync: `POST /api/v1/syncs` with it, `"schedule": "weekly"`, `"changes": "archive"`. |
 | `POST /api/v1/wanted/got` | Tick entries as got (`{"ids": ["…"]}`; `"got": false` puts them back). |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 

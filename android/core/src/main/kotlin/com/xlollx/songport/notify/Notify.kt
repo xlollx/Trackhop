@@ -1,7 +1,9 @@
-package com.xlollx.songport.server
+package com.xlollx.songport.notify
 
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
+import com.xlollx.songport.data.Tokens
+import com.xlollx.songport.platform.Env
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -30,21 +32,28 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Notifications: a short message to the person's phone or chat when a sync run ends with something
- * worth knowing (changes, an error, tracks to review, removals held back). Any number of channels,
- * each with the events it wants: Telegram, ntfy, Gotify, Discord, Slack, Matrix and Pushover. The
- * webhook (Api.kt) stays as it was, for tools that want the whole run as JSON.
+ * worth knowing (changes, an error, tracks to review, removals held back, new releases of their
+ * artists). Any number of channels, each with the events it wants: Telegram, ntfy, Gotify, Discord,
+ * Slack, Matrix and Pushover. The same on the server (Docker, Desktop) and in the Android app; the
+ * server's webhook (Api.kt) stays as it was, for tools that want the whole run as JSON.
  *
- * Channels live in `kv/notify.json`, written readable by its owner only like the webhook's secret
- * and the sign-ins (Storage.kt: the data folder is the boundary on a server). Their secrets are never
- * shown back in full, never put in a message, and left out of the configuration backups, as the
- * services' sign-ins are (ConfigBackup). On a shared server each person has their own, since each
- * engine has its own data folder (MultiUser.kt).
+ * Channels live in the "notify" key-values of the [Env]. On the server that is `kv/notify.json`,
+ * secrets included, written readable by its owner only like the webhook's secret and the sign-ins
+ * (Storage.kt: the data folder is the boundary on a server); on a shared server each person has
+ * their own, since each engine has its own data folder (MultiUser.kt). The app keeps the secrets
+ * apart, in the store its sign-ins are in ([Env.tokens], encrypted with the Android Keystore):
+ * [secretsInVault]. Secrets are never shown back in full, never put in a message, and left out of
+ * the configuration backups, as the services' sign-ins are (ConfigBackup).
  *
  * Sending never holds or fails a sync: it happens on a thread of its own, at most [TIMEOUT_S]
  * seconds per channel, and a failure only goes to the log.
  */
 object Notify {
     private const val KV = "notify"
+    private const val VAULT = "notify:"
+
+    /** Secrets kept in [Env.tokens] rather than with the channels: the app turns it on at start. */
+    @Volatile var secretsInVault = false
     private const val TIMEOUT_S = 10L
 
     /** What a channel can be told about. */
@@ -53,6 +62,7 @@ object Notify {
         FAILED("failed", "A sync failed (a sign-in expired, a service did not answer)"),
         REVIEW("review", "Tracks to review (uncertain matches)"),
         REMOVALS("removals", "Removals waiting for your confirmation"),
+        RELEASES("releases", "New releases of your artists (a weekly New releases sync found some)"),
         ;
 
         companion object {
@@ -137,24 +147,35 @@ object Notify {
 
     // ------------------------------------------------------------------ storage
 
-    fun channels(env: ServerEnv): List<Channel> {
+    fun channels(env: Env): List<Channel> {
         val raw = env.keyValues(KV)["channels"].orEmpty().ifEmpty { return emptyList() }
-        return runCatching { Json.parseToJsonElement(raw).jsonArray.mapNotNull { fromJson(it, withSecrets = true) } }.getOrDefault(emptyList())
+        val list = runCatching { Json.parseToJsonElement(raw).jsonArray.mapNotNull { fromJson(it, withSecrets = true) } }.getOrDefault(emptyList())
+        if (!secretsInVault) return list
+        return list.map { c ->
+            val kept = env.tokens.get(VAULT + c.id)?.extra.orEmpty()
+            c.copy(values = c.values + c.kind.fields.filter { it.secret }.associate { it.key to kept[it.key].orEmpty() })
+        }
     }
 
-    fun channel(env: ServerEnv, id: String): Channel? = channels(env).firstOrNull { it.id == id }
+    fun channel(env: Env, id: String): Channel? = channels(env).firstOrNull { it.id == id }
 
-    private fun save(env: ServerEnv, list: List<Channel>) {
-        env.keyValues(KV)["channels"] = JsonArray(list.map { toJson(it, secrets = Secrets.KEEP) }).toString()
+    private fun save(env: Env, list: List<Channel>) {
+        if (secretsInVault) {
+            val before = channels(env).map { it.id }.toSet()
+            list.forEach { c -> env.tokens.set(VAULT + c.id, Tokens(accessToken = "", extra = c.kind.fields.filter { it.secret }.associate { it.key to c.value(it.key) })) }
+            (before - list.map { it.id }.toSet()).forEach { env.tokens.clear(VAULT + it) }
+        }
+        val mode = if (secretsInVault) Secrets.DROP else Secrets.KEEP
+        env.keyValues(KV)["channels"] = JsonArray(list.map { toJson(it, secrets = mode) }).toString()
     }
 
     /** Adds [c], or replaces the channel with its id. */
-    fun put(env: ServerEnv, c: Channel) {
+    fun put(env: Env, c: Channel) {
         val list = channels(env)
         save(env, if (list.any { it.id == c.id }) list.map { if (it.id == c.id) c else it } else list + c)
     }
 
-    fun remove(env: ServerEnv, id: String): Boolean {
+    fun remove(env: Env, id: String): Boolean {
         val list = channels(env)
         if (list.none { it.id == id }) return false
         save(env, list.filter { it.id != id })
@@ -237,7 +258,7 @@ object Notify {
      * The configuration file ([ConfigBackup]'s text) with this person's channels in it, without their
      * secrets, under "notifications": the app, which does not know that key, reads the file as before.
      */
-    fun intoBackup(env: ServerEnv, text: String): String {
+    fun intoBackup(env: Env, text: String): String {
         val list = channels(env).ifEmpty { return text }
         val o = runCatching { Json.parseToJsonElement(text).jsonObject }.getOrElse { return text }
         val out = JsonObject(o + ("notifications" to JsonArray(list.map { toJson(it, Secrets.DROP) })))
@@ -254,7 +275,7 @@ object Notify {
      * this server has for it; the others are added, off until their secrets are entered again.
      * Returns how many.
      */
-    fun restore(env: ServerEnv, incoming: List<Channel>): Int {
+    fun restore(env: Env, incoming: List<Channel>): Int {
         if (incoming.isEmpty()) return 0
         val here = channels(env).associateBy { it.id }
         val merged = incoming.map { c ->
@@ -270,21 +291,23 @@ object Notify {
 
     // ------------------------------------------------------------------ messages
 
-    /** What [report] has to tell. */
-    fun events(r: SyncReport): Set<Event> = buildSet {
+    /** What [report] has to tell; [releases]: the run of a "New releases" sync, whose additions are news of their own. */
+    fun events(r: SyncReport, releases: Boolean = false): Set<Event> = buildSet {
         if (!r.ok) add(Event.FAILED)
-        if (r.ok && (r.added > 0 || r.removed > 0)) add(Event.CHANGES)
+        if (r.ok && releases && r.added > 0) add(Event.RELEASES)
+        if (r.ok && !releases && (r.added > 0 || r.removed > 0)) add(Event.CHANGES)
         if (r.reviewTracks.isNotEmpty()) add(Event.REVIEW)
         if (r.heldBack > 0) add(Event.REMOVALS)
     }
 
     /** The message for a channel that wants [wanted], or null when the run has nothing of it. */
-    fun message(syncName: String, r: SyncReport, wanted: Set<Event>): Message? {
-        val happened = events(r) intersect wanted
+    fun message(syncName: String, r: SyncReport, wanted: Set<Event>, releases: Boolean = false): Message? {
+        val happened = events(r, releases) intersect wanted
         if (happened.isEmpty()) return null
         val lines = buildList {
             if (Event.FAILED in happened) add("Failed: ${errorLine(r.error)}")
             if (Event.CHANGES in happened) add("+${r.added} −${r.removed}")
+            if (Event.RELEASES in happened) add("New releases: ${r.added} ${if (r.added == 1) "track" else "tracks"} added")
             if (Event.REVIEW in happened) add("${r.reviewTracks.size} ${if (r.reviewTracks.size == 1) "track" else "tracks"} to review")
             if (Event.REMOVALS in happened) add("${r.heldBack} ${if (r.heldBack == 1) "removal waits" else "removals wait"} for your confirmation")
         }
@@ -303,8 +326,8 @@ object Notify {
     // ------------------------------------------------------------------ sending
 
     /** Telegram's and Pushover's fixed addresses; the tests point them elsewhere. */
-    @Volatile internal var telegramApi = "https://api.telegram.org"
-    @Volatile internal var pushoverApi = "https://api.pushover.net"
+    @Volatile var telegramApi = "https://api.telegram.org"
+    @Volatile var pushoverApi = "https://api.pushover.net"
 
     private val JSON_TYPE = "application/json; charset=utf-8".toMediaType()
     private val txn = AtomicLong(System.currentTimeMillis())
@@ -392,12 +415,16 @@ object Notify {
 
     private fun scrub(c: Channel, s: String): String = c.secrets().fold(s) { acc, secret -> acc.replace(secret, "…") }
 
-    /** After a run: each enabled channel that wants something of it, in the background. Never throws. */
-    fun afterRun(env: ServerEnv, job: SyncJob, report: SyncReport) {
-        if (!env.may(Permissions.API)) return
-        val list = runCatching { channels(env) }.getOrDefault(emptyList()).filter { it.enabled && it.missing().isEmpty() }
-        for (c in list) {
-            val m = message(job.name, report, c.events) ?: continue
+    /** What a run has to tell, and to whom: each enabled, ready channel that wants something of it. */
+    fun deliveries(env: Env, job: SyncJob, report: SyncReport): List<Pair<Channel, Message>> {
+        val releases = job.source.provider == com.xlollx.songport.providers.NewReleasesProvider.SERVICE
+        return runCatching { channels(env) }.getOrDefault(emptyList()).filter { it.enabled && it.missing().isEmpty() }
+            .mapNotNull { c -> message(job.name, report, c.events, releases)?.let { c to it } }
+    }
+
+    /** After a run: [deliveries] sent in the background. Never throws. */
+    fun afterRun(env: Env, job: SyncJob, report: SyncReport) {
+        for ((c, m) in deliveries(env, job, report)) {
             runCatching { pool.execute { send(c, m)?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } } }
                 .onFailure { env.log("notify", "${c.name}: ${it.message}") }
         }

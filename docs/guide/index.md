@@ -51,6 +51,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Remove duplicate songs](remove-duplicates-spotify) from a playlist, on any service.
 - [Fix greyed-out songs](fix-greyed-out-songs): unplayable tracks swapped for versions that play.
 - [Your Wrapped, whenever you want](wrapped-anytime), from any service, with history.
+- [New releases from your playlist's artists](new-releases), in a playlist on any service, now or every week.
 
 **Coming from another service**
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.

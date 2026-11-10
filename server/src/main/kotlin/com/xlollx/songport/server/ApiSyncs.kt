@@ -7,6 +7,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.MusicProvider
+import com.xlollx.songport.providers.NewReleasesProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.Labels
 import com.xlollx.songport.sync.SyncEngine
@@ -263,7 +264,9 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
                 src.playlistInfo(env, path)
             } else null
             val srcId = linked?.id ?: s.text("playlist") ?: throw IllegalArgumentException("\"source.playlist\" is needed: an id from GET /api/v1/services/${src.id}/playlists.")
-            val srcName = linked?.name ?: (src.libraryEntries(env, false) + src.playlists(env)).firstOrNull { it.id == srcId }?.name
+            // A "New releases" source names its window and playlist in its id (GET /api/v1/releases gives it).
+            val srcName = linked?.name ?: src.takeIf { it === NewReleasesProvider && NewReleasesProvider.parse(srcId) != null }?.playlistInfo(env, srcId)?.name
+                ?: (src.libraryEntries(env, false) + src.playlists(env)).firstOrNull { it.id == srcId }?.name
                 ?: throw IllegalArgumentException("${src.label(env)} has no playlist with the id $srcId.")
             val dstId = t.text("playlist")
             if (dstId == null && !dst.canCreatePlaylists) throw IllegalArgumentException("${dst.label(env)} cannot create playlists: give \"target.playlist\".")

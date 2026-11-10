@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.notify.Notify
 import com.sun.net.httpserver.HttpServer
 import com.xlollx.songport.model.MatchReview
 import com.xlollx.songport.model.PlaylistRef
@@ -66,6 +67,33 @@ class ApiCallsTest {
     }
 
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
+
+    @Test fun newReleasesAreListedAndMakeAWeeklySync() {
+        // The day's answers already kept for the playlist's two artists: nothing is asked of Deezer or MusicBrainz.
+        val today = java.time.LocalDate.now()
+        fun kept(vararg r: Pair<String, java.time.LocalDate>) = "${System.currentTimeMillis()}|" +
+            r.joinToString(",", "[", "]") { (t, d) -> """{"artist":"Band","title":"$t","type":"ALBUM","date":"$d","deezerId":${t.length}}""" }
+        env.keyValues("new_releases")["band"] = kept("Fresh" to today.minusDays(3), "Old" to today.minusDays(60), "Soon" to today.plusDays(20))
+        env.keyValues("new_releases")["other band"] = "${System.currentTimeMillis()}|[]"
+        val r = call("GET", "releases?service=csv&playlist=In&days=30").also { assertEquals(it.text, 200, it.code) }.obj
+        assertEquals(listOf("Fresh"), r["releases"]!!.jsonArray.map { it.jsonObject.s("title") })
+        assertEquals("""["Band","Other Band"]""", r["artists"].toString())
+        assertEquals("https://www.deezer.com/album/5", r["releases"]!!.jsonArray[0].jsonObject.s("link"))
+        val both = call("GET", "releases?playlist=csv:In&days=90&upcoming=true").obj
+        assertEquals(listOf("Soon", "Fresh", "Old"), both["releases"]!!.jsonArray.map { it.jsonObject.s("title") })
+        assertEquals("true", both["releases"]!!.jsonArray[0].jsonObject.s("upcoming"))
+        assertEquals(400, call("GET", "releases?service=csv&playlist=In&days=0").code)
+        assertEquals(400, call("GET", "releases").code)
+
+        val source = r["source"]!!.jsonObject
+        assertEquals("30:csv:In", source.s("playlist"))
+        val made = call("POST", "syncs", """{"source":$source,"target":{"service":"csv"},"schedule":"weekly","changes":"archive"}""")
+        assertEquals(made.text, 201, made.code)
+        assertEquals("releases", made.obj["source"]!!.jsonObject.s("service"))
+        assertEquals("true", made.obj.s("archive"))
+        assertEquals("weekly", made.obj.s("schedule"))
+        assertEquals(400, call("POST", "syncs", """{"source":{"service":"releases","playlist":"nonsense"},"target":{"service":"csv"}}""").code)
+    }
 
     @Test fun favouritesLabelsAndTagsAreWrittenFilteredAndRunAsAGroup() {
         fun make(name: String, extra: String) =

@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.notify.Notify
 import com.sun.net.httpserver.HttpExchange
 import com.xlollx.songport.data.ConfigBackup
 import com.xlollx.songport.model.Schedule
@@ -10,6 +11,8 @@ import com.xlollx.songport.sync.CsvCodec
 import com.xlollx.songport.sync.LibraryTools
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.NamePatterns
+import com.xlollx.songport.sync.NewReleases
+import com.xlollx.songport.providers.NewReleasesProvider
 import com.xlollx.songport.sync.PlaylistFiles
 import com.xlollx.songport.sync.TrackLinks
 import com.xlollx.songport.sync.UsageStats
@@ -233,6 +236,33 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
             json(200, if (method == "GET" && b["tracks"] == null) answers.first() else JsonArray(answers))
         }
+        // ---------------------------------------------------------------- new releases
+        // What the artists of a playlist released lately (Deezer and MusicBrainz, cached a day per artist).
+        rest == listOf("releases") && method == "GET" -> {
+            val asked = query["playlist"]?.trim().orEmpty().ifEmpty { return true.also { error(400, "Say which playlist: ?service=spotify&playlist=<id> (or ?playlist=spotify:<id>).") } }
+            val serviceId = query["service"] ?: asked.substringBefore(':', "").ifEmpty { return true.also { error(400, "Say on which service: ?service= (see GET /api/v1/services).") } }
+            val playlistId = if (query["service"] != null) asked else asked.substringAfter(':')
+            val p = connected(serviceId, error) ?: return true
+            val days = (query["days"] ?: "30").toIntOrNull()?.takeIf { it in 1..365 } ?: return true.also { error(400, "\"days\" is a number of days, 1 to 365 (7, 30 or 90 in the app).") }
+            val upcoming = query["upcoming"] == "true"
+            val max = (query["artists"]?.toIntOrNull() ?: NewReleases.MAX_ARTISTS).coerceIn(1, 100)
+            val (found, tracks) = runCatching {
+                runBlocking {
+                    val found = NewReleases.find(env, NewReleases.artists(p.tracks(env, playlistId), max), days, upcoming)
+                    found to (if (query["tracks"] == "true") NewReleases.tracksOf(env, found.releases) else null)
+                }
+            }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            json(200, buildJsonObject {
+                put("service", p.id); put("playlist", playlistId); put("days", days); put("upcoming", upcoming)
+                put("artists", buildJsonArray { found.artists.forEach { add(it) } })
+                // Artists neither catalogue answered for now (busy): ask again later.
+                put("unanswered", found.unanswered)
+                put("releases", JsonArray(found.releases.map { releaseJson(it) }))
+                tracks?.let { list -> put("tracks", JsonArray(list.map { trackRef(it) })) }
+                // The source of a weekly "New releases" sync (POST /api/v1/syncs with "archive" and "schedule": "weekly").
+                put("source", buildJsonObject { put("service", NewReleasesProvider.SERVICE); put("playlist", NewReleasesProvider.id(days, p.id, playlistId)) })
+            })
+        }
         // ---------------------------------------------------------------- tools and the rest
         // The songs of a personal server (Navidrome, Jellyfin, Emby, Plex) without MusicBrainz tags: read, never written.
         rest == listOf("tools", "mbtags") && method == "GET" -> {
@@ -276,6 +306,16 @@ private fun Web.connected(id: String, error: (Int, String) -> Unit): MusicProvid
     val p = Providers.byId(id) ?: return null.also { error(404, "No service with that id: see GET /api/v1/services.") }
     if (p.requiresAuth && !p.isConnected(env)) return null.also { error(409, "${p.label(env)} is not connected.") }
     return p
+}
+
+/** A new release as the API shows it. */
+internal fun releaseJson(r: NewReleases.Release) = buildJsonObject {
+    put("artist", r.artist); put("title", r.title); put("type", r.type.name.lowercase()); put("date", r.date)
+    put("upcoming", NewReleases.isUpcoming(r))
+    put("link", r.link)
+    put("deezerId", r.deezerId?.let { JsonPrimitive(it) } ?: JsonNull)
+    put("musicbrainzId", r.mbid?.let { JsonPrimitive(it) } ?: JsonNull)
+    put("cover", r.cover?.let { JsonPrimitive(it) } ?: JsonNull)
 }
 
 internal fun Web.serviceJson(p: MusicProvider) = buildJsonObject {

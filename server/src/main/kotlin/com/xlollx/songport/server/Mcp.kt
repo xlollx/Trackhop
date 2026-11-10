@@ -226,6 +226,14 @@ object Mcp {
             listOf(SERVICE, PLAYLIST), readOnly = true) { a -> Call("duplicates", listOf(a.text("service"), a.text("playlist"))) },
         Tool("find_untagged_songs", "Songs without MusicBrainz tags", "The songs on the user's Navidrome, Jellyfin, Emby or Plex server whose files carry no MusicBrainz tags (a sync finds those by title only). Reads the whole library: it can take a while. Nothing is changed.",
             listOf(SERVICE.copy(required = false, description = "The server's name or id (list_services); left out when only one such server is connected.")), readOnly = true) { a -> Call("mbtags", listOfNotNull(a.opt("service"))) },
+        Tool("find_new_releases", "New releases from a playlist's artists", "The albums, EPs and singles the artists of a playlist released lately (Deezer and MusicBrainz, cached a day per artist): artist, title, type, date and a link. A first search takes about a second per artist. Nothing is changed.",
+            listOf(
+                SERVICE, PLAYLIST,
+                Param("days", "integer", "Released in the last 7, 30 (default) or 90 days.", required = false),
+                Param("upcoming", "boolean", "Also what is announced for later.", required = false),
+            ), readOnly = true) { a ->
+            Call("releases", listOf(a.text("service"), a.text("playlist")), values = a.values("days"), flags = setOfNotNull("upcoming".takeIf { a.flag("upcoming") }))
+        },
         Tool("list_missing_on_server", "Tracks missing on my server", "The tracks of the user's streaming playlists that their own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) does not have, each once: artist, title, album, length, ISRC, MusicBrainz id where known, the syncs that miss each and when it was first seen. Made from the syncs' last runs: nothing is searched, downloaded or bought.",
             listOf(
                 SYNC.copy(required = false, description = "Only what this sync misses (its name or id)."),
