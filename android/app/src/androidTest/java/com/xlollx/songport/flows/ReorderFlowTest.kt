@@ -158,8 +158,10 @@ class ReorderFlowTest : FlowTest() {
         openTiles()
         val one = tileAt(1); val two = tileAt(2); val four = tileAt(4)
         dragTile(1, listOf(Offset(two.x - one.x, 0f), Offset(0f, four.y - two.y))) {
-            // Held over the second row: its tiles have made way, as for any other tile.
-            assertTrue("tile 4 moved up a row", tileAt(4).y < four.y - 1f)
+            // Held where tile 4 was: the tiles it passed have made way, as for any other tile. Tile 1 is
+            // fourth now (2, 3 / 4, 1): tile 3 has gone up to the first row and tile 4 to the left on
+            // its own (not up a row: it is third).
+            waitFor("tile 3 up on the first row, tile 4 to its left") { tileAt(3).y < four.y - 1f && tileAt(4).x < four.x - 1f }
         }
         waitFor("job-1 fourth") { order().indexOf("job-1") == 3 }
         assertEquals(listOf("job-2", "job-3", "job-4", "job-1", "job-5", "job-6"), order())

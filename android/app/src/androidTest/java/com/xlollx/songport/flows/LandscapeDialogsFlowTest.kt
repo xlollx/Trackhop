@@ -42,12 +42,19 @@ class LandscapeDialogsFlowTest : FlowTest() {
         assertTrue("$what is cut", whole(n.fetchSemanticsNode()))
     }
 
+    /** Settings' Theme row, scrolled to: on its side with larger text the page is long. */
+    private fun themeRow() {
+        val theme = s(R.string.settings_theme)
+        waitText(theme, 30_000)
+        scrollTo(compose.onAllNodes(hasText(theme)).onFirst())
+    }
+
     /** Settings, turned on its side. */
     private fun settingsOnItsSide() {
         launch(tabIntent(MainActivity.TAB_SETTINGS))
-        waitText(s(R.string.settings_theme))
+        themeRow()
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitText(s(R.string.settings_theme))
+        themeRow()
         val config = main().resources.configuration
         assertTrue("a low window", WindowLayout.of(config.screenWidthDp, config.screenHeightDp).short)
     }
@@ -80,11 +87,32 @@ class LandscapeDialogsFlowTest : FlowTest() {
 
     @Test
     fun yourAiOnItsSideWithLargerText() {
-        shell("settings put system font_scale 1.3")
         try {
+            fontScale(1.3f)
             yourAiOnItsSide("ai-dialog-landscape-large-text")
         } finally {
-            shell("settings put system font_scale 1.0")
+            fontScale(1.0f)
+        }
+    }
+
+    /**
+     * Sets the phone's text size and waits until the app has it: the change reaches the app a moment
+     * later and recreates the activity on screen. Started (or rotated) before that, the activity was
+     * replaced under the test and Settings was not found in time (CI, 10/11).
+     */
+    private fun fontScale(scale: Float) {
+        if (kotlin.math.abs(app.resources.configuration.fontScale - scale) <= 0.01f) return
+        val before = resumed()
+        shell("settings put system font_scale $scale")
+        val end = System.currentTimeMillis() + 15_000
+        while (kotlin.math.abs(app.resources.configuration.fontScale - scale) > 0.01f) {
+            if (System.currentTimeMillis() > end) throw AssertionError("font scale $scale not applied (${app.resources.configuration.fontScale})")
+            Thread.sleep(100)
+        }
+        // An activity on screen is recreated with the new size: wait for the new one.
+        if (before is MainActivity) {
+            waitForNewMain(before)
+            compose.waitForIdle()
         }
     }
 
