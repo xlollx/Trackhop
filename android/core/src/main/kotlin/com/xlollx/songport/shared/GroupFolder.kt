@@ -67,11 +67,31 @@ object FolderTransport {
         return prefix(groupId) + h.take(8).joinToString("") { "%02x".format(it) } + ".json"
     }
 
-    /** Every member file of [groupId] in [folder] that reads whole, conflict copies included. */
-    fun readAll(folder: GroupFolder, groupId: String): List<MemberFile> =
-        folder.list().filter { it.startsWith(prefix(groupId)) && !it.endsWith(".tmp") }.mapNotNull { name ->
-            folder.read(name, MAX_FILE_BYTES)?.let { MemberFile.parse(it.toString(Charsets.UTF_8)) }?.takeIf { it.card.groupId == groupId }
+    /** At most this many of a group's files are read in one go (every member's file holds the whole log). */
+    const val MAX_FILES = 100
+    /** Past this many different events among the files read, no further file is read this time. */
+    const val MAX_UNIQUE = 100_000
+
+    /**
+     * Every member file of [groupId] in [folder] that reads whole, conflict copies included; the
+     * files of [first] (the members known, by [fileName]) before any other. Bounded, so a member
+     * who fills the folder with files cannot exhaust the others' phones: [MAX_FILES] files, none
+     * with more than [MAX_EVENTS] events, [MAX_UNIQUE] different events in all. An event found in
+     * several files is one object in memory.
+     */
+    fun readAll(folder: GroupFolder, groupId: String, first: Set<String> = emptySet()): List<MemberFile> {
+        val names = folder.list().filter { it.startsWith(prefix(groupId)) && !it.endsWith(".tmp") }
+            .sortedWith(compareBy<String> { it !in first }.thenBy { it }).take(MAX_FILES)
+        val one = HashMap<SharedEvent, SharedEvent>()
+        val out = ArrayList<MemberFile>()
+        for (name in names) {
+            if (one.size > MAX_UNIQUE) break
+            val f = folder.read(name, MAX_FILE_BYTES)?.let { MemberFile.parse(it.toString(Charsets.UTF_8)) } ?: continue
+            if (f.card.groupId != groupId || f.events.size > MAX_EVENTS) continue
+            out += f.copy(events = f.events.map { e -> one.getOrPut(e) { e } })
         }
+        return out
+    }
 
     /** Writes [file] as [member]'s, bounded: past [MAX_EVENTS], the oldest removals are left out (then the oldest additions). */
     fun write(folder: GroupFolder, groupId: String, member: String, file: MemberFile) {

@@ -75,6 +75,14 @@ data class GroupState(
  * shared folder, being able to open the folder is what lets someone in.
  */
 data class Invite(val groupId: String, val name: String, val creator: String, val folderName: String = "", val transport: String = FOLDER) {
+    /**
+     * The group's code, from the creator's key: what the person joining compares with the code on
+     * the inviter's group page. A link can be changed on its way (a forwarded message, a QR code
+     * stuck over another); one with another key would make its maker the group's creator for
+     * whoever joins with it. 60 bits, as 12 characters in three groups.
+     */
+    val code: String get() = codeOf(creator)
+
     fun link(): String = buildString {
         append(BASE).append("g=").append(groupId).append("&k=").append(creator).append("&t=").append(transport)
         append("&n=").append(enc(name.take(MAX_NAME)))
@@ -88,6 +96,17 @@ data class Invite(val groupId: String, val name: String, val creator: String, va
         const val MAX_FOLDER = 40
         private val ID = Regex("[0-9a-f]{16}")
 
+        private const val CODE_LETTERS = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+
+        /** A key's group code (see [code]): Crockford base 32 of its SHA-256, no letters that read alike. */
+        fun codeOf(creator: String): String {
+            val h = java.security.MessageDigest.getInstance("SHA-256").digest(creator.toByteArray(Charsets.UTF_8))
+            var bits = 0L
+            for (i in 0 until 8) bits = (bits shl 8) or (h[i].toLong() and 0xff)
+            val chars = (0 until 12).map { CODE_LETTERS[((bits ushr (59 - it * 5)) and 31).toInt()] }.joinToString("")
+            return chars.chunked(4).joinToString("-")
+        }
+
         private fun enc(s: String) = java.net.URLEncoder.encode(s, "UTF-8").replace("+", "%20")
         private fun dec(s: String) = runCatching { java.net.URLDecoder.decode(s, "UTF-8") }.getOrDefault(s)
 
@@ -96,10 +115,12 @@ data class Invite(val groupId: String, val name: String, val creator: String, va
             val at = Regex("""(?:trackhop\.org/join|songport://join)[#?/]*([^\s]+)""").find(text)?.groupValues?.get(1) ?: return null
             val params = at.split('&').mapNotNull { p -> p.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to dec(it[1]) } }.toMap()
             val id = params["g"]?.takeIf { ID.matches(it) } ?: return null
-            val key = params["k"]?.takeIf { B64.decode(it)?.size == 32 } ?: return null
-            val name = params["n"]?.trim()?.take(MAX_NAME)?.takeIf { it.isNotEmpty() } ?: return null
+            val key = params["k"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.let { k -> k.size == 32 && Ed25519.usableKey(k) } == true } ?: return null
+            val name = params["n"]?.let { plainOf(it, MAX_NAME).trim() }?.takeIf { it.isNotEmpty() } ?: return null
+            // The only way a group talks for now: an invite for another is not one this Trackhop can join.
             val transport = params["t"] ?: FOLDER
-            return Invite(id, name, key, params["f"].orEmpty().take(MAX_FOLDER), transport)
+            if (transport != FOLDER) return null
+            return Invite(id, name, key, plainOf(params["f"].orEmpty(), MAX_FOLDER).trim(), transport)
         }
     }
 }
@@ -113,6 +134,13 @@ object SharedGroups {
 
     /** The clock events are dated with; tests set their own. */
     @Volatile var clock: () -> Long = { System.currentTimeMillis() }
+
+    /** How far ahead of this device's clock an action may be dated and still count now. */
+    const val MAX_AHEAD_MS = 24 * 60 * 60 * 1000L
+    /** Members kept on the list at most. */
+    const val MAX_MEMBERS = 256
+    /** Per member, how many of their highest numbers are checked for a signature before giving up this time. */
+    private const val HIGHEST_TRIES = 16
 
     private val codec = Json { ignoreUnknownKeys = true; encodeDefaults = false }
     private val locks = ConcurrentHashMap<String, Any>()
@@ -163,24 +191,43 @@ object SharedGroups {
      */
     fun refresh(env: Env, group: SharedGroup, write: Boolean = true): GroupState = synchronized(lockOf(group.id)) {
         val folder = SharedFolders.open(group.folder)
+        val before = load(env, group.id)
         val files = try {
-            FolderTransport.readAll(folder, group.id)
+            val first = (before.members.map { it.member } + (before.roster?.grants?.map { it.member } ?: emptyList()) + group.creator + group.me)
+                .mapTo(HashSet()) { FolderTransport.fileName(group.id, it) }
+            FolderTransport.readAll(folder, group.id, first)
         } catch (e: Exception) {
             env.log("shared", "${group.name}: folder not read: ${e.message?.take(160)}")
             throw ProviderException(env.text("shared_error_folder", group.folderName.ifBlank { group.name }))
         }
-        val before = load(env, group.id)
         val log = GroupLog(group.id, group.creator)
         val roster = log.roster(files.map { it.roster } + before.roster)
-        val events = log.merge(roster, before.events.filter { roster.allows(it) }, files.asSequence().flatMap { it.events.asSequence() })
         val now = clock()
+        // An action dated more than a day ahead of this clock waits until then (see GroupLog.merge).
+        val latest = now + MAX_AHEAD_MS
+        val incoming = files.mapNotNull { f ->
+            log.checked(roster, f.events, latest).also { if (it == null) env.log("shared", "${group.name}: a file with too many bad signatures left out") }
+        }
+        val events = log.merge(roster, before.events.filter { roster.allows(it) }, incoming.asSequence().flatMap { it.asSequence() }, latest)
         val members = (files.map { it.card } + before.members)
-            .filter { it.groupId == group.id && SigCache.verified(it) }
+            .filter { it.groupId == group.id && it.wellFormed() && SigCache.verified(it) }
             .groupBy { it.member }.values.map { cards -> cards.maxWith(compareBy<MemberCard> { it.at }.thenBy { it.sig }) }
-        // Only for members (a file can name any author): bounded by the group's size.
+            .let { cards ->
+                // A member can make keys at will: past a group's size, the cards of the curators and the newest stay.
+                if (cards.size <= MAX_MEMBERS) cards
+                else cards.sortedWith(compareBy<MemberCard> { it.member !in roster.curators && it.member != group.me }.thenByDescending { it.at }).take(MAX_MEMBERS)
+            }
+        // Only for members (a file can name any author): bounded by the group's size. Only signed
+        // events count: a number anyone could write would push a member's next right to write, or
+        // this member's own counter, out of reach.
         val known = members.mapTo(HashSet()) { it.member } + roster.grants.map { it.member }
         val highest = HashMap(before.highest.filterKeys { it in known })
-        for (e in files.asSequence().flatMap { it.events.asSequence() }) if (e.by in known && e.seq > (highest[e.by] ?: 0)) highest[e.by] = e.seq
+        files.asSequence().flatMap { it.events.asSequence() }
+            .filter { e -> e.by in known && e.seq > (highest[e.by] ?: 0) && e.wellFormed() }
+            .groupBy { it.by }
+            .forEach { (by, list) ->
+                list.distinct().sortedByDescending { it.seq }.take(HIGHEST_TRIES).firstOrNull { SigCache.verified(group.id, it) }?.let { highest[by] = it.seq }
+            }
         val mine = events.filter { it.by == group.me }.maxOfOrNull { it.seq } ?: 0
         var state = before.copy(
             roster = roster, events = events, members = members, highest = highest,
@@ -196,8 +243,10 @@ object SharedGroups {
     private fun publish(env: Env, group: SharedGroup, state: GroupState, folder: GroupFolder, left: Boolean = false): GroupState {
         val me = identity(env, group)
         val old = state.members.firstOrNull { it.member == me.id }
-        val card = old?.takeIf { it.name == group.myName && it.service == group.myService && it.left == left }
-            ?: MemberCard(group.id, me.id, group.myName, group.myService, maxOf(clock(), (old?.at ?: 0) + 1), left).signed(me)
+        val myName = plainOf(group.myName, MemberCard.MAX_NAME)
+        val myService = plainOf(group.myService, MemberCard.MAX_NAME)
+        val card = old?.takeIf { it.name == myName && it.service == myService && it.left == left }
+            ?: MemberCard(group.id, me.id, myName, myService, maxOf(clock(), (old?.at ?: 0) + 1), left).signed(me)
         val text = MemberFile.write(FolderTransport.bounded(MemberFile(card = card, roster = state.roster?.takeIf { it.version > 0 }, events = state.events)))
         val name = FolderTransport.fileName(group.id, me.id)
         val hash = text.hashCode()
@@ -278,6 +327,9 @@ object SharedGroups {
                         SharedEvent.of(op, t, me.id, ++seq, maxOf(now, (latest[key] ?: 0) + 1)).copy(key = key).signed(group.id, me)
                     }
                     val st = s.copy(events = GroupLog.compact(s.events + fresh), seq = seq, seen = s.seen + fresh.associate { it.id to now })
+                    // Kept before the folder is written: a number once signed is never given to another
+                    // action, even when the write fails half way (two events with one number: one is lost).
+                    save(env, group.id, st)
                     publish(env, group, st, SharedFolders.open(group.folder))
                 }
                 group.keepMine -> if (op == SharedEvent.ADD) {
@@ -411,11 +463,20 @@ object SharedGroups {
             val roster = s.roster ?: Roster.first(group.id, group.creator)
             val isCurator = member in roster.curators
             if (isCurator == curator) return
-            val grants = if (curator) roster.grants + Grant(member, afterSeq = s.highest[member] ?: 0)
+            // A new right starts after every number already used or covered: an old number never counts twice.
+            val used = maxOf(s.highest[member] ?: 0, roster.grants.filter { it.member == member }.maxOfOrNull { it.untilSeq ?: it.afterSeq } ?: 0)
+            val grants = if (curator) roster.grants + Grant(member, afterSeq = used)
             else {
                 if (roster.curators.size <= 1) throw ProviderException(env.text("shared_error_last_curator"))
-                val last = s.events.filter { it.by == member }.maxOfOrNull { it.seq } ?: 0
-                roster.grants.map { if (it.member == member && it.current) it.copy(untilSeq = maxOf(last, it.afterSeq)) else it }
+                val theirs = s.events.filter { it.by == member }
+                val last = theirs.maxOfOrNull { it.seq } ?: 0
+                roster.grants.map { g ->
+                    if (g.member == member && g.current) {
+                        val until = maxOf(last, g.afterSeq)
+                        // What they did stays, pinned: their key cannot sign it over again.
+                        g.copy(untilSeq = until, kept = theirs.filter { it.seq > g.afterSeq && it.seq <= until }.map { it.sig.take(Grant.KEPT_CHARS) }.distinct().sorted())
+                    } else g
+                }
             }
             val next = Roster(group.id, roster.version + 1, clock(), grants).signed(me)
             val st = s.copy(roster = next, events = s.events.filter { next.allows(it) })
