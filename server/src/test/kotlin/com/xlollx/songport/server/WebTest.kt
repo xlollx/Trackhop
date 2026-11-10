@@ -386,7 +386,44 @@ class WebTest {
         assertEquals("the file and the set-up", 2, Backups.copyToFolder(env))
         assertTrue(File(folder, "Dup.csv").exists())
         assertEquals(200, get("/tools/unplayable").statusCode())
+        // MusicBrainz tags: listed among the tools; without a personal server connected it says so.
+        assertTrue(get("/tools").body().contains("/tools/mbtags"))
+        val tags = get("/tools/mbtags")
+        assertEquals(200, tags.statusCode())
+        assertTrue(tags.body(), tags.body().contains("No connected service can do this"))
         assertEquals(200, get("/tools").statusCode())
+    }
+
+    @Test fun toolsListTheSongsOfAServerWithoutMusicBrainzTags() {
+        // A stand-in Navidrome: two songs, one tagged.
+        val navidrome = HttpServer.create(java.net.InetSocketAddress("127.0.0.1", 0), 0).apply {
+            createContext("/") { ex ->
+                val songs = if (ex.requestURI.path.endsWith("search3")) ""","searchResult3":{"song":[
+                    {"id":"a","title":"Tagged","artist":"Band","musicBrainzId":"5fb524f1-8cc8-4c04-a921-e34c0a911ea7"},
+                    {"id":"b","title":"Bare <b>","artist":"Band","album":"Demo"}]}""" else ""
+                val body = """{"subsonic-response":{"status":"ok","version":"1.16.1"$songs}}""".toByteArray()
+                ex.sendResponseHeaders(200, body.size.toLong())
+                ex.responseBody.use { it.write(body) }
+            }
+            start()
+        }
+        try {
+            env.tokens.set("subsonic", com.xlollx.songport.data.Tokens(accessToken = "pw", userName = "me", extra = mapOf("url" to "http://127.0.0.1:${navidrome.address.port}")))
+            env.store.updateSettings { it.copy(connectors = it.connectors + "subsonic") }
+            assertTrue(get("/tools/mbtags").body().contains("""<option value="subsonic">"""))
+            assertTrue(get("/tools/mbtags?service=subsonic").body().contains("never changed"))
+            val started = post("/tools/mbtags", "service=subsonic", *origin)
+            assertEquals(303, started.statusCode())
+            val task = started.headers().firstValue("Location").get()
+            var page = ""
+            repeat(50) { if (!page.contains("MusicBrainz tags.")) { Thread.sleep(100); page = get(task).body() } }
+            assertTrue(page, page.contains("<b>1</b> of 2 songs"))
+            assertTrue(page, page.contains("Band — Bare &lt;b&gt;"))
+            assertFalse(page, page.contains("Tagged"))
+            assertTrue(page, page.contains("picard.musicbrainz.org"))
+        } finally {
+            navidrome.stop(0)
+        }
     }
 
     @Test fun aiPlaylistWithALocalOpenAiCompatibleModel() {

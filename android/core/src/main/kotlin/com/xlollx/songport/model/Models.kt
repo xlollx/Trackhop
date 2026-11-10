@@ -33,6 +33,12 @@ data class Track(
     /** Anno di uscita (0 = non noto) e data di aggiunta alla playlist in epoch ms (0 = non nota): per gli ordinamenti. */
     val year: Int = 0,
     val addedAt: Long = 0,
+    /**
+     * MusicBrainz recording ids, lowercase: on a personal server's track the ones its file is tagged
+     * with, on a source track the ones MusicBrainz lists for its ISRC (see sync/MusicBrainz). Two
+     * tracks sharing one are the same recording. Only lives during a run: never saved.
+     */
+    @kotlinx.serialization.Transient val mbids: List<String> = emptyList(),
 ) {
     val artistLine: String get() = artists.joinToString(", ")
     val isrcNorm: String? get() = isrc?.trim()?.uppercase()?.takeIf { it.length >= 10 }

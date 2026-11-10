@@ -217,4 +217,19 @@ object LibraryTools {
         onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
         return Created(pl, added, failed)
     }
+
+    /** A personal server's library: how many songs it has, and the ones whose file carries no MusicBrainz tag. */
+    data class MbidTags(val total: Int, val untagged: List<Track>)
+
+    /** MusicBrainz Picard's own quick start: the program that writes the tags (Trackhop never touches a file). */
+    const val PICARD_GUIDE = "https://picard.musicbrainz.org/quick-start/"
+
+    /**
+     * The songs of [provider]'s library without a MusicBrainz tag: those a sync can only match by
+     * title. Read-only; [onProgress] gets the songs read so far.
+     */
+    suspend fun untaggedSongs(ctx: Env, provider: MusicProvider, onProgress: (Int) -> Unit = {}): MbidTags {
+        val songs = provider.librarySongs(ctx, onProgress)
+        return MbidTags(songs.size, songs.filter { it.mbids.isEmpty() })
+    }
 }

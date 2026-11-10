@@ -13,6 +13,7 @@ import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Matcher
+import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -28,6 +29,7 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
     override val noteName = "provider_note_plex"
     // Out of beta (01/11/2026): used against real servers and accounts, and passing LiveServersIT.
     override val beta = false
+    override val matchesByMbid = true
     override val loginForm = LoginForm(needsUrl = true, needsUser = false, needsSecret = true, secretLabelName = "login_token", hintName = "login_hint_plex")
 
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
@@ -53,6 +55,8 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
             album = m["parentTitle"].str ?: "",
             durationMs = m["duration"].long ?: 0,
             itemId = m["playlistItemID"].str ?: m["playlistItemID"].long?.toString(),
+            // The ids Plex matched the track to, when asked for (includeGuids): "mbid://<id>" is MusicBrainz's.
+            mbids = m["Guid"].arr.mapNotNull { g -> g["id"].str?.takeIf { it.startsWith("mbid://") }?.let { MusicBrainz.mbid(it.removePrefix("mbid://")) } },
         )
     }
 
@@ -62,14 +66,42 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
         }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
-        api(ctx, "GET", "/playlists/$playlistId/items")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
+        api(ctx, "GET", "/playlists/$playlistId/items?includeGuids=1")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         // Plex matches the query against one name at a time ("metallica battery" finds nothing): the
         // title alone, then the artist's songs first.
         val q = Matcher.searchTitle(track.title)
-        val hubs = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20")["MediaContainer"]["Hub"].arr
-        return Matcher.byArtist(track, hubs.filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }).take(5)
+        val hubs = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20&includeGuids=1")["MediaContainer"]["Hub"].arr
+        var found = Matcher.byArtist(track, hubs.filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) })
+        if (track.mbids.isEmpty() || found.isEmpty()) return found.take(5)
+        // Looking for a MusicBrainz recording: where the search left the ids out, the candidates are
+        // read once more with them. The one tagged with the recording goes first.
+        if (found.none { it.mbids.isNotEmpty() }) {
+            val ids = try {
+                api(ctx, "GET", "/library/metadata/${found.joinToString(",") { it.id }}?includeGuids=1")["MediaContainer"]["Metadata"].arr
+                    .mapNotNull { toTrack(it) }.associate { it.id to it.mbids }
+            } catch (e: ProviderException) { emptyMap() }
+            found = found.map { c -> ids[c.id]?.takeIf { it.isNotEmpty() }?.let { c.copy(mbids = it) } ?: c }
+        }
+        return found.sortedByDescending { c -> c.mbids.any { it in track.mbids } }.take(5)
+    }
+
+    /** Every track of the server's music libraries, a page at a time. */
+    override suspend fun librarySongs(ctx: Env, onProgress: (Int) -> Unit): List<Track> {
+        val out = ArrayList<Track>()
+        val sections = api(ctx, "GET", "/library/sections")["MediaContainer"]["Directory"].arr.filter { it["type"].str == "artist" }.mapNotNull { it["key"].str }
+        for (section in sections) {
+            var offset = 0
+            while (true) {
+                val page = api(ctx, "GET", "/library/sections/$section/all?type=10&includeGuids=1&X-Plex-Container-Start=$offset&X-Plex-Container-Size=$LIBRARY_PAGE")["MediaContainer"]["Metadata"].arr
+                out += page.mapNotNull { toTrack(it) }
+                offset += page.size
+                onProgress(out.size)
+                if (page.size < LIBRARY_PAGE) break
+            }
+        }
+        return out
     }
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
@@ -105,5 +137,8 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
         tracks.mapNotNull { it.itemId }.forEach { api(ctx, "DELETE", "/playlists/$playlistId/items/$it") }
     }
 
-    companion object { const val SERVICE = "plex" }
+    companion object {
+        const val SERVICE = "plex"
+        private const val LIBRARY_PAGE = 500
+    }
 }

@@ -177,7 +177,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         null -> toolsIndex(r)
         "export" -> exportTool(r)
         "task" -> taskPage(r, rest.getOrNull(1).orEmpty())
-        "backup", "dedupe", "unplayable" -> toolPage(r, rest[0])
+        "backup", "dedupe", "unplayable", "mbtags" -> toolPage(r, rest[0])
         "ai" -> aiTool(r)
         "stats" -> statsPage(r)
         "api" -> apiPage(r)
@@ -201,6 +201,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     body.append("<h2>Clean up</h2>")
     tool("/tools/dedupe", "Duplicates", "The tracks a playlist has more than once, and the extra copies removed.")
     tool("/tools/unplayable", "Unplayable tracks", "The tracks a service still lists but no longer plays, replaced by a playable version.")
+    tool("/tools/mbtags", "MusicBrainz tags", "The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags: with them, a sync finds the exact recording.")
     if (edition == Html.Edition.SERVER && env.may(Permissions.ADMIN)) {
         body.append("<h2>Your library</h2>")
         tool("/tools/lyrics", "Lyrics", "Lyrics for the music files of your server, saved next to them, where Navidrome, Jellyfin and Plex show them.")

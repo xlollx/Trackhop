@@ -56,6 +56,8 @@ private const val MAX_LISTED = 500
 private const val RESET_AFTER_CHUNKS = 15
 /** Punteggio fittizio di un "non trovato" preso dalla cache dei fallimenti, mai mostrato. */
 private const val MISS_SCORE = -1.0
+/** Searches with a MusicBrainz id in hand and no tagged file among the candidates, after which a server's library counts as untagged. */
+private const val MBID_PROBE = 20
 /**
  * Attese crescenti quando la rete non risponde. Una sync programmata parte spesso mentre il telefono
  * si sta svegliando: WorkManager la lancia appena il sistema dichiara la rete "connessa", ma il DNS
@@ -98,6 +100,9 @@ class SyncEngine(
     private val hints = java.util.concurrent.ConcurrentHashMap<String, Track>()
     /** Source ids whose searches on the target returned nothing at all: not there, nothing to review. */
     private val absent: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+    /** Personal servers whose search results carried a MusicBrainz tag, and per server the searches that showed none: see [withMbids]. */
+    private val mbidTagged: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+    private val mbidBlind = java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>()
 
     suspend fun run(job: SyncJob, unattended: Boolean = false, onProgress: (Progress) -> Unit = {}): SyncReport {
         val started = System.currentTimeMillis()
@@ -814,11 +819,27 @@ class SyncEngine(
         }
     }
 
-    private suspend fun searchScored(dst: MusicProvider, s: Track, policy: MatchPolicy): Matcher.Scored? {
+    /**
+     * [s] with the MusicBrainz recordings of its ISRC, for a personal server whose files may be
+     * tagged with them (see [MusicBrainz]); [s] as it is for every other target, without an ISRC, or
+     * once the server's library has shown no tag at all in this engine's searches.
+     */
+    private suspend fun withMbids(dst: MusicProvider, s: Track): Track {
+        if (!dst.matchesByMbid || s.kind.isNotEmpty() || s.mbids.isNotEmpty()) return s
+        val isrc = s.isrcNorm ?: return s
+        if (dst.id !in mbidTagged && (mbidBlind[dst.id]?.get() ?: 0) >= MBID_PROBE) return s
+        val ids = MusicBrainz.recordings(env, isrc)
+        return if (ids.isEmpty()) s else s.copy(mbids = ids)
+    }
+
+    private suspend fun searchScored(dst: MusicProvider, source: Track, policy: MatchPolicy): Matcher.Scored? {
+        val s = withMbids(dst, source)
         var runnerUp: Matcher.Scored? = null
         var sawCandidates = false
+        var sawTags = false
         fun consider(found: List<Track>): Matcher.Scored? {
             if (found.isNotEmpty()) sawCandidates = true
+            if (found.any { it.mbids.isNotEmpty() }) sawTags = true
             val best = Matcher.bestScored(s, found, 0.0, policy) ?: return null
             if (best.score >= policy.acceptThreshold) return best
             if (best.score > (runnerUp?.score ?: 0.0)) runnerUp = best
@@ -839,7 +860,8 @@ class SyncEngine(
                 s.copy(title = title, artists = listOfNotNull(first), isrc = null),
                 primary?.let { s.copy(title = title, artists = listOf(it), isrc = null) },
                 s.copy(title = title, artists = emptyList(), isrc = null),
-            )
+                // By title only from here: the search by MusicBrainz id was the first one.
+            ).map { it.copy(mbids = emptyList()) }
             for (v in variants) {
                 if (!tried.add(query(v))) continue
                 consider(dst.search(env, v))?.let { return it }
@@ -851,6 +873,12 @@ class SyncEngine(
             // Not found, but something came close: the review offers it as a one-tap proposal.
             runnerUp?.takeIf { it.score >= HINT_THRESHOLD }?.let { hints[s.id] = it.track }
             if (!sawCandidates) absent += s.id else absent -= s.id
+            // A library whose files show no MusicBrainz tag search after search: asking MusicBrainz
+            // (a second per track) would only slow the sync down, so it stops after a few.
+            if (s.mbids.isNotEmpty() && sawCandidates) {
+                if (sawTags) mbidTagged += dst.id
+                else mbidBlind.getOrPut(dst.id) { java.util.concurrent.atomic.AtomicInteger() }.incrementAndGet()
+            }
         }
     }
 
