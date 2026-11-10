@@ -351,6 +351,9 @@ object Notify {
         OkHttpClient.Builder()
             // The app's contacted-servers list sees these hosts too (Http.onRequest).
             .addInterceptor(com.xlollx.songport.net.Http.hostInterceptor)
+            // Never sent on to another address: a redirect would carry Gotify's X-Gotify-Key (OkHttp drops
+            // only Authorization on a new host), and the message too, where the user did not point it.
+            .followRedirects(false).followSslRedirects(false)
             .callTimeout(TIMEOUT_S, TimeUnit.SECONDS)
             .connectTimeout(TIMEOUT_S, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_S, TimeUnit.SECONDS)
