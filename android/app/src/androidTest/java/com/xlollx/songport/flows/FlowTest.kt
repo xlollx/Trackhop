@@ -20,6 +20,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -245,15 +246,36 @@ abstract class FlowTest {
      * node was would land beside it; should the move push the node out of view, it is scrolled to again.
      */
     private fun settle(n: SemanticsNodeInteraction) {
-        var last = runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return
+        // A field has the focus and the keyboard is not up yet: it is on its way (it takes the
+        // emulator up to a second), and the page will move when it arrives.
+        val typing = runCatching {
+            compose.onAllNodes(hasSetTextAction() and SemanticsMatcher.expectValue(SemanticsProperties.Focused, true)).fetchSemanticsNodes().isNotEmpty()
+        }.getOrDefault(false)
+        if (typing && keyboardHeight() == 0) {
+            val shown = System.currentTimeMillis() + 2_000
+            while (keyboardHeight() == 0 && System.currentTimeMillis() < shown) Thread.sleep(50)
+        }
+        var last = (runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return) to keyboardHeight()
         var still = 0
-        val end = System.currentTimeMillis() + 3_000
+        val end = System.currentTimeMillis() + 4_000
         while (still < 3 && System.currentTimeMillis() < end) {
             Thread.sleep(80)
             compose.waitForIdle()
-            val now = runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return
+            val now = (runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return) to keyboardHeight()
             if (now == last) still++ else { still = 0; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
         }
+    }
+
+    /** How much of the window the keyboard covers now, in pixels (0 = not shown). */
+    private fun keyboardHeight(): Int {
+        var h = 0
+        runCatching {
+            val a = resumed() ?: return 0
+            instr.runOnMainSync {
+                h = androidx.core.view.ViewCompat.getRootWindowInsets(a.window.decorView)?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())?.bottom ?: 0
+            }
+        }
+        return h
     }
 
     /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
