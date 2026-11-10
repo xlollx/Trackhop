@@ -1928,4 +1928,21 @@
     <string name="server_locks_token_wrong">Сервер не принял токен. Создайте новый в Tools › API.</string>
     <string name="server_locks_refused">Ответ сервера: %1$s</string>
     <string name="help_server_locks_body">Для синхронизаций, которые работают и на этом телефоне, и на вашем сервере Trackhop (Docker). Перед записью в плейлист каждый резервирует его на сервере и держит, пока работает. Если другой уже пишет туда, этот запуск пропускается с пометкой \"Выполняется на …: пропущено\", а следующий запуск по расписанию попробует снова. Если сервер недоступен, синхронизации идут как обычно, а журнал это отмечает.</string>
+    <string name="tools_wanted_title">Нет на моём сервере</string>
+    <string name="tools_row_wanted">Треки из ваших плейлистов, которых ещё нет на вашем сервере.</string>
+    <string name="tools_wanted_desc">То, что синхронизации на ваш сервер не нашли, каждый трек один раз. Отметьте то, что уже достали, и он уйдёт из списка. Ничего не скачивается и не покупается.</string>
+    <string name="tools_wanted_no_server">Пока ни одна синхронизация не идёт на ваш сервер (Navidrome, Jellyfin, Emby, Plex, Lyrion или Mopidy).</string>
+    <string name="tools_wanted_empty">Всё на месте: на вашем сервере есть всё.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">Не хватает %1$d трека</item>
+        <item quantity="few">Не хватает %1$d треков</item>
+        <item quantity="many">Не хватает %1$d треков</item>
+        <item quantity="other">Не хватает %1$d трека</item>
+    </plurals>
+    <string name="tools_wanted_by_album">По альбомам</string>
+    <string name="tools_wanted_show_got">Показать отмеченные</string>
+    <string name="tools_wanted_from">Из %1$s · с %2$s</string>
+    <string name="tools_wanted_no_album">Без альбома</string>
+    <string name="tools_wanted_export">Экспортировать список</string>
+    <string name="tools_wanted_lidarr">Список для Lidarr</string>
 </resources>

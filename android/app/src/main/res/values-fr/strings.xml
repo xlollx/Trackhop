@@ -1876,4 +1876,19 @@
     <string name="server_locks_token_wrong">Le serveur n\'a pas accepté le jeton. Créez-en un nouveau dans Tools › API.</string>
     <string name="server_locks_refused">Le serveur indique : %1$s</string>
     <string name="help_server_locks_body">Pour les syncs qui tournent à la fois sur ce téléphone et sur votre serveur Trackhop (Docker). Avant d\'écrire dans une playlist, chacun la réserve sur le serveur et la garde tant qu\'il travaille. Si l\'autre y écrit déjà, cette exécution est ignorée avec la note \"En cours sur … : ignorée\" et la prochaine exécution planifiée réessaie. Si le serveur est injoignable, les syncs tournent comme d\'habitude et le journal le note.</string>
+    <string name="tools_wanted_title">Manque sur mon serveur</string>
+    <string name="tools_row_wanted">Les titres de vos playlists que votre propre serveur n\'a pas encore.</string>
+    <string name="tools_wanted_desc">Ce que vos syncs vers votre serveur n\'ont pas trouvé, chaque titre une seule fois. Cochez ce que vous avez récupéré : il quitte la liste. Rien n\'est téléchargé ni acheté.</string>
+    <string name="tools_wanted_no_server">Aucune de vos syncs ne va encore vers votre propre serveur (Navidrome, Jellyfin, Emby, Plex, Lyrion ou Mopidy).</string>
+    <string name="tools_wanted_empty">Rien ne manque : votre serveur a tout.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">%1$d titre manquant</item>
+        <item quantity="other">%1$d titres manquants</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Par album</string>
+    <string name="tools_wanted_show_got">Afficher ceux que j\'ai</string>
+    <string name="tools_wanted_from">De %1$s · depuis le %2$s</string>
+    <string name="tools_wanted_no_album">Sans album</string>
+    <string name="tools_wanted_export">Exporter la liste</string>
+    <string name="tools_wanted_lidarr">Liste pour Lidarr</string>
 </resources>

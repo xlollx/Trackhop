@@ -321,6 +321,62 @@ class ApiCallsTest {
         assertFalse(env.store.data.reports.first().toString() + sent.text, File(data, "csv/Out.csv").readText().contains("Gone"))
     }
 
+    /** Missing on my server: the list in every format, its filters, the ticks, and Lidarr's key that opens it alone. */
+    @Test fun theTracksMissingOnTheServer() {
+        fun job(id: String, src: String, dst: String) = SyncJob(id, "To $id", PlaylistRef(src, "p", "P"), PlaylistRef(dst, "t", "T"))
+        val jude = Track("s1", "Hey Jude", listOf("The Beatles"), album = "Hey Jude", durationMs = 431_000, isrc = "GBAYE0601690")
+        val judeDeezer = Track("d1", "Hey Jude - Remastered 2015", listOf("The Beatles"), isrc = "GBAYE0601690")
+        val paranoid = Track("s2", "Paranoid", listOf("Black Sabbath"), album = "Paranoid")
+        fun run(job: String, vararg t: Track) = SyncReport("r$job", job, "To $job", 1_780_000_000_000, 10, sourceCount = 5, unmatched = t.map { it.toString() }, unmatchedTracks = t.toList())
+        env.store.update { d ->
+            d.copy(jobs = listOf(job("a", "spotify", "jellyfin"), job("b", "deezer", "subsonic"), job("c", "spotify", "tidal")),
+                reports = listOf(run("a", jude, paranoid), run("b", judeDeezer), run("c", Track("x", "Elsewhere", listOf("Nobody")))))
+        }
+        // What the syncs' MusicBrainz lookups learnt is used; MusicBrainz itself is never asked here.
+        env.keyValues("musicbrainz_isrc")["GBAYE0601690"] = "b2181aae-5cba-496c-bb0c-b4cc0109ebf8|1"
+        env.keyValues("musicbrainz_isrc_artists")["GBAYE0601690"] = "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+
+        val all = call("GET", "wanted")
+        assertEquals(all.text, 200, all.code)
+        assertEquals("2", all.obj.s("count"))
+        val tracks = all.obj["tracks"]!!.jsonArray.map { it.jsonObject }
+        assertEquals(listOf("Hey Jude", "Paranoid"), tracks.map { it.s("title") })
+        assertEquals("b2181aae-5cba-496c-bb0c-b4cc0109ebf8", tracks[0].s("musicBrainzId"))
+        assertEquals(listOf("a", "b"), tracks[0]["syncs"]!!.jsonArray.map { it.jsonObject.s("id") })
+        assertEquals("2", call("GET", "wanted?service=jellyfin&since=2026-01-01").obj.s("count"))
+        assertEquals("0", call("GET", "wanted?since=2026-06-01").obj.s("count"))
+        assertEquals("1", call("GET", "wanted?sync=To%20b").obj.s("count"))
+        assertEquals("1", call("GET", "wanted?service=deezer").obj.s("count"))
+        assertEquals(400, call("GET", "wanted?since=someday").code)
+        assertEquals(400, call("GET", "wanted?format=xlsx").code)
+        val albums = call("GET", "wanted?group=album").obj["albums"]!!.jsonArray.map { it.jsonObject }
+        assertEquals(listOf("Hey Jude", "Paranoid"), albums.map { it.s("album") })
+
+        assertTrue(call("GET", "wanted?format=csv").text.startsWith("title,artist,album,duration_ms,isrc,musicbrainz_id,syncs,first_seen\r\nHey Jude,The Beatles,Hey Jude,431000,GBAYE0601690,b2181aae"))
+        assertEquals("The Beatles - Hey Jude\nBlack Sabbath - Paranoid\n", call("GET", "wanted?format=text").text)
+        assertTrue(call("GET", "wanted?format=m3u").text.startsWith("#EXTM3U"))
+        assertEquals("""[{"MusicBrainzId":"b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d","ArtistName":"The Beatles"}]""", call("GET", "wanted?format=lidarr").text)
+
+        // Lidarr only GETs a URL: the list's key opens this call and no other; a new token changes it.
+        val key = Api.listKey(env)!!
+        assertEquals(200, call("GET", "wanted?format=lidarr&key=$key", auth = false).code)
+        assertEquals(401, call("GET", "wanted?key=nope", auth = false).code)
+        assertEquals(401, call("GET", "syncs?key=$key", auth = false).code)
+        assertEquals(401, call("POST", "wanted/got?key=$key", """{"ids":[]}""", auth = false).code)
+
+        // Ticked: hidden, unless all=true; and back.
+        val id = tracks[1].s("id")!!
+        assertEquals("1", call("POST", "wanted/got", """{"ids":["$id"]}""").obj.s("changed"))
+        assertEquals("1", call("GET", "wanted").obj.s("count"))
+        assertEquals("true", call("GET", "wanted?all=true").obj["tracks"]!!.jsonArray[1].jsonObject.s("got"))
+        assertEquals("1", call("POST", "wanted/got", """{"ids":["$id"],"got":false}""").obj.s("changed"))
+        assertEquals("2", call("GET", "wanted").obj.s("count"))
+
+        token = Api.newToken(env)
+        assertEquals(401, call("GET", "wanted?key=$key", auth = false).code)
+        assertTrue(call("GET", "openapi.json", auth = false).text.contains("/wanted"))
+    }
+
     /** The songs of a personal server without MusicBrainz tags, as the page's tool lists them. */
     @Test fun theSongsWithoutMusicBrainzTags() {
         assertEquals(400, call("GET", "tools/mbtags").code)

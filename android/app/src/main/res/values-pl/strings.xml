@@ -1930,4 +1930,21 @@
     <string name="server_locks_token_wrong">Serwer nie przyjął tokenu. Utwórz nowy w Tools › API.</string>
     <string name="server_locks_refused">Serwer odpowiada: %1$s</string>
     <string name="help_server_locks_body">Dla synchronizacji, które działają zarówno na tym telefonie, jak i na Twoim serwerze Trackhop (Docker). Zanim któryś zapisze do playlisty, rezerwuje ją na serwerze i trzyma, dopóki pracuje. Jeśli drugi już do niej zapisuje, to uruchomienie zostaje pominięte z notatką \"Działa na …: pominięto\", a następne zaplanowane spróbuje ponownie. Gdy serwer jest nieosiągalny, synchronizacje działają jak zwykle, a dziennik to odnotowuje.</string>
+    <string name="tools_wanted_title">Brakuje na moim serwerze</string>
+    <string name="tools_row_wanted">Utwory z Twoich playlist, których Twój serwer jeszcze nie ma.</string>
+    <string name="tools_wanted_desc">To, czego synchronizacje do Twojego serwera nie znalazły, każdy utwór raz. Zaznacz to, co już masz: zniknie z listy. Nic nie jest pobierane ani kupowane.</string>
+    <string name="tools_wanted_no_server">Żadna synchronizacja nie trafia jeszcze na Twój serwer (Navidrome, Jellyfin, Emby, Plex, Lyrion lub Mopidy).</string>
+    <string name="tools_wanted_empty">Niczego nie brakuje: Twój serwer ma wszystko.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">Brakuje %1$d utworu</item>
+        <item quantity="few">Brakuje %1$d utworów</item>
+        <item quantity="many">Brakuje %1$d utworów</item>
+        <item quantity="other">Brakuje %1$d utworu</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Według albumów</string>
+    <string name="tools_wanted_show_got">Pokaż te, które mam</string>
+    <string name="tools_wanted_from">Z %1$s · od %2$s</string>
+    <string name="tools_wanted_no_album">Bez albumu</string>
+    <string name="tools_wanted_export">Eksportuj listę</string>
+    <string name="tools_wanted_lidarr">Lista dla Lidarra</string>
 </resources>

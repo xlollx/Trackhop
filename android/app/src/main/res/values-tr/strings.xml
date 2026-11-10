@@ -1866,4 +1866,19 @@
     <string name="server_locks_token_wrong">Sunucu anahtarı kabul etmedi. Tools › API bölümünde yenisini oluştur.</string>
     <string name="server_locks_refused">Sunucunun yanıtı: %1$s</string>
     <string name="help_server_locks_body">Hem bu telefonda hem de Trackhop sunucunda (Docker) çalışan senkronizasyonlar için. Bir çalma listesine yazmadan önce her biri listeyi sunucuda ayırır ve işi bitene kadar tutar. Diğeri zaten oraya yazıyorsa bu çalıştırma \"… üzerinde çalışıyor: atlandı\" notuyla atlanır ve bir sonraki zamanlanmış çalıştırma yeniden dener. Sunucuya ulaşılamazsa senkronizasyonlar her zamanki gibi çalışır ve günlük bunu kaydeder.</string>
+    <string name="tools_wanted_title">Sunucumda eksik</string>
+    <string name="tools_row_wanted">Çalma listelerinde olup kendi sunucunda henüz olmayan şarkılar.</string>
+    <string name="tools_wanted_desc">Kendi sunucuna giden senkronizasyonların bulamadıkları, her şarkı bir kez. Edindiklerini işaretle: listeden çıkar. Hiçbir şey indirilmez ya da satın alınmaz.</string>
+    <string name="tools_wanted_no_server">Henüz hiçbir senkronizasyonun kendi sunucuna gitmiyor (Navidrome, Jellyfin, Emby, Plex, Lyrion veya Mopidy).</string>
+    <string name="tools_wanted_empty">Eksik bir şey yok: sunucunda her şey var.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">%1$d şarkı eksik</item>
+        <item quantity="other">%1$d şarkı eksik</item>
+    </plurals>
+    <string name="tools_wanted_by_album">Albüme göre</string>
+    <string name="tools_wanted_show_got">Edindiklerimi göster</string>
+    <string name="tools_wanted_from">Kaynak: %1$s · %2$s tarihinden beri</string>
+    <string name="tools_wanted_no_album">Albüm yok</string>
+    <string name="tools_wanted_export">Listeyi dışa aktar</string>
+    <string name="tools_wanted_lidarr">Lidarr için liste</string>
 </resources>

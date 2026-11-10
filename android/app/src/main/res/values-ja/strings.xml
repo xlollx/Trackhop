@@ -1838,4 +1838,18 @@
     <string name="server_locks_token_wrong">サーバーがトークンを受け付けませんでした。Tools › API で新しいトークンを作成してください。</string>
     <string name="server_locks_refused">サーバーからの応答：%1$s</string>
     <string name="help_server_locks_body">このスマホと Trackhop サーバー（Docker）の両方で動く同期のための設定です。プレイリストに書き込む前に、それぞれがサーバーでそのプレイリストを予約し、作業中は保持します。もう一方が書き込み中なら、この実行は「… で実行中のためスキップしました」というメモ付きでスキップされ、次の予定の実行で再試行します。サーバーに接続できないときは、同期はいつもどおり実行され、ログに記録されます。</string>
+    <string name="tools_wanted_title">サーバーにない曲</string>
+    <string name="tools_row_wanted">プレイリストにあって、自分のサーバーにまだない曲。</string>
+    <string name="tools_wanted_desc">自分のサーバーへの同期で見つからなかった曲を、1 曲ずつまとめます。手に入れた曲にチェックを入れるとリストから消えます。ダウンロードや購入は一切しません。</string>
+    <string name="tools_wanted_no_server">自分のサーバー（Navidrome、Jellyfin、Emby、Plex、Lyrion、Mopidy）への同期はまだありません。</string>
+    <string name="tools_wanted_empty">足りない曲はありません。サーバーにすべてそろっています。</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="other">%1$d 曲が足りません</item>
+    </plurals>
+    <string name="tools_wanted_by_album">アルバム別</string>
+    <string name="tools_wanted_show_got">入手済みも表示</string>
+    <string name="tools_wanted_from">%1$s から · %2$s 以降</string>
+    <string name="tools_wanted_no_album">アルバムなし</string>
+    <string name="tools_wanted_export">リストを書き出す</string>
+    <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
 </resources>

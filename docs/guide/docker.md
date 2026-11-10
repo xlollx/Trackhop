@@ -425,7 +425,7 @@ leave the home-screen app and not come back to it.
 The page's **Tools** are the app's: Export a playlist, File playlists (upload any format, download
 CSV, M3U, XSPF, JSPF or text), **Full backup** (by hand, daily or weekly, optionally copied to a
 folder: mount one, for example `-v /mnt/nas/trackhop:/backups`, and enter `/backups`),
-**Duplicates**, **Unplayable tracks**, **MusicBrainz tags** (the songs on your Navidrome, Jellyfin, Emby or Plex server without them), **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
+**Duplicates**, **Unplayable tracks**, **MusicBrainz tags** (the songs on your Navidrome, Jellyfin, Emby or Plex server without them), **[Missing on my server](self-hosted-playlist-sync#missing-on-my-server)** (the tracks of your playlists your own server lacks, to tick and download), **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
 page refreshes until the result, and you can leave it.
 
 ## Lyrics
@@ -626,6 +626,8 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
+| `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
+| `POST /api/v1/wanted/got` | Tick entries as got (`{"ids": ["…"]}`; `"got": false` puts them back). |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
 **Playlists**
@@ -768,11 +770,20 @@ or the track's id on the destination), and `restore` to put back what the run re
 
 **Webhook.** With an address set in Tools › API (or `PUT /api/v1/webhook`), Trackhop POSTs its
 events there as JSON: `sync.finished` (the sync, and the run with its added and not-found tracks)
-and `backup.finished` (services, failures) unless you choose otherwise; `sync.started` and
-`sync.failed` (a failed run sends both `sync.finished` and `sync.failed`) when you tick them. With a
+and `backup.finished` (services, failures) unless you choose otherwise; `sync.started`,
+`sync.failed` (a failed run sends both `sync.finished` and `sync.failed`) and `wanted.added` (a run
+to your own server found tracks missing there for the first time: `sync`, `count`, `tracks` as
+`GET /api/v1/wanted` gives them) when you tick them. With a
 secret, `X-Trackhop-Signature: sha256=<hex>` is the HMAC-SHA256 of the body. In Home Assistant, a
 *Webhook* trigger with that address starts an automation (a notification when tracks were not
 found, say); a `rest_command` that POSTs to `/api/v1/syncs/run-all` starts every sync from one.
+
+**Lidarr.** `GET /api/v1/wanted?format=lidarr` answers in the shape of Lidarr's *Custom List*
+import list: a JSON array of `{"MusicBrainzId": "<artist MBID>", "ArtistName": "…"}`, one per artist
+of the list whose MusicBrainz id is known (Lidarr reads `MusicBrainzId` only, and adds artists, not
+single tracks). Lidarr cannot send a token, so Tools › Missing on my server shows a list URL with
+its own `key=`: it opens that call and nothing else, and changes when you make a new token. In
+Lidarr: *Settings › Import Lists › + › Custom List*, List URL that address.
 
 **Prometheus and Grafana.** `/api/v1/metrics` speaks Prometheus' text format; a scrape job with the
 token is enough:

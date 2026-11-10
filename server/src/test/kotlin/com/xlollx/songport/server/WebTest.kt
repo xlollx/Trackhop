@@ -435,6 +435,30 @@ class WebTest {
         assertEquals(200, get("/tools").statusCode())
     }
 
+    @Test fun missingOnMyServerIsListedTickedAndDownloaded() {
+        assertTrue(get("/tools").body().contains("/tools/wanted"))
+        assertTrue(get("/tools/wanted").body().contains("None of your syncs goes to your own server yet"))
+        val t = com.xlollx.songport.model.Track("s1", "Paranoid <live>", listOf("Black Sabbath"), album = "Paranoid")
+        env.store.update { d ->
+            d.copy(
+                jobs = d.jobs + com.xlollx.songport.model.SyncJob("w", "To Navidrome", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("subsonic", "t", "T")),
+                reports = listOf(com.xlollx.songport.model.SyncReport("rw", "w", "To Navidrome", 1_780_000_000_000, 10, sourceCount = 3, unmatchedTracks = listOf(t))) + d.reports,
+            )
+        }
+        val page = get("/tools/wanted?view=albums").body()
+        assertTrue(page, page.contains("Black Sabbath</b> — Paranoid &lt;live&gt;") && page.contains("Black Sabbath — Paranoid <span"))
+        // The Lidarr address, with the list's own key, once the API has a token.
+        Api.newToken(env)
+        assertTrue(get("/tools/wanted").body().contains("/api/v1/wanted?format=lidarr&amp;key=${Api.listKey(env)}"))
+        val csv = get("/tools/wanted?format=csv")
+        assertTrue(csv.headers().firstValue("Content-Disposition").get().contains("missing-on-my-server.csv"))
+        assertTrue(csv.body().contains("Paranoid <live>,Black Sabbath,Paranoid"))
+        val id = com.xlollx.songport.sync.Wanted.list(env.store.data).single().id
+        assertEquals(303, post("/tools/wanted", "action=tick&id=${java.net.URLEncoder.encode(id, "UTF-8")}", *origin).statusCode())
+        assertTrue(get("/tools/wanted").body().contains("Nothing missing"))
+        assertTrue(get("/tools/wanted?all=true").body().contains("Not got after all"))
+    }
+
     @Test fun toolsListTheSongsOfAServerWithoutMusicBrainzTags() {
         // A stand-in Navidrome: two songs, one tagged.
         val navidrome = HttpServer.create(java.net.InetSocketAddress("127.0.0.1", 0), 0).apply {

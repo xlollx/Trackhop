@@ -88,7 +88,7 @@ object CsvCodec {
 
     private fun norm(h: String) = h.lowercase().replace(Regex("""[^a-z]"""), "")
 
-    private fun quote(v: String): String =
+    internal fun quote(v: String): String =
         if (v.any { it == ',' || it == '"' || it == '\n' || it == '\r' || it == ';' }) "\"" + v.replace("\"", "\"\"") + "\"" else v
 
     /**

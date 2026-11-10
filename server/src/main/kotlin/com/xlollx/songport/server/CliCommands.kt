@@ -55,6 +55,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "convert" -> { need(p, 2, "convert <service> <track>..."); convert(p[0], p.drop(1)) }
         "duplicates" -> { need(p, 2, "duplicates <service> <playlist> [--remove]"); duplicates(p[0], p[1], o) }
         "mbtags" -> mbTags(p.joinToString(" ").takeIf { it.isNotEmpty() })
+        "wanted" -> wanted(o)
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"))
@@ -678,6 +679,29 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             tracks.forEach { t -> out.println("  ${ref(t)}${t["album"].str()?.let { "  [$it]" } ?: ""}") }
             out.println("Tags are written by a tagger such as MusicBrainz Picard: ${r.s("guide")}")
         }
+        return 0
+    }
+
+    private fun wanted(o: Cli.Opts): Int {
+        val query = listOfNotNull(
+            o.value("format")?.let { "format=${enc(it)}" }, "group=album".takeIf { o.has("albums") }, "all=true".takeIf { o.has("all") },
+            o.value("sync")?.let { "sync=${enc(sync(it).s("id"))}" }, o.value("service")?.let { "service=${enc(it)}" }, o.value("since")?.let { "since=${enc(it)}" },
+        )
+        val path = "wanted" + if (query.isEmpty()) "" else "?" + query.joinToString("&")
+        // A file's format: printed as the API gives it, to save with "> file".
+        if (o.value("format").let { it != null && it.lowercase() != "json" }) return out.print(api.raw("GET", path, null)).let { 0 }
+        val r = api.get(path).jsonObject
+        if (asJson) return print(r).let { 0 }
+        fun line(t: JsonObject, album: Boolean) = "  ${t.s("artist")} - ${t.s("title")}" + (t.s("album").takeIf { album && it.isNotEmpty() }?.let { "  [$it]" } ?: "") +
+            (if (t.b("got")) "  (got)" else "") + "  <- " + t["syncs"]?.jsonArray.orEmpty().joinToString(", ") { it.jsonObject.s("name") }
+        if (r.n("count") == 0) return out.println("Nothing missing on your server.").let { 0 }
+        out.println("${r.n("count")} tracks missing on your server:")
+        r["albums"]?.jsonArray?.forEach { a ->
+            val al = a.jsonObject
+            out.println("${al.s("artist")} - ${al.s("album").ifEmpty { "(no album)" }}")
+            al["tracks"]?.jsonArray.orEmpty().forEach { out.println(line(it.jsonObject, album = false)) }
+        }
+        r["tracks"]?.jsonArray?.forEach { out.println(line(it.jsonObject, album = true)) }
         return 0
     }
 

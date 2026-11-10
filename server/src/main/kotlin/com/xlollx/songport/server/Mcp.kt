@@ -221,6 +221,14 @@ object Mcp {
             listOf(SERVICE, PLAYLIST), readOnly = true) { a -> Call("duplicates", listOf(a.text("service"), a.text("playlist"))) },
         Tool("find_untagged_songs", "Songs without MusicBrainz tags", "The songs on the user's Navidrome, Jellyfin, Emby or Plex server whose files carry no MusicBrainz tags (a sync finds those by title only). Reads the whole library: it can take a while. Nothing is changed.",
             listOf(SERVICE.copy(required = false, description = "The server's name or id (list_services); left out when only one such server is connected.")), readOnly = true) { a -> Call("mbtags", listOfNotNull(a.opt("service"))) },
+        Tool("list_missing_on_server", "Tracks missing on my server", "The tracks of the user's streaming playlists that their own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) does not have, each once: artist, title, album, length, ISRC, MusicBrainz id where known, the syncs that miss each and when it was first seen. Made from the syncs' last runs: nothing is searched, downloaded or bought.",
+            listOf(
+                SYNC.copy(required = false, description = "Only what this sync misses (its name or id)."),
+                SERVICE.copy(required = false, description = "Only tracks of syncs from or to this service (its id, e.g. spotify or jellyfin)."),
+                Param("since", "string", "Only entries first seen since: 24h, 7d, 2w or a date like 2026-11-01.", required = false),
+                Param("format", "string", "json (default), csv, m3u, text or lidarr (Lidarr's Custom List: artists with a MusicBrainz id).", required = false),
+                Param("albums", "boolean", "Grouped by album.", required = false),
+            ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format"), flags = setOfNotNull("albums".takeIf { a.flag("albums") })) },
         Tool("remove_duplicates", "Remove duplicates", "Removes a playlist's extra copies (the first of each stays). Ask the user first.",
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))

@@ -1869,4 +1869,19 @@
     <string name="server_locks_token_wrong">The server did not accept the token. Make a new one in Tools › API.</string>
     <string name="server_locks_refused">The server said: %1$s</string>
     <string name="help_server_locks_body">For syncs that run both on this phone and on your Trackhop server (Docker). Before writing to a playlist, each one reserves it on the server and keeps it while it works. If the other one is writing there, this run is skipped with the note \"Running on …: skipped\" and the next scheduled run tries again. If the server can\'t be reached, syncs run as usual and the log says so.</string>
+    <string name="tools_wanted_title">Missing on my server</string>
+    <string name="tools_row_wanted">Songs from your playlists that your own server doesn\'t have yet.</string>
+    <string name="tools_wanted_desc">What your syncs to your own server couldn\'t find, each song once. Tick what you got and it leaves the list. Nothing is downloaded or bought.</string>
+    <string name="tools_wanted_no_server">None of your syncs goes to your own server yet (Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy).</string>
+    <string name="tools_wanted_empty">Nothing missing: your server has it all.</string>
+    <plurals name="tools_wanted_count">
+        <item quantity="one">%1$d song missing</item>
+        <item quantity="other">%1$d songs missing</item>
+    </plurals>
+    <string name="tools_wanted_by_album">By album</string>
+    <string name="tools_wanted_show_got">Show what I got</string>
+    <string name="tools_wanted_from">From %1$s · since %2$s</string>
+    <string name="tools_wanted_no_album">No album</string>
+    <string name="tools_wanted_export">Export the list</string>
+    <string name="tools_wanted_lidarr">List for Lidarr</string>
 </resources>
