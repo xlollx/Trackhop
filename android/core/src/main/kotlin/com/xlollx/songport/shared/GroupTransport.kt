@@ -16,8 +16,10 @@ interface GroupTransport {
     /**
      * The member files that can be read now: for a folder every file, for a channel what arrived
      * since the last read that was followed by a [publish]. Merging them again changes nothing.
+     * Bounded as [FolderTransport.readAll] is; what [first] (the members known, by key) wrote is
+     * read before anything else.
      */
-    fun readAll(): List<MemberFile>
+    fun readAll(first: Set<String> = emptySet()): List<MemberFile>
 
     /**
      * Publishes [file] as [member]'s when the transport needs it (it changed, went missing, or is
@@ -31,7 +33,8 @@ interface GroupTransport {
 
 /** The shared folder as a transport: one file per member, written again when it changed or went missing. */
 class FolderGroupTransport(private val folder: GroupFolder, private val groupId: String) : GroupTransport {
-    override fun readAll(): List<MemberFile> = FolderTransport.readAll(folder, groupId)
+    override fun readAll(first: Set<String>): List<MemberFile> =
+        FolderTransport.readAll(folder, groupId, first.mapTo(HashSet()) { FolderTransport.fileName(groupId, it) })
 
     override fun publish(member: String, file: MemberFile, written: Int): Int {
         val text = MemberFile.write(FolderTransport.bounded(file))

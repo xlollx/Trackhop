@@ -2087,6 +2087,8 @@
     <string name="shared_folder_none">フォルダーが選択されていません</string>
     <string name="shared_link">招待リンク</string>
     <string name="shared_link_invalid">Trackhop の招待リンクではありません。</string>
+    <string name="shared_code">グループコード: %1$s</string>
+    <string name="shared_code_check">招待した人のグループページにあるコードと同じか確認してください。</string>
     <string name="shared_no_services">先に「アカウント」でサービスを接続してください。</string>
     <string name="shared_created">グループを作成しました。招待をほかのメンバーに送ってください。</string>
     <string name="shared_joined">%1$s に参加しました。次の同期でプレイリストに曲が入ります。</string>

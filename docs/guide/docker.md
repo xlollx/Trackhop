@@ -608,7 +608,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | Call | What it does |
 |---|---|
 | `GET /api/v1/syncs` | Every sync with its source, target, timing, label, tags and last result; `?tag=genre:metal`, `?label=` and `?favorite=true` narrow the list. |
-| `POST /api/v1/syncs` | Make a sync; `"twoWay": true` also makes the reverse sync (marked ↔). |
+| `POST /api/v1/syncs` | Make a sync; `"twoWay": true` also makes the reverse sync (marked ↔). An `"id"` of your own makes it safe to repeat: a sync with that id already there is answered as it is. |
 | `POST /api/v1/syncs/run-all` | Start every sync that is turned on. |
 | `POST /api/v1/syncs/run` | Start a group of syncs: those with a tag (`?tag=genre:metal`), wearing a label (`?label=`) or starred (`?favorite=true`), turned on. |
 | `GET /api/v1/tags` | The tag keys the syncs use, each with its values. |

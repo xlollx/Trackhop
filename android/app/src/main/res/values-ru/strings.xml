@@ -2201,6 +2201,8 @@
     <string name="shared_folder_none">Папка не выбрана</string>
     <string name="shared_link">Ссылка-приглашение</string>
     <string name="shared_link_invalid">Это не ссылка-приглашение Trackhop.</string>
+    <string name="shared_code">Код группы: %1$s</string>
+    <string name="shared_code_check">Проверьте, что он совпадает с кодом на странице группы у того, кто вас пригласил.</string>
     <string name="shared_no_services">Сначала подключите сервис в разделе «Аккаунты».</string>
     <string name="shared_created">Группа создана. Отправьте приглашение остальным.</string>
     <string name="shared_joined">Вы в группе %1$s. Ваш плейлист заполнится при следующей синхронизации.</string>

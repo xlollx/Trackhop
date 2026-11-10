@@ -280,10 +280,10 @@ class NtfyTransport(private val env: Env, private val groupId: String, private v
     private val server by lazy { NtfyServer(address) }
     private var state = load(env, groupId)
 
-    override fun readAll(): List<MemberFile> {
+    override fun readAll(first: Set<String>): List<MemberFile> {
         val since = if (state.since <= 0) "all" else (state.since - OVERLAP_S).coerceAtLeast(1).toString()
         val messages = server.poll(key.topic, since)
-        val packets = NtfyWire.assemble(key, groupId, messages)
+        val packets = bounded(NtfyWire.assemble(key, groupId, messages), first)
         var st = state.copy(since = maxOf(state.since, messages.maxOfOrNull { it.time } ?: 0))
         val cards = HashMap(st.cards)
         for (a in packets) {
@@ -292,7 +292,7 @@ class NtfyTransport(private val env: Env, private val groupId: String, private v
             st = if (a.packet.full && !a.packet.partial && newer) st.copy(fullAt = a.time, fullSnap = a.snap, onTopic = fps)
             else st.copy(onTopic = st.onTopic + fps, fullAt = if (a.packet.full && newer) a.time else st.fullAt, fullSnap = if (a.packet.full && newer) a.snap else st.fullSnap)
             for (c in a.packet.cards + a.packet.file.card) {
-                if (c.groupId != groupId || !SigCache.verified(c)) continue
+                if (c.groupId != groupId || !c.wellFormed() || !SigCache.verified(c)) continue
                 val old = cards[c.member]
                 if (old == null || c.at > old.at || c.at == old.at && c.sig > old.sig) cards[c.member] = c
             }
@@ -300,7 +300,27 @@ class NtfyTransport(private val env: Env, private val groupId: String, private v
         if (st.onTopic.size > MAX_FINGERPRINTS) st = st.copy(onTopic = emptySet(), fullAt = 0)
         // Kept for the publish that follows: a read that is not merged and saved is read again.
         state = st.copy(cards = cards.values.sortedByDescending { it.at }.take(MAX_CARDS).associateBy { it.member })
-        return packets.flatMap { a -> listOf(a.packet.file) + a.packet.cards.filter { it.groupId == groupId }.map { MemberFile(card = it) } }
+        return packets.flatMap { a -> listOf(a.packet.file) + a.packet.cards.filter { it.groupId == groupId && it.wellFormed() }.map { MemberFile(card = it) } }
+    }
+
+    /**
+     * The same bounds as a folder's ([FolderTransport.readAll]): at most [FolderTransport.MAX_FILES]
+     * packets, the known members' and the newest first, none with more than
+     * [FolderTransport.MAX_EVENTS] events or [RELAYED_CARDS] cards, [FolderTransport.MAX_UNIQUE]
+     * different events in all, an event found in several packets one object in memory. Answered
+     * oldest first, the order they were sent in.
+     */
+    private fun bounded(packets: List<NtfyWire.Assembled>, first: Set<String>): List<NtfyWire.Assembled> {
+        val one = HashMap<SharedEvent, SharedEvent>()
+        val out = ArrayList<NtfyWire.Assembled>()
+        val candidates = packets.filter { it.packet.file.events.size <= FolderTransport.MAX_EVENTS && it.packet.cards.size <= RELAYED_CARDS }
+            .sortedWith(compareBy<NtfyWire.Assembled> { it.packet.file.card.member !in first }.thenByDescending { it.time }.thenBy { it.snap })
+            .take(FolderTransport.MAX_FILES)
+        for (a in candidates) {
+            if (one.size > FolderTransport.MAX_UNIQUE) break
+            out += a.copy(packet = a.packet.copy(file = a.packet.file.copy(events = a.packet.file.events.map { e -> one.getOrPut(e) { e } })))
+        }
+        return out.sortedWith(compareBy<NtfyWire.Assembled> { it.time }.thenBy { it.snap })
     }
 
     override fun publish(member: String, file: MemberFile, written: Int): Int {

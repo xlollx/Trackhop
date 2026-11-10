@@ -76,4 +76,97 @@ class Ed25519Test {
         assertTrue(Ed25519.verify(Ed25519.publicKey(seed), byteArrayOf(1, 2, 3), sig))
         assertFalse(Ed25519.verify(Ed25519.publicKey(seed), byteArrayOf(1, 2, 4), sig))
     }
+
+    private val L = java.math.BigInteger.ONE.shiftLeft(252).add(java.math.BigInteger("27742317777372353535851937790883648493"))
+    private fun le(n: java.math.BigInteger): ByteArray = ByteArray(32).also { out -> val b = n.toByteArray().reversedArray(); b.copyInto(out, 0, 0, minOf(32, b.size)) }
+
+    /** S + L is the same point on the curve: a second signature anyone could make from the first. Both ways refuse it. */
+    @Test fun theMalleableTwinOfASignatureIsRefused() {
+        val seed = hex(vectors[2].secret)
+        val pub = Ed25519.publicKey(seed)
+        val msg = hex(vectors[2].message)
+        val sig = Ed25519.sign(seed, msg)
+        val s = java.math.BigInteger(1, sig.copyOfRange(32, 64).reversedArray())
+        val twin = sig.copyOfRange(0, 32) + le(s.add(L))
+        assertFalse(Ed25519.verifyHere(pub, msg, twin))
+        assertFalse(Ed25519.verify(pub, msg, twin))
+        assertEquals(false, Ed25519.Platform.verify(pub, msg, twin) ?: false)
+        // An S of all ones (far above L) as well.
+        val high = sig.copyOfRange(0, 32) + ByteArray(32) { 0xff.toByte() }.also { it[31] = 0x7f }
+        assertFalse(Ed25519.verify(pub, msg, high))
+        assertFalse(Ed25519.verifyHere(pub, msg, high))
+    }
+
+    /**
+     * A key of small order "verifies" signatures nobody made: with the neutral point as the key,
+     * R = B and S = 1 pass the plain equation for every message. Such keys, and keys that are not a
+     * point or not canonically written, are refused before any check.
+     */
+    @Test fun smallOrderAndMalformedKeysAreRefused() {
+        val smallOrder = listOf(
+            "0100000000000000000000000000000000000000000000000000000000000000", // the neutral point
+            "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f", // order 2
+            "0000000000000000000000000000000000000000000000000000000000000000", // order 4
+            "0000000000000000000000000000000000000000000000000000000000000080",
+            "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac037a", // order 8
+            "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac03fa",
+            "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc05",
+            "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc85",
+        ).map { hex(it) }
+        val forged = hex("5866666666666666666666666666666666666666666666666666666666666666") + le(java.math.BigInteger.ONE)
+        val msg = "- Band – Song".toByteArray()
+        // Without the key check the plain equation holds for the neutral point: the forgery is real.
+        assertTrue(Ed25519.Platform.verify(smallOrder[0], msg, forged) ?: true)
+        for (k in smallOrder) {
+            assertFalse(Ed25519.usableKey(k))
+            assertFalse(Ed25519.verify(k, msg, forged))
+            assertFalse(Ed25519.verifyHere(k, msg, forged))
+        }
+        // y = p and y = p + 1: the same points as 0 and 1, written the long way.
+        for (k in listOf("edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f", "eeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f")) {
+            assertFalse(Ed25519.usableKey(hex(k)))
+        }
+        // x = 0 with the sign bit set ("minus zero").
+        assertFalse(Ed25519.usableKey(hex("0100000000000000000000000000000000000000000000000000000000000080")))
+        assertTrue(Ed25519.usableKey(hex(vectors[0].public)))
+    }
+
+    /** The platform signs with the raw seed where it can, and gives the reference code's very bytes. */
+    @Test fun platformAndKotlinSignTheSame() {
+        val random = java.util.Random(11)
+        repeat(16) { n ->
+            val seed = ByteArray(32).also { random.nextBytes(it) }
+            val msg = ByteArray(n * 13).also { random.nextBytes(it) }
+            val platform = Ed25519.Platform.sign(seed, msg)
+            assertTrue("the JDK 17 running the tests signs", platform != null)
+            assertArrayEquals(Ed25519.signHere(seed, msg), platform)
+        }
+        for (v in vectors) assertArrayEquals(hex(v.signature), Ed25519.Platform.sign(hex(v.secret), hex(v.message)))
+    }
+
+    /** Random keys (half of all 32-byte strings are not points), random signatures: both checks answer alike. */
+    @Test fun agreesWithTheJdkOnGarbage() {
+        val random = java.util.Random(19)
+        var valid = 0
+        repeat(200) { n ->
+            val seed = ByteArray(32).also { random.nextBytes(it) }
+            val msg = ByteArray(n % 40).also { random.nextBytes(it) }
+            val pub = if (n % 2 == 0) Ed25519.publicKey(seed) else ByteArray(32).also { random.nextBytes(it) }
+            val good = Ed25519.signHere(seed, msg)
+            val candidates = listOf(
+                good,
+                ByteArray(64).also { random.nextBytes(it) },
+                good.copyOf().also { it[random.nextInt(64)] = (it[random.nextInt(64)].toInt() xor (1 shl random.nextInt(8))).toByte() },
+                good.copyOfRange(0, 32) + ByteArray(32).also { random.nextBytes(it); it[31] = (it[31].toInt() and 0x0f).toByte() },
+            )
+            for (sig in candidates) {
+                val here = Ed25519.verifyHere(pub, msg, sig)
+                val platform = Ed25519.Platform.verify(pub, msg, sig)
+                if (Ed25519.usableKey(pub)) assertEquals("vector $n", platform, here)
+                assertEquals(here, Ed25519.verify(pub, msg, sig))
+                if (here) valid++
+            }
+        }
+        assertTrue(valid >= 100)
+    }
 }

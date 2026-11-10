@@ -155,4 +155,145 @@ class GroupLogTest {
         assertTrue(card.verifies())
         assertFalse(card.copy(name = "Cleo").verifies())
     }
+
+    /**
+     * Anyone can change an event and fix another field (here its duration) so the copy has the same
+     * hash code as a valid event, then borrow that event's signature. The signature cache must not
+     * take one for the other: it keys on the exact bytes checked.
+     */
+    @Test fun aBorrowedSignatureWithTheSameHashCodeIsRefused() {
+        val keep = ev(ana, "+", "2", 10)
+        val valid = ev(ben, "+", "1", 11)
+        val changed = valid.copy(op = "-", seq = valid.seq + 50, at = 1_000_000, key = keep.key, title = keep.title, durationMs = 0)
+        val inv31 = java.math.BigInteger.valueOf(31).modInverse(java.math.BigInteger.ONE.shiftLeft(32)).toInt()
+        val d = (valid.hashCode() - changed.hashCode()) * inv31
+        val forged = changed.copy(durationMs = d.toLong() and 0xffffffffL)
+        assertEquals(valid.hashCode(), forged.hashCode())
+        assertEquals(valid.sig, forged.sig)
+        // The valid event is checked first (in this run or an earlier one), then its twin comes along.
+        assertEquals(listOf("1", "2"), live(listOf(keep, valid, forged)))
+        assertFalse(SigCache.verified(gid, forged))
+    }
+
+    /**
+     * A curator made follower still has their key: they could sign new events under their old
+     * numbers (one with a smaller signature wins a tie on the number) and remove anything. The
+     * creator's list pins the events that were theirs.
+     */
+    @Test fun aFormerCuratorCannotSignTheirOldNumbersOver() {
+        val anas = ev(ana, "+", "3", 9)
+        val e1 = ev(ben, "+", "1", 10)
+        val e2 = ev(ben, "+", "2", 11)
+        val demoted = Roster(gid, 3, 3, listOf(Grant(ana.id), Grant(ben.id, untilSeq = e2.seq, kept = listOf(e1, e2).map { it.sig.take(Grant.KEPT_CHARS) }))).signed(ana)
+        // Ben's number 2 again, now taking Ana's song out, dated later; and his number 1 over, with any signature at all.
+        var again = SharedEvent.of("-", track("3"), ben.id, e2.seq, 50).signed(gid, ben)
+        var at = 50L
+        while (again.sig >= e2.sig) again = SharedEvent.of("-", track("3"), ben.id, e2.seq, ++at).signed(gid, ben)
+        val over = SharedEvent.of("-", track("1"), ben.id, e1.seq, 60).signed(gid, ben)
+        assertEquals(listOf("1", "2", "3"), live(listOf(anas, e1, e2, again, over), demoted))
+        assertEquals(listOf("1", "2", "3"), live(listOf(again, over, anas, e2, e1), demoted))
+        // Without the pins (the list as it was), the rewrite went through.
+        val unpinned = Roster(gid, 3, 3, listOf(Grant(ana.id), Grant(ben.id, untilSeq = e2.seq))).signed(ana)
+        assertFalse("3" in live(listOf(anas, e1, e2, again), unpinned))
+        // The pins are signed with the list.
+        val tampered = demoted.copy(grants = listOf(Grant(ana.id), Grant(ben.id, untilSeq = e2.seq, kept = listOf(again.sig.take(Grant.KEPT_CHARS)))))
+        assertFalse(tampered.verifies(ana.id))
+    }
+
+    /** An action dated far ahead would beat every later one for good: it waits until its time comes. */
+    @Test fun anActionFarInTheFutureWaits() {
+        val add = ev(ana, "+", "1", 10)
+        val never = ev(ben, "-", "1", 90_000_000)
+        val now = 1_000L
+        assertEquals(listOf("1"), log.live(log.merge(roster, emptyList(), sequenceOf(add, never), latest = now)).map { it.title.removePrefix("Song ") })
+        assertEquals(listOf(add), log.checked(roster, listOf(add, never), latest = now))
+        // Once the clock gets there, it counts like any other; the end of time never does.
+        assertEquals(listOf("1"), live(listOf(add, ev(ben, "-", "1", Long.MAX_VALUE))))
+        assertTrue(log.live(log.merge(roster, emptyList(), sequenceOf(add, never))).isEmpty())
+    }
+
+    /** A file filled with events that claim a curator and fail the check is left out whole; a few bad ones only drop themselves. */
+    @Test fun aFileFullOfBadSignaturesIsLeftOut() {
+        val good = ev(ana, "+", "1", 10)
+        val bad = (1..GroupLog.MAX_BAD + 1).map { n -> good.copy(seq = 1000L + n, key = "t:x|$n") }
+        assertEquals(null, log.checked(roster, listOf(good) + bad))
+        assertEquals(listOf(good), log.checked(roster, listOf(good) + bad.take(3)))
+        // A follower's events are not even checked: they cannot count.
+        assertEquals(listOf(good), log.checked(roster, listOf(good) + (1..200).map { ev(cleo, "+", "$it", 20) }))
+    }
+
+    /** Fields a crafted file could use: huge text, the separators the signed bytes use, half a surrogate pair. */
+    @Test fun craftedFieldsAreRefused() {
+        fun signedAs(e: SharedEvent) = e.signed(gid, ana)
+        val base = SharedEvent(by = ana.id, seq = 77, at = 10, op = "+", key = "t:band|song", title = "Song", artists = listOf("Band"))
+        assertTrue(signedAs(base).wellFormed())
+        val crafted = listOf(
+            base.copy(title = "x".repeat(SharedEvent.MAX_TITLE + 1)),
+            base.copy(artists = listOf("a\u001fb")),
+            base.copy(artists = (1..11).map { "a$it" }),
+            base.copy(title = "Song \uD83C"),
+            base.copy(isrc = "\u0000"),
+            base.copy(isrc = ""),
+            base.copy(op = "x"),
+            base.copy(seq = 0),
+            base.copy(key = " "),
+        )
+        for (c in crafted) assertFalse(c.toString(), signedAs(c).wellFormed())
+        // Two artists and one artist with the separator inside sign the same bytes: only the first is ever written.
+        assertTrue(base.copy(artists = listOf("a", "b")).signedBytes(gid).contentEquals(base.copy(artists = listOf("a\u001fb")).signedBytes(gid)))
+        assertTrue(live(crafted.filter { it.key.isNotBlank() }.map { signedAs(it.copy(key = "t:k|${it.hashCode()}")) }).isEmpty())
+        // What Trackhop signs is always plain, whatever the service sent.
+        val fromService = SharedEvent.of("+", Track("z", "Line\nbreak \uD83C", listOf("A\u001fB"), album = "x".repeat(900), isrc = "usab12345678"), ana.id, 1, 1).signed(gid, ana)
+        assertTrue(fromService.wellFormed())
+        assertEquals("Line break ", fromService.title)
+        // A list of curators or a card out of shape.
+        val many = Roster(gid, 5, 5, (0..Roster.MAX_GRANTS).map { Grant(Identity.create().id) }).signed(ana)
+        assertEquals(roster, log.roster(listOf(roster, many)))
+        assertFalse(MemberCard(gid, "", "x".repeat(MemberCard.MAX_NAME + 1)).signed(ana).wellFormed())
+        assertTrue(MemberCard(gid, "", "Ana 🎧").signed(ana).wellFormed())
+        // A file nested a million deep in a field nobody reads: refused, no crash.
+        assertEquals(null, MemberFile.parse("{\"x\":" + "[".repeat(1_000_000) + "]".repeat(1_000_000) + "}"))
+    }
+
+    /** A live take and the studio recording without ISRCs are two tracks: removing one never removes the other. A remaster is the same song. */
+    @Test fun aLiveTakeAndTheStudioOneHaveTheirOwnKeys() {
+        val studio = Track("a", "Song", listOf("Band"))
+        assertNotEquals(SharedEvent.keyOf(studio), SharedEvent.keyOf(Track("b", "Song (Live at Wembley)", listOf("Band"))))
+        assertNotEquals(SharedEvent.keyOf(studio), SharedEvent.keyOf(Track("c", "Song - Acoustic", listOf("Band"))))
+        assertEquals(SharedEvent.keyOf(studio), SharedEvent.keyOf(Track("d", "Song (2011 Remaster)", listOf("Band"))))
+        assertEquals(SharedEvent.keyOf(Track("e", "Song - Live", listOf("Band"))), SharedEvent.keyOf(Track("f", "Song (Live)", listOf("Band"))))
+    }
+
+    /** An invite whose key is no usable point, or for a way of talking this Trackhop does not have, is no invite; the group code is short and stable. */
+    @Test fun invitesRefuseUnusableKeysAndCarryAGroupCode() {
+        val neutral = B64.encode(ByteArray(32).also { it[0] = 1 })
+        assertEquals(null, Invite.parse("https://trackhop.org/join#g=$gid&k=$neutral&n=x"))
+        assertEquals(null, Invite.parse("https://trackhop.org/join#g=$gid&k=${ana.id}&n=x&t=relay"))
+        val inv = Invite.parse("https://trackhop.org/join#g=$gid&k=${ana.id}&n=Road%0Atrip%07")!!
+        assertEquals("Road trip", inv.name)
+        assertTrue(inv.code, Regex("[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}").matches(inv.code))
+        assertEquals(inv.code, Invite(gid, "Other", ana.id).code)
+        assertNotEquals(inv.code, Invite(gid, "Road trip", ben.id).code)
+    }
+
+    /** A folder someone filled with files: the known members' files are read first, and no more than the bounds. */
+    @Test fun aFloodedFolderIsReadWithinBounds() {
+        val dir = java.nio.file.Files.createTempDirectory("trackhop-flood").toFile()
+        try {
+            val folder = DirFolder(dir)
+            val real = MemberFile(card = MemberCard(gid, "", "Ana").signed(ana), events = listOf(ev(ana, "+", "1", 10)))
+            FolderTransport.write(folder, gid, ana.id, real)
+            val junk = MemberFile.write(MemberFile(card = MemberCard(gid, cleo.id, "x")))
+            for (n in 0 until FolderTransport.MAX_FILES + 20) java.io.File(dir, FolderTransport.prefix(gid) + "0000-$n.json").writeText(junk)
+            val tooMany = MemberFile(card = MemberCard(gid, cleo.id, "x"),
+                events = (1..FolderTransport.MAX_EVENTS + 1).map { SharedEvent(by = cleo.id, seq = it.toLong(), at = 1, op = "+", key = "t:$it") })
+            java.io.File(dir, FolderTransport.prefix(gid) + "0000-+big.json").writeText(MemberFile.write(tooMany))
+            val read = FolderTransport.readAll(folder, gid, setOf(FolderTransport.fileName(gid, ana.id)))
+            assertEquals(FolderTransport.MAX_FILES - 1, read.size)
+            assertEquals(real, read.first())
+            assertTrue(read.none { it.events.size > FolderTransport.MAX_EVENTS })
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
 }

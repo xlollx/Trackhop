@@ -77,25 +77,29 @@ footer a{color:inherit}
   function set(id, text) { document.getElementById(id).textContent = text; }
   function link(text, href, cls) { var a = document.createElement("a"); a.className = "btn " + cls; a.href = href; a.textContent = text; return a; }
   var hash = (location.hash || "").replace(/^#/, "");
-  var params = {};
+  var params = Object.create(null);
   hash.split("&").forEach(function (p) {
     var i = p.indexOf("=");
     if (i > 0) { try { params[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); } catch (e) {} }
   });
   set("kicker", t.kicker);
   var body = document.getElementById("body");
-  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !params.k || !params.n) {
+  // The same checks as the app's (Invite.parse); every text goes in as text, never as markup.
+  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n ||
+      (params.t === "ntfy" && (!/^[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || "")))) {
     set("title", "Trackhop");
     body.textContent = t.bad;
     return;
   }
-  set("title", params.n);
+  set("title", params.n.slice(0, 60));
   set("sub", t.sub);
-  var how = document.createElement("p"); how.textContent = params.t === "ntfy" ? t.howNtfy : t.how; body.appendChild(how);
+  var ntfy = params.t === "ntfy";
+  var how = document.createElement("p"); how.textContent = ntfy ? t.howNtfy : t.how; body.appendChild(how);
   var host = "";
-  if (params.t === "ntfy") { try { host = new URL(params.s).host; } catch (e) { host = "ntfy"; } }
+  if (ntfy) { try { host = new URL(params.s).host.slice(0, 80); } catch (e) { host = "ntfy"; } }
   var folder = document.createElement("p");
-  folder.textContent = params.t === "ntfy" ? t.ntfy.replace("{s}", host) : params.f ? t.folder.replace("{f}", params.f) : t.folderAny;
+  folder.textContent = ntfy ? t.ntfy.replace("{s}", function () { return host; })
+    : params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny;
   body.appendChild(folder);
   var actions = document.getElementById("actions");
   actions.appendChild(link(t.open, "songport://join#" + hash, "p"));

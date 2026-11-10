@@ -81,10 +81,13 @@ say) doesn't bring it back.
 
 1. Open the invite link on the phone (or send it to Trackhop with *Share*), or paste it in
    *Tools → Shared playlists → Join with a link*.
-2. Pick **your service**: Trackhop makes a new playlist there, named after the group.
-3. For a group on a shared folder, **choose the shared folder**, the same one the group uses. For
+2. Check the **group code** under the link: it must be the same as the one on the group's page of
+   whoever invited you (ask them, or look at their screen). A link changed on its way would show
+   another code.
+3. Pick **your service**: Trackhop makes a new playlist there, named after the group.
+4. For a group on a shared folder, **choose the shared folder**, the same one the group uses. For
    an encrypted channel there is nothing to choose: the invite says where the group is.
-4. The playlist fills up with the group's songs on the first sync. You join as someone who
+5. The playlist fills up with the group's songs on the first sync. You join as someone who
    follows; the creator can make you a curator from the group's page.
 
 ## The group's page
@@ -114,6 +117,10 @@ say) doesn't bring it back.
 - The group's key stays on your phone: a configuration file leaves the group's syncs out. On a new
   phone, join the group again with the invite.
 - Large removals wait for a confirmation in the sync's preview, as in any two-way sync.
+- Each phone is its own member: on a second phone, join with the invite again (and, to change the
+  group from there too, ask the creator to make it a curator).
+- Only the phone that created the group can change roles. If it is lost or reset, the group goes on
+  with the curators it has, but nobody can change them any more: to start over, create a new group.
 
 Related: [keep playlists in sync](sync-playlists) between two services of your own, and
 [shared links](shared-links) to send someone a song or a playlist on their own service.

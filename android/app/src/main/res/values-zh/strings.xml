@@ -2087,6 +2087,8 @@
     <string name="shared_folder_none">尚未选择文件夹</string>
     <string name="shared_link">邀请链接</string>
     <string name="shared_link_invalid">这不是 Trackhop 的邀请链接。</string>
+    <string name="shared_code">群组代码：%1$s</string>
+    <string name="shared_code_check">请确认它与邀请你的人在群组页面上的代码一致。</string>
     <string name="shared_no_services">请先在“账号”中连接一个服务。</string>
     <string name="shared_created">小组已创建。把邀请发给其他人吧。</string>
     <string name="shared_joined">你已加入 %1$s。下次同步时你的歌单会填满。</string>

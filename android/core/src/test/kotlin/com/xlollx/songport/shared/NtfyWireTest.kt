@@ -120,6 +120,14 @@ class NtfyWireTest {
         assertNull(Invite.parse(link.replace("&x=$key", "&x=short")))
         assertNull(Invite.parse(link.replace("https%3A%2F%2Fntfy.example.org%2Fbase", "ftp%3A%2F%2Fx")))
         assertNull(Invite.parse(link.replace("t=ntfy", "t=carrier-pigeon")))
+        // The key's exact shape: 43 base64url characters, no padding, no other alphabet.
+        for (bad in listOf(key + "A", key.dropLast(1), key.dropLast(1) + "=", key.dropLast(1) + "+", key.dropLast(1) + "/")) {
+            assertNull(bad, Invite.parse(link.replace("&x=$key", "&x=" + java.net.URLEncoder.encode(bad, "UTF-8"))))
+        }
+        // A server address with a control character in it: not an invite.
+        assertNull(Invite.parse(link.replace("https%3A%2F%2Fntfy.example.org%2Fbase", "https%3A%2F%2Fntfy.example.org%0A")))
+        // The group code is the creator's, whichever way the group talks.
+        assertEquals(Invite(gid, "Road trip", ana.id).code, Invite.parse(link)!!.code)
         // A folder group's invite holds no secret.
         val folder = Invite(gid, "Road trip", ana.id, "Trackhop")
         assertTrue("&x=" !in folder.link() && "&s=" !in folder.link())

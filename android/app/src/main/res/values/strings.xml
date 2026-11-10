@@ -2126,6 +2126,8 @@
     <string name="shared_folder_none">No folder chosen yet</string>
     <string name="shared_link">Invite link</string>
     <string name="shared_link_invalid">This isn\'t a Trackhop invite link.</string>
+    <string name="shared_code">Group code: %1$s</string>
+    <string name="shared_code_check">Check it matches the code on the group page of whoever invited you.</string>
     <string name="shared_no_services">Connect a service in Accounts first.</string>
     <string name="shared_created">Group created. Send the invite to the others.</string>
     <string name="shared_joined">You\'re in %1$s. Your playlist fills up on the next sync.</string>

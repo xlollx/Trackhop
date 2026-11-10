@@ -2086,6 +2086,8 @@
     <string name="shared_folder_none">아직 선택한 폴더가 없어요</string>
     <string name="shared_link">초대 링크</string>
     <string name="shared_link_invalid">Trackhop 초대 링크가 아니에요.</string>
+    <string name="shared_code">그룹 코드: %1$s</string>
+    <string name="shared_code_check">초대한 사람의 그룹 페이지에 있는 코드와 같은지 확인하세요.</string>
     <string name="shared_no_services">먼저 계정에서 서비스를 연결하세요.</string>
     <string name="shared_created">그룹을 만들었어요. 다른 사람들에게 초대를 보내세요.</string>
     <string name="shared_joined">%1$s에 참여했어요. 다음 동기화 때 플레이리스트가 채워져요.</string>

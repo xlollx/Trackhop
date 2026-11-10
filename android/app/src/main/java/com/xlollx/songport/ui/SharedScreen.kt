@@ -118,6 +118,17 @@ private fun rememberFolderPicker(onPicked: (Uri, String) -> Unit) = LocalContext
 }
 
 /**
+ * Gives back the lasting access to a group's former folder once nothing in Trackhop uses it (no
+ * other group, not the backup folder): Android keeps a limited number of them per app.
+ */
+private fun releaseFolder(ctx: android.content.Context, ref: String) {
+    if (!ref.startsWith("content://")) return
+    val d = ctx.env.store.data
+    if (d.groups.any { it.folder == ref } || d.settings.backupFolder == ref) return
+    runCatching { ctx.contentResolver.releasePersistableUriPermission(Uri.parse(ref), Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
+}
+
+/**
  * Shared playlists: the groups this phone takes part in, creating one around a playlist, joining
  * with an invite link, and a group's page (invite, members and roles, the log, leaving).
  */
@@ -312,7 +323,8 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onDone: (Sha
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val services = remember { writableServices(ctx, needsCreate = true) }
-    var link by rememberSaveable { mutableStateOf(initial) }
+    // A new invite opened while the form shows replaces the one in it.
+    var link by rememberSaveable(initial) { mutableStateOf(initial) }
     var myName by rememberSaveable { mutableStateOf("") }
     var serviceId by rememberSaveable { mutableStateOf(services.firstOrNull()?.id) }
     var choosing by remember { mutableStateOf(false) }
@@ -337,6 +349,11 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onDone: (Sha
                     isError = link.isNotBlank() && invite == null,
                     supportingText = if (link.isNotBlank() && invite == null) { { Text(stringResource(R.string.shared_link_invalid)) } } else null,
                 )
+                // A link changed on its way would make its maker the group's creator here: the code says whose group it is.
+                if (invite != null) Column {
+                    Text(stringResource(R.string.shared_code, invite.code), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.shared_code_check), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = true }
                 Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -394,7 +411,9 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     val names = members.associate { it.id to it.name.ifBlank { ctx.getString(R.string.shared_someone) } }
     val curator = SharedGroups.role(group, state) == SharedGroups.Role.CURATOR
     val changeFolder = rememberFolderPicker { uri, n ->
+        val before = group.folder
         env.store.update { d -> d.copy(groups = d.groups.map { if (it.id == group.id) it.copy(folder = uri.toString(), folderName = n) else it }) }
+        releaseFolder(ctx, before)
     }
 
     problem?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
@@ -421,6 +440,7 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
                 }
             }
             SelectionContainer { Text(link, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            Text(stringResource(R.string.shared_code, group.invite().code), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
             TextButton(onClick = {
                 val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, link)
                 runCatching { ctx.startActivity(Intent.createChooser(send, null)) }
@@ -490,6 +510,7 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
                 scope.launch {
                     val ids = withContext(Dispatchers.IO) { SharedGroups.leave(env, group) }
                     ids.forEach { Scheduler.cancel(ctx, it) }
+                    releaseFolder(ctx, group.folder)
                     onLeft()
                 }
             }) { Text(stringResource(R.string.shared_leave), color = MaterialTheme.colorScheme.error) }
