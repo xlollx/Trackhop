@@ -2077,7 +2077,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">共享歌单</string>
     <string name="shared_row_desc">一个小组共用一个歌单，各自用自己的服务</string>
-    <string name="shared_intro">共享歌单存放在小组已经在共享的文件夹里（Google Drive、Nextcloud、Dropbox、Syncthing）。每个人在自己的服务上保留一份副本，Trackhop 让这些副本保持一致。无需账号，也无需服务器。</string>
+    <string name="shared_intro">共享歌单通过小组已经在共享的文件夹（Google Drive、Nextcloud、Dropbox、Syncthing）或加密的 ntfy 频道传递。每个人在自己的服务上保留一份副本，Trackhop 让这些副本保持一致。无需账号。</string>
     <string name="shared_create">创建小组</string>
     <string name="shared_join">通过链接加入</string>
     <string name="shared_name">小组名称</string>
@@ -2132,6 +2132,16 @@
     <string name="shared_error_not_creator">只有创建小组的人可以更改角色。</string>
     <string name="shared_error_last_curator">小组至少需要一位策展人。</string>
     <string name="shared_error_gone">此共享歌单已不在这台设备上。</string>
+    <string name="shared_via">小组如何连接</string>
+    <string name="shared_via_folder_desc">Google Drive、Nextcloud、Dropbox 或 Syncthing：能打开文件夹的人就能读取小组。</string>
+    <string name="shared_via_ntfy">加密的 ntfy 频道</string>
+    <string name="shared_via_ntfy_desc">无需共享文件夹：更改经加密后通过 ntfy 服务器传递，可用 ntfy.sh 或你自己的服务器。</string>
+    <string name="shared_ntfy_server">ntfy 服务器</string>
+    <string name="shared_ntfy_server_invalid">请输入以 https:// 或 http:// 开头的地址。</string>
+    <string name="shared_invite_secret">任何拿到此邀请的人都能读取小组：只发给你要邀请的人。</string>
+    <string name="shared_join_ntfy">%1$s 上的加密频道。任何拿到此邀请的人都能读取小组：请勿转发。</string>
+    <string name="shared_joined_waiting">你已加入 %1$s。其他成员的 Trackhop 同步后，歌曲就会到达。</string>
+    <string name="shared_error_server">小组服务器 %1$s 暂时没有响应：下次同步会再试。</string>
     <plurals name="shared_members_n">
         <item quantity="other">%1$d 位成员</item>
     </plurals>

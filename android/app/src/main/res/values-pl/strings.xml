@@ -2193,7 +2193,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Wspólne playlisty</string>
     <string name="shared_row_desc">Jedna playlista dla grupy, każdy na swoim serwisie</string>
-    <string name="shared_intro">Wspólna playlista jest w folderze, który twoja grupa już udostępnia (Google Drive, Nextcloud, Dropbox, Syncthing). Każdy ma swoją kopię na swoim serwisie, a Trackhop dba, by kopie były takie same. Bez konta, bez serwera.</string>
+    <string name="shared_intro">Wspólna playlista przechodzi przez folder, który twoja grupa już udostępnia (Google Drive, Nextcloud, Dropbox, Syncthing), albo przez szyfrowany kanał ntfy. Każdy ma swoją kopię na swoim serwisie, a Trackhop dba, by kopie były takie same. Bez konta.</string>
     <string name="shared_create">Utwórz grupę</string>
     <string name="shared_join">Dołącz przez link</string>
     <string name="shared_name">Nazwa grupy</string>
@@ -2248,6 +2248,16 @@
     <string name="shared_error_not_creator">Tylko osoba, która utworzyła grupę, może zmieniać role.</string>
     <string name="shared_error_last_curator">Grupa zawsze potrzebuje co najmniej jednego kuratora.</string>
     <string name="shared_error_gone">Tej wspólnej playlisty nie ma już na tym urządzeniu.</string>
+    <string name="shared_via">Jak grupa się łączy</string>
+    <string name="shared_via_folder_desc">Google Drive, Nextcloud, Dropbox lub Syncthing: kto może otworzyć folder, ten czyta grupę.</string>
+    <string name="shared_via_ntfy">Szyfrowany kanał ntfy</string>
+    <string name="shared_via_ntfy_desc">Bez folderu do udostępniania: zmiany idą zaszyfrowane przez serwer ntfy, ntfy.sh albo twój własny.</string>
+    <string name="shared_ntfy_server">Serwer ntfy</string>
+    <string name="shared_ntfy_server_invalid">Adres zaczynający się od https:// lub http://.</string>
+    <string name="shared_invite_secret">Każdy, kto ma to zaproszenie, może czytać grupę: wyślij je tylko osobom, które zapraszasz.</string>
+    <string name="shared_join_ntfy">Szyfrowany kanał na %1$s. Każdy, kto ma to zaproszenie, może czytać grupę: nie przekazuj go dalej.</string>
+    <string name="shared_joined_waiting">Jesteś w %1$s. Utwory dotrą, gdy Trackhop innego członka się zsynchronizuje.</string>
+    <string name="shared_error_server">Serwer grupy %1$s teraz nie odpowiada: następna synchronizacja spróbuje ponownie.</string>
     <plurals name="shared_members_n">
         <item quantity="one">%1$d członek</item>
         <item quantity="few">%1$d członków</item>

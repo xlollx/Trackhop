@@ -1,6 +1,6 @@
 ---
 title: A playlist shared by a group, each on their own service
-description: Share one playlist with friends or family who use different music services (Spotify, TIDAL, Apple Music, YouTube Music, Deezer, your own server), kept in step through a folder you already share. Free and open source, no account.
+description: Share one playlist with friends or family who use different music services (Spotify, TIDAL, Apple Music, YouTube Music, Deezer, your own server), kept in step through a folder you already share or an encrypted ntfy channel. Free and open source, no account.
 ---
 
 # A playlist shared by a group, each on their own service
@@ -11,7 +11,28 @@ on your own service, and Trackhop keeps the copies in step: a song added by one 
 for the others, a song taken out goes from everyone's copy.
 
 There is no public playlist and no Trackhop server in between. The group's changes travel through
-a **folder you already share**: a Google Drive, Nextcloud or Dropbox folder, or a Syncthing folder.
+a **folder you already share** (a Google Drive, Nextcloud or Dropbox folder, or a Syncthing folder),
+or through an **encrypted ntfy channel** on ntfy.sh or your own ntfy server.
+
+## Two ways for the group to meet
+
+The person who creates the group picks one; everyone in the group uses the same.
+
+**A shared folder.** Each member's Trackhop writes one file in the folder and reads everyone
+else's. Who can read the group is who can open the folder: the files are not encrypted, so the
+company that stores the folder (Google, Dropbox, your Nextcloud's host) can read them, as it can
+read anything else you keep there. The invite holds no secret: on its own, it lets nobody in.
+
+**An encrypted ntfy channel.** No folder to share: the changes travel through an
+[ntfy](https://ntfy.sh) server, ntfy.sh or one you run yourself. Everything is encrypted on each
+phone before it leaves, with a key only the group has; the server sees messages it cannot read on
+a topic named after that key, never the group's name, its songs or its members. The key travels
+in the invite, so **anyone with the invite can read the group**: send it only to the people you
+are inviting, and not in a public place. The server does see that someone sends and fetches
+messages, and from which internet address, as any server you connect to does.
+
+Either way, reading is not writing: changes count only when a curator signed them (see below),
+so someone who got hold of the folder or the invite can follow the playlist but not change it.
 
 ## Who changes what
 
@@ -47,10 +68,14 @@ say) doesn't bring it back.
 1. *Tools → Shared playlists → Create a group*, or *⋮ → Share with a group* on a sync's card.
 2. Pick **your service and your playlist** (the songs it holds become the group's), give the group
    a name and say how the others will see you.
-3. **Choose the shared folder**: the folder your group shares, as your phone sees it (in the
-   Drive, Nextcloud or Dropbox app's place in the picker, or the Syncthing folder on the phone).
+3. **Choose how the group meets**:
+   - *Shared folder*: pick the folder your group shares, as your phone sees it (in the Drive,
+     Nextcloud or Dropbox app's place in the picker, or the Syncthing folder on the phone).
+   - *Encrypted ntfy channel*: leave the server as it is (ntfy.sh), or put the address of your
+     own ntfy server.
 4. On the group's page, **send the invite**: the others scan the QR code with their phone's camera,
-   or you send them the link.
+   or you send them the link. For an encrypted channel, the page reminds you that the invite is
+   the key to the group.
 
 **Joining**
 
@@ -60,7 +85,8 @@ say) doesn't bring it back.
    whoever invited you (ask them, or look at their screen). A link changed on its way would show
    another code.
 3. Pick **your service**: Trackhop makes a new playlist there, named after the group.
-4. **Choose the shared folder**, the same one the group uses.
+4. For a group on a shared folder, **choose the shared folder**, the same one the group uses. For
+   an encrypted channel there is nothing to choose: the invite says where the group is.
 5. The playlist fills up with the group's songs on the first sync. You join as someone who
    follows; the creator can make you a curator from the group's page.
 
@@ -72,15 +98,22 @@ say) doesn't bring it back.
 - **Members**: who is in the group, on which service, and their role. The creator changes roles
   here.
 - **Who changed what**: the group's log, newest first.
-- **Change folder**, if the shared folder moved, and **Leave group**: you stop receiving changes,
+- **Change folder**, if the shared folder moved (for an encrypted channel, the server it uses),
+  and **Leave group**: you stop receiving changes,
   your playlist stays as it is on your service, and the songs you added stay with the group.
 
 ## Good to know
 
-- Everyone in the group needs access to the shared folder: inviting someone to the group means
-  sharing the folder with them too, in the app the folder belongs to.
+- On a shared folder, everyone in the group needs access to the folder: inviting someone to the
+  group means sharing the folder with them too, in the app the folder belongs to.
 - Each member has one file in the folder, written by their Trackhop. Leave the files alone; a copy
   a sync app makes on a conflict is fine, Trackhop reads it too.
+- An ntfy server keeps messages only for some hours. So each member's Trackhop sends the whole
+  group again from time to time, followers' too: someone whose phone was off for days catches up
+  completely as soon as any other member's Trackhop syncs.
+- ntfy.sh limits how much each person can send in a day. That is plenty for a group playlist of
+  ordinary size; for a very large one, use your own ntfy server or a shared folder. Your own server
+  has to let Trackhop send and read without signing in.
 - The group's key stays on your phone: a configuration file leaves the group's syncs out. On a new
   phone, join the group again with the invite.
 - Large removals wait for a confirmation in the sync's preview, as in any two-way sync.

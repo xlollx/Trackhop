@@ -59,11 +59,15 @@ footer a{color:inherit}
     en: { kicker: "Shared playlist", sub: "You're invited to a playlist shared by a group, each on their own music service.",
           how: "Open the invite in Trackhop, pick your service and the group's shared folder: your own copy of the playlist fills up on the first sync.",
           folder: "You also need access to the group's shared folder ({f}).", folderAny: "You also need access to the folder the group shares (Google Drive, Nextcloud, Dropbox, Syncthing).",
+          howNtfy: "Open the invite in Trackhop and pick your service: your own copy of the playlist fills up on the first sync.",
+          ntfy: "This group meets on an encrypted channel ({s}): the invite is its key. Anyone with it can read the group, so don't pass it on.",
           open: "Open in Trackhop", get: "Get Trackhop", note: "No Trackhop yet? Install it, then open this page again, or paste the link in Tools › Shared playlists › Join with a link.",
           bad: "This invite is incomplete or damaged: ask for it again." },
     it: { kicker: "Playlist condivisa", sub: "Sei invitato a una playlist condivisa da un gruppo, ognuno sul suo servizio musicale.",
           how: "Apri l'invito in Trackhop, scegli il tuo servizio e la cartella condivisa del gruppo: la tua copia della playlist si riempie alla prima sincronizzazione.",
           folder: "Ti serve anche l'accesso alla cartella condivisa del gruppo ({f}).", folderAny: "Ti serve anche l'accesso alla cartella che il gruppo condivide (Google Drive, Nextcloud, Dropbox, Syncthing).",
+          howNtfy: "Apri l'invito in Trackhop e scegli il tuo servizio: la tua copia della playlist si riempie alla prima sincronizzazione.",
+          ntfy: "Questo gruppo si incontra su un canale cifrato ({s}): l'invito ne è la chiave. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           open: "Apri in Trackhop", get: "Scarica Trackhop", note: "Non hai ancora Trackhop? Installalo e riapri questa pagina, oppure incolla il link in Strumenti › Playlist condivise › Entra con un link.",
           bad: "Questo invito è incompleto o danneggiato: chiedilo di nuovo." }
   };
@@ -81,15 +85,22 @@ footer a{color:inherit}
   set("kicker", t.kicker);
   var body = document.getElementById("body");
   // The same checks as the app's (Invite.parse); every text goes in as text, never as markup.
-  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n) {
+  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n ||
+      (params.t === "ntfy" && (!/^[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || "")))) {
     set("title", "Trackhop");
     body.textContent = t.bad;
     return;
   }
   set("title", params.n.slice(0, 60));
   set("sub", t.sub);
-  var how = document.createElement("p"); how.textContent = t.how; body.appendChild(how);
-  var folder = document.createElement("p"); folder.textContent = params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny; body.appendChild(folder);
+  var ntfy = params.t === "ntfy";
+  var how = document.createElement("p"); how.textContent = ntfy ? t.howNtfy : t.how; body.appendChild(how);
+  var host = "";
+  if (ntfy) { try { host = new URL(params.s).host.slice(0, 80); } catch (e) { host = "ntfy"; } }
+  var folder = document.createElement("p");
+  folder.textContent = ntfy ? t.ntfy.replace("{s}", function () { return host; })
+    : params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny;
+  body.appendChild(folder);
   var actions = document.getElementById("actions");
   actions.appendChild(link(t.open, "songport://join#" + hash, "p"));
   actions.appendChild(link(t.get, "{{ '/' | relative_url }}", "s"));

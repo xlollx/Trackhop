@@ -29,9 +29,9 @@ data class SharedGroup(
     val creator: String,
     /** This device's public key in the group; the private one is in the token vault. */
     val me: String,
-    /** The group's folder, as [SharedFolders] opens it (a path, an Android folder address). */
+    /** The group's folder, as [SharedFolders] opens it (a path, an Android folder address); for [Invite.NTFY], the server's address. */
     val folder: String,
-    /** The folder's name as the user saw it when picking it. */
+    /** The folder's name as the user saw it when picking it; for [Invite.NTFY], the server's name. */
     val folderName: String = "",
     /** The name the other members see. */
     val myName: String = "",
@@ -42,9 +42,13 @@ data class SharedGroup(
     val jobId: String = "",
     val twinId: String = "",
     val joinedAt: Long = 0,
+    /** How the members reach each other (see [GroupTransport]). */
+    val transport: String = Invite.FOLDER,
 ) {
     val createdHere: Boolean get() = creator == me
-    fun invite(): Invite = Invite(id, name, creator, folderName)
+    /** The invite without its secret part: [SharedTransports.invite] adds an encrypted channel's key. */
+    fun invite(): Invite =
+        if (transport == Invite.NTFY) Invite(id, name, creator, transport = transport, server = folder) else Invite(id, name, creator, folderName)
 }
 
 /** What this device knows of a group: the merged log and the curators' list, plus a follower's own changes. */
@@ -71,10 +75,15 @@ data class GroupState(
 
 /**
  * A group's invite, as a link or a QR code: the group, its name, the creator's public key (the
- * key every member trusts for the curators' list) and how the group talks. Nothing secret: for the
- * shared folder, being able to open the folder is what lets someone in.
+ * key every member trusts for the curators' list) and how the group talks. For the shared folder
+ * nothing secret: being able to open the folder is what lets someone in. For an encrypted ntfy
+ * channel, the [server] and the group's [key]: whoever holds the invite reads the group (the key
+ * travels after the '#', which a browser never sends to trackhop.org).
  */
-data class Invite(val groupId: String, val name: String, val creator: String, val folderName: String = "", val transport: String = FOLDER) {
+data class Invite(
+    val groupId: String, val name: String, val creator: String, val folderName: String = "", val transport: String = FOLDER,
+    val server: String = "", val key: String = "",
+) {
     /**
      * The group's code, from the creator's key: what the person joining compares with the code on
      * the inviter's group page. A link can be changed on its way (a forwarded message, a QR code
@@ -87,10 +96,12 @@ data class Invite(val groupId: String, val name: String, val creator: String, va
         append(BASE).append("g=").append(groupId).append("&k=").append(creator).append("&t=").append(transport)
         append("&n=").append(enc(name.take(MAX_NAME)))
         if (folderName.isNotBlank()) append("&f=").append(enc(folderName.take(MAX_FOLDER)))
+        if (transport == NTFY) append("&s=").append(enc(server)).append("&x=").append(key)
     }
 
     companion object {
         const val FOLDER = "folder"
+        const val NTFY = "ntfy"
         const val BASE = "https://trackhop.org/join#"
         const val MAX_NAME = 60
         const val MAX_FOLDER = 40
@@ -117,10 +128,17 @@ data class Invite(val groupId: String, val name: String, val creator: String, va
             val id = params["g"]?.takeIf { ID.matches(it) } ?: return null
             val key = params["k"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.let { k -> k.size == 32 && Ed25519.usableKey(k) } == true } ?: return null
             val name = params["n"]?.let { plainOf(it, MAX_NAME).trim() }?.takeIf { it.isNotEmpty() } ?: return null
-            // The only way a group talks for now: an invite for another is not one this Trackhop can join.
-            val transport = params["t"] ?: FOLDER
-            if (transport != FOLDER) return null
-            return Invite(id, name, key, plainOf(params["f"].orEmpty(), MAX_FOLDER).trim(), transport)
+            return when (val transport = params["t"] ?: FOLDER) {
+                FOLDER -> Invite(id, name, key, plainOf(params["f"].orEmpty(), MAX_FOLDER).trim(), transport)
+                NTFY -> {
+                    // The channel's address and its group key: 32 random bytes, exactly 43 base64url characters.
+                    val server = params["s"]?.takeIf { plain(it, 200) }?.trim()?.takeIf { NtfyServer.valid(it) } ?: return null
+                    val secret = params["x"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.size == 32 } ?: return null
+                    Invite(id, name, key, transport = transport, server = server, key = secret)
+                }
+                // A way to talk this version does not know: not an invite this Trackhop can join.
+                else -> null
+            }
         }
     }
 }
@@ -190,15 +208,14 @@ object SharedGroups {
      * leaves does not take the group's history with them).
      */
     fun refresh(env: Env, group: SharedGroup, write: Boolean = true): GroupState = synchronized(lockOf(group.id)) {
-        val folder = SharedFolders.open(group.folder)
+        val transport = SharedTransports.open(env, group)
         val before = load(env, group.id)
         val files = try {
-            val first = (before.members.map { it.member } + (before.roster?.grants?.map { it.member } ?: emptyList()) + group.creator + group.me)
-                .mapTo(HashSet()) { FolderTransport.fileName(group.id, it) }
-            FolderTransport.readAll(folder, group.id, first)
+            val first = (before.members.map { it.member } + (before.roster?.grants?.map { it.member } ?: emptyList()) + group.creator + group.me).toSet()
+            transport.readAll(first)
         } catch (e: Exception) {
-            env.log("shared", "${group.name}: folder not read: ${e.message?.take(160)}")
-            throw ProviderException(env.text("shared_error_folder", group.folderName.ifBlank { group.name }))
+            env.log("shared", "${group.name}: not read: ${e.message?.take(160)}")
+            throw ProviderException(transport.unreachable(env, group))
         }
         val log = GroupLog(group.id, group.creator)
         val roster = log.roster(files.map { it.roster } + before.roster)
@@ -234,31 +251,27 @@ object SharedGroups {
             seq = maxOf(before.seq, mine, highest[group.me] ?: 0),
             seen = events.associate { it.id to (before.seen[it.id] ?: now) },
         )
-        if (write) state = publish(env, group, state, folder)
+        if (write) state = publish(env, group, state, transport)
         save(env, group.id, state)
         state
     }
 
-    /** This member's file in the folder, written when it changed or went missing. */
-    private fun publish(env: Env, group: SharedGroup, state: GroupState, folder: GroupFolder, left: Boolean = false): GroupState {
+    /** This member's file, published when the transport needs it (see [GroupTransport.publish]). */
+    private fun publish(env: Env, group: SharedGroup, state: GroupState, transport: GroupTransport, left: Boolean = false): GroupState {
         val me = identity(env, group)
         val old = state.members.firstOrNull { it.member == me.id }
         val myName = plainOf(group.myName, MemberCard.MAX_NAME)
         val myService = plainOf(group.myService, MemberCard.MAX_NAME)
         val card = old?.takeIf { it.name == myName && it.service == myService && it.left == left }
             ?: MemberCard(group.id, me.id, myName, myService, maxOf(clock(), (old?.at ?: 0) + 1), left).signed(me)
-        val text = MemberFile.write(FolderTransport.bounded(MemberFile(card = card, roster = state.roster?.takeIf { it.version > 0 }, events = state.events)))
-        val name = FolderTransport.fileName(group.id, me.id)
-        val hash = text.hashCode()
-        if (hash != state.written || name !in folder.list()) {
-            try {
-                folder.write(name, text.toByteArray(Charsets.UTF_8))
-            } catch (e: Exception) {
-                env.log("shared", "${group.name}: file not written: ${e.message?.take(160)}")
-                throw ProviderException(env.text("shared_error_folder", group.folderName.ifBlank { group.name }))
-            }
+        val file = MemberFile(card = card, roster = state.roster?.takeIf { it.version > 0 }, events = state.events)
+        val written = try {
+            transport.publish(me.id, file, state.written)
+        } catch (e: Exception) {
+            env.log("shared", "${group.name}: not written: ${e.message?.take(160)}")
+            throw ProviderException(transport.unreachable(env, group))
         }
-        return state.copy(written = hash, members = state.members.filter { it.member != me.id } + card)
+        return state.copy(written = written, members = state.members.filter { it.member != me.id } + card)
     }
 
     // ---------------------------------------------------------------- the group as a playlist
@@ -327,10 +340,10 @@ object SharedGroups {
                         SharedEvent.of(op, t, me.id, ++seq, maxOf(now, (latest[key] ?: 0) + 1)).copy(key = key).signed(group.id, me)
                     }
                     val st = s.copy(events = GroupLog.compact(s.events + fresh), seq = seq, seen = s.seen + fresh.associate { it.id to now })
-                    // Kept before the folder is written: a number once signed is never given to another
+                    // Kept before the transport is written: a number once signed is never given to another
                     // action, even when the write fails half way (two events with one number: one is lost).
                     save(env, group.id, st)
-                    publish(env, group, st, SharedFolders.open(group.folder))
+                    publish(env, group, st, SharedTransports.open(env, group))
                 }
                 group.keepMine -> if (op == SharedEvent.ADD) {
                     val own = tracks.map { t -> SharedEvent.of(op, t, group.me, 0, now).copy(key = keyFor(t)) }
@@ -375,35 +388,44 @@ object SharedGroups {
     }
 
     /**
-     * A new group around [local], this member's playlist, its files in [folder]: this member is its
-     * creator and first curator. The playlist's tracks reach the group on the first sync.
+     * A new group around [local], this member's playlist, its files in [folder] (for [Invite.NTFY]:
+     * on the ntfy server at [folder], encrypted with a new group key): this member is its creator and
+     * first curator. The playlist's tracks reach the group on the first sync.
      */
-    fun create(env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef): SharedGroup {
+    fun create(
+        env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
+        transport: String = Invite.FOLDER,
+    ): SharedGroup {
         val me = Identity.create()
         val id = newGroupId()
-        val group = SharedGroup(id, name.trim().take(Invite.MAX_NAME), me.id, me.id, folder, folderName, myName.trim(), myService,
-            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock())
+        val group = SharedGroup(id, name.trim().take(Invite.MAX_NAME), me.id, me.id, folder.trim(), folderName, myName.trim(), myService,
+            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)
-        return start(env, group, me, GroupState(roster = roster), local)
+        val key = if (transport == Invite.NTFY) SharedTransports.newGroupKey() else null
+        return start(env, group, me, GroupState(roster = roster), local, key)
     }
 
     /**
      * Joins the group of [invite] with [local], this member's playlist (usually a new, empty one),
      * as a follower until the creator makes them a curator. Answers the group and whether the folder
-     * held any other member's file (none: probably not the group's folder).
+     * held any other member's file (none: probably not the group's folder). An encrypted channel's
+     * invite says where the group is: [folder] and [folderName] are not used then.
      */
     fun join(env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef): Pair<SharedGroup, Boolean> {
         if (group(env, invite.groupId) != null) throw ProviderException(env.text("shared_error_already", invite.name))
         val me = Identity.create()
-        val group = SharedGroup(invite.groupId, invite.name, invite.creator, me.id, folder, folderName, myName.trim(), myService,
-            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock())
-        val g = start(env, group, me, GroupState(), local)
+        val ntfy = invite.transport == Invite.NTFY
+        val group = SharedGroup(invite.groupId, invite.name, invite.creator, me.id, if (ntfy) invite.server else folder,
+            if (ntfy) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
+            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport)
+        val g = start(env, group, me, GroupState(), local, invite.key.takeIf { ntfy })
         val others = load(env, g.id).members.any { it.member != me.id }
         return g to others
     }
 
-    private fun start(env: Env, group: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef): SharedGroup {
-        env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id))
+    private fun start(env: Env, group: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, groupKey: String? = null): SharedGroup {
+        val extra = groupKey?.let { mapOf(SharedTransports.GROUP_KEY to it) }.orEmpty()
+        env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id, extra = extra))
         synchronized(lockOf(group.id)) { save(env, group.id, state) }
         try {
             refresh(env, group)
@@ -419,7 +441,7 @@ object SharedGroups {
 
     private fun forget(env: Env, group: SharedGroup) {
         env.tokens.clear(tokenKey(group.id))
-        synchronized(lockOf(group.id)) { stateFile(env, group.id).delete() }
+        synchronized(lockOf(group.id)) { stateFile(env, group.id).delete(); SharedTransports.forget(env, group) }
     }
 
     /**
@@ -431,7 +453,7 @@ object SharedGroups {
         runCatching {
             synchronized(lockOf(group.id)) {
                 val s = load(env, group.id)
-                publish(env, group, s, SharedFolders.open(group.folder), left = true)
+                publish(env, group, s, SharedTransports.open(env, group), left = true)
             }
         }.onFailure { env.log("shared", "${group.name}: leaving without a word in the folder: ${it.message?.take(120)}") }
         val ids = env.store.data.jobs.filter { sharedSide(it) == group.id }.map { it.id }

@@ -2113,7 +2113,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Ortak çalma listeleri</string>
     <string name="shared_row_desc">Bir grup için tek liste, herkes kendi servisinde</string>
-    <string name="shared_intro">Ortak bir çalma listesi, grubunuzun zaten paylaştığı bir klasörde durur (Google Drive, Nextcloud, Dropbox, Syncthing). Herkes kendi servisinde kendi kopyasını tutar, Trackhop kopyaları aynı tutar. Hesap yok, sunucu yok.</string>
+    <string name="shared_intro">Ortak bir çalma listesi, grubunuzun zaten paylaştığı bir klasörden (Google Drive, Nextcloud, Dropbox, Syncthing) ya da şifreli bir ntfy kanalından geçer. Herkes kendi servisinde kendi kopyasını tutar, Trackhop kopyaları aynı tutar. Hesap yok.</string>
     <string name="shared_create">Grup oluştur</string>
     <string name="shared_join">Bağlantıyla katıl</string>
     <string name="shared_name">Grup adı</string>
@@ -2168,6 +2168,16 @@
     <string name="shared_error_not_creator">Rolleri yalnızca grubu oluşturan kişi değiştirebilir.</string>
     <string name="shared_error_last_curator">Bir grubun her zaman en az bir küratörü olmalı.</string>
     <string name="shared_error_gone">Bu ortak liste artık bu cihazda değil.</string>
+    <string name="shared_via">Grup nasıl buluşur</string>
+    <string name="shared_via_folder_desc">Google Drive, Nextcloud, Dropbox veya Syncthing: klasörü açabilen grubu okur.</string>
+    <string name="shared_via_ntfy">Şifreli ntfy kanalı</string>
+    <string name="shared_via_ntfy_desc">Paylaşılacak klasör yok: değişiklikler bir ntfy sunucusu üzerinden şifreli gider, ntfy.sh ya da kendi sunucunuz.</string>
+    <string name="shared_ntfy_server">ntfy sunucusu</string>
+    <string name="shared_ntfy_server_invalid">https:// veya http:// ile başlayan bir adres.</string>
+    <string name="shared_invite_secret">Bu davete sahip olan herkes grubu okuyabilir: yalnızca davet ettiğiniz kişilere gönderin.</string>
+    <string name="shared_join_ntfy">%1$s üzerinde şifreli kanal. Bu davete sahip olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
+    <string name="shared_joined_waiting">%1$s grubundasınız. Şarkılar, başka bir üyenin Trackhop\'u senkronize olunca gelir.</string>
+    <string name="shared_error_server">Grubun sunucusu %1$s şu an yanıt vermiyor: bir sonraki senkronizasyon yeniden dener.</string>
     <plurals name="shared_members_n">
         <item quantity="one">%1$d üye</item>
         <item quantity="other">%1$d üye</item>
