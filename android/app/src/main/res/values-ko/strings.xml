@@ -1861,7 +1861,6 @@
     <string name="tools_wanted_no_album">앨범 없음</string>
     <string name="tools_wanted_export">목록 내보내기</string>
     <string name="tools_wanted_lidarr">Lidarr용 목록</string>
-<<<<<<< HEAD
     <string name="discover_releases_title">신곡</string>
     <string name="discover_releases_desc">플레이리스트 아티스트의 최신 발매작</string>
     <string name="releases_intro">플레이리스트를 고르면 Trackhop이 아티스트들의 새 앨범, EP, 싱글을 Deezer와 MusicBrainz에서 찾아요. 계정은 필요 없어요.</string>
@@ -2015,7 +2014,6 @@
     <string name="records_token_field">개인 액세스 토큰</string>
     <string name="records_token_own">내 토큰 사용 중</string>
     <string name="records_token_none">설정 안 됨: 가격 없이 표시</string>
-=======
     <string name="settings_card_size">카드 크기</string>
     <string name="card_size_large">크게</string>
     <string name="card_size_medium">보통</string>
@@ -2027,5 +2025,4 @@
     <string name="syncs_view_cards">카드로 보기</string>
     <string name="tile_next_run">다음: %1$s</string>
     <string name="tile_open">카드 전체 보기</string>
->>>>>>> origin/next-117
 </resources>

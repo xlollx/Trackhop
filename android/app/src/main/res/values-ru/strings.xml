@@ -1955,7 +1955,6 @@
     <string name="tools_wanted_no_album">Без альбома</string>
     <string name="tools_wanted_export">Экспортировать список</string>
     <string name="tools_wanted_lidarr">Список для Lidarr</string>
-<<<<<<< HEAD
     <string name="discover_releases_title">Новинки</string>
     <string name="discover_releases_desc">Что только что выпустили артисты твоего плейлиста</string>
     <string name="releases_intro">Выбери плейлист: Trackhop найдёт новые альбомы, EP и синглы его артистов в Deezer и MusicBrainz. Аккаунт не нужен.</string>
@@ -2130,7 +2129,6 @@
     <string name="records_token_field">Личный токен доступа</string>
     <string name="records_token_own">Используется ваш токен</string>
     <string name="records_token_none">Не задан: пластинки без цен</string>
-=======
     <string name="settings_card_size">Размер карточек</string>
     <string name="card_size_large">Большие</string>
     <string name="card_size_medium">Средние</string>
@@ -2142,5 +2140,4 @@
     <string name="syncs_view_cards">Показать карточками</string>
     <string name="tile_next_run">Следующая: %1$s</string>
     <string name="tile_open">Показать всю карточку</string>
->>>>>>> origin/next-117
 </resources>

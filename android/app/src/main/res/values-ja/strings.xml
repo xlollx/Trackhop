@@ -1862,7 +1862,6 @@
     <string name="tools_wanted_no_album">アルバムなし</string>
     <string name="tools_wanted_export">リストを書き出す</string>
     <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
-<<<<<<< HEAD
     <string name="discover_releases_title">新作</string>
     <string name="discover_releases_desc">プレイリストのアーティストの最新リリース</string>
     <string name="releases_intro">プレイリストを選ぶと、Trackhop がそのアーティストの新しいアルバム、EP、シングルを Deezer と MusicBrainz で探します。アカウントは不要です。</string>
@@ -2016,7 +2015,6 @@
     <string name="records_token_field">個人アクセストークン</string>
     <string name="records_token_own">自分のトークンを使用中</string>
     <string name="records_token_none">未設定：価格なしで表示</string>
-=======
     <string name="settings_card_size">カードのサイズ</string>
     <string name="card_size_large">大</string>
     <string name="card_size_medium">中</string>
@@ -2028,5 +2026,4 @@
     <string name="syncs_view_cards">カードで表示</string>
     <string name="tile_next_run">次回: %1$s</string>
     <string name="tile_open">カード全体を表示</string>
->>>>>>> origin/next-117
 </resources>

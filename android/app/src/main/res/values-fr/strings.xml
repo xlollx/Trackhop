@@ -1901,7 +1901,6 @@
     <string name="tools_wanted_no_album">Sans album</string>
     <string name="tools_wanted_export">Exporter la liste</string>
     <string name="tools_wanted_lidarr">Liste pour Lidarr</string>
-<<<<<<< HEAD
     <string name="discover_releases_title">Nouveautés</string>
     <string name="discover_releases_desc">Les dernières sorties des artistes de ta playlist</string>
     <string name="releases_intro">Choisis une playlist : Trackhop cherche les nouveaux albums, EP et singles de ses artistes sur Deezer et MusicBrainz. Aucun compte nécessaire.</string>
@@ -2062,7 +2061,6 @@
     <string name="records_token_field">Jeton d\'accès personnel</string>
     <string name="records_token_own">Votre jeton est utilisé</string>
     <string name="records_token_none">Non défini : disques sans prix</string>
-=======
     <string name="settings_card_size">Taille des cartes</string>
     <string name="card_size_large">Grande</string>
     <string name="card_size_medium">Moyenne</string>
@@ -2074,5 +2072,4 @@
     <string name="syncs_view_cards">Afficher en cartes</string>
     <string name="tile_next_run">Prochaine : %1$s</string>
     <string name="tile_open">Voir la carte entière</string>
->>>>>>> origin/next-117
 </resources>
