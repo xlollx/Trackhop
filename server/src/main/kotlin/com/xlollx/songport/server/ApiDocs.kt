@@ -103,6 +103,13 @@ internal object ApiDocs {
         Call("POST", "/locks", "Locks", "Reserve a playlist before writing to it, for ttl seconds (default 600, from 30 to 3600; renew it while you write): 200 with the reservation's id and until (epoch ms), 409 with who holds it and until when. This server's syncs skip a playlist reserved by someone else, and a playlist one of them writes to is refused. target is the service and the playlist's id: \"spotify|37i9dQZF1DX…\" (the service, not the account: spotify, youtube, deezer, tidal…).", body = "{\"target\": \"service|playlist\", \"holder\": \"Pixel 8\", \"ttl\"?: 600}"),
         Call("PUT", "/locks/{lock}", "Locks", "Renew a reservation for ttl seconds from now; 404 once it ended (given back or expired): reserve it again.", body = "{\"ttl\"?: 600}"),
         Call("DELETE", "/locks/{lock}", "Locks", "Give a reservation back."),
+        Call("GET", "/groups", "Shared playlists", "The mailboxes of shared playlists kept here: id, name, items, bytes, cursor, created, lastWrite."),
+        Call("POST", "/groups", "Shared playlists", "Make a shared playlist's mailbox (the app does it): answers the group's key (thg_…), shown once, only its hash kept. The key opens GET and POST /groups/{group}/items of that group and nothing else on this server.", body = "{\"group\": \"<16 hex>\", \"creator\": \"<the creator's public key>\", \"name\"?}"),
+        Call("GET", "/groups/{group}", "Shared playlists", "One mailbox: its name, items, bytes, cursor, created, lastWrite."),
+        Call("DELETE", "/groups/{group}", "Shared playlists", "Delete a mailbox and everything in it: its key stops working."),
+        Call("POST", "/groups/{group}/key", "Shared playlists", "A new key for the group (answered once): the old one stops working at once."),
+        Call("GET", "/groups/{group}/items", "Shared playlists", "The group's signed items stored after since (a cursor; 0 for all), oldest first, about 2 MB at most: {cursor, more, cards, rosters, events}. With the group's key or the API token.", listOf("since")),
+        Call("POST", "/groups/{group}/items", "Shared playlists", "Store a member's signed items (the ones the mailbox lacks; each once): answers added and cursor. With the group's key or the API token.", body = "{\"cards\"?: […], \"rosters\"?: […], \"events\"?: […]}"),
         Call("GET", "/lyrics", "Lyrics", "Lyrics for the music folder (Docker, admin): state and last run."),
         Call("POST", "/lyrics", "Lyrics", "Look for lyrics now: folder, synced=true, retry=true.", listOf("folder", "synced", "retry")),
     )

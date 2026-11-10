@@ -727,6 +727,22 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `PUT /api/v1/locks/{lock}` | Renew a reservation for `ttl` seconds from now; 404 once it ended: reserve it again. |
 | `DELETE /api/v1/locks/{lock}` | Give a reservation back. |
 
+**Shared playlists**
+
+A [shared playlist](shared-playlists) can meet on this server: the app makes the group's mailbox
+with your token and puts the group's key (`thg_…`) in the invite. That key opens the two `items`
+calls of its own group and nothing else here. [More](#shared-playlists-on-this-server)
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/groups` | The mailboxes of shared playlists kept here: `id`, `name`, `items`, `bytes`, `cursor`, `created`, `lastWrite`. |
+| `POST /api/v1/groups` | Make a group's mailbox (the app does it): `{"group": "<16 hex>", "creator": "<the creator's public key>", "name"?}`. Answers the group's `key`, shown once; only its hash is kept. |
+| `GET /api/v1/groups/{group}` | One mailbox: its name, items, bytes, cursor, created, last write. |
+| `DELETE /api/v1/groups/{group}` | Delete a mailbox and everything in it: its key stops working. |
+| `POST /api/v1/groups/{group}/key` | A new key for the group (answered once): the old one stops working at once. |
+| `GET /api/v1/groups/{group}/items` | The group's signed items stored after `?since=` (a cursor; 0 for all), oldest first, about 2 MB at most: `{"cursor", "more", "cards", "rosters", "events"}`. Read again from `cursor` while `more` is true. With the group's key or your token. |
+| `POST /api/v1/groups/{group}/items` | Store a member's signed items: `{"cards"?: […], "rosters"?: […], "events"?: […]}`; each is kept once. Answers `added` and `cursor`. With the group's key or your token. |
+
 **Lyrics**
 
 | Call | What it does |
@@ -900,6 +916,29 @@ If the server cannot be reached, the app says so and changes nothing.
 Trackhop Desktop answers only the computer it runs on, so a phone can coordinate with a Docker
 server; Desktop's own syncs still respect reservations made through its API by scripts on that
 computer. Any tool can use the same calls ([Locks](#api)): reserve, renew while writing, give back.
+
+### Shared playlists on this server
+
+With the address and token set, the app offers a third way for a [shared playlist](shared-playlists)'s
+members to meet: **My Trackhop server**. Creating the group makes a mailbox for it here
+(`POST /api/v1/groups`) and a key for that group alone, which goes in the invite. Members join with
+the invite only: they need no account here, and the key opens nothing else (no syncs, settings,
+services or other groups). Each member's Trackhop sends its signed changes and reads the others'
+(`/api/v1/groups/{group}/items`).
+
+- This server keeps what the group writes in `<data>/groups/<group>`: track names, artists and
+  ISRCs, each member's name and service, the curators' list, when each change was made. It does not
+  need to be trusted with who may write: each member checks the signatures and the curators' list,
+  as with a shared folder. It only takes items that are signed by whoever they name, each once.
+- Nothing is removed by age. A mailbox stays under 200,000 items and 48 MB: when it gets there, it
+  keeps what the members would count (each track's latest action per curator, the newest curators'
+  list and member cards) and drops the rest. Calls are limited to 30 writes and 120 reads a minute
+  per group, 4 MB per call.
+- **A new key** (`POST /api/v1/groups/{group}/key`) ends the old one at once: members then need a
+  new invite. Deleting the mailbox (`DELETE /api/v1/groups/{group}`) ends the group here. Turning
+  the API off in Tools › API closes the mailboxes too, until a token is made again.
+- Trackhop Desktop answers only its own computer: for a group, use a Docker server the members can
+  reach. On a shared server, a mailbox belongs to the person whose token made it.
 
 ## Not there yet
 

@@ -319,6 +319,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (path.drop(2) == listOf("openapi.json") && method == "GET") return send(ex, 200, ApiDocs.openApi(version, env.baseUrl).toString(), "application/json")
     // The command line on this machine (LocalKey) gets in without the API being turned on.
     val auth = Api.authOf(ex)
+    // A shared playlist's group key opens that group's mailbox and nothing else (GroupMailboxes).
+    GroupMailboxes.capabilityOf(auth)?.let { return groupKeyCall(ex, method, path.drop(2), query, it) }
     if (!env.may(Permissions.API)) return error(403, "The API is not turned on for you on this server: ask its admin.")
     if (!LocalKey.matches(auth, ex.remoteAddress?.address)) {
         if (!Api.enabled(env)) return error(403, "The API is off: make a token on the page, Tools › API.")
@@ -336,6 +338,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (apiConcerts(method, rest, query, ::json, ::error)) return
     if (apiSetlists(method, rest, query, ::json, ::error)) return
     if (apiRecords(method, rest, query, ::json, ::error)) return
+    if (apiGroups(ex, method, rest, query, ::json, ::error)) return
     when {
         rest == listOf("status") && method == "GET" -> json(200, buildJsonObject {
             put("version", version)
