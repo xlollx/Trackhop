@@ -1957,4 +1957,7 @@
     <string name="concerts_key_own">내 키 사용 중</string>
     <string name="concerts_key_shared">앱의 공유 키 사용 중</string>
     <string name="concerts_key_none">키 없음: MusicBrainz 공연만</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">알림 채널 %d개도 있어요. 켜고 키를 입력할 때까지 꺼져 있어요.</item>
+    </plurals>
 </resources>

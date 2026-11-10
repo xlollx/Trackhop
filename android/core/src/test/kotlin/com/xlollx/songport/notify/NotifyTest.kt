@@ -181,8 +181,9 @@ class NotifyTest {
         Notify.put(env, Notify.Channel("n1", Notify.Kind.NTFY, "Phone", true, setOf(Notify.Event.FAILED), mapOf("server" to "https://ntfy.sh", "topic" to "th-x", "token" to "tk_verysecret")))
         Notify.put(env, Notify.Channel("t1", Notify.Kind.TELEGRAM, "Chat", true, setOf(Notify.Event.CHANGES), mapOf("token" to "1:BOTSECRET", "chat" to "7")))
         val text = Notify.intoBackup(env, ConfigBackup.export(env, "test"))
-        assertFalse(text, text.contains("tk_verysecret") || text.contains("BOTSECRET"))
-        assertTrue(text, text.contains("th-x"))
+        // The ntfy topic is a secret too: whoever knows it on ntfy.sh reads the messages.
+        assertFalse(text, text.contains("tk_verysecret") || text.contains("BOTSECRET") || text.contains("th-x"))
+        assertTrue(text, text.contains("https://ntfy.sh"))
         // The engine (and the app) still read it as before.
         ConfigBackup.read(text)
         val incoming = Notify.inBackup(text)
@@ -191,17 +192,53 @@ class NotifyTest {
         val env2 = ContractEnv()
         assertEquals(2, Notify.restore(env2, incoming))
         val n = Notify.channel(env2, "n1")!!; val t = Notify.channel(env2, "t1")!!
-        assertTrue("the token of ntfy is optional", n.enabled)
-        assertEquals("th-x", n.value("topic")); assertEquals(setOf(Notify.Event.FAILED), n.events)
+        assertFalse("a channel that came with a file waits to be turned on", n.enabled)
+        assertEquals("Topic", n.missing().single().label); assertEquals(setOf(Notify.Event.FAILED), n.events)
         assertFalse(t.enabled); assertEquals("Bot token", t.missing().single().label)
         // Into the same one: the secrets it has stay.
         Notify.restore(env, incoming)
         assertEquals("1:BOTSECRET", Notify.channel(env, "t1")!!.value("token"))
         assertEquals("tk_verysecret", Notify.channel(env, "n1")!!.value("token"))
+        assertTrue("already here, the same: stays on", Notify.channel(env, "t1")!!.enabled)
         // Without channels the file is the engine's own, untouched.
         val plain = ConfigBackup.export(env2, "x", now = 1)
         Notify.channels(env2).forEach { Notify.remove(env2, it.id) }
         assertEquals(plain, Notify.intoBackup(env2, plain))
+    }
+
+    @Test fun anImportedChannelNeverSendsByItself() {
+        // A shared file with a channel that needs nothing more: it arrives, turned off.
+        val shared = Notify.Channel("evil", Notify.Kind.DISCORD, "Looks fine", true, Notify.Event.entries.toSet(), mapOf("url" to "https://attacker.example/api/webhooks/1/x"))
+        assertEquals(1, Notify.restore(env, listOf(shared)))
+        assertFalse(Notify.channel(env, "evil")!!.enabled)
+        assertTrue(Notify.deliveries(env, SyncJob("j", "x", PlaylistRef("csv", "a", "a"), PlaylistRef("csv", null, "b")), report(added = 1)).isEmpty())
+    }
+
+    @Test fun aNewAddressAsksForTheSecretAgain() {
+        val c = Notify.build("g1", Notify.Kind.GOTIFY, "Home", true, Notify.Event.entries.toSet(), mapOf("server" to "https://gotify.example.org", "token" to "GotifyAppToken123"), null).getOrThrow()
+        Notify.put(env, c)
+        // The same server (a trailing slash aside): the token stays.
+        assertEquals("GotifyAppToken123", Notify.build("g1", Notify.Kind.GOTIFY, "Home", true, emptySet(), mapOf("server" to "https://gotify.example.org/", "token" to ""), c).getOrThrow().value("token"))
+        // Another server: the saved token is not sent there; it must be typed again.
+        assertTrue(Notify.build("g1", Notify.Kind.GOTIFY, "Home", true, emptySet(), mapOf("server" to "https://evil.example", "token" to ""), c).isFailure)
+        // A tampered file pointing the same id elsewhere: no secret follows it, and it is off.
+        Notify.restore(env, listOf(c.copy(values = mapOf("server" to "https://evil.example", "token" to ""))))
+        val r = Notify.channel(env, "g1")!!
+        assertEquals("", r.value("token")); assertFalse(r.enabled)
+    }
+
+    @Test fun aFailureLineKeepsNoAddressOrToken() {
+        val line = Notify.message("x", report(error = "Sign-in of me@example.org failed at 192.168.1.20:4533 with bot123456789:AAEhBOweik6ad9r_QXMENQjcrGbqCr4K-ab"), setOf(Notify.Event.FAILED))!!.text
+        assertFalse(line, line.contains("me@example.org") || line.contains("192.168.1.20") || line.contains("AAEhBOweik6ad9r"))
+    }
+
+    @Test fun reportsHideTheChannelsKeys() {
+        val t = com.xlollx.songport.data.Redact.text(
+            "POST https://discord.com/api/webhooks/123456/AbC-def_ghi\nhttps://hooks.slack.com/services/T0/B0/xyz\n" +
+                "bot123456789:AAEhBOweik6ad9r_QXMENQjcrGbqCr4K-ab\nX-Gotify-Key: AppTokSecret\ntoken=a&user=uQiRzpo4DXghDmr9QzzfQu27cmVRsG",
+        )
+        listOf("AbC-def_ghi", "T0/B0/xyz", "AAEhBOweik6ad9r", "AppTokSecret", "uQiRzpo4DX").forEach { assertFalse(t, t.contains(it)) }
+        assertTrue(t, t.contains("discord.com/api/webhooks/123456/") && t.contains("hooks.slack.com/services/"))
     }
 
     @Test fun aWeeklyNewReleasesSyncTellsOfItsNews() {
@@ -232,7 +269,7 @@ class NotifyTest {
         // The configuration export carries the channel, never its secrets.
         val text = Notify.intoBackup(env, ConfigBackup.export(env, "test"))
         assertFalse(text, text.contains("APPTOKENSECRET") || text.contains("USERKEYSECRET"))
-        assertTrue(text, text.contains("\"p1\"") && text.contains("th-x"))
+        assertTrue(text, text.contains("\"p1\"") && !text.contains("th-x"))
         // A removed channel takes its secrets with it.
         Notify.remove(env, "p1")
         assertNull(env.tokens.get("notify:p1"))

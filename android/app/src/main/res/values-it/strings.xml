@@ -1992,4 +1992,8 @@
     <string name="concerts_key_own">Usi la tua chiave</string>
     <string name="concerts_key_shared">Usi la chiave condivisa dell\'app</string>
     <string name="concerts_key_none">Nessuna chiave: solo date da MusicBrainz</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Anche %d canale di notifica: resta spento finché non lo attivi e inserisci le sue chiavi.</item>
+        <item quantity="other">Anche %d canali di notifica: restano spenti finché non li attivi e inserisci le loro chiavi.</item>
+    </plurals>
 </resources>

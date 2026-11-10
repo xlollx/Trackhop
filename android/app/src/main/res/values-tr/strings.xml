@@ -1990,4 +1990,8 @@
     <string name="concerts_key_own">Kendi anahtarın kullanılıyor</string>
     <string name="concerts_key_shared">Uygulamanın ortak anahtarı kullanılıyor</string>
     <string name="concerts_key_none">Anahtar yok: yalnızca MusicBrainz tarihleri</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
+        <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
+    </plurals>
 </resources>

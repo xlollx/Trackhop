@@ -1958,4 +1958,7 @@
     <string name="concerts_key_own">正在使用你自己的密钥</string>
     <string name="concerts_key_shared">正在使用应用的共享密钥</string>
     <string name="concerts_key_none">没有密钥：仅 MusicBrainz 的演出</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">另有 %d 个通知渠道:在你开启并填写密钥之前保持关闭。</item>
+    </plurals>
 </resources>

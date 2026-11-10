@@ -1992,4 +1992,8 @@
     <string name="concerts_key_own">Dein eigener Schlüssel</string>
     <string name="concerts_key_shared">Gemeinsamer Schlüssel der App</string>
     <string name="concerts_key_none">Kein Schlüssel: nur Termine von MusicBrainz</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Dazu %d Benachrichtigungskanal: Er bleibt aus, bis du ihn einschaltest und seine Schlüssel eingibst.</item>
+        <item quantity="other">Dazu %d Benachrichtigungskanäle: Sie bleiben aus, bis du sie einschaltest und ihre Schlüssel eingibst.</item>
+    </plurals>
 </resources>

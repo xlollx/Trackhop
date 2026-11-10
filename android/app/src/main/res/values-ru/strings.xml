@@ -2060,4 +2060,10 @@
     <string name="concerts_key_own">Используется ваш ключ</string>
     <string name="concerts_key_shared">Используется общий ключ приложения</string>
     <string name="concerts_key_none">Нет ключа: только даты из MusicBrainz</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">А также %d канал уведомлений: он останется выключенным, пока ты его не включишь и не введёшь ключи.</item>
+        <item quantity="few">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+        <item quantity="many">А также %d каналов уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+        <item quantity="other">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+    </plurals>
 </resources>

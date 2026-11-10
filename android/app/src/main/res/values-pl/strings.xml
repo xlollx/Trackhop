@@ -2062,4 +2062,10 @@
     <string name="concerts_key_own">Używasz własnego klucza</string>
     <string name="concerts_key_shared">Używasz wspólnego klucza aplikacji</string>
     <string name="concerts_key_none">Brak klucza: tylko daty z MusicBrainz</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Także %d kanał powiadomień: pozostaje wyłączony, dopóki go nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="few">Także %d kanały powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="many">Także %d kanałów powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="other">Także %d kanału powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+    </plurals>
 </resources>

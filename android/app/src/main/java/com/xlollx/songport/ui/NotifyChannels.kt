@@ -194,9 +194,13 @@ private fun ChannelEditor(
 
     /** The channel as typed, or why it cannot be saved yet (in the user's words, not Notify's English). */
     fun built(): Notify.Channel? {
+        // Saved secrets stay only while the addresses do (Notify.build): a new server asks for its key again.
+        val sameAddresses = old != null && c.kind.fields.filter { it.url }.all { f ->
+            values[f.key].orEmpty().trim().ifEmpty { if (f.secret) old.value(f.key) else "" }.trimEnd('/').equals(old.value(f.key).trimEnd('/'), ignoreCase = true)
+        }
         for (f in c.kind.fields) {
             val v = values[f.key].orEmpty().trim()
-            val kept = if (f.secret && v.isEmpty()) old?.value(f.key).orEmpty() else v
+            val kept = if (f.secret && v.isEmpty() && sameAddresses) old!!.value(f.key) else v
             if (kept.isEmpty() && !f.optional) { problem = ctx.getString(R.string.notify_channel_needed, fieldName(ctx, c.kind, f)); return null }
             if (f.url && kept.isNotEmpty() && !kept.startsWith("http://") && !kept.startsWith("https://")) {
                 problem = ctx.getString(R.string.notify_channel_address, fieldName(ctx, c.kind, f)); return null

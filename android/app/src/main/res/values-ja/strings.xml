@@ -1958,4 +1958,7 @@
     <string name="concerts_key_own">ご自身のキーを使用中</string>
     <string name="concerts_key_shared">アプリの共有キーを使用中</string>
     <string name="concerts_key_none">キーなし: MusicBrainz の公演のみ</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
+    </plurals>
 </resources>

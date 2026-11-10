@@ -1993,4 +1993,8 @@
     <string name="concerts_key_own">Using your own key</string>
     <string name="concerts_key_shared">Using the app\'s shared key</string>
     <string name="concerts_key_none">No key: MusicBrainz dates only</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Also %d notification channel: it stays off until you turn it on and enter its keys.</item>
+        <item quantity="other">Also %d notification channels: they stay off until you turn them on and enter their keys.</item>
+    </plurals>
 </resources>
