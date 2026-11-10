@@ -311,6 +311,102 @@ class SharedPlaylistTest {
         lagging.deleteRecursively()
     }
 
+    private fun keyOf(m: Member) = Identity.of(m.env.tokens.get(SharedGroups.tokenKey(m.groupId))!!.accessToken)!!
+
+    /** Adds [events] to [m]'s own file in the folder, the way a changed Trackhop (or anyone with the folder) could. */
+    private fun plant(m: Member, events: List<SharedEvent>) {
+        val f = File(folder, FolderTransport.fileName(m.groupId, m.group.me))
+        val mine = MemberFile.parse(f.readText())!!
+        f.writeText(MemberFile.write(mine.copy(events = mine.events + events)))
+    }
+
+    /**
+     * Anyone can write a number in someone else's name, unsigned. It must not move that member's
+     * own counter (past the end of a Long, every event of theirs would be refused) nor where a new
+     * right to write starts (a follower made curator would never write).
+     */
+    @Test fun unsignedNumbersInSomeonesNamePushNobodyOut() {
+        group()
+        val gid = cleo.groupId
+        val track = deezer.catalogue.first { it.title == "Song 13" }
+        plant(cleo, listOf(
+            SharedEvent.of("+", track, ana.group.me, Long.MAX_VALUE, 1),
+            SharedEvent.of("+", track, ben.group.me, Long.MAX_VALUE, 1),
+            SharedEvent.of("+", track, cleo.group.me, Long.MAX_VALUE, 1).signed(gid, keyOf(cleo)).copy(by = ana.group.me),
+        ))
+        everyone()
+        assertTrue(ana.state().seq < 1000)
+        ana.add("6"); ana.sync()
+        everyone()
+        assertTrue("6" in cleo.songs)
+        assertTrue("6" in ben.songs)
+        // Cleo plants numbers in a newcomer's name before the creator promotes them.
+        val dan = Member("Dan", spotify, "dan").also { spotify.lists["dan"] = ArrayList() }
+        dan.groupId = SharedGroups.join(dan.env, Invite.parse(ana.group.invite().link())!!, folder.path, "Trackhop", "Dan", "Spotify", dan.local).first.id
+        plant(cleo, listOf(SharedEvent.of("+", track, dan.group.me, Long.MAX_VALUE - 1, 1)))
+        everyone()
+        SharedGroups.setCurator(ana.env, ana.group, dan.group.me, true)
+        dan.sync()
+        dan.add("8"); dan.sync()
+        everyone()
+        assertTrue("8" in cleo.songs)
+    }
+
+    /**
+     * Ben, made follower, runs a changed Trackhop: with his key he signs new events under his old
+     * numbers, removing everyone's songs, dated ahead. The creator's list pinned his events: nothing moves.
+     */
+    @Test fun aFormerCuratorCannotRewriteWhatTheyDid() {
+        group()
+        ben.add("6"); ben.add("7"); ben.sync()
+        everyone()
+        SharedGroups.setCurator(ana.env, ana.group, ben.group.me, false)
+        everyone()
+        val key = keyOf(ben)
+        val gid = ben.groupId
+        val theirs = ben.state().events.filter { it.by == key.id }.sortedBy { it.seq }
+        assertTrue(theirs.size >= 2)
+        val later = System.currentTimeMillis() + 60_000
+        val rewrites = theirs.mapIndexed { i, old ->
+            val victim = spotify.catalogue.first { it.title == "Song ${i + 1}" }
+            var e = SharedEvent.of("-", victim, key.id, old.seq, later).signed(gid, key)
+            var at = later
+            while (e.sig >= old.sig) e = SharedEvent.of("-", victim, key.id, old.seq, ++at).signed(gid, key)
+            e
+        }
+        plant(ben, rewrites)
+        ana.sync(); cleo.sync()
+        assertEquals(listOf("1", "2", "3", "4", "5", "6", "7"), ana.songs)
+        assertEquals(listOf("1", "2", "3", "4", "5", "6", "7"), cleo.songs)
+    }
+
+    /** Ben's Trackhop dates an action ten years ahead: nobody else takes it until then, so it cannot outvote everything after. */
+    @Test fun anActionDatedYearsAheadWaits() {
+        group()
+        try {
+            SharedGroups.clock = { System.currentTimeMillis() + 10L * 365 * 24 * 3_600_000 }
+            ben.remove("4"); ben.sync()
+        } finally {
+            SharedGroups.clock = { System.currentTimeMillis() }
+        }
+        ana.sync(); cleo.sync()
+        assertTrue("4" in ana.songs)
+        assertTrue("4" in cleo.songs)
+        assertTrue(ana.state().events.none { it.at > System.currentTimeMillis() + SharedGroups.MAX_AHEAD_MS })
+    }
+
+    /** Leaving takes the key and the group's own file on this phone with it, and says so in the folder. */
+    @Test fun leavingCleansUpThisPhone() {
+        group()
+        val gid = cleo.groupId
+        val me = cleo.group.me
+        SharedGroups.leave(cleo.env, cleo.group)
+        assertEquals(null, cleo.env.tokens.get(SharedGroups.tokenKey(gid)))
+        assertFalse(File(File(cleo.env.dataDir, "shared"), "$gid.json").exists())
+        ana.sync()
+        assertTrue(SharedGroups.members(ana.group, ana.state()).first { it.id == me }.left)
+    }
+
     private fun assertThrowsProvider(block: () -> Unit) {
         val e = runCatching(block).exceptionOrNull()
         assertNotNull("expected a refusal", e)
