@@ -1894,4 +1894,15 @@
     <string name="tools_wanted_no_album">No album</string>
     <string name="tools_wanted_export">Export the list</string>
     <string name="tools_wanted_lidarr">List for Lidarr</string>
+    <string name="settings_card_size">Card size</string>
+    <string name="card_size_large">Large</string>
+    <string name="card_size_medium">Medium</string>
+    <string name="card_size_small">Small</string>
+    <string name="card_size_landscape">With the phone on its side the cards are Small, so more of them fit.</string>
+    <string name="settings_minimal_view">Minimal view</string>
+    <string name="settings_minimal_view_summary">Syncs as small tiles in a grid: services, name and status</string>
+    <string name="syncs_view_tiles">Show as tiles</string>
+    <string name="syncs_view_cards">Show as cards</string>
+    <string name="tile_next_run">Next: %1$s</string>
+    <string name="tile_open">Show the whole card</string>
 </resources>

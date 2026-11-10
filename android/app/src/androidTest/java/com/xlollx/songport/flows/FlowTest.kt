@@ -239,6 +239,7 @@ abstract class FlowTest {
     protected fun tap(n: SemanticsNodeInteraction, what: String) {
         runCatching { n.performScrollTo() }
         clearOfBottomBar(n)
+        clearOfPinnedPill(n)
         settle(n)
         try {
             n.performClick()
@@ -283,7 +284,7 @@ abstract class FlowTest {
                 now == last && inView -> still++
                 // Cut by something that does not scroll (a card under the pinned pill): as much in view as it gets.
                 now == last && ++stuck >= 4 -> break
-                else -> { still = 0; moves++; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
+                else -> { still = 0; moves++; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n); clearOfPinnedPill(n) }
             }
         }
         if (moves > 0) log("settle: moved $moves times, in the end ${runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull()} with the keyboard at ${keyboardHeight()} px, still=$still")
@@ -322,6 +323,36 @@ abstract class FlowTest {
         val scroll = p?.config?.getOrNull(SemanticsActions.ScrollBy)?.action ?: return
         val dy = node.boundsInRoot.bottom - top + 24 * app.resources.displayMetrics.density
         compose.runOnIdle { scroll(0f, dy) }
+        compose.waitForIdle()
+    }
+
+    /** Where the pinned Sync-all pill's background ends (its fade included), in root pixels; null while it is not pinned. */
+    protected fun pinnedPillBottom(): Float? =
+        compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.RUN_ALL_BAND_TAG), useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false).firstOrNull()
+            ?.let { it.boundsInRoot.bottom + com.xlollx.songport.ui.PILL_FADE.value * app.resources.displayMetrics.density }
+
+    /**
+     * performScrollTo leaves a node scrolled up at the top edge of the sync list, which is under the
+     * pinned Sync-all pill and its background (they take the touch, the card beneath shows nowhere):
+     * the list moves it down to below the pill's fade.
+     */
+    protected fun clearOfPinnedPill(n: SemanticsNodeInteraction) {
+        val node = runCatching { n.fetchSemanticsNode() }.getOrNull() ?: return
+        val root = topOf(node).id
+        val band = compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.RUN_ALL_BAND_TAG), useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false).firstOrNull { topOf(it).id == root } ?: return
+        // The pill and its "?" are in the band: they are what is tapped there.
+        var a: SemanticsNode? = node
+        while (a != null) { if (a.id == band.id) return; a = a.parent }
+        val density = app.resources.displayMetrics.density
+        val bottom = band.boundsInRoot.bottom + com.xlollx.songport.ui.PILL_FADE.value * density
+        if (node.boundsInRoot.top >= bottom || node.boundsInRoot.bottom <= band.boundsInRoot.top) return
+        var p = node.parent
+        while (p != null && !p.config.contains(SemanticsActions.ScrollBy)) p = p.parent
+        val scroll = p?.config?.getOrNull(SemanticsActions.ScrollBy)?.action ?: return
+        val dy = bottom - node.boundsInRoot.top + 8 * density
+        compose.runOnIdle { scroll(0f, -dy) }
         compose.waitForIdle()
     }
 

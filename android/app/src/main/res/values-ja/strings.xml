@@ -1862,4 +1862,15 @@
     <string name="tools_wanted_no_album">アルバムなし</string>
     <string name="tools_wanted_export">リストを書き出す</string>
     <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
+    <string name="settings_card_size">カードのサイズ</string>
+    <string name="card_size_large">大</string>
+    <string name="card_size_medium">中</string>
+    <string name="card_size_small">小</string>
+    <string name="card_size_landscape">横向きのときはカードを小さくして、より多く表示します。</string>
+    <string name="settings_minimal_view">ミニマル表示</string>
+    <string name="settings_minimal_view_summary">同期をグリッドの小さなタイルで表示：サービス、名前、状態</string>
+    <string name="syncs_view_tiles">タイルで表示</string>
+    <string name="syncs_view_cards">カードで表示</string>
+    <string name="tile_next_run">次回: %1$s</string>
+    <string name="tile_open">カード全体を表示</string>
 </resources>

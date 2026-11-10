@@ -1901,4 +1901,15 @@
     <string name="tools_wanted_no_album">Sem álbum</string>
     <string name="tools_wanted_export">Exportar a lista</string>
     <string name="tools_wanted_lidarr">Lista para o Lidarr</string>
+    <string name="settings_card_size">Tamanho dos cartões</string>
+    <string name="card_size_large">Grande</string>
+    <string name="card_size_medium">Médio</string>
+    <string name="card_size_small">Pequeno</string>
+    <string name="card_size_landscape">Com o celular deitado, os cartões ficam pequenos para caber mais.</string>
+    <string name="settings_minimal_view">Visão mínima</string>
+    <string name="settings_minimal_view_summary">Syncs como pequenos blocos em grade: serviços, nome e status</string>
+    <string name="syncs_view_tiles">Mostrar como blocos</string>
+    <string name="syncs_view_cards">Mostrar como cartões</string>
+    <string name="tile_next_run">Próxima: %1$s</string>
+    <string name="tile_open">Ver o cartão inteiro</string>
 </resources>

@@ -1955,4 +1955,15 @@
     <string name="tools_wanted_no_album">Без альбома</string>
     <string name="tools_wanted_export">Экспортировать список</string>
     <string name="tools_wanted_lidarr">Список для Lidarr</string>
+    <string name="settings_card_size">Размер карточек</string>
+    <string name="card_size_large">Большие</string>
+    <string name="card_size_medium">Средние</string>
+    <string name="card_size_small">Маленькие</string>
+    <string name="card_size_landscape">Когда телефон лежит горизонтально, карточки маленькие, чтобы их помещалось больше.</string>
+    <string name="settings_minimal_view">Минимальный вид</string>
+    <string name="settings_minimal_view_summary">Синхронизации маленькими плитками в сетке: сервисы, название и статус</string>
+    <string name="syncs_view_tiles">Показать плитками</string>
+    <string name="syncs_view_cards">Показать карточками</string>
+    <string name="tile_next_run">Следующая: %1$s</string>
+    <string name="tile_open">Показать всю карточку</string>
 </resources>

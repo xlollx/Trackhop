@@ -1861,4 +1861,15 @@
     <string name="tools_wanted_no_album">앨범 없음</string>
     <string name="tools_wanted_export">목록 내보내기</string>
     <string name="tools_wanted_lidarr">Lidarr용 목록</string>
+    <string name="settings_card_size">카드 크기</string>
+    <string name="card_size_large">크게</string>
+    <string name="card_size_medium">보통</string>
+    <string name="card_size_small">작게</string>
+    <string name="card_size_landscape">휴대폰을 가로로 두면 카드가 작아져 더 많이 보입니다.</string>
+    <string name="settings_minimal_view">미니멀 보기</string>
+    <string name="settings_minimal_view_summary">동기화를 격자 속 작은 타일로: 서비스, 이름, 상태</string>
+    <string name="syncs_view_tiles">타일로 보기</string>
+    <string name="syncs_view_cards">카드로 보기</string>
+    <string name="tile_next_run">다음: %1$s</string>
+    <string name="tile_open">카드 전체 보기</string>
 </resources>

@@ -200,7 +200,7 @@ fun JobColorPicker(selected: String?, labels: List<com.xlollx.songport.model.Lab
         }
         // Last: any colour, from a picker. Shows the chosen one when it is a colour of the user's own.
         val own = CustomColor.parse(selected)
-        var open by remember { mutableStateOf(false) }
+        var open by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
         val ownName = name(own)
         Box(
             Modifier.size(40.dp).clip(CircleShape)
@@ -236,11 +236,11 @@ private fun name(own: Color?): String = stringResource(R.string.job_color_custom
 @Composable
 fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> Unit) {
     val hsv = remember { FloatArray(3).also { android.graphics.Color.colorToHSV(android.graphics.Color.rgb((initial.red * 255).toInt(), (initial.green * 255).toInt(), (initial.blue * 255).toInt()), it) } }
-    var hue by remember { mutableStateOf(hsv[0]) }
-    var sat by remember { mutableStateOf(hsv[1]) }
-    var value by remember { mutableStateOf(hsv[2]) }
+    var hue by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(hsv[0]) }
+    var sat by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(hsv[1]) }
+    var value by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(hsv[2]) }
     val color = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, sat, value)))
-    var hex by remember { mutableStateOf(CustomColor.key(color)) }
+    var hex by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(CustomColor.key(color)) }
     // Typing a code moves the square and the bar; moving them rewrites the code.
     fun setFrom(c: Color) {
         val out = FloatArray(3)

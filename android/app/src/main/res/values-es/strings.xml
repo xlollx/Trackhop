@@ -1901,4 +1901,15 @@
     <string name="tools_wanted_no_album">Sin álbum</string>
     <string name="tools_wanted_export">Exportar la lista</string>
     <string name="tools_wanted_lidarr">Lista para Lidarr</string>
+    <string name="settings_card_size">Tamaño de las tarjetas</string>
+    <string name="card_size_large">Grande</string>
+    <string name="card_size_medium">Mediano</string>
+    <string name="card_size_small">Pequeño</string>
+    <string name="card_size_landscape">Con el teléfono en horizontal las tarjetas son pequeñas, para que quepan más.</string>
+    <string name="settings_minimal_view">Vista mínima</string>
+    <string name="settings_minimal_view_summary">Las sync como pequeños mosaicos en cuadrícula: servicios, nombre y estado</string>
+    <string name="syncs_view_tiles">Ver como mosaicos</string>
+    <string name="syncs_view_cards">Ver como tarjetas</string>
+    <string name="tile_next_run">Próxima: %1$s</string>
+    <string name="tile_open">Ver la tarjeta completa</string>
 </resources>

@@ -78,6 +78,10 @@ data class Settings(
     val cardStatusPlace: String = "footer",
     /** The refreshed sync cards (big numbers, run history): on unless turned off in Appearance. */
     val newLook: Boolean = true,
+    /** How big the sync cards are (CardSize key: "large", "medium", "small"); a phone on its side caps it. */
+    val cardSize: String = "large",
+    /** Syncs as small tiles in a grid (name, services, status) instead of full cards. */
+    val minimalSyncs: Boolean = false,
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */
     val tourDone: Boolean = false,
     /**

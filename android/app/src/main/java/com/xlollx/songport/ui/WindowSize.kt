@@ -41,12 +41,17 @@ data class WindowLayout(
     val rail: Boolean,
     /** A window too low for a keyboard and a page's bottom bar together (a phone on its side). */
     val short: Boolean,
+    /** How many columns of sync cards the window has room for ([cardColumns] beside the rail); one on a phone upright. */
+    val syncColumns: Int = 1,
 ) {
-    /** The sync cards side by side where there is room for two of a phone's width. */
-    val syncColumns: Int get() = if (width == WidthClass.EXPANDED) 2 else 1
+    /**
+     * The largest sync card that leaves room for two in this window: a low window (a phone on its
+     * side, about 350 dp of list under the pinned pill) shows them [CardSize.SMALL].
+     */
+    val largestCard: CardSize get() = if (short) CardSize.SMALL else CardSize.LARGE
 
     /** The widest a page's content gets: a readable column, or room for the two columns of sync cards. */
-    fun maxContentWidth(twoColumns: Boolean = false): Dp = if (twoColumns && syncColumns == 2) WIDE_CONTENT else READABLE_CONTENT
+    fun maxContentWidth(twoColumns: Boolean = false): Dp = if (twoColumns && syncColumns >= 2) WIDE_CONTENT else READABLE_CONTENT
 
     companion object {
         val Phone = WindowLayout(WidthClass.COMPACT, rail = false, short = false)
@@ -54,9 +59,32 @@ data class WindowLayout(
         val WIDE_CONTENT = 1200.dp
         private const val SHORT_HEIGHT_DP = 480
 
+        /** The tiles view: as many columns of tiles at least [TILE_MIN_DP] wide as fit in [widthDp] of list, never fewer than two. */
+        const val TILE_MIN_DP = 160
+
+        /** About what the rail of tabs takes from a window's width. */
+        const val RAIL_DP = 80
+
+        /** The narrowest a sync card gets in a column of its own beside others. */
+        const val CARD_MIN_DP = 360
+
+        /**
+         * Columns of sync cards in [listDp] of list (side padding included): as many cards at least
+         * [CARD_MIN_DP] wide as fit, at most three. A phone on its side ([short]) with 520 dp or more
+         * always gets two, its cards Small and narrower: more of them in sight instead of one alone.
+         */
+        fun cardColumns(listDp: Int, short: Boolean): Int {
+            val fit = ((minOf(listDp, WIDE_CONTENT.value.toInt()) - 2 * 16 + 12) / (CARD_MIN_DP + 12)).coerceIn(1, 3)
+            return if (short && listDp >= 520) maxOf(fit, 2) else fit
+        }
+
+        fun tileColumns(widthDp: Int): Int = ((widthDp - 2 * 16 + 12) / (TILE_MIN_DP + 12)).coerceAtLeast(2)
+
         fun of(widthDp: Int, heightDp: Int): WindowLayout {
             val width = WidthClass.of(widthDp)
-            return WindowLayout(width, rail = width != WidthClass.COMPACT || widthDp > heightDp, short = heightDp < SHORT_HEIGHT_DP)
+            val rail = width != WidthClass.COMPACT || widthDp > heightDp
+            val short = heightDp < SHORT_HEIGHT_DP
+            return WindowLayout(width, rail, short, syncColumns = if (rail) cardColumns(widthDp - RAIL_DP, short) else 1)
         }
     }
 }

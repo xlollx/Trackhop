@@ -1,5 +1,7 @@
 package com.xlollx.songport
 
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.material3.FloatingActionButton
 import com.xlollx.songport.providers.*
 import android.Manifest
 import android.content.Intent
@@ -302,7 +304,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
     messages: MutableStateFlow<String?>,
@@ -717,7 +719,22 @@ private fun MainScreen(
     Row(Modifier.fillMaxSize()) {
     // Wider than a phone, or a phone on its side: the tabs stand at the side and leave the height to the content.
     if (layout.rail) {
-        NavigationRail(containerColor = MaterialTheme.colorScheme.surface) {
+        // The tab's main action at the head of the rail, as Material places it beside a rail: floating
+        // over the list it covered a card's buttons on a phone on its side (1.17 report).
+        NavigationRail(
+            containerColor = MaterialTheme.colorScheme.surface,
+            header = {
+                when (tab) {
+                    MainActivity.TAB_SYNCS -> FloatingActionButton(
+                        onClick = { startNewSync() },
+                        modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
+                    ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_sync)) }
+                    MainActivity.TAB_ACCOUNTS -> FloatingActionButton(onClick = { addConnector = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.connector_add))
+                    }
+                }
+            },
+        ) {
             // On a phone on its side with a large font the five tabs are taller than the screen: they scroll.
             Column(
                 Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
@@ -739,13 +756,17 @@ private fun MainScreen(
         }
         VerticalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
     }
+    // A phone on its side: on Syncs the bar slides away as the cards scroll, so two of them fit one above the other.
+    val barScroll = androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val barSlides = layout.short && tab == MainActivity.TAB_SYNCS
+    androidx.compose.runtime.LaunchedEffect(barSlides) { if (!barSlides) barScroll.state.heightOffset = 0f }
     Scaffold(
-        modifier = Modifier.weight(1f),
+        modifier = Modifier.weight(1f).then(if (barSlides) Modifier.nestedScroll(barScroll.nestedScrollConnection) else Modifier),
         topBar = {
             // An open tool shows its own bar with the way back: no tab header above it.
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
-                AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label)) {
+                AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label), scrollBehavior = if (barSlides) barScroll else null) {
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {
@@ -792,7 +813,8 @@ private fun MainScreen(
             }
         },
         floatingActionButton = {
-            when (tab) {
+            // With the rail the action heads the rail instead.
+            if (!layout.rail) when (tab) {
                 MainActivity.TAB_SYNCS -> ExtendedFloatingActionButton(
                     modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
                     onClick = { startNewSync() },
