@@ -1784,4 +1784,13 @@
     <string name="spread_stays">%1$s (그대로)</string>
     <string name="spread_confirm">확인</string>
     <string name="review_discard_busy">이 곡들을 찾으려고 %1$s의 플레이리스트를 읽는 중이에요. 긴 플레이리스트는 몇 초 걸려요.</string>
+    <string name="provider_note_lyrion">내 Lyrion Music Server(이전 Logitech Media Server). 가입도 할당량도 없습니다. 플레이리스트에는 같은 곡이 한 번만 들어갑니다.</string>
+    <string name="login_hint_lyrion">Lyrion Music Server 주소(예: http://192.168.1.10:9000)를 입력하세요. 사용자 이름과 비밀번호는 서버가 비밀번호로 보호된 경우에만 필요합니다.</string>
+    <string name="provider_note_mopidy">내 Mopidy 서버. 가입도 할당량도 로그인도 없습니다. 주소만 있으면 됩니다.</string>
+    <string name="login_hint_mopidy">Mopidy 서버 주소(예: http://192.168.1.10:6680)를 입력하세요. Mopidy가 다른 기기의 연결을 허용해야 합니다([http] 설정의 hostname).</string>
+    <string name="error_lyrion_password">이 서버는 사용자 이름과 비밀번호가 필요합니다. 확인한 뒤 다시 시도하세요.</string>
+    <string name="error_lyrion_not_found">이 주소에서 응답하는 Lyrion Music Server가 없습니다. 주소와 포트(보통 9000)를 확인하세요.</string>
+    <string name="error_mopidy_not_found">이 주소에서 응답하는 Mopidy 서버가 없습니다. 주소와 포트(보통 6680), 그리고 Mopidy가 다른 기기의 연결을 허용하는지 확인하세요.</string>
+    <string name="error_server_name_taken">이 서버에 “%1$s”라는 플레이리스트가 이미 있습니다. 그 플레이리스트를 대상으로 선택하거나 다른 이름을 사용하세요.</string>
+    <string name="error_server_track_gone">서버에 “%1$s”이(가) 더 이상 없습니다.</string>
 </resources>

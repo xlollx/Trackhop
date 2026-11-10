@@ -30,6 +30,8 @@ fun installConnectors() = Providers.install(
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },
+        Factory(LyrionProvider.SERVICE) { LyrionProvider(it) },
+        Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
     ),

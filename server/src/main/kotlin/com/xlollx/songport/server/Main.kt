@@ -6,6 +6,8 @@ import com.xlollx.songport.providers.EmbyProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.ListenBrainzProvider
+import com.xlollx.songport.providers.LyrionProvider
+import com.xlollx.songport.providers.MopidyProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.AnghamiProvider
 import com.xlollx.songport.providers.NeteaseProvider
@@ -55,6 +57,8 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },
+        Factory(LyrionProvider.SERVICE) { LyrionProvider(it) },
+        Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
     ),

@@ -324,6 +324,46 @@ class AccountsTest {
         assertEquals(403, cross.statusCode())
     }
 
+    @Test fun lyrionAndMopidyConnectFromThePageWithTheAddressAlone() {
+        // One stand-in answering as both servers do to the first call of a sign-in.
+        val nas = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
+            createContext("/") { ex ->
+                ex.requestBody.readBytes()
+                val (code, body) = when (ex.requestURI.path) {
+                    "/jsonrpc.js" -> 200 to """{"id":1,"method":"slim.request","result":{"_version":"9.1.0"}}"""
+                    "/mopidy/rpc" -> 200 to """{"jsonrpc":"2.0","id":1,"result":"3.4.2"}"""
+                    else -> 404 to ""
+                }
+                val bytes = body.toByteArray()
+                ex.sendResponseHeaders(code, if (bytes.isEmpty()) -1 else bytes.size.toLong())
+                if (bytes.isNotEmpty()) ex.responseBody.use { it.write(bytes) } else ex.close()
+            }
+            start()
+        }
+        try {
+            val url = "http://127.0.0.1:${nas.address.port}"
+            post("/connectors/add", mapOf("service" to "lyrion"))
+            val lyrion = get("/connectors/lyrion").body()
+            // User and password are there for a protected server, and may stay empty.
+            assertTrue(lyrion.contains("""name="user" autocomplete="off">"""))
+            assertTrue(lyrion.contains("""name="url" required"""))
+            assertTrue(lyrion.contains("beta"))
+            assertTrue(post("/connectors/lyrion/connect", mapOf("url" to url, "user" to "", "secret" to "")).location().contains("?ok="))
+            assertEquals(url, env.tokens.get("lyrion")?.extra?.get("url"))
+
+            post("/connectors/add", mapOf("service" to "mopidy"))
+            val mopidy = get("/connectors/mopidy").body()
+            assertFalse(mopidy.contains("""name="user""""))
+            assertFalse(mopidy.contains("""name="secret""""))
+            assertTrue(post("/connectors/mopidy/connect", mapOf("url" to url)).location().contains("?ok="))
+            assertEquals(url, env.tokens.get("mopidy")?.extra?.get("url"))
+            // Somewhere that is neither: said, and nothing saved over the sign-in that works.
+            assertTrue(post("/connectors/lyrion/disconnect", emptyMap()).location().contains("?ok="))
+            assertTrue(post("/connectors/lyrion/connect", mapOf("url" to "$url/x")).location().contains("?err="))
+            assertNull(env.tokens.get("lyrion"))
+        } finally { nas.stop(0) }
+    }
+
     @Test fun slotsAreNumberedAsInTheApp() {
         assertEquals("2", Accounts.nextSlot(emptyList()))
         assertEquals("3", Accounts.nextSlot(listOf("2")))

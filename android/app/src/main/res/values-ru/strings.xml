@@ -1875,4 +1875,13 @@
     <string name="spread_stays">%1$s (без изменений)</string>
     <string name="spread_confirm">Подтвердить</string>
     <string name="review_discard_busy">Читаю плейлист в %1$s, чтобы найти эти треки: для длинного плейлиста это займёт несколько секунд.</string>
+    <string name="provider_note_lyrion">Ваш Lyrion Music Server (раньше Logitech Media Server). Без регистрации и без квот. Плейлист хранит каждый трек только один раз.</string>
+    <string name="login_hint_lyrion">Введите адрес вашего Lyrion Music Server (например, http://192.168.1.10:9000). Имя пользователя и пароль нужны, только если сервер защищён паролем.</string>
+    <string name="provider_note_mopidy">Ваш сервер Mopidy. Без регистрации, без квот, без входа: нужен только адрес.</string>
+    <string name="login_hint_mopidy">Введите адрес вашего сервера Mopidy (например, http://192.168.1.10:6680). Mopidy должен принимать подключения с других устройств (hostname в настройках [http]).</string>
+    <string name="error_lyrion_password">Этот сервер требует имя пользователя и пароль. Проверьте их и попробуйте снова.</string>
+    <string name="error_lyrion_not_found">По этому адресу не ответил ни один Lyrion Music Server. Проверьте адрес и порт (обычно 9000).</string>
+    <string name="error_mopidy_not_found">По этому адресу не ответил ни один сервер Mopidy. Проверьте адрес и порт (обычно 6680) и что Mopidy принимает подключения с других устройств.</string>
+    <string name="error_server_name_taken">На этом сервере уже есть плейлист «%1$s». Выберите его как назначение или укажите другое название.</string>
+    <string name="error_server_track_gone">На сервере больше нет «%1$s».</string>
 </resources>

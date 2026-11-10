@@ -1877,4 +1877,13 @@
     <string name="spread_stays">%1$s (bez zmian)</string>
     <string name="spread_confirm">Potwierdź</string>
     <string name="review_discard_busy">Czytam playlistę w %1$s, żeby znaleźć te utwory: przy długiej playliście trwa to kilka sekund.</string>
+    <string name="provider_note_lyrion">Twój Lyrion Music Server (dawniej Logitech Media Server). Bez rejestracji, bez limitów. Playlista przechowuje każdy utwór tylko raz.</string>
+    <string name="login_hint_lyrion">Podaj adres swojego Lyrion Music Server (na przykład http://192.168.1.10:9000). Nazwa użytkownika i hasło tylko wtedy, gdy serwer jest chroniony hasłem.</string>
+    <string name="provider_note_mopidy">Twój serwer Mopidy. Bez rejestracji, bez limitów, bez logowania: wystarczy adres.</string>
+    <string name="login_hint_mopidy">Podaj adres swojego serwera Mopidy (na przykład http://192.168.1.10:6680). Mopidy musi przyjmować połączenia z innych urządzeń (hostname w ustawieniach [http]).</string>
+    <string name="error_lyrion_password">Ten serwer wymaga nazwy użytkownika i hasła. Sprawdź je i spróbuj ponownie.</string>
+    <string name="error_lyrion_not_found">Pod tym adresem nie odpowiedział żaden Lyrion Music Server. Sprawdź adres i port (zwykle 9000).</string>
+    <string name="error_mopidy_not_found">Pod tym adresem nie odpowiedział żaden serwer Mopidy. Sprawdź adres i port (zwykle 6680) oraz to, czy Mopidy przyjmuje połączenia z innych urządzeń.</string>
+    <string name="error_server_name_taken">Na tym serwerze jest już playlista o nazwie „%1$s”. Wybierz ją jako cel albo użyj innej nazwy.</string>
+    <string name="error_server_track_gone">Serwer nie ma już „%1$s”.</string>
 </resources>

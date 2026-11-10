@@ -1815,4 +1815,13 @@
     <string name="spread_stays">%1$s (resta)</string>
     <string name="spread_confirm">Conferma</string>
     <string name="review_discard_busy">Leggo la playlist su %1$s per trovare questi brani: con una playlist lunga ci vuole qualche secondo.</string>
+    <string name="provider_note_lyrion">Il tuo Lyrion Music Server (ex Logitech Media Server). Nessuna registrazione, nessuna quota. Una playlist tiene ogni brano una volta sola.</string>
+    <string name="login_hint_lyrion">Inserisci l\'indirizzo del tuo Lyrion Music Server (per esempio http://192.168.1.10:9000). Nome utente e password solo se il server è protetto da password.</string>
+    <string name="provider_note_mopidy">Il tuo server Mopidy. Nessuna registrazione, nessuna quota, nessun accesso: basta l\'indirizzo.</string>
+    <string name="login_hint_mopidy">Inserisci l\'indirizzo del tuo server Mopidy (per esempio http://192.168.1.10:6680). Mopidy deve accettare connessioni da altri dispositivi (hostname nelle impostazioni [http]).</string>
+    <string name="error_lyrion_password">Questo server chiede nome utente e password. Controllali e riprova.</string>
+    <string name="error_lyrion_not_found">Nessun Lyrion Music Server ha risposto a questo indirizzo. Controlla l\'indirizzo e la porta (di solito 9000).</string>
+    <string name="error_mopidy_not_found">Nessun server Mopidy ha risposto a questo indirizzo. Controlla l\'indirizzo e la porta (di solito 6680) e che Mopidy accetti connessioni da altri dispositivi.</string>
+    <string name="error_server_name_taken">Su questo server esiste già una playlist chiamata “%1$s”. Sceglila come destinazione oppure usa un altro nome.</string>
+    <string name="error_server_track_gone">Il server non ha più “%1$s”.</string>
 </resources>

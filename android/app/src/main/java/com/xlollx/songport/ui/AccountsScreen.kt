@@ -687,7 +687,7 @@ private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) ->
 
 /** Streaming services, personal servers, then the rest (stats services, files), each in its own group. */
 private fun serviceGroups(names: List<String>, families: Map<String, List<MusicProvider>>): List<Pair<Int, List<String>>> {
-    val servers = setOf("subsonic", "jellyfin", "emby", "plex")
+    val servers = setOf("subsonic", "jellyfin", "emby", "plex", "lyrion", "mopidy")
     val other = setOf("lastfm", "listenbrainz", "csv")
     fun kind(n: String) = families.getValue(n).first().serviceId.let { if (it in servers) 1 else if (it in other) 2 else 0 }
     return listOf(

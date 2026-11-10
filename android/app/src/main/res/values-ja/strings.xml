@@ -1785,4 +1785,13 @@
     <string name="spread_stays">%1$s（そのまま）</string>
     <string name="spread_confirm">確定</string>
     <string name="review_discard_busy">%1$s のプレイリストを読み込んで曲を探しています。長いプレイリストでは数秒かかります。</string>
+    <string name="provider_note_lyrion">あなたの Lyrion Music Server（旧 Logitech Media Server）。登録不要、利用制限なし。プレイリストに同じ曲は 1 回だけ入ります。</string>
+    <string name="login_hint_lyrion">Lyrion Music Server のアドレス（例: http://192.168.1.10:9000）を入力してください。ユーザー名とパスワードは、サーバーがパスワードで保護されている場合のみ必要です。</string>
+    <string name="provider_note_mopidy">あなたの Mopidy サーバー。登録不要、利用制限なし、ログイン不要。アドレスだけで使えます。</string>
+    <string name="login_hint_mopidy">Mopidy サーバーのアドレス（例: http://192.168.1.10:6680）を入力してください。Mopidy がほかの端末からの接続を受け付ける設定（[http] の hostname）になっている必要があります。</string>
+    <string name="error_lyrion_password">このサーバーはユーザー名とパスワードが必要です。確認してもう一度お試しください。</string>
+    <string name="error_lyrion_not_found">このアドレスでは Lyrion Music Server が応答しませんでした。アドレスとポート（通常は 9000）を確認してください。</string>
+    <string name="error_mopidy_not_found">このアドレスでは Mopidy サーバーが応答しませんでした。アドレスとポート（通常は 6680）、および Mopidy がほかの端末からの接続を受け付けているか確認してください。</string>
+    <string name="error_server_name_taken">このサーバーには「%1$s」という名前のプレイリストがすでにあります。それを同期先に選ぶか、別の名前にしてください。</string>
+    <string name="error_server_track_gone">サーバーに「%1$s」はもうありません。</string>
 </resources>
