@@ -258,8 +258,8 @@ fun SyncsScreen(
         return
     }
     val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
-    // One column on a phone, as ever; two side by side in a window wide enough for two phones' worth
-    // of card. A grid either way, so the order, the dragging and the scrolling are the same code.
+    // One column on a phone, as ever; two or three side by side in a wider window, and always two on
+    // a phone on its side. A grid either way, so the order, the dragging and the scrolling are the same code.
     // The minimal view: tiles in as many columns as fit (two on a phone). The cards are as big as
     // Settings says, but no bigger than the window allows (a phone on its side: two cards fit).
     val window = LocalWindowLayout.current
@@ -395,7 +395,9 @@ fun SyncsScreen(
         var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
         spreading?.let { c -> SpreadDialog(data.jobs, c) { spreading = null } }
         androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
-        val columns = if (minimal) WindowLayout.tileColumns(maxWidth.value.toInt()) else window.syncColumns
+        // Measured here, the rail, the cutout and the system's bars already left out.
+        val columns = if (minimal) WindowLayout.tileColumns(maxWidth.value.toInt())
+            else if (window.rail) WindowLayout.cardColumns(maxWidth.value.toInt(), window.short) else 1
         SideEffect { gridColumns.intValue = columns }
         // A small card as wide as a phone on its side takes two lines: its figures go beside its name.
         val wideCards = (maxWidth - 32.dp - 12.dp * (columns - 1)) / columns >= 560.dp
@@ -706,12 +708,13 @@ private fun JobMenuHost(
     content: @Composable (List<MenuAction>) -> Unit,
 ) {
     val ctx = LocalContext.current
-    var colorOpen by remember { mutableStateOf(false) }
-    var moveToOpen by remember { mutableStateOf(false) }
+    // Open across a turn of the phone, with what was being chosen (the dialogs keep theirs too).
+    var colorOpen by rememberSaveable { mutableStateOf(false) }
+    var moveToOpen by rememberSaveable { mutableStateOf(false) }
     if (moveToOpen) {
         val total = data.jobs.size
         val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
-        var typed by remember { mutableStateOf(now.toString()) }
+        var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
         AlertDialog(
             onDismissRequest = { moveToOpen = false },
@@ -749,8 +752,8 @@ private fun JobMenuHost(
             com.xlollx.songport.sync.Labels.styled(d, ids, pick, labelName, recolor).let { n -> n.copy(jobs = n.jobs.map { if (it.id in ids) it.copy(accentStyle = st) else it }) }
         }
     }
-    var confirmDelete by remember { mutableStateOf(false) }
-    var extendOpen by remember { mutableStateOf(false) }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    var extendOpen by rememberSaveable { mutableStateOf(false) }
     if (extendOpen) AiExtendDialog(job) { extendOpen = false }
     content(
         listOfNotNull(
@@ -1135,7 +1138,8 @@ private fun JobTile(
                     )
                 }
                 // When it runs next, in short: only for a sync that runs by itself.
-                val next = remember(job, data.settings) { if (isRunning) null else com.xlollx.songport.sync.Timing.nextRun(job, System.currentTimeMillis()) }
+                // Already due (late, about to start): nothing to say.
+                val next = remember(job, isRunning) { if (isRunning) null else System.currentTimeMillis().let { now -> com.xlollx.songport.sync.Timing.nextRun(job, now)?.takeIf { it > now } } }
                 if (isRunning) {
                     Spacer(Modifier.height(8.dp))
                     val pct = progress?.percent

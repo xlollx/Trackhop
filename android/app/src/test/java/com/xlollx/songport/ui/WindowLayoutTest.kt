@@ -35,7 +35,8 @@ class WindowLayoutTest {
         assertEquals(WidthClass.MEDIUM, usual.width)
         assertTrue(usual.rail)
         assertTrue(usual.short)
-        assertEquals(1, usual.syncColumns)
+        // The usual phone on its side: two columns (1.17 report, "non vedo le due colonne"), its cards Small.
+        assertEquals(2, usual.syncColumns)
         // A large phone on its side is as wide as a tablet: two columns of cards.
         val large = WindowLayout.of(891, 411)
         assertTrue(large.rail)
@@ -51,9 +52,26 @@ class WindowLayoutTest {
         val tenInch = WindowLayout.of(1280, 800)
         assertTrue(tenInch.rail)
         assertFalse(tenInch.short)
-        assertEquals(2, tenInch.syncColumns)
+        assertEquals(3, tenInch.syncColumns)
         // Half the screen of a tablet in split screen is a phone again.
         assertEquals(WindowLayout.Phone, WindowLayout.of(400, 800))
+    }
+
+    @Test fun columnsFollowTheWidthLeftForTheCards() {
+        // Upright: one column, however wide the phone.
+        for (w in listOf(320, 360, 411, 480)) assertEquals(1, WindowLayout.of(w, 900).syncColumns)
+        // On its side: two from about 600 dp of window on (the rail takes 80).
+        for (w in listOf(640, 690, 732, 780, 800, 840, 915)) assertEquals("$w dp on its side", 2, WindowLayout.of(w, 360).syncColumns)
+        // Elsewhere as many cards of 360 dp as fit, at most three.
+        assertEquals(1, WindowLayout.cardColumns(700, short = false))
+        assertEquals(2, WindowLayout.cardColumns(800, short = false))
+        assertEquals(3, WindowLayout.cardColumns(1200, short = false))
+        assertEquals(3, WindowLayout.cardColumns(2400, short = false))
+        for (w in 300..2400 step 10) for (short in listOf(true, false)) {
+            val n = WindowLayout.cardColumns(w, short)
+            val card = (minOf(w, 1200) - 32 - 12 * (n - 1)) / n
+            assertTrue("$w dp: $n columns of $card dp", n == 1 || card >= WindowLayout.CARD_MIN_DP || (short && card >= 230))
+        }
     }
 
     @Test fun contentIsWiderOnlyForTwoColumns() {

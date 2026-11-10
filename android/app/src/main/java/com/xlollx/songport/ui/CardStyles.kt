@@ -199,7 +199,7 @@ fun JobStyleDialog(
     var labelName by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(nameOf(pick)) }
     // A saved label given another colour here: every sync wearing it follows on Save.
     var recolor by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
-    var recolorOpen by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var recolorOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val saved = labels.firstOrNull { it.id == p && JobColor.of(it.id) == null }
     val c = (if (saved != null) recolor else null) ?: pickedColor(p, labels)
     // The card in small, as the list will show it.

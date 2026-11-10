@@ -19,6 +19,8 @@ import androidx.compose.ui.test.click as touchClick
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.assertIsSelected
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.R
@@ -65,13 +67,10 @@ class CardDensityFlowTest : FlowTest() {
 
     private fun cardOf(i: Int): SemanticsNode = compose.onAllNodes(hasTestTag(JOB_CARD_TAG) and hasText("Sync number $i")).onFirst().fetchSemanticsNode()
 
-    /** The sync list: the vertical scroller around the cards (on its side the rail of tabs scrolls too). */
-    private fun list(): SemanticsNode {
-        val c = (cards() + tiles()).first().boundsInRoot
-        return compose.onAllNodes(hasScrollAction()).fetchSemanticsNodes()
-            .filter { it.config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) != null && it.boundsInRoot.left <= c.left && it.boundsInRoot.right >= c.right }
-            .maxBy { it.boundsInRoot.height }
-    }
+    /** The sync list: the widest vertical scroller (on its side the narrow rail of tabs scrolls too). */
+    private fun list(): SemanticsNode = compose.onAllNodes(hasScrollAction()).fetchSemanticsNodes()
+        .filter { it.config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) != null }
+        .maxBy { it.boundsInRoot.width }
 
     private fun scrollList(dy: Float) {
         val id = list().id
@@ -168,7 +167,8 @@ class CardDensityFlowTest : FlowTest() {
         log("card heights (dp): $heights")
         assertTrue("each size smaller than the one before: $heights", heights.zipWithNext().all { (a, b) -> b < a - 8 })
         // A small card keeps its figures, in one row of marks read with their words.
-        assertTrue(compose.onAllNodes(SemanticsMatcher("added mark") { n -> n.config.getOrNull(SemanticsProperties.ContentDescription)?.any { it == "3 " + s(R.string.stat_added) } == true }).fetchSemanticsNodes().isNotEmpty())
+        val added = "3 " + s(R.string.stat_added)
+        assertTrue(compose.onAllNodes(SemanticsMatcher("added mark") { n -> n.config.getOrNull(SemanticsProperties.ContentDescription)?.any { it == added } == true }).fetchSemanticsNodes().isNotEmpty())
 
         store.updateSettings { it.copy(cardSize = "large") }
         launch(tabIntent(MainActivity.TAB_SETTINGS))
@@ -186,7 +186,8 @@ class CardDensityFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitText("Sync number 1")
+        // The header and the finder may fill a phone's height on its side: the cards are further down.
+        waitText(s(R.string.hero_title))
         val window = main().resources.configuration.let { WindowLayout.of(it.screenWidthDp, it.screenHeightDp) }
         assertTrue("a low window", window.short)
         // Large chosen, small shown: the user's large cards would fill the whole height.
@@ -230,5 +231,68 @@ class CardDensityFlowTest : FlowTest() {
         assertTrue("nothing started", com.xlollx.songport.sync.SyncState.running.value.isEmpty())
         // The pill itself still answers.
         assertTrue(compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    /**
+     * A phone-sized window on its side, narrower than a tablet (the owner's phone: about 730 dp
+     * wide, where 1.17 showed one column): two columns of cards, and the New sync button at the head
+     * of the rail, over no card.
+     */
+    @Test
+    fun aPhoneOnItsSideHasTwoColumns() {
+        seed(4)
+        shell("wm size 1080x1920")
+        try {
+            launch(tabIntent(MainActivity.TAB_SYNCS))
+            waitText("Sync number 1")
+            rotate(UiAutomation.ROTATION_FREEZE_90)
+            waitText("Sync number 2")
+            val cfg = main().resources.configuration
+            log("phone-sized window on its side: ${cfg.screenWidthDp} x ${cfg.screenHeightDp} dp")
+            assertTrue("narrower than a tablet: ${cfg.screenWidthDp} dp", cfg.screenWidthDp < 840)
+            snapshot("phone-landscape-columns")
+            val one = cardOf(1); val two = cardOf(2)
+            assertEquals("cards 1 and 2 side by side", one.positionInRoot.y, two.positionInRoot.y, 1f)
+            assertTrue(two.positionInRoot.x >= one.positionInRoot.x + one.size.width)
+            val fab = compose.onAllNodes(hasClickAction() and androidx.compose.ui.test.hasContentDescription(s(R.string.new_sync))).onFirst().fetchSemanticsNode()
+            assertTrue("New sync beside the cards, not over them", fab.boundsInRoot.right <= one.boundsInRoot.left)
+        } finally {
+            val before = resumed()
+            shell("wm size reset")
+            runCatching { waitForNewMain(before, ms = 10_000) }
+            compose.waitForIdle()
+        }
+    }
+
+    /** The card's Style dialog and its Move-to dialog stay open through a turn of the phone, with what was chosen. */
+    @Test
+    fun theCardsDialogsSurviveARotation() {
+        seed(3)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        clickDesc(s(R.string.more_actions))
+        click(s(R.string.job_style))
+        waitNode("the colour swatches", androidx.compose.ui.test.hasContentDescription(s(R.string.job_color_default)))
+        click(s(R.string.color_pink))
+        compose.onNode(hasTestTag(com.xlollx.songport.ui.LABEL_NAME_TAG)).performTextReplacement("Loud")
+
+        rotate(UiAutomation.ROTATION_FREEZE_90)
+        waitNode("the style dialog, still open", hasTestTag(com.xlollx.songport.ui.STYLE_CHOICES_TAG))
+        waitNode("the name typed", hasTestTag(com.xlollx.songport.ui.LABEL_NAME_TAG) and hasText("Loud"))
+        compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.color_pink)) and androidx.compose.ui.test.isSelectable()).onFirst().assertIsSelected()
+        click(s(R.string.save))
+        waitFor("pink stored with its name") {
+            val j = store.data.jobs.first { it.id == "job-1" }
+            j.color == "pink" && com.xlollx.songport.sync.Labels.name(j, store.data.settings.labels) == "Loud"
+        }
+
+        // Move to: the number typed is still there after the turn back.
+        clickDesc(s(R.string.more_actions))
+        click(s(R.string.sync_menu_move_to))
+        compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("3")
+        rotate(UiAutomation.ROTATION_FREEZE_0)
+        waitNode("the position typed", androidx.compose.ui.test.hasSetTextAction() and hasText("3"))
+        click(s(R.string.ok))
+        waitFor("sync 1 moved to the end") { store.data.jobs.last().id == "job-1" }
     }
 }

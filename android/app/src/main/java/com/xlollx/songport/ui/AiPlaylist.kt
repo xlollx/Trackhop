@@ -712,7 +712,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
     val use = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
     var setupOpen by remember { mutableStateOf(use == null) }
-    var count by remember { mutableStateOf(10f) }
+    var count by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(10f) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var proposed by remember { mutableStateOf<List<Track>?>(null) }

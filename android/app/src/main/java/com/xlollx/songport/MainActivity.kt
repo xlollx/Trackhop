@@ -1,6 +1,7 @@
 package com.xlollx.songport
 
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.material3.FloatingActionButton
 import com.xlollx.songport.providers.*
 import android.Manifest
 import android.content.Intent
@@ -710,7 +711,22 @@ private fun MainScreen(
     Row(Modifier.fillMaxSize()) {
     // Wider than a phone, or a phone on its side: the tabs stand at the side and leave the height to the content.
     if (layout.rail) {
-        NavigationRail(containerColor = MaterialTheme.colorScheme.surface) {
+        // The tab's main action at the head of the rail, as Material places it beside a rail: floating
+        // over the list it covered a card's buttons on a phone on its side (1.17 report).
+        NavigationRail(
+            containerColor = MaterialTheme.colorScheme.surface,
+            header = {
+                when (tab) {
+                    MainActivity.TAB_SYNCS -> FloatingActionButton(
+                        onClick = { startNewSync() },
+                        modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
+                    ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_sync)) }
+                    MainActivity.TAB_ACCOUNTS -> FloatingActionButton(onClick = { addConnector = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.connector_add))
+                    }
+                }
+            },
+        ) {
             // On a phone on its side with a large font the five tabs are taller than the screen: they scroll.
             Column(
                 Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
@@ -789,7 +805,8 @@ private fun MainScreen(
             }
         },
         floatingActionButton = {
-            when (tab) {
+            // With the rail the action heads the rail instead.
+            if (!layout.rail) when (tab) {
                 MainActivity.TAB_SYNCS -> ExtendedFloatingActionButton(
                     modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
                     onClick = { startNewSync() },
