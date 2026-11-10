@@ -3,6 +3,7 @@ package com.xlollx.songport.ui
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Star
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.app.Activity
@@ -213,6 +214,9 @@ fun SettingsScreen(
             }
             PrefSwitch(Icons.Filled.GridView, stringResource(R.string.settings_minimal_view), stringResource(R.string.settings_minimal_view_summary), settings.minimalSyncs) { v ->
                 store.updateSettings { it.copy(minimalSyncs = v) }
+            }
+            PrefSwitch(Icons.Filled.Star, stringResource(R.string.settings_favorites_on_top), stringResource(R.string.settings_favorites_on_top_summary), settings.favoritesOnTop) { v ->
+                store.updateSettings { it.copy(favoritesOnTop = v) }
             }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
             var langOpen by remember { mutableStateOf(false) }

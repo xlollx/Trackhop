@@ -592,6 +592,7 @@
     <string name="sync_stopping">現在の手順が終わり次第停止します…</string>
     <string name="sync_pause_pending">現在の手順が終わり次第一時停止します</string>
     <string name="live_title">同期の状況</string>
+    <string name="live_menu_note">同期の実行中はメニューを開けません。終わると再び開けます。</string>
     <string name="live_empty">処理済みの曲はまだありません。</string>
     <string name="live_found">見つかりました：%1$s</string>
     <string name="live_cached">以前の照合結果：%1$s</string>
@@ -2032,6 +2033,8 @@
     <string name="card_size_landscape">横向きのときはカードを小さくして、より多く表示します。</string>
     <string name="settings_minimal_view">ミニマル表示</string>
     <string name="settings_minimal_view_summary">同期をグリッドの小さなタイルで表示：サービス、名前、状態</string>
+    <string name="settings_favorites_on_top">お気に入りを常に上に表示</string>
+    <string name="settings_favorites_on_top_summary">オフにすると、スター付きの同期はスターとお気に入りフィルターはそのままで、並び順の好きな位置に置けます</string>
     <string name="syncs_view_tiles">タイルで表示</string>
     <string name="syncs_view_cards">カードで表示</string>
     <string name="tile_next_run">次回: %1$s</string>

@@ -600,6 +600,7 @@
     <string name="sync_stopping">Interruzione al termine del passo in corso…</string>
     <string name="sync_pause_pending">In pausa al termine del passo in corso</string>
     <string name="live_title">Attività della sync</string>
+    <string name="live_menu_note">Mentre una sync è in corso il suo menu resta chiuso: si riapre quando ha finito.</string>
     <string name="live_empty">Nessun brano ancora elaborato.</string>
     <string name="live_found">Trovato: %1$s</string>
     <string name="live_cached">Da un abbinamento precedente: %1$s</string>
@@ -2070,6 +2071,8 @@
     <string name="card_size_landscape">Con il telefono in orizzontale le card sono piccole, così se ne vedono di più.</string>
     <string name="settings_minimal_view">Vista minimal</string>
     <string name="settings_minimal_view_summary">Le sync come piccoli riquadri in griglia: servizi, nome e stato</string>
+    <string name="settings_favorites_on_top">Preferite sempre in cima</string>
+    <string name="settings_favorites_on_top_summary">Se disattivato, le sync con la stella restano preferite e nel filtro Preferite, ma puoi metterle in qualsiasi punto dell’ordine</string>
     <string name="syncs_view_tiles">Mostra come riquadri</string>
     <string name="syncs_view_cards">Mostra come card</string>
     <string name="tile_next_run">Prossima: %1$s</string>

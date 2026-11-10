@@ -591,6 +591,7 @@
     <string name="sync_stopping">현재 단계 후 중지…</string>
     <string name="sync_pause_pending">현재 단계 후 일시정지</string>
     <string name="live_title">동기화 활동</string>
+    <string name="live_menu_note">동기화가 진행 중일 때는 메뉴가 닫혀 있어요. 끝나면 다시 열 수 있어요.</string>
     <string name="live_empty">아직 처리한 곡이 없어요.</string>
     <string name="live_found">찾음: %1$s</string>
     <string name="live_cached">이전 매칭에서: %1$s</string>
@@ -2031,6 +2032,8 @@
     <string name="card_size_landscape">휴대폰을 가로로 두면 카드가 작아져 더 많이 보입니다.</string>
     <string name="settings_minimal_view">미니멀 보기</string>
     <string name="settings_minimal_view_summary">동기화를 격자 속 작은 타일로: 서비스, 이름, 상태</string>
+    <string name="settings_favorites_on_top">즐겨찾기 항상 맨 위에</string>
+    <string name="settings_favorites_on_top_summary">끄면 별표한 동기화는 별표와 즐겨찾기 필터를 유지하면서 순서상 어디에든 둘 수 있습니다</string>
     <string name="syncs_view_tiles">타일로 보기</string>
     <string name="syncs_view_cards">카드로 보기</string>
     <string name="tile_next_run">다음: %1$s</string>

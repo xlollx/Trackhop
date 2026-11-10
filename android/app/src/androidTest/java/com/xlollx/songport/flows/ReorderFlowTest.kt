@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
@@ -147,6 +148,59 @@ class ReorderFlowTest : FlowTest() {
         waitFor("job-1 after job-2") { order().take(2) == listOf("job-2", "job-1") }
         assertEquals(listOf("job-2", "job-1", "job-3", "job-4", "job-5", "job-6"), order())
         waitFor("tile 1 back on the first row, right") { tileAt(1).let { kotlin.math.abs(it.x - two.x) < 2f && kotlin.math.abs(it.y - two.y) < 2f } }
+    }
+
+    @Test
+    fun withFavouritesNotOnTopAStarredTileGoesAmongTheOthers() {
+        // Settings › Favourites always on top, off: tiles 1 and 2 starred, the list as stored.
+        store.updateSettings { it.copy(favoritesOnTop = false) }
+        seed(starred = setOf(1, 2))
+        openTiles()
+        val one = tileAt(1); val two = tileAt(2); val four = tileAt(4)
+        dragTile(1, listOf(Offset(two.x - one.x, 0f), Offset(0f, four.y - two.y))) {
+            // Held where tile 4 was: the tiles it passed have made way, as for any other tile. Tile 1 is
+            // fourth now (2, 3 / 4, 1): tile 3 has gone up to the first row and tile 4 to the left on
+            // its own (not up a row: it is third).
+            waitFor("tile 3 up on the first row, tile 4 to its left") { tileAt(3).y < four.y - 1f && tileAt(4).x < four.x - 1f }
+        }
+        waitFor("job-1 fourth") { order().indexOf("job-1") == 3 }
+        assertEquals(listOf("job-2", "job-3", "job-4", "job-1", "job-5", "job-6"), order())
+        assertTrue("job-1 still starred", store.data.jobs.first { it.id == "job-1" }.favorite)
+        // Let go, it stays among the unstarred, where tile 4 was.
+        waitFor("tile 1 where tile 4 was") { tileAt(1).let { kotlin.math.abs(it.x - four.x) < 2f && kotlin.math.abs(it.y - four.y) < 2f } }
+    }
+
+    /** Whether a tile's menu shows (its Style entry, as the menu of every sync has). */
+    private fun menuShown() = compose.onAllNodes(hasText(s(com.xlollx.songport.R.string.job_style))).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+
+    // A hold that turns into a drag is a drag only: no menu on release (11/11 report), also when the
+    // tile cannot go where it is dragged (unstarred, over the starred tiles) and changes no places.
+    @Test
+    fun aTileHeldAndDraggedOpensNoMenu() {
+        seed(starred = setOf(1, 2))
+        openTiles()
+        val one = tileAt(1); val three = tileAt(3)
+        dragTile(3, listOf(Offset(0f, one.y - three.y)))
+        Thread.sleep(800) // the menu, if any, would open on release
+        compose.waitForIdle()
+        assertTrue("no menu after a drag that moved nothing", !menuShown())
+        assertEquals((1..n).map { "job-$it" }, order())
+        // And after one that did move it: tile 3 across, past tile 4.
+        val four = tileAt(4)
+        dragTile(3, listOf(Offset(four.x - three.x, 0f)))
+        waitFor("job-3 after job-4") { order().indexOf("job-3") == order().indexOf("job-4") + 1 }
+        compose.waitForIdle()
+        assertTrue("no menu after a drag that moved it", !menuShown())
+    }
+
+    // Held and let go without moving: the tile's menu, as before.
+    @Test
+    fun aTileHeldStillOpensItsMenu() {
+        seed()
+        openTiles()
+        tile(2).performTouchInput { longClick() }
+        waitFor("the tile's menu") { menuShown() }
+        assertEquals((1..n).map { "job-$it" }, order())
     }
 
     @Test

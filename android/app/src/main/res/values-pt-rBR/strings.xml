@@ -600,6 +600,7 @@
     <string name="sync_stopping">Parando após a etapa atual…</string>
     <string name="sync_pause_pending">Pausada após a etapa atual</string>
     <string name="live_title">Atividade da sincronização</string>
+    <string name="live_menu_note">Enquanto uma sincronização está em andamento, o menu dela fica fechado: ele volta a abrir quando ela termina.</string>
     <string name="live_empty">Nenhuma faixa processada ainda.</string>
     <string name="live_found">Encontrada: %1$s</string>
     <string name="live_cached">De uma correspondência anterior: %1$s</string>
@@ -2078,6 +2079,8 @@
     <string name="card_size_landscape">Com o celular deitado, os cartões ficam pequenos para caber mais.</string>
     <string name="settings_minimal_view">Visão mínima</string>
     <string name="settings_minimal_view_summary">Syncs como pequenos blocos em grade: serviços, nome e status</string>
+    <string name="settings_favorites_on_top">Favoritas sempre no topo</string>
+    <string name="settings_favorites_on_top_summary">Desativado, as syncs com estrela mantêm a estrela e o filtro Favoritas, mas podem ficar em qualquer posição da ordem</string>
     <string name="syncs_view_tiles">Mostrar como blocos</string>
     <string name="syncs_view_cards">Mostrar como cartões</string>
     <string name="tile_next_run">Próxima: %1$s</string>
