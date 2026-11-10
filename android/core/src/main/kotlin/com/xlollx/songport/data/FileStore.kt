@@ -152,6 +152,8 @@ data class StoreData(
     val wanted: Map<String, WantedMark> = emptyMap(),
     /** When that list was first worked out (0 = never yet): what it held then is not news for the webhook. */
     val wantedSince: Long = 0,
+    /** The shared playlists this device takes part in (see shared/SharedGroups); their logs live in files of their own. */
+    val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
 )
 
 /**
