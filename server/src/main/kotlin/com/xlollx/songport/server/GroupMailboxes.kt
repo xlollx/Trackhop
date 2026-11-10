@@ -183,7 +183,7 @@ internal object GroupMailboxes {
         if (!KEY.matches(creator)) throw Refused(400, "\"creator\" is the creator's public key: 43 characters of base64url.")
         val shown = name.filter { it >= ' ' && it != '\u007f' }.trim().take(60)
         synchronized(this) {
-            if (list(env).size >= MAX_MAILBOXES) throw Refused(507, "This Trackhop holds $MAX_MAILBOXES group mailboxes already: delete one first.")
+            if ((root(env).list()?.count { GROUP_ID.matches(it) } ?: 0) >= MAX_MAILBOXES) throw Refused(507, "This Trackhop holds $MAX_MAILBOXES group mailboxes already: delete one first.")
             val dir = File(root(env), id)
             if (dir.exists()) throw Refused(409, "A mailbox for this group is here already.")
             val capability = newCapability()
