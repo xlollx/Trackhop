@@ -600,6 +600,7 @@
     <string name="sync_stopping">Wird nach dem laufenden Schritt beendet…</string>
     <string name="sync_pause_pending">Pause nach dem laufenden Schritt</string>
     <string name="live_title">Sync-Aktivität</string>
+    <string name="live_menu_note">Solange ein Sync läuft, bleibt sein Menü geschlossen: Es öffnet sich wieder, sobald er fertig ist.</string>
     <string name="live_empty">Noch kein Titel verarbeitet.</string>
     <string name="live_found">Gefunden: %1$s</string>
     <string name="live_cached">Aus einer früheren Zuordnung: %1$s</string>
@@ -2070,6 +2071,8 @@
     <string name="card_size_landscape">Liegt das Handy quer, sind die Karten klein, damit mehr davon passen.</string>
     <string name="settings_minimal_view">Minimale Ansicht</string>
     <string name="settings_minimal_view_summary">Syncs als kleine Kacheln im Raster: Dienste, Name und Status</string>
+    <string name="settings_favorites_on_top">Favoriten immer oben</string>
+    <string name="settings_favorites_on_top_summary">Wenn aus, behalten markierte Syncs ihren Stern und den Favoriten-Filter, lassen sich aber überall in der Reihenfolge platzieren</string>
     <string name="syncs_view_tiles">Als Kacheln zeigen</string>
     <string name="syncs_view_cards">Als Karten zeigen</string>
     <string name="tile_next_run">Nächste: %1$s</string>

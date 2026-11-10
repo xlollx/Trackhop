@@ -592,6 +592,7 @@
     <string name="sync_stopping">将在当前步骤完成后停止…</string>
     <string name="sync_pause_pending">将在当前步骤完成后暂停</string>
     <string name="live_title">同步动态</string>
+    <string name="live_menu_note">同步进行时，它的菜单保持关闭；同步结束后即可再次打开。</string>
     <string name="live_empty">尚未处理任何歌曲。</string>
     <string name="live_found">已找到：%1$s</string>
     <string name="live_cached">来自之前的匹配：%1$s</string>
@@ -2032,6 +2033,8 @@
     <string name="card_size_landscape">手机横放时卡片变小，可以显示更多。</string>
     <string name="settings_minimal_view">简洁视图</string>
     <string name="settings_minimal_view_summary">以网格小方块显示同步：服务、名称和状态</string>
+    <string name="settings_favorites_on_top">收藏始终置顶</string>
+    <string name="settings_favorites_on_top_summary">关闭后，加星的同步仍保留星标和收藏筛选，但可放在顺序中的任意位置</string>
     <string name="syncs_view_tiles">以方块显示</string>
     <string name="syncs_view_cards">以卡片显示</string>
     <string name="tile_next_run">下次：%1$s</string>

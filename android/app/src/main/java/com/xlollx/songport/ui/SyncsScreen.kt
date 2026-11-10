@@ -138,6 +138,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -273,8 +274,10 @@ fun SyncsScreen(
     // cards trade places. Left alone, the list would follow the card at its top by key, and a card
     // moved above it would make the whole list jump.
     val moveAnchor = remember { arrayOfNulls<Pair<Int, Int>>(1) }
-    // The order as shown: starred syncs first. Positions (a drag, "Move to") are places in this order.
-    val order = remember(data.jobs) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).map { it.id } }
+    // The order as shown: starred syncs first (unless turned off in Settings › Appearance). Positions
+    // (a drag, "Move to") are places in this order.
+    val onTop = data.settings.favoritesOnTop
+    val order = remember(data.jobs, onTop) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, onTop).map { it.id } }
     val lastOrder = remember { arrayOf(order) }
     SideEffect {
         if (order != lastOrder[0]) {
@@ -291,7 +294,7 @@ fun SyncsScreen(
         val followIt = here != null && from >= 0 && (follow || (from > to && (to == 0 || here == listState.firstVisibleItemIndex)))
         moveAnchor[0] = if (followIt) (here!! + (to - from)).coerceAtLeast(0) to 0
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to))
+        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to, onTop))
     }
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
@@ -300,8 +303,12 @@ fun SyncsScreen(
     // kind do not make way for it. Let them, and a starred tile dragged to the row below showed there, then
     // jumped back to the last starred place on release, the tiles it had passed with it (10/11 report).
     var dragStretch by remember { mutableStateOf<Boolean?>(null) }
-    // Whether the card held down has changed places yet: a tile let go without one opens its menu.
+    // Whether the card held down has changed places yet, and whether the finger holding it has moved
+    // (past the touch slop, on screen): a tile let go with neither opens its menu. Swaps alone were
+    // not enough: a tile dragged where it cannot go (an unstarred one over the starred) never swaps,
+    // and its menu opened on release, where the finger had left the tile (11/11 report).
     val swapped = remember { booleanArrayOf(false) }
+    val fingerMoved = remember { booleanArrayOf(false) }
     // The tile held down in the gesture under way: its release is the end of a hold, not a tap.
     val heldTile = remember { arrayOfNulls<String>(1) }
     // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
@@ -311,7 +318,7 @@ fun SyncsScreen(
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
     // old order was taken for "no change" and the card snapped back).
-    val orderNow = { com.xlollx.songport.sync.Labels.favoritesFirst(Store.get(ctx).data.jobs).map { it.id } }
+    val orderNow = { Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.favoritesFirst(d.jobs, d.settings.favoritesOnTop).map { it.id } } }
     val reorder = rememberReorderableLazyGridState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
@@ -351,9 +358,9 @@ fun SyncsScreen(
     // A colour or a service no sync uses any more has no chip to turn it off: it is dropped.
     val effective = if (finder) filter.pruned(data.jobs) else SyncFilter()
     val runningIds = running.keys
-    val shown = remember(data.jobs, data.reports, runningIds, effective) {
+    val shown = remember(data.jobs, data.reports, runningIds, effective, onTop) {
         // Starred syncs first, then the others, each in the list's own order.
-        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id })
+        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }, onTop)
     }
     // Pull to refresh = sync all. The indicator stays only while the gesture and the start are under
     // way: the cards show the progress. While syncs run, the pull is off (the pill says how many).
@@ -502,6 +509,8 @@ fun SyncsScreen(
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
             items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag && (dragStretch ?: job.favorite) == job.favorite) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
+                // Where this tile is laid out, to tell where a finger on it is on screen.
+                val tileCoords = remember(job.id) { arrayOfNulls<androidx.compose.ui.layout.LayoutCoordinates>(1) }
                 LaunchedEffect(flashing) {
                     if (flashing == job.id) {
                         repeat(2) {
@@ -517,35 +526,50 @@ fun SyncsScreen(
                 ).graphicsLayer {
                     shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
-                }.pointerInput(job.id, canDrag) {
+                }.onGloballyPositioned { tileCoords[0] = it }.pointerInput(job.id, canDrag) {
                     // A card held while partly above the list's top (the one half under the pill at the
                     // end of the list) is brought into view while the finger is still, before the hold
                     // becomes a drag. Left to the drag library, the list is scrolled under the card as
                     // the drag starts and the card stays where the finger is, over the card above: the
                     // first move swapped the two, and the card dragged down came back where it was.
                     if (!canDrag) return@pointerInput
+                    // Where the finger is on screen: the tile follows it while dragged, so its own
+                    // coordinates hardly change.
+                    fun onScreen(p: Offset) = tileCoords[0]?.takeIf { it.isAttached }?.localToRoot(p) ?: p
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        val from = onScreen(down.position)
+                        fingerMoved[0] = false
+                        var released = false
+                        // Watched in the Initial pass: known before the drag's own release handler runs.
                         val still = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis * 3 / 4) {
                             while (true) {
-                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
-                                if (!c.pressed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
+                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
+                                if (c == null || !c.pressed) { released = true; break }
+                                if ((onScreen(c.position) - from).getDistance() > viewConfiguration.touchSlop) { fingerMoved[0] = true; break }
                             }
                         } == null
                         if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.y?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
+                        // Followed to the release, measured from where it went down.
+                        while (!released) {
+                            val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+                            if (!c.pressed) break
+                            if (!fingerMoved[0] && (onScreen(c.position) - from).getDistance() > viewConfiguration.touchSlop) fingerMoved[0] = true
+                        }
                     }
                 }.longPressDraggableHandle(
                     enabled = canDrag,
                     onDragStarted = {
                         swapped[0] = false
                         heldTile[0] = job.id
-                        dragStretch = com.xlollx.songport.sync.Labels.dragStretch(Store.get(ctx).data.jobs, job.id)
+                        dragStretch = Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.dragStretch(d.jobs, job.id, d.settings.favoritesOnTop) }
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
                         // A tile held and let go without moving it: its menu, as a long press elsewhere.
-                        if (minimal && !swapped[0]) tileMenu = job.id
+                        // Moved (a drag), never: the menu would show on release, where the finger left it.
+                        if (minimal && !swapped[0] && !fingerMoved[0]) tileMenu = job.id
                         dragStretch = null
                         // Cleared once this release has been handled everywhere (the tile's own tap included).
                         scope.launch { heldTile[0] = null }
@@ -553,7 +577,7 @@ fun SyncsScreen(
                         val to = dropped?.indexOf(job.id) ?: -1
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
                         if (to >= 0 && dropped != orderNow()) {
-                            Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(Store.get(ctx).data.jobs, job.id, to))
+                            Store.get(ctx).data.let { d -> Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(d.jobs, job.id, to, d.settings.favoritesOnTop)) }
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
                         } else dragOrder = null
@@ -718,7 +742,7 @@ private fun JobMenuHost(
     var moveToOpen by rememberSaveable { mutableStateOf(false) }
     if (moveToOpen) {
         val total = data.jobs.size
-        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
+        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, data.settings.favoritesOnTop).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
         FitDialog(
@@ -1167,6 +1191,10 @@ private fun JobTile(
             }
         }
         OverflowDropdown(menuOpen && !isRunning, { onMenu(false) }, menu, jobMenuContainer(job.color), ink ?: MaterialTheme.colorScheme.onSurfaceVariant, name)
+        // While it runs the menu stays shut, as on the card: a hold shows the run live instead (it did nothing before).
+        if (menuOpen && isRunning) LiveSheet(job) { onMenu(false) }
+        // The run ending under the live view closes it, rather than turning it into the menu.
+        LaunchedEffect(isRunning) { if (!isRunning && menuOpen) onMenu(false) }
     }
 }
 
@@ -1230,6 +1258,12 @@ private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
                 HelpButton(Helps.cached)
             }
             Text(progressText(progress), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // Why the menu did not open: a hold on a running sync lands here (11/11 report).
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Top) {
+                Icon(Icons.Filled.Info, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp).padding(top = 1.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.live_menu_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             Spacer(Modifier.height(12.dp))
             if (items.isEmpty()) Text(stringResource(R.string.live_empty), style = MaterialTheme.typography.bodyMedium)
             LazyColumn(Modifier.fillMaxWidth().heightIn(max = 480.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

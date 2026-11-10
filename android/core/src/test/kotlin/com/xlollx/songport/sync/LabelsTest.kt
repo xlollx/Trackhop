@@ -300,6 +300,30 @@ class LabelsTest {
         assertNull(Labels.dragStretch(list, "gone"))
     }
 
+    @Test fun withFavouritesNotOnTopTheListIsTheStoredOrder() {
+        // Stored: a b c d, b and d starred.
+        val list = listOf(job("a"), job("b", favorite = true), job("c"), job("d", favorite = true))
+        assertEquals("abcd", Labels.favoritesFirst(list, onTop = false).joinToString("") { it.id })
+        // Turned back on: starred first again, the stored order untouched.
+        assertEquals("bdac", Labels.favoritesFirst(list, onTop = true).joinToString("") { it.id })
+        assertEquals("abcd", list.joinToString("") { it.id })
+        fun moved(id: String, to: Int): String {
+            val at = Labels.storeIndex(list, id, to, onTop = false)
+            val rest = list.filter { it.id != id }
+            return (rest.take(at) + list.first { it.id == id } + rest.drop(at)).joinToString("") { it.id }
+        }
+        // A starred sync goes after the others, and another before the starred: kept where dropped.
+        assertEquals("acdb", moved("b", 3))
+        assertEquals("cabd", moved("c", 0))
+        assertEquals("abdc", moved("d", 2))
+        assertEquals("bacd", moved("a", 1))
+        // One stretch: anything makes way for any sync held.
+        assertNull(Labels.dragStretch(list, "b", onTop = false))
+        assertNull(Labels.dragStretch(list, "a", onTop = false))
+        // On: the starred are kept among themselves, as before.
+        assertEquals(true, Labels.dragStretch(list, "b", onTop = true))
+    }
+
     @Test fun settingsKeepTheirLabelsInAConfigurationFile() {
         val s = Settings(labels = labels)
         val json = Json { encodeDefaults = true }

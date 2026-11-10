@@ -600,6 +600,7 @@
     <string name="sync_stopping">Arrêt à la fin de l\'étape en cours…</string>
     <string name="sync_pause_pending">En pause à la fin de l\'étape en cours</string>
     <string name="live_title">Activité de la sync</string>
+    <string name="live_menu_note">Pendant qu\'une sync tourne, son menu reste fermé : il se rouvre quand elle a fini.</string>
     <string name="live_empty">Aucun titre traité pour l\'instant.</string>
     <string name="live_found">Trouvé : %1$s</string>
     <string name="live_cached">D\'une correspondance précédente : %1$s</string>
@@ -2078,6 +2079,8 @@
     <string name="card_size_landscape">Téléphone à l\'horizontale, les cartes sont petites pour en voir davantage.</string>
     <string name="settings_minimal_view">Vue minimale</string>
     <string name="settings_minimal_view_summary">Les sync en petites tuiles sur une grille : services, nom et état</string>
+    <string name="settings_favorites_on_top">Favoris toujours en haut</string>
+    <string name="settings_favorites_on_top_summary">Désactivé, tes sync étoilées gardent leur étoile et le filtre Favoris, mais tu peux les placer n’importe où dans l’ordre</string>
     <string name="syncs_view_tiles">Afficher en tuiles</string>
     <string name="syncs_view_cards">Afficher en cartes</string>
     <string name="tile_next_run">Prochaine : %1$s</string>
