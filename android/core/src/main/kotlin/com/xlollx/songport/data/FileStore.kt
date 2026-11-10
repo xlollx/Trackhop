@@ -94,6 +94,8 @@ data class Settings(
     val roastLevel: String = "",
     /** The user confirmed once being 18 or older, for the Roast's explicit language. */
     val roastAdultConfirmed: Boolean = false,
+    /** The named colours the syncs can wear (SyncJob.label); see sync/Labels. */
+    val labels: List<com.xlollx.songport.model.Label> = emptyList(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */
@@ -165,7 +167,7 @@ open class FileStore(dir: File) {
     val data: StoreData get() = _state.value
 
     private fun load(): StoreData = try {
-        if (file.exists()) json.decodeFromString<StoreData>(file.readText()) else StoreData()
+        if (file.exists()) com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(file.readText())) else StoreData()
     } catch (e: Exception) {
         StoreData()
     }
@@ -210,6 +212,7 @@ open class FileStore(dir: File) {
     fun job(id: String): SyncJob? = data.jobs.firstOrNull { it.id == id }
 
     fun upsertJob(job: SyncJob) = update { d ->
+        val job = com.xlollx.songport.sync.Labels.normalized(job, d.settings.labels)
         if (d.jobs.any { it.id == job.id }) d.copy(jobs = d.jobs.map { if (it.id == job.id) job else it })
         else d.copy(jobs = d.jobs + job)
     }

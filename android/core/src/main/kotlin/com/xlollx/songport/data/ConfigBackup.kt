@@ -90,14 +90,15 @@ object ConfigBackup {
         env.store.update { d ->
             val ids = s.jobs.map { it.id }.toSet()
             val reportIds = d.reports.map { it.id }.toSet()
-            d.copy(
+            // A file from before labels and tags has none: its colours become labels as on an update.
+            com.xlollx.songport.sync.Labels.normalized(d.copy(
                 jobs = d.jobs.filter { it.id !in ids } + s.jobs,
                 reports = (d.reports + s.reports.filter { it.id !in reportIds }).sortedByDescending { it.startedEpoch }.take(FileStore.MAX_REPORTS),
                 matchCache = d.matchCache + s.matchCache,
                 ignoredTracks = d.ignoredTracks + s.ignoredTracks,
                 settings = merged(d.settings, s.settings),
                 wrapped = s.wrapped.fold(d.wrapped) { h, w -> Wrapped.remember(h, w) },
-            )
+            ))
         }
         // The services added come with it: the connector list follows the new settings at once.
         env.store.data.settings.let { st -> com.xlollx.songport.providers.Providers.configure(st.extraAccounts, st.connectorNames, st.connectors) }
@@ -134,6 +135,8 @@ object ConfigBackup {
         appOpens = current.appOpens,
         supportNudgeSeen = current.supportNudgeSeen,
         whatsNewSeen = current.whatsNewSeen,
+        // The labels of both: the file's win by id, this device's others stay for the syncs that wear them.
+        labels = incoming.labels + current.labels.filter { c -> incoming.labels.none { it.id == c.id } },
     )
 
     /** The file's name: trackhop-2026-10-30.trackhop. */

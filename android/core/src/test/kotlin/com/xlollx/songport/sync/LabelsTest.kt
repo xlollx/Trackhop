@@ -1,0 +1,192 @@
+package com.xlollx.songport.sync
+
+import com.xlollx.songport.data.ConfigBackup
+import com.xlollx.songport.data.Settings
+import com.xlollx.songport.data.StoreData
+import com.xlollx.songport.model.Label
+import com.xlollx.songport.model.PlaylistRef
+import com.xlollx.songport.model.SyncJob
+import kotlinx.serialization.json.Json
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class LabelsTest {
+    private fun job(id: String, color: String? = null, label: String? = null, tags: Map<String, String> = emptyMap(), favorite: Boolean = false) =
+        SyncJob(id = id, name = id, source = PlaylistRef("spotify", "s"), target = PlaylistRef("ytm", "t"), color = color, label = label, tags = tags, favorite = favorite)
+
+    // ------------------------------------------------------------ the colours of before labels
+
+    @Test fun coloursOfBeforeLabelsAreKept() {
+        // What 1.16 wrote: a ready colour, a colour of one's own, no colour.
+        val old = StoreData(jobs = listOf(job("a", "teal"), job("b", "#FF8800"), job("c")))
+        val d = Labels.normalized(old)
+        // The colours are what they were.
+        assertEquals(listOf("teal", "#FF8800", null), d.jobs.map { it.color })
+        // A ready colour is its own label; a colour of one's own is free; no colour, no label.
+        assertEquals(listOf("teal", null, null), d.jobs.map { it.label })
+        assertTrue(d.settings.labels.isEmpty())
+        // Done once: nothing changes the second time.
+        assertSame(d, Labels.normalized(d))
+    }
+
+    @Test fun aStoreFileOfBeforeLabelsStillReads() {
+        val text = """{"jobs":[{"id":"a","name":"A","source":{"provider":"spotify","playlistId":"1"},"target":{"provider":"ytm"},"color":"pink","accentStyle":"edge"},
+            {"id":"b","name":"B","source":{"provider":"spotify","playlistId":"2"},"target":{"provider":"ytm"},"color":"#12AB34"}],"settings":{"cardAccent":"glow"}}"""
+        val d = Labels.normalized(Json { ignoreUnknownKeys = true }.decodeFromString(StoreData.serializer(), text))
+        assertEquals(listOf("pink", "#12AB34"), d.jobs.map { it.color })
+        assertEquals(listOf("pink", null), d.jobs.map { it.label })
+        assertEquals("edge", d.jobs[0].accentStyle)
+        assertFalse(d.jobs[0].favorite)
+        assertTrue(d.jobs[0].tags.isEmpty())
+        assertEquals("glow", d.settings.cardAccent)
+    }
+
+    @Test fun aConfigurationFileOfBeforeLabelsStillReads() {
+        val text = """{"format":"trackhop-config","version":1,"writtenBy":"Trackhop 1.16.0 (Android)","jobs":[
+            {"id":"a","name":"A","source":{"provider":"spotify","playlistId":"1"},"target":{"provider":"ytm"},"color":"red"}],"settings":{}}"""
+        val s = ConfigBackup.read(text)
+        assertEquals("red", s.jobs.single().color)
+        assertNull(s.jobs.single().label)
+        assertTrue(s.settings.labels.isEmpty())
+    }
+
+    @Test fun aLabelThatIsGoneLeavesTheColour() {
+        val j = Labels.normalized(job("a", "#102030", label = "l-gone"), emptyList())
+        assertEquals("#102030", j.color)
+        assertNull(j.label)
+    }
+
+    @Test fun theLabelGivesTheColour() {
+        val labels = listOf(Label("l-1", "#AA00BB", "Gym"))
+        assertEquals("#AA00BB", Labels.normalized(job("a", "red", label = "l-1"), labels).color)
+        assertEquals("teal", Labels.normalized(job("a", "#000000", label = "teal"), labels).color)
+    }
+
+    // ------------------------------------------------------------ naming, recolouring, deleting
+
+    @Test fun namingAReadyColour() {
+        val (d, id) = Labels.save(Labels.normalized(StoreData(jobs = listOf(job("a", "teal"), job("b", "red")))), "teal", " Gym ")
+        assertEquals("teal", id)
+        assertEquals(listOf(Label("teal", "teal", "Gym")), d.settings.labels)
+        assertEquals("Gym", Labels.name(d.jobs[0], d.settings.labels))
+        assertEquals("", Labels.name(d.jobs[1], d.settings.labels))
+        // Deleting it takes the name away, not the colour.
+        val gone = Labels.delete(d, "teal")
+        assertTrue(gone.settings.labels.isEmpty())
+        assertEquals("teal", gone.jobs[0].color)
+        assertEquals("teal", gone.jobs[0].label)
+    }
+
+    @Test fun savingAColourOfOnesOwnRenamingRecolouringDeleting() {
+        val start = Labels.normalized(StoreData(jobs = listOf(job("a", "#ff8800"), job("b", "#FF8800"), job("c", "#000001"))))
+        val (d, id) = Labels.save(start, "#FF8800", "From Spotify") { "l-1" }
+        assertEquals("l-1", id)
+        // Every sync with that exact colour wears the label.
+        assertEquals(listOf("l-1", "l-1", null), d.jobs.map { it.label })
+        // Saving the same colour again renames the label instead of making a second one.
+        val (again, id2) = Labels.save(d, "#ff8800", "Spotify") { "l-2" }
+        assertEquals("l-1", id2)
+        assertEquals(listOf(Label("l-1", "#FF8800", "Spotify")), again.settings.labels)
+
+        val renamed = Labels.rename(d, "l-1", "Mine")
+        assertEquals("Mine", Labels.name(renamed.jobs[0], renamed.settings.labels))
+
+        val recoloured = Labels.recolor(renamed, "l-1", "#00aa11")
+        assertEquals(listOf("#00AA11", "#00AA11", "#000001"), recoloured.jobs.map { it.color })
+        // Not a colour: nothing changes.
+        assertSame(recoloured, Labels.recolor(recoloured, "l-1", "green-ish"))
+
+        val deleted = Labels.delete(recoloured, "l-1")
+        assertTrue(deleted.settings.labels.isEmpty())
+        assertEquals(listOf("#00AA11", "#00AA11", "#000001"), deleted.jobs.map { it.color })
+        assertEquals(listOf(null, null, null), deleted.jobs.map { it.label })
+        // An empty name deletes too.
+        assertTrue(Labels.rename(recoloured, "l-1", "  ").settings.labels.isEmpty())
+        // A colour of one's own needs a name to become a label.
+        assertNull(Labels.save(start, "#FF8800", " ").second)
+    }
+
+    @Test fun findingALabelByIdKeyOrName() {
+        val labels = listOf(Label("l-1", "#AA00BB", "Palestra è"), Label("teal", "teal", "Calm"))
+        assertEquals("l-1", Labels.resolve(labels, "l-1")?.id)
+        assertEquals("l-1", Labels.resolve(labels, "PALESTRA E")?.id)
+        assertEquals("teal", Labels.resolve(labels, "calm")?.id)
+        assertEquals("red", Labels.resolve(labels, "Red")?.id)
+        assertNull(Labels.resolve(labels, "nope"))
+    }
+
+    // ------------------------------------------------------------ tags
+
+    @Test fun tagsAreTidied() {
+        val t = Labels.cleanTags(linkedMapOf(" Genre " to "  Heavy   Metal ", "genre" to "pop", "" to "x", "a:b=c" to "", "mood" to "\"gym\""))
+        assertEquals(linkedMapOf("Genre" to "Heavy Metal", "a b c" to "", "mood" to "gym"), t)
+        val clean = mapOf("genre" to "metal", "kids" to "")
+        assertSame(clean, Labels.cleanTags(clean))
+        assertEquals(Labels.MAX_TAGS, Labels.cleanTags((1..40).associate { "k$it" to "v" }).size)
+    }
+
+    @Test fun parsingATag() {
+        assertEquals("genre" to "metal", Labels.parseTag("genre:metal"))
+        assertEquals("genre" to "metal", Labels.parseTag(" genre = metal "))
+        assertEquals("genre" to null, Labels.parseTag("genre"))
+        assertEquals("genre" to null, Labels.parseTag("genre:"))
+        assertEquals("genre" to "heavy metal", Labels.parseTag("genre:\"heavy metal\""))
+        assertEquals("my key" to "a=b", Labels.parseTag("\"my key\"=a=b"))
+        assertNull(Labels.parseTag(":metal"))
+        assertNull(Labels.parseTag("  "))
+    }
+
+    private val jobs = listOf(
+        job("a", "teal", "teal", mapOf("Genre" to "Metal", "mood" to "gym"), favorite = true),
+        job("b", "#AA00BB", "l-1", mapOf("genre" to "Heavy Metal", "kids" to "")),
+        job("c", tags = mapOf("genre" to "pop")),
+        job("d"),
+    )
+    private val labels = listOf(Label("l-1", "#AA00BB", "Gym"))
+    private fun ids(tags: List<String> = emptyList(), label: String? = null, favorite: Boolean? = null) =
+        Labels.select(jobs, labels, tags, label, favorite).joinToString("") { it.id }
+
+    @Test fun selectingByTagLabelAndStar() {
+        assertEquals("abcd", ids())
+        assertEquals("a", ids(listOf("genre:metal")))
+        assertEquals("a", ids(listOf("GENRE=métal")))
+        assertEquals("abc", ids(listOf("genre")))
+        assertEquals("b", ids(listOf("kids")))
+        assertEquals("b", ids(listOf("genre:\"heavy metal\"")))
+        // Every tag asked for.
+        assertEquals("a", ids(listOf("genre", "mood:gym")))
+        assertEquals("", ids(listOf("genre:metal", "kids")))
+        assertEquals("b", ids(label = "gym"))
+        assertEquals("b", ids(label = "l-1"))
+        assertEquals("a", ids(label = "teal"))
+        assertEquals("", ids(label = "nope"))
+        assertEquals("a", ids(favorite = true))
+        assertEquals("bcd", ids(favorite = false))
+        assertEquals("", ids(listOf("genre"), label = "gym", favorite = true))
+        assertThrows(IllegalArgumentException::class.java) { ids(listOf("=metal")) }
+    }
+
+    @Test fun suggestionsFromWhatIsUsed() {
+        assertEquals(listOf("Genre", "kids", "mood"), Labels.keysInUse(jobs))
+        assertEquals(listOf("Heavy Metal", "Metal", "pop"), Labels.valuesInUse(jobs, "GENRE"))
+        assertTrue(Labels.valuesInUse(jobs, "kids").isEmpty())
+    }
+
+    @Test fun favouritesGoFirstTheRestKeepTheirOrder() {
+        val list = listOf(job("a"), job("b", favorite = true), job("c"), job("d", favorite = true))
+        assertEquals("bdac", Labels.favoritesFirst(list).joinToString("") { it.id })
+        val none = listOf(job("a"), job("b"))
+        assertSame(none, Labels.favoritesFirst(none))
+    }
+
+    @Test fun settingsKeepTheirLabelsInAConfigurationFile() {
+        val s = Settings(labels = labels)
+        val json = Json { encodeDefaults = true }
+        assertEquals(labels, json.decodeFromString(Settings.serializer(), json.encodeToString(Settings.serializer(), s)).labels)
+    }
+}
