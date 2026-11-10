@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.verticalScroll
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -237,7 +238,7 @@ fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> 
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.job_color_custom)) },
         text = {
-            androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Saturation left to right, brightness top to bottom.
                 androidx.compose.foundation.Canvas(
                     Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(12.dp))

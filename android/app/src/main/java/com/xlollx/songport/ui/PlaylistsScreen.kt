@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.net.Uri
@@ -164,7 +165,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.delete)) },
             text = {
-                Column {
+                Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
                     Text(stringResource(R.string.manage_delete_confirm, pl.name, provider.label(ctx)))
                     if (used > 0) {
                         Spacer(Modifier.padding(4.dp))

@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import com.xlollx.songport.providers.*
 import android.content.Intent
@@ -260,7 +261,7 @@ private fun ExportLogDialog(onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.diag_export_title)) },
         text = {
-            Column {
+            Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
                 Text(stringResource(R.string.diag_export_body), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
                 ranges.forEach { (label, span) ->

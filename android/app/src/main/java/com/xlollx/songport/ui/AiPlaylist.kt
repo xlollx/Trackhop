@@ -745,7 +745,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
         onDismissRequest = onClose,
         title = { Text(stringResource(R.string.ai_extend_title)) },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(stringResource(R.string.ai_extend_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 Text(job.aiPrompt.orEmpty(), style = MaterialTheme.typography.bodyMedium)
@@ -834,7 +834,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
         onDismissRequest = { if (!busy) onClose() },
         title = { Text(stringResource(R.string.ai_extend_title)) },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(stringResource(R.string.ai_expand_hint, provider.label(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(

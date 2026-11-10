@@ -606,7 +606,7 @@ private fun JobCard(
             onDismissRequest = { moveToOpen = false },
             title = { Text(stringResource(R.string.sync_menu_move_to)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.move_to_now, now, total), style = MaterialTheme.typography.bodyMedium)
                     OutlinedTextField(
                         value = typed,
