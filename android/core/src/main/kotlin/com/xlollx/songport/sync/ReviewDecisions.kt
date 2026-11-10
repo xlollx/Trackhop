@@ -89,15 +89,18 @@ object ReviewDecisions {
             val ignored = won.filterValues { it.kind == DecisionKind.IGNORE }.keys
             val matched = won.filterValues { it.kind != DecisionKind.IGNORE && it.track != null }.mapValues { it.value.track!! }
             val matchKeys = matched.mapKeys { key(it.key) }
-            val ignoredKeys = ignored.map(key).toSet()
+            // Bounded like the caches: a peer sending thousands of new choices each time cannot grow them for ever.
+            val ignoredKeys = ignored.map(key).filter { it !in d.ignoredTracks }.take((MAX_STORED * 2 - d.ignoredTracks.size).coerceAtLeast(0)).toSet()
+            var cache = d.matchCache - ignoredKeys + matchKeys
+            if (cache.size > MAX_STORED) cache = cache.entries.drop(cache.size - MAX_STORED).associate { it.key to it.value }
             d.copy(
                 reviewDecisions = bounded(d.reviewDecisions + won.mapKeys { key(it.key) }),
                 // A newer choice of a match takes the track out of the ignored ones, and the other way round.
                 ignoredTracks = d.ignoredTracks - matchKeys.keys + ignoredKeys,
-                matchCache = d.matchCache - ignoredKeys + matchKeys,
+                matchCache = cache,
                 missCache = d.missCache - matchKeys.keys,
                 jobs = d.jobs.map { j ->
-                    if (j.id != job.id) j else j.copy(ignoredSourceIds = ((j.ignoredSourceIds - matched.keys) + ignored).distinct())
+                    if (j.id != job.id) j else j.copy(ignoredSourceIds = ((j.ignoredSourceIds - matched.keys) + ignored).distinct().takeLast(MAX_STORED))
                 },
                 reports = d.reports.map { r ->
                     if (r.id != job.lastReportId) r else {
