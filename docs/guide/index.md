@@ -22,6 +22,7 @@ description (architecture, matching, services and their limits) stays in the
 **On your computer or server**
 - [Playlist sync for Windows](playlist-sync-windows), [for Mac](playlist-sync-mac), [for Linux](playlist-sync-linux): the desktop app, how to install it and what it does.
 - [Self-hosted playlist sync](self-hosted-playlist-sync): your Navidrome, Jellyfin or Plex in step with your streaming service.
+- [Lyrion Music Server](lyrion) (the former Logitech Media Server) and [Mopidy](mopidy): their playlists as a source and a destination (beta).
 - [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi.
 
 **Step by step**

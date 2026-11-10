@@ -1832,4 +1832,13 @@
     <string name="tools_mbtags_all">Las %1$d canciones tienen etiquetas de MusicBrainz.</string>
     <string name="tools_mbtags_empty">Este servidor no ha listado sus canciones.</string>
     <string name="tools_mbtags_picard">Etiquetar con Picard</string>
+    <string name="provider_note_lyrion">Tu Lyrion Music Server (antes Logitech Media Server). Sin registro, sin cuotas. Una playlist guarda cada canción una sola vez.</string>
+    <string name="login_hint_lyrion">Introduce la dirección de tu Lyrion Music Server (por ejemplo http://192.168.1.10:9000). Usuario y contraseña solo si el servidor está protegido con contraseña.</string>
+    <string name="provider_note_mopidy">Tu servidor Mopidy. Sin registro, sin cuotas, sin inicio de sesión: solo su dirección.</string>
+    <string name="login_hint_mopidy">Introduce la dirección de tu servidor Mopidy (por ejemplo http://192.168.1.10:6680). Mopidy debe aceptar conexiones de otros dispositivos (hostname en sus ajustes [http]).</string>
+    <string name="error_lyrion_password">Este servidor pide usuario y contraseña. Revísalos e inténtalo de nuevo.</string>
+    <string name="error_lyrion_not_found">Ningún Lyrion Music Server respondió en esta dirección. Revisa la dirección y el puerto (normalmente 9000).</string>
+    <string name="error_mopidy_not_found">Ningún servidor Mopidy respondió en esta dirección. Revisa la dirección y el puerto (normalmente 6680) y que Mopidy acepte conexiones de otros dispositivos.</string>
+    <string name="error_server_name_taken">En este servidor ya existe una playlist llamada “%1$s”. Elígela como destino o usa otro nombre.</string>
+    <string name="error_server_track_gone">El servidor ya no tiene “%1$s”.</string>
 </resources>

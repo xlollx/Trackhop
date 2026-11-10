@@ -140,7 +140,7 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
             if (askKey) com.xlollx.songport.ui.LastFmKeyCard(lfKey, { lfKey = it; error = null }, lfSecret, { lfSecret = it; error = null }, enabled = !busy)
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             Button(
-                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (!form.needsUser || user.isNotBlank()) && (!form.needsSecret || form.secretOptional || secret.isNotBlank()) &&
+                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (!form.needsUser || form.userOptional || user.isNotBlank()) && (!form.needsSecret || form.secretOptional || secret.isNotBlank()) &&
                     (!askKey || (lfKey.isNotBlank() && lfSecret.isNotBlank())),
                 onClick = {
                     busy = true

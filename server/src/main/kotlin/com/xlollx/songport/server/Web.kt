@@ -522,7 +522,7 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
                 body.append("""<form method="post" action="/connectors/${q(p.id)}/connect" class="card">""")
                 body.append("""<p class="muted">${h(env.text(f.hintName))}</p>""")
                 if (f.needsUrl) body.append("""<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>""")
-                if (f.needsUser) body.append("""<label>${h(env.text("login_user"))}</label><input type="text" name="user" autocomplete="off" required>""")
+                if (f.needsUser) body.append("""<label>${h(env.text("login_user"))}</label><input type="text" name="user" autocomplete="off"${if (f.userOptional) "" else " required"}>""")
                 if (f.needsSecret) body.append(
                     """<label>${h(env.text(f.secretLabelName))}</label><input type="password" name="secret" autocomplete="new-password"${if (f.secretOptional) "" else " required"}>""",
                 )

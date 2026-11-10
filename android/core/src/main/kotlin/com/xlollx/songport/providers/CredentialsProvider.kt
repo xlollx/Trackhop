@@ -15,6 +15,8 @@ data class LoginForm(
     val hintName: String,
     /** The secret field is shown but may stay empty (a token that only some features need). */
     val secretOptional: Boolean = false,
+    /** The user field is shown but may stay empty (a server that asks for a sign-in only when protected). */
+    val userOptional: Boolean = false,
 )
 
 /**

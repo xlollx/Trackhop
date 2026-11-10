@@ -1794,4 +1794,13 @@
     <string name="tools_mbtags_all">全部 %1$d 首歌曲都有 MusicBrainz 标签。</string>
     <string name="tools_mbtags_empty">此服务器没有列出歌曲。</string>
     <string name="tools_mbtags_picard">用 Picard 添加标签</string>
+    <string name="provider_note_lyrion">你自己的 Lyrion Music Server（原 Logitech Media Server）。无需注册，没有配额。同一首歌在一个歌单里只保留一次。</string>
+    <string name="login_hint_lyrion">输入你的 Lyrion Music Server 地址（例如 http://192.168.1.10:9000）。只有服务器开启了密码保护时才需要用户名和密码。</string>
+    <string name="provider_note_mopidy">你自己的 Mopidy 服务器。无需注册，没有配额，无需登录：只要地址。</string>
+    <string name="login_hint_mopidy">输入你的 Mopidy 服务器地址（例如 http://192.168.1.10:6680）。Mopidy 需要允许其他设备连接（[http] 设置中的 hostname）。</string>
+    <string name="error_lyrion_password">这台服务器需要用户名和密码。请检查后重试。</string>
+    <string name="error_lyrion_not_found">这个地址上没有 Lyrion Music Server 响应。请检查地址和端口（通常是 9000）。</string>
+    <string name="error_mopidy_not_found">这个地址上没有 Mopidy 服务器响应。请检查地址和端口（通常是 6680），并确认 Mopidy 允许其他设备连接。</string>
+    <string name="error_server_name_taken">这台服务器上已经有名为“%1$s”的歌单。请把它选为目标，或换一个名称。</string>
+    <string name="error_server_track_gone">服务器上已经没有“%1$s”了。</string>
 </resources>
