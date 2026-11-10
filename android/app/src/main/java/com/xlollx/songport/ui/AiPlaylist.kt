@@ -30,9 +30,6 @@ import com.xlollx.songport.model.Track
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
@@ -188,7 +185,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
 
     LaunchedEffect(d.setupAsked) { if (d.setupAsked) { d.keyless = false; setupOpen = true; d.setupAsked = false } }
     d.done?.let { text ->
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { d.done = null },
             icon = { Icon(Icons.Filled.CheckCircle, null, tint = Tones.onSuccessContainer()) },
             title = { Text(stringResource(R.string.ai_done_title)) },
@@ -561,11 +558,11 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
     var checkResult by remember { mutableStateOf<String?>(null) }
     fun current() = AiClient.Config(vendor, key.trim(), model.trim(), baseUrl.trim(), if (vendor == AiClient.Vendor.CUSTOM) imageModel.trim() else "")
 
-    AlertDialog(
+    FitDialog(
         onDismissRequest = close,
         title = { Text(stringResource(R.string.ai_setup_title)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.ai_vendor), style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.height(4.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -672,9 +669,11 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
 @Composable
 private fun AiReviewDialog(tracks: List<Track>, targetLabel: String, onDismiss: () -> Unit, onConfirm: (List<Track>) -> Unit) {
     var kept by remember { mutableStateOf(tracks) }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.ai_review_title)) },
+        // A list of its own: it scrolls, under the line above it.
+        scroll = false,
         text = {
             Column {
                 Text(stringResource(R.string.ai_review_hint, targetLabel), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -741,11 +740,11 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
         }
         return
     }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onClose,
         title = { Text(stringResource(R.string.ai_extend_title)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.ai_extend_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 Text(job.aiPrompt.orEmpty(), style = MaterialTheme.typography.bodyMedium)
@@ -830,11 +829,11 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
         }
         return
     }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = { if (!busy) onClose() },
         title = { Text(stringResource(R.string.ai_extend_title)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.ai_expand_hint, provider.label(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(

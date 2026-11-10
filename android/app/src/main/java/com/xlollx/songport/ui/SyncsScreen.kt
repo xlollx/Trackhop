@@ -100,7 +100,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -297,6 +296,10 @@ fun SyncsScreen(
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
     var dragOrder by remember { mutableStateOf<List<String>?>(null) }
+    // The stretch the card held down stays in (starred or not, Labels.dragStretch): the cards of the other
+    // kind do not make way for it. Let them, and a starred tile dragged to the row below showed there, then
+    // jumped back to the last starred place on release, the tiles it had passed with it (10/11 report).
+    var dragStretch by remember { mutableStateOf<Boolean?>(null) }
     // Whether the card held down has changed places yet: a tile let go without one opens its menu.
     val swapped = remember { booleanArrayOf(false) }
     // The tile held down in the gesture under way: its release is the end of a hold, not a tap.
@@ -497,7 +500,7 @@ fun SyncsScreen(
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
-            items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag) { isDragging ->
+            items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag && (dragStretch ?: job.favorite) == job.favorite) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
                 LaunchedEffect(flashing) {
                     if (flashing == job.id) {
@@ -536,12 +539,14 @@ fun SyncsScreen(
                     onDragStarted = {
                         swapped[0] = false
                         heldTile[0] = job.id
+                        dragStretch = com.xlollx.songport.sync.Labels.dragStretch(Store.get(ctx).data.jobs, job.id)
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
                     onDragStopped = {
                         // A tile held and let go without moving it: its menu, as a long press elsewhere.
                         if (minimal && !swapped[0]) tileMenu = job.id
+                        dragStretch = null
                         // Cleared once this release has been handled everywhere (the tile's own tap included).
                         scope.launch { heldTile[0] = null }
                         val dropped = dragOrder
@@ -716,11 +721,11 @@ private fun JobMenuHost(
         val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { moveToOpen = false },
             title = { Text(stringResource(R.string.sync_menu_move_to)) },
             text = {
-                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.move_to_now, now, total), style = MaterialTheme.typography.bodyMedium)
                     OutlinedTextField(
                         value = typed,
@@ -776,7 +781,7 @@ private fun JobMenuHost(
         ),
     )
     if (confirmDelete) {
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { confirmDelete = false },
             title = { Text(stringResource(R.string.delete_confirm_title)) },
             text = { Text(stringResource(R.string.delete_confirm_text)) },
@@ -1041,7 +1046,7 @@ private fun JobCard(
 
 /** The small marks before a sync's name: written by an AI, every Shazam, a radio, starred. */
 @Composable
-private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.Dp = 16.dp) {
+private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.Dp = 16.dp, star: Boolean = true) {
     // Written by the user's AI: a small spark before the name, and "add tracks" in the menu.
     if (job.aiPrompt != null) {
         Icon(Icons.Filled.AutoAwesome, stringResource(R.string.ai_badge_desc), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
@@ -1058,7 +1063,7 @@ private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.D
         Spacer(Modifier.width(4.dp))
     }
     // Starred: first in the list, and under "Favourites" in the filters.
-    if (job.favorite) {
+    if (star && job.favorite) {
         Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(size), tint = ink ?: MaterialTheme.colorScheme.tertiary)
         Spacer(Modifier.width(4.dp))
     }
@@ -1100,7 +1105,7 @@ private fun JobTile(
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
             Column(
-                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color))
+                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color), tile = true)
                     .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1120,7 +1125,7 @@ private fun JobTile(
                 }
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Top) {
-                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp) }
+                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp, star = false) }
                     // Two lines kept for every name, so the tiles of a row line up.
                     Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
                 }
@@ -1140,18 +1145,24 @@ private fun JobTile(
                 // When it runs next, in short: only for a sync that runs by itself.
                 // Already due (late, about to start): nothing to say.
                 val next = remember(job, isRunning) { if (isRunning) null else System.currentTimeMillis().let { now -> com.xlollx.songport.sync.Timing.nextRun(job, now)?.takeIf { it > now } } }
-                if (isRunning) {
-                    Spacer(Modifier.height(8.dp))
-                    val pct = progress?.percent
-                    if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
-                    else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
-                } else if (next != null && job.radio == null) {
-                    Spacer(Modifier.height(2.dp))
+                // One line kept for every tile, so the tiles of a row are as tall as each other:
+                // the progress while it runs, else when it runs next, else nothing.
+                Spacer(Modifier.height(2.dp))
+                // A starred sync shows its star in the tile's bottom corner.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     Text(
-                        stringResource(R.string.tile_next_run, nextRunShort(ctx, next)),
+                        if (!isRunning && next != null && job.radio == null) stringResource(R.string.tile_next_run, nextRunShort(ctx, next)) else "",
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        maxLines = 1, minLines = 1, overflow = TextOverflow.Ellipsis,
                     )
+                    if (isRunning) {
+                        val pct = progress?.percent
+                        if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
+                        else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
+                    }
+                }
+                if (job.favorite) Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(16.dp), tint = ink ?: MaterialTheme.colorScheme.tertiary)
                 }
             }
         }
@@ -2198,9 +2209,11 @@ private fun SpreadDialog(jobs: List<com.xlollx.songport.model.SyncJob>, crowd: c
     val times = remember(jobs, crowd) { com.xlollx.songport.sync.Timing.spread(jobs, crowd, sensitive = ::spreads) }
     val group = jobs.filter { it.id in crowd.jobIds }
     val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.spread_title, name)) },
+        // A list of its own: it scrolls, under the line above it.
+        scroll = false,
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.spread_body), style = MaterialTheme.typography.bodyMedium)

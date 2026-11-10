@@ -1,6 +1,5 @@
 package com.xlollx.songport.ui
 
-import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.net.Uri
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -130,7 +128,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     renaming?.let { pl ->
         var name by rememberSaveable(pl.id) { mutableStateOf(pl.name) }
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { renaming = null },
             title = { Text(stringResource(R.string.manage_rename)) },
             text = { OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, label = { Text(stringResource(R.string.manage_rename_title)) }, modifier = Modifier.fillMaxWidth()) },
@@ -163,11 +161,11 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     }
     deleting?.let { pl ->
         val used = store.data.jobs.count { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.delete)) },
             text = {
-                Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                Column {
                     Text(stringResource(R.string.manage_delete_confirm, pl.name, provider.label(ctx)))
                     if (used > 0) {
                         Spacer(Modifier.padding(4.dp))

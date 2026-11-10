@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,8 +89,36 @@ enum class CardSize(val key: String, val label: Int) {
     }
 }
 
-/** The card's colour drawn behind its content in the chosen [style]; the card clips it to its shape. */
-fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accent == null) this else drawBehind {
+/**
+ * A style along the leading edge as a tile of the minimal view draws it: the card's own shapes are
+ * made for a tall card (on a tile the crescent swallowed the text and the fade showed as arcs in the
+ * corners), so each is drawn here thin and short enough for a tile and stays itself. [width] is the
+ * widest it gets and [inset] its distance from the edge: together they stay within [TILE_CLEAR] of
+ * the edge, half of the tile's 16 dp text padding. [length] is the share of the tile's height it
+ * runs along; [tapers]: it thins to nothing towards the corners; [fades]: it fades out towards them.
+ * Null for the outline and the wash, which a tile wears as the card does.
+ */
+data class TileAccent(val width: Dp, val inset: Dp = 0.dp, val length: Float = 1f, val tapers: Boolean = false, val fades: Boolean = false) {
+    companion object {
+        val TILE_CLEAR = 8.dp
+        fun of(style: CardAccent): TileAccent? = when (style) {
+            CardAccent.CLASSIC -> TileAccent(6.dp)
+            CardAccent.FADE -> TileAccent(5.dp, fades = true)
+            CardAccent.CRESCENT -> TileAccent(8.dp, tapers = true)
+            CardAccent.PILL -> TileAccent(4.dp, inset = 4.dp, length = 0.4f)
+            CardAccent.OUTLINE, CardAccent.WASH -> null
+        }
+    }
+}
+
+/**
+ * The card's colour drawn behind its content in the chosen [style]; the card clips it to its shape.
+ * On a [tile] of the minimal view the styles along the edge take their tile's shape ([TileAccent]).
+ */
+fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false): Modifier = if (accent == null) this else drawBehind {
+    // The crescent is the tile's on the full card too: the user liked it better than the wide one.
+    val t = if (tile || style == CardAccent.CRESCENT) TileAccent.of(style) else null
+    if (t != null) return@drawBehind drawTileAccent(t, accent)
     val r = 28.dp.toPx() // MaterialTheme.shapes.large, the card's corners
     val rtl = layoutDirection == LayoutDirection.Rtl
     val w = 6.dp.toPx()
@@ -105,20 +134,7 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accen
         }
         // Half of the stroke falls outside the card and is clipped: 2 dp all round.
         CardAccent.OUTLINE -> drawRoundRect(accent, cornerRadius = CornerRadius(r), style = Stroke(4.dp.toPx()))
-        // Thick in the middle of the leading edge, thinning to nothing in the corners.
-        CardAccent.CRESCENT -> {
-            val h = size.height
-            val c = (8 * w - 2 * r) / 6 // the inner curve's control points, so that it reaches w at mid height
-            val p = Path().apply {
-                moveTo(x(r), 0f)
-                quadraticTo(x(0f), 0f, x(0f), r)
-                lineTo(x(0f), h - r)
-                quadraticTo(x(0f), h, x(r), h)
-                cubicTo(x(c), h * 0.75f, x(c), h * 0.25f, x(r), 0f)
-                close()
-            }
-            drawPath(p, accent)
-        }
+        CardAccent.CRESCENT -> Unit // drawn as on a tile, above
         // A rounded bar inside the card, clear of the corners.
         CardAccent.PILL -> {
             val pw = 5.dp.toPx()
@@ -128,6 +144,31 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accen
             if (rtl) Brush.horizontalGradient(listOf(Color.Transparent, accent.copy(alpha = 0.40f)), startX = size.width * 0.55f, endX = size.width)
             else Brush.horizontalGradient(listOf(accent.copy(alpha = 0.40f), Color.Transparent), startX = 0f, endX = size.width * 0.45f),
         )
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTileAccent(t: TileAccent, accent: Color) {
+    val rtl = layoutDirection == LayoutDirection.Rtl
+    val w = t.width.toPx()
+    val inset = t.inset.toPx()
+    val h = size.height
+    fun x(v: Float) = if (rtl) size.width - v else v
+    when {
+        // Widest at mid height, nothing at the ends: the card's rounded corners cut it to nothing before them.
+        t.tapers -> drawPath(Path().apply {
+            moveTo(x(0f), 0f)
+            quadraticTo(x(2 * w), h / 2, x(0f), h) // a quadratic peaks at half its control point's distance
+            close()
+        }, accent)
+        else -> {
+            val len = h * t.length
+            val top = (h - len) / 2
+            val left = if (rtl) size.width - inset - w else inset
+            val brush = if (t.fades) Brush.verticalGradient(0f to Color.Transparent, 0.3f to accent, 0.7f to accent, 1f to Color.Transparent, startY = top, endY = top + len) else null
+            val corner = if (t.inset > 0.dp) CornerRadius(w / 2) else CornerRadius.Zero
+            if (brush != null) drawRoundRect(brush, Offset(left, top), Size(w, len), corner)
+            else drawRoundRect(accent, Offset(left, top), Size(w, len), corner)
+        }
     }
 }
 
@@ -248,22 +289,41 @@ fun JobStyleDialog(
             }
         }
     }
-    // A phone on its side: the dialog widens and the preview stands beside the choices, which
-    // scroll on their own; upright, one column as ever.
-    val wide = LocalWindowLayout.current.short
-    androidx.compose.material3.AlertDialog(
+    val title: @Composable () -> Unit = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) }
+    val save = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }
+    val buttons: @Composable () -> Unit = {
+        androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) }
+        androidx.compose.material3.TextButton(onClick = save) { Text(androidx.compose.ui.res.stringResource(R.string.save)) }
+    }
+    // A phone on its side: the dialog as wide and as tall as the window allows, the title and the
+    // preview on the left, the choices on the right scrolling on their own between the title and
+    // the buttons, which stay in view. Material's dialog kept its text to a short box there and cut
+    // the label's name in half. Upright, Material's dialog with one column as ever.
+    if (LocalWindowLayout.current.short) androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss, properties = WideDialog.properties) {
+        androidx.compose.material3.Surface(
+            WideDialog.modifier.padding(vertical = 12.dp), shape = androidx.compose.material3.AlertDialogDefaults.shape,
+            color = androidx.compose.material3.AlertDialogDefaults.containerColor,
+            tonalElevation = androidx.compose.material3.AlertDialogDefaults.TonalElevation,
+        ) {
+            androidx.compose.foundation.layout.Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 12.dp)) {
+                Row(Modifier.weight(1f, fill = false), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    androidx.compose.foundation.layout.Column(Modifier.weight(0.4f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides MaterialTheme.typography.headlineSmall) { title() }
+                        preview()
+                    }
+                    androidx.compose.foundation.layout.Column(
+                        Modifier.weight(0.6f).verticalScroll(androidx.compose.foundation.rememberScrollState()).testTag(STYLE_CHOICES_TAG),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) { choices() }
+                }
+                Row(Modifier.align(Alignment.End).padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) { buttons() }
+            }
+        }
+    } else androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = if (wide) WideDialog.modifier else Modifier,
-        properties = if (wide) WideDialog.properties else androidx.compose.ui.window.DialogProperties(),
-        title = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) },
+        title = title,
         text = {
-            if (wide) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                androidx.compose.foundation.layout.Column(Modifier.weight(0.4f).verticalScroll(androidx.compose.foundation.rememberScrollState())) { preview() }
-                androidx.compose.foundation.layout.Column(
-                    Modifier.weight(0.6f).verticalScroll(androidx.compose.foundation.rememberScrollState()).testTag(STYLE_CHOICES_TAG),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) { choices() }
-            } else androidx.compose.foundation.layout.Column(
+            androidx.compose.foundation.layout.Column(
                 Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -271,7 +331,7 @@ fun JobStyleDialog(
                 choices()
             }
         },
-        confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = save) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
         dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) } },
     )
     if (recolorOpen) CustomColorDialog(CustomColor.parse(c) ?: JobColor.BLUE.light, onDismiss = { recolorOpen = false }) { recolorOpen = false; recolor = CustomColor.key(it) }

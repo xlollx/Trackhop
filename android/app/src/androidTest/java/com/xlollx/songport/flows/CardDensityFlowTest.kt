@@ -102,6 +102,8 @@ class CardDensityFlowTest : FlowTest() {
     @Test
     fun theMinimalViewShowsTilesThatOpenTheirSync() {
         seed(5)
+        // Sync 1 runs by itself (a "Next" line on its tile), sync 2 only by hand (none).
+        store.update { d -> d.copy(jobs = d.jobs.map { if (it.id == "job-1") it.copy(schedule = com.xlollx.songport.model.Schedule.DAILY) else it }) }
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         assertTrue("cards at first", tiles().isEmpty() && cards().isNotEmpty())
@@ -116,6 +118,7 @@ class CardDensityFlowTest : FlowTest() {
         val two = compose.onAllNodes(hasTestTag(JOB_TILE_TAG) and hasText("Sync number 2")).onFirst().fetchSemanticsNode()
         assertEquals("tiles 1 and 2 on one row", one.positionInRoot.y, two.positionInRoot.y, 1f)
         assertTrue("tile 2 right of tile 1", two.positionInRoot.x > one.boundsInRoot.right - 1f)
+        assertEquals("tiles 1 and 2 as tall as each other", one.size.height.toFloat(), two.size.height.toFloat(), 1f)
         // A tile says little: no route, no figures. Its name and status, a run button.
         assertFalse(exists("Road Trip 1", substring = true))
         assertTrue(compose.onAllNodes(hasTestTag(JOB_TILE_TAG) and hasText("Sync number 1") and androidx.compose.ui.test.hasAnyDescendant(androidx.compose.ui.test.hasContentDescription(s(R.string.run_now)))).fetchSemanticsNodes().isNotEmpty())

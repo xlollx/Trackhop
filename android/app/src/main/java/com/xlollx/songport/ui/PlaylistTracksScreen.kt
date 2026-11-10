@@ -18,7 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -95,7 +94,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
 
     if (confirming) {
         val n = selected.size
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { confirming = false },
             title = { Text(pluralStringResource(R.plurals.tracks_remove_n, n, n)) },
             text = { Text(stringResource(R.string.tracks_remove_confirm, n, playlist.name, provider.label(ctx))) },

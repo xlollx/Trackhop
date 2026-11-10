@@ -80,4 +80,11 @@ class WindowLayoutTest {
         assertEquals(WindowLayout.WIDE_CONTENT, tablet.maxContentWidth(twoColumns = true))
         assertEquals(WindowLayout.READABLE_CONTENT, WindowLayout.of(700, 1000).maxContentWidth(twoColumns = true))
     }
+
+    @Test fun dialogsWidenOnlyInALowWindow() {
+        // A phone on its side (2400x1080 at about 2.6, or 360 dp high) gets the wide dialogs; upright phones and tablets do not.
+        for (h in listOf(360, 411, 479)) assertTrue("$h dp high", WindowLayout.isShort(h))
+        for (h in listOf(480, 640, 800, 915)) assertFalse("$h dp high", WindowLayout.isShort(h))
+        assertEquals(WindowLayout.isShort(400), WindowLayout.of(900, 400).short)
+    }
 }

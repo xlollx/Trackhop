@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -59,11 +56,11 @@ fun YtmChannelDialog(p: YouTubeBridgeProvider, onDismiss: () -> Unit, onChosen: 
                 .onFailure { error = ctx.getString(R.string.ytm_channel_failed, it.message ?: it.javaClass.simpleName); saving = false; chosen = null }
         }
     }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.ytm_channel)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.ytm_channel_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 val list = channels

@@ -282,6 +282,24 @@ class LabelsTest {
         assertEquals(0, Labels.storeIndex(plain, "c", 0))
     }
 
+    @Test fun aHeldSyncStaysInItsOwnStretch() {
+        // Two starred tiles on the first row, the others below (the 10/11 recording).
+        val list = listOf(job("metal", favorite = true), job("brani", favorite = true), job("tamarrate"), job("dark"))
+        assertEquals(true, Labels.dragStretch(list, "metal"))
+        assertEquals(false, Labels.dragStretch(list, "tamarrate"))
+        // The syncs that make way for it: its own kind only.
+        fun targets(id: String) = list.filter { it.favorite == Labels.dragStretch(list, id) }.map { it.id }
+        assertEquals(listOf("metal", "brani"), targets("metal"))
+        assertEquals(listOf("tamarrate", "dark"), targets("tamarrate"))
+        // So a drop is never put back elsewhere: within the stretch the position is kept as dropped.
+        assertEquals(1, Labels.storeIndex(list, "metal", 1))
+        assertEquals(3, Labels.storeIndex(list, "tamarrate", 3))
+        // One stretch (no stars, or all starred) or an unknown sync: anything makes way.
+        assertNull(Labels.dragStretch(listOf(job("a"), job("b")), "a"))
+        assertNull(Labels.dragStretch(listOf(job("a", favorite = true), job("b", favorite = true)), "a"))
+        assertNull(Labels.dragStretch(list, "gone"))
+    }
+
     @Test fun settingsKeepTheirLabelsInAConfigurationFile() {
         val s = Settings(labels = labels)
         val json = Json { encodeDefaults = true }

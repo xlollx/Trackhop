@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,7 +65,7 @@ fun SupportChooserHost() {
     val ctx = LocalContext.current
     val close = { SupportChooser.open = false }
     ModalBottomSheet(onDismissRequest = close) {
-        Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 24.dp, end = 24.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.support_row), style = MaterialTheme.typography.headlineSmall)
             Text(stringResource(R.string.support_choose_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             SupportWay("☕", null, "Ko-fi", stringResource(R.string.support_kofi_desc)) { close(); openUrl(ctx, BuildConfig.KOFI_URL) }

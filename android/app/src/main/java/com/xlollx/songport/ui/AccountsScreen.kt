@@ -11,13 +11,10 @@ import android.net.Uri
 import com.xlollx.songport.sync.QuotaMeter
 import com.xlollx.songport.providers.YouTubeProvider
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.AlertDialog
 import com.xlollx.songport.data.Store
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
@@ -226,7 +223,7 @@ internal fun addableServices(ctx: android.content.Context): List<MusicProvider> 
 @Composable
 private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, onPick: (MusicProvider) -> Unit) {
     val ctx = LocalContext.current
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.connector_pick_title)) },
         text = {
@@ -240,7 +237,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
             // routes, each saying what it asks and what it is.
             var family by remember { mutableStateOf<String?>(null) }
             val chosen = family?.let { families[it] }
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 if (chosen == null) {
                     serviceGroups(families.keys.toList(), families).forEach { (groupRes, names) ->
                         if (names.isEmpty()) return@forEach
@@ -321,7 +318,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
 @Composable
 private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var name by rememberSaveable { mutableStateOf(initial) }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -428,7 +425,7 @@ private fun ProviderCard(
                 if (choosingChannel && p is YouTubeBridgeProvider) YtmChannelDialog(p, onDismiss = { choosingChannel = false }) { choosingChannel = false; onChanged() }
                 var startingOver by remember { mutableStateOf(false) }
                 val cardScope = rememberCoroutineScope()
-                if (startingOver && p is com.xlollx.songport.providers.StartsOver) AlertDialog(
+                if (startingOver && p is com.xlollx.songport.providers.StartsOver) FitDialog(
                     onDismissRequest = { startingOver = false },
                     title = { Text(stringResource(R.string.start_over_title, p.label(ctx))) },
                     text = { Text(stringResource(R.string.start_over_body, p.displayName)) },
@@ -670,11 +667,11 @@ private fun displayName(ctx: android.content.Context, uri: Uri): String {
 private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
     var text by rememberSaveable { mutableStateOf("") }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.paste_list)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.paste_list_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, label = { Text(stringResource(R.string.paste_list_name)) }, modifier = Modifier.fillMaxWidth())

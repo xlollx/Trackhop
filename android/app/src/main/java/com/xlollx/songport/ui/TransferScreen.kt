@@ -1,6 +1,5 @@
 package com.xlollx.songport.ui
 
-import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -176,11 +174,11 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
                         val reused = chosen.count { it.id in existing }
                         val fresh = chosen.size - reused
                         var startNow by remember { mutableStateOf(true) }
-                        AlertDialog(
+                        FitDialog(
                             onDismissRequest = { confirm = false },
                             title = { Text(stringResource(R.string.transfer_confirm_title)) },
                             text = {
-                                Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text(stringResource(R.string.transfer_confirm_route, src.label(ctx), dst.label(ctx)), style = MaterialTheme.typography.titleSmall)
                                     if (fresh > 0) Text("• " + pluralStringResource(R.plurals.transfer_confirm_new, fresh, fresh))
                                     if (reused > 0) Text("• " + pluralStringResource(if (startNow) R.plurals.transfer_confirm_rerun else R.plurals.transfer_confirm_kept, reused, reused))
