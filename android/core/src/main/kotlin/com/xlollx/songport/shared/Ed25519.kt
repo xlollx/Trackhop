@@ -7,9 +7,14 @@ import java.security.SecureRandom
 /**
  * Ed25519 signatures (RFC 8032), in plain Kotlin: the app runs from Android 8, and the platform
  * only offers Ed25519 from much later, with no library in the build that has it. Signing follows
- * the RFC's reference code. Checking a signature is the slow part (two scalar multiplications), so
- * it goes through the platform's own Ed25519 where there is one (the server's JDK, newer Android)
- * and falls back to the same reference code elsewhere; both give the same answer, the tests check it.
+ * the RFC's reference code. Signing and checking go through the platform's own Ed25519 where there
+ * is one (the server's JDK, newer Android: faster, and its signing does not hang on the key's bits
+ * the way BigInteger arithmetic does) and fall back to the same reference code elsewhere; both give
+ * the same answer, the tests check it.
+ *
+ * A public key must be a valid point outside the small subgroup (checked here, before either way):
+ * a key of small order (the neutral point, say) "verifies" signatures nobody made. Signatures with
+ * S >= L (the malleable twin of a valid one) and keys or R not canonically encoded are refused.
  *
  * Keys travel as their raw 32 bytes: the private key is the RFC's 32-byte seed.
  */
@@ -112,6 +117,12 @@ object Ed25519 {
     fun publicKey(seed: ByteArray): ByteArray = compress(mul(expand(seed).first, BASE))
 
     fun sign(seed: ByteArray, message: ByteArray): ByteArray {
+        require(seed.size == 32) { "an Ed25519 private key is 32 bytes" }
+        return Platform.sign(seed, message) ?: signHere(seed, message)
+    }
+
+    /** The reference signing, always in Kotlin (variable-time: the platform's is preferred). */
+    internal fun signHere(seed: ByteArray, message: ByteArray): ByteArray {
         val (a, prefix) = expand(seed)
         val pub = compress(mul(a, BASE))
         val r = littleEndian(sha512(prefix, message)).mod(L)
@@ -123,14 +134,20 @@ object Ed25519 {
 
     fun verify(publicKey: ByteArray, message: ByteArray, signature: ByteArray): Boolean {
         if (publicKey.size != 32 || signature.size != 64) return false
+        if (!usableKey(publicKey)) return false
         Platform.verify(publicKey, message, signature)?.let { return it }
         return verifyHere(publicKey, message, signature)
     }
 
+    /** [publicKey] is a canonically encoded point of the curve, not of small order ([8]A is not the neutral point). */
+    fun usableKey(publicKey: ByteArray): Boolean = decompress(publicKey)?.let { !smallOrder(it) } ?: false
+
+    private fun smallOrder(p: Point): Boolean = same(mul(BigInteger.valueOf(8), p), NEUTRAL)
+
     /** The reference check, always in Kotlin (the tests compare it with the platform's). */
     internal fun verifyHere(publicKey: ByteArray, message: ByteArray, signature: ByteArray): Boolean {
         if (publicKey.size != 32 || signature.size != 64) return false
-        val a = decompress(publicKey) ?: return false
+        val a = decompress(publicKey)?.takeIf { !smallOrder(it) } ?: return false
         val rs = signature.copyOfRange(0, 32)
         val r = decompress(rs) ?: return false
         val s = littleEndian(signature.copyOfRange(32, 64))
@@ -143,9 +160,20 @@ object Ed25519 {
     internal object Platform {
         // The DER header of an X.509 Ed25519 public key; the raw 32 bytes follow.
         private val X509_PREFIX = byteArrayOf(0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00)
+        // The DER header of a PKCS #8 Ed25519 private key; the 32-byte seed follows.
+        private val PKCS8_PREFIX = byteArrayOf(0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20)
         @Volatile var enabled = true
         private val available: Boolean by lazy {
             runCatching { java.security.Signature.getInstance("Ed25519"); java.security.KeyFactory.getInstance("Ed25519") }.isSuccess
+        }
+
+        /** The platform's signature, or null when it cannot sign with a raw seed (then the Kotlin code signs). */
+        fun sign(seed: ByteArray, message: ByteArray): ByteArray? {
+            if (!enabled || !available) return null
+            return runCatching {
+                val key = java.security.KeyFactory.getInstance("Ed25519").generatePrivate(java.security.spec.PKCS8EncodedKeySpec(PKCS8_PREFIX + seed))
+                java.security.Signature.getInstance("Ed25519").run { initSign(key); update(message); sign() }
+            }.getOrNull()?.takeIf { it.size == 64 }
         }
 
         fun verify(publicKey: ByteArray, message: ByteArray, signature: ByteArray): Boolean? {
