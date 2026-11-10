@@ -1947,4 +1947,37 @@
     <string name="tools_wanted_no_album">Bez albumu</string>
     <string name="tools_wanted_export">Eksportuj listę</string>
     <string name="tools_wanted_lidarr">Lista dla Lidarra</string>
+    <string name="discover_releases_title">Nowości</string>
+    <string name="discover_releases_desc">Co właśnie wydali artyści z twojej playlisty</string>
+    <string name="releases_intro">Wybierz playlistę: Trackhop szuka nowych albumów, EP i singli jej artystów w Deezer i MusicBrainz. Konto nie jest potrzebne.</string>
+    <string name="releases_window">%1$d dni</string>
+    <string name="releases_upcoming">Wkrótce</string>
+    <string name="releases_find">Szukaj nowości</string>
+    <string name="releases_progress">Sprawdzanie artystów: %1$d z %2$d</string>
+    <string name="releases_reading_tracks">Odczytywanie utworów: %1$d z %2$d</string>
+    <string name="releases_none">Nic nowego od tych artystów w tym okresie.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d nowość</item>
+        <item quantity="few">%d nowości</item>
+        <item quantity="many">%d nowości</item>
+        <item quantity="other">%d nowości</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">Nie udało się teraz sprawdzić %d artysty: spróbuj później.</item>
+        <item quantity="few">Nie udało się teraz sprawdzić %d artystów: spróbuj później.</item>
+        <item quantity="many">Nie udało się teraz sprawdzić %d artystów: spróbuj później.</item>
+        <item quantity="other">Nie udało się teraz sprawdzić %d artysty: spróbuj później.</item>
+    </plurals>
+    <string name="releases_type_album">Album</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Singiel</string>
+    <string name="releases_make">Utwórz playlistę</string>
+    <string name="releases_playlist_name">Nowości z %1$s</string>
+    <string name="releases_weekly">Co tydzień</string>
+    <string name="releases_weekly_desc">Albo pozwól synchronizacji co tydzień wypełniać playlistę w dowolnym serwisie nowościami tych artystów.</string>
+    <string name="releases_no_tracks">Te wydania nie mają jeszcze utworów do dodania.</string>
+    <string name="releases_label">Nowości</string>
+    <string name="releases_note">Nowe albumy i single artystów z jednej z twoich playlist, z Deezer i MusicBrainz.</string>
+    <string name="releases_unknown">Playlista, z której pochodzą te nowości, nie jest już dostępna.</string>
+    <string name="releases_unavailable">Deezer i MusicBrainz nie odpowiedziały: spróbuj później.</string>
 </resources>

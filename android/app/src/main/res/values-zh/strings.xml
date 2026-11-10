@@ -1852,4 +1852,31 @@
     <string name="tools_wanted_no_album">无专辑</string>
     <string name="tools_wanted_export">导出列表</string>
     <string name="tools_wanted_lidarr">Lidarr 列表</string>
+    <string name="discover_releases_title">新发行</string>
+    <string name="discover_releases_desc">你的歌单里的艺人刚发布的作品</string>
+    <string name="releases_intro">选择一个歌单:Trackhop 会在 Deezer 和 MusicBrainz 上查找其中艺人的新专辑、EP 和单曲。无需账号。</string>
+    <string name="releases_window">%1$d 天</string>
+    <string name="releases_upcoming">即将发行</string>
+    <string name="releases_find">查找新发行</string>
+    <string name="releases_progress">正在查看艺人:%1$d / %2$d</string>
+    <string name="releases_reading_tracks">正在读取歌曲:%1$d / %2$d</string>
+    <string name="releases_none">这段时间内这些艺人没有新作品。</string>
+    <plurals name="releases_count">
+        <item quantity="other">%d 个新发行</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="other">暂时无法查看 %d 位艺人:请稍后再试。</item>
+    </plurals>
+    <string name="releases_type_album">专辑</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">单曲</string>
+    <string name="releases_make">创建歌单</string>
+    <string name="releases_playlist_name">%1$s 的新发行</string>
+    <string name="releases_weekly">每周</string>
+    <string name="releases_weekly_desc">或者让同步每周把这些艺人的新作品加到任意服务上的歌单里。</string>
+    <string name="releases_no_tracks">这些作品还没有可添加的歌曲。</string>
+    <string name="releases_label">新发行</string>
+    <string name="releases_note">你某个歌单里艺人的新专辑和单曲,来自 Deezer 和 MusicBrainz。</string>
+    <string name="releases_unknown">这些新发行所依据的歌单已不可用。</string>
+    <string name="releases_unavailable">Deezer 和 MusicBrainz 没有响应:请稍后再试。</string>
 </resources>

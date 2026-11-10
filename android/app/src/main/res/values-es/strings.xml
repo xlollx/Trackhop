@@ -1891,4 +1891,33 @@
     <string name="tools_wanted_no_album">Sin álbum</string>
     <string name="tools_wanted_export">Exportar la lista</string>
     <string name="tools_wanted_lidarr">Lista para Lidarr</string>
+    <string name="discover_releases_title">Novedades</string>
+    <string name="discover_releases_desc">Lo último de los artistas de tu playlist</string>
+    <string name="releases_intro">Elige una playlist: Trackhop busca los nuevos álbumes, EP y sencillos de sus artistas en Deezer y MusicBrainz. No necesitas cuenta.</string>
+    <string name="releases_window">%1$d días</string>
+    <string name="releases_upcoming">Próximamente</string>
+    <string name="releases_find">Buscar novedades</string>
+    <string name="releases_progress">Revisando artistas: %1$d de %2$d</string>
+    <string name="releases_reading_tracks">Leyendo las canciones: %1$d de %2$d</string>
+    <string name="releases_none">Nada nuevo de estos artistas en este periodo.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d novedad</item>
+        <item quantity="other">%d novedades</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">No se pudo revisar %d artista ahora: inténtalo más tarde.</item>
+        <item quantity="other">No se pudieron revisar %d artistas ahora: inténtalo más tarde.</item>
+    </plurals>
+    <string name="releases_type_album">Álbum</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Sencillo</string>
+    <string name="releases_make">Crear una playlist</string>
+    <string name="releases_playlist_name">Novedades de %1$s</string>
+    <string name="releases_weekly">Cada semana</string>
+    <string name="releases_weekly_desc">O deja que una sincronización llene cada semana una playlist, en cualquier servicio, con lo que publiquen estos artistas.</string>
+    <string name="releases_no_tracks">Estos lanzamientos aún no tienen canciones para añadir.</string>
+    <string name="releases_label">Novedades</string>
+    <string name="releases_note">Nuevos álbumes y sencillos de los artistas de una de tus playlists, de Deezer y MusicBrainz.</string>
+    <string name="releases_unknown">La playlist de la que salen estas novedades ya no está disponible.</string>
+    <string name="releases_unavailable">Deezer y MusicBrainz no respondieron: inténtalo más tarde.</string>
 </resources>

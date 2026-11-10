@@ -31,7 +31,7 @@ object ChangingPlaylists {
 
     /** The playlist [name] on [serviceId] changes by itself. */
     fun isSelfChanging(serviceId: String?, name: String?): Boolean {
-        if (serviceId == ChartsProvider.SERVICE) return true
+        if (serviceId == ChartsProvider.SERVICE || serviceId == com.xlollx.songport.providers.NewReleasesProvider.SERVICE) return true
         val n = name?.trim()?.lowercase() ?: return false
         if (n.isEmpty()) return false
         return n in NAMES || PREFIXES.any { n.startsWith(it) }

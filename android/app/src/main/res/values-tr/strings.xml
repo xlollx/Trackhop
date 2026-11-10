@@ -1881,4 +1881,33 @@
     <string name="tools_wanted_no_album">Albüm yok</string>
     <string name="tools_wanted_export">Listeyi dışa aktar</string>
     <string name="tools_wanted_lidarr">Lidarr için liste</string>
+    <string name="discover_releases_title">Yeni çıkanlar</string>
+    <string name="discover_releases_desc">Çalma listendeki sanatçıların yeni çıkardıkları</string>
+    <string name="releases_intro">Bir çalma listesi seç: Trackhop, sanatçılarının yeni albüm, EP ve single\'larını Deezer ve MusicBrainz\'de arar. Hesap gerekmez.</string>
+    <string name="releases_window">%1$d gün</string>
+    <string name="releases_upcoming">Yakında</string>
+    <string name="releases_find">Yeni çıkanları bul</string>
+    <string name="releases_progress">Sanatçılar kontrol ediliyor: %1$d / %2$d</string>
+    <string name="releases_reading_tracks">Şarkılar okunuyor: %1$d / %2$d</string>
+    <string name="releases_none">Bu dönemde bu sanatçılardan yeni bir şey yok.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d yeni çıkan</item>
+        <item quantity="other">%d yeni çıkan</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">%d sanatçı şu an kontrol edilemedi: daha sonra tekrar dene.</item>
+        <item quantity="other">%d sanatçı şu an kontrol edilemedi: daha sonra tekrar dene.</item>
+    </plurals>
+    <string name="releases_type_album">Albüm</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Single</string>
+    <string name="releases_make">Çalma listesi oluştur</string>
+    <string name="releases_playlist_name">%1$s yeni çıkanları</string>
+    <string name="releases_weekly">Her hafta</string>
+    <string name="releases_weekly_desc">Ya da bir senkronizasyon her hafta herhangi bir serviste bir çalma listesini bu sanatçıların yenileriyle doldursun.</string>
+    <string name="releases_no_tracks">Bu çıkışlarda henüz eklenecek şarkı yok.</string>
+    <string name="releases_label">Yeni çıkanlar</string>
+    <string name="releases_note">Çalma listelerinden birinin sanatçılarının yeni albüm ve single\'ları, Deezer ve MusicBrainz\'den.</string>
+    <string name="releases_unknown">Bu yeni çıkanların geldiği çalma listesi artık yok.</string>
+    <string name="releases_unavailable">Deezer ve MusicBrainz yanıt vermedi: daha sonra tekrar dene.</string>
 </resources>

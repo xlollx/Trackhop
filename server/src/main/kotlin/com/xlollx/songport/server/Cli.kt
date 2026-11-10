@@ -88,6 +88,9 @@ object Cli {
         Cmd("duplicates", "Services and playlists", listOf("duplicates <service> <playlist> [--remove [--wait]]"), "the tracks a playlist has more than once (--remove: the extra copies go)"),
         Cmd("mbtags", "Services and playlists", listOf("mbtags [<service>]"), "the songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags",
             "With the tags a sync finds the exact recording. Nothing is changed. <service> can be left out when only one such server is connected."),
+        Cmd("releases", "Services and playlists", listOf("releases <service> <playlist> [--days 7|30|90] [--upcoming]"), "the new albums, EPs and singles of a playlist's artists",
+            "From Deezer and MusicBrainz, no account needed; each artist is asked once a day (a first search takes about a second per artist).\n" +
+                "--days: released in the last 7, 30 (default) or 90 days; --upcoming: also what is announced."),
         Cmd("wanted", "Services and playlists", listOf("wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]"),
             "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
@@ -138,7 +141,7 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals")
+    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "upcoming")
     private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since")
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 

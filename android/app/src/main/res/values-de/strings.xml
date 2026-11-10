@@ -1883,4 +1883,33 @@
     <string name="tools_wanted_no_album">Ohne Album</string>
     <string name="tools_wanted_export">Liste exportieren</string>
     <string name="tools_wanted_lidarr">Liste für Lidarr</string>
+    <string name="discover_releases_title">Neuerscheinungen</string>
+    <string name="discover_releases_desc">Was die Künstler deiner Playlist gerade veröffentlicht haben</string>
+    <string name="releases_intro">Wähle eine Playlist: Trackhop sucht die neuen Alben, EPs und Singles ihrer Künstler bei Deezer und MusicBrainz. Kein Konto nötig.</string>
+    <string name="releases_window">%1$d Tage</string>
+    <string name="releases_upcoming">Demnächst</string>
+    <string name="releases_find">Neuerscheinungen suchen</string>
+    <string name="releases_progress">Künstler werden geprüft: %1$d von %2$d</string>
+    <string name="releases_reading_tracks">Titel werden gelesen: %1$d von %2$d</string>
+    <string name="releases_none">Nichts Neues von diesen Künstlern in diesem Zeitraum.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d Neuerscheinung</item>
+        <item quantity="other">%d Neuerscheinungen</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">%d Künstler konnte gerade nicht geprüft werden: versuch es später noch einmal.</item>
+        <item quantity="other">%d Künstler konnten gerade nicht geprüft werden: versuch es später noch einmal.</item>
+    </plurals>
+    <string name="releases_type_album">Album</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Single</string>
+    <string name="releases_make">Playlist erstellen</string>
+    <string name="releases_playlist_name">Neu von %1$s</string>
+    <string name="releases_weekly">Jede Woche</string>
+    <string name="releases_weekly_desc">Oder lass eine Synchronisierung jede Woche eine Playlist auf einem beliebigen Dienst mit den Neuerscheinungen dieser Künstler füllen.</string>
+    <string name="releases_no_tracks">Diese Veröffentlichungen haben noch keine Titel zum Hinzufügen.</string>
+    <string name="releases_label">Neuerscheinungen</string>
+    <string name="releases_note">Neue Alben und Singles der Künstler einer deiner Playlists, von Deezer und MusicBrainz.</string>
+    <string name="releases_unknown">Die Playlist, aus der diese Neuerscheinungen stammen, ist nicht mehr verfügbar.</string>
+    <string name="releases_unavailable">Deezer und MusicBrainz haben nicht geantwortet: versuch es später noch einmal.</string>
 </resources>

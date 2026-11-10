@@ -1884,4 +1884,33 @@
     <string name="tools_wanted_no_album">No album</string>
     <string name="tools_wanted_export">Export the list</string>
     <string name="tools_wanted_lidarr">List for Lidarr</string>
+    <string name="discover_releases_title">New releases</string>
+    <string name="discover_releases_desc">What your playlist\'s artists just put out</string>
+    <string name="releases_intro">Pick a playlist: Trackhop looks up the new albums, EPs and singles of its artists on Deezer and MusicBrainz. No account needed.</string>
+    <string name="releases_window">%1$d days</string>
+    <string name="releases_upcoming">Coming soon</string>
+    <string name="releases_find">Find new releases</string>
+    <string name="releases_progress">Checking artists: %1$d of %2$d</string>
+    <string name="releases_reading_tracks">Reading the tracks: %1$d of %2$d</string>
+    <string name="releases_none">Nothing new from these artists in this period.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d new release</item>
+        <item quantity="other">%d new releases</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">%d artist could not be checked right now: try again later.</item>
+        <item quantity="other">%d artists could not be checked right now: try again later.</item>
+    </plurals>
+    <string name="releases_type_album">Album</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Single</string>
+    <string name="releases_make">Make a playlist</string>
+    <string name="releases_playlist_name">New releases from %1$s</string>
+    <string name="releases_weekly">Every week</string>
+    <string name="releases_weekly_desc">Or let a sync fill a playlist on any service with what these artists release, every week.</string>
+    <string name="releases_no_tracks">These releases have no tracks to add yet.</string>
+    <string name="releases_label">New releases</string>
+    <string name="releases_note">New albums and singles from the artists of one of your playlists, from Deezer and MusicBrainz.</string>
+    <string name="releases_unknown">The playlist these new releases come from is no longer available.</string>
+    <string name="releases_unavailable">Deezer and MusicBrainz did not answer: try again later.</string>
 </resources>

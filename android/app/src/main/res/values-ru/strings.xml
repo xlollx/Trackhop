@@ -1945,4 +1945,37 @@
     <string name="tools_wanted_no_album">Без альбома</string>
     <string name="tools_wanted_export">Экспортировать список</string>
     <string name="tools_wanted_lidarr">Список для Lidarr</string>
+    <string name="discover_releases_title">Новинки</string>
+    <string name="discover_releases_desc">Что только что выпустили артисты твоего плейлиста</string>
+    <string name="releases_intro">Выбери плейлист: Trackhop найдёт новые альбомы, EP и синглы его артистов в Deezer и MusicBrainz. Аккаунт не нужен.</string>
+    <string name="releases_window">%1$d дн.</string>
+    <string name="releases_upcoming">Скоро</string>
+    <string name="releases_find">Найти новинки</string>
+    <string name="releases_progress">Проверка артистов: %1$d из %2$d</string>
+    <string name="releases_reading_tracks">Чтение треков: %1$d из %2$d</string>
+    <string name="releases_none">У этих артистов ничего нового за этот период.</string>
+    <plurals name="releases_count">
+        <item quantity="one">%d новинка</item>
+        <item quantity="few">%d новинки</item>
+        <item quantity="many">%d новинок</item>
+        <item quantity="other">%d новинки</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="one">Сейчас не удалось проверить %d артиста: попробуй позже.</item>
+        <item quantity="few">Сейчас не удалось проверить %d артистов: попробуй позже.</item>
+        <item quantity="many">Сейчас не удалось проверить %d артистов: попробуй позже.</item>
+        <item quantity="other">Сейчас не удалось проверить %d артиста: попробуй позже.</item>
+    </plurals>
+    <string name="releases_type_album">Альбом</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">Сингл</string>
+    <string name="releases_make">Создать плейлист</string>
+    <string name="releases_playlist_name">Новинки из %1$s</string>
+    <string name="releases_weekly">Каждую неделю</string>
+    <string name="releases_weekly_desc">Или пусть синхронизация каждую неделю наполняет плейлист в любом сервисе новинками этих артистов.</string>
+    <string name="releases_no_tracks">У этих релизов пока нет треков для добавления.</string>
+    <string name="releases_label">Новинки</string>
+    <string name="releases_note">Новые альбомы и синглы артистов одного из твоих плейлистов, из Deezer и MusicBrainz.</string>
+    <string name="releases_unknown">Плейлист, из которого берутся эти новинки, больше недоступен.</string>
+    <string name="releases_unavailable">Deezer и MusicBrainz не ответили: попробуй позже.</string>
 </resources>

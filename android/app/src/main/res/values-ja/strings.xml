@@ -1852,4 +1852,31 @@
     <string name="tools_wanted_no_album">アルバムなし</string>
     <string name="tools_wanted_export">リストを書き出す</string>
     <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
+    <string name="discover_releases_title">新作</string>
+    <string name="discover_releases_desc">プレイリストのアーティストの最新リリース</string>
+    <string name="releases_intro">プレイリストを選ぶと、Trackhop がそのアーティストの新しいアルバム、EP、シングルを Deezer と MusicBrainz で探します。アカウントは不要です。</string>
+    <string name="releases_window">%1$d 日</string>
+    <string name="releases_upcoming">近日リリース</string>
+    <string name="releases_find">新作を探す</string>
+    <string name="releases_progress">アーティストを確認中: %1$d / %2$d</string>
+    <string name="releases_reading_tracks">曲を読み込み中: %1$d / %2$d</string>
+    <string name="releases_none">この期間、これらのアーティストの新作はありません。</string>
+    <plurals name="releases_count">
+        <item quantity="other">新作 %d 件</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="other">%d 人のアーティストを今は確認できませんでした。後でもう一度お試しください。</item>
+    </plurals>
+    <string name="releases_type_album">アルバム</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">シングル</string>
+    <string name="releases_make">プレイリストを作成</string>
+    <string name="releases_playlist_name">%1$s の新作</string>
+    <string name="releases_weekly">毎週</string>
+    <string name="releases_weekly_desc">または、同期で毎週、どのサービスのプレイリストにもこれらのアーティストの新作を追加できます。</string>
+    <string name="releases_no_tracks">これらのリリースには、まだ追加できる曲がありません。</string>
+    <string name="releases_label">新作</string>
+    <string name="releases_note">あなたのプレイリストのアーティストの新しいアルバムとシングル(Deezer と MusicBrainz から)。</string>
+    <string name="releases_unknown">これらの新作の元のプレイリストはもう利用できません。</string>
+    <string name="releases_unavailable">Deezer と MusicBrainz が応答しませんでした。後でもう一度お試しください。</string>
 </resources>

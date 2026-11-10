@@ -1851,4 +1851,31 @@
     <string name="tools_wanted_no_album">앨범 없음</string>
     <string name="tools_wanted_export">목록 내보내기</string>
     <string name="tools_wanted_lidarr">Lidarr용 목록</string>
+    <string name="discover_releases_title">신곡</string>
+    <string name="discover_releases_desc">플레이리스트 아티스트의 최신 발매작</string>
+    <string name="releases_intro">플레이리스트를 고르면 Trackhop이 아티스트들의 새 앨범, EP, 싱글을 Deezer와 MusicBrainz에서 찾아요. 계정은 필요 없어요.</string>
+    <string name="releases_window">%1$d일</string>
+    <string name="releases_upcoming">발매 예정</string>
+    <string name="releases_find">신곡 찾기</string>
+    <string name="releases_progress">아티스트 확인 중: %1$d / %2$d</string>
+    <string name="releases_reading_tracks">곡 읽는 중: %1$d / %2$d</string>
+    <string name="releases_none">이 기간에 이 아티스트들의 새 발매작이 없어요.</string>
+    <plurals name="releases_count">
+        <item quantity="other">새 발매작 %d개</item>
+    </plurals>
+    <plurals name="releases_unanswered">
+        <item quantity="other">아티스트 %d명을 지금 확인할 수 없었어요. 나중에 다시 시도하세요.</item>
+    </plurals>
+    <string name="releases_type_album">앨범</string>
+    <string name="releases_type_ep">EP</string>
+    <string name="releases_type_single">싱글</string>
+    <string name="releases_make">플레이리스트 만들기</string>
+    <string name="releases_playlist_name">%1$s의 신곡</string>
+    <string name="releases_weekly">매주</string>
+    <string name="releases_weekly_desc">또는 동기화가 매주 어느 서비스든 플레이리스트를 이 아티스트들의 신곡으로 채우게 하세요.</string>
+    <string name="releases_no_tracks">이 발매작에는 아직 추가할 곡이 없어요.</string>
+    <string name="releases_label">신곡</string>
+    <string name="releases_note">내 플레이리스트 아티스트의 새 앨범과 싱글, Deezer와 MusicBrainz에서.</string>
+    <string name="releases_unknown">이 신곡의 기준이 되는 플레이리스트를 더 이상 사용할 수 없어요.</string>
+    <string name="releases_unavailable">Deezer와 MusicBrainz가 응답하지 않았어요. 나중에 다시 시도하세요.</string>
 </resources>
