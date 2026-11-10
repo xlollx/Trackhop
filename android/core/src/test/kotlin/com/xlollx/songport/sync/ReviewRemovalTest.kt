@@ -229,6 +229,51 @@ class ReviewRemovalTest {
         assertTrue(dst.removedItems.isEmpty())
     }
 
+    @Test fun theReviewReadsAheadSoTheFirstRemovalReadsNothing() = runBlocking {
+        // db is added by the run, after its own read: without reading ahead, the removal would look for it.
+        dst.lists["t"] = mutableListOf(other(1), entry(da, "e1"), other(2))
+        val rb = MatchReview(b, db, 0.7)
+        val id = synced(rb)
+        engine.prefetchEntries(job, listOf(db))
+        assertEquals(1, dst.wholeReads)
+        assertEquals(1, engine.discardMatches(job, id, listOf(rb)))
+        assertEquals(0, dst.pagesRead)
+        assertEquals(listOf("o1", "e1", "o2"), items())
+        // Known already: nothing read again.
+        engine.prefetchEntries(job, listOf(da))
+        assertEquals(1, dst.wholeReads)
+    }
+
+    @Test fun noReadingAheadWhereEntriesArePositions() = runBlocking {
+        dst.keeps = false
+        dst.lists["t"] = mutableListOf(other(1))
+        synced()
+        engine.prefetchEntries(job, listOf(da))
+        assertEquals(0, dst.wholeReads)
+    }
+
+    @Test fun aReadAheadThatBeganBeforeARemovalDoesNotBringItBack() = runBlocking {
+        dst.lists["t"] = mutableListOf(entry(da, "e1"), other(1))
+        synced()
+        val key = TargetEntries.key(env.dataDir.path, "mdst", "t")
+        val since = TargetEntries.mark(key)
+        val before = dst.lists.getValue("t").toList()
+        TargetEntries.drop(key, listOf(entry(da, "e1")), true)
+        assertTrue(!TargetEntries.put(key, before, since))
+        assertTrue(TargetEntries.get(key)!!.first.none { it.itemId == "e1" })
+    }
+
+    @Test fun anOlderBridgeWithoutTheQuickRouteReadsTheWholePlaylist() = runBlocking {
+        var whole = 0
+        val found = MusicProvider.entriesOrWhole(env, "test", { throw ProviderException("Qobuz (web): unknown method qobuz.find") }) {
+            whole++
+            listOf(entry(da, "e1"))
+        }
+        assertEquals(1, whole)
+        assertEquals(listOf("e1"), found.map { it.itemId })
+        assertTrue(env.logs.any { "reading the whole playlist" in it })
+    }
+
     @Test fun byOffsetTheLastPagesComeFirst() = runBlocking {
         val all = (0 until 10).map { Track(id = "t$it", title = "T$it") }
         val read = ArrayList<Int>()

@@ -128,6 +128,17 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
         out
     }
 
+    /** Through the Bridge's `find`, which reads only until the tracks turn up; an older Bridge reads the whole playlist. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesOrWhole(ctx, id, {
+            withContext(Dispatchers.IO) {
+                val b = call(ctx, "find", playlistId, Bundle().apply { putStringArray("ids", tracks.map { it.id }.distinct().toTypedArray()) })
+                parseJson(b.getString("json") ?: "[]").arr.mapNotNull { toTrack(it) }
+            }.also(seen)
+        }) { super.findEntries(ctx, playlistId, tracks, seen) }
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://music.youtube.com/search?q=" + android.net.Uri.encode(query)
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {

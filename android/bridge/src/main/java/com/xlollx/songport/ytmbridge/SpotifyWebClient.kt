@@ -504,6 +504,34 @@ class SpotifyWebClient(private val host: Host) {
         return out
     }
 
+    /**
+     * The entries of playlist [id] holding [trackIds] (with their uid, which a removal needs), read
+     * from the end, where a sync adds its tracks: the first entries and the total, then a hundred at
+     * a time from the last back, stopping as soon as each wanted track has turned up.
+     */
+    fun findEntries(id: String, trackIds: Set<String>): List<TrackDto> {
+        val missing = HashSet(trackIds)
+        val out = ArrayList<TrackDto>()
+        fun read(offset: Int, limit: Int): Int {
+            val content = gql("fetchPlaylist", jsonObj("uri" to "spotify:playlist:$id", "offset" to offset, "limit" to limit, "enableWatchFeedEntrypoint" to false))["data"]["playlistV2"]["content"]
+            for (it in content["items"].arr) {
+                val d = it["itemV2"]["data"] ?: it["item"]["data"]
+                val uri = it["itemV2"]["_uri"].str ?: it["item"]["_uri"].str
+                val t = trackDto(d, it["uid"].str, it["addedAt"]["isoString"].str, uri) ?: continue
+                if (t.id in trackIds) { out += t; missing -= t.id }
+            }
+            return content["totalCount"].long?.toInt() ?: 0
+        }
+        val first = 50
+        var end = read(0, first)
+        while (missing.isNotEmpty() && end > first) {
+            val start = maxOf(first, end - 100)
+            read(start, end - start)
+            end = start
+        }
+        return out
+    }
+
     /** An entry that is a track (not a local file or an episode) and still did not parse: the page shape moved. */
     private fun isTrackItem(d: JsonElement?, outerUri: String?) = (d["uri"].str ?: outerUri)?.startsWith("spotify:track:") == true
 

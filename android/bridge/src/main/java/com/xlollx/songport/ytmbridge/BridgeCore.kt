@@ -79,6 +79,14 @@ object BridgeCore {
                         if (offset + PAGE < all.size) putInt("next", offset + PAGE)
                     }
                 }
+                // The entries holding some tracks (a removal needs their set ids): from the listing read a
+                // moment ago when there is one, otherwise read only until they have all turned up.
+                "find" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toSet() ?: emptySet()
+                    val listed = freshTracks(id, slot) ?: if (id.startsWith("__")) cachedTracks(client, id, slot) else null
+                    ok(json.encodeToString(listed?.filter { it.id in ids } ?: client.findEntries(id, ids)))
+                }
                 "search" -> {
                     val kind = extras?.getString("kind")
                     ok(json.encodeToString(if (kind == "album" || kind == "artist") client.searchKind(arg ?: "", kind) else client.search(arg ?: "", extras?.getBoolean("videos") == true)))
@@ -203,6 +211,12 @@ object BridgeCore {
                         putInt("total", all.size)
                         if (offset + PAGE < all.size) putInt("next", offset + PAGE)
                     }
+                }
+                "spotify.find" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toSet() ?: emptySet()
+                    val listed = freshSpotify(id, slot) ?: if (id.startsWith("__")) cachedSpotifyTracks(ctx, id, slot) else null
+                    ok(json.encodeToString(listed?.filter { it.id in ids } ?: SpotifyWebClient(ctx, slot).findEntries(id, ids)))
                 }
                 "spotify.search" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).search(arg ?: "", extras?.getString("kind"))))
                 "spotify.track" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).track(arg ?: return err("missing track id"))))
@@ -350,6 +364,12 @@ object BridgeCore {
                     val all = qobuzCache.get(ck(slot, id)) { val c = QobuzWebClient(ctx, slot); if (id == LIKED) c.liked() else c.tracks(id) }
                     paged(json.encodeToString(all.drop(extras?.getInt("offset") ?: 0).take(PAGE)), all.size, extras?.getInt("offset") ?: 0)
                 }
+                "qobuz.find" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toSet() ?: emptySet()
+                    val listed = qobuzCache.peek(ck(slot, id)) ?: if (id == LIKED) qobuzCache.get(ck(slot, id)) { QobuzWebClient(ctx, slot).liked() } else null
+                    ok(json.encodeToString(listed?.filter { it.id in ids } ?: QobuzWebClient(ctx, slot).findEntries(id, ids)))
+                }
                 "qobuz.search" -> ok(json.encodeToString(QobuzWebClient(ctx, slot).search(arg ?: "", extras?.getString("isrc"))))
                 "qobuz.create" -> ok(json.encodeToString(QobuzWebClient(ctx, slot).create(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "", extras?.getBoolean("public") ?: false)))
                 "qobuz.add", "qobuz.remove" -> {
@@ -442,6 +462,14 @@ object BridgeCore {
     }
 
     @Synchronized
+    private fun freshTracks(id: String, slot: String): List<TrackDto>? =
+        lastTracks?.takeIf { (pid, at, _) -> pid == ck(slot, id) && System.currentTimeMillis() - at < 120_000 }?.third
+
+    @Synchronized
+    private fun freshSpotify(id: String, slot: String): List<TrackDto>? =
+        lastSpotify?.takeIf { (pid, at, _) -> pid == ck(slot, id) && System.currentTimeMillis() - at < 120_000 }?.third
+
+    @Synchronized
     private fun invalidate(id: String, slot: String) { if (lastTracks?.first == ck(slot, id)) lastTracks = null }
 
     private var lastSpotify: Triple<String, Long, List<TrackDto>>? = null
@@ -475,6 +503,8 @@ object BridgeCore {
             last?.let { (pid, at, list) -> if (pid == id && now - at < 120_000) return list }
             return load().also { last = Triple(id, now, it) }
         }
+        /** The listing kept for [id] when there is one still fresh; never reads. */
+        @Synchronized fun peek(id: String): List<T>? = last?.let { (pid, at, list) -> if (pid == id && System.currentTimeMillis() - at < 120_000) list else null }
         @Synchronized fun invalidate(id: String) { if (last?.first == id) last = null }
         @Synchronized fun clear() { last = null }
     }

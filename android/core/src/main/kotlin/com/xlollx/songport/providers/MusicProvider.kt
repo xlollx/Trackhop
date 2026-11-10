@@ -368,6 +368,20 @@ interface MusicProvider {
             return out
         }
 
+        /**
+         * [find], a quick route that may be missing (an older Bridge does not know it) or fail: then
+         * [whole], the whole playlist read as before. Never a failed removal because of the quick route.
+         */
+        suspend fun entriesOrWhole(ctx: Env, tag: String, find: suspend () -> List<Track>, whole: suspend () -> List<Track>): List<Track> =
+            try {
+                find()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                ctx.log(tag, "entries not found the quick way (${e.message?.take(120)}): reading the whole playlist")
+                whole()
+            }
+
         /** [findEntries] for a playlist read page after page: [next] answers a page (null: the first) and the next one's key, null at the end. */
         suspend fun entriesInPages(
             tracks: List<Track>, seen: (List<Track>) -> Unit,

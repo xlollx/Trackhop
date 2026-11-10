@@ -81,6 +81,17 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
         out
     }
 
+    /** Through the Bridge's `qobuz.find`, which reads only until the tracks turn up; an older Bridge reads the whole playlist. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesOrWhole(ctx, id, {
+            withContext(Dispatchers.IO) {
+                val b = call(ctx, "qobuz.find", playlistId, Bundle().apply { putStringArray("ids", tracks.map { it.id }.distinct().toTypedArray()) })
+                parseJson(b.getString("json") ?: "[]").arr.mapNotNull { toTrack(it) }
+            }.also(seen)
+        }) { super.findEntries(ctx, playlistId, tracks, seen) }
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://play.qobuz.com/search?q=" + Uri.encode(query)
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {

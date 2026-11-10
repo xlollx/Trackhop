@@ -351,7 +351,18 @@ class YtmClient(private val host: YtmHost) {
 
     // ------------------------------------------------------------------ tracks
 
-    fun tracks(playlistId: String): List<TrackDto> {
+    fun tracks(playlistId: String): List<TrackDto> = listing(playlistId, null)
+
+    /**
+     * The entries of [playlistId] holding [videoIds] (with their set id, which a removal needs), page
+     * after page from the start, stopping as soon as each wanted video has turned up.
+     */
+    fun findEntries(playlistId: String, videoIds: Set<String>): List<TrackDto> =
+        listing(playlistId, videoIds).filter { it.id in videoIds }
+
+    /** The playlist's entries; with [wanted], only until each of them has turned up (no check of the count then). */
+    private fun listing(playlistId: String, wanted: Set<String>?): List<TrackDto> {
+        val missing = wanted?.let { HashSet(it) }
         val out = LinkedHashMap<String, TrackDto>()
         var resp = call("browse", mapOf("browseId" to browseIdOf(playlistId)))
         // The size the page's header states ("2,084 songs"), to tell a listing cut short from a whole one.
@@ -368,14 +379,16 @@ class YtmClient(private val host: YtmHost) {
                 // The same video can appear twice in a playlist: key by set id when we have one.
                 val key = t.setVideoId ?: t.id
                 if (out.putIfAbsent(key, t) == null) added++
+                missing?.remove(t.id)
             }
+            if (missing != null && missing.isEmpty()) return out.values.toList()
             val next = continuationOf(shelf) ?: break
             if (added == 0 || ++pages > 300) break
             resp = continueBrowse(next)
         }
         // Under half of what the header states: a page left out or sent in another layout. Returned as
         // is, it would read as an emptied playlist, and a sync would write everything to it again.
-        if (declared >= SHORT_LISTING_MIN && out.size * 2 < declared) {
+        if (wanted == null && declared >= SHORT_LISTING_MIN && out.size * 2 < declared) {
             throw BridgeException("YouTube Music listed ${out.size} of the $declared songs of this playlist: try again in a while")
         }
         return out.values.toList()

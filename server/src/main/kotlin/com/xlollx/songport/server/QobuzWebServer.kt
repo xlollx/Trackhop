@@ -82,6 +82,13 @@ class QobuzWebServerProvider(override val slot: String = "") : CookieConnector {
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
         io(ctx) { c -> (if (playlistId == MusicProvider.LIKED_ID) c.liked() else c.tracks(playlistId)).map { toTrack(it) } }
 
+    /** Reads only until the tracks turn up, from the end of the playlist where a sync adds them. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        return io(ctx) { c -> c.findEntries(playlistId, ids).map { toTrack(it) } }.also(seen)
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://play.qobuz.com/search?q=" + URLEncoder.encode(query, "UTF-8").replace("+", "%20")
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {

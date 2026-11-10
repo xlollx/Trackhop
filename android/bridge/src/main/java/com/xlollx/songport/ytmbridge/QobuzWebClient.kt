@@ -123,6 +123,33 @@ class QobuzWebClient(private val host: WebHost) {
     fun tracks(playlistId: String): List<TrackDto> =
         all("playlist/get", mapOf("playlist_id" to playlistId, "extra" to "tracks"), { it["tracks"] }).mapNotNull { parseTrack(it) }
 
+    /**
+     * The entries of [playlistId] holding [trackIds], read from the end, where a sync adds its tracks:
+     * a short page for the total (and the first entries), then the last [FIND_PAGE] entries, then
+     * back towards the start a [PAGE] at a time, stopping as soon as each wanted track has turned up.
+     * Reads only, paced and asked again like every read.
+     */
+    fun findEntries(playlistId: String, trackIds: Set<String>): List<TrackDto> {
+        val params = mapOf("playlist_id" to playlistId, "extra" to "tracks")
+        val missing = HashSet(trackIds)
+        val out = ArrayList<TrackDto>()
+        fun read(offset: Int, limit: Int): Int {
+            val s = get("playlist/get", params + mapOf("offset" to "$offset", "limit" to "$limit"))["tracks"]
+            for (t in s["items"].arr.mapNotNull { parseTrack(it) }) if (t.id in trackIds) { out += t; missing -= t.id }
+            return s["total"].num?.toInt() ?: 0
+        }
+        val total = read(0, FIND_PAGE)
+        var end = total
+        var size = FIND_PAGE
+        while (missing.isNotEmpty() && end > FIND_PAGE) {
+            val start = maxOf(FIND_PAGE, end - size)
+            read(start, end - start)
+            end = start
+            size = PAGE
+        }
+        return out
+    }
+
     fun liked(): List<TrackDto> =
         all("favorite/getUserFavorites", mapOf("type" to "tracks"), { it["tracks"] }).mapNotNull { parseTrack(it) }
 
@@ -223,6 +250,8 @@ class QobuzWebClient(private val host: WebHost) {
         /** The web player's app id as seen on 04/11/2026: used until the sign-in has seen the current one. */
         const val DEFAULT_APP_ID = "798273057"
         private const val PAGE = 500
+        /** The first pages [findEntries] reads: the total, and the end of the playlist. */
+        private const val FIND_PAGE = 50
         private const val CHUNK = 50
         private const val MAX_PAGES = 100
         const val TOKEN = "userAuthToken"; const val APP_ID = "appId"

@@ -758,6 +758,8 @@ class SyncEngine(
         val targetLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
         /** One half at a time per two-way pair with removals ([FileStore.pairKey]). */
         val pairLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
+        /** Target listings being read ahead for a review ([prefetchEntries]). */
+        val prefetching: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
     }
 
     private suspend fun searchMissing(
@@ -1381,6 +1383,35 @@ class SyncEngine(
         TargetEntries.drop(key, removed, dst.removesSingleEntry)
         wroteTo(dst, targetId)
         return removed
+    }
+
+    /**
+     * While the review is open: reads the target's entries into the few minutes' memory the removals
+     * use first, so taking a wrong match off is instant even for a track the run added after its own
+     * read. Only for services whose entries keep their id, only when what is kept lacks one of
+     * [tracks], one read at a time per playlist. Cancelled with the screen; a failure is only logged.
+     */
+    suspend fun prefetchEntries(job: SyncJob, tracks: List<Track>) {
+        val dst = runCatching { providers(job).second }.getOrNull() ?: return
+        val targetId = job.target.playlistId ?: return
+        if (tracks.isEmpty() || !dst.keepsEntryIds || !dst.canRemoveTracks || MusicProvider.isLibrary(targetId)) return
+        val key = entriesKey(dst, targetId)
+        val kept = TargetEntries.get(key)?.first
+        if (kept != null && tracks.all { t -> kept.any { it.id == t.id } }) return
+        if (!prefetching.add(key)) return
+        try {
+            val since = TargetEntries.mark(key)
+            val version = runCatching { dst.playlistVersion(env, targetId) }.getOrNull()
+            val listing = dst.tracks(env, targetId)
+            if (TargetEntries.put(key, listing, since)) TargetEntries.setVersion(key, version)
+            env.log("engine", "${job.name}: ${listing.size} entries of ${dst.displayName} read ahead for the review")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            env.log("engine", "${job.name}: entries not read ahead for the review: ${e.message?.take(120)}")
+        } finally {
+            prefetching.remove(key)
+        }
     }
 
     /** The first entry of each of [tracks] the service lists; what it reads on the way is kept. */

@@ -95,6 +95,12 @@ internal fun Web.review(r: Web.Req, job: SyncJob, rest: List<String>) {
 }
 
 private fun Web.reviewPage(r: Web.Req, job: SyncJob, report: SyncReport) {
+    // The target's entries read ahead while the page is open: removing a wrong match then needs no
+    // read of its own. One read per playlist at a time; nothing when the entries are already known.
+    val chosen = report.reviewTracks.map { it.chosen }
+    if (chosen.isNotEmpty() && (report.targetId == null || report.targetId == job.target.playlistId)) {
+        kotlin.concurrent.thread(isDaemon = true, name = "review-read-ahead") { runBlocking { SyncEngine(env).prefetchEntries(job, chosen) } }
+    }
     val base = "/syncs/${q(job.id)}/review/${q(report.id)}"
     val canWrite = job.target.playlistId != null
     val body = StringBuilder(notice(r))
