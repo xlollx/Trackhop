@@ -209,11 +209,11 @@ private fun ChannelEditor(
         return Notify.build(c.id, c.kind, name, enabled, events, values, old).getOrElse { problem = it.message; null }
     }
 
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(c.kind.label) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { // FitDialog scrolls it
                 Text(helpText(ctx, c.kind), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.notify_channel_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 c.kind.fields.forEach { f ->

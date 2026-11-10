@@ -223,7 +223,7 @@ internal fun SetlistFmKeyDialog(onDismiss: () -> Unit) {
     val ctx = LocalContext.current
     val clipboard = LocalClipboardManager.current
     var key by remember { mutableStateOf(Setlists.ownKey(ctx.env).orEmpty()) }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.setlists_key_title)) },
         text = {

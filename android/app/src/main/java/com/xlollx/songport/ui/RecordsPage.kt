@@ -197,7 +197,7 @@ internal fun DiscogsTokenDialog(onDismiss: () -> Unit) {
     val clipboard = LocalClipboardManager.current
     val saved = Records.token(ctx.env) != null
     var token by remember { mutableStateOf("") }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.records_token_title)) },
         text = {

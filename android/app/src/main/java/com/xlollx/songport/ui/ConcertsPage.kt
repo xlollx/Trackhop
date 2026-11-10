@@ -229,7 +229,7 @@ internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
     val ctx = LocalContext.current
     val clipboard = LocalClipboardManager.current
     var key by remember { mutableStateOf(Concerts.ownKey(ctx.env).orEmpty()) }
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.concerts_key_title)) },
         text = {
