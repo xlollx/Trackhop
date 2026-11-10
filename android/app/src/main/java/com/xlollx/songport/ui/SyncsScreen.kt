@@ -1040,7 +1040,7 @@ private fun JobCard(
 
 /** The small marks before a sync's name: written by an AI, every Shazam, a radio, starred. */
 @Composable
-private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.Dp = 16.dp) {
+private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.Dp = 16.dp, star: Boolean = true) {
     // Written by the user's AI: a small spark before the name, and "add tracks" in the menu.
     if (job.aiPrompt != null) {
         Icon(Icons.Filled.AutoAwesome, stringResource(R.string.ai_badge_desc), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
@@ -1057,7 +1057,7 @@ private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.D
         Spacer(Modifier.width(4.dp))
     }
     // Starred: first in the list, and under "Favourites" in the filters.
-    if (job.favorite) {
+    if (star && job.favorite) {
         Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(size), tint = ink ?: MaterialTheme.colorScheme.tertiary)
         Spacer(Modifier.width(4.dp))
     }
@@ -1119,7 +1119,7 @@ private fun JobTile(
                 }
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Top) {
-                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp) }
+                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp, star = false) }
                     // Two lines kept for every name, so the tiles of a row line up.
                     Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
                 }
@@ -1142,7 +1142,9 @@ private fun JobTile(
                 // One line kept for every tile, so the tiles of a row are as tall as each other:
                 // the progress while it runs, else when it runs next, else nothing.
                 Spacer(Modifier.height(2.dp))
-                Box(contentAlignment = Alignment.CenterStart) {
+                // A starred sync shows its star in the tile's bottom corner.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     Text(
                         if (!isRunning && next != null && job.radio == null) stringResource(R.string.tile_next_run, nextRunShort(ctx, next)) else "",
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1153,6 +1155,8 @@ private fun JobTile(
                         if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
                         else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
                     }
+                }
+                if (job.favorite) Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(16.dp), tint = ink ?: MaterialTheme.colorScheme.tertiary)
                 }
             }
         }
