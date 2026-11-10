@@ -246,6 +246,10 @@ object Mcp {
             listOf(SERVICE, PLAYLIST, Param("country", "string", "Two-letter country code, e.g. IT or US (default: the server's).", required = false)), readOnly = true) { a ->
             Call("concerts", listOf(a.text("service"), a.text("playlist")), values = a.values("country"))
         },
+        Tool("find_setlists", "Setlists of a playlist's artists", "The latest setlist.fm setlists of the artists of a playlist (up to 5 each): date, venue, city, the songs in order with encores, tapes and covers marked, and tracks ready for create_playlist/add_tracks to make one a playlist on any service. Looked up only now (cached a week); needs a setlist.fm key on the server. Show the attribution line (setlist.fm, with its link) with the setlists.",
+            listOf(SERVICE, PLAYLIST), readOnly = true) { a ->
+            Call("setlists", listOf(a.text("service"), a.text("playlist")))
+        },
         Tool("remove_duplicates", "Remove duplicates", "Removes a playlist's extra copies (the first of each stays). Ask the user first.",
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))

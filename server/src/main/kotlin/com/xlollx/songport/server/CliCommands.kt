@@ -58,6 +58,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "releases" -> { need(p, 2, "releases <service> <playlist> [--days 7|30|90] [--upcoming]"); releases(p[0], p.drop(1).joinToString(" "), o) }
         "wanted" -> wanted(o)
         "concerts" -> { need(p, 2, "concerts <service> <playlist> [--country IT]"); concerts(p[0], p.drop(1).joinToString(" "), o) }
+        "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" ")) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"))
@@ -723,6 +724,29 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             out.println("No dates for ${without.size}: ${without.joinToString(", ") { it.s("artist") }}")
             out.println("  (search links for each with --json)")
         }
+        r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
+        out.println(r.s("attribution"))
+        return 0
+    }
+
+    private fun setlists(serviceAsk: String, playlistAsk: String): Int {
+        val s = service(serviceAsk)
+        val pl = playlist(s.s("id"), playlistAsk)
+        if (!asJson) out.println("Looking up the artists of ${pl.s("name")} on setlist.fm (two a second: this can take a moment)...")
+        val r = api.get("setlists?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}").jsonObject
+        if (asJson) return print(r).let { 0 }
+        val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
+        val found = artists.filter { it["setlists"]?.jsonArray.orEmpty().isNotEmpty() }
+        if (r["key"].str() == "true" && found.isEmpty()) out.println("No recent setlists found for these artists.")
+        found.forEach { a ->
+            out.println(a.s("artist"))
+            a["setlists"]!!.jsonArray.map { it.jsonObject }.forEach { e ->
+                val where = listOf(e.s("venue"), e.s("city"), e.s("country")).filter { it.isNotEmpty() }.joinToString(", ")
+                out.println("  ${e.s("date")}  $where  ${e["tracks"]?.jsonArray.orEmpty().size} songs  ${e.s("url")}")
+            }
+        }
+        val without = artists - found.toSet()
+        if (without.isNotEmpty()) out.println("No setlists for ${without.size}: ${without.joinToString(", ") { it.s("artist") }}")
         r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
         out.println(r.s("attribution"))
         return 0

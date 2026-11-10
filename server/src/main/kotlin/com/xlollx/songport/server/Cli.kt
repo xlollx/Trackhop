@@ -99,6 +99,9 @@ object Cli {
         Cmd("concerts", "Services and playlists", listOf("concerts <service> <playlist> [--country IT]"), "the upcoming concerts of a playlist's artists in a country (Ticketmaster, MusicBrainz)",
             "Asked only now, never on a schedule; answers are kept a day. --country is a two-letter code (the last one used on the page, or the\n" +
                 "server's language's, without it). Ticketmaster needs a key: the server's own (Settings) or TICKETMASTER_API_KEY; without one, MusicBrainz's dates."),
+        Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist>"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
+            "Asked only now, never on a schedule; answers are kept a week. Needs a setlist.fm key: the server's own (Settings) or SETLISTFM_API_KEY.\n" +
+                "--json gives each setlist's tracks, ready for \"trackhop add\" or a File playlist (Tools › Setlists on the page saves one)."),
         Cmd("wanted", "Services and playlists", listOf("wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]"),
             "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +

@@ -237,6 +237,8 @@ object Setlists {
         val kv = env.keyValues(CACHE)
         if (kv.size >= 2_000) kv.clear()
         kv["a|${norm(artist)}"] = "${now()}|" + json.encodeToString(listSerializer, setlists)
+        // Each one by its id too: a setlist picked from the list (on the server's page) is not asked again.
+        setlists.forEach { kv["s|${it.id}"] = "${now()}|" + json.encodeToString(Setlist.serializer(), it) }
     }
 
     // ---------------------------------------------------------------- the API

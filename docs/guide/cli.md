@@ -114,6 +114,7 @@ the command lists them and asks you to say which.
 | `trackhop mbtags [<service>]` | The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (with them a sync finds the exact recording). Nothing is changed; `<service>` can be left out when only one such server is connected. |
 | `trackhop releases <service> <playlist> [--days 7\|30\|90] [--upcoming]` | The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account), with the date and a link: released in the last 30 days, or `--days 7` / `90`; `--upcoming` adds what is announced. A first search takes about a second per artist. |
 | `trackhop wanted [--format json\|csv\|m3u\|text\|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]` | The tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once, with the syncs that miss them. `--format` prints it as a file (`> list.csv`), `lidarr` as Lidarr's Custom List; `--albums` groups by album, `--all` shows the ticked ones too; `--sync`, `--service` and `--since` (`24h`, `7d`, `2026-11-01`) narrow it. |
+| `trackhop setlists <service> <playlist>` | The latest setlist.fm setlists of a playlist's artists (date, venue, city, number of songs, link); `--json` adds the songs (encores, tapes, covers) and each setlist's tracks, ready to add to a playlist. Asked only now, cached a week. Needs a setlist.fm key: Settings › setlist.fm key, or `SETLISTFM_API_KEY`. |
 | `trackhop concerts <service> <playlist> [--country IT]` | The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
 | `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf` or `txt` (or from the file's extension); to the screen without `<file>`. |
 
@@ -224,6 +225,7 @@ tools allow:
 | `find_duplicates`, `find_untagged_songs`, `export_playlist` | A playlist's duplicates; the songs on your own server without MusicBrainz tags; a playlist as a file's text |
 | `find_new_releases` | The new albums, EPs and singles of a playlist's artists (7, 30 or 90 days, and what is announced) |
 | `list_missing_on_server` | The tracks of your playlists missing on your own server, each once ("what should I buy for my Navidrome?"); also as CSV, M3U, text or a Lidarr list |
+| `find_setlists` | The latest setlists of a playlist's artists from setlist.fm, with the songs ready to make one a playlist ("make me a playlist of what Muse played last week") |
 | `find_concerts` | The upcoming concerts of a playlist's artists in a country, with ticket links ("is anyone from my road-trip playlist playing in Italy?") |
 | `list_files`, `get_file_patterns`, `set_file_patterns`, `try_file_patterns` | The File playlists, and how names in imported files are read |
 | `get_settings`, `change_setting` | The settings |

@@ -52,6 +52,12 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
   kept on the device. Ticket and search links open in your browser.
+- **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
+  of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
+  privacy policy); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
+  opens its public page). Only when you ask, never in the background; no account, no location,
+  nothing else about you. If you add your own setlist.fm key it goes along to setlist.fm and is kept
+  on the device.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -126,6 +132,12 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background; nessun account, nessuna
   posizione, nient'altro su di te. Se aggiungi la tua chiave Ticketmaster, viene inviata a Ticketmaster
   e resta sul dispositivo. I link ai biglietti e alle ricerche si aprono nel browser.
+- **Scalette (facoltativo)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
+  della playlist scelta vengono inviati all'API di setlist.fm (api.setlist.fm, secondo l'informativa di
+  setlist.fm); un link di setlist.fm che condividi o incolli invia l'id della sua scaletta (o, senza
+  chiave, apre la sua pagina pubblica). Solo quando lo chiedi, mai in background; nessun account,
+  nessuna posizione, nient'altro su di te. Se aggiungi la tua chiave setlist.fm, viene inviata a
+  setlist.fm e resta sul dispositivo.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per
