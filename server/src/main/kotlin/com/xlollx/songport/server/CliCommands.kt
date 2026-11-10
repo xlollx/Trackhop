@@ -57,6 +57,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "mbtags" -> mbTags(p.joinToString(" ").takeIf { it.isNotEmpty() })
         "releases" -> { need(p, 2, "releases <service> <playlist> [--days 7|30|90] [--upcoming]"); releases(p[0], p.drop(1).joinToString(" "), o) }
         "wanted" -> wanted(o)
+        "records" -> { need(p, 2, "records <service> <playlist> [--currency EUR]"); records(p[0], p.drop(1).joinToString(" "), o) }
         "concerts" -> { need(p, 2, "concerts <service> <playlist> [--country IT]"); concerts(p[0], p.drop(1).joinToString(" "), o) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
@@ -724,6 +725,32 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             out.println("  (search links for each with --json)")
         }
         r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
+        out.println(r.s("attribution"))
+        return 0
+    }
+
+    private fun records(serviceAsk: String, playlistAsk: String, o: Cli.Opts): Int {
+        val s = service(serviceAsk)
+        val pl = playlist(s.s("id"), playlistAsk)
+        if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (Discogs and MusicBrainz ask to go slowly: this can take a few minutes)...")
+        val r = api.get("records?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("currency")?.let { "&currency=${enc(it)}" } ?: "")).jsonObject
+        if (asJson) return print(r).let { 0 }
+        r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }.forEach { a ->
+            out.println(a.s("artist"))
+            val recs = a["records"]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonArray
+            when {
+                recs == null -> out.println("  (Discogs not asked this time)")
+                recs.isEmpty() -> out.println("  nothing on CD, vinyl or cassette on Discogs")
+                else -> recs.map { it.jsonObject }.forEach { rec ->
+                    val formats = rec["formats"]?.jsonArray.orEmpty().joinToString("/") { it.str().orEmpty() }
+                    val sale = rec["forSale"].str()?.let { n -> if (n == "0") "  none for sale" else "  $n for sale from ${rec.s("lowestPrice")} ${rec.s("currency")}" }.orEmpty()
+                    out.println("  ${rec.s("title")}${rec["year"].str()?.let { " ($it)" }.orEmpty()}  $formats$sale  ${rec.s("url")}")
+                }
+            }
+            a["links"]?.jsonArray.orEmpty().map { it.jsonObject }.forEach { l -> out.println("  ${l.s("kind")}: ${l.s("url")}") }
+        }
+        r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
+        out.println("Shop searches for each artist with --json.")
         out.println(r.s("attribution"))
         return 0
     }

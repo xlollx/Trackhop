@@ -334,6 +334,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     if (apiConcerts(method, rest, query, ::json, ::error)) return
+    if (apiRecords(method, rest, query, ::json, ::error)) return
     when {
         rest == listOf("status") && method == "GET" -> json(200, buildJsonObject {
             put("version", version)

@@ -52,6 +52,12 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
   kept on the device. Ticket and search links open in your browser.
+- **Records and merch (optional)**: when you tap Find records (Discover › Records and merch), the names
+  of the artists of the playlist you picked are sent to the Discogs API (api.discogs.com, under Discogs'
+  own privacy policy) and to MusicBrainz (musicbrainz.org). Only when you ask, never in the background;
+  nothing else about you. If you add your own Discogs token it goes along to Discogs and is kept
+  encrypted on the device. Shop, Discogs and official-site links open in your browser, without any
+  affiliate tag.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -126,6 +132,11 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background; nessun account, nessuna
   posizione, nient'altro su di te. Se aggiungi la tua chiave Ticketmaster, viene inviata a Ticketmaster
   e resta sul dispositivo. I link ai biglietti e alle ricerche si aprono nel browser.
+- **Dischi e merch (facoltativo)**: quando tocchi Cerca dischi (Scopri › Dischi e merch), i nomi degli
+  artisti della playlist scelta vengono inviati all'API di Discogs (api.discogs.com, secondo
+  l'informativa di Discogs) e a MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background;
+  nient'altro su di te. Se aggiungi il tuo token Discogs, viene inviato a Discogs e resta cifrato sul
+  dispositivo. I link a negozi, Discogs e siti ufficiali si aprono nel browser, senza codici di affiliazione.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per
