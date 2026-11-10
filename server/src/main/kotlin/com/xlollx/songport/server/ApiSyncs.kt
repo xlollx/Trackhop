@@ -262,7 +262,17 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
     return true
 }
 
+/** An id the caller may give a new sync: plain, so it can go in an address. */
+private val GIVEN_ID = Regex("[A-Za-z0-9_-]{1,100}")
+
 private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit) {
+    // The caller's own id (the app's hand-over): sent again after an answer lost on the way, it gets
+    // back the sync made then, not a second one.
+    val givenId = b.text("id")
+    if (givenId != null) {
+        if (!GIVEN_ID.matches(givenId)) return error(400, "\"id\" is letters, digits, - and _ (at most 100).")
+        env.store.job(givenId)?.let { return json(200, Api.job(env, it, runner.isRunning(it.id))) }
+    }
     val s = b["source"] as? JsonObject ?: return error(400, "\"source\" is needed: {\"service\": \"spotify\", \"playlist\": \"<id>\"} (or \"link\" for a public playlist).")
     val t = b["target"] as? JsonObject ?: return error(400, "\"target\" is needed: {\"service\": \"…\", \"playlist\": \"<id>\"}, or without playlist for a new one.")
     val src = s.text("service")?.let { Providers.byId(it) } ?: return error(404, "No source service with that id: see GET /api/v1/services.")
@@ -294,7 +304,7 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
         }
     }.getOrElse { return if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) }
     val job = runCatching {
-        val base = SyncJob(id = UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
+        val base = SyncJob(id = givenId ?: UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
         grouped(coloured(changed(timed(base, b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
             .let { j -> pairing(j, b.flag("twoWay"), b.flag("twoWayRemovals")) }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }

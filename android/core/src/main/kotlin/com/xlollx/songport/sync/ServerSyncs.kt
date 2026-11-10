@@ -98,7 +98,11 @@ class ServerSyncs(address: String, private val token: String) {
         try { call("DELETE", "syncs/${safeId(id)}") } catch (e: Failure) { if (e.kind != Failure.Kind.GONE) throw e }
     }
 
-    /** Makes [job] on the server with its services [plan] picked there; answers the new sync's id. */
+    /**
+     * Makes [job] on the server with its services [plan] picked there; answers the new sync's id. It
+     * asks for the id [HandOver.serverId]: sent again after an answer lost on the way, the server
+     * gives back the sync it made then, not a second one (a server that does not take it picks its own).
+     */
     suspend fun create(job: SyncJob, plan: HandOver.Plan.Ready): String {
         val made = call("POST", "syncs", HandOver.body(job, plan))
         return made.idOrNull("id") ?: throw Failure(Failure.Kind.ODD, "no id")
@@ -152,7 +156,8 @@ class ServerSyncs(address: String, private val token: String) {
         private val JSON = "application/json".toMediaType()
         private const val MAX_BODY = 8L * 1024 * 1024
         private const val MAX_TEXT = 500
-        private val ID = Regex("[A-Za-z0-9_.@:-]{1,128}")
+        // Not dots alone: "." and ".." in an address would reach another call of the server.
+        private val ID = Regex("(?!\\.+$)[A-Za-z0-9_.@:-]{1,128}")
         private val client by lazy {
             Http.client.newBuilder().connectTimeout(8, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).writeTimeout(20, TimeUnit.SECONDS).build()
         }
@@ -257,8 +262,15 @@ object HandOver {
         return connected.filter { FileStore.family(it.id) == family }.sortedBy { if ('@' in it.id) 1 else 0 }.firstOrNull()?.id
     }
 
+    /**
+     * The id [job] asks for on the server: always the same for a sync of this device, so a hand-over
+     * whose answer was lost (or cut short) finds the sync it made there instead of making another.
+     */
+    fun serverId(job: SyncJob): String = "phone-" + job.id.filter { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '-' || it == '_' }.take(80)
+
     /** The body of POST /api/v1/syncs that makes [job] on the server, with the connectors of [plan]. */
     fun body(job: SyncJob, plan: Plan.Ready): JsonObject = buildJsonObject {
+        put("id", serverId(job))
         put("name", job.name.ifBlank { job.source.playlistName })
         put("source", buildJsonObject {
             put("service", plan.source)

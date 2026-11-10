@@ -12,7 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * This phone and the user's own Trackhop server, beyond taking turns on playlists (ServerLocks):
@@ -115,10 +117,13 @@ object ServerLink {
     /**
      * [job] made on the server with the server's own accounts, its review choices sent along, then
      * turned off here and marked as handed over. Nothing changes on the phone unless all of it worked.
+     * Not cut short when the dialog goes (a turned screen): once the server has made it, the phone
+     * must know. Should the answer be lost all the same, asking again finds the sync it made there
+     * ([HandOver.serverId]) and takes it, without making a second one.
      */
-    suspend fun handOver(ctx: Context, job: SyncJob): Outcome {
-        val api = api(ctx) ?: return Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
-        return try {
+    suspend fun handOver(ctx: Context, job: SyncJob): Outcome = withContext(NonCancellable) {
+        val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
+        try {
             when (val plan = HandOver.plan(job, api.services())) {
                 is HandOver.Plan.NotHere -> Outcome(false, ctx.getString(when (plan.why) {
                     HandOver.Why.RADIO -> R.string.server_handover_no_radio
@@ -130,11 +135,15 @@ object ServerLink {
                     R.string.server_handover_missing,
                     plan.services.joinToString(", ") { com.xlollx.songport.providers.Providers.byId(it)?.displayName ?: it },
                 ))
-                // The same sync there already: a second one would add what is missing twice.
-                is HandOver.Plan.Ready -> if (api.syncs().any { HandOver.sameAs(job, it) }) {
-                    Outcome(false, ctx.getString(R.string.server_handover_exists, ctx.getString(R.string.server_title)))
-                } else {
-                    val serverId = api.create(job, plan)
+                is HandOver.Plan.Ready -> {
+                    val there = api.syncs()
+                    // Made there by an earlier try whose answer did not arrive: that one is this sync.
+                    val made = HandOver.serverId(job).takeIf { id -> there.any { it.id == id } }
+                    // The same sync there already: a second one would add what is missing twice.
+                    if (made == null && there.any { HandOver.sameAs(job, it) }) {
+                        return@withContext Outcome(false, ctx.getString(R.string.server_handover_exists, ctx.getString(R.string.server_title)))
+                    }
+                    val serverId = made ?: api.create(job, plan)
                     // The choices made here so far: the server's runs start from them.
                     runCatching { ReviewDecisions.apply(Store.get(ctx), job.id, api.exchange(serverId, ReviewDecisions.ofSync(Store.get(ctx).data, job))) }
                     val store = Store.get(ctx)
@@ -162,10 +171,10 @@ object ServerLink {
      * playlists stay), and turned on here again as it was. A server that cannot be reached changes
      * nothing; a sync already deleted there comes back all the same.
      */
-    suspend fun bringBack(ctx: Context, job: SyncJob): Outcome {
-        val api = api(ctx) ?: return Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
-        val h = handedOver(ctx, job.id) ?: return Outcome(true, ctx.getString(R.string.server_bring_back_done))
-        return try {
+    suspend fun bringBack(ctx: Context, job: SyncJob): Outcome = withContext(NonCancellable) {
+        val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
+        val h = handedOver(ctx, job.id) ?: return@withContext Outcome(true, ctx.getString(R.string.server_bring_back_done))
+        try {
             try {
                 ReviewDecisions.apply(Store.get(ctx), job.id, api.exchange(h.serverId, ReviewDecisions.ofSync(Store.get(ctx).data, job)))
             } catch (e: ServerSyncs.Failure) {
