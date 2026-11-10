@@ -270,7 +270,13 @@ object SharedGroups {
                 role(group, s) == Role.CURATOR -> {
                     val me = identity(env, group)
                     var seq = s.seq
-                    val fresh = tracks.map { t -> SharedEvent.of(op, t, me.id, ++seq, now).copy(key = keyFor(t)).signed(group.id, me) }
+                    // An action taken on what the member sees comes after it, even when the clock of
+                    // whoever wrote the current state ran ahead of this one.
+                    val latest = GroupLog(group.id, group.creator).winners(s.events).associate { it.key to it.at }
+                    val fresh = tracks.map { t ->
+                        val key = keyFor(t)
+                        SharedEvent.of(op, t, me.id, ++seq, maxOf(now, (latest[key] ?: 0) + 1)).copy(key = key).signed(group.id, me)
+                    }
                     val st = s.copy(events = GroupLog.compact(s.events + fresh), seq = seq, seen = s.seen + fresh.associate { it.id to now })
                     publish(env, group, st, SharedFolders.open(group.folder))
                 }

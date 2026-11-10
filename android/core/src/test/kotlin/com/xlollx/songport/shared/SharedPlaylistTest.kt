@@ -150,6 +150,23 @@ class SharedPlaylistTest {
         assertTrue("5" in cleo.songs)
     }
 
+    /** Ben's phone runs an hour ahead: Ana's removal, made after she saw his song, still wins. */
+    @Test fun aClockAheadDoesNotOutvoteALaterAction() {
+        group()
+        try {
+            SharedGroups.clock = { System.currentTimeMillis() + 3_600_000 }
+            ben.add("7"); ben.sync()
+        } finally {
+            SharedGroups.clock = { System.currentTimeMillis() }
+        }
+        ana.sync()
+        assertTrue("7" in ana.songs)
+        ana.remove("7"); ana.sync()
+        everyone()
+        assertFalse("7" in ben.songs)
+        assertFalse("7" in cleo.songs)
+    }
+
     @Test fun aTrackOneServiceCannotFindStaysForTheOthersAndGoesToThatMembersReview() {
         group()
         ana.add("9")
