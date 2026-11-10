@@ -1953,4 +1953,8 @@
     <string name="notify_field_matrix_room">Raum-ID</string>
     <string name="notify_field_pushover_token">API-Token der Anwendung</string>
     <string name="notify_field_pushover_user">User Key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Dazu %d Benachrichtigungskanal: Er bleibt aus, bis du ihn einschaltest und seine Schlüssel eingibst.</item>
+        <item quantity="other">Dazu %d Benachrichtigungskanäle: Sie bleiben aus, bis du sie einschaltest und ihre Schlüssel eingibst.</item>
+    </plurals>
 </resources>

@@ -1951,4 +1951,8 @@
     <string name="notify_field_matrix_room">Oda id\'si</string>
     <string name="notify_field_pushover_token">Uygulama API token\'ı</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
+        <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
+    </plurals>
 </resources>

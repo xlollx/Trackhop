@@ -2019,4 +2019,10 @@
     <string name="notify_field_matrix_room">Id комнаты</string>
     <string name="notify_field_pushover_token">API-токен приложения</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">А также %d канал уведомлений: он останется выключенным, пока ты его не включишь и не введёшь ключи.</item>
+        <item quantity="few">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+        <item quantity="many">А также %d каналов уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+        <item quantity="other">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
+    </plurals>
 </resources>

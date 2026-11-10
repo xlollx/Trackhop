@@ -2021,4 +2021,10 @@
     <string name="notify_field_matrix_room">Id pokoju</string>
     <string name="notify_field_pushover_token">Token API aplikacji</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Także %d kanał powiadomień: pozostaje wyłączony, dopóki go nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="few">Także %d kanały powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="many">Także %d kanałów powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+        <item quantity="other">Także %d kanału powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>
+    </plurals>
 </resources>

@@ -1919,4 +1919,7 @@
     <string name="notify_field_matrix_room">방 id</string>
     <string name="notify_field_pushover_token">애플리케이션 API 토큰</string>
     <string name="notify_field_pushover_user">사용자 키</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">알림 채널 %d개도 있어요. 켜고 키를 입력할 때까지 꺼져 있어요.</item>
+    </plurals>
 </resources>

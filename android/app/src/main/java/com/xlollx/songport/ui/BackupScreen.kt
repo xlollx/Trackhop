@@ -105,7 +105,14 @@ fun BackupScreen(onClose: () -> Unit) {
         AlertDialog(
             onDismissRequest = { pending = null },
             title = { Text(stringResource(R.string.backup_config_confirm_title)) },
-            text = { Text(stringResource(R.string.backup_config_confirm_body, s.syncs, s.matches, s.files, s.writtenBy.ifBlank { "Trackhop" })) },
+            text = {
+                val channels = pendingChannels.size
+                Text(
+                    stringResource(R.string.backup_config_confirm_body, s.syncs, s.matches, s.files, s.writtenBy.ifBlank { "Trackhop" }) +
+                        // Channels that came with the file stay off until turned on here: a shared file must not send anywhere by itself.
+                        if (channels > 0) "\n\n" + androidx.compose.ui.res.pluralStringResource(R.plurals.backup_config_channels, channels, channels) else "",
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     pending = null

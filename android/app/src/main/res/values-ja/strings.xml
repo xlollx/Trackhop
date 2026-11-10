@@ -1920,4 +1920,7 @@
     <string name="notify_field_matrix_room">ルーム id</string>
     <string name="notify_field_pushover_token">アプリケーションの API トークン</string>
     <string name="notify_field_pushover_user">ユーザーキー</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
+    </plurals>
 </resources>

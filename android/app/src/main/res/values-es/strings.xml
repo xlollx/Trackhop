@@ -1961,4 +1961,8 @@
     <string name="notify_field_matrix_room">Id de la sala</string>
     <string name="notify_field_pushover_token">Token de API de la aplicación</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">También %d canal de notificación: queda desactivado hasta que lo actives e introduzcas sus claves.</item>
+        <item quantity="other">También %d canales de notificación: quedan desactivados hasta que los actives e introduzcas sus claves.</item>
+    </plurals>
 </resources>

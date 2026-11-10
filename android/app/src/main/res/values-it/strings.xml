@@ -1953,4 +1953,8 @@
     <string name="notify_field_matrix_room">Id della stanza</string>
     <string name="notify_field_pushover_token">API token dell\'applicazione</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Anche %d canale di notifica: resta spento finché non lo attivi e inserisci le sue chiavi.</item>
+        <item quantity="other">Anche %d canali di notifica: restano spenti finché non li attivi e inserisci le loro chiavi.</item>
+    </plurals>
 </resources>

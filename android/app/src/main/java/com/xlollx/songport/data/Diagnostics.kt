@@ -137,6 +137,8 @@ object Diagnostics {
         // e-mail or address of the user's own servers leaves the phone in a report.
         val env = com.xlollx.songport.platform.AndroidEnv.of(ctx)
         val servers = Providers.all().mapNotNull { p -> runCatching { env.tokens.get(p.id)?.extra?.get("url") }.getOrNull() }
+            // The notification channels' servers and webhooks (a webhook's address is its key).
+            .plus(runCatching { com.xlollx.songport.notify.Notify.channels(env).flatMap { it.addresses() } }.getOrDefault(emptyList()))
         return com.xlollx.songport.data.Redact.text(sb.toString(), servers)
     }
 

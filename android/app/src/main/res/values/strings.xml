@@ -1954,4 +1954,8 @@
     <string name="notify_field_matrix_room">Room id</string>
     <string name="notify_field_pushover_token">Application API token</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Also %d notification channel: it stays off until you turn it on and enter its keys.</item>
+        <item quantity="other">Also %d notification channels: they stay off until you turn them on and enter their keys.</item>
+    </plurals>
 </resources>

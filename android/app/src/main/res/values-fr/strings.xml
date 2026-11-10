@@ -1961,4 +1961,8 @@
     <string name="notify_field_matrix_room">Id du salon</string>
     <string name="notify_field_pushover_token">Jeton d\'API de l\'application</string>
     <string name="notify_field_pushover_user">User key</string>
+    <plurals name="backup_config_channels">
+        <item quantity="one">Aussi %d canal de notification : il reste désactivé jusqu\'à ce que tu l\'actives et saisisses ses clés.</item>
+        <item quantity="other">Aussi %d canaux de notification : ils restent désactivés jusqu\'à ce que tu les actives et saisisses leurs clés.</item>
+    </plurals>
 </resources>

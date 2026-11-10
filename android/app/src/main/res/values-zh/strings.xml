@@ -1920,4 +1920,7 @@
     <string name="notify_field_matrix_room">房间 id</string>
     <string name="notify_field_pushover_token">应用 API token</string>
     <string name="notify_field_pushover_user">用户密钥</string>
+    <plurals name="backup_config_channels">
+        <item quantity="other">另有 %d 个通知渠道:在你开启并填写密钥之前保持关闭。</item>
+    </plurals>
 </resources>

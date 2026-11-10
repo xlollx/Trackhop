@@ -91,7 +91,8 @@ object Notify {
             "ntfy", "ntfy", "Subscribe to a topic in the ntfy app. Pick a topic hard to guess: on ntfy.sh anyone who knows it can read it.",
             listOf(
                 Field("server", "Server", default = "https://ntfy.sh", url = true),
-                Field("topic", "Topic", placeholder = "trackhop-…"),
+                // Secret too: on ntfy.sh whoever knows the topic reads its messages.
+                Field("topic", "Topic", secret = true, placeholder = "trackhop-…"),
                 Field("token", "Access token (protected topics only)", secret = true, optional = true, placeholder = "tk_…"),
             ),
         ),
@@ -138,6 +139,9 @@ object Notify {
 
         /** The settings it still needs (a backup brings no secrets): empty when it can send. */
         fun missing(): List<Field> = kind.fields.filter { !it.optional && value(it.key).isBlank() }
+
+        /** Its addresses (server, webhook), hidden from technical reports like the user's own servers. */
+        fun addresses(): List<String> = kind.fields.filter { it.url }.map { value(it.key) }.filter { it.isNotBlank() }
 
         /** Its secrets' values, to keep them out of anything shown (an error message). */
         fun secrets(): List<String> = kind.fields.filter { it.secret }.map { value(it.key) }.filter { it.length >= 4 }
@@ -190,9 +194,12 @@ object Notify {
      */
     fun build(id: String, kind: Kind, name: String, enabled: Boolean, events: Set<Event>, given: Map<String, String>, old: Channel?): Result<Channel> {
         val values = LinkedHashMap<String, String>()
+        val prev = old?.takeIf { it.kind == kind }
+        // A saved secret stays only while the channel still points where it did: a new address asks for it again.
+        val keep = prev != null && sameAddresses(kind, prev) { f -> given[f.key]?.trim().orEmpty().ifEmpty { if (f.secret) prev.value(f.key) else "" } }
         for (f in kind.fields) {
             val v = given[f.key]?.trim().orEmpty()
-            values[f.key] = if (v.isEmpty() && f.secret) old?.takeIf { it.kind == kind }?.value(f.key).orEmpty() else v
+            values[f.key] = if (v.isEmpty() && f.secret) (if (keep) prev!!.value(f.key) else "") else v
             val now = values.getValue(f.key)
             if (now.isEmpty() && !f.optional) return Result.failure(IllegalArgumentException("${f.label} is needed."))
             if (f.url && now.isNotEmpty() && (!now.startsWith("http://") && !now.startsWith("https://") || now.toHttpUrlOrNull() == null)) {
@@ -201,6 +208,10 @@ object Notify {
         }
         return Result.success(Channel(id, kind, name.trim().ifEmpty { kind.label }, enabled, events, values))
     }
+
+    /** Every address of [kind] (server, webhook) the same in [now] as in [old]. */
+    private fun sameAddresses(kind: Kind, old: Channel, now: (Field) -> String): Boolean =
+        kind.fields.filter { it.url }.all { f -> now(f).trimEnd('/').equals(old.value(f.key).trimEnd('/'), ignoreCase = true) }
 
     // ------------------------------------------------------------------ JSON
 
@@ -280,9 +291,12 @@ object Notify {
         val here = channels(env).associateBy { it.id }
         val merged = incoming.map { c ->
             val old = here[c.id]?.takeIf { it.kind == c.kind }
-            val values = c.kind.fields.associate { f -> f.key to (if (f.secret) old?.value(f.key).orEmpty() else c.value(f.key)) }
+            // The secrets this Trackhop has for it, while the file sends them to the same addresses.
+            val keep = old != null && sameAddresses(c.kind, old) { f -> c.value(f.key) }
+            val values = c.kind.fields.associate { f -> f.key to (if (f.secret) (if (keep) old!!.value(f.key) else "") else c.value(f.key)) }
             val next = c.copy(values = values)
-            if (next.missing().isEmpty()) next else next.copy(enabled = false)
+            // On only for a channel already here: one that came with a file (shared, perhaps) waits to be turned on.
+            if (keep && next.missing().isEmpty()) next else next.copy(enabled = false)
         }
         val ids = merged.map { it.id }.toSet()
         save(env, channels(env).filter { it.id !in ids } + merged)
@@ -318,6 +332,7 @@ object Notify {
     internal fun errorLine(error: String?): String =
         error.orEmpty().lineSequence().firstOrNull { it.isNotBlank() }.orEmpty().trim()
             .replace(Regex("""\b[a-z][a-z0-9+.-]*://\S+""", RegexOption.IGNORE_CASE), "…")
+            .let { com.xlollx.songport.data.Redact.text(it) }
             .let { if (it.length > 200) it.take(199) + "…" else it }
             .ifEmpty { "unknown error" }
 
@@ -334,6 +349,8 @@ object Notify {
 
     private val client by lazy {
         OkHttpClient.Builder()
+            // The app's contacted-servers list sees these hosts too (Http.onRequest).
+            .addInterceptor(com.xlollx.songport.net.Http.hostInterceptor)
             .callTimeout(TIMEOUT_S, TimeUnit.SECONDS)
             .connectTimeout(TIMEOUT_S, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_S, TimeUnit.SECONDS)
