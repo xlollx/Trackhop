@@ -1674,6 +1674,16 @@
     <string name="whats_new_116_preview_body">同期を作成すると、行き先、実行内容、変更点が表示され、下部に「今すぐ実行」があります。</string>
     <string name="whats_new_116_restart_title">最初からやり直す</string>
     <string name="whats_new_116_restart_body">Web のサインインがつながらない？ ⋮ ›「最初からやり直す」でページが覚えていた情報を消去します。Anghami は Google でも接続できます。</string>
+    <string name="whats_new_117_wide_title">大きな画面に対応</string>
+    <string name="whats_new_117_wide_body">タブレットや横向きのスマートフォンでは、タブがサイドのレールに移り、同期カードが2列に並び、ページは読みやすい幅に保たれます。入力中の文字は画面を回転しても残ります。</string>
+    <string name="whats_new_117_organise_title">お気に入り、ラベル、タグ</string>
+    <string name="whats_new_117_organise_body">よく使う同期にスターを付け、色に名前を付けてラベルにし、ジャンル = メタル のようなタグを追加できます。それらで絞り込みや検索ができます。</string>
+    <string name="whats_new_117_twoway_title">双方向で削除も</string>
+    <string name="whats_new_117_twoway_body">双方向の同期で「削除も同期」をオンにすると、片側で削除した曲がもう片側からも削除されます。</string>
+    <string name="whats_new_117_server_title">自分のサーバーをもっと便利に</string>
+    <string name="whats_new_117_server_body">Lyrion と Mopidy にサーバーとして対応しました (ベータ)。MusicBrainz タグ付きのファイルは正確に照合され、ツール › サーバーにない曲 で同期が見つけられなかった曲を一覧できます。</string>
+    <string name="whats_new_117_devices_title">1つの同期は1台で</string>
+    <string name="whats_new_117_devices_body">別のスマートフォンに復元した設定では、予約された同期がオフのままになり、二重に動きません。「自分のサーバーと調整」を使うと、このスマートフォンと Trackhop サーバーがプレイリストごとに順番に書き込みます。</string>
     <string name="whats_new_114_nano_title">キー不要のAI</string>
     <string name="whats_new_114_nano_body">Gemini Nano搭載のスマートフォンでは、RoastとプレイリストジェネレーターがAPIキーなしで端末上で動作し、データは端末の外に出ません。それ以外の端末では、Roastから無料キーの設定にすぐ移動できます。</string>
     <string name="whats_new_114_tips_title">ウィジェット、ショートカット、オートメーション</string>

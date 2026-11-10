@@ -1700,6 +1700,16 @@
     <string name="whats_new_116_preview_body">Nach dem Erstellen einer Synchronisierung siehst du, wohin sie geht, was sie tut und was sich ändert, mit Jetzt ausführen unten.</string>
     <string name="whats_new_116_restart_title">Neu anfangen</string>
     <string name="whats_new_116_restart_body">Eine Web-Anmeldung verbindet sich nicht? ⋮ › Neu anfangen vergisst, was sich die Seite gemerkt hat. Anghami verbindet sich auch mit Google.</string>
+    <string name="whats_new_117_wide_title">Für große Bildschirme</string>
+    <string name="whats_new_117_wide_body">Auf einem Tablet oder einem gedrehten Handy wandern die Tabs in eine Leiste, Sync-Karten stehen in zwei Spalten und Seiten bleiben gut lesbar breit. Was du tippst, bleibt beim Drehen erhalten.</string>
+    <string name="whats_new_117_organise_title">Favoriten, Labels und Tags</string>
+    <string name="whats_new_117_organise_body">Markiere deine wichtigsten Syncs mit einem Stern, gib einer Farbe einen Namen als Label und füge Tags wie Genre = Metal hinzu. Dann filtere und suche danach.</string>
+    <string name="whats_new_117_twoway_title">Beidseitig, auch Entfernungen</string>
+    <string name="whats_new_117_twoway_body">Schalte bei einem beidseitigen Sync „Auch Entfernungen“ ein: Ein Titel, den du auf einer Seite entfernst, verschwindet auch auf der anderen.</string>
+    <string name="whats_new_117_server_title">Mehr für deinen eigenen Server</string>
+    <string name="whats_new_117_server_body">Lyrion und Mopidy kommen als Server dazu (Beta). Dateien mit MusicBrainz-Tags werden genau zugeordnet, und Werkzeuge › Fehlt auf meinem Server zeigt die Titel, die deine Syncs dort nicht gefunden haben.</string>
+    <string name="whats_new_117_devices_title">Ein Sync, ein Gerät</string>
+    <string name="whats_new_117_devices_body">Eine auf einem anderen Handy wiederhergestellte Einrichtung lässt dort geplante Syncs ausgeschaltet, damit sie nicht doppelt laufen. Mit „Mit meinem Server abstimmen“ wechseln sich dieses Handy und dein Trackhop-Server bei jeder Playlist ab.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
     <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
     <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>

@@ -21,6 +21,10 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.TabletAndroid
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.SyncAlt
+import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RestartAlt
@@ -111,6 +115,16 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.17",
+                listOf(
+                    Item(Icons.Filled.TabletAndroid, JobColor.BLUE, R.string.whats_new_117_wide_title, R.string.whats_new_117_wide_body),
+                    Item(Icons.Filled.Star, JobColor.YELLOW, R.string.whats_new_117_organise_title, R.string.whats_new_117_organise_body),
+                    Item(Icons.Filled.SyncAlt, JobColor.TEAL, R.string.whats_new_117_twoway_title, R.string.whats_new_117_twoway_body),
+                    Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_117_server_title, R.string.whats_new_117_server_body),
+                    Item(Icons.Filled.Devices, JobColor.PURPLE, R.string.whats_new_117_devices_title, R.string.whats_new_117_devices_body),
+                ),
+            ),
             Release(
                 "1.16",
                 listOf(

@@ -1674,6 +1674,16 @@
     <string name="whats_new_116_preview_body">创建同步后，你会看到它去往哪里、会做什么、有哪些变化，底部有“立即运行”。</string>
     <string name="whats_new_116_restart_title">清除并重新开始</string>
     <string name="whats_new_116_restart_body">网页登录连不上？⋮ ›“清除并重新开始”会清除页面记住的内容。Anghami 也能用 Google 连接了。</string>
+    <string name="whats_new_117_wide_title">为大屏幕而设计</string>
+    <string name="whats_new_117_wide_body">在平板或横屏手机上，标签页移到侧边导航栏，同步卡片排成两列，页面保持易读的宽度。旋转屏幕时，已输入的内容会保留。</string>
+    <string name="whats_new_117_organise_title">收藏、色标和标签</string>
+    <string name="whats_new_117_organise_body">为最常用的同步加星标，给颜色起个名字作为色标，并添加“流派 = 金属”这样的标签。然后按它们筛选和搜索。</string>
+    <string name="whats_new_117_twoway_title">双向同步，删除也同步</string>
+    <string name="whats_new_117_twoway_body">在双向同步中打开“同时同步删除”：在一侧删除的曲目，另一侧也会删除。</string>
+    <string name="whats_new_117_server_title">为你自己的服务器带来更多</string>
+    <string name="whats_new_117_server_body">新增 Lyrion 和 Mopidy 服务器（测试版）。带有 MusicBrainz 标签的文件可精确匹配，工具 › 我的服务器上缺少的歌曲会列出同步在那里没找到的歌曲。</string>
+    <string name="whats_new_117_devices_title">一个同步，一台设备</string>
+    <string name="whats_new_117_devices_body">在另一部手机上恢复的设置会让那里的定时同步保持关闭，避免重复运行。开启“与我的服务器协调”后，这部手机和你的 Trackhop 服务器会在每个播放列表上轮流写入。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>

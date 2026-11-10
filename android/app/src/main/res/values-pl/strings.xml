@@ -1754,6 +1754,16 @@
     <string name="whats_new_116_preview_body">Po utworzeniu synchronizacji widzisz, dokąd trafi, co zrobi i co się zmieni, a na dole jest Uruchom teraz.</string>
     <string name="whats_new_116_restart_title">Zacznij od nowa</string>
     <string name="whats_new_116_restart_body">Logowanie przez stronę się nie łączy? ⋮ › Zacznij od nowa zapomina to, co zapamiętała strona. Anghami łączy się też przez Google.</string>
+    <string name="whats_new_117_wide_title">Dla dużych ekranów</string>
+    <string name="whats_new_117_wide_body">Na tablecie lub obróconym telefonie karty przechodzą na pasek boczny, karty synchronizacji układają się w dwie kolumny, a strony mają wygodną szerokość. To, co wpisujesz, zostaje po obróceniu ekranu.</string>
+    <string name="whats_new_117_organise_title">Ulubione, etykiety i tagi</string>
+    <string name="whats_new_117_organise_body">Oznacz gwiazdką najczęściej używane synchronizacje, nazwij kolor, by stał się etykietą, i dodaj tagi, np. gatunek = metal. Potem filtruj i szukaj według nich.</string>
+    <string name="whats_new_117_twoway_title">Dwukierunkowa, także usunięcia</string>
+    <string name="whats_new_117_twoway_body">W synchronizacji dwukierunkowej włącz Także usunięcia: utwór usunięty po jednej stronie znika też po drugiej.</string>
+    <string name="whats_new_117_server_title">Więcej dla twojego serwera</string>
+    <string name="whats_new_117_server_body">Lyrion i Mopidy dołączają jako serwery (beta). Pliki z tagami MusicBrainz są dopasowywane dokładnie, a Narzędzia › Brakuje na moim serwerze pokazuje utwory, których twoje synchronizacje tam nie znalazły.</string>
+    <string name="whats_new_117_devices_title">Jedna synchronizacja, jedno urządzenie</string>
+    <string name="whats_new_117_devices_body">Konfiguracja przywrócona na innym telefonie zostawia tam zaplanowane synchronizacje wyłączone, żeby nie działały podwójnie. Z opcją Uzgadniaj z moim serwerem ten telefon i twój serwer Trackhop zmieniają się przy każdej playliście.</string>
     <string name="whats_new_114_nano_title">AI bez klucza</string>
     <string name="whats_new_114_nano_body">Na telefonach z Gemini Nano Roast i generator playlist działają teraz bezpośrednio na telefonie: bez klucza i nic nie opuszcza urządzenia. Na innych Roast od razu prowadzi do ustawienia darmowego klucza.</string>
     <string name="whats_new_114_tips_title">Widżety, skróty i automatyzacje</string>

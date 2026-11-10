@@ -5,6 +5,18 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## Unreleased
+
+- **Two-way pairs on the web page**: make a two-way pair from the page; the pair is turned on or off and deleted as one. A pair can follow removals too (#55): a track removed on one side goes from the other, and removals held back for a check are confirmed from the page.
+- **Favourites, labels and tags**: star a sync, name a colour as a label, add key/value tags; filter and search by them on the page, and in the API (filters, run a group by tag or label), the `trackhop` command and the MCP tools.
+- **No more doubles from two devices**: a set-up brought in from another device keeps its scheduled syncs paused, shown as *Scheduled on* and the device's name; a playlist is read again just before it is written; a track a sync added twice is removed by the next run. Phones with *Coordinate with my server* take turns with the server on each playlist.
+- **MusicBrainz matching for your own server**: Navidrome, Jellyfin, Emby and Plex answer with the file tagged with the source track's recording; the *MusicBrainz tags* report in Tools, the API, the CLI and MCP lists the songs without those tags.
+- **Lyrion Music Server and Mopidy** (beta): playlists read, created, filled and mirrored on your own Lyrion or Mopidy server.
+- **Missing on my server**: one list of the tracks your syncs to your own server could not find, by album, ticked when you get them, exported as CSV, M3U, text, JSON or a Lidarr Custom List (with a read-only list key). `GET /api/v1/wanted`, `trackhop wanted`, the MCP tool `list_missing_on_server` and the `wanted.added` webhook.
+- **Quicker review**: removing a wrong match reads the target playlist only as far as needed, or not at all right after a run.
+- **Diagnostics**: a report with a ready GitHub issue, secrets and names left out, which first looks for the same issue on GitHub; from the API, `trackhop diagnostics` and MCP.
+- **Crowded schedules on the page**: when many syncs reach one service at once, a card proposes new times to confirm; the same through the API, CLI and MCP.
+
 ## 1.9.0
 
 - **Files your way** (#49): artist and album read from file names and folders ("Artist - Album - Title", phone library paths), or from your own patterns (templates or `re:`) with a Try button; tick files to delete them or download them as a .zip; *Send to a service* on each File playlist.

@@ -1700,6 +1700,16 @@
     <string name="whats_new_116_preview_body">Dopo aver creato una sync vedi dove va, cosa farà e cosa cambia, con Esegui ora in basso.</string>
     <string name="whats_new_116_restart_title">Pulisci e ricomincia</string>
     <string name="whats_new_116_restart_body">Un accesso web che non si collega? ⋮ › Pulisci e ricomincia dimentica ciò che la pagina ricordava. Anghami si collega anche con Google.</string>
+    <string name="whats_new_117_wide_title">Pensato per gli schermi grandi</string>
+    <string name="whats_new_117_wide_body">Su un tablet o un telefono in orizzontale le schede passano in una barra laterale, le card delle sync stanno su due colonne e le pagine restano leggibili. Ciò che scrivi resta quando ruoti lo schermo.</string>
+    <string name="whats_new_117_organise_title">Preferite, etichette e tag</string>
+    <string name="whats_new_117_organise_body">Metti una stella alle sync che usi di più, dai un nome a un colore per farne un\'etichetta e aggiungi tag come genere = metal. Poi filtra e cerca in base a questi.</string>
+    <string name="whats_new_117_twoway_title">Bidirezionale, anche le rimozioni</string>
+    <string name="whats_new_117_twoway_body">In una sync bidirezionale attiva Anche le rimozioni: un brano che togli da una parte viene tolto anche dall\'altra.</string>
+    <string name="whats_new_117_server_title">Di più per il tuo server</string>
+    <string name="whats_new_117_server_body">Lyrion e Mopidy arrivano come server (beta). I file con tag MusicBrainz vengono abbinati con precisione, e Strumenti › Mancano sul mio server elenca i brani che le tue sync non hanno trovato lì.</string>
+    <string name="whats_new_117_devices_title">Una sync, un dispositivo</string>
+    <string name="whats_new_117_devices_body">Una configurazione ripristinata su un altro telefono lì tiene spente le sync programmate, così non partono due volte. Con Coordina con il mio server, questo telefono e il tuo server Trackhop si danno il turno su ogni playlist.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>

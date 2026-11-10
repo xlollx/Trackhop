@@ -1698,6 +1698,16 @@
     <string name="whats_new_116_preview_body">Bir eşitleme oluşturduğunda nereye gittiğini, ne yapacağını ve neyin değişeceğini görürsün; Şimdi çalıştır altta.</string>
     <string name="whats_new_116_restart_title">Baştan başla</string>
     <string name="whats_new_116_restart_body">Web girişi bağlanmıyor mu? ⋮ › Baştan başla, sayfanın hatırladıklarını unutur. Anghami artık Google ile de bağlanıyor.</string>
+    <string name="whats_new_117_wide_title">Büyük ekranlar için</string>
+    <string name="whats_new_117_wide_body">Tablette veya yan çevrilmiş telefonda sekmeler yan bir çubuğa geçer, eşitleme kartları iki sütuna dizilir ve sayfalar okunaklı bir genişlikte kalır. Yazdıkların ekranı döndürünce kaybolmaz.</string>
+    <string name="whats_new_117_organise_title">Favoriler, renk adları ve etiketler</string>
+    <string name="whats_new_117_organise_body">En çok kullandığın eşitlemelere yıldız koy, bir renge ad vererek onu etikete çevir ve tür = metal gibi etiketler ekle. Sonra bunlara göre filtrele ve ara.</string>
+    <string name="whats_new_117_twoway_title">Çift yönlü, kaldırmalar da</string>
+    <string name="whats_new_117_twoway_body">Çift yönlü bir eşitlemede Kaldırmalar da seçeneğini aç: bir tarafta kaldırdığın parça diğer taraftan da kaldırılır.</string>
+    <string name="whats_new_117_server_title">Kendi sunucun için daha fazlası</string>
+    <string name="whats_new_117_server_body">Lyrion ve Mopidy sunucu olarak geldi (beta). MusicBrainz etiketli dosyalar tam olarak eşleşir; Araçlar › Sunucumda eksik, eşitlemelerinin orada bulamadığı şarkıları listeler.</string>
+    <string name="whats_new_117_devices_title">Bir eşitleme, bir cihaz</string>
+    <string name="whats_new_117_devices_body">Başka bir telefona geri yüklenen kurulum oradaki zamanlanmış eşitlemeleri kapalı tutar, böylece iki kez çalışmazlar. Sunucumla eşgüdüm sağla ile bu telefon ve Trackhop sunucun her çalma listesinde sırayla çalışır.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
     <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
     <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>

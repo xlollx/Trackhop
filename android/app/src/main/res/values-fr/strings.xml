@@ -1708,6 +1708,16 @@
     <string name="whats_new_116_preview_body">Après avoir créé une synchro, tu vois où elle va, ce qu\'elle fera et ce qui change, avec Lancer maintenant en bas.</string>
     <string name="whats_new_116_restart_title">Repartir de zéro</string>
     <string name="whats_new_116_restart_body">Une connexion web qui ne se fait pas ? ⋮ › Repartir de zéro oublie ce que la page avait retenu. Anghami se connecte aussi avec Google.</string>
+    <string name="whats_new_117_wide_title">Pensé pour les grands écrans</string>
+    <string name="whats_new_117_wide_body">Sur une tablette ou un téléphone à l\'horizontale, les onglets passent dans une barre latérale, les cartes de sync tiennent sur deux colonnes et les pages gardent une largeur lisible. Ce que tu tapes reste quand tu tournes l\'écran.</string>
+    <string name="whats_new_117_organise_title">Favoris, étiquettes et tags</string>
+    <string name="whats_new_117_organise_body">Mets une étoile aux syncs que tu utilises le plus, donne un nom à une couleur pour en faire une étiquette et ajoute des tags comme genre = metal. Puis filtre et cherche avec.</string>
+    <string name="whats_new_117_twoway_title">Bidirectionnelle, retraits compris</string>
+    <string name="whats_new_117_twoway_body">Dans une sync bidirectionnelle, active Les retraits aussi : un titre que tu retires d\'un côté est retiré de l\'autre aussi.</string>
+    <string name="whats_new_117_server_title">Plus pour ton propre serveur</string>
+    <string name="whats_new_117_server_body">Lyrion et Mopidy arrivent comme serveurs (bêta). Les fichiers avec des tags MusicBrainz sont reconnus exactement, et Outils › Manque sur mon serveur liste les titres que tes syncs n\'y ont pas trouvés.</string>
+    <string name="whats_new_117_devices_title">Une sync, un appareil</string>
+    <string name="whats_new_117_devices_body">Une configuration restaurée sur un autre téléphone y garde les syncs planifiées éteintes, pour qu\'elles ne tournent pas deux fois. Avec Se coordonner avec mon serveur, ce téléphone et ton serveur Trackhop se relaient sur chaque playlist.</string>
     <string name="whats_new_114_nano_title">L\'IA sans clé</string>
     <string name="whats_new_114_nano_body">Sur les téléphones avec Gemini Nano, le Roast et le générateur de playlists fonctionnent désormais sur le téléphone même : sans clé, et rien ne quitte l\'appareil. Ailleurs, le Roast t\'emmène directement configurer une clé gratuite.</string>
     <string name="whats_new_114_tips_title">Widgets, raccourcis et automatisations</string>

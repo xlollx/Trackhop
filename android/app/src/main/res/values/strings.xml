@@ -1701,6 +1701,16 @@
     <string name="whats_new_116_preview_body">After you create a sync you see where it goes, what it will do and what changes, with Run now at the bottom.</string>
     <string name="whats_new_116_restart_title">Start over</string>
     <string name="whats_new_116_restart_body">A web sign-in that won\'t connect? ⋮ › Start over forgets what the page remembered. Anghami connects with Google too.</string>
+    <string name="whats_new_117_wide_title">Made for big screens</string>
+    <string name="whats_new_117_wide_body">On a tablet or a phone on its side, the tabs move to a rail, sync cards sit in two columns and pages keep a readable width. What you type stays when you turn the screen.</string>
+    <string name="whats_new_117_organise_title">Favourites, labels and tags</string>
+    <string name="whats_new_117_organise_body">Star the syncs you use most, give a colour a name to make it a label, and add tags such as genre = metal. Then filter and search by them.</string>
+    <string name="whats_new_117_twoway_title">Two-way, removals too</string>
+    <string name="whats_new_117_twoway_body">In a two-way sync, turn on Removals too: a track you remove on one side is removed on the other as well.</string>
+    <string name="whats_new_117_server_title">More for your own server</string>
+    <string name="whats_new_117_server_body">Lyrion and Mopidy join as servers (beta). Files with MusicBrainz tags are matched exactly, and Tools › Missing on my server lists the songs your syncs couldn\'t find there.</string>
+    <string name="whats_new_117_devices_title">One sync, one device</string>
+    <string name="whats_new_117_devices_body">A set-up restored on another phone keeps its scheduled syncs off there, so they don\'t run twice. With Coordinate with my server, this phone and your Trackhop server take turns on each playlist.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
     <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
     <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>
