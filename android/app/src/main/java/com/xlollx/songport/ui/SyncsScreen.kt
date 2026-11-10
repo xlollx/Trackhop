@@ -138,6 +138,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -302,8 +303,12 @@ fun SyncsScreen(
     // kind do not make way for it. Let them, and a starred tile dragged to the row below showed there, then
     // jumped back to the last starred place on release, the tiles it had passed with it (10/11 report).
     var dragStretch by remember { mutableStateOf<Boolean?>(null) }
-    // Whether the card held down has changed places yet: a tile let go without one opens its menu.
+    // Whether the card held down has changed places yet, and whether the finger holding it has moved
+    // (past the touch slop, on screen): a tile let go with neither opens its menu. Swaps alone were
+    // not enough: a tile dragged where it cannot go (an unstarred one over the starred) never swaps,
+    // and its menu opened on release, where the finger had left the tile (11/11 report).
     val swapped = remember { booleanArrayOf(false) }
+    val fingerMoved = remember { booleanArrayOf(false) }
     // The tile held down in the gesture under way: its release is the end of a hold, not a tap.
     val heldTile = remember { arrayOfNulls<String>(1) }
     // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
@@ -504,6 +509,8 @@ fun SyncsScreen(
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
             items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag && (dragStretch ?: job.favorite) == job.favorite) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
+                // Where this tile is laid out, to tell where a finger on it is on screen.
+                val tileCoords = remember(job.id) { arrayOfNulls<androidx.compose.ui.layout.LayoutCoordinates>(1) }
                 LaunchedEffect(flashing) {
                     if (flashing == job.id) {
                         repeat(2) {
@@ -519,22 +526,36 @@ fun SyncsScreen(
                 ).graphicsLayer {
                     shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
                     val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
-                }.pointerInput(job.id, canDrag) {
+                }.onGloballyPositioned { tileCoords[0] = it }.pointerInput(job.id, canDrag) {
                     // A card held while partly above the list's top (the one half under the pill at the
                     // end of the list) is brought into view while the finger is still, before the hold
                     // becomes a drag. Left to the drag library, the list is scrolled under the card as
                     // the drag starts and the card stays where the finger is, over the card above: the
                     // first move swapped the two, and the card dragged down came back where it was.
                     if (!canDrag) return@pointerInput
+                    // Where the finger is on screen: the tile follows it while dragged, so its own
+                    // coordinates hardly change.
+                    fun onScreen(p: Offset) = tileCoords[0]?.takeIf { it.isAttached }?.localToRoot(p) ?: p
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        val from = onScreen(down.position)
+                        fingerMoved[0] = false
+                        var released = false
+                        // Watched in the Initial pass: known before the drag's own release handler runs.
                         val still = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis * 3 / 4) {
                             while (true) {
-                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
-                                if (!c.pressed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
+                                val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
+                                if (c == null || !c.pressed) { released = true; break }
+                                if ((onScreen(c.position) - from).getDistance() > viewConfiguration.touchSlop) { fingerMoved[0] = true; break }
                             }
                         } == null
                         if (still) listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.offset?.y?.takeIf { it < 0 }?.let { listState.dispatchRawDelta(it.toFloat()) }
+                        // Followed to the release, measured from where it went down.
+                        while (!released) {
+                            val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+                            if (!c.pressed) break
+                            if (!fingerMoved[0] && (onScreen(c.position) - from).getDistance() > viewConfiguration.touchSlop) fingerMoved[0] = true
+                        }
                     }
                 }.longPressDraggableHandle(
                     enabled = canDrag,
@@ -547,7 +568,8 @@ fun SyncsScreen(
                     },
                     onDragStopped = {
                         // A tile held and let go without moving it: its menu, as a long press elsewhere.
-                        if (minimal && !swapped[0]) tileMenu = job.id
+                        // Moved (a drag), never: the menu would show on release, where the finger left it.
+                        if (minimal && !swapped[0] && !fingerMoved[0]) tileMenu = job.id
                         dragStretch = null
                         // Cleared once this release has been handled everywhere (the tile's own tap included).
                         scope.launch { heldTile[0] = null }
