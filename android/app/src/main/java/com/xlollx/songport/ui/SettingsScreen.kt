@@ -109,9 +109,11 @@ import com.xlollx.songport.sync.Scheduler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Opens a web page in the browser: http and https only (links from other services' answers come here too). */
 internal fun openUrl(ctx: android.content.Context, url: String) {
-    if (url.isBlank()) return
-    runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+    val uri = runCatching { Uri.parse(url.trim()) }.getOrNull() ?: return
+    if (uri.scheme?.lowercase() !in setOf("http", "https") || uri.host.isNullOrBlank()) return
+    runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
 }
 
 internal const val SOURCE_URL = "https://github.com/xlollx/Trackhop"

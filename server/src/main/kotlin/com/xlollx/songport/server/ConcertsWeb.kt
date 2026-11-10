@@ -173,7 +173,9 @@ private fun concertsHtml(playlist: String, r: Concerts.Result): String = buildSt
         a.events.forEach { e ->
             val where = listOf(e.city, e.venue).filter { it.isNotBlank() }.joinToString(" · ")
             val link = if (e.source == Concerts.Source.TICKETMASTER) "Tickets on Ticketmaster" else e.source.label
-            append("""<li><strong>${h(e.date)}${e.time?.let { " " + h(it) } ?: ""}</strong> ${h(where)} · <a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(link)}</a></li>""")
+            // A date without a web link (none given, or not http/https) says its source as plain text.
+            val source = if (e.url.isBlank()) h(e.source.label) else """<a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(link)}</a>"""
+            append("""<li><strong>${h(e.date)}${e.time?.let { " " + h(it) } ?: ""}</strong> ${h(where)} · $source</li>""")
         }
         append("</ul></div>")
     }

@@ -95,6 +95,17 @@ class NotifyTest {
         assertEquals("Trackhop: Città", b.s("title")); assertEquals("+3 −1", b.s("message"))
     }
 
+    @Test fun aRedirectIsNotFollowedWithTheKey() {
+        val other = MockWebServer().apply { start() }
+        try {
+            mock.enqueue(MockResponse().setResponseCode(307).setHeader("Location", other.url("/stolen").toString()))
+            val error = Notify.send(channel(Notify.Kind.GOTIFY, "server" to url, "token" to "AppTok"), msg)
+            assertEquals("HTTP 307", error)
+            assertEquals(1, mock.requestCount)
+            assertEquals(0, other.requestCount)
+        } finally { other.shutdown() }
+    }
+
     @Test fun discordAndSlackPostToTheirWebhook() {
         val d = sent(channel(Notify.Kind.DISCORD, "url" to "$url/api/webhooks/1/abc"), code = 204)
         assertEquals("POST", d.method)

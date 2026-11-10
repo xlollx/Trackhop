@@ -74,7 +74,6 @@ jobs:
       LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
       # Ticketmaster's Consumer Key (Discover › Concerts); never its Consumer Secret.
       TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
-      # setlist.fm API key (Discover › Setlists, setlist.fm links): shared by the build's users, on-demand calls only.
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
       # Keystore di debug (base64) per una firma stabile dell'APK debug; facoltativo.
@@ -151,7 +150,6 @@ jobs:
       LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
       # Ticketmaster's Consumer Key (Discover › Concerts); never its Consumer Secret.
       TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
-      # setlist.fm API key (Discover › Setlists, setlist.fm links): shared by the build's users, on-demand calls only.
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
     steps:

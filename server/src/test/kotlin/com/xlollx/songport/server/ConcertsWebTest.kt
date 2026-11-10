@@ -121,6 +121,8 @@ class ConcertsWebTest {
         val page = client.send(HttpRequest.newBuilder(URI("$base/settings")).header("Authorization", auth).GET().build(), HttpResponse.BodyHandlers.ofString()).body()
         assertTrue(page.contains("Your own key is saved."))
         assertFalse(page.contains("MyConsumerKey123"))
+        // Kept with the sign-ins: never in the set-up file the Config page exports.
+        assertFalse(com.xlollx.songport.data.ConfigBackup.export(env, "test").contains("MyConsumerKey123"))
         // Saving with the field empty keeps it; Remove takes it away.
         post("action=ticketmaster&key=")
         assertEquals("MyConsumerKey123", Concerts.ownKey(env))

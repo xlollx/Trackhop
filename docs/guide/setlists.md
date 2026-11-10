@@ -35,16 +35,14 @@ tries the public page, which setlist.fm sometimes protects with a browser check:
 setlist.fm answers only apps with a key, free for non-commercial use, and each key has a limit:
 2 lookups a second and 1,440 a day.
 
-- **The app from Google Play** comes with a key shared by everyone who uses it. To spare it,
-  Trackhop looks up only the 25 artists the playlist holds most, only when you tap **Find
-  setlists** (never in the background), and keeps each artist's setlists for a week. If the day's
-  lookups run out you'll see "Today's setlist.fm limit is reached": try again tomorrow, or add your
-  own key.
-- **Your own key** lifts this: up to 100 artists, and a daily limit of your own. With a setlist.fm
-  account, ask for one on [setlist.fm's API page](https://www.setlist.fm/settings/api) and paste it
-  in the app (Settings › Advanced › Service keys › setlist.fm key, or the button on the Setlists
-  page). It only reads public setlists: nothing about you.
-- **The GitHub and F-Droid builds** carry no key of ours: Setlists needs your own key there.
+- **Every build of the app** needs your own key: setlist.fm's API terms don't allow a key shared by
+  everyone, so Trackhop carries none. It's free: with a setlist.fm account, ask for one on
+  [setlist.fm's API page](https://www.setlist.fm/settings/api) and paste it in the app (Settings ›
+  Advanced › Service keys › setlist.fm key, or the button on the Setlists page). Trackhop keeps it
+  encrypted with your sign-ins, looks up the 100 artists the playlist holds most, only when you tap
+  **Find setlists** (never in the background), and keeps each artist's setlists for a week. If the
+  day's lookups run out you'll see "Today's setlist.fm limit is reached": try again tomorrow. It
+  only reads public setlists: nothing about you.
 - **Docker and Desktop**: put your key in **Settings › setlist.fm key** on the page, or give the
   container `SETLISTFM_API_KEY`. Each person on a shared server can save their own.
 
