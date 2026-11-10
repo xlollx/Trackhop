@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.VerticalDivider
+import com.xlollx.songport.ui.FitDialog
 import com.xlollx.songport.ui.LocalWindowLayout
 import com.xlollx.songport.ui.ProviderSaver
 import com.xlollx.songport.ui.ReadableWidth
@@ -568,13 +569,13 @@ private fun MainScreen(
     }
     firstSyncReady?.let { id ->
         val p = Providers.byId(id)
-        androidx.compose.material3.AlertDialog(
+        FitDialog(
             onDismissRequest = { firstSyncReady = null },
             title = { Text(stringResource(R.string.first_sync_ready_title)) },
             text = {
                 // The first service, alone: what it can do by itself, before a sync between two.
                 val alone = p?.takeIf { com.xlollx.songport.ui.ServiceIdeas.connected(ctx).singleOrNull()?.id == it.id }
-                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(stringResource(R.string.first_sync_ready_body, p?.label(ctx) ?: id))
                     if (alone != null) com.xlollx.songport.ui.ServiceIdeasCard(alone) { firstSyncReady = null; openIdea(it) }
                 }

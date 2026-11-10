@@ -2,6 +2,7 @@ package com.xlollx.songport.auth
 
 import com.xlollx.songport.providers.*
 import android.content.Intent
+import com.xlollx.songport.ui.FitDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -194,7 +195,7 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
         }
     }
     qcCode?.let { code ->
-        androidx.compose.material3.AlertDialog(
+        FitDialog(
             onDismissRequest = {},
             title = { Text(stringResource(R.string.login_qc_title)) },
             text = {

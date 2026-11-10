@@ -1,6 +1,5 @@
 package com.xlollx.songport.ui
 
-import androidx.compose.foundation.verticalScroll
 import com.xlollx.songport.providers.*
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -53,12 +52,12 @@ fun ExportMenuItem(onClick: () -> Unit) {
 /** The format chooser: one row per format, tapping one exports. */
 @Composable
 fun ExportFormatDialog(onDismiss: () -> Unit, onPick: (LocalFilesProvider.Export) -> Unit) {
-    androidx.compose.material3.AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.export_choose)) },
         text = {
             // Scrolls where the dialog is lower than the list (a phone on its side).
-            androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+            androidx.compose.foundation.layout.Column {
                 LocalFilesProvider.Export.entries.forEach { fmt ->
                     Text(
                         formatLabel(fmt),

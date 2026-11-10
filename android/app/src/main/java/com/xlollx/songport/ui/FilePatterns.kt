@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -55,11 +52,11 @@ internal fun FilePatternsDialog(initial: List<String>, onDismiss: () -> Unit, on
     val errors = compiled.mapIndexedNotNull { i, r -> r.exceptionOrNull()?.let { i + 1 to (it.message ?: "?") } }
     val patterns = compiled.mapNotNull { it.getOrNull() }
     val ctx = LocalContext.current
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.files_patterns_title)) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.files_patterns_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))
                 OutlinedTextField(

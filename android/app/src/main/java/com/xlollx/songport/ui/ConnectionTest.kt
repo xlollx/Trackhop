@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +58,7 @@ fun ConnectionTestDialog(provider: MusicProvider, onClose: () -> Unit) {
             .onFailure { set(2, false, it.message ?: it.javaClass.simpleName) }
     }
 
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onClose,
         title = { Text(stringResource(R.string.test_title, provider.label(ctx))) },
         text = {

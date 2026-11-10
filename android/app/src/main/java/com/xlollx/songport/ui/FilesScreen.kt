@@ -25,7 +25,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CardDefaults
@@ -123,7 +122,7 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
     }
     if (confirmDelete) {
         val n = selected.size
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { confirmDelete = false },
             title = { Text(pluralStringResource(R.plurals.files_delete_n, n, n)) },
             text = { Text(stringResource(R.string.files_delete_confirm)) },
