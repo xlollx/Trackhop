@@ -2112,7 +2112,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Geteilte Playlists</string>
     <string name="shared_row_desc">Eine Playlist für eine Gruppe, alle auf ihrem eigenen Dienst</string>
-    <string name="shared_intro">Eine geteilte Playlist liegt in einem Ordner, den deine Gruppe schon teilt (Google Drive, Nextcloud, Dropbox, Syncthing). Alle behalten ihre eigene Kopie auf ihrem eigenen Dienst, und Trackhop hält die Kopien gleich. Kein Konto, kein Server.</string>
+    <string name="shared_intro">Eine geteilte Playlist läuft über einen Ordner, den deine Gruppe schon teilt (Google Drive, Nextcloud, Dropbox, Syncthing), oder über einen verschlüsselten ntfy-Kanal. Alle behalten ihre eigene Kopie auf ihrem eigenen Dienst, und Trackhop hält die Kopien gleich. Kein Konto.</string>
     <string name="shared_create">Gruppe erstellen</string>
     <string name="shared_join">Mit Link beitreten</string>
     <string name="shared_name">Name der Gruppe</string>
@@ -2165,6 +2165,16 @@
     <string name="shared_error_not_creator">Nur wer die Gruppe erstellt hat, kann Rollen ändern.</string>
     <string name="shared_error_last_curator">Eine Gruppe braucht immer mindestens einen Kurator.</string>
     <string name="shared_error_gone">Diese geteilte Playlist ist nicht mehr auf diesem Gerät.</string>
+    <string name="shared_via">Wie sich die Gruppe trifft</string>
+    <string name="shared_via_folder_desc">Google Drive, Nextcloud, Dropbox oder Syncthing: Wer den Ordner öffnen kann, liest die Gruppe.</string>
+    <string name="shared_via_ntfy">Verschlüsselter ntfy-Kanal</string>
+    <string name="shared_via_ntfy_desc">Kein Ordner zu teilen: Änderungen gehen verschlüsselt über einen ntfy-Server, ntfy.sh oder deinen eigenen.</string>
+    <string name="shared_ntfy_server">ntfy-Server</string>
+    <string name="shared_ntfy_server_invalid">Eine Adresse, die mit https:// oder http:// beginnt.</string>
+    <string name="shared_invite_secret">Wer diese Einladung hat, kann die Gruppe lesen: Schick sie nur den Leuten, die du einlädst.</string>
+    <string name="shared_join_ntfy">Verschlüsselter Kanal auf %1$s. Wer diese Einladung hat, kann die Gruppe lesen: Gib sie nicht weiter.</string>
+    <string name="shared_joined_waiting">Du bist in %1$s. Die Songs kommen, sobald das Trackhop eines anderen Mitglieds synchronisiert.</string>
+    <string name="shared_error_server">Der Server der Gruppe %1$s antwortet gerade nicht: Die nächste Synchronisierung versucht es erneut.</string>
     <plurals name="shared_members_n">
         <item quantity="one">%1$d Mitglied</item>
         <item quantity="other">%1$d Mitglieder</item>
