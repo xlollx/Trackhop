@@ -260,7 +260,10 @@ object Notifications {
             NotificationChannel(UPDATE_CHANNEL_ID, context.getString(R.string.notif_update_channel), NotificationManager.IMPORTANCE_DEFAULT)
                 .apply { description = context.getString(R.string.notif_update_channel_desc) }
         )
-        val get = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url ?: "https://github.com/xlollx/Trackhop/releases/latest")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // An explicit intent to our own screen, which opens the download page (CodeQL: no implicit
+        // intent inside a PendingIntent).
+        val get = Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_RELEASE, url ?: MainActivity.RELEASES_URL)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pi = PendingIntent.getActivity(context, UPDATE_ID, get, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val n = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
