@@ -174,11 +174,13 @@ object SharedGroups {
         val roster = log.roster(files.map { it.roster } + before.roster)
         val events = log.merge(roster, before.events.filter { roster.allows(it) }, files.asSequence().flatMap { it.events.asSequence() })
         val now = clock()
-        val highest = HashMap(before.highest)
-        for (e in files.asSequence().flatMap { it.events.asSequence() }) if (e.seq > (highest[e.by] ?: 0)) highest[e.by] = e.seq
         val members = (files.map { it.card } + before.members)
             .filter { it.groupId == group.id && SigCache.verified(it) }
             .groupBy { it.member }.values.map { cards -> cards.maxWith(compareBy<MemberCard> { it.at }.thenBy { it.sig }) }
+        // Only for members (a file can name any author): bounded by the group's size.
+        val known = members.mapTo(HashSet()) { it.member } + roster.grants.map { it.member }
+        val highest = HashMap(before.highest.filterKeys { it in known })
+        for (e in files.asSequence().flatMap { it.events.asSequence() }) if (e.by in known && e.seq > (highest[e.by] ?: 0)) highest[e.by] = e.seq
         val mine = events.filter { it.by == group.me }.maxOfOrNull { it.seq } ?: 0
         var state = before.copy(
             roster = roster, events = events, members = members, highest = highest,

@@ -862,9 +862,14 @@ private fun MainScreen(
                     data = data,
                     // The "↔" half of a two-way pair is edited through its original: one set of settings for both.
                     onEdit = { j ->
-                        val original = twinOriginal(j, store.data.jobs)
-                        editingTwinId = if (original != null) j.id else null
-                        editing = original ?: j
+                        // A shared playlist's syncs are changed from their group's page.
+                        val gid = com.xlollx.songport.shared.SharedGroups.sharedSide(j)
+                        if (gid != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Open(gid)
+                        else {
+                            val original = twinOriginal(j, store.data.jobs)
+                            editingTwinId = if (original != null) j.id else null
+                            editing = original ?: j
+                        }
                     },
                     onPreview = { previewJob = it },
                     // On or off from the card's menu: the same flag as the editor's "Enabled", saved the same
