@@ -1,7 +1,7 @@
 # A post on Trackhop's Telegram channel (.github/scripts/telegram_post.py): after every app release
 # (build.yml) and Desktop/Docker release (desktop.yml), and by hand for anything else (the Instagram
 # carousel as an album: pictures committed in the repository, comma-separated paths).
-# Skipped until the TELEGRAM_BOT_TOKEN secret and the TELEGRAM_CHANNEL variable exist; never fails a release.
+# Skipped until the TELEGRAM_BOT_TOKEN secret exists (channel: @trackhop_app, or a TELEGRAM_CHANNEL variable); never fails a release.
 name: Telegram
 
 on:
@@ -39,7 +39,8 @@ jobs:
       - name: Post
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHANNEL: ${{ vars.TELEGRAM_CHANNEL }}
+          # The channel is public: @trackhop_app unless a TELEGRAM_CHANNEL variable (or secret) says otherwise.
+          TELEGRAM_CHANNEL: ${{ vars.TELEGRAM_CHANNEL || secrets.TELEGRAM_CHANNEL || '@trackhop_app' }}
           TAG: ${{ inputs.tag }}
           TEXT: ${{ inputs.text }}
           IMAGES: ${{ inputs.images }}
