@@ -38,6 +38,7 @@ object TargetLocks {
     }
 
     private val entries = ConcurrentHashMap<String, Entry>()
+    private const val MAX_ENTRIES = 10_000
 
     /** The time leases are measured by; tests move it. */
     @Volatile var clock: () -> Long = System::currentTimeMillis
@@ -64,6 +65,9 @@ object TargetLocks {
 
     /** Reserves [target] for [holder] (another device), for [ttlMs] clamped to the bounds above. */
     fun take(target: String, holder: String, ttlMs: Long = DEFAULT_TTL_MS): Answer {
+        // Entries are never dropped (a run may hold one at any time), so reservations from outside
+        // cannot add new ones without end: past this many playlists, a new one is answered busy.
+        if (!entries.containsKey(target) && entries.size >= MAX_ENTRIES) return Answer.Busy(null, clock() + DEFAULT_TTL_MS)
         val e = entry(target)
         synchronized(e) {
             val now = clock()

@@ -363,6 +363,14 @@ class ApiCallsTest {
         assertEquals(401, call("GET", "wanted?key=nope", auth = false).code)
         assertEquals(401, call("GET", "syncs?key=$key", auth = false).code)
         assertEquals(401, call("POST", "wanted/got?key=$key", """{"ids":[]}""", auth = false).code)
+        // The key sent as a header opens nothing, not even the list: it only ever works as ?key= on GET /wanted.
+        fun withHeader(method: String, path: String) = client.send(
+            HttpRequest.newBuilder(URI("$base/api/v1/$path")).header("Authorization", "ListKey $key")
+                .method(method, HttpRequest.BodyPublishers.noBody()).build(), HttpResponse.BodyHandlers.ofString()).statusCode()
+        assertEquals(401, withHeader("GET", "syncs"))
+        assertEquals(401, withHeader("GET", "config"))
+        assertEquals(401, withHeader("POST", "syncs/run-all"))
+        assertEquals(401, withHeader("GET", "wanted"))
 
         // Ticked: hidden, unless all=true; and back.
         val id = tracks[1].s("id")!!

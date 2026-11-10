@@ -77,7 +77,7 @@ object Api {
      * The Authorization a call comes with; for GET /api/v1/wanted without one, its ?key= as
      * "ListKey <key>", so a shared server can tell whose list it is from the key alone.
      */
-    fun authOf(ex: HttpExchange): String? = ex.requestHeaders.getFirst("Authorization") ?: run {
+    fun authOf(ex: HttpExchange): String? = ex.requestHeaders.getFirst("Authorization")?.takeUnless { it.startsWith(LIST_KEY) } ?: run {
         if (ex.requestMethod.uppercase() != "GET" || ex.requestURI.path.trimEnd('/') != "/api/v1/wanted") return null
         ex.requestURI.rawQuery.orEmpty().split('&').firstOrNull { it.startsWith("key=") }?.substringAfter('=')?.takeIf { it.isNotEmpty() }?.let { LIST_KEY + it }
     }
@@ -322,7 +322,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (!LocalKey.matches(auth, ex.remoteAddress?.address)) {
         if (!Api.enabled(env)) return error(403, "The API is off: make a token on the page, Tools › API.")
         // The list's own key (Lidarr's Custom List cannot send a token) opens GET /wanted only: authOf gives it for that call alone.
-        if (!Api.authorized(env, auth) && !Api.listKeyMatches(env, auth)) return error(401, "Send the API token as: Authorization: Bearer <token>")
+        val listOnly = method == "GET" && path.drop(2) == listOf("wanted") && Api.listKeyMatches(env, auth)
+        if (!Api.authorized(env, auth) && !listOnly) return error(401, "Send the API token as: Authorization: Bearer <token>")
     }
     val running = SyncState.running.value
     val jobs = env.store.data.jobs
