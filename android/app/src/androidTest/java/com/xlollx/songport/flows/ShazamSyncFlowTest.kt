@@ -25,7 +25,8 @@ class ShazamSyncFlowTest : FlowTest() {
         waitText(s(R.string.empty_syncs_title))
         click(s(R.string.new_sync))
         waitText(s(R.string.editor_title_new))
-        click(s(R.string.editor_source_shazam))
+        // After the services, File and "From link": off screen on a phone, the row scrolls to it.
+        clickTile(s(R.string.editor_source_shazam))
     }
 
     @Test

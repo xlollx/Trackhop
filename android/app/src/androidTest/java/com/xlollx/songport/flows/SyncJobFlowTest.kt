@@ -100,7 +100,9 @@ class SyncJobFlowTest : FlowTest() {
         clickDesc(s(R.string.run_now))
         waitFor("the second run's report", 60_000) { store.data.reports.count { it.jobId == job.id && !it.partial } == 2 }
         waitText(plural(R.plurals.stat_history, 2, 2, 0))
-        waitText("+0")
+        // Nothing added this time: a plain 0, without a sign, where the first run's "+6" was.
+        waitGone("+6")
+        waitFor("0 added and 0 removed") { compose.onAllNodesWithText("0", useUnmergedTree = true).fetchSemanticsNodes().size == 2 }
         assertEquals(6, FakeWorld.playlist("deezer", "Road Trip")!!.tracks.size)
 
         // The log, from Settings: both runs, each with its summary.
