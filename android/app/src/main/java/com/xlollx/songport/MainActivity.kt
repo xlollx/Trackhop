@@ -259,6 +259,11 @@ class MainActivity : ComponentActivity() {
         i?.getStringExtra(EXTRA_MESSAGE)?.let { if (it.isNotBlank()) messages.value = it; i.removeExtra(EXTRA_MESSAGE) }
         if (i?.hasExtra(EXTRA_TAB) == true) { tabRequests.value = i.getIntExtra(EXTRA_TAB, 0); i.removeExtra(EXTRA_TAB) }
         i?.getStringExtra(EXTRA_TOOL)?.let { toolRequests.value = it; i.removeExtra(EXTRA_TOOL) }
+        // The new-version notification: only Trackhop's own release pages are opened (anyone can start this screen).
+        i?.getStringExtra(EXTRA_OPEN_RELEASE)?.let { u ->
+            i.removeExtra(EXTRA_OPEN_RELEASE)
+            if (u.startsWith("$RELEASES_PREFIX/")) runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u))) }
+        }
         // A sync tapped in a widget: the Syncs tab, scrolled to its card, which lights up.
         i?.getStringExtra(EXTRA_FOCUS_JOB)?.let { com.xlollx.songport.ui.JobFocus.request.value = it; tabRequests.value = TAB_SYNCS; i.removeExtra(EXTRA_FOCUS_JOB) }
     }
@@ -273,6 +278,9 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_TAB = "tab"
         const val EXTRA_TOOL = "tool"
+        const val EXTRA_OPEN_RELEASE = "openRelease"
+        const val RELEASES_PREFIX = "https://github.com/xlollx/Trackhop/releases"
+        const val RELEASES_URL = "$RELEASES_PREFIX/latest"
         const val EXTRA_FOCUS_JOB = "focusJob"
         const val TOOL_UNPLAYABLE = "unplayable"
         /** The scrims enableEdgeToEdge() puts behind three-button navigation by default. */
