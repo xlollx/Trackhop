@@ -44,6 +44,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Export a playlist to CSV or M3U](export-playlist-csv), and back up all of them.
 - [Your Shazams in a playlist](shazam): every song you Shazam, on any service.
 - [Songs from a radio, in a playlist](radio): what a station plays in the hours you choose, on any service.
+- [A playlist shared by a group](shared-playlists): one playlist for friends who each use their own service.
 
 **Even with just one service**
 - [Save Discover Weekly, Release Radar and daylist](save-discover-weekly) before Spotify replaces them, every week.

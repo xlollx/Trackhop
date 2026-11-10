@@ -1,0 +1,99 @@
+---
+layout: null
+sitemap: false
+permalink: /join
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#5b3fd9">
+<title>Shared playlist invite · Trackhop</title>
+<meta property="og:title" content="An invite to a shared playlist">
+<meta property="og:description" content="One playlist for a group, each on their own music service.">
+<meta property="og:image" content="{{ '/store/icon512.png' | absolute_url }}">
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="48x48">
+<!-- A shared playlist's invite (the QR code on a group's page opens it). The invite travels in the
+     address's fragment, which the browser never sends to any server: this page only reads the
+     group's name from it and hands the whole invite to the app (songport://join). Format:
+     android/core/.../shared/SharedGroups.kt (Invite). No external scripts, no cookies, nothing stored. -->
+<style>
+:root{--bg:#f6f4fb;--card:#fff;--ink:#1c1a22;--ink2:#5d5868;--line:#e4e0ee;--pri:#5b3fd9;--on-pri:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#141218;--card:#1f1d25;--ink:#e9e4f2;--ink2:#aca6b8;--line:#35323e;--pri:#cfbcff;--on-pri:#2b1a63}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+main{max-width:640px;margin:0 auto;padding:0 16px 40px}
+.hero{margin:0 -16px 16px;padding:28px 20px 22px;color:#fff;background:linear-gradient(135deg,#4338ca,#7c3aed 55%,#db2777);border-radius:0 0 24px 24px}
+.hero small{display:block;opacity:.85;letter-spacing:.08em;text-transform:uppercase;font-size:12px;font-weight:600}
+.hero h1{margin:6px 0 4px;font-size:26px;line-height:1.15;word-break:break-word}
+.hero p{margin:0;opacity:.9;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.card p{margin:0 0 10px}
+.card p:last-child{margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;border:0}
+.btn.p{background:var(--pri);color:var(--on-pri)}
+.btn.s{background:transparent;color:var(--pri);border:1px solid var(--line)}
+.note{color:var(--ink2);font-size:13px;margin:14px 2px}
+footer{margin-top:28px;text-align:center;color:var(--ink2);font-size:13px}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+  <div class="hero"><small id="kicker">Trackhop</small><h1 id="title">…</h1><p id="sub"></p></div>
+  <div class="card" id="body"></div>
+  <div class="actions" id="actions"></div>
+  <p class="note" id="note"></p>
+  <footer><a href="{{ '/' | relative_url }}">trackhop.org</a></footer>
+  <noscript><div class="card">This page needs JavaScript to read the invite from its address.</div></noscript>
+</main>
+<script>
+(function () {
+  "use strict";
+  var T = {
+    en: { kicker: "Shared playlist", sub: "You're invited to a playlist shared by a group, each on their own music service.",
+          how: "Open the invite in Trackhop, pick your service and the group's shared folder: your own copy of the playlist fills up on the first sync.",
+          folder: "You also need access to the group's shared folder ({f}).", folderAny: "You also need access to the folder the group shares (Google Drive, Nextcloud, Dropbox, Syncthing).",
+          open: "Open in Trackhop", get: "Get Trackhop", note: "No Trackhop yet? Install it, then open this page again, or paste the link in Tools › Shared playlists › Join with a link.",
+          bad: "This invite is incomplete or damaged: ask for it again." },
+    it: { kicker: "Playlist condivisa", sub: "Sei invitato a una playlist condivisa da un gruppo, ognuno sul suo servizio musicale.",
+          how: "Apri l'invito in Trackhop, scegli il tuo servizio e la cartella condivisa del gruppo: la tua copia della playlist si riempie alla prima sincronizzazione.",
+          folder: "Ti serve anche l'accesso alla cartella condivisa del gruppo ({f}).", folderAny: "Ti serve anche l'accesso alla cartella che il gruppo condivide (Google Drive, Nextcloud, Dropbox, Syncthing).",
+          open: "Apri in Trackhop", get: "Scarica Trackhop", note: "Non hai ancora Trackhop? Installalo e riapri questa pagina, oppure incolla il link in Strumenti › Playlist condivise › Entra con un link.",
+          bad: "Questo invito è incompleto o danneggiato: chiedilo di nuovo." }
+  };
+  var lang = (navigator.language || "en").slice(0, 2).toLowerCase();
+  var t = T[lang] || T.en;
+  document.documentElement.lang = T[lang] ? lang : "en";
+  function set(id, text) { document.getElementById(id).textContent = text; }
+  function link(text, href, cls) { var a = document.createElement("a"); a.className = "btn " + cls; a.href = href; a.textContent = text; return a; }
+  var hash = (location.hash || "").replace(/^#/, "");
+  var params = {};
+  hash.split("&").forEach(function (p) {
+    var i = p.indexOf("=");
+    if (i > 0) { try { params[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); } catch (e) {} }
+  });
+  set("kicker", t.kicker);
+  var body = document.getElementById("body");
+  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !params.k || !params.n) {
+    set("title", "Trackhop");
+    body.textContent = t.bad;
+    return;
+  }
+  set("title", params.n);
+  set("sub", t.sub);
+  var how = document.createElement("p"); how.textContent = t.how; body.appendChild(how);
+  var folder = document.createElement("p"); folder.textContent = params.f ? t.folder.replace("{f}", params.f) : t.folderAny; body.appendChild(folder);
+  var actions = document.getElementById("actions");
+  actions.appendChild(link(t.open, "songport://join#" + hash, "p"));
+  actions.appendChild(link(t.get, "{{ '/' | relative_url }}", "s"));
+  set("note", t.note);
+})();
+</script>
+</body>
+</html>

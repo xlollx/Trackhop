@@ -247,13 +247,23 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (i?.action == Intent.ACTION_SEND) {
-            i.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText.value = it }
+            // A shared playlist's invite, sent to Trackhop from a chat: the join form, not a music link.
+            i.getStringExtra(Intent.EXTRA_TEXT)?.let { text ->
+                if (com.xlollx.songport.shared.Invite.parse(text) != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Join(text)
+                else sharedText.value = text
+            }
             i.action = null
         }
         // A music link opened with Trackhop (the MusicLinkActivity alias, off unless the user turns it on
         // in Settings): the address is handled like a shared one. The app's own callback links stay apart.
         if (i?.action == Intent.ACTION_VIEW) {
             val url = i.dataString
+            // An invite opened from trackhop.org/join (or its QR code): the join form.
+            if (url != null && com.xlollx.songport.shared.Invite.parse(url) != null) {
+                com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Join(url)
+                i.action = null
+                return
+            }
             if (url != null && (com.xlollx.songport.sync.TrackLinks.parse(url) != null || com.xlollx.songport.sync.PlaylistLinks.parse(url) != null)) {
                 sharedText.value = url
                 i.action = null
@@ -365,6 +375,10 @@ private fun MainScreen(
     // "Trackhop in numbers", from the Tools list or the Syncs header.
     var statsOpen by rememberSaveable { mutableStateOf(false) }
     var backupOpen by rememberSaveable { mutableStateOf(false) }
+    // Shared playlists: opened from Tools, a card's menu or an invite link (SharedUi.request).
+    var sharedOpen by rememberSaveable { mutableStateOf(false) }
+    val sharedAsk by com.xlollx.songport.ui.SharedUi.request.collectAsState()
+    LaunchedEffect(sharedAsk) { if (sharedAsk != null) sharedOpen = true }
     // "Did you know?": widgets, shortcuts and automation (Syncs pill, Settings › Help).
     var tipsOpen by rememberSaveable { mutableStateOf(false) }
     // From that page to the automation switch in Settings.
@@ -616,6 +630,7 @@ private fun MainScreen(
         transferOpen -> "transfer"
         statsOpen -> "stats"
         backupOpen -> "backup"
+        sharedOpen -> "shared"
         tipsOpen -> "tips"
         current != null -> "edit:" + current.id
         else -> null
@@ -665,6 +680,7 @@ private fun MainScreen(
                 transferOpen -> TransferScreen(onClose = { transferOpen = false }, onDone = { transferOpen = false; tab = MainActivity.TAB_SYNCS })
                 statsOpen -> com.xlollx.songport.ui.StatsScreen(data, onClose = { statsOpen = false })
                 backupOpen -> com.xlollx.songport.ui.BackupScreen(onClose = { backupOpen = false })
+                sharedOpen -> com.xlollx.songport.ui.SharedScreen(onClose = { sharedOpen = false })
                 tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
                     tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
                 })
@@ -846,9 +862,14 @@ private fun MainScreen(
                     data = data,
                     // The "↔" half of a two-way pair is edited through its original: one set of settings for both.
                     onEdit = { j ->
-                        val original = twinOriginal(j, store.data.jobs)
-                        editingTwinId = if (original != null) j.id else null
-                        editing = original ?: j
+                        // A shared playlist's syncs are changed from their group's page.
+                        val gid = com.xlollx.songport.shared.SharedGroups.sharedSide(j)
+                        if (gid != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Open(gid)
+                        else {
+                            val original = twinOriginal(j, store.data.jobs)
+                            editingTwinId = if (original != null) j.id else null
+                            editing = original ?: j
+                        }
                     },
                     onPreview = { previewJob = it },
                     // On or off from the card's menu: the same flag as the editor's "Enabled", saved the same

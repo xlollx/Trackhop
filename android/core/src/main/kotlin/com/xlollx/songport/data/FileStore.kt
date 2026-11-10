@@ -164,6 +164,8 @@ data class StoreData(
      * server's sync id: their review choices are exchanged too (only those the user chose).
      */
     val serverPairs: Map<String, String> = emptyMap(),
+    /** The shared playlists this device takes part in (see shared/SharedGroups); their logs live in files of their own. */
+    val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
 )
 
 /**

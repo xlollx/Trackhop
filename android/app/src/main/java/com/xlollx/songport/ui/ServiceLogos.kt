@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Folder
@@ -112,7 +113,7 @@ fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 
         contentAlignment = Alignment.Center,
     ) {
         val glyph = if (neutral) null else ServiceLogos.glyph(serviceId)
-        val generic = when (serviceId) { "csv" -> Icons.Filled.Folder; "subsonic" -> Icons.Filled.Dns; "charts" -> Icons.Filled.BarChart; "releases" -> Icons.Filled.NewReleases; else -> null }
+        val generic = when (serviceId) { "csv" -> Icons.Filled.Folder; "subsonic" -> Icons.Filled.Dns; "charts" -> Icons.Filled.BarChart; "releases" -> Icons.Filled.NewReleases; com.xlollx.songport.shared.SharedProvider.ID -> Icons.Filled.Groups; else -> null }
         when {
             glyph != null -> Image(glyph, null, Modifier.size(size * 0.56f), colorFilter = ColorFilter.tint(fg))
             generic != null -> Icon(generic, null, tint = fg, modifier = Modifier.size(size * 0.56f))

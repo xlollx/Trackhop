@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -113,7 +114,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true),
     MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
-    SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false);
+    SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
+    SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -261,6 +263,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
             ToolRow(Tool.AI, provider, beta = true) { open = Tool.AI }
+            ToolRow(Tool.SHARED, provider) { SharedUi.request.value = SharedUi.Request.List }
         }
 
         PrefSection(stringResource(R.string.tools_section_safety), accent = JobColor.GREEN, description = stringResource(R.string.tools_section_safety_desc)) {
