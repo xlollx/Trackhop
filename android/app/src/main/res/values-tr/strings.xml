@@ -1711,11 +1711,11 @@
     <string name="whats_new_118_releases_title">Sanatçılarından yeni çıkanlar</string>
     <string name="whats_new_118_releases_body">Keşfet › Yeni çıkanlar, bir çalma listesindeki sanatçıların yeni albümlerini, EP\'lerini ve single\'larını, yakında çıkacakları da gösterir. Onları herhangi bir serviste çalma listesi yap ya da bir eşitleme her hafta eklesin.</string>
     <string name="whats_new_118_notify_title">Mesajlar istediğin yerde</string>
-    <string name="whats_new_118_notify_body">Ayarlar › Bildirim kanalları, bir eşitleme bir şey değiştirdiğinde, başarısız olduğunda ya da yeni çıkanlar bulduğunda Telegram, ntfy, Gotify, Discord, Slack, Matrix veya Pushover\'dan mesaj gönderir. Anahtarları bu telefonda şifreli kalır.</string>
+    <string name="whats_new_118_notify_body">Ayarlar › Bildirimler › Bildirim kanalları, bir eşitleme bir şey değiştirdiğinde, başarısız olduğunda ya da yeni çıkanlar bulduğunda Telegram, ntfy, Gotify, Discord, Slack, Matrix veya Pushover\'dan mesaj gönderir. Anahtarları bu telefonda şifreli kalır.</string>
     <string name="whats_new_118_concerts_title">Sanatçılarının konserleri</string>
     <string name="whats_new_118_concerts_body">Keşfet › Konserler, bir çalma listesindeki sanatçıların ülkendeki yaklaşan tarihlerini Ticketmaster ve MusicBrainz\'den listeler. Tarihi olmayan mı var? Tek dokunuşla bilet sitelerinde ara.</string>
     <string name="whats_new_118_setlists_title">Setlistler çalma listesi oluyor</string>
-    <string name="whats_new_118_setlists_body">Keşfet › Setlistler, bir çalma listesindeki sanatçıların canlı ne çaldığını setlist.fm\'den gösterir. Bir konser seç ve onu herhangi bir serviste çalma listesi yap. Kendi ücretsiz setlist.fm anahtarını Ayarlar › Servis anahtarları bölümüne ekle.</string>
+    <string name="whats_new_118_setlists_body">Keşfet › Setlistler, bir çalma listesindeki sanatçıların canlı ne çaldığını setlist.fm\'den gösterir. Bir konser seç ve onu herhangi bir serviste çalma listesi yap. Kendi ücretsiz setlist.fm anahtarını Ayarlar › Gelişmiş › Servis anahtarları bölümüne ekle.</string>
     <string name="whats_new_118_records_title">Plaklar ve merch</string>
     <string name="whats_new_118_records_body">Keşfet › Plaklar ve merch, Discogs\'ta CD, plak ve kasetleri, ayrıca resmi siteleri ve mağazaları bulur. Kendi Discogs token\'ınla satıştaki kopyaları ve en düşük fiyatı da görürsün. Yalnızca bağlantılar: satın alma onların sitesinde.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
@@ -2010,10 +2010,10 @@
     <string name="setlists_find">Setlistleri bul</string>
     <string name="setlists_none">Bu sanatçılar için yeni setlist bulunamadı.</string>
     <string name="setlists_without">Setlisti olmayanlar: %1$s</string>
-    <string name="setlists_quota">setlist.fm\'nin bugünkü sınırına ulaşıldı: yarın tekrar dene ya da kendi anahtarını ekle.</string>
+    <string name="setlists_quota">setlist.fm\'nin bugünkü sınırına ulaşıldı: yarın tekrar dene.</string>
     <string name="setlists_key_refused">setlist.fm anahtarı reddetti: kontrol et.</string>
     <string name="setlists_no_key">Setlistler için bir setlist.fm anahtarı gerekir: kendi anahtarını ekle, ücretsiz.</string>
-    <string name="setlists_limited">Yalnızca en çok dinlediğin %1$d sanatçıya bakıldı: %2$d sanatçının hepsi için kendi setlist.fm anahtarını ekle.</string>
+    <string name="setlists_limited">%2$d sanatçıdan yalnızca en çok dinlediğin %1$d tanesi arandı.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
         <item quantity="other">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
@@ -2029,7 +2029,7 @@
     <string name="setlists_make">Çalma listesi oluştur</string>
     <string name="setlists_attribution">Setlistler setlist.fm\'den</string>
     <string name="setlists_key_title">setlist.fm anahtarı</string>
-    <string name="setlists_key_body">Uygulamanın ortak bir anahtarı varsa isteğe bağlı. Kendi ücretsiz anahtarınla (setlist.fm hesabı › Settings › API) Trackhop daha çok sanatçıya bakar ve günlük sınırı herkesle paylaşmaz. Yalnızca herkese açık setlistleri okur.</string>
+    <string name="setlists_key_body">Setlistler için kendi ücretsiz setlist.fm anahtarın gerekir: setlist.fm hesabın › Settings › API bölümünde oluştur ve buraya yapıştır. Trackhop yalnızca herkese açık setlistleri okur.</string>
     <string name="setlists_key_field">API anahtarı</string>
     <string name="setlists_key_none">Anahtar yok: setlistleri görmek için bir tane ekle</string>
     <string name="discover_records_title">Plaklar ve merch</string>

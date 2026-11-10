@@ -1686,11 +1686,11 @@
     <string name="whats_new_118_releases_title">아티스트의 신곡</string>
     <string name="whats_new_118_releases_body">발견 › 신곡에서 플레이리스트 아티스트의 새 앨범, EP, 싱글과 곧 나올 작품을 볼 수 있어요. 어떤 서비스에든 플레이리스트로 만들거나, 동기화가 매주 추가하게 할 수 있어요.</string>
     <string name="whats_new_118_notify_title">원하는 곳으로 알림</string>
-    <string name="whats_new_118_notify_body">설정 › 알림 채널에서 동기화가 무언가를 바꾸거나, 실패하거나, 신곡을 찾으면 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 메시지를 받아요. 키는 이 휴대폰에 암호화되어 저장돼요.</string>
+    <string name="whats_new_118_notify_body">설정 › 알림 › 알림 채널에서 동기화가 무언가를 바꾸거나, 실패하거나, 신곡을 찾으면 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 메시지를 받아요. 키는 이 휴대폰에 암호화되어 저장돼요.</string>
     <string name="whats_new_118_concerts_title">아티스트의 콘서트</string>
     <string name="whats_new_118_concerts_body">발견 › 콘서트에서 플레이리스트 아티스트의 다가오는 공연 일정을 선택한 나라 기준으로 Ticketmaster와 MusicBrainz에서 찾아요. 일정이 없으면 한 번 탭으로 티켓 사이트를 검색할 수 있어요.</string>
     <string name="whats_new_118_setlists_title">세트리스트를 플레이리스트로</string>
-    <string name="whats_new_118_setlists_body">발견 › 세트리스트에서 플레이리스트 아티스트가 라이브로 연주한 곡을 setlist.fm에서 볼 수 있어요. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 무료 setlist.fm 키는 설정 › 서비스 키에서 추가하세요.</string>
+    <string name="whats_new_118_setlists_body">발견 › 세트리스트에서 플레이리스트 아티스트가 라이브로 연주한 곡을 setlist.fm에서 볼 수 있어요. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 무료 setlist.fm 키는 설정 › 고급 › 서비스 키에서 추가하세요.</string>
     <string name="whats_new_118_records_title">음반과 굿즈</string>
     <string name="whats_new_118_records_body">발견 › 음반과 굿즈에서 Discogs의 CD, LP, 카세트와 공식 사이트, 쇼핑몰을 찾아요. 내 Discogs 토큰이 있으면 판매 중인 음반과 최저가도 보여요. 링크만 제공하며 구매는 해당 사이트에서 해요.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
@@ -1976,10 +1976,10 @@
     <string name="setlists_find">세트리스트 찾기</string>
     <string name="setlists_none">이 아티스트들의 최근 세트리스트가 없습니다.</string>
     <string name="setlists_without">세트리스트 없음: %1$s</string>
-    <string name="setlists_quota">오늘 setlist.fm 한도에 도달했습니다. 내일 다시 시도하거나 내 키를 추가하세요.</string>
+    <string name="setlists_quota">오늘 setlist.fm 한도에 도달했습니다. 내일 다시 시도하세요.</string>
     <string name="setlists_key_refused">setlist.fm이 키를 거부했습니다. 확인해 주세요.</string>
     <string name="setlists_no_key">세트리스트에는 setlist.fm 키가 필요합니다. 무료이니 내 키를 추가하세요.</string>
-    <string name="setlists_limited">가장 많이 듣는 아티스트 %1$d명만 찾았습니다. 내 setlist.fm 키를 추가하면 %2$d명 모두 찾습니다.</string>
+    <string name="setlists_limited">%2$d명 중 가장 많이 듣는 %1$d명만 찾았습니다.</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm이 아티스트 %d명에 대해 응답하지 않았습니다. 나중에 다시 시도하세요.</item>
     </plurals>
@@ -1993,7 +1993,7 @@
     <string name="setlists_make">플레이리스트 만들기</string>
     <string name="setlists_attribution">세트리스트 출처: setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 키</string>
-    <string name="setlists_key_body">앱에 공유 키가 있으면 선택 사항입니다. 내 무료 키(setlist.fm 계정 › Settings › API)가 있으면 더 많은 아티스트를 찾고 하루 한도를 모두와 나누지 않습니다. 공개 세트리스트만 읽습니다.</string>
+    <string name="setlists_key_body">세트리스트에는 내 무료 setlist.fm 키가 필요합니다. setlist.fm 계정 › Settings › API에서 만들어 여기에 붙여 넣으세요. Trackhop은 공개 세트리스트만 읽습니다.</string>
     <string name="setlists_key_field">API 키</string>
     <string name="setlists_key_none">키 없음: 세트리스트를 보려면 추가하세요</string>
     <string name="discover_records_title">음반과 굿즈</string>

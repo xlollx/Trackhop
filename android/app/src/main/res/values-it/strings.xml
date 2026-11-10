@@ -1713,11 +1713,11 @@
     <string name="whats_new_118_releases_title">Nuove uscite dei tuoi artisti</string>
     <string name="whats_new_118_releases_body">Scopri › Nuove uscite mostra i nuovi album, EP e singoli degli artisti di una playlist, e ciò che sta per uscire. Fanne una playlist su qualsiasi servizio, oppure lascia che una sync li aggiunga ogni settimana.</string>
     <string name="whats_new_118_notify_title">Messaggi dove vuoi tu</string>
-    <string name="whats_new_118_notify_body">Impostazioni › Canali di notifica ti manda un messaggio su Telegram, ntfy, Gotify, Discord, Slack, Matrix o Pushover quando una sync cambia qualcosa, non riesce o trova nuove uscite. Le loro chiavi restano cifrate su questo telefono.</string>
+    <string name="whats_new_118_notify_body">Opzioni › Notifiche › Canali di notifica ti manda un messaggio su Telegram, ntfy, Gotify, Discord, Slack, Matrix o Pushover quando una sync cambia qualcosa, non riesce o trova nuove uscite. Le loro chiavi restano cifrate su questo telefono.</string>
     <string name="whats_new_118_concerts_title">Concerti dei tuoi artisti</string>
     <string name="whats_new_118_concerts_body">Scopri › Concerti elenca le prossime date degli artisti di una playlist nel tuo paese, da Ticketmaster e MusicBrainz. Nessuna data per qualcuno? Con un tocco cerchi sui siti dei biglietti.</string>
     <string name="whats_new_118_setlists_title">Scalette come playlist</string>
-    <string name="whats_new_118_setlists_body">Scopri › Scalette mostra cosa hanno suonato dal vivo gli artisti di una playlist, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio. Aggiungi la tua chiave gratuita di setlist.fm in Impostazioni › Chiavi dei servizi.</string>
+    <string name="whats_new_118_setlists_body">Scopri › Scalette mostra cosa hanno suonato dal vivo gli artisti di una playlist, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio. Aggiungi la tua chiave gratuita di setlist.fm in Opzioni › Avanzate › Chiavi dei servizi.</string>
     <string name="whats_new_118_records_title">Dischi e merch</string>
     <string name="whats_new_118_records_body">Scopri › Dischi e merch trova CD, vinili e cassette su Discogs, oltre a siti e negozi ufficiali. Con il tuo token Discogs vedi anche le copie in vendita e il prezzo più basso. Solo link: compri sui loro siti.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
@@ -2012,10 +2012,10 @@
     <string name="setlists_find">Cerca scalette</string>
     <string name="setlists_none">Nessuna scaletta recente per questi artisti.</string>
     <string name="setlists_without">Nessuna scaletta per: %1$s</string>
-    <string name="setlists_quota">Limite di oggi di setlist.fm raggiunto: riprova domani o aggiungi la tua chiave.</string>
+    <string name="setlists_quota">Limite di oggi di setlist.fm raggiunto: riprova domani.</string>
     <string name="setlists_key_refused">setlist.fm ha rifiutato la chiave: controllala.</string>
     <string name="setlists_no_key">Le scalette richiedono una chiave setlist.fm: aggiungi la tua, è gratuita.</string>
-    <string name="setlists_limited">Cercati solo i %1$d artisti che ascolti di più: aggiungi la tua chiave setlist.fm per cercarli tutti e %2$d.</string>
+    <string name="setlists_limited">Cercati solo i %1$d artisti che ascolti di più, su %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm non ha risposto per %d artista: riprova più tardi.</item>
         <item quantity="other">setlist.fm non ha risposto per %d artisti: riprova più tardi.</item>
@@ -2031,7 +2031,7 @@
     <string name="setlists_make">Crea una playlist</string>
     <string name="setlists_attribution">Scalette da setlist.fm</string>
     <string name="setlists_key_title">Chiave setlist.fm</string>
-    <string name="setlists_key_body">Facoltativa se l\'app ha già una chiave condivisa. Con una tua chiave gratuita (account setlist.fm › Settings › API) Trackhop cerca più artisti e non divide il limite giornaliero con tutti. Legge solo scalette pubbliche.</string>
+    <string name="setlists_key_body">Per le scalette serve una tua chiave gratuita di setlist.fm: creala nel tuo account setlist.fm › Settings › API e incollala qui. Trackhop legge solo scalette pubbliche.</string>
     <string name="setlists_key_field">Chiave API</string>
     <string name="setlists_key_none">Nessuna chiave: aggiungine una per vedere le scalette</string>
     <string name="discover_records_title">Dischi e merch</string>

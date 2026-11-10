@@ -1714,11 +1714,11 @@
     <string name="whats_new_118_releases_title">New releases of your artists</string>
     <string name="whats_new_118_releases_body">Discover › New releases shows the new albums, EPs and singles of a playlist\'s artists, and what\'s coming soon. Make them a playlist on any service, or let a sync add them every week.</string>
     <string name="whats_new_118_notify_title">Messages where you want them</string>
-    <string name="whats_new_118_notify_body">Settings › Notification channels sends you a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something, fails or finds new releases. Their keys stay encrypted on this phone.</string>
+    <string name="whats_new_118_notify_body">Settings › Notifications › Notification channels sends you a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something, fails or finds new releases. Their keys stay encrypted on this phone.</string>
     <string name="whats_new_118_concerts_title">Concerts of your artists</string>
     <string name="whats_new_118_concerts_body">Discover › Concerts lists the upcoming dates of a playlist\'s artists in your country, from Ticketmaster and MusicBrainz. No dates for someone? One tap searches the ticket sites.</string>
     <string name="whats_new_118_setlists_title">Setlists as playlists</string>
-    <string name="whats_new_118_setlists_body">Discover › Setlists shows what a playlist\'s artists played live, from setlist.fm. Pick a concert and make it a playlist on any service. Add your own free setlist.fm key in Settings › Service keys.</string>
+    <string name="whats_new_118_setlists_body">Discover › Setlists shows what a playlist\'s artists played live, from setlist.fm. Pick a concert and make it a playlist on any service. Add your own free setlist.fm key in Settings › Advanced › Service keys.</string>
     <string name="whats_new_118_records_title">Records &amp; merch</string>
     <string name="whats_new_118_records_body">Discover › Records &amp; merch finds CDs, vinyl and cassettes on Discogs, plus official sites and shops. With your own Discogs token you also see the copies for sale and the lowest price. Just plain links: you buy on their sites.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
@@ -2013,10 +2013,10 @@
     <string name="setlists_find">Find setlists</string>
     <string name="setlists_none">No recent setlists found for these artists.</string>
     <string name="setlists_without">No setlists for: %1$s</string>
-    <string name="setlists_quota">Today\'s setlist.fm limit is reached: try again tomorrow or add your own key.</string>
+    <string name="setlists_quota">Today\'s setlist.fm limit is reached: try again tomorrow.</string>
     <string name="setlists_key_refused">setlist.fm refused the key: check it.</string>
     <string name="setlists_no_key">Setlists need a setlist.fm key: add your own, it\'s free.</string>
-    <string name="setlists_limited">Only the %1$d artists you play most were looked up: add your own setlist.fm key to look up all %2$d.</string>
+    <string name="setlists_limited">Only the %1$d artists you play most were looked up, of %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm didn\'t answer for %d artist: try again later.</item>
         <item quantity="other">setlist.fm didn\'t answer for %d artists: try again later.</item>
@@ -2032,7 +2032,7 @@
     <string name="setlists_make">Make a playlist</string>
     <string name="setlists_attribution">Setlists from setlist.fm</string>
     <string name="setlists_key_title">setlist.fm key</string>
-    <string name="setlists_key_body">Optional where the app has its own shared key. With your own free key (a setlist.fm account › Settings › API) Trackhop looks up more artists and doesn\'t share the daily limit with everyone. It only reads public setlists.</string>
+    <string name="setlists_key_body">Setlists need your own free setlist.fm key: make it in your setlist.fm account › Settings › API and paste it here. Trackhop only reads public setlists.</string>
     <string name="setlists_key_field">API key</string>
     <string name="setlists_key_none">No key: add one to see setlists</string>
     <string name="discover_records_title">Records &amp; merch</string>

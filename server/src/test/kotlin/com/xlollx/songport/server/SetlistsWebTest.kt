@@ -106,7 +106,7 @@ class SetlistsWebTest {
         assertEquals("true", songs[0].s("tape")); assertEquals("Nina Simone", songs[2].s("coverOf")); assertEquals("1", songs[3].s("encore"))
         val notes = o["notes"]!!.jsonArray.map { it.jsonPrimitive.content }
         assertEquals(SetlistTexts.QUOTA, notes.first())
-        assertTrue(notes.toString(), notes.any { it.contains("all 60") })
+        assertTrue(notes.toString(), notes.any { it.contains("of 60") })
     }
 
     @Test fun theCommandLineAndTheAssistantAsk() {

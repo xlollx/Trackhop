@@ -1713,11 +1713,11 @@
     <string name="whats_new_118_releases_title">Neues von deinen Künstlern</string>
     <string name="whats_new_118_releases_body">Entdecken › Neuerscheinungen zeigt neue Alben, EPs und Singles der Künstler einer Playlist und was bald erscheint. Mach daraus eine Playlist auf einem beliebigen Dienst oder lass einen Sync sie jede Woche hinzufügen.</string>
     <string name="whats_new_118_notify_title">Nachrichten, wo du willst</string>
-    <string name="whats_new_118_notify_body">Einstellungen › Benachrichtigungskanäle schickt dir eine Nachricht über Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert, fehlschlägt oder Neuerscheinungen findet. Die Schlüssel bleiben verschlüsselt auf diesem Handy.</string>
+    <string name="whats_new_118_notify_body">Einstellungen › Benachrichtigungen › Benachrichtigungskanäle schickt dir eine Nachricht über Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert, fehlschlägt oder Neuerscheinungen findet. Die Schlüssel bleiben verschlüsselt auf diesem Handy.</string>
     <string name="whats_new_118_concerts_title">Konzerte deiner Künstler</string>
     <string name="whats_new_118_concerts_body">Entdecken › Konzerte zeigt die kommenden Termine der Künstler einer Playlist in deinem Land, von Ticketmaster und MusicBrainz. Für jemanden keine Termine? Ein Tipp sucht auf den Ticketseiten.</string>
     <string name="whats_new_118_setlists_title">Setlists als Playlists</string>
-    <string name="whats_new_118_setlists_body">Entdecken › Setlists zeigt, was die Künstler einer Playlist live gespielt haben, von setlist.fm. Wähle ein Konzert und mach daraus eine Playlist auf einem beliebigen Dienst. Deinen eigenen kostenlosen setlist.fm-Schlüssel trägst du unter Einstellungen › Dienst-Schlüssel ein.</string>
+    <string name="whats_new_118_setlists_body">Entdecken › Setlists zeigt, was die Künstler einer Playlist live gespielt haben, von setlist.fm. Wähle ein Konzert und mach daraus eine Playlist auf einem beliebigen Dienst. Deinen eigenen kostenlosen setlist.fm-Schlüssel trägst du unter Einstellungen › Erweitert › Dienst-Schlüssel ein.</string>
     <string name="whats_new_118_records_title">Platten &amp; Merch</string>
     <string name="whats_new_118_records_body">Entdecken › Platten &amp; Merch findet CDs, Vinyl und Kassetten auf Discogs, dazu offizielle Seiten und Shops. Mit deinem eigenen Discogs-Token siehst du auch die Exemplare im Angebot und den niedrigsten Preis. Nur Links: Du kaufst auf deren Seiten.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
@@ -2012,10 +2012,10 @@
     <string name="setlists_find">Setlists suchen</string>
     <string name="setlists_none">Keine aktuellen Setlists für diese Künstler gefunden.</string>
     <string name="setlists_without">Keine Setlists für: %1$s</string>
-    <string name="setlists_quota">Das heutige Limit von setlist.fm ist erreicht: versuch es morgen wieder oder füge deinen eigenen Schlüssel hinzu.</string>
+    <string name="setlists_quota">Das heutige Limit von setlist.fm ist erreicht: versuch es morgen wieder.</string>
     <string name="setlists_key_refused">setlist.fm hat den Schlüssel abgelehnt: prüfe ihn.</string>
     <string name="setlists_no_key">Setlists brauchen einen setlist.fm-Schlüssel: füge deinen eigenen hinzu, er ist kostenlos.</string>
-    <string name="setlists_limited">Nur die %1$d Künstler, die du am meisten hörst, wurden gesucht: mit deinem eigenen setlist.fm-Schlüssel werden alle %2$d gesucht.</string>
+    <string name="setlists_limited">Nur die %1$d meistgehörten von %2$d Künstlern wurden gesucht.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm hat für %d Künstler nicht geantwortet: versuch es später.</item>
         <item quantity="other">setlist.fm hat für %d Künstler nicht geantwortet: versuch es später.</item>
@@ -2031,7 +2031,7 @@
     <string name="setlists_make">Playlist erstellen</string>
     <string name="setlists_attribution">Setlists von setlist.fm</string>
     <string name="setlists_key_title">setlist.fm-Schlüssel</string>
-    <string name="setlists_key_body">Optional, wenn die App einen gemeinsamen Schlüssel hat. Mit deinem eigenen kostenlosen Schlüssel (setlist.fm-Konto › Settings › API) sucht Trackhop mehr Künstler und teilt das Tageslimit nicht mit allen. Er liest nur öffentliche Setlists.</string>
+    <string name="setlists_key_body">Für Setlists brauchst du deinen eigenen kostenlosen setlist.fm-Schlüssel: Erstelle ihn in deinem setlist.fm-Konto › Settings › API und füge ihn hier ein. Trackhop liest nur öffentliche Setlists.</string>
     <string name="setlists_key_field">API-Schlüssel</string>
     <string name="setlists_key_none">Kein Schlüssel: füge einen hinzu, um Setlists zu sehen</string>
     <string name="discover_records_title">Platten &amp; Merch</string>

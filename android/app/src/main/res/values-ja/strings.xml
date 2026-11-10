@@ -1687,11 +1687,11 @@
     <string name="whats_new_118_releases_title">アーティストの新作</string>
     <string name="whats_new_118_releases_body">発見 › 新作で、プレイリストのアーティストの新しいアルバム・EP・シングルと、近日発売の作品がわかります。どのサービスにもプレイリストを作れるほか、同期で毎週追加することもできます。</string>
     <string name="whats_new_118_notify_title">好きな場所に通知</string>
-    <string name="whats_new_118_notify_body">設定 › 通知チャンネルで、同期で変更があったとき、失敗したとき、新作が見つかったときに Telegram・ntfy・Gotify・Discord・Slack・Matrix・Pushover へメッセージを送れます。キーはこのスマートフォンに暗号化して保存されます。</string>
+    <string name="whats_new_118_notify_body">設定 › 通知 › 通知チャンネルで、同期で変更があったとき、失敗したとき、新作が見つかったときに Telegram・ntfy・Gotify・Discord・Slack・Matrix・Pushover へメッセージを送れます。キーはこのスマートフォンに暗号化して保存されます。</string>
     <string name="whats_new_118_concerts_title">アーティストのコンサート</string>
     <string name="whats_new_118_concerts_body">発見 › コンサートで、プレイリストのアーティストの選んだ国での公演予定を Ticketmaster と MusicBrainz から確認できます。予定が見つからなくても、ワンタップでチケットサイトを検索できます。</string>
     <string name="whats_new_118_setlists_title">セットリストをプレイリストに</string>
-    <string name="whats_new_118_setlists_body">発見 › セットリストで、プレイリストのアーティストがライブで演奏した曲を setlist.fm から確認できます。公演を選んで、どのサービスにもプレイリストを作れます。無料の setlist.fm キーは 設定 › サービスのキー で追加してください。</string>
+    <string name="whats_new_118_setlists_body">発見 › セットリストで、プレイリストのアーティストがライブで演奏した曲を setlist.fm から確認できます。公演を選んで、どのサービスにもプレイリストを作れます。無料の setlist.fm キーは 設定 › 詳細設定 › サービスのキー で追加してください。</string>
     <string name="whats_new_118_records_title">レコードとグッズ</string>
     <string name="whats_new_118_records_body">発見 › レコードとグッズで、Discogs の CD・レコード・カセットと、公式サイトやショップが見つかります。自分の Discogs トークンを使うと、出品中のものと最安値も表示されます。リンクのみで、購入は各サイトで行います。</string>
     <string name="whats_new_114_nano_title">キー不要のAI</string>
@@ -1977,10 +1977,10 @@
     <string name="setlists_find">セットリストを探す</string>
     <string name="setlists_none">これらのアーティストの最近のセットリストは見つかりませんでした。</string>
     <string name="setlists_without">セットリストなし: %1$s</string>
-    <string name="setlists_quota">setlist.fm の今日の上限に達しました。明日もう一度試すか、自分のキーを追加してください。</string>
+    <string name="setlists_quota">setlist.fm の今日の上限に達しました。明日もう一度試してください。</string>
     <string name="setlists_key_refused">setlist.fm がキーを拒否しました。確認してください。</string>
     <string name="setlists_no_key">セットリストには setlist.fm のキーが必要です。無料なので自分のキーを追加してください。</string>
-    <string name="setlists_limited">よく聴く %1$d 組のアーティストだけを調べました。自分の setlist.fm キーを追加すると %2$d 組すべてを調べます。</string>
+    <string name="setlists_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm から %d 組のアーティストの応答がありませんでした。後でもう一度試してください。</item>
     </plurals>
@@ -1994,7 +1994,7 @@
     <string name="setlists_make">プレイリストを作成</string>
     <string name="setlists_attribution">セットリスト提供: setlist.fm</string>
     <string name="setlists_key_title">setlist.fm キー</string>
-    <string name="setlists_key_body">アプリに共有キーがある場合は任意です。自分の無料キー（setlist.fm アカウント › Settings › API）があれば、より多くのアーティストを調べ、1日の上限をみんなと分け合いません。公開セットリストを読むだけです。</string>
+    <string name="setlists_key_body">セットリストには自分の無料 setlist.fm キーが必要です。setlist.fm アカウント › Settings › API で作成して、ここに貼り付けてください。Trackhop は公開セットリストを読むだけです。</string>
     <string name="setlists_key_field">API キー</string>
     <string name="setlists_key_none">キーなし: セットリストを見るには追加してください</string>
     <string name="discover_records_title">レコードとグッズ</string>

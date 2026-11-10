@@ -1687,11 +1687,11 @@
     <string name="whats_new_118_releases_title">艺人新发行</string>
     <string name="whats_new_118_releases_body">发现 › 新发行会列出歌单中艺人的新专辑、EP 和单曲，以及即将推出的作品。可以在任何服务上生成歌单，也可以让同步每周自动添加。</string>
     <string name="whats_new_118_notify_title">消息发到你想要的地方</string>
-    <string name="whats_new_118_notify_body">设置 › 通知渠道会在同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 给你发消息。它们的密钥加密保存在这台手机上。</string>
+    <string name="whats_new_118_notify_body">设置 › 通知 › 通知渠道会在同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 给你发消息。它们的密钥加密保存在这台手机上。</string>
     <string name="whats_new_118_concerts_title">艺人的演唱会</string>
     <string name="whats_new_118_concerts_body">发现 › 演唱会会从 Ticketmaster 和 MusicBrainz 列出歌单中艺人在你所选国家的近期演出。没有日期？轻点一下即可在票务网站上搜索。</string>
     <string name="whats_new_118_setlists_title">把演出曲目变成歌单</string>
-    <string name="whats_new_118_setlists_body">发现 › 演出曲目会从 setlist.fm 显示歌单中艺人在现场演奏过的歌。选一场演出，在任何服务上生成歌单。请在 设置 › 服务密钥 中添加你自己的免费 setlist.fm 密钥。</string>
+    <string name="whats_new_118_setlists_body">发现 › 演出曲目会从 setlist.fm 显示歌单中艺人在现场演奏过的歌。选一场演出，在任何服务上生成歌单。请在 设置 › 高级 › 服务密钥 中添加你自己的免费 setlist.fm 密钥。</string>
     <string name="whats_new_118_records_title">唱片与周边</string>
     <string name="whats_new_118_records_body">发现 › 唱片与周边会在 Discogs 上查找 CD、黑胶和磁带，并列出官网和官方商店。使用你自己的 Discogs 令牌，还能看到在售的唱片和最低价格。只提供链接，购买在对方网站上完成。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
@@ -1977,10 +1977,10 @@
     <string name="setlists_find">查找演出曲目</string>
     <string name="setlists_none">没有找到这些艺人最近的演出曲目。</string>
     <string name="setlists_without">没有演出曲目：%1$s</string>
-    <string name="setlists_quota">今天的 setlist.fm 额度已用完：明天再试，或添加你自己的密钥。</string>
+    <string name="setlists_quota">今天的 setlist.fm 额度已用完：请明天再试。</string>
     <string name="setlists_key_refused">setlist.fm 拒绝了该密钥：请检查。</string>
     <string name="setlists_no_key">演出曲目需要 setlist.fm 密钥：添加你自己的，免费。</string>
-    <string name="setlists_limited">只查找了你最常听的 %1$d 位艺人：添加你自己的 setlist.fm 密钥即可查找全部 %2$d 位。</string>
+    <string name="setlists_limited">只查找了 %2$d 位艺人中你最常听的 %1$d 位。</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm 没有回应 %d 位艺人：请稍后再试。</item>
     </plurals>
@@ -1994,7 +1994,7 @@
     <string name="setlists_make">生成歌单</string>
     <string name="setlists_attribution">演出曲目来自 setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 密钥</string>
-    <string name="setlists_key_body">如果应用已有共享密钥，则为可选。使用你自己的免费密钥（setlist.fm 账户 › Settings › API），Trackhop 能查找更多艺人，且不与所有人共享每日额度。它只读取公开的演出曲目。</string>
+    <string name="setlists_key_body">演出曲目需要你自己的免费 setlist.fm 密钥：在 setlist.fm 账户 › Settings › API 中创建，然后粘贴到这里。Trackhop 只读取公开的演出曲目。</string>
     <string name="setlists_key_field">API 密钥</string>
     <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
     <string name="discover_records_title">唱片与周边</string>

@@ -1765,11 +1765,11 @@
     <string name="whats_new_118_releases_title">Новинки ваших артистов</string>
     <string name="whats_new_118_releases_body">Открытия › Новинки показывают новые альбомы, EP и синглы артистов из плейлиста и то, что скоро выйдет. Сделайте из них плейлист в любом сервисе или пусть синхронизация добавляет их каждую неделю.</string>
     <string name="whats_new_118_notify_title">Сообщения там, где удобно</string>
-    <string name="whats_new_118_notify_body">Настройки › Каналы уведомлений присылают сообщение в Telegram, ntfy, Gotify, Discord, Slack, Matrix или Pushover, когда синхронизация что-то меняет, не удаётся или находит новинки. Их ключи хранятся на этом телефоне в зашифрованном виде.</string>
+    <string name="whats_new_118_notify_body">Настройки › Уведомления › Каналы уведомлений присылают сообщение в Telegram, ntfy, Gotify, Discord, Slack, Matrix или Pushover, когда синхронизация что-то меняет, не удаётся или находит новинки. Их ключи хранятся на этом телефоне в зашифрованном виде.</string>
     <string name="whats_new_118_concerts_title">Концерты ваших артистов</string>
     <string name="whats_new_118_concerts_body">Открытия › Концерты показывают ближайшие даты артистов из плейлиста в вашей стране, по данным Ticketmaster и MusicBrainz. У кого-то нет дат? Одно касание — и поиск на сайтах билетов.</string>
     <string name="whats_new_118_setlists_title">Сет-листы как плейлисты</string>
-    <string name="whats_new_118_setlists_body">Открытия › Сет-листы показывают, что артисты из плейлиста играли вживую, по данным setlist.fm. Выберите концерт и сделайте из него плейлист в любом сервисе. Свой бесплатный ключ setlist.fm добавьте в Настройки › Ключи сервисов.</string>
+    <string name="whats_new_118_setlists_body">Открытия › Сет-листы показывают, что артисты из плейлиста играли вживую, по данным setlist.fm. Выберите концерт и сделайте из него плейлист в любом сервисе. Свой бесплатный ключ setlist.fm добавьте в Настройки › Дополнительно › Ключи сервисов.</string>
     <string name="whats_new_118_records_title">Пластинки и мерч</string>
     <string name="whats_new_118_records_body">Открытия › Пластинки и мерч находят CD, винил и кассеты на Discogs, а также официальные сайты и магазины. Со своим токеном Discogs видны и экземпляры в продаже, и самая низкая цена. Только ссылки: покупаете вы на их сайтах.</string>
     <string name="whats_new_114_nano_title">ИИ без ключа</string>
@@ -2082,10 +2082,10 @@
     <string name="setlists_find">Найти сет-листы</string>
     <string name="setlists_none">Свежих сет-листов этих артистов не найдено.</string>
     <string name="setlists_without">Нет сет-листов: %1$s</string>
-    <string name="setlists_quota">Дневной лимит setlist.fm исчерпан: попробуйте завтра или добавьте свой ключ.</string>
+    <string name="setlists_quota">Дневной лимит setlist.fm исчерпан: попробуйте завтра.</string>
     <string name="setlists_key_refused">setlist.fm отклонил ключ: проверьте его.</string>
     <string name="setlists_no_key">Для сет-листов нужен ключ setlist.fm: добавьте свой, это бесплатно.</string>
-    <string name="setlists_limited">Проверены только %1$d артистов, которых вы слушаете чаще всего: добавьте свой ключ setlist.fm, чтобы проверить всех %2$d.</string>
+    <string name="setlists_limited">Искали только %1$d самых слушаемых артистов из %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm не ответил для %d артиста: попробуйте позже.</item>
         <item quantity="few">setlist.fm не ответил для %d артистов: попробуйте позже.</item>
@@ -2105,7 +2105,7 @@
     <string name="setlists_make">Создать плейлист</string>
     <string name="setlists_attribution">Сет-листы с setlist.fm</string>
     <string name="setlists_key_title">Ключ setlist.fm</string>
-    <string name="setlists_key_body">Необязателен, если у приложения есть общий ключ. Со своим бесплатным ключом (аккаунт setlist.fm › Settings › API) Trackhop проверит больше артистов и не делит дневной лимит со всеми. Он читает только публичные сет-листы.</string>
+    <string name="setlists_key_body">Для сет-листов нужен ваш собственный бесплатный ключ setlist.fm: создайте его в аккаунте setlist.fm › Settings › API и вставьте сюда. Trackhop читает только публичные сет-листы.</string>
     <string name="setlists_key_field">Ключ API</string>
     <string name="setlists_key_none">Нет ключа: добавьте его, чтобы видеть сет-листы</string>
     <string name="discover_records_title">Пластинки и мерч</string>

@@ -22,13 +22,13 @@ import kotlinx.serialization.json.put
  * File playlist that "Send it to a service" takes anywhere.
  */
 internal object SetlistTexts {
-    const val QUOTA = "Today's setlist.fm limit is reached: try again tomorrow or add your own key (Settings › setlist.fm key)."
+    const val QUOTA = "Today's setlist.fm limit for this key is reached: try again tomorrow."
     const val REFUSED = "setlist.fm refused the key: check it in Settings › setlist.fm key."
     const val NO_KEY = "Setlists need a setlist.fm key: add your own (free) in Settings › setlist.fm key, or set SETLISTFM_API_KEY."
     /** setlist.fm's terms: the source, with a link, wherever its data is shown. */
     const val ATTRIBUTION = "${Setlists.ATTRIBUTION} (${Setlists.HOME})"
 
-    fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up: add your own setlist.fm key to look up all $total."
+    fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up, of $total."
     fun unanswered(n: Int) = "setlist.fm did not answer for $n ${if (n == 1) "artist" else "artists"}: try again later."
 
     fun notes(r: Setlists.Result): List<String> = listOfNotNull(

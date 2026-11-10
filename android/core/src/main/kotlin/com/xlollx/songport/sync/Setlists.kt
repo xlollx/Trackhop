@@ -128,7 +128,7 @@ object Setlists {
         listOf(s.artist, listOf(s.venue, s.city).filter { it.isNotBlank() }.joinToString(", "), s.date).filter { it.isNotBlank() }.joinToString(" · ")
 
     /** The day's calls ran out: the next call is not worth sending. */
-    class QuotaGone : Exception("setlist.fm: today's limit reached. Try again tomorrow or add your own setlist.fm key in Settings.")
+    class QuotaGone : Exception("setlist.fm: today's limit reached. Try again tomorrow.")
     class KeyRefused : Exception("setlist.fm refused the key: check it in Settings.")
 
     /**

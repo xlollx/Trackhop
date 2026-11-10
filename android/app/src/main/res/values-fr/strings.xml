@@ -1721,11 +1721,11 @@
     <string name="whats_new_118_releases_title">Les nouveautés de tes artistes</string>
     <string name="whats_new_118_releases_body">Découvrir › Nouveautés montre les nouveaux albums, EP et singles des artistes d\'une playlist, et ce qui arrive bientôt. Fais-en une playlist sur n\'importe quel service, ou laisse une sync les ajouter chaque semaine.</string>
     <string name="whats_new_118_notify_title">Des messages où tu veux</string>
-    <string name="whats_new_118_notify_body">Réglages › Canaux de notification t\'envoie un message sur Telegram, ntfy, Gotify, Discord, Slack, Matrix ou Pushover quand une sync change quelque chose, échoue ou trouve des nouveautés. Leurs clés restent chiffrées sur ce téléphone.</string>
+    <string name="whats_new_118_notify_body">Réglages › Notifications › Canaux de notification t\'envoie un message sur Telegram, ntfy, Gotify, Discord, Slack, Matrix ou Pushover quand une sync change quelque chose, échoue ou trouve des nouveautés. Leurs clés restent chiffrées sur ce téléphone.</string>
     <string name="whats_new_118_concerts_title">Les concerts de tes artistes</string>
     <string name="whats_new_118_concerts_body">Découvrir › Concerts liste les prochaines dates des artistes d\'une playlist dans ton pays, depuis Ticketmaster et MusicBrainz. Pas de date pour quelqu\'un ? Un geste lance la recherche sur les sites de billetterie.</string>
     <string name="whats_new_118_setlists_title">Des setlists en playlists</string>
-    <string name="whats_new_118_setlists_body">Découvrir › Setlists montre ce que les artistes d\'une playlist ont joué en concert, depuis setlist.fm. Choisis un concert et fais-en une playlist sur n\'importe quel service. Ajoute ta propre clé setlist.fm gratuite dans Réglages › Clés de service.</string>
+    <string name="whats_new_118_setlists_body">Découvrir › Setlists montre ce que les artistes d\'une playlist ont joué en concert, depuis setlist.fm. Choisis un concert et fais-en une playlist sur n\'importe quel service. Ajoute ta propre clé setlist.fm gratuite dans Réglages › Avancé › Clés de service.</string>
     <string name="whats_new_118_records_title">Disques et merch</string>
     <string name="whats_new_118_records_body">Découvrir › Disques et merch trouve CD, vinyles et cassettes sur Discogs, ainsi que les sites et boutiques officiels. Avec ton propre jeton Discogs, tu vois aussi les exemplaires en vente et le prix le plus bas. De simples liens : tu achètes sur leurs sites.</string>
     <string name="whats_new_114_nano_title">L\'IA sans clé</string>
@@ -2020,10 +2020,10 @@
     <string name="setlists_find">Chercher les setlists</string>
     <string name="setlists_none">Aucune setlist récente pour ces artistes.</string>
     <string name="setlists_without">Pas de setlist pour : %1$s</string>
-    <string name="setlists_quota">La limite du jour de setlist.fm est atteinte : réessaie demain ou ajoute ta propre clé.</string>
+    <string name="setlists_quota">La limite du jour de setlist.fm est atteinte : réessaie demain.</string>
     <string name="setlists_key_refused">setlist.fm a refusé la clé : vérifie-la.</string>
     <string name="setlists_no_key">Les setlists demandent une clé setlist.fm : ajoute la tienne, elle est gratuite.</string>
-    <string name="setlists_limited">Seuls les %1$d artistes que tu écoutes le plus ont été cherchés : ajoute ta propre clé setlist.fm pour chercher les %2$d.</string>
+    <string name="setlists_limited">Seuls les %1$d artistes que vous écoutez le plus ont été cherchés, sur %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm n\'a pas répondu pour %d artiste : réessaie plus tard.</item>
         <item quantity="other">setlist.fm n\'a pas répondu pour %d artistes : réessaie plus tard.</item>
@@ -2039,7 +2039,7 @@
     <string name="setlists_make">Créer une playlist</string>
     <string name="setlists_attribution">Setlists de setlist.fm</string>
     <string name="setlists_key_title">Clé setlist.fm</string>
-    <string name="setlists_key_body">Facultative si l\'app a déjà une clé partagée. Avec ta propre clé gratuite (compte setlist.fm › Settings › API), Trackhop cherche plus d\'artistes et ne partage pas la limite du jour avec tout le monde. Elle ne lit que des setlists publiques.</string>
+    <string name="setlists_key_body">Les setlists demandent ta propre clé setlist.fm gratuite : crée-la dans ton compte setlist.fm › Settings › API et colle-la ici. Trackhop ne lit que des setlists publiques.</string>
     <string name="setlists_key_field">Clé API</string>
     <string name="setlists_key_none">Pas de clé : ajoutes-en une pour voir les setlists</string>
     <string name="discover_records_title">Disques et merch</string>
