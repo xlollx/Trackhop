@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,9 +54,11 @@ fun AddTrackDialog(provider: MusicProvider, track: Track, onClose: () -> Unit, o
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); emptyList() }
     }
 
-    AlertDialog(
+    FitDialog(
         onDismissRequest = { if (!busy) onClose() },
         title = { Text(stringResource(R.string.share_track_title, provider.label(ctx))) },
+        // A list of its own: it scrolls, under the line above it.
+        scroll = false,
         text = {
             Column(Modifier.fillMaxWidth()) {
                 Text(track.toString(), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)

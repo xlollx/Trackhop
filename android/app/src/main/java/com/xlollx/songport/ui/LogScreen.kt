@@ -1,7 +1,5 @@
 package com.xlollx.songport.ui
 
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import com.xlollx.songport.providers.*
 import android.content.Intent
 import android.net.Uri
@@ -257,12 +255,12 @@ private fun ExportLogDialog(onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
         R.string.diag_range_week to 7 * 24 * hour,
         R.string.diag_range_all to null,
     )
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.diag_export_title)) },
         text = {
             // Scrolls where the dialog is lower than its content (a phone on its side).
-            Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+            Column {
                 Text(stringResource(R.string.diag_export_body), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
                 ranges.forEach { (label, span) ->

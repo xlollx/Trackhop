@@ -100,7 +100,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -716,11 +715,11 @@ private fun JobMenuHost(
         val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { moveToOpen = false },
             title = { Text(stringResource(R.string.sync_menu_move_to)) },
             text = {
-                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.move_to_now, now, total), style = MaterialTheme.typography.bodyMedium)
                     OutlinedTextField(
                         value = typed,
@@ -776,7 +775,7 @@ private fun JobMenuHost(
         ),
     )
     if (confirmDelete) {
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { confirmDelete = false },
             title = { Text(stringResource(R.string.delete_confirm_title)) },
             text = { Text(stringResource(R.string.delete_confirm_text)) },
@@ -2198,9 +2197,11 @@ private fun SpreadDialog(jobs: List<com.xlollx.songport.model.SyncJob>, crowd: c
     val times = remember(jobs, crowd) { com.xlollx.songport.sync.Timing.spread(jobs, crowd, sensitive = ::spreads) }
     val group = jobs.filter { it.id in crowd.jobIds }
     val name = Providers.byId(crowd.service)?.displayName ?: crowd.service
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.spread_title, name)) },
+        // A list of its own: it scrolls, under the line above it.
+        scroll = false,
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.spread_body), style = MaterialTheme.typography.bodyMedium)

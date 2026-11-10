@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -206,7 +205,7 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
 
         discarding?.let { list ->
             val removes = dst?.canRemoveTracks != false
-            AlertDialog(
+            FitDialog(
                 onDismissRequest = { if (!busy) discarding = null },
                 title = { Text(stringResource(R.string.review_discard_title, dstName)) },
                 text = {

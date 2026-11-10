@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -95,7 +94,7 @@ fun BackupScreen(onClose: () -> Unit) {
     }
     pending?.let { snap ->
         val s = ConfigBackup.summary(snap)
-        AlertDialog(
+        FitDialog(
             onDismissRequest = { pending = null },
             title = { Text(stringResource(R.string.backup_config_confirm_title)) },
             text = { Text(stringResource(R.string.backup_config_confirm_body, s.syncs, s.matches, s.files, s.writtenBy.ifBlank { "Trackhop" })) },

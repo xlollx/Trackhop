@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,7 +40,7 @@ fun ConnectDialog(provider: MusicProvider, onDismiss: () -> Unit, onContinue: ()
     val isApple = provider.serviceId == AppleMusicProvider.SERVICE
     // Web routes host the service's own sign-in page in the app, not in the browser: said as it is.
     val isWeb = provider.routeNoteRes == R.string.route_note_web || provider.routeNoteRes == R.string.route_note_web_only
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.VerifiedUser, null, tint = MaterialTheme.colorScheme.primary) },
         title = { Text(stringResource(R.string.connect_title, provider.displayName)) },

@@ -353,7 +353,7 @@ private fun Color.luminanceIsDark(): Boolean = (0.299f * red + 0.587f * green + 
 /** The picker on its own, from a card's menu. */
 @Composable
 fun JobColorDialog(selected: String?, onDismiss: () -> Unit, onSelect: (String?) -> Unit) {
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.job_color)) },
         text = { JobColorPicker(selected) { onSelect(it); onDismiss() } },

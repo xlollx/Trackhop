@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Radio
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -279,7 +278,7 @@ internal fun RadioWindowPicker(days: List<Int>, start: Int, end: Int, onDays: (L
 private fun RadioTimeDialog(minute: Int, onDismiss: () -> Unit, onPicked: (Int) -> Unit) {
     val ctx = LocalContext.current
     val state = rememberTimePickerState(initialHour = minute / 60, initialMinute = minute % 60, is24Hour = DateFormat.is24HourFormat(ctx))
-    AlertDialog(
+    FitDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = { onPicked(state.hour * 60 + state.minute) }) { Text(stringResource(R.string.ok)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },

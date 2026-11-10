@@ -70,7 +70,6 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VpnKey
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -329,11 +328,11 @@ fun SettingsScreen(
             }
             var factsOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Security, stringResource(R.string.security_title), stringResource(R.string.settings_security_summary)) { factsOpen = true }
-            if (factsOpen) AlertDialog(
+            if (factsOpen) FitDialog(
                 onDismissRequest = { factsOpen = false },
                 title = { Text(stringResource(R.string.security_title)) },
                 text = {
-                    Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         listOf(R.string.security_fact_1, R.string.security_fact_2, R.string.security_fact_3, R.string.security_fact_4).forEach {
                             Row(verticalAlignment = Alignment.Top) {
                                 Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 2.dp).size(18.dp))
@@ -428,7 +427,7 @@ fun SettingsScreen(
                 PrefRow(Icons.Filled.NetworkCheck, stringResource(R.string.capture_site_title), stringResource(R.string.capture_site_desc)) { captureOpen = true }
                 if (captureOpen) {
                     var address by rememberSaveable { mutableStateOf("https://play.qobuz.com") }
-                    AlertDialog(
+                    FitDialog(
                         onDismissRequest = { captureOpen = false },
                         title = { Text(stringResource(R.string.capture_site_title)) },
                         text = { OutlinedTextField(address, { address = it.trim() }, singleLine = true, label = { Text(stringResource(R.string.capture_site_address)) }) },

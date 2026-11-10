@@ -651,7 +651,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                 TextButton(onClick = { shareText(ctx, text + "\n\ntrackhop.org") }) { Text(stringResource(R.string.discover_roast_share_text)) }
             }
         }
-        if (askReport) androidx.compose.material3.AlertDialog(
+        if (askReport) FitDialog(
             onDismissRequest = { askReport = false },
             title = { Text(stringResource(R.string.discover_roast_report_title)) },
             text = { Text(stringResource(R.string.discover_roast_report_body)) },

@@ -1,6 +1,10 @@
 package com.xlollx.songport.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -78,12 +84,15 @@ data class WindowLayout(
             return if (short && listDp >= 520) maxOf(fit, 2) else fit
         }
 
+        /** A window too low for Material's narrow dialogs and a page's bottom bar: a phone on its side. */
+        fun isShort(heightDp: Int): Boolean = heightDp < SHORT_HEIGHT_DP
+
         fun tileColumns(widthDp: Int): Int = ((widthDp - 2 * 16 + 12) / (TILE_MIN_DP + 12)).coerceAtLeast(2)
 
         fun of(widthDp: Int, heightDp: Int): WindowLayout {
             val width = WidthClass.of(widthDp)
             val rail = width != WidthClass.COMPACT || widthDp > heightDp
-            val short = heightDp < SHORT_HEIGHT_DP
+            val short = isShort(heightDp)
             return WindowLayout(width, rail, short, syncColumns = if (rail) cardColumns(widthDp - RAIL_DP, short) else 1)
         }
     }
@@ -100,6 +109,44 @@ object WideDialog {
     val WIDE_DIALOG = 840.dp
     val modifier = Modifier.padding(horizontal = 24.dp).widthIn(max = WIDE_DIALOG).fillMaxWidth()
     val properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+}
+
+/**
+ * Material's [AlertDialog], made for a low window too (a phone on its side, about 400 dp high):
+ * - [text] always scrolls, so every field and button in it can be reached, while the dialog's own
+ *   buttons stay in sight under it. A [text] that is a list of its own ([scroll] = false) scrolls that instead;
+ * - in a low window the dialog is wider than Material's 560 dp, up to [FitDialogDefaults.MAX_WIDTH] with margins
+ *   at the sides, so its chips, fields and buttons take fewer rows of the little height there is.
+ * Upright and on a tablet it looks as ever. Read from the window itself, so it also works outside the
+ * main screens (another activity, the lock screen).
+ */
+@Composable
+fun FitDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    dismissButton: @Composable (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
+    title: @Composable (() -> Unit)? = null,
+    scroll: Boolean = true,
+    text: @Composable (() -> Unit)? = null,
+) {
+    val short = WindowLayout.isShort(LocalConfiguration.current.screenHeightDp)
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = confirmButton,
+        modifier = if (short) modifier.then(FitDialogDefaults.modifier) else modifier,
+        dismissButton = dismissButton,
+        icon = icon,
+        title = title,
+        text = text?.let { body -> { if (scroll) Column(Modifier.verticalScroll(rememberScrollState())) { body() } else body() } },
+        properties = if (short) WideDialog.properties else DialogProperties(),
+    )
+}
+
+object FitDialogDefaults {
+    val MAX_WIDTH = 640.dp
+    val modifier = Modifier.padding(horizontal = 24.dp).widthIn(max = MAX_WIDTH).fillMaxWidth()
 }
 
 /** A page kept to a readable width and centred in a wide window; on a phone it fills the screen as before. */
