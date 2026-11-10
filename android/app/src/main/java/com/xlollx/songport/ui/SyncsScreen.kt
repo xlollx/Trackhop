@@ -804,7 +804,9 @@ private fun JobCard(
                     Text(
                         // A two-way pair never removes, whatever an older version saved. A radio sync shows
                         // its window (days and hours) where the others show their schedule.
-                        (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
+                        // Turned off on arrival from another device: where its schedule runs, in place of the timing.
+                        (job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
+                            ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                             (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),

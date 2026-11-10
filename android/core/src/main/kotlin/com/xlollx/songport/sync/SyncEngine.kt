@@ -81,6 +81,8 @@ class TargetShrunkException(message: String, val expected: Int) : Exception(mess
 
 /** From this many tracks on the target, a listing under half of what the last run left is held suspect. */
 private const val SHRINK_MIN = 20
+/** Older than this when the additions start, the target's listing is checked again first (see apply). */
+internal var rereadAfterMs = 120_000L
 /** The pause before reading a suspect target again. */
 internal var shrinkRereadMs = 3_000L
 /** Above this many tracks the order step is skipped: too many single moves for one run. */
@@ -378,6 +380,7 @@ class SyncEngine(
         // A playlist created a moment ago is empty: skip the fetch (saves quota, and YouTube's Data API
         // may not even know the playlist yet).
         val dstTracks = if (targetCreated) emptyList() else readTarget(job, dst, targetId, onProgress, unattended, interactive, notes)
+        val targetReadAt = if (targetCreated) 0L else System.currentTimeMillis()
         val shrunkFrom = if (interactive && !targetCreated) shrunkFrom(job, targetId, dstTracks.size) else 0
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
@@ -473,6 +476,11 @@ class SyncEngine(
         if (awaitingRemoval.isNotEmpty()) {
             env.log("engine", "${job.name}: ${awaitingRemoval.size} ${tracksWord(awaitingRemoval.size)} removed on ${dst.displayName} since the last run, not added again: ${named(awaitingRemoval)}")
         }
+
+        // The target's version as it was read, where the service has one, asked only when a search
+        // (the slow part) follows: adding much later, one light call says whether anyone wrote to
+        // the playlist meanwhile (see apply).
+        val targetVersion = if (targetCreated || interactive || toSearch.isEmpty()) null else runCatching { dst.playlistVersion(env, targetId) }.getOrNull()
 
         // 2) ricerca dei mancanti
         val toAdd = LinkedHashMap<String, Track>()
@@ -593,6 +601,27 @@ class SyncEngine(
             }
         }
 
+        // 4) self-repair: a track the target lists twice and the source holds once (the same sync run
+        // from two devices at once, each adding it). The later copy goes, only where the service can
+        // take out one entry by its own id and the two copies have different ones; never when the
+        // source has the track twice too, in an archive, or on a playlist another sync also fills; and
+        // not in a run that removes other tracks (where entries are named by position, a removal moves them).
+        val duplicates = ArrayList<Track>()
+        if (!interactive && !targetCreated && !job.archive && toRemove.isEmpty() && dst.canRemoveTracks && dst.removesSingleEntry && sharing.isEmpty() && interrupted == null && !MusicProvider.isLibrary(targetId)) {
+            val sourceCopies = HashMap<String, Int>()
+            for (s in srcTracks) presentLinks[s.id]?.let { sourceCopies.merge(it, 1, Int::plus) }
+            for ((id, copies) in dstTracks.groupBy { it.id }) {
+                val keep = copies.first()
+                if (copies.size < 2 || sourceCopies[id] != 1 || keep.itemId == null) continue
+                duplicates += copies.drop(1).filter { it.itemId != null && it.itemId != keep.itemId }.distinctBy { it.itemId }
+            }
+            // A target that is mostly "duplicates" is a listing gone wrong (a page sent twice), not a playlist to repair.
+            if (duplicates.size > 1 && duplicates.size * 4 >= dstTracks.size) {
+                env.log("engine", "${job.name}: ${duplicates.size} of the ${dstTracks.size} entries of the target look like duplicates: left alone")
+                duplicates.clear()
+            }
+        }
+
         // Gli abbinamenti sono fatti, non intenzioni: salvarli ora evita di ripetere le ricerche
         // (e la quota YouTube) se l'utente esegue dopo l'anteprima.
         store.putMatches(newCache - unsure)
@@ -618,7 +647,7 @@ class SyncEngine(
         )
         if (twoWay != null && twoWay.first && twoWay.complete) notes += str("note_two_way_started")
         return SyncPlan(
-            twoWay = twoWay,
+            twoWay = twoWay, targetReadAt = targetReadAt, targetVersion = targetVersion, duplicates = duplicates,
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,
             alreadyPresent = srcTracks.size - srcTracks.count { it.id in queued } - awaitingRemoval.size,
@@ -1046,8 +1075,29 @@ class SyncEngine(
         // instead of listing every track as not found (issue #34).
         var addStopped: String? = null
         var singleFails = 0
-        if (plan.toAdd.isNotEmpty()) {
-            onProgress(Progress(Progress.Step.ADDING, 0, plan.toAdd.size))
+        // Read long ago (a long search in between): another device running the same sync may have
+        // added the same tracks meanwhile. One look before writing, only when there is something to
+        // add: the service's version where it has one, the whole listing when that changed or is unknown.
+        var toAdd = plan.toAdd
+        if (toAdd.isNotEmpty() && plan.targetReadAt > 0 && System.currentTimeMillis() - plan.targetReadAt > rereadAfterMs) {
+            val unchanged = plan.targetVersion != null && runCatching { dst.playlistVersion(env, targetId) }.getOrNull() == plan.targetVersion
+            if (!unchanged) {
+                onProgress(Progress(Progress.Step.FETCH_TARGET))
+                runCatching { patient(onProgress) { dst.tracks(env, targetId) } }
+                    .onFailure { if (it is kotlinx.coroutines.CancellationException) throw it; env.log("engine", "${job.name}: target not read again before adding: ${it.message?.take(120)}") }
+                    .onSuccess { fresh ->
+                        val ids = fresh.mapTo(HashSet()) { it.id }
+                        val index = Matcher.TrackIndex(fresh)
+                        val (there, missing) = toAdd.partition { it.id in ids || index.best(it) != null }
+                        if (there.isNotEmpty()) {
+                            env.log("engine", "${job.name}: ${there.size} ${tracksWord(there.size)} reached ${dst.displayName} while this run was searching (the same sync on another device?), not added again: ${named(there)}")
+                            toAdd = missing
+                        }
+                    }
+            }
+        }
+        if (toAdd.isNotEmpty()) {
+            onProgress(Progress(Progress.Step.ADDING, 0, toAdd.size))
             // Verso una playlist un blocco di 50 e' una chiamata sola. Verso i "brani preferiti" ogni
             // brano e' una chiamata a parte: blocchi piccoli, cosi' l'avanzamento si muove ogni pochi
             // brani invece di restare fermo per minuti.
@@ -1055,14 +1105,14 @@ class SyncEngine(
             var blockWaits = 0
             // I "brani preferiti" mostrano per primo l'ultimo aggiunto: si aggiunge dall'ultimo al primo,
             // cosi' l'ordine dell'origine (il piu' recente in cima) si ritrova uguale nella destinazione.
-            val additions = if (MusicProvider.isLibrary(targetId)) plan.toAdd.asReversed() else plan.toAdd
+            val additions = if (MusicProvider.isLibrary(targetId)) toAdd.asReversed() else toAdd
             // Keeping the order, a service that orders by the second of saving (Spotify's liked songs)
             // saves one track at a time; without it, in batches at full speed (MusicProvider.addsInOrder).
             kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
                 if (addStopped != null) break
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
-                onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, plan.toAdd.size, chunk.first().live()))
+                onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, toAdd.size, chunk.first().live()))
                 while (true) {
                     try {
                         val present = dst.addTracksReportingPresent(env, targetId, chunk)
@@ -1108,7 +1158,7 @@ class SyncEngine(
                         break
                     }
                 }
-                onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, plan.toAdd.size))
+                onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, toAdd.size))
             }
             }
         }
@@ -1144,6 +1194,16 @@ class SyncEngine(
                 // Still listed after a removal the service answered: counted as nothing removed, and left alone for a while.
                 store.putKeptOnRemoval(dst.id, targetId, stayed.map { it.id })
                 env.log("engine", "${job.name}: ${dst.displayName} keeps ${stayed.size} ${tracksWord(stayed.size)} that removing does not take away: ${named(stayed)}")
+            }
+        }
+        // The extra copies of tracks the source holds once (see plan): never a reason to fail the run.
+        if (plan.duplicates.isNotEmpty()) {
+            try {
+                dst.removeTracks(env, targetId, plan.duplicates)
+                notes += str("note_duplicates_repaired", plan.duplicates.size)
+                env.log("engine", "${job.name}: ${plan.duplicates.size} duplicate ${if (plan.duplicates.size == 1) "copy" else "copies"} removed from ${dst.displayName}: ${named(plan.duplicates)}")
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                env.log("engine", "${job.name}: duplicates not removed from ${dst.displayName}: ${e.message?.take(120)}")
             }
         }
         // What this run wrote, for the next one to check against the target's listing.

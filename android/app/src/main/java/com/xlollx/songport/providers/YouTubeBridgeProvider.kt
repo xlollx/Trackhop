@@ -205,6 +205,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
         }
     }
 
+    override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
         if (playlistId == MusicProvider.ALBUMS_ID || playlistId == MusicProvider.ARTISTS_ID) {

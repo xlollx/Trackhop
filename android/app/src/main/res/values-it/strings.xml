@@ -1820,4 +1820,8 @@
     <string name="note_two_way_started">Le rimozioni nei due sensi partono dalla prossima esecuzione: questa ha annotato i brani presenti su entrambi i lati e non ha tolto nulla.</string>
     <string name="note_two_way_removals_held">Rimozioni trattenute: %1$d dei %2$d brani che i due lati avevano in comune non sono più nell\'origine. Tocca lo stato della sync per aprire l\'anteprima e vederli; se vanno tolti davvero, spunta lì “Rimuovi questi brani” ed esegui. Se non li hai tolti tu, il servizio ha letto la playlist a metà e non va tolto nulla.</string>
     <string name="note_two_way_listed_short">Stavolta non è stato tolto nulla: %1$s ha elencato %2$d dei %3$d brani che conta. Un brano che il servizio nasconde o non riproduce più non vale come tolto.</string>
+    <string name="backup_config_paused">Sync programmate arrivate spente: %1$d. Così non girano su due dispositivi insieme. Se girano ancora su %2$s, lasciale spente qui; altrimenti attivale.</string>
+    <string name="job_scheduled_on">Programmata su %1$s</string>
+    <string name="backup_device_other">l\'altro dispositivo</string>
+    <string name="note_duplicates_repaired">Doppioni tolti dalla destinazione: %1$d. Ognuno di questi brani c\'era due volte, e nell\'origine c\'è una volta sola.</string>
 </resources>

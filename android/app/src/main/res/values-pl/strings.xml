@@ -1882,4 +1882,8 @@
     <string name="note_two_way_started">Usunięcia w obie strony zaczną działać od następnego uruchomienia: to zapisało, które utwory są po obu stronach, i niczego nie usunęło.</string>
     <string name="note_two_way_removals_held">Usunięcia wstrzymane: %1$d z %2$d utworów, które miały obie strony, nie ma już w źródle. Stuknij status synchronizacji, aby otworzyć podgląd i je zobaczyć; jeśli naprawdę mają zniknąć, zaznacz tam „Usuń te utwory” i uruchom. Jeśli to nie Ty je usunąłeś, serwis podał niepełną listę i nic nie powinno zniknąć.</string>
     <string name="note_two_way_listed_short">Tym razem nic nie usunięto: %1$s podał %2$d z %3$d utworów, które liczy. Utwór ukryty przez serwis lub już nieodtwarzany nie jest traktowany jak usunięty.</string>
+    <string name="backup_config_paused">Zaplanowane synchronizacje wyłączone tutaj: %1$d. Dzięki temu nie działają na dwóch urządzeniach naraz. Jeśli nadal działają na %2$s, zostaw je tu wyłączone; w przeciwnym razie włącz je.</string>
+    <string name="job_scheduled_on">Zaplanowana na: %1$s</string>
+    <string name="backup_device_other">drugim urządzeniu</string>
+    <string name="note_duplicates_repaired">Duplikaty usunięte z celu: %1$d. Każdy z tych utworów był tam dwa razy, a w źródle jest raz.</string>
 </resources>

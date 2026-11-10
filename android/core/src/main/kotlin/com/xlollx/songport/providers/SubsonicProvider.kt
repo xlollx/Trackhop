@@ -196,6 +196,7 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         call(ctx, "deletePlaylist", listOf("id" to playlistId))
     }
 
+    override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.LIKED_ID) {
             tracks.chunked(50).forEach { chunk -> call(ctx, "unstar", chunk.map { "id" to it.id }) }

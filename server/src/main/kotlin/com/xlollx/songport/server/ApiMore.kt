@@ -88,17 +88,19 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val snapshot = runCatching { ConfigBackup.read(text) }.getOrElse { return true.also { _ -> error(400, it.message ?: "Not a Trackhop configuration file.") } }
             val channels = Notify.inBackup(text)
             val s = ConfigBackup.summary(snapshot)
-            fun summary(imported: Boolean) = buildJsonObject {
+            fun summary(imported: Boolean, paused: Int = 0) = buildJsonObject {
                 put("imported", imported)
+                // Scheduled syncs written by another device, turned off here so they do not run on both.
+                put("paused", paused)
                 put("writtenBy", s.writtenBy); put("writtenAt", s.writtenAt)
                 put("syncs", s.syncs); put("matches", s.matches); put("files", s.files); put("runs", s.runs); put("channels", channels.size)
             }
             // A dry run says what the file holds, as the page does before its Import button.
             if (query["dryRun"] == "true") return true.also { json(200, summary(false)) }
-            ConfigBackup.import(env, snapshot)
+            val done = ConfigBackup.import(env, snapshot)
             Notify.restore(env, channels)
             env.log("config", "imported ${s.syncs} syncs, ${s.files} files from ${s.writtenBy} through the API")
-            json(200, summary(true))
+            json(200, summary(true, done.paused))
         }
         // ---------------------------------------------------------------- webhook
         rest == listOf("webhook") && method == "GET" -> json(200, webhookJson())

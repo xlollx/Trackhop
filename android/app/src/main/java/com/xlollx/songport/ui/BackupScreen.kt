@@ -77,7 +77,7 @@ fun BackupScreen(onClose: () -> Unit) {
         if (uri != null) scope.launch {
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
-                    val text = ConfigBackup.export(ctx.env, "Trackhop ${BuildConfig.VERSION_NAME} (Android)")
+                    val text = ConfigBackup.export(ctx.env, "Trackhop ${BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty())
                     ctx.contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) } ?: error("no stream")
                 }.isSuccess
             }
@@ -107,7 +107,12 @@ fun BackupScreen(onClose: () -> Unit) {
                         done.onSuccess { r ->
                             // The imported syncs' schedules start here as they would have where they came from.
                             store.data.jobs.forEach { Scheduler.apply(ctx, it) }
-                            snackbar.showSnackbar(ctx.getString(R.string.backup_config_restored, r.syncs))
+                            // Scheduled syncs from another device arrive turned off: said here, and on their cards.
+                            val paused = if (r.paused > 0) "\n" + ctx.getString(R.string.backup_config_paused, r.paused, r.from.ifBlank { ctx.getString(R.string.backup_device_other) }) else ""
+                            snackbar.showSnackbar(
+                                ctx.getString(R.string.backup_config_restored, r.syncs) + paused,
+                                duration = if (r.paused > 0) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
+                            )
                         }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
                     }
                 }) { Text(stringResource(R.string.backup_config_restore_action)) }

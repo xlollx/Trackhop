@@ -90,6 +90,12 @@ data class Settings(
     val wrappedSkipped: Set<String> = emptySet(),
     /** The "Did you know?" pill on Syncs (widgets, shortcuts, automation) was closed or opened: not shown again. */
     val tipsPillDismissed: Boolean = false,
+    /**
+     * This installation's own id, made the first time a configuration file is written or read: a
+     * file from another id is another device's. Per device: a configuration file leaves it out of
+     * the settings and names it beside them.
+     */
+    val deviceId: String = "",
     /** The Roast's last level ([com.xlollx.songport.ai.AiRoast.Level] by name); blank = the default. */
     val roastLevel: String = "",
     /** The user confirmed once being 18 or older, for the Roast's explicit language. */
@@ -230,8 +236,10 @@ open class FileStore(dir: File) {
     fun job(id: String): SyncJob? = data.jobs.firstOrNull { it.id == id }
 
     fun upsertJob(job: SyncJob) = update { d ->
-        if (d.jobs.any { it.id == job.id }) d.copy(jobs = d.jobs.map { if (it.id == job.id) job else it })
-        else d.copy(jobs = d.jobs + job)
+        // Turned on here: from now on this is the device that schedules it.
+        val saved = if (job.enabled && job.scheduledOn != null) job.copy(scheduledOn = null) else job
+        if (d.jobs.any { it.id == saved.id }) d.copy(jobs = d.jobs.map { if (it.id == saved.id) saved else it })
+        else d.copy(jobs = d.jobs + saved)
     }
 
     /**

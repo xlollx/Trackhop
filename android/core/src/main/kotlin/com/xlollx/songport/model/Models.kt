@@ -114,6 +114,12 @@ data class SyncJob(
      * complete run ([com.xlollx.songport.data.PairState]); without it a pair only ever adds.
      */
     val twoWayRemovals: Boolean = false,
+    /**
+     * The device this sync's schedule runs on, when it came here with a configuration file written
+     * elsewhere: it arrives turned off, so the same sync does not run from two devices at once (each
+     * would add what is missing, twice). Turning it on here clears it.
+     */
+    val scheduledOn: String? = null,
     /** Playlist scritta dall'AI dell'utente: la descrizione data, per riconoscerla e per allungarla. */
     val aiPrompt: String? = null,
     /** Versioni (vedi MusicProvider.playlistVersion) viste all'ultimo giro riuscito: uguali = niente da fare. */
@@ -278,6 +284,11 @@ data class SyncPlan(
      * set only in the preview, where running anyway is a deliberate choice.
      */
     val targetShrunkFrom: Int = 0,
+    /** When the target was read (epoch ms, 0 = not read: created now) and its version just then, where the service has one. */
+    val targetReadAt: Long = 0,
+    val targetVersion: String? = null,
+    /** Extra copies on the target of a track the source holds once: taken out by this run (see SyncEngine). */
+    val duplicates: List<Track> = emptyList(),
     /** A two-way pair that follows removals: what this run knows of the pair's common state; null otherwise. */
     val twoWay: TwoWayPlan? = null,
 )

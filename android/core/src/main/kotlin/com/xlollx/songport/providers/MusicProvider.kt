@@ -213,6 +213,12 @@ interface MusicProvider {
      */
     val listsUntitledEntries: Boolean get() = false
     suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>)
+    /**
+     * True where [removeTracks] takes out the one entry a track names by its [Track.itemId] and
+     * leaves the other copies of the same track in place (YouTube, TIDAL, Plex, Subsonic). Where a
+     * removal is by track id every copy goes: a sync then never removes a duplicate by itself.
+     */
+    val removesSingleEntry: Boolean get() = false
 
     /**
      * [removeTracks], answering which of [tracks] (by id) the playlist still lists after the

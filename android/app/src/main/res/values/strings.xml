@@ -1821,4 +1821,8 @@
     <string name="note_two_way_started">Two-way removals start with the next run: this one noted which tracks both sides have and removed nothing.</string>
     <string name="note_two_way_removals_held">Removals held back: %1$d of the %2$d tracks both sides had are gone from the source. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Remove these tracks” there and run it. If you did not remove them, the service listed the playlist incompletely and nothing should go.</string>
     <string name="note_two_way_listed_short">Nothing removed this time: %1$s listed %2$d of the %3$d tracks it counts. A track the service hides or no longer plays is not treated as removed.</string>
+    <string name="backup_config_paused">Scheduled syncs turned off here: %1$d. This keeps them from running on two devices at once. If they still run on %2$s, leave them off here; otherwise turn them on.</string>
+    <string name="job_scheduled_on">Scheduled on %1$s</string>
+    <string name="backup_device_other">the other device</string>
+    <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
 </resources>

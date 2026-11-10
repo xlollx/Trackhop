@@ -35,7 +35,9 @@ ${Html.postButton("/tools/config", "Import", fields = mapOf("action" to "import"
                 val s = ConfigBackup.import(env, snapshot)
                 if (env.may(Permissions.API)) Notify.restore(env, channels)
                 env.log("config", "imported ${s.syncs} syncs, ${s.files} files from ${s.writtenBy}")
-                return redirect(r.ex, "/?ok=${q("Imported ${s.syncs} syncs. Connect the services again in Services: the syncs carry on from there.")}")
+                // Scheduled syncs from another device arrive turned off, so they do not run here and there at once.
+                val paused = if (s.paused > 0) " ${s.paused} scheduled ${if (s.paused == 1) "sync was" else "syncs were"} turned off here: if ${if (s.paused == 1) "it still runs" else "they still run"} on ${s.from.ifBlank { "the other device" }}, leave ${if (s.paused == 1) "it" else "them"} off here, otherwise turn ${if (s.paused == 1) "it" else "them"} on." else ""
+                return redirect(r.ex, "/?ok=${q("Imported ${s.syncs} syncs. Connect the services again in Services: the syncs carry on from there.$paused")}")
             }
         }
     }

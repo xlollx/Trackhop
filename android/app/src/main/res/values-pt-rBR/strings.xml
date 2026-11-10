@@ -1828,4 +1828,8 @@
     <string name="note_two_way_started">As remoções nos dois sentidos começam na próxima execução: esta anotou quais faixas os dois lados têm e não removeu nada.</string>
     <string name="note_two_way_removals_held">Remoções retidas: %1$d das %2$d faixas que os dois lados tinham não estão mais na origem. Toque no status da sincronização para abrir a prévia e vê-las; se devem mesmo sair, marque lá “Remover estas faixas” e execute. Se não foi você que as removeu, o serviço listou a playlist de forma incompleta e nada deve sair.</string>
     <string name="note_two_way_listed_short">Nada foi removido desta vez: %1$s listou %2$d das %3$d faixas que conta. Uma faixa que o serviço oculta ou não toca mais não conta como removida.</string>
+    <string name="backup_config_paused">Sincronizações agendadas que chegaram desligadas: %1$d. Assim elas não rodam em dois aparelhos ao mesmo tempo. Se ainda rodam em %2$s, deixe-as desligadas aqui; senão, ligue-as.</string>
+    <string name="job_scheduled_on">Agendada em %1$s</string>
+    <string name="backup_device_other">o outro aparelho</string>
+    <string name="note_duplicates_repaired">Duplicatas removidas do destino: %1$d. Cada uma dessas faixas estava lá duas vezes e está na origem uma vez só.</string>
 </resources>

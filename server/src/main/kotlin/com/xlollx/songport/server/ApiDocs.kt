@@ -69,7 +69,7 @@ internal object ApiDocs {
         Call("GET", "/backup", "Backups", "The full backup: running, last run, schedule."),
         Call("POST", "/backup", "Backups", "Back up every playlist now (a background task)."),
         Call("GET", "/config", "Backups", "The whole set-up as a .trackhop file; history=true with the runs.", listOf("history")),
-        Call("POST", "/config", "Backups", "Bring a .trackhop file back in (the body); dryRun=true only says what it holds.", listOf("dryRun")),
+        Call("POST", "/config", "Backups", "Bring a .trackhop file back in (the body); dryRun=true only says what it holds. Scheduled syncs written by another device arrive turned off (\"paused\" counts them), so they do not run on both.", listOf("dryRun")),
         Call("GET", "/settings", "Settings", "The settings the page offers."),
         Call("PATCH", "/settings", "Settings", "Change settings: theme, backupSchedule, backupFolder, updatesCheck.", body = "{\"theme\"?, \"backupSchedule\"?, \"backupFolder\"?, \"updatesCheck\"?}"),
         Call("GET", "/webhook", "Notifications", "The webhook: address, whether a secret is set, its events."),
