@@ -2009,7 +2009,7 @@
     <string name="records_discogs_down">Discogs 没有响应：请稍后再试。</string>
     <string name="records_not_asked">这次没有查找：请一分钟后再试。</string>
     <string name="records_slowed">Discogs 要求放慢速度：这次部分艺人没有唱片信息。请一分钟后再试。</string>
-    <string name="records_token_refused">Discogs 拒绝了你的令牌：请在 设置 › 服务密钥 中检查。</string>
+    <string name="records_token_refused">Discogs 拒绝了你的令牌：请在 设置 › 高级 › 服务密钥 中检查。</string>
     <string name="records_no_token">添加你自己的 Discogs 令牌，即可查看在售数量并查找更多艺人。</string>
     <string name="records_limited">只查找了 %2$d 位艺人中你最常听的 %1$d 位。</string>
     <string name="records_links">官方页面</string>

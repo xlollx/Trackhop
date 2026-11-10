@@ -2125,7 +2125,7 @@
     <string name="records_discogs_down">Discogs nie odpowiedział: spróbuj później.</string>
     <string name="records_not_asked">Tym razem nie sprawdzono: spróbuj za minutę.</string>
     <string name="records_slowed">Discogs poprosił o wolniejsze zapytania: części artystów tym razem brak płyt. Spróbuj za minutę.</string>
-    <string name="records_token_refused">Discogs odrzucił twój token: sprawdź go w Ustawienia › Klucze serwisów.</string>
+    <string name="records_token_refused">Discogs odrzucił twój token: sprawdź go w Ustawienia › Zaawansowane › Klucze serwisów.</string>
     <string name="records_no_token">Dodaj własny token Discogs, aby widzieć, ile egzemplarzy jest na sprzedaż, i sprawdzać więcej artystów.</string>
     <string name="records_limited">Sprawdzono tylko %1$d najczęściej słuchanych artystów z %2$d.</string>
     <string name="records_links">Oficjalne strony</string>

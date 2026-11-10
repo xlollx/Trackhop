@@ -1,14 +1,14 @@
-<p>Gardez vos playlists identiques sur tous les services musicaux, sans les refaire à la main. Tout fonctionne sur le téléphone : pas de compte, pas de serveur, pas de publicité, pas de pistage.</p>
+<p>Garde tes playlists identiques sur tous les services musicaux, sans les refaire à la main. Tout fonctionne sur le téléphone : pas de compte, pas de serveur, pas de publicité, pas de pistage.</p>
 <ul>
-<li>Choisissez une playlist source et une playlist cible, ou laissez l'application la créer</li>
-<li>Synchronisez à la main ou selon un planning : toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine</li>
+<li>Choisis une playlist source et une playlist cible, ou laisse l'application la créer</li>
+<li>Synchronise à la main ou selon un planning : toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine</li>
 <li>Ajouts seulement, ou reflet des suppressions aussi</li>
 <li>Les titres aimés comme source</li>
-<li>Révisez les titres introuvables : propositions en un geste, résultats les plus probables d'abord, titres de l'album d'origine, ou collez le lien du titre</li>
-<li>Importez et exportez des fichiers de playlist (CSV, M3U, XML iTunes, JSON) pour les services sans API</li>
+<li>Révise les titres introuvables : propositions en un geste, résultats les plus probables d'abord, titres de l'album d'origine, ou colle le lien du titre</li>
+<li>Importe et exporte des fichiers de playlist (CSV, M3U, XML iTunes, JSON) pour les services sans API</li>
 <li>Sauvegardes d'un compte entier en versions datées, suppression des doublons</li>
 </ul>
 <p>Fonctionne avec Spotify, Apple Music, YouTube Music, TIDAL, Deezer, les serveurs Subsonic/Navidrome, Jellyfin et Plex, Last.fm et ListenBrainz comme sources, et des fichiers. Les services qui demandent une clé de développeur se configurent avec un guide intégré ; la clé et chaque jeton d'accès restent chiffrés sur l'appareil. La connexion à Deezer revient dans l'application par une page statique sur xlollx.github.io, la redirection https exigée par Deezer : elle ne fait que renvoyer vers l'application et n'enregistre rien.</p>
 <p>YouTube Music, Amazon Music et la connexion à Spotify et Apple Music sans clé de développeur passent par les lecteurs web des services, intégrés à l'application. Ce ne sont pas des API officielles : l'application affiche un avertissement avant la première connexion.</p>
-<p>Autres connexions, toutes facultatives et sans compte : le catalogue public de Deezer pour retrouver l'ISRC d'un enregistrement quand un titre n'en a pas (désactivable dans les réglages), un registre statique sur GitHub pour les hachages des requêtes du lecteur web Spotify, song.link pour les résultats supplémentaires de la révision, et le fournisseur d'IA que vous configurez vous-même pour le générateur de playlists (OpenAI, Anthropic, Google Gemini ou un serveur compatible ; seul le texte saisi est envoyé).</p>
+<p>Autres connexions, toutes facultatives et sans compte : le catalogue public de Deezer pour retrouver l'ISRC d'un enregistrement quand un titre n'en a pas (désactivable dans les réglages), un registre statique sur GitHub pour les hachages des requêtes du lecteur web Spotify, song.link pour les résultats supplémentaires de la révision, et le fournisseur d'IA que tu configures toi-même pour le générateur de playlists (OpenAI, Anthropic, Google Gemini ou un serveur compatible ; seul le texte saisi est envoyé).</p>
 <p>Trackhop n'est affiliée à aucun de ces services ; leurs noms servent uniquement à indiquer la compatibilité.</p>

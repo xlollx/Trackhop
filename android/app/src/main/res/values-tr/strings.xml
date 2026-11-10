@@ -2045,7 +2045,7 @@
     <string name="records_discogs_down">Discogs yanıt vermedi: daha sonra tekrar dene.</string>
     <string name="records_not_asked">Bu kez aranmadı: bir dakika sonra tekrar dene.</string>
     <string name="records_slowed">Discogs yavaşlamamızı istedi: bazı sanatçıların plakları bu kez yok. Bir dakika sonra tekrar dene.</string>
-    <string name="records_token_refused">Discogs token\'ını reddetti: Ayarlar › Servis anahtarları\'ndan kontrol et.</string>
+    <string name="records_token_refused">Discogs token\'ını reddetti: Ayarlar › Gelişmiş › Servis anahtarları\'ndan kontrol et.</string>
     <string name="records_no_token">Kaç kopyanın satışta olduğunu görmek ve daha çok sanatçı aramak için kendi Discogs token\'ını ekle.</string>
     <string name="records_limited">%2$d sanatçıdan yalnızca en çok dinlediğin %1$d tanesi arandı.</string>
     <string name="records_links">Resmi sayfalar</string>

@@ -2009,7 +2009,7 @@
     <string name="records_discogs_down">Discogs から応答がありません。後でもう一度お試しください。</string>
     <string name="records_not_asked">今回は検索していません。1 分後にもう一度お試しください。</string>
     <string name="records_slowed">Discogs からペースを落とすよう求められました。今回は一部のアーティストのレコードがありません。1 分後にもう一度お試しください。</string>
-    <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › サービスのキーで確認してください。</string>
+    <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › 詳細設定 › サービスのキーで確認してください。</string>
     <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、より多くのアーティストを検索できます。</string>
     <string name="records_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <string name="records_links">公式ページ</string>

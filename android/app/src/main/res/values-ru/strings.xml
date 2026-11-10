@@ -2123,7 +2123,7 @@
     <string name="records_discogs_down">Discogs не ответил: попробуйте позже.</string>
     <string name="records_not_asked">В этот раз не искали: попробуйте через минуту.</string>
     <string name="records_slowed">Discogs попросил замедлиться: у некоторых артистов в этот раз нет пластинок. Попробуйте через минуту.</string>
-    <string name="records_token_refused">Discogs отклонил ваш токен: проверьте его в Настройки › Ключи сервисов.</string>
+    <string name="records_token_refused">Discogs отклонил ваш токен: проверьте его в Настройки › Дополнительно › Ключи сервисов.</string>
     <string name="records_no_token">Добавьте свой токен Discogs, чтобы видеть, сколько экземпляров в продаже, и искать больше артистов.</string>
     <string name="records_limited">Искали только %1$d самых слушаемых артистов из %2$d.</string>
     <string name="records_links">Официальные страницы</string>

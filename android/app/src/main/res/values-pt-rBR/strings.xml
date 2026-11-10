@@ -2055,7 +2055,7 @@
     <string name="records_discogs_down">O Discogs não respondeu: tente mais tarde.</string>
     <string name="records_not_asked">Não buscado desta vez: tente de novo em um minuto.</string>
     <string name="records_slowed">O Discogs pediu para ir mais devagar: alguns artistas ficaram sem discos desta vez. Tente de novo em um minuto.</string>
-    <string name="records_token_refused">O Discogs recusou seu token: confira em Configurações › Chaves dos serviços.</string>
+    <string name="records_token_refused">O Discogs recusou seu token: confira em Configurações › Avançado › Chaves dos serviços.</string>
     <string name="records_no_token">Adicione seu próprio token do Discogs para ver quantas cópias estão à venda e buscar mais artistas.</string>
     <string name="records_limited">Só os %1$d artistas que você mais ouve foram buscados, de %2$d.</string>
     <string name="records_links">Páginas oficiais</string>

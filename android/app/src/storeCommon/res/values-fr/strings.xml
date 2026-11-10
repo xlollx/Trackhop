@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="provider_note_ytm">YouTube Music via un plugin connecteur, une application installée séparément qui implémente l\'interface ouverte des connecteurs de Trackhop. Trackhop n\'inclut, ne télécharge ni n\'installe de plugins : il n\'en utilise un que si vous l\'avez déjà.</string>
+    <string name="provider_note_ytm">YouTube Music via un plugin connecteur, une application installée séparément qui implémente l\'interface ouverte des connecteurs de Trackhop. Trackhop n\'inclut, ne télécharge ni n\'installe de plugins : il n\'en utilise un que si tu l\'as déjà.</string>
     <string name="ytm_not_installed_hint">Ce service nécessite une application plugin connecteur qui n\'est pas installée. Trackhop n\'inclut ni ne télécharge de plugins.</string>
     <string name="ytm_not_installed">Le plugin connecteur n\'est pas installé.</string>
     <string name="ytm_install">Plugin requis</string>
     <string name="provider_note_amazon">Amazon Music via un plugin connecteur, une application installée séparément qui implémente l\'interface ouverte des connecteurs de Trackhop. Playlists, recherche, création, ajout et suppression sont gérés par le plugin.</string>
     <string name="amazon_not_installed_hint">Ce service nécessite une application plugin connecteur qui n\'est pas installée. Trackhop n\'inclut ni ne télécharge de plugins.</string>
-    <string name="provider_note_spotify_bridge">Spotify via un plugin connecteur qui détient la connexion Spotify ; une alternative à la voie officielle avec votre propre clé développeur, qui reste disponible sous \"Spotify\".</string>
-    <string name="provider_note_apple_bridge">Apple Music via un plugin connecteur qui détient la connexion avec l\'identifiant Apple ; une alternative à la voie officielle avec votre propre jeton développeur, qui reste disponible sous \"Apple Music\".</string>
+    <string name="provider_note_spotify_bridge">Spotify via un plugin connecteur qui détient la connexion Spotify ; une alternative à la voie officielle avec ta propre clé développeur, qui reste disponible sous \"Spotify\".</string>
+    <string name="provider_note_apple_bridge">Apple Music via un plugin connecteur qui détient la connexion avec l\'identifiant Apple ; une alternative à la voie officielle avec ton propre jeton développeur, qui reste disponible sous \"Apple Music\".</string>
     <string name="bridge_needed_hint">Ce service nécessite une application plugin connecteur qui n\'est pas installée. Trackhop n\'inclut ni ne télécharge de plugins.</string>
-    <string name="provider_note_deezer_bridge">Deezer via un plugin connecteur qui conserve la connexion à Deezer ; une alternative à la voie officielle avec votre propre ID d\'app, qui reste disponible sous \"Deezer\".</string>
-    <string name="provider_note_soundcloud_account">SoundCloud via un plugin connecteur qui conserve la connexion à SoundCloud : vos playlists et titres aimés comme sources et destinations.</string>
+    <string name="provider_note_deezer_bridge">Deezer via un plugin connecteur qui conserve la connexion à Deezer ; une alternative à la voie officielle avec ton propre ID d\'app, qui reste disponible sous \"Deezer\".</string>
+    <string name="provider_note_soundcloud_account">SoundCloud via un plugin connecteur qui conserve la connexion à SoundCloud : tes playlists et titres aimés comme sources et destinations.</string>
 </resources>

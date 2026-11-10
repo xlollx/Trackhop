@@ -2048,7 +2048,7 @@
     <string name="records_discogs_down">Discogs didn\'t answer: try again later.</string>
     <string name="records_not_asked">Not looked up this time: try again in a minute.</string>
     <string name="records_slowed">Discogs asked to slow down: some artists have no records this time. Try again in a minute.</string>
-    <string name="records_token_refused">Discogs refused your token: check it in Settings › Service keys.</string>
+    <string name="records_token_refused">Discogs refused your token: check it in Settings › Advanced › Service keys.</string>
     <string name="records_no_token">Add your own Discogs token to see how many copies are for sale and to look up more artists.</string>
     <string name="records_limited">Only the %1$d artists you play most were looked up, of %2$d.</string>
     <string name="records_links">Official pages</string>
