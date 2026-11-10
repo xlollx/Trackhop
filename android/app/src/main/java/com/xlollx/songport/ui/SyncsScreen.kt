@@ -58,6 +58,8 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -372,7 +374,11 @@ fun SyncsScreen(
             columns = GridCells.Fixed(columns),
             state = listState,
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp + LocalBottomBarInset.current),
+            // The last card clears the bar and the floating button, and the keyboard while a search is typed.
+            contentPadding = PaddingValues(
+                start = 16.dp, end = 16.dp, top = 8.dp,
+                bottom = maxOf(100.dp + LocalBottomBarInset.current, WindowInsets.ime.asPaddingValues().calculateBottomPadding() + 16.dp),
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {

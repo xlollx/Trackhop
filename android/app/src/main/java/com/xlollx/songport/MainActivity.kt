@@ -806,7 +806,9 @@ private fun MainScreen(
         // Only the top inset: the content runs under the glass bar, and each screen pads its own list by LocalBottomBarInset.
         CompositionLocalProvider(LocalBottomBarInset provides barInset) {
             // With the keyboard open the tab ends above it, so the field being typed in scrolls into view.
-            Box(Modifier.fillMaxSize().hazeSource(state = haze).padding(top = padding.calculateTopPadding()).imePadding()) {
+            // Not the sync list: its search field is at the top, and the cards go on under the keyboard
+            // as they do under the glass bar (the list pads its own end to clear it).
+            Box(Modifier.fillMaxSize().hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
             // A readable column in the middle of a wide window; the sync cards get room for two columns.
             TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(

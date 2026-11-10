@@ -3,6 +3,7 @@ package com.xlollx.songport.flows
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onLast
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.R
@@ -86,7 +87,8 @@ class OneServiceFlowTest : FlowTest() {
         // Target: Spotify and File, File chosen (the other side of the only service).
         val file = LocalFilesProvider.label(app)
         waitText(file)
-        compose.onAllNodes(hasClickAction() and hasText(file))[0].assertIsSelected()
+        // File is a source too (an imported list), so it is in both rows: the target's is the last one.
+        compose.onAllNodes(hasClickAction() and hasText(file)).onLast().assertIsSelected()
 
         // The hint's button goes to Accounts, with the service grid open.
         click(s(R.string.empty_syncs_cta_accounts))

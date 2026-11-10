@@ -20,6 +20,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -28,6 +29,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.printToString
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -226,6 +228,7 @@ abstract class FlowTest {
     protected fun tap(n: SemanticsNodeInteraction, what: String) {
         runCatching { n.performScrollTo() }
         clearOfBottomBar(n)
+        settle(n)
         try {
             n.performClick()
         } catch (e: AssertionError) {
@@ -235,6 +238,66 @@ abstract class FlowTest {
             n.performSemanticsAction(SemanticsActions.OnClick)
         }
         compose.waitForIdle()
+    }
+
+    /**
+     * Waits until [n] stands still. A page ends above the keyboard, so while the keyboard slides in
+     * or out (a field was just typed in) the page is still moving and a touch aimed at where the
+     * node was would land beside it; should the move push the node out of view, it is scrolled to again.
+     */
+    private fun settle(n: SemanticsNodeInteraction) {
+        // A field has the focus and the keyboard is not up yet: it is on its way (it takes the
+        // emulator up to a second), and the page will move when it arrives.
+        val typing = runCatching {
+            compose.onAllNodes(hasSetTextAction() and SemanticsMatcher.expectValue(SemanticsProperties.Focused, true)).fetchSemanticsNodes().isNotEmpty()
+        }.getOrDefault(false)
+        if (typing && keyboardHeight() == 0) {
+            val shown = System.currentTimeMillis() + 2_000
+            while (keyboardHeight() == 0 && System.currentTimeMillis() < shown) Thread.sleep(50)
+        }
+        var last = (runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return) to keyboardHeight()
+        var still = 0
+        var moves = 0
+        var stuck = 0
+        val end = System.currentTimeMillis() + 5_000
+        while (still < 3 && System.currentTimeMillis() < end) {
+            Thread.sleep(80)
+            compose.waitForIdle()
+            val node = runCatching { n.fetchSemanticsNode() }.getOrNull() ?: return
+            val now = node.boundsInWindow to keyboardHeight()
+            // In view: what shows of it (its bounds, cut to its scroller) is all of it. The field being
+            // typed in is kept in view by the page as the keyboard arrives, which can push the node out again.
+            val inView = node.boundsInWindow.height >= node.size.height - 1 && node.boundsInWindow.width >= node.size.width - 1
+            when {
+                now == last && inView -> still++
+                // Cut by something that does not scroll (a card under the pinned pill): as much in view as it gets.
+                now == last && ++stuck >= 4 -> break
+                else -> { still = 0; moves++; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
+            }
+        }
+        if (moves > 0) log("settle: moved $moves times, in the end ${runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull()} with the keyboard at ${keyboardHeight()} px, still=$still")
+    }
+
+    /** How much of the window the keyboard covers now, in pixels (0 = not shown). */
+    private fun keyboardHeight(): Int {
+        var h = 0
+        runCatching {
+            val a = resumed() ?: return 0
+            instr.runOnMainSync {
+                h = androidx.core.view.ViewCompat.getRootWindowInsets(a.window.decorView)?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())?.bottom ?: 0
+            }
+        }
+        return h
+    }
+
+    /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
+    protected fun clickTile(label: String) {
+        val tile = hasText(label)
+        compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
+            runCatching { compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())[i].performScrollToNode(tile) }
+        }
+        compose.waitForIdle()
+        click(label)
     }
 
     private fun topOf(n: SemanticsNode): SemanticsNode { var p = n; while (p.parent != null) p = p.parent!!; return p }
