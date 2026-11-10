@@ -69,6 +69,9 @@ internal fun Web.settingsPage(r: Web.Req) {
             "setlistfm" -> {
                 saveSetlistfmKey(r.form)
                 return redirect(r.ex, "/settings?ok=${q("Saved.")}#setlistfm")
+            "discogs" -> {
+                saveDiscogsToken(r.form)
+                return redirect(r.ex, "/settings?ok=${q("Saved.")}#discogs")
             }
             "check" -> {
                 if (!seesUpdates()) return send(r.ex, 403, page("Settings", NOT_ALLOWED))
@@ -108,6 +111,7 @@ internal fun Web.settingsPage(r: Web.Req) {
     }
     body.append(ticketmasterKeyCard())
     body.append(setlistfmKeyCard())
+    body.append(discogsTokenCard())
     if (seesUpdates()) body.append(updatesCard())
     body.append(
         """<div class="card"><h3>Language</h3><p class="muted">These pages are in English for now. The texts that come from the app (services, notes) follow ${

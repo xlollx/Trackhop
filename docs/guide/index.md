@@ -54,6 +54,7 @@ description (architecture, matching, services and their limits) stays in the
 - [New releases from your playlist's artists](new-releases), in a playlist on any service, now or every week.
 - [Concerts of the artists in your playlist](concerts): upcoming dates by country, with the ticket links.
 - [Setlists of the artists in your playlist](setlists): what they played live, as a playlist on any service.
+- [Records and merch of the artists in your playlist](records): CDs, vinyl and cassettes from Discogs, official shops, shop searches.
 
 **Coming from another service**
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.

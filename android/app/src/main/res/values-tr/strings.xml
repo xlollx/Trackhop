@@ -2022,4 +2022,33 @@
     <string name="setlists_key_body">Uygulamanın ortak bir anahtarı varsa isteğe bağlı. Kendi ücretsiz anahtarınla (setlist.fm hesabı › Settings › API) Trackhop daha çok sanatçıya bakar ve günlük sınırı herkesle paylaşmaz. Yalnızca herkese açık setlistleri okur.</string>
     <string name="setlists_key_field">API anahtarı</string>
     <string name="setlists_key_none">Anahtar yok: setlistleri görmek için bir tane ekle</string>
+    <string name="discover_records_title">Plaklar ve merch</string>
+    <string name="discover_records_desc">Bir çalma listesindeki sanatçıların CD, plak ve mağazaları</string>
+    <string name="records_intro">Bir çalma listesi seç: Trackhop sanatçılarının CD, plak ve kasetlerini Discogs\'ta, resmi sitelerini ve mağazalarını da bulur. Yalnızca bağlantılar: satın alma onların sitesinde.</string>
+    <string name="records_find">Plak bul</string>
+    <string name="records_none">Discogs\'ta CD, plak veya kaset yok.</string>
+    <string name="records_not_for_sale">Şu an satışta yok</string>
+    <plurals name="records_for_sale">
+        <item quantity="one">%1$d kopya satışta, %2$s fiyatından başlayan</item>
+        <item quantity="other">%1$d kopya satışta, %2$s fiyatından başlayan</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs yanıt vermedi: daha sonra tekrar dene.</string>
+    <string name="records_not_asked">Bu kez aranmadı: bir dakika sonra tekrar dene.</string>
+    <string name="records_slowed">Discogs yavaşlamamızı istedi: bazı sanatçıların plakları bu kez yok. Bir dakika sonra tekrar dene.</string>
+    <string name="records_token_refused">Discogs token\'ını reddetti: Ayarlar › Servis anahtarları\'ndan kontrol et.</string>
+    <string name="records_no_token">Kaç kopyanın satışta olduğunu görmek ve daha çok sanatçı aramak için kendi Discogs token\'ını ekle.</string>
+    <string name="records_limited">%2$d sanatçıdan yalnızca en çok dinlediğin %1$d tanesi arandı.</string>
+    <string name="records_links">Resmi sayfalar</string>
+    <string name="records_shop">Resmi mağaza</string>
+    <string name="records_search">Mağazalarda ara</string>
+    <string name="records_search_web">Web</string>
+    <string name="records_format_vinyl">Plak</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">Kaset</string>
+    <string name="records_token_title">Discogs token\'ı</string>
+    <string name="records_token_body">İsteğe bağlı. Discogs hesabından alınan kişisel erişim token\'ı (Settings › Developers) kaç kopyanın hangi fiyattan satışta olduğunu gösterir ve daha çok sanatçı arar. Trackhop onunla yalnızca okur ve onu bu telefonda şifreli saklar.</string>
+    <string name="records_token_get">Token al</string>
+    <string name="records_token_field">Kişisel erişim token\'ı</string>
+    <string name="records_token_own">Kendi token\'ın kullanılıyor</string>
+    <string name="records_token_none">Ayarlanmadı: fiyatsız plaklar</string>
 </resources>

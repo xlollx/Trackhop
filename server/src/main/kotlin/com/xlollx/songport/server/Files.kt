@@ -187,6 +187,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "wanted" -> wantedPage(r)
         "concerts" -> concertsPage(r)
         "setlists" -> setlistsPage(r)
+        "records" -> recordsPage(r)
         else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
     }
 }
@@ -200,6 +201,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
+    tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, their official sites and shops, and searches on shops: plain links.")
     tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")
     tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")

@@ -403,6 +403,10 @@ fun SettingsScreen(
                 var sfmOpen by rememberSaveable { mutableStateOf(false) }
                 if (sfmOpen) SetlistFmKeyDialog { sfmOpen = false }
                 PrefRow(Icons.Filled.Key, stringResource(R.string.setlists_key_title), stringResource(remember(data.settings, sfmOpen) { setlistFmKeyState(ctx) })) { sfmOpen = true }
+                // Records and merch (Discover): the user's own Discogs token, optional.
+                var dgOpen by rememberSaveable { mutableStateOf(false) }
+                if (dgOpen) DiscogsTokenDialog { dgOpen = false }
+                PrefRow(Icons.Filled.Key, stringResource(R.string.records_token_title), stringResource(remember(dgOpen) { discogsTokenState(ctx) })) { dgOpen = true }
                 Providers.all().filter { it.setupGuide != null && it.slot.isEmpty() }.forEach { p ->
                     val configured = remember(p.id, data.settings) { p.isConfigured(ctx) }
                     PrefRow(

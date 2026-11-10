@@ -1987,4 +1987,32 @@
     <string name="setlists_key_body">如果应用已有共享密钥，则为可选。使用你自己的免费密钥（setlist.fm 账户 › Settings › API），Trackhop 能查找更多艺人，且不与所有人共享每日额度。它只读取公开的演出曲目。</string>
     <string name="setlists_key_field">API 密钥</string>
     <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
+    <string name="discover_records_title">唱片与周边</string>
+    <string name="discover_records_desc">播放列表艺人的 CD、黑胶和商店</string>
+    <string name="records_intro">选择一个播放列表：Trackhop 会在 Discogs 上查找其艺人的 CD、黑胶和磁带，并列出他们的官网和官方商店。只提供链接，购买在对方网站上完成。</string>
+    <string name="records_find">查找唱片</string>
+    <string name="records_none">Discogs 上没有 CD、黑胶或磁带。</string>
+    <string name="records_not_for_sale">目前没有在售</string>
+    <plurals name="records_for_sale">
+        <item quantity="other">%1$d 件在售，最低 %2$s</item>
+    </plurals>
+    <string name="records_discogs_down">Discogs 没有响应：请稍后再试。</string>
+    <string name="records_not_asked">这次没有查找：请一分钟后再试。</string>
+    <string name="records_slowed">Discogs 要求放慢速度：这次部分艺人没有唱片信息。请一分钟后再试。</string>
+    <string name="records_token_refused">Discogs 拒绝了你的令牌：请在 设置 › 服务密钥 中检查。</string>
+    <string name="records_no_token">添加你自己的 Discogs 令牌，即可查看在售数量并查找更多艺人。</string>
+    <string name="records_limited">只查找了 %2$d 位艺人中你最常听的 %1$d 位。</string>
+    <string name="records_links">官方页面</string>
+    <string name="records_shop">官方商店</string>
+    <string name="records_search">在商店中搜索</string>
+    <string name="records_search_web">网页</string>
+    <string name="records_format_vinyl">黑胶</string>
+    <string name="records_format_cd">CD</string>
+    <string name="records_format_cassette">磁带</string>
+    <string name="records_token_title">Discogs 令牌</string>
+    <string name="records_token_body">可选。你的 Discogs 账户的个人访问令牌（Settings › Developers）可显示在售数量和最低价格，并查找更多艺人。Trackhop 只用它读取数据，并加密保存在这部手机上。</string>
+    <string name="records_token_get">获取令牌</string>
+    <string name="records_token_field">个人访问令牌</string>
+    <string name="records_token_own">正在使用你的令牌</string>
+    <string name="records_token_none">未设置：唱片不显示价格</string>
 </resources>
