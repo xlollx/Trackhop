@@ -1,5 +1,6 @@
 package com.xlollx.songport.sync
 
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.*
 import android.content.Context
 import android.os.Build
@@ -91,6 +92,12 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                     val notable = report.added > 0 || report.removed > 0 || !report.ok
                     if (!networkGone && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok) && notable) {
                         Notifications.syncResult(ctx, report)
+                    }
+                    // The channels set up in Settings › Notification channels (Telegram, ntfy…): sent here, before the
+                    // worker ends, so a process closed right after still delivered them. A failure only goes to the log.
+                    if (!networkGone) for ((c, m) in com.xlollx.songport.notify.Notify.deliveries(ctx.env, job, report)) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.xlollx.songport.notify.Notify.send(c, m) }
+                            ?.let { Diagnostics.log(ctx, "notify", "${c.name} (${c.kind.label}): $it") }
                     }
                 } finally {
                     SyncState.finish(job.id)

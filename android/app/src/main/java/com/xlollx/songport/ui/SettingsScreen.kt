@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
@@ -236,6 +237,10 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.Notifications, stringResource(R.string.settings_notifications), stringResource(R.string.settings_notifications_summary), settings.notifyOnSync, help = { HelpButton(Helps.notifications) }) { v ->
                 store.updateSettings { it.copy(notifyOnSync = v) }
             }
+            // Telegram, ntfy, Discord…: the same channels as Docker and Desktop (core's Notify).
+            var channelsOpen by rememberSaveable { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Campaign, stringResource(R.string.notify_channels_title), stringResource(R.string.notify_channels_summary)) { channelsOpen = true }
+            if (channelsOpen) NotifyChannelsScreen(onClose = { channelsOpen = false })
             // Tasker, MacroDroid…: the commands and the end-of-sync event, off until turned on.
             val automationView = remember { BringIntoViewRequester() }
             val flash = remember { Animatable(0f) }

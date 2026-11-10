@@ -530,7 +530,9 @@ found.
 A short message on your phone or in a chat when a sync ends with something to know: in
 **Settings › Notifications**, add as many channels as you like, each with its own events (a sync
 added or removed tracks, a sync failed or a sign-in expired, tracks to review, removals waiting for
-your confirmation), and try it with **Send test**. The message says the sync's name, `+added
+your confirmation, a weekly [New releases](new-releases) sync found new music of your artists), and
+try it with **Send test**. The Android app has the same channels, in *Settings › Notification
+channels*: there their keys are kept encrypted on the phone and never exported either. The message says the sync's name, `+added
 −removed` and the error's first line: never your tokens or your server's address. Sending happens
 apart from the sync (10 seconds at most per channel); a channel that fails is noted in the log and
 never fails the sync. Tokens are kept in the data folder like the sign-ins, shown masked

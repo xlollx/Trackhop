@@ -77,7 +77,8 @@ fun BackupScreen(onClose: () -> Unit) {
         if (uri != null) scope.launch {
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
-                    val text = ConfigBackup.export(ctx.env, "Trackhop ${BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty())
+                    // With the notification channels, never their secrets (Notify.intoBackup).
+                    val text = com.xlollx.songport.notify.Notify.intoBackup(ctx.env, ConfigBackup.export(ctx.env, "Trackhop ${BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty()))
                     ctx.contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) } ?: error("no stream")
                 }.isSuccess
             }
@@ -85,10 +86,16 @@ fun BackupScreen(onClose: () -> Unit) {
         }
     }
     var pending by remember { mutableStateOf<ConfigBackup.Snapshot?>(null) }
+    // The notification channels the file holds (without secrets): brought in with the rest.
+    var pendingChannels by remember { mutableStateOf<List<com.xlollx.songport.notify.Notify.Channel>>(emptyList()) }
     val open = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             val read = withContext(Dispatchers.IO) {
-                runCatching { ConfigBackup.read(ctx.contentResolver.openInputStream(uri)!!.use { String(it.readBytes()) }) }
+                runCatching {
+                    val text = ctx.contentResolver.openInputStream(uri)!!.use { String(it.readBytes()) }
+                    pendingChannels = com.xlollx.songport.notify.Notify.inBackup(text)
+                    ConfigBackup.read(text)
+                }
             }
             read.onSuccess { pending = it }.onFailure { snackbar.showSnackbar(ctx.getString(R.string.backup_config_invalid)) }
         }
@@ -103,7 +110,8 @@ fun BackupScreen(onClose: () -> Unit) {
                 TextButton(onClick = {
                     pending = null
                     scope.launch {
-                        val done = withContext(Dispatchers.IO) { runCatching { ConfigBackup.import(ctx.env, snap) } }
+                        val channels = pendingChannels
+                        val done = withContext(Dispatchers.IO) { runCatching { ConfigBackup.import(ctx.env, snap).also { com.xlollx.songport.notify.Notify.restore(ctx.env, channels) } } }
                         done.onSuccess { r ->
                             // The imported syncs' schedules start here as they would have where they came from.
                             store.data.jobs.forEach { Scheduler.apply(ctx, it) }
