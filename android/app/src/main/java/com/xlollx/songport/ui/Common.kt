@@ -416,34 +416,46 @@ fun HeroHeader(
     action: (@Composable () -> Unit)? = null,
     content: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    // Kept low, so the syncs start high on the screen: the title on one line beside the logo and the
+    // button, the subtitle and the link under it, on the beam's dark side (the band crosses the
+    // top-right corner). On a phone on its side the subtitle has room on one line.
+    val side = LocalWindowLayout.current.short
+    val linkButton: @Composable () -> Unit = {
+        if (link != null && onLink != null) Row(
+            Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50))
+                .clickable(role = Role.Button, onClick = onLink).padding(start = 8.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(link, color = Color.White, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(18.dp))
+        }
+    }
     Box(
         Modifier.fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .brandBeam()
-            .padding(20.dp),
+            .padding(start = 16.dp, end = if (action != null) 4.dp else 12.dp, top = 4.dp, bottom = 4.dp),
     ) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                BrandTile(40.dp)
-                Spacer(Modifier.width(12.dp))
-                Text(title, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = if (action != null) Modifier.weight(1f) else Modifier)
+            Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                BrandTile(28.dp)
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
+                )
                 action?.invoke()
             }
-            Spacer(Modifier.height(4.dp))
-            Text(subtitle, color = Color.White, style = MaterialTheme.typography.bodyMedium)
-            // A quiet way on from the subtitle ("Your numbers ›"): a text link, not one more button.
-            if (link != null && onLink != null) {
-                Row(
-                    Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50))
-                        .clickable(role = Role.Button, onClick = onLink).padding(end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(link, color = Color.White, style = MaterialTheme.typography.labelLarge)
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(20.dp))
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    subtitle, color = Color.White.copy(alpha = 0.92f), style = MaterialTheme.typography.bodySmall,
+                    maxLines = if (side) 1 else 2, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).padding(bottom = if (link == null || onLink == null) 8.dp else 0.dp),
+                )
+                linkButton()
             }
             if (content != null) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, content = content)
             }
         }

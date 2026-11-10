@@ -54,6 +54,13 @@ enum class CardAccent(val key: String, val label: Int) {
         /** The sync's own choice, else the one in Settings, else the classic band. */
         fun resolve(job: String?, settings: String?) = of(job) ?: of(settings) ?: CLASSIC
     }
+
+    /**
+     * How a tile of the minimal view wears it: the styles drawn along the leading edge are made for
+     * a tall card (in a small tile the crescent swallowed the text and the fade showed as arcs), so
+     * every one of them is the plain band there; the outline and the wash already fit any size.
+     */
+    val onTile: CardAccent get() = if (this == OUTLINE || this == WASH) this else CLASSIC
 }
 
 /** How the last runs show under a card's figures (Settings). */
@@ -248,22 +255,41 @@ fun JobStyleDialog(
             }
         }
     }
-    // A phone on its side: the dialog widens and the preview stands beside the choices, which
-    // scroll on their own; upright, one column as ever.
-    val wide = LocalWindowLayout.current.short
-    androidx.compose.material3.AlertDialog(
+    val title: @Composable () -> Unit = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) }
+    val save = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }
+    val buttons: @Composable () -> Unit = {
+        androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) }
+        androidx.compose.material3.TextButton(onClick = save) { Text(androidx.compose.ui.res.stringResource(R.string.save)) }
+    }
+    // A phone on its side: the dialog as wide and as tall as the window allows, the title and the
+    // preview on the left, the choices on the right scrolling on their own between the title and
+    // the buttons, which stay in view. Material's dialog kept its text to a short box there and cut
+    // the label's name in half. Upright, Material's dialog with one column as ever.
+    if (LocalWindowLayout.current.short) androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss, properties = WideDialog.properties) {
+        androidx.compose.material3.Surface(
+            WideDialog.modifier.padding(vertical = 12.dp), shape = androidx.compose.material3.AlertDialogDefaults.shape,
+            color = androidx.compose.material3.AlertDialogDefaults.containerColor,
+            tonalElevation = androidx.compose.material3.AlertDialogDefaults.TonalElevation,
+        ) {
+            androidx.compose.foundation.layout.Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 12.dp)) {
+                Row(Modifier.weight(1f, fill = false), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    androidx.compose.foundation.layout.Column(Modifier.weight(0.4f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides MaterialTheme.typography.headlineSmall) { title() }
+                        preview()
+                    }
+                    androidx.compose.foundation.layout.Column(
+                        Modifier.weight(0.6f).verticalScroll(androidx.compose.foundation.rememberScrollState()).testTag(STYLE_CHOICES_TAG),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) { choices() }
+                }
+                Row(Modifier.align(Alignment.End).padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) { buttons() }
+            }
+        }
+    } else androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = if (wide) WideDialog.modifier else Modifier,
-        properties = if (wide) WideDialog.properties else androidx.compose.ui.window.DialogProperties(),
-        title = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) },
+        title = title,
         text = {
-            if (wide) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                androidx.compose.foundation.layout.Column(Modifier.weight(0.4f).verticalScroll(androidx.compose.foundation.rememberScrollState())) { preview() }
-                androidx.compose.foundation.layout.Column(
-                    Modifier.weight(0.6f).verticalScroll(androidx.compose.foundation.rememberScrollState()).testTag(STYLE_CHOICES_TAG),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) { choices() }
-            } else androidx.compose.foundation.layout.Column(
+            androidx.compose.foundation.layout.Column(
                 Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -271,7 +297,7 @@ fun JobStyleDialog(
                 choices()
             }
         },
-        confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = save) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
         dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) } },
     )
     if (recolorOpen) CustomColorDialog(CustomColor.parse(c) ?: JobColor.BLUE.light, onDismiss = { recolorOpen = false }) { recolorOpen = false; recolor = CustomColor.key(it) }

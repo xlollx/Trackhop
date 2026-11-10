@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.Demo
@@ -201,10 +202,19 @@ class TabletLayoutFlowTest : FlowTest() {
             b.assertIsDisplayed()
             assertTrue("${s(button)} is cut", whole(b.fetchSemanticsNode()))
         }
-        // And it works as upright: a colour picked and saved.
+        // And it works as upright: a colour picked and saved. The choices under the colours (the label's
+        // name, the styles) are reached by scrolling their column, Save and Cancel staying in view.
         click(s(R.string.color_teal))
+        compose.onNode(hasSetTextAction() and androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.LABEL_NAME_TAG)).performScrollTo().assertIsDisplayed()
+        val wash = compose.onAllNodes(hasText(s(R.string.accent_wash)) and hasClickAction()).onFirst()
+        wash.performScrollTo().assertIsDisplayed()
+        assertTrue("${s(R.string.accent_wash)} is cut", whole(wash.fetchSemanticsNode()))
+        wash.performClick()
+        for (button in listOf(R.string.save, R.string.cancel)) {
+            assertTrue("${s(button)} is cut after scrolling", whole(compose.onAllNodes(hasText(s(button)) and hasClickAction()).onFirst().fetchSemanticsNode()))
+        }
         click(s(R.string.save))
-        waitFor("teal stored") { store.data.jobs.single().color == "teal" }
+        waitFor("teal and the wash stored") { store.data.jobs.single().let { it.color == "teal" && it.accentStyle == "wash" } }
 
         // Upright again: the one-column dialog, no side-by-side column.
         rotate(UiAutomation.ROTATION_FREEZE_0)

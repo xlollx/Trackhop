@@ -1100,7 +1100,7 @@ private fun JobTile(
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
             Column(
-                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color))
+                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent).onTile, jobAccent(job.color))
                     .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1140,18 +1140,20 @@ private fun JobTile(
                 // When it runs next, in short: only for a sync that runs by itself.
                 // Already due (late, about to start): nothing to say.
                 val next = remember(job, isRunning) { if (isRunning) null else System.currentTimeMillis().let { now -> com.xlollx.songport.sync.Timing.nextRun(job, now)?.takeIf { it > now } } }
-                if (isRunning) {
-                    Spacer(Modifier.height(8.dp))
-                    val pct = progress?.percent
-                    if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
-                    else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
-                } else if (next != null && job.radio == null) {
-                    Spacer(Modifier.height(2.dp))
+                // One line kept for every tile, so the tiles of a row are as tall as each other:
+                // the progress while it runs, else when it runs next, else nothing.
+                Spacer(Modifier.height(2.dp))
+                Box(contentAlignment = Alignment.CenterStart) {
                     Text(
-                        stringResource(R.string.tile_next_run, nextRunShort(ctx, next)),
+                        if (!isRunning && next != null && job.radio == null) stringResource(R.string.tile_next_run, nextRunShort(ctx, next)) else "",
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        maxLines = 1, minLines = 1, overflow = TextOverflow.Ellipsis,
                     )
+                    if (isRunning) {
+                        val pct = progress?.percent
+                        if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
+                        else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
+                    }
                 }
             }
         }
