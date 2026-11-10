@@ -33,6 +33,9 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.GroupAdd
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Schedule
@@ -759,12 +762,18 @@ private fun JobMenuHost(
     }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     var extendOpen by rememberSaveable { mutableStateOf(false) }
+    val sharedGroup = com.xlollx.songport.shared.SharedGroups.sharedSide(job)
     if (extendOpen) AiExtendDialog(job) { extendOpen = false }
     content(
         listOfNotNull(
             if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
             MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
-            MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+            // A shared playlist's syncs are made and changed from its group; anything else can become one.
+            sharedGroup?.let { gid -> MenuAction(stringResource(R.string.shared_open_group), { SharedUi.request.value = SharedUi.Request.Open(gid) }, icon = Icons.Outlined.Groups) }
+                ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+            if (sharedGroup == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
+                SharedUi.request.value = SharedUi.Request.Create(job.target, job.target.playlistName.ifBlank { job.name })
+            }, icon = Icons.Outlined.GroupAdd) else null,
             if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
             else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
             MenuAction(
@@ -777,7 +786,7 @@ private fun JobMenuHost(
             // at a position typed as a number.
             // Many syncs: a position typed as a number, quicker than many taps on the arrows.
             if (data.jobs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
-            MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete),
+            if (sharedGroup == null) MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete) else null,
         ),
     )
     if (confirmDelete) {
@@ -902,9 +911,9 @@ private fun JobCard(
                     Text(
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
                         (job.radio?.let { stringResource(R.string.editor_source_radio) + " · " + it.station }
-                            ?: ((src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +
+                            ?: ((sharedLabel(job.source.provider) ?: src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +
                             (if (job.linkedJobId != null) "  ↔  " else "  →  ") +
-                            (dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
+                            (sharedLabel(job.target.provider) ?: dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
                         style = if (large) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.cardMarquee(),
@@ -1060,6 +1069,11 @@ private fun JobMarks(job: SyncJob, ink: Color?, size: androidx.compose.ui.unit.D
     // The songs a radio plays: a radio, tinted like the AI's spark.
     if (job.radio != null) {
         Icon(Icons.Filled.Radio, stringResource(R.string.radio_badge_desc), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
+        Spacer(Modifier.width(4.dp))
+    }
+    // One half of a shared playlist: a group's mark.
+    if (com.xlollx.songport.shared.SharedGroups.sharedSide(job) != null) {
+        Icon(Icons.Filled.Groups, stringResource(R.string.shared_badge), Modifier.size(size), tint = MaterialTheme.colorScheme.tertiary)
         Spacer(Modifier.width(4.dp))
     }
     // Starred: first in the list, and under "Favourites" in the filters.

@@ -15,6 +15,8 @@ class SongportApp : Application() {
         // MusicBrainz asks every client to name itself, with its version and a contact.
         com.xlollx.songport.ai.ArtistMixSource.userAgent = "Trackhop/${BuildConfig.VERSION_NAME} ( https://trackhop.org )"
         com.xlollx.songport.providers.installConnectors()
+        // Shared playlists reach their group's folder through the system's folder picker.
+        com.xlollx.songport.sync.SafFolder.install(this)
         // Notification channels: their secrets with the sign-ins, encrypted with the Keystore (TokenStore).
         com.xlollx.songport.notify.Notify.secretsInVault = true
         // Gemini Nano, where the phone has it: an AI without a key for the Roast and the generator.

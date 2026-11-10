@@ -60,6 +60,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <!-- A shared playlist's invite: trackhop.org/join (the page its QR code opens) hands it over as songport://join. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="songport" android:host="join" />
+            </intent-filter>
         </activity>
 
         <!-- "Open with Trackhop" for track and playlist links: off until the user turns it on in Settings
