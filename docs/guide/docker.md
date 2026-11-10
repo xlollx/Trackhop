@@ -927,7 +927,7 @@ services or other groups). Each member's Trackhop sends its signed changes and r
 (`/api/v1/groups/{group}/items`).
 
 - This server keeps what the group writes in `<data>/groups/<group>`: track names, artists and
-  ISRCs, each member's name and service, the curators' list, when each change was made. It does not
+  ISRCs, each member's name and service, the curators' list, who made each change and when. It does not
   need to be trusted with who may write: each member checks the signatures and the curators' list,
   as with a shared folder. It only takes items that are signed by whoever they name, each once.
 - Nothing is removed by age. A mailbox stays under 200,000 items and 48 MB: when it gets there, it

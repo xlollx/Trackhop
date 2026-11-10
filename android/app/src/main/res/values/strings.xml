@@ -2116,7 +2116,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Shared playlists</string>
     <string name="shared_row_desc">One playlist for a group, each on their own service</string>
-    <string name="shared_intro">A shared playlist travels through a folder your group already shares (Google Drive, Nextcloud, Dropbox, Syncthing) or an encrypted ntfy channel. Everyone keeps their own copy on their own service, and Trackhop keeps the copies in step. No account.</string>
+    <string name="shared_intro">A shared playlist travels through a folder your group already shares (Google Drive, Nextcloud, Dropbox, Syncthing), an encrypted ntfy channel or your own Trackhop server. Everyone keeps their own copy on their own service, and Trackhop keeps the copies in step. No account.</string>
     <string name="shared_create">Create a group</string>
     <string name="shared_join">Join with a link</string>
     <string name="shared_name">Group name</string>
@@ -2185,4 +2185,13 @@
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>
     </plurals>
+    <string name="shared_via_server">My Trackhop server</string>
+    <string name="shared_via_server_desc">No folder to share: changes meet on your Trackhop server (%1$s). Members need no account there; whoever runs it can see the group\'s songs.</string>
+    <string name="shared_join_server">Group on the Trackhop server %1$s. Anyone with this invite can read the group: don\'t pass it on.</string>
+    <string name="shared_error_server_key">The server %1$s no longer accepts this group\'s key: ask the group\'s creator for the new invite.</string>
+    <string name="shared_server_label">Trackhop server</string>
+    <string name="shared_new_key">Replace the key</string>
+    <string name="shared_new_key_confirm">The current invite stops working for everyone, members already in the group too. Then send the new invite to the members you want to keep: they keep their place.</string>
+    <string name="shared_key_new_invite">A new invite for %1$s, which you\'re already in: its key replaces the old one.</string>
+    <string name="shared_key_updated">%1$s: new key saved.</string>
 </resources>

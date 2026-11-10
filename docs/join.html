@@ -61,6 +61,7 @@ footer a{color:inherit}
           folder: "You also need access to the group's shared folder ({f}).", folderAny: "You also need access to the folder the group shares (Google Drive, Nextcloud, Dropbox, Syncthing).",
           howNtfy: "Open the invite in Trackhop and pick your service: your own copy of the playlist fills up on the first sync.",
           ntfy: "This group meets on an encrypted channel ({s}): the invite is its key. Anyone with it can read the group, so don't pass it on.",
+          server: "This group meets on a Trackhop server ({s}): the invite is its key, no account needed there. Anyone with it can read the group, so don't pass it on.",
           open: "Open in Trackhop", get: "Get Trackhop", note: "No Trackhop yet? Install it, then open this page again, or paste the link in Tools › Shared playlists › Join with a link.",
           bad: "This invite is incomplete or damaged: ask for it again." },
     it: { kicker: "Playlist condivisa", sub: "Sei invitato a una playlist condivisa da un gruppo, ognuno sul suo servizio musicale.",
@@ -68,6 +69,7 @@ footer a{color:inherit}
           folder: "Ti serve anche l'accesso alla cartella condivisa del gruppo ({f}).", folderAny: "Ti serve anche l'accesso alla cartella che il gruppo condivide (Google Drive, Nextcloud, Dropbox, Syncthing).",
           howNtfy: "Apri l'invito in Trackhop e scegli il tuo servizio: la tua copia della playlist si riempie alla prima sincronizzazione.",
           ntfy: "Questo gruppo si incontra su un canale cifrato ({s}): l'invito ne è la chiave. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
+          server: "Questo gruppo si incontra su un server Trackhop ({s}): l'invito ne è la chiave, lì non serve un account. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           open: "Apri in Trackhop", get: "Scarica Trackhop", note: "Non hai ancora Trackhop? Installalo e riapri questa pagina, oppure incolla il link in Strumenti › Playlist condivise › Entra con un link.",
           bad: "Questo invito è incompleto o danneggiato: chiedilo di nuovo." }
   };
@@ -86,19 +88,20 @@ footer a{color:inherit}
   var body = document.getElementById("body");
   // The same checks as the app's (Invite.parse); every text goes in as text, never as markup.
   if (!/^[0-9a-f]{16}$/.test(params.g || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n ||
-      (params.t === "ntfy" && (!/^[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || "")))) {
+      (params.t === "ntfy" && (!/^[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || ""))) ||
+      (params.t === "server" && (!/^thg_[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || "")))) {
     set("title", "Trackhop");
     body.textContent = t.bad;
     return;
   }
   set("title", params.n.slice(0, 60));
   set("sub", t.sub);
-  var ntfy = params.t === "ntfy";
-  var how = document.createElement("p"); how.textContent = ntfy ? t.howNtfy : t.how; body.appendChild(how);
+  var ntfy = params.t === "ntfy", server = params.t === "server";
+  var how = document.createElement("p"); how.textContent = ntfy || server ? t.howNtfy : t.how; body.appendChild(how);
   var host = "";
-  if (ntfy) { try { host = new URL(params.s).host.slice(0, 80); } catch (e) { host = "ntfy"; } }
+  if (ntfy || server) { try { host = new URL(params.s).host.slice(0, 80); } catch (e) { host = ntfy ? "ntfy" : "Trackhop"; } }
   var folder = document.createElement("p");
-  folder.textContent = ntfy ? t.ntfy.replace("{s}", function () { return host; })
+  folder.textContent = ntfy || server ? (ntfy ? t.ntfy : t.server).replace("{s}", function () { return host; })
     : params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny;
   body.appendChild(folder);
   var actions = document.getElementById("actions");

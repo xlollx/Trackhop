@@ -2193,7 +2193,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Wspólne playlisty</string>
     <string name="shared_row_desc">Jedna playlista dla grupy, każdy na swoim serwisie</string>
-    <string name="shared_intro">Wspólna playlista przechodzi przez folder, który twoja grupa już udostępnia (Google Drive, Nextcloud, Dropbox, Syncthing), albo przez szyfrowany kanał ntfy. Każdy ma swoją kopię na swoim serwisie, a Trackhop dba, by kopie były takie same. Bez konta.</string>
+    <string name="shared_intro">Wspólna playlista przechodzi przez folder, który twoja grupa już udostępnia (Google Drive, Nextcloud, Dropbox, Syncthing), przez szyfrowany kanał ntfy albo przez twój własny serwer Trackhop. Każdy ma swoją kopię na swoim serwisie, a Trackhop dba, by kopie były takie same. Bez konta.</string>
     <string name="shared_create">Utwórz grupę</string>
     <string name="shared_join">Dołącz przez link</string>
     <string name="shared_name">Nazwa grupy</string>
@@ -2264,4 +2264,13 @@
         <item quantity="many">%1$d członków</item>
         <item quantity="other">%1$d członka</item>
     </plurals>
+    <string name="shared_via_server">Mój serwer Trackhop</string>
+    <string name="shared_via_server_desc">Bez folderu do udostępniania: zmiany spotykają się na twoim serwerze Trackhop (%1$s). Członkowie nie potrzebują tam konta; kto nim zarządza, widzi utwory grupy.</string>
+    <string name="shared_join_server">Grupa na serwerze Trackhop %1$s. Każdy, kto ma to zaproszenie, może czytać grupę: nie przekazuj go dalej.</string>
+    <string name="shared_error_server_key">Serwer %1$s nie przyjmuje już klucza tej grupy: poproś osobę, która utworzyła grupę, o nowe zaproszenie.</string>
+    <string name="shared_server_label">Serwer Trackhop</string>
+    <string name="shared_new_key">Wymień klucz</string>
+    <string name="shared_new_key_confirm">Obecne zaproszenie przestanie działać dla wszystkich, także dla osób już w grupie. Potem wyślij nowe zaproszenie członkom, których chcesz zatrzymać: zachowają swoje miejsce.</string>
+    <string name="shared_key_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: jego klucz zastępuje stary.</string>
+    <string name="shared_key_updated">%1$s: nowy klucz zapisany.</string>
 </resources>

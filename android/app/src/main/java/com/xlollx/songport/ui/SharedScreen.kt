@@ -20,9 +20,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Sync
@@ -77,6 +79,7 @@ import com.xlollx.songport.shared.SharedTransports
 import com.xlollx.songport.sync.QrCode
 import com.xlollx.songport.sync.SafFolder
 import com.xlollx.songport.sync.Scheduler
+import com.xlollx.songport.sync.ServerLocks
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -181,7 +184,10 @@ fun SharedScreen(onClose: () -> Unit) {
         scope.launch { snackbar.showSnackbar(ctx.getString(R.string.shared_created)) }
     }
     joinLink?.let { link ->
-        JoinGroupDialog(link, onDismiss = { joinLink = null }) { g, others ->
+        JoinGroupDialog(link, onDismiss = { joinLink = null }, onRekeyed = { g ->
+            joinLink = null; openId = g.id
+            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.shared_key_updated, g.name)) }
+        }) { g, others ->
             joinLink = null; openId = g.id
             ctx.env.store.job(g.jobId)?.let { Scheduler.apply(ctx, it) }
             ctx.env.store.job(g.twinId)?.let { Scheduler.apply(ctx, it) }
@@ -189,7 +195,7 @@ fun SharedScreen(onClose: () -> Unit) {
             scope.launch {
                 snackbar.showSnackbar(when {
                     others -> ctx.getString(R.string.shared_joined, g.name)
-                    g.transport == Invite.NTFY -> ctx.getString(R.string.shared_joined_waiting, g.name)
+                    g.transport != Invite.FOLDER -> ctx.getString(R.string.shared_joined_waiting, g.name)
                     else -> ctx.getString(R.string.shared_joined_alone)
                 })
             }
@@ -257,8 +263,10 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
     var choosing by remember { mutableStateOf<String?>(null) }
     var folder by rememberSaveable { mutableStateOf<String?>(null) }
     var folderName by rememberSaveable { mutableStateOf("") }
-    var ntfy by rememberSaveable { mutableStateOf(false) }
+    var transport by rememberSaveable { mutableStateOf(Invite.FOLDER) }
     var server by rememberSaveable { mutableStateOf(DEFAULT_NTFY_SERVER) }
+    // The user's own Trackhop server, when "Coordinate with my server" is set: a third way to meet.
+    val myServer = remember { ServerLocks.config(ctx.env)?.address }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val pick = rememberFolderPicker { uri, n -> folder = uri.toString(); folderName = n }
@@ -286,15 +294,19 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                 OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = "service" }
                 ChoiceField(stringResource(R.string.shared_playlist), playlist?.name, enabled = lists != null) { choosing = "playlist" }
-                TransportChoice(ntfy, { ntfy = it }, server, { server = it })
-                if (!ntfy) FolderField(folderName) { pick.launch(null) }
+                TransportChoice(transport, { transport = it }, server, { server = it }, myServer?.let { NtfyServer.hostOf(it) })
+                if (transport == Invite.FOLDER) FolderField(folderName) { pick.launch(null) }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
         confirmButton = {
             TextButton(
                 enabled = !busy && name.isNotBlank() && myName.isNotBlank() && service != null && playlist != null &&
-                    (if (ntfy) NtfyServer.valid(server) else folder != null),
+                    when (transport) {
+                        Invite.NTFY -> NtfyServer.valid(server)
+                        Invite.SERVER -> myServer != null
+                        else -> folder != null
+                    },
                 onClick = {
                     val p = service ?: return@TextButton
                     val pl = playlist ?: return@TextButton
@@ -303,8 +315,11 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                         val made = withContext(Dispatchers.IO) {
                             runCatching {
                                 val local = PlaylistRef(p.id, pl.id, pl.name)
-                                if (ntfy) SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY)
-                                else SharedGroups.create(ctx.env, name, folder!!, folderName, myName, p.displayName, local)
+                                when (transport) {
+                                    Invite.NTFY -> SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY)
+                                    Invite.SERVER -> SharedGroups.create(ctx.env, name, myServer!!, NtfyServer.hostOf(myServer), myName, p.displayName, local, Invite.SERVER)
+                                    else -> SharedGroups.create(ctx.env, name, folder!!, folderName, myName, p.displayName, local)
+                                }
                             }
                         }
                         busy = false
@@ -319,7 +334,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
 
 /** Joining: the invite link, the service the member listens on (a new playlist there), their name, the shared folder. */
 @Composable
-private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onDone: (SharedGroup, Boolean) -> Unit) {
+private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (SharedGroup) -> Unit, onDone: (SharedGroup, Boolean) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val services = remember { writableServices(ctx, needsCreate = true) }
@@ -334,6 +349,8 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onDone: (Sha
     var error by remember { mutableStateOf<String?>(null) }
     val pick = rememberFolderPicker { uri, n -> folder = uri.toString(); folderName = n }
     val invite = remember(link) { Invite.parse(link) }
+    // A new invite of a group this device is in (its creator replaced the server key): only the key changes.
+    val rekey = remember(link) { invite?.let { SharedGroups.rekeyed(ctx.env, it) } }
     val service = serviceId?.let { Providers.byId(it) }
     if (choosing) ChoiceDialog(stringResource(R.string.shared_service), services.map { it.id to it.label(ctx.env) }, serviceId, onDismiss = { choosing = false }) {
         choosing = false; serviceId = it
@@ -354,20 +371,35 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onDone: (Sha
                     Text(stringResource(R.string.shared_code, invite.code), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(R.string.shared_code_check), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = true }
-                Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (invite?.transport == Invite.NTFY) InviteSecretNote(stringResource(R.string.shared_join_ntfy, NtfyServer.hostOf(invite?.server.orEmpty())))
-                else FolderField(folderName.ifBlank { invite?.folderName?.let { "($it)" }.orEmpty() }) { pick.launch(null) }
+                if (rekey != null) Text(stringResource(R.string.shared_key_new_invite, rekey.name), style = MaterialTheme.typography.bodyMedium)
+                else {
+                    OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = true }
+                    Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                when (invite?.transport) {
+                    Invite.NTFY -> InviteSecretNote(stringResource(R.string.shared_join_ntfy, NtfyServer.hostOf(invite.server)))
+                    Invite.SERVER -> InviteSecretNote(stringResource(R.string.shared_join_server, NtfyServer.hostOf(invite.server)))
+                    else -> FolderField(folderName.ifBlank { invite?.folderName?.let { "($it)" }.orEmpty() }) { pick.launch(null) }
+                }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
         confirmButton = {
             TextButton(
-                enabled = !busy && invite != null && myName.isNotBlank() && service != null && (invite.transport == Invite.NTFY || folder != null),
+                enabled = !busy && invite != null && (rekey != null || myName.isNotBlank() && service != null && (invite.transport != Invite.FOLDER || folder != null)),
                 onClick = {
-                    val p = service ?: return@TextButton
                     val inv = invite ?: return@TextButton
+                    rekey?.let { g ->
+                        busy = true; error = null
+                        scope.launch {
+                            val taken = withContext(Dispatchers.IO) { runCatching { SharedGroups.takeKey(ctx.env, g, inv) } }
+                            busy = false
+                            taken.onSuccess(onRekeyed).onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                        }
+                        return@TextButton
+                    }
+                    val p = service ?: return@TextButton
                     busy = true; error = null
                     scope.launch {
                         val joined = withContext(Dispatchers.IO) {
@@ -427,11 +459,11 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     }) { Icon(Icons.Filled.Sync, null, Modifier.size(18.dp)); Text("  " + stringResource(R.string.shared_sync_now)) }
 
     // The invite: a QR code for the phone's camera, and the same link to send.
-    val ntfy = group.transport == Invite.NTFY
-    val link = remember(group) { SharedTransports.invite(env, group).link() }
-    PrefSection(stringResource(R.string.shared_invite), accent = JobColor.PINK, description = if (ntfy) null else stringResource(R.string.shared_invite_desc)) {
+    val secret = group.transport != Invite.FOLDER
+    val link = remember(group, version) { SharedTransports.invite(env, group).link() }
+    PrefSection(stringResource(R.string.shared_invite), accent = JobColor.PINK, description = if (secret) null else stringResource(R.string.shared_invite_desc)) {
         PrefBlock {
-            if (ntfy) InviteSecretNote()
+            if (secret) InviteSecretNote()
             val symbol = remember(link) { runCatching { QrCode.encode(link) }.getOrNull() }
             if (symbol != null) Box(Modifier.size(200.dp).clip(RoundedCornerShape(12.dp)).background(Color.White).padding(12.dp)) {
                 Canvas(Modifier.size(176.dp)) {
@@ -495,11 +527,35 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     }
 
     var confirmLeave by remember { mutableStateOf(false) }
-    PrefSection(stringResource(if (ntfy) R.string.shared_via_ntfy else R.string.shared_folder), accent = JobColor.GREEN) {
-        if (ntfy) PrefRow(Icons.Filled.Lock, stringResource(R.string.shared_ntfy_server), group.folderName, chevron = false)
-        else PrefRow(Icons.Filled.Folder, stringResource(R.string.shared_change_folder), group.folderName) { changeFolder.launch(null) }
+    var confirmKey by remember { mutableStateOf(false) }
+    val via = when (group.transport) {
+        Invite.NTFY -> R.string.shared_via_ntfy
+        Invite.SERVER -> R.string.shared_via_server
+        else -> R.string.shared_folder
+    }
+    PrefSection(stringResource(via), accent = JobColor.GREEN) {
+        when (group.transport) {
+            Invite.NTFY -> PrefRow(Icons.Filled.Lock, stringResource(R.string.shared_ntfy_server), group.folderName, chevron = false)
+            Invite.SERVER -> {
+                PrefRow(Icons.Filled.Dns, stringResource(R.string.shared_server_label), group.folderName, chevron = false)
+                // The creator, with the server's token on this device: a new key shuts out whoever holds the old invite.
+                if (group.createdHere && ServerLocks.config(env) != null) PrefRow(Icons.Filled.Key, stringResource(R.string.shared_new_key), null, chevron = false) { confirmKey = true }
+            }
+            else -> PrefRow(Icons.Filled.Folder, stringResource(R.string.shared_change_folder), group.folderName) { changeFolder.launch(null) }
+        }
         PrefRow(Icons.AutoMirrored.Filled.Logout, stringResource(R.string.shared_leave), null, danger = true, chevron = false) { confirmLeave = true }
     }
+    if (confirmKey) FitDialog(
+        onDismissRequest = { confirmKey = false },
+        title = { Text(stringResource(R.string.shared_new_key)) },
+        text = { Text(stringResource(R.string.shared_new_key_confirm)) },
+        confirmButton = {
+            TextButton(onClick = { confirmKey = false; act { SharedGroups.newKey(env, group) } }) {
+                Text(stringResource(R.string.shared_new_key), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = { TextButton(onClick = { confirmKey = false }) { Text(stringResource(R.string.cancel)) } },
+    )
     if (confirmLeave) FitDialog(
         onDismissRequest = { confirmLeave = false },
         title = { Text(stringResource(R.string.shared_leave)) },

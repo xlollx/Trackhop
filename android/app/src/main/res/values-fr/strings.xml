@@ -2123,7 +2123,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Playlists partagées</string>
     <string name="shared_row_desc">Une playlist pour un groupe, chacun sur son service</string>
-    <string name="shared_intro">Une playlist partagée passe par un dossier que ton groupe partage déjà (Google Drive, Nextcloud, Dropbox, Syncthing) ou par un canal ntfy chiffré. Chacun garde sa copie sur son propre service et Trackhop les garde à l\'identique. Pas de compte.</string>
+    <string name="shared_intro">Une playlist partagée passe par un dossier que ton groupe partage déjà (Google Drive, Nextcloud, Dropbox, Syncthing), par un canal ntfy chiffré ou par ton propre serveur Trackhop. Chacun garde sa copie sur son propre service et Trackhop les garde à l\'identique. Pas de compte.</string>
     <string name="shared_create">Créer un groupe</string>
     <string name="shared_join">Rejoindre avec un lien</string>
     <string name="shared_name">Nom du groupe</string>
@@ -2192,4 +2192,13 @@
         <item quantity="one">%1$d membre</item>
         <item quantity="other">%1$d membres</item>
     </plurals>
+    <string name="shared_via_server">Mon serveur Trackhop</string>
+    <string name="shared_via_server_desc">Aucun dossier à partager : les changements se retrouvent sur ton serveur Trackhop (%1$s). Les membres n\'ont pas besoin d\'un compte dessus ; la personne qui le gère peut voir les titres du groupe.</string>
+    <string name="shared_join_server">Groupe sur le serveur Trackhop %1$s. Toute personne qui a cette invitation peut lire le groupe : ne la transmets pas.</string>
+    <string name="shared_error_server_key">Le serveur %1$s n\'accepte plus la clé de ce groupe : demande la nouvelle invitation à la personne qui a créé le groupe.</string>
+    <string name="shared_server_label">Serveur Trackhop</string>
+    <string name="shared_new_key">Remplacer la clé</string>
+    <string name="shared_new_key_confirm">L\'invitation actuelle ne fonctionne plus pour personne, y compris les membres déjà dans le groupe. Envoie ensuite la nouvelle invitation aux membres que tu veux garder : ils gardent leur place.</string>
+    <string name="shared_key_new_invite">Une nouvelle invitation pour %1$s, dont tu fais déjà partie : sa clé remplace l\'ancienne.</string>
+    <string name="shared_key_updated">%1$s : nouvelle clé enregistrée.</string>
 </resources>

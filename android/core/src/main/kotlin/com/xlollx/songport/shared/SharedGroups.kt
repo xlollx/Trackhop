@@ -29,9 +29,9 @@ data class SharedGroup(
     val creator: String,
     /** This device's public key in the group; the private one is in the token vault. */
     val me: String,
-    /** The group's folder, as [SharedFolders] opens it (a path, an Android folder address); for [Invite.NTFY], the server's address. */
+    /** The group's folder, as [SharedFolders] opens it (a path, an Android folder address); for [Invite.NTFY] and [Invite.SERVER], the server's address. */
     val folder: String,
-    /** The folder's name as the user saw it when picking it; for [Invite.NTFY], the server's name. */
+    /** The folder's name as the user saw it when picking it; for [Invite.NTFY] and [Invite.SERVER], the server's name. */
     val folderName: String = "",
     /** The name the other members see. */
     val myName: String = "",
@@ -46,9 +46,9 @@ data class SharedGroup(
     val transport: String = Invite.FOLDER,
 ) {
     val createdHere: Boolean get() = creator == me
-    /** The invite without its secret part: [SharedTransports.invite] adds an encrypted channel's key. */
+    /** The invite without its secret part: [SharedTransports.invite] adds an encrypted channel's key, or a server mailbox's. */
     fun invite(): Invite =
-        if (transport == Invite.NTFY) Invite(id, name, creator, transport = transport, server = folder) else Invite(id, name, creator, folderName)
+        if (transport == Invite.NTFY || transport == Invite.SERVER) Invite(id, name, creator, transport = transport, server = folder) else Invite(id, name, creator, folderName)
 }
 
 /** What this device knows of a group: the merged log and the curators' list, plus a follower's own changes. */
@@ -77,7 +77,8 @@ data class GroupState(
  * A group's invite, as a link or a QR code: the group, its name, the creator's public key (the
  * key every member trusts for the curators' list) and how the group talks. For the shared folder
  * nothing secret: being able to open the folder is what lets someone in. For an encrypted ntfy
- * channel, the [server] and the group's [key]: whoever holds the invite reads the group (the key
+ * channel, the [server] and the group's [key]; for a mailbox on a member's Trackhop server, the
+ * [server] and the mailbox's key ("thg_…"): whoever holds the invite reads the group (the key
  * travels after the '#', which a browser never sends to trackhop.org).
  */
 data class Invite(
@@ -96,12 +97,13 @@ data class Invite(
         append(BASE).append("g=").append(groupId).append("&k=").append(creator).append("&t=").append(transport)
         append("&n=").append(enc(name.take(MAX_NAME)))
         if (folderName.isNotBlank()) append("&f=").append(enc(folderName.take(MAX_FOLDER)))
-        if (transport == NTFY) append("&s=").append(enc(server)).append("&x=").append(key)
+        if (transport == NTFY || transport == SERVER) append("&s=").append(enc(server)).append("&x=").append(key)
     }
 
     companion object {
         const val FOLDER = "folder"
         const val NTFY = "ntfy"
+        const val SERVER = "server"
         const val BASE = "https://trackhop.org/join#"
         const val MAX_NAME = 60
         const val MAX_FOLDER = 40
@@ -134,6 +136,12 @@ data class Invite(
                     // The channel's address and its group key: 32 random bytes, exactly 43 base64url characters.
                     val server = params["s"]?.takeIf { plain(it, 200) }?.trim()?.takeIf { NtfyServer.valid(it) } ?: return null
                     val secret = params["x"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.size == 32 } ?: return null
+                    Invite(id, name, key, transport = transport, server = server, key = secret)
+                }
+                SERVER -> {
+                    // The Trackhop server's address and the key of the group's mailbox there.
+                    val server = params["s"]?.takeIf { plain(it, 200) }?.trim()?.takeIf { NtfyServer.valid(it) } ?: return null
+                    val secret = params["x"]?.takeIf { ServerGroupTransport.validKey(it) } ?: return null
                     Invite(id, name, key, transport = transport, server = server, key = secret)
                 }
                 // A way to talk this version does not know: not an invite this Trackhop can join.
@@ -389,8 +397,9 @@ object SharedGroups {
 
     /**
      * A new group around [local], this member's playlist, its files in [folder] (for [Invite.NTFY]:
-     * on the ntfy server at [folder], encrypted with a new group key): this member is its creator and
-     * first curator. The playlist's tracks reach the group on the first sync.
+     * on the ntfy server at [folder], encrypted with a new group key; for [Invite.SERVER]: in a
+     * mailbox made on the user's own Trackhop server, the one of "Coordinate with my server"): this
+     * member is its creator and first curator. The playlist's tracks reach the group on the first sync.
      */
     fun create(
         env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
@@ -401,30 +410,43 @@ object SharedGroups {
         val group = SharedGroup(id, name.trim().take(Invite.MAX_NAME), me.id, me.id, folder.trim(), folderName, myName.trim(), myService,
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)
-        val key = if (transport == Invite.NTFY) SharedTransports.newGroupKey() else null
-        return start(env, group, me, GroupState(roster = roster), local, key)
+        val secret = when (transport) {
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey())
+            Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to ServerGroupTransport.makeMailbox(env, folder, id, me.id, group.name))
+            else -> emptyMap()
+        }
+        try {
+            return start(env, group, me, GroupState(roster = roster), local, secret)
+        } catch (e: Exception) {
+            if (transport == Invite.SERVER) runCatching { ServerGroupTransport.deleteMailbox(env, folder, id) }
+            throw e
+        }
     }
 
     /**
      * Joins the group of [invite] with [local], this member's playlist (usually a new, empty one),
      * as a follower until the creator makes them a curator. Answers the group and whether the folder
      * held any other member's file (none: probably not the group's folder). An encrypted channel's
-     * invite says where the group is: [folder] and [folderName] are not used then.
+     * invite, or a server mailbox's, says where the group is: [folder] and [folderName] are not used then.
      */
     fun join(env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef): Pair<SharedGroup, Boolean> {
         if (group(env, invite.groupId) != null) throw ProviderException(env.text("shared_error_already", invite.name))
         val me = Identity.create()
-        val ntfy = invite.transport == Invite.NTFY
-        val group = SharedGroup(invite.groupId, invite.name, invite.creator, me.id, if (ntfy) invite.server else folder,
-            if (ntfy) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
+        val remote = invite.transport == Invite.NTFY || invite.transport == Invite.SERVER
+        val group = SharedGroup(invite.groupId, invite.name, invite.creator, me.id, if (remote) invite.server else folder,
+            if (remote) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport)
-        val g = start(env, group, me, GroupState(), local, invite.key.takeIf { ntfy })
+        val secret = when (invite.transport) {
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key)
+            Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to invite.key)
+            else -> emptyMap()
+        }
+        val g = start(env, group, me, GroupState(), local, secret)
         val others = load(env, g.id).members.any { it.member != me.id }
         return g to others
     }
 
-    private fun start(env: Env, group: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, groupKey: String? = null): SharedGroup {
-        val extra = groupKey?.let { mapOf(SharedTransports.GROUP_KEY to it) }.orEmpty()
+    private fun start(env: Env, group: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, extra: Map<String, String>): SharedGroup {
         env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id, extra = extra))
         synchronized(lockOf(group.id)) { save(env, group.id, state) }
         try {
@@ -462,6 +484,42 @@ object SharedGroups {
         forget(env, group)
         env.log("shared", "${group.name}: left")
         return ids
+    }
+
+    /**
+     * The group [invite] brings a new key for: one this device is in, meeting in a mailbox on the
+     * same server, from the same creator, with another key (the creator replaced it). Null otherwise.
+     */
+    fun rekeyed(env: Env, invite: Invite): SharedGroup? = group(env, invite.groupId)?.takeIf {
+        it.transport == Invite.SERVER && invite.transport == Invite.SERVER && it.creator == invite.creator &&
+            com.xlollx.songport.sync.ServerLocks.normalize(it.folder) == com.xlollx.songport.sync.ServerLocks.normalize(invite.server) &&
+            SharedTransports.mailboxKey(env, it) != invite.key
+    }
+
+    /** Takes the new key of [invite] for [group] (see [rekeyed]): this member stays who they are, with their role. */
+    fun takeKey(env: Env, group: SharedGroup, invite: Invite): SharedGroup {
+        val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra + (SharedTransports.MAILBOX_KEY to invite.key)))
+        try {
+            refresh(env, group)
+        } catch (e: Exception) {
+            env.tokens.set(tokenKey(group.id), old)
+            throw e
+        }
+        env.log("shared", "${group.name}: new key taken")
+        return group
+    }
+
+    /**
+     * A new key for the mailbox of [group], made here (its creator, with the server of "Coordinate
+     * with my server"): the old invite stops working for everyone; members back with the new one keep their place.
+     */
+    fun newKey(env: Env, group: SharedGroup) {
+        if (!group.createdHere || group.transport != Invite.SERVER) throw ProviderException(env.text("shared_error_not_creator"))
+        val key = ServerGroupTransport.newMailboxKey(env, group.folder, group.id)
+        val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra + (SharedTransports.MAILBOX_KEY to key)))
+        env.log("shared", "${group.name}: the mailbox has a new key, the old invite no longer works")
     }
 
     /** A follower's choice: keep their own additions (true) or an exact copy. */

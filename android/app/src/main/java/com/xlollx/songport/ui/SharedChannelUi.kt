@@ -24,27 +24,34 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.notify.Notify
+import com.xlollx.songport.shared.Invite
 import com.xlollx.songport.shared.NtfyServer
 
 /** The ntfy server a new group's channel starts on: the one ntfy notifications start on. */
 val DEFAULT_NTFY_SERVER: String = Notify.Kind.NTFY.fields.first { it.key == "server" }.default
 
-/** How a new group meets: the shared folder, or an encrypted ntfy channel on [server]. */
+/**
+ * How a new group meets: the shared folder, an encrypted ntfy channel on [server], or (when
+ * "Coordinate with my server" is set, [myServer] its name) a mailbox on the user's own Trackhop server.
+ */
 @Composable
-fun TransportChoice(ntfy: Boolean, onNtfy: (Boolean) -> Unit, server: String, onServer: (String) -> Unit) {
+fun TransportChoice(transport: String, onTransport: (String) -> Unit, server: String, onServer: (String) -> Unit, myServer: String?) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(stringResource(R.string.shared_via), style = MaterialTheme.typography.labelLarge)
-        TransportOption(!ntfy, stringResource(R.string.shared_folder), stringResource(R.string.shared_via_folder_desc)) { onNtfy(false) }
-        TransportOption(ntfy, stringResource(R.string.shared_via_ntfy), stringResource(R.string.shared_via_ntfy_desc)) { onNtfy(true) }
-        if (ntfy) {
+        TransportOption(transport == Invite.FOLDER, stringResource(R.string.shared_folder), stringResource(R.string.shared_via_folder_desc)) { onTransport(Invite.FOLDER) }
+        TransportOption(transport == Invite.NTFY, stringResource(R.string.shared_via_ntfy), stringResource(R.string.shared_via_ntfy_desc)) { onTransport(Invite.NTFY) }
+        if (myServer != null) {
+            TransportOption(transport == Invite.SERVER, stringResource(R.string.shared_via_server), stringResource(R.string.shared_via_server_desc, myServer)) { onTransport(Invite.SERVER) }
+        }
+        if (transport == Invite.NTFY) {
             val bad = server.isNotBlank() && !NtfyServer.valid(server)
             OutlinedTextField(
                 server, { onServer(it.trim().take(200)) }, label = { Text(stringResource(R.string.shared_ntfy_server)) }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri), modifier = Modifier.fillMaxWidth(), isError = bad,
                 supportingText = if (bad) { { Text(stringResource(R.string.shared_ntfy_server_invalid)) } } else null,
             )
-            InviteSecretNote()
         }
+        if (transport != Invite.FOLDER) InviteSecretNote()
     }
 }
 
@@ -59,7 +66,7 @@ private fun TransportOption(selected: Boolean, title: String, desc: String, onCl
     }
 }
 
-/** An encrypted channel's invite carries the group's key: said where the invite is made, shown and opened. */
+/** An encrypted channel's invite, or a server mailbox's, carries the group's key: said where the invite is made, shown and opened. */
 @Composable
 fun InviteSecretNote(text: String = stringResource(R.string.shared_invite_secret)) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {

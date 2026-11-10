@@ -1,6 +1,6 @@
 ---
 title: A playlist shared by a group, each on their own service
-description: Share one playlist with friends or family who use different music services (Spotify, TIDAL, Apple Music, YouTube Music, Deezer, your own server), kept in step through a folder you already share or an encrypted ntfy channel. Free and open source, no account.
+description: Share one playlist with friends or family who use different music services (Spotify, TIDAL, Apple Music, YouTube Music, Deezer, your own server), kept in step through a folder you already share, an encrypted ntfy channel or your own Trackhop server. Free and open source, no account.
 ---
 
 # A playlist shared by a group, each on their own service
@@ -10,11 +10,12 @@ one listens on TIDAL, another on Spotify, a third on YouTube Music. Each of you 
 on your own service, and Trackhop keeps the copies in step: a song added by one of you shows up
 for the others, a song taken out goes from everyone's copy.
 
-There is no public playlist and no Trackhop server in between. The group's changes travel through
+There is no public playlist and no server of ours in between. The group's changes travel through
 a **folder you already share** (a Google Drive, Nextcloud or Dropbox folder, or a Syncthing folder),
-or through an **encrypted ntfy channel** on ntfy.sh or your own ntfy server.
+through an **encrypted ntfy channel** on ntfy.sh or your own ntfy server, or through **your own
+Trackhop server** (Docker) when one of you runs one.
 
-## Two ways for the group to meet
+## Three ways for the group to meet
 
 The person who creates the group picks one; everyone in the group uses the same.
 
@@ -31,7 +32,21 @@ in the invite, so **anyone with the invite can read the group**: send it only to
 are inviting, and not in a public place. The server does see that someone sends and fetches
 messages, and from which internet address, as any server you connect to does.
 
-Either way, reading is not writing: changes count only when a curator signed them (see below),
+**My Trackhop server.** For someone who runs [Trackhop on Docker](docker) and has set
+*Settings › Advanced › Coordinate with my server* in the app. Creating the group makes a mailbox for
+it on that server, with a key for that group alone; the key travels in the invite. The others need
+no account on the server: the key opens the group's mailbox and nothing else there (not the
+server's syncs, settings or accounts, nor any other group). Again, **anyone with the invite can read
+the group**: send it only to the people you are inviting. What the server keeps is not encrypted:
+whoever runs it can see the group's songs (titles, artists, ISRCs), the members' names and
+services, and who added or took out each song, and when. Who is a curator they can work out too,
+from the signed list of curators, but they cannot change it, nor change the playlist: the server only stores what
+the members' phones signed, and each phone checks every signature itself. The server also sees which
+internet address each member syncs from. A server that is off or unreachable only delays the
+group: changes wait on each phone until the next sync. Nothing is deleted by age, so someone back
+after months catches up from where they were.
+
+Whichever way, reading is not writing: changes count only when a curator signed them (see below),
 so someone who got hold of the folder or the invite can follow the playlist but not change it.
 
 ## Who changes what
@@ -73,9 +88,11 @@ say) doesn't bring it back.
      Nextcloud or Dropbox app's place in the picker, or the Syncthing folder on the phone).
    - *Encrypted ntfy channel*: leave the server as it is (ntfy.sh), or put the address of your
      own ntfy server.
+   - *My Trackhop server*: offered when *Coordinate with my server* has your server's address and
+     API token. The token stays on your phone; only the group's key goes in the invite.
 4. On the group's page, **send the invite**: the others scan the QR code with their phone's camera,
    or you send them the link. For an encrypted channel, the page reminds you that the invite is
-   the key to the group.
+   the key to the group (for your Trackhop server too).
 
 **Joining**
 
@@ -86,7 +103,8 @@ say) doesn't bring it back.
    another code.
 3. Pick **your service**: Trackhop makes a new playlist there, named after the group.
 4. For a group on a shared folder, **choose the shared folder**, the same one the group uses. For
-   an encrypted channel there is nothing to choose: the invite says where the group is.
+   an encrypted channel or a Trackhop server there is nothing to choose: the invite says where the
+   group is.
 5. The playlist fills up with the group's songs on the first sync. You join as someone who
    follows; the creator can make you a curator from the group's page.
 
@@ -98,8 +116,8 @@ say) doesn't bring it back.
 - **Members**: who is in the group, on which service, and their role. The creator changes roles
   here.
 - **Who changed what**: the group's log, newest first.
-- **Change folder**, if the shared folder moved (for an encrypted channel, the server it uses),
-  and **Leave group**: you stop receiving changes,
+- **Change folder**, if the shared folder moved (for an encrypted channel or a Trackhop server,
+  the server it uses), and **Leave group**: you stop receiving changes,
   your playlist stays as it is on your service, and the songs you added stay with the group.
 
 ## Good to know
@@ -114,6 +132,13 @@ say) doesn't bring it back.
 - ntfy.sh limits how much each person can send in a day. That is plenty for a group playlist of
   ordinary size; for a very large one, use your own ntfy server or a shared folder. Your own server
   has to let Trackhop send and read without signing in.
+- On your Trackhop server, the group's creator can **Replace the key** from the group's page: the
+  current invite stops working for everyone, to shut out someone who should no longer read the
+  group. Send the new invite to the members you want to keep; opening it in Trackhop swaps the key
+  and they keep their place and role. The server's owner can also delete the group's mailbox, or
+  turn the server's API off, which closes every group on it ([details](docker#shared-playlists-on-this-server)).
+- Trackhop Desktop answers only the computer it runs on: for a group, use a Docker server the
+  members' phones can reach.
 - The group's key stays on your phone: a configuration file leaves the group's syncs out. On a new
   phone, join the group again with the invite.
 - Large removals wait for a confirmation in the sync's preview, as in any two-way sync.

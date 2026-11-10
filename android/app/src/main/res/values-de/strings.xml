@@ -2115,7 +2115,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Geteilte Playlists</string>
     <string name="shared_row_desc">Eine Playlist für eine Gruppe, alle auf ihrem eigenen Dienst</string>
-    <string name="shared_intro">Eine geteilte Playlist läuft über einen Ordner, den deine Gruppe schon teilt (Google Drive, Nextcloud, Dropbox, Syncthing), oder über einen verschlüsselten ntfy-Kanal. Alle behalten ihre eigene Kopie auf ihrem eigenen Dienst, und Trackhop hält die Kopien gleich. Kein Konto.</string>
+    <string name="shared_intro">Eine geteilte Playlist läuft über einen Ordner, den deine Gruppe schon teilt (Google Drive, Nextcloud, Dropbox, Syncthing), über einen verschlüsselten ntfy-Kanal oder über deinen eigenen Trackhop-Server. Alle behalten ihre eigene Kopie auf ihrem eigenen Dienst, und Trackhop hält die Kopien gleich. Kein Konto.</string>
     <string name="shared_create">Gruppe erstellen</string>
     <string name="shared_join">Mit Link beitreten</string>
     <string name="shared_name">Name der Gruppe</string>
@@ -2184,4 +2184,13 @@
         <item quantity="one">%1$d Mitglied</item>
         <item quantity="other">%1$d Mitglieder</item>
     </plurals>
+    <string name="shared_via_server">Mein Trackhop-Server</string>
+    <string name="shared_via_server_desc">Kein Ordner zu teilen: Änderungen treffen sich auf deinem Trackhop-Server (%1$s). Mitglieder brauchen dort kein Konto; wer ihn betreibt, kann die Songs der Gruppe sehen.</string>
+    <string name="shared_join_server">Gruppe auf dem Trackhop-Server %1$s. Wer diese Einladung hat, kann die Gruppe lesen: Gib sie nicht weiter.</string>
+    <string name="shared_error_server_key">Der Server %1$s nimmt den Schlüssel dieser Gruppe nicht mehr an: Bitte die Person, die die Gruppe erstellt hat, um die neue Einladung.</string>
+    <string name="shared_server_label">Trackhop-Server</string>
+    <string name="shared_new_key">Schlüssel ersetzen</string>
+    <string name="shared_new_key_confirm">Die aktuelle Einladung funktioniert dann für niemanden mehr, auch nicht für Mitglieder, die schon in der Gruppe sind. Schick die neue Einladung danach an die Mitglieder, die bleiben sollen: Sie behalten ihren Platz.</string>
+    <string name="shared_key_new_invite">Eine neue Einladung für %1$s, wo du schon dabei bist: Ihr Schlüssel ersetzt den alten.</string>
+    <string name="shared_key_updated">%1$s: neuer Schlüssel gespeichert.</string>
 </resources>

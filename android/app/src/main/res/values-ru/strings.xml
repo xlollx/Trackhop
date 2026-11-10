@@ -2191,7 +2191,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Общие плейлисты</string>
     <string name="shared_row_desc">Один плейлист на группу, у каждого в своём сервисе</string>
-    <string name="shared_intro">Общий плейлист передаётся через папку, которой ваша группа уже делится (Google Drive, Nextcloud, Dropbox, Syncthing), или через зашифрованный канал ntfy. У каждого своя копия в своём сервисе, а Trackhop держит копии одинаковыми. Без аккаунта.</string>
+    <string name="shared_intro">Общий плейлист передаётся через папку, которой ваша группа уже делится (Google Drive, Nextcloud, Dropbox, Syncthing), через зашифрованный канал ntfy или через ваш собственный сервер Trackhop. У каждого своя копия в своём сервисе, а Trackhop держит копии одинаковыми. Без аккаунта.</string>
     <string name="shared_create">Создать группу</string>
     <string name="shared_join">Войти по ссылке</string>
     <string name="shared_name">Название группы</string>
@@ -2262,4 +2262,13 @@
         <item quantity="many">%1$d участников</item>
         <item quantity="other">%1$d участника</item>
     </plurals>
+    <string name="shared_via_server">Мой сервер Trackhop</string>
+    <string name="shared_via_server_desc">Общая папка не нужна: изменения встречаются на вашем сервере Trackhop (%1$s). Участникам не нужна учётная запись на нём; тот, кто им управляет, видит песни группы.</string>
+    <string name="shared_join_server">Группа на сервере Trackhop %1$s. Любой, у кого есть это приглашение, может читать группу: не пересылайте его.</string>
+    <string name="shared_error_server_key">Сервер %1$s больше не принимает ключ этой группы: попросите новое приглашение у создателя группы.</string>
+    <string name="shared_server_label">Сервер Trackhop</string>
+    <string name="shared_new_key">Заменить ключ</string>
+    <string name="shared_new_key_confirm">Текущее приглашение перестанет работать для всех, в том числе для тех, кто уже в группе. Затем отправьте новое приглашение участникам, которых хотите оставить: их место сохранится.</string>
+    <string name="shared_key_new_invite">Новое приглашение в %1$s, где вы уже состоите: его ключ заменяет старый.</string>
+    <string name="shared_key_updated">%1$s: новый ключ сохранён.</string>
 </resources>

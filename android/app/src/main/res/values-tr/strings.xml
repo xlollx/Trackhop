@@ -2113,7 +2113,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">Ortak çalma listeleri</string>
     <string name="shared_row_desc">Bir grup için tek liste, herkes kendi servisinde</string>
-    <string name="shared_intro">Ortak bir çalma listesi, grubunuzun zaten paylaştığı bir klasörden (Google Drive, Nextcloud, Dropbox, Syncthing) ya da şifreli bir ntfy kanalından geçer. Herkes kendi servisinde kendi kopyasını tutar, Trackhop kopyaları aynı tutar. Hesap yok.</string>
+    <string name="shared_intro">Ortak bir çalma listesi, grubunuzun zaten paylaştığı bir klasörden (Google Drive, Nextcloud, Dropbox, Syncthing), şifreli bir ntfy kanalından ya da kendi Trackhop sunucunuzdan geçer. Herkes kendi servisinde kendi kopyasını tutar, Trackhop kopyaları aynı tutar. Hesap yok.</string>
     <string name="shared_create">Grup oluştur</string>
     <string name="shared_join">Bağlantıyla katıl</string>
     <string name="shared_name">Grup adı</string>
@@ -2182,4 +2182,13 @@
         <item quantity="one">%1$d üye</item>
         <item quantity="other">%1$d üye</item>
     </plurals>
+    <string name="shared_via_server">Trackhop sunucum</string>
+    <string name="shared_via_server_desc">Paylaşılacak klasör yok: değişiklikler Trackhop sunucunuzda (%1$s) buluşur. Üyelerin orada hesaba ihtiyacı yoktur; sunucuyu yöneten kişi grubun şarkılarını görebilir.</string>
+    <string name="shared_join_server">%1$s Trackhop sunucusundaki grup. Bu davete sahip olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
+    <string name="shared_error_server_key">%1$s sunucusu bu grubun anahtarını artık kabul etmiyor: yeni daveti grubu oluşturan kişiden isteyin.</string>
+    <string name="shared_server_label">Trackhop sunucusu</string>
+    <string name="shared_new_key">Anahtarı değiştir</string>
+    <string name="shared_new_key_confirm">Mevcut davet, gruptaki üyeler dahil herkes için çalışmayı bırakır. Ardından yeni daveti tutmak istediğiniz üyelere gönderin: yerlerini korurlar.</string>
+    <string name="shared_key_new_invite">Zaten içinde olduğunuz %1$s için yeni bir davet: anahtarı eskisinin yerini alır.</string>
+    <string name="shared_key_updated">%1$s: yeni anahtar kaydedildi.</string>
 </resources>

@@ -2077,7 +2077,7 @@
     <!-- Shared playlists (1.19) -->
     <string name="shared_title">共有プレイリスト</string>
     <string name="shared_row_desc">グループで1つのプレイリスト、各自のサービスで</string>
-    <string name="shared_intro">共有プレイリストは、グループですでに共有しているフォルダー（Google Drive、Nextcloud、Dropbox、Syncthing）か、暗号化された ntfy チャンネルを通ります。各自が自分のサービスにコピーを持ち、Trackhop がそれをそろえます。アカウントは不要です。</string>
+    <string name="shared_intro">共有プレイリストは、グループですでに共有しているフォルダー（Google Drive、Nextcloud、Dropbox、Syncthing）、暗号化された ntfy チャンネル、または自分の Trackhop サーバーを通ります。各自が自分のサービスにコピーを持ち、Trackhop がそれをそろえます。アカウントは不要です。</string>
     <string name="shared_create">グループを作成</string>
     <string name="shared_join">リンクで参加</string>
     <string name="shared_name">グループ名</string>
@@ -2145,4 +2145,13 @@
     <plurals name="shared_members_n">
         <item quantity="other">メンバー %1$d 人</item>
     </plurals>
+    <string name="shared_via_server">自分の Trackhop サーバー</string>
+    <string name="shared_via_server_desc">共有フォルダーは不要です。変更は自分の Trackhop サーバー（%1$s）で集まります。メンバーはそこにアカウントを作る必要はありません。サーバーの管理者はグループの曲を見ることができます。</string>
+    <string name="shared_join_server">Trackhop サーバー %1$s 上のグループです。この招待を持っている人は誰でもグループを読めます。ほかの人に渡さないでください。</string>
+    <string name="shared_error_server_key">サーバー %1$s はこのグループの鍵をもう受け付けません。グループの作成者に新しい招待をもらってください。</string>
+    <string name="shared_server_label">Trackhop サーバー</string>
+    <string name="shared_new_key">鍵を置き換える</string>
+    <string name="shared_new_key_confirm">今の招待は、すでにグループにいるメンバーも含めて全員使えなくなります。そのあと、残ってほしいメンバーに新しい招待を送ってください。メンバーの立場はそのままです。</string>
+    <string name="shared_key_new_invite">すでに参加している %1$s の新しい招待です。新しい鍵が古い鍵に置き換わります。</string>
+    <string name="shared_key_updated">%1$s: 新しい鍵を保存しました。</string>
 </resources>
