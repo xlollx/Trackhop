@@ -2123,6 +2123,8 @@
     <string name="shared_folder_none">Henüz klasör seçilmedi</string>
     <string name="shared_link">Davet bağlantısı</string>
     <string name="shared_link_invalid">Bu bir Trackhop davet bağlantısı değil.</string>
+    <string name="shared_code">Grup kodu: %1$s</string>
+    <string name="shared_code_check">Sizi davet eden kişinin grup sayfasındaki kodla aynı olduğunu kontrol edin.</string>
     <string name="shared_no_services">Önce Hesaplar\'dan bir servis bağlayın.</string>
     <string name="shared_created">Grup oluşturuldu. Daveti diğerlerine gönderin.</string>
     <string name="shared_joined">%1$s grubundasınız. Listeniz bir sonraki senkronizasyonda dolar.</string>

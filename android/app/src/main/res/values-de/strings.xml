@@ -2125,6 +2125,8 @@
     <string name="shared_folder_none">Noch kein Ordner gewählt</string>
     <string name="shared_link">Einladungslink</string>
     <string name="shared_link_invalid">Das ist kein Einladungslink von Trackhop.</string>
+    <string name="shared_code">Gruppencode: %1$s</string>
+    <string name="shared_code_check">Prüfe, ob er mit dem Code auf der Gruppenseite der Person übereinstimmt, die dich eingeladen hat.</string>
     <string name="shared_no_services">Verbinde zuerst einen Dienst unter Konten.</string>
     <string name="shared_created">Gruppe erstellt. Schick die Einladung an die anderen.</string>
     <string name="shared_joined">Du bist in %1$s. Deine Playlist füllt sich bei der nächsten Synchronisierung.</string>

@@ -2133,6 +2133,8 @@
     <string name="shared_folder_none">Nenhuma pasta escolhida</string>
     <string name="shared_link">Link de convite</string>
     <string name="shared_link_invalid">Este não é um link de convite do Trackhop.</string>
+    <string name="shared_code">Código do grupo: %1$s</string>
+    <string name="shared_code_check">Confira se é igual ao código na página do grupo de quem convidou você.</string>
     <string name="shared_no_services">Primeiro conecte um serviço em Contas.</string>
     <string name="shared_created">Grupo criado. Envie o convite para os outros.</string>
     <string name="shared_joined">Você está em %1$s. Sua playlist é preenchida na próxima sincronização.</string>
