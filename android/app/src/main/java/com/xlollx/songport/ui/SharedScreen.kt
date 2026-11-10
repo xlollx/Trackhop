@@ -538,8 +538,8 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
             Invite.NTFY -> PrefRow(Icons.Filled.Lock, stringResource(R.string.shared_ntfy_server), group.folderName, chevron = false)
             Invite.SERVER -> {
                 PrefRow(Icons.Filled.Dns, stringResource(R.string.shared_server_label), group.folderName, chevron = false)
-                // The creator, with the server's token on this device: a new key shuts out whoever holds the old invite.
-                if (group.createdHere && ServerLocks.config(env) != null) PrefRow(Icons.Filled.Key, stringResource(R.string.shared_new_key), null, chevron = false) { confirmKey = true }
+                // The creator, with that server's token on this device: a new key shuts out whoever holds the old invite.
+                if (group.createdHere && ServerLocks.config(env)?.address == ServerLocks.normalize(group.folder)) PrefRow(Icons.Filled.Key, stringResource(R.string.shared_new_key), null, chevron = false) { confirmKey = true }
             }
             else -> PrefRow(Icons.Filled.Folder, stringResource(R.string.shared_change_folder), group.folderName) { changeFolder.launch(null) }
         }

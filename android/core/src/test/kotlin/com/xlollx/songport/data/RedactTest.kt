@@ -25,6 +25,18 @@ class RedactTest {
         assertTrue(out, out.contains("v=1.16.1"))
     }
 
+    @Test fun trackhopsOwnKeysAreHiddenWhereverTheyAre() {
+        // Built at run time: nothing shaped like a real secret in the sources.
+        val groupKey = "thg_" + "Ab3_-".repeat(8) + "xyz"
+        val apiToken = "th_" + "k9".repeat(16)
+        val log = "[shared] invite https://trackhop.org/join#g=0123456789abcdef&t=server&s=https%3A%2F%2Fnas&x=$groupKey · token $apiToken · key=$groupKey"
+        val out = Redact.text(log)
+        assertFalse(out, groupKey.drop(4) in out)
+        assertFalse(out, apiToken.drop(3) in out)
+        assertTrue(out, "g=0123456789abcdef" in out)
+        assertEquals("[shared] the_quick_brown_fox", Redact.text("[shared] the_quick_brown_fox"))
+    }
+
     @Test fun anOrdinaryLogLineIsLeftAsItIs() {
         val line = "2026-11-06 10:34:59 [engine] Apple Music (web): 150 searches in 26s (173 ms each), 0 waits"
         assertEquals(line, Redact.text(line))

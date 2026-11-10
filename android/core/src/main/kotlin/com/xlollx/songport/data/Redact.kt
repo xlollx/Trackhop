@@ -21,6 +21,8 @@ object Redact {
     private val discord = Regex("""(?i)(discord(?:app)?\.com/api/webhooks/\d+/)[\w-]+""")
     private val slack = Regex("""(?i)(hooks\.slack\.com/services/)\S+""")
     private val botToken = Regex("""\b(?:bot)?\d{6,}:[A-Za-z0-9_-]{30,}""")
+    // Trackhop's own: the server's API token (th_…) and a shared playlist's mailbox key (thg_…), also in an invite link.
+    private val trackhopKey = Regex("""\bthg?_[A-Za-z0-9_-]{30,}""")
     private val pushoverUser = Regex("""(?i)\b(user=)[^&\s"']+""")
     private val email = Regex("""[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}""")
     // Addresses on a home network: private IPs and local names.
@@ -40,6 +42,7 @@ object Redact {
         t = discord.replace(t) { m -> m.groupValues[1] + HIDDEN }
         t = slack.replace(t) { m -> m.groupValues[1] + HIDDEN }
         t = botToken.replace(t, HIDDEN)
+        t = trackhopKey.replace(t, HIDDEN)
         t = pushoverUser.replace(t) { m -> m.groupValues[1] + HIDDEN }
         t = jwt.replace(t, HIDDEN)
         t = bearer.replace(t) { m -> m.groupValues[1] + " " + HIDDEN }
