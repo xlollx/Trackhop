@@ -559,6 +559,25 @@ class WebTest {
         assertTrue(post("/syncs/${job.id}/radio", "start=12%3A00&end=13%3A00", *origin).headers().firstValue("Location").orElse("").contains("err="))
     }
 
+    /** A two-way pair (from the app): its page offers "removals too", saved on both halves; a sync on its own does not show it. */
+    @Test fun aPairsPageTurnsItsRemovalsOnForBothHalves() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/One.csv").writeText("title,artist\nSong,Someone\n")
+        File(data, "csv/Two.csv").writeText("title,artist\nSong,Someone\n")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("ab", "Pair", com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), com.xlollx.songport.model.PlaylistRef("csv", "Two", "Two"), linkedJobId = "ba"))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("ba", "Pair ↔", com.xlollx.songport.model.PlaylistRef("csv", "Two", "Two"), com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), linkedJobId = "ab", twin = true))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("solo", "Solo", com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), com.xlollx.songport.model.PlaylistRef("csv", null, "Copy")))
+        val page = get("/syncs/ab").body()
+        assertTrue(page, page.contains("name=\"twoWayRemovals\"") && !page.contains("name=\"twoWayRemovals\" checked"))
+        assertFalse(get("/syncs/solo").body().contains("twoWayRemovals"))
+        assertEquals(303, post("/syncs/ab/schedule", "name=Pair&changes=add&twoWayRemovals=on", *origin).statusCode())
+        assertTrue(env.store.job("ab")!!.twoWayRemovals && env.store.job("ba")!!.twoWayRemovals)
+        assertTrue(get("/syncs/ba").body().contains("name=\"twoWayRemovals\" checked"))
+        assertEquals(303, post("/syncs/ba/schedule", "name=Pair&changes=add", *origin).statusCode())
+        assertFalse(env.store.job("ab")!!.twoWayRemovals || env.store.job("ba")!!.twoWayRemovals)
+    }
+
     /** "Keep every track": chosen in the new sync's form and on its page, shown on its card, kept by a config backup. */
     @Test fun anArchiveSyncIsMadeShownChangedAndBackedUp() {
         assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())

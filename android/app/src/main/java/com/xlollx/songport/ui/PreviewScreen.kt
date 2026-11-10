@@ -148,7 +148,7 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                     // The plan in figures, as on the card after a run.
                     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Stat("+${p.toAdd.size}", stringResource(R.string.preview_tile_add), Modifier.weight(1f), tint = MaterialTheme.colorScheme.primary)
-                        if (job.mirrorRemovals) Stat(
+                        if (job.mirrorRemovals || job.twoWayRemovals) Stat(
                             "−${p.toRemove.size}", stringResource(if (unlikes) R.string.preview_tile_unlike else R.string.preview_tile_remove), Modifier.weight(1f),
                             tint = if (p.removalsNeedConfirmation) MaterialTheme.colorScheme.error else null,
                         )

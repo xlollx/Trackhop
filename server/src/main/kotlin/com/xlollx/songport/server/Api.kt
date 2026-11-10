@@ -95,6 +95,9 @@ object Api {
         put("followsChanges", j.followsChanges)
         // Keeps every track ever seen: nothing is removed from the target, new tracks are added at the end.
         put("archive", j.archive)
+        // Half of a two-way pair (made in the app): the other half's id, and whether removals travel too.
+        put("linkedSyncId", j.linkedJobId?.takeIf { env.store.job(it) != null }?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("twoWayRemovals", j.twoWayRemovals)
         put("enabled", j.enabled)
         // Its source is the playlist the Shazam app fills on Spotify or Apple Music.
         put("shazam", j.shazam)

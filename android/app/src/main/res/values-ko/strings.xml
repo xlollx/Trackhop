@@ -1784,4 +1784,9 @@
     <string name="spread_stays">%1$s (그대로)</string>
     <string name="spread_confirm">확인</string>
     <string name="review_discard_busy">이 곡들을 찾으려고 %1$s의 플레이리스트를 읽는 중이에요. 긴 플레이리스트는 몇 초 걸려요.</string>
+    <string name="editor_two_way_removals">삭제도 동기화</string>
+    <string name="editor_two_way_removals_desc">한쪽에서 삭제한 곡은 다른 쪽에서도 삭제돼요. 다음 실행 이후부터 적용돼요.</string>
+    <string name="note_two_way_started">양방향 삭제는 다음 실행부터 시작돼요. 이번 실행은 양쪽에 모두 있는 곡을 기록만 했고 아무것도 삭제하지 않았어요.</string>
+    <string name="note_two_way_removals_held">삭제를 보류했어요. 양쪽에 모두 있던 %2$d곡 중 %1$d곡이 원본에서 사라졌어요. 동기화 상태를 탭해 미리보기를 열고 확인하세요. 정말 삭제해야 한다면 거기서 ‘이 곡들 삭제’에 체크한 뒤 실행하세요. 직접 삭제한 게 아니라면 서비스가 목록을 불완전하게 보낸 것이니 아무것도 삭제하면 안 돼요.</string>
+    <string name="note_two_way_listed_short">이번에는 아무것도 삭제하지 않았어요. %1$s에서 전체 %3$d곡 중 %2$d곡만 목록에 나왔어요. 서비스가 숨기거나 더 이상 재생하지 않는 곡은 삭제된 것으로 보지 않아요.</string>
 </resources>

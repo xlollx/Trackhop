@@ -362,6 +362,13 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
 <label class="check"><input type="checkbox" name="follows"${if (job?.followsChanges == true) " checked" else ""}> With the latest version: the source changes by itself (a daylist, Discover Weekly), big removals need no confirmation</label>"""
     }
 
+    /** For half of a two-way pair (made in the app): whether removals travel too. Nothing for any other sync. */
+    internal fun pairFields(job: SyncJob): String {
+        val other = job.linkedJobId?.let { env.store.job(it) } ?: return ""
+        return """
+<label class="check"><input type="checkbox" name="twoWayRemovals"${if (job.twoWayRemovals && other.twoWayRemovals) " checked" else ""}> Two-way with ${h(other.name)}: removals too. A track you remove on one side is removed on the other. Starts after the next run</label>"""
+    }
+
     /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
     internal fun withChanges(job: SyncJob, r: Req): SyncJob {
         val mode = r.form["changes"] ?: when { r.form["archive"] == "on" -> "archive"; r.form["mirror"] == "on" -> "mirror"; else -> "add" }
@@ -700,7 +707,9 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val color = r.form["color"]?.let { if (it == "custom") Html.customColor(r.form["customColor"]) else it.takeIf { k -> k in Html.JOB_COLORS } }
                         val timed = withTiming(job.copy(name = name, schedule = s, color = color), r)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val saved = if (job.radio != null) timed else withChanges(timed, r)
+                        val changed = if (job.radio != null) timed else withChanges(timed, r)
+                        // The pair's own choice is on the form only for a pair (see pairFields).
+                        val saved = if (job.linkedJobId?.let { env.store.job(it) } != null) pairRemovals(changed, r.form["twoWayRemovals"] == "on") else changed
                         val warning = conflictWarning(saved)
                         env.store.upsertJob(saved)
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
@@ -867,7 +876,7 @@ ${changesFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}"""}
+${changesFields(job)}${pairFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <p><button class="secondary">Save</button></p></form>""",
         )

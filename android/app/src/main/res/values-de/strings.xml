@@ -1815,4 +1815,9 @@
     <string name="spread_stays">%1$s (bleibt)</string>
     <string name="spread_confirm">Bestätigen</string>
     <string name="review_discard_busy">Lese die Playlist auf %1$s, um diese Titel zu finden: Bei einer langen Playlist dauert das ein paar Sekunden.</string>
+    <string name="editor_two_way_removals">Auch Entfernungen</string>
+    <string name="editor_two_way_removals_desc">Ein Titel, den du auf einer Seite entfernst, wird auch auf der anderen entfernt. Gilt nach dem nächsten Lauf.</string>
+    <string name="note_two_way_started">Entfernungen in beide Richtungen gelten ab dem nächsten Lauf: dieser hat notiert, welche Titel beide Seiten haben, und nichts entfernt.</string>
+    <string name="note_two_way_removals_held">Entfernungen zurückgehalten: %1$d der %2$d Titel, die beide Seiten hatten, fehlen in der Quelle. Tippe auf den Status des Syncs, um die Vorschau zu öffnen und sie zu sehen; sollen sie wirklich weg, hake dort „Diese Titel entfernen“ an und starte ihn. Hast du sie nicht entfernt, hat der Dienst die Playlist unvollständig gelesen und nichts darf weg.</string>
+    <string name="note_two_way_listed_short">Diesmal wurde nichts entfernt: %1$s hat %2$d der %3$d gezählten Titel aufgelistet. Ein Titel, den der Dienst ausblendet oder nicht mehr abspielt, gilt nicht als entfernt.</string>
 </resources>

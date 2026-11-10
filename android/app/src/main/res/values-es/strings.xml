@@ -1823,4 +1823,9 @@
     <string name="spread_stays">%1$s (se queda)</string>
     <string name="spread_confirm">Confirmar</string>
     <string name="review_discard_busy">Leyendo la playlist en %1$s para encontrar estas canciones: con una playlist larga tarda unos segundos.</string>
+    <string name="editor_two_way_removals">También las eliminaciones</string>
+    <string name="editor_two_way_removals_desc">Una pista que quitas de un lado se quita también del otro. Vale a partir de la próxima ejecución.</string>
+    <string name="note_two_way_started">Las eliminaciones en los dos sentidos empiezan en la próxima ejecución: esta ha anotado qué pistas tienen ambos lados y no ha quitado nada.</string>
+    <string name="note_two_way_removals_held">Eliminaciones retenidas: %1$d de las %2$d pistas que tenían ambos lados ya no están en el origen. Toca el estado de la sincronización para abrir la vista previa y verlas; si de verdad sobran, marca allí “Quitar estas pistas” y ejecútala. Si no las quitaste tú, el servicio leyó la playlist a medias y no debe quitarse nada.</string>
+    <string name="note_two_way_listed_short">Esta vez no se quitó nada: %1$s listó %2$d de las %3$d pistas que cuenta. Una pista que el servicio oculta o ya no reproduce no cuenta como quitada.</string>
 </resources>

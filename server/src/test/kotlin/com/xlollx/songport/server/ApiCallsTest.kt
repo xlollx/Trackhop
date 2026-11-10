@@ -67,6 +67,28 @@ class ApiCallsTest {
 
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
 
+    /** A two-way pair comes from the app's configuration file: the API shows it and turns its removals on and off, on both halves. */
+    @Test fun aTwoWayPairsRemovalsAreTurnedOnAndOffOnBothHalves() {
+        env.store.upsertJob(SyncJob("ab", "Pair", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out"), linkedJobId = "ba"))
+        env.store.upsertJob(SyncJob("ba", "Pair ↔", PlaylistRef("csv", "Out", "Out"), PlaylistRef("csv", "In", "In"), linkedJobId = "ab", twin = true))
+        env.store.upsertJob(SyncJob("solo", "Solo", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", null, "Copy")))
+        val before = call("GET", "syncs/ab").obj
+        assertEquals("ba", before.s("linkedSyncId"))
+        assertEquals("false", before.s("twoWayRemovals"))
+        val on = call("PATCH", "syncs/ab", """{"twoWayRemovals":true}""")
+        assertEquals(on.text, 200, on.code)
+        assertEquals("true", on.obj.s("twoWayRemovals"))
+        assertTrue(env.store.job("ab")!!.twoWayRemovals && env.store.job("ba")!!.twoWayRemovals)
+        // The state of a pair is forgotten when the option goes off.
+        env.store.putPairState(env.store.job("ab")!!, com.xlollx.songport.data.PairState("csv|In", "csv|Out", mapOf("1" to "1")))
+        assertEquals(200, call("PATCH", "syncs/ba", """{"twoWayRemovals":false}""").code)
+        assertFalse(env.store.job("ab")!!.twoWayRemovals || env.store.job("ba")!!.twoWayRemovals)
+        assertTrue(env.store.data.pairStates.isEmpty())
+        // A sync on its own has no other side.
+        assertEquals(400, call("PATCH", "syncs/solo", """{"twoWayRemovals":true}""").code)
+        assertEquals("null", call("GET", "syncs/solo").obj.s("linkedSyncId") ?: "null")
+    }
+
     @Test fun aSyncIsMadeChangedMovedAndDeleted() {
         val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"name":"Mine","schedule":"daily","at":"07:30","changes":"mirror","color":"teal"}""")
         assertEquals(made.text, 201, made.code)

@@ -1785,4 +1785,9 @@
     <string name="spread_stays">%1$s（そのまま）</string>
     <string name="spread_confirm">確定</string>
     <string name="review_discard_busy">%1$s のプレイリストを読み込んで曲を探しています。長いプレイリストでは数秒かかります。</string>
+    <string name="editor_two_way_removals">削除も同期</string>
+    <string name="editor_two_way_removals_desc">片方で削除した曲は、もう片方からも削除されます。次回の実行後から有効です。</string>
+    <string name="note_two_way_started">双方向の削除は次回の実行から始まります。今回は両方にある曲を記録しただけで、何も削除していません。</string>
+    <string name="note_two_way_removals_held">削除を保留しました：両方にあった %2$d 曲のうち %1$d 曲が移動元からなくなっています。同期のステータスをタップしてプレビューを開き、確認してください。本当に削除してよい場合は、そこで「これらの曲を削除」にチェックを入れて実行します。自分で削除していないなら、サービスがプレイリストを途中までしか返さなかったということで、何も削除してはいけません。</string>
+    <string name="note_two_way_listed_short">今回は何も削除していません：%1$s は %3$d 曲あるはずのうち %2$d 曲しか返しませんでした。サービスが非表示にした曲や再生できなくなった曲は、削除された曲として扱いません。</string>
 </resources>

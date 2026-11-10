@@ -26,7 +26,7 @@ internal object ApiDocs {
         Call("POST", "/syncs", "Syncs", "Make a sync.", body = "{\"source\": {\"service\", \"playlist\" | \"link\"}, \"target\": {\"service\", \"playlist\"?}, \"name\"?, \"schedule\"? | \"every\"?, \"at\"?, \"days\"?, \"changes\"? (add, mirror, archive), \"follows\"?, \"color\"?}"),
         Call("POST", "/syncs/run-all", "Syncs", "Start every sync that is turned on."),
         Call("GET", "/syncs/{sync}", "Syncs", "One sync and its last runs."),
-        Call("PATCH", "/syncs/{sync}", "Syncs", "Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color.", body = "{\"name\"?, \"enabled\"?, \"schedule\"?, \"every\"?, \"at\"?, \"days\"?, \"changes\"?, \"follows\"?, \"color\"?}"),
+        Call("PATCH", "/syncs/{sync}", "Syncs", "Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color; twoWayRemovals for the two halves of a two-way pair (a track removed on one side is removed on the other).", body = "{\"name\"?, \"enabled\"?, \"schedule\"?, \"every\"?, \"at\"?, \"days\"?, \"changes\"?, \"follows\"?, \"color\"?, \"twoWayRemovals\"?}"),
         Call("DELETE", "/syncs/{sync}", "Syncs", "Delete a sync (the playlists stay as they are)."),
         Call("POST", "/syncs/{sync}/run", "Syncs", "Start a sync now; anyway=true after a run held back by the target's size check.", listOf("anyway")),
         Call("POST", "/syncs/{sync}/stop", "Syncs", "Stop a running sync."),

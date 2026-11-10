@@ -4,6 +4,7 @@ import com.xlollx.songport.providers.*
 import com.xlollx.songport.data.FileStore
 import com.xlollx.songport.data.LastWrites
 import com.xlollx.songport.platform.Env
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import com.xlollx.songport.model.MatchPolicy
 import com.xlollx.songport.model.MatchReview
@@ -13,6 +14,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncPlan
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.TargetSearch
+import com.xlollx.songport.model.TwoWayPlan
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
@@ -114,6 +116,21 @@ class SyncEngine(
                 return report
             }
         }
+        // A two-way pair that follows removals runs one half at a time: both read the pair's common
+        // state, and a half that planned on a listing the other was changing could add back what the
+        // other had just removed.
+        val partner = job.linkedJobId?.let { store.job(it) }
+        if (partner != null && !(job.twoWayRemovals && partner.twoWayRemovals)) store.dropPairState(job)
+        val pairLock = if (partner != null && job.twoWayRemovals) pairLocks.getOrPut(FileStore.pairKey(job.id, partner.id)) { kotlinx.coroutines.sync.Mutex() } else null
+        if (pairLock?.isLocked == true) env.log("engine", "${job.name}: waiting for the other half of its two-way pair")
+        return if (pairLock != null) pairLock.withLock { runLocked(job, unattended, onProgress, started, reportId, sourceVersion, dst0) }
+        else runLocked(job, unattended, onProgress, started, reportId, sourceVersion, dst0)
+    }
+
+    private suspend fun runLocked(
+        job: SyncJob, unattended: Boolean, onProgress: (Progress) -> Unit,
+        started: Long, reportId: String, sourceVersion: String?, dst0: MusicProvider?,
+    ): SyncReport {
         // Two syncs writing to the same playlist run one after the other: at once they could both add
         // what is missing, twice. The second waits for the first.
         val lock = JobConflicts.targetKey(job)?.let { targetLocks.getOrPut(it) { kotlinx.coroutines.sync.Mutex() } }
@@ -167,15 +184,21 @@ class SyncEngine(
     /**
      * The playlist is still in the user's library. Library slots (liked, albums…) and files always
      * are; a source that is not listed may be someone else's public playlist, so it passes when the
-     * service still describes it. A target must be the user's own: listed, or gone.
+     * service still describes it. A target must be the user's own: listed, or gone. Answers how many
+     * tracks the service says the playlist holds, -1 where it does not say.
      */
-    private suspend fun checkStillThere(p: MusicProvider, playlistId: String, name: String, isSource: Boolean) {
-        if (MusicProvider.isLibrary(playlistId) || !p.requiresAuth) return
-        val listed = runCatching { p.playlists(env).any { it.id == playlistId } }.getOrDefault(true)
-        if (listed) return
-        if (isSource && runCatching { p.playlistInfo(env, playlistId) }.isSuccess) return
+    private suspend fun checkStillThere(p: MusicProvider, playlistId: String, name: String, isSource: Boolean): Int {
+        if (MusicProvider.isLibrary(playlistId) || !p.requiresAuth) return -1
+        val lists = runCatching { p.playlists(env) }.getOrNull() ?: return -1
+        lists.firstOrNull { it.id == playlistId }?.let { return it.trackCount }
+        if (isSource && runCatching { p.playlistInfo(env, playlistId) }.isSuccess) return -1
         throw ProviderException(str(if (isSource) "error_source_gone" else "error_target_gone", name.ifBlank { playlistId }, p.label(env)))
     }
+
+    /** [known] (see [checkStillThere]), asked of a service without sign-in (files) that was not asked yet. */
+    private suspend fun declaredCount(p: MusicProvider, playlistId: String, known: Int): Int =
+        if (known >= 0 || p.requiresAuth || MusicProvider.isLibrary(playlistId)) known
+        else runCatching { p.playlists(env).firstOrNull { it.id == playlistId }?.trackCount }.getOrNull() ?: -1
 
     /**
      * An error for the log. A [ProviderException] is said by its message alone: its class name is
@@ -304,8 +327,8 @@ class SyncEngine(
         onProgress(Progress(Progress.Step.FETCH_SOURCE))
         // A playlist deleted on the service (or unfollowed on Spotify, whose API keeps answering for
         // it) must stop the sync with its name, not feed a ghost. One list call per side, per run.
-        checkStillThere(src, srcPlaylistId, job.source.playlistName, isSource = true)
-        job.target.playlistId?.let { checkStillThere(dst, it, job.target.playlistName, isSource = false) }
+        val srcDeclared = checkStillThere(src, srcPlaylistId, job.source.playlistName, isSource = true)
+        val dstDeclared = job.target.playlistId?.let { checkStillThere(dst, it, job.target.playlistName, isSource = false) } ?: -1
         val allSource = patient(onProgress) { src.tracks(env, srcPlaylistId) }
         // Ignored in this sync, or declared absent from this destination service by any sync.
         val ignoredIds = job.ignoredSourceIds.toHashSet()
@@ -359,6 +382,48 @@ class SyncEngine(
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
 
+        // Half of a two-way pair that follows removals (the option is on both halves): the pair's
+        // common state tells a track removed on one side from one added on the other.
+        val pairOn = !targetCreated && !job.archive && job.twoWayRemovals && job.linkedJobId?.let { store.job(it) }?.twoWayRemovals == true
+        val pair = (if (pairOn) store.pairState(job) else null)?.takeIf { st ->
+            // A side that lists tracks, none of them known to the state: the service gave them new
+            // ids (a personal server's library scanned again). The state says nothing any more and
+            // this run notes a new one, as a first run does.
+            val known = st.links.keys + st.links.values
+            val renumbered = listOf(allSource, dstTracks).any { side -> side.isNotEmpty() && side.none { it.id in known } }
+            if (renumbered && st.links.isNotEmpty()) env.log("engine", "${job.name}: one side lists none of the tracks of the last two-way state: starting from a new one")
+            !renumbered || st.links.isEmpty()
+        }
+        // The state's links as this half reads them: the source's id on the left, the target's on the right.
+        val links: List<Pair<String, String>> = when {
+            pair == null -> emptyList()
+            pair.a == FileStore.sideKey(job.source.provider, srcPlaylistId) -> pair.links.toList()
+            else -> pair.links.map { (a, b) -> b to a }
+        }
+        val linkedFromSrc = links.groupBy({ it.first }, { it.second })
+        val linkedFromDst = links.groupBy({ it.second }, { it.first })
+        val allSourceIds = allSource.mapTo(HashSet()) { it.id }
+        // Added after the state was written, the service says: new there, whatever the state holds.
+        fun addedSince(t: Track) = pair != null && pair.at > 0 && t.addedAt > pair.at
+        // A listing shorter than the service's own count hides entries (a page not sent, tracks it no
+        // longer plays and leaves out): which ones cannot be told, so nothing is removed on this run.
+        var listedShort: String? = null
+        if (pairOn) {
+            val counts = listOf(
+                Triple(src, declaredCount(src, srcPlaylistId, srcDeclared), allSource.size),
+                Triple(dst, declaredCount(dst, targetId, dstDeclared), dstTracks.size),
+            )
+            counts.firstOrNull { (_, declared, listed) -> declared > listed }?.let { (p, declared, listed) ->
+                listedShort = str("note_two_way_listed_short", p.displayName, listed, declared)
+                env.log("engine", "${job.name}: ${p.displayName} lists $listed of the $declared tracks it counts: two-way removals wait for a whole listing")
+            }
+        }
+        val presentLinks = HashMap<String, String>()
+        val addingLinks = HashMap<String, String>()
+        // In the state and no longer on the target: removed there. Not added again; the other half
+        // of the pair takes them off this side.
+        val awaitingRemoval = ArrayList<Track>()
+
         val matchedDstIds = HashSet<String>()
         val newCache = HashMap<String, String>()
         val toSearch = ArrayList<Track>()
@@ -387,14 +452,26 @@ class SyncEngine(
             if (cachedId != null && cachedId !in dstById && unlistedPresent(cachedId)) {
                 matchedDstIds += cachedId
                 newCache[key] = cachedId
+                presentLinks[s.id] = cachedId
                 continue
             }
             // On the same account a source track is already a target track: its own id, if the target has it.
             val found = cachedId?.let { dstById[it] } ?: (if (direct) dstById[s.id] else null) ?: index.best(s, policy = job.policy)
+            // The other half of the pair matched these two and the target still lists its one: present.
+            val linked = if (found == null) linkedFromSrc[s.id]?.firstOrNull { it in dstById } else null
             if (found != null) {
                 matchedDstIds += found.id
                 newCache[key] = found.id
+                presentLinks[s.id] = found.id
+            } else if (linked != null) {
+                matchedDstIds += linked
+                presentLinks[s.id] = linked
+            } else if (s.id in linkedFromSrc && !addedSince(s)) {
+                awaitingRemoval += s
             } else if (queued.add(s.id)) toSearch += s
+        }
+        if (awaitingRemoval.isNotEmpty()) {
+            env.log("engine", "${job.name}: ${awaitingRemoval.size} ${tracksWord(awaitingRemoval.size)} removed on ${dst.displayName} since the last run, not added again: ${named(awaitingRemoval)}")
         }
 
         // 2) ricerca dei mancanti
@@ -424,6 +501,7 @@ class SyncEngine(
                 // Added by the last run and still not listed: the service took it and shows it
                 // elsewhere, or not at all. Present, not added again (and not counted) on every run.
                 if (present == null) { if (last != null && found.id in last.added) unlistedAfterAdd[found.id] = found else toAdd[found.id] = found }
+                if (found.id in toAdd) addingLinks[s.id] = found.id else presentLinks[s.id] = target.id
                 matchedDstIds += target.id
                 newCache[FileStore.cacheKey(src.id, s.id, dst.id)] = target.id
                 if (score != null && score < job.policy.reviewThreshold) {
@@ -454,12 +532,20 @@ class SyncEngine(
         // Another sync writes to this playlist too: what matches none of this source may be its.
         val sharing = JobConflicts.sharingTarget(store.data.jobs, job)
         // An archive keeps every track it was ever given: nothing goes, whatever the switches say.
-        if (job.mirrorRemovals && !job.archive) {
+        if ((job.mirrorRemovals || pairOn) && !job.archive) {
             // An entry the service lists by id alone cannot be told apart from one of the source's
             // under another id: it stays (see MusicProvider.listsUntitledEntries).
             val untitled = if (dst.listsUntitledEntries) dstTracks.count { it.id !in matchedDstIds && it.title.isBlank() } else 0
             if (untitled > 0) env.log("engine", "${job.name}: $untitled entries of the target listed without a title on ${dst.displayName}, matching no source track: not removed")
             val unmatchedOnTarget = dstTracks.filter { it.id !in matchedDstIds && !(dst.listsUntitledEntries && it.title.isBlank()) }
+                // Two-way: only a track both sides held after the last complete run, whose own track
+                // on the source is no longer listed there (ignored ones count as listed), and that the
+                // target did not get again since. Anything else on the target is an addition.
+                // Nor one the review matched since to a source track still listed (a match replaced by hand).
+                .filter { d ->
+                    !pairOn || (linkedFromDst[d.id]?.none { it in allSourceIds } == true && !addedSince(d) &&
+                        store.cachedMatch(dst.id, d.id, src.id)?.let { it in allSourceIds } != true)
+                }
             // Removed by the last run and listed again now: the service answered the removal without
             // taking the entry away (or it came back). Removing it again would only repeat that on every
             // run: it stays, said once, and is left alone for a month, like a track the service keeps
@@ -474,18 +560,21 @@ class SyncEngine(
             val extra = unmatchedOnTarget.filter { it.id !in stays }
             // Un quarto o piu' della destinazione (playlist svuotata per sbaglio, account cambiato, o un
             // elenco letto a meta' dal servizio): solo una persona puo' dire se va tolto davvero.
-            val large = extra.size > REMOVAL_CAP_MIN && extra.size * 4 > dstTracks.size
+            // Two-way: a quarter or more of what the two sides had in common, whatever the size.
+            val large = if (pairOn) extra.size > 1 && extra.size * 4 >= links.size else extra.size > REMOVAL_CAP_MIN && extra.size * 4 > dstTracks.size
             when {
-                paired -> if (extra.isNotEmpty()) notes += str("note_two_way_no_removals", extra.size)
+                pairOn && extra.isEmpty() -> {}
+                paired && !pairOn -> if (extra.isNotEmpty()) notes += str("note_two_way_no_removals", extra.size)
                 sharing.isNotEmpty() -> if (extra.isNotEmpty()) notes += str("note_shared_target_no_removals", extra.size, sharing.joinToString(", ") { it.name })
                 // Ricerca non completata: un brano della destinazione puo' corrispondere a uno
                 // dell'origine non ancora cercato. Nulla si toglie finche' non si sa.
                 interrupted != null -> if (extra.isNotEmpty()) notes += str("note_removals_deferred", extra.size)
+                listedShort != null -> notes += listedShort!!
                 !dst.canRemoveTracks -> if (extra.isNotEmpty()) notes += str("note_no_removals", dst.displayName, extra.size)
                 // Origine vuota: quasi certamente un errore, non svuotiamo la destinazione.
                 srcTracks.isEmpty() -> notes += str("error_source_empty")
-                interactive -> { toRemove = extra; needsConfirmation = large && !job.followsChanges }
-                !large || job.followsChanges -> toRemove = extra
+                interactive -> { toRemove = extra; needsConfirmation = large && (pairOn || !job.followsChanges) }
+                !large || (job.followsChanges && !pairOn) -> toRemove = extra
                 else -> {
                     // A confirmation serves one run started by hand, used or not; a scheduled run leaves it.
                     val confirmed = if (unattended) null else store.takeRemovalConfirmation(job.id)
@@ -495,8 +584,9 @@ class SyncEngine(
                     } else {
                         heldBack = extra.size
                         // Towards Liked songs a removal is an unlike: the note says so, as the preview does.
-                        notes += str(if (targetId == MusicProvider.LIKED_ID) "note_unlikes_capped" else "note_removals_capped", extra.size, dstTracks.size)
-                        env.log("engine", "${job.name}: removals held back, ${extra.size} of ${dstTracks.size} in the target matched none of the ${srcTracks.size} source tracks" +
+                        notes += if (pairOn) str("note_two_way_removals_held", extra.size, links.size)
+                            else str(if (targetId == MusicProvider.LIKED_ID) "note_unlikes_capped" else "note_removals_capped", extra.size, dstTracks.size)
+                        env.log("engine", "${job.name}: removals held back, ${extra.size} of ${if (pairOn) "the ${links.size} the pair had in common left the source" else "${dstTracks.size} in the target matched none of the ${srcTracks.size} source tracks"}" +
                             if (confirmed != null) "; the confirmation did not cover them" else "")
                     }
                 }
@@ -512,10 +602,26 @@ class SyncEngine(
         if (spacing > 0 && toAdd.size >= SLOW_ADD_NOTE_FROM) {
             notes += str("note_slow_ordered_adds", dst.displayName, toAdd.size, ((toAdd.size * spacing + 59_999) / 60_000).toInt())
         }
+        val twoWay = if (!pairOn) null else TwoWayPlan(
+            present = presentLinks, adding = addingLinks,
+            // Still open: one side lists its track. A track that came back since the state (see
+            // addedSince) is no longer the pair's: it is an addition, and its old link goes.
+            kept = links.filter { (s, d) ->
+                val onSource = s in allSourceIds
+                val onTarget = d in dstById
+                (onSource && onTarget) || (onSource && !onTarget && !allSource.any { it.id == s && addedSince(it) }) ||
+                    (onTarget && !onSource && !addedSince(dstById.getValue(d)))
+            },
+            // A target far smaller than the last run left it, run anyway: not a listing to trust either.
+            complete = interrupted == null && listedShort == null && shrunkFrom(job, targetId, dstTracks.size) == 0,
+            first = pair == null,
+        )
+        if (twoWay != null && twoWay.first && twoWay.complete) notes += str("note_two_way_started")
         return SyncPlan(
+            twoWay = twoWay,
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,
-            alreadyPresent = srcTracks.size - srcTracks.count { it.id in queued },
+            alreadyPresent = srcTracks.size - srcTracks.count { it.id in queued } - awaitingRemoval.size,
             toAdd = toAdd.values.toList(),
             toRemove = toRemove,
             unmatched = unmatched,
@@ -613,6 +719,8 @@ class SyncEngine(
         val searchSlots = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Semaphore>()
         /** One run at a time per target playlist ("service|playlist"), across the syncs of this process. */
         val targetLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
+        /** One half at a time per two-way pair with removals ([FileStore.pairKey]). */
+        val pairLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     }
 
     private suspend fun searchMissing(
@@ -1040,6 +1148,23 @@ class SyncEngine(
         }
         // What this run wrote, for the next one to check against the target's listing.
         store.putLastWrites(job.id, LastWrites(targetId, addedList.map { it.id }.toSet(), removedList.map { it.id }.toSet(), System.currentTimeMillis()))
+
+        // The pair's common state, written again only by a run that read both sides whole, finished
+        // its search and was not stopped while adding: anything less leaves the last one in place.
+        plan.twoWay?.takeIf { it.complete && addStopped == null }?.let { tw ->
+            val onTarget = addedList.mapTo(HashSet()) { it.id } + alreadyThere.map { it.id }
+            val gone = removedList.mapTo(HashSet()) { it.id }
+            val now = tw.kept.filter { it.second !in gone } + tw.present.toList() + tw.adding.filterValues { it in onTarget }.toList()
+            val srcSide = FileStore.sideKey(job.source.provider, job.source.playlistId)
+            val dstSide = FileStore.sideKey(job.target.provider, targetId)
+            // Kept in the order the pair first wrote it, whichever half writes now.
+            val flipped = store.pairState(job)?.a == dstSide
+            val links = if (flipped) now.associate { (s, d) -> d to s } else now.toMap()
+            store.putPairState(job, com.xlollx.songport.data.PairState(
+                a = if (flipped) dstSide else srcSide, b = if (flipped) srcSide else dstSide, links = links, at = System.currentTimeMillis(),
+            ))
+            env.log("engine", "${job.name}: two-way state ${if (tw.first) "noted" else "updated"}, ${links.size} ${tracksWord(links.size)} on both sides")
+        }
 
         store.putMatches(plan.newMatches)
         // Quanto l'utente ha gia' sistemato dal report provvisorio non deve ricomparire.

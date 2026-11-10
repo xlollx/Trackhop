@@ -1816,4 +1816,9 @@
     <string name="spread_stays">%1$s (stays)</string>
     <string name="spread_confirm">Confirm</string>
     <string name="review_discard_busy">Reading the playlist on %1$s to find these tracks: on a long playlist this takes a few seconds.</string>
+    <string name="editor_two_way_removals">Removals too</string>
+    <string name="editor_two_way_removals_desc">A track you remove on one side is removed on the other too. Starts after the next run.</string>
+    <string name="note_two_way_started">Two-way removals start with the next run: this one noted which tracks both sides have and removed nothing.</string>
+    <string name="note_two_way_removals_held">Removals held back: %1$d of the %2$d tracks both sides had are gone from the source. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Remove these tracks” there and run it. If you did not remove them, the service listed the playlist incompletely and nothing should go.</string>
+    <string name="note_two_way_listed_short">Nothing removed this time: %1$s listed %2$d of the %3$d tracks it counts. A track the service hides or no longer plays is not treated as removed.</string>
 </resources>
