@@ -1996,4 +1996,32 @@
         <item quantity="one">Anche %d canale di notifica: resta spento finché non lo attivi e inserisci le sue chiavi.</item>
         <item quantity="other">Anche %d canali di notifica: restano spenti finché non li attivi e inserisci le loro chiavi.</item>
     </plurals>
+    <string name="discover_setlists_title">Scalette</string>
+    <string name="discover_setlists_desc">Cosa hanno suonato dal vivo gli artisti di una playlist</string>
+    <string name="setlists_intro">Scegli una playlist: Trackhop mostra le ultime scalette dei suoi artisti. Scegli un concerto e fanne una playlist su qualsiasi servizio. Niente viene controllato in background.</string>
+    <string name="setlists_find">Cerca scalette</string>
+    <string name="setlists_none">Nessuna scaletta recente per questi artisti.</string>
+    <string name="setlists_without">Nessuna scaletta per: %1$s</string>
+    <string name="setlists_quota">Limite di oggi di setlist.fm raggiunto: riprova domani o aggiungi la tua chiave.</string>
+    <string name="setlists_key_refused">setlist.fm ha rifiutato la chiave: controllala.</string>
+    <string name="setlists_no_key">Le scalette richiedono una chiave setlist.fm: aggiungi la tua, è gratuita.</string>
+    <string name="setlists_limited">Cercati solo i %1$d artisti che ascolti di più: aggiungi la tua chiave setlist.fm per cercarli tutti e %2$d.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="one">setlist.fm non ha risposto per %d artista: riprova più tardi.</item>
+        <item quantity="other">setlist.fm non ha risposto per %d artisti: riprova più tardi.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="one">%d brano</item>
+        <item quantity="other">%d brani</item>
+    </plurals>
+    <string name="setlists_encore">Bis</string>
+    <string name="setlists_cover">cover di %1$s</string>
+    <string name="setlists_tape">da nastro, escluso</string>
+    <string name="setlists_open">Su setlist.fm</string>
+    <string name="setlists_make">Crea una playlist</string>
+    <string name="setlists_attribution">Scalette da setlist.fm</string>
+    <string name="setlists_key_title">Chiave setlist.fm</string>
+    <string name="setlists_key_body">Facoltativa se l\'app ha già una chiave condivisa. Con una tua chiave gratuita (account setlist.fm › Settings › API) Trackhop cerca più artisti e non divide il limite giornaliero con tutti. Legge solo scalette pubbliche.</string>
+    <string name="setlists_key_field">Chiave API</string>
+    <string name="setlists_key_none">Nessuna chiave: aggiungine una per vedere le scalette</string>
 </resources>

@@ -2004,4 +2004,32 @@
         <item quantity="one">También %d canal de notificación: queda desactivado hasta que lo actives e introduzcas sus claves.</item>
         <item quantity="other">También %d canales de notificación: quedan desactivados hasta que los actives e introduzcas sus claves.</item>
     </plurals>
+    <string name="discover_setlists_title">Setlists</string>
+    <string name="discover_setlists_desc">Lo que tocaron en directo los artistas de una playlist</string>
+    <string name="setlists_intro">Elige una playlist: Trackhop muestra los últimos setlists de sus artistas. Elige un concierto y conviértelo en una playlist en cualquier servicio. No se comprueba nada en segundo plano.</string>
+    <string name="setlists_find">Buscar setlists</string>
+    <string name="setlists_none">No hay setlists recientes de estos artistas.</string>
+    <string name="setlists_without">Sin setlists: %1$s</string>
+    <string name="setlists_quota">Se alcanzó el límite de hoy de setlist.fm: inténtalo mañana o añade tu propia clave.</string>
+    <string name="setlists_key_refused">setlist.fm rechazó la clave: revísala.</string>
+    <string name="setlists_no_key">Los setlists necesitan una clave de setlist.fm: añade la tuya, es gratis.</string>
+    <string name="setlists_limited">Solo se buscaron los %1$d artistas que más escuchas: añade tu propia clave de setlist.fm para buscar los %2$d.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="one">setlist.fm no respondió para %d artista: inténtalo más tarde.</item>
+        <item quantity="other">setlist.fm no respondió para %d artistas: inténtalo más tarde.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="one">%d canción</item>
+        <item quantity="other">%d canciones</item>
+    </plurals>
+    <string name="setlists_encore">Bis</string>
+    <string name="setlists_cover">versión de %1$s</string>
+    <string name="setlists_tape">grabada, no incluida</string>
+    <string name="setlists_open">En setlist.fm</string>
+    <string name="setlists_make">Crear una playlist</string>
+    <string name="setlists_attribution">Setlists de setlist.fm</string>
+    <string name="setlists_key_title">Clave de setlist.fm</string>
+    <string name="setlists_key_body">Opcional si la app ya tiene una clave compartida. Con tu propia clave gratuita (cuenta de setlist.fm › Settings › API) Trackhop busca más artistas y no comparte el límite diario con todos. Solo lee setlists públicos.</string>
+    <string name="setlists_key_field">Clave API</string>
+    <string name="setlists_key_none">Sin clave: añade una para ver los setlists</string>
 </resources>

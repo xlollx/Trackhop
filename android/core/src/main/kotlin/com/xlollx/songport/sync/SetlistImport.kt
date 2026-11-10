@@ -3,10 +3,13 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
+import com.xlollx.songport.platform.Env
+import kotlinx.coroutines.CancellationException
 
 /**
- * Da un link di setlist.fm alla lista dei brani suonati: la pagina pubblica basta, senza chiave
- * API. Il nome della playlist viene dal titolo della pagina ("Artist Setlist at Venue, City, date").
+ * From a setlist.fm link to the songs played. With a setlist.fm key (the user's or the build's) the
+ * official API ([Setlists.byId]); without one, or when the API cannot answer (the day's calls
+ * gone), the public page as before, whose title gives the name ("Artist Setlist at Venue, City, date").
  */
 object SetlistImport {
 
@@ -20,10 +23,29 @@ object SetlistImport {
 
     data class Setlist(val name: String, val artist: String, val tracks: List<Track>)
 
-    suspend fun fetch(url: String): Setlist {
+    suspend fun fetch(env: Env?, url: String): Setlist {
+        val id = Setlists.idFromLink(url)
+        if (env != null && id != null && Setlists.key(env) != null) {
+            try {
+                val s = Setlists.byId(env, id)
+                if (s != null) {
+                    val tracks = Setlists.tracks(s)
+                    if (tracks.isNotEmpty()) return Setlist(Setlists.playlistName(s), s.artist, tracks)
+                }
+            } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                env.log("setlists", "setlist.fm API: ${e.message}; trying the public page")
+            }
+        }
+        return fetchPage(url)
+    }
+
+    /** The public page, without a key. */
+    private suspend fun fetchPage(url: String): Setlist {
         // The User-Agent keeps "Songport" after the rename to Trackhop: an identifier the sites already see.
         val r = Http.send("GET", url, mapOf("User-Agent" to "Mozilla/5.0 (Linux; Android 14) Songport", "Accept" to "text/html"))
         if (!r.ok) throw ProviderException("setlist.fm ${r.code}")
+        // An empty 202 is a browser check the app cannot pass: the page needs a key to be read.
+        if (r.body.isBlank()) throw ProviderException("setlist.fm did not let the app read the page: add a setlist.fm key in Settings › Service keys")
         return parse(r.body)
     }
 

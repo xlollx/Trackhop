@@ -2066,4 +2066,36 @@
         <item quantity="many">А также %d каналов уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
         <item quantity="other">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
     </plurals>
+    <string name="discover_setlists_title">Сет-листы</string>
+    <string name="discover_setlists_desc">Что артисты плейлиста играли вживую</string>
+    <string name="setlists_intro">Выберите плейлист: Trackhop покажет последние сет-листы его артистов. Выберите концерт и сделайте из него плейлист в любом сервисе. Ничего не проверяется в фоне.</string>
+    <string name="setlists_find">Найти сет-листы</string>
+    <string name="setlists_none">Свежих сет-листов этих артистов не найдено.</string>
+    <string name="setlists_without">Нет сет-листов: %1$s</string>
+    <string name="setlists_quota">Дневной лимит setlist.fm исчерпан: попробуйте завтра или добавьте свой ключ.</string>
+    <string name="setlists_key_refused">setlist.fm отклонил ключ: проверьте его.</string>
+    <string name="setlists_no_key">Для сет-листов нужен ключ setlist.fm: добавьте свой, это бесплатно.</string>
+    <string name="setlists_limited">Проверены только %1$d артистов, которых вы слушаете чаще всего: добавьте свой ключ setlist.fm, чтобы проверить всех %2$d.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="one">setlist.fm не ответил для %d артиста: попробуйте позже.</item>
+        <item quantity="few">setlist.fm не ответил для %d артистов: попробуйте позже.</item>
+        <item quantity="many">setlist.fm не ответил для %d артистов: попробуйте позже.</item>
+        <item quantity="other">setlist.fm не ответил для %d артиста: попробуйте позже.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="one">%d песня</item>
+        <item quantity="few">%d песни</item>
+        <item quantity="many">%d песен</item>
+        <item quantity="other">%d песни</item>
+    </plurals>
+    <string name="setlists_encore">На бис</string>
+    <string name="setlists_cover">кавер на %1$s</string>
+    <string name="setlists_tape">фонограмма, не включена</string>
+    <string name="setlists_open">На setlist.fm</string>
+    <string name="setlists_make">Создать плейлист</string>
+    <string name="setlists_attribution">Сет-листы с setlist.fm</string>
+    <string name="setlists_key_title">Ключ setlist.fm</string>
+    <string name="setlists_key_body">Необязателен, если у приложения есть общий ключ. Со своим бесплатным ключом (аккаунт setlist.fm › Settings › API) Trackhop проверит больше артистов и не делит дневной лимит со всеми. Он читает только публичные сет-листы.</string>
+    <string name="setlists_key_field">Ключ API</string>
+    <string name="setlists_key_none">Нет ключа: добавьте его, чтобы видеть сет-листы</string>
 </resources>

@@ -1994,4 +1994,32 @@
         <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
         <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
     </plurals>
+    <string name="discover_setlists_title">Setlistler</string>
+    <string name="discover_setlists_desc">Bir çalma listesindeki sanatçıların canlı çaldıkları</string>
+    <string name="setlists_intro">Bir çalma listesi seç: Trackhop sanatçılarının son setlistlerini gösterir. Bir konser seç ve onu herhangi bir serviste çalma listesine dönüştür. Arka planda hiçbir şey kontrol edilmez.</string>
+    <string name="setlists_find">Setlistleri bul</string>
+    <string name="setlists_none">Bu sanatçılar için yeni setlist bulunamadı.</string>
+    <string name="setlists_without">Setlisti olmayanlar: %1$s</string>
+    <string name="setlists_quota">setlist.fm\'nin bugünkü sınırına ulaşıldı: yarın tekrar dene ya da kendi anahtarını ekle.</string>
+    <string name="setlists_key_refused">setlist.fm anahtarı reddetti: kontrol et.</string>
+    <string name="setlists_no_key">Setlistler için bir setlist.fm anahtarı gerekir: kendi anahtarını ekle, ücretsiz.</string>
+    <string name="setlists_limited">Yalnızca en çok dinlediğin %1$d sanatçıya bakıldı: %2$d sanatçının hepsi için kendi setlist.fm anahtarını ekle.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="one">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
+        <item quantity="other">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="one">%d şarkı</item>
+        <item quantity="other">%d şarkı</item>
+    </plurals>
+    <string name="setlists_encore">Bis</string>
+    <string name="setlists_cover">%1$s cover\'ı</string>
+    <string name="setlists_tape">banttan, dahil edilmedi</string>
+    <string name="setlists_open">setlist.fm\'de</string>
+    <string name="setlists_make">Çalma listesi oluştur</string>
+    <string name="setlists_attribution">Setlistler setlist.fm\'den</string>
+    <string name="setlists_key_title">setlist.fm anahtarı</string>
+    <string name="setlists_key_body">Uygulamanın ortak bir anahtarı varsa isteğe bağlı. Kendi ücretsiz anahtarınla (setlist.fm hesabı › Settings › API) Trackhop daha çok sanatçıya bakar ve günlük sınırı herkesle paylaşmaz. Yalnızca herkese açık setlistleri okur.</string>
+    <string name="setlists_key_field">API anahtarı</string>
+    <string name="setlists_key_none">Anahtar yok: setlistleri görmek için bir tane ekle</string>
 </resources>

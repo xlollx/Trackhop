@@ -1961,4 +1961,30 @@
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
+    <string name="discover_setlists_title">セットリスト</string>
+    <string name="discover_setlists_desc">プレイリストのアーティストがライブで演奏した曲</string>
+    <string name="setlists_intro">プレイリストを選ぶと、Trackhop がアーティストの最新セットリストを表示します。公演を選んで、どのサービスにもプレイリストを作れます。バックグラウンドでは何も確認しません。</string>
+    <string name="setlists_find">セットリストを探す</string>
+    <string name="setlists_none">これらのアーティストの最近のセットリストは見つかりませんでした。</string>
+    <string name="setlists_without">セットリストなし: %1$s</string>
+    <string name="setlists_quota">setlist.fm の今日の上限に達しました。明日もう一度試すか、自分のキーを追加してください。</string>
+    <string name="setlists_key_refused">setlist.fm がキーを拒否しました。確認してください。</string>
+    <string name="setlists_no_key">セットリストには setlist.fm のキーが必要です。無料なので自分のキーを追加してください。</string>
+    <string name="setlists_limited">よく聴く %1$d 組のアーティストだけを調べました。自分の setlist.fm キーを追加すると %2$d 組すべてを調べます。</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="other">setlist.fm から %d 組のアーティストの応答がありませんでした。後でもう一度試してください。</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="other">%d 曲</item>
+    </plurals>
+    <string name="setlists_encore">アンコール</string>
+    <string name="setlists_cover">%1$s のカバー</string>
+    <string name="setlists_tape">テープ、含めません</string>
+    <string name="setlists_open">setlist.fm で見る</string>
+    <string name="setlists_make">プレイリストを作成</string>
+    <string name="setlists_attribution">セットリスト提供: setlist.fm</string>
+    <string name="setlists_key_title">setlist.fm キー</string>
+    <string name="setlists_key_body">アプリに共有キーがある場合は任意です。自分の無料キー（setlist.fm アカウント › Settings › API）があれば、より多くのアーティストを調べ、1日の上限をみんなと分け合いません。公開セットリストを読むだけです。</string>
+    <string name="setlists_key_field">API キー</string>
+    <string name="setlists_key_none">キーなし: セットリストを見るには追加してください</string>
 </resources>

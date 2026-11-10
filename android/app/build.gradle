@@ -32,6 +32,9 @@ def lastfmSharedSecret = cfg('LASTFM_SHARED_SECRET', '')
 // Ticketmaster Discovery API (Discover › Concerts): the Consumer Key only, never its Consumer Secret.
 // Shared by everyone using the build: on-demand searches only (see core sync/Concerts.kt).
 def ticketmasterApiKey = cfg('TICKETMASTER_API_KEY', '')
+// setlist.fm API (Discover › Setlists, setlist.fm links): shared by everyone using the build, on-demand
+// calls only (see core sync/Setlists.kt).
+def setlistfmApiKey = cfg('SETLISTFM_API_KEY', '')
 // Google richiede come redirect lo schema "client id invertito".
 def googleScheme = googleClientId
         ? 'com.googleusercontent.apps.' + googleClientId.replace('.apps.googleusercontent.com', '')
@@ -71,6 +74,7 @@ android {
         buildConfigField "String", "LASTFM_API_KEY", "\"${lastfmApiKey}\""
         buildConfigField "String", "LASTFM_SHARED_SECRET", "\"${lastfmSharedSecret}\""
         buildConfigField "String", "TICKETMASTER_API_KEY", "\"${ticketmasterApiKey}\""
+        buildConfigField "String", "SETLISTFM_API_KEY", "\"${setlistfmApiKey}\""
         buildConfigField "String", "GOOGLE_REDIRECT_SCHEME", "\"${googleScheme}\""
         buildConfigField "String", "PRIVACY_POLICY_URL", "\"${privacyUrl}\""
         buildConfigField "String", "KOFI_URL", "\"${kofiUrl}\""

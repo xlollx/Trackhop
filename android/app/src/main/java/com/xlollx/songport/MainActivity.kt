@@ -467,7 +467,7 @@ private fun MainScreen(
                 // A concert setlist becomes a file playlist, the source of a new sync.
                 tab = MainActivity.TAB_SYNCS
                 try {
-                    val s = com.xlollx.songport.sync.SetlistImport.fetch(setlist)
+                    val s = com.xlollx.songport.sync.SetlistImport.fetch(com.xlollx.songport.platform.AndroidEnv.of(ctx), setlist)
                     val id = LocalFilesProvider.importTracks(ctx, s.name, s.tracks)
                     editing = newJob().copy(name = s.name, source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id))
                     snackbar.showSnackbar(ctx.getString(R.string.setlist_imported, s.tracks.size))

@@ -399,6 +399,10 @@ fun SettingsScreen(
                 var tmOpen by rememberSaveable { mutableStateOf(false) }
                 if (tmOpen) TicketmasterKeyDialog { tmOpen = false }
                 PrefRow(Icons.Filled.Key, stringResource(R.string.concerts_key_title), stringResource(remember(data.settings, tmOpen) { ticketmasterKeyState(ctx) })) { tmOpen = true }
+                // Setlists (Discover) and setlist.fm links: the user's own setlist.fm key.
+                var sfmOpen by rememberSaveable { mutableStateOf(false) }
+                if (sfmOpen) SetlistFmKeyDialog { sfmOpen = false }
+                PrefRow(Icons.Filled.Key, stringResource(R.string.setlists_key_title), stringResource(remember(data.settings, sfmOpen) { setlistFmKeyState(ctx) })) { sfmOpen = true }
                 Providers.all().filter { it.setupGuide != null && it.slot.isEmpty() }.forEach { p ->
                     val configured = remember(p.id, data.settings) { p.isConfigured(ctx) }
                     PrefRow(

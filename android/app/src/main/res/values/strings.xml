@@ -1997,4 +1997,32 @@
         <item quantity="one">Also %d notification channel: it stays off until you turn it on and enter its keys.</item>
         <item quantity="other">Also %d notification channels: they stay off until you turn them on and enter their keys.</item>
     </plurals>
+    <string name="discover_setlists_title">Setlists</string>
+    <string name="discover_setlists_desc">What a playlist\'s artists played live, as a playlist</string>
+    <string name="setlists_intro">Pick a playlist: Trackhop shows the latest setlists of its artists. Pick a concert and make it a playlist on any service. Nothing is checked in the background.</string>
+    <string name="setlists_find">Find setlists</string>
+    <string name="setlists_none">No recent setlists found for these artists.</string>
+    <string name="setlists_without">No setlists for: %1$s</string>
+    <string name="setlists_quota">Today\'s setlist.fm limit is reached: try again tomorrow or add your own key.</string>
+    <string name="setlists_key_refused">setlist.fm refused the key: check it.</string>
+    <string name="setlists_no_key">Setlists need a setlist.fm key: add your own, it\'s free.</string>
+    <string name="setlists_limited">Only the %1$d artists you play most were looked up: add your own setlist.fm key to look up all %2$d.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="one">setlist.fm didn\'t answer for %d artist: try again later.</item>
+        <item quantity="other">setlist.fm didn\'t answer for %d artists: try again later.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
+    </plurals>
+    <string name="setlists_encore">Encore</string>
+    <string name="setlists_cover">%1$s cover</string>
+    <string name="setlists_tape">from tape, left out</string>
+    <string name="setlists_open">On setlist.fm</string>
+    <string name="setlists_make">Make a playlist</string>
+    <string name="setlists_attribution">Setlists from setlist.fm</string>
+    <string name="setlists_key_title">setlist.fm key</string>
+    <string name="setlists_key_body">Optional where the app has its own shared key. With your own free key (a setlist.fm account › Settings › API) Trackhop looks up more artists and doesn\'t share the daily limit with everyone. It only reads public setlists.</string>
+    <string name="setlists_key_field">API key</string>
+    <string name="setlists_key_none">No key: add one to see setlists</string>
 </resources>

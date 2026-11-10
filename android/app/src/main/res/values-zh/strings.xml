@@ -1961,4 +1961,30 @@
     <plurals name="backup_config_channels">
         <item quantity="other">另有 %d 个通知渠道:在你开启并填写密钥之前保持关闭。</item>
     </plurals>
+    <string name="discover_setlists_title">演出曲目</string>
+    <string name="discover_setlists_desc">歌单中艺人现场演唱过的歌</string>
+    <string name="setlists_intro">选择一个歌单：Trackhop 会显示其艺人的最新演出曲目。选一场演出，在任何服务上生成歌单。不会在后台检查任何内容。</string>
+    <string name="setlists_find">查找演出曲目</string>
+    <string name="setlists_none">没有找到这些艺人最近的演出曲目。</string>
+    <string name="setlists_without">没有演出曲目：%1$s</string>
+    <string name="setlists_quota">今天的 setlist.fm 额度已用完：明天再试，或添加你自己的密钥。</string>
+    <string name="setlists_key_refused">setlist.fm 拒绝了该密钥：请检查。</string>
+    <string name="setlists_no_key">演出曲目需要 setlist.fm 密钥：添加你自己的，免费。</string>
+    <string name="setlists_limited">只查找了你最常听的 %1$d 位艺人：添加你自己的 setlist.fm 密钥即可查找全部 %2$d 位。</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="other">setlist.fm 没有回应 %d 位艺人：请稍后再试。</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="other">%d 首歌</item>
+    </plurals>
+    <string name="setlists_encore">返场</string>
+    <string name="setlists_cover">翻唱自 %1$s</string>
+    <string name="setlists_tape">伴奏录音，不收录</string>
+    <string name="setlists_open">在 setlist.fm 查看</string>
+    <string name="setlists_make">生成歌单</string>
+    <string name="setlists_attribution">演出曲目来自 setlist.fm</string>
+    <string name="setlists_key_title">setlist.fm 密钥</string>
+    <string name="setlists_key_body">如果应用已有共享密钥，则为可选。使用你自己的免费密钥（setlist.fm 账户 › Settings › API），Trackhop 能查找更多艺人，且不与所有人共享每日额度。它只读取公开的演出曲目。</string>
+    <string name="setlists_key_field">API 密钥</string>
+    <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
 </resources>

@@ -1960,4 +1960,30 @@
     <plurals name="backup_config_channels">
         <item quantity="other">알림 채널 %d개도 있어요. 켜고 키를 입력할 때까지 꺼져 있어요.</item>
     </plurals>
+    <string name="discover_setlists_title">세트리스트</string>
+    <string name="discover_setlists_desc">플레이리스트 아티스트가 라이브에서 연주한 곡</string>
+    <string name="setlists_intro">플레이리스트를 고르면 Trackhop이 아티스트의 최신 세트리스트를 보여 줍니다. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 백그라운드에서는 아무것도 확인하지 않습니다.</string>
+    <string name="setlists_find">세트리스트 찾기</string>
+    <string name="setlists_none">이 아티스트들의 최근 세트리스트가 없습니다.</string>
+    <string name="setlists_without">세트리스트 없음: %1$s</string>
+    <string name="setlists_quota">오늘 setlist.fm 한도에 도달했습니다. 내일 다시 시도하거나 내 키를 추가하세요.</string>
+    <string name="setlists_key_refused">setlist.fm이 키를 거부했습니다. 확인해 주세요.</string>
+    <string name="setlists_no_key">세트리스트에는 setlist.fm 키가 필요합니다. 무료이니 내 키를 추가하세요.</string>
+    <string name="setlists_limited">가장 많이 듣는 아티스트 %1$d명만 찾았습니다. 내 setlist.fm 키를 추가하면 %2$d명 모두 찾습니다.</string>
+    <plurals name="setlists_unanswered">
+        <item quantity="other">setlist.fm이 아티스트 %d명에 대해 응답하지 않았습니다. 나중에 다시 시도하세요.</item>
+    </plurals>
+    <plurals name="setlists_songs">
+        <item quantity="other">%d곡</item>
+    </plurals>
+    <string name="setlists_encore">앙코르</string>
+    <string name="setlists_cover">%1$s 커버</string>
+    <string name="setlists_tape">녹음, 제외됨</string>
+    <string name="setlists_open">setlist.fm에서 보기</string>
+    <string name="setlists_make">플레이리스트 만들기</string>
+    <string name="setlists_attribution">세트리스트 출처: setlist.fm</string>
+    <string name="setlists_key_title">setlist.fm 키</string>
+    <string name="setlists_key_body">앱에 공유 키가 있으면 선택 사항입니다. 내 무료 키(setlist.fm 계정 › Settings › API)가 있으면 더 많은 아티스트를 찾고 하루 한도를 모두와 나누지 않습니다. 공개 세트리스트만 읽습니다.</string>
+    <string name="setlists_key_field">API 키</string>
+    <string name="setlists_key_none">키 없음: 세트리스트를 보려면 추가하세요</string>
 </resources>

@@ -574,7 +574,7 @@ internal fun FilesCard(
                 try {
                     val link = com.xlollx.songport.sync.SetlistImport.linkIn(text)
                     val pl = if (link != null) {
-                        val s = com.xlollx.songport.sync.SetlistImport.fetch(link)
+                        val s = com.xlollx.songport.sync.SetlistImport.fetch(com.xlollx.songport.platform.AndroidEnv.of(ctx), link)
                         val id = withContext(Dispatchers.IO) { LocalFilesProvider.importTracks(ctx, if (name.isBlank()) s.name else name, s.tracks) }
                         Playlist(id, id, s.tracks.size)
                     } else withContext(Dispatchers.IO) { LocalFilesProvider.importFileAsPlaylist(ctx, "$name.txt", text) }

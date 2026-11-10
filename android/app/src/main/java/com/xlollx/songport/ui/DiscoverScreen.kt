@@ -80,6 +80,7 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
     SUBS("💸", 0xFF2E7D32, R.string.discover_subs_title, R.string.discover_subs_desc),
     POSTER("🖼️", 0xFFF9A825, R.string.tools_poster_title, R.string.discover_poster_desc),
     CONCERTS("🎟️", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc),
+    SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc),
 }
 
 /**
@@ -161,6 +162,7 @@ fun DiscoverScreen(
                     DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
                     DiscoverCard.POSTER -> PosterCard(local)
                     DiscoverCard.CONCERTS -> ConcertsPage(local)
+                    DiscoverCard.SETLISTS -> SetlistsPage(local, onNewSync)
                 }
             }
         }

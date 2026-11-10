@@ -96,7 +96,7 @@ class Config(
 
     /** Keys given to the container instead of being typed in the page (same names as the app's build). */
     val buildDefaults: Map<String, String> = buildMap {
-        for (k in listOf("SPOTIFY_CLIENT_ID", "TIDAL_CLIENT_ID", "DEEZER_APP_ID", "GOOGLE_CLIENT_ID", "LASTFM_API_KEY", "LASTFM_SHARED_SECRET", "TICKETMASTER_API_KEY")) {
+        for (k in listOf("SPOTIFY_CLIENT_ID", "TIDAL_CLIENT_ID", "DEEZER_APP_ID", "GOOGLE_CLIENT_ID", "LASTFM_API_KEY", "LASTFM_SHARED_SECRET", "TICKETMASTER_API_KEY", "SETLISTFM_API_KEY")) {
             env[k]?.takeIf { it.isNotBlank() }?.let { put(k, it.trim()) }
         }
         put("DEEZER_REDIRECT_URL", env["DEEZER_REDIRECT_URL"]?.takeIf { it.isNotBlank() } ?: "$baseUrl/callback")
