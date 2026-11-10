@@ -1,0 +1,27 @@
+Trackhop 1.16 is out: files your way, and a lot more control.
+
+The headline: Trackhop now reads artist and album from file names, from folders, or from patterns you write yourself. In the Android app, on Desktop and in Docker.
+
+Android app 1.16.0
+• New card styles, and a bubble when you tap the status dot
+• A warning when many syncs hit one service at once, with a one-tap spread
+• Qobuz: refused reads are tried again
+• "Pt. 4" and "Part IV" now match
+• Last.fm loved tracks as a sync target
+• Anghami: sign in with Google
+• YouTube Music brand channels
+• Rate and share Trackhop from inside the app
+• GitHub build: a notification when a new version is out
+
+Desktop (Windows, macOS, Linux) and Docker 1.9.0
+• The web API now does all that the page does
+• A trackhop command for each action, and the same as MCP tools for AI assistants
+• New webhook events: sync.started and sync.failed
+• Files your way, with a Try button and zip download
+• Last.fm loved tracks, and matching fixes
+
+Free, no subscription. Every download is at trackhop.org
+
+Thank you: much of this release started as your ideas and reports. Keep them coming.
+
+#trackhop #playlists #playlisttransfer #musicsync #musicapp #android #androidapp #opensource #selfhosted #docker #homelab #windows #macos #linux #musiclovers #newrelease
