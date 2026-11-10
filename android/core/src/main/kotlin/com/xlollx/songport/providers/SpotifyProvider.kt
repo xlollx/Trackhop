@@ -171,33 +171,48 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
         if (playlistId == MusicProvider.ARTISTS_ID) return followedArtists(ctx)
         if (playlistId == MusicProvider.PODCASTS_ID) return savedShows(ctx)
         val out = ArrayList<Track>()
-        var url: String? = if (playlistId == MusicProvider.LIKED_ID) {
-            "$API/me/tracks?limit=50"
-        } else {
-            // Migrazione Spotify di febbraio/marzo 2026: /tracks e' stato tolto alle app in Development Mode
-            // (risponde 403) e sostituito da /items, con "track" rinominato in "item" nella risposta.
-            "$API/playlists/$playlistId/items?limit=100&fields=" +
-                Http.enc("next,items(item(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name))," +
-                    "track(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name)))")
-        }
+        var url: String? = if (playlistId == MusicProvider.LIKED_ID) "$API/me/tracks?limit=50" else itemsUrl(playlistId, 0)
         while (url != null) {
-            val j = try {
-                api(ctx, "GET", url)
-            } catch (e: ProviderException) {
-                // Which of the two paths an app may read has changed twice: try the other before giving up.
-                if (e.code != 403 || !url.contains("/items?")) throw e
-                api(ctx, "GET", url.replace("/items?", "/tracks?"))
-            }
-            for (item in j["items"].arr) {
-                val t = item["item"].takeUnless { it.isNullish } ?: item["track"]
-                if (t.isNullish || t["is_local"].bool == true) continue
-                if (t["id"].str == null) continue
-                out += toTrack(t).copy(addedAt = Durations.parseInstant(item["added_at"].str))
-            }
+            val j = itemsPage(ctx, url)
+            out += entriesOf(j)
             url = j["next"].str
         }
         return out
     }
+
+    /** One page of a playlist's entries, a hundred from [offset]. */
+    private fun itemsUrl(playlistId: String, offset: Int): String =
+        // Migrazione Spotify di febbraio/marzo 2026: /tracks e' stato tolto alle app in Development Mode
+        // (risponde 403) e sostituito da /items, con "track" rinominato in "item" nella risposta.
+        "$API/playlists/$playlistId/items?limit=100" + (if (offset > 0) "&offset=$offset" else "") + "&fields=" +
+            Http.enc("next,total,items(item(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name))," +
+                "track(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name)))")
+
+    private suspend fun itemsPage(ctx: Env, url: String): JsonElement = try {
+        api(ctx, "GET", url)
+    } catch (e: ProviderException) {
+        // Which of the two paths an app may read has changed twice: try the other before giving up.
+        if (e.code != 403 || !url.contains("/items?")) throw e
+        api(ctx, "GET", url.replace("/items?", "/tracks?"))
+    }
+
+    private fun entriesOf(j: JsonElement): List<Track> = j["items"].arr.mapNotNull { item ->
+        val t = item["item"].takeUnless { it.isNullish } ?: item["track"]
+        if (t.isNullish || t["is_local"].bool == true || t["id"].str == null) null
+        else toTrack(t).copy(addedAt = Durations.parseInstant(item["added_at"].str))
+    }
+
+    /** A playlist's entries by offset, the last pages first: the tracks a sync just added are there. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesByOffset(tracks, 100, seen) { offset ->
+            val j = itemsPage(ctx, itemsUrl(playlistId, offset))
+            entriesOf(j) to (j["total"].int ?: 0)
+        }
+    }
+
+    /** Removal goes by uri: an entry read a while ago names the track, whichever copy. */
+    override val keepsEntryIds: Boolean get() = true
 
     override val detectsUnplayable: Boolean get() = true
 

@@ -188,6 +188,9 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         }
     }
 
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
+
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
         io(ctx) { c ->

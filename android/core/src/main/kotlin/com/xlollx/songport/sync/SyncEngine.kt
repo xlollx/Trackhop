@@ -183,6 +183,8 @@ class SyncEngine(
             // The target's version after our own writes: the next scheduled run compares against it.
             val latest = store.job(job.id) ?: job
             val targetVersion = latest.target.playlistId?.let { id -> runCatching { dst0.playlistVersion(env, id) }.getOrNull() }
+            // What the review checks the entries this run read against: anything written since, by anyone, changes it.
+            latest.target.playlistId?.let { TargetEntries.setVersion(entriesKey(dst0, it), targetVersion) }
             if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion) store.upsertJob(latest.copy(sourceVersion = sourceVersion, targetVersion = targetVersion))
         }
         return report
@@ -385,6 +387,7 @@ class SyncEngine(
         // A playlist created a moment ago is empty: skip the fetch (saves quota, and YouTube's Data API
         // may not even know the playlist yet).
         val dstTracks = if (targetCreated) emptyList() else readTarget(job, dst, targetId, onProgress, unattended, interactive, notes)
+        if (!targetCreated) keepEntries(dst, targetId, dstTracks)
         val targetReadAt = if (targetCreated) 0L else System.currentTimeMillis()
         val shrunkFrom = if (interactive && !targetCreated) shrunkFrom(job, targetId, dstTracks.size) else 0
         val dstById = dstTracks.associateBy { it.id }
@@ -937,6 +940,8 @@ class SyncEngine(
         try {
             onProgress(Progress(Progress.Step.FETCH_TARGET))
             val current = dst.tracks(env, targetId)
+            // Read after this run's additions: the review finds the tracks it added here.
+            keepEntries(dst, targetId, current)
             if (current.size > MAX_REORDER) { notes += str("note_order_failed", "${current.size} > $MAX_REORDER"); return }
             val byId = current.groupBy { it.id }
             val seen = HashSet<String>()
@@ -1114,6 +1119,7 @@ class SyncEngine(
                 runCatching { patient(onProgress) { dst.tracks(env, targetId) } }
                     .onFailure { if (it is kotlinx.coroutines.CancellationException) throw it; env.log("engine", "${job.name}: target not read again before adding: ${it.message?.take(120)}") }
                     .onSuccess { fresh ->
+                        keepEntries(dst, targetId, fresh)
                         val ids = fresh.mapTo(HashSet()) { it.id }
                         val index = Matcher.TrackIndex(fresh)
                         val (there, missing) = toAdd.partition { it.id in ids || index.best(it) != null }
@@ -1217,6 +1223,7 @@ class SyncEngine(
             gone.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), null, SyncState.Outcome.REMOVED)) }
             removedList = gone
             removed = gone.size
+            TargetEntries.drop(entriesKey(dst, targetId), gone, dst.removesSingleEntry)
             if (gone.isNotEmpty()) env.log("engine", "${job.name}: ${gone.size} ${tracksWord(gone.size)} removed from ${dst.displayName}: ${named(gone)}")
             if (stayed.isNotEmpty()) {
                 // Still listed after a removal the service answered: counted as nothing removed, and left alone for a while.
@@ -1228,6 +1235,7 @@ class SyncEngine(
         if (plan.duplicates.isNotEmpty()) {
             try {
                 dst.removeTracks(env, targetId, plan.duplicates)
+                TargetEntries.drop(entriesKey(dst, targetId), plan.duplicates, dst.removesSingleEntry)
                 notes += str("note_duplicates_repaired", plan.duplicates.size)
                 env.log("engine", "${job.name}: ${plan.duplicates.size} duplicate ${if (plan.duplicates.size == 1) "copy" else "copies"} removed from ${dst.displayName}: ${named(plan.duplicates)}")
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
@@ -1314,14 +1322,7 @@ class SyncEngine(
             val wrong = reviews.map { it.chosen.id }.filter { id ->
                 store.sourcesMatchedTo(src.id, dst.id, id).all { it in leaving }
             }.toHashSet()
-            if (wrong.isNotEmpty()) {
-                // The tracks read from the search carry no playlist item id: take them from the target.
-                val present = dst.tracks(env, targetId).filter { it.id in wrong }
-                if (present.isNotEmpty()) {
-                    dst.removeTracks(env, targetId, present)
-                    removed = present.size
-                }
-            }
+            if (wrong.isNotEmpty()) removed = removeEntries(dst, targetId, reviews.map { it.chosen }.filter { it.id in wrong }.distinctBy { it.id }).size
         }
         ignoreAll(job, src.id, dst.id, leaving)
         if (reportId != null) confirmMatches(reportId, reviews)
@@ -1335,14 +1336,78 @@ class SyncEngine(
     suspend fun replaceMatch(job: SyncJob, reportId: String?, review: MatchReview, chosen: Track) {
         val (src, dst) = providers(job)
         val targetId = job.target.playlistId ?: throw ProviderException("No target playlist")
-        if (dst.canRemoveTracks) {
-            // Il brano errato letto dalla ricerca non ha l'itemId di playlist: lo si ripesca dalla destinazione.
-            val present = dst.tracks(env, targetId).firstOrNull { it.id == review.chosen.id }
-            if (present != null) dst.removeTracks(env, targetId, listOf(present))
-        }
+        if (dst.canRemoveTracks) removeEntries(dst, targetId, listOf(review.chosen))
         dst.addTracks(env, targetId, listOf(chosen))
+        wroteTo(dst, targetId)
         store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, dst.id) to chosen.id))
         if (reportId != null) confirmMatch(reportId, review)
+    }
+
+    private fun entriesKey(dst: MusicProvider, targetId: String) = TargetEntries.key(env.dataDir.path, dst.id, targetId)
+
+    /** A listing of the target just read, kept a few minutes for the review ([TargetEntries]). */
+    private fun keepEntries(dst: MusicProvider, targetId: String, entries: List<Track>) {
+        if (dst.keepsEntryIds && !MusicProvider.isLibrary(targetId)) TargetEntries.put(entriesKey(dst, targetId), entries)
+    }
+
+    /**
+     * Takes [wanted] off the target, one entry each (the first one listed), where the target holds
+     * it; answers the entries removed. A search result has no entry id: the entries the last sync
+     * read come first, while the playlist's version says nothing changed since; the others are
+     * looked for on the service ([MusicProvider.findEntries]). A kept entry the service refuses (gone
+     * meanwhile) means reading the playlist again.
+     */
+    private suspend fun removeEntries(dst: MusicProvider, targetId: String, wanted: List<Track>): List<Track> {
+        val key = entriesKey(dst, targetId)
+        val kept = if (dst.keepsEntryIds) validEntries(dst, targetId, key) else null
+        val fromKept = wanted.mapNotNull { w -> kept?.firstOrNull { it.id == w.id } }
+        val rest = wanted.filter { w -> fromKept.none { it.id == w.id } }
+        val present = fromKept + if (rest.isEmpty()) emptyList() else findEntries(dst, targetId, rest, key)
+        if (present.isEmpty()) return emptyList()
+        if (fromKept.isNotEmpty()) env.log("engine", "${dst.displayName}: ${fromKept.size} of ${wanted.size} entries to remove known from the last read")
+        val removed = try {
+            dst.removeTracks(env, targetId, present)
+            present
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (fromKept.isEmpty()) throw e
+            env.log("engine", "${dst.displayName}: removal with the entries read before refused (${e.message?.take(120)}): reading the playlist again")
+            TargetEntries.forget(key)
+            val again = findEntries(dst, targetId, wanted, key)
+            if (again.isNotEmpty()) dst.removeTracks(env, targetId, again)
+            again
+        }
+        TargetEntries.drop(key, removed, dst.removesSingleEntry)
+        wroteTo(dst, targetId)
+        return removed
+    }
+
+    /** The first entry of each of [tracks] the service lists; what it reads on the way is kept. */
+    private suspend fun findEntries(dst: MusicProvider, targetId: String, tracks: List<Track>, key: String): List<Track> {
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        val keep = dst.keepsEntryIds && !MusicProvider.isLibrary(targetId)
+        return dst.findEntries(env, targetId, tracks) { if (keep) TargetEntries.merge(key, it) }.filter { it.id in ids }.distinctBy { it.id }
+    }
+
+    /** The kept entries, while the playlist's version (where the service has one) is still the one they go with. */
+    private suspend fun validEntries(dst: MusicProvider, targetId: String, key: String): List<Track>? {
+        val (entries, version) = TargetEntries.get(key) ?: return null
+        if (version == null) return entries
+        val now = runCatching { dst.playlistVersion(env, targetId) }.getOrNull()
+        if (now == version) return entries
+        env.log("engine", "${dst.displayName}: the playlist changed since it was read, reading it again")
+        TargetEntries.forget(key)
+        return null
+    }
+
+    /** After the review wrote to the target: the kept entries go with its new version. */
+    private suspend fun wroteTo(dst: MusicProvider, targetId: String) {
+        val key = entriesKey(dst, targetId)
+        val (_, version) = TargetEntries.get(key) ?: return
+        if (version == null) return
+        val now = runCatching { dst.playlistVersion(env, targetId) }.getOrNull()
+        if (now == null) TargetEntries.forget(key) else TargetEntries.setVersion(key, now)
     }
 
     /** In anteprima non e' stato ancora scritto nulla: basta correggere la cache. */

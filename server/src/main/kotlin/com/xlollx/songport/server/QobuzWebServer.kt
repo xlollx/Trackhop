@@ -106,6 +106,9 @@ class QobuzWebServerProvider(override val slot: String = "") : CookieConnector {
         io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(tracks.map { it.id }, on = true) else c.add(playlistId, tracks.map { it.id }) }
     }
 
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
+
     /** By entry where the listing gave one (Qobuz removes a playlist's entries, not tracks). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return

@@ -235,6 +235,26 @@ interface MusicProvider {
     val removesSingleEntry: Boolean get() = false
 
     /**
+     * The entries of [playlistId] that hold [tracks] (by id), as [tracks] lists them: with the entry
+     * id a removal needs, which a search result lacks. Every entry read on the way also goes to
+     * [seen], for the caller to remember. Default: the whole playlist. A service that reads in pages
+     * stops as soon as each of [tracks] has turned up, so further copies may be left out.
+     */
+    suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit = {}): List<Track> {
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        return tracks(ctx, playlistId).also(seen).filter { it.id in ids }
+    }
+
+    /**
+     * True where an entry read a few minutes ago still names that same entry or one that is gone,
+     * never another: removal by a lasting entry id (YouTube, TIDAL, Qobuz) or by the track itself
+     * (Spotify, Deezer). The review screen may then remove with the entries the last sync read,
+     * without reading the playlist again. False where an entry is a position, which moves when the
+     * playlist changes (Subsonic, Lyrion).
+     */
+    val keepsEntryIds: Boolean get() = false
+
+    /**
      * [removeTracks], answering which of [tracks] (by id) the playlist still lists after the
      * removal the service said it made. Amazon Music answers a removal by cursor with the playlist's
      * id whether or not the entry went: the sync then counts such a track as not removed and leaves
@@ -320,6 +340,51 @@ interface MusicProvider {
     companion object {
         /** True inside [OrderedAdds]. */
         suspend fun addsInOrder(): Boolean = kotlin.coroutines.coroutineContext[OrderedAdds.Key] != null
+
+        /**
+         * [findEntries] for a playlist read by offset, [size] entries a page ([page] answers one page
+         * and the playlist's total): the first page, then from the last page back, where a sync adds
+         * its tracks. Stops as soon as each of [tracks] has turned up.
+         */
+        suspend fun entriesByOffset(
+            tracks: List<Track>, size: Int, seen: (List<Track>) -> Unit,
+            page: suspend (offset: Int) -> Pair<List<Track>, Int>,
+        ): List<Track> {
+            val ids = tracks.mapTo(HashSet()) { it.id }
+            val missing = HashSet(ids)
+            val out = ArrayList<Track>()
+            suspend fun read(offset: Int): Int {
+                val (entries, total) = page(offset)
+                seen(entries)
+                entries.filter { it.id in ids }.forEach { out += it; missing -= it.id }
+                return total
+            }
+            val total = read(0)
+            var offset = (total - 1) / size * size
+            while (missing.isNotEmpty() && offset >= size) {
+                read(offset)
+                offset -= size
+            }
+            return out
+        }
+
+        /** [findEntries] for a playlist read page after page: [next] answers a page (null: the first) and the next one's key, null at the end. */
+        suspend fun entriesInPages(
+            tracks: List<Track>, seen: (List<Track>) -> Unit,
+            next: suspend (key: String?) -> Pair<List<Track>, String?>,
+        ): List<Track> {
+            val ids = tracks.mapTo(HashSet()) { it.id }
+            val missing = HashSet(ids)
+            val out = ArrayList<Track>()
+            var key: String? = null
+            do {
+                val (entries, following) = next(key)
+                seen(entries)
+                entries.filter { it.id in ids }.forEach { out += it; missing -= it.id }
+                key = following
+            } while (key != null && missing.isNotEmpty())
+            return out
+        }
 
         const val LIKED_ID = "__liked__"
         const val ALBUMS_ID = "__albums__"

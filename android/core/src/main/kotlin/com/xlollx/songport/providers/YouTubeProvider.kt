@@ -141,18 +141,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         val raws = ArrayList<Raw>()
         var page: String? = null
         do {
-            val j = try {
-                counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=$playlistId" +
-                    (page?.let { "&pageToken=$it" } ?: "")) }
-            } catch (e: ProviderException) {
-                // The Data API answers 404 "playlist cannot be found" for a playlist that exists but is
-                // empty (typically one just created). Check the playlist itself before giving up.
-                if (page == null && e.message?.contains("cannot be found") == true && isEmptyPlaylist(ctx, playlistId)) {
-                    ctx.log(id, "playlist $playlistId is empty; YouTube reports it as not found")
-                    return emptyList()
-                }
-                throw e
-            }
+            val j = itemsPage(ctx, playlistId, page) ?: return emptyList()
             for (item in j["items"].arr) {
                 val vid = item["contentDetails"]["videoId"].str ?: continue
                 val title = item["snippet"]["title"].str ?: continue
@@ -176,6 +165,39 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             Track(id = r.videoId, title = title, artists = artists, durationMs = durations[r.videoId] ?: 0, itemId = r.itemId)
         }
     }
+
+    /** One page of a playlist's entries (fifty); null for an empty playlist. */
+    private suspend fun itemsPage(ctx: Env, playlistId: String, page: String?): JsonElement? = try {
+        counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=$playlistId" +
+            (page?.let { "&pageToken=$it" } ?: "")) }
+    } catch (e: ProviderException) {
+        // The Data API answers 404 "playlist cannot be found" for a playlist that exists but is
+        // empty (typically one just created). Check the playlist itself before giving up.
+        if (page == null && e.message?.contains("cannot be found") == true && isEmptyPlaylist(ctx, playlistId)) {
+            ctx.log(id, "playlist $playlistId is empty; YouTube reports it as not found")
+            null
+        } else throw e
+    }
+
+    /**
+     * Page after page, stopping at the last wanted track; the entries without the durations
+     * (a removal needs only the entry id), so no quota spent on them.
+     */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (playlistId == MusicProvider.LIKED_ID) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesInPages(tracks, seen) { page ->
+            val j = itemsPage(ctx, playlistId, page) ?: return@entriesInPages emptyList<Track>() to null
+            j["items"].arr.mapNotNull { item ->
+                val vid = item["contentDetails"]["videoId"].str ?: return@mapNotNull null
+                val title = item["snippet"]["title"].str ?: return@mapNotNull null
+                if (title == "Private video" || title == "Deleted video") return@mapNotNull null
+                val (name, artists) = TitleParser.parseYouTube(title, item["snippet"]["videoOwnerChannelTitle"].str)
+                Track(id = vid, title = name, artists = artists, itemId = item["id"].str ?: return@mapNotNull null)
+            } to j["nextPageToken"].str
+        }
+    }
+
+    override val keepsEntryIds: Boolean get() = true
 
     override val detectsUnplayable: Boolean get() = true
 

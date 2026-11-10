@@ -212,6 +212,22 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         return order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
     }
 
+    /**
+     * Page after page, only the entries (track id and item id, all a removal needs): no names asked
+     * for, and no page read past the last wanted track.
+     */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (playlistId == MusicProvider.ALBUMS_ID || playlistId == MusicProvider.ARTISTS_ID) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesInPages(tracks, seen) { url ->
+            val j = api(ctx, "GET", url ?: "$API/playlists/$playlistId/relationships/items?countryCode=${cc(ctx)}&include=items")
+            j["data"].arr.mapNotNull { d ->
+                if (d["type"].str != "tracks") null else Track(id = d["id"].str ?: return@mapNotNull null, title = "", itemId = d["meta"]["itemId"].str)
+            } to nextUrl(j)
+        }
+    }
+
+    override val keepsEntryIds: Boolean get() = true
+
     override suspend fun track(ctx: Env, trackId: String): Track? {
         val j = api(ctx, "GET", "$API/tracks/$trackId?countryCode=${cc(ctx)}&include=artists")
         return resolve(ctx, listOfNotNull(j["data"].takeIf { it["id"].str != null })).firstOrNull()

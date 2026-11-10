@@ -110,6 +110,9 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) = write(ctx, "qobuz.add", playlistId, tracks)
 
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
+
     /** By entry where the listing gave one (Qobuz removes a playlist's entries, not tracks). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) = write(ctx, "qobuz.remove", playlistId, tracks)
 
