@@ -85,6 +85,7 @@ version running, and the app version whose engine it uses.
 | `SONGPORT_PORT` | `8080` | Port inside the container. |
 | `SONGPORT_DATA` | `/data` | Where everything is kept (the volume). |
 | `SPOTIFY_CLIENT_ID`, `TIDAL_CLIENT_ID`, `DEEZER_APP_ID`, `GOOGLE_CLIENT_ID`, `LASTFM_API_KEY` | none | Your keys, if you'd rather pass them here than type them in the page. |
+| `TICKETMASTER_API_KEY` | none | A Ticketmaster Consumer Key (never its secret) for Tools › Concerts, for everyone on this server; each person can also save their own in Settings. Without one, MusicBrainz's dates only. |
 | `LASTFM_SHARED_SECRET` | none | The "Shared secret" of your Last.fm API key: needed only to love tracks on Last.fm. |
 | `DEEZER_REDIRECT_URL` | `<SONGPORT_URL>/callback` | Deezer's redirect, which must be `https`. |
 
@@ -647,6 +648,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
 | `POST /api/v1/wanted/got` | Tick entries as got (`{"ids": ["…"]}`; `"got": false` puts them back). |
+| `GET /api/v1/concerts` | Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
 **Playlists**

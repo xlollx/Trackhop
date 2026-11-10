@@ -46,6 +46,12 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   (musicbrainz.org) and ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org), and, for artists
   ListenBrainz has no data on, to Deezer's public catalogue (api.deezer.com): anonymous lookups, no
   account. If you connected ListenBrainz with your token, that token goes along to ListenBrainz.
+- **Concerts (optional)**: when you tap Find concerts (Discover › Concerts), the names of the artists
+  of the playlist you picked and the country you chose are sent to Ticketmaster's Discovery API
+  (app.ticketmaster.com, under Ticketmaster's own privacy policy) and to the public music database
+  MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
+  nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
+  kept on the device. Ticket and search links open in your browser.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -114,6 +120,12 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   MusicBrainz (musicbrainz.org) e ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org) e, per gli
   artisti di cui ListenBrainz non ha dati, al catalogo pubblico di Deezer (api.deezer.com): ricerche
   anonime, senza account. Se hai collegato ListenBrainz con il tuo token, quel token viene inviato a ListenBrainz.
+- **Concerti (facoltativo)**: quando tocchi Cerca concerti (Scopri › Concerti), i nomi degli artisti
+  della playlist scelta e il paese indicato vengono inviati alla Discovery API di Ticketmaster
+  (app.ticketmaster.com, secondo l'informativa di Ticketmaster) e al database musicale pubblico
+  MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background; nessun account, nessuna
+  posizione, nient'altro su di te. Se aggiungi la tua chiave Ticketmaster, viene inviata a Ticketmaster
+  e resta sul dispositivo. I link ai biglietti e alle ricerche si aprono nel browser.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per

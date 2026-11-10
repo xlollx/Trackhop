@@ -56,6 +56,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "duplicates" -> { need(p, 2, "duplicates <service> <playlist> [--remove]"); duplicates(p[0], p[1], o) }
         "mbtags" -> mbTags(p.joinToString(" ").takeIf { it.isNotEmpty() })
         "wanted" -> wanted(o)
+        "concerts" -> { need(p, 2, "concerts <service> <playlist> [--country IT]"); concerts(p[0], p.drop(1).joinToString(" "), o) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"))
@@ -682,6 +683,32 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             tracks.forEach { t -> out.println("  ${ref(t)}${t["album"].str()?.let { "  [$it]" } ?: ""}") }
             out.println("Tags are written by a tagger such as MusicBrainz Picard: ${r.s("guide")}")
         }
+        return 0
+    }
+
+    private fun concerts(serviceAsk: String, playlistAsk: String, o: Cli.Opts): Int {
+        val s = service(serviceAsk)
+        val pl = playlist(s.s("id"), playlistAsk)
+        if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (MusicBrainz asks for one request a second: this can take a minute)...")
+        val r = api.get("concerts?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("country")?.let { "&country=${enc(it)}" } ?: "")).jsonObject
+        if (asJson) return print(r).let { 0 }
+        val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
+        val dated = artists.filter { it["events"]?.jsonArray.orEmpty().isNotEmpty() }
+        if (dated.isEmpty()) out.println("No upcoming dates found in ${r.s("country")}.")
+        dated.forEach { a ->
+            out.println(a.s("artist"))
+            a["events"]!!.jsonArray.map { it.jsonObject }.forEach { e ->
+                val where = listOf(e.s("city"), e.s("venue")).filter { it.isNotEmpty() }.joinToString(", ")
+                out.println("  ${e.s("date")}${e["time"].str()?.let { " $it" } ?: ""}  $where  [${e.s("source")}] ${e.s("url")}")
+            }
+        }
+        val without = artists - dated.toSet()
+        if (without.isNotEmpty()) {
+            out.println("No dates for ${without.size}: ${without.joinToString(", ") { it.s("artist") }}")
+            out.println("  (search links for each with --json)")
+        }
+        r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
+        out.println(r.s("attribution"))
         return 0
     }
 

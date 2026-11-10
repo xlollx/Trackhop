@@ -234,6 +234,10 @@ object Mcp {
                 Param("format", "string", "json (default), csv, m3u, text or lidarr (Lidarr's Custom List: artists with a MusicBrainz id).", required = false),
                 Param("albums", "boolean", "Grouped by album.", required = false),
             ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format"), flags = setOfNotNull("albums".takeIf { a.flag("albums") })) },
+        Tool("find_concerts", "Concerts of a playlist's artists", "The upcoming concerts of the artists of a playlist in one country: date, city, venue and a link, from Ticketmaster and MusicBrainz, plus search links for the artists with no date found. Looked up only now (cached a day); can take a minute. Show the attribution line with the dates.",
+            listOf(SERVICE, PLAYLIST, Param("country", "string", "Two-letter country code, e.g. IT or US (default: the server's).", required = false)), readOnly = true) { a ->
+            Call("concerts", listOf(a.text("service"), a.text("playlist")), values = a.values("country"))
+        },
         Tool("remove_duplicates", "Remove duplicates", "Removes a playlist's extra copies (the first of each stays). Ask the user first.",
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))

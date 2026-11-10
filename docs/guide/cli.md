@@ -113,6 +113,7 @@ the command lists them and asks you to say which.
 | `trackhop duplicates <service> <playlist>` | The tracks a playlist has more than once; `--remove` takes the extra copies out (`--wait` to wait for the end). |
 | `trackhop mbtags [<service>]` | The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (with them a sync finds the exact recording). Nothing is changed; `<service>` can be left out when only one such server is connected. |
 | `trackhop wanted [--format json\|csv\|m3u\|text\|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]` | The tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once, with the syncs that miss them. `--format` prints it as a file (`> list.csv`), `lidarr` as Lidarr's Custom List; `--albums` groups by album, `--all` shows the ticked ones too; `--sync`, `--service` and `--since` (`24h`, `7d`, `2026-11-01`) narrow it. |
+| `trackhop concerts <service> <playlist> [--country IT]` | The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
 | `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf` or `txt` (or from the file's extension); to the screen without `<file>`. |
 
 A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
@@ -221,6 +222,7 @@ tools allow:
 | `create_playlist`, `add_tracks` | A new playlist; tracks found and added ("Artist - Title", a link, an id) |
 | `find_duplicates`, `find_untagged_songs`, `export_playlist` | A playlist's duplicates; the songs on your own server without MusicBrainz tags; a playlist as a file's text |
 | `list_missing_on_server` | The tracks of your playlists missing on your own server, each once ("what should I buy for my Navidrome?"); also as CSV, M3U, text or a Lidarr list |
+| `find_concerts` | The upcoming concerts of a playlist's artists in a country, with ticket links ("is anyone from my road-trip playlist playing in Italy?") |
 | `list_files`, `get_file_patterns`, `set_file_patterns`, `try_file_patterns` | The File playlists, and how names in imported files are read |
 | `get_settings`, `change_setting` | The settings |
 | `list_notification_channels`, `test_notification` | The notification channels, and a test message |
