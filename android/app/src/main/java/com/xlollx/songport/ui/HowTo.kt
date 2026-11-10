@@ -73,7 +73,8 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
             FIRST_SYNC -> listOf(R.string.howto_first_sync_body)
             MODES -> listOf(R.string.howto_modes_body)
             // The battery note is the long text Settings already has for its row.
-            SCHEDULES -> listOf(R.string.howto_schedules_body, R.string.settings_battery_desc, R.string.howto_schedules_body2)
+            // Coordinate with my server: the same syncs on this phone and on a Trackhop server.
+            SCHEDULES -> listOf(R.string.howto_schedules_body, R.string.settings_battery_desc, R.string.howto_schedules_body2, R.string.server_locks_title, R.string.help_server_locks_body)
             PREVIEW -> listOf(R.string.howto_preview_body)
             REVIEW -> listOf(R.string.howto_review_body)
             BACKUPS -> listOf(R.string.howto_backups_body)
@@ -87,12 +88,15 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
         }
 }
 
+/** Parts that are a heading of their own: a setting's name, the same words as on its row. */
+private val HEADINGS = setOf(R.string.server_locks_title)
+
 /** One article's body: headings, paragraphs and bullets, as the markup of its parts says. */
 @Composable
 fun HowToArticle(article: HowTo, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         article.parts.forEach { res ->
-            stringResource(res).lines().map { it.trim() }.filter { it.isNotEmpty() }.forEach { line ->
+            stringResource(res).let { if (res in HEADINGS) "# $it" else it }.lines().map { it.trim() }.filter { it.isNotEmpty() }.forEach { line ->
                 when {
                     line.startsWith("# ") -> Text(
                         line.removePrefix("# "), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary,

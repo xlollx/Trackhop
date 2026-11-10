@@ -1916,4 +1916,16 @@
     <string name="job_scheduled_on">По расписанию на: %1$s</string>
     <string name="backup_device_other">другом устройстве</string>
     <string name="note_duplicates_repaired">Дубликаты удалены из цели: %1$d. Каждый из этих треков был там дважды, а в источнике он один.</string>
+    <string name="note_running_elsewhere">Выполняется на %1$s: пропущено</string>
+    <string name="server_locks_title">Согласовывать с моим сервером</string>
+    <string name="server_locks_desc">Этот телефон и ваш сервер Trackhop пишут в каждый плейлист по очереди, чтобы треки не добавлялись дважды</string>
+    <string name="server_locks_address">Адрес сервера</string>
+    <string name="server_locks_token">Токен API</string>
+    <string name="server_locks_token_hint">Создайте его на странице сервера, в Tools › API</string>
+    <string name="server_locks_ok">Подключено. Синхронизации будут чередоваться с сервером.</string>
+    <string name="server_locks_old">Этот сервер пока так не умеет: обновите его.</string>
+    <string name="server_locks_unreachable">Сервер не отвечает. Проверьте адрес и что телефон может до него достучаться.</string>
+    <string name="server_locks_token_wrong">Сервер не принял токен. Создайте новый в Tools › API.</string>
+    <string name="server_locks_refused">Ответ сервера: %1$s</string>
+    <string name="help_server_locks_body">Для синхронизаций, которые работают и на этом телефоне, и на вашем сервере Trackhop (Docker). Перед записью в плейлист каждый резервирует его на сервере и держит, пока работает. Если другой уже пишет туда, этот запуск пропускается с пометкой \"Выполняется на …: пропущено\", а следующий запуск по расписанию попробует снова. Если сервер недоступен, синхронизации идут как обычно, а журнал это отмечает.</string>
 </resources>

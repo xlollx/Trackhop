@@ -217,4 +217,5 @@ object Helps {
     val backups = HelpTopic(R.string.backup_folder_title, R.string.help_backup_body, example = R.string.help_backup_example, more = HowTo.BACKUPS)
     val plugins = HelpTopic(R.string.plugins_title, R.string.help_plugins_body, more = HowTo.PLUGINS)
     val ai = HelpTopic(R.string.ai_setup_title, R.string.help_ai_body)
+    val serverLocks = HelpTopic(R.string.server_locks_title, R.string.help_server_locks_body, more = HowTo.SCHEDULES)
 }

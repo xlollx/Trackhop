@@ -130,20 +130,50 @@ class SyncEngine(
         if (partner != null && !(job.twoWayRemovals && partner.twoWayRemovals)) store.dropPairState(job)
         val pairLock = if (partner != null && job.twoWayRemovals) pairLocks.getOrPut(FileStore.pairKey(job.id, partner.id)) { kotlinx.coroutines.sync.Mutex() } else null
         if (pairLock?.isLocked == true) env.log("engine", "${job.name}: waiting for the other half of its two-way pair")
-        return if (pairLock != null) pairLock.withLock { runLocked(job, unattended, onProgress, started, reportId, sourceVersion, dst0) }
-        else runLocked(job, unattended, onProgress, started, reportId, sourceVersion, dst0)
+        return if (pairLock != null) pairLock.withLock { runLocked(job, partner, unattended, onProgress, started, reportId, sourceVersion, dst0) }
+        else runLocked(job, partner, unattended, onProgress, started, reportId, sourceVersion, dst0)
+    }
+
+    /** A run that did not write because another device ([holder]) was writing there: a note, no error; the next run tries again. */
+    private fun skippedFor(job: SyncJob, holder: String, started: Long, reportId: String): SyncReport {
+        env.log("engine", "${job.name}: running on $holder, skipped")
+        return SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started, notes = listOf(str("note_running_elsewhere", holder)))
+            .also { store.addReport(it) }
     }
 
     private suspend fun runLocked(
-        job: SyncJob, unattended: Boolean, onProgress: (Progress) -> Unit,
+        job: SyncJob, partner: SyncJob?, unattended: Boolean, onProgress: (Progress) -> Unit,
         started: Long, reportId: String, sourceVersion: String?, dst0: MusicProvider?,
     ): SyncReport {
         // Two syncs writing to the same playlist run one after the other: at once they could both add
-        // what is missing, twice. The second waits for the first.
-        val lock = JobConflicts.targetKey(job)?.let { targetLocks.getOrPut(it) { kotlinx.coroutines.sync.Mutex() } }
-        if (lock?.isLocked == true) env.log("engine", "${job.name}: waiting for another sync writing to the same playlist")
-        lock?.lock()
+        // what is missing, twice. The second waits for the first. A half of a two-way pair holds the
+        // other half's target too, which it reads. Another device writing there (a reservation on this
+        // server, or on the server this app coordinates with): this run is skipped, without an error.
+        val keys = TargetLocks.keys(job, partner)
+        if (TargetLocks.busyHere(keys)) env.log("engine", "${job.name}: waiting for another sync writing to the same playlist")
+        TargetLocks.lockRun(keys)?.let { return skippedFor(job, it.holder, started, reportId) }
         val report = try {
+            val coordinator = env.targetCoordinator
+            if (coordinator == null) runChecked(job, unattended, onProgress, started, reportId)
+            else coordinator.holding(keys) { runChecked(job, unattended, onProgress, started, reportId) }
+        } catch (e: TargetBusyException) {
+            return skippedFor(job, e.holder, started, reportId)
+        } finally {
+            TargetLocks.unlockRun(keys)
+        }
+        store.addReport(report)
+        if (report.error == null && dst0 != null) {
+            // The target's version after our own writes: the next scheduled run compares against it.
+            val latest = store.job(job.id) ?: job
+            val targetVersion = latest.target.playlistId?.let { id -> runCatching { dst0.playlistVersion(env, id) }.getOrNull() }
+            if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion) store.upsertJob(latest.copy(sourceVersion = sourceVersion, targetVersion = targetVersion))
+        }
+        return report
+    }
+
+    /** The run itself, with its failure as the report's error. */
+    private suspend fun runChecked(job: SyncJob, unattended: Boolean, onProgress: (Progress) -> Unit, started: Long, reportId: String): SyncReport =
+        try {
             // A playlist Spotify makes (daylist, Discover Weekly…) is only ever read: a sync writing to
             // it (one made before the editor knew, or the way back of a two-way) stops here, clearly.
             if (job.target.provider in SPOTIFY_IDS && com.xlollx.songport.providers.SpotifyMade.isSpotifyMade(job.target.playlistId)) {
@@ -175,18 +205,7 @@ class SyncEngine(
             env.log("engine", "${job.name}: ${describe(e)}")
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
                 error = e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0)
-        } finally {
-            lock?.unlock()
         }
-        store.addReport(report)
-        if (report.error == null && dst0 != null) {
-            // The target's version after our own writes: the next scheduled run compares against it.
-            val latest = store.job(job.id) ?: job
-            val targetVersion = latest.target.playlistId?.let { id -> runCatching { dst0.playlistVersion(env, id) }.getOrNull() }
-            if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion) store.upsertJob(latest.copy(sourceVersion = sourceVersion, targetVersion = targetVersion))
-        }
-        return report
-    }
 
     /**
      * The playlist is still in the user's library. Library slots (liked, albums…) and files always
@@ -751,8 +770,6 @@ class SyncEngine(
     private companion object {
         val SPOTIFY_IDS = setOf("spotify", "spotify_bridge")
         val searchSlots = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Semaphore>()
-        /** One run at a time per target playlist ("service|playlist"), across the syncs of this process. */
-        val targetLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
         /** One half at a time per two-way pair with removals ([FileStore.pairKey]). */
         val pairLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     }

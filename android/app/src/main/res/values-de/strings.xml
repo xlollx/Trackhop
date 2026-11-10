@@ -1856,4 +1856,16 @@
     <string name="job_scheduled_on">Geplant auf %1$s</string>
     <string name="backup_device_other">dem anderen Gerät</string>
     <string name="note_duplicates_repaired">Duplikate aus dem Ziel entfernt: %1$d. Jeder dieser Titel war dort doppelt und ist in der Quelle einmal.</string>
+    <string name="note_running_elsewhere">Läuft auf %1$s: übersprungen</string>
+    <string name="server_locks_title">Mit meinem Server abstimmen</string>
+    <string name="server_locks_desc">Dieses Handy und dein Trackhop-Server wechseln sich bei jeder Playlist ab, damit keine Songs doppelt hinzugefügt werden</string>
+    <string name="server_locks_address">Serveradresse</string>
+    <string name="server_locks_token">API-Token</string>
+    <string name="server_locks_token_hint">Erstelle eines auf der Seite des Servers, unter Tools › API</string>
+    <string name="server_locks_ok">Verbunden. Syncs wechseln sich jetzt mit dem Server ab.</string>
+    <string name="server_locks_old">Dieser Server kann das noch nicht: aktualisiere ihn.</string>
+    <string name="server_locks_unreachable">Keine Antwort vom Server. Prüfe die Adresse und ob dieses Handy ihn erreichen kann.</string>
+    <string name="server_locks_token_wrong">Der Server hat das Token nicht akzeptiert. Erstelle ein neues unter Tools › API.</string>
+    <string name="server_locks_refused">Der Server sagt: %1$s</string>
+    <string name="help_server_locks_body">Für Syncs, die sowohl auf diesem Handy als auch auf deinem Trackhop-Server (Docker) laufen. Bevor einer in eine Playlist schreibt, reserviert er sie auf dem Server und behält sie, solange er arbeitet. Schreibt gerade der andere dort, wird dieser Lauf mit dem Hinweis \"Läuft auf …: übersprungen\" übersprungen, und der nächste geplante Lauf versucht es erneut. Ist der Server nicht erreichbar, laufen die Syncs wie gewohnt und das Protokoll vermerkt es.</string>
 </resources>

@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DeveloperMode
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.EditNotifications
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Extension
@@ -373,6 +374,16 @@ fun SettingsScreen(
                 if (ai != null) "${ai.vendor.label} · ${ai.model}" else stringResource(R.string.not_configured) + " · " + stringResource(R.string.settings_ai_desc),
                 trailing = { HelpButton(Helps.ai) },
             ) { aiOpen = true }
+
+            // Coordinate with my server: this phone and the user's Trackhop server take turns on a playlist.
+            var serverLocks by remember { mutableStateOf(com.xlollx.songport.sync.ServerLocks.config(com.xlollx.songport.platform.AndroidEnv.of(ctx))) }
+            var serverLocksOpen by rememberSaveable { mutableStateOf(false) }
+            if (serverLocksOpen) ServerLocksDialog(serverLocks, onDismiss = { serverLocksOpen = false }) { serverLocks = it; serverLocksOpen = false }
+            PrefRow(
+                Icons.Filled.Dns, stringResource(R.string.server_locks_title),
+                serverLocks?.address?.removePrefix("http://")?.removePrefix("https://") ?: stringResource(R.string.server_locks_desc),
+                trailing = { HelpButton(Helps.serverLocks) },
+            ) { serverLocksOpen = true }
 
             var keysOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.VpnKey, stringResource(R.string.settings_advanced), stringResource(R.string.settings_keys_summary), trailing = { ExpandMark(keysOpen) }) { keysOpen = !keysOpen }

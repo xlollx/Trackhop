@@ -1826,4 +1826,16 @@
     <string name="job_scheduled_on">%1$s でスケジュール中</string>
     <string name="backup_device_other">もう一方の端末</string>
     <string name="note_duplicates_repaired">同期先から重複を削除しました：%1$d 件。どの曲も同期先に 2 回あり、移動元には 1 回だけです。</string>
+    <string name="note_running_elsewhere">%1$s で実行中のためスキップしました</string>
+    <string name="server_locks_title">自分のサーバーと調整</string>
+    <string name="server_locks_desc">このスマホと Trackhop サーバーがプレイリストごとに順番に書き込むので、曲が二重に追加されません</string>
+    <string name="server_locks_address">サーバーのアドレス</string>
+    <string name="server_locks_token">API トークン</string>
+    <string name="server_locks_token_hint">サーバーのページの Tools › API で作成できます</string>
+    <string name="server_locks_ok">接続しました。同期はサーバーと順番に行われます。</string>
+    <string name="server_locks_old">このサーバーはまだ対応していません。更新してください。</string>
+    <string name="server_locks_unreachable">サーバーから応答がありません。アドレスと、このスマホから接続できるかを確認してください。</string>
+    <string name="server_locks_token_wrong">サーバーがトークンを受け付けませんでした。Tools › API で新しいトークンを作成してください。</string>
+    <string name="server_locks_refused">サーバーからの応答：%1$s</string>
+    <string name="help_server_locks_body">このスマホと Trackhop サーバー（Docker）の両方で動く同期のための設定です。プレイリストに書き込む前に、それぞれがサーバーでそのプレイリストを予約し、作業中は保持します。もう一方が書き込み中なら、この実行は「… で実行中のためスキップしました」というメモ付きでスキップされ、次の予定の実行で再試行します。サーバーに接続できないときは、同期はいつもどおり実行され、ログに記録されます。</string>
 </resources>

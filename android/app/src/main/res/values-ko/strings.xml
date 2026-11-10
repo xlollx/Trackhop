@@ -1825,4 +1825,16 @@
     <string name="job_scheduled_on">%1$s에서 예약됨</string>
     <string name="backup_device_other">다른 기기</string>
     <string name="note_duplicates_repaired">대상에서 중복을 삭제했어요: %1$d개. 이 곡들은 대상에 두 번 있었고 원본에는 한 번만 있어요.</string>
+    <string name="note_running_elsewhere">%1$s에서 실행 중이라 건너뛰었어요</string>
+    <string name="server_locks_title">내 서버와 조율하기</string>
+    <string name="server_locks_desc">이 폰과 Trackhop 서버가 플레이리스트마다 번갈아 쓰기 때문에 곡이 두 번 추가되지 않아요</string>
+    <string name="server_locks_address">서버 주소</string>
+    <string name="server_locks_token">API 토큰</string>
+    <string name="server_locks_token_hint">서버 페이지의 Tools › API에서 만들 수 있어요</string>
+    <string name="server_locks_ok">연결됐어요. 동기화가 서버와 번갈아 실행돼요.</string>
+    <string name="server_locks_old">이 서버는 아직 이 기능을 몰라요. 서버를 업데이트하세요.</string>
+    <string name="server_locks_unreachable">서버가 응답하지 않아요. 주소와 이 폰에서 서버에 연결할 수 있는지 확인하세요.</string>
+    <string name="server_locks_token_wrong">서버가 토큰을 받아들이지 않았어요. Tools › API에서 새로 만드세요.</string>
+    <string name="server_locks_refused">서버 응답: %1$s</string>
+    <string name="help_server_locks_body">이 폰과 Trackhop 서버(Docker) 양쪽에서 실행되는 동기화를 위한 설정이에요. 플레이리스트에 쓰기 전에 각자 서버에서 그 플레이리스트를 예약하고 작업하는 동안 유지해요. 다른 쪽이 이미 쓰고 있으면 이번 실행은 \"…에서 실행 중이라 건너뛰었어요\"라는 메모와 함께 건너뛰고, 다음 예약 실행에서 다시 시도해요. 서버에 연결할 수 없으면 동기화는 평소처럼 실행되고 로그에 기록돼요.</string>
 </resources>

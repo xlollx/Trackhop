@@ -1854,4 +1854,16 @@
     <string name="job_scheduled_on">Zamanlandığı cihaz: %1$s</string>
     <string name="backup_device_other">diğer cihaz</string>
     <string name="note_duplicates_repaired">Hedeften kaldırılan yinelenenler: %1$d. Bu parçaların her biri orada iki kez vardı, kaynakta ise bir kez var.</string>
+    <string name="note_running_elsewhere">%1$s üzerinde çalışıyor: atlandı</string>
+    <string name="server_locks_title">Sunucumla eşgüdüm sağla</string>
+    <string name="server_locks_desc">Bu telefon ve Trackhop sunucun her çalma listesine sırayla yazar, böylece şarkılar iki kez eklenmez</string>
+    <string name="server_locks_address">Sunucu adresi</string>
+    <string name="server_locks_token">API anahtarı</string>
+    <string name="server_locks_token_hint">Sunucunun sayfasında, Tools › API bölümünde oluştur</string>
+    <string name="server_locks_ok">Bağlandı. Senkronizasyonlar sunucuyla sırayla çalışacak.</string>
+    <string name="server_locks_old">Bu sunucu bunu henüz bilmiyor: güncelle.</string>
+    <string name="server_locks_unreachable">Sunucu yanıt vermiyor. Adresi ve bu telefonun sunucuya ulaşabildiğini kontrol et.</string>
+    <string name="server_locks_token_wrong">Sunucu anahtarı kabul etmedi. Tools › API bölümünde yenisini oluştur.</string>
+    <string name="server_locks_refused">Sunucunun yanıtı: %1$s</string>
+    <string name="help_server_locks_body">Hem bu telefonda hem de Trackhop sunucunda (Docker) çalışan senkronizasyonlar için. Bir çalma listesine yazmadan önce her biri listeyi sunucuda ayırır ve işi bitene kadar tutar. Diğeri zaten oraya yazıyorsa bu çalıştırma \"… üzerinde çalışıyor: atlandı\" notuyla atlanır ve bir sonraki zamanlanmış çalıştırma yeniden dener. Sunucuya ulaşılamazsa senkronizasyonlar her zamanki gibi çalışır ve günlük bunu kaydeder.</string>
 </resources>

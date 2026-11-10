@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.auth.AppleAuthActivity
 import com.xlollx.songport.auth.AuthFlow
@@ -40,6 +41,11 @@ class AndroidEnv private constructor(val context: Context) : Env {
     }
 
     override fun log(tag: String, message: String) = Diagnostics.log(context, tag, message)
+
+    /** Settings › Advanced › Coordinate with my server: this phone takes turns with the user's Trackhop server, as its model's name. */
+    override val targetCoordinator: com.xlollx.songport.sync.TargetCoordinator?
+        // A token store that cannot be read is no reason to stop a sync: it runs as without the option.
+        get() = runCatching { com.xlollx.songport.sync.ServerLocks.of(this, Build.MODEL.orEmpty()) }.getOrNull()
 
     override fun startAuth(provider: MusicProvider, mode: AuthMode) {
         when (mode) {

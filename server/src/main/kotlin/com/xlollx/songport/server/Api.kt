@@ -7,6 +7,7 @@ import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.Labels
 import com.xlollx.songport.sync.SyncState
+import com.xlollx.songport.sync.TargetLocks
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -295,6 +296,32 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             put("running", buildJsonArray { running.keys.forEach { add(it) } })
             put("lastRun", jobs.maxOfOrNull { it.lastRunEpoch } ?: 0)
         })
+        // A playlist reserved by another device (a phone set to coordinate with this server) before it
+        // writes there, for a while it renews as it runs: this server's syncs skip it meanwhile, and a
+        // reservation is refused while one of them writes there (TargetLocks).
+        rest == listOf("locks") && method == "POST" -> {
+            val b = apiJson(ex) ?: return error(400, "Send JSON: {\"target\": \"service|playlist\", \"holder\": \"who\", \"ttl\": seconds}.")
+            val target = b.text("target")?.takeIf { '|' in it && it.length <= 500 } ?: return error(400, "\"target\" is the playlist as \"service|playlist\" (spotify|37i9dQZF1DX…).")
+            val holder = b.text("holder")?.take(80) ?: return error(400, "\"holder\" says who reserves it, as people should read it (\"Pixel 8\").")
+            val ttl = b.number("ttl")?.takeIf { it > 0 }?.let { it * 1000L } ?: TargetLocks.DEFAULT_TTL_MS
+            when (val a = TargetLocks.take(target, holder, ttl)) {
+                is TargetLocks.Answer.Taken -> json(200, lockJson(a.lease))
+                is TargetLocks.Answer.Busy -> {
+                    val who = a.holder ?: productName
+                    json(409, buildJsonObject { put("error", "Running on $who."); put("target", target); put("holder", who); put("until", a.until) })
+                }
+            }
+        }
+        rest.size == 2 && rest[0] == "locks" && method == "PUT" -> {
+            val b = apiJson(ex) ?: return error(400, "Send JSON: {\"ttl\": seconds}, or nothing.")
+            val ttl = b.number("ttl")?.takeIf { it > 0 }?.let { it * 1000L } ?: TargetLocks.DEFAULT_TTL_MS
+            val lease = TargetLocks.renew(rest[1], ttl) ?: return error(404, "No such reservation: it ended (given back or expired). Ask for it again.")
+            json(200, lockJson(lease))
+        }
+        rest.size == 2 && rest[0] == "locks" && method == "DELETE" -> {
+            if (!TargetLocks.release(rest[1])) return error(404, "No such reservation: it had ended already.")
+            json(200, buildJsonObject { put("released", true) })
+        }
         rest == listOf("syncs") && method == "GET" -> {
             val wanted = runCatching { Api.selected(env, query) }.getOrElse { return error(400, it.message ?: "Wrong request.") }
             json(200, JsonArray(wanted.map { Api.job(env, it, it.id in running) }))
@@ -433,6 +460,10 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         }
         else -> error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
     }
+}
+
+private fun lockJson(l: TargetLocks.Lease) = buildJsonObject {
+    put("id", l.id); put("target", l.target); put("holder", l.holder); put("until", l.until)
 }
 
 private val WEBHOOK_EVENT_NAMES = mapOf(

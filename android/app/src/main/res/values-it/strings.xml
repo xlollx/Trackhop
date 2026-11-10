@@ -1856,4 +1856,16 @@
     <string name="job_scheduled_on">Programmata su %1$s</string>
     <string name="backup_device_other">l\'altro dispositivo</string>
     <string name="note_duplicates_repaired">Doppioni tolti dalla destinazione: %1$d. Ognuno di questi brani c\'era due volte, e nell\'origine c\'è una volta sola.</string>
+    <string name="note_running_elsewhere">In corso su %1$s: saltata</string>
+    <string name="server_locks_title">Coordina con il mio server</string>
+    <string name="server_locks_desc">Questo telefono e il tuo server Trackhop si danno il turno su ogni playlist, così i brani non vengono aggiunti due volte</string>
+    <string name="server_locks_address">Indirizzo del server</string>
+    <string name="server_locks_token">Token API</string>
+    <string name="server_locks_token_hint">Crealo nella pagina del server, in Tools › API</string>
+    <string name="server_locks_ok">Collegato. Le sync si daranno il turno con il server.</string>
+    <string name="server_locks_old">Questo server non lo sa ancora fare: aggiornalo.</string>
+    <string name="server_locks_unreachable">Il server non risponde. Controlla l\'indirizzo e che il telefono possa raggiungerlo.</string>
+    <string name="server_locks_token_wrong">Il server non ha accettato il token. Creane uno nuovo in Tools › API.</string>
+    <string name="server_locks_refused">Il server dice: %1$s</string>
+    <string name="help_server_locks_body">Per le sync che girano sia su questo telefono sia sul tuo server Trackhop (Docker). Prima di scrivere in una playlist, ciascuno la prenota sul server e la tiene finché lavora. Se l\'altro ci sta già scrivendo, questo giro viene saltato con la nota \"In corso su …: saltata\" e ci riprova la prossima sync programmata. Se il server non si raggiunge, le sync girano come sempre e il registro lo annota.</string>
 </resources>

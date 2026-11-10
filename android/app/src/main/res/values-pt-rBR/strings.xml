@@ -1864,4 +1864,16 @@
     <string name="job_scheduled_on">Agendada em %1$s</string>
     <string name="backup_device_other">o outro aparelho</string>
     <string name="note_duplicates_repaired">Duplicatas removidas do destino: %1$d. Cada uma dessas faixas estava lá duas vezes e está na origem uma vez só.</string>
+    <string name="note_running_elsewhere">Em andamento em %1$s: pulada</string>
+    <string name="server_locks_title">Coordenar com meu servidor</string>
+    <string name="server_locks_desc">Este celular e seu servidor Trackhop se revezam em cada playlist, assim as músicas não são adicionadas duas vezes</string>
+    <string name="server_locks_address">Endereço do servidor</string>
+    <string name="server_locks_token">Token da API</string>
+    <string name="server_locks_token_hint">Crie um na página do servidor, em Tools › API</string>
+    <string name="server_locks_ok">Conectado. As sincronizações vão se revezar com o servidor.</string>
+    <string name="server_locks_old">Este servidor ainda não sabe fazer isso: atualize-o.</string>
+    <string name="server_locks_unreachable">O servidor não responde. Confira o endereço e se este celular consegue alcançá-lo.</string>
+    <string name="server_locks_token_wrong">O servidor não aceitou o token. Crie um novo em Tools › API.</string>
+    <string name="server_locks_refused">O servidor disse: %1$s</string>
+    <string name="help_server_locks_body">Para sincronizações que rodam tanto neste celular quanto no seu servidor Trackhop (Docker). Antes de escrever numa playlist, cada um a reserva no servidor e a mantém enquanto trabalha. Se o outro já estiver escrevendo nela, esta execução é pulada com a nota \"Em andamento em …: pulada\" e a próxima execução agendada tenta de novo. Se o servidor não puder ser alcançado, as sincronizações rodam normalmente e o registro anota isso.</string>
 </resources>

@@ -139,6 +139,9 @@ class ContractEnv : Env {
     /** What a cover becomes once shrunk; none by default (no images in most tests). */
     var shrink: (ByteArray) -> ByteArray? = { null }
     override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? = shrink(raw)
+    /** The server this "device" coordinates with; none by default. */
+    var coordinator: com.xlollx.songport.sync.TargetCoordinator? = null
+    override val targetCoordinator get() = coordinator
 }
 
 /** JSON string literal for [s], escaped. */

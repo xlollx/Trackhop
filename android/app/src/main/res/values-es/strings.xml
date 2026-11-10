@@ -1864,4 +1864,16 @@
     <string name="job_scheduled_on">Programada en %1$s</string>
     <string name="backup_device_other">el otro dispositivo</string>
     <string name="note_duplicates_repaired">Duplicados quitados del destino: %1$d. Cada una de estas pistas estaba dos veces y en el origen está una sola.</string>
+    <string name="note_running_elsewhere">En curso en %1$s: omitida</string>
+    <string name="server_locks_title">Coordinar con mi servidor</string>
+    <string name="server_locks_desc">Este teléfono y tu servidor Trackhop se turnan en cada playlist, así las canciones no se añaden dos veces</string>
+    <string name="server_locks_address">Dirección del servidor</string>
+    <string name="server_locks_token">Token de la API</string>
+    <string name="server_locks_token_hint">Créalo en la página del servidor, en Tools › API</string>
+    <string name="server_locks_ok">Conectado. Las sincronizaciones se turnarán con el servidor.</string>
+    <string name="server_locks_old">Este servidor todavía no sabe hacerlo: actualízalo.</string>
+    <string name="server_locks_unreachable">El servidor no responde. Revisa la dirección y que este teléfono pueda llegar a él.</string>
+    <string name="server_locks_token_wrong">El servidor no aceptó el token. Crea uno nuevo en Tools › API.</string>
+    <string name="server_locks_refused">El servidor dice: %1$s</string>
+    <string name="help_server_locks_body">Para las sincronizaciones que se ejecutan en este teléfono y también en tu servidor Trackhop (Docker). Antes de escribir en una playlist, cada uno la reserva en el servidor y la mantiene mientras trabaja. Si el otro ya está escribiendo ahí, esta ejecución se omite con la nota \"En curso en …: omitida\" y la próxima ejecución programada lo vuelve a intentar. Si no se puede llegar al servidor, las sincronizaciones se ejecutan como siempre y el registro lo anota.</string>
 </resources>

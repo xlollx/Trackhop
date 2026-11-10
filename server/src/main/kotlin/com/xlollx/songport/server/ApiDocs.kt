@@ -88,6 +88,9 @@ internal object ApiDocs {
         Call("PATCH", "/notifications/{channel}", "Notifications", "Change a channel (a secret left out keeps its value).", body = "{\"name\"?, \"enabled\"?, \"events\"?, \"settings\"?}"),
         Call("DELETE", "/notifications/{channel}", "Notifications", "Remove a channel."),
         Call("POST", "/notifications/{channel}/test", "Notifications", "Send a test message."),
+        Call("POST", "/locks", "Locks", "Reserve a playlist before writing to it, for ttl seconds (default 600, from 30 to 3600; renew it while you write): 200 with the reservation's id and until (epoch ms), 409 with who holds it and until when. This server's syncs skip a playlist reserved by someone else, and a playlist one of them writes to is refused. target is the service and the playlist's id: \"spotify|37i9dQZF1DX…\" (the service, not the account: spotify, youtube, deezer, tidal…).", body = "{\"target\": \"service|playlist\", \"holder\": \"Pixel 8\", \"ttl\"?: 600}"),
+        Call("PUT", "/locks/{lock}", "Locks", "Renew a reservation for ttl seconds from now; 404 once it ended (given back or expired): reserve it again.", body = "{\"ttl\"?: 600}"),
+        Call("DELETE", "/locks/{lock}", "Locks", "Give a reservation back."),
         Call("GET", "/lyrics", "Lyrics", "Lyrics for the music folder (Docker, admin): state and last run."),
         Call("POST", "/lyrics", "Lyrics", "Look for lyrics now: folder, synced=true, retry=true.", listOf("folder", "synced", "retry")),
     )

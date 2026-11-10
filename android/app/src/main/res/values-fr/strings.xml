@@ -1864,4 +1864,16 @@
     <string name="job_scheduled_on">Planifiée sur %1$s</string>
     <string name="backup_device_other">l\'autre appareil</string>
     <string name="note_duplicates_repaired">Doublons retirés de la destination : %1$d. Chacun de ces titres y était deux fois et n\'est qu\'une fois dans la source.</string>
+    <string name="note_running_elsewhere">En cours sur %1$s : ignorée</string>
+    <string name="server_locks_title">Se coordonner avec mon serveur</string>
+    <string name="server_locks_desc">Ce téléphone et votre serveur Trackhop écrivent chacun leur tour dans une playlist : aucun titre n\'est ajouté deux fois</string>
+    <string name="server_locks_address">Adresse du serveur</string>
+    <string name="server_locks_token">Jeton d\'API</string>
+    <string name="server_locks_token_hint">Créez-en un sur la page du serveur, dans Tools › API</string>
+    <string name="server_locks_ok">Connecté. Les syncs se relaieront avec le serveur.</string>
+    <string name="server_locks_old">Ce serveur ne sait pas encore le faire : mettez-le à jour.</string>
+    <string name="server_locks_unreachable">Le serveur ne répond pas. Vérifiez l\'adresse et que ce téléphone peut l\'atteindre.</string>
+    <string name="server_locks_token_wrong">Le serveur n\'a pas accepté le jeton. Créez-en un nouveau dans Tools › API.</string>
+    <string name="server_locks_refused">Le serveur indique : %1$s</string>
+    <string name="help_server_locks_body">Pour les syncs qui tournent à la fois sur ce téléphone et sur votre serveur Trackhop (Docker). Avant d\'écrire dans une playlist, chacun la réserve sur le serveur et la garde tant qu\'il travaille. Si l\'autre y écrit déjà, cette exécution est ignorée avec la note \"En cours sur … : ignorée\" et la prochaine exécution planifiée réessaie. Si le serveur est injoignable, les syncs tournent comme d\'habitude et le journal le note.</string>
 </resources>

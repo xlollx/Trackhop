@@ -1857,4 +1857,16 @@
     <string name="job_scheduled_on">Scheduled on %1$s</string>
     <string name="backup_device_other">the other device</string>
     <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
+    <string name="note_running_elsewhere">Running on %1$s: skipped</string>
+    <string name="server_locks_title">Coordinate with my server</string>
+    <string name="server_locks_desc">This phone and your Trackhop server take turns on each playlist, so songs are not added twice</string>
+    <string name="server_locks_address">Server address</string>
+    <string name="server_locks_token">API token</string>
+    <string name="server_locks_token_hint">Make one on the server\'s page, in Tools › API</string>
+    <string name="server_locks_ok">Connected. Syncs will take turns with the server.</string>
+    <string name="server_locks_old">This server does not know this yet: update it.</string>
+    <string name="server_locks_unreachable">No answer from the server. Check the address and that this phone can reach it.</string>
+    <string name="server_locks_token_wrong">The server did not accept the token. Make a new one in Tools › API.</string>
+    <string name="server_locks_refused">The server said: %1$s</string>
+    <string name="help_server_locks_body">For syncs that run both on this phone and on your Trackhop server (Docker). Before writing to a playlist, each one reserves it on the server and keeps it while it works. If the other one is writing there, this run is skipped with the note \"Running on …: skipped\" and the next scheduled run tries again. If the server can\'t be reached, syncs run as usual and the log says so.</string>
 </resources>

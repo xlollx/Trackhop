@@ -688,6 +688,14 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `DELETE /api/v1/notifications/{channel}` | Remove a channel. |
 | `POST /api/v1/notifications/{channel}/test` | Send a test message. |
 
+**Locks**
+
+| Call | What it does |
+|---|---|
+| `POST /api/v1/locks` | Reserve a playlist before writing to it: `{"target": "spotify\|37i9dQZF1DX…", "holder": "Pixel 8", "ttl": 600}` (seconds, 30 to 3600). 200 with the reservation's `id` and `until`; 409 with who holds it (`holder`) and `until` when. [Coordinate with my server](#coordinate-with-my-server) |
+| `PUT /api/v1/locks/{lock}` | Renew a reservation for `ttl` seconds from now; 404 once it ended: reserve it again. |
+| `DELETE /api/v1/locks/{lock}` | Give a reservation back. |
+
 **Lyrics**
 
 | Call | What it does |
@@ -797,6 +805,27 @@ curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @mix.m3u http://127
 curl -H "Authorization: Bearer $TOKEN" -o trackhop-$(date +%F).trackhop http://127.0.0.1:8080/api/v1/config
 curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @trackhop.trackhop "http://127.0.0.1:8080/api/v1/config?dryRun=true"
 ```
+
+## Coordinate with my server
+
+The same sync on a phone and on this server would add what is missing twice when both run at
+once. In the app, **Settings › Advanced › Coordinate with my server** takes this server's address
+(`http://192.168.1.10:8080`, or the address of your reverse proxy) and an API token made in
+**Tools › API**. Then, before a run writes to a playlist, the phone reserves it here for ten minutes
+and renews the reservation every few minutes while it runs; the reservation is given back at the end,
+and ends by itself if the phone dies on the way.
+
+- The playlist is reserved by the other side (this server is writing there, or the phone is): the run
+  is skipped, with the note "Running on Pixel 8: skipped" (or "Running on Trackhop server: skipped" on
+  the phone). No error and no notification; the next scheduled run tries again.
+- The server cannot be reached, or refuses the token: the phone syncs as without the option and its
+  log says so. Syncs never wait for the server.
+- A two-way pair reserves both playlists. File playlists are each device's own and are not reserved.
+- On a shared server, each person's reservations are their own, like their syncs.
+
+Trackhop Desktop answers only the computer it runs on, so a phone can coordinate with a Docker
+server; Desktop's own syncs still respect reservations made through its API by scripts on that
+computer. Any tool can use the same calls ([Locks](#api)): reserve, renew while writing, give back.
 
 ## Not there yet
 

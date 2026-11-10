@@ -1918,4 +1918,16 @@
     <string name="job_scheduled_on">Zaplanowana na: %1$s</string>
     <string name="backup_device_other">drugim urządzeniu</string>
     <string name="note_duplicates_repaired">Duplikaty usunięte z celu: %1$d. Każdy z tych utworów był tam dwa razy, a w źródle jest raz.</string>
+    <string name="note_running_elsewhere">Działa na %1$s: pominięto</string>
+    <string name="server_locks_title">Uzgadniaj z moim serwerem</string>
+    <string name="server_locks_desc">Ten telefon i Twój serwer Trackhop zapisują do każdej playlisty po kolei, więc utwory nie są dodawane dwa razy</string>
+    <string name="server_locks_address">Adres serwera</string>
+    <string name="server_locks_token">Token API</string>
+    <string name="server_locks_token_hint">Utwórz go na stronie serwera, w Tools › API</string>
+    <string name="server_locks_ok">Połączono. Synchronizacje będą się zmieniać z serwerem.</string>
+    <string name="server_locks_old">Ten serwer jeszcze tego nie potrafi: zaktualizuj go.</string>
+    <string name="server_locks_unreachable">Serwer nie odpowiada. Sprawdź adres i czy ten telefon może się z nim połączyć.</string>
+    <string name="server_locks_token_wrong">Serwer nie przyjął tokenu. Utwórz nowy w Tools › API.</string>
+    <string name="server_locks_refused">Serwer odpowiada: %1$s</string>
+    <string name="help_server_locks_body">Dla synchronizacji, które działają zarówno na tym telefonie, jak i na Twoim serwerze Trackhop (Docker). Zanim któryś zapisze do playlisty, rezerwuje ją na serwerze i trzyma, dopóki pracuje. Jeśli drugi już do niej zapisuje, to uruchomienie zostaje pominięte z notatką \"Działa na …: pominięto\", a następne zaplanowane spróbuje ponownie. Gdy serwer jest nieosiągalny, synchronizacje działają jak zwykle, a dziennik to odnotowuje.</string>
 </resources>

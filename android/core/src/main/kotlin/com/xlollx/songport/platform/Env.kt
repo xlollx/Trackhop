@@ -41,6 +41,12 @@ interface Env {
      */
     fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray?
 
+    /**
+     * Who else to agree with before writing to a playlist: the user's own Trackhop server when the
+     * app is set to coordinate with it ([com.xlollx.songport.sync.ServerLocks]); null otherwise.
+     */
+    val targetCoordinator: com.xlollx.songport.sync.TargetCoordinator? get() = null
+
     companion object {
         /** The redirect of the Android app, also the one shown in the setup guides. */
         const val APP_REDIRECT_URI = "songport://callback"

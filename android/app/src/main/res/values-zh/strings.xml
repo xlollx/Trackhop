@@ -1826,4 +1826,16 @@
     <string name="job_scheduled_on">已在 %1$s 上定时</string>
     <string name="backup_device_other">另一台设备</string>
     <string name="note_duplicates_repaired">已从目标中移除重复项：%1$d 个。这些歌曲在目标中各出现两次，而来源中只有一次。</string>
+    <string name="note_running_elsewhere">正在 %1$s 上运行：已跳过</string>
+    <string name="server_locks_title">与我的服务器协调</string>
+    <string name="server_locks_desc">这台手机和你的 Trackhop 服务器轮流写入每个歌单，歌曲不会被添加两次</string>
+    <string name="server_locks_address">服务器地址</string>
+    <string name="server_locks_token">API 令牌</string>
+    <string name="server_locks_token_hint">在服务器页面的 Tools › API 中创建</string>
+    <string name="server_locks_ok">已连接。同步将与服务器轮流进行。</string>
+    <string name="server_locks_old">这台服务器还不支持此功能：请更新它。</string>
+    <string name="server_locks_unreachable">服务器没有响应。请检查地址，以及这台手机能否访问它。</string>
+    <string name="server_locks_token_wrong">服务器不接受该令牌。请在 Tools › API 中新建一个。</string>
+    <string name="server_locks_refused">服务器回复：%1$s</string>
+    <string name="help_server_locks_body">适用于同时在这台手机和你的 Trackhop 服务器（Docker）上运行的同步。写入歌单之前，各自都会在服务器上预约该歌单，并在工作期间保持预约。如果另一方正在写入，本次运行会跳过，并附注“正在 … 上运行：已跳过”，下一次定时运行会再试。如果连不上服务器，同步照常运行，日志会记下这一点。</string>
 </resources>
