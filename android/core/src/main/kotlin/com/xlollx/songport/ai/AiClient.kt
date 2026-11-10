@@ -311,6 +311,9 @@ object AiClient {
     suspend fun check(c: Config): String? = try {
         val text = complete(c, "Reply with the single word OK.", "ping")
         if (text.isBlank()) "Empty answer" else null
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        // The screen went away mid-check: not an answer about the model, so not shown or kept.
+        throw e
     } catch (e: Exception) {
         e.message ?: e.javaClass.simpleName
     }

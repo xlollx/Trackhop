@@ -68,7 +68,8 @@ private val AT = Regex("""([01]?\d|2[0-3]):[0-5]\d""")
 private fun timed(job: SyncJob, b: JsonObject): SyncJob {
     val named = b.text("schedule")?.let { s -> SCHEDULES[s.lowercase()] ?: throw IllegalArgumentException("\"schedule\" is one of manual, hourly, every_6h, daily, weekly (or give \"every\" in minutes).") }
     val every = b.number("every") ?: named
-    val at = b.text("at")?.also { if (!AT.matches(it)) throw IllegalArgumentException("\"at\" is a time as HH:MM.") }
+    // "7:30" is 07:30: the hour is padded, or the time would not be read and 09:00 kept in its place.
+    val at = b.text("at")?.let { if (!AT.matches(it)) throw IllegalArgumentException("\"at\" is a time as HH:MM."); it.padStart(5, '0') }
     val days = (b["days"] as? JsonArray)?.map { (it as? JsonPrimitive)?.intOrNull?.takeIf { d -> d in 1..7 } ?: throw IllegalArgumentException("\"days\" are numbers from 1 (Monday) to 7 (Sunday).") }
     if (every == null && at == null && days == null) return job
     val minutes = every ?: Timing.interval(job)
@@ -83,7 +84,8 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
     val mode = b.text("changes")?.lowercase() ?: when {
         b.flag("archive") == true -> "archive"
         b.flag("mirrorRemovals") == true -> "mirror"
-        b.flag("archive") == false || b.flag("mirrorRemovals") == false -> "add"
+        // Turning off the one that is on leaves "add"; turning off one that is already off changes nothing.
+        (b.flag("archive") == false && job.archive) || (b.flag("mirrorRemovals") == false && job.mirrorRemovals) -> "add"
         else -> null
     }
     if (mode != null && mode !in setOf("add", "mirror", "archive")) throw IllegalArgumentException("\"changes\" is add, mirror or archive.")

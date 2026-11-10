@@ -605,7 +605,9 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         fun ids(rows: List<JsonObject>, refs: List<String>, idOf: (JsonObject) -> String): JsonElement {
             if (refs.isEmpty()) throw Cli.Failure(2, "say which: numbers from trackhop review, or all")
             if (refs == listOf("all")) return JsonPrimitive("all")
-            return buildJsonArray { refs.forEach { r -> add(r.toIntOrNull()?.let { n -> rows.getOrNull(n - 1)?.let(idOf) ?: throw Cli.Failure(2, "no row $n in that list") } ?: r) } }
+            // An id of the list first: some services' ids are numbers too, and "12345" is then no row.
+            val known = rows.map(idOf).toSet()
+            return buildJsonArray { refs.forEach { r -> add(if (r in known) r else r.toIntOrNull()?.let { n -> rows.getOrNull(n - 1)?.let(idOf) ?: throw Cli.Failure(2, "no row $n in that list") } ?: r) } }
         }
         val body = buildJsonObject {
             put("action", action)

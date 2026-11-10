@@ -95,4 +95,19 @@ class CrowdedTest {
         assertTrue(times.keys.none { it.startsWith("h") })
         assertNull(Timing.crowded(jobs.map { j -> times[j.id]?.let { j.copy(at = it) } ?: j }, now = now, zone = zone))
     }
+
+    @Test fun overdueSyncsOpenedAfterDaysOffAreNoCrowd() {
+        val zone = java.time.ZoneOffset.UTC
+        val now = java.time.LocalDateTime.of(2026, 11, 9, 12, 37).toInstant(zone).toEpochMilli()
+        // Four daily syncs through the day, the phone off for two days: all four are overdue and run
+        // once now, but their clock times are hours apart.
+        val jobs = listOf("06:00", "09:00", "14:00", "20:00").mapIndexed { i, at ->
+            val last = java.time.LocalDateTime.of(2026, 11, 7, at.take(2).toInt(), 0).toInstant(zone).toEpochMilli()
+            job("d$i", "x", at).copy(lastRunEpoch = last)
+        }
+        assertNull(Timing.crowded(jobs, now = now, zone = zone))
+        // Syncs that do share a clock time are still a crowd, named by that time and not by now.
+        val same = (0..3).map { job("s$it", "x", "09:00").copy(lastRunEpoch = now - 2 * 86_400_000L) }
+        assertEquals("09:00", Timing.crowded(same, now = now, zone = zone)!!.at)
+    }
 }

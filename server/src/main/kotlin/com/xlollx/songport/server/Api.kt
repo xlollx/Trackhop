@@ -255,14 +255,16 @@ object Api {
         val url = webhook(env).ifEmpty { return }
         if (name !in events(env)) return
         val body = event.toString()
-        val req = HttpRequest.newBuilder(URI(url)).timeout(Duration.ofSeconds(20))
-            .header("Content-Type", "application/json").header("User-Agent", "Trackhop")
-        env.keyValues(KV)["secret"].orEmpty().takeIf { it.isNotEmpty() }?.let { secret ->
-            val mac = Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(secret.toByteArray(), "HmacSHA256")) }
-            req.header("X-Trackhop-Signature", "sha256=" + mac.doFinal(body.toByteArray()).joinToString("") { "%02x".format(it) })
-        }
-        runCatching { client.sendAsync(req.POST(HttpRequest.BodyPublishers.ofString(body)).build(), HttpResponse.BodyHandlers.discarding()) }
-            .onFailure { env.log("api", "webhook: ${it.message}") }
+        // The address too is read in here: one that is no URL is a line in the log, never a sync that stops.
+        runCatching {
+            val req = HttpRequest.newBuilder(URI(url)).timeout(Duration.ofSeconds(20))
+                .header("Content-Type", "application/json").header("User-Agent", "Trackhop")
+            env.keyValues(KV)["secret"].orEmpty().takeIf { it.isNotEmpty() }?.let { secret ->
+                val mac = Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(secret.toByteArray(), "HmacSHA256")) }
+                req.header("X-Trackhop-Signature", "sha256=" + mac.doFinal(body.toByteArray()).joinToString("") { "%02x".format(it) })
+            }
+            client.sendAsync(req.POST(HttpRequest.BodyPublishers.ofString(body)).build(), HttpResponse.BodyHandlers.discarding())
+        }.onFailure { env.log("api", "webhook: ${it.message}") }
     }
 }
 
@@ -324,11 +326,11 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         })
         rest == listOf("backup") && method == "POST" -> {
             if (Tasks.running(Backups.TITLE)) return error(409, "A backup is already running.")
-            val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }) { t -> Backups.run(env) { t.progress = it } }
+            val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
             json(202, buildJsonObject { put("task", task.id) })
         }
         rest.size == 2 && rest[0] == "tasks" && method == "GET" -> {
-            val t = Tasks.get(rest[1]) ?: return error(404, "No task with that id (finished tasks are kept for an hour).")
+            val t = Tasks.get(rest[1], env.sees) ?: return error(404, "No task with that id (finished tasks are kept for an hour).")
             json(200, buildJsonObject {
                 put("id", t.id); put("title", t.title); put("done", t.done); put("progress", t.progress)
                 put("error", t.error?.let { JsonPrimitive(it) } ?: JsonNull)
@@ -426,7 +428,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             val folder = query["folder"].orEmpty()
             if (Lyrics.target(root, folder) == null) return error(400, "$folder is not a folder of the library.")
             val options = Lyrics.Options(folder, syncedOnly = query["synced"] == "true", retryMissing = query["retry"] == "true")
-            val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
+            val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
             json(202, buildJsonObject { put("task", task.id) })
         }
         else -> error(404, "Unknown call. See https://trackhop.org/guide/docker#api")

@@ -26,6 +26,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -181,6 +182,16 @@ abstract class FlowTest {
 
     protected fun waitText(text: String, ms: Long = 15_000, substring: Boolean = false) =
         waitFor("text \"$text\"", ms) { compose.onAllNodesWithText(text, substring = substring, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
+
+    /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
+    protected fun clickTile(label: String) {
+        val tile = androidx.compose.ui.test.hasText(label)
+        compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
+            runCatching { compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())[i].performScrollToNode(tile) }
+        }
+        compose.waitForIdle()
+        click(label)
+    }
 
     protected fun waitGone(text: String, ms: Long = 15_000, substring: Boolean = false) =
         waitFor("no text \"$text\"", ms) { compose.onAllNodesWithText(text, substring = substring, useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }

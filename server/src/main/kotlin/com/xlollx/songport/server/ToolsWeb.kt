@@ -30,7 +30,7 @@ internal fun Web.toolPage(r: Web.Req, tool: String) {
 }
 
 internal fun Web.taskPage(r: Web.Req, id: String) {
-    val t = Tasks.get(id) ?: return send(r.ex, 404, page("Finished", """<div class="card">This run is no longer kept. <a href="/tools">Tools</a></div>"""))
+    val t = Tasks.get(id, env.sees) ?: return send(r.ex, 404, page("Finished", """<div class="card">This run is no longer kept. <a href="/tools">Tools</a></div>"""))
     val body = StringBuilder()
     when {
         !t.done -> body.append("""<div class="card"><p>${h(t.progress)}</p><progress></progress><p class="muted">This page refreshes by itself; you can leave it, the run goes on.</p></div>""")
@@ -66,7 +66,7 @@ private fun Web.backupTool(r: Web.Req) {
             else -> {
                 if (Tasks.running(Backups.TITLE)) return redirect(r.ex, "/tools/backup?err=${q("A backup is already running.")}")
                 val chosen = r.form["service"]?.let { id -> Backups.services(env).filter { it.id == id } } ?: Backups.services(env)
-                val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }) { t -> Backups.run(env, chosen) { t.progress = it } }
+                val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env, chosen) { t.progress = it } }
                 return redirect(r.ex, "/tools/task/${q(task.id)}")
             }
         }
@@ -121,7 +121,7 @@ private fun Web.dedupeTool(r: Web.Req) {
     }
     val back = "/tools/dedupe?service=${q(service.id)}&playlist=${q(playlist.id)}"
     if (r.method == "POST") {
-        val task = Tasks.start("Remove duplicates", back, { env.log("dedupe", it) }) { t ->
+        val task = Tasks.start("Remove duplicates", back, { env.log("dedupe", it) }, env.owner) { t ->
             val n = LibraryTools.removeDuplicates(env, service, playlist.id) { p -> t.progress = "${p.done}/${p.total}" }
             env.log("dedupe", "${service.label(env)} / ${playlist.name}: $n removed")
             """<div class="card ok">Removed $n extra copies from ${h(playlist.name)}.</div>"""
@@ -164,7 +164,7 @@ private fun Web.unplayableTool(r: Web.Req) {
     if (r.method == "POST") {
         when (r.form["action"]) {
             "scan" -> {
-                val task = Tasks.start("Unplayable tracks", back, { env.log("unplayable", it) }) { t ->
+                val task = Tasks.start("Unplayable tracks", back, { env.log("unplayable", it) }, env.owner) { t ->
                     val targets = LibraryTools.unplayableTargets(env, service)
                     val scan = LibraryTools.scanUnplayable(env, service, targets) { t.progress = "Reading $it…" }
                     val withProposals = scan.found.map { u ->

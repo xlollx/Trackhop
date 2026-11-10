@@ -41,7 +41,7 @@ internal fun Web.aiTool(r: Web.Req) {
                 val target = Providers.byId(r.form["target"].orEmpty())?.takeIf { it in aiTargets() }
                     ?: return redirect(r.ex, "/tools/ai?err=${q("Pick where to create it.")}")
                 val prompt = AiClient.Prompt(description, count, emptyList(), "")
-                val task = Tasks.start("AI playlist", "/tools/ai", { env.log("ai", it) }) { t ->
+                val task = Tasks.start("AI playlist", "/tools/ai", { env.log("ai", it) }, env.owner) { t ->
                     t.progress = "Asking ${c.vendor.label} (${c.model})…"
                     val tracks = if (target is LocalFilesProvider) AiMatch.fresh(AiClient.generateAll(c, prompt), emptyList())
                     else AiMatch.available(env, c, target, prompt, emptyList()) { found, want -> t.progress = "Found on ${target.label(env)}: $found of $want" }.found
@@ -143,7 +143,7 @@ private fun Web.mixGenerate(r: Web.Req): Unit {
     val target = Providers.byId(r.form["target"].orEmpty())?.takeIf { it in aiTargets() }
         ?: return redirect(r.ex, "/tools/ai?err=${q("Pick where to create it.")}")
     val typedName = r.form["name"].orEmpty().trim()
-    val task = Tasks.start(env.text("ai_title"), "/tools/ai", { env.log("mix", it) }) { t ->
+    val task = Tasks.start(env.text("ai_title"), "/tools/ai", { env.log("mix", it) }, env.owner) { t ->
         // Only a playlist the service lists: an id is never taken as typed.
         val exclude = if (source != null && playlistId.isNotEmpty()) {
             val p = source.playlists(env).firstOrNull { it.id == playlistId } ?: error("No such playlist on ${source.label(env)}.")

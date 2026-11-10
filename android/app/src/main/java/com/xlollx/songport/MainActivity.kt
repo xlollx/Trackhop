@@ -333,8 +333,8 @@ private fun MainScreen(
         val target = Providers.connectors().firstOrNull {
             it.serviceId != LocalFilesProvider.serviceId && it.requiresAuth && it.isConnected(ctx) && it.canWrite && it.canCreatePlaylists
         }
+        // No name yet: the editor opens as a new sync, and saving names it after the file.
         editing = newJob().copy(
-            name = name,
             source = PlaylistRef(LocalFilesProvider.id, id, name),
             target = PlaylistRef(target?.id.orEmpty()),
         )

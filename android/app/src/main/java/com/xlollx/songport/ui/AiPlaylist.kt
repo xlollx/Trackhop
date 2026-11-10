@@ -289,9 +289,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                 LaunchedEffect(c.vendor, c.model, c.apiKey, c.baseUrl) {
                     if (d.checked?.first == c) return@LaunchedEffect
                     d.checking = true
-                    val r = AiClient.check(c)
-                    d.checked = c to r
-                    d.checking = false
+                    try { d.checked = c to AiClient.check(c) } finally { d.checking = false }
                 }
             }
             when {

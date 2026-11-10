@@ -5,8 +5,15 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 1.9.0
 
+- **Files your way** (#49): artist and album read from file names and folders ("Artist - Album - Title", phone library paths), or from your own patterns (templates or `re:`) with a Try button; tick files to delete them or download them as a .zip; *Send to a service* on each File playlist.
+- **Last.fm loved tracks as a target** (#51): sign in with the password too and Trackhop loves and unloves tracks; only the session key is kept.
+- **Anghami signs in with Google** (#53); *Start over* resets a web sign-in.
+- **Qobuz** (#56): a read the site refuses is asked again after 15 s and 45 s, and calls are paced across syncs; the error says what happened.
+- **Matching** (#57): "Pt. 4", "Part IV" and "Part 4" are one title; different part numbers are different pieces; Jellyfin also searches by the bare title.
+- **Gentler with busy services**: a service that refuses a burst of searches is asked more slowly; Apple Music gets the songs again when a new playlist is not visible yet.
+- **Support**: a small menu at the top and in the footer to choose Ko-fi or GitHub Sponsors.
 - **The API does what the page does**: syncs made, changed (timing, removals, colour), deleted, moved, stopped, paused and resumed; a preview of what a run would do; every run, page by page, with its tracks and notes; a run's review from a script (ignore, keep, discard, pick, replace, restore); File playlists deleted or zipped, and the name patterns for imported files (#49) read, set and tried; a set-up brought back in (with a dry run first); notification channels added, changed and removed; the settings; a search on a service; tracks found on another service; duplicates found and removed; a playlist exported as a file; your numbers; the background tasks. Every call is described in `/api/v1/openapi.json`.
 - **Webhook events**: `sync.started` and `sync.failed` next to `sync.finished` and `backup.finished`, chosen in Tools › API.
 - **The `trackhop` command** has a command for each of them (`new`, `edit`, `delete`, `move`, `stop`, `preview`, `runs`, `report`, `review`, `search`, `convert`, `duplicates`, `export`, `patterns`, `config import`, `notify add`, `webhook`, `settings`, `stats`…), `trackhop help <command>`, and Tab completion for bash, zsh and fish (`trackhop completion`). The MCP server offers the same to AI assistants.

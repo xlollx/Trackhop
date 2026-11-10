@@ -245,7 +245,8 @@ object Matcher {
         val base = if (artistKnown) 0.6 * title + 0.4 * artist else 0.85 * title + 0.15 * artist
         // "Part 4" against "Part 5", "No. 1" against "No. 2": close titles, different pieces.
         val na = numbers(s.title); val nb = numbers(c.title)
-        val numberFactor = if (na.isNotEmpty() && nb.isNotEmpty() && na != nb) 0.6 else 1.0
+        // A real conflict only: "1 5" against "1" (a range written two ways) is the same piece.
+        val numberFactor = if (na.isNotEmpty() && nb.isNotEmpty() && !na.containsAll(nb) && !nb.containsAll(na)) 0.6 else 1.0
         return base * numberFactor * durationFactor(s.track.durationMs, c.track.durationMs) * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
     }
