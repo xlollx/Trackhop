@@ -1191,6 +1191,10 @@ private fun JobTile(
             }
         }
         OverflowDropdown(menuOpen && !isRunning, { onMenu(false) }, menu, jobMenuContainer(job.color), ink ?: MaterialTheme.colorScheme.onSurfaceVariant, name)
+        // While it runs the menu stays shut, as on the card: a hold shows the run live instead (it did nothing before).
+        if (menuOpen && isRunning) LiveSheet(job) { onMenu(false) }
+        // The run ending under the live view closes it, rather than turning it into the menu.
+        LaunchedEffect(isRunning) { if (!isRunning && menuOpen) onMenu(false) }
     }
 }
 
