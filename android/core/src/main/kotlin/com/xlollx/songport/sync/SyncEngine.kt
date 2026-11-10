@@ -1326,10 +1326,23 @@ class SyncEngine(
 
     /** [confirmMatch] for several uncertain matches at once. */
     fun confirmMatches(reportId: String, reviews: Collection<MatchReview>) {
+        if (reviews.isEmpty()) return
+        store.report(reportId)?.let { store.job(it.jobId) }?.let { job ->
+            decided(job.source.provider, job.target.provider, reviews.associate { it.source.id to ReviewDecision(DecisionKind.KEEP, it.chosen.id, System.currentTimeMillis()) })
+        }
+        dropReviews(reportId, reviews)
+    }
+
+    /** Out of the run's to-check list, without saying the match was right. */
+    private fun dropReviews(reportId: String, reviews: Collection<MatchReview>) {
         val ids = reviews.map { it.source.id }.toHashSet()
         if (ids.isEmpty()) return
         store.updateReport(reportId) { r -> r.copy(reviewTracks = r.reviewTracks.filter { it.source.id !in ids }) }
     }
+
+    /** The review's choices, by source track id, kept with their time for the user's own server (ReviewDecisions). */
+    private fun decided(srcProvider: String, dstProvider: String, choices: Map<String, ReviewDecision>) =
+        store.recordDecisions(choices.mapKeys { FileStore.cacheKey(srcProvider, it.key, dstProvider) })
 
     /**
      * Uncertain matches that are wrong, with no replacement wanted: the chosen tracks leave the
@@ -1350,7 +1363,7 @@ class SyncEngine(
             if (wrong.isNotEmpty()) removed = removeEntries(dst, targetId, reviews.map { it.chosen }.filter { it.id in wrong }.distinctBy { it.id }).size
         }
         ignoreAll(job, src.id, dst.id, leaving)
-        if (reportId != null) confirmMatches(reportId, reviews)
+        if (reportId != null) dropReviews(reportId, reviews)
         return removed
     }
 
@@ -1365,7 +1378,8 @@ class SyncEngine(
         dst.addTracks(env, targetId, listOf(chosen))
         wroteTo(dst, targetId)
         store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, dst.id) to chosen.id))
-        if (reportId != null) confirmMatch(reportId, review)
+        decided(src.id, dst.id, mapOf(review.source.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
+        if (reportId != null) dropReviews(reportId, listOf(review))
     }
 
     private fun entriesKey(dst: MusicProvider, targetId: String) = TargetEntries.key(env.dataDir.path, dst.id, targetId)
@@ -1603,6 +1617,7 @@ class SyncEngine(
         val targetId = job.target.playlistId ?: throw ProviderException("No target playlist")
         dst.addTracks(env, targetId, listOf(chosen))
         store.putMatches(mapOf(FileStore.cacheKey(src.id, sourceTrack.id, dst.id) to chosen.id))
+        decided(src.id, dst.id, mapOf(sourceTrack.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
         dropUnmatched(reportId, sourceTrack)
     }
 
@@ -1627,6 +1642,8 @@ class SyncEngine(
         val current = store.job(job.id) ?: job
         store.upsertJob(current.copy(ignoredSourceIds = (current.ignoredSourceIds + ids).distinct()))
         if (srcId != null && dstId != null) store.putIgnored(srcId, ids, dstId)
+        val now = System.currentTimeMillis()
+        decided(srcId ?: job.source.provider, dstId ?: job.target.provider, ids.associateWith { ReviewDecision(DecisionKind.IGNORE, null, now) })
     }
 
     private fun dropUnmatched(reportId: String, tracks: Collection<Track>) {

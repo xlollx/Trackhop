@@ -152,6 +152,13 @@ data class StoreData(
     val wanted: Map<String, WantedMark> = emptyMap(),
     /** When that list was first worked out (0 = never yet): what it held then is not news for the webhook. */
     val wantedSince: Long = 0,
+    /**
+     * The review's choices (ignored, matched by hand, kept), with when each was made, by the match
+     * caches' key: what is shared with the user's own server (sync/ReviewDecisions), the newest one winning.
+     */
+    val reviewDecisions: Map<String, com.xlollx.songport.sync.ReviewDecision> = emptyMap(),
+    /** Syncs handed over to the user's own server, by job id (sync/ServerSyncs): this device no longer runs them. */
+    val handedOver: Map<String, com.xlollx.songport.sync.HandedOver> = emptyMap(),
 )
 
 /**
@@ -361,6 +368,12 @@ open class FileStore(dir: File) {
     fun putIgnored(srcProvider: String, srcTrackIds: Collection<String>, dstProvider: String) {
         if (srcTrackIds.isEmpty()) return
         update { d -> d.copy(ignoredTracks = d.ignoredTracks + srcTrackIds.map { cacheKey(srcProvider, it, dstProvider) }) }
+    }
+
+    /** Review choices made now, by cache key ([cacheKey]): kept for the server, the oldest dropped past a bound. */
+    fun recordDecisions(entries: Map<String, com.xlollx.songport.sync.ReviewDecision>) {
+        if (entries.isEmpty()) return
+        update { d -> d.copy(reviewDecisions = com.xlollx.songport.sync.ReviewDecisions.bounded(d.reviewDecisions + entries)) }
     }
 
     /** The source tracks (of [srcProvider]) whose match on [dstProvider] is [dstTrackId]. */

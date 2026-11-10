@@ -627,6 +627,8 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off (both halves of a two-way pair). |
 | `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
 | `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
+| `GET /api/v1/syncs/{sync}/decisions` | The review's choices between the sync's two services (ignored, matched by hand, kept), each with when it was made. |
+| `POST /api/v1/syncs/{sync}/decisions` | Bring in review choices made elsewhere: `{"decisions": [{"source": "<id>", "kind": "ignore" \| "match" \| "keep", "track": "<id>", "at": 1731234567890}]}`; the newest choice of each track wins, and the answer lists them all. |
 | `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
 | `POST /api/v1/syncs/spread` | New times for those syncs (`changes`: `from`, `to`): only shown, saved with `?apply=true` (or `{"apply": true}`). |
 

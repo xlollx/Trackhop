@@ -46,6 +46,8 @@ internal object ApiDocs {
         Call("POST", "/syncs/{sync}/disable", "Syncs", "Turn a sync's schedule off (both halves of a two-way pair)."),
         Call("POST", "/syncs/{sync}/move", "Syncs", "Move a sync in the list: a position from 1, or up, down, top, bottom.", body = "{\"to\": 3 | \"up\" | \"down\" | \"top\" | \"bottom\"}"),
         Call("GET", "/syncs/{sync}/preview", "Syncs", "What a run would do now, without changing anything."),
+        Call("GET", "/syncs/{sync}/decisions", "Syncs", "The review's choices between the sync's two services (ignored, matched by hand, kept), each with when it was made (epoch ms)."),
+        Call("POST", "/syncs/{sync}/decisions", "Syncs", "Bring in review choices made elsewhere (the app's): for each track the newest choice wins and is done here as the review would; answers every choice, as GET does. A time ahead of the server's clock counts as now.", body = "{\"decisions\": [{\"source\": \"<source track id>\", \"kind\": \"ignore\" | \"match\" | \"keep\", \"track\"?: \"<target track id>\", \"at\": 1731234567890}]}"),
         Call("GET", "/syncs/{sync}/runs", "Runs", "A sync's runs, newest first.", listOf("limit", "offset")),
         Call("GET", "/runs", "Runs", "Every run, newest first; sync= for one sync's.", listOf("sync", "limit", "offset")),
         Call("GET", "/runs/{run}", "Runs", "One run with its tracks (added, removed, not found, to check) and its notes."),

@@ -10,6 +10,7 @@ import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.NewReleasesProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.Labels
+import com.xlollx.songport.sync.ReviewDecisions
 import com.xlollx.songport.sync.SyncEngine
 import com.xlollx.songport.sync.SyncState
 import com.xlollx.songport.sync.Timing
@@ -224,6 +225,20 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                     if (!runner.isRunning(job.id)) return true.also { error(409, "${job.name} is not running.") }
                     when (rest[2]) { "stop" -> SyncState.stop(job.id); "pause" -> SyncState.pause(job.id); else -> SyncState.resume(job.id) }
                     json(200, buildJsonObject { put("id", job.id); put("running", runner.isRunning(job.id)); put("paused", SyncState.isPaused(job.id)); put("stopping", rest[2] == "stop") })
+                }
+                // The review's choices of this sync's two services, with when each was made: a phone that
+                // handed this sync over (or has the same one) sends its own and gets these back, the
+                // newest choice of each track winning on both (ReviewDecisions).
+                rest[2] == "decisions" && (method == "GET" || method == "POST") -> {
+                    if (method == "POST") {
+                        val b = apiJson(ex) ?: return true.also { error(400, "Send JSON: {\"decisions\": [{\"source\", \"kind\", \"track\"?, \"at\"}]}.") }
+                        val incoming = runCatching { ReviewDecisions.parse(b["decisions"] ?: JsonArray(emptyList()), System.currentTimeMillis()) }
+                            .getOrElse { e -> return true.also { bad(e) } }
+                        val taken = ReviewDecisions.apply(env.store, job.id, incoming)
+                        if (taken > 0) env.log("api", "${job.name}: $taken review choices taken in")
+                    }
+                    val now = env.store.job(job.id) ?: job
+                    json(200, buildJsonObject { put("syncId", job.id); put("decisions", ReviewDecisions.toJson(ReviewDecisions.ofSync(env.store.data, now))) })
                 }
                 rest[2] == "preview" && method == "GET" -> preview(job, json, error)
                 rest[2] == "runs" && method == "GET" -> runsPage(job.id, query, json, error)

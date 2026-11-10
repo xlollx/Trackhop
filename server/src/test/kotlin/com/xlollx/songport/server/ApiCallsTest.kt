@@ -577,6 +577,33 @@ class ApiCallsTest {
         assertEquals(400, call("POST", "runs/r1/review", """{"action":"dance"}""").code)
     }
 
+    /** The phone sends its review choices for a sync it handed over; the server takes the newer ones in and answers all of its own. */
+    @Test fun reviewChoicesAreExchangedNewestFirst() {
+        env.store.upsertJob(SyncJob("d", "Dec", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out"), lastReportId = "d1"))
+        val a = Track(id = "a", title = "Alpha", artists = listOf("One"))
+        env.store.addReport(SyncReport(id = "d1", jobId = "d", jobName = "Dec", startedEpoch = 2, durationMs = 1, unmatched = listOf(a.toString()), unmatchedTracks = listOf(a)))
+        assertEquals("[]", call("GET", "syncs/d/decisions").obj["decisions"].toString())
+        // Ignored on the server through its review: kept with its time.
+        assertEquals(200, call("POST", "runs/d1/review", "{\"action\":\"ignore\",\"tracks\":[\"a\"]}").code)
+        val serverAt = call("GET", "syncs/d/decisions").obj["decisions"]!!.jsonArray.single().jsonObject.also { assertEquals("ignore", it.s("kind")) }.s("at")!!.toLong()
+        // The phone's: an older match for a (loses), a newer match for b, a keep for c.
+        val sent = call("POST", "syncs/d/decisions", """{"decisions":[
+            {"source":"a","kind":"match","track":"A1","at":${serverAt - 1000}},
+            {"source":"b","kind":"match","track":"B1","at":${serverAt + 1}},
+            {"source":"c","kind":"keep","track":"C1","at":5}]}""")
+        assertEquals(sent.text, 200, sent.code)
+        val all = sent.obj["decisions"]!!.jsonArray.associate { it.jsonObject.s("source")!! to it.jsonObject }
+        assertEquals("ignore", all["a"]!!.s("kind"))
+        assertEquals("B1", all["b"]!!.s("track"))
+        assertEquals("keep", all["c"]!!.s("kind"))
+        assertEquals("B1", env.store.cachedMatch("csv", "b", "csv"))
+        assertTrue(env.store.isIgnored("csv", "a", "csv"))
+        assertEquals(400, call("POST", "syncs/d/decisions", """{"decisions":[{"source":"x","kind":"delete","at":1}]}""").code)
+        assertEquals(400, call("POST", "syncs/d/decisions", """{"decisions":"all"}""").code)
+        assertEquals(404, call("GET", "syncs/nope/decisions").code)
+        assertEquals(401, call("GET", "syncs/d/decisions", auth = false).code)
+    }
+
     @Test fun filesSettingsPatternsZipAndDelete() {
         assertEquals("AUTO", call("GET", "files/settings").obj.s("layout"))
         assertEquals(400, call("PUT", "files/settings", """{"layout":"CUSTOM"}""").code)
