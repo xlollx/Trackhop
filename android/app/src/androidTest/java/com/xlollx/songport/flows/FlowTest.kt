@@ -257,13 +257,25 @@ abstract class FlowTest {
         }
         var last = (runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return) to keyboardHeight()
         var still = 0
-        val end = System.currentTimeMillis() + 4_000
+        var moves = 0
+        var stuck = 0
+        val end = System.currentTimeMillis() + 5_000
         while (still < 3 && System.currentTimeMillis() < end) {
             Thread.sleep(80)
             compose.waitForIdle()
-            val now = (runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull() ?: return) to keyboardHeight()
-            if (now == last) still++ else { still = 0; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
+            val node = runCatching { n.fetchSemanticsNode() }.getOrNull() ?: return
+            val now = node.boundsInWindow to keyboardHeight()
+            // In view: what shows of it (its bounds, cut to its scroller) is all of it. The field being
+            // typed in is kept in view by the page as the keyboard arrives, which can push the node out again.
+            val inView = node.boundsInWindow.height >= node.size.height - 1 && node.boundsInWindow.width >= node.size.width - 1
+            when {
+                now == last && inView -> still++
+                // Cut by something that does not scroll (a card under the pinned pill): as much in view as it gets.
+                now == last && ++stuck >= 4 -> break
+                else -> { still = 0; moves++; last = now; runCatching { n.performScrollTo() }; clearOfBottomBar(n) }
+            }
         }
+        if (moves > 0) log("settle: moved $moves times, in the end ${runCatching { n.fetchSemanticsNode().boundsInWindow }.getOrNull()} with the keyboard at ${keyboardHeight()} px, still=$still")
     }
 
     /** How much of the window the keyboard covers now, in pixels (0 = not shown). */
