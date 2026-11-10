@@ -58,6 +58,8 @@ Without it, the admin's.
 | `trackhop delete <sync>` | Deletes a sync; its playlists stay as they are. |
 | `trackhop move <sync> <position>` | Moves it in the list (the order of *Sync all* and of the widgets): a number from 1, or `up`, `down`, `top`, `bottom`. |
 | `trackhop stop <sync>`, `pause`, `resume` | Stops, pauses or resumes a sync that is running. |
+| `trackhop crowded` | Whether many syncs reach one service at about the same time (the service can turn some of them away). |
+| `trackhop spread` | New times for those syncs, each a little after the one before; shown only, saved with `--apply`. |
 | `trackhop preview <sync>` | What a run would add, remove, not find and want checked now, changing nothing. |
 
 The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or
@@ -156,6 +158,8 @@ shows); a `<playlist>` its name or id.
 | `trackhop settings`, `settings set <key> <value>` | The settings: `theme` (`system`, `light`, `dark`), `backupSchedule` (`manual`, `daily`, `weekly`), `backupFolder`, `updatesCheck`. |
 | `trackhop tasks`, `trackhop task <id>` | The background tasks (backups, duplicates) and one of them. |
 | `trackhop log` | The server's last log lines (`--lines N`); the admin's only on a shared server. |
+| `trackhop diagnostics` | A report for asking for help: version, system, services, syncs, the last runs and the log, without secrets. `--since 24h` (or `90m`, `7d`, `2w`), `--names` keeps the names of syncs, playlists and tracks, `--out <file>` saves it. The admin's. |
+| `trackhop report` | A GitHub issue made ready from that report (`--title`, `--description`, `--since`, `--names`) and the link that opens it prefilled. Nothing is sent. If the same error is already reported, it says where to comment instead, or to update. (`trackhop report <run>` is one run's result.) |
 | `trackhop help [<command>]` | Every command, or all about one (`trackhop review --help` too). |
 | `trackhop completion bash\|zsh\|fish` | Tab completion for your shell (below). |
 | `trackhop --version` | The version. |
@@ -221,6 +225,8 @@ tools allow:
 | `get_settings`, `change_setting` | The settings |
 | `list_notification_channels`, `test_notification` | The notification channels, and a test message |
 | `list_tasks`, `get_task` | The background tasks |
+| `get_crowded_syncs`, `spread_syncs` | Many syncs reaching one service at once, and new times for them (saved only with `apply`, after asking you) |
+| `get_diagnostics`, `prepare_issue` | The report for asking for help, so the assistant can read the log and explain an error; a GitHub issue made ready for you to send (never sent by Trackhop; an assistant with its own GitHub tool creates it only after you confirm) |
 | `backup_playlists` | Back up every playlist now |
 | `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files` | Changes that remove something (marked as destructive: assistants ask before) |
 

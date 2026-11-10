@@ -417,8 +417,23 @@ leave the home-screen app and not come back to it.
   part looks the same. The sync then says *N removals held back*: open it to see them, tick *Remove
   these N tracks* and run. The confirmation serves one run started by hand, within 12 hours; a
   scheduled run never removes them.
+- **Many syncs at once**: when four or more syncs read or write the same service (Spotify, YouTube
+  Music, the unofficial web connectors…) within the same half hour, the service can take it for
+  unusual traffic and turn some away. The home page then shows a card, as the app does: *Got it*
+  hides it until the group changes, *Show them* lists those syncs, *Spread them* shows new times
+  (each sync a little after the one before; days and frequency stay) and saves them only after
+  *Confirm*. The same from the [API](#api) (`/api/v1/syncs/crowded`, `/api/v1/syncs/spread`) and
+  the [command line](cli) (`trackhop crowded`, `trackhop spread`).
 - The log is in the page, in `docker logs trackhop` (or the name you gave the container), and in
   `songport.log`.
+- **Asking for help**: `GET /api/v1/diagnostics` (or `trackhop diagnostics`) gives the same report
+  as the app's Log page: version, system, services, syncs, the last runs and the log since a time
+  (`?since=24h`), without tokens, cookies, e-mail addresses, your servers' addresses or your user
+  name in folder paths; the names of syncs, playlists and tracks only with `?names=true`.
+  `POST /api/v1/report` (or `trackhop report`) makes a GitHub issue ready from it and gives you the
+  link that opens it prefilled: nothing is sent, you read it and send it. If GitHub already has an
+  issue for the same error (a signature hidden in the text, looked up without an account), it tells
+  you to add a comment there, or to update when a newer version fixed it.
 
 ## Tools
 
@@ -581,6 +596,8 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/tasks` | The background tasks (backups, duplicates, lyrics), running or ended in the last hour. |
 | `GET /api/v1/tasks/{task}` | One background task: its progress, whether it is done, its error. |
 | `GET /api/v1/log` | The server's last log lines (admin only). |
+| `GET /api/v1/diagnostics` | A report for asking for help (admin only): version, system, services, syncs, the last runs and the log since a time (`?since=24h`; `90m`, `7d`, `2w`), without secrets; names of syncs, playlists and tracks only with `?names=true`. With the last error and its signature. |
+| `POST /api/v1/report` | A GitHub issue made ready, never sent (admin only): `title`, `body`, `newIssueUrl` (prefilled). GitHub is searched for the error's signature first: `suggestion` is `new`, `comment` (an open issue has it: `comment` and `commentUrl`), `update` (fixed in a newer version, `latest`) or `comment_closed`. Body: `{"since"?, "names"?, "title"?, "description"?}`. |
 
 **Syncs**
 
@@ -606,6 +623,8 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off (both halves of a two-way pair). |
 | `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
 | `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
+| `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
+| `POST /api/v1/syncs/spread` | New times for those syncs (`changes`: `from`, `to`): only shown, saved with `?apply=true` (or `{"apply": true}`). |
 
 **Runs**
 

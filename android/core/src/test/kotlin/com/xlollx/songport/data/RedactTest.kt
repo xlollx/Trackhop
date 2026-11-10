@@ -33,4 +33,13 @@ class RedactTest {
         val plan = "[engine] Malayalam Trending: plan ready in 115s: source 199, not found 0, to review 1, removals held back 0"
         assertEquals(plan, Redact.text(plan))
     }
+
+    @Test fun theUserNameInFolderPathsIsHidden() {
+        val log = "[lyrics] /home/lorenzo/Music/a.flac · C:\\Users\\Anna\\AppData\\Trackhop · /Users/marco/Library/Trackhop · file:///C:/Users/luca/x"
+        val out = Redact.text(log)
+        for (name in listOf("lorenzo", "Anna", "marco", "luca")) assertFalse("$name still in:\n$out", out.contains(name))
+        assertTrue(out, out.contains("/home/[user]/Music/a.flac") && out.contains("/Users/[user]/Library/Trackhop") && out.contains("AppData"))
+        // A path outside a home folder stays as it is.
+        assertEquals("[files] /data/csv/Road trip.csv", Redact.text("[files] /data/csv/Road trip.csv"))
+    }
 }

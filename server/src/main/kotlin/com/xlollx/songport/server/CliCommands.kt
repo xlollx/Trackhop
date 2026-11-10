@@ -44,7 +44,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "stop", "pause", "resume" -> runState(one(p, "$command <sync>"), command)
         "preview" -> preview(one(p, "preview <sync>"))
         "runs" -> runs(p.takeIf { it.isNotEmpty() }?.joinToString(" "), o)
-        "report" -> report(one(p, "report <run>"))
+        "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
         "services" -> services()
         "playlists" -> playlists(one(p, "playlists <service>"))
@@ -69,6 +69,9 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "tasks" -> tasks()
         "task" -> task(one(p, "task <id>"))
         "log" -> log(o)
+        "diagnostics" -> diagnostics(o)
+        "crowded" -> crowded()
+        "spread" -> spread(o.has("apply"))
         else -> throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
@@ -876,6 +879,66 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         val lines = api.get("log" + (o.value("lines")?.let { "?lines=${enc(it)}" } ?: "")).jsonArray
         if (asJson) return print(lines).let { 0 }
         lines.forEach { out.println(it.str()) }
+        return 0
+    }
+
+    // ------------------------------------------------------------------ help and crowded schedules
+
+    private fun diagQuery(o: Cli.Opts) = listOfNotNull(o.value("since")?.let { "since=${enc(it)}" }, "names=true".takeIf { o.has("names") }).joinToString("&")
+
+    private fun diagnostics(o: Cli.Opts): Int {
+        val r = api.get("diagnostics" + diagQuery(o).let { if (it.isEmpty()) "" else "?$it" }).jsonObject
+        val file = o.value("out")
+        if (file != null) {
+            File(file).writeText(if (asJson) pretty.encodeToString(JsonElement.serializer(), r) else r.s("report"))
+            if (!asJson) out.println("Saved the report to $file: read it before you share it.")
+            return 0
+        }
+        if (asJson) print(r) else out.print(r.s("report"))
+        return 0
+    }
+
+    private fun issue(o: Cli.Opts): Int {
+        val r = api.post("report", buildJsonObject {
+            o.value("since")?.let { put("since", it) }
+            if (o.has("names")) put("names", true)
+            o.value("title")?.let { put("title", it) }
+            o.value("description")?.let { put("description", it) }
+        }).jsonObject
+        if (asJson) return print(r).let { 0 }
+        out.println(r.s("message"))
+        val comment = r["comment"].str()
+        if (comment != null) {
+            out.println("\nComment:\n$comment\n\nOpen: ${r.s("commentUrl")}")
+            out.println("\nOr a new issue anyway: ${r.s("newIssueUrl")}")
+        } else {
+            if (r.s("suggestion") == "update") r["issue"]?.jsonObject?.let { out.println("\nThe issue: ${it.s("url")}") }
+            out.println("\nTitle: ${r.s("title")}\n\n${r.s("body")}\nOpen: ${r.s("newIssueUrl")}")
+        }
+        return 0
+    }
+
+    private fun crowded(): Int {
+        val r = api.get("syncs/crowded").jsonObject
+        if (asJson) return print(r).let { 0 }
+        if (!r.b("crowded")) return out.println("No crowded schedule: no service has many syncs starting within the same half hour.").let { 0 }
+        val names = r["syncs"]?.jsonArray.orEmpty().map { it.jsonObject.s("name") }
+        out.println("Syncs with ${r.s("serviceName")} all start around ${r.s("at")} (${names.size}): ${names.joinToString(", ")}")
+        out.println("When many syncs reach the same service at the same moment, it can turn some of them away for a while.")
+        if (r.b("canSpread")) out.println("New times: trackhop spread")
+        return 0
+    }
+
+    private fun spread(apply: Boolean): Int {
+        val r = api.post("syncs/spread" + if (apply) "?apply=true" else "").jsonObject
+        if (asJson) return print(r).let { 0 }
+        val changes = r["changes"]?.jsonArray.orEmpty().map { it.jsonObject }
+        if (!r.b("crowded") || changes.isEmpty()) return out.println("Nothing to spread.").let { 0 }
+        val width = changes.maxOf { it.s("name").length }.coerceAtMost(40)
+        out.println(if (r.b("applied")) "New times saved for the syncs with ${r.s("serviceName")}:" else "New times for the syncs with ${r.s("serviceName")} (nothing saved yet):")
+        changes.forEach { out.println("  ${it.s("name").take(40).padEnd(width)}  ${it.s("from")} -> ${it.s("to")}") }
+        r["stays"]?.jsonArray.orEmpty().map { it.jsonObject }.forEach { out.println("  ${it.s("name").take(40).padEnd(width)}  ${it.s("timing")} (stays)") }
+        if (!r.b("applied")) out.println("Save them: trackhop spread --apply")
         return 0
     }
 

@@ -63,8 +63,13 @@ object Cli {
         Cmd("pause", "Syncs", listOf("pause <sync>"), "pause a running sync"),
         Cmd("resume", "Syncs", listOf("resume <sync>"), "resume a paused sync"),
         Cmd("preview", "Syncs", listOf("preview <sync>"), "what a run would do now, changing nothing"),
+        Cmd("crowded", "Syncs", listOf("crowded"), "whether many syncs reach one service at about the same time",
+            "A service can take many syncs at once for unusual traffic and turn some away. trackhop spread gives them new times."),
+        Cmd("spread", "Syncs", listOf("spread [--apply]"), "new times for the crowded syncs: shown only, saved with --apply",
+            "The first keeps its time, each next one starts a little later; days, frequency and everything else stay."),
         Cmd("runs", "Runs and review", listOf("runs [<sync>] [--limit N] [--offset N]"), "the runs, newest first"),
-        Cmd("report", "Runs and review", listOf("report <run>"), "one run: what it added, removed, could not find, and its notes"),
+        Cmd("report", "Runs and review", listOf("report <run>", "report [--since 24h] [--names] [--title T] [--description TEXT]"), "one run: what it added, removed, could not find, and its notes",
+            "Without <run>: a GitHub issue made ready, with the diagnostics (as trackhop diagnostics) and a link that opens it\nprefilled. Nothing is sent: you read it and send it yourself. When the same error is already reported, it says\nwhere to comment instead, or that a newer version fixed it."),
         Cmd("review", "Runs and review", listOf(
             "review <sync> [--run ID]",
             "review <sync> ignore|keep|discard <n>...|all",
@@ -129,6 +134,8 @@ object Cli {
         Cmd("tasks", "Other", listOf("tasks", "task <id>"), "the background tasks (backups, duplicates), and one of them"),
         Cmd("task", "Other", listOf("task <id>"), "one background task"),
         Cmd("log", "Other", listOf("log [--lines N]"), "the server's last log lines (the admin's)"),
+        Cmd("diagnostics", "Other", listOf("diagnostics [--since 24h] [--names] [--out <file>]"), "a report for asking for help: version, system, services, syncs, runs and log, without secrets",
+            "--since: how far back (90m, 24h, 7d, 2w). Names of syncs, playlists and tracks are left out unless --names. The admin's."),
         Cmd("status", "Other", listOf("status"), "version, syncs, what is running"),
         Cmd("mcp", "Other", listOf("mcp"), "serve Trackhop's tools to an AI assistant (MCP, over stdin/stdout)"),
         Cmd("completion", "Other", listOf("completion bash|zsh|fish"), "the shell's completion for trackhop",
@@ -138,8 +145,8 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since")
+    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names")
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description")
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */
