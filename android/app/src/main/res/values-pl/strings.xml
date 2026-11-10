@@ -1780,7 +1780,7 @@
     <string name="whats_new_119_invite_title">Zaproś swoją grupę</string>
     <string name="whats_new_119_invite_body">Zaproś kodem QR albo linkiem i porównaj kod grupy. Grupa spotyka się w folderze, który już udostępnia (Google Drive, Nextcloud, Syncthing, Dropbox), w kanale ntfy szyfrowanym end-to-end albo na twoim własnym serwerze Trackhop. Kto ma zaproszenie albo folder, może czytać grupę: wysyłaj je tylko osobom, które zapraszasz.</string>
     <string name="whats_new_119_handover_title">Przekaż synchronizację serwerowi</string>
-    <string name="whats_new_119_handover_body">Z menu synchronizacji przekaż ją swojemu serwerowi Trackhop (Docker lub Desktop): tam działa na kontach serwera. Przywróć ją na ten telefon, kiedy chcesz. Decyzje z przeglądu działają w obie strony.</string>
+    <string name="whats_new_119_handover_body">Z menu synchronizacji przekaż ją swojemu serwerowi Trackhop: tam działa na kontach serwera. Przywróć ją na ten telefon, kiedy chcesz. Decyzje z przeglądu działają w obie strony.</string>
     <string name="whats_new_119_server_title">Synchronizacje twojego serwera</string>
     <string name="whats_new_119_server_body">Narzędzia › Mój serwer pokazuje synchronizacje na twoim serwerze Trackhop: uruchamiaj je, sprawdzaj wyniki i przeglądaj utwory. Wymaga Ustawienia › Zaawansowane › Uzgadniaj z moim serwerem.</string>
     <string name="whats_new_114_nano_title">AI bez klucza</string>

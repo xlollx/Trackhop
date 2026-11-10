@@ -1734,7 +1734,7 @@
     <string name="whats_new_119_invite_title">Invita a tu grupo</string>
     <string name="whats_new_119_invite_body">Invita con un código QR o un enlace y compara el código del grupo. El grupo se encuentra en una carpeta que ya comparte (Google Drive, Nextcloud, Syncthing, Dropbox), en un canal ntfy cifrado de extremo a extremo o en tu propio servidor Trackhop. Quien tenga la invitación, o la carpeta, puede leer el grupo: envíala solo a las personas que invitas.</string>
     <string name="whats_new_119_handover_title">Pasa una sincronización a tu servidor</string>
-    <string name="whats_new_119_handover_body">Desde el menú de una sincronización, pásala a tu propio servidor Trackhop (Docker o Desktop): allí se ejecuta con las cuentas del servidor. Tráela de vuelta a este teléfono cuando quieras. Las decisiones de revisión van en ambos sentidos.</string>
+    <string name="whats_new_119_handover_body">Desde el menú de una sincronización, pásala a tu propio servidor Trackhop: allí se ejecuta con las cuentas del servidor. Tráela de vuelta a este teléfono cuando quieras. Las decisiones de revisión van en ambos sentidos.</string>
     <string name="whats_new_119_server_title">Las sincronizaciones de tu servidor</string>
     <string name="whats_new_119_server_body">Herramientas › Mi servidor muestra las sincronizaciones de tu servidor Trackhop: ejecútalas, mira cómo fueron y revisa canciones. Necesita Ajustes › Avanzado › Coordinar con mi servidor.</string>
     <string name="whats_new_114_nano_title">IA sin clave</string>

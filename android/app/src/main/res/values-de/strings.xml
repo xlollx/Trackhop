@@ -1726,7 +1726,7 @@
     <string name="whats_new_119_invite_title">Lade deine Gruppe ein</string>
     <string name="whats_new_119_invite_body">Lade per QR-Code oder Link ein und vergleiche den Gruppencode. Die Gruppe trifft sich in einem Ordner, den sie schon teilt (Google Drive, Nextcloud, Syncthing, Dropbox), in einem Ende-zu-Ende-verschlüsselten ntfy-Kanal oder auf deinem eigenen Trackhop-Server. Wer die Einladung oder den Ordner hat, kann die Gruppe lesen: Schick sie nur den Leuten, die du einlädst.</string>
     <string name="whats_new_119_handover_title">Ein Sync für deinen Server</string>
-    <string name="whats_new_119_handover_body">Über das Menü eines Syncs übergibst du ihn an deinen eigenen Trackhop-Server (Docker oder Desktop): Dort läuft er mit den Konten des Servers. Hol ihn zurück auf dieses Handy, wann du willst. Prüfentscheidungen gelten in beide Richtungen.</string>
+    <string name="whats_new_119_handover_body">Über das Menü eines Syncs übergibst du ihn an deinen eigenen Trackhop-Server: Dort läuft er mit den Konten des Servers. Hol ihn zurück auf dieses Handy, wann du willst. Prüfentscheidungen gelten in beide Richtungen.</string>
     <string name="whats_new_119_server_title">Die Syncs deines Servers</string>
     <string name="whats_new_119_server_body">Werkzeuge › Mein Server listet die Syncs auf deinem Trackhop-Server: Starte sie, sieh dir die Ergebnisse an und prüfe Songs. Dafür braucht es Einstellungen › Erweitert › Mit meinem Server abstimmen.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>

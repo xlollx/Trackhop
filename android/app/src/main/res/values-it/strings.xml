@@ -1726,7 +1726,7 @@
     <string name="whats_new_119_invite_title">Invita il tuo gruppo</string>
     <string name="whats_new_119_invite_body">Invita con un codice QR o un link, e confronta il codice del gruppo. Il gruppo si incontra in una cartella che già condivide (Google Drive, Nextcloud, Syncthing, Dropbox), in un canale ntfy cifrato end-to-end o sul tuo server Trackhop. Chi ha l\'invito, o la cartella, può leggere il gruppo: mandalo solo alle persone che inviti.</string>
     <string name="whats_new_119_handover_title">Affida una sync al tuo server</string>
-    <string name="whats_new_119_handover_body">Dal menu di una sync, affidala al tuo server Trackhop (Docker o Desktop): lì gira con gli account del server. Riportala su questo telefono quando vuoi. Le scelte di revisione valgono in tutti e due i sensi.</string>
+    <string name="whats_new_119_handover_body">Dal menu di una sync, affidala al tuo server Trackhop: lì gira con gli account del server. Riportala su questo telefono quando vuoi. Le scelte di revisione valgono in tutti e due i sensi.</string>
     <string name="whats_new_119_server_title">Le sync del tuo server</string>
     <string name="whats_new_119_server_body">Strumenti › Il mio server elenca le sync del tuo server Trackhop: avviale, guarda com\'è andata e rivedi i brani. Serve Opzioni › Avanzate › Coordina con il mio server.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>

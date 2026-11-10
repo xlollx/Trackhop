@@ -1724,7 +1724,7 @@
     <string name="whats_new_119_invite_title">Grubunu davet et</string>
     <string name="whats_new_119_invite_body">QR kod ya da bağlantıyla davet et ve grup kodunu karşılaştır. Grup, zaten paylaştığı bir klasörde (Google Drive, Nextcloud, Syncthing, Dropbox), uçtan uca şifreli bir ntfy kanalında ya da kendi Trackhop sunucunda buluşur. Daveti ya da klasörü olan herkes grubu okuyabilir: daveti yalnızca davet ettiğin kişilere gönder.</string>
     <string name="whats_new_119_handover_title">Bir senkronizasyonu sunucuna devret</string>
-    <string name="whats_new_119_handover_body">Bir senkronizasyonun menüsünden onu kendi Trackhop sunucuna (Docker veya Desktop) devret: orada sunucunun hesaplarıyla çalışır. İstediğin zaman bu telefona geri al. İnceleme seçimleri iki yönde de paylaşılır.</string>
+    <string name="whats_new_119_handover_body">Bir senkronizasyonun menüsünden onu kendi Trackhop sunucuna devret: orada sunucunun hesaplarıyla çalışır. İstediğin zaman bu telefona geri al. İnceleme seçimleri iki yönde de paylaşılır.</string>
     <string name="whats_new_119_server_title">Sunucunun senkronizasyonları</string>
     <string name="whats_new_119_server_body">Araçlar › Sunucum, Trackhop sunucundaki senkronizasyonları listeler: çalıştır, nasıl gittiğini gör ve şarkıları incele. Ayarlar › Gelişmiş › Sunucumla eşgüdüm sağla açık olmalı.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>

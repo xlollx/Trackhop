@@ -1699,7 +1699,7 @@
     <string name="whats_new_119_invite_title">그룹 초대하기</string>
     <string name="whats_new_119_invite_body">QR 코드나 링크로 초대하고 그룹 코드를 비교해 보세요. 그룹은 이미 공유하는 폴더(Google Drive, Nextcloud, Syncthing, Dropbox), 종단 간 암호화된 ntfy 채널, 또는 내 Trackhop 서버에서 만나요. 초대나 폴더를 가진 사람은 누구나 그룹을 읽을 수 있으니, 초대할 사람에게만 보내세요.</string>
     <string name="whats_new_119_handover_title">동기화를 서버에 맡기기</string>
-    <string name="whats_new_119_handover_body">동기화 메뉴에서 내 Trackhop 서버(Docker 또는 Desktop)에 맡길 수 있어요. 서버의 계정으로 실행되고, 언제든 이 휴대폰으로 되돌릴 수 있어요. 검토 선택은 양쪽으로 공유돼요.</string>
+    <string name="whats_new_119_handover_body">동기화 메뉴에서 내 Trackhop 서버에 맡길 수 있어요. 서버의 계정으로 실행되고, 언제든 이 휴대폰으로 되돌릴 수 있어요. 검토 선택은 양쪽으로 공유돼요.</string>
     <string name="whats_new_119_server_title">서버의 동기화</string>
     <string name="whats_new_119_server_body">도구 › 내 서버에서 Trackhop 서버의 동기화를 보고, 실행하고, 결과를 확인하고, 곡을 검토할 수 있어요. 설정 › 고급 › 내 서버와 조율하기가 필요해요.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>

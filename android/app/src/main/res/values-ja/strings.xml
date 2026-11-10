@@ -1700,7 +1700,7 @@
     <string name="whats_new_119_invite_title">グループを招待</string>
     <string name="whats_new_119_invite_body">QR コードかリンクで招待し、グループコードを照らし合わせましょう。グループは、すでに共有しているフォルダー（Google Drive、Nextcloud、Syncthing、Dropbox）、エンドツーエンドで暗号化された ntfy チャンネル、または自分の Trackhop サーバーで集まります。招待やフォルダーを持っている人は誰でもグループを読めます。招待する人だけに送ってください。</string>
     <string name="whats_new_119_handover_title">同期をサーバーに任せる</string>
-    <string name="whats_new_119_handover_body">同期のメニューから、自分の Trackhop サーバー（Docker または Desktop）に任せられます。サーバーのアカウントで実行され、いつでもこのスマホに戻せます。レビューの選択は双方向で共有されます。</string>
+    <string name="whats_new_119_handover_body">同期のメニューから、自分の Trackhop サーバーに任せられます。サーバーのアカウントで実行され、いつでもこのスマホに戻せます。レビューの選択は双方向で共有されます。</string>
     <string name="whats_new_119_server_title">サーバーの同期</string>
     <string name="whats_new_119_server_body">ツール › マイサーバーで Trackhop サーバーの同期を一覧できます：実行、結果の確認、曲のレビュー。設定 › 詳細設定 › 自分のサーバーと調整 が必要です。</string>
     <string name="whats_new_114_nano_title">キー不要のAI</string>

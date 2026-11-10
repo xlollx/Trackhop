@@ -1727,7 +1727,7 @@
     <string name="whats_new_119_invite_title">Invite your group</string>
     <string name="whats_new_119_invite_body">Invite with a QR code or a link, and compare the group code. The group meets in a folder it already shares (Google Drive, Nextcloud, Syncthing, Dropbox), an end-to-end encrypted ntfy channel or your own Trackhop server. Anyone with the invite, or with the folder, can read the group: send it only to the people you invite.</string>
     <string name="whats_new_119_handover_title">Hand a sync to your server</string>
-    <string name="whats_new_119_handover_body">From a sync\'s menu, hand it over to your own Trackhop server (Docker or Desktop): it runs there with the server\'s accounts. Bring it back to this phone whenever you want. Review choices travel both ways.</string>
+    <string name="whats_new_119_handover_body">From a sync\'s menu, hand it over to your own Trackhop server: it runs there with the server\'s accounts. Bring it back to this phone whenever you want. Review choices travel both ways.</string>
     <string name="whats_new_119_server_title">Your server\'s syncs</string>
     <string name="whats_new_119_server_body">Tools › My server lists the syncs on your Trackhop server: run them, see how they went and review songs. It needs Settings › Advanced › Coordinate with my server.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
