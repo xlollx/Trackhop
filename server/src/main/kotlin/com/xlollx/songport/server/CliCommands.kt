@@ -33,9 +33,9 @@ import java.time.format.DateTimeFormatter
 internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson: Boolean) {
     fun run(command: String, p: List<String>, o: Cli.Opts = Cli.Opts()): Int = when (command) {
         "status" -> status()
-        "syncs", "list", "ls" -> syncs()
+        "syncs", "list", "ls" -> syncs(o)
         "show" -> show(one(p, "show <sync>"))
-        "run" -> runSyncs(p, o.has("all"), o.has("wait"), o.has("anyway"))
+        "run" -> runSyncs(p, o.has("all"), o.has("wait"), o.has("anyway"), group(o))
         "enable", "disable" -> toggle(one(p, "$command <sync>"), command == "enable")
         "new" -> newSync(p, o)
         "edit" -> editSync(p, o)
@@ -124,14 +124,35 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         return (listOf("+${r.n("added")} -${r.n("removed")}") + extra).joinToString(", ")
     }
 
-    private fun syncs(): Int {
-        val list = allSyncs()
+    /**
+     * The group --tag, --label and --favorite ask for, as the API's query ("" for none): a tag is
+     * KEY=VALUE (or KEY:VALUE), or a key alone.
+     */
+    private fun group(o: Cli.Opts): String {
+        val tags = o.all("tag").map { t -> com.xlollx.songport.sync.Labels.parseTag(t)?.let { (k, v) -> if (v == null) k else "$k:$v" } ?: throw Cli.Failure(2, "--tag takes KEY=VALUE, or a key alone") }
+        return listOfNotNull(
+            tags.takeIf { it.isNotEmpty() }?.let { "tag=" + enc(it.joinToString(",")) },
+            o.value("label")?.let { "label=" + enc(it) },
+            "favorite=true".takeIf { o.has("favorite") },
+        ).joinToString("&")
+    }
+
+    /** A sync's label and tags on one line, "" without them. */
+    private fun groups(o: JsonObject): String = (
+        listOfNotNull(o["labelName"].str()?.let { "label $it" }, "starred".takeIf { o.b("favorite") }) +
+            (o["tags"] as? JsonObject)?.entries.orEmpty().map { (k, v) -> v.str().orEmpty().let { if (it.isEmpty()) k else "$k=$it" } }
+        ).joinToString(", ")
+
+    private fun syncs(o: Cli.Opts = Cli.Opts()): Int {
+        val wanted = group(o)
+        val list = if (wanted.isEmpty()) allSyncs() else api.get("syncs?$wanted").jsonArray.map { it.jsonObject }
         if (asJson) return print(JsonArray(list)).let { 0 }
-        if (list.isEmpty()) out.println("No syncs yet: make one on Trackhop's page.")
+        if (list.isEmpty()) out.println(if (wanted.isEmpty()) "No syncs yet: make one on Trackhop's page." else "No sync matches.")
         for (o in list) {
             val state = when { o.b("running") -> "running"; !o.b("enabled") -> "off"; else -> o.s("schedule") }
             out.println("${o.s("name")}  [$state]")
             out.println("  ${route(o)}")
+            groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
             out.println("  last ${whenAt(o.l("lastRun"))}: ${result(o["lastResult"] as? JsonObject)}" +
                 (o.l("nextRun")?.let { ", next ${whenAt(it)}" } ?: ""))
         }
@@ -145,6 +166,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         out.println("  ${route(o)}")
         out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
         (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
+        groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
         o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
         val runs = o["runs"]?.jsonArray.orEmpty()
         if (runs.isNotEmpty()) out.println("Runs:")
@@ -152,13 +174,20 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         return 0
     }
 
-    private fun runSyncs(p: List<String>, all: Boolean, wait: Boolean, anyway: Boolean = false): Int {
-        if (!all && p.isEmpty()) throw Cli.Failure(2, "usage: trackhop run <sync>... | --all [--wait]")
-        val targets = if (all) allSyncs().filter { it.b("enabled") } else p.map { sync(it) }
-        if (all) api.post("syncs/run-all") else targets.forEach { api.post("syncs/${enc(it.s("id"))}/run" + if (anyway) "?anyway=true" else "") }
+    private fun runSyncs(p: List<String>, all: Boolean, wait: Boolean, anyway: Boolean = false, group: String = ""): Int {
+        if (!all && p.isEmpty() && group.isEmpty()) throw Cli.Failure(2, "usage: trackhop run <sync>... | --all | --tag KEY=VALUE [--wait]")
+        if (group.isNotEmpty() && (all || p.isNotEmpty())) throw Cli.Failure(2, "name the syncs, or say --all, or give a group (--tag, --label, --favorite): one of the three")
+        // A group: the syncs with that tag or label, those turned on (as Run all).
+        val targets = when {
+            group.isNotEmpty() -> api.get("syncs?$group").jsonArray.map { it.jsonObject }.filter { it.b("enabled") }
+            all -> allSyncs().filter { it.b("enabled") }
+            else -> p.map { sync(it) }
+        }
+        if (group.isNotEmpty()) { if (targets.isNotEmpty()) api.post("syncs/run?$group") }
+        else if (all) api.post("syncs/run-all") else targets.forEach { api.post("syncs/${enc(it.s("id"))}/run" + if (anyway) "?anyway=true" else "") }
         if (!wait) {
             if (asJson) print(buildJsonObject { put("started", buildJsonArray { targets.forEach { add(it.s("id")) } }) })
-            else out.println("Started: ${targets.joinToString(", ") { it.s("name") }.ifEmpty { "nothing (no syncs turned on)" }}")
+            else out.println("Started: ${targets.joinToString(", ") { it.s("name") }.ifEmpty { if (group.isEmpty()) "nothing (no syncs turned on)" else "nothing (no sync turned on matches)" }}")
             return 0
         }
         if (!asJson) out.println("Running ${targets.joinToString(", ") { it.s("name") }}...")
@@ -403,6 +432,24 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         o.value("changes")?.let { put("changes", it) }
         if (o.has("follows")) put("follows", true)
         o.value("color")?.let { put("color", if (it == "none") "" else it) }
+        o.value("label")?.let { put("label", if (it == "none") "" else it) }
+        if (o.has("favorite")) put("favorite", true)
+        if (o.has("unfavorite")) put("favorite", false)
+    }
+
+    /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
+    private fun tagsField(o: Cli.Opts, now: JsonObject?): JsonObject? {
+        if (o.all("tag").isEmpty() && o.all("untag").isEmpty()) return null
+        val fold = com.xlollx.songport.sync.Labels::fold
+        val tags = LinkedHashMap<String, String>()
+        now?.forEach { (k, v) -> tags[k] = v.str().orEmpty() }
+        for (t in o.all("tag")) {
+            val (k, v) = com.xlollx.songport.sync.Labels.parseTag(t) ?: throw Cli.Failure(2, "--tag takes KEY=VALUE, or a key alone")
+            tags.keys.firstOrNull { fold(it) == fold(k) }?.let { tags.remove(it) }
+            tags[k] = v.orEmpty()
+        }
+        for (k in o.all("untag")) tags.keys.firstOrNull { fold(it) == fold(k) }?.let { tags.remove(it) }
+        return buildJsonObject { tags.forEach { (k, v) -> put(k, v) } }
     }
 
     private fun isLink(s: String) = s.startsWith("http://") || s.startsWith("https://")
@@ -421,6 +468,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
                 p.drop(3).joinToString(" ").takeIf { it.isNotEmpty() }?.let { put("playlist", playlist(dst.s("id"), it).s("id")) }
             })
             syncFields(o)
+            tagsField(o, null)?.let { put("tags", it) }
         }
         val r = api.send("POST", "syncs", body).jsonObject
         if (asJson) return print(r).let { 0 }
@@ -431,11 +479,11 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
 
     private fun editSync(p: List<String>, o: Cli.Opts): Int {
         val target = sync(one(p, "edit <sync> [options]"))
-        val body = buildJsonObject { syncFields(o) }
-        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color (trackhop help edit)")
+        val body = buildJsonObject { syncFields(o); tagsField(o, target["tags"] as? JsonObject)?.let { put("tags", it) } }
+        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite (trackhop help edit)")
         val r = api.send("PATCH", "syncs/${enc(target.s("id"))}", body).jsonObject
         if (asJson) return print(r).let { 0 }
-        out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}")
+        out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")
         r["warning"].str()?.let { out.println("Note: $it") }
         return 0
     }

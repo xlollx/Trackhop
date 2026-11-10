@@ -67,6 +67,94 @@ class ApiCallsTest {
 
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
 
+    @Test fun favouritesLabelsAndTagsAreWrittenFilteredAndRunAsAGroup() {
+        fun make(name: String, extra: String) =
+            call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"name":"$name"$extra}""").also { assertEquals(it.text, 201, it.code) }
+        val a = make("A", ""","tags":{" Genre ":"Metal","mood":"gym"},"favorite":true,"color":"teal"""").obj
+        val b = make("B", ""","tags":{"genre":"Heavy Metal","kids":null},"enabled":false""").obj
+        val c = make("C", "").obj
+        assertEquals("""{"Genre":"Metal","mood":"gym"}""", a["tags"].toString())
+        assertEquals("true", a.s("favorite"))
+        // A ready colour is its own label.
+        assertEquals("teal", a.s("label"))
+        assertEquals("""{"genre":"Heavy Metal","kids":""}""", b["tags"].toString())
+        assertEquals("false", c.s("favorite"))
+        assertEquals("{}", c["tags"].toString())
+
+        fun names(q: String) = call("GET", "syncs$q").also { assertEquals(it.text, 200, it.code) }.arr.map { it.jsonObject.s("name") }
+        assertEquals(listOf("A", "B", "C"), names(""))
+        // Exactly that tag, whatever the case; "metal" is not "Heavy Metal".
+        assertEquals(listOf("A"), names("?tag=genre:metal"))
+        assertEquals(listOf("A"), names("?tag=GENRE%3DMetal"))
+        assertEquals(listOf("B"), names("?tag=genre%3Aheavy%20metal"))
+        // The key alone, any value; a key without a value.
+        assertEquals(listOf("A", "B"), names("?tag=genre"))
+        assertEquals(listOf("B"), names("?tag=kids"))
+        // Several: all wanted.
+        assertEquals(listOf("A"), names("?tag=genre,mood:gym"))
+        assertEquals(emptyList<String?>(), names("?tag=genre:metal,kids"))
+        assertEquals(listOf("A"), names("?favorite=true"))
+        assertEquals(listOf("B", "C"), names("?favorite=false"))
+        assertEquals(400, call("GET", "syncs?favorite=maybe").code)
+        assertEquals(400, call("GET", "syncs?tag=%3Ametal").code)
+        assertEquals("""{"Genre":["Heavy Metal","Metal"],"kids":[],"mood":["gym"]}""", call("GET", "tags").obj.toString())
+
+        // Labels: a ready colour named, a colour of one's own saved, a sync given it by name.
+        val gym = call("POST", "labels", """{"color":"teal","name":"Gym"}""")
+        assertEquals(gym.text, 201, gym.code)
+        assertEquals("teal", gym.obj.s("id")); assertEquals("1", gym.obj.s("syncs"))
+        assertEquals(listOf("A"), names("?label=Gym"))
+        assertEquals(listOf("A"), names("?label=teal"))
+        assertEquals(emptyList<String?>(), names("?label=nope"))
+        assertEquals("Gym", call("GET", "syncs/${a.s("id")}").obj.s("labelName"))
+        val mine = call("POST", "labels", """{"color":"#12a594","name":"Mine"}""").obj
+        val labelId = mine.s("id")!!
+        assertEquals("#12A594", mine.s("color"))
+        val worn = call("PATCH", "syncs/${c.s("id")}", """{"label":"mine"}""")
+        assertEquals(worn.text, 200, worn.code)
+        assertEquals("#12A594", worn.obj.s("color")); assertEquals(labelId, worn.obj.s("label")); assertEquals("Mine", worn.obj.s("labelName"))
+        assertEquals(400, call("PATCH", "syncs/${c.s("id")}", """{"label":"nope"}""").code)
+        assertEquals(400, call("POST", "labels", """{"color":"mauve","name":"x"}""").code)
+        assertEquals(400, call("POST", "labels", """{"color":"red"}""").code)
+        // Recoloured and renamed: the sync follows.
+        val ours = call("PATCH", "labels/$labelId", """{"color":"#000001","name":"Ours"}""")
+        assertEquals(ours.text, 200, ours.code)
+        assertEquals("Ours", ours.obj.s("name"))
+        assertEquals("#000001", env.store.job(c.s("id")!!)!!.color)
+        assertEquals(400, call("PATCH", "labels/teal", """{"color":"#000001"}""").code)
+        assertEquals(9, call("GET", "labels").arr.size)
+        // A colour given as such takes the label off.
+        assertEquals("null", call("PATCH", "syncs/${c.s("id")}", """{"color":"#abcdef"}""").obj["label"].toString())
+        call("PATCH", "syncs/${c.s("id")}", """{"label":"$labelId"}""")
+        // Deleted: the colour stays, without the name.
+        assertEquals(200, call("DELETE", "labels/$labelId").code)
+        assertEquals("#000001", env.store.job(c.s("id")!!)!!.color)
+        assertEquals(null, env.store.job(c.s("id")!!)!!.label)
+        assertEquals(404, call("DELETE", "labels/$labelId").code)
+        // "label": null takes label and colour off.
+        assertEquals("null", call("PATCH", "syncs/${c.s("id")}", """{"label":null}""").obj["color"].toString())
+
+        // Tags are replaced as a whole; not an object is refused.
+        assertEquals("""{"x":""}""", call("PATCH", "syncs/${c.s("id")}", """{"tags":{"x":null}}""").obj["tags"].toString())
+        assertEquals("{}", call("PATCH", "syncs/${c.s("id")}", """{"tags":null}""").obj["tags"].toString())
+        assertEquals(400, call("PATCH", "syncs/${c.s("id")}", """{"tags":"genre"}""").code)
+
+        // A group run: needs a group; starts those turned on (B is off).
+        assertEquals(400, call("POST", "syncs/run").code)
+        assertEquals(400, call("POST", "syncs/run?tag=%3D").code)
+        val none = call("POST", "syncs/run?tag=nothing")
+        assertEquals(none.text, 202, none.code); assertEquals("0", none.obj.s("started"))
+        val run = call("POST", "syncs/run?tag=genre")
+        assertEquals(run.text, 202, run.code)
+        assertEquals("1", run.obj.s("started"))
+        assertEquals(listOf(a.s("id")), run.obj["syncs"]!!.jsonArray.map { it.jsonObject.s("id") })
+        val until = System.currentTimeMillis() + 20_000
+        while (env.store.job(a.s("id")!!)!!.lastReportId == null && System.currentTimeMillis() < until) Thread.sleep(100)
+        assertTrue(env.store.job(a.s("id")!!)!!.lastReportId != null)
+        assertEquals(null, env.store.job(b.s("id")!!)!!.lastReportId)
+        assertEquals(null, env.store.job(c.s("id")!!)!!.lastReportId)
+    }
+
     @Test fun aSyncIsMadeChangedMovedAndDeleted() {
         val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"name":"Mine","schedule":"daily","at":"07:30","changes":"mirror","color":"teal"}""")
         assertEquals(made.text, 201, made.code)

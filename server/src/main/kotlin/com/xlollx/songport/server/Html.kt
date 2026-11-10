@@ -224,6 +224,11 @@ details summary{cursor:pointer}
 footer{max-width:920px;margin:24px auto;padding:0 16px 24px;color:var(--ink-3);font-size:13px;line-height:2}
 .support{position:relative;display:inline-block}.support>summary{list-style:none;cursor:pointer;display:inline-block;padding:5px 14px;border-radius:999px;font-weight:600;font-size:14px;background:var(--surface-2);color:var(--ink)}.support>summary::-webkit-details-marker{display:none}.top .support>summary{background:#ffe2a8;color:#4a2c00}.top:has(.support[open]){overflow:visible}.support .pop{position:absolute;z-index:20;line-height:1.4;width:300px;max-width:calc(100vw - 32px);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.2);padding:12px;text-align:left;font-weight:400}.top .support .pop{right:0;top:calc(100% + 8px)}footer .support .pop{left:0;bottom:calc(100% + 8px)}.support .pop p{margin:0 0 4px;font-size:13px;color:var(--ink-3)}.support .pop a{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;text-decoration:none;color:var(--ink);background:var(--surface-2);margin-top:8px}.support .pop a:hover{background:var(--accent-2);color:var(--accent-2-ink)}.support .pop b{display:block;font-size:15px}.support .pop small{display:block;color:var(--ink-3);font-size:12px}.support .pop span.i{font-size:22px}
 .actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.finder{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0}.finder input[type=search]{flex:1;min-width:12em;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .swatches label{margin:0;display:inline-flex;cursor:pointer}
 .swatches input{position:absolute;opacity:0;width:1px;height:1px}

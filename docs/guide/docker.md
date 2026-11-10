@@ -576,11 +576,17 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 
 | Call | What it does |
 |---|---|
-| `GET /api/v1/syncs` | Every sync with its source, target, timing and last result. |
+| `GET /api/v1/syncs` | Every sync with its source, target, timing, label, tags and last result; `?tag=genre:metal`, `?label=` and `?favorite=true` narrow the list. |
 | `POST /api/v1/syncs` | Make a sync. |
 | `POST /api/v1/syncs/run-all` | Start every sync that is turned on. |
+| `POST /api/v1/syncs/run` | Start a group of syncs: those with a tag (`?tag=genre:metal`), wearing a label (`?label=`) or starred (`?favorite=true`), turned on. |
+| `GET /api/v1/tags` | The tag keys the syncs use, each with its values. |
+| `GET /api/v1/labels` | The labels: the ready colours and your own, each with its name and how many syncs wear it. |
+| `POST /api/v1/labels` | Name a ready colour, or save a colour of your own as a label. |
+| `PATCH /api/v1/labels/{label}` | Rename a label or give it another colour: its syncs follow. |
+| `DELETE /api/v1/labels/{label}` | Delete a label: its syncs keep their colour, without the name. |
 | `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
-| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color. |
+| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite. |
 | `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are). |
 | `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check. |
 | `POST /api/v1/syncs/{sync}/stop` | Stop a running sync. |
@@ -696,6 +702,27 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/jso
   -d '{"source": {"service": "spotify", "playlist": "37i9dQZEVXcJZyENOWUFo7"}, "target": {"service": "ytm"},
        "name": "Discover Weekly", "schedule": "weekly", "days": [1], "at": "08:00", "changes": "archive"}' \
   http://127.0.0.1:8080/api/v1/syncs
+```
+
+**Favourites, labels and tags.** Three ways to group syncs, the same as on the page and in the
+app. `favorite` (true or false) stars a sync: starred syncs are listed first. A sync wears one
+`label`, which is its card's colour: the eight ready colours are labels already (`"label": "teal"`),
+and `POST /api/v1/labels` with `{"color": "teal", "name": "Gym"}` names one, or saves a colour of
+your own (`"#12A594"`) as a named label; `label` takes a label's id or its name, and the card takes
+its colour. `tags` are pairs of your own, `{"genre": "metal", "mood": "gym", "kids": ""}`: the
+value may be empty; in a `PATCH`, `tags` replaces the sync's tags.
+
+`GET /api/v1/syncs?tag=genre:metal` lists the syncs with that tag (`tag=genre` for the key
+whatever its value; several split by commas, all wanted; case and accents do not matter),
+`?label=Gym` those wearing a label, `?favorite=true` the starred ones. The same three on
+`POST /api/v1/syncs/run` start that group, the syncs turned on only, and answer with the ones
+started:
+
+```sh
+curl -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"tags": {"genre": "metal", "mood": "gym"}, "favorite": true}' \
+  http://127.0.0.1:8080/api/v1/syncs/$SYNC
+curl -X POST -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8080/api/v1/syncs/run?tag=mood:gym"
 ```
 
 **Reviewing a run.** `GET /api/v1/runs/{run}/review` lists what a run could not find, the matches

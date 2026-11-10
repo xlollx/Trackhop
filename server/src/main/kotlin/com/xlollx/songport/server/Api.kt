@@ -5,6 +5,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.server.Html.h
+import com.xlollx.songport.sync.Labels
 import com.xlollx.songport.sync.SyncState
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -89,6 +90,11 @@ object Api {
         put("at", j.at?.let { JsonPrimitive(it) } ?: JsonNull)
         put("days", buildJsonArray { j.days.forEach { add(it) } })
         put("color", j.color?.let { JsonPrimitive(it) } ?: JsonNull)
+        // The one label it wears (its colour, with a name when the user gave one), its star and its tags.
+        put("label", j.label?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("labelName", Labels.name(j, env.store.data.settings.labels).takeIf { it.isNotEmpty() }?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("favorite", j.favorite)
+        put("tags", buildJsonObject { j.tags.forEach { (k, v) -> put(k, v) } })
         put("position", env.store.data.jobs.indexOfFirst { it.id == j.id } + 1)
         put("mirrorRemovals", j.mirrorRemovals)
         // The source changes by itself (a daylist): with mirrorRemovals, big removals need no confirmation.
@@ -111,6 +117,31 @@ object Api {
                 put("end", "%02d:%02d".format(r.endMinute / 60, r.endMinute % 60))
             })
         }
+    }
+
+    /**
+     * The syncs a call asks for with "tag" (key:value, key=value or a key alone; several split by
+     * commas, all wanted), "label" (id, colour or name) and "favorite" (true or false); every sync
+     * without them. Throws IllegalArgumentException for a tag without a key.
+     */
+    fun selected(env: ServerEnv, query: Map<String, String>): List<SyncJob> {
+        val d = env.store.data
+        val favorite = query["favorite"]?.let { it.toBooleanStrictOrNull() ?: throw IllegalArgumentException("\"favorite\" is true or false.") }
+        return Labels.select(d.jobs, d.settings.labels, query["tag"].orEmpty().split(',').filter { it.isNotBlank() }, query["label"], favorite)
+    }
+
+    fun grouped(query: Map<String, String>) = listOf("tag", "label", "favorite").any { !query[it].isNullOrBlank() }
+
+    /** A label as the API shows it: the saved ones, and the ready colours (their key as the id, no name until given one). */
+    fun label(env: ServerEnv, l: com.xlollx.songport.model.Label) = buildJsonObject {
+        put("id", l.id); put("color", l.color)
+        put("name", l.name.takeIf { it.isNotEmpty() }?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("syncs", env.store.data.jobs.count { it.label == l.id })
+    }
+
+    fun labels(env: ServerEnv): JsonArray {
+        val saved = env.store.data.settings.labels
+        return JsonArray(Labels.BASE.map { k -> label(env, Labels.find(saved, k)!!) } + saved.filter { !Labels.isBase(it.id) }.map { label(env, it) })
     }
 
     private fun ref(env: ServerEnv, provider: String, id: String?, name: String) = buildJsonObject {
@@ -251,7 +282,25 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             put("running", buildJsonArray { running.keys.forEach { add(it) } })
             put("lastRun", jobs.maxOfOrNull { it.lastRunEpoch } ?: 0)
         })
-        rest == listOf("syncs") && method == "GET" -> json(200, JsonArray(jobs.map { Api.job(env, it, it.id in running) }))
+        rest == listOf("syncs") && method == "GET" -> {
+            val wanted = runCatching { Api.selected(env, query) }.getOrElse { return error(400, it.message ?: "Wrong request.") }
+            json(200, JsonArray(wanted.map { Api.job(env, it, it.id in running) }))
+        }
+        // A group of syncs at once: those with a tag, a label, or the starred ones (turned on only).
+        rest == listOf("syncs", "run") && method == "POST" -> {
+            if (!Api.grouped(query)) return error(400, "Say which syncs: ?tag=key:value, ?label=… or ?favorite=true (POST /api/v1/syncs/run-all starts them all).")
+            val started = runCatching { Api.selected(env, query) }.getOrElse { return error(400, it.message ?: "Wrong request.") }.filter { it.enabled }
+            started.forEach { runner.start(it) }
+            json(202, buildJsonObject {
+                put("started", started.size)
+                put("syncs", buildJsonArray { started.forEach { add(buildJsonObject { put("id", it.id); put("name", it.name) }) } })
+            })
+        }
+        rest == listOf("tags") && method == "GET" -> json(200, buildJsonObject {
+            // Every tag key in use, with the values the syncs give it (none for a key used alone).
+            Labels.keysInUse(jobs).forEach { k -> put(k, buildJsonArray { Labels.valuesInUse(jobs, k).forEach { add(it) } }) }
+        })
+        rest == listOf("labels") && method == "GET" -> json(200, Api.labels(env))
         rest == listOf("metrics") && method == "GET" -> send(ex, 200, Api.metrics(env, running.keys), "text/plain; version=0.0.4")
         rest == listOf("config") && method == "GET" -> {
             ex.responseHeaders.add("Content-Disposition", "attachment; filename=\"${com.xlollx.songport.data.ConfigBackup.fileName()}\"")
