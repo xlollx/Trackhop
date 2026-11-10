@@ -1816,4 +1816,13 @@
     <string name="label_name">라벨 이름</string>
     <string name="label_name_hint">선택 사항입니다. 이 색상의 모든 동기화가 같은 이름을 쓰며, 이름으로 검색하고 필터링할 수 있습니다.</string>
     <string name="label_change_color">라벨 색상 변경</string>
+    <string name="editor_two_way_removals">삭제도 동기화</string>
+    <string name="editor_two_way_removals_desc">한쪽에서 삭제한 곡은 다른 쪽에서도 삭제돼요. 다음 실행 이후부터 적용돼요.</string>
+    <string name="note_two_way_started">양방향 삭제는 다음 실행부터 시작돼요. 이번 실행은 양쪽에 모두 있는 곡을 기록만 했고 아무것도 삭제하지 않았어요.</string>
+    <string name="note_two_way_removals_held">삭제를 보류했어요. 양쪽에 모두 있던 %2$d곡 중 %1$d곡이 원본에서 사라졌어요. 동기화 상태를 탭해 미리보기를 열고 확인하세요. 정말 삭제해야 한다면 거기서 ‘이 곡들 삭제’에 체크한 뒤 실행하세요. 직접 삭제한 게 아니라면 서비스가 목록을 불완전하게 보낸 것이니 아무것도 삭제하면 안 돼요.</string>
+    <string name="note_two_way_listed_short">이번에는 아무것도 삭제하지 않았어요. %1$s에서 전체 %3$d곡 중 %2$d곡만 목록에 나왔어요. 서비스가 숨기거나 더 이상 재생하지 않는 곡은 삭제된 것으로 보지 않아요.</string>
+    <string name="backup_config_paused">예약된 동기화 %1$d개를 꺼진 상태로 가져왔어요. 두 기기에서 동시에 실행되지 않게 하기 위해서예요. %2$s에서 아직 실행 중이면 여기서는 꺼 두고, 아니면 켜세요.</string>
+    <string name="job_scheduled_on">%1$s에서 예약됨</string>
+    <string name="backup_device_other">다른 기기</string>
+    <string name="note_duplicates_repaired">대상에서 중복을 삭제했어요: %1$d개. 이 곡들은 대상에 두 번 있었고 원본에는 한 번만 있어요.</string>
 </resources>

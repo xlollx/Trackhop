@@ -300,6 +300,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         api(ctx, "DELETE", "$API/playlists/$playlistId")
     }
 
+    override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.ALBUMS_ID) return editCollection(ctx, "albums", "DELETE", tracks.map { it.id })
         if (playlistId == MusicProvider.ARTISTS_ID) return editCollection(ctx, "artists", "DELETE", tracks.map { it.id })

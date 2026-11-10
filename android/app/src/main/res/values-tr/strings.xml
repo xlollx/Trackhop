@@ -1845,4 +1845,13 @@
     <string name="label_name">Renk adı</string>
     <string name="label_name_hint">İsteğe bağlı. Bu renkteki tüm eşitlemeler bu adı paylaşır: sonra ada göre arayıp filtreleyebilirsin.</string>
     <string name="label_change_color">Rengi değiştir</string>
+    <string name="editor_two_way_removals">Kaldırmalar da</string>
+    <string name="editor_two_way_removals_desc">Bir tarafta kaldırdığınız parça diğerinden de kaldırılır. Bir sonraki çalıştırmadan sonra geçerlidir.</string>
+    <string name="note_two_way_started">İki yönlü kaldırmalar bir sonraki çalıştırmada başlar: bu çalıştırma iki tarafta da bulunan parçaları not etti ve hiçbir şey kaldırmadı.</string>
+    <string name="note_two_way_removals_held">Kaldırmalar bekletildi: iki tarafta da bulunan %2$d parçadan %1$d tanesi artık kaynakta yok. Önizlemeyi açıp görmek için senkronizasyonun durumuna dokunun; gerçekten kaldırılmaları gerekiyorsa orada “Bu parçaları kaldır” seçeneğini işaretleyip çalıştırın. Onları siz kaldırmadıysanız servis listeyi eksik vermiştir ve hiçbir şey kaldırılmamalıdır.</string>
+    <string name="note_two_way_listed_short">Bu sefer hiçbir şey kaldırılmadı: %1$s saydığı %3$d parçadan %2$d tanesini listeledi. Servisin gizlediği veya artık çalmadığı bir parça kaldırılmış sayılmaz.</string>
+    <string name="backup_config_paused">Zamanlanmış eşitlemeler burada kapalı geldi: %1$d. Böylece iki cihazda birden çalışmazlar. Hâlâ %2$s üzerinde çalışıyorlarsa burada kapalı bırakın; değilse açın.</string>
+    <string name="job_scheduled_on">Zamanlandığı cihaz: %1$s</string>
+    <string name="backup_device_other">diğer cihaz</string>
+    <string name="note_duplicates_repaired">Hedeften kaldırılan yinelenenler: %1$d. Bu parçaların her biri orada iki kez vardı, kaynakta ise bir kez var.</string>
 </resources>

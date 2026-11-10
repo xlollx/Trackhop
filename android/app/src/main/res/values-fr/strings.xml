@@ -1855,4 +1855,13 @@
     <string name="label_name">Nom de l\'étiquette</string>
     <string name="label_name_hint">Facultatif. Toutes les synchros de cette couleur partagent ce nom : vous pouvez ensuite les chercher et les filtrer.</string>
     <string name="label_change_color">Changer la couleur de l\'étiquette</string>
+    <string name="editor_two_way_removals">Les retraits aussi</string>
+    <string name="editor_two_way_removals_desc">Un titre retiré d\'un côté est retiré de l\'autre aussi. Vaut après la prochaine exécution.</string>
+    <string name="note_two_way_started">Les retraits dans les deux sens commencent à la prochaine exécution : celle-ci a noté les titres présents des deux côtés et n\'a rien retiré.</string>
+    <string name="note_two_way_removals_held">Suppressions retenues : %1$d des %2$d titres que les deux côtés avaient ne sont plus dans la source. Touchez l\'état de la sync pour ouvrir l\'aperçu et les voir ; s\'ils doivent vraiment partir, cochez-y « Retirer ces titres » et lancez-la. Si vous ne les avez pas retirés, le service a lu la playlist à moitié et rien ne doit partir.</string>
+    <string name="note_two_way_listed_short">Rien n\'a été retiré cette fois : %1$s a listé %2$d des %3$d titres qu\'il compte. Un titre que le service masque ou ne lit plus n\'est pas considéré comme retiré.</string>
+    <string name="backup_config_paused">Synchros planifiées arrivées désactivées : %1$d. Ainsi elles ne tournent pas sur deux appareils à la fois. Si elles tournent encore sur %2$s, laisse-les désactivées ici ; sinon active-les.</string>
+    <string name="job_scheduled_on">Planifiée sur %1$s</string>
+    <string name="backup_device_other">l\'autre appareil</string>
+    <string name="note_duplicates_repaired">Doublons retirés de la destination : %1$d. Chacun de ces titres y était deux fois et n\'est qu\'une fois dans la source.</string>
 </resources>

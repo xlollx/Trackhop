@@ -5,6 +5,7 @@ import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.sync.CsvCodec
+import com.xlollx.songport.sync.Timing
 import com.xlollx.songport.sync.Wrapped
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -41,14 +42,32 @@ object ConfigBackup {
         val files: Map<String, String> = emptyMap(),
         /** The Wrapped history, with the run history only (it is the user's own past, like the runs). */
         val wrapped: List<Wrapped.Saved> = emptyList(),
+        /** The installation that wrote it ([Settings.deviceId]) and how it calls itself ("Pixel 8"); "" in older files. */
+        val device: String = "",
+        val deviceName: String = "",
     )
 
-    data class Summary(val syncs: Int, val matches: Int, val files: Int, val runs: Int, val writtenBy: String, val writtenAt: Long)
+    /**
+     * [paused]: scheduled syncs that came from another device and were turned off here, so they do
+     * not run on both; [from] is how that device calls itself, for the notice.
+     */
+    data class Summary(
+        val syncs: Int, val matches: Int, val files: Int, val runs: Int, val writtenBy: String, val writtenAt: Long,
+        val paused: Int = 0, val from: String = "",
+    )
+
+    /** This installation's id, made on first use. */
+    fun deviceId(env: Env): String {
+        env.store.data.settings.deviceId.takeIf { it.isNotBlank() }?.let { return it }
+        env.store.updateSettings { if (it.deviceId.isBlank()) it.copy(deviceId = java.util.UUID.randomUUID().toString()) else it }
+        return env.store.data.settings.deviceId
+    }
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true; prettyPrint = true }
 
     /** The set-up as the file's text. */
-    fun export(env: Env, writtenBy: String, history: Boolean = false, now: Long = System.currentTimeMillis()): String {
+    fun export(env: Env, writtenBy: String, history: Boolean = false, now: Long = System.currentTimeMillis(), deviceName: String = ""): String {
+        val device = deviceId(env)
         val d = env.store.data
         val files = LocalFilesProvider.dir(env).listFiles { f -> f.isFile && f.extension == "csv" }.orEmpty()
             .associate { it.nameWithoutExtension to it.readText() }
@@ -59,6 +78,7 @@ object ConfigBackup {
             matchCache = d.matchCache, ignoredTracks = d.ignoredTracks,
             settings = portable(d.settings), files = files,
             wrapped = if (history) d.wrapped else emptyList(),
+            device = device, deviceName = deviceName,
         )
         return json.encodeToString(Snapshot.serializer(), snapshot)
     }
@@ -78,8 +98,15 @@ object ConfigBackup {
      * Brings [s] in: its syncs replace those with the same id and join the others; matches, ignored
      * tracks and services added are merged; its settings replace these except what belongs to this
      * device; its File playlists are added, a name already here kept as it is.
+     *
+     * A file written by another device brings its scheduled syncs turned off ([SyncJob.scheduledOn]):
+     * left on, they would run here and there, and both would add what is missing. One already on
+     * here stays on: that choice was made. A file this device wrote itself comes back as it is.
      */
     fun import(env: Env, s: Snapshot): Summary {
+        val foreign = s.device != deviceId(env)
+        val from = s.deviceName.ifBlank { s.writtenBy }
+        var paused = 0
         val dir = LocalFilesProvider.dir(env)
         var files = 0
         for ((name, text) in s.files) {
@@ -91,8 +118,18 @@ object ConfigBackup {
             val ids = s.jobs.map { it.id }.toSet()
             val reportIds = d.reports.map { it.id }.toSet()
             // A file from before labels and tags has none: the store takes its colours as labels (FileStore.update).
+            val here = d.jobs.associateBy { it.id }
+            paused = 0
+            val incoming = s.jobs.map { j ->
+                val runsByItself = j.enabled && (Timing.interval(j) > 0 || j.days.isNotEmpty() || j.radio != null)
+                when {
+                    !foreign || !runsByItself -> j
+                    here[j.id]?.enabled == true -> j.copy(scheduledOn = null)
+                    else -> j.copy(enabled = false, scheduledOn = from).also { paused++ }
+                }
+            }
             d.copy(
-                jobs = d.jobs.filter { it.id !in ids } + s.jobs,
+                jobs = d.jobs.filter { it.id !in ids } + incoming,
                 reports = (d.reports + s.reports.filter { it.id !in reportIds }).sortedByDescending { it.startedEpoch }.take(FileStore.MAX_REPORTS),
                 matchCache = d.matchCache + s.matchCache,
                 ignoredTracks = d.ignoredTracks + s.ignoredTracks,
@@ -103,13 +140,13 @@ object ConfigBackup {
         // The services added come with it: the connector list follows the new settings at once.
         env.store.data.settings.let { st -> com.xlollx.songport.providers.Providers.configure(st.extraAccounts, st.connectorNames, st.connectors) }
         env.store.flush()
-        return Summary(s.jobs.size, s.matchCache.size, files, s.reports.size, s.writtenBy, s.writtenAt)
+        return Summary(s.jobs.size, s.matchCache.size, files, s.reports.size, s.writtenBy, s.writtenAt, paused, from)
     }
 
     /** The settings without what is secret or only means something on this device. */
     private fun portable(st: Settings) = st.copy(
         clientSecrets = emptyMap(), appLock = false, backupFolder = "",
-        supportPromptReport = null, appOpens = 0, supportNudgeSeen = 0,
+        supportPromptReport = null, appOpens = 0, supportNudgeSeen = 0, deviceId = "",
         // Which "What's new" this phone has shown: the phone that imports the file keeps its own.
         whatsNewSeen = "",
     )
@@ -137,6 +174,7 @@ object ConfigBackup {
         whatsNewSeen = current.whatsNewSeen,
         // The labels of both: the file's win by id, this device's others stay for the syncs that wear them.
         labels = incoming.labels + current.labels.filter { c -> incoming.labels.none { it.id == c.id } },
+        deviceId = current.deviceId,
     )
 
     /** The file's name: trackhop-2026-10-30.trackhop. */

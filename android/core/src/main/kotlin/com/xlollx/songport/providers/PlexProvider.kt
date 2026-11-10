@@ -133,6 +133,7 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
         }
     }
 
+    override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         tracks.mapNotNull { it.itemId }.forEach { api(ctx, "DELETE", "/playlists/$playlistId/items/$it") }
     }

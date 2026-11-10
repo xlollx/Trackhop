@@ -1855,4 +1855,13 @@
     <string name="label_name">Nombre del color</string>
     <string name="label_name_hint">Opcional. Todas las sincronizaciones con este color comparten el nombre: después puedes buscarlas y filtrarlas.</string>
     <string name="label_change_color">Cambiar el color</string>
+    <string name="editor_two_way_removals">También las eliminaciones</string>
+    <string name="editor_two_way_removals_desc">Una pista que quitas de un lado se quita también del otro. Vale a partir de la próxima ejecución.</string>
+    <string name="note_two_way_started">Las eliminaciones en los dos sentidos empiezan en la próxima ejecución: esta ha anotado qué pistas tienen ambos lados y no ha quitado nada.</string>
+    <string name="note_two_way_removals_held">Eliminaciones retenidas: %1$d de las %2$d pistas que tenían ambos lados ya no están en el origen. Toca el estado de la sincronización para abrir la vista previa y verlas; si de verdad sobran, marca allí “Quitar estas pistas” y ejecútala. Si no las quitaste tú, el servicio leyó la playlist a medias y no debe quitarse nada.</string>
+    <string name="note_two_way_listed_short">Esta vez no se quitó nada: %1$s listó %2$d de las %3$d pistas que cuenta. Una pista que el servicio oculta o ya no reproduce no cuenta como quitada.</string>
+    <string name="backup_config_paused">Sincronizaciones programadas que llegan apagadas: %1$d. Así no se ejecutan en dos dispositivos a la vez. Si siguen activas en %2$s, déjalas apagadas aquí; si no, actívalas.</string>
+    <string name="job_scheduled_on">Programada en %1$s</string>
+    <string name="backup_device_other">el otro dispositivo</string>
+    <string name="note_duplicates_repaired">Duplicados quitados del destino: %1$d. Cada una de estas pistas estaba dos veces y en el origen está una sola.</string>
 </resources>

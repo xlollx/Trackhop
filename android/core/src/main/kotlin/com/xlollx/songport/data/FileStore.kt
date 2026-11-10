@@ -90,6 +90,12 @@ data class Settings(
     val wrappedSkipped: Set<String> = emptySet(),
     /** The "Did you know?" pill on Syncs (widgets, shortcuts, automation) was closed or opened: not shown again. */
     val tipsPillDismissed: Boolean = false,
+    /**
+     * This installation's own id, made the first time a configuration file is written or read: a
+     * file from another id is another device's. Per device: a configuration file leaves it out of
+     * the settings and names it beside them.
+     */
+    val deviceId: String = "",
     /** The Roast's last level ([com.xlollx.songport.ai.AiRoast.Level] by name); blank = the default. */
     val roastLevel: String = "",
     /** The user confirmed once being 18 or older, for the Roast's explicit language. */
@@ -136,6 +142,26 @@ data class StoreData(
     val shrinkConfirmations: Map<String, Long> = emptyMap(),
     /** The Wrapped made, the newest first (figures only, no tracks): at most [Wrapped.MAX_HISTORY]. */
     val wrapped: List<Wrapped.Saved> = emptyList(),
+    /** What the two sides of a two-way pair with removals both held after its last complete run, by [FileStore.pairKey]. */
+    val pairStates: Map<String, PairState> = emptyMap(),
+)
+
+/**
+ * The common state of a two-way pair: the tracks both playlists held after the last complete run
+ * of either half. The next run reads a track against it: on one side and not here, it was added
+ * there and is copied; here and gone from one side, it was removed there and leaves the other too.
+ * Like [LastWrites] it belongs to the device that ran the syncs: a configuration file leaves it
+ * out, so a pair imported elsewhere starts by noting the state, and removes nothing on that run.
+ */
+@Serializable
+data class PairState(
+    /** The two playlists ("service|playlist"), [a] on the left of [links] and [b] on the right. */
+    val a: String,
+    val b: String,
+    /** Track id on [a] -> the id of the same track on [b]. */
+    val links: Map<String, String> = emptyMap(),
+    /** When it was written: a track a service says was added after it is new, whatever the links say. */
+    val at: Long = 0,
 )
 
 /**
@@ -216,8 +242,10 @@ open class FileStore(dir: File) {
     fun job(id: String): SyncJob? = data.jobs.firstOrNull { it.id == id }
 
     fun upsertJob(job: SyncJob) = update { d ->
-        if (d.jobs.any { it.id == job.id }) d.copy(jobs = d.jobs.map { if (it.id == job.id) job else it })
-        else d.copy(jobs = d.jobs + job)
+        // Turned on here: from now on this is the device that schedules it.
+        val saved = if (job.enabled && job.scheduledOn != null) job.copy(scheduledOn = null) else job
+        if (d.jobs.any { it.id == saved.id }) d.copy(jobs = d.jobs.map { if (it.id == saved.id) saved else it })
+        else d.copy(jobs = d.jobs + saved)
     }
 
     /**
@@ -231,7 +259,34 @@ open class FileStore(dir: File) {
         d.copy(jobs = rest.take(at) + job + rest.drop(at))
     }
 
-    fun deleteJob(id: String) = update { d -> d.copy(jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id) }
+    fun deleteJob(id: String) = update { d ->
+        d.copy(
+            jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id,
+            pairStates = d.pairStates.filterKeys { id !in it.split('|') },
+        )
+    }
+
+    /** The common state of the pair [job] is half of, when it is still about [job]'s two playlists; null otherwise. */
+    fun pairState(job: SyncJob): PairState? {
+        val state = data.pairStates[pairKey(job.id, job.linkedJobId ?: return null)] ?: return null
+        val sides = setOf(sideKey(job.source.provider, job.source.playlistId), sideKey(job.target.provider, job.target.playlistId))
+        return state.takeIf { sides.size == 2 && setOf(it.a, it.b) == sides }
+    }
+
+    /** Writes the pair's common state; states of pairs that no longer exist go. */
+    fun putPairState(job: SyncJob, state: PairState) {
+        val key = pairKey(job.id, job.linkedJobId ?: return)
+        update { d ->
+            val jobs = d.jobs.map { it.id }.toHashSet()
+            d.copy(pairStates = d.pairStates.filterKeys { k -> k.split('|').all { it in jobs } } + (key to state))
+        }
+    }
+
+    /** Forgets the pair's state (the option was turned off): turned on again, it starts from a new one. */
+    fun dropPairState(job: SyncJob) {
+        val key = pairKey(job.id, job.linkedJobId ?: return)
+        if (key in data.pairStates) update { d -> d.copy(pairStates = d.pairStates - key) }
+    }
 
     /** The user saw, in the preview, that the target of [jobId] lists far fewer tracks than before, and runs it anyway. */
     fun confirmTargetShrink(jobId: String) = update { d -> d.copy(shrinkConfirmations = d.shrinkConfirmations + (jobId to System.currentTimeMillis())) }
@@ -390,6 +445,12 @@ open class FileStore(dir: File) {
         const val CONFIRMATION_TTL_MS = 12L * 3_600_000
 
         fun cacheKey(srcProvider: String, srcTrackId: String, dstProvider: String) = "${family(srcProvider)}:$srcTrackId>${family(dstProvider)}"
+
+        /** Key of [StoreData.pairStates]: the two halves' ids, the same whichever half asks. */
+        fun pairKey(jobId: String, otherId: String) = listOf(jobId, otherId).sorted().joinToString("|")
+
+        /** A side of a pair in [PairState]: the connector and its playlist. */
+        fun sideKey(provider: String, playlistId: String?) = "$provider|${playlistId.orEmpty()}"
 
         /** Key of [StoreData.presentUnlisted]: the service, the playlist and the track there. */
         fun presentKey(dstProvider: String, playlistId: String, trackId: String) = "${family(dstProvider)}:$playlistId>$trackId"

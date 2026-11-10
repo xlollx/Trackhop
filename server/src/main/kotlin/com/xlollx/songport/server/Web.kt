@@ -375,7 +375,7 @@ class Web(
         return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
-<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}$groups
+<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
 <div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
@@ -428,6 +428,13 @@ ${choice("add", "Only add new tracks: what the destination already has stays")}
 ${choice("mirror", "Copy the latest version (replace): tracks removed from the source are removed from the destination")}
 ${choice("archive", "Keep every track (archive): nothing is ever removed, only new tracks are added, at the end. For Discover Weekly, Release Radar, a daylist or a chart")}
 <label class="check"><input type="checkbox" name="follows"${if (job?.followsChanges == true) " checked" else ""}> With the latest version: the source changes by itself (a daylist, Discover Weekly), big removals need no confirmation</label>"""
+    }
+
+    /** For half of a two-way pair (made in the app): whether removals travel too. Nothing for any other sync. */
+    internal fun pairFields(job: SyncJob): String {
+        val other = job.linkedJobId?.let { env.store.job(it) } ?: return ""
+        return """
+<label class="check"><input type="checkbox" name="twoWayRemovals"${if (job.twoWayRemovals && other.twoWayRemovals) " checked" else ""}> Two-way with ${h(other.name)}: removals too. A track you remove on one side is removed on the other. Starts after the next run</label>"""
     }
 
     /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
@@ -778,7 +785,9 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
                         val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val saved = if (job.radio != null) timed else withChanges(timed, r)
+                        val changed = if (job.radio != null) timed else withChanges(timed, r)
+                        // The pair's own choice is on the form only for a pair (see pairFields).
+                        val saved = if (job.linkedJobId?.let { env.store.job(it) } != null) pairRemovals(changed, r.form["twoWayRemovals"] == "on") else changed
                         val warning = conflictWarning(saved)
                         // The colour and its name as the app's "Style" saves them: a name makes or renames a
                         // label for every sync wearing it. A form without the name leaves the labels alone.
@@ -954,7 +963,7 @@ ${changesFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}"""}
+${changesFields(job)}${pairFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>

@@ -837,7 +837,9 @@ private fun JobCard(
                     Text(
                         // A two-way pair never removes, whatever an older version saved. A radio sync shows
                         // its window (days and hours) where the others show their schedule.
-                        (job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
+                        // Turned off on arrival from another device: where its schedule runs, in place of the timing.
+                        (job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
+                            ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                             (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),
@@ -1088,6 +1090,8 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var tagDraft by rememberSaveable(stateSaver = TagDraftSaver) { mutableStateOf(TagDraft(job.tags.toList())) }
     var accentStyle by rememberSaveable { mutableStateOf(job.accentStyle) }
     var bidirectional by rememberSaveable { mutableStateOf(job.linkedJobId != null) }
+    // In a pair: a track removed on one side leaves the other too (off unless turned on).
+    var twoWayRemovals by rememberSaveable { mutableStateOf(job.twoWayRemovals) }
     var policy by rememberSaveable(stateSaver = PolicySaver) { mutableStateOf(job.policy) }
     var matchingOpen by rememberSaveable { mutableStateOf(job.policy != com.xlollx.songport.model.MatchPolicy()) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -1248,7 +1252,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     twin = partner.twin || partner.name == "${job.name} ↔",
                     source = target, target = source,
                     schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                    linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle,
+                    linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle, twoWayRemovals = twoWayRemovals && !archive,
                     sourceVersion = if (moved) null else partner.sourceVersion,
                     targetVersion = if (moved) null else partner.targetVersion,
                 ).let { timed(it) }
@@ -1258,11 +1262,14 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 source = target,
                 target = source,
                 schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle, twin = true,
+                linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle, twoWayRemovals = twoWayRemovals && !archive, twin = true,
             ).let { timed(it) }
         } else null
+        val removals = reverse != null && twoWayRemovals && !archive
+        // Turned off: what the pair had in common is forgotten, so turning it on again starts afresh.
+        if (!removals) Store.get(ctx).dropPairState(job)
         saveHaptic()
-        onSave(main.copy(linkedJobId = reverse?.id), reverse)
+        onSave(main.copy(linkedJobId = reverse?.id, twoWayRemovals = removals), reverse)
     }
 
     Scaffold(
@@ -1498,6 +1505,11 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         HelpButton(Helps.twoWay)
                         Switch(checked = bidirectional, enabled = biAllowed, onCheckedChange = { bidirectional = it })
                     }
+                    // With Two-way: removals travel too, told from additions by what both sides had after the last run.
+                    if (bidirectional && biAllowed && !archive) SwitchRow(
+                        stringResource(R.string.editor_two_way_removals), stringResource(R.string.editor_two_way_removals_desc), twoWayRemovals,
+                        modifier = Modifier.testTag("editor_two_way_removals"),
+                    ) { twoWayRemovals = it }
                 }
                 SwitchRow(stringResource(R.string.editor_wifi_only), stringResource(if (radioMode) R.string.radio_wifi_desc else R.string.editor_wifi_only_desc), wifiOnly) { wifiOnly = it }
                 SwitchRow(stringResource(R.string.editor_enabled), null, enabled, help = { HelpButton(Helps.enabled) }) { enabled = it }

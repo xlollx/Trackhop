@@ -1817,4 +1817,13 @@
     <string name="label_name">色标名称</string>
     <string name="label_name_hint">可不填。所有使用此颜色的同步共用这个名称，之后可按名称搜索和筛选。</string>
     <string name="label_change_color">更改色标颜色</string>
+    <string name="editor_two_way_removals">同时同步删除</string>
+    <string name="editor_two_way_removals_desc">在一侧移除的歌曲也会从另一侧移除。下次运行后生效。</string>
+    <string name="note_two_way_started">双向删除从下次运行开始：本次只记录了两侧都有的歌曲，没有移除任何内容。</string>
+    <string name="note_two_way_removals_held">已暂缓删除：两侧原本共有的 %2$d 首中，有 %1$d 首已不在来源中。点按同步的状态打开预览查看；如果确实应当移除，请在那里勾选“移除这些歌曲”再运行。如果不是你移除的，说明服务只返回了部分播放列表，不应移除任何内容。</string>
+    <string name="note_two_way_listed_short">本次没有移除任何内容：%1$s 只列出了其统计的 %3$d 首中的 %2$d 首。被服务隐藏或无法再播放的歌曲不会被当作已移除。</string>
+    <string name="backup_config_paused">有 %1$d 个定时同步以关闭状态导入，以免在两台设备上同时运行。如果它们仍在 %2$s 上运行，请在这里保持关闭；否则请开启。</string>
+    <string name="job_scheduled_on">已在 %1$s 上定时</string>
+    <string name="backup_device_other">另一台设备</string>
+    <string name="note_duplicates_repaired">已从目标中移除重复项：%1$d 个。这些歌曲在目标中各出现两次，而来源中只有一次。</string>
 </resources>

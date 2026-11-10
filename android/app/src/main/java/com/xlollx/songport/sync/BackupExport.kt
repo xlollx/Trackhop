@@ -159,7 +159,7 @@ object BackupExport {
         val config = com.xlollx.songport.data.ConfigBackup.fileName()
         if (config !in existing) {
             DocumentsContract.createDocument(resolver, dirUri, "application/octet-stream", config)?.let { doc ->
-                val text = com.xlollx.songport.data.ConfigBackup.export(com.xlollx.songport.platform.AndroidEnv.of(ctx), "Trackhop ${com.xlollx.songport.BuildConfig.VERSION_NAME} (Android)")
+                val text = com.xlollx.songport.data.ConfigBackup.export(com.xlollx.songport.platform.AndroidEnv.of(ctx), "Trackhop ${com.xlollx.songport.BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty())
                 resolver.openOutputStream(doc)?.use { it.write(text.toByteArray()) }
                 copied++
             }

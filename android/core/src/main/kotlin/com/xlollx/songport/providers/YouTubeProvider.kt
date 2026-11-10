@@ -328,6 +328,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         for (t in tracks) counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "POST", "$API/videos/rate?id=${Http.enc(t.id)}&rating=$rating") }
     }
 
+    override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.LIKED_ID) return rate(ctx, tracks, "none")
         for (t in tracks) {

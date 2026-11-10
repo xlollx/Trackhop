@@ -92,6 +92,20 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
     return job.copy(mirrorRemovals = mode == "mirror", followsChanges = mode == "mirror" && (follows ?: job.followsChanges), archive = mode == "archive")
 }
 
+/**
+ * [job] with removals travelling across its two-way pair or not ([SyncJob.twoWayRemovals]); the
+ * other half is saved with the same choice, as the engine wants it on both. A pair is made in the
+ * app and comes here with its configuration file: a sync on its own has no other side to follow.
+ */
+internal fun Web.pairRemovals(job: SyncJob, on: Boolean): SyncJob {
+    val partner = job.linkedJobId?.let { env.store.job(it) }
+        ?: if (on) throw IllegalArgumentException("\"twoWayRemovals\" is for a two-way pair (made in the app); this sync has no other half.") else return job.copy(twoWayRemovals = false)
+    if (partner.twoWayRemovals != on) env.store.upsertJob(partner.copy(twoWayRemovals = on))
+    // Turned off: what the pair had in common is forgotten, so turning it on again starts afresh.
+    if (!on) env.store.dropPairState(job)
+    return job.copy(twoWayRemovals = on)
+}
+
 /** [job] with the colour in [b]: a name of the palette, "#RRGGBB", or null/"" for none. */
 private fun coloured(job: SyncJob, b: JsonObject): SyncJob {
     if (!b.containsKey("color")) return job
@@ -189,6 +203,7 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
                 // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
                 if (j.radio == null) j = changed(timed(j, b), b)
+                b.flag("twoWayRemovals")?.let { j = pairRemovals(j, it) }
                 grouped(coloured(j, b), b, env.store.data.settings.labels)
             }.getOrElse { e -> return true.also { bad(e) } }
             val warning = conflictWarning(edited)

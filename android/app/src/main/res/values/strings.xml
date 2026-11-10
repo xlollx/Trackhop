@@ -1848,4 +1848,13 @@
     <string name="label_name">Label name</string>
     <string name="label_name_hint">Optional. Every sync with this colour shares the name: you can then search and filter by it.</string>
     <string name="label_change_color">Change the label\'s colour</string>
+    <string name="editor_two_way_removals">Removals too</string>
+    <string name="editor_two_way_removals_desc">A track you remove on one side is removed on the other too. Starts after the next run.</string>
+    <string name="note_two_way_started">Two-way removals start with the next run: this one noted which tracks both sides have and removed nothing.</string>
+    <string name="note_two_way_removals_held">Removals held back: %1$d of the %2$d tracks both sides had are gone from the source. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Remove these tracks” there and run it. If you did not remove them, the service listed the playlist incompletely and nothing should go.</string>
+    <string name="note_two_way_listed_short">Nothing removed this time: %1$s listed %2$d of the %3$d tracks it counts. A track the service hides or no longer plays is not treated as removed.</string>
+    <string name="backup_config_paused">Scheduled syncs turned off here: %1$d. This keeps them from running on two devices at once. If they still run on %2$s, leave them off here; otherwise turn them on.</string>
+    <string name="job_scheduled_on">Scheduled on %1$s</string>
+    <string name="backup_device_other">the other device</string>
+    <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
 </resources>
