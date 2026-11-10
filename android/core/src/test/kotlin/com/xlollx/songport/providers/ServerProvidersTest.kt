@@ -322,6 +322,28 @@ class FakeServerProvidersTest {
         assertEquals(listOf("energie", "Énergie"), requests.filter { it.path == "/Items" }.map { it.query["searchTerm"]?.single() })
     }
 
+    @Test fun jellyfinFindsNumberedPartsWrittenAnotherWay() = runBlocking {
+        // #57: Spotify's "Oxygene, Pt. 4" is "Oxygene (Part IV)" in the library; the server matches names only.
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path == "/Items" -> 200 to if (r.query["searchTerm"]?.single() == "oxygene") {
+                    """{"Items":[""" + (1..6).joinToString(",") { n ->
+                        val roman = listOf("I", "II", "III", "IV", "V", "VI")[n - 1]
+                        """{"Id":"o$n","Name":"Oxygene (Part $roman)","Artists":["Jean-Michel Jarre"],"RunTimeTicks":${(200 + n) * 10_000_000L}}"""
+                    } + "]}"
+                } else """{"Items":[]}"""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"), durationMs = 204_000)
+        val found = p.search(ctx, src)
+        assertEquals("o4", found.first().id)
+        assertEquals("oxygene", requests.filter { it.path == "/Items" }.last().query["searchTerm"]?.single())
+    }
+
     // ------------------------------------------------------------------ Jellyfin Quick Connect (#45)
 
     @Test fun jellyfinQuickConnectSignsInOnceTheCodeIsApproved() = runBlocking {

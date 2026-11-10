@@ -176,7 +176,10 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         val folded = Matcher.searchTitle(track.title)
         val plain = Matcher.plainTitle(track.title)
         val found = find(folded).ifEmpty { if (plain.equals(folded, ignoreCase = true)) emptyList() else find(plain) }
-        return Matcher.byArtist(track, found).take(5)
+            // "Oxygene, Pt. 4" against "Oxygene (Part IV)" (#57): the title without its part, the scoring picks the part.
+            .ifEmpty { Matcher.baseTitle(track.title)?.let { find(it) }.orEmpty() }
+        // The closest first: a search by the bare title brings every part of the piece, the right one may be the sixth.
+        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
     private fun toAlbum(i: JsonElement?): Track? {

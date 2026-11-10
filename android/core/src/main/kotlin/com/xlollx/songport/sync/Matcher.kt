@@ -90,8 +90,47 @@ object Matcher {
         t = t.replace("&", " and ").replace("$", "s")
         t = APOSTROPHES.replace(t, "")
         t = NON_ALNUM.replace(t, " ")
-        return SPACES.replace(t, " ").trim()
+        t = SPACES.replace(t, " ").trim()
+        // "Oxygene, Pt. 4", "Oxygene (Part IV)" and "Oxygene Part 4" are one title (issue #57).
+        return PART.replace(t) { m -> "part " + (m.groupValues[1].toIntOrNull() ?: roman(m.groupValues[1]) ?: return@replace m.value) }
     }
+
+    /** A numbered part: "pt 4", "part iv", "teil 2", once punctuation is gone. */
+    private val PART = Regex("""\b(?:pts?|parts?|parte|partie|teil)\s+(\d+|[ivxlc]+)\b""")
+
+    /** A Roman numeral's value ("iv" → 4), or null when it is not one written the usual way. */
+    private fun roman(s: String): Int? {
+        val v = mapOf('i' to 1, 'v' to 5, 'x' to 10, 'l' to 50, 'c' to 100)
+        var total = 0
+        for (i in s.indices) {
+            val a = v[s[i]] ?: return null
+            val b = s.getOrNull(i + 1)?.let { v[it] } ?: 0
+            total += if (a < b) -a else a
+        }
+        return total.takeIf { it in 1..199 && toRoman(it) == s }
+    }
+
+    private fun toRoman(n: Int): String {
+        var x = n
+        val sb = StringBuilder()
+        for ((value, sym) in listOf(100 to "c", 90 to "xc", 50 to "l", 40 to "xl", 10 to "x", 9 to "ix", 5 to "v", 4 to "iv", 1 to "i"))
+            while (x >= value) { sb.append(sym); x -= value }
+        return sb.toString()
+    }
+
+    /**
+     * The title without its numbered part ("oxygene part 4" → "oxygene"), or null when it has none:
+     * an extra search for servers whose search matches names only, where "Oxygene, Pt. 4" never
+     * finds "Oxygene (Part IV)". The scoring then tells the parts apart by their numbers.
+     */
+    fun baseTitle(title: String): String? {
+        val t = normalizeTitle(title)
+        val m = Regex("""\s*\bpart \d+\b.*$""").find(t) ?: return null
+        return t.substring(0, m.range.first).trim().takeIf { it.length >= 3 }
+    }
+
+    /** The numbers in a normalised title, as words: two titles with different ones are different pieces. */
+    private fun numbers(t: String): Set<String> = t.split(' ').filter { w -> w.isNotEmpty() && w.all { it.isDigit() } }.toSet()
 
     fun normalizeArtist(s: String): String {
         var a = stripDiacritics(s).lowercase()
@@ -202,7 +241,10 @@ object Matcher {
         val artist = artistScoreN(s.artists, c.artists)
         val artistKnown = s.artists.isNotEmpty() && c.artists.isNotEmpty()
         val base = if (artistKnown) 0.6 * title + 0.4 * artist else 0.85 * title + 0.15 * artist
-        return base * durationFactor(s.track.durationMs, c.track.durationMs) * versionFactor(s.track.title, c.track.title) *
+        // "Part 4" against "Part 5", "No. 1" against "No. 2": close titles, different pieces.
+        val na = numbers(s.title); val nb = numbers(c.title)
+        val numberFactor = if (na.isNotEmpty() && nb.isNotEmpty() && na != nb) 0.6 else 1.0
+        return base * numberFactor * durationFactor(s.track.durationMs, c.track.durationMs) * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
     }
 

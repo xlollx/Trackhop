@@ -177,4 +177,21 @@ class VersionPenaltyTest {
         assertTrue(MatchPolicy(strictness = 1).acceptThreshold > MatchPolicy().acceptThreshold)
         assertTrue(MatchPolicy(strictness = -1).reviewThreshold < MatchPolicy().reviewThreshold)
     }
+
+    @Test fun numberedPartsAreOneTitleHoweverWrittenAndDifferentPartsAreNot() {
+        // #57
+        assertEquals("oxygene part 4", Matcher.normalizeTitle("Oxygene, Pt. 4"))
+        assertEquals("oxygene part 4", Matcher.normalizeTitle("Oxygène (Part IV)"))
+        assertEquals("equinoxe part 5", Matcher.normalizeTitle("Equinoxe Pt 5"))
+        assertEquals("oxygene", Matcher.baseTitle("Oxygene, Pt. 4"))
+        assertEquals(null, Matcher.baseTitle("Oxygene"))
+        // "I" alone, or words that only look like numerals, stay as they are.
+        assertEquals("i want it", Matcher.normalizeTitle("I Want It"))
+        assertEquals("part civil", Matcher.normalizeTitle("Part Civil"))
+        val src = Track(id = "s", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"))
+        val four = Track(id = "4", title = "Oxygene (Part IV)", artists = listOf("Jean-Michel Jarre"))
+        val five = Track(id = "5", title = "Oxygene (Part V)", artists = listOf("Jean-Michel Jarre"))
+        assertTrue(Matcher.score(src, four) >= 0.9)
+        assertTrue(Matcher.score(src, five) < 0.7)
+    }
 }
