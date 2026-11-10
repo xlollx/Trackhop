@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,7 +68,9 @@ import com.xlollx.songport.model.TargetSearch
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.SyncEngine
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Da rivedere dopo (o durante) una sync: gli abbinamenti incerti, da confermare o cambiare, e i
@@ -102,6 +105,15 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
     val selecting = selection.isNotEmpty()
     ScreenBackHandler(onClose)
     BackHandler(enabled = selecting) { picked = emptySet() }
+    // The target's entries read ahead while the review is open: removing a wrong match then needs
+    // no read of its own. Stops with the screen.
+    LaunchedEffect(job?.id, report?.id) {
+        val j = job ?: return@LaunchedEffect
+        val chosen = report?.reviewTracks.orEmpty().map { it.chosen }
+        if (chosen.isNotEmpty() && (report?.targetId == null || report.targetId == j.target.playlistId)) {
+            withContext(Dispatchers.IO) { engine.prefetchEntries(j, chosen) }
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
@@ -200,8 +212,8 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(stringResource(if (removes) R.string.review_discard_body else R.string.review_discard_body_kept, dstName))
-                        // The removal first reads the whole target playlist (a search result has no entry id):
-                        // seconds on a long one, so it says what it is doing instead of looking stuck.
+                        // The removal may first read the target playlist (a search result has no entry id) when
+                        // the last sync's read is not enough: seconds on a long one, so it says what it is doing.
                         if (busy) Row(verticalAlignment = Alignment.CenterVertically) {
                             androidx.compose.material3.CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(Modifier.width(12.dp))

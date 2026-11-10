@@ -81,6 +81,17 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
         out
     }
 
+    /** Through the Bridge's `qobuz.find`, which reads only until the tracks turn up; an older Bridge reads the whole playlist. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesOrWhole(ctx, id, {
+            withContext(Dispatchers.IO) {
+                val b = call(ctx, "qobuz.find", playlistId, Bundle().apply { putStringArray("ids", tracks.map { it.id }.distinct().toTypedArray()) })
+                parseJson(b.getString("json") ?: "[]").arr.mapNotNull { toTrack(it) }
+            }.also(seen)
+        }) { super.findEntries(ctx, playlistId, tracks, seen) }
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://play.qobuz.com/search?q=" + Uri.encode(query)
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
@@ -109,6 +120,9 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) = write(ctx, "qobuz.add", playlistId, tracks)
+
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
 
     /** By entry where the listing gave one (Qobuz removes a playlist's entries, not tracks). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) = write(ctx, "qobuz.remove", playlistId, tracks)

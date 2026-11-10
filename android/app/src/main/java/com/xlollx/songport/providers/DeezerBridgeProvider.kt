@@ -127,6 +127,9 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebA
         }
     }
 
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
+
     /** By track id, like the official route: every copy of a track leaves the playlist. */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return

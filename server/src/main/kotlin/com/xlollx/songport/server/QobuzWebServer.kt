@@ -82,6 +82,13 @@ class QobuzWebServerProvider(override val slot: String = "") : CookieConnector {
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
         io(ctx) { c -> (if (playlistId == MusicProvider.LIKED_ID) c.liked() else c.tracks(playlistId)).map { toTrack(it) } }
 
+    /** Reads only until the tracks turn up, from the end of the playlist where a sync adds them. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        return io(ctx) { c -> c.findEntries(playlistId, ids).map { toTrack(it) } }.also(seen)
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://play.qobuz.com/search?q=" + URLEncoder.encode(query, "UTF-8").replace("+", "%20")
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
@@ -105,6 +112,9 @@ class QobuzWebServerProvider(override val slot: String = "") : CookieConnector {
         if (tracks.isEmpty()) return
         io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(tracks.map { it.id }, on = true) else c.add(playlistId, tracks.map { it.id }) }
     }
+
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
 
     /** By entry where the listing gave one (Qobuz removes a playlist's entries, not tracks). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {

@@ -188,6 +188,18 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
         return out
     }
 
+    /** A playlist's entries by offset, the last pages first: the tracks a sync just added are there. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesByOffset(tracks, 100, seen) { offset ->
+            val j = dz(ctx, "GET", "$API/playlist/$playlistId/tracks?limit=100&index=$offset")
+            j["data"].arr.mapNotNull { t -> toTrack(t)?.copy(addedAt = (t["time_add"].long ?: 0) * 1000) } to (j["total"].int ?: 0)
+        }
+    }
+
+    /** Removal goes by track id: an entry read a while ago names the track, whichever copy. */
+    override val keepsEntryIds: Boolean get() = true
+
     private fun toAlbum(a: JsonElement?): Track? {
         val id = a["id"].long?.toString() ?: return null
         return Track(id = id, title = a["title"].str ?: "", artists = listOfNotNull(a["artist"]["name"].str), isrc = a["upc"].str, kind = Track.KIND_ALBUM)

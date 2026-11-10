@@ -101,6 +101,17 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
         out
     }
 
+    /** Through the Bridge's `spotify.find`, which reads only until the tracks turn up; an older Bridge reads the whole playlist. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        return MusicProvider.entriesOrWhole(ctx, id, {
+            withContext(Dispatchers.IO) {
+                val b = call(ctx, "spotify.find", playlistId, Bundle().apply { putStringArray("ids", tracks.map { it.id }.distinct().toTypedArray()) })
+                parseJson(b.getString("json") ?: "[]").arr.mapNotNull { toTrack(it) }
+            }.also(seen)
+        }) { super.findEntries(ctx, playlistId, tracks, seen) }
+    }
+
     override suspend fun track(ctx: Env, trackId: String): Track? =
         io(ctx, "spotify.track", trackId) { j -> toTrack(j) }
 
@@ -175,6 +186,9 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
             }
         }
     }
+
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return

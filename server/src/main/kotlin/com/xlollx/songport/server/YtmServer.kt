@@ -134,6 +134,13 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         }.map { toTrack(it) }
     }
 
+    /** Reads only until the tracks turn up, page after page. */
+    override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        return io(ctx) { c -> c.findEntries(playlistId, ids).map { toTrack(it) } }.also(seen)
+    }
+
     override fun webSearchUrl(ctx: Env, query: String): String = "https://music.youtube.com/search?q=" + URLEncoder.encode(query, "UTF-8")
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
@@ -187,6 +194,9 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
             }
         }
     }
+
+    /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
+    override val keepsEntryIds: Boolean get() = true
 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
