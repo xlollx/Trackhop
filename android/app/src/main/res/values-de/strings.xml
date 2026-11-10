@@ -1900,6 +1900,8 @@
     <string name="card_size_landscape">Liegt das Handy quer, sind die Karten klein, damit mehr davon passen.</string>
     <string name="settings_minimal_view">Minimale Ansicht</string>
     <string name="settings_minimal_view_summary">Syncs als kleine Kacheln im Raster: Dienste, Name und Status</string>
+    <string name="settings_favorites_on_top">Favoriten immer oben</string>
+    <string name="settings_favorites_on_top_summary">Wenn aus, behalten markierte Syncs ihren Stern und den Favoriten-Filter, lassen sich aber überall in der Reihenfolge platzieren</string>
     <string name="syncs_view_tiles">Als Kacheln zeigen</string>
     <string name="syncs_view_cards">Als Karten zeigen</string>
     <string name="tile_next_run">Nächste: %1$s</string>

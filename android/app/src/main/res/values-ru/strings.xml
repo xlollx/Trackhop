@@ -1962,6 +1962,8 @@
     <string name="card_size_landscape">Когда телефон лежит горизонтально, карточки маленькие, чтобы их помещалось больше.</string>
     <string name="settings_minimal_view">Минимальный вид</string>
     <string name="settings_minimal_view_summary">Синхронизации маленькими плитками в сетке: сервисы, название и статус</string>
+    <string name="settings_favorites_on_top">Избранные всегда сверху</string>
+    <string name="settings_favorites_on_top_summary">Если выключено, отмеченные синхронизации сохраняют звёздочку и фильтр «Избранные», но их можно поставить в любое место списка</string>
     <string name="syncs_view_tiles">Показать плитками</string>
     <string name="syncs_view_cards">Показать карточками</string>
     <string name="tile_next_run">Следующая: %1$s</string>

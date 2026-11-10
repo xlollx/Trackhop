@@ -1869,6 +1869,8 @@
     <string name="card_size_landscape">手机横放时卡片变小，可以显示更多。</string>
     <string name="settings_minimal_view">简洁视图</string>
     <string name="settings_minimal_view_summary">以网格小方块显示同步：服务、名称和状态</string>
+    <string name="settings_favorites_on_top">收藏始终置顶</string>
+    <string name="settings_favorites_on_top_summary">关闭后，加星的同步仍保留星标和收藏筛选，但可放在顺序中的任意位置</string>
     <string name="syncs_view_tiles">以方块显示</string>
     <string name="syncs_view_cards">以卡片显示</string>
     <string name="tile_next_run">下次：%1$s</string>

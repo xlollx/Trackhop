@@ -1901,6 +1901,8 @@
     <string name="card_size_landscape">With the phone on its side the cards are Small, so more of them fit.</string>
     <string name="settings_minimal_view">Minimal view</string>
     <string name="settings_minimal_view_summary">Syncs as small tiles in a grid: services, name and status</string>
+    <string name="settings_favorites_on_top">Favourites always on top</string>
+    <string name="settings_favorites_on_top_summary">When off, starred syncs keep their star and the Favourites filter, but can go anywhere in the order</string>
     <string name="syncs_view_tiles">Show as tiles</string>
     <string name="syncs_view_cards">Show as cards</string>
     <string name="tile_next_run">Next: %1$s</string>

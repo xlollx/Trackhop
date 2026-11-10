@@ -1908,6 +1908,8 @@
     <string name="card_size_landscape">Com o celular deitado, os cartões ficam pequenos para caber mais.</string>
     <string name="settings_minimal_view">Visão mínima</string>
     <string name="settings_minimal_view_summary">Syncs como pequenos blocos em grade: serviços, nome e status</string>
+    <string name="settings_favorites_on_top">Favoritas sempre no topo</string>
+    <string name="settings_favorites_on_top_summary">Desativado, as syncs com estrela mantêm a estrela e o filtro Favoritas, mas podem ficar em qualquer posição da ordem</string>
     <string name="syncs_view_tiles">Mostrar como blocos</string>
     <string name="syncs_view_cards">Mostrar como cartões</string>
     <string name="tile_next_run">Próxima: %1$s</string>

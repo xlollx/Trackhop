@@ -273,8 +273,10 @@ fun SyncsScreen(
     // cards trade places. Left alone, the list would follow the card at its top by key, and a card
     // moved above it would make the whole list jump.
     val moveAnchor = remember { arrayOfNulls<Pair<Int, Int>>(1) }
-    // The order as shown: starred syncs first. Positions (a drag, "Move to") are places in this order.
-    val order = remember(data.jobs) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).map { it.id } }
+    // The order as shown: starred syncs first (unless turned off in Settings › Appearance). Positions
+    // (a drag, "Move to") are places in this order.
+    val onTop = data.settings.favoritesOnTop
+    val order = remember(data.jobs, onTop) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, onTop).map { it.id } }
     val lastOrder = remember { arrayOf(order) }
     SideEffect {
         if (order != lastOrder[0]) {
@@ -291,7 +293,7 @@ fun SyncsScreen(
         val followIt = here != null && from >= 0 && (follow || (from > to && (to == 0 || here == listState.firstVisibleItemIndex)))
         moveAnchor[0] = if (followIt) (here!! + (to - from)).coerceAtLeast(0) to 0
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to))
+        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to, onTop))
     }
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
@@ -311,7 +313,7 @@ fun SyncsScreen(
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
     // old order was taken for "no change" and the card snapped back).
-    val orderNow = { com.xlollx.songport.sync.Labels.favoritesFirst(Store.get(ctx).data.jobs).map { it.id } }
+    val orderNow = { Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.favoritesFirst(d.jobs, d.settings.favoritesOnTop).map { it.id } } }
     val reorder = rememberReorderableLazyGridState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
@@ -351,9 +353,9 @@ fun SyncsScreen(
     // A colour or a service no sync uses any more has no chip to turn it off: it is dropped.
     val effective = if (finder) filter.pruned(data.jobs) else SyncFilter()
     val runningIds = running.keys
-    val shown = remember(data.jobs, data.reports, runningIds, effective) {
+    val shown = remember(data.jobs, data.reports, runningIds, effective, onTop) {
         // Starred syncs first, then the others, each in the list's own order.
-        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id })
+        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }, onTop)
     }
     // Pull to refresh = sync all. The indicator stays only while the gesture and the start are under
     // way: the cards show the progress. While syncs run, the pull is off (the pill says how many).
@@ -539,7 +541,7 @@ fun SyncsScreen(
                     onDragStarted = {
                         swapped[0] = false
                         heldTile[0] = job.id
-                        dragStretch = com.xlollx.songport.sync.Labels.dragStretch(Store.get(ctx).data.jobs, job.id)
+                        dragStretch = Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.dragStretch(d.jobs, job.id, d.settings.favoritesOnTop) }
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "start ${job.id} at $it")
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     },
@@ -553,7 +555,7 @@ fun SyncsScreen(
                         val to = dropped?.indexOf(job.id) ?: -1
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
                         if (to >= 0 && dropped != orderNow()) {
-                            Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(Store.get(ctx).data.jobs, job.id, to))
+                            Store.get(ctx).data.let { d -> Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(d.jobs, job.id, to, d.settings.favoritesOnTop)) }
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
                         } else dragOrder = null
@@ -718,7 +720,7 @@ private fun JobMenuHost(
     var moveToOpen by rememberSaveable { mutableStateOf(false) }
     if (moveToOpen) {
         val total = data.jobs.size
-        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
+        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, data.settings.favoritesOnTop).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
         FitDialog(

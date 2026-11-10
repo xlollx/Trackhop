@@ -150,6 +150,24 @@ class ReorderFlowTest : FlowTest() {
     }
 
     @Test
+    fun withFavouritesNotOnTopAStarredTileGoesAmongTheOthers() {
+        // Settings › Favourites always on top, off: tiles 1 and 2 starred, the list as stored.
+        store.updateSettings { it.copy(favoritesOnTop = false) }
+        seed(starred = setOf(1, 2))
+        openTiles()
+        val one = tileAt(1); val two = tileAt(2); val four = tileAt(4)
+        dragTile(1, listOf(Offset(two.x - one.x, 0f), Offset(0f, four.y - two.y))) {
+            // Held over the second row: its tiles have made way, as for any other tile.
+            assertTrue("tile 4 moved up a row", tileAt(4).y < four.y - 1f)
+        }
+        waitFor("job-1 fourth") { order().indexOf("job-1") == 3 }
+        assertEquals(listOf("job-2", "job-3", "job-4", "job-1", "job-5", "job-6"), order())
+        assertTrue("job-1 still starred", store.data.jobs.first { it.id == "job-1" }.favorite)
+        // Let go, it stays among the unstarred, where tile 4 was.
+        waitFor("tile 1 where tile 4 was") { tileAt(1).let { kotlin.math.abs(it.x - four.x) < 2f && kotlin.math.abs(it.y - four.y) < 2f } }
+    }
+
+    @Test
     fun theFirstVisibleCardDraggedDownStaysWhereItIsLetGo() {
         seed()
         launch(tabIntent(MainActivity.TAB_SYNCS))

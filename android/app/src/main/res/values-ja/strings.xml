@@ -1869,6 +1869,8 @@
     <string name="card_size_landscape">横向きのときはカードを小さくして、より多く表示します。</string>
     <string name="settings_minimal_view">ミニマル表示</string>
     <string name="settings_minimal_view_summary">同期をグリッドの小さなタイルで表示：サービス、名前、状態</string>
+    <string name="settings_favorites_on_top">お気に入りを常に上に表示</string>
+    <string name="settings_favorites_on_top_summary">オフにすると、スター付きの同期はスターとお気に入りフィルターはそのままで、並び順の好きな位置に置けます</string>
     <string name="syncs_view_tiles">タイルで表示</string>
     <string name="syncs_view_cards">カードで表示</string>
     <string name="tile_next_run">次回: %1$s</string>

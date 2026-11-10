@@ -82,6 +82,8 @@ data class Settings(
     val cardSize: String = "large",
     /** Syncs as small tiles in a grid (name, services, status) instead of full cards. */
     val minimalSyncs: Boolean = false,
+    /** Starred syncs shown first, dragged among themselves only; off: they go anywhere in the order. */
+    val favoritesOnTop: Boolean = true,
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */
     val tourDone: Boolean = false,
     /**

@@ -1964,6 +1964,8 @@
     <string name="card_size_landscape">Gdy telefon leży poziomo, karty są małe, żeby zmieściło się ich więcej.</string>
     <string name="settings_minimal_view">Widok minimalny</string>
     <string name="settings_minimal_view_summary">Synchronizacje jako małe kafelki w siatce: serwisy, nazwa i stan</string>
+    <string name="settings_favorites_on_top">Ulubione zawsze na górze</string>
+    <string name="settings_favorites_on_top_summary">Gdy wyłączone, synchronizacje z gwiazdką zachowują gwiazdkę i filtr Ulubione, ale mogą stać w dowolnym miejscu kolejności</string>
     <string name="syncs_view_tiles">Pokaż jako kafelki</string>
     <string name="syncs_view_cards">Pokaż jako karty</string>
     <string name="tile_next_run">Następna: %1$s</string>

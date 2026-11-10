@@ -143,15 +143,16 @@ object Labels {
     /**
      * Where FileStore.moveJob puts [id] so that the list as shown ([favoritesFirst]) has it at
      * [shownIndex]: before the sync that follows it there. A sync dropped among those of the other
-     * kind (starred or not) ends at the edge of its own.
+     * kind (starred or not) ends at the edge of its own. With [onTop] off (Settings › Favourites
+     * always on top) the list is shown as stored: one stretch, a sync goes anywhere.
      */
-    fun storeIndex(jobs: List<SyncJob>, id: String, shownIndex: Int): Int {
+    fun storeIndex(jobs: List<SyncJob>, id: String, shownIndex: Int, onTop: Boolean = true): Int {
         val job = jobs.firstOrNull { it.id == id } ?: return shownIndex
-        val shown = favoritesFirst(jobs).filter { it.id != id }
+        val shown = favoritesFirst(jobs, onTop).filter { it.id != id }
         val rest = jobs.map { it.id }.filter { it != id }
         // Its own kind's stretch of the list as shown: the starred, then the others.
         val stars = shown.count { it.favorite }
-        val split = jobs.any { it.favorite } && jobs.any { !it.favorite }
+        val split = onTop && jobs.any { it.favorite } && jobs.any { !it.favorite }
         val from = if (split && !job.favorite) stars else 0
         val to = if (split && job.favorite) stars else shown.size
         val at = shownIndex.coerceIn(from, to)
@@ -240,12 +241,17 @@ object Labels {
      * The stretch of the list as shown ([favoritesFirst]) that [id], held in a drag, stays in: the
      * starred (true) or the others (false); null when the list is one stretch. Only the syncs of that
      * stretch make way for it: shown among the other kind, it would be put back at the edge of its
-     * own on release ([storeIndex]) and the syncs it had passed would jump back.
+     * own on release ([storeIndex]) and the syncs it had passed would jump back. Always null with
+     * [onTop] off: the starred are not kept apart.
      */
-    fun dragStretch(jobs: List<SyncJob>, id: String): Boolean? =
-        jobs.firstOrNull { it.id == id }?.favorite?.takeIf { jobs.any { it.favorite } && jobs.any { !it.favorite } }
+    fun dragStretch(jobs: List<SyncJob>, id: String, onTop: Boolean = true): Boolean? =
+        jobs.firstOrNull { it.id == id }?.favorite?.takeIf { onTop && jobs.any { it.favorite } && jobs.any { !it.favorite } }
 
-    /** Starred syncs first; the others, and the starred among themselves, in the order given. */
-    fun favoritesFirst(jobs: List<SyncJob>): List<SyncJob> =
-        if (jobs.none { it.favorite } || jobs.all { it.favorite }) jobs else jobs.sortedByDescending { it.favorite }
+    /**
+     * Starred syncs first; the others, and the starred among themselves, in the order given. Only how
+     * the list is shown: the stored order is left as it is, so with [onTop] off (Settings › Favourites
+     * always on top) the list is simply the stored order.
+     */
+    fun favoritesFirst(jobs: List<SyncJob>, onTop: Boolean = true): List<SyncJob> =
+        if (!onTop || jobs.none { it.favorite } || jobs.all { it.favorite }) jobs else jobs.sortedByDescending { it.favorite }
 }
