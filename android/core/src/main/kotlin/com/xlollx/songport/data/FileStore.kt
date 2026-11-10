@@ -159,6 +159,11 @@ data class StoreData(
     val reviewDecisions: Map<String, com.xlollx.songport.sync.ReviewDecision> = emptyMap(),
     /** Syncs handed over to the user's own server, by job id (sync/ServerSyncs): this device no longer runs them. */
     val handedOver: Map<String, com.xlollx.songport.sync.HandedOver> = emptyMap(),
+    /**
+     * Syncs of this device the user paired with the same sync on their server, by job id -> the
+     * server's sync id: their review choices are exchanged too (only those the user chose).
+     */
+    val serverPairs: Map<String, String> = emptyMap(),
 )
 
 /**
@@ -286,6 +291,9 @@ open class FileStore(dir: File) {
         d.copy(
             jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id,
             pairStates = d.pairStates.filterKeys { id !in it.split('|') },
+            // Handed over: the card goes, the sync stays on the server (deleted there on its page).
+            handedOver = d.handedOver - id,
+            serverPairs = d.serverPairs - id,
         )
     }
 

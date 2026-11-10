@@ -98,6 +98,10 @@ the command lists them and asks you to say which.
 | `trackhop review <sync> replace <n> <track>` | The right track for a match to check. |
 | `trackhop review <sync> restore` | Puts back what the run removed. |
 
+The choices made here (ignored, picked, kept) reach the phone too, for a sync the app handed over to
+this server or the same sync on both, and the app's reach here: see
+[Coordinate with my server](docker.md#coordinate-with-my-server).
+
 **Services and playlists**
 
 | Command | What it does |

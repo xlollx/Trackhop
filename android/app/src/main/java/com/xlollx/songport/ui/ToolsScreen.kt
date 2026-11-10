@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Checklist
@@ -111,7 +112,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     STATS(Icons.Filled.Insights, R.string.stats_title, R.string.stats_row_desc, false),
     UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true),
     MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
-    WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false);
+    WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
+    SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -153,6 +155,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         onAiSetupOpened()
     }
     val hasServerSync = remember { com.xlollx.songport.data.Store.get(ctx) }.state.collectAsState().value.jobs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
+    val serverOn = remember { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()
 
@@ -199,6 +202,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
                     Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
                     Tool.WANTED -> WantedCard(local)
+                    Tool.SERVER -> ServerSyncsPage(local)
                     else -> {}
                 }
             }
@@ -237,6 +241,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.SCAN, provider) { onScan(it!!) }
             // Only for who syncs to a server of their own: the songs it still lacks.
             if (hasServerSync) ToolRow(Tool.WANTED, provider) { open = Tool.WANTED }
+            // Only with "Coordinate with my server" set: the server's syncs, run and reviewed from here.
+            if (serverOn) ToolRow(Tool.SERVER, provider) { open = Tool.SERVER }
         }
 
         PrefSection(stringResource(R.string.tools_section_move), accent = JobColor.TEAL, description = stringResource(R.string.tools_section_move_desc)) {

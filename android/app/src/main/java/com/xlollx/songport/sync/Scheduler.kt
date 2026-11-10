@@ -39,6 +39,9 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             jobId == ALL -> store.data.jobs.filter { it.enabled }
             else -> listOfNotNull(store.job(jobId))
         }.filter {
+            // Handed over to the user's server: it runs there, never here too (ServerLink).
+            it.id !in store.data.handedOver
+        }.filter {
             // A scheduled wake of a sync at a time of day: nothing to do until its time.
             !scheduled || batch != null || jobId == ALL || !com.xlollx.songport.sync.Timing.timed(it) ||
                 com.xlollx.songport.sync.Timing.isDue(it, System.currentTimeMillis())
@@ -303,6 +306,8 @@ object Scheduler {
      * rete manca davvero, sono le chiamate ai servizi a fallire, con i loro tentativi.
      */
     fun runNow(ctx: Context, jobId: String) {
+        // A sync handed over to the user's server: the server is asked to run it.
+        if (ServerLink.handedOver(ctx, jobId) != null) return ServerLink.runHandedOver(ctx, jobId)
         com.xlollx.songport.NotificationAsk.onUse()
         val req = OneTimeWorkRequestBuilder<SyncWorker>()
             .setInputData(workDataOf(SyncWorker.KEY_JOB to jobId, SyncWorker.KEY_SCHEDULED to false))

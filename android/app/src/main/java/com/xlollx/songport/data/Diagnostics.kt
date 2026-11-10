@@ -139,6 +139,8 @@ object Diagnostics {
         val servers = Providers.all().mapNotNull { p -> runCatching { env.tokens.get(p.id)?.extra?.get("url") }.getOrNull() }
             // The notification channels' servers and webhooks (a webhook's address is its key).
             .plus(runCatching { com.xlollx.songport.notify.Notify.channels(env).flatMap { it.addresses() } }.getOrDefault(emptyList()))
+            // Coordinate with my server: its address, and its API token should an answer ever echo it.
+            .plus(runCatching { com.xlollx.songport.sync.ServerLocks.config(env)?.let { listOf(it.address, it.token) } }.getOrNull().orEmpty())
         return com.xlollx.songport.data.Redact.text(sb.toString(), servers)
     }
 

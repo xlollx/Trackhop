@@ -863,6 +863,40 @@ and ends by itself if the phone dies on the way.
 - A two-way pair reserves both playlists. File playlists are each device's own and are not reserved.
 - On a shared server, each person's reservations are their own, like their syncs.
 
+### Hand a sync over to the server
+
+With the address and token set, a sync's menu in the app has **Hand over to the server**. One tap
+makes the same sync here (`POST /api/v1/syncs`), with this server's own accounts: the app first asks
+which services are connected here (`GET /api/v1/services`) and, when one is missing, says which to
+connect on this page. The app never sends its own accounts or tokens, only the two services, the
+playlists' ids, the timing and the changes mode. A sync this server already has (the same two
+playlists) is not made twice. From then on this server runs it on its schedule;
+the phone keeps the card, marked **On server**, and no longer runs it. The card's run button starts
+it here (`POST /api/v1/syncs/{sync}/run`), and the card shows this server's last run, with a button
+to review what it left. **Bring back to this phone** in the same menu deletes the sync here (the
+playlists stay as they are) and turns it on again on the phone.
+
+Radio syncs, two-way pairs, Shazam syncs and syncs of File playlists stay on the phone. Deleting a
+handed-over card on the phone leaves the sync here: delete it on this page.
+
+### Review choices on both sides
+
+For a sync handed over, and for a sync that is the same on both (the same two playlists) once you
+tap **Share review choices** beside it in Tools › My server, the review's choices travel both ways: tracks ignored, a track picked by hand, a match kept. Each side
+keeps when each choice was made, and for each track the newest choice wins on both
+(`POST /api/v1/syncs/{sync}/decisions`). The app exchanges them when it hands a sync over, brings it
+back, or reads this server's syncs (Tools › My server). A clock ahead of the server's counts as the
+server's time.
+
+### The server from the phone
+
+**Tools › My server** in the app lists this server's syncs with how each stands, its last run and
+its timing; a button runs one now, and the review button opens its last run's review: ignore a track not
+found, or keep a match. Picking another track is done on this page. Nothing else on the server is
+changed from the phone.
+
+If the server cannot be reached, the app says so and changes nothing.
+
 Trackhop Desktop answers only the computer it runs on, so a phone can coordinate with a Docker
 server; Desktop's own syncs still respect reservations made through its API by scripts on that
 computer. Any tool can use the same calls ([Locks](#api)): reserve, renew while writing, give back.

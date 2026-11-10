@@ -37,6 +37,9 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -760,13 +763,22 @@ private fun JobMenuHost(
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     var extendOpen by rememberSaveable { mutableStateOf(false) }
     if (extendOpen) AiExtendDialog(job) { extendOpen = false }
+    // Handed over to the user's server (Coordinate with my server): it runs there; taken back here to change it.
+    val onServer = data.handedOver[job.id] != null
+    val serverOn = remember(data.handedOver) { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
+    var handOverOpen by rememberSaveable { mutableStateOf(false) }
+    if (handOverOpen) HandOverDialog(job, back = onServer) { handOverOpen = false }
     content(
         listOfNotNull(
             if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
             MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
-            MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
-            if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
+            if (onServer) null else MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+            if (onServer) null
+            else if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
             else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
+            if (onServer) MenuAction(stringResource(R.string.server_bring_back), { handOverOpen = true }, icon = Icons.Outlined.CloudDownload)
+            else if (serverOn) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
+            else null,
             MenuAction(
                 stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
                 { Store.get(ctx).update { d -> halves(d).let { ids -> d.copy(jobs = d.jobs.map { if (it.id in ids) it.copy(favorite = !job.favorite) else it }) } } },
@@ -802,6 +814,9 @@ private fun statusInfo(
     onPreview: (SyncJob) -> Unit, onReview: (String) -> Unit, onOpenLog: () -> Unit, onRun: (SyncJob) -> Unit,
 ): CardStatusInfo {
     val haptic = rememberConfirmHaptic()
+    // Handed over: the server runs it, whatever this phone last did.
+    if (run == null && Store.get(LocalContext.current).state.collectAsState().value.handedOver[job.id] != null)
+        return CardStatusInfo(stringResource(R.string.server_on_server), Tone.Accent, Icons.Filled.Cloud)
     return when (cardStatus(run != null, job.enabled, report, run, radio = job.radio != null)) {
         CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
         CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
@@ -853,7 +868,9 @@ private fun JobCard(
     listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
     var liveOpen by remember { mutableStateOf(false) }
     if (liveOpen && isRunning) LiveSheet(job) { liveOpen = false }
-    val report = data.reports.firstOrNull { it.id == job.lastReportId }
+    val handed = data.handedOver[job.id]
+    // Handed over: what the server did, not what this phone did before.
+    val report = if (handed != null) null else data.reports.firstOrNull { it.id == job.lastReportId }
     val src = Providers.byId(job.source.provider)
     val dst = Providers.byId(job.target.provider)
     val srcName = playlistDisplayName(job.source.playlistId, job.source.playlistName, job.source.provider)
@@ -990,6 +1007,7 @@ private fun JobCard(
                     Text(stringResource(R.string.review_now, toFix))
                 }
             }
+            if (handed != null && run == null) ServerCardStatus(handed.serverId, small)
             // A radio sync while it listens: what is on air (or that it waits for Wi-Fi, or what went wrong).
             if (job.radio != null) RadioCardStatus(job)
             Spacer(Modifier.height(if (small) 4.dp else 6.dp))
@@ -1002,7 +1020,8 @@ private fun JobCard(
                         // A two-way pair never removes, whatever an older version saved. A radio sync shows
                         // its window (days and hours) where the others show their schedule.
                         // Turned off on arrival from another device: where its schedule runs, in place of the timing.
-                        (job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
+                        (handed?.let { stringResource(R.string.server_runs_there) }
+                            ?: job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
                             ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                             (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1040,6 +1059,38 @@ private fun JobCard(
                     title = job.name.ifBlank { job.source.playlistName },
                 )
             }
+        }
+    }
+}
+
+/**
+ * On the card of a sync handed over to the user's server: its last run there, as last read (read
+ * once when missing), and the way to review what it left.
+ */
+@Composable
+private fun ServerCardStatus(serverId: String, small: Boolean) {
+    val ctx = LocalContext.current
+    val known by com.xlollx.songport.sync.ServerLink.known.collectAsState()
+    LaunchedEffect(serverId) { if (serverId !in known) com.xlollx.songport.sync.ServerLink.refreshSoon(ctx) }
+    val s = known[serverId] ?: return
+    var reviewing by remember { mutableStateOf<String?>(null) }
+    reviewing?.let { ServerReviewSheet(it) { reviewing = null; com.xlollx.songport.sync.ServerLink.refreshSoon(ctx, force = true) } }
+    val last = s.last ?: return
+    Spacer(Modifier.height(if (small) 6.dp else 8.dp))
+    Text(
+        if (last.ok) stringResource(R.string.server_last_result, relativeTime(last.started.takeIf { it > 0 } ?: s.lastRun ?: 0), last.added, last.removed)
+        else stringResource(R.string.server_last_failed, last.error.orEmpty()),
+        style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+        color = if (last.ok) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+        maxLines = 2, overflow = TextOverflow.Ellipsis,
+    )
+    val toFix = last.notFound + last.toCheck
+    if (toFix > 0) {
+        Spacer(Modifier.height(6.dp))
+        FilledTonalButton(onClick = { reviewing = last.id }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Filled.Build, null, Modifier.size(16.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.review_now, toFix))
         }
     }
 }
