@@ -2,6 +2,8 @@ package com.xlollx.songport.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -60,6 +62,17 @@ data class WindowLayout(
 }
 
 val LocalWindowLayout = staticCompositionLocalOf { WindowLayout.Phone }
+
+/**
+ * A dialog with a preview and its choices in a low, wide window (a phone on its side): wider than
+ * Material's 560 dp, so the two stand side by side instead of one hiding the other. Margins at the
+ * sides, no wider than [WIDE_DIALOG]. Elsewhere the dialog is Material's own.
+ */
+object WideDialog {
+    val WIDE_DIALOG = 840.dp
+    val modifier = Modifier.padding(horizontal = 24.dp).widthIn(max = WIDE_DIALOG).fillMaxWidth()
+    val properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+}
 
 /** A page kept to a readable width and centred in a wide window; on a phone it fills the screen as before. */
 @Composable

@@ -250,69 +250,84 @@ fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> 
     val pure = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, 1f, 1f)))
     val svName = stringResource(R.string.job_color_shade)
     val hueName = stringResource(R.string.job_color_hue)
+    // A phone on its side: the dialog widens, the square and the bar stand beside the code and the
+    // preview, and the square is lower so both fit without scrolling.
+    val wide = LocalWindowLayout.current.short
+    val pickers: @Composable () -> Unit = {
+        // Saturation left to right, brightness top to bottom.
+        androidx.compose.foundation.Canvas(
+            Modifier.fillMaxWidth().height(if (wide) 120.dp else 180.dp).clip(RoundedCornerShape(12.dp))
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        fun at(o: Offset) { sat = (o.x / size.width).coerceIn(0f, 1f); value = 1f - (o.y / size.height).coerceIn(0f, 1f); hex = CustomColor.key(Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, sat, value)))) }
+                        at(down.position)
+                        drag(down.id) { at(it.position); it.consume() }
+                    }
+                }
+                .semantics { contentDescription = svName },
+        ) {
+            drawRect(Brush.horizontalGradient(listOf(Color.White, pure)))
+            drawRect(Brush.verticalGradient(listOf(Color.Transparent, Color.Black)))
+            val c = Offset(sat * size.width, (1f - value) * size.height)
+            drawCircle(Color.White, 11.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx()))
+            drawCircle(Color.Black.copy(alpha = 0.4f), 13.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+        }
+        // Hue.
+        androidx.compose.foundation.Canvas(
+            Modifier.fillMaxWidth().height(28.dp).clip(RoundedCornerShape(14.dp))
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        fun at(o: Offset) { hue = (o.x / size.width).coerceIn(0f, 1f) * 360f; hex = CustomColor.key(Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, sat, value)))) }
+                        at(down.position)
+                        drag(down.id) { at(it.position); it.consume() }
+                    }
+                }
+                .semantics { contentDescription = hueName },
+        ) {
+            drawRect(Brush.horizontalGradient(RAINBOW))
+            val x = hue / 360f * size.width
+            drawCircle(Color.White, size.height / 2 - 2.dp.toPx(), Offset(x, size.height / 2), style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx()))
+        }
+    }
+    val result: @Composable () -> Unit = {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(color).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)))
+            androidx.compose.material3.OutlinedTextField(
+                value = hex,
+                onValueChange = { t ->
+                    val v = ("#" + t.removePrefix("#").filter { it.isLetterOrDigit() }.take(6)).uppercase()
+                    hex = v
+                    CustomColor.parse(v)?.let { setFrom(it) }
+                },
+                label = { Text("HEX") }, singleLine = true, modifier = Modifier.weight(1f),
+            )
+        }
+        // How a card will wear it, in this theme: the same tint and text colour as the list.
+        val key = CustomColor.key(color)
+        Box(
+            Modifier.fillMaxWidth().height(44.dp).clip(RoundedCornerShape(14.dp)).background(jobContainer(key))
+                .border(1.dp, jobAccent(key) ?: MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Text(stringResource(R.string.job_color_preview), Modifier.padding(horizontal = 14.dp), color = jobInk(key) ?: MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
+        }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = if (wide) WideDialog.modifier else Modifier,
+        properties = if (wide) WideDialog.properties else androidx.compose.ui.window.DialogProperties(),
         title = { Text(stringResource(R.string.job_color_custom)) },
         text = {
-            // Scrolls where the dialog is lower than its content (a phone on its side).
-            androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                // Saturation left to right, brightness top to bottom.
-                androidx.compose.foundation.Canvas(
-                    Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(12.dp))
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
-                                fun at(o: Offset) { sat = (o.x / size.width).coerceIn(0f, 1f); value = 1f - (o.y / size.height).coerceIn(0f, 1f); hex = CustomColor.key(Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, sat, value)))) }
-                                at(down.position)
-                                drag(down.id) { at(it.position); it.consume() }
-                            }
-                        }
-                        .semantics { contentDescription = svName },
-                ) {
-                    drawRect(Brush.horizontalGradient(listOf(Color.White, pure)))
-                    drawRect(Brush.verticalGradient(listOf(Color.Transparent, Color.Black)))
-                    val c = Offset(sat * size.width, (1f - value) * size.height)
-                    drawCircle(Color.White, 11.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx()))
-                    drawCircle(Color.Black.copy(alpha = 0.4f), 13.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
-                }
-                // Hue.
-                androidx.compose.foundation.Canvas(
-                    Modifier.fillMaxWidth().height(28.dp).clip(RoundedCornerShape(14.dp))
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
-                                fun at(o: Offset) { hue = (o.x / size.width).coerceIn(0f, 1f) * 360f; hex = CustomColor.key(Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, sat, value)))) }
-                                at(down.position)
-                                drag(down.id) { at(it.position); it.consume() }
-                            }
-                        }
-                        .semantics { contentDescription = hueName },
-                ) {
-                    drawRect(Brush.horizontalGradient(RAINBOW))
-                    val x = hue / 360f * size.width
-                    drawCircle(Color.White, size.height / 2 - 2.dp.toPx(), Offset(x, size.height / 2), style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx()))
-                }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Box(Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(color).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)))
-                    androidx.compose.material3.OutlinedTextField(
-                        value = hex,
-                        onValueChange = { t ->
-                            val v = ("#" + t.removePrefix("#").filter { it.isLetterOrDigit() }.take(6)).uppercase()
-                            hex = v
-                            CustomColor.parse(v)?.let { setFrom(it) }
-                        },
-                        label = { Text("HEX") }, singleLine = true, modifier = Modifier.weight(1f),
-                    )
-                }
-                // How a card will wear it, in this theme: the same tint and text colour as the list.
-                val key = CustomColor.key(color)
-                Box(
-                    Modifier.fillMaxWidth().height(44.dp).clip(RoundedCornerShape(14.dp)).background(jobContainer(key))
-                        .border(1.dp, jobAccent(key) ?: MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    Text(stringResource(R.string.job_color_preview), Modifier.padding(horizontal = 14.dp), color = jobInk(key) ?: MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
-                }
+            if (wide) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                androidx.compose.foundation.layout.Column(Modifier.weight(0.55f).verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) { pickers() }
+                androidx.compose.foundation.layout.Column(Modifier.weight(0.45f).verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) { result() }
+            }
+            // Scrolls where the dialog is lower than its content.
+            else androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                pickers()
+                result()
             }
         },
         confirmButton = { TextButton(onClick = { onPick(color) }) { Text(stringResource(R.string.ok)) } },

@@ -180,56 +180,73 @@ fun JobStyleDialog(
     var recolorOpen by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val saved = labels.firstOrNull { it.id == p && JobColor.of(it.id) == null }
     val c = (if (saved != null) recolor else null) ?: pickedColor(p, labels)
+    // The card in small, as the list will show it.
+    val preview: @Composable () -> Unit = {
+        androidx.compose.material3.Card(
+            Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = jobContainer(c)),
+        ) {
+            androidx.compose.foundation.layout.Column(
+                Modifier.cardAccent(CardAccent.resolve(st, settingsAccent), jobAccent(c)).padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    val brush = jobControlBrush(c)
+                    listOf("+3", "0", "0").forEachIndexed { i, v ->
+                        Box(
+                            Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(10.dp))
+                                .let { if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) },
+                            contentAlignment = Alignment.Center,
+                        ) { Text(v, fontWeight = FontWeight.Bold, color = if (i == 0) jobInk(c) ?: MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
+                    }
+                }
+            }
+        }
+    }
+    val choices: @Composable () -> Unit = {
+        Text(androidx.compose.ui.res.stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
+        JobColorPicker(p, labels) { p = it; labelName = nameOf(it); recolor = null }
+        if (p != null) {
+            androidx.compose.material3.OutlinedTextField(
+                value = labelName, onValueChange = { labelName = it.take(com.xlollx.songport.sync.Labels.MAX_NAME) },
+                label = { Text(androidx.compose.ui.res.stringResource(R.string.label_name)) },
+                supportingText = { Text(androidx.compose.ui.res.stringResource(R.string.label_name_hint)) },
+                singleLine = true, modifier = Modifier.fillMaxWidth().testTag(LABEL_NAME_TAG),
+            )
+            if (saved != null) androidx.compose.material3.TextButton(onClick = { recolorOpen = true }) {
+                Text(androidx.compose.ui.res.stringResource(R.string.label_change_color))
+            }
+            Text(androidx.compose.ui.res.stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
+            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.material3.FilterChip(st == null, onClick = { st = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
+                CardAccent.entries.forEach { a ->
+                    androidx.compose.material3.FilterChip(st == a.key, onClick = { st = a.key }, label = { Text(androidx.compose.ui.res.stringResource(a.label)) })
+                }
+            }
+        }
+    }
+    // A phone on its side: the dialog widens and the preview stands beside the choices, which
+    // scroll on their own; upright, one column as ever.
+    val wide = LocalWindowLayout.current.short
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = if (wide) WideDialog.modifier else Modifier,
+        properties = if (wide) WideDialog.properties else androidx.compose.ui.window.DialogProperties(),
         title = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) },
         text = {
-            androidx.compose.foundation.layout.Column(
+            if (wide) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                androidx.compose.foundation.layout.Column(Modifier.weight(0.4f).verticalScroll(androidx.compose.foundation.rememberScrollState())) { preview() }
+                androidx.compose.foundation.layout.Column(
+                    Modifier.weight(0.6f).verticalScroll(androidx.compose.foundation.rememberScrollState()).testTag(STYLE_CHOICES_TAG),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) { choices() }
+            } else androidx.compose.foundation.layout.Column(
                 Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // The card in small, as the list will show it.
-                androidx.compose.material3.Card(
-                    Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
-                    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = jobContainer(c)),
-                ) {
-                    androidx.compose.foundation.layout.Column(
-                        Modifier.cardAccent(CardAccent.resolve(st, settingsAccent), jobAccent(c)).padding(horizontal = 20.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text(name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            val brush = jobControlBrush(c)
-                            listOf("+3", "0", "0").forEachIndexed { i, v ->
-                                Box(
-                                    Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(10.dp))
-                                        .let { if (brush != null) it.background(brush) else it.background(MaterialTheme.colorScheme.surfaceContainerHigh) },
-                                    contentAlignment = Alignment.Center,
-                                ) { Text(v, fontWeight = FontWeight.Bold, color = if (i == 0) jobInk(c) ?: MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
-                            }
-                        }
-                    }
-                }
-                Text(androidx.compose.ui.res.stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
-                JobColorPicker(p, labels) { p = it; labelName = nameOf(it); recolor = null }
-                if (p != null) {
-                    androidx.compose.material3.OutlinedTextField(
-                        value = labelName, onValueChange = { labelName = it.take(com.xlollx.songport.sync.Labels.MAX_NAME) },
-                        label = { Text(androidx.compose.ui.res.stringResource(R.string.label_name)) },
-                        supportingText = { Text(androidx.compose.ui.res.stringResource(R.string.label_name_hint)) },
-                        singleLine = true, modifier = Modifier.fillMaxWidth().testTag(LABEL_NAME_TAG),
-                    )
-                    if (saved != null) androidx.compose.material3.TextButton(onClick = { recolorOpen = true }) {
-                        Text(androidx.compose.ui.res.stringResource(R.string.label_change_color))
-                    }
-                    Text(androidx.compose.ui.res.stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
-                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        androidx.compose.material3.FilterChip(st == null, onClick = { st = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
-                        CardAccent.entries.forEach { a ->
-                            androidx.compose.material3.FilterChip(st == a.key, onClick = { st = a.key }, label = { Text(androidx.compose.ui.res.stringResource(a.label)) })
-                        }
-                    }
-                }
+                preview()
+                choices()
             }
         },
         confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
@@ -239,3 +256,4 @@ fun JobStyleDialog(
 }
 
 const val LABEL_NAME_TAG = "label-name"
+const val STYLE_CHOICES_TAG = "style-choices"

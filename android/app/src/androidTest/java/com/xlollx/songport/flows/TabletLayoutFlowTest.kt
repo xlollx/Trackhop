@@ -6,7 +6,9 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -165,5 +167,51 @@ class TabletLayoutFlowTest : FlowTest() {
 
         rotate(UiAutomation.ROTATION_FREEZE_0)
         waitNode("the link typed", hasSetTextAction() and hasText(link))
+    }
+
+    /** The parts of a node that show are all of it: nothing cut by its scroller or the dialog's edge. */
+    private fun whole(n: SemanticsNode) = n.boundsInRoot.height >= n.size.height - 1 && n.boundsInRoot.width >= n.size.width - 1
+
+    @Test
+    fun theStyleDialogOnItsSideHasThePreviewBesideTheColours() {
+        seed(1)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        rotate(UiAutomation.ROTATION_FREEZE_90)
+        waitText("Sync number 1")
+        assertTrue("a low window", layoutNow().short)
+        clickDesc(s(R.string.more_actions))
+        click(s(R.string.job_style))
+        waitNode("the colour swatches", hasContentDescription(s(R.string.job_color_default)))
+        snapshot("style-dialog-landscape")
+        // The choices are a column of their own, to the right of the card's preview, wider than Material's narrow dialog.
+        val choices = compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.STYLE_CHOICES_TAG)).fetchSemanticsNode()
+        val density = main().resources.displayMetrics.density
+        assertTrue("the choices start right of the preview (${choices.boundsInRoot.left})", choices.boundsInRoot.left > 200 * density)
+        assertTrue("the dialog is wide (${choices.boundsInRoot.right / density} dp)", choices.boundsInRoot.right > 560 * density)
+        // Every ready colour shows whole without scrolling, and so do Save and Cancel.
+        for (name in listOf(R.string.job_color_default, R.string.color_teal, R.string.color_pink)) {
+            val swatch = compose.onAllNodes(hasContentDescription(s(name)) and hasClickAction()).onFirst()
+            swatch.assertIsDisplayed()
+            assertTrue("${s(name)} is cut", whole(swatch.fetchSemanticsNode()))
+        }
+        for (button in listOf(R.string.save, R.string.cancel)) {
+            val b = compose.onAllNodes(hasText(s(button)) and hasClickAction()).onFirst()
+            b.assertIsDisplayed()
+            assertTrue("${s(button)} is cut", whole(b.fetchSemanticsNode()))
+        }
+        // And it works as upright: a colour picked and saved.
+        click(s(R.string.color_teal))
+        click(s(R.string.save))
+        waitFor("teal stored") { store.data.jobs.single().color == "teal" }
+
+        // Upright again: the one-column dialog, no side-by-side column.
+        rotate(UiAutomation.ROTATION_FREEZE_0)
+        waitText("Sync number 1")
+        clickDesc(s(R.string.more_actions))
+        click(s(R.string.job_style))
+        waitNode("the colour swatches", hasContentDescription(s(R.string.job_color_default)))
+        assertTrue(compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.STYLE_CHOICES_TAG)).fetchSemanticsNodes().isEmpty())
+        click(s(R.string.cancel))
     }
 }
