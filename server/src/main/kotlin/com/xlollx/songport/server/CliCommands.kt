@@ -749,6 +749,10 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         val without = artists - found.toSet()
         if (without.isNotEmpty()) out.println("No setlists for ${without.size}: ${without.joinToString(", ") { it.s("artist") }}")
         r["notes"]?.jsonArray.orEmpty().forEach { out.println(it.str()) }
+        out.println(r.s("attribution"))
+        return 0
+    }
+
     private fun records(serviceAsk: String, playlistAsk: String, o: Cli.Opts): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)

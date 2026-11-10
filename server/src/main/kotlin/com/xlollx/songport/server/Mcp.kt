@@ -249,6 +249,7 @@ object Mcp {
         Tool("find_setlists", "Setlists of a playlist's artists", "The latest setlist.fm setlists of the artists of a playlist (up to 5 each): date, venue, city, the songs in order with encores, tapes and covers marked, and tracks ready for create_playlist/add_tracks to make one a playlist on any service. Looked up only now (cached a week); needs a setlist.fm key on the server. Show the attribution line (setlist.fm, with its link) with the setlists.",
             listOf(SERVICE, PLAYLIST), readOnly = true) { a ->
             Call("setlists", listOf(a.text("service"), a.text("playlist")))
+        },
         Tool("find_records", "Records and merch of a playlist's artists", "For each artist of a playlist: their CDs, vinyl and cassettes on Discogs (with the server's Discogs token, copies for sale and the lowest price), their official site, shop, Bandcamp and social pages from MusicBrainz, and search links on shops. Plain links only. Looked up only now (cached); can take a few minutes. Show the attribution line with the records.",
             listOf(SERVICE, PLAYLIST, Param("currency", "string", "Currency for prices: USD, EUR, GBP, JPY... (default: the server's).", required = false)), readOnly = true) { a ->
             Call("records", listOf(a.text("service"), a.text("playlist")), values = a.values("currency"))

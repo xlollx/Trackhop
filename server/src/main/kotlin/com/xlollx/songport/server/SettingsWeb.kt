@@ -69,6 +69,7 @@ internal fun Web.settingsPage(r: Web.Req) {
             "setlistfm" -> {
                 saveSetlistfmKey(r.form)
                 return redirect(r.ex, "/settings?ok=${q("Saved.")}#setlistfm")
+            }
             "discogs" -> {
                 saveDiscogsToken(r.form)
                 return redirect(r.ex, "/settings?ok=${q("Saved.")}#discogs")
