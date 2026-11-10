@@ -1708,6 +1708,16 @@
     <string name="whats_new_117_server_body">Lyrion ve Mopidy sunucu olarak geldi (beta). MusicBrainz etiketli dosyalar tam olarak eşleşir; Araçlar › Sunucumda eksik, eşitlemelerinin orada bulamadığı şarkıları listeler.</string>
     <string name="whats_new_117_devices_title">Bir eşitleme, bir cihaz</string>
     <string name="whats_new_117_devices_body">Başka bir telefona geri yüklenen kurulum oradaki zamanlanmış eşitlemeleri kapalı tutar, böylece iki kez çalışmazlar. Sunucumla eşgüdüm sağla ile bu telefon ve Trackhop sunucun her çalma listesinde sırayla çalışır.</string>
+    <string name="whats_new_118_releases_title">Sanatçılarından yeni çıkanlar</string>
+    <string name="whats_new_118_releases_body">Keşfet › Yeni çıkanlar, bir çalma listesindeki sanatçıların yeni albümlerini, EP\'lerini ve single\'larını, yakında çıkacakları da gösterir. Onları herhangi bir serviste çalma listesi yap ya da bir eşitleme her hafta eklesin.</string>
+    <string name="whats_new_118_notify_title">Mesajlar istediğin yerde</string>
+    <string name="whats_new_118_notify_body">Ayarlar › Bildirim kanalları, bir eşitleme bir şey değiştirdiğinde, başarısız olduğunda ya da yeni çıkanlar bulduğunda Telegram, ntfy, Gotify, Discord, Slack, Matrix veya Pushover\'dan mesaj gönderir. Anahtarları bu telefonda şifreli kalır.</string>
+    <string name="whats_new_118_concerts_title">Sanatçılarının konserleri</string>
+    <string name="whats_new_118_concerts_body">Keşfet › Konserler, bir çalma listesindeki sanatçıların ülkendeki yaklaşan tarihlerini Ticketmaster ve MusicBrainz\'den listeler. Tarihi olmayan mı var? Tek dokunuşla bilet sitelerinde ara.</string>
+    <string name="whats_new_118_setlists_title">Setlistler çalma listesi oluyor</string>
+    <string name="whats_new_118_setlists_body">Keşfet › Setlistler, bir çalma listesindeki sanatçıların canlı ne çaldığını setlist.fm\'den gösterir. Bir konser seç ve onu herhangi bir serviste çalma listesi yap. Kendi ücretsiz setlist.fm anahtarını Ayarlar › Servis anahtarları bölümüne ekle.</string>
+    <string name="whats_new_118_records_title">Plaklar ve merch</string>
+    <string name="whats_new_118_records_body">Keşfet › Plaklar ve merch, Discogs\'ta CD, plak ve kasetleri, ayrıca resmi siteleri ve mağazaları bulur. Kendi Discogs token\'ınla satıştaki kopyaları ve en düşük fiyatı da görürsün. Yalnızca bağlantılar: satın alma onların sitesinde.</string>
     <string name="whats_new_114_nano_title">Anahtarsız yapay zekâ</string>
     <string name="whats_new_114_nano_body">Gemini Nano olan telefonlarda Roast ve çalma listesi oluşturucu artık doğrudan telefonda çalışıyor: anahtar yok, hiçbir şey cihazdan çıkmıyor. Diğerlerinde Roast sizi doğrudan ücretsiz bir anahtar kurmaya götürür.</string>
     <string name="whats_new_114_tips_title">Widget\'lar, kısayollar ve otomasyon</string>

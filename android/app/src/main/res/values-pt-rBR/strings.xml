@@ -1718,6 +1718,16 @@
     <string name="whats_new_117_server_body">Lyrion e Mopidy chegam como servidores (beta). Arquivos com tags do MusicBrainz são combinados com exatidão, e Ferramentas › Faltando no meu servidor lista as músicas que suas syncs não encontraram lá.</string>
     <string name="whats_new_117_devices_title">Uma sync, um aparelho</string>
     <string name="whats_new_117_devices_body">Uma configuração restaurada em outro celular deixa as syncs agendadas desligadas lá, para não rodarem duas vezes. Com Coordenar com meu servidor, este celular e seu servidor Trackhop se revezam em cada playlist.</string>
+    <string name="whats_new_118_releases_title">Lançamentos dos seus artistas</string>
+    <string name="whats_new_118_releases_body">Descobrir › Lançamentos mostra os novos álbuns, EPs e singles dos artistas de uma playlist, e o que vem por aí. Transforme tudo em uma playlist em qualquer serviço ou deixe uma sync adicioná-los toda semana.</string>
+    <string name="whats_new_118_notify_title">Mensagens onde você quiser</string>
+    <string name="whats_new_118_notify_body">Configurações › Canais de notificação manda uma mensagem no Telegram, ntfy, Gotify, Discord, Slack, Matrix ou Pushover quando uma sync muda algo, falha ou encontra lançamentos. As chaves ficam criptografadas neste celular.</string>
+    <string name="whats_new_118_concerts_title">Shows dos seus artistas</string>
+    <string name="whats_new_118_concerts_body">Descobrir › Shows lista as próximas datas dos artistas de uma playlist no seu país, do Ticketmaster e do MusicBrainz. Alguém sem datas? Um toque busca nos sites de ingressos.</string>
+    <string name="whats_new_118_setlists_title">Setlists viram playlists</string>
+    <string name="whats_new_118_setlists_body">Descobrir › Setlists mostra o que os artistas de uma playlist tocaram ao vivo, do setlist.fm. Escolha um show e transforme-o em uma playlist em qualquer serviço. Adicione sua própria chave gratuita do setlist.fm em Configurações › Chaves dos serviços.</string>
+    <string name="whats_new_118_records_title">Discos e merch</string>
+    <string name="whats_new_118_records_body">Descobrir › Discos e merch encontra CDs, vinis e fitas no Discogs, além de sites e lojas oficiais. Com seu próprio token do Discogs você vê também as cópias à venda e o menor preço. Só links: você compra nos sites deles.</string>
     <string name="whats_new_114_nano_title">IA sem chave</string>
     <string name="whats_new_114_nano_body">Em celulares com Gemini Nano, o Roast e o gerador de playlists agora funcionam no próprio aparelho: sem chave e nada sai do dispositivo. Nos outros, o Roast leva direto para configurar uma chave gratuita.</string>
     <string name="whats_new_114_tips_title">Widgets, atalhos e automações</string>

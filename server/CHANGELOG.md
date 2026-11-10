@@ -16,6 +16,11 @@ the Docker image carried the app's version.
 - **Quicker review**: removing a wrong match reads the target playlist only as far as needed, or not at all right after a run.
 - **Diagnostics**: a report with a ready GitHub issue, secrets and names left out, which first looks for the same issue on GitHub; from the API, `trackhop diagnostics` and MCP.
 - **Crowded schedules on the page**: when many syncs reach one service at once, a card proposes new times to confirm; the same through the API, CLI and MCP.
+- **New releases**: Tools › New releases lists the new albums, EPs and singles of a playlist's artists from Deezer and MusicBrainz, and what is announced; make them a playlist on any service, or a weekly *New releases* sync that keeps every track. `GET /api/v1/releases`, `trackhop releases` and the MCP tool `find_new_releases`; a new notification event tells when a weekly New releases sync found new music.
+- **Concerts**: Tools › Concerts lists the upcoming dates of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with ticket-site searches for artists without dates; your own Ticketmaster key in Settings or `TICKETMASTER_API_KEY`. `GET /api/v1/concerts`, `trackhop concerts` and the MCP tool `find_concerts`.
+- **Setlists**: Tools › Setlists shows what a playlist's artists played live, from setlist.fm, and saves a setlist as a File playlist to send to any service. It needs your own free setlist.fm key, in Settings or `SETLISTFM_API_KEY`. `GET /api/v1/setlists`, `trackhop setlists` and the MCP tool `find_setlists`.
+- **Records and merch**: Tools › Records and merch finds a playlist's artists' CDs, vinyl and cassettes on Discogs, the official sites and shops MusicBrainz links them to, and searches on Bandcamp, Discogs, eBay and the web; plain links. With your own Discogs token (Settings), the copies for sale and the lowest price. `GET /api/v1/records`, `trackhop records` and the MCP tool `find_records`.
+- **Safer notification channels**: a channel that comes with a set-up file stays off until you turn it on; saved keys stay with a channel only while its server or webhook address is the same; the ntfy topic is kept as a secret; failures and technical reports leave out webhook addresses, tokens and keys.
 
 ## 1.9.0
 

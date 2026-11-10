@@ -1710,6 +1710,16 @@
     <string name="whats_new_117_server_body">Lyrion e Mopidy arrivano come server (beta). I file con tag MusicBrainz vengono abbinati con precisione, e Strumenti › Mancano sul mio server elenca i brani che le tue sync non hanno trovato lì.</string>
     <string name="whats_new_117_devices_title">Una sync, un dispositivo</string>
     <string name="whats_new_117_devices_body">Una configurazione ripristinata su un altro telefono lì tiene spente le sync programmate, così non partono due volte. Con Coordina con il mio server, questo telefono e il tuo server Trackhop si danno il turno su ogni playlist.</string>
+    <string name="whats_new_118_releases_title">Nuove uscite dei tuoi artisti</string>
+    <string name="whats_new_118_releases_body">Scopri › Nuove uscite mostra i nuovi album, EP e singoli degli artisti di una playlist, e ciò che sta per uscire. Fanne una playlist su qualsiasi servizio, oppure lascia che una sync li aggiunga ogni settimana.</string>
+    <string name="whats_new_118_notify_title">Messaggi dove vuoi tu</string>
+    <string name="whats_new_118_notify_body">Impostazioni › Canali di notifica ti manda un messaggio su Telegram, ntfy, Gotify, Discord, Slack, Matrix o Pushover quando una sync cambia qualcosa, non riesce o trova nuove uscite. Le loro chiavi restano cifrate su questo telefono.</string>
+    <string name="whats_new_118_concerts_title">Concerti dei tuoi artisti</string>
+    <string name="whats_new_118_concerts_body">Scopri › Concerti elenca le prossime date degli artisti di una playlist nel tuo paese, da Ticketmaster e MusicBrainz. Nessuna data per qualcuno? Con un tocco cerchi sui siti dei biglietti.</string>
+    <string name="whats_new_118_setlists_title">Scalette come playlist</string>
+    <string name="whats_new_118_setlists_body">Scopri › Scalette mostra cosa hanno suonato dal vivo gli artisti di una playlist, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio. Aggiungi la tua chiave gratuita di setlist.fm in Impostazioni › Chiavi dei servizi.</string>
+    <string name="whats_new_118_records_title">Dischi e merch</string>
+    <string name="whats_new_118_records_body">Scopri › Dischi e merch trova CD, vinili e cassette su Discogs, oltre a siti e negozi ufficiali. Con il tuo token Discogs vedi anche le copie in vendita e il prezzo più basso. Solo link: compri sui loro siti.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>

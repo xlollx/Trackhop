@@ -1711,6 +1711,16 @@
     <string name="whats_new_117_server_body">Lyrion and Mopidy join as servers (beta). Files with MusicBrainz tags are matched exactly, and Tools › Missing on my server lists the songs your syncs couldn\'t find there.</string>
     <string name="whats_new_117_devices_title">One sync, one device</string>
     <string name="whats_new_117_devices_body">A set-up restored on another phone keeps its scheduled syncs off there, so they don\'t run twice. With Coordinate with my server, this phone and your Trackhop server take turns on each playlist.</string>
+    <string name="whats_new_118_releases_title">New releases of your artists</string>
+    <string name="whats_new_118_releases_body">Discover › New releases shows the new albums, EPs and singles of a playlist\'s artists, and what\'s coming soon. Make them a playlist on any service, or let a sync add them every week.</string>
+    <string name="whats_new_118_notify_title">Messages where you want them</string>
+    <string name="whats_new_118_notify_body">Settings › Notification channels sends you a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something, fails or finds new releases. Their keys stay encrypted on this phone.</string>
+    <string name="whats_new_118_concerts_title">Concerts of your artists</string>
+    <string name="whats_new_118_concerts_body">Discover › Concerts lists the upcoming dates of a playlist\'s artists in your country, from Ticketmaster and MusicBrainz. No dates for someone? One tap searches the ticket sites.</string>
+    <string name="whats_new_118_setlists_title">Setlists as playlists</string>
+    <string name="whats_new_118_setlists_body">Discover › Setlists shows what a playlist\'s artists played live, from setlist.fm. Pick a concert and make it a playlist on any service. Add your own free setlist.fm key in Settings › Service keys.</string>
+    <string name="whats_new_118_records_title">Records &amp; merch</string>
+    <string name="whats_new_118_records_body">Discover › Records &amp; merch finds CDs, vinyl and cassettes on Discogs, plus official sites and shops. With your own Discogs token you also see the copies for sale and the lowest price. Just plain links: you buy on their sites.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
     <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
     <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>

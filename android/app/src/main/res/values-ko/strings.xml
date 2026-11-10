@@ -1683,6 +1683,16 @@
     <string name="whats_new_117_server_body">Lyrion과 Mopidy를 서버로 추가할 수 있어요 (베타). MusicBrainz 태그가 있는 파일은 정확히 매칭되고, 도구 › 내 서버에 없는 곡에서 동기화가 찾지 못한 곡을 볼 수 있어요.</string>
     <string name="whats_new_117_devices_title">동기화 하나, 기기 하나</string>
     <string name="whats_new_117_devices_body">다른 휴대폰에 복원한 설정은 그곳의 예약 동기화를 꺼 두어 두 번 실행되지 않아요. 내 서버와 조율하기를 켜면 이 휴대폰과 Trackhop 서버가 재생목록마다 차례로 작업해요.</string>
+    <string name="whats_new_118_releases_title">아티스트의 신곡</string>
+    <string name="whats_new_118_releases_body">발견 › 신곡에서 플레이리스트 아티스트의 새 앨범, EP, 싱글과 곧 나올 작품을 볼 수 있어요. 어떤 서비스에든 플레이리스트로 만들거나, 동기화가 매주 추가하게 할 수 있어요.</string>
+    <string name="whats_new_118_notify_title">원하는 곳으로 알림</string>
+    <string name="whats_new_118_notify_body">설정 › 알림 채널에서 동기화가 무언가를 바꾸거나, 실패하거나, 신곡을 찾으면 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 메시지를 받아요. 키는 이 휴대폰에 암호화되어 저장돼요.</string>
+    <string name="whats_new_118_concerts_title">아티스트의 콘서트</string>
+    <string name="whats_new_118_concerts_body">발견 › 콘서트에서 플레이리스트 아티스트의 다가오는 공연 일정을 선택한 나라 기준으로 Ticketmaster와 MusicBrainz에서 찾아요. 일정이 없으면 한 번 탭으로 티켓 사이트를 검색할 수 있어요.</string>
+    <string name="whats_new_118_setlists_title">세트리스트를 플레이리스트로</string>
+    <string name="whats_new_118_setlists_body">발견 › 세트리스트에서 플레이리스트 아티스트가 라이브로 연주한 곡을 setlist.fm에서 볼 수 있어요. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 무료 setlist.fm 키는 설정 › 서비스 키에서 추가하세요.</string>
+    <string name="whats_new_118_records_title">음반과 굿즈</string>
+    <string name="whats_new_118_records_body">발견 › 음반과 굿즈에서 Discogs의 CD, LP, 카세트와 공식 사이트, 쇼핑몰을 찾아요. 내 Discogs 토큰이 있으면 판매 중인 음반과 최저가도 보여요. 링크만 제공하며 구매는 해당 사이트에서 해요.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
     <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
     <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>

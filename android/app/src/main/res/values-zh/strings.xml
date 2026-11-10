@@ -1684,6 +1684,16 @@
     <string name="whats_new_117_server_body">新增 Lyrion 和 Mopidy 服务器（测试版）。带有 MusicBrainz 标签的文件可精确匹配，工具 › 我的服务器上缺少的歌曲会列出同步在那里没找到的歌曲。</string>
     <string name="whats_new_117_devices_title">一个同步，一台设备</string>
     <string name="whats_new_117_devices_body">在另一部手机上恢复的设置会让那里的定时同步保持关闭，避免重复运行。开启“与我的服务器协调”后，这部手机和你的 Trackhop 服务器会在每个播放列表上轮流写入。</string>
+    <string name="whats_new_118_releases_title">艺人新发行</string>
+    <string name="whats_new_118_releases_body">发现 › 新发行会列出歌单中艺人的新专辑、EP 和单曲，以及即将推出的作品。可以在任何服务上生成歌单，也可以让同步每周自动添加。</string>
+    <string name="whats_new_118_notify_title">消息发到你想要的地方</string>
+    <string name="whats_new_118_notify_body">设置 › 通知渠道会在同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 给你发消息。它们的密钥加密保存在这台手机上。</string>
+    <string name="whats_new_118_concerts_title">艺人的演唱会</string>
+    <string name="whats_new_118_concerts_body">发现 › 演唱会会从 Ticketmaster 和 MusicBrainz 列出歌单中艺人在你所选国家的近期演出。没有日期？轻点一下即可在票务网站上搜索。</string>
+    <string name="whats_new_118_setlists_title">把演出曲目变成歌单</string>
+    <string name="whats_new_118_setlists_body">发现 › 演出曲目会从 setlist.fm 显示歌单中艺人在现场演奏过的歌。选一场演出，在任何服务上生成歌单。请在 设置 › 服务密钥 中添加你自己的免费 setlist.fm 密钥。</string>
+    <string name="whats_new_118_records_title">唱片与周边</string>
+    <string name="whats_new_118_records_body">发现 › 唱片与周边会在 Discogs 上查找 CD、黑胶和磁带，并列出官网和官方商店。使用你自己的 Discogs 令牌，还能看到在售的唱片和最低价格。只提供链接，购买在对方网站上完成。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>

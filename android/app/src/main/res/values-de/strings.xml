@@ -1710,6 +1710,16 @@
     <string name="whats_new_117_server_body">Lyrion und Mopidy kommen als Server dazu (Beta). Dateien mit MusicBrainz-Tags werden genau zugeordnet, und Werkzeuge › Fehlt auf meinem Server zeigt die Titel, die deine Syncs dort nicht gefunden haben.</string>
     <string name="whats_new_117_devices_title">Ein Sync, ein Gerät</string>
     <string name="whats_new_117_devices_body">Eine auf einem anderen Handy wiederhergestellte Einrichtung lässt dort geplante Syncs ausgeschaltet, damit sie nicht doppelt laufen. Mit „Mit meinem Server abstimmen“ wechseln sich dieses Handy und dein Trackhop-Server bei jeder Playlist ab.</string>
+    <string name="whats_new_118_releases_title">Neues von deinen Künstlern</string>
+    <string name="whats_new_118_releases_body">Entdecken › Neuerscheinungen zeigt neue Alben, EPs und Singles der Künstler einer Playlist und was bald erscheint. Mach daraus eine Playlist auf einem beliebigen Dienst oder lass einen Sync sie jede Woche hinzufügen.</string>
+    <string name="whats_new_118_notify_title">Nachrichten, wo du willst</string>
+    <string name="whats_new_118_notify_body">Einstellungen › Benachrichtigungskanäle schickt dir eine Nachricht über Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert, fehlschlägt oder Neuerscheinungen findet. Die Schlüssel bleiben verschlüsselt auf diesem Handy.</string>
+    <string name="whats_new_118_concerts_title">Konzerte deiner Künstler</string>
+    <string name="whats_new_118_concerts_body">Entdecken › Konzerte zeigt die kommenden Termine der Künstler einer Playlist in deinem Land, von Ticketmaster und MusicBrainz. Für jemanden keine Termine? Ein Tipp sucht auf den Ticketseiten.</string>
+    <string name="whats_new_118_setlists_title">Setlists als Playlists</string>
+    <string name="whats_new_118_setlists_body">Entdecken › Setlists zeigt, was die Künstler einer Playlist live gespielt haben, von setlist.fm. Wähle ein Konzert und mach daraus eine Playlist auf einem beliebigen Dienst. Deinen eigenen kostenlosen setlist.fm-Schlüssel trägst du unter Einstellungen › Dienst-Schlüssel ein.</string>
+    <string name="whats_new_118_records_title">Platten &amp; Merch</string>
+    <string name="whats_new_118_records_body">Entdecken › Platten &amp; Merch findet CDs, Vinyl und Kassetten auf Discogs, dazu offizielle Seiten und Shops. Mit deinem eigenen Discogs-Token siehst du auch die Exemplare im Angebot und den niedrigsten Preis. Nur Links: Du kaufst auf deren Seiten.</string>
     <string name="whats_new_114_nano_title">KI ohne Schlüssel</string>
     <string name="whats_new_114_nano_body">Auf Handys mit Gemini Nano laufen der Roast und der Playlist-Generator jetzt direkt auf dem Gerät: kein Schlüssel, und nichts verlässt das Handy. Sonst führt dich der Roast direkt zur Einrichtung eines kostenlosen Schlüssels.</string>
     <string name="whats_new_114_tips_title">Widgets, Verknüpfungen und Automatisierung</string>

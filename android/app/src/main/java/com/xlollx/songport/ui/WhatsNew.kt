@@ -25,6 +25,10 @@ import androidx.compose.material.icons.filled.TabletAndroid
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SyncAlt
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.NewReleases
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RestartAlt
@@ -115,6 +119,16 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.18",
+                listOf(
+                    Item(Icons.Filled.NewReleases, JobColor.PURPLE, R.string.whats_new_118_releases_title, R.string.whats_new_118_releases_body),
+                    Item(Icons.Filled.Campaign, JobColor.ORANGE, R.string.whats_new_118_notify_title, R.string.whats_new_118_notify_body),
+                    Item(Icons.Filled.Event, JobColor.PINK, R.string.whats_new_118_concerts_title, R.string.whats_new_118_concerts_body),
+                    Item(Icons.Filled.Mic, JobColor.BLUE, R.string.whats_new_118_setlists_title, R.string.whats_new_118_setlists_body),
+                    Item(Icons.Filled.Album, JobColor.RED, R.string.whats_new_118_records_title, R.string.whats_new_118_records_body),
+                ),
+            ),
             Release(
                 "1.17",
                 listOf(
