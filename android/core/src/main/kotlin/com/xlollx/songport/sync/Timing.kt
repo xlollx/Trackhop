@@ -143,7 +143,10 @@ object Timing {
         val out = ArrayList<Long>()
         // Every few hours and never run: its rhythm starts with its first run, not known yet.
         if (!timed(job) && job.lastRunEpoch <= 0) return out
-        var t = nextRun(job, from, zone)?.coerceAtLeast(from) ?: return out
+        var t = nextRun(job, from, zone) ?: return out
+        // A timed sync that is overdue runs once now, off its clock time: that is no crowd to warn
+        // about and no time to spread from. Its starts begin at the next time of day.
+        if (t < from) t = if (timed(job)) nextRun(job.copy(lastRunEpoch = from), from, zone) ?: return out else from
         while (t <= until && out.size < 400) {
             out += t
             t = (if (timed(job)) nextRun(job.copy(lastRunEpoch = t), t, zone) else t + interval(job) * 60_000L) ?: break

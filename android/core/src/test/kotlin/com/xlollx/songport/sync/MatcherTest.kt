@@ -194,4 +194,15 @@ class VersionPenaltyTest {
         assertTrue(Matcher.score(src, four) >= 0.9)
         assertTrue(Matcher.score(src, five) < 0.7)
     }
+
+    @Test fun aRangeOfPartsWrittenTwoWaysIsOnePieceAndOnlyDifferentNumbersArePenalised() {
+        fun t(title: String, artist: String) = Track(id = title, title = title, artists = listOf(artist))
+        val shine = Matcher.score(t("Shine On You Crazy Diamond (Pts. 1-5)", "Pink Floyd"), t("Shine On You Crazy Diamond (Parts I-V)", "Pink Floyd"))
+        assertTrue(shine >= MatchPolicy().acceptThreshold)
+        // One set of numbers inside the other is no conflict; different numbers are.
+        val bach = Matcher.score(t("BWV 1048: I. Allegro", "Bach"), t("BWV 1048: 1. Allegro", "Bach"))
+        assertTrue(bach >= MatchPolicy().acceptThreshold)
+        assertTrue(Matcher.score(t("Echoes, Part 4", "Pink Floyd"), t("Echoes, Part 5", "Pink Floyd")) < 0.7)
+        assertTrue(Matcher.score(t("BWV 1048: 1. Allegro", "Bach"), t("BWV 1049: 1. Allegro", "Bach")) < 0.7)
+    }
 }
