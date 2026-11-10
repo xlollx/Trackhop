@@ -1895,4 +1895,18 @@
     <string name="error_mopidy_not_found">Pod tym adresem nie odpowiedział żaden serwer Mopidy. Sprawdź adres i port (zwykle 6680) oraz to, czy Mopidy przyjmuje połączenia z innych urządzeń.</string>
     <string name="error_server_name_taken">Na tym serwerze jest już playlista o nazwie „%1$s”. Wybierz ją jako cel albo użyj innej nazwy.</string>
     <string name="error_server_track_gone">Serwer nie ma już „%1$s”.</string>
+    <string name="sync_menu_favorite">Dodaj do ulubionych</string>
+    <string name="sync_menu_unfavorite">Usuń z ulubionych</string>
+    <string name="favorite_badge_desc">Ulubiona</string>
+    <string name="filter_favorites">Ulubione</string>
+    <string name="filter_tag_any">Dowolna</string>
+    <string name="tags_title">Tagi</string>
+    <string name="tags_hint">Grupuj synchronizacje po swojemu, na przykład gatunek = metal. Wartość jest opcjonalna.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Wartość</string>
+    <string name="tag_add">Dodaj tag</string>
+    <string name="tag_remove">Usuń %1$s</string>
+    <string name="label_name">Nazwa etykiety</string>
+    <string name="label_name_hint">Opcjonalnie. Wszystkie synchronizacje w tym kolorze mają tę nazwę: potem można po niej szukać i filtrować.</string>
+    <string name="label_change_color">Zmień kolor etykiety</string>
 </resources>

@@ -8,6 +8,7 @@ import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.sync.Labels
 import com.xlollx.songport.sync.SyncEngine
 import com.xlollx.songport.sync.SyncState
 import com.xlollx.songport.sync.Timing
@@ -94,22 +95,86 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
 /** [job] with the colour in [b]: a name of the palette, "#RRGGBB", or null/"" for none. */
 private fun coloured(job: SyncJob, b: JsonObject): SyncJob {
     if (!b.containsKey("color")) return job
-    val c = b.text("color") ?: return job.copy(color = null)
+    // A colour given as such takes the label's place (a ready colour is its own label again when saved).
+    val c = b.text("color") ?: return job.copy(color = null, label = null)
     val key = c.lowercase().takeIf { it in Html.JOB_COLORS } ?: Html.customColor(c)
         ?: throw IllegalArgumentException("\"color\" is one of ${Html.JOB_COLORS.keys.joinToString(", ")}, or #RRGGBB.")
-    return job.copy(color = key)
+    return job.copy(color = key, label = null)
+}
+
+/**
+ * [job] with the star, the label and the tags in [b]: "favorite" (true/false); "label" (a label's
+ * id or name, a ready colour, or null/"" for none: the card takes the label's colour); "tags" (an
+ * object of key to value, a value may be "" or null: it replaces the sync's tags).
+ */
+private fun grouped(job: SyncJob, b: JsonObject, labels: List<com.xlollx.songport.model.Label>): SyncJob {
+    var j = job
+    b.flag("favorite")?.let { j = j.copy(favorite = it) }
+    if (b.containsKey("label")) {
+        val wanted = b.text("label")
+        j = if (wanted == null) j.copy(label = null, color = null)
+        else j.copy(label = (Labels.resolve(labels, wanted) ?: throw IllegalArgumentException("No label called \"$wanted\": see GET /api/v1/labels (POST one there to make it).")).id)
+    }
+    if (b.containsKey("tags")) {
+        val t = b["tags"]
+        j = when (t) {
+            is JsonObject -> j.copy(tags = Labels.cleanTags(t.entries.associate { (k, v) -> k to ((v as? JsonPrimitive)?.takeIf { it !is JsonNull }?.contentOrNull.orEmpty()) }))
+            null, is JsonNull -> j.copy(tags = emptyMap())
+            else -> throw IllegalArgumentException("\"tags\" is an object: {\"genre\": \"metal\", \"gym\": \"\"}.")
+        }
+    }
+    return j
+}
+
+/** The label calls: named colours the syncs can wear. False for any other call. */
+private fun Web.apiLabels(ex: HttpExchange, method: String, rest: List<String>, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit): Boolean {
+    if (rest.firstOrNull() != "labels" || rest.size > 2 || (rest.size == 1 && method != "POST") || (rest.size == 2 && method !in setOf("PATCH", "DELETE"))) return false
+    fun colour(c: String): String = c.lowercase().takeIf { Labels.isBase(it) } ?: Html.customColor(c)
+        ?: throw IllegalArgumentException("\"color\" is one of ${Labels.BASE.joinToString(", ")}, or #RRGGBB.")
+    fun shown(id: String) = env.store.data.settings.labels.firstOrNull { it.id == id }?.let { Api.label(env, it) }
+    if (rest.size == 1) {
+        // Names a ready colour, or saves a colour of one's own as a label.
+        val b = apiJson(ex) ?: return true.also { error(400, "Send JSON: {\"color\": \"#RRGGBB\", \"name\": \"Gym\"}.") }
+        val name = b.text("name") ?: return true.also { error(400, "\"name\" is needed.") }
+        val color = runCatching { colour(b.text("color") ?: throw IllegalArgumentException("\"color\" is needed.")) }.getOrElse { return true.also { _ -> error(400, it.message ?: "Wrong request.") } }
+        var id: String? = null
+        env.store.update { d -> Labels.save(d, color, name).also { id = it.second }.first }
+        json(201, Api.label(env, Labels.find(env.store.data.settings.labels, id)!!))
+        return true
+    }
+    val l = env.store.data.settings.labels.firstOrNull { it.id == rest[1] } ?: Labels.find(emptyList(), rest[1])
+        ?: return true.also { error(404, "No label with that id.") }
+    if (method == "DELETE") {
+        // Its syncs keep their colour, without the name.
+        env.store.update { Labels.delete(it, l.id) }
+        json(200, buildJsonObject { put("deleted", l.id) })
+        return true
+    }
+    val b = apiJson(ex) ?: return true.also { error(400, "Send JSON.") }
+    val color = runCatching { b.text("color")?.let { colour(it) } }.getOrElse { return true.also { _ -> error(400, it.message ?: "Wrong request.") } }
+    if (color != null && (Labels.isBase(l.id) || Labels.isBase(color))) return true.also { error(400, "Only a label saved from a colour of your own can change colour, to another #RRGGBB.") }
+    env.store.update { d ->
+        var n = d
+        if (color != null) n = Labels.recolor(n, l.id, color)
+        if (b.containsKey("name")) n = Labels.rename(n, l.id, b.text("name").orEmpty())
+        n
+    }
+    // Renamed to nothing, the label is gone (a ready colour is then shown without its name).
+    json(200, shown(l.id) ?: Labels.find(emptyList(), l.id)?.let { Api.label(env, it) } ?: buildJsonObject { put("deleted", l.id) })
+    return true
 }
 
 /** Answers the sync and run calls it knows; false for any other, left to Api.kt. */
 internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, query: Map<String, String>, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit): Boolean {
     fun bad(e: Throwable) = error(400, e.message ?: "Wrong request.")
+    if (apiLabels(ex, method, rest, json, error)) return true
     when {
         rest == listOf("syncs") && method == "POST" -> {
             val b = apiJson(ex) ?: return true.also { error(400, "Send JSON (see GET /api/v1/openapi.json).") }
             createSyncFromApi(b, json, error)
         }
         rest == listOf("runs") && method == "GET" -> runsPage(query["sync"], query, json, error)
-        rest.size == 2 && rest[0] == "syncs" && rest[1] != "run-all" && (method == "PATCH" || method == "DELETE") -> {
+        rest.size == 2 && rest[0] == "syncs" && rest[1] != "run-all" && rest[1] != "run" && (method == "PATCH" || method == "DELETE") -> {
             val job = env.store.job(rest[1]) ?: return true.also { error(404, "No sync with that id.") }
             if (method == "DELETE") {
                 if (runner.isRunning(job.id)) SyncState.stop(job.id)
@@ -124,12 +189,14 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
                 // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
                 if (j.radio == null) j = changed(timed(j, b), b)
-                coloured(j, b)
+                grouped(coloured(j, b), b, env.store.data.settings.labels)
             }.getOrElse { e -> return true.also { bad(e) } }
             val warning = conflictWarning(edited)
             env.store.upsertJob(edited)
+            // As kept: the label's colour on the card, the tags tidied.
+            val saved = env.store.job(edited.id) ?: edited
             json(200, buildJsonObject {
-                Api.job(env, edited, runner.isRunning(edited.id)).forEach { (k, v) -> put(k, v) }
+                Api.job(env, saved, runner.isRunning(edited.id)).forEach { (k, v) -> put(k, v) }
                 warning?.let { put("warning", it) }
             })
         }
@@ -206,13 +273,13 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     }.getOrElse { return if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) }
     val job = runCatching {
         val base = SyncJob(id = UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
-        coloured(changed(timed(base, b), b), b).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
+        grouped(coloured(changed(timed(base, b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }
     val warning = conflictWarning(job)
     env.store.upsertJob(job)
     env.log("api", "created sync ${job.name}")
     json(201, buildJsonObject {
-        Api.job(env, job, false).forEach { (k, v) -> put(k, v) }
+        Api.job(env, env.store.job(job.id) ?: job, false).forEach { (k, v) -> put(k, v) }
         warning?.let { put("warning", it) }
     })
 }

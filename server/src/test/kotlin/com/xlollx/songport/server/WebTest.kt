@@ -196,6 +196,47 @@ class WebTest {
         assertEquals("teal", env.store.job("k")!!.color)
     }
 
+    @Test fun thePageNamesColoursTagsStarsAndFilters() {
+        fun job(id: String) = com.xlollx.songport.model.SyncJob(id, id, com.xlollx.songport.model.PlaylistRef("subsonic", id, id), com.xlollx.songport.model.PlaylistRef("csv", id, id))
+        listOf("one", "two", "three").forEach { env.store.upsertJob(job(it)) }
+        // The page's form: a colour of one's own with a name is a label; tags and the star with it.
+        post("/syncs/two/schedule", "name=two&groups=1&color=custom&customColor=%23ff8800&labelName=From+Spotify&tags=genre%3Dmetal%2C+kids%2C+mood%3A%22late+night%22&favorite=on", *origin)
+        val two = env.store.job("two")!!
+        assertEquals("#FF8800", two.color)
+        val label = env.store.data.settings.labels.single()
+        assertEquals("From Spotify", label.name); assertEquals(label.id, two.label)
+        assertEquals(mapOf("genre" to "metal", "kids" to "", "mood" to "late night"), two.tags)
+        assertTrue(two.favorite)
+        // Another sync picks the saved label among the ready colours, and takes the very same colour.
+        assertTrue(get("/syncs/three").body().contains("value=\"label:${label.id}\""))
+        post("/syncs/three/schedule", "name=three&groups=1&color=label%3A${label.id}&labelName=From+Spotify&tags=genre%3Dpop", *origin)
+        assertEquals("#FF8800", env.store.job("three")!!.color)
+        assertEquals(label.id, env.store.job("three")!!.label)
+        // The starred sync comes first; the label, the tags and the star show on the cards and as chips.
+        val home = get("/").body()
+        assertTrue(home.indexOf("id=\"sync-two\"") < home.indexOf("id=\"sync-one\""))
+        assertTrue(home.contains("★ Favourites") && home.contains(">From Spotify</a>") && home.contains("genre: metal") && home.contains(">kids</a>"))
+        fun shown(q: String) = get("/$q").body().let { b -> listOf("one", "two", "three").filter { b.contains("id=\"sync-$it\"") } }
+        assertEquals(listOf("two"), shown("?fav=1"))
+        assertEquals(listOf("two", "three"), shown("?label=${label.id}"))
+        assertEquals(listOf("two"), shown("?tag=genre:metal"))
+        assertEquals(listOf("two", "three"), shown("?tag=genre"))
+        assertEquals(listOf("three"), shown("?q=genre:pop"))
+        assertEquals(listOf("two", "three"), shown("?q=spotify"))
+        assertEquals(listOf("two"), shown("?q=late"))
+        // A form without these fields (an older page left open) changes none of them.
+        post("/syncs/two/schedule", "name=two&color=custom&customColor=%23ff8800", *origin)
+        assertEquals(two.tags, env.store.job("two")!!.tags)
+        assertTrue(env.store.job("two")!!.favorite)
+        // The name cleared: the label goes, both keep the colour.
+        post("/syncs/two/schedule", "name=two&groups=1&color=label%3A${label.id}&labelName=&tags=", *origin)
+        assertTrue(env.store.data.settings.labels.isEmpty())
+        assertEquals(listOf("#FF8800", "#FF8800"), listOf("two", "three").map { env.store.job(it)!!.color })
+        assertEquals(listOf(null, null), listOf("two", "three").map { env.store.job(it)!!.label })
+        assertTrue(env.store.job("two")!!.tags.isEmpty())
+        assertFalse(env.store.job("two")!!.favorite)
+    }
+
     @Test fun reviewPicksIgnoresAndConfirms() {
         File(data, "csv").mkdirs()
         File(data, "csv/Out.csv").writeText("title,artist\n")

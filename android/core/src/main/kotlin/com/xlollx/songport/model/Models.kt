@@ -149,7 +149,25 @@ data class SyncJob(
      * (a Spotify daylist, several titles a day), and the sync keeps its own name from then on.
      */
     val sourceRenamedAt: Long? = null,
+    /** Starred by the user: shown first in the list, and found by the "Favourites" filter. */
+    val favorite: Boolean = false,
+    /**
+     * The sync's one label (a [Label.id]): the card wears the label's colour, kept in [color] too
+     * so an older Trackhop still shows it. One of the ready colours is a label by its key ("teal");
+     * null = no colour, or a colour of the user's own with no name. See sync/Labels.
+     */
+    val label: String? = null,
+    /** The user's tags, key to value ("genre" to "metal"); the value may be empty (a key alone). */
+    val tags: Map<String, String> = emptyMap(),
 )
+
+/**
+ * A colour with a name ("Gym", "From Spotify"), shared by the syncs that wear it: renaming or
+ * recolouring it changes them all. [color] is a ready colour's key or "#RRGGBB". A ready colour
+ * the user named has its key as [id].
+ */
+@Serializable
+data class Label(val id: String, val color: String, val name: String = "")
 
 /**
  * A radio station a sync listens to: its stream (Icecast/Shoutcast, which send the title of the

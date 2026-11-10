@@ -94,6 +94,33 @@ class McpTest {
         assertTrue(answers[6].text(), answers[6].text().contains("tracks"))
     }
 
+    @Test fun anAssistantTagsListsAndRunsAGroup() {
+        File(data, "csv/Other.csv").writeText("title,artist\nSong Three,Band C\n")
+        env.store.upsertJob(SyncJob("j2", "Other", PlaylistRef(LocalFilesProvider.id, "Other", "Other"), PlaylistRef(LocalFilesProvider.id, null, "Other copy")))
+        val answers = stdio(
+            call(1, "edit_sync", """{"sync":"Road trip","tags":"mood=gym, kids","favorite":true}"""),
+            call(2, "list_syncs", """{"tag":"mood=gym"}"""),
+            call(3, "list_syncs", """{"favorite":true,"tag":"kids, mood"}"""),
+            call(4, "run_syncs_by_tag", """{"tag":"gym"}"""),
+            call(5, "run_syncs_by_tag", """{}"""),
+            call(6, "run_syncs_by_tag", """{"tag":"mood=gym","wait":true}"""),
+            call(7, "edit_sync", """{"sync":"Road trip","untag":"kids","favorite":false}"""),
+        )
+        assertFalse(answers[0].text(), answers[0].failed())
+        // Starred and tagged "kids" too, or the third call would have found nothing.
+        assertTrue(answers[1].text(), answers[1].text().contains("\"id\": \"j1\"") && !answers[1].text().contains("\"id\": \"j2\""))
+        assertTrue(answers[2].text(), answers[2].text().contains("\"id\": \"j1\"") && !answers[2].text().contains("\"id\": \"j2\""))
+        // No sync has the key "gym": nothing starts, and that is said, not an error.
+        assertFalse(answers[3].text(), answers[3].failed())
+        assertTrue(answers[4].failed())
+        assertFalse(answers[5].text(), answers[5].failed())
+        assertTrue(answers[5].text(), answers[5].text().contains("\"added\": 2"))
+        assertTrue(File(data, "csv/Road trip copy.csv").isFile)
+        assertFalse(File(data, "csv/Other copy.csv").exists())
+        assertEquals(mapOf("mood" to "gym"), env.store.job("j1")!!.tags)
+        assertFalse(env.store.job("j1")!!.favorite)
+    }
+
     @Test fun anUnknownMethodOrToolIsAProtocolError() {
         val answers = stdio(
             """{"jsonrpc":"2.0","id":1,"method":"resources/list"}""",

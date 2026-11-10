@@ -90,6 +90,7 @@ object ConfigBackup {
         env.store.update { d ->
             val ids = s.jobs.map { it.id }.toSet()
             val reportIds = d.reports.map { it.id }.toSet()
+            // A file from before labels and tags has none: the store takes its colours as labels (FileStore.update).
             d.copy(
                 jobs = d.jobs.filter { it.id !in ids } + s.jobs,
                 reports = (d.reports + s.reports.filter { it.id !in reportIds }).sortedByDescending { it.startedEpoch }.take(FileStore.MAX_REPORTS),
@@ -134,6 +135,8 @@ object ConfigBackup {
         appOpens = current.appOpens,
         supportNudgeSeen = current.supportNudgeSeen,
         whatsNewSeen = current.whatsNewSeen,
+        // The labels of both: the file's win by id, this device's others stay for the syncs that wear them.
+        labels = incoming.labels + current.labels.filter { c -> incoming.labels.none { it.id == c.id } },
     )
 
     /** The file's name: trackhop-2026-10-30.trackhop. */

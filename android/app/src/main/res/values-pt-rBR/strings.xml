@@ -1841,4 +1841,18 @@
     <string name="error_mopidy_not_found">Nenhum servidor Mopidy respondeu neste endereço. Confira o endereço e a porta (normalmente 6680) e se o Mopidy aceita conexões de outros dispositivos.</string>
     <string name="error_server_name_taken">Já existe uma playlist chamada “%1$s” neste servidor. Escolha-a como destino ou use outro nome.</string>
     <string name="error_server_track_gone">O servidor não tem mais “%1$s”.</string>
+    <string name="sync_menu_favorite">Adicionar às favoritas</string>
+    <string name="sync_menu_unfavorite">Remover das favoritas</string>
+    <string name="favorite_badge_desc">Favorita</string>
+    <string name="filter_favorites">Favoritas</string>
+    <string name="filter_tag_any">Qualquer</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Agrupe suas sincronizações do seu jeito, por exemplo gênero = metal. O valor é opcional.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Valor</string>
+    <string name="tag_add">Adicionar tag</string>
+    <string name="tag_remove">Remover %1$s</string>
+    <string name="label_name">Nome do rótulo</string>
+    <string name="label_name_hint">Opcional. Todas as sincronizações com esta cor compartilham o nome: depois dá para buscar e filtrar por ele.</string>
+    <string name="label_change_color">Mudar a cor do rótulo</string>
 </resources>

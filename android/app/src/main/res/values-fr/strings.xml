@@ -1841,4 +1841,18 @@
     <string name="error_mopidy_not_found">Aucun serveur Mopidy n\'a répondu à cette adresse. Vérifiez l\'adresse et le port (en général 6680) et que Mopidy accepte les connexions d\'autres appareils.</string>
     <string name="error_server_name_taken">Une playlist nommée « %1$s » existe déjà sur ce serveur. Choisissez-la comme destination ou prenez un autre nom.</string>
     <string name="error_server_track_gone">Le serveur n\'a plus « %1$s ».</string>
+    <string name="sync_menu_favorite">Ajouter aux favoris</string>
+    <string name="sync_menu_unfavorite">Retirer des favoris</string>
+    <string name="favorite_badge_desc">Favori</string>
+    <string name="filter_favorites">Favoris</string>
+    <string name="filter_tag_any">N\'importe</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Regroupez vos synchros à votre façon, par exemple genre = metal. La valeur est facultative.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Valeur</string>
+    <string name="tag_add">Ajouter un tag</string>
+    <string name="tag_remove">Retirer %1$s</string>
+    <string name="label_name">Nom de l\'étiquette</string>
+    <string name="label_name_hint">Facultatif. Toutes les synchros de cette couleur partagent ce nom : vous pouvez ensuite les chercher et les filtrer.</string>
+    <string name="label_change_color">Changer la couleur de l\'étiquette</string>
 </resources>

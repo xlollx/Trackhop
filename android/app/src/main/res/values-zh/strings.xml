@@ -1803,4 +1803,18 @@
     <string name="error_mopidy_not_found">这个地址上没有 Mopidy 服务器响应。请检查地址和端口（通常是 6680），并确认 Mopidy 允许其他设备连接。</string>
     <string name="error_server_name_taken">这台服务器上已经有名为“%1$s”的歌单。请把它选为目标，或换一个名称。</string>
     <string name="error_server_track_gone">服务器上已经没有“%1$s”了。</string>
+    <string name="sync_menu_favorite">加入收藏</string>
+    <string name="sync_menu_unfavorite">取消收藏</string>
+    <string name="favorite_badge_desc">已收藏</string>
+    <string name="filter_favorites">收藏</string>
+    <string name="filter_tag_any">任意</string>
+    <string name="tags_title">标签</string>
+    <string name="tags_hint">按自己的方式给同步分组，例如 流派 = 金属。值可以不填。</string>
+    <string name="tag_key">标签</string>
+    <string name="tag_value">值</string>
+    <string name="tag_add">添加标签</string>
+    <string name="tag_remove">移除 %1$s</string>
+    <string name="label_name">色标名称</string>
+    <string name="label_name_hint">可不填。所有使用此颜色的同步共用这个名称，之后可按名称搜索和筛选。</string>
+    <string name="label_change_color">更改色标颜色</string>
 </resources>

@@ -18,4 +18,21 @@ class AutomationTest {
         assertEquals("Rap", Automation.find(jobs, "Rap")?.id)
         assertNull(Automation.find(jobs, "Jazz"))
     }
+
+    @Test fun aGroupByTagOrLabelTurnedOnOnly() {
+        val data = com.xlollx.songport.data.StoreData(
+            jobs = listOf(
+                job("1", "A").copy(tags = mapOf("Genre" to "Metal")),
+                job("2", "B").copy(tags = mapOf("genre" to "metal"), enabled = false),
+                job("3", "C").copy(tags = mapOf("gym" to ""), label = "teal", color = "teal"),
+            ),
+            settings = com.xlollx.songport.data.Settings(labels = listOf(com.xlollx.songport.model.Label("teal", "teal", "Gym"))),
+        )
+        assertEquals(listOf("1"), Automation.group(data, "genre=metal", null).map { it.id })
+        assertEquals(listOf("3"), Automation.group(data, "gym", null).map { it.id })
+        assertEquals(listOf("3"), Automation.group(data, null, "gym").map { it.id })
+        assertEquals(emptyList<String>(), Automation.group(data, "genre", "gym").map { it.id })
+        // A tag without a key starts nothing, rather than everything.
+        assertEquals(emptyList<String>(), Automation.group(data, "=metal", null).map { it.id })
+    }
 }

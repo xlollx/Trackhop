@@ -18,6 +18,8 @@ import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.JobConflicts
 import com.xlollx.songport.sync.PlaylistLinks
 import com.xlollx.songport.sync.SoundCloudPublic
+import com.xlollx.songport.sync.Labels
+import com.xlollx.songport.sync.SyncFilter
 import com.xlollx.songport.sync.SyncState
 import kotlinx.coroutines.runBlocking
 import java.net.InetAddress
@@ -273,12 +275,76 @@ class Web(
         body.append("""<div class="dash${if (side.isEmpty()) " no-side" else if (HomeSide.place(env) == HomeSide.RIGHT) " side-right" else ""}"><div class="dash-main">""")
         body.append("""<p class="actions"><a class="button" href="/syncs/new">New sync</a> ${if (env.may(Permissions.RADIO)) """<a class="button secondary" href="/syncs/radio">$RADIO_ICON New radio sync</a> """ else ""}<a class="button secondary" href="/syncs/shazam">$SHAZAM_ICON New Shazam sync</a></p>""")
         if (jobs.isEmpty()) body.append("""<p class="muted">No syncs yet.</p>""")
-        for (job in jobs) body.append(jobCard(job, running.containsKey(job.id)))
+        // Find and filter as in the app: a search (genre:metal asks for exactly that tag) and chips for
+        // the favourites, the labels and the tags. The starred syncs come first.
+        val filter = homeFilter(r.query).pruned(jobs)
+        body.append(finder(jobs, filter))
+        val shown = Labels.favoritesFirst(filter.select(jobs, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
+        for (job in shown) body.append(jobCard(job, running.containsKey(job.id)))
         body.append("</div>").append(side).append("</div>")
         send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = side.isNotEmpty()))
     }
 
     internal fun label(id: String): String = Providers.byId(id)?.label(env) ?: id
+
+    /** The home page's filter, from its address: ?q=words&fav=1&label=id,id&tag=key:value,key. */
+    private fun homeFilter(query: Map<String, String>): SyncFilter {
+        val tags = LinkedHashMap<String, Set<String>>()
+        query["tag"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.forEach { (k, v) -> tags[k] = tags[k].orEmpty() + listOfNotNull(v) }
+        return SyncFilter(
+            query = query["q"].orEmpty(), favorite = query["fav"] == "1",
+            labels = query["label"].orEmpty().split(',').filter { it.isNotBlank() }.toSet(), tags = tags,
+        )
+    }
+
+    private fun homeLink(f: SyncFilter): String {
+        val parts = listOfNotNull(
+            f.query.takeIf { it.isNotBlank() }?.let { "q=${q(it)}" },
+            "fav=1".takeIf { f.favorite },
+            f.labels.takeIf { it.isNotEmpty() }?.let { "label=${q(it.joinToString(","))}" },
+            f.tags.takeIf { it.isNotEmpty() }?.let { t -> "tag=" + q(t.flatMap { (k, vs) -> if (vs.isEmpty()) listOf(k) else vs.map { "$k:$it" } }.joinToString(",")) },
+        )
+        return if (parts.isEmpty()) "/" else "/?" + parts.joinToString("&")
+    }
+
+    /** The search field and the chips; nothing until there is something to find or filter by. */
+    private fun finder(jobs: List<SyncJob>, f: SyncFilter): String {
+        val labels = env.store.data.settings.labels
+        fun chip(text: String, on: Boolean, to: SyncFilter, dot: String? = null) =
+            """<a class="chip${if (on) " on" else ""}" href="${h(homeLink(to))}"${if (on) " aria-current=\"true\"" else ""}>${dot?.let { """<span class="chip-dot" style="background:${h(it)}"></span>""" } ?: ""}${h(text)}</a>"""
+        val chips = StringBuilder()
+        if (jobs.any { it.favorite }) chips.append(chip("★ Favourites", f.favorite, f.toggleFavorite()))
+        // A label with a name, worn by a sync: one chip each.
+        Labels.inUse(jobs).mapNotNull { Labels.find(labels, it) }.filter { it.name.isNotBlank() }.forEach { l ->
+            chips.append(chip(l.name, l.id in f.labels, f.toggleLabel(l.id), Html.JOB_COLORS[l.color]?.first ?: l.color))
+        }
+        // A tag key alone is one chip; with values, one per value.
+        Labels.keysInUse(jobs).forEach { k ->
+            val on = f.tags.keys.firstOrNull { Labels.fold(it) == Labels.fold(k) }
+            val values = Labels.valuesInUse(jobs, k)
+            if (values.isEmpty()) chips.append(chip(k, on != null, f.toggleTag(on ?: k)))
+            values.forEach { v ->
+                val chosen = on?.let { f.tags[it] }.orEmpty().firstOrNull { Labels.fold(it) == Labels.fold(v) }
+                chips.append(chip("$k: $v", chosen != null, f.toggleTag(on ?: k, chosen ?: v)))
+            }
+        }
+        if (jobs.size < 5 && chips.isEmpty() && !f.isActive) return ""
+        val kept = listOfNotNull(
+            "fav" to "1".takeIf { f.favorite },
+            "label" to f.labels.joinToString(","),
+            "tag" to f.tags.flatMap { (k, vs) -> if (vs.isEmpty()) listOf(k) else vs.map { "$k:$it" } }.joinToString(","),
+        ).filter { !it.second.isNullOrEmpty() }.joinToString("") { (n, v) -> """<input type="hidden" name="$n" value="${h(v!!)}">""" }
+        return """<form method="get" action="/" class="finder" role="search">$kept<input type="search" name="q" value="${h(f.query)}" placeholder="Find a sync (genre:metal for a tag)" aria-label="Find a sync"> <button class="secondary">Find</button>${if (f.isActive) """ <a href="/">Clear</a>""" else ""}</form>""" +
+            (if (chips.isNotEmpty()) """<p class="chips">$chips</p>""" else "")
+    }
+
+    /** The tags other syncs use, as a hint under the editor's field. */
+    private fun usedTags(job: SyncJob): String {
+        val others = env.store.data.jobs.filter { it.id != job.id }
+        val used = Labels.keysInUse(others).joinToString(", ") { k -> Labels.valuesInUse(others, k).let { vs -> if (vs.isEmpty()) k else vs.joinToString(", ") { "$k=$it" } } }
+        return if (used.isEmpty()) "" else " In use: ${h(used)}."
+    }
 
     private fun jobCard(job: SyncJob, isRunning: Boolean): String {
         val last = job.lastReportId?.let { env.store.report(it) }
@@ -300,14 +366,16 @@ class Web(
         val file = if (Providers.byId(job.target.provider) is LocalFilesProvider) csvFiles().firstOrNull { it.nameWithoutExtension == job.target.playlistId } else null
         val download = file?.let { """ <a class="button secondary" href="/files/${q(it.name)}" download>Download CSV</a>""" } ?: ""
         // Up and down in the list: the order Run all and the app's widgets follow.
-        val all = env.store.data.jobs
+        val all = Labels.favoritesFirst(env.store.data.jobs)
         val at = all.indexOfFirst { it.id == job.id }
+        val groups = (listOf(Labels.name(job, env.store.data.settings.labels)) + job.tags.map { (k, v) -> if (v.isEmpty()) k else "$k: $v" }).filter { it.isNotEmpty() }
+            .joinToString("") { """ <span class="badge">${h(it)}</span>""" }
         val moves = (if (at > 0) " " + Html.postButton("/syncs/${q(job.id)}/move", "↑", "secondary", mapOf("to" to "up")) else "") +
             (if (at in 0 until all.size - 1) " " + Html.postButton("/syncs/${q(job.id)}/move", "↓", "secondary", mapOf("to" to "down")) else "")
-        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}<b>${h(job.name)}</b></a><br>
+        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
-<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}
+<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">off</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
 <div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
@@ -697,12 +765,27 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                     "schedule" -> {
                         val s = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(job.schedule)
                         val name = r.form["name"]?.trim()?.takeIf { it.isNotEmpty() } ?: job.name
-                        val color = r.form["color"]?.let { if (it == "custom") Html.customColor(r.form["customColor"]) else it.takeIf { k -> k in Html.JOB_COLORS } }
-                        val timed = withTiming(job.copy(name = name, schedule = s, color = color), r)
+                        // What the swatches hold: a ready colour, a saved label ("label:<id>"), a colour of one's own, or none.
+                        val pick = r.form["color"]?.let { c ->
+                            when {
+                                c == "custom" -> Html.customColor(r.form["customColor"])
+                                c.startsWith("label:") -> c.removePrefix("label:").takeIf { id -> env.store.data.settings.labels.any { it.id == id } }
+                                else -> c.takeIf { k -> k in Html.JOB_COLORS }
+                            }
+                        }
+                        // The page's own form also carries the star, the tags and the colour's name.
+                        val grouped = r.form["groups"] == "1"
+                        val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
+                        val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
                         val saved = if (job.radio != null) timed else withChanges(timed, r)
                         val warning = conflictWarning(saved)
-                        env.store.upsertJob(saved)
+                        // The colour and its name as the app's "Style" saves them: a name makes or renames a
+                        // label for every sync wearing it. A form without the name leaves the labels alone.
+                        val labelName = if (grouped) r.form["labelName"].orEmpty() else Labels.find(env.store.data.settings.labels, pick)?.name.orEmpty()
+                        env.store.update { d ->
+                            Labels.styled(d.copy(jobs = d.jobs.map { if (it.id == saved.id) saved else it }), setOf(saved.id), pick, labelName)
+                        }
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
                     }
                     "radio" -> {
@@ -717,14 +800,17 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                     "delete" -> { env.store.deleteJob(job.id); redirect(r.ex, "/") }
                     // The order of the list, of Run all and of the app's widgets, as in the app's card menu.
                     "move" -> {
-                        val at = env.store.data.jobs.indexOfFirst { it.id == job.id }
-                        when (val to = r.form["to"]) {
-                            "up" -> env.store.moveJob(job.id, at - 1)
-                            "down" -> env.store.moveJob(job.id, at + 1)
-                            "top" -> env.store.moveJob(job.id, 0)
+                        // Positions are those of the list as shown: the starred syncs first.
+                        val all = env.store.data.jobs
+                        val at = Labels.favoritesFirst(all).indexOfFirst { it.id == job.id }
+                        val wanted = when (val to = r.form["to"]) {
+                            "up" -> at - 1
+                            "down" -> at + 1
+                            "top" -> 0
                             // A position typed as a number, counted from 1.
-                            else -> to?.trim()?.toIntOrNull()?.let { env.store.moveJob(job.id, it - 1) }
+                            else -> to?.trim()?.toIntOrNull()?.minus(1)
                         }
+                        if (wanted != null) env.store.moveJob(job.id, Labels.storeIndex(all, job.id, wanted.coerceAtLeast(0)))
                         redirect(r.ex, "/#sync-${job.id}")
                     }
                     else -> send(r.ex, 404, page("Not found", ""))
@@ -859,16 +945,21 @@ ${changesFields(null)}
         body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
         // Its place in the list, as a number: quicker than the arrows with many syncs.
-        val all = env.store.data.jobs
+        val all = Labels.favoritesFirst(env.store.data.jobs)
         if (all.size > 2) {
             val at = all.indexOfFirst { it.id == job.id } + 1
             body.append("""<form method="post" action="/syncs/$id/move" class="card row"><label for="pos">Position in the list (now $at of ${all.size})</label><input type="number" id="pos" name="to" min="1" max="${all.size}" value="$at" style="max-width:7em"> <button class="secondary">Move</button></form>""")
         }
+        val labels = env.store.data.settings.labels
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
 ${changesFields(job)}"""}
-<label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> """<label title="$k"><input type="radio" name="color" value="$k"${if (job.color == k) " checked" else ""} aria-label="$k"><span class="dot" style="background:${v.first}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
+<label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
+<input type="hidden" name="groups" value="1">
+<label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>
+<label for="tags">Tags</label><input type="text" id="tags" name="tags" value="${h(job.tags.entries.joinToString(", ") { (k, v) -> if (v.isEmpty()) k else "$k=$v" })}" placeholder="genre=metal, mood=gym, kids"><p class="muted">Separated by commas; the value after = is optional.${usedTags(job)}</p>
+<label><input type="checkbox" name="favorite"${if (job.favorite) " checked" else ""}> Favourite (shown first)</label>
 <p><button class="secondary">Save</button></p></form>""",
         )
         val reports = env.store.data.reports.filter { it.jobId == job.id }.take(10)

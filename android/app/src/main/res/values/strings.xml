@@ -1834,4 +1834,18 @@
     <string name="error_mopidy_not_found">No Mopidy server answered at this address. Check the address and the port (usually 6680), and that Mopidy accepts connections from other devices.</string>
     <string name="error_server_name_taken">A playlist named “%1$s” already exists on this server. Pick it as the target, or choose another name.</string>
     <string name="error_server_track_gone">The server no longer has “%1$s”.</string>
+    <string name="sync_menu_favorite">Add to favourites</string>
+    <string name="sync_menu_unfavorite">Remove from favourites</string>
+    <string name="favorite_badge_desc">Favourite</string>
+    <string name="filter_favorites">Favourites</string>
+    <string name="filter_tag_any">Any</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Group your syncs your way, for example genre = metal. The value is optional.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Value</string>
+    <string name="tag_add">Add tag</string>
+    <string name="tag_remove">Remove %1$s</string>
+    <string name="label_name">Label name</string>
+    <string name="label_name_hint">Optional. Every sync with this colour shares the name: you can then search and filter by it.</string>
+    <string name="label_change_color">Change the label\'s colour</string>
 </resources>

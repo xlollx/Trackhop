@@ -47,13 +47,14 @@ object Cli {
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
     val COMMANDS = listOf(
-        Cmd("syncs", "Syncs", listOf("syncs"), "list the syncs, with their last result"),
+        Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",
+            "Also as: trackhop list. --tag genre=metal lists the syncs with that tag (--tag genre: with that key, whatever its value; given twice, both are wanted),\n--label NAME those wearing that label (its name, its id or a colour), --favorite the starred ones."),
         Cmd("show", "Syncs", listOf("show <sync>"), "a sync's details and its last runs"),
-        Cmd("run", "Syncs", listOf("run <sync>... | --all [--wait] [--anyway]"), "start syncs (--wait: until they end, with the result)",
-            "--anyway runs a sync that stopped because its destination looked much smaller than it was: you say the smaller one is right."),
+        Cmd("run", "Syncs", listOf("run <sync>... | --all | --tag KEY=VALUE [--wait] [--anyway]"), "start syncs (--wait: until they end, with the result)",
+            "--tag genre=metal, --label NAME and --favorite start a group: the syncs with that tag, wearing that label, or starred (those turned on).\n--anyway runs a sync that stopped because its destination looked much smaller than it was: you say the smaller one is right."),
         Cmd("new", "Syncs", listOf("new <service> <playlist> <service> [<playlist>] [options]"), "make a sync: from a playlist (or a link) to a playlist, a new one when left out",
-            "Options: --name NAME, --schedule manual|hourly|every_6h|daily|weekly or --every MINUTES, --at HH:MM, --days mon,fri (or 1,5),\n--changes add|mirror|archive (mirror also removes what leaves the source; archive keeps every track ever seen), --follows, --color NAME|#RRGGBB."),
-        Cmd("edit", "Syncs", listOf("edit <sync> [options]"), "change a sync: the same options as new", "Only what you name changes. --color none takes the colour off."),
+            "Options: --name NAME, --schedule manual|hourly|every_6h|daily|weekly or --every MINUTES, --at HH:MM, --days mon,fri (or 1,5),\n--changes add|mirror|archive (mirror also removes what leaves the source; archive keeps every track ever seen), --follows, --color NAME|#RRGGBB,\n--label NAME (a label's name or id: the card takes its colour), --tag KEY=VALUE (or --tag KEY; as many as wanted), --favorite."),
+        Cmd("edit", "Syncs", listOf("edit <sync> [options]"), "change a sync: the same options as new", "Only what you name changes. --color none takes the colour off, --label none the label; --tag KEY=VALUE adds or changes a tag,\n--untag KEY takes one off; --favorite stars the sync, --unfavorite takes the star off."),
         Cmd("enable", "Syncs", listOf("enable <sync> | disable <sync>"), "turn a sync's schedule on or off"),
         Cmd("disable", "Syncs", listOf("disable <sync>"), "turn a sync's schedule off"),
         Cmd("delete", "Syncs", listOf("delete <sync>"), "delete a sync (its playlists stay as they are)"),
@@ -130,8 +131,8 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "anyway", "dry-run", "remove", "follows")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern")
+    private val FLAGS = setOf("json", "wait", "all", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite")
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label")
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

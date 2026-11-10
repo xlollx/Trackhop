@@ -14,11 +14,12 @@ class SyncFilterTest {
     private fun job(
         id: String, name: String, src: String = "spotify", dst: String = "ytm",
         srcList: String = "", dstList: String = "", enabled: Boolean = true, color: String? = null, report: String? = null,
-    ) = SyncJob(
+        favorite: Boolean = false, tags: Map<String, String> = emptyMap(),
+    ) = Labels.normalized(SyncJob(
         id = id, name = name,
         source = PlaylistRef(src, "p-$id", srcList), target = PlaylistRef(dst, null, dstList),
-        enabled = enabled, color = color, lastReportId = report,
-    )
+        enabled = enabled, color = color, lastReportId = report, favorite = favorite, tags = tags,
+    ), emptyList())
 
     private fun report(id: String, jobId: String, error: String? = null) =
         SyncReport(id = id, jobId = jobId, jobName = jobId, startedEpoch = 0, durationMs = 0, error = error)
@@ -73,43 +74,99 @@ class SyncFilterTest {
         assertEquals("bde", ids(SyncFilter(services = setOf("tidal", "plex"))))
     }
 
-    /** A colour of one's own (#RRGGBB) is a colour like the others: listed in use, and filtered on. */
-    @Test fun ownColoursAreFilteredToo() {
+    /** A colour of one's own (#RRGGBB) is a free colour until it is saved as a label: then it is filtered on like the others. */
+    @Test fun ownColoursAreFilteredOnceSavedAsLabels() {
         val mine = jobs + job("f", "Mine", color = "#FF8800")
-        assertEquals(setOf("teal", "red", "#FF8800"), SyncFilter.colorsInUse(mine))
-        assertEquals("f", SyncFilter(colors = setOf("#FF8800")).select(mine, reports, emptySet()) { names[it] ?: it }.joinToString("") { it.id })
+        assertEquals(listOf("red", "teal"), Labels.inUse(mine))
+        val (d, id) = Labels.save(com.xlollx.songport.data.StoreData(jobs = mine), "#ff8800", "From Spotify") { "l-1" }
+        assertEquals("l-1", id)
+        assertEquals(listOf("red", "teal", "l-1"), Labels.inUse(d.jobs))
+        assertEquals("f", SyncFilter(labels = setOf("l-1")).select(d.jobs, reports, emptySet()).joinToString("") { it.id })
+        // Its name is found by the search.
+        assertEquals("f", SyncFilter(query = "from spot").select(d.jobs, reports, emptySet(), d.settings.labels).joinToString("") { it.id })
+    }
+
+    private val tagged = jobs + listOf(
+        job("f", "Loud", favorite = true, tags = mapOf("Genre" to "Metal", "mood" to "gym")),
+        job("g", "Louder", tags = mapOf("genre" to "Heavy Metal", "kids" to "")),
+        job("h", "Mix: 2020", tags = mapOf("genre" to "pop")),
+    )
+    private fun tids(f: SyncFilter) = f.select(tagged, reports, emptySet()).joinToString("") { it.id }
+
+    @Test fun searchFindsTagKeysAndValues() {
+        assertEquals("fgh", tids(SyncFilter(query = "genre")))
+        assertEquals("fg", tids(SyncFilter(query = "metal")))
+        assertEquals("g", tids(SyncFilter(query = "kids")))
+    }
+
+    @Test fun keyColonValueAsksForExactlyThatTag() {
+        // "metal" alone finds "Heavy Metal" too; genre:metal does not.
+        assertEquals("f", tids(SyncFilter(query = "genre:metal")))
+        assertEquals("f", tids(SyncFilter(query = "GENRE:Metal mood:gym")))
+        assertEquals("", tids(SyncFilter(query = "genre:metal mood:calm")))
+        // The key alone, any value.
+        assertEquals("fgh", tids(SyncFilter(query = "genre:")))
+        assertEquals("g", tids(SyncFilter(query = "kids:")))
+        // Quotes keep a value with spaces together.
+        assertEquals("g", tids(SyncFilter(query = "genre:\"heavy metal\"")))
+        assertEquals("", tids(SyncFilter(query = "genre:heavy")))
+        // With other words.
+        assertEquals("f", tids(SyncFilter(query = "loud genre:metal")))
+        // A name with a colon in it is still found.
+        assertEquals("h", tids(SyncFilter(query = "mix:")))
+    }
+
+    @Test fun quotesKeepWordsTogether() {
+        assertEquals(listOf("genre:heavy metal", "loud"), SyncFilter.terms("genre:\"Heavy  Metal\" loud"))
+        assertEquals(listOf("road trip"), SyncFilter.terms("\"Road trip\""))
+        // An open quote runs to the end.
+        assertEquals(listOf("a", "b c"), SyncFilter.terms("a \"b c"))
+    }
+
+    @Test fun favouritesAndTagChips() {
+        assertEquals("f", tids(SyncFilter(favorite = true)))
+        assertEquals("fgh", tids(SyncFilter().toggleTag("genre")))
+        assertEquals("fh", tids(SyncFilter().toggleTag("genre", "metal").toggleTag("genre", "pop")))
+        assertEquals("f", tids(SyncFilter().toggleTag("genre", "metal").toggleTag("mood")))
+        assertFalse(SyncFilter().toggleTag("genre", "metal").toggleTag("genre", "metal").isActive)
+        assertFalse(SyncFilter().toggleFavorite().toggleFavorite().isActive)
+        // What no sync has any more is dropped.
+        val p = SyncFilter(favorite = true, tags = mapOf("genre" to setOf("metal", "jazz"), "gone" to emptySet(), "mood" to setOf("calm"))).pruned(tagged)
+        assertEquals(mapOf("genre" to setOf("metal")), p.tags)
+        assertTrue(p.favorite)
+        assertFalse(SyncFilter(favorite = true).pruned(jobs).favorite)
     }
 
     @Test fun colorsKeepOnlyThoseColours() {
-        assertEquals("ad", ids(SyncFilter(colors = setOf("teal"))))
-        assertEquals("abd", ids(SyncFilter(colors = setOf("teal", "red"))))
+        assertEquals("ad", ids(SyncFilter(labels = setOf("teal"))))
+        assertEquals("abd", ids(SyncFilter(labels = setOf("teal", "red"))))
     }
 
     @Test fun groupsNarrowEachOther() {
-        assertEquals("d", ids(SyncFilter(colors = setOf("teal"), services = setOf("plex"))))
-        assertEquals("", ids(SyncFilter(colors = setOf("teal"), statuses = setOf(Status.ERROR))))
-        assertEquals("a", ids(SyncFilter(query = "cafe", colors = setOf("teal"), services = setOf("spotify"))))
+        assertEquals("d", ids(SyncFilter(labels = setOf("teal"), services = setOf("plex"))))
+        assertEquals("", ids(SyncFilter(labels = setOf("teal"), statuses = setOf(Status.ERROR))))
+        assertEquals("a", ids(SyncFilter(query = "cafe", labels = setOf("teal"), services = setOf("spotify"))))
     }
 
     @Test fun togglesAddAndRemove() {
-        val f = SyncFilter().toggle(Status.ERROR).toggleService("plex").toggleColor("red")
+        val f = SyncFilter().toggle(Status.ERROR).toggleService("plex").toggleLabel("red")
         assertEquals(setOf(Status.ERROR), f.statuses)
         assertEquals(setOf("plex"), f.services)
-        assertEquals(setOf("red"), f.colors)
+        assertEquals(setOf("red"), f.labels)
         assertTrue(f.isActive)
-        assertFalse(f.toggle(Status.ERROR).toggleService("plex").toggleColor("red").isActive)
+        assertFalse(f.toggle(Status.ERROR).toggleService("plex").toggleLabel("red").isActive)
     }
 
     @Test fun whatIsInUse() {
         assertEquals(listOf("spotify", "ytm", "tidal", "plex"), SyncFilter.servicesInUse(jobs))
-        assertEquals(setOf("teal", "red"), SyncFilter.colorsInUse(jobs))
+        assertEquals(listOf("red", "teal"), Labels.inUse(jobs))
     }
 
     @Test fun choicesNoSyncUsesAnyMoreAreDropped() {
-        val f = SyncFilter(services = setOf("plex", "deezer"), colors = setOf("pink", "red"), statuses = setOf(Status.ERROR))
+        val f = SyncFilter(services = setOf("plex", "deezer"), labels = setOf("pink", "red"), statuses = setOf(Status.ERROR))
         val p = f.pruned(jobs)
         assertEquals(setOf("plex"), p.services)
-        assertEquals(setOf("red"), p.colors)
+        assertEquals(setOf("red"), p.labels)
         assertEquals(setOf(Status.ERROR), p.statuses)
         val kept = SyncFilter(services = setOf("plex"))
         assertSame(kept, kept.pruned(jobs))

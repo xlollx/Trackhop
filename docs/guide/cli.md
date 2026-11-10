@@ -47,10 +47,11 @@ Without it, the admin's.
 
 | Command | What it does |
 |---|---|
-| `trackhop syncs` | Every sync: its route, schedule, last run and result, next run. |
+| `trackhop syncs` (or `trackhop list`) | Every sync: its route, schedule, label and tags, last run and result, next run. `--tag genre=metal` lists only the syncs with that tag (`--tag genre`: that key, whatever its value; given twice, both are wanted), `--label Gym` those wearing a label, `--favorite` the starred ones. |
 | `trackhop show <sync>` | One sync, with its last runs. |
 | `trackhop run <sync>…` | Starts these syncs. `--wait` waits until they end and prints the result; `--anyway` runs one that stopped because its destination looked much smaller than before (you say the smaller one is right). |
 | `trackhop run --all` | Starts every sync that is turned on (with `--wait` too). |
+| `trackhop run --tag genre=metal` | Starts a group: the syncs with that tag that are turned on (with `--wait` too). `--label Gym` and `--favorite` choose the group the same way. |
 | `trackhop new <service> <playlist> <service> [<playlist>]` | Makes a sync from a playlist (or a link to a public one) to a playlist; without the second playlist, a new one is made at the first run. Options below. |
 | `trackhop edit <sync> [options]` | Changes a sync: only what you name. |
 | `trackhop enable <sync>`, `trackhop disable <sync>` | Turns a sync's schedule on or off. |
@@ -62,11 +63,16 @@ Without it, the admin's.
 The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or
 `--every MINUTES`; `--at 07:30`; `--days mon,fri` (or `1,5`); `--changes add|mirror|archive` (only
 add, also remove what leaves the source, or keep every track ever seen); `--follows` (with mirror:
-the source changes by itself, a daylist); `--color teal` or `--color '#12A594'` (`none` takes it off).
+the source changes by itself, a daylist); `--color teal` or `--color '#12A594'` (`none` takes it off);
+`--label Gym` (a label's name or id: the card takes its colour; `none` takes it off); `--tag genre=metal`
+(or `--tag kids`, a key alone; as many as you like; on `edit` it adds or changes that tag, and
+`--untag genre` takes one off); `--favorite` stars the sync (`edit … --unfavorite` takes the star off).
 
 ```
 trackhop new spotify "Discover Weekly" ytm --name "Discover Weekly" --schedule weekly --days mon --at 08:00 --changes archive
 trackhop edit "Road trip" --every 180
+trackhop edit "Road trip" --tag mood=gym --favorite
+trackhop run --tag mood=gym --wait
 ```
 
 A `<sync>` is its name, the start of its name, or its id. When a name could mean more than one sync,
@@ -193,9 +199,9 @@ tools allow:
 | Tool | What it does |
 |---|---|
 | `status`, `get_stats` | Version, syncs, what is running; your numbers |
-| `list_syncs`, `get_sync` | The syncs, their schedule and their last results |
-| `run_sync`, `run_all_syncs` | Run one, or all those turned on (optionally waiting for the result) |
-| `create_sync`, `edit_sync`, `move_sync` | Make a sync, change it (name, timing, removals, colour), move it in the list |
+| `list_syncs`, `get_sync` | The syncs, their schedule, labels and tags, and their last results; `list_syncs` can list only those with a tag, a label or a star |
+| `run_sync`, `run_all_syncs`, `run_syncs_by_tag` | Run one, all those turned on, or a group: "sync the playlists tagged gym" (by tag, label or star; optionally waiting for the result) |
+| `create_sync`, `edit_sync`, `move_sync` | Make a sync, change it (name, timing, removals, colour, label, tags, star), move it in the list |
 | `set_sync_enabled`, `stop_sync`, `pause_sync`, `resume_sync` | Turn a sync's schedule on or off; stop, pause or resume a run |
 | `preview_sync` | What a run would do now, changing nothing |
 | `list_runs`, `get_run`, `get_review` | The runs, one run's tracks and notes, what it left to review |

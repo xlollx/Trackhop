@@ -1802,4 +1802,18 @@
     <string name="error_mopidy_not_found">이 주소에서 응답하는 Mopidy 서버가 없습니다. 주소와 포트(보통 6680), 그리고 Mopidy가 다른 기기의 연결을 허용하는지 확인하세요.</string>
     <string name="error_server_name_taken">이 서버에 “%1$s”라는 플레이리스트가 이미 있습니다. 그 플레이리스트를 대상으로 선택하거나 다른 이름을 사용하세요.</string>
     <string name="error_server_track_gone">서버에 “%1$s”이(가) 더 이상 없습니다.</string>
+    <string name="sync_menu_favorite">즐겨찾기에 추가</string>
+    <string name="sync_menu_unfavorite">즐겨찾기에서 제거</string>
+    <string name="favorite_badge_desc">즐겨찾기</string>
+    <string name="filter_favorites">즐겨찾기</string>
+    <string name="filter_tag_any">전체</string>
+    <string name="tags_title">태그</string>
+    <string name="tags_hint">동기화를 원하는 대로 묶어 보세요. 예: 장르 = 메탈. 값은 선택 사항입니다.</string>
+    <string name="tag_key">태그</string>
+    <string name="tag_value">값</string>
+    <string name="tag_add">태그 추가</string>
+    <string name="tag_remove">%1$s 삭제</string>
+    <string name="label_name">라벨 이름</string>
+    <string name="label_name_hint">선택 사항입니다. 이 색상의 모든 동기화가 같은 이름을 쓰며, 이름으로 검색하고 필터링할 수 있습니다.</string>
+    <string name="label_change_color">라벨 색상 변경</string>
 </resources>

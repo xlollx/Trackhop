@@ -94,6 +94,8 @@ data class Settings(
     val roastLevel: String = "",
     /** The user confirmed once being 18 or older, for the Roast's explicit language. */
     val roastAdultConfirmed: Boolean = false,
+    /** The named colours the syncs can wear (SyncJob.label); see sync/Labels. */
+    val labels: List<com.xlollx.songport.model.Label> = emptyList(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */
@@ -165,7 +167,7 @@ open class FileStore(dir: File) {
     val data: StoreData get() = _state.value
 
     private fun load(): StoreData = try {
-        if (file.exists()) json.decodeFromString<StoreData>(file.readText()) else StoreData()
+        if (file.exists()) com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(file.readText())) else StoreData()
     } catch (e: Exception) {
         StoreData()
     }
@@ -173,7 +175,11 @@ open class FileStore(dir: File) {
     fun update(fn: (StoreData) -> StoreData) {
         val next: StoreData
         synchronized(lock) {
-            next = fn(_state.value)
+            val before = _state.value
+            val made = fn(before)
+            // Whatever wrote the syncs or the labels, they are kept as Labels.normalized has them: a
+            // label gives its colour to the card, a ready colour is its own label, tags are tidy.
+            next = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
             _state.value = next
         }
         Providers.configure(next.settings.extraAccounts, next.settings.connectorNames, next.settings.connectors)

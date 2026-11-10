@@ -58,6 +58,48 @@ class CliCommandsTest {
         return Ran(code, out.toString("UTF-8").replace("\r\n", "\n"), err.toString("UTF-8").replace("\r\n", "\n"))
     }
 
+    @Test fun tagsLabelsAndFavouritesFromTheCommandLine() {
+        val edited = cli("edit", "Road trip", "--tag", "genre=metal", "--tag=kids", "--favorite", "--label", "teal")
+        assertEquals(edited.toString(), 0, edited.code)
+        assertTrue(edited.out, edited.out.contains("genre=metal") && edited.out.contains("kids") && edited.out.contains("starred"))
+        var job = env.store.job("j1")!!
+        assertEquals(mapOf("genre" to "metal", "kids" to ""), job.tags)
+        assertTrue(job.favorite)
+        assertEquals("teal", job.label); assertEquals("teal", job.color)
+        val made = cli("new", "csv", "Road trip", "csv", "--name", "Copy", "--tag", "genre:pop", "--tag", "mood=\"late night\"")
+        assertEquals(made.toString(), 0, made.code)
+        assertEquals(mapOf("genre" to "pop", "mood" to "late night"), env.store.data.jobs.first { it.name == "Copy" }.tags)
+
+        // list (the same as syncs) with a tag, a key alone, a label, the star.
+        val metal = cli("list", "--tag", "genre=metal")
+        assertTrue(metal.out, metal.out.contains("Road trip") && !metal.out.contains("Copy  ["))
+        val both = cli("syncs", "--tag", "genre")
+        assertTrue(both.out, both.out.contains("Road trip  [") && both.out.contains("Copy  ["))
+        assertTrue(cli("list", "--tag", "genre", "--tag", "kids").out.let { it.contains("Road trip  [") && !it.contains("Copy  [") })
+        assertTrue(cli("list", "--favorite").out.let { it.contains("Road trip  [") && !it.contains("Copy  [") })
+        assertTrue(cli("list", "--label", "teal").out.let { it.contains("Road trip  [") && !it.contains("Copy  [") })
+        assertEquals("No sync matches.\n", cli("list", "--tag", "genre=jazz").out)
+        assertEquals(2, cli("list", "--tag", "=metal").code)
+        assertEquals(2, cli("list", "--tag").code)
+
+        // A tag changed and one taken off; the star off; the label off (with its colour).
+        cli("edit", "Road trip", "--untag", "KIDS", "--tag", "Genre=doom", "--unfavorite", "--label", "none")
+        job = env.store.job("j1")!!
+        assertEquals(mapOf("Genre" to "doom"), job.tags)
+        assertFalse(job.favorite)
+        assertEquals(null, job.label); assertEquals(null, job.color)
+
+        // A group run: only the syncs with the tag.
+        val run = cli("run", "--tag", "genre=doom", "--wait")
+        assertEquals(run.toString(), 0, run.code)
+        assertTrue(run.out, run.out.contains("Road trip: +") && !run.out.contains("Copy"))
+        assertEquals(null, env.store.data.jobs.first { it.name == "Copy" }.lastReportId)
+        assertTrue(cli("run", "--tag", "nothing").out.contains("nothing (no sync turned on matches)"))
+        assertEquals(2, cli("run", "Road trip", "--tag", "genre").code)
+        assertEquals(2, cli("run", "--all", "--favorite").code)
+        assertEquals(2, cli("run").code)
+    }
+
     @Test fun aSyncIsMadeChangedMovedPreviewedAndDeleted() {
         val made = cli("new", "csv", "Road trip", "csv", "--name", "Copy", "--schedule", "daily", "--at", "08:00", "--changes", "mirror", "--color", "blue")
         assertEquals(made.toString(), 0, made.code)

@@ -102,17 +102,40 @@ object Mcp {
         Param("changes", "string", "add (only add), mirror (also remove what leaves the source) or archive (keep every track ever seen).", required = false),
         Param("follows", "boolean", "With mirror: the source changes by itself (a daylist), its big removals need no confirmation.", required = false),
         Param("color", "string", "A colour: red, orange, yellow, green, teal, blue, purple, pink, #RRGGBB, or none.", required = false),
+        Param("label", "string", "The sync's label: a label's name or id (the card takes its colour), or none.", required = false),
+        Param("tags", "string", "Tags to add or change, as \"genre=metal, mood=gym\"; a key alone (\"kids\") is a tag too.", required = false),
+        Param("untag", "string", "Tag keys to take off, e.g. \"genre, mood\" (edit_sync).", required = false),
+        Param("favorite", "boolean", "true to star the sync (shown first), false to take the star off.", required = false),
     )
+
+    private val GROUP = listOf(
+        Param("tag", "string", "Only the syncs with these tags: \"genre=metal\", a key alone (\"gym\"), or several split by commas (all wanted).", required = false),
+        Param("label", "string", "Only the syncs wearing this label: its name, its id or a colour.", required = false),
+        Param("favorite", "boolean", "true: only the starred syncs.", required = false),
+    )
+
+    private fun String.parts(): List<String> = split(',').map { it.trim() }.filter { it.isNotEmpty() }
+
+    /** The group a call names (tag, label, favorite), as the command line's options. */
+    private fun JsonObject.group(wait: Boolean = false, command: String): Call {
+        val tags = opt("tag")?.parts().orEmpty()
+        return Call(command, wait = wait, flags = setOfNotNull("favorite".takeIf { flag("favorite") }), values = values("label"), multi = if (tags.isEmpty()) emptyMap() else mapOf("tag" to tags))
+    }
 
     private val TOOLS = listOf(
         Tool("status", "Trackhop status", "Trackhop's version, how many syncs it has, which are running now and when the last one ran.",
             emptyList(), readOnly = true) { Call("status") },
-        Tool("list_syncs", "List syncs", "Every sync with its source and target playlists, its schedule, whether it is on, and its last result (added, removed, not found, to check).",
-            emptyList(), readOnly = true) { Call("syncs") },
+        Tool("list_syncs", "List syncs", "Every sync with its source and target playlists, its schedule, whether it is on, its label, tags and star, and its last result (added, removed, not found, to check). With tag, label or favorite: only those syncs.",
+            GROUP, readOnly = true) { a -> a.group(command = "syncs") },
         Tool("get_sync", "Show a sync", "One sync's details and its last runs.",
             listOf(SYNC), readOnly = true) { a -> Call("show", listOf(a.text("sync"))) },
         Tool("run_sync", "Run a sync", "Starts a sync now. With wait, answers when it ends, with what it added, removed and could not find.",
             listOf(SYNC, WAIT), readOnly = false) { a -> Call("run", listOf(a.text("sync")), wait = a.flag("wait")) },
+        Tool("run_syncs_by_tag", "Run a group of syncs", "Starts the syncs with a tag (\"the playlists tagged gym\"), wearing a label, or starred; only those turned on. Give at least one of tag, label, favorite.",
+            GROUP + WAIT, readOnly = false) { a ->
+            if (a.opt("tag") == null && a.opt("label") == null && !a.flag("favorite")) throw Cli.Failure(2, "say which syncs: \"tag\", \"label\" or \"favorite\"")
+            a.group(wait = a.flag("wait"), command = "run")
+        },
         Tool("run_all_syncs", "Run all syncs", "Starts every sync that is turned on.",
             listOf(WAIT), readOnly = false) { a -> Call("run", wait = a.flag("wait"), all = true) },
         Tool("set_sync_enabled", "Turn a sync on or off", "Turns a sync's schedule on or off (the sync itself is kept).",
@@ -147,10 +170,10 @@ object Mcp {
                 Param("target_service", "string", "The destination's service."),
                 Param("target_playlist", "string", "The destination playlist's name or id; leave out for a new playlist.", required = false),
             ) + SYNC_OPTIONS, readOnly = false) { a ->
-            Call("new", listOfNotNull(a.text("source_service"), a.text("source_playlist"), a.text("target_service"), a.opt("target_playlist")), values = a.syncValues(), flags = a.syncFlags())
+            Call("new", listOfNotNull(a.text("source_service"), a.text("source_playlist"), a.text("target_service"), a.opt("target_playlist")), values = a.syncValues(), flags = a.syncFlags(), multi = a.syncMulti())
         },
-        Tool("edit_sync", "Change a sync", "Changes a sync's name, timing, what it does with removals, or colour. Only what is given changes.",
-            listOf(SYNC) + SYNC_OPTIONS, readOnly = false) { a -> Call("edit", listOf(a.text("sync")), values = a.syncValues(), flags = a.syncFlags()) },
+        Tool("edit_sync", "Change a sync", "Changes a sync's name, timing, what it does with removals, colour, label, tags or star. Only what is given changes.",
+            listOf(SYNC) + SYNC_OPTIONS, readOnly = false) { a -> Call("edit", listOf(a.text("sync")), values = a.syncValues(), flags = a.syncFlags(), multi = a.syncMulti()) },
         Tool("delete_sync", "Delete a sync", "Deletes a sync (its playlists stay as they are). Ask the user first.",
             listOf(SYNC), readOnly = false, destructive = true) { a -> Call("delete", listOf(a.text("sync"))) },
         Tool("move_sync", "Move a sync in the list", "Moves a sync in the list (the order of Run all and of the widgets).",
@@ -226,8 +249,15 @@ object Mcp {
             listOf(Param("task", "string", "The task's id.")), readOnly = true) { a -> Call("task", listOf(a.text("task"))) },
     )
 
-    private fun JsonObject.syncValues() = values("name", "schedule", "every", "at", "days", "changes", "color")
-    private fun JsonObject.syncFlags() = setOfNotNull("follows".takeIf { flag("follows") })
+    private fun JsonObject.syncValues() = values("name", "schedule", "every", "at", "days", "changes", "color", "label")
+    private fun JsonObject.syncFlags() = setOfNotNull(
+        "follows".takeIf { flag("follows") },
+        (this["favorite"] as? JsonPrimitive)?.booleanOrNull?.let { if (it) "favorite" else "unfavorite" },
+    )
+    private fun JsonObject.syncMulti() = listOfNotNull(
+        opt("tags")?.parts()?.takeIf { it.isNotEmpty() }?.let { "tag" to it },
+        opt("untag")?.parts()?.takeIf { it.isNotEmpty() }?.let { "untag" to it },
+    ).toMap()
 
     private fun schema(t: Tool) = buildJsonObject {
         put("type", "object")

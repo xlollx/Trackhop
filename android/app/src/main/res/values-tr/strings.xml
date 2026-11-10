@@ -1831,4 +1831,18 @@
     <string name="error_mopidy_not_found">Bu adreste yanıt veren bir Mopidy sunucusu yok. Adresi ve portu (genellikle 6680) ve Mopidy’nin diğer cihazlardan bağlantı kabul ettiğini kontrol edin.</string>
     <string name="error_server_name_taken">Bu sunucuda “%1$s” adlı bir çalma listesi zaten var. Onu hedef olarak seçin ya da başka bir ad kullanın.</string>
     <string name="error_server_track_gone">Sunucuda artık “%1$s” yok.</string>
+    <string name="sync_menu_favorite">Favorilere ekle</string>
+    <string name="sync_menu_unfavorite">Favorilerden çıkar</string>
+    <string name="favorite_badge_desc">Favori</string>
+    <string name="filter_favorites">Favoriler</string>
+    <string name="filter_tag_any">Herhangi</string>
+    <string name="tags_title">Etiketler</string>
+    <string name="tags_hint">Eşitlemelerini istediğin gibi grupla, örneğin tür = metal. Değer isteğe bağlıdır.</string>
+    <string name="tag_key">Etiket</string>
+    <string name="tag_value">Değer</string>
+    <string name="tag_add">Etiket ekle</string>
+    <string name="tag_remove">%1$s etiketini kaldır</string>
+    <string name="label_name">Renk adı</string>
+    <string name="label_name_hint">İsteğe bağlı. Bu renkteki tüm eşitlemeler bu adı paylaşır: sonra ada göre arayıp filtreleyebilirsin.</string>
+    <string name="label_change_color">Rengi değiştir</string>
 </resources>
