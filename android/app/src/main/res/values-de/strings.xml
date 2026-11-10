@@ -1893,6 +1893,7 @@
     <string name="tools_wanted_no_album">Ohne Album</string>
     <string name="tools_wanted_export">Liste exportieren</string>
     <string name="tools_wanted_lidarr">Liste für Lidarr</string>
+<<<<<<< HEAD
     <string name="discover_releases_title">Neuerscheinungen</string>
     <string name="discover_releases_desc">Was die Künstler deiner Playlist gerade veröffentlicht haben</string>
     <string name="releases_intro">Wähle eine Playlist: Trackhop sucht die neuen Alben, EPs und Singles ihrer Künstler bei Deezer und MusicBrainz. Kein Konto nötig.</string>
@@ -2053,4 +2054,17 @@
     <string name="records_token_field">Persönlicher Zugangstoken</string>
     <string name="records_token_own">Dein Token wird verwendet</string>
     <string name="records_token_none">Nicht gesetzt: Platten ohne Preise</string>
+=======
+    <string name="settings_card_size">Kartengröße</string>
+    <string name="card_size_large">Groß</string>
+    <string name="card_size_medium">Mittel</string>
+    <string name="card_size_small">Klein</string>
+    <string name="card_size_landscape">Liegt das Handy quer, sind die Karten klein, damit mehr davon passen.</string>
+    <string name="settings_minimal_view">Minimale Ansicht</string>
+    <string name="settings_minimal_view_summary">Syncs als kleine Kacheln im Raster: Dienste, Name und Status</string>
+    <string name="syncs_view_tiles">Als Kacheln zeigen</string>
+    <string name="syncs_view_cards">Als Karten zeigen</string>
+    <string name="tile_next_run">Nächste: %1$s</string>
+    <string name="tile_open">Ganze Karte zeigen</string>
+>>>>>>> origin/next-117
 </resources>

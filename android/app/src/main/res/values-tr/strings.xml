@@ -1891,6 +1891,7 @@
     <string name="tools_wanted_no_album">Albüm yok</string>
     <string name="tools_wanted_export">Listeyi dışa aktar</string>
     <string name="tools_wanted_lidarr">Lidarr için liste</string>
+<<<<<<< HEAD
     <string name="discover_releases_title">Yeni çıkanlar</string>
     <string name="discover_releases_desc">Çalma listendeki sanatçıların yeni çıkardıkları</string>
     <string name="releases_intro">Bir çalma listesi seç: Trackhop, sanatçılarının yeni albüm, EP ve single\'larını Deezer ve MusicBrainz\'de arar. Hesap gerekmez.</string>
@@ -2051,4 +2052,17 @@
     <string name="records_token_field">Kişisel erişim token\'ı</string>
     <string name="records_token_own">Kendi token\'ın kullanılıyor</string>
     <string name="records_token_none">Ayarlanmadı: fiyatsız plaklar</string>
+=======
+    <string name="settings_card_size">Kart boyutu</string>
+    <string name="card_size_large">Büyük</string>
+    <string name="card_size_medium">Orta</string>
+    <string name="card_size_small">Küçük</string>
+    <string name="card_size_landscape">Telefon yan çevrildiğinde kartlar küçülür, böylece daha fazlası sığar.</string>
+    <string name="settings_minimal_view">Minimal görünüm</string>
+    <string name="settings_minimal_view_summary">Eşitlemeler ızgarada küçük kutucuklar olarak: servisler, ad ve durum</string>
+    <string name="syncs_view_tiles">Kutucuk olarak göster</string>
+    <string name="syncs_view_cards">Kart olarak göster</string>
+    <string name="tile_next_run">Sonraki: %1$s</string>
+    <string name="tile_open">Kartın tamamını göster</string>
+>>>>>>> origin/next-117
 </resources>

@@ -2,6 +2,7 @@ package com.xlollx.songport.ui
 
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
+import androidx.compose.material.icons.filled.GridView
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.app.Activity
@@ -195,6 +196,21 @@ fun SettingsScreen(
             if (historyOpen) ChoiceDialog(stringResource(R.string.settings_run_history), historyChoices, settings.runHistoryStyle, onDismiss = { historyOpen = false }) { k ->
                 historyOpen = false
                 store.updateSettings { it.copy(runHistoryStyle = k) }
+            }
+            // How big the sync cards are, each choice with a small picture of how many fit; and the tiles instead of cards.
+            val sizeChoices = CardSize.entries.map { it to stringResource(it.label) }
+            var sizeOpen by remember { mutableStateOf(false) }
+            val size = CardSize.of(settings.cardSize)
+            PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_card_size), stringResource(size.label)) { sizeOpen = true }
+            if (sizeOpen) ChoiceDialog(
+                stringResource(R.string.settings_card_size), sizeChoices, size, onDismiss = { sizeOpen = false },
+                note = stringResource(R.string.card_size_landscape), trailing = { CardSizePreview(it) },
+            ) { k ->
+                sizeOpen = false
+                store.updateSettings { it.copy(cardSize = k.key) }
+            }
+            PrefSwitch(Icons.Filled.GridView, stringResource(R.string.settings_minimal_view), stringResource(R.string.settings_minimal_view_summary), settings.minimalSyncs) { v ->
+                store.updateSettings { it.copy(minimalSyncs = v) }
             }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
             var langOpen by remember { mutableStateOf(false) }

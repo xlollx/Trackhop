@@ -81,7 +81,7 @@ class TabletLayoutFlowTest : FlowTest() {
         assertTrue("a phone on its side gets the rail", layout.rail)
         assertRail()
         snapshot("tablet-rail-syncs")
-        if (layout.syncColumns == 2) {
+        if (layout.syncColumns >= 2) {
             // Wide enough for two: the first two cards share a row.
             assertEquals(card(1).positionInRoot.y, card(2).positionInRoot.y, 1f)
             assertTrue(card(2).positionInRoot.x > card(1).boundsInRoot.right - 1f)
@@ -89,7 +89,8 @@ class TabletLayoutFlowTest : FlowTest() {
             assertEquals(card(1).positionInRoot.x, card(2).positionInRoot.x, 1f)
         }
         // The rail works as the bar did: every tab named, a tap goes there, the floating button still in reach.
-        assertTrue(exists(s(R.string.new_sync)))
+        val fab = compose.onAllNodes(hasClickAction() and hasContentDescription(s(R.string.new_sync))).fetchSemanticsNodes()
+        assertTrue("New sync at the head of the rail", fab.isNotEmpty() && fab.first().boundsInRoot.right <= card(1).boundsInRoot.left)
         for (tab in tabs) {
             navItem(s(tab)).performClick()
             compose.waitForIdle()

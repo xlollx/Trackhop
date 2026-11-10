@@ -17,8 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Cards held and dragged at the end of the list, where the upper card on screen is the list's
- * first visible item, half under the Sync-all pill (07/11 report): the card dragged down past the
+ * Cards held and dragged at the end of the list, where the upper card on screen is partly under the
+ * Sync-all pill (07/11 report): the card dragged down past the
  * next one stays there instead of snapping back, and the last card dragged up lands above it.
  */
 @RunWith(AndroidJUnit4::class)
@@ -46,20 +46,27 @@ class ReorderFlowTest : FlowTest() {
      */
     private fun cardsOnScreen(): List<Pair<Int, Float>> {
         val top = listTop()
+        // Under the pinned Sync-all pill nothing of a card shows: one counts once a good part of it is below.
+        val shows = (pinnedPillBottom() ?: top) + 48 * app.resources.displayMetrics.density
         return (1..n).mapNotNull { i ->
-            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()?.takeIf { it.boundsInRoot.center.y > top }?.let { i to it.positionInRoot.y }
+            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()
+                ?.takeIf { it.boundsInRoot.center.y > top && it.positionInRoot.y + it.size.height > shows }?.let { i to it.positionInRoot.y }
         }.sortedBy { it.second }
     }
 
     /**
-     * Holds card [i] near its left edge (clear of the Sync-all pill, which may cover the middle of it)
-     * and drags it by [dy] pixels as a finger does: a few pixels at a time, with frames drawn in
-     * between, then lets go.
+     * Holds card [i] near its left edge, where it shows: by its name, or just under the pinned
+     * Sync-all pill when its name has gone beneath it (the pill and its background take a touch
+     * there, as a finger finds). Then drags it by [dy] pixels as a finger does: a few pixels at a
+     * time, with frames drawn in between, and lets go.
      */
     private fun drag(i: Int, dy: Float) {
         android.util.Log.d("Reorder", "test: drag $i by $dy, order ${order()}")
-        compose.onAllNodes(hasText("Sync number $i")).onFirst().performTouchInput {
-            down(Offset(12f, height / 2f))
+        val name = compose.onAllNodes(hasText("Sync number $i")).onFirst()
+        val top = name.fetchSemanticsNode().positionInRoot.y
+        val clear = pinnedPillBottom()?.let { it + 4 * app.resources.displayMetrics.density }
+        name.performTouchInput {
+            down(Offset(12f, if (clear != null && top + height / 2f < clear) clear - top else height / 2f))
             advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
             moveBy(Offset(0f, 1f))
         }
