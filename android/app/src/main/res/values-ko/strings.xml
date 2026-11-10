@@ -1694,6 +1694,14 @@
     <string name="whats_new_118_setlists_body">발견 › 세트리스트에서 플레이리스트 아티스트가 라이브로 연주한 곡을 setlist.fm에서 볼 수 있어요. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 무료 setlist.fm 키는 설정 › 고급 › 서비스 키에서 추가하세요.</string>
     <string name="whats_new_118_records_title">음반과 굿즈</string>
     <string name="whats_new_118_records_body">발견 › 음반과 굿즈에서 Discogs의 CD, LP, 카세트와 공식 사이트, 쇼핑몰을 찾아요. 내 Discogs 토큰이 있으면 판매 중인 음반과 최저가도 보여요. 링크만 제공하며 구매는 해당 사이트에서 해요.</string>
+    <string name="whats_new_119_shared_title">공유 플레이리스트</string>
+    <string name="whats_new_119_shared_body">도구 › 공유 플레이리스트: 그룹을 위한 하나의 플레이리스트를 각자 자기 서비스에서. 큐레이터가 바꾸고, 다른 사람들은 그대로 복사하거나 내가 추가한 곡을 유지하며 팔로우해요. 내 서비스에서 찾지 못한 곡은 내 검토로 가고, 다른 사람에게서는 절대 지워지지 않아요.</string>
+    <string name="whats_new_119_invite_title">그룹 초대하기</string>
+    <string name="whats_new_119_invite_body">QR 코드나 링크로 초대하고 그룹 코드를 비교해 보세요. 그룹은 이미 공유하는 폴더(Google Drive, Nextcloud, Syncthing, Dropbox), 종단 간 암호화된 ntfy 채널, 또는 내 Trackhop 서버에서 만나요. 초대나 폴더를 가진 사람은 누구나 그룹을 읽을 수 있으니, 초대할 사람에게만 보내세요.</string>
+    <string name="whats_new_119_handover_title">동기화를 서버에 맡기기</string>
+    <string name="whats_new_119_handover_body">동기화 메뉴에서 내 Trackhop 서버(Docker 또는 Desktop)에 맡길 수 있어요. 서버의 계정으로 실행되고, 언제든 이 휴대폰으로 되돌릴 수 있어요. 검토 선택은 양쪽으로 공유돼요.</string>
+    <string name="whats_new_119_server_title">서버의 동기화</string>
+    <string name="whats_new_119_server_body">도구 › 내 서버에서 Trackhop 서버의 동기화를 보고, 실행하고, 결과를 확인하고, 곡을 검토할 수 있어요. 설정 › 고급 › 내 서버와 조율하기가 필요해요.</string>
     <string name="whats_new_114_nano_title">키 없이 쓰는 AI</string>
     <string name="whats_new_114_nano_body">Gemini Nano가 있는 휴대폰에서는 이제 Roast와 플레이리스트 생성기가 기기에서 바로 작동합니다. 키가 필요 없고 데이터가 기기 밖으로 나가지 않습니다. 그 외 기기에서는 Roast에서 바로 무료 키 설정으로 이동합니다.</string>
     <string name="whats_new_114_tips_title">위젯, 바로가기, 자동화</string>

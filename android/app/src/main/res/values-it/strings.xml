@@ -1721,6 +1721,14 @@
     <string name="whats_new_118_setlists_body">Scopri › Scalette mostra cosa hanno suonato dal vivo gli artisti di una playlist, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio. Aggiungi la tua chiave gratuita di setlist.fm in Opzioni › Avanzate › Chiavi dei servizi.</string>
     <string name="whats_new_118_records_title">Dischi e merch</string>
     <string name="whats_new_118_records_body">Scopri › Dischi e merch trova CD, vinili e cassette su Discogs, oltre a siti e negozi ufficiali. Con il tuo token Discogs vedi anche le copie in vendita e il prezzo più basso. Solo link: compri sui loro siti.</string>
+    <string name="whats_new_119_shared_title">Playlist condivise</string>
+    <string name="whats_new_119_shared_body">Strumenti › Playlist condivise: una playlist per un gruppo, ognuno sul proprio servizio. I curatori la cambiano, gli altri la seguono come copia esatta o tenendo le proprie aggiunte. Un brano che il tuo servizio non trova va nella tua revisione e non viene mai tolto agli altri.</string>
+    <string name="whats_new_119_invite_title">Invita il tuo gruppo</string>
+    <string name="whats_new_119_invite_body">Invita con un codice QR o un link, e confronta il codice del gruppo. Il gruppo si incontra in una cartella che già condivide (Google Drive, Nextcloud, Syncthing, Dropbox), in un canale ntfy cifrato end-to-end o sul tuo server Trackhop. Chi ha l\'invito, o la cartella, può leggere il gruppo: mandalo solo alle persone che inviti.</string>
+    <string name="whats_new_119_handover_title">Affida una sync al tuo server</string>
+    <string name="whats_new_119_handover_body">Dal menu di una sync, affidala al tuo server Trackhop (Docker o Desktop): lì gira con gli account del server. Riportala su questo telefono quando vuoi. Le scelte di revisione valgono in tutti e due i sensi.</string>
+    <string name="whats_new_119_server_title">Le sync del tuo server</string>
+    <string name="whats_new_119_server_body">Strumenti › Il mio server elenca le sync del tuo server Trackhop: avviale, guarda com\'è andata e rivedi i brani. Serve Opzioni › Avanzate › Coordina con il mio server.</string>
     <string name="whats_new_114_nano_title">AI senza chiave</string>
     <string name="whats_new_114_nano_body">Sui telefoni con Gemini Nano, il Roast e il generatore di playlist ora funzionano direttamente sul telefono: nessuna chiave e niente esce dal dispositivo. Altrove, il Roast ti porta subito a impostare una chiave gratuita.</string>
     <string name="whats_new_114_tips_title">Widget, scorciatoie e automazioni</string>

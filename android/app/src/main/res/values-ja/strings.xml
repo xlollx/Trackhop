@@ -1695,6 +1695,14 @@
     <string name="whats_new_118_setlists_body">発見 › セットリストで、プレイリストのアーティストがライブで演奏した曲を setlist.fm から確認できます。公演を選んで、どのサービスにもプレイリストを作れます。無料の setlist.fm キーは 設定 › 詳細設定 › サービスのキー で追加してください。</string>
     <string name="whats_new_118_records_title">レコードとグッズ</string>
     <string name="whats_new_118_records_body">発見 › レコードとグッズで、Discogs の CD・レコード・カセットと、公式サイトやショップが見つかります。自分の Discogs トークンを使うと、出品中のものと最安値も表示されます。リンクのみで、購入は各サイトで行います。</string>
+    <string name="whats_new_119_shared_title">共有プレイリスト</string>
+    <string name="whats_new_119_shared_body">ツール › 共有プレイリスト：グループでひとつのプレイリストを、各自が自分のサービスで。キュレーターが変更し、ほかのメンバーは完全なコピーとして、または自分の追加を残してフォローします。自分のサービスで見つからない曲は自分のレビューに回り、ほかのメンバーから消えることはありません。</string>
+    <string name="whats_new_119_invite_title">グループを招待</string>
+    <string name="whats_new_119_invite_body">QR コードかリンクで招待し、グループコードを照らし合わせましょう。グループは、すでに共有しているフォルダー（Google Drive、Nextcloud、Syncthing、Dropbox）、エンドツーエンドで暗号化された ntfy チャンネル、または自分の Trackhop サーバーで集まります。招待やフォルダーを持っている人は誰でもグループを読めます。招待する人だけに送ってください。</string>
+    <string name="whats_new_119_handover_title">同期をサーバーに任せる</string>
+    <string name="whats_new_119_handover_body">同期のメニューから、自分の Trackhop サーバー（Docker または Desktop）に任せられます。サーバーのアカウントで実行され、いつでもこのスマホに戻せます。レビューの選択は双方向で共有されます。</string>
+    <string name="whats_new_119_server_title">サーバーの同期</string>
+    <string name="whats_new_119_server_body">ツール › マイサーバーで Trackhop サーバーの同期を一覧できます：実行、結果の確認、曲のレビュー。設定 › 詳細設定 › 自分のサーバーと調整 が必要です。</string>
     <string name="whats_new_114_nano_title">キー不要のAI</string>
     <string name="whats_new_114_nano_body">Gemini Nano搭載のスマートフォンでは、RoastとプレイリストジェネレーターがAPIキーなしで端末上で動作し、データは端末の外に出ません。それ以外の端末では、Roastから無料キーの設定にすぐ移動できます。</string>
     <string name="whats_new_114_tips_title">ウィジェット、ショートカット、オートメーション</string>

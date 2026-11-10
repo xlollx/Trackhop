@@ -1729,6 +1729,14 @@
     <string name="whats_new_118_setlists_body">Découvrir › Setlists montre ce que les artistes d\'une playlist ont joué en concert, depuis setlist.fm. Choisis un concert et fais-en une playlist sur n\'importe quel service. Ajoute ta propre clé setlist.fm gratuite dans Réglages › Avancé › Clés de service.</string>
     <string name="whats_new_118_records_title">Disques et merch</string>
     <string name="whats_new_118_records_body">Découvrir › Disques et merch trouve CD, vinyles et cassettes sur Discogs, ainsi que les sites et boutiques officiels. Avec ton propre jeton Discogs, tu vois aussi les exemplaires en vente et le prix le plus bas. De simples liens : tu achètes sur leurs sites.</string>
+    <string name="whats_new_119_shared_title">Playlists partagées</string>
+    <string name="whats_new_119_shared_body">Outils › Playlists partagées : une playlist pour un groupe, chacun sur son propre service. Les curateurs la modifient, les autres la suivent en copie exacte ou en gardant leurs ajouts. Un titre que ton service ne trouve pas va dans ta vérification et n\'est jamais retiré pour les autres.</string>
+    <string name="whats_new_119_invite_title">Invite ton groupe</string>
+    <string name="whats_new_119_invite_body">Invite avec un QR code ou un lien, et compare le code du groupe. Le groupe se retrouve dans un dossier qu\'il partage déjà (Google Drive, Nextcloud, Syncthing, Dropbox), sur un canal ntfy chiffré de bout en bout ou sur ton propre serveur Trackhop. Qui a l\'invitation, ou le dossier, peut lire le groupe : envoie-la seulement aux personnes que tu invites.</string>
+    <string name="whats_new_119_handover_title">Confie une synchro à ton serveur</string>
+    <string name="whats_new_119_handover_body">Depuis le menu d\'une synchro, confie-la à ton propre serveur Trackhop (Docker ou Desktop) : elle y tourne avec les comptes du serveur. Ramène-la sur ce téléphone quand tu veux. Les choix de vérification passent dans les deux sens.</string>
+    <string name="whats_new_119_server_title">Les synchros de ton serveur</string>
+    <string name="whats_new_119_server_body">Outils › Mon serveur liste les synchros de ton serveur Trackhop : lance-les, vois comment elles se sont passées et vérifie les titres. Il faut Réglages › Avancé › Se coordonner avec mon serveur.</string>
     <string name="whats_new_114_nano_title">L\'IA sans clé</string>
     <string name="whats_new_114_nano_body">Sur les téléphones avec Gemini Nano, le Roast et le générateur de playlists fonctionnent désormais sur le téléphone même : sans clé, et rien ne quitte l\'appareil. Ailleurs, le Roast t\'emmène directement configurer une clé gratuite.</string>
     <string name="whats_new_114_tips_title">Widgets, raccourcis et automatisations</string>

@@ -1695,6 +1695,14 @@
     <string name="whats_new_118_setlists_body">发现 › 演出曲目会从 setlist.fm 显示歌单中艺人在现场演奏过的歌。选一场演出，在任何服务上生成歌单。请在 设置 › 高级 › 服务密钥 中添加你自己的免费 setlist.fm 密钥。</string>
     <string name="whats_new_118_records_title">唱片与周边</string>
     <string name="whats_new_118_records_body">发现 › 唱片与周边会在 Discogs 上查找 CD、黑胶和磁带，并列出官网和官方商店。使用你自己的 Discogs 令牌，还能看到在售的唱片和最低价格。只提供链接，购买在对方网站上完成。</string>
+    <string name="whats_new_119_shared_title">共享歌单</string>
+    <string name="whats_new_119_shared_body">工具 › 共享歌单：一个小组共用一份歌单，每人用自己的服务。策展人修改，其他人关注，可以完全一致，也可以保留自己添加的歌曲。你的服务找不到的歌曲会进入你的审核，绝不会从别人那里删除。</string>
+    <string name="whats_new_119_invite_title">邀请你的小组</string>
+    <string name="whats_new_119_invite_body">用二维码或链接邀请，并核对群组代码。小组可以通过已在共享的文件夹（Google Drive、Nextcloud、Syncthing、Dropbox）、端到端加密的 ntfy 频道或你自己的 Trackhop 服务器相聚。拿到邀请或能打开文件夹的人都能读取小组：只发给你要邀请的人。</string>
+    <string name="whats_new_119_handover_title">把同步交给服务器</string>
+    <string name="whats_new_119_handover_body">在同步的菜单里，可以把它交给你自己的 Trackhop 服务器（Docker 或 Desktop），由服务器的账号运行；随时都能带回这部手机。审核选择双向共享。</string>
+    <string name="whats_new_119_server_title">服务器上的同步</string>
+    <string name="whats_new_119_server_body">工具 › 我的服务器列出你的 Trackhop 服务器上的同步：运行、查看结果、审核歌曲。需要开启 设置 › 高级 › 与我的服务器协调。</string>
     <string name="whats_new_114_nano_title">无需密钥的 AI</string>
     <string name="whats_new_114_nano_body">在支持 Gemini Nano 的手机上，吐槽和歌单生成器现在直接在手机上运行：无需密钥，数据不会离开设备。在其他手机上，吐槽会直接带你设置免费密钥。</string>
     <string name="whats_new_114_tips_title">小组件、快捷方式和自动化</string>

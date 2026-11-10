@@ -49,7 +49,7 @@ class WhatsNewTest {
     @Test fun theAppsOwnListIsNewestFirstAndDueOnlyAfterAnUpdate() {
         val versions = WhatsNew.releases.map { it.version }
         assertEquals(versions, versions.sortedWith { a, b -> WhatsNew.compareVersions(b, a) })
-        assertEquals("1.18", WhatsNew.newestVersion)
+        assertEquals("1.19", WhatsNew.newestVersion)
         assertTrue(WhatsNew.releases.all { it.items.isNotEmpty() })
         assertEquals(listOf(WhatsNew.newestVersion), WhatsNew.due(Settings(onboardingDone = true)).map { it.version }.take(1))
         assertTrue(WhatsNew.due(Settings(onboardingDone = false)).isEmpty())

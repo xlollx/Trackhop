@@ -1722,6 +1722,14 @@
     <string name="whats_new_118_setlists_body">Discover › Setlists shows what a playlist\'s artists played live, from setlist.fm. Pick a concert and make it a playlist on any service. Add your own free setlist.fm key in Settings › Advanced › Service keys.</string>
     <string name="whats_new_118_records_title">Records &amp; merch</string>
     <string name="whats_new_118_records_body">Discover › Records &amp; merch finds CDs, vinyl and cassettes on Discogs, plus official sites and shops. With your own Discogs token you also see the copies for sale and the lowest price. Just plain links: you buy on their sites.</string>
+    <string name="whats_new_119_shared_title">Shared playlists</string>
+    <string name="whats_new_119_shared_body">Tools › Shared playlists: one playlist for a group, each on their own service. Curators change it, the others follow it as an exact copy or keeping their own additions. A song your service can\'t find goes to your review, and is never removed for the others.</string>
+    <string name="whats_new_119_invite_title">Invite your group</string>
+    <string name="whats_new_119_invite_body">Invite with a QR code or a link, and compare the group code. The group meets in a folder it already shares (Google Drive, Nextcloud, Syncthing, Dropbox), an end-to-end encrypted ntfy channel or your own Trackhop server. Anyone with the invite, or with the folder, can read the group: send it only to the people you invite.</string>
+    <string name="whats_new_119_handover_title">Hand a sync to your server</string>
+    <string name="whats_new_119_handover_body">From a sync\'s menu, hand it over to your own Trackhop server (Docker or Desktop): it runs there with the server\'s accounts. Bring it back to this phone whenever you want. Review choices travel both ways.</string>
+    <string name="whats_new_119_server_title">Your server\'s syncs</string>
+    <string name="whats_new_119_server_body">Tools › My server lists the syncs on your Trackhop server: run them, see how they went and review songs. It needs Settings › Advanced › Coordinate with my server.</string>
     <string name="whats_new_114_nano_title">AI without a key</string>
     <string name="whats_new_114_nano_body">On phones with Gemini Nano, the Roast and the playlist generator now work right on the phone: no key, and nothing leaves the device. Elsewhere, the Roast takes you straight to setting up a free key.</string>
     <string name="whats_new_114_tips_title">Widgets, shortcuts and automation</string>

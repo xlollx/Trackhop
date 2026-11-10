@@ -26,6 +26,9 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SyncAlt
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.NewReleases
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Album
@@ -119,6 +122,15 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            Release(
+                "1.19",
+                listOf(
+                    Item(Icons.Filled.Groups, JobColor.PINK, R.string.whats_new_119_shared_title, R.string.whats_new_119_shared_body),
+                    Item(Icons.Filled.Lock, JobColor.PURPLE, R.string.whats_new_119_invite_title, R.string.whats_new_119_invite_body),
+                    Item(Icons.Filled.Cloud, JobColor.BLUE, R.string.whats_new_119_handover_title, R.string.whats_new_119_handover_body),
+                    Item(Icons.Filled.Dns, JobColor.ORANGE, R.string.whats_new_119_server_title, R.string.whats_new_119_server_body),
+                ),
+            ),
             Release(
                 "1.18",
                 listOf(
