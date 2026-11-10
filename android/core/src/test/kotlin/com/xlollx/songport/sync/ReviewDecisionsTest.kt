@@ -145,4 +145,28 @@ class ReviewDecisionsTest {
         assertEquals("db", other.store.cachedMatch("msrc", "b", "mdst"))
         assertFalse(other.store.isIgnored("msrc", "b", "mdst"))
     }
+
+    @Test fun aStoreFromBeforeLoadsAndTheNewFieldsComeBack() {
+        val dir = kotlin.io.path.createTempDirectory("store").toFile()
+        try {
+            // Written by 1.18: none of the server's fields.
+            java.io.File(dir, "store.json").writeText("""{"jobs":[{"id":"j","name":"Gym","source":{"provider":"spotify","playlistId":"p"},"target":{"provider":"tidal","playlistId":"t"}}],"matchCache":{"spotify:a>tidal":"da"}}""")
+            val old = FileStore(dir)
+            assertEquals("Gym", old.job("j")!!.name)
+            assertEquals("da", old.data.matchCache["spotify:a>tidal"])
+            assertTrue(old.data.handedOver.isEmpty() && old.data.serverPairs.isEmpty() && old.data.reviewDecisions.isEmpty())
+            old.update { it.copy(handedOver = mapOf("j" to HandedOver("phone-j", 7, wasEnabled = false)), serverPairs = mapOf("k" to "s2")) }
+            old.recordDecisions(mapOf("spotify:a>tidal" to d(DecisionKind.MATCH, 9, "da")))
+            old.flush()
+            val again = FileStore(dir)
+            assertEquals(HandedOver("phone-j", 7, wasEnabled = false), again.data.handedOver["j"])
+            assertEquals("s2", again.data.serverPairs["k"])
+            assertEquals(d(DecisionKind.MATCH, 9, "da"), again.data.reviewDecisions["spotify:a>tidal"])
+            // The card deleted: nothing of it stays behind.
+            again.deleteJob("j")
+            assertNull(again.data.handedOver["j"])
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
 }

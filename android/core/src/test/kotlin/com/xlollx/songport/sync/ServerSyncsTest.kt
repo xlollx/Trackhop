@@ -58,7 +58,7 @@ class ServerSyncsTest {
         val plan = HandOver.plan(job, services)
         assertEquals(HandOver.Plan.Ready("spotify", "tidal@2"), plan)
         assertEquals(
-            """{"name":"Gym","source":{"service":"spotify","playlist":"37i"},"target":{"service":"tidal@2","playlist":"tt1"},"every":1440,"at":"07:30","days":[],"changes":"mirror","follows":true,"enabled":true,"favorite":true,"tags":{"genre":"metal"}}""",
+            """{"id":"phone-j","name":"Gym","source":{"service":"spotify","playlist":"37i"},"target":{"service":"tidal@2","playlist":"tt1"},"every":1440,"at":"07:30","days":[],"changes":"mirror","follows":true,"enabled":true,"favorite":true,"tags":{"genre":"metal"}}""",
             HandOver.body(job, plan as HandOver.Plan.Ready).toString(),
         )
         // The main account first when there are several.
@@ -70,7 +70,7 @@ class ServerSyncsTest {
         // An archive with a link as its source, never run yet (no target playlist): the server makes the target.
         val linked = job.copy(source = PlaylistRef("spotify", null, "x", link = "https://open.spotify.com/playlist/37i"), target = PlaylistRef("tidal"), archive = true, mirrorRemovals = false, everyMinutes = 0, at = null, tags = emptyMap(), favorite = false)
         assertEquals(
-            """{"name":"Gym","source":{"service":"spotify","link":"https://open.spotify.com/playlist/37i"},"target":{"service":"tidal@2"},"every":0,"days":[],"changes":"archive","enabled":true,"favorite":false}""",
+            """{"id":"phone-j","name":"Gym","source":{"service":"spotify","link":"https://open.spotify.com/playlist/37i"},"target":{"service":"tidal@2"},"every":0,"days":[],"changes":"archive","enabled":true,"favorite":false}""",
             HandOver.body(linked, HandOver.Plan.Ready("spotify", "tidal@2")).toString(),
         )
     }
@@ -82,9 +82,26 @@ class ServerSyncsTest {
         assertEquals(listOf("POST /api/v1/syncs"), calls.toList())
         assertEquals("Bearer th_tttttttt", server.takeRequest().getHeader("Authorization"))
         assertFalse(bodies.single(), bodies.single().contains("token", ignoreCase = true))
-        // An id that is not a plain one is not taken.
-        answer = { MockResponse().setResponseCode(201).setBody("""{"id":"../../config"}""") }
-        try { api().create(job, HandOver.Plan.Ready("spotify", "tidal@2")); fail() } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.ODD, e.kind) }
+        // An id that is not a plain one is not taken, nor dots alone (they would reach another call).
+        for (odd in listOf("../../config", "..", ".")) {
+            answer = { MockResponse().setResponseCode(201).setBody("""{"id":"$odd"}""") }
+            try { api().create(job, HandOver.Plan.Ready("spotify", "tidal@2")); fail(odd) } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.ODD, e.kind) }
+            try { ServerSyncs.safeId(odd); fail(odd) } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.ODD, e.kind) }
+        }
+        assertEquals("v1.2", ServerSyncs.safeId("v1.2"))
+    }
+
+    @Test fun aHandOverWhoseAnswerIsLostAsksForTheSameSyncAgain() = runBlocking {
+        // The server makes the sync, but its answer never reaches the phone.
+        answer = { MockResponse().setSocketPolicy(okhttp3.mockwebserver.SocketPolicy.DISCONNECT_AFTER_REQUEST) }
+        try { api().create(job, HandOver.Plan.Ready("spotify", "tidal@2")); fail() } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.UNREACHABLE, e.kind) }
+        answer = { MockResponse().setResponseCode(200).setBody("""{"id":"phone-j","name":"Gym"}""") }
+        assertEquals("phone-j", api().create(job, HandOver.Plan.Ready("spotify", "tidal@2")))
+        // Both tries ask for the same id, so the server can give back the one it made.
+        val ids = bodies.map { (parseJson(it) as kotlinx.serialization.json.JsonObject)["id"].toString() }
+        assertTrue(ids.toString(), ids.size >= 2 && ids.all { it == "\"phone-j\"" })
+        // Always a plain id, whatever the sync's own.
+        assertEquals("phone-ab9_c", HandOver.serverId(job.copy(id = "ab/../9_c é")))
     }
 
     @Test fun theServersSyncsAreReadAndCheckedEntryByEntry() {

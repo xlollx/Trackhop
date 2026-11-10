@@ -482,6 +482,24 @@ class ApiCallsTest {
         assertEquals(404, call("DELETE", "syncs/$id").code)
     }
 
+    @Test fun aSyncMadeWithItsOwnIdIsMadeOnceHoweverOftenAsked() {
+        // The app's hand-over, sent again after its answer was lost: the sync made then, not a second one.
+        val body = """{"id":"phone-0f5c-9a","source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"name":"Handed"}"""
+        val made = call("POST", "syncs", body)
+        assertEquals(made.text, 201, made.code)
+        assertEquals("phone-0f5c-9a", made.obj.s("id"))
+        val again = call("POST", "syncs", body.replace("Handed", "Other name"))
+        assertEquals(again.text, 200, again.code)
+        assertEquals("Handed", again.obj.s("name"))
+        assertEquals(1, env.store.data.jobs.count { it.id == "phone-0f5c-9a" })
+        assertEquals(1, env.store.data.jobs.size)
+        // Only a plain id: nothing that could reach another call from an address.
+        for (bad in listOf("..", "a/b", "x".repeat(101), "a b")) {
+            assertEquals(bad, 400, call("POST", "syncs", body.replace("phone-0f5c-9a", bad)).code)
+        }
+        assertEquals(1, env.store.data.jobs.size)
+    }
+
     @Test fun aOneDigitHourIsReadAndASwitchAlreadyOffChangesNothing() {
         val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"schedule":"daily","at":"7:30","changes":"mirror"}""")
         assertEquals(made.text, 201, made.code)
