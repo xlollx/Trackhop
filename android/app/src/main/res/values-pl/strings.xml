@@ -1877,4 +1877,13 @@
     <string name="spread_stays">%1$s (bez zmian)</string>
     <string name="spread_confirm">Potwierdź</string>
     <string name="review_discard_busy">Czytam playlistę w %1$s, żeby znaleźć te utwory: przy długiej playliście trwa to kilka sekund.</string>
+    <string name="tools_mbtags_title">Tagi MusicBrainz</string>
+    <string name="tools_row_mbtags">Utwory na Twoim serwerze bez tagów MusicBrainz.</string>
+    <string name="tools_mbtags_desc">Gdy pliki mają tagi MusicBrainz, Trackhop znajduje na serwerze dokładnie to nagranie, nawet jeśli tytuł jest zapisany inaczej. Tu widać utwory bez tagów. Twoje pliki nigdy nie są zmieniane.</string>
+    <string name="tools_mbtags_scan">Sprawdź bibliotekę</string>
+    <string name="tools_mbtags_progress">Odczytano utworów: %1$d…</string>
+    <string name="tools_mbtags_result">Utwory bez tagów MusicBrainz: %1$d z %2$d:</string>
+    <string name="tools_mbtags_all">Wszystkie utwory (%1$d) mają tagi MusicBrainz.</string>
+    <string name="tools_mbtags_empty">Ten serwer nie podał listy utworów.</string>
+    <string name="tools_mbtags_picard">Otaguj w Picardzie</string>
 </resources>

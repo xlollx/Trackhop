@@ -16,14 +16,15 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * The app's Tools on the web page, on [LibraryTools] as the app's: Full backup (by hand, on a
  * schedule, copied to a folder), Duplicates (find and remove a playlist's doubles) and Unplayable
- * tracks (the entries a service no longer plays, replaced or removed, with an undo). Long runs go
- * through [Tasks]: /tools/task/<id> shows them.
+ * tracks (the entries a service no longer plays, replaced or removed, with an undo) and MusicBrainz
+ * tags (the songs of a personal server without them, read-only). Long runs go through [Tasks]: /tools/task/<id> shows them.
  */
 internal fun Web.toolPage(r: Web.Req, tool: String) {
     when (tool) {
         "backup" -> backupTool(r)
         "dedupe" -> dedupeTool(r)
         "unplayable" -> unplayableTool(r)
+        "mbtags" -> mbTagsTool(r)
         else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
     }
 }
@@ -233,4 +234,43 @@ private fun Web.unplayableResult(
         sb.append("""<p><button>Apply to ${h(pl.name)}</button></p></form>""")
     }
     return sb.toString()
+}
+
+// ------------------------------------------------------------------ MusicBrainz tags
+
+/** The songs of a personal server whose files carry no MusicBrainz tag: a count and a list. Nothing is written. */
+private fun Web.mbTagsTool(r: Web.Req) {
+    val title = "MusicBrainz tags"
+    val note = "When your files carry MusicBrainz tags, Trackhop finds the exact recording on your server, even if the title is written differently. This lists the songs without them. Your files are never changed."
+    val candidates = readable().filter { it.matchesByMbid }
+    val params = if (r.method == "POST") r.form else r.query
+    val service = params["service"]?.let { id -> candidates.firstOrNull { it.id == id } }
+        ?: return send(r.ex, 200, page(title, notice(r) + serviceForm("/tools/mbtags", candidates, note)))
+    if (r.method == "POST") {
+        val task = Tasks.start(title, "/tools/mbtags?service=${q(service.id)}", { env.log("mbtags", it) }) { t ->
+            val tags = LibraryTools.untaggedSongs(env, service) { t.progress = "$it songs read…" }
+            env.log("mbtags", "${service.label(env)}: ${tags.untagged.size} of ${tags.total} songs without MusicBrainz tags")
+            mbTagsResult(service, tags)
+        }
+        return redirect(r.ex, "/tools/task/${q(task.id)}")
+    }
+    val body = StringBuilder(notice(r))
+    body.append("""<div class="card"><p>${h(note)}</p>""")
+    body.append(Html.postButton("/tools/mbtags", "Check ${service.label(env)}", fields = mapOf("service" to service.id)))
+    body.append("""<p class="muted">$PICARD_LINK</p></div>""")
+    send(r.ex, 200, page(title, body.toString()))
+}
+
+private const val MBTAGS_SHOWN = 500
+private val PICARD_LINK = """Tags are written by a tagger such as MusicBrainz Picard: <a href="${LibraryTools.PICARD_GUIDE}" target="_blank" rel="noopener">Picard's quick start</a>. Rescan the library on your server afterwards."""
+
+private fun Web.mbTagsResult(service: MusicProvider, tags: LibraryTools.MbidTags): String {
+    val name = h(service.label(env))
+    if (tags.total == 0) return """<div class="card err">$name did not list its songs.</div>"""
+    if (tags.untagged.isEmpty()) return """<div class="card ok">All ${tags.total} songs on $name have MusicBrainz tags.</div>"""
+    val sb = StringBuilder("""<div class="card"><p><b>${tags.untagged.size}</b> of ${tags.total} songs on $name have no MusicBrainz tags. A sync finds these by title, artist and duration.</p><p class="muted">$PICARD_LINK</p><ul>""")
+    tags.untagged.take(MBTAGS_SHOWN).forEach { t -> sb.append("<li>${h(t.artistLine)} — ${h(t.title)}${if (t.album.isNotBlank()) """ <span class="muted">${h(t.album)}</span>""" else ""}</li>") }
+    sb.append("</ul>")
+    if (tags.untagged.size > MBTAGS_SHOWN) sb.append("""<p class="muted">…and ${tags.untagged.size - MBTAGS_SHOWN} more.</p>""")
+    return sb.append("</div>").toString()
 }

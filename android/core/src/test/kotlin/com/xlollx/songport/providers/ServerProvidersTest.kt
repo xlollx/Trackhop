@@ -344,6 +344,185 @@ class FakeServerProvidersTest {
         assertEquals("oxygene", requests.filter { it.path == "/Items" }.last().query["searchTerm"]?.single())
     }
 
+    // ------------------------------------------------------------------ MusicBrainz ids (#57)
+
+    private val mbid = "5fb524f1-8cc8-4c04-a921-e34c0a911ea7"
+    private val other = "11111111-2222-3333-4444-555555555555"
+    /** "Oxygene, Pt. 4" as a streaming service names it, with the recording MusicBrainz lists for its ISRC. */
+    private val wanted = Track(id = "s", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"), durationMs = 204_000, mbids = listOf(mbid))
+
+    @Test fun subsonicFindsTheFileTaggedWithTheRecording() = runBlocking {
+        // Navidrome: a query that is a MusicBrainz id answers with the file tagged with it, whatever its title.
+        answer = { r ->
+            if (r.path.endsWith("search3") && r.query["query"]?.single() == mbid) {
+                200 to subsonic("1.16.1", ""","searchResult3":{"song":[{"id":"n4","title":"Oxygène IV","artist":"Jarre","musicBrainzId":"${mbid.uppercase()}"}]}""")
+            } else 200 to subsonic("1.16.1", ""","searchResult3":{}""")
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        val found = p.search(ctx, wanted)
+        assertEquals(listOf("n4"), found.map { it.id })
+        assertEquals(1.0, Matcher.score(wanted, found.single()), 0.0)
+        // One search, by id: the title was never asked.
+        assertEquals(listOf(mbid), requests.filter { it.path.endsWith("search3") }.map { it.query["query"]?.single() })
+    }
+
+    @Test fun subsonicGoesByTitleWhenNoFileHasTheRecording() = runBlocking {
+        // A server that reads the id as words answers with something else: dropped, then the title as ever.
+        answer = { r ->
+            val query = r.query["query"]?.single().orEmpty()
+            when {
+                query == mbid -> 200 to subsonic("1.16.1", ""","searchResult3":{"song":[{"id":"x","title":"Something","artist":"Else","musicBrainzId":"$other"}]}""")
+                query.contains("oxygene") -> 200 to subsonic("1.16.1", ""","searchResult3":{"song":[{"id":"t4","title":"Oxygene, Pt. 4","artist":"Jean-Michel Jarre","duration":204}]}""")
+                else -> 200 to subsonic("1.16.1", ""","searchResult3":{}""")
+            }
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        val searched = { requests.filter { it.path.endsWith("search3") }.map { it.query["query"]?.single() } }
+        assertEquals(listOf("t4"), p.search(ctx, wanted).map { it.id })
+        assertEquals(mbid, searched().first())
+        // Without an id in hand nothing changes: the title search alone.
+        requests.clear()
+        assertEquals(listOf("t4"), p.search(ctx, wanted.copy(mbids = emptyList())).map { it.id })
+        assertFalse(searched().toString(), mbid in searched())
+    }
+
+    @Test fun subsonicListsTheLibraryWithItsTags() = runBlocking {
+        answer = { r ->
+            if (r.path.endsWith("search3") && r.query["query"]?.single() == "") {
+                val from = r.query["songOffset"]!!.single().toInt()
+                // 501 songs: a full page of 500, then the last one. Every other song is tagged.
+                val songs = (from until minOf(from + 500, 501)).joinToString(",") { i -> """{"id":"s$i","title":"Song $i"${if (i % 2 == 0) ""","musicBrainzId":"$mbid"""" else ""}}""" }
+                200 to subsonic("1.16.1", ""","searchResult3":{"song":[$songs]}""")
+            } else 200 to subsonic("1.16.1")
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        val seen = ArrayList<Int>()
+        val tags = com.xlollx.songport.sync.LibraryTools.untaggedSongs(ctx, p) { seen += it }
+        assertEquals(501 to 250, tags.total to tags.untagged.size)
+        assertEquals("s1", tags.untagged.first().id)
+        assertEquals(listOf(500, 501), seen)
+    }
+
+    private fun jellyfinParts(r: Req, recordingField: String): Pair<Int, String> = when {
+        r.path.endsWith("/Users/AuthenticateByName") -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+        r.path.endsWith("/Items") && r.query["searchTerm"]?.single() == "oxygene" -> 200 to """{"Items":[""" + (1..6).joinToString(",") { n ->
+            // Every part lasts the same and is named by a word: only the tag tells which is the fourth.
+            val name = listOf("Ouverture", "Deuxième", "Troisième", "Quatrième", "Cinquième", "Final")[n - 1]
+            """{"Id":"o$n","Name":"Oxygene ($name)","Artists":["Jean-Michel Jarre"],"RunTimeTicks":2040000000,"ProviderIds":{"$recordingField":"${if (n == 4) mbid else other}"}}"""
+        } + "]}"
+        r.path.endsWith("/Items") -> 200 to """{"Items":[]}"""
+        else -> 404 to ""
+    }
+
+    @Test fun jellyfinPutsTheFileTaggedWithTheRecordingFirst() = runBlocking {
+        answer = { jellyfinParts(it, "MusicBrainzRecording") }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val found = p.search(ctx, wanted)
+        assertEquals("o4", found.first().id)
+        assertEquals(1.0, Matcher.score(wanted, found.first()), 0.0)
+        assertTrue(Matcher.score(wanted, found[1]) < 1.0)
+        // The ids are asked for with the search.
+        assertTrue(requests.filter { it.path == "/Items" }.all { it.query["Fields"] == listOf("ProviderIds") })
+        // Without the id, the same search cannot tell the parts apart: none of them is exact.
+        assertTrue(p.search(ctx, wanted.copy(mbids = emptyList())).none { Matcher.score(wanted.copy(mbids = emptyList()), it) >= 1.0 })
+    }
+
+    @Test fun jellyfinReadsTheRecordingFromTheOlderField() = runBlocking {
+        // Emby and Jellyfin before 10.9 keep the file's id under MusicBrainzTrack.
+        answer = { jellyfinParts(it, "MusicBrainzTrack") }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals("o4", p.search(ctx, wanted).first().id)
+    }
+
+    @Test fun embyAsksForTheItemTaggedWithTheRecording() = runBlocking {
+        answer = { r ->
+            when {
+                r.query["AnyProviderIdEquals"] != null -> 200 to """{"Items":[{"Id":"e4","Name":"Oxygène IV","Artists":["Jarre"],"ProviderIds":{"MusicBrainzTrack":"$mbid"}},{"Id":"junk","Name":"Unrelated","ProviderIds":{"MusicBrainzTrack":"$other"}}]}"""
+                else -> jellyfinParts(r, "MusicBrainzTrack")
+            }
+        }
+        val p = EmbyProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("e4"), p.search(ctx, wanted).map { it.id })
+        val asked = requests.single { it.query["AnyProviderIdEquals"] != null }
+        assertEquals("/emby/Items", asked.path)
+        assertEquals("MusicBrainzTrack.$mbid,MusicBrainzRecording.$mbid", asked.query["AnyProviderIdEquals"]?.single())
+        // The title was never searched.
+        assertTrue(requests.none { it.query["searchTerm"] != null })
+    }
+
+    @Test fun embyGoesByTitleWhenTheFilterIsRefused() = runBlocking {
+        answer = { r -> if (r.query["AnyProviderIdEquals"] != null) 400 to "Bad Request" else jellyfinParts(r, "MusicBrainzTrack") }
+        val p = EmbyProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals("o4", p.search(ctx, wanted).first().id)
+    }
+
+    @Test fun jellyfinListsTheLibraryWithItsTags() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path == "/Users/u1/Items" && r.query["IncludeItemTypes"] == listOf("Audio") ->
+                    200 to """{"Items":[{"Id":"a","Name":"Tagged","ProviderIds":{"MusicBrainzRecording":"$mbid"}},{"Id":"b","Name":"Bare","ProviderIds":{}},{"Id":"c","Name":"Bare too"}]}"""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val tags = com.xlollx.songport.sync.LibraryTools.untaggedSongs(ctx, p)
+        assertEquals(3, tags.total)
+        assertEquals(listOf("b", "c"), tags.untagged.map { it.id })
+        assertEquals(listOf("ProviderIds"), requests.last().query["Fields"])
+    }
+
+    @Test fun plexPutsTheTrackMatchedToTheRecordingFirst() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                // The search leaves the ids out...
+                r.path == "/hubs/search" -> 200 to """{"MediaContainer":{"Hub":[{"type":"track","Metadata":[
+                    {"ratingKey":"3","title":"Oxygene (Troisième)","grandparentTitle":"Jean-Michel Jarre","duration":204000},
+                    {"ratingKey":"4","title":"Oxygene (Quatrième)","grandparentTitle":"Jean-Michel Jarre","duration":204000}]}]}}"""
+                // ...the items read with includeGuids have them.
+                r.path == "/library/metadata/3,4" -> 200 to """{"MediaContainer":{"Metadata":[
+                    {"ratingKey":"3","title":"Oxygene (Troisième)","Guid":[{"id":"plex://track/abc"},{"id":"mbid://$other"}]},
+                    {"ratingKey":"4","title":"Oxygene (Quatrième)","Guid":[{"id":"mbid://$mbid"}]}]}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        val found = p.search(ctx, wanted)
+        assertEquals(listOf("4", "3"), found.map { it.id })
+        assertEquals(1.0, Matcher.score(wanted, found.first()), 0.0)
+        assertEquals(listOf("1"), requests.single { it.path == "/library/metadata/3,4" }.query["includeGuids"])
+        // Without an id in hand: the search alone, in the server's order.
+        requests.clear()
+        assertEquals(listOf("3", "4"), p.search(ctx, wanted.copy(mbids = emptyList())).map { it.id })
+        assertEquals(listOf("/hubs/search"), requests.map { it.path })
+    }
+
+    @Test fun plexListsTheMusicLibrariesWithTheirTags() = runBlocking {
+        answer = { r ->
+            when (r.path) {
+                "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                "/library/sections" -> 200 to """{"MediaContainer":{"Directory":[{"key":"1","type":"movie"},{"key":"2","type":"artist"}]}}"""
+                "/library/sections/2/all" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"7","title":"Tagged","Guid":[{"id":"mbid://$mbid"}]},{"ratingKey":"8","title":"Bare"}]}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        val tags = com.xlollx.songport.sync.LibraryTools.untaggedSongs(ctx, p)
+        assertEquals(2 to listOf("8"), tags.total to tags.untagged.map { it.id })
+        assertEquals(listOf("10"), requests.last().query["type"])
+    }
+
     // ------------------------------------------------------------------ Jellyfin Quick Connect (#45)
 
     @Test fun jellyfinQuickConnectSignsInOnceTheCodeIsApproved() = runBlocking {

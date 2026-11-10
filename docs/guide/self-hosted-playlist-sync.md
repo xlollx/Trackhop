@@ -56,6 +56,16 @@ settings and the details for each service.
 - **Scriptable**: a [REST API, a webhook](docker#api) and a [command line](cli), for Home Assistant,
   n8n or cron.
 
+## Tagged libraries match exactly
+
+If your files carry MusicBrainz tags (written by [MusicBrainz Picard](https://picard.musicbrainz.org/quick-start/)
+or beets), Trackhop looks up the MusicBrainz recording of each streaming track by its ISRC and takes
+the file tagged with that recording, whatever its title is written like. The lookup is anonymous
+(the ISRC only, at most one request a second) and remembered; when MusicBrainz does not answer, or a
+file has no tags, the sync matches by title, artists and duration as before. **Tools → MusicBrainz
+tags** counts and lists the songs on your server without tags. Trackhop only reads: it never
+rewrites a file's tags.
+
 Step by step: [Spotify to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin).
 
 [All guide pages](./)

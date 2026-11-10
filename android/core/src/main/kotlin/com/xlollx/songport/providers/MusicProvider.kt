@@ -150,6 +150,20 @@ interface MusicProvider {
     val notConfiguredName: String? get() = null
     /** True se [search] usa l'ISRC del brano quando c'e' (Spotify, Apple Music, TIDAL, Deezer): vale la pena procurarglielo. */
     val searchesByIsrc: Boolean get() = false
+    /**
+     * True for a personal server whose files can carry MusicBrainz tags (Navidrome and other Subsonic
+     * servers, Jellyfin, Emby, Plex): [search] then takes a track's [Track.mbids] and answers with the
+     * file tagged with one of them, and the candidates it lists carry their own.
+     */
+    val matchesByMbid: Boolean get() = false
+
+    /**
+     * Every song of the server's library, each with the MusicBrainz recording ids its file is tagged
+     * with ([Track.mbids]): for the "songs without MusicBrainz tags" report. [onProgress] gets the
+     * songs read so far. Only where [matchesByMbid]; nothing is ever written.
+     */
+    suspend fun librarySongs(ctx: Env, onProgress: (Int) -> Unit = {}): List<Track> = emptyList()
+
     /** Ricerche in parallelo tollerate dal servizio (1 per le interfacce web non ufficiali, che bloccano le raffiche). */
     val searchParallelism: Int get() = 4
     /**

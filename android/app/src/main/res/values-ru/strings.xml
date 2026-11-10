@@ -1875,4 +1875,13 @@
     <string name="spread_stays">%1$s (без изменений)</string>
     <string name="spread_confirm">Подтвердить</string>
     <string name="review_discard_busy">Читаю плейлист в %1$s, чтобы найти эти треки: для длинного плейлиста это займёт несколько секунд.</string>
+    <string name="tools_mbtags_title">Теги MusicBrainz</string>
+    <string name="tools_row_mbtags">Треки на вашем сервере без тегов MusicBrainz.</string>
+    <string name="tools_mbtags_desc">Если в файлах есть теги MusicBrainz, Trackhop находит на сервере именно ту запись, даже если название написано иначе. Здесь показаны треки без тегов. Ваши файлы никогда не изменяются.</string>
+    <string name="tools_mbtags_scan">Проверить библиотеку</string>
+    <string name="tools_mbtags_progress">Прочитано треков: %1$d…</string>
+    <string name="tools_mbtags_result">Без тегов MusicBrainz: %1$d из %2$d:</string>
+    <string name="tools_mbtags_all">Теги MusicBrainz есть у всех треков (%1$d).</string>
+    <string name="tools_mbtags_empty">Сервер не показал список треков.</string>
+    <string name="tools_mbtags_picard">Добавить теги в Picard</string>
 </resources>

@@ -1813,4 +1813,13 @@
     <string name="spread_stays">%1$s (aynı kalır)</string>
     <string name="spread_confirm">Onayla</string>
     <string name="review_discard_busy">Bu parçaları bulmak için %1$s üzerindeki liste okunuyor: uzun bir listede birkaç saniye sürer.</string>
+    <string name="tools_mbtags_title">MusicBrainz etiketleri</string>
+    <string name="tools_row_mbtags">Sunucundaki MusicBrainz etiketi olmayan şarkılar.</string>
+    <string name="tools_mbtags_desc">Dosyalarında MusicBrainz etiketleri varsa Trackhop, başlık farklı yazılmış olsa bile sunucunda tam o kaydı bulur. Burada etiketi olmayan şarkıları görürsün. Dosyaların asla değiştirilmez.</string>
+    <string name="tools_mbtags_scan">Kitaplığımı kontrol et</string>
+    <string name="tools_mbtags_progress">%1$d şarkı okundu…</string>
+    <string name="tools_mbtags_result">%2$d şarkıdan %1$d tanesinde MusicBrainz etiketi yok:</string>
+    <string name="tools_mbtags_all">%1$d şarkının hepsinde MusicBrainz etiketi var.</string>
+    <string name="tools_mbtags_empty">Bu sunucu şarkılarını listelemedi.</string>
+    <string name="tools_mbtags_picard">Picard ile etiketle</string>
 </resources>

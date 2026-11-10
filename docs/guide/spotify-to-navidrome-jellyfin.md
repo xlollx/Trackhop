@@ -35,6 +35,13 @@ scan it, and the next run adds it to the playlist by itself.
 
 - Matching compares title, artists, album and duration, so different tags and remasters still
   match; the review lets you pick by hand when two files are close.
+- **Files tagged with MusicBrainz match exactly.** If you tag your library with
+  [MusicBrainz Picard](https://picard.musicbrainz.org/quick-start/) or beets, Trackhop asks
+  MusicBrainz which recording a streaming track is (by its ISRC, one anonymous request a second,
+  remembered afterwards) and takes the file tagged with that recording, even when its title is
+  written another way ("Oxygene, Pt. 4" against "Oxygène (Part IV)"). Untagged files are matched by
+  title as always. *Tools → MusicBrainz tags* lists the songs on your server without tags; Trackhop
+  never changes your files. Works on Navidrome, Jellyfin 10.9 or later, Emby and Plex.
 - The other way works too: a playlist made on your server pushed to Spotify or YouTube Music to
   share it with friends.
 - With Docker the syncs run on the server on a schedule, phone on or off.

@@ -94,7 +94,11 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         return out
     }
 
-    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
+    /** A track's id here is its MusicBrainz recording id, when ListenBrainz knows it: a personal server then matches the tagged file. */
+    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
+        read(ctx, playlistId).map { t -> com.xlollx.songport.sync.MusicBrainz.mbid(t.id)?.let { t.copy(mbids = listOf(it)) } ?: t }
+
+    private suspend fun read(ctx: Env, playlistId: String): List<Track> {
         if (playlistId == MusicProvider.RECENT_ID) {
             val user = Http.enc(creds(ctx).userName)
             val j = api(ctx, "/1/user/$user/listens?count=100")

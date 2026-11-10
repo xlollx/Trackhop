@@ -15,6 +15,7 @@ import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Matcher
+import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -33,6 +34,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     override val supportsLikedTarget = true
     override val supportsAlbums = true
     override val supportsArtists = true
+    override val matchesByMbid = true
     // A Jellyfin user may have no password (the server allows it, as its public demo does): may stay empty.
     override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_jellyfin", secretOptional = true)
 
@@ -134,7 +136,26 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
             itemId = i["PlaylistItemId"].str,
             year = i["ProductionYear"].int ?: 0,
             addedAt = com.xlollx.songport.sync.Durations.parseInstant(i["DateCreated"].str),
+            // Jellyfin 10.9+ keeps the file's recording id in MusicBrainzRecording; MusicBrainzTrack is
+            // the track of one release there, and the recording on Emby and older servers. Either one
+            // says the file is tagged; only a recording id can equal the one a search asks for.
+            mbids = listOfNotNull(MusicBrainz.mbid(i["ProviderIds"]["MusicBrainzRecording"].str), MusicBrainz.mbid(i["ProviderIds"]["MusicBrainzTrack"].str)).distinct(),
         )
+    }
+
+    /** The query filter that asks the server for the items tagged with one of [mbids], where it has one (Emby). */
+    protected open fun mbidFilter(mbids: List<String>): String? = null
+
+    override suspend fun librarySongs(ctx: Env, onProgress: (Int) -> Unit): List<Track> {
+        val out = ArrayList<Track>()
+        var offset = 0
+        while (true) {
+            val page = api(ctx, "GET", "/Users/${uid(ctx)}/Items?IncludeItemTypes=Audio&Recursive=true&Fields=ProviderIds&StartIndex=$offset&Limit=$LIBRARY_PAGE")["Items"].arr
+            out += page.mapNotNull { toTrack(it) }
+            offset += page.size
+            onProgress(out.size)
+            if (page.size < LIBRARY_PAGE) return out
+        }
     }
 
     override suspend fun playlists(ctx: Env): List<Playlist> =
@@ -148,10 +169,10 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
         val path = when (playlistId) {
-            MusicProvider.LIKED_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000"
+            MusicProvider.LIKED_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&Fields=ProviderIds"
             MusicProvider.ALBUMS_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=MusicAlbum&Recursive=true&Limit=5000"
             MusicProvider.ARTISTS_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=MusicArtist&Recursive=true&Limit=5000"
-            else -> "/Playlists/$playlistId/Items?UserId=${uid(ctx)}"
+            else -> "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&Fields=ProviderIds"
         }
         val items = api(ctx, "GET", path)["Items"].arr
         return when (playlistId) {
@@ -170,8 +191,16 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
                 .mapNotNull { toArtist(it) }
         }
         // The search term matches names only ("Metallica Battery" finds nothing): the title, then the artist's songs first.
-        suspend fun find(term: String) = api(ctx, "GET", "/Items?UserId=${uid(ctx)}&searchTerm=${Http.enc(term)}&IncludeItemTypes=Audio&Recursive=true&Limit=25")["Items"].arr
+        suspend fun find(term: String) = api(ctx, "GET", "/Items?UserId=${uid(ctx)}&searchTerm=${Http.enc(term)}&IncludeItemTypes=Audio&Recursive=true&Limit=25&Fields=ProviderIds")["Items"].arr
             .mapNotNull { toTrack(it) }
+        // Emby finds an item by the id it is tagged with: the exact recording, whatever its title. The
+        // answer is checked (a server that ignores the filter lists anything), and a refusal is no error.
+        if (track.mbids.isNotEmpty()) mbidFilter(track.mbids)?.let { filter ->
+            val tagged = try {
+                api(ctx, "GET", "/Items?UserId=${uid(ctx)}&$filter&IncludeItemTypes=Audio&Recursive=true&Limit=25&Fields=ProviderIds")["Items"].arr.mapNotNull { toTrack(it) }
+            } catch (e: ProviderException) { emptyList() }
+            tagged.filter { c -> c.mbids.any { it in track.mbids } }.takeIf { it.isNotEmpty() }?.let { return it }
+        }
         // Jellyfin 10.8 does not fold accents: "energie" misses "Énergie". The title as written, then.
         val folded = Matcher.searchTitle(track.title)
         val plain = Matcher.plainTitle(track.title)
@@ -244,6 +273,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
 
     companion object {
         const val SERVICE = "jellyfin"
+        private const val LIBRARY_PAGE = 500
 
         /**
          * jellyfin-web's search page with [query] filled in. The web client lives under /web with hash

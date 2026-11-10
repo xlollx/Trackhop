@@ -29,6 +29,9 @@ class EmbyProvider(slot: String = "") : JellyfinProvider(slot) {
     override fun webSearchUrl(ctx: Env, query: String): String? =
         ctx.tokens.get(id)?.extra?.get("url")?.let { embySearchUrl(it, query) }
 
+    override fun mbidFilter(mbids: List<String>): String =
+        "AnyProviderIdEquals=" + Http.enc(mbids.take(2).flatMap { listOf("MusicBrainzTrack.$it", "MusicBrainzRecording.$it") }.joinToString(","))
+
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
         val j = api(ctx, "POST", "/Playlists?Name=${Http.enc(name)}&MediaType=Audio&UserId=${uid(ctx)}")
         return Playlist(j["Id"].str ?: throw ProviderException("$displayName: playlist not created"), name, 0)

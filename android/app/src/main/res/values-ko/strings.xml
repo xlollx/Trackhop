@@ -1784,4 +1784,13 @@
     <string name="spread_stays">%1$s (그대로)</string>
     <string name="spread_confirm">확인</string>
     <string name="review_discard_busy">이 곡들을 찾으려고 %1$s의 플레이리스트를 읽는 중이에요. 긴 플레이리스트는 몇 초 걸려요.</string>
+    <string name="tools_mbtags_title">MusicBrainz 태그</string>
+    <string name="tools_row_mbtags">서버에서 MusicBrainz 태그가 없는 곡.</string>
+    <string name="tools_mbtags_desc">파일에 MusicBrainz 태그가 있으면 제목 표기가 달라도 Trackhop이 서버에서 정확히 같은 녹음을 찾습니다. 여기에는 태그가 없는 곡이 표시됩니다. 파일은 절대 변경되지 않습니다.</string>
+    <string name="tools_mbtags_scan">내 라이브러리 확인</string>
+    <string name="tools_mbtags_progress">%1$d곡 읽는 중…</string>
+    <string name="tools_mbtags_result">%2$d곡 중 %1$d곡에 MusicBrainz 태그가 없습니다:</string>
+    <string name="tools_mbtags_all">%1$d곡 모두 MusicBrainz 태그가 있습니다.</string>
+    <string name="tools_mbtags_empty">이 서버가 곡 목록을 주지 않았습니다.</string>
+    <string name="tools_mbtags_picard">Picard로 태그 달기</string>
 </resources>

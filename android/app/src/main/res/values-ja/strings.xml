@@ -1785,4 +1785,13 @@
     <string name="spread_stays">%1$s（そのまま）</string>
     <string name="spread_confirm">確定</string>
     <string name="review_discard_busy">%1$s のプレイリストを読み込んで曲を探しています。長いプレイリストでは数秒かかります。</string>
+    <string name="tools_mbtags_title">MusicBrainz タグ</string>
+    <string name="tools_row_mbtags">サーバー上の MusicBrainz タグがない曲。</string>
+    <string name="tools_mbtags_desc">ファイルに MusicBrainz タグがあれば、タイトルの書き方が違っていても、Trackhop はサーバー上の同じ録音を正確に見つけます。ここにはタグのない曲が表示されます。ファイルが変更されることはありません。</string>
+    <string name="tools_mbtags_scan">ライブラリを確認</string>
+    <string name="tools_mbtags_progress">%1$d 曲を読み込み中…</string>
+    <string name="tools_mbtags_result">%2$d 曲中 %1$d 曲に MusicBrainz タグがありません:</string>
+    <string name="tools_mbtags_all">%1$d 曲すべてに MusicBrainz タグがあります。</string>
+    <string name="tools_mbtags_empty">このサーバーは曲の一覧を返しませんでした。</string>
+    <string name="tools_mbtags_picard">Picard でタグを付ける</string>
 </resources>

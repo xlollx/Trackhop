@@ -24,6 +24,9 @@ object Tools {
     suspend fun removeDuplicates(ctx: Context, provider: MusicProvider, playlistId: String, onProgress: (Progress) -> Unit = {}): Int =
         LibraryTools.removeDuplicates(ctx.env, provider, playlistId, onProgress)
 
+    suspend fun untaggedSongs(ctx: Context, provider: MusicProvider, onProgress: (Int) -> Unit = {}) =
+        LibraryTools.untaggedSongs(ctx.env, provider, onProgress)
+
     suspend fun scanUnplayable(ctx: Context, provider: MusicProvider, playlists: List<Playlist>, onProgress: (String) -> Unit = {}) =
         LibraryTools.scanUnplayable(ctx.env, provider, playlists, onProgress)
 

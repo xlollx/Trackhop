@@ -237,6 +237,8 @@ object Matcher {
 
     fun scoreN(s: Norm, c: Norm, policy: MatchPolicy = MatchPolicy()): Double {
         if (s.isrc != null && c.isrc != null && s.isrc == c.isrc) return 1.0 * policyFactor(s.track, c.track, policy)
+        // The same MusicBrainz recording (a tagged file on a personal server): exact, whatever the title says.
+        if (s.track.mbids.isNotEmpty() && c.track.mbids.any { it in s.track.mbids }) return 1.0 * policyFactor(s.track, c.track, policy)
         val title = similarity(s.title, c.title)
         val artist = artistScoreN(s.artists, c.artists)
         val artistKnown = s.artists.isNotEmpty() && c.artists.isNotEmpty()

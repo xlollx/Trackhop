@@ -14,6 +14,7 @@ import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Matcher
+import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -37,6 +38,7 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
     override val supportsLikedTarget = true
     override val supportsAlbums = true
     override val supportsArtists = true
+    override val matchesByMbid = true
     override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_subsonic")
 
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
@@ -97,6 +99,8 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
             year = s["year"].int ?: 0,
             // OpenSubsonic servers (Navidrome) list the file's ISRCs; older ones a single string or nothing.
             isrc = s["isrc"].arr.firstNotNullOfOrNull { it.str } ?: s["isrc"].str,
+            // The recording id the file is tagged with (OpenSubsonic, and Subsonic since 1.14).
+            mbids = listOfNotNull(MusicBrainz.mbid(s["musicBrainzId"].str)),
             addedAt = com.xlollx.songport.sync.Durations.parseInstant(s["created"].str),
         )
     }
@@ -141,9 +145,25 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         val q = (listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }) + title).joinToString(" ")
         suspend fun songs(query: String, count: Int) = call(ctx, "search3", listOf("query" to query, "songCount" to "$count", "albumCount" to "0", "artistCount" to "0"))["searchResult3"]["song"].arr
             .mapNotNull { toTrack(it) }
+        // Navidrome answers a query that is a MusicBrainz id with the file tagged with it: the exact
+        // recording, whatever its title. Another server's answer is kept only if it carries that id.
+        for (mbid in track.mbids.take(MBID_QUERIES)) songs(mbid, 5).filter { mbid in it.mbids }.takeIf { it.isNotEmpty() }?.let { return it }
         // Gonic and Ampache match the query against the title alone ("metallica battery" finds nothing):
         // then the title, with the artist's songs first.
         return songs(q, 5).ifEmpty { if (q == title) emptyList() else Matcher.byArtist(track, songs(title, 20)).take(5) }
+    }
+
+    /** OpenSubsonic: an empty query lists every song, a page at a time. */
+    override suspend fun librarySongs(ctx: Env, onProgress: (Int) -> Unit): List<Track> {
+        val out = ArrayList<Track>()
+        var offset = 0
+        while (true) {
+            val page = call(ctx, "search3", listOf("query" to "", "songCount" to "$LIBRARY_PAGE", "songOffset" to "$offset", "albumCount" to "0", "artistCount" to "0"))["searchResult3"]["song"].arr
+            out += page.mapNotNull { toTrack(it) }
+            offset += page.size
+            onProgress(out.size)
+            if (page.size < LIBRARY_PAGE) return out
+        }
     }
 
     private fun toAlbum(a: JsonElement?): Track? {
@@ -221,6 +241,9 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         /** Where the server's kind is kept in the account's extras, as its answers give it ("navidrome"). */
         internal const val TYPE = "type"
         internal const val NAVIDROME = "navidrome"
+        /** An ISRC is rarely more than a couple of recordings: that many searches by id, then the title. */
+        private const val MBID_QUERIES = 2
+        private const val LIBRARY_PAGE = 500
 
         /**
          * Navidrome's web UI (react-admin, hash routing, served under /app) on its songs list filtered by

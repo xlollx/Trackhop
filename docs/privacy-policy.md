@@ -24,6 +24,10 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
 - **Exact recording lookups (optional, on by default)**: for a track without an ISRC, the app asks Deezer's
   public catalogue (api.deezer.com) for the recording's ISRC: an anonymous search by title and artist, no
   account or token. Off in Settings › General.
+- **MusicBrainz lookups (only with a personal server as target)**: when a sync writes to Navidrome/Subsonic,
+  Jellyfin, Emby or Plex, the app asks the public music database MusicBrainz (musicbrainz.org) which
+  recordings a track's ISRC stands for, to find the file tagged with that recording. An anonymous request
+  carrying the ISRC only: no account, token or playlist. Answers are kept on the device.
 - **Spotify web connector (GitHub and F-Droid version)**: to talk to Spotify's web player backend the app
   reads the player's public JavaScript and, at most every six hours, a public list of the player's
   query identifiers hosted on GitHub (raw.githubusercontent.com). Both are anonymous downloads: no
@@ -91,6 +95,10 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
 - **Credenziali dei server personali** (Subsonic/Navidrome, Jellyfin, Plex) e **nomi utente** Last.fm/ListenBrainz inseriti dall'utente: salvati cifrati solo sul dispositivo, usati solo verso il server indicato.
 - **Contenuto delle playlist** (titoli, artisti, ISRC) letto dai servizi collegati per eseguire le sync e
   una cache locale degli abbinamenti. Restano sul dispositivo.
+- **Ricerche su MusicBrainz (solo con un server personale come destinazione)**: quando una sync scrive su
+  Navidrome/Subsonic, Jellyfin, Emby o Plex, l'app chiede al database musicale pubblico MusicBrainz
+  (musicbrainz.org) a quali registrazioni corrisponde l'ISRC di un brano, per trovare il file con quel tag.
+  È una richiesta anonima con il solo ISRC: niente account, token o playlist. Le risposte restano sul dispositivo.
 - **Controllo aggiornamenti**: la versione scaricata da GitHub chiede all'API pubblica di GitHub
   (api.github.com), al massimo due volte al giorno, qual è l'ultima versione di Trackhop, per mostrare una
   freccia in alto quando ne esiste una più recente. È una richiesta anonima: non vengono inviati account,

@@ -50,7 +50,6 @@ object ArtistMixSource {
     private const val LISTENBRAINZ = "https://api.listenbrainz.org"
     private const val DEEZER = "https://api.deezer.com"
 
-    private val musicBrainzPace = Pacer(1100)
     private val labsPace = Pacer(1000)
     private val listenBrainzPace = Pacer(250)
     private val deezerPace = Pacer(150)
@@ -82,7 +81,7 @@ object ArtistMixSource {
     suspend fun findArtist(name: String): ArtistMix.Artist? {
         for (query in listOf(escape(name), fuzzy(name)).distinct()) {
             if (query.isBlank()) continue
-            val r = musicBrainzPace.paced { get("$MUSICBRAINZ/artist?" + Http.query(mapOf("query" to query, "fmt" to "json", "limit" to "3"))) }
+            val r = com.xlollx.songport.sync.MusicBrainz.pace.paced { get("$MUSICBRAINZ/artist?" + Http.query(mapOf("query" to query, "fmt" to "json", "limit" to "3"))) }
             if (!r.ok) throw ProviderException("MusicBrainz ${r.code}")
             ArtistMix.parseArtistSearch(parseJson(r.body))?.let { return it }
         }
