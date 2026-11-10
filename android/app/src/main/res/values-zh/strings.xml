@@ -1930,4 +1930,32 @@
     <string name="notify_field_matrix_room">房间 id</string>
     <string name="notify_field_pushover_token">应用 API token</string>
     <string name="notify_field_pushover_user">用户密钥</string>
+    <string name="discover_concerts_title">演唱会</string>
+    <string name="discover_concerts_desc">歌单中艺人的近期演出</string>
+    <string name="concerts_intro">选择一个歌单和国家：Trackhop 会查找其中艺人的近期演唱会。不会在后台检查任何内容。</string>
+    <string name="concerts_country">国家</string>
+    <string name="concerts_find">查找演唱会</string>
+    <string name="concerts_progress">第 %1$d 位艺人，共 %2$d 位…</string>
+    <string name="concerts_none_found">这些艺人暂无近期演出。</string>
+    <plurals name="concerts_no_dates">
+        <item quantity="other">%1$d 位艺人暂无演出</item>
+    </plurals>
+    <string name="concerts_no_dates_hint">自己去票务网站搜索：这些按钮会在浏览器中打开搜索。</string>
+    <string name="concerts_official_site">官方网站</string>
+    <string name="concerts_on_ticketmaster">在 Ticketmaster 购票</string>
+    <string name="concerts_sources_both">演出信息来自 Ticketmaster 和 MusicBrainz。</string>
+    <string name="concerts_sources_mb">演出信息来自 MusicBrainz。</string>
+    <string name="concerts_coverage_it">在意大利，只在 TicketOne 售票的演出不在其中：请使用搜索按钮。</string>
+    <string name="concerts_coverage">并非所有演出都会列出：也请看看艺人的官方网站。</string>
+    <string name="concerts_quota">今天的 Ticketmaster 额度已用完：请明天再试，或添加你自己的密钥。下面部分演出仅来自 MusicBrainz。</string>
+    <string name="concerts_key_refused">Ticketmaster 拒绝了该密钥：请检查。</string>
+    <string name="concerts_no_key">仅有 MusicBrainz 的演出：添加免费的 Ticketmaster 密钥可看到更多。</string>
+    <string name="concerts_limited">只查找了你最常听的 %1$d 位艺人：添加你自己的 Ticketmaster 密钥即可查找全部 %2$d 位。</string>
+    <string name="concerts_key_title">Ticketmaster 密钥</string>
+    <string name="concerts_key_body">可选。有了你自己的免费密钥，Trackhop 会查找更多艺人，也不必与所有人共用每日额度。在 Ticketmaster 开发者网站创建一个应用，并把它的 Consumer Key 粘贴到这里（切勿粘贴 Consumer Secret）。</string>
+    <string name="concerts_key_get">获取密钥</string>
+    <string name="concerts_key_field">Consumer Key</string>
+    <string name="concerts_key_own">正在使用你自己的密钥</string>
+    <string name="concerts_key_shared">正在使用应用的共享密钥</string>
+    <string name="concerts_key_none">没有密钥：仅 MusicBrainz 的演出</string>
 </resources>

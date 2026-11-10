@@ -1971,4 +1971,33 @@
     <string name="notify_field_matrix_room">Id da sala</string>
     <string name="notify_field_pushover_token">Token de API do aplicativo</string>
     <string name="notify_field_pushover_user">User key</string>
+    <string name="discover_concerts_title">Shows</string>
+    <string name="discover_concerts_desc">Próximas datas dos artistas de uma playlist</string>
+    <string name="concerts_intro">Escolha uma playlist e um país: o Trackhop procura os próximos shows dos artistas dela. Nada é verificado em segundo plano.</string>
+    <string name="concerts_country">País</string>
+    <string name="concerts_find">Procurar shows</string>
+    <string name="concerts_progress">Artista %1$d de %2$d…</string>
+    <string name="concerts_none_found">Nenhuma data futura para esses artistas.</string>
+    <plurals name="concerts_no_dates">
+        <item quantity="one">%1$d artista sem datas</item>
+        <item quantity="other">%1$d artistas sem datas</item>
+    </plurals>
+    <string name="concerts_no_dates_hint">Procure você mesmo nos sites de ingressos: estes botões abrem a busca no navegador.</string>
+    <string name="concerts_official_site">Site oficial</string>
+    <string name="concerts_on_ticketmaster">Ingressos na Ticketmaster</string>
+    <string name="concerts_sources_both">Datas da Ticketmaster e do MusicBrainz.</string>
+    <string name="concerts_sources_mb">Datas do MusicBrainz.</string>
+    <string name="concerts_coverage_it">Na Itália faltam os shows vendidos só na TicketOne: para esses, use os botões de busca.</string>
+    <string name="concerts_coverage">Nem todo show aparece aqui: veja também o site oficial do artista.</string>
+    <string name="concerts_quota">O limite de hoje da Ticketmaster acabou: tente amanhã ou adicione sua própria chave. Algumas datas abaixo vêm só do MusicBrainz.</string>
+    <string name="concerts_key_refused">A Ticketmaster recusou a chave: confira.</string>
+    <string name="concerts_no_key">Só datas do MusicBrainz: adicione uma chave gratuita da Ticketmaster para ver muitas mais.</string>
+    <string name="concerts_limited">Só os %1$d artistas que você mais ouve foram procurados: adicione sua própria chave da Ticketmaster para procurar todos os %2$d.</string>
+    <string name="concerts_key_title">Chave da Ticketmaster</string>
+    <string name="concerts_key_body">Opcional. Com sua própria chave gratuita, o Trackhop procura mais artistas e não divide o limite diário com todo mundo. Crie um app no site de desenvolvedores da Ticketmaster e cole aqui a Consumer Key dele (nunca o Consumer Secret).</string>
+    <string name="concerts_key_get">Obter uma chave</string>
+    <string name="concerts_key_field">Consumer Key</string>
+    <string name="concerts_key_own">Usando sua própria chave</string>
+    <string name="concerts_key_shared">Usando a chave compartilhada do app</string>
+    <string name="concerts_key_none">Sem chave: só datas do MusicBrainz</string>
 </resources>
