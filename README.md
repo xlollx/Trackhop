@@ -214,6 +214,7 @@ Comments under videos and posts about Trackhop, and messages from supporters (na
 New versions, tips and what's coming next, in English:
 
 <a href="https://www.instagram.com/trackhop.app/"><img src="docs/assets/badges/instagram.svg" height="56" alt="Follow Trackhop on Instagram"></a>
+<a href="https://t.me/trackhop_app"><img src="docs/assets/badges/telegram.svg" height="56" alt="Follow Trackhop on Telegram"></a>
 
 ## Feedback
 
