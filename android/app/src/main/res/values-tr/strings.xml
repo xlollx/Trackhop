@@ -1881,4 +1881,33 @@
     <string name="tools_wanted_no_album">Albüm yok</string>
     <string name="tools_wanted_export">Listeyi dışa aktar</string>
     <string name="tools_wanted_lidarr">Lidarr için liste</string>
+    <string name="discover_concerts_title">Konserler</string>
+    <string name="discover_concerts_desc">Bir çalma listesindeki sanatçıların yaklaşan tarihleri</string>
+    <string name="concerts_intro">Bir çalma listesi ve ülke seç: Trackhop sanatçılarının yaklaşan konserlerini arar. Arka planda hiçbir şey kontrol edilmez.</string>
+    <string name="concerts_country">Ülke</string>
+    <string name="concerts_find">Konser ara</string>
+    <string name="concerts_progress">Sanatçı %1$d / %2$d…</string>
+    <string name="concerts_none_found">Bu sanatçılar için yaklaşan tarih yok.</string>
+    <plurals name="concerts_no_dates">
+        <item quantity="one">Tarihi olmayan %1$d sanatçı</item>
+        <item quantity="other">Tarihi olmayan %1$d sanatçı</item>
+    </plurals>
+    <string name="concerts_no_dates_hint">Bilet sitelerinde kendin ara: bu düğmeler aramayı tarayıcıda açar.</string>
+    <string name="concerts_official_site">Resmi site</string>
+    <string name="concerts_on_ticketmaster">Ticketmaster\'da biletler</string>
+    <string name="concerts_sources_both">Tarihler Ticketmaster ve MusicBrainz\'den.</string>
+    <string name="concerts_sources_mb">Tarihler MusicBrainz\'den.</string>
+    <string name="concerts_coverage_it">İtalya\'da yalnızca TicketOne\'da satılan konserler eksik: onlar için arama düğmelerini kullan.</string>
+    <string name="concerts_coverage">Her konser listede yok: sanatçının resmi sitesine de bak.</string>
+    <string name="concerts_quota">Ticketmaster\'ın bugünkü sınırına ulaşıldı: yarın tekrar dene ya da kendi anahtarını ekle. Aşağıdaki bazı tarihler yalnızca MusicBrainz\'den.</string>
+    <string name="concerts_key_refused">Ticketmaster anahtarı reddetti: kontrol et.</string>
+    <string name="concerts_no_key">Yalnızca MusicBrainz tarihleri: çok daha fazlası için ücretsiz bir Ticketmaster anahtarı ekle.</string>
+    <string name="concerts_limited">Yalnızca en çok dinlediğin %1$d sanatçı arandı: %2$d sanatçının hepsini aramak için kendi Ticketmaster anahtarını ekle.</string>
+    <string name="concerts_key_title">Ticketmaster anahtarı</string>
+    <string name="concerts_key_body">İsteğe bağlı. Kendi ücretsiz anahtarınla Trackhop daha çok sanatçı arar ve günlük sınırı herkesle paylaşmaz. Ticketmaster\'ın geliştirici sitesinde bir uygulama oluştur ve Consumer Key\'ini buraya yapıştır (asla Consumer Secret\'ı değil).</string>
+    <string name="concerts_key_get">Anahtar al</string>
+    <string name="concerts_key_field">Consumer Key</string>
+    <string name="concerts_key_own">Kendi anahtarın kullanılıyor</string>
+    <string name="concerts_key_shared">Uygulamanın ortak anahtarı kullanılıyor</string>
+    <string name="concerts_key_none">Anahtar yok: yalnızca MusicBrainz tarihleri</string>
 </resources>

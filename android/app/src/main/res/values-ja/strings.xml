@@ -1852,4 +1852,32 @@
     <string name="tools_wanted_no_album">アルバムなし</string>
     <string name="tools_wanted_export">リストを書き出す</string>
     <string name="tools_wanted_lidarr">Lidarr 用リスト</string>
+    <string name="discover_concerts_title">コンサート</string>
+    <string name="discover_concerts_desc">プレイリストのアーティストの今後の公演</string>
+    <string name="concerts_intro">プレイリストと国を選ぶと、Trackhop がアーティストの今後のコンサートを探します。バックグラウンドでは何も確認しません。</string>
+    <string name="concerts_country">国</string>
+    <string name="concerts_find">コンサートを探す</string>
+    <string name="concerts_progress">アーティスト %1$d / %2$d…</string>
+    <string name="concerts_none_found">これらのアーティストの今後の公演は見つかりませんでした。</string>
+    <plurals name="concerts_no_dates">
+        <item quantity="other">公演が見つからないアーティスト: %1$d</item>
+    </plurals>
+    <string name="concerts_no_dates_hint">チケットサイトでご自身で探せます。ボタンを押すとブラウザで検索が開きます。</string>
+    <string name="concerts_official_site">公式サイト</string>
+    <string name="concerts_on_ticketmaster">Ticketmaster でチケット</string>
+    <string name="concerts_sources_both">公演情報: Ticketmaster と MusicBrainz</string>
+    <string name="concerts_sources_mb">公演情報: MusicBrainz</string>
+    <string name="concerts_coverage_it">イタリアでは TicketOne のみで販売される公演は含まれません。検索ボタンをお使いください。</string>
+    <string name="concerts_coverage">すべての公演が載っているわけではありません。アーティストの公式サイトも確認してください。</string>
+    <string name="concerts_quota">今日の Ticketmaster の上限に達しました。明日もう一度試すか、ご自身のキーを追加してください。下の一部の公演は MusicBrainz のみの情報です。</string>
+    <string name="concerts_key_refused">Ticketmaster がキーを拒否しました。確認してください。</string>
+    <string name="concerts_no_key">MusicBrainz の公演のみです。無料の Ticketmaster キーを追加すると、ずっと多く表示されます。</string>
+    <string name="concerts_limited">よく聴く %1$d 組のアーティストだけを探しました。ご自身の Ticketmaster キーを追加すると %2$d 組すべてを探せます。</string>
+    <string name="concerts_key_title">Ticketmaster キー</string>
+    <string name="concerts_key_body">任意です。ご自身の無料キーがあれば、Trackhop はより多くのアーティストを探し、1 日の上限を他の人と共有しません。Ticketmaster の開発者サイトでアプリを作り、その Consumer Key をここに貼り付けてください (Consumer Secret は絶対に貼らないでください)。</string>
+    <string name="concerts_key_get">キーを取得</string>
+    <string name="concerts_key_field">Consumer Key</string>
+    <string name="concerts_key_own">ご自身のキーを使用中</string>
+    <string name="concerts_key_shared">アプリの共有キーを使用中</string>
+    <string name="concerts_key_none">キーなし: MusicBrainz の公演のみ</string>
 </resources>

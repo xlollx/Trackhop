@@ -69,6 +69,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -389,6 +390,10 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.VpnKey, stringResource(R.string.settings_advanced), stringResource(R.string.settings_keys_summary), trailing = { ExpandMark(keysOpen) }) { keysOpen = !keysOpen }
             if (keysOpen) {
                 PrefBlock { Text(stringResource(R.string.settings_advanced_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                // Concerts (Discover): the user's own Ticketmaster key, optional.
+                var tmOpen by rememberSaveable { mutableStateOf(false) }
+                if (tmOpen) TicketmasterKeyDialog { tmOpen = false }
+                PrefRow(Icons.Filled.Key, stringResource(R.string.concerts_key_title), stringResource(remember(data.settings, tmOpen) { ticketmasterKeyState(ctx) })) { tmOpen = true }
                 Providers.all().filter { it.setupGuide != null && it.slot.isEmpty() }.forEach { p ->
                     val configured = remember(p.id, data.settings) { p.isConfigured(ctx) }
                     PrefRow(
