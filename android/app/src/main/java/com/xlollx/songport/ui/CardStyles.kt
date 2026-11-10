@@ -116,7 +116,8 @@ data class TileAccent(val width: Dp, val inset: Dp = 0.dp, val length: Float = 1
  * On a [tile] of the minimal view the styles along the edge take their tile's shape ([TileAccent]).
  */
 fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false): Modifier = if (accent == null) this else drawBehind {
-    val t = if (tile) TileAccent.of(style) else null
+    // The crescent is the tile's on the full card too: the user liked it better than the wide one.
+    val t = if (tile || style == CardAccent.CRESCENT) TileAccent.of(style) else null
     if (t != null) return@drawBehind drawTileAccent(t, accent)
     val r = 28.dp.toPx() // MaterialTheme.shapes.large, the card's corners
     val rtl = layoutDirection == LayoutDirection.Rtl
@@ -133,20 +134,7 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false
         }
         // Half of the stroke falls outside the card and is clipped: 2 dp all round.
         CardAccent.OUTLINE -> drawRoundRect(accent, cornerRadius = CornerRadius(r), style = Stroke(4.dp.toPx()))
-        // Thick in the middle of the leading edge, thinning to nothing in the corners.
-        CardAccent.CRESCENT -> {
-            val h = size.height
-            val c = (8 * w - 2 * r) / 6 // the inner curve's control points, so that it reaches w at mid height
-            val p = Path().apply {
-                moveTo(x(r), 0f)
-                quadraticTo(x(0f), 0f, x(0f), r)
-                lineTo(x(0f), h - r)
-                quadraticTo(x(0f), h, x(r), h)
-                cubicTo(x(c), h * 0.75f, x(c), h * 0.25f, x(r), 0f)
-                close()
-            }
-            drawPath(p, accent)
-        }
+        CardAccent.CRESCENT -> Unit // drawn as on a tile, above
         // A rounded bar inside the card, clear of the corners.
         CardAccent.PILL -> {
             val pw = 5.dp.toPx()
