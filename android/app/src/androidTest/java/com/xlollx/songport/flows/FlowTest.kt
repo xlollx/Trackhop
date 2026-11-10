@@ -301,15 +301,6 @@ abstract class FlowTest {
         return h
     }
 
-    /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
-    protected fun clickTile(label: String) {
-        val tile = hasText(label)
-        compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
-            runCatching { compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())[i].performScrollToNode(tile) }
-        }
-        compose.waitForIdle()
-        click(label)
-    }
 
     private fun topOf(n: SemanticsNode): SemanticsNode { var p = n; while (p.parent != null) p = p.parent!!; return p }
 
