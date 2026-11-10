@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -160,13 +161,25 @@ fun RunHistory(history: List<SyncReport>, style: RunHistoryStyle, ink: Color, la
 
 /**
  * The card menu's "Style": the sync's colour and how its card wears it, with a small preview of the
- * card as it will look. Saved together; the style choice shows only for a coloured sync.
+ * card as it will look, and the colour's name (its label). Saved together; the style choice and the
+ * name show only for a coloured sync. [onSave] gets what the picker holds (see [JobColorPicker]),
+ * the style, the name for that colour and, for a saved label given another colour, the new colour.
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun JobStyleDialog(name: String, color: String?, accentStyle: String?, settingsAccent: String, onDismiss: () -> Unit, onSave: (String?, String?) -> Unit) {
-    var c by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(color) }
+fun JobStyleDialog(
+    name: String, pick: String?, accentStyle: String?, settingsAccent: String, labels: List<com.xlollx.songport.model.Label>,
+    onDismiss: () -> Unit, onSave: (String?, String?, String, String?) -> Unit,
+) {
+    var p by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(pick) }
     var st by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(accentStyle) }
+    fun nameOf(x: String?) = labels.firstOrNull { it.id == x }?.name.orEmpty()
+    var labelName by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(nameOf(pick)) }
+    // A saved label given another colour here: every sync wearing it follows on Save.
+    var recolor by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    var recolorOpen by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val saved = labels.firstOrNull { it.id == p && JobColor.of(it.id) == null }
+    val c = (if (saved != null) recolor else null) ?: pickedColor(p, labels)
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) },
@@ -198,8 +211,17 @@ fun JobStyleDialog(name: String, color: String?, accentStyle: String?, settingsA
                     }
                 }
                 Text(androidx.compose.ui.res.stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
-                JobColorPicker(c) { c = it }
-                if (c != null) {
+                JobColorPicker(p, labels) { p = it; labelName = nameOf(it); recolor = null }
+                if (p != null) {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = labelName, onValueChange = { labelName = it.take(com.xlollx.songport.sync.Labels.MAX_NAME) },
+                        label = { Text(androidx.compose.ui.res.stringResource(R.string.label_name)) },
+                        supportingText = { Text(androidx.compose.ui.res.stringResource(R.string.label_name_hint)) },
+                        singleLine = true, modifier = Modifier.fillMaxWidth().testTag(LABEL_NAME_TAG),
+                    )
+                    if (saved != null) androidx.compose.material3.TextButton(onClick = { recolorOpen = true }) {
+                        Text(androidx.compose.ui.res.stringResource(R.string.label_change_color))
+                    }
                     Text(androidx.compose.ui.res.stringResource(R.string.job_accent_style), style = MaterialTheme.typography.labelLarge)
                     androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         androidx.compose.material3.FilterChip(st == null, onClick = { st = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
@@ -210,7 +232,10 @@ fun JobStyleDialog(name: String, color: String?, accentStyle: String?, settingsA
                 }
             }
         },
-        confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(c, st); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }) { Text(androidx.compose.ui.res.stringResource(R.string.save)) } },
         dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) } },
     )
+    if (recolorOpen) CustomColorDialog(CustomColor.parse(c) ?: JobColor.BLUE.light, onDismiss = { recolorOpen = false }) { recolorOpen = false; recolor = CustomColor.key(it) }
 }
+
+const val LABEL_NAME_TAG = "label-name"

@@ -1823,4 +1823,18 @@
     <string name="spread_stays">%1$s (inchangé)</string>
     <string name="spread_confirm">Confirmer</string>
     <string name="review_discard_busy">Lecture de la playlist sur %1$s pour trouver ces titres : avec une longue playlist, cela prend quelques secondes.</string>
+    <string name="sync_menu_favorite">Ajouter aux favoris</string>
+    <string name="sync_menu_unfavorite">Retirer des favoris</string>
+    <string name="favorite_badge_desc">Favori</string>
+    <string name="filter_favorites">Favoris</string>
+    <string name="filter_tag_any">N\'importe</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Regroupez vos synchros à votre façon, par exemple genre = metal. La valeur est facultative.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Valeur</string>
+    <string name="tag_add">Ajouter un tag</string>
+    <string name="tag_remove">Retirer %1$s</string>
+    <string name="label_name">Nom de l\'étiquette</string>
+    <string name="label_name_hint">Facultatif. Toutes les synchros de cette couleur partagent ce nom : vous pouvez ensuite les chercher et les filtrer.</string>
+    <string name="label_change_color">Changer la couleur de l\'étiquette</string>
 </resources>

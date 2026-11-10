@@ -143,6 +143,8 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PauseCircle
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material.icons.outlined.Delete
 import com.xlollx.songport.R
@@ -244,7 +246,8 @@ fun SyncsScreen(
     // cards trade places. Left alone, the list would follow the card at its top by key, and a card
     // moved above it would make the whole list jump.
     val moveAnchor = remember { arrayOfNulls<Pair<Int, Int>>(1) }
-    val order = remember(data.jobs) { data.jobs.map { it.id } }
+    // The order as shown: starred syncs first. Positions (a drag, "Move to") are places in this order.
+    val order = remember(data.jobs) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).map { it.id } }
     val lastOrder = remember { arrayOf(order) }
     SideEffect {
         if (order != lastOrder[0]) {
@@ -254,14 +257,14 @@ fun SyncsScreen(
         }
     }
     val onMove: (SyncJob, Int, Boolean) -> Unit = { job, to, follow ->
-        val from = data.jobs.indexOfFirst { it.id == job.id }
+        val from = order.indexOf(job.id)
         val here = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == job.id }?.index
         // A card moved to a position by number, to the top of the list, or up from the top of the
         // screen is followed there; otherwise the screen stays where it is.
         val followIt = here != null && from >= 0 && (follow || (from > to && (to == 0 || here == listState.firstVisibleItemIndex)))
         moveAnchor[0] = if (followIt) (here!! + (to - from)).coerceAtLeast(0) to 0
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        Store.get(ctx).moveJob(job.id, to)
+        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to))
     }
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
@@ -270,7 +273,7 @@ fun SyncsScreen(
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
     // old order was taken for "no change" and the card snapped back).
-    val orderNow = { Store.get(ctx).data.jobs.map { it.id } }
+    val orderNow = { com.xlollx.songport.sync.Labels.favoritesFirst(Store.get(ctx).data.jobs).map { it.id } }
     val reorder = rememberReorderableLazyListState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
@@ -309,7 +312,8 @@ fun SyncsScreen(
     val effective = if (finder) filter.pruned(data.jobs) else SyncFilter()
     val runningIds = running.keys
     val shown = remember(data.jobs, data.reports, runningIds, effective) {
-        effective.select(data.jobs, data.reports, runningIds) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }
+        // Starred syncs first, then the others, each in the list's own order.
+        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id })
     }
     // Pull to refresh = sync all. The indicator stays only while the gesture and the start are under
     // way: the cards show the progress. While syncs run, the pull is off (the pill says how many).
@@ -384,7 +388,7 @@ fun SyncsScreen(
             }
             // Under the hero and scrolling with the list, so it never fights the pinned pill below.
             if (finder) item(key = "finder") {
-                SyncFinder(data.jobs, effective, shown.size, remember(data.jobs, data.reports, runningIds) { SyncFilter.counts(data.jobs, data.reports, runningIds) }) { filter = it }
+                SyncFinder(data.jobs, effective, shown.size, remember(data.jobs, data.reports, runningIds) { SyncFilter.counts(data.jobs, data.reports, runningIds) }, data.settings.labels) { filter = it }
             }
             // "Sync all": a pill centred under the header that stays at the top while the list scrolls.
             // While syncs run it says how many, and a tap brings the first running card into view.
@@ -478,7 +482,7 @@ fun SyncsScreen(
                         val to = dropped?.indexOf(job.id) ?: -1
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
                         if (to >= 0 && dropped != orderNow()) {
-                            Store.get(ctx).moveJob(job.id, to)
+                            Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(Store.get(ctx).data.jobs, job.id, to))
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
                         } else dragOrder = null
@@ -598,7 +602,7 @@ private fun JobCard(
     var moveToOpen by remember { mutableStateOf(false) }
     if (moveToOpen) {
         val total = data.jobs.size
-        val now = data.jobs.indexOfFirst { it.id == job.id } + 1
+        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs).indexOfFirst { it.id == job.id } + 1
         var typed by remember { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
         AlertDialog(
@@ -627,12 +631,15 @@ private fun JobCard(
             dismissButton = { TextButton(onClick = { moveToOpen = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
+    // A two-way sync is one sync to the user: both halves take the colour, its style and the star.
+    val halves = { d: com.xlollx.songport.data.StoreData -> d.jobs.filter { it.id == job.id || it.id == job.linkedJobId || it.linkedJobId == job.id }.mapTo(HashSet()) { it.id } }
     if (colorOpen) JobStyleDialog(
-        job.name.ifBlank { job.source.playlistName }, job.color, job.accentStyle, data.settings.cardAccent, onDismiss = { colorOpen = false },
-    ) { c, st ->
-        // A two-way sync is one sync to the user: both halves take the colour and its style.
-        val store = Store.get(ctx)
-        data.jobs.filter { it.id == job.id || it.id == job.linkedJobId || it.linkedJobId == job.id }.forEach { store.upsertJob(it.copy(color = c, accentStyle = st)) }
+        job.name.ifBlank { job.source.playlistName }, job.label ?: job.color, job.accentStyle, data.settings.cardAccent, data.settings.labels, onDismiss = { colorOpen = false },
+    ) { pick, st, labelName, recolor ->
+        Store.get(ctx).update { d ->
+            val ids = halves(d)
+            com.xlollx.songport.sync.Labels.styled(d, ids, pick, labelName, recolor).let { n -> n.copy(jobs = n.jobs.map { if (it.id in ids) it.copy(accentStyle = st) else it }) }
+        }
     }
     var listOpen by remember { mutableStateOf<StatList?>(null) }
     listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
@@ -712,6 +719,11 @@ private fun JobCard(
                             Icon(Icons.Filled.Radio, stringResource(R.string.radio_badge_desc), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.tertiary)
                             Spacer(Modifier.width(4.dp))
                         }
+                        // Starred: first in the list, and under "Favourites" in the filters.
+                        if (job.favorite) {
+                            Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(16.dp), tint = ink ?: MaterialTheme.colorScheme.tertiary)
+                            Spacer(Modifier.width(4.dp))
+                        }
                         Text(job.name.ifBlank { job.source.playlistName }, style = MaterialTheme.typography.titleLarge, maxLines = 1, modifier = Modifier.cardMarquee())
                     }
                     Text(
@@ -723,6 +735,14 @@ private fun JobCard(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, modifier = Modifier.cardMarquee(),
+                    )
+                    // Its label's name and its tags, on one line: what the search and the filters go by.
+                    val groups = remember(job.label, job.tags, data.settings.labels) {
+                        (listOf(com.xlollx.songport.sync.Labels.name(job, data.settings.labels)) + job.tags.map { tagText(it.key, it.value) }).filter { it.isNotEmpty() }.joinToString(" · ")
+                    }
+                    if (groups.isNotEmpty()) Text(
+                        groups, style = MaterialTheme.typography.bodySmall, color = ink ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -836,6 +856,11 @@ private fun JobCard(
                         MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
                         if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
                         else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
+                        MenuAction(
+                            stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
+                            { Store.get(ctx).update { d -> halves(d).let { ids -> d.copy(jobs = d.jobs.map { if (it.id in ids) it.copy(favorite = !job.favorite) else it }) } } },
+                            icon = if (job.favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        ),
                         MenuAction(stringResource(R.string.job_style), { colorOpen = true }, icon = Icons.Outlined.Palette),
                         // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
                         // at a position typed as a number.
@@ -1044,7 +1069,10 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var pickByName by rememberSaveable { mutableStateOf(job.source.playlistId == null && job.source.playlistName.isNotBlank()) }
     var wifiOnly by rememberSaveable { mutableStateOf(job.wifiOnly) }
     var enabled by rememberSaveable { mutableStateOf(job.enabled) }
-    var color by rememberSaveable { mutableStateOf(job.color) }
+    // What the colour picker holds: a ready colour, a saved label, or a colour of the user's own.
+    var color by rememberSaveable { mutableStateOf(job.label ?: job.color) }
+    val storeNow = remember { Store.get(ctx).data }
+    var tagDraft by rememberSaveable(stateSaver = TagDraftSaver) { mutableStateOf(TagDraft(job.tags.toList())) }
     var accentStyle by rememberSaveable { mutableStateOf(job.accentStyle) }
     var bidirectional by rememberSaveable { mutableStateOf(job.linkedJobId != null) }
     var policy by rememberSaveable(stateSaver = PolicySaver) { mutableStateOf(job.policy) }
@@ -1153,7 +1181,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     job.copy(
                         name = name.ifBlank { defaultName }, source = source, target = target,
                         schedule = Schedule.MANUAL, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                        keepOrder = false, color = color, accentStyle = accentStyle, radio = radio, shazam = false, linkedJobId = null, archive = false,
+                        keepOrder = false, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, radio = radio, shazam = false, linkedJobId = null, archive = false,
                     ),
                     null,
                 )
@@ -1191,7 +1219,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             source = source,
             target = target,
             schedule = schedule, mirrorRemovals = mirror && !archive, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-            keepOrder = keepOrder && !archive, color = color, accentStyle = accentStyle, followsChanges = mirror && follows && !archive,
+            keepOrder = keepOrder && !archive, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, followsChanges = mirror && follows && !archive,
             archive = archive, shazam = shazamMode && !linkMode,
         ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
@@ -1207,7 +1235,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     twin = partner.twin || partner.name == "${job.name} ↔",
                     source = target, target = source,
                     schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                    linkedJobId = job.id, color = color, accentStyle = accentStyle,
+                    linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle,
                     sourceVersion = if (moved) null else partner.sourceVersion,
                     targetVersion = if (moved) null else partner.targetVersion,
                 ).let { timed(it) }
@@ -1217,7 +1245,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 source = target,
                 target = source,
                 schedule = schedule, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
-                linkedJobId = job.id, color = color, accentStyle = accentStyle, twin = true,
+                linkedJobId = job.id, color = main.color, label = main.label, tags = main.tags, favorite = main.favorite, accentStyle = accentStyle, twin = true,
             ).let { timed(it) }
         } else null
         saveHaptic()
@@ -1358,7 +1386,8 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     singleLine = true, modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") })
                 Text(stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
-                JobColorPicker(color) { color = it }
+                JobColorPicker(color, storeNow.settings.labels) { color = it }
+                TagsEditor(tagDraft, storeNow.jobs) { tagDraft = it }
                 // A radio sync runs by its window: days and hours instead of a schedule, and no
                 // removals, two-way or reordering (its source only grows).
                 if (radioMode) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

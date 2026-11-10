@@ -1875,4 +1875,18 @@
     <string name="spread_stays">%1$s (без изменений)</string>
     <string name="spread_confirm">Подтвердить</string>
     <string name="review_discard_busy">Читаю плейлист в %1$s, чтобы найти эти треки: для длинного плейлиста это займёт несколько секунд.</string>
+    <string name="sync_menu_favorite">Добавить в избранное</string>
+    <string name="sync_menu_unfavorite">Убрать из избранного</string>
+    <string name="favorite_badge_desc">Избранная</string>
+    <string name="filter_favorites">Избранные</string>
+    <string name="filter_tag_any">Любое</string>
+    <string name="tags_title">Теги</string>
+    <string name="tags_hint">Группируйте синхронизации как удобно, например жанр = метал. Значение необязательно.</string>
+    <string name="tag_key">Тег</string>
+    <string name="tag_value">Значение</string>
+    <string name="tag_add">Добавить тег</string>
+    <string name="tag_remove">Удалить %1$s</string>
+    <string name="label_name">Название метки</string>
+    <string name="label_name_hint">Необязательно. Все синхронизации этого цвета получают это название: по нему можно искать и фильтровать.</string>
+    <string name="label_change_color">Изменить цвет метки</string>
 </resources>

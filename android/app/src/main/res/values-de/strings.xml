@@ -1815,4 +1815,18 @@
     <string name="spread_stays">%1$s (bleibt)</string>
     <string name="spread_confirm">Bestätigen</string>
     <string name="review_discard_busy">Lese die Playlist auf %1$s, um diese Titel zu finden: Bei einer langen Playlist dauert das ein paar Sekunden.</string>
+    <string name="sync_menu_favorite">Zu Favoriten hinzufügen</string>
+    <string name="sync_menu_unfavorite">Aus Favoriten entfernen</string>
+    <string name="favorite_badge_desc">Favorit</string>
+    <string name="filter_favorites">Favoriten</string>
+    <string name="filter_tag_any">Beliebig</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Gruppiere deine Syncs, wie du willst, zum Beispiel Genre = Metal. Der Wert ist optional.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Wert</string>
+    <string name="tag_add">Tag hinzufügen</string>
+    <string name="tag_remove">%1$s entfernen</string>
+    <string name="label_name">Name des Labels</string>
+    <string name="label_name_hint">Optional. Alle Syncs mit dieser Farbe teilen den Namen: Danach kannst du nach ihm suchen und filtern.</string>
+    <string name="label_change_color">Farbe des Labels ändern</string>
 </resources>

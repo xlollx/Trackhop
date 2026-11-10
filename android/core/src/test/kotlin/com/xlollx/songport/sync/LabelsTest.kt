@@ -184,6 +184,54 @@ class LabelsTest {
         assertSame(none, Labels.favoritesFirst(none))
     }
 
+    @Test fun theStyleDialogSaves() {
+        val start = Labels.normalized(StoreData(jobs = listOf(job("a", "teal"), job("b"), job("c", "#010203"))))
+        // A ready colour with a name.
+        var d = Labels.styled(start, setOf("b"), "red", "Loud")
+        assertEquals("red", d.jobs[1].color); assertEquals("red", d.jobs[1].label)
+        assertEquals("Loud", Labels.name(d.jobs[1], d.settings.labels))
+        // A colour of one's own without a name: free, no label.
+        d = Labels.styled(d, setOf("b"), "#0A0B0C", "")
+        assertEquals("#0A0B0C", d.jobs[1].color); assertNull(d.jobs[1].label)
+        // With a name: a label, which another sync can then pick by its id.
+        d = Labels.styled(d, setOf("b"), "#0A0B0C", "Mine") { "l-9" }
+        assertEquals("l-9", d.jobs[1].label)
+        d = Labels.styled(d, setOf("a"), "l-9", "Mine")
+        assertEquals("#0A0B0C", d.jobs[0].color); assertEquals("l-9", d.jobs[0].label)
+        // Recoloured and renamed: both follow.
+        d = Labels.styled(d, setOf("a"), "l-9", "Ours", "#112233")
+        assertEquals(listOf("#112233", "#112233", "#010203"), d.jobs.map { it.color })
+        assertEquals(listOf(Label("red", "red", "Loud"), Label("l-9", "#112233", "Ours")), d.settings.labels)
+        // The name cleared: the label goes, the colour stays on both.
+        d = Labels.styled(d, setOf("a"), "l-9", "")
+        assertEquals(listOf("#112233", "#112233", "#010203"), d.jobs.map { it.color })
+        assertEquals(listOf(null, null, null), d.jobs.map { it.label })
+        // No colour.
+        d = Labels.styled(d, setOf("a", "c"), null, "ignored")
+        assertEquals(listOf(null, "#112233", null), d.jobs.map { it.color })
+    }
+
+    @Test fun movingInTheListAsShown() {
+        // Shown: b d a c (starred first).
+        val list = listOf(job("a"), job("b", favorite = true), job("c"), job("d", favorite = true))
+        fun moved(id: String, to: Int): String {
+            val at = Labels.storeIndex(list, id, to)
+            val rest = list.filter { it.id != id }
+            return Labels.favoritesFirst(rest.take(at) + list.first { it.id == id } + rest.drop(at)).joinToString("") { it.id }
+        }
+        assertEquals("dbac", moved("d", 0))
+        assertEquals("bdca", moved("a", 3))
+        assertEquals("bdca", moved("c", 2))
+        // Dropped among the starred: the first of the others.
+        assertEquals("bdca", moved("c", 0))
+        // A starred one dropped at the end: the last of the starred.
+        assertEquals("dbac", moved("b", 3))
+        // Without stars it is the plain position.
+        val plain = listOf(job("a"), job("b"), job("c"))
+        assertEquals(2, Labels.storeIndex(plain, "a", 2))
+        assertEquals(0, Labels.storeIndex(plain, "c", 0))
+    }
+
     @Test fun settingsKeepTheirLabelsInAConfigurationFile() {
         val s = Settings(labels = labels)
         val json = Json { encodeDefaults = true }

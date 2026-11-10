@@ -1785,4 +1785,18 @@
     <string name="spread_stays">%1$s（そのまま）</string>
     <string name="spread_confirm">確定</string>
     <string name="review_discard_busy">%1$s のプレイリストを読み込んで曲を探しています。長いプレイリストでは数秒かかります。</string>
+    <string name="sync_menu_favorite">お気に入りに追加</string>
+    <string name="sync_menu_unfavorite">お気に入りから外す</string>
+    <string name="favorite_badge_desc">お気に入り</string>
+    <string name="filter_favorites">お気に入り</string>
+    <string name="filter_tag_any">すべて</string>
+    <string name="tags_title">タグ</string>
+    <string name="tags_hint">同期を自由にグループ分けできます（例：ジャンル = メタル）。値は省略できます。</string>
+    <string name="tag_key">タグ</string>
+    <string name="tag_value">値</string>
+    <string name="tag_add">タグを追加</string>
+    <string name="tag_remove">%1$s を削除</string>
+    <string name="label_name">ラベル名</string>
+    <string name="label_name_hint">省略できます。この色の同期すべてに同じ名前が付き、検索や絞り込みに使えます。</string>
+    <string name="label_change_color">ラベルの色を変更</string>
 </resources>

@@ -113,6 +113,54 @@ object Labels {
     fun delete(d: StoreData, id: String): StoreData =
         normalized(d.copy(settings = d.settings.copy(labels = d.settings.labels.filter { it.id != id })))
 
+    /**
+     * What the card menu's "Style" saves for the syncs [ids]: [pick] is a ready colour's key, a saved
+     * label's id, "#RRGGBB" or null (no colour); [name] names that colour (empty: no name, so a saved
+     * label is deleted and its colour stays); [recolor] gives a saved label another colour first.
+     */
+    fun styled(d: StoreData, ids: Set<String>, pick: String?, name: String, recolor: String? = null, newId: () -> String = { "l-" + UUID.randomUUID().toString().take(8) }): StoreData {
+        var data = d
+        var p = pick
+        when {
+            p == null -> {}
+            isBase(p) -> data = save(data, p, name).first
+            isCustom(p) -> if (name.isNotBlank()) save(data, p, name, newId).let { (next, id) -> data = next; p = id }
+            else -> {
+                if (recolor != null) data = recolor(data, p, recolor)
+                // Without a name the label goes: these syncs take its colour as a free one.
+                if (name.isBlank()) p = find(data.settings.labels, p)?.color.also { data = delete(data, pick!!) }
+                else data = rename(data, p, name)
+            }
+        }
+        val labels = data.settings.labels
+        return data.copy(jobs = data.jobs.map { j ->
+            if (j.id !in ids) j
+            else normalized(if (p == null || isCustom(p)) j.copy(color = p, label = null) else j.copy(label = p), labels)
+        })
+    }
+
+    /**
+     * Where FileStore.moveJob puts [id] so that the list as shown ([favoritesFirst]) has it at
+     * [shownIndex]: before the sync that follows it there. A sync dropped among those of the other
+     * kind (starred or not) ends at the edge of its own.
+     */
+    fun storeIndex(jobs: List<SyncJob>, id: String, shownIndex: Int): Int {
+        val job = jobs.firstOrNull { it.id == id } ?: return shownIndex
+        val shown = favoritesFirst(jobs).filter { it.id != id }
+        val rest = jobs.map { it.id }.filter { it != id }
+        // Its own kind's stretch of the list as shown: the starred, then the others.
+        val stars = shown.count { it.favorite }
+        val split = jobs.any { it.favorite } && jobs.any { !it.favorite }
+        val from = if (split && !job.favorite) stars else 0
+        val to = if (split && job.favorite) stars else shown.size
+        val at = shownIndex.coerceIn(from, to)
+        return when {
+            at > from -> rest.indexOf(shown[at - 1].id) + 1
+            at < to -> rest.indexOf(shown[at].id)
+            else -> if (job.favorite) 0 else rest.size
+        }
+    }
+
     /** The labels the syncs wear, each once: ready colours first in their order, then the user's own. */
     fun inUse(jobs: List<SyncJob>): List<String> {
         val used = jobs.mapNotNullTo(LinkedHashSet()) { it.label }

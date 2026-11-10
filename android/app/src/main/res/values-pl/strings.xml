@@ -1877,4 +1877,18 @@
     <string name="spread_stays">%1$s (bez zmian)</string>
     <string name="spread_confirm">Potwierdź</string>
     <string name="review_discard_busy">Czytam playlistę w %1$s, żeby znaleźć te utwory: przy długiej playliście trwa to kilka sekund.</string>
+    <string name="sync_menu_favorite">Dodaj do ulubionych</string>
+    <string name="sync_menu_unfavorite">Usuń z ulubionych</string>
+    <string name="favorite_badge_desc">Ulubiona</string>
+    <string name="filter_favorites">Ulubione</string>
+    <string name="filter_tag_any">Dowolna</string>
+    <string name="tags_title">Tagi</string>
+    <string name="tags_hint">Grupuj synchronizacje po swojemu, na przykład gatunek = metal. Wartość jest opcjonalna.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Wartość</string>
+    <string name="tag_add">Dodaj tag</string>
+    <string name="tag_remove">Usuń %1$s</string>
+    <string name="label_name">Nazwa etykiety</string>
+    <string name="label_name_hint">Opcjonalnie. Wszystkie synchronizacje w tym kolorze mają tę nazwę: potem można po niej szukać i filtrować.</string>
+    <string name="label_change_color">Zmień kolor etykiety</string>
 </resources>

@@ -1785,4 +1785,18 @@
     <string name="spread_stays">%1$s（不变）</string>
     <string name="spread_confirm">确认</string>
     <string name="review_discard_busy">正在读取 %1$s 上的歌单以找到这些歌曲：歌单较长时需要几秒钟。</string>
+    <string name="sync_menu_favorite">加入收藏</string>
+    <string name="sync_menu_unfavorite">取消收藏</string>
+    <string name="favorite_badge_desc">已收藏</string>
+    <string name="filter_favorites">收藏</string>
+    <string name="filter_tag_any">任意</string>
+    <string name="tags_title">标签</string>
+    <string name="tags_hint">按自己的方式给同步分组，例如 流派 = 金属。值可以不填。</string>
+    <string name="tag_key">标签</string>
+    <string name="tag_value">值</string>
+    <string name="tag_add">添加标签</string>
+    <string name="tag_remove">移除 %1$s</string>
+    <string name="label_name">色标名称</string>
+    <string name="label_name_hint">可不填。所有使用此颜色的同步共用这个名称，之后可按名称搜索和筛选。</string>
+    <string name="label_change_color">更改色标颜色</string>
 </resources>

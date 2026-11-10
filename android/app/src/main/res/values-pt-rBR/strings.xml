@@ -1823,4 +1823,18 @@
     <string name="spread_stays">%1$s (mantém)</string>
     <string name="spread_confirm">Confirmar</string>
     <string name="review_discard_busy">Lendo a playlist no %1$s para achar essas faixas: com uma playlist longa leva alguns segundos.</string>
+    <string name="sync_menu_favorite">Adicionar às favoritas</string>
+    <string name="sync_menu_unfavorite">Remover das favoritas</string>
+    <string name="favorite_badge_desc">Favorita</string>
+    <string name="filter_favorites">Favoritas</string>
+    <string name="filter_tag_any">Qualquer</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_hint">Agrupe suas sincronizações do seu jeito, por exemplo gênero = metal. O valor é opcional.</string>
+    <string name="tag_key">Tag</string>
+    <string name="tag_value">Valor</string>
+    <string name="tag_add">Adicionar tag</string>
+    <string name="tag_remove">Remover %1$s</string>
+    <string name="label_name">Nome do rótulo</string>
+    <string name="label_name_hint">Opcional. Todas as sincronizações com esta cor compartilham o nome: depois dá para buscar e filtrar por ele.</string>
+    <string name="label_change_color">Mudar a cor do rótulo</string>
 </resources>

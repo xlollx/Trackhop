@@ -67,21 +67,46 @@ import com.xlollx.songport.R
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.providers.label
+import com.xlollx.songport.sync.Labels
 import com.xlollx.songport.sync.SyncFilter
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 /** The find bar shows from this many syncs on: with fewer, the whole list fits on a screen or two. */
 const val FIND_MIN_SYNCS = 5
 
 /** Keeps the filter across rotation and process death: only strings and lists of strings. */
 val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
-    save = { f -> listOf(f.query, ArrayList(f.statuses.map { it.name }), ArrayList(f.services), ArrayList(f.colors), ArrayList(f.ids)) },
+    save = { f ->
+        listOf(
+            f.query, ArrayList(f.statuses.map { it.name }), ArrayList(f.services), ArrayList(f.labels), ArrayList(f.ids), f.favorite,
+            // Each tag key, then how many values, then the values.
+            ArrayList(f.tags.flatMap { (k, vs) -> listOf(k, vs.size.toString()) + vs }),
+        )
+    },
     restore = { l ->
         SyncFilter(
             query = l[0] as String,
             statuses = (l[1] as List<*>).mapNotNull { n -> SyncFilter.Status.entries.firstOrNull { it.name == n } }.toSet(),
             services = (l[2] as List<*>).filterIsInstance<String>().toSet(),
-            colors = (l[3] as List<*>).filterIsInstance<String>().toSet(),
+            labels = (l[3] as List<*>).filterIsInstance<String>().toSet(),
             ids = (l.getOrNull(4) as? List<*>)?.filterIsInstance<String>()?.toSet().orEmpty(),
+            favorite = l.getOrNull(5) == true,
+            tags = buildMap {
+                val t = (l.getOrNull(6) as? List<*>)?.filterIsInstance<String>().orEmpty()
+                var i = 0
+                while (i + 1 < t.size) {
+                    val n = t[i + 1].toIntOrNull() ?: break
+                    put(t[i], t.drop(i + 2).take(n).toSet())
+                    i += 2 + n
+                }
+            },
         )
     },
 )
@@ -92,7 +117,10 @@ val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
  * on, a line says how many cards are shown, with a way to clear it all.
  */
 @Composable
-fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<SyncFilter.Status, Int> = emptyMap(), onChange: (SyncFilter) -> Unit) {
+fun SyncFinder(
+    jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<SyncFilter.Status, Int> = emptyMap(),
+    labels: List<com.xlollx.songport.model.Label> = emptyList(), onChange: (SyncFilter) -> Unit,
+) {
     val ctx = LocalContext.current
     val keyboard = LocalSoftwareKeyboardController.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -124,6 +152,8 @@ fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // The starred syncs, when there are any.
+            if (jobs.any { it.favorite }) StatusChip(stringResource(R.string.filter_favorites), Icons.Filled.Star, filter.favorite) { onChange(filter.toggleFavorite()) }
             // By status, each with how many syncs it holds; a status no sync is in shows only while chosen.
             SyncFilter.Status.entries.forEach { s ->
                 val n = counts[s] ?: 0
@@ -153,11 +183,22 @@ fun SyncFinder(jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<
                     )
                 }
             }
-            val inUse = SyncFilter.colorsInUse(jobs)
-            // The nine ready colours in their order, then the user's own colours (#RRGGBB) as on their cards.
-            (JobColor.entries.map { it.key }.filter { it in inUse } + inUse.filter { CustomColor.parse(it) != null }).forEach { key ->
-                ColorDot(key, key in filter.colors) { onChange(filter.toggleColor(key)) }
+            // By label: a named one says its name; a ready colour nobody named stays a dot. A colour of
+            // the user's own without a name is no label, and has no chip.
+            Labels.inUse(jobs).forEach { id ->
+                val l = Labels.find(labels, id) ?: return@forEach
+                if (l.name.isBlank()) ColorDot(l.color, id in filter.labels) { onChange(filter.toggleLabel(id)) }
+                else FilterChip(
+                    selected = id in filter.labels,
+                    onClick = { onChange(filter.toggleLabel(id)) },
+                    label = { Text(l.name, maxLines = 1) },
+                    leadingIcon = {
+                        Box(Modifier.size(FilterChipDefaults.IconSize).clip(CircleShape).background(jobAccent(l.color) ?: MaterialTheme.colorScheme.outline).clearAndSetSemantics {})
+                    },
+                )
             }
+            // By tag: one chip per key. A key with values opens them; a key alone is on or off.
+            Labels.keysInUse(jobs).forEach { key -> TagChip(key, Labels.valuesInUse(jobs, key), filter, onChange) }
         }
         if (filter.isActive) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -181,6 +222,42 @@ private fun StatusChip(label: String, icon: ImageVector, selected: Boolean, onCl
         label = { Text(label, maxLines = 1) },
         leadingIcon = { Icon(if (selected) Icons.Filled.Check else icon, null, Modifier.size(FilterChipDefaults.IconSize)) },
     )
+}
+
+/**
+ * A tag key to filter by. With values in use, a tap opens them ("Any" for the key whatever its
+ * value); the chip then reads "genre: metal". A key no sync gives a value is a plain on/off chip.
+ */
+@Composable
+private fun TagChip(key: String, values: List<String>, filter: SyncFilter, onChange: (SyncFilter) -> Unit) {
+    // The filter keeps keys as first chosen; compared without case, as the tags are.
+    val on = filter.tags.keys.firstOrNull { Labels.fold(it) == Labels.fold(key) }
+    val chosen = on?.let { filter.tags[it] }.orEmpty()
+    var open by remember { mutableStateOf(false) }
+    Box {
+        FilterChip(
+            selected = on != null,
+            onClick = { if (values.isEmpty()) onChange(filter.toggleTag(on ?: key)) else open = true },
+            label = { Text(if (chosen.isEmpty()) key else "$key: " + chosen.joinToString(", "), maxLines = 1) },
+            leadingIcon = if (on != null) ({ Icon(Icons.Filled.Check, null, Modifier.size(FilterChipDefaults.IconSize)) }) else null,
+            trailingIcon = if (values.isNotEmpty()) ({ Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(FilterChipDefaults.IconSize)) }) else null,
+        )
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.filter_tag_any)) },
+                leadingIcon = { if (on != null && chosen.isEmpty()) Icon(Icons.Filled.Check, null) },
+                onClick = { open = false; onChange(if (on != null && chosen.isEmpty()) filter.toggleTag(on) else filter.copy(tags = filter.tags - (on ?: key) + (key to emptySet()))) },
+            )
+            values.forEach { v ->
+                val ticked = chosen.any { Labels.fold(it) == Labels.fold(v) }
+                DropdownMenuItem(
+                    text = { Text(v) },
+                    leadingIcon = { if (ticked) Icon(Icons.Filled.Check, null) },
+                    onClick = { onChange(filter.toggleTag(on ?: key, chosen.firstOrNull { Labels.fold(it) == Labels.fold(v) } ?: v)) },
+                )
+            }
+        }
+    }
 }
 
 /** A colour to filter by: a dot in a 48dp target, ticked when on; TalkBack reads its name. */

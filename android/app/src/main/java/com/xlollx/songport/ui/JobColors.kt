@@ -179,14 +179,23 @@ fun jobInk(key: String?): Color? {
     return x
 }
 
-/** One dot per colour plus the default, the chosen one ticked. */
+/**
+ * One dot per colour plus the default, the chosen one ticked: the ready colours, then the colours
+ * the user saved as labels ([labels]), then any colour from a picker. [selected] is what the sync
+ * wears: a ready colour's key, a saved label's id, "#RRGGBB" for a colour with no name, or null.
+ */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun JobColorPicker(selected: String?, onSelect: (String?) -> Unit) {
+fun JobColorPicker(selected: String?, labels: List<com.xlollx.songport.model.Label> = emptyList(), onSelect: (String?) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Swatch(MaterialTheme.colorScheme.surfaceContainerHighest, stringResource(R.string.job_color_default), selected == null) { onSelect(null) }
         JobColor.entries.forEach { c ->
-            Swatch(if (LocalAppDark.current) c.dark else c.light, stringResource(c.label), selected == c.key) { onSelect(c.key) }
+            val named = labels.firstOrNull { it.id == c.key }?.name.orEmpty()
+            Swatch(if (LocalAppDark.current) c.dark else c.light, named.ifEmpty { stringResource(c.label) }, selected == c.key) { onSelect(c.key) }
+        }
+        // The user's own colours saved with a name: ready like the others, so another sync gets the very same one.
+        labels.filter { JobColor.of(it.id) == null }.forEach { l ->
+            jobAccent(l.color)?.let { Swatch(it, l.name, selected == l.id) { onSelect(l.id) } }
         }
         // Last: any colour, from a picker. Shows the chosen one when it is a colour of the user's own.
         val own = CustomColor.parse(selected)
@@ -206,6 +215,13 @@ fun JobColorPicker(selected: String?, onSelect: (String?) -> Unit) {
         if (open) CustomColorDialog(own ?: JobColor.BLUE.light, onDismiss = { open = false }) { open = false; onSelect(CustomColor.key(it)) }
     }
 }
+
+/** The colour (SyncJob.color) of what a picker holds: a label's colour, or the colour itself. */
+fun pickedColor(pick: String?, labels: List<com.xlollx.songport.model.Label>): String? =
+    if (pick == null || com.xlollx.songport.sync.Labels.isCustom(pick)) pick else com.xlollx.songport.sync.Labels.find(labels, pick)?.color
+
+/** The label (SyncJob.label) of what a picker holds: none for no colour and for a colour without a name. */
+fun pickedLabel(pick: String?): String? = pick?.takeUnless { com.xlollx.songport.sync.Labels.isCustom(it) }
 
 private val RAINBOW = listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red)
 
