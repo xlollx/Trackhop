@@ -172,6 +172,9 @@ class MainActivity : ComponentActivity() {
         // Asked for on the first sync run or schedule, not here (see NotificationAsk).
         NotificationAsk.request = { askNotificationPermission() }
         handleIntent(intent)
+        // A tab asked for but not shown yet when the activity was recreated (the text size or the
+        // screen turned right after opening): the request left the intent with the first activity.
+        savedInstanceState?.getInt(EXTRA_TAB, -1)?.let { if (it >= 0) tabRequests.value = it }
         if (savedInstanceState == null) com.xlollx.songport.sync.SupportPrompt.opened(Store.get(this))
         if (Store.get(this).data.settings.appLock && !unlockedThisProcess) {
             locked.value = true
@@ -212,6 +215,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        tabRequests.value.let { if (it >= 0) outState.putInt(EXTRA_TAB, it) }
     }
 
     override fun onResume() {
