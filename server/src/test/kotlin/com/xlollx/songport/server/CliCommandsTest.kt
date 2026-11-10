@@ -121,6 +121,87 @@ class CliCommandsTest {
         assertEquals(null, env.store.job(copy.id))
     }
 
+    @Test fun aTwoWayPairFromTheCommandLine() {
+        File(data, "csv/Other.csv").writeText("title,artist\nSong Nine,Band Z\n")
+        val made = cli("new", "csv", "Road trip", "csv", "Other", "--name", "Both", "--two-way", "--two-way-removals")
+        assertEquals(made.toString(), 0, made.code)
+        assertTrue(made.out, made.out.contains("two-way with removals"))
+        val both = env.store.data.jobs.first { it.name == "Both" }
+        val twin = env.store.job(both.linkedJobId!!)!!
+        assertTrue(twin.twin && twin.twoWayRemovals && both.twoWayRemovals)
+        assertEquals("Other", twin.source.playlistId)
+        assertTrue(cli("show", "Both").out.contains("two-way with removals"))
+        val calmer = cli("edit", "Both", "--no-two-way-removals")
+        assertTrue(calmer.toString(), calmer.out.contains("two-way") && !calmer.out.contains("with removals"))
+        assertFalse(env.store.job(twin.id)!!.twoWayRemovals)
+        // One way again: the reverse sync goes.
+        val single = cli("edit", "Both", "--one-way")
+        assertEquals(single.toString(), 0, single.code)
+        assertFalse(single.out, single.out.contains("two-way"))
+        assertEquals(null, env.store.job(twin.id))
+        // Made on a sync that already exists; refused towards a playlist still to be made.
+        assertEquals(0, cli("edit", "Both", "--two-way").code)
+        assertTrue(env.store.job(both.id)!!.linkedJobId != null)
+        val refused = cli("edit", "Road trip", "--two-way")
+        assertEquals(1, refused.code); assertTrue(refused.err, refused.err.contains("existing destination"))
+        assertEquals(2, cli("edit", "Both", "--two-way", "--one-way").code)
+        // The assistant's tools take the same.
+        val api = Cli.connect(null, null) { data }
+        val off = Mcp.run(api, Mcp.callFor("edit_sync", Json.parseToJsonElement("""{"sync":"Both","two_way":false}""").jsonObject))
+        assertTrue(off.second, off.first && off.second.contains("\"twoWay\": false"))
+        val on = Mcp.run(api, Mcp.callFor("edit_sync", Json.parseToJsonElement("""{"sync":"Both","two_way":true,"two_way_removals":true}""").jsonObject))
+        assertTrue(on.second, on.first && on.second.contains("\"twoWayRemovals\": true"))
+    }
+
+    @Test fun heldRemovalsAreConfirmedFromTheCommandLine() {
+        File(data, "csv/Mirror.csv").writeText("title,artist\nSong One,Band A\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
+        env.store.upsertJob(SyncJob("m", "Mirrored", PlaylistRef(LocalFilesProvider.id, "Road trip", "Road trip"), PlaylistRef(LocalFilesProvider.id, "Mirror", "Mirror"), mirrorRemovals = true))
+        val held = cli("run", "Mirrored", "--wait")
+        assertEquals(held.toString(), 0, held.code)
+        assertTrue(held.out, held.out.contains("12 removals held back") && held.out.contains("--confirm-removals"))
+        cli("preview", "Mirrored").let { assertTrue(it.toString(), it.out.contains("--confirm-removals")) }
+        // Only for syncs named, never a whole group.
+        assertEquals(2, cli("run", "--all", "--confirm-removals").code)
+        assertEquals(2, cli("run", "--favorite", "--confirm-removals").code)
+        val done = cli("run", "Mirrored", "--wait", "--confirm-removals")
+        assertEquals(done.toString(), 0, done.code)
+        assertTrue(done.out, done.out.contains("-12") && !done.out.contains("held back"))
+        assertFalse(File(data, "csv/Mirror.csv").readText().contains("Gone"))
+        // The assistant's tool passes the same switch.
+        val asked = Mcp.callFor("run_sync", Json.parseToJsonElement("""{"sync":"Mirrored","confirm_removals":true}""").jsonObject)
+        assertTrue(asked.opts.has("confirm-removals"))
+        assertFalse(Mcp.callFor("run_sync", Json.parseToJsonElement("""{"sync":"Mirrored"}""").jsonObject).opts.has("confirm-removals"))
+    }
+
+    @Test fun theSongsWithoutMusicBrainzTagsFromTheCommandLine() {
+        // No such server connected: said, as a failure.
+        val none = cli("mbtags")
+        assertEquals(1, none.code); assertTrue(none.err, none.err.contains("MusicBrainz"))
+        val navidrome = HttpServer.create(java.net.InetSocketAddress("127.0.0.1", 0), 0).apply {
+            createContext("/") { ex ->
+                val songs = if (ex.requestURI.path.endsWith("search3")) ""","searchResult3":{"song":[
+                    {"id":"a","title":"Tagged","artist":"Band","musicBrainzId":"5fb524f1-8cc8-4c04-a921-e34c0a911ea7"},
+                    {"id":"b","title":"Bare","artist":"Band","album":"Demo"}]}""" else ""
+                val body = """{"subsonic-response":{"status":"ok","version":"1.16.1"$songs}}""".toByteArray()
+                ex.sendResponseHeaders(200, body.size.toLong())
+                ex.responseBody.use { it.write(body) }
+            }
+            start()
+        }
+        try {
+            env.tokens.set("subsonic", com.xlollx.songport.data.Tokens(accessToken = "pw", userName = "me", extra = mapOf("url" to "http://127.0.0.1:${navidrome.address.port}")))
+            env.store.updateSettings { it.copy(connectors = it.connectors + "subsonic") }
+            val listed = cli("mbtags")
+            assertEquals(listed.toString(), 0, listed.code)
+            assertTrue(listed.out, listed.out.contains("1 of 2 songs") && listed.out.contains("Band - Bare  [Demo]") && listed.out.contains("picard"))
+            assertTrue(cli("mbtags", "subsonic", "--json").out.contains("\"untagged\": 1"))
+            val tool = Mcp.run(Cli.connect(null, null) { data }, Mcp.callFor("find_untagged_songs", JsonObject(emptyMap())))
+            assertTrue(tool.second, tool.first && tool.second.contains("\"title\": \"Bare\""))
+        } finally {
+            navidrome.stop(0)
+        }
+    }
+
     @Test fun runsReportsAndTheReview() {
         assertEquals(0, cli("run", "j1", "--wait").code)
         val runs = cli("runs", "Road trip")
@@ -218,7 +299,7 @@ class CliCommandsTest {
         val tools = list["result"]!!.jsonObject["tools"]!!.jsonArray.map { it.jsonObject }
         fun hint(name: String, k: String) = tools.first { it["name"]!!.jsonPrimitive.content == name }["annotations"]!!.jsonObject[k]?.jsonPrimitive?.content
         for (t in listOf("delete_sync", "review_tracks", "remove_duplicates", "delete_files")) assertEquals(t, "true", hint(t, "destructiveHint"))
-        for (t in listOf("preview_sync", "list_runs", "get_review", "search_tracks", "convert_tracks", "find_duplicates", "export_playlist", "get_stats")) assertEquals(t, "true", hint(t, "readOnlyHint"))
+        for (t in listOf("preview_sync", "list_runs", "get_review", "search_tracks", "convert_tracks", "find_duplicates", "find_untagged_songs", "export_playlist", "get_stats")) assertEquals(t, "true", hint(t, "readOnlyHint"))
         // And they run the commands.
         val api = Cli.connect(null, null) { data }
         fun call(tool: String, args: String): Pair<Boolean, String> = Mcp.run(api, Mcp.callFor(tool, Json.parseToJsonElement(args).jsonObject))

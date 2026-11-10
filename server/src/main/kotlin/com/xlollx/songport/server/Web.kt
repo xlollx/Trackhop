@@ -355,7 +355,9 @@ class Web(
             else -> """<span class="ok">+${last.added} −${last.removed}</span>""" +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
                 (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
-                (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "")
+                (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "") +
+                // Removals the last run held back: seen and confirmed on their own page, for one run.
+                (if (last.heldBack > 0) """ · <a href="/syncs/${q(job.id)}/removals">${last.heldBack} ${if (last.heldBack == 1) "removal" else "removals"} held back</a>""" else "")
         }
         val next = Runner.nextRun(job)?.let { " · next ${Html.date(it)}" } ?: ""
         val radio = job.radio
@@ -375,7 +377,7 @@ class Web(
         return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
-<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
+<span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
 <div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
@@ -430,11 +432,24 @@ ${choice("archive", "Keep every track (archive): nothing is ever removed, only n
 <label class="check"><input type="checkbox" name="follows"${if (job?.followsChanges == true) " checked" else ""}> With the latest version: the source changes by itself (a daylist, Discover Weekly), big removals need no confirmation</label>"""
     }
 
-    /** For half of a two-way pair (made in the app): whether removals travel too. Nothing for any other sync. */
-    internal fun pairFields(job: SyncJob): String {
-        val other = job.linkedJobId?.let { env.store.job(it) } ?: return ""
+    /**
+     * Two-way on a sync's form, as the app's editor: the tick makes (or deletes) the "↔" half, and
+     * removals can travel too. The "↔" half is unpaired from the other sync's page: here it only
+     * says whose half it is. Nothing for a sync that cannot be two-way; [job] null for a new one.
+     */
+    internal fun pairFields(job: SyncJob?): String {
+        val other = job?.linkedJobId?.let { env.store.job(it) }
+        val removals = """<label class="check"><input type="checkbox" name="twoWayRemovals"${if (other != null && job.twoWayRemovals && other.twoWayRemovals) " checked" else ""}> ${if (other != null) "Two-way with ${h(other.name)}: removals" else "With two-way: removals"} too. A track you remove on one side is removed on the other. Starts after the next run</label>"""
+        if (job != null && other != null && twinOriginal(job) != null) {
+            return """
+<p class="muted">The ↔ half of the two-way sync <a href="/syncs/${q(other.id)}">${h(other.name)}</a>: it follows that sync's settings, and two-way is turned off there.</p>
+$removals"""
+        }
+        if (job != null && other == null) twoWayProblem(job, listed = false)?.let { return if (job.radio != null || job.shazam) "" else """
+<p class="muted">${h(it)}</p>""" }
         return """
-<label class="check"><input type="checkbox" name="twoWayRemovals"${if (job.twoWayRemovals && other.twoWayRemovals) " checked" else ""}> Two-way with ${h(other.name)}: removals too. A track you remove on one side is removed on the other. Starts after the next run</label>"""
+<input type="hidden" name="pair" value="1"><label class="check"><input type="checkbox" name="twoWay"${if (other != null) " checked" else ""}> Two-way: also ${if (other != null) "keeps" else "creates"} the reverse sync (marked ↔), so tracks added on either side reach the other.${if (other != null) " Unticked, the reverse sync is deleted (the playlists stay as they are)" else " For two existing playlists of yours"}</label>
+$removals"""
     }
 
     /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
@@ -760,6 +775,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 val job = env.store.job(rest[0]) ?: return send(r.ex, 404, page("Unknown sync", "<p><a href=\"/\">Back</a></p>"))
                 val back = "/syncs/${q(job.id)}"
                 if (rest.getOrNull(1) == "review") return review(r, job, rest.drop(2))
+                if (rest.getOrNull(1) == "removals") return heldRemovals(r, job)
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
@@ -786,8 +802,13 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
                         val changed = if (job.radio != null) timed else withChanges(timed, r)
-                        // The pair's own choice is on the form only for a pair (see pairFields).
-                        val saved = if (job.linkedJobId?.let { env.store.job(it) } != null) pairRemovals(changed, r.form["twoWayRemovals"] == "on") else changed
+                        // Two-way and its removals, where the form offers them (see pairFields).
+                        val paired = job.linkedJobId?.let { env.store.job(it) } != null
+                        val offered = r.form["pair"] == "1"
+                        val saved = runCatching {
+                            val twoWay = if (offered) r.form["twoWay"] == "on" else null
+                            pairing(changed, twoWay, if (offered) twoWay == true && r.form["twoWayRemovals"] == "on" else if (paired) r.form["twoWayRemovals"] == "on" else null)
+                        }.getOrElse { return redirect(r.ex, "$back?err=${q(it.message ?: "Error")}") }
                         val warning = conflictWarning(saved)
                         // The colour and its name as the app's "Style" saves them: a name makes or renames a
                         // label for every sync wearing it. A form without the name leaves the labels alone.
@@ -795,6 +816,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         env.store.update { d ->
                             Labels.styled(d.copy(jobs = d.jobs.map { if (it.id == saved.id) saved else it }), setOf(saved.id), pick, labelName)
                         }
+                        env.store.job(saved.id)?.let { settlePair(job, it) }
                         redirect(r.ex, "$back?ok=${q("Saved." + (warning?.let { " $it" } ?: ""))}")
                     }
                     "radio" -> {
@@ -888,7 +910,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-${changesFields(null)}
+${changesFields(null)}${pairFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -928,8 +950,10 @@ ${changesFields(null)}
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
         ).let { withChanges(withTiming(it, r), r) }
+            .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
+        env.store.job(job.id)?.let { settlePair(null, it) }
         redirect(r.ex, "/syncs/${q(job.id)}?ok=${q("Sync created. Run it now, or let the schedule start it." + (warning?.let { " $it" } ?: ""))}")
     }
 

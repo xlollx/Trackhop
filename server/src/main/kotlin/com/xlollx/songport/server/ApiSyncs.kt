@@ -92,20 +92,6 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
     return job.copy(mirrorRemovals = mode == "mirror", followsChanges = mode == "mirror" && (follows ?: job.followsChanges), archive = mode == "archive")
 }
 
-/**
- * [job] with removals travelling across its two-way pair or not ([SyncJob.twoWayRemovals]); the
- * other half is saved with the same choice, as the engine wants it on both. A pair is made in the
- * app and comes here with its configuration file: a sync on its own has no other side to follow.
- */
-internal fun Web.pairRemovals(job: SyncJob, on: Boolean): SyncJob {
-    val partner = job.linkedJobId?.let { env.store.job(it) }
-        ?: if (on) throw IllegalArgumentException("\"twoWayRemovals\" is for a two-way pair (made in the app); this sync has no other half.") else return job.copy(twoWayRemovals = false)
-    if (partner.twoWayRemovals != on) env.store.upsertJob(partner.copy(twoWayRemovals = on))
-    // Turned off: what the pair had in common is forgotten, so turning it on again starts afresh.
-    if (!on) env.store.dropPairState(job)
-    return job.copy(twoWayRemovals = on)
-}
-
 /** [job] with the colour in [b]: a name of the palette, "#RRGGBB", or null/"" for none. */
 private fun coloured(job: SyncJob, b: JsonObject): SyncJob {
     if (!b.containsKey("color")) return job
@@ -203,13 +189,14 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
                 // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
                 if (j.radio == null) j = changed(timed(j, b), b)
-                b.flag("twoWayRemovals")?.let { j = pairRemovals(j, it) }
-                grouped(coloured(j, b), b, env.store.data.settings.labels)
+                // Two-way made or unmade, and whether removals travel too (Pairs.kt); the other half follows below.
+                pairing(grouped(coloured(j, b), b, env.store.data.settings.labels), b.flag("twoWay"), b.flag("twoWayRemovals"))
             }.getOrElse { e -> return true.also { bad(e) } }
             val warning = conflictWarning(edited)
             env.store.upsertJob(edited)
             // As kept: the label's colour on the card, the tags tidied.
             val saved = env.store.job(edited.id) ?: edited
+            settlePair(job, saved)
             json(200, buildJsonObject {
                 Api.job(env, saved, runner.isRunning(edited.id)).forEach { (k, v) -> put(k, v) }
                 warning?.let { put("warning", it) }
@@ -289,9 +276,11 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     val job = runCatching {
         val base = SyncJob(id = UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
         grouped(coloured(changed(timed(base, b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
+            .let { j -> pairing(j, b.flag("twoWay"), b.flag("twoWayRemovals")) }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }
     val warning = conflictWarning(job)
     env.store.upsertJob(job)
+    env.store.job(job.id)?.let { settlePair(null, it) }
     env.log("api", "created sync ${job.name}")
     json(201, buildJsonObject {
         Api.job(env, env.store.job(job.id) ?: job, false).forEach { (k, v) -> put(k, v) }
@@ -302,7 +291,8 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
 /** What a run would do now, without changing anything (the app's preview): a target not made yet is not made. */
 private fun Web.preview(job: SyncJob, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit) {
     if (job.radio != null) return error(400, "A radio sync's tracks come from the station as it plays: there is nothing to preview.")
-    val plan = runCatching { runBlocking { SyncEngine(env).plan(job, createTarget = false) } }
+    // As the app's preview: every removal is shown, with whether a run would hold them back; no confirmation is used up.
+    val plan = runCatching { runBlocking { SyncEngine(env).plan(job, createTarget = false, interactive = true) } }
         .getOrElse { return error(502, it.message ?: it.javaClass.simpleName) }
     json(200, buildJsonObject {
         put("syncId", job.id)

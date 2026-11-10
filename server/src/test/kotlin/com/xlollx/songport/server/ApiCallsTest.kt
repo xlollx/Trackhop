@@ -177,6 +177,158 @@ class ApiCallsTest {
         assertEquals("null", call("GET", "syncs/solo").obj.s("linkedSyncId") ?: "null")
     }
 
+    /** Two-way made here as in the app's editor: the "↔" half is made, follows the first, and goes when two-way is turned off. */
+    @Test fun aTwoWayPairIsMadeFollowedAndUnmade() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"name":"Pair","schedule":"daily","at":"07:30","tags":{"mood":"gym"},"favorite":true,"color":"teal","twoWay":true,"twoWayRemovals":true}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        assertEquals("true", made.obj.s("twoWay")); assertEquals("false", made.obj.s("twin")); assertEquals("true", made.obj.s("twoWayRemovals"))
+        val twinId = made.obj.s("linkedSyncId")!!
+        var twin = env.store.job(twinId)!!
+        assertTrue(twin.twin && twin.twoWayRemovals && !twin.mirrorRemovals)
+        assertEquals("Pair ↔", twin.name); assertEquals(id, twin.linkedJobId)
+        assertEquals("Out", twin.source.playlistId); assertEquals("In", twin.target.playlistId)
+        assertEquals(mapOf("mood" to "gym"), twin.tags)
+        assertTrue(twin.favorite); assertEquals("teal", twin.color); assertEquals("teal", twin.label)
+        assertEquals("07:30", twin.at); assertEquals(1440, com.xlollx.songport.sync.Timing.interval(twin))
+        assertEquals("true", call("GET", "syncs/$twinId").obj.s("twin"))
+
+        // The first one changed: the other half follows what the two share, and its name while it is the editor's.
+        val edited = call("PATCH", "syncs/$id", """{"name":"Both","every":180,"favorite":false,"enabled":false,"twoWayRemovals":false}""")
+        assertEquals(edited.text, 200, edited.code)
+        twin = env.store.job(twinId)!!
+        assertEquals("Both ↔", twin.name)
+        assertEquals(180, com.xlollx.songport.sync.Timing.interval(twin))
+        assertFalse(twin.favorite || twin.enabled || twin.twoWayRemovals)
+        assertFalse(env.store.job(id)!!.twoWayRemovals)
+        // Asked again, nothing is made twice.
+        assertEquals(200, call("PATCH", "syncs/$id", """{"twoWay":true,"twoWayRemovals":true}""").code)
+        assertEquals(2, env.store.data.jobs.size)
+        assertTrue(env.store.job(id)!!.twoWayRemovals && env.store.job(twinId)!!.twoWayRemovals)
+
+        // Two-way is turned off on the first sync, not on its ↔ half; the half goes, with the pair's state.
+        val refused = call("PATCH", "syncs/$twinId", """{"twoWay":false}""")
+        assertEquals(400, refused.code); assertTrue(refused.text, refused.text.contains(id))
+        env.store.putPairState(env.store.job(id)!!, com.xlollx.songport.data.PairState("csv|In", "csv|Out", mapOf("1" to "1")))
+        val off = call("PATCH", "syncs/$id", """{"twoWay":false}""")
+        assertEquals(off.text, 200, off.code)
+        assertEquals("false", off.obj.s("twoWay")); assertEquals("false", off.obj.s("twoWayRemovals"))
+        assertEquals(null, env.store.job(twinId))
+        assertEquals(null, env.store.job(id)!!.linkedJobId)
+        assertTrue(env.store.data.pairStates.isEmpty())
+        // The playlists stay as they were.
+        assertTrue(File(data, "csv/In.csv").isFile && File(data, "csv/Out.csv").isFile)
+
+        // Not towards a playlist still to be made, nor from a radio's or a link's source; nothing is saved then.
+        val fresh = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"twoWay":true}""")
+        assertEquals(400, fresh.code); assertTrue(fresh.text, fresh.text.contains("existing destination"))
+        assertEquals(1, env.store.data.jobs.size)
+        // Made later on a sync that has both playlists.
+        assertEquals(200, call("PATCH", "syncs/$id", """{"twoWay":true}""").code)
+        val again = env.store.job(env.store.job(id)!!.linkedJobId!!)!!
+        assertTrue(again.twin && !again.twoWayRemovals); assertEquals("Both ↔", again.name)
+    }
+
+    /** Removals a run holds back are confirmed for one run started by a call; a scheduled run never makes them. */
+    @Test fun heldRemovalsAreConfirmedForOneRun() {
+        File(data, "csv/In.csv").writeText("title,artist\nSong,Band\nOther Song,Other Band\n")
+        File(data, "csv/Out.csv").writeText("title,artist\nSong,Band\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
+        env.store.upsertJob(SyncJob("m", "Mirror", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out"), mirrorRemovals = true))
+        fun ran(after: String?): JsonObject {
+            val until = System.currentTimeMillis() + 20_000
+            while (System.currentTimeMillis() < until) {
+                val o = call("GET", "syncs/m").obj
+                val last = o["lastResult"] as? JsonObject
+                if (o.s("running") == "false" && last != null && last.s("id") != after) return last
+                Thread.sleep(100)
+            }
+            error("the run did not end")
+        }
+        assertEquals(202, call("POST", "syncs/m/run").code)
+        val first = ran(null)
+        assertEquals(first.toString(), "12", first.s("heldRemovals")); assertEquals("0", first.s("removed"))
+        val preview = call("GET", "syncs/m/preview").obj
+        assertEquals("true", preview.s("removalsNeedConfirmation"))
+        assertEquals(12, preview["toRemove"]!!.jsonArray.size)
+
+        // A confirmation of only some of them does not cover the run: all are held again (and it is spent).
+        env.store.confirmRemovals("m", preview["toRemove"]!!.jsonArray.take(3).map { it.jsonObject.s("id")!! })
+        assertEquals(202, call("POST", "syncs/m/run").code)
+        val partly = ran(first.s("id"))
+        assertEquals("12", partly.s("heldRemovals"))
+
+        // Confirmed by the call: this run makes them, the next one has nothing to hold.
+        val confirmed = call("POST", "syncs/m/run", """{"confirmRemovals":true}""")
+        assertEquals(confirmed.text, 202, confirmed.code)
+        assertEquals("true", confirmed.obj.s("removalsConfirmed"))
+        val done = ran(partly.s("id"))
+        assertEquals(done.toString(), "12", done.s("removed")); assertEquals("0", done.s("heldRemovals"))
+        assertFalse(File(data, "csv/Out.csv").readText().contains("Gone"))
+        assertTrue(env.store.data.removalConfirmations.isEmpty())
+    }
+
+    /** The ids of the preview, as the app's tick sends them: only those go. */
+    @Test fun heldRemovalsConfirmedByTheirIdsAndNeverByASchedule() {
+        File(data, "csv/In.csv").writeText("title,artist\nSong,Band\n")
+        File(data, "csv/Out.csv").writeText("title,artist\nSong,Band\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
+        val job = SyncJob("m", "Mirror", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out"), mirrorRemovals = true)
+        env.store.upsertJob(job)
+        val runner = Runner(env)
+        fun wait(after: String?): SyncReport {
+            val until = System.currentTimeMillis() + 20_000
+            while (System.currentTimeMillis() < until) {
+                val j = env.store.job("m")!!
+                if (!runner.isRunning("m") && j.lastReportId != null && j.lastReportId != after) return env.store.report(j.lastReportId!!)!!
+                Thread.sleep(100)
+            }
+            error("the run did not end")
+        }
+        // By its schedule, even asked to confirm: held.
+        runner.start(job, scheduled = true, confirmRemovals = true)
+        val scheduled = wait(null)
+        assertEquals(12, scheduled.heldBack); assertEquals(0, scheduled.removed)
+        assertTrue(env.store.data.removalConfirmations.isEmpty())
+        val ids = call("GET", "syncs/m/preview").obj["toRemove"]!!.jsonArray.map { it.jsonObject.s("id")!! }
+        val sent = call("POST", "syncs/m/run", """{"confirmRemovals":[${ids.joinToString(",") { "\"$it\"" }}]}""")
+        assertEquals(sent.text, 202, sent.code)
+        val until = System.currentTimeMillis() + 20_000
+        while (File(data, "csv/Out.csv").readText().contains("Gone") && System.currentTimeMillis() < until) Thread.sleep(100)
+        assertFalse(env.store.data.reports.first().toString() + sent.text, File(data, "csv/Out.csv").readText().contains("Gone"))
+    }
+
+    /** The songs of a personal server without MusicBrainz tags, as the page's tool lists them. */
+    @Test fun theSongsWithoutMusicBrainzTags() {
+        assertEquals(400, call("GET", "tools/mbtags").code)
+        assertEquals(400, call("GET", "tools/mbtags?service=csv").code)
+        assertEquals(404, call("GET", "tools/mbtags?service=nowhere").code)
+        val navidrome = HttpServer.create(java.net.InetSocketAddress("127.0.0.1", 0), 0).apply {
+            createContext("/") { ex ->
+                val songs = if (ex.requestURI.path.endsWith("search3")) ""","searchResult3":{"song":[
+                    {"id":"a","title":"Tagged","artist":"Band","musicBrainzId":"5fb524f1-8cc8-4c04-a921-e34c0a911ea7"},
+                    {"id":"b","title":"Bare","artist":"Band","album":"Demo"}]}""" else ""
+                val body = """{"subsonic-response":{"status":"ok","version":"1.16.1"$songs}}""".toByteArray()
+                ex.sendResponseHeaders(200, body.size.toLong())
+                ex.responseBody.use { it.write(body) }
+            }
+            start()
+        }
+        try {
+            env.tokens.set("subsonic", com.xlollx.songport.data.Tokens(accessToken = "pw", userName = "me", extra = mapOf("url" to "http://127.0.0.1:${navidrome.address.port}")))
+            env.store.updateSettings { it.copy(connectors = it.connectors + "subsonic") }
+            // The only such server connected: no need to name it; "connector" names it too.
+            for (path in listOf("tools/mbtags", "tools/mbtags?service=subsonic", "tools/mbtags?connector=subsonic")) {
+                val a = call("GET", path)
+                assertEquals(a.text, 200, a.code)
+                assertEquals("2", a.obj.s("songs")); assertEquals("1", a.obj.s("untagged")); assertEquals("subsonic", a.obj.s("service"))
+                val t = a.obj["tracks"]!!.jsonArray.single().jsonObject
+                assertEquals("Bare", t.s("title")); assertEquals("Demo", t.s("album"))
+                assertTrue(a.obj.s("guide")!!.contains("picard"))
+            }
+        } finally {
+            navidrome.stop(0)
+        }
+    }
+
     @Test fun aSyncIsMadeChangedMovedAndDeleted() {
         val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"name":"Mine","schedule":"daily","at":"07:30","changes":"mirror","color":"teal"}""")
         assertEquals(made.text, 201, made.code)

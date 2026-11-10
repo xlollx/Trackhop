@@ -407,6 +407,16 @@ leave the home-screen app and not come back to it.
   *Run now*, *Pause* and *Stop*.
 - A scheduled run whose two sides are unchanged since last time is skipped, as in the app.
 - A scheduled run that finds no network is retried after 15 minutes.
+- **Two-way**: tick it in a new sync's form or on a sync's page, between two existing playlists of
+  yours, and Trackhop also makes the reverse sync (marked ↔), so what you add on either side reaches
+  the other. The ↔ sync follows the first one's timing, colour, label, tags and star. With *removals
+  too*, a track you remove on one side is removed on the other. Untick it and the ↔ sync is deleted;
+  the playlists stay as they are.
+- **Removals held back**: a run that would remove a quarter or more of the destination (or of what
+  a two-way pair had in common) keeps those tracks, because a playlist the service listed only in
+  part looks the same. The sync then says *N removals held back*: open it to see them, tick *Remove
+  these N tracks* and run. The confirmation serves one run started by hand, within 12 hours; a
+  scheduled run never removes them.
 - The log is in the page, in `docker logs trackhop` (or the name you gave the container), and in
   `songport.log`.
 
@@ -415,7 +425,7 @@ leave the home-screen app and not come back to it.
 The page's **Tools** are the app's: Export a playlist, File playlists (upload any format, download
 CSV, M3U, XSPF, JSPF or text), **Full backup** (by hand, daily or weekly, optionally copied to a
 folder: mount one, for example `-v /mnt/nas/trackhop:/backups`, and enter `/backups`),
-**Duplicates**, **Unplayable tracks**, **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
+**Duplicates**, **Unplayable tracks**, **MusicBrainz tags** (the songs on your Navidrome, Jellyfin, Emby or Plex server without them), **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
 page refreshes until the result, and you can leave it.
 
 ## Lyrics
@@ -577,7 +587,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | Call | What it does |
 |---|---|
 | `GET /api/v1/syncs` | Every sync with its source, target, timing, label, tags and last result; `?tag=genre:metal`, `?label=` and `?favorite=true` narrow the list. |
-| `POST /api/v1/syncs` | Make a sync. |
+| `POST /api/v1/syncs` | Make a sync; `"twoWay": true` also makes the reverse sync (marked ↔). |
 | `POST /api/v1/syncs/run-all` | Start every sync that is turned on. |
 | `POST /api/v1/syncs/run` | Start a group of syncs: those with a tag (`?tag=genre:metal`), wearing a label (`?label=`) or starred (`?favorite=true`), turned on. |
 | `GET /api/v1/tags` | The tag keys the syncs use, each with its values. |
@@ -586,9 +596,9 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `PATCH /api/v1/labels/{label}` | Rename a label or give it another colour: its syncs follow. |
 | `DELETE /api/v1/labels/{label}` | Delete a label: its syncs keep their colour, without the name. |
 | `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
-| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite. |
+| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite, twoWay, twoWayRemovals. |
 | `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are). |
-| `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check. |
+| `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check; `{"confirmRemovals": true}` lets this run make the removals a run holds back. |
 | `POST /api/v1/syncs/{sync}/stop` | Stop a running sync. |
 | `POST /api/v1/syncs/{sync}/pause` | Pause a running sync. |
 | `POST /api/v1/syncs/{sync}/resume` | Resume a paused sync. |
@@ -616,6 +626,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
+| `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
 **Playlists**
 
@@ -696,6 +707,22 @@ made at the first run. The timing is `schedule` (`manual`, `hourly`, `every_6h`,
 `weekly`) or `every` in minutes, with `at` (`"07:30"`) and `days` (1 = Monday … 7 = Sunday);
 `changes` is `add` (only add), `mirror` (also remove what leaves the source) or `archive` (keep
 every track ever seen); `color` a name (`teal`) or `#RRGGBB`. A `PATCH` changes only what it names.
+
+**Two-way.** `"twoWay": true` on `POST /syncs` or on a `PATCH` also makes the reverse sync (marked
+↔, `"twin": true` in the list) between two existing playlists of yours; `"twoWayRemovals": true`
+lets removals travel too. The ↔ sync follows the first one's timing, colour, label, tags and star.
+`"twoWay": false` on the first sync deletes the ↔ one; the playlists stay as they are.
+
+**Removals held back.** A run that would remove a quarter or more of the destination keeps those
+tracks and says how many in its result (`heldRemovals`). `GET /syncs/{sync}/preview` lists them
+(`toRemove`, with `removalsNeedConfirmation`). To let one run make them, start it with
+`{"confirmRemovals": true}` (what the preview shows at that moment), or with the ids you saw,
+`{"confirmRemovals": ["<id>", …]}`, so that nothing else goes. Scheduled runs never make them.
+
+```sh
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"confirmRemovals": true}' http://127.0.0.1:8080/api/v1/syncs/<sync>/run
+```
 
 ```sh
 curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \

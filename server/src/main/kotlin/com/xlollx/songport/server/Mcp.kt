@@ -106,6 +106,8 @@ object Mcp {
         Param("tags", "string", "Tags to add or change, as \"genre=metal, mood=gym\"; a key alone (\"kids\") is a tag too.", required = false),
         Param("untag", "string", "Tag keys to take off, e.g. \"genre, mood\" (edit_sync).", required = false),
         Param("favorite", "boolean", "true to star the sync (shown first), false to take the star off.", required = false),
+        Param("two_way", "boolean", "true: also make the reverse sync (marked ↔) between two existing playlists of the user's, so what is added on either side reaches the other; false (edit_sync): delete the reverse sync.", required = false),
+        Param("two_way_removals", "boolean", "With two_way: a track removed on one side is removed on the other too (false: a pair only adds).", required = false),
     )
 
     private val GROUP = listOf(
@@ -129,8 +131,10 @@ object Mcp {
             GROUP, readOnly = true) { a -> a.group(command = "syncs") },
         Tool("get_sync", "Show a sync", "One sync's details and its last runs.",
             listOf(SYNC), readOnly = true) { a -> Call("show", listOf(a.text("sync"))) },
-        Tool("run_sync", "Run a sync", "Starts a sync now. With wait, answers when it ends, with what it added, removed and could not find.",
-            listOf(SYNC, WAIT), readOnly = false) { a -> Call("run", listOf(a.text("sync")), wait = a.flag("wait")) },
+        Tool("run_sync", "Run a sync", "Starts a sync now. With wait, answers when it ends, with what it added, removed and could not find. A result with heldRemovals kept that many removals back: show them to the user with preview_sync, and only if they say so run again with confirm_removals.",
+            listOf(SYNC, WAIT, Param("confirm_removals", "boolean", "true: this run makes the removals a run holds back (a quarter or more of the destination). Ask the user first, after preview_sync.", required = false)), readOnly = false) { a ->
+            Call("run", listOf(a.text("sync")), wait = a.flag("wait"), flags = setOfNotNull("confirm-removals".takeIf { a.flag("confirm_removals") }))
+        },
         Tool("run_syncs_by_tag", "Run a group of syncs", "Starts the syncs with a tag (\"the playlists tagged gym\"), wearing a label, or starred; only those turned on. Give at least one of tag, label, favorite.",
             GROUP + WAIT, readOnly = false) { a ->
             if (a.opt("tag") == null && a.opt("label") == null && !a.flag("favorite")) throw Cli.Failure(2, "say which syncs: \"tag\", \"label\" or \"favorite\"")
@@ -172,7 +176,7 @@ object Mcp {
             ) + SYNC_OPTIONS, readOnly = false) { a ->
             Call("new", listOfNotNull(a.text("source_service"), a.text("source_playlist"), a.text("target_service"), a.opt("target_playlist")), values = a.syncValues(), flags = a.syncFlags(), multi = a.syncMulti())
         },
-        Tool("edit_sync", "Change a sync", "Changes a sync's name, timing, what it does with removals, colour, label, tags or star. Only what is given changes.",
+        Tool("edit_sync", "Change a sync", "Changes a sync's name, timing, what it does with removals, colour, label, tags or star, and whether it is two-way. Only what is given changes.",
             listOf(SYNC) + SYNC_OPTIONS, readOnly = false) { a -> Call("edit", listOf(a.text("sync")), values = a.syncValues(), flags = a.syncFlags(), multi = a.syncMulti()) },
         Tool("delete_sync", "Delete a sync", "Deletes a sync (its playlists stay as they are). Ask the user first.",
             listOf(SYNC), readOnly = false, destructive = true) { a -> Call("delete", listOf(a.text("sync"))) },
@@ -215,6 +219,8 @@ object Mcp {
             listOf(SERVICE, TRACKS), readOnly = true) { a -> Call("convert", listOf(a.text("service")) + a.list("tracks")) },
         Tool("find_duplicates", "Find duplicates", "The tracks a playlist holds more than once.",
             listOf(SERVICE, PLAYLIST), readOnly = true) { a -> Call("duplicates", listOf(a.text("service"), a.text("playlist"))) },
+        Tool("find_untagged_songs", "Songs without MusicBrainz tags", "The songs on the user's Navidrome, Jellyfin, Emby or Plex server whose files carry no MusicBrainz tags (a sync finds those by title only). Reads the whole library: it can take a while. Nothing is changed.",
+            listOf(SERVICE.copy(required = false, description = "The server's name or id (list_services); left out when only one such server is connected.")), readOnly = true) { a -> Call("mbtags", listOfNotNull(a.opt("service"))) },
         Tool("remove_duplicates", "Remove duplicates", "Removes a playlist's extra copies (the first of each stays). Ask the user first.",
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))
@@ -253,6 +259,8 @@ object Mcp {
     private fun JsonObject.syncFlags() = setOfNotNull(
         "follows".takeIf { flag("follows") },
         (this["favorite"] as? JsonPrimitive)?.booleanOrNull?.let { if (it) "favorite" else "unfavorite" },
+        (this["two_way"] as? JsonPrimitive)?.booleanOrNull?.let { if (it) "two-way" else "one-way" },
+        (this["two_way_removals"] as? JsonPrimitive)?.booleanOrNull?.let { if (it) "two-way-removals" else "no-two-way-removals" },
     )
     private fun JsonObject.syncMulti() = listOfNotNull(
         opt("tags")?.parts()?.takeIf { it.isNotEmpty() }?.let { "tag" to it },

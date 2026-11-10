@@ -15,6 +15,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.put
 import java.net.URI
 import java.net.http.HttpClient
@@ -101,8 +102,11 @@ object Api {
         put("followsChanges", j.followsChanges)
         // Keeps every track ever seen: nothing is removed from the target, new tracks are added at the end.
         put("archive", j.archive)
-        // Half of a two-way pair (made in the app): the other half's id, and whether removals travel too.
-        put("linkedSyncId", j.linkedJobId?.takeIf { env.store.job(it) != null }?.let { JsonPrimitive(it) } ?: JsonNull)
+        // Half of a two-way pair: the other half's id, whether this is the "↔" half, and whether removals travel too.
+        val other = j.linkedJobId?.let { env.store.job(it) }
+        put("twoWay", other != null)
+        put("linkedSyncId", other?.let { JsonPrimitive(it.id) } ?: JsonNull)
+        put("twin", other != null && !other.twin && (j.twin || j.name == other.name + " ↔"))
         put("twoWayRemovals", j.twoWayRemovals)
         put("enabled", j.enabled)
         // Came turned off with a configuration from another device: where its schedule runs (null once turned on here).
@@ -171,6 +175,8 @@ object Api {
         put("toCheck", r.reviewTracks.size)
         put("targetTracks", r.targetCount)
         put("partial", r.partial)
+        // Removals the run held back (a quarter or more of the target, or of what a two-way pair shared): they wait for a confirmation.
+        put("heldRemovals", r.heldBack)
         if (tracks) {
             put("notFoundTracks", buildJsonArray { r.unmatchedTracks.forEach { add(trackRef(it)) } })
             put("addedTracks", buildJsonArray { r.addedTracks.forEach { add(trackRef(it)) } })
@@ -349,8 +355,16 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                     val already = job.id in running
                     // After a run stopped by the target's size check: the caller says the smaller target is real.
                     if (query["anyway"] == "true") env.store.confirmTargetShrink(job.id)
-                    runner.start(job)
-                    json(202, buildJsonObject { put("started", !already); put("running", true) })
+                    // Removals a run holds back (a quarter or more of the target): confirmed for this run, as
+                    // the app's preview does. true confirms what the preview shows now; a list of track
+                    // ids (the preview's toRemove) only those, so nothing unseen goes.
+                    val b = apiJson(ex) ?: JsonObject(emptyMap())
+                    val ids = (b["confirmRemovals"] as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
+                    val confirm = ids == null && (b.flag("confirmRemovals") ?: (query["confirmRemovals"] == "true"))
+                    if (already && (confirm || ids != null)) return error(409, "${job.name} is running: confirm the removals when it has ended.")
+                    if (ids != null) env.store.confirmRemovals(job.id, ids)
+                    runner.start(job, confirmRemovals = confirm)
+                    json(202, buildJsonObject { put("started", !already); put("running", true); if (confirm || ids != null) put("removalsConfirmed", true) })
                 }
                 else -> error(404, "Unknown call.")
             }

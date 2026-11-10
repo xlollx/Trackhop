@@ -35,7 +35,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "status" -> status()
         "syncs", "list", "ls" -> syncs(o)
         "show" -> show(one(p, "show <sync>"))
-        "run" -> runSyncs(p, o.has("all"), o.has("wait"), o.has("anyway"), group(o))
+        "run" -> runSyncs(p, o.has("all"), o.has("wait"), o.has("anyway"), group(o), o.has("confirm-removals"))
         "enable", "disable" -> toggle(one(p, "$command <sync>"), command == "enable")
         "new" -> newSync(p, o)
         "edit" -> editSync(p, o)
@@ -54,6 +54,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "search" -> { need(p, 2, "search <service> <words>..."); search(p[0], p.drop(1).joinToString(" "), o) }
         "convert" -> { need(p, 2, "convert <service> <track>..."); convert(p[0], p.drop(1)) }
         "duplicates" -> { need(p, 2, "duplicates <service> <playlist> [--remove]"); duplicates(p[0], p[1], o) }
+        "mbtags" -> mbTags(p.joinToString(" ").takeIf { it.isNotEmpty() })
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"))
@@ -121,7 +122,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             r.n("notFound").takeIf { it > 0 }?.let { "$it not found" },
             r.n("toCheck").takeIf { it > 0 }?.let { "$it to check" },
         )
-        return (listOf("+${r.n("added")} -${r.n("removed")}") + extra).joinToString(", ")
+        return (listOf("+${r.n("added")} -${r.n("removed")}") + extra + listOfNotNull(r.n("heldRemovals").takeIf { it > 0 }?.let { "$it removals held back (trackhop preview, then run --confirm-removals)" })).joinToString(", ")
     }
 
     /**
@@ -164,7 +165,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         if (asJson) return print(o).let { 0 }
         out.println("${o.s("name")}  (${o.s("id")})")
         out.println("  ${route(o)}")
-        out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
+        out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(o)}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
         (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
         groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
         o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
@@ -174,8 +175,10 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         return 0
     }
 
-    private fun runSyncs(p: List<String>, all: Boolean, wait: Boolean, anyway: Boolean = false, group: String = ""): Int {
+    private fun runSyncs(p: List<String>, all: Boolean, wait: Boolean, anyway: Boolean = false, group: String = "", confirmRemovals: Boolean = false): Int {
         if (!all && p.isEmpty() && group.isEmpty()) throw Cli.Failure(2, "usage: trackhop run <sync>... | --all | --tag KEY=VALUE [--wait]")
+        // Held removals are confirmed sync by sync, by its name: never for a whole group at once.
+        if (confirmRemovals && (all || group.isNotEmpty())) throw Cli.Failure(2, "--confirm-removals is for syncs you name: trackhop run <sync> --confirm-removals")
         if (group.isNotEmpty() && (all || p.isNotEmpty())) throw Cli.Failure(2, "name the syncs, or say --all, or give a group (--tag, --label, --favorite): one of the three")
         // A group: the syncs with that tag or label, those turned on (as Run all).
         val targets = when {
@@ -184,7 +187,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
             else -> p.map { sync(it) }
         }
         if (group.isNotEmpty()) { if (targets.isNotEmpty()) api.post("syncs/run?$group") }
-        else if (all) api.post("syncs/run-all") else targets.forEach { api.post("syncs/${enc(it.s("id"))}/run" + if (anyway) "?anyway=true" else "") }
+        else if (all) api.post("syncs/run-all") else targets.forEach { api.post("syncs/${enc(it.s("id"))}/run" + (if (anyway) "?anyway=true" else ""), if (confirmRemovals) buildJsonObject { put("confirmRemovals", true) } else null) }
         if (!wait) {
             if (asJson) print(buildJsonObject { put("started", buildJsonArray { targets.forEach { add(it.s("id")) } }) })
             else out.println("Started: ${targets.joinToString(", ") { it.s("name") }.ifEmpty { if (group.isEmpty()) "nothing (no syncs turned on)" else "nothing (no sync turned on matches)" }}")
@@ -435,6 +438,12 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         o.value("label")?.let { put("label", if (it == "none") "" else it) }
         if (o.has("favorite")) put("favorite", true)
         if (o.has("unfavorite")) put("favorite", false)
+        // Two-way: the reverse sync made or deleted, and whether removals travel across the pair.
+        if (o.has("two-way") && o.has("one-way")) throw Cli.Failure(2, "--two-way or --one-way, not both")
+        if (o.has("two-way")) put("twoWay", true)
+        if (o.has("one-way")) put("twoWay", false)
+        if (o.has("two-way-removals")) put("twoWayRemovals", true)
+        if (o.has("no-two-way-removals")) put("twoWayRemovals", false)
     }
 
     /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
@@ -472,7 +481,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         }
         val r = api.send("POST", "syncs", body).jsonObject
         if (asJson) return print(r).let { 0 }
-        out.println("Made \"${r.s("name")}\" (${r.s("id")}): ${route(r)}, ${r.s("timing")}")
+        out.println("Made \"${r.s("name")}\" (${r.s("id")}): ${route(r)}, ${r.s("timing")}${pair(r)}")
         r["warning"].str()?.let { out.println("Note: $it") }
         return 0
     }
@@ -480,13 +489,16 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
     private fun editSync(p: List<String>, o: Cli.Opts): Int {
         val target = sync(one(p, "edit <sync> [options]"))
         val body = buildJsonObject { syncFields(o); tagsField(o, target["tags"] as? JsonObject)?.let { put("tags", it) } }
-        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite (trackhop help edit)")
+        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way (trackhop help edit)")
         val r = api.send("PATCH", "syncs/${enc(target.s("id"))}", body).jsonObject
         if (asJson) return print(r).let { 0 }
-        out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")
+        out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(r)}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")
         r["warning"].str()?.let { out.println("Note: $it") }
         return 0
     }
+
+    /** ", two-way" for half of a pair (with its removals when they travel too), "" for a sync on its own. */
+    private fun pair(o: JsonObject) = if (o.b("twoWay")) ", two-way" + (if (o.b("twoWayRemovals")) " with removals" else "") else ""
 
     private fun deleteSync(ask: String): Int {
         val target = sync(ask)
@@ -522,7 +534,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         missing.take(MAX_LIST).forEach { out.println("? ${ref(it)}") }
         check.take(MAX_LIST).forEach { out.println("~ ${ref(it["source"]!!.jsonObject)}  ->  ${ref(it["match"]!!.jsonObject)}") }
         if (listOf(add, remove, missing, check).any { it.size > MAX_LIST }) out.println("(the first $MAX_LIST of each: --json for all)")
-        if (r.b("removalsNeedConfirmation")) out.println("A normal run would hold the removals back for your confirmation.")
+        if (r.b("removalsNeedConfirmation")) out.println("A normal run would hold the removals back for your confirmation: trackhop run \"${target.s("name")}\" --confirm-removals makes them.")
         r["notes"]?.jsonArray?.forEach { out.println("Note: ${it.str()}") }
         return 0
     }
@@ -648,6 +660,22 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         if (groups.isEmpty()) out.println("No duplicates in ${pl.s("name")}.")
         groups.forEach { g -> out.println("${ref(g["track"]!!.jsonObject)}  x${g.n("copies")}") }
         if (groups.isNotEmpty()) out.println("${r.n("extraCopies")} extra copies${if (r.b("canRemove")) ": trackhop duplicates ${s.s("id")} \"${pl.s("name")}\" --remove" else ""}")
+        return 0
+    }
+
+    private fun mbTags(serviceAsk: String?): Int {
+        val s = serviceAsk?.let { service(it) }
+        if (!asJson) out.println("Reading ${s?.s("name") ?: "the library"}...")
+        val r = api.get("tools/mbtags" + (s?.let { "?service=${enc(it.s("id"))}" } ?: "")).jsonObject
+        if (asJson) return print(r).let { 0 }
+        val tracks = r["tracks"]?.jsonArray.orEmpty().map { it.jsonObject }
+        if (r.n("songs") == 0) out.println("The server did not list its songs.")
+        else if (tracks.isEmpty()) out.println("All ${r.n("songs")} songs have MusicBrainz tags.")
+        else {
+            out.println("${r.n("untagged")} of ${r.n("songs")} songs have no MusicBrainz tags (a sync finds these by title, artist and duration):")
+            tracks.forEach { t -> out.println("  ${ref(t)}${t["album"].str()?.let { "  [$it]" } ?: ""}") }
+            out.println("Tags are written by a tagger such as MusicBrainz Picard: ${r.s("guide")}")
+        }
         return 0
     }
 

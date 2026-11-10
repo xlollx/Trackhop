@@ -234,6 +234,26 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             json(200, if (method == "GET" && b["tracks"] == null) answers.first() else JsonArray(answers))
         }
         // ---------------------------------------------------------------- tools and the rest
+        // The songs of a personal server (Navidrome, Jellyfin, Emby, Plex) without MusicBrainz tags: read, never written.
+        rest == listOf("tools", "mbtags") && method == "GET" -> {
+            val able = Providers.connectors().filter { it.matchesByMbid && (!it.requiresAuth || it.isConnected(env)) }
+            val asked = query["service"] ?: query["connector"]
+            val p = if (asked != null) connected(asked, error) ?: return true
+                else able.singleOrNull() ?: return true.also {
+                    error(400, if (able.isEmpty()) "No connected service keeps MusicBrainz tags (Navidrome, Jellyfin, Emby, Plex)." else "Say which service: ?service= one of ${able.joinToString(", ") { it.id }}.")
+                }
+            if (!p.matchesByMbid) return true.also { error(400, "${p.label(env)} does not keep MusicBrainz tags: this is for Navidrome, Jellyfin, Emby and Plex.") }
+            val tags = runCatching { runBlocking { LibraryTools.untaggedSongs(env, p) } }
+                .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            env.log("mbtags", "${p.label(env)}: ${tags.untagged.size} of ${tags.total} songs without MusicBrainz tags")
+            json(200, buildJsonObject {
+                put("service", p.id)
+                put("songs", tags.total)
+                put("untagged", tags.untagged.size)
+                put("tracks", JsonArray(tags.untagged.map { trackRef(it) }))
+                put("guide", LibraryTools.PICARD_GUIDE)
+            })
+        }
         rest == listOf("stats") && method == "GET" -> json(200, statsJson())
         rest == listOf("tasks") && method == "GET" -> json(200, JsonArray(Tasks.all().map { t ->
             buildJsonObject {

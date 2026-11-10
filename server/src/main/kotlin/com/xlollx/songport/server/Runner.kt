@@ -35,20 +35,32 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
 
     /** Starts [job] now unless it is already running (checked and marked at once: posts come in parallel). */
     @Synchronized
-    fun start(job: SyncJob, scheduled: Boolean = false) {
+    fun start(job: SyncJob, scheduled: Boolean = false, confirmRemovals: Boolean = false) {
         if (isRunning(job.id)) return
         // A Stop or Pause posted after the previous run had ended must not reach this one.
         SyncState.finish(job.id)
         SyncState.start(job.id)
         scope.launch {
-            slots.withPermit { run(job, scheduled) }
+            slots.withPermit { run(job, scheduled, confirmRemovals && !scheduled) }
         }
     }
 
-    private suspend fun run(job: SyncJob, scheduled: Boolean) {
+    /**
+     * [confirmRemovals]: the caller (the API, the command line) says the removals a run would hold
+     * back are meant. What the preview shows now is confirmed as the app's tick does, for this run
+     * only; a scheduled run never comes here with it.
+     */
+    private suspend fun run(job: SyncJob, scheduled: Boolean, confirmRemovals: Boolean = false) {
         try {
             env.log("sync", "start ${job.name} (${if (scheduled) "scheduled" else "manual"})")
             Api.notifyStarted(env, job, scheduled)
+            if (confirmRemovals && job.radio == null) runCatching {
+                val seen = SyncEngine(env).plan(job, createTarget = false, interactive = true)
+                if (seen.removalsNeedConfirmation) {
+                    env.store.confirmRemovals(job.id, seen.toRemove.map { it.id })
+                    env.log("sync", "${job.name}: ${seen.toRemove.size} removals confirmed by the caller")
+                }
+            }
             val report = SyncEngine(env).run(job, unattended = scheduled) { p ->
                 SyncState.progress(job.id, p)
                 if (p.step == Progress.Step.WAITING) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)

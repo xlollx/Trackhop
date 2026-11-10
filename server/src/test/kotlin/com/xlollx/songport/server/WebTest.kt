@@ -656,6 +656,82 @@ class WebTest {
         assertFalse(env.store.job("ab")!!.twoWayRemovals || env.store.job("ba")!!.twoWayRemovals)
     }
 
+    /** Two-way from the page, as the app's editor: ticked in the new sync's form or on its page, the ↔ half is made; unticked, it goes. */
+    @Test fun aTwoWayPairIsMadeAndUnmadeOnThePage() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/One.csv").writeText("title,artist\nSong,Someone\n")
+        File(data, "csv/Two.csv").writeText("title,artist\nOther,Someone\n")
+        val form = get("/syncs/new?src=csv&dst=csv").body()
+        assertTrue(form, form.contains("name=\"twoWay\"") && form.contains("name=\"twoWayRemovals\""))
+        // Not towards a playlist still to be made.
+        val refused = post("/syncs", "src=csv&dst=csv&srcPlaylist=One&dstPlaylist=&every=1440&changes=add&twoWay=on", *origin)
+        assertTrue(refused.headers().firstValue("Location").orElse("").contains("err="))
+        assertTrue(env.store.data.jobs.isEmpty())
+        val made = post("/syncs", "src=csv&dst=csv&srcPlaylist=One&dstPlaylist=Two&name=Pair&every=1440&at=07%3A30&changes=add&twoWay=on&twoWayRemovals=on", *origin)
+        assertEquals(303, made.statusCode())
+        val main = env.store.data.jobs.first { it.name == "Pair" }
+        val twin = env.store.job(main.linkedJobId!!)!!
+        assertTrue(twin.twin && twin.twoWayRemovals && main.twoWayRemovals)
+        assertEquals("Pair ↔", twin.name); assertEquals("Two", twin.source.playlistId); assertEquals("One", twin.target.playlistId); assertEquals("07:30", twin.at)
+        // The first sync's page has the tick; the ↔ half's says whose half it is and leaves the tick there.
+        val page = get("/syncs/${main.id}").body()
+        assertTrue(page, page.contains("name=\"twoWay\" checked") && page.contains("name=\"twoWayRemovals\" checked") && page.contains("two-way, removals too"))
+        val half = get("/syncs/${twin.id}").body()
+        assertTrue(half, half.contains("The ↔ half of the two-way sync") && !half.contains("name=\"twoWay\"") && half.contains("name=\"twoWayRemovals\" checked"))
+        // Saved with a colour and a tag: the other half wears them too.
+        assertEquals(303, post("/syncs/${main.id}/schedule", "name=Pair&every=360&changes=add&pair=1&twoWay=on&color=teal&groups=1&tags=mood%3Dgym&favorite=on", *origin).statusCode())
+        env.store.job(twin.id)!!.let {
+            assertEquals("teal", it.color); assertEquals(mapOf("mood" to "gym"), it.tags); assertTrue(it.favorite)
+            assertEquals(360, com.xlollx.songport.sync.Timing.interval(it))
+            // "Removals too" unticked on the form: off on both.
+            assertFalse(it.twoWayRemovals || env.store.job(main.id)!!.twoWayRemovals)
+        }
+        // Unticked: the reverse sync is deleted, this one stays; the playlists too.
+        assertEquals(303, post("/syncs/${main.id}/schedule", "name=Pair&every=360&changes=add&pair=1&twoWayRemovals=on", *origin).statusCode())
+        assertEquals(null, env.store.job(twin.id))
+        env.store.job(main.id)!!.let { assertEquals(null, it.linkedJobId); assertFalse(it.twoWayRemovals) }
+        assertTrue(File(data, "csv/Two.csv").isFile)
+        // And ticked again on the page of a sync that has both playlists.
+        assertTrue(get("/syncs/${main.id}").body().let { it.contains("name=\"twoWay\"") && !it.contains("name=\"twoWay\" checked") })
+        assertEquals(303, post("/syncs/${main.id}/schedule", "name=Pair&every=360&changes=add&pair=1&twoWay=on", *origin).statusCode())
+        assertTrue(env.store.job(env.store.job(main.id)!!.linkedJobId!!)!!.twin)
+    }
+
+    /** Removals a run held back: the sync says how many, its page lists them, and a tick lets one run make them. */
+    @Test fun heldRemovalsAreSeenAndConfirmedOnThePage() {
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        File(data, "csv").mkdirs()
+        File(data, "csv/One.csv").writeText("title,artist\nSong,Someone\n")
+        File(data, "csv/Two.csv").writeText("title,artist\nSong,Someone\n" + (1..12).joinToString("") { "Gone $it,Old <b> $it\n" })
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("m", "Mirror", com.xlollx.songport.model.PlaylistRef("csv", "One", "One"), com.xlollx.songport.model.PlaylistRef("csv", "Two", "Two"), mirrorRemovals = true))
+        fun ran(after: String?) {
+            val until = System.currentTimeMillis() + 20_000
+            while ((env.store.job("m")!!.lastReportId == after || get("/syncs/m").body().contains("http-equiv=\"refresh\"")) && System.currentTimeMillis() < until) Thread.sleep(100)
+        }
+        assertEquals(303, post("/syncs/m/run", "", *origin).statusCode())
+        ran(null)
+        val first = env.store.job("m")!!.lastReportId
+        assertEquals(12, env.store.report(first!!)!!.heldBack)
+        for (path in listOf("/", "/syncs/m")) assertTrue(path, get(path).body().contains("""<a href="/syncs/m/removals">12 removals held back</a>"""))
+        val page = get("/syncs/m/removals").body()
+        assertTrue(page, page.contains("Remove these 12 tracks from the destination") && page.contains("Old &lt;b&gt; 7 — Gone 7") && page.contains("12 hours"))
+        // Without the tick nothing is confirmed.
+        val ids = Regex("""name="id" value="([^"]+)"""").findAll(page).map { it.groupValues[1] }.toList()
+        assertEquals(12, ids.size)
+        val body = ids.joinToString("&") { "id=" + java.net.URLEncoder.encode(it, "UTF-8") }
+        assertTrue(post("/syncs/m/removals", body, *origin).headers().firstValue("Location").orElse("").contains("err="))
+        assertTrue(env.store.data.removalConfirmations.isEmpty())
+        assertTrue(File(data, "csv/Two.csv").readText().contains("Gone 7"))
+        // Ticked: this run removes them, and nothing is held any more.
+        assertEquals(303, post("/syncs/m/removals", "$body&confirm=on", *origin).statusCode())
+        ran(first)
+        assertFalse(File(data, "csv/Two.csv").readText().contains("Gone"))
+        assertEquals(0, env.store.report(env.store.job("m")!!.lastReportId!!)!!.heldBack)
+        assertFalse(get("/syncs/m").body().contains("held back</a>"))
+        assertTrue(get("/syncs/m/removals").body().contains("nothing is held back now"))
+    }
+
     /** "Keep every track": chosen in the new sync's form and on its page, shown on its card, kept by a config backup. */
     @Test fun anArchiveSyncIsMadeShownChangedAndBackedUp() {
         assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
