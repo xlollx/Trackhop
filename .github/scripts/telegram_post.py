@@ -8,6 +8,8 @@ Secret TELEGRAM_BOT_TOKEN (a bot made with @BotFather, admin of the channel with
 only) and variable TELEGRAM_CHANNEL (@name of the channel). Without them nothing is sent.
 """
 import json, os, re, sys, urllib.error, urllib.request
+
+sys.stdout.reconfigure(line_buffering=True)
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -80,10 +82,20 @@ def main():
     for p in pics:
         if not p.is_file(): sys.exit(f"No picture at {p}")
     print(text)
-    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHANNEL", "")
+    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip(), os.environ.get("TELEGRAM_CHANNEL", "").strip()
     if not token or not chat:
         print("No TELEGRAM_BOT_TOKEN / TELEGRAM_CHANNEL: nothing sent.")
         return
+    # "https://t.me/trackhop_app", "t.me/trackhop_app" and "trackhop_app" all mean "@trackhop_app"; a numeric id stays.
+    chat = re.sub(r"^(https?://)?t\.me/", "", chat)
+    if not chat.startswith("@") and not chat.lstrip("-").isdigit():
+        chat = "@" + chat
+    try:
+        with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/getMe", timeout=30) as r:
+            me = json.load(r).get("result", {}).get("username", "?")
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Telegram refused the bot token: HTTP {e.code} (is TELEGRAM_BOT_TOKEN the one @BotFather gave?)")
+    print(f"Bot @{me} posting to {chat}")
     if not pics:
         data = json.dumps({"chat_id": chat, "text": text[:4096], "disable_web_page_preview": False}).encode()
         call(token, "sendMessage", data, "application/json")
