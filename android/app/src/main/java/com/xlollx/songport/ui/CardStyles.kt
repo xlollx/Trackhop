@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,13 +55,6 @@ enum class CardAccent(val key: String, val label: Int) {
         /** The sync's own choice, else the one in Settings, else the classic band. */
         fun resolve(job: String?, settings: String?) = of(job) ?: of(settings) ?: CLASSIC
     }
-
-    /**
-     * How a tile of the minimal view wears it: the styles drawn along the leading edge are made for
-     * a tall card (in a small tile the crescent swallowed the text and the fade showed as arcs), so
-     * every one of them is the plain band there; the outline and the wash already fit any size.
-     */
-    val onTile: CardAccent get() = if (this == OUTLINE || this == WASH) this else CLASSIC
 }
 
 /** How the last runs show under a card's figures (Settings). */
@@ -95,8 +89,35 @@ enum class CardSize(val key: String, val label: Int) {
     }
 }
 
-/** The card's colour drawn behind its content in the chosen [style]; the card clips it to its shape. */
-fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accent == null) this else drawBehind {
+/**
+ * A style along the leading edge as a tile of the minimal view draws it: the card's own shapes are
+ * made for a tall card (on a tile the crescent swallowed the text and the fade showed as arcs in the
+ * corners), so each is drawn here thin and short enough for a tile and stays itself. [width] is the
+ * widest it gets and [inset] its distance from the edge: together they stay within [TILE_CLEAR] of
+ * the edge, half of the tile's 16 dp text padding. [length] is the share of the tile's height it
+ * runs along; [tapers]: it thins to nothing towards the corners; [fades]: it fades out towards them.
+ * Null for the outline and the wash, which a tile wears as the card does.
+ */
+data class TileAccent(val width: Dp, val inset: Dp = 0.dp, val length: Float = 1f, val tapers: Boolean = false, val fades: Boolean = false) {
+    companion object {
+        val TILE_CLEAR = 8.dp
+        fun of(style: CardAccent): TileAccent? = when (style) {
+            CardAccent.CLASSIC -> TileAccent(6.dp)
+            CardAccent.FADE -> TileAccent(5.dp, fades = true)
+            CardAccent.CRESCENT -> TileAccent(8.dp, tapers = true)
+            CardAccent.PILL -> TileAccent(4.dp, inset = 4.dp, length = 0.4f)
+            CardAccent.OUTLINE, CardAccent.WASH -> null
+        }
+    }
+}
+
+/**
+ * The card's colour drawn behind its content in the chosen [style]; the card clips it to its shape.
+ * On a [tile] of the minimal view the styles along the edge take their tile's shape ([TileAccent]).
+ */
+fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false): Modifier = if (accent == null) this else drawBehind {
+    val t = if (tile) TileAccent.of(style) else null
+    if (t != null) return@drawBehind drawTileAccent(t, accent)
     val r = 28.dp.toPx() // MaterialTheme.shapes.large, the card's corners
     val rtl = layoutDirection == LayoutDirection.Rtl
     val w = 6.dp.toPx()
@@ -135,6 +156,31 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?): Modifier = if (accen
             if (rtl) Brush.horizontalGradient(listOf(Color.Transparent, accent.copy(alpha = 0.40f)), startX = size.width * 0.55f, endX = size.width)
             else Brush.horizontalGradient(listOf(accent.copy(alpha = 0.40f), Color.Transparent), startX = 0f, endX = size.width * 0.45f),
         )
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTileAccent(t: TileAccent, accent: Color) {
+    val rtl = layoutDirection == LayoutDirection.Rtl
+    val w = t.width.toPx()
+    val inset = t.inset.toPx()
+    val h = size.height
+    fun x(v: Float) = if (rtl) size.width - v else v
+    when {
+        // Widest at mid height, nothing at the ends: the card's rounded corners cut it to nothing before them.
+        t.tapers -> drawPath(Path().apply {
+            moveTo(x(0f), 0f)
+            quadraticTo(x(2 * w), h / 2, x(0f), h) // a quadratic peaks at half its control point's distance
+            close()
+        }, accent)
+        else -> {
+            val len = h * t.length
+            val top = (h - len) / 2
+            val left = if (rtl) size.width - inset - w else inset
+            val brush = if (t.fades) Brush.verticalGradient(0f to Color.Transparent, 0.3f to accent, 0.7f to accent, 1f to Color.Transparent, startY = top, endY = top + len) else null
+            val corner = if (t.inset > 0.dp) CornerRadius(w / 2) else CornerRadius.Zero
+            if (brush != null) drawRoundRect(brush, Offset(left, top), Size(w, len), corner)
+            else drawRoundRect(accent, Offset(left, top), Size(w, len), corner)
+        }
     }
 }
 

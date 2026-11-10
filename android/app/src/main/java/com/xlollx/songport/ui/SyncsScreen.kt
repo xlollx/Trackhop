@@ -1100,7 +1100,7 @@ private fun JobTile(
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
             Column(
-                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent).onTile, jobAccent(job.color))
+                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color), tile = true)
                     .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
