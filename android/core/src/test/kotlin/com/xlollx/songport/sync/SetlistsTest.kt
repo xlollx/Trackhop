@@ -164,6 +164,14 @@ class SetlistsTest {
         assertTrue(hits.isEmpty())
     }
 
+    @Test fun theOwnKeyIsKeptWithTheSignInsAndALinkIsAWebPage() {
+        Setlists.saveKey(env, "MINE")
+        assertEquals("MINE", Setlists.ownKey(env))
+        assertFalse(Setlists.KEY_ID in env.store.data.settings.clientIds)
+        val s = Setlists.parseSetlist(com.xlollx.songport.net.parseJson(museConcert.replace("https://www.setlist.fm/setlist/x/2026/forum-63de4613.html", "javascript:alert(1)")))!!
+        assertEquals("", s.url)
+    }
+
     @Test fun theOwnKeyGoesFirstAndLooksUpMoreArtists() = runBlocking {
         val artists = (1..30).map { "Artist $it" }
         val shared = Setlists.find(env, artists)

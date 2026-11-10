@@ -70,6 +70,7 @@ class ConcertsTest {
         MusicBrainz.base = "https://musicbrainz.org/ws/2"
         MusicBrainz.pace = Pacer(1100)
         BuildDefaults.values = emptyMap()
+        Concerts.zone = { java.time.ZoneId.systemDefault() }
     }
 
     private fun tmEvent(name: String, date: String, city: String, country: String, attraction: String, status: String = "onsale") = """
@@ -100,6 +101,13 @@ class ConcertsTest {
         assertEquals("https://www.ticketmaster.it/event/2026-12-01", e.url)
         // No events at all: an answer without "_embedded".
         assertTrue(Concerts.parseTicketmaster("""{"page":{"totalElements":0}}""", "Maneskin", "IT").isEmpty())
+    }
+
+    @Test fun aLinkThatIsNoWebPageIsLeftOut() {
+        val body = tmPage(tmEvent("Muse", "2026-12-01", "Milano", "IT", "Muse").replace("https://www.ticketmaster.it/event/2026-12-01", "javascript:alert(1)"))
+        assertEquals("", Concerts.parseTicketmaster(body, "Muse", "IT").single().url)
+        assertEquals("", webUrl(" intent://x#Intent;end"))
+        assertEquals("https://a.example/b", webUrl(" https://a.example/b"))
     }
 
     @Test fun musicBrainzKeepsPerformedNotCancelledEvents() {
@@ -149,6 +157,15 @@ class ConcertsTest {
         assertTrue("asked again after a day", hits.size > afterFr)
     }
 
+    @Test fun aPlaceMusicBrainzDidNotAnswerForIsNotRememberedForADay() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        mbEvents = """{"events":[${mbEvent("a", "Muse", "2027-03-01", "p-milano")},${mbEvent("b", "Muse", "2027-03-02", "p-busy")}]}"""
+        assertEquals(1, Concerts.find(env, listOf("Muse"), "IT").artists.single().events.size)
+        val before = hits.count { it.startsWith("/ws/2/event") }
+        Concerts.find(env, listOf("Muse"), "IT")
+        assertEquals("asked again: the first answer missed a place", before + 1, hits.count { it.startsWith("/ws/2/event") })
+    }
+
     @Test fun theDaysQuotaStopsTicketmasterUntilItsReset() = runBlocking {
         var calls = 0
         tm = {
@@ -168,6 +185,43 @@ class ConcertsTest {
         tm = { calls++; Triple(200, tmPage(), emptyMap()) }
         assertFalse(Concerts.find(env, listOf("A"), "IT").quotaHit)
         assertEquals(2, calls)
+    }
+
+    @Test fun aSecondBurstLeavesTheArtistWithoutDatesNotTheDayGone() = runBlocking {
+        var calls = 0
+        tm = { calls++; Triple(429, """{"fault":{"faultstring":"Spike arrest violation.","detail":{"errorcode":"policies.ratelimit.SpikeArrestViolation"}}}""", emptyMap()) }
+        val r = Concerts.find(env, listOf("A"), "IT")
+        assertFalse(r.quotaHit)
+        assertEquals("one retry after a second", 2, calls)
+        // Not cached as "no dates", and the next search asks Ticketmaster again.
+        tm = { calls++; Triple(200, tmPage(tmEvent("A", "2026-12-01", "Milano", "IT", "A")), emptyMap()) }
+        val again = Concerts.find(env, listOf("A"), "IT")
+        assertFalse(again.quotaHit)
+        assertEquals(3, calls)
+        assertEquals(1, again.artists.single().events.size)
+    }
+
+    @Test fun theOwnKeyIsKeptWithTheSignInsNotInTheSettings() {
+        Concerts.saveKey(env, "MINE")
+        assertEquals("MINE", Concerts.ownKey(env))
+        assertFalse(Concerts.KEY_ID in env.store.data.settings.clientIds)
+        // A key an earlier build left in the settings moves into the vault.
+        Concerts.saveKey(env, "")
+        env.store.updateSettings { it.copy(clientIds = it.clientIds + (Concerts.KEY_ID to "OLD")) }
+        assertEquals("OLD", Concerts.ownKey(env))
+        assertFalse(Concerts.KEY_ID in env.store.data.settings.clientIds)
+        assertEquals("OLD", Concerts.ownKey(env))
+    }
+
+    @Test fun tonightsConcertCountsInTheUsersDayNotUtcs() = runBlocking {
+        // 19:00 in Los Angeles on 10 November is already 11 November in UTC.
+        clock = java.time.Instant.parse("2026-11-11T03:00:00Z").toEpochMilli()
+        Concerts.zone = { java.time.ZoneId.of("America/Los_Angeles") }
+        BuildDefaults.values = emptyMap()
+        mbEvents = """{"events":[${mbEvent("tonight", "Muse", "2026-11-10", "p-milano")}]}"""
+        val r = Concerts.find(env, listOf("Muse"), "IT")
+        assertEquals(listOf("2026-11-10"), r.artists.single().events.map { it.date })
+        assertTrue(hits.any { it.startsWith("/ws/2/event") && it.contains("begin:[2026-11-10 TO") })
     }
 
     @Test fun ownKeyIsUsedAndTheSharedOneLooksUpFewerArtists() = runBlocking {

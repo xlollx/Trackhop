@@ -25,21 +25,22 @@ import java.time.temporal.ChronoUnit
  * "Setlists of the artists of this playlist" (Discover), and setlist.fm links shared or pasted
  * ([SetlistImport]): the official setlist.fm API (https://api.setlist.fm/docs/1.0/).
  *
- * The API needs a key (header x-api-key): the user's own, saved in the settings ([KEY_ID] in
- * clientIds), or else the build's ([BUILD_KEY], the Play and AppGallery builds only, like
- * Ticketmaster's). A key has 2 calls a second and 1440 a day, the build's shared by everyone: so
- * calls are spaced ([pace]), counted per day on this device ([DAILY]), sent only when the user asks
- * (never in the background), fewer artists are looked up on the shared key ([MAX_SHARED]), each
- * artist's answer is kept a week ([TTL_MS]), and when the day's calls are gone it stops and says so
- * ([Result.quotaHit]) until the next day (UTC).
+ * The API needs a key (header x-api-key): the user's own, in the token vault ([KEY_ID],
+ * [ServiceKeys]), or on Docker and Desktop the one the server was given ([BUILD_KEY], the
+ * environment's SETLISTFM_API_KEY). The app's builds carry none: setlist.fm's API terms forbid
+ * sharing a key. A key has 2 calls a second and 1440 a day: so calls are spaced ([pace]), counted
+ * per day on this device ([DAILY]), sent only when the user asks (never in the background), fewer
+ * artists are looked up with the server's key ([MAX_SHARED]), each artist's answer is kept a week
+ * ([TTL_MS]), and when the day's calls are gone it stops and says so ([Result.quotaHit]) until the
+ * next day (UTC).
  *
  * setlist.fm's API terms: non-commercial use only, and the data shown with attribution, the link
  * each answer carries ([Setlist.url]) plus "Setlists from setlist.fm" ([ATTRIBUTION], [HOME]).
  */
 object Setlists {
-    /** The user's own key, in Settings.clientIds. */
+    /** The user's own key, in the token vault ([ServiceKeys]). */
     const val KEY_ID = "setlistfm"
-    /** The build's key, through BuildDefaults (BuildConfig on Android, the environment on a server). */
+    /** The server's key, through BuildDefaults (the environment on a server; the app's builds have none). */
     const val BUILD_KEY = "SETLISTFM_API_KEY"
     /** How many artists one search looks up: fewer on the shared key, to spare everyone's daily calls. */
     const val MAX_SHARED = 25
@@ -101,16 +102,13 @@ object Setlists {
     private const val STATE = "setlists_state"
     private val LINK_ID = Regex("""-([0-9a-f]{5,12})\.html""", RegexOption.IGNORE_CASE)
 
-    fun ownKey(env: Env): String? = env.store.data.settings.clientIds[KEY_ID]?.trim()?.takeIf { it.isNotEmpty() }
+    fun ownKey(env: Env): String? = ServiceKeys.get(env, KEY_ID)
 
-    /** The key used: the user's, else the build's; null when there is none. */
+    /** The key used: the user's, else the server's; null when there is none. */
     fun key(env: Env): String? = ownKey(env) ?: BuildDefaults[BUILD_KEY].trim().takeIf { it.isNotEmpty() }
 
-    /** Saves the user's own key (blank removes it, back to the build's). */
-    fun saveKey(env: Env, key: String) {
-        val k = key.trim()
-        env.store.updateSettings { s -> s.copy(clientIds = if (k.isEmpty()) s.clientIds - KEY_ID else s.clientIds + (KEY_ID to k)) }
-    }
+    /** Saves the user's own key (blank removes it). */
+    fun saveKey(env: Env, key: String) = ServiceKeys.save(env, KEY_ID, key)
 
     /** The artists to look up, the ones the playlist holds most first (the same pick as Concerts). */
     fun artistsOf(tracks: List<Track>): List<String> = Concerts.artistsOf(tracks)
@@ -212,7 +210,7 @@ object Setlists {
         return Setlist(
             id = id, artist = artist, date = date, venue = venue["name"].str.orEmpty(),
             city = venue["city"]["name"].str.orEmpty(), country = venue["city"]["country"]["code"].str.orEmpty().uppercase(),
-            tour = e["tour"]["name"].str.orEmpty(), url = e["url"].str.orEmpty(), songs = songs,
+            tour = e["tour"]["name"].str.orEmpty(), url = webUrl(e["url"].str), songs = songs,
         )
     }
 

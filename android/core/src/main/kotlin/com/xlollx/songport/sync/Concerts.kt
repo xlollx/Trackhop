@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import java.net.URLEncoder
 import java.time.Instant
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
@@ -29,8 +29,8 @@ import java.util.Locale
  * "Concerts of the artists of this playlist" (Discover): the upcoming dates of a playlist's artists
  * in one country, from the Ticketmaster Discovery API and from MusicBrainz's events.
  *
- * Ticketmaster takes a Consumer Key (never its secret): the user's own, saved in the settings
- * ([KEY_ID] in clientIds), or else the build's ([BUILD_KEY], the Play and AppGallery builds only;
+ * Ticketmaster takes a Consumer Key (never its secret): the user's own, in the token vault
+ * ([KEY_ID], [ServiceKeys]), or else the build's ([BUILD_KEY], the Play and AppGallery builds only;
  * the GitHub and F-Droid builds carry none, like Last.fm's). A build's key is shared by everyone
  * (5000 calls a day, 5 a second): it is used only when the user asks, never in the background,
  * fewer artists are looked up with it ([MAX_SHARED]), every answer is kept a day per artist and
@@ -42,7 +42,7 @@ import java.util.Locale
  * ([searches]): links only, their pages are never read.
  */
 object Concerts {
-    /** The user's own key, in Settings.clientIds. */
+    /** The user's own key, in the token vault ([ServiceKeys]). */
     const val KEY_ID = "ticketmaster"
     /** The build's key, through BuildDefaults (BuildConfig on Android, the environment on a server). */
     const val BUILD_KEY = "TICKETMASTER_API_KEY"
@@ -92,6 +92,7 @@ object Concerts {
     // Tests point these at a local server and a fixed clock.
     @Volatile internal var tmBase = "https://app.ticketmaster.com/discovery/v2"
     @Volatile internal var now: () -> Long = { System.currentTimeMillis() }
+    @Volatile internal var zone: () -> ZoneId = { ZoneId.systemDefault() }
     /** Under Ticketmaster's 5 a second, for the whole process. */
     @Volatile var tmPace = Pacer(220)
         internal set
@@ -101,16 +102,13 @@ object Concerts {
     private const val STATE = "concerts_state"
     private const val PLACE_TTL_MS = 180L * 24 * 3_600_000
 
-    fun ownKey(env: Env): String? = env.store.data.settings.clientIds[KEY_ID]?.trim()?.takeIf { it.isNotEmpty() }
+    fun ownKey(env: Env): String? = ServiceKeys.get(env, KEY_ID)
 
     /** The key used: the user's, else the build's; null when there is none (MusicBrainz only). */
     fun key(env: Env): String? = ownKey(env) ?: BuildDefaults[BUILD_KEY].trim().takeIf { it.isNotEmpty() }
 
     /** Saves the user's own Consumer Key (blank removes it, back to the build's). */
-    fun saveKey(env: Env, key: String) {
-        val k = key.trim()
-        env.store.updateSettings { s -> s.copy(clientIds = if (k.isEmpty()) s.clientIds - KEY_ID else s.clientIds + (KEY_ID to k)) }
-    }
+    fun saveKey(env: Env, key: String) = ServiceKeys.save(env, KEY_ID, key)
 
     /** The artists to look up, the ones the playlist holds most first (the same pick as the artist mix). */
     fun artistsOf(tracks: List<Track>): List<String> = ArtistMix.topArtists(tracks, Int.MAX_VALUE)
@@ -247,8 +245,12 @@ object Concerts {
                 env.log("concerts", "Ticketmaster: ${e.message ?: e.javaClass.simpleName}"); return null
             }
             if (r.code == 429) {
-                // A burst over 5 a second ("SpikeArrest") passes after a second; the day's quota does not.
-                if (!r.body.contains("QuotaViolation", ignoreCase = true) && attempt == 0) { delay(1_000); continue }
+                // A burst over 5 a second ("SpikeArrest", the shared key used by many at once) passes after
+                // a second; the day's quota does not. A second burst only leaves this artist without its dates.
+                if (!r.body.contains("QuotaViolation", ignoreCase = true)) {
+                    if (attempt == 0) { delay(1_000); continue }
+                    env.log("concerts", "Ticketmaster: too many requests at once"); return null
+                }
                 markExhausted(env, key, r.header("Rate-Limit-Reset"))
                 throw QuotaGone()
             }
@@ -284,7 +286,7 @@ object Concerts {
                 artist = artist, name = e["name"].str.orEmpty(), date = date,
                 time = e["dates"]["start"]["localTime"].str?.take(5),
                 city = venue["city"]["name"].str.orEmpty(), venue = venue["name"].str.orEmpty(),
-                country = where.ifEmpty { country }, url = e["url"].str.orEmpty(), source = Source.TICKETMASTER,
+                country = where.ifEmpty { country }, url = webUrl(e["url"].str), source = Source.TICKETMASTER,
             )
         }
     }
@@ -295,19 +297,23 @@ object Concerts {
     private suspend fun musicBrainz(env: Env, artist: String, country: String): List<Event>? {
         val ck = cacheKey(Source.MUSICBRAINZ, artist, country)
         cached(env, ck)?.let { return it }
-        val today = Instant.ofEpochMilli(now()).atZone(ZoneOffset.UTC).toLocalDate()
+        // The user's day, not UTC's: in the evening in the Americas tonight's concerts are still to come.
+        val today = Instant.ofEpochMilli(now()).atZone(zone()).toLocalDate()
         val query = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\" AND begin:[$today TO 2100-12-31]"
         val body = mbGet("event?query=${enc(query)}&fmt=json&limit=50") ?: return null
         val found = parseMusicBrainz(body, artist)
         val events = ArrayList<Event>()
+        var unplaced = false
         for ((e, placeId) in found) {
             if (e.date < today.toString()) continue
-            val (city, where) = placeId?.let { place(env, it) } ?: (null to null)
+            val at = placeId?.let { place(env, it).also { p -> if (p == null) unplaced = true } }
+            val (city, where) = at ?: (null to null)
             // Without a known country the date cannot be placed: left out rather than shown in the wrong country.
             if (where != country) continue
             events += e.copy(city = city.orEmpty(), country = where)
         }
-        remember(env, ck, events)
+        // A place MusicBrainz did not answer for (busy): used now, but not remembered for a day without its date.
+        if (!unplaced) remember(env, ck, events)
         return events
     }
 
@@ -381,4 +387,13 @@ object Concerts {
     } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
 
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8").replace("+", "%20")
+}
+
+/**
+ * [s] when it is a web address (http or https), else "": a link from another service's answer is
+ * opened by the app and put in the web pages, where a javascript: or intent: one must never get.
+ */
+internal fun webUrl(s: String?): String {
+    val u = s?.trim().orEmpty()
+    return if (u.startsWith("https://", ignoreCase = true) || u.startsWith("http://", ignoreCase = true)) u else ""
 }

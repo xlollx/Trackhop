@@ -144,6 +144,8 @@ class SetlistsWebTest {
         val page = getPage("/settings").body()
         assertTrue(page.contains("setlist.fm key"))
         assertFalse(page.contains("MySetlistKey"))
+        // Kept with the sign-ins: never in the set-up file the Config page exports.
+        assertFalse(com.xlollx.songport.data.ConfigBackup.export(env, "test").contains("MySetlistKey"))
         post("/settings", "action=setlistfm&key=")
         assertEquals("MySetlistKey", Setlists.ownKey(env))
         post("/settings", "action=setlistfm&key=&remove=1")
