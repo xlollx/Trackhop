@@ -116,6 +116,11 @@ object Mcp {
         Param("favorite", "boolean", "true: only the starred syncs.", required = false),
     )
 
+    private val DIAG = listOf(
+        Param("since", "string", "How far back: 90m, 24h (default), 7d, 2w.", required = false),
+        Param("names", "boolean", "true: keep the names of syncs, playlists and tracks (only if the user agrees).", required = false),
+    )
+
     private fun String.parts(): List<String> = split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
     /** The group a call names (tag, label, favorite), as the command line's options. */
@@ -250,6 +255,19 @@ object Mcp {
         Tool("list_notification_channels", "List notification channels", "The channels Trackhop tells about syncs (their tokens masked).", emptyList(), readOnly = true) { Call("notify") },
         Tool("test_notification", "Send a test notification", "Sends a test message through a channel.",
             listOf(Param("channel", "string", "The channel's name or id.")), readOnly = false) { a -> Call("notify", listOf("test", a.text("channel"))) },
+        Tool("get_crowded_syncs", "Find crowded schedules", "Whether many syncs reach one service at about the same time (the service can take it for unusual traffic and turn some away): the service, the time and the syncs.",
+            emptyList(), readOnly = true) { Call("crowded") },
+        Tool("spread_syncs", "Spread crowded syncs", "New times for the crowded syncs: the first keeps its time, each next one starts a little later; days and frequency stay. Without apply only shows them: show the user, and only if they agree call again with apply.",
+            listOf(Param("apply", "boolean", "true: save the new times. Default false: only show them.", required = false)), readOnly = false) { a ->
+            Call("spread", flags = setOfNotNull("apply".takeIf { a.flag("apply") }))
+        },
+        Tool("get_diagnostics", "Read the diagnostics", "Trackhop's technical report: version, system, services, syncs, the last runs and the log since a time, without secrets. Read it to explain an error to the user. Names of syncs, playlists and tracks are left out unless names is true.",
+            DIAG, readOnly = true) { a -> Call("diagnostics", values = a.values("since"), flags = setOfNotNull("names".takeIf { a.flag("names") })) },
+        Tool("prepare_issue", "Prepare a GitHub issue", "A GitHub issue made ready for the user, never sent: its title, its text with the diagnostics, and a link that opens it prefilled. When the same error is already reported, suggestion says what to do instead: comment (open issue), update (fixed in a newer version) or comment_closed. Show the user the text and the link; they send it. With a GitHub tool of the user's own, create it only after they confirm.",
+            DIAG + listOf(
+                Param("title", "string", "The issue's title; left out, one from the version and the error.", required = false),
+                Param("description", "string", "What happened and what the user expected, in their words.", required = false),
+            ), readOnly = true) { a -> Call("report", values = a.values("since", "title", "description"), flags = setOfNotNull("names".takeIf { a.flag("names") })) },
         Tool("list_tasks", "List background tasks", "Backups and other long tasks, running or ended in the last hour.", emptyList(), readOnly = true) { Call("tasks") },
         Tool("get_task", "Read a background task", "One background task: its progress, whether it is done, its error.",
             listOf(Param("task", "string", "The task's id.")), readOnly = true) { a -> Call("task", listOf(a.text("task"))) },

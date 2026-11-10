@@ -275,6 +275,8 @@ class Web(
         body.append("""<div class="dash${if (side.isEmpty()) " no-side" else if (HomeSide.place(env) == HomeSide.RIGHT) " side-right" else ""}"><div class="dash-main">""")
         body.append("""<p class="actions"><a class="button" href="/syncs/new">New sync</a> ${if (env.may(Permissions.RADIO)) """<a class="button secondary" href="/syncs/radio">$RADIO_ICON New radio sync</a> """ else ""}<a class="button secondary" href="/syncs/shazam">$SHAZAM_ICON New Shazam sync</a></p>""")
         if (jobs.isEmpty()) body.append("""<p class="muted">No syncs yet.</p>""")
+        // Many syncs reaching one service at once (issue #56): said once, until the group changes.
+        body.append(crowdCard())
         // Find and filter as in the app: a search (genre:metal asks for exactly that tag) and chips for
         // the favourites, the labels and the tags. The starred syncs come first.
         val filter = homeFilter(r.query).pruned(jobs)
@@ -295,6 +297,8 @@ class Web(
         return SyncFilter(
             query = query["q"].orEmpty(), favorite = query["fav"] == "1",
             labels = query["label"].orEmpty().split(',').filter { it.isNotBlank() }.toSet(), tags = tags,
+            // The crowded-schedule card's "Show them": those syncs only.
+            ids = query["ids"].orEmpty().split(',').filter { it.isNotBlank() }.toSet(),
         )
     }
 
@@ -304,6 +308,7 @@ class Web(
             "fav=1".takeIf { f.favorite },
             f.labels.takeIf { it.isNotEmpty() }?.let { "label=${q(it.joinToString(","))}" },
             f.tags.takeIf { it.isNotEmpty() }?.let { t -> "tag=" + q(t.flatMap { (k, vs) -> if (vs.isEmpty()) listOf(k) else vs.map { "$k:$it" } }.joinToString(",")) },
+            f.ids.takeIf { it.isNotEmpty() }?.let { "ids=${q(it.joinToString(","))}" },
         )
         return if (parts.isEmpty()) "/" else "/?" + parts.joinToString("&")
     }
@@ -334,6 +339,7 @@ class Web(
             "fav" to "1".takeIf { f.favorite },
             "label" to f.labels.joinToString(","),
             "tag" to f.tags.flatMap { (k, vs) -> if (vs.isEmpty()) listOf(k) else vs.map { "$k:$it" } }.joinToString(","),
+            "ids" to f.ids.joinToString(","),
         ).filter { !it.second.isNullOrEmpty() }.joinToString("") { (n, v) -> """<input type="hidden" name="$n" value="${h(v!!)}">""" }
         return """<form method="get" action="/" class="finder" role="search">$kept<input type="search" name="q" value="${h(f.query)}" placeholder="Find a sync (genre:metal for a tag)" aria-label="Find a sync"> <button class="secondary">Find</button>${if (f.isActive) """ <a href="/">Clear</a>""" else ""}</form>""" +
             (if (chips.isNotEmpty()) """<p class="chips">$chips</p>""" else "")
@@ -765,6 +771,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             rest == listOf("radio") && !env.may(Permissions.RADIO) -> send(r.ex, 403, page("Radio sync", NOT_ALLOWED))
             rest == listOf("radio") -> if (r.method == "POST") radioCreate(r) else radioNew(r)
             rest == listOf("shazam") -> if (r.method == "POST") shazamCreate(r) else shazamNew(r)
+            rest == listOf("crowd") || rest == listOf("spread") -> crowdPages(r, rest[0])
             rest == listOf("all") && r.method == "POST" -> {
                 env.store.data.jobs.filter { it.enabled }.forEach { runner.start(it) }
                 redirect(r.ex, "/")

@@ -286,6 +286,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     val running = SyncState.running.value
     val jobs = env.store.data.jobs
     val rest = path.drop(2)
+    if (apiDiag(ex, method, rest, query, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
     when {

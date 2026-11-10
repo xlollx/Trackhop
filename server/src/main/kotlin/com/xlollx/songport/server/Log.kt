@@ -36,4 +36,23 @@ object Log {
 
     /** The latest lines, oldest first. */
     fun recent(): List<String> = synchronized(lines) { lines.toList() }
+
+    /**
+     * The lines written at or after [epochMs], oldest first, at most [max]: from `songport.log` and the
+     * one before it when there is a file, else from those kept in memory. A line without its own time
+     * goes with the one before.
+     */
+    fun since(epochMs: Long, max: Int = 2000): List<String> {
+        val all = synchronized(lines) {
+            file?.let { f -> listOf(File(f.parentFile, f.name + ".1"), f).filter { it.isFile }.flatMap { runCatching { it.readLines() }.getOrDefault(emptyList()) } }
+                ?.takeIf { it.isNotEmpty() } ?: lines.toList()
+        }
+        var keep = false
+        return all.filter { l ->
+            if (l.isBlank()) return@filter false
+            val at = runCatching { LocalDateTime.parse(l.take(19), time).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli() }.getOrNull()
+            if (at != null) keep = at >= epochMs
+            keep
+        }.takeLast(max)
+    }
 }

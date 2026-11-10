@@ -3,7 +3,7 @@ package com.xlollx.songport.data
 /**
  * Takes secrets out of a technical report before it leaves the device (Export log, Share technical
  * details, Report on GitHub): tokens, cookies, passwords, sign-in parameters in addresses, e-mail
- * addresses and the addresses of the user's own servers. The log is written not to hold them, but a
+ * addresses, the addresses of the user's own servers and the user's name in folder paths. The log is written not to hold them, but a
  * service's raw answer or a URL can carry one: this is the net under it.
  */
 object Redact {
@@ -21,6 +21,9 @@ object Redact {
     // Addresses on a home network: private IPs and local names.
     private val localHost = Regex("""(?i)\b(?:https?://)?(?:(?:10|127)\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:local|lan|home|internal|localdomain|home\.arpa))(?::\d{2,5})?""")
 
+    // A folder under the user's home: the user name in it (Linux, macOS, Windows; also as a URL path).
+    private val homePath = Regex("""(?i)(/home/|/Users/|[A-Z]:\\\\?Users\\\\?|[A-Z]:/Users/)([^/\\\s"'<>:]+)""")
+
     /** [text] without its secrets; [servers] are the user's own server addresses, hidden wherever they appear. */
     fun text(text: String, servers: Collection<String> = emptyList()): String {
         var t = text
@@ -36,6 +39,7 @@ object Redact {
         t = field.replace(t) { m -> m.groupValues[1] + if (m.groupValues[2].startsWith("\"")) "\"$HIDDEN\"" else HIDDEN }
         t = email.replace(t, "[email]")
         t = localHost.replace(t, "[server]")
+        t = homePath.replace(t) { m -> m.groupValues[1] + "[user]" }
         return t
     }
 }
