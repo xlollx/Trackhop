@@ -314,6 +314,14 @@ jobs:
       version: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
+  telegram:
+    # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
+    needs: publish
+    uses: ./.github/workflows/telegram.yml
+    with:
+      tag: ${{ needs.publish.outputs.tag }}
+    secrets: inherit
+
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml): the results go into its notes
     # and the README's badge. Skipped until the VT_API_KEY secret exists.

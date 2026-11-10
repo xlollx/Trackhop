@@ -1,0 +1,46 @@
+# A post on Trackhop's Telegram channel (.github/scripts/telegram_post.py): after every app release
+# (build.yml) and Desktop/Docker release (desktop.yml), and by hand for anything else (the Instagram
+# carousel as an album: pictures committed in the repository, comma-separated paths).
+# Skipped until the TELEGRAM_BOT_TOKEN secret and the TELEGRAM_CHANNEL variable exist; never fails a release.
+name: Telegram
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (v1.16.0 or server-v1.9.0): its notes are posted'
+        type: string
+        default: ''
+      text:
+        description: Or this text instead
+        type: string
+        default: ''
+      images:
+        description: Up to 10 pictures in the repository, comma-separated, posted as an album
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag != '' && inputs.tag || github.ref }}
+      - name: Post
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ vars.TELEGRAM_CHANNEL }}
+          TAG: ${{ inputs.tag }}
+          TEXT: ${{ inputs.text }}
+          IMAGES: ${{ inputs.images }}
+        run: python3 .github/scripts/telegram_post.py

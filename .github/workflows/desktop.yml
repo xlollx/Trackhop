@@ -191,6 +191,15 @@ jobs:
       version: ${{ needs.release.outputs.version }}
     secrets: inherit
 
+  telegram:
+    # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
+    needs: release
+    if: ${{ needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/telegram.yml
+    with:
+      tag: server-v${{ needs.release.outputs.version }}
+    secrets: inherit
+
   msstore:
     # The new release's .msix to the Microsoft Store (msstore.yml); without the MSSTORE_* secrets, an
     # issue reminding the owner to upload it by hand.
