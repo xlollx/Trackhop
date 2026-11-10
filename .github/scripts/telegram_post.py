@@ -7,7 +7,7 @@ A post on Trackhop's Telegram channel (.github/workflows/telegram.yml), in Engli
 Secret TELEGRAM_BOT_TOKEN (a bot made with @BotFather, admin of the channel with "Post messages"
 only) and variable TELEGRAM_CHANNEL (@name of the channel). Without them nothing is sent.
 """
-import json, os, re, sys, urllib.request
+import json, os, re, sys, urllib.error, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,8 +47,13 @@ def server_text(tag: str) -> str:
 
 def call(token: str, method: str, data: bytes, ctype: str) -> None:
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/{method}", data=data, headers={"Content-Type": ctype})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        ok = json.load(r).get("ok")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            ok = json.load(r).get("ok")
+    except urllib.error.HTTPError as e:
+        # Telegram's own reason ("chat not found", "need administrator rights in the channel chat"...), never the address (it holds the token).
+        reason = json.loads(e.read() or b"{}").get("description", "")
+        sys.exit(f"Telegram refused {method}: HTTP {e.code} {reason}")
     if not ok:
         sys.exit(f"Telegram refused {method}")
 
