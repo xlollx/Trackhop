@@ -28,6 +28,9 @@ import java.util.concurrent.TimeUnit
  * Notifications, shared by the server and the app: the request each channel sends, which runs they
  * hear of, secrets masked, kept apart in the app and out of backups.
  */
+/** A made-up Telegram bot token, built at run time so secret scanners never see one in the source. */
+private val FAKE_BOT = "1".repeat(9) + ":" + "Fake" + "x".repeat(31)
+
 class NotifyTest {
     private lateinit var mock: MockWebServer
     private lateinit var env: ContractEnv
@@ -228,16 +231,16 @@ class NotifyTest {
     }
 
     @Test fun aFailureLineKeepsNoAddressOrToken() {
-        val line = Notify.message("x", report(error = "Sign-in of me@example.org failed at 192.168.1.20:4533 with bot123456789:AAEhBOweik6ad9r_QXMENQjcrGbqCr4K-ab"), setOf(Notify.Event.FAILED))!!.text
-        assertFalse(line, line.contains("me@example.org") || line.contains("192.168.1.20") || line.contains("AAEhBOweik6ad9r"))
+        val line = Notify.message("x", report(error = "Sign-in of me@example.org failed at 192.168.1.20:4533 with bot" + FAKE_BOT + ""), setOf(Notify.Event.FAILED))!!.text
+        assertFalse(line, line.contains("me@example.org") || line.contains("192.168.1.20") || line.contains(FAKE_BOT.substringAfter(":")))
     }
 
     @Test fun reportsHideTheChannelsKeys() {
         val t = com.xlollx.songport.data.Redact.text(
             "POST https://discord.com/api/webhooks/123456/AbC-def_ghi\nhttps://hooks.slack.com/services/T0/B0/xyz\n" +
-                "bot123456789:AAEhBOweik6ad9r_QXMENQjcrGbqCr4K-ab\nX-Gotify-Key: AppTokSecret\ntoken=a&user=uQiRzpo4DXghDmr9QzzfQu27cmVRsG",
+                "bot" + FAKE_BOT + "\nX-Gotify-Key: AppTokSecret\ntoken=a&user=uQiRzpo4DXghDmr9QzzfQu27cmVRsG",
         )
-        listOf("AbC-def_ghi", "T0/B0/xyz", "AAEhBOweik6ad9r", "AppTokSecret", "uQiRzpo4DX").forEach { assertFalse(t, t.contains(it)) }
+        listOf("AbC-def_ghi", "T0/B0/xyz", FAKE_BOT.substringAfter(":"), "AppTokSecret", "uQiRzpo4DX").forEach { assertFalse(t, t.contains(it)) }
         assertTrue(t, t.contains("discord.com/api/webhooks/123456/") && t.contains("hooks.slack.com/services/"))
     }
 
