@@ -103,6 +103,57 @@ class ApiCallsTest {
         assertEquals(404, call("DELETE", "syncs/$id").code)
     }
 
+    @Test fun aOneDigitHourIsReadAndASwitchAlreadyOffChangesNothing() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"schedule":"daily","at":"7:30","changes":"mirror"}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        assertEquals("daily at 07:30", made.obj.s("timing"))
+        assertEquals("daily at 06:05", call("PATCH", "syncs/$id", """{"at":"6:05"}""").obj.s("timing"))
+        assertEquals(400, call("PATCH", "syncs/$id", """{"at":"7:3"}""").code)
+        assertEquals(400, call("PATCH", "syncs/$id", """{"at":"730"}""").code)
+        // Mirror is on: archive, already off, sent as false leaves it on.
+        val still = call("PATCH", "syncs/$id", """{"archive":false}""").obj
+        assertEquals("true", still.s("mirrorRemovals")); assertEquals("false", still.s("archive"))
+        // And the other way round.
+        assertEquals("true", call("PATCH", "syncs/$id", """{"changes":"archive"}""").obj.s("archive"))
+        val kept = call("PATCH", "syncs/$id", """{"mirrorRemovals":false}""").obj
+        assertEquals("true", kept.s("archive")); assertEquals("false", kept.s("mirrorRemovals"))
+        // The one that is on, sent as false, goes off.
+        val off = call("PATCH", "syncs/$id", """{"archive":false}""").obj
+        assertEquals("false", off.s("archive")); assertEquals("false", off.s("mirrorRemovals"))
+    }
+
+    @Test fun aWebhookAddressThatIsNoUrlDoesNotStopARun() {
+        Api.setWebhook(env, "https://exa mple.org/a b", null, setOf("sync.started"))
+        Api.notifyStarted(env, SyncJob("w", "W", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out")), false)
+    }
+
+    @Test fun onASharedServerEachPersonSeesTheirOwnTasks() {
+        // A second person of the same server, without co-admin: their own data folder and token.
+        val theirs = ServerEnv(tmp.newFolder("other"), Strings(emptyMap()), "https://songport.example.org", Permissions.DEFAULT)
+        val other = Web(theirs, Runner(theirs), Auth(theirs), "sekret", "test").start(0)
+        try {
+            val mine = Tasks.start("Mine", "/tools", {}, env.owner) { "done" }
+            val their = Tasks.start("Theirs", "/tools", {}, theirs.owner) { "done" }
+            fun asOther(path: String) = client.send(
+                HttpRequest.newBuilder(URI("http://127.0.0.1:${other.address.port}$path")).header("Authorization", "Bearer ${Api.newToken(theirs)}").build(),
+                HttpResponse.BodyHandlers.ofString(),
+            )
+            val listed = Json.parseToJsonElement(asOther("/api/v1/tasks").body()).jsonArray.map { it.jsonObject.s("id") }
+            assertTrue(their.id in listed)
+            assertFalse(mine.id in listed)
+            assertEquals(404, asOther("/api/v1/tasks/${mine.id}").statusCode())
+            assertEquals(200, asOther("/api/v1/tasks/${their.id}").statusCode())
+            assertEquals(null, Tasks.get(mine.id, theirs.sees))
+            // The admin (here: a server for one person) sees every run.
+            val all = call("GET", "tasks").arr.map { it.jsonObject.s("id") }
+            assertTrue(mine.id in all && their.id in all)
+            assertEquals(200, call("GET", "tasks/${their.id}").code)
+        } finally {
+            other.stop(0)
+        }
+    }
+
     @Test fun previewSaysWhatARunWouldDoAndChangesNothing() {
         env.store.upsertJob(SyncJob("p1", "Prev", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out")))
         val p = call("GET", "syncs/p1/preview")

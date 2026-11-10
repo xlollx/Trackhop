@@ -178,7 +178,7 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = connected(rest[1], error) ?: return true
             if (!p.canRemoveTracks) return true.also { error(405, "${p.label(env)} does not let apps remove tracks.") }
             val playlist = rest[3]
-            val task = Tasks.start("Remove duplicates", "/tools/dedupe?service=${q(p.id)}&playlist=${q(playlist)}", { env.log("dedupe", it) }) { t ->
+            val task = Tasks.start("Remove duplicates", "/tools/dedupe?service=${q(p.id)}&playlist=${q(playlist)}", { env.log("dedupe", it) }, env.owner) { t ->
                 val n = LibraryTools.removeDuplicates(env, p, playlist) { pr -> t.progress = "${pr.done}/${pr.total}" }
                 env.log("dedupe", "${p.label(env)} / $playlist: $n removed")
                 "<div class=\"card ok\">Removed $n extra copies.</div>"
@@ -233,7 +233,7 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
         }
         // ---------------------------------------------------------------- tools and the rest
         rest == listOf("stats") && method == "GET" -> json(200, statsJson())
-        rest == listOf("tasks") && method == "GET" -> json(200, JsonArray(Tasks.all().map { t ->
+        rest == listOf("tasks") && method == "GET" -> json(200, JsonArray(Tasks.all(env.sees).map { t ->
             buildJsonObject {
                 put("id", t.id); put("title", t.title); put("done", t.done); put("progress", t.progress)
                 put("error", t.error?.let { JsonPrimitive(it) } ?: JsonNull)

@@ -28,7 +28,7 @@ internal fun Web.lyricsPage(r: Web.Req) {
                 val folder = r.form["folder"].orEmpty().trim()
                 if (Lyrics.target(root, folder) == null) return redirect(r.ex, "/tools/lyrics?err=${q("$folder is not a folder of the library.")}")
                 val options = Lyrics.Options(folder, syncedOnly = r.form["synced"] == "on", retryMissing = r.form["retry"] == "on")
-                val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
+                val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
                 return redirect(r.ex, "/tools/task/${q(task.id)}")
             }
         }

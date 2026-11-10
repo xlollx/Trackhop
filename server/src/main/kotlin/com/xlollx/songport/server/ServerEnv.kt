@@ -32,6 +32,11 @@ class ServerEnv(
     /** True when this person may use [permission] ([Permissions]). */
     fun may(permission: String) = permissions == null || permission in permissions
 
+    /** Who this is among the people of a shared server: each has their own data folder. */
+    val owner: String get() = dataDir.absolutePath
+    /** Whose background runs ([Tasks]) this person sees: their own, or everyone's (null) for an admin. */
+    val sees: String? get() = if (may(Permissions.ADMIN)) null else owner
+
     override val store: FileStore = FileStore(dataDir).also { FileStore.install(it) }
     override val tokens: TokenVault = JsonTokenVault(File(dataDir, "tokens.json"))
     override val redirectUri: String get() = "$baseUrl/callback"

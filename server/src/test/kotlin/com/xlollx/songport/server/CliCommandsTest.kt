@@ -104,6 +104,23 @@ class CliCommandsTest {
         assertEquals(2, cli("review", "Road trip", "keep", "7", "--run", "rv").code)
     }
 
+    @Test fun aTrackIdThatIsANumberIsNotTakenForARow() {
+        // Ids as Deezer's or Apple Music's: row 1 has the id "2", row 2 the id "9".
+        val two = Track(id = "2", title = "Alpha", artists = listOf("One"))
+        val nine = Track(id = "9", title = "Beta", artists = listOf("Two"))
+        env.store.addReport(
+            SyncReport(
+                id = "rn", jobId = "j1", jobName = "Road trip", startedEpoch = System.currentTimeMillis(), durationMs = 1,
+                unmatched = listOf(two.toString(), nine.toString()), unmatchedTracks = listOf(two, nine),
+            ),
+        )
+        assertTrue(cli("review", "Road trip", "ignore", "2").toString().contains("Ignored 1"))
+        assertEquals(setOf("2"), env.store.job("j1")!!.ignoredSourceIds.toSet())
+        // A number that is no id is still a row: the first one left.
+        assertTrue(cli("review", "Road trip", "ignore", "1").toString().contains("Ignored 1"))
+        assertEquals(setOf("2", "9"), env.store.job("j1")!!.ignoredSourceIds.toSet())
+    }
+
     @Test fun servicesFilesPatternsAndTheSetUp() {
         assertTrue(cli("search", "csv", "Band A - Song One").out.contains("Song One"))
         val dupes = cli("duplicates", "csv", "Road trip")

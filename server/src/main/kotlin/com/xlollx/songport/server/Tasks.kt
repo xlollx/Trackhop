@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap
  * only; a run's page outlives it by an hour.
  */
 object Tasks {
-    class Task(val id: String, val title: String, val back: String) {
+    /** [owner]: whose run it is on a shared server ([ServerEnv.owner]); the others do not see it. */
+    class Task(val id: String, val title: String, val back: String, val owner: String = "") {
         @Volatile var progress: String = "Starting…"
         @Volatile var done: Boolean = false
         /** The result as HTML (escaped by whoever wrote it), or the error. */
@@ -26,10 +27,10 @@ object Tasks {
     private val tasks = ConcurrentHashMap<String, Task>()
 
     /** Starts [block], which reports through the task and returns the result's HTML. */
-    fun start(title: String, back: String, log: (String) -> Unit, block: suspend (Task) -> String): Task {
+    fun start(title: String, back: String, log: (String) -> Unit, owner: String = "", block: suspend (Task) -> String): Task {
         val now = System.currentTimeMillis()
         tasks.values.removeIf { it.done && now - it.finishedAt > KEEP_MS }
-        val task = Task(UUID.randomUUID().toString(), title, back)
+        val task = Task(UUID.randomUUID().toString(), title, back, owner)
         tasks[task.id] = task
         scope.launch {
             try {
@@ -45,10 +46,11 @@ object Tasks {
         return task
     }
 
-    fun get(id: String?): Task? = id?.let { tasks[it] }
+    /** The task with this id; with [owner], only when it is theirs ([ServerEnv.sees]: null sees all). */
+    fun get(id: String?, owner: String? = null): Task? = id?.let { tasks[it] }?.takeIf { owner == null || it.owner == owner }
 
-    /** Every task kept: those running, and those ended in the last hour. */
-    fun all(): List<Task> = tasks.values.toList()
+    /** Every task kept: those running, and those ended in the last hour; with [owner], theirs only. */
+    fun all(owner: String? = null): List<Task> = tasks.values.filter { owner == null || it.owner == owner }
 
     /** True while a task with this title runs (one full backup at a time, say). */
     fun running(title: String): Boolean = tasks.values.any { it.title == title && !it.done }
