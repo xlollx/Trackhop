@@ -934,7 +934,9 @@ private fun JobCard(
         val ink = jobInk(job.color)
         val accentStyle = CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent)
         val side = if (large) 20.dp else 16.dp
-        val vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> 14.dp }
+        // On a low window (a phone on its side) a small card keeps the tighter spacing, so two still fit one above the other.
+        val low = LocalWindowLayout.current.short
+        val vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> if (low) 12.dp else 14.dp }
         Column(
             Modifier.cardAccent(accentStyle, accent)
                 .padding(start = accentStyle.startPadding(side, accent), end = side, top = vertical, bottom = vertical),
@@ -1020,7 +1022,7 @@ private fun JobCard(
             } else if (marksBeside) {
                 // Beside the name already.
             } else if (statsShown) {
-                Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> 10.dp }))
+                Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> if (low) 8.dp else 10.dp }))
                 if (small) SmallStats(job.color, report, onAdded, onRemoved, onNotFound, onTracks)
                 else RunStats(
                     job.color, report, data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
@@ -1054,7 +1056,7 @@ private fun JobCard(
             if (handed != null && run == null) ServerCardStatus(handed.serverId, small)
             // A radio sync while it listens: what is on air (or that it waits for Wi-Fi, or what went wrong).
             if (job.radio != null) RadioCardStatus(job)
-            Spacer(Modifier.height(if (small) 6.dp else 8.dp))
+            Spacer(Modifier.height(if (small) (if (low) 4.dp else 6.dp) else 8.dp))
             val schedule: @Composable (Modifier) -> Unit = { m ->
                 Row(m, verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
