@@ -214,8 +214,12 @@ class MerchTest {
         arcticShop()
         answers["/www.arcticmonkeys.com/robots.txt"] = 200 to "User-agent: *\nDisallow: /products"
         assertTrue(Merch.find(env, "Arctic Monkeys", am).items.isEmpty())
-        // The home page is still open to it: read for the shops it links to.
-        assertEquals(listOf("/www.arcticmonkeys.com/robots.txt", "/www.arcticmonkeys.com/"), hits)
+        // The home page is still open to it: read for the shops it links to; then store. and shop. of its domain.
+        assertEquals(listOf(
+            "/www.arcticmonkeys.com/robots.txt", "/www.arcticmonkeys.com/",
+            "/store.arcticmonkeys.com/robots.txt", "/store.arcticmonkeys.com/products.json",
+            "/shop.arcticmonkeys.com/robots.txt", "/shop.arcticmonkeys.com/products.json",
+        ), hits)
     }
 
     @Test fun aSiteThatIsNotShopifyGivesNothingAndOneThatDoesNotAnswerIsNotRead() = runBlocking {
@@ -230,7 +234,8 @@ class MerchTest {
         val down = Merch.find(env, "Arctic Monkeys", am)
         assertTrue(down.items.isEmpty())
         assertTrue(down.unread)
-        assertEquals(listOf("/www.arcticmonkeys.com/robots.txt"), hits)
+        assertEquals("/www.arcticmonkeys.com/robots.txt", hits.first())
+        assertFalse(hits.any { it.startsWith("/www.arcticmonkeys.com/") && !it.endsWith("robots.txt") })
         assertTrue(env.logs.last(), env.logs.last().startsWith("[merch] Arctic Monkeys: www.arcticmonkeys.com/robots.txt: 503") && env.logs.last().endsWith("not read"))
         // Not kept: asked again at once, and found when the shop is back.
         hits.clear()
@@ -293,6 +298,102 @@ class MerchTest {
         assertTrue(found.items.all { it.url.startsWith("https://store.falloutboy.com/products/") && it.currency == "USD" })
         assertTrue(hits.containsAll(listOf("/falloutboy.lnk.to/robots.txt", "/falloutboy.lnk.to/store", "/store.falloutboy.com/robots.txt")))
         assertTrue(env.logs.last(), env.logs.last().contains("falloutboy.lnk.to/store → store.falloutboy.com"))
+    }
+
+    /** A small Shopify catalogue: [titles] by [vendor], one $25 variant each. */
+    private fun catalogue(vendor: String, vararg titles: String) = titles.joinToString(",", """{"products":[""", "]}") { t ->
+        """{"title":"$t","handle":"${t.lowercase().replace(' ', '-')}","vendor":"$vendor","product_type":"T-Shirt","variants":[{"price":"25.00","available":true,"requires_shipping":true}],"images":[]}"""
+    }
+
+    @Test fun aLinkPageWhoseRobotsDoesNotAnswerHasOnlyTheGivenLinkOpened() = runBlocking {
+        // A Day To Remember, November 2026: the site's "Store" is a found.ee link; found.ee drops the robots.txt request.
+        answers["/www.adtr.com/"] = 200 to """<nav><a href="https://found.ee/adtrstore" target="_blank">Store</a><a href="https://found.ee/adtr-tour">Tour</a></nav>"""
+        answers["/found.ee/robots.txt"] = 503 to "busy"
+        answers["/found.ee/adtrstore"] = 200 to """<script>var redirectUrl = "https://adtrstore.com"; window.location = redirectUrl;</script>"""
+        answers["/adtrstore.com/products.json"] = 200 to catalogue("ADTR", "Gargoyle Tee", "Paranoia Logo Tee")
+        answers["/adtrstore.com/meta.json"] = 200 to """{"name":"ADTR","currency":"USD","description":"A Day To Remember's official online store."}"""
+        val found = Merch.find(env, "A Day To Remember", listOf(link(Records.Kind.OFFICIAL, "https://www.adtr.com/")))
+        // The shop is named by the band's initials: all of it is theirs.
+        assertEquals(listOf("Gargoyle Tee", "Paranoia Logo Tee"), found.items.map { it.title })
+        assertFalse(found.unread)
+        // Only that one address on found.ee: not its other link, nothing else there.
+        assertEquals(listOf("/found.ee/robots.txt", "/found.ee/adtrstore"), hits.filter { it.startsWith("/found.ee/") })
+        // A link page whose robots.txt answers and closes the link: not opened.
+        hits.clear(); clock += Merch.TTL_MS
+        answers["/found.ee/robots.txt"] = 200 to "User-agent: *\nDisallow: /"
+        assertTrue(Merch.find(env, "A Day To Remember", listOf(link(Records.Kind.OFFICIAL, "https://www.adtr.com/"))).items.isEmpty())
+        assertFalse(hits.contains("/found.ee/adtrstore"))
+    }
+
+    @Test fun aSplashPagesHomeAndALinkNamedStore() = runBlocking {
+        // Avenged Sevenfold: the home page is a splash leading to /home, whose "Stores" menu opens a shop not named so.
+        answers["/www.avengedsevenfold.com/"] = 200 to """<a href="/home"><img src="/splash.jpg"></a><a href="https://www.avengedsevenfold.io/">Club</a>"""
+        answers["/www.avengedsevenfold.com/home"] = 200 to """<a class="nav-link dropdown-toggle" href="https://a7xworld.com/" data-label="Store"><span>Stores</span></a><a href="https://velvethammer.net">Velvet Hammer</a>"""
+        answers["/a7xworld.com/products.json"] = 200 to catalogue("The Stage", "Nightmare Tee", "Deathbat Hoodie")
+        answers["/a7xworld.com/meta.json"] = 200 to """{"name":"A7X World","currency":"USD","description":"Welcome to the Black Market - the OFFICIAL web store for all things Avenged Sevenfold."}"""
+        val found = Merch.find(env, "Avenged Sevenfold", listOf(link(Records.Kind.OFFICIAL, "https://www.avengedsevenfold.com/")))
+        assertEquals(listOf("Nightmare Tee", "Deathbat Hoodie"), found.items.map { it.title })
+        assertFalse(hits.any { it.startsWith("/velvethammer.net") || it.startsWith("/www.avengedsevenfold.io") })
+        // Unquoted addresses (minified pages) and the links' own words.
+        assertEquals(listOf("https://sleeptoken.lnk.to/UKstore", "https://merch.example.org/"), Merch.storeLinks(
+            """<a href=https://sleeptoken.lnk.to/UKstore class=store-link><span>UK STORE</span></a><a href=https://merch.example.org/>x</a><a href=https://tickets.example.org/>Tickets</a>""",
+            "sleep-token.com"))
+        assertEquals("/home", Merch.entryPath("""<a href="https://other.com/home">x</a><a href="/home?page=1">more</a>""", "www.avengedsevenfold.com"))
+        assertNull(Merch.entryPath("""<a href="/tour">Tour</a>""", "band.com"))
+    }
+
+    @Test fun aSiteThatNamesNoShopHasItsStoreSubdomainTried() = runBlocking {
+        // Green Day: the home page's menu is drawn by a script; the shop is store.greenday.com.
+        answers["/greenday.com/"] = 200 to """<html><body><div id="app"></div></body></html>"""
+        answers["/store.greenday.com/products.json"] = 200 to catalogue("Green Day", "Iconic Tee")
+        answers["/store.greenday.com/meta.json"] = 200 to """{"name":"Green Day","currency":"USD"}"""
+        val found = Merch.find(env, "Green Day", listOf(link(Records.Kind.OFFICIAL, "https://greenday.com/")))
+        assertEquals(listOf("Iconic Tee"), found.items.map { it.title })
+        assertFalse(hits.any { it.startsWith("/shop.greenday.com") })
+        // A guessed host that does not answer is not a shop that did not answer.
+        hits.clear(); clock += Merch.TTL_MS
+        answers.remove("/store.greenday.com/products.json")
+        answers["/store.greenday.com/robots.txt"] = 503 to "no such shop"
+        val none = Merch.find(env, "Green Day", listOf(link(Records.Kind.OFFICIAL, "https://greenday.com/")))
+        assertTrue(none.items.isEmpty())
+        assertFalse(none.unread)
+        // An official page on someone else's site (a label's page of the artist): no guess there.
+        hits.clear(); clock += Merch.TTL_MS
+        Merch.find(env, "Green Day", listOf(link(Records.Kind.OFFICIAL, "https://label.example.com/artist/greenday/")))
+        assertFalse(hits.any { it.startsWith("/store.") || it.startsWith("/shop.") })
+    }
+
+    @Test fun aShopNamedAfterTheArtistsInitialsOrDescribedAsTheirsIsAllTheirs() {
+        val body = catalogue("PTV", "Logo Tee")
+        assertEquals(1, Merch.parseShopify(body, """{"name":"PTV"}""", "https://x.com", "Pierce The Veil").size)
+        assertEquals(1, Merch.parseShopify(body, """{"name":"Store","description":"The official store of Pierce The Veil"}""", "https://x.com", "Pierce The Veil").size)
+        // Two words make no initials worth trusting; a shop of someone else gives only what names the artist.
+        assertTrue(Merch.parseShopify(catalogue("GD", "Logo Tee"), """{"name":"GD"}""", "https://x.com", "Green Day").isEmpty())
+        assertTrue(Merch.parseShopify(catalogue("Label", "Logo Tee"), """{"name":"Label Shop"}""", "https://x.com", "Pierce The Veil").isEmpty())
+    }
+
+    @Test fun theOfficialPagesAreShownOnceEach() {
+        fun l(kind: Records.Kind, url: String) = Records.Link(kind, Records.siteName(java.net.URI(url).host.removePrefix("www.")), url)
+        val shown = Records.shownLinks(listOf(
+            l(Records.Kind.OFFICIAL, "https://www.avengedsevenfold.com/"),
+            l(Records.Kind.OFFICIAL, "https://wmg.jp/artist/avengedsevenfold/"),
+            l(Records.Kind.SHOP, "https://www.amazon.co.uk/-/e/B00197GPBG"),
+            l(Records.Kind.SHOP, "https://www.amazon.com/-/e/B00197GPBG"),
+            l(Records.Kind.SHOP, "https://www.ptvmerch.com/"),
+            l(Records.Kind.DOWNLOAD, "https://itunes.apple.com/us/artist/id6766228"),
+            l(Records.Kind.DOWNLOAD, "https://music.apple.com/us/artist/6766228"),
+            l(Records.Kind.DOWNLOAD, "https://open.qobuz.com/artist/1"),
+            l(Records.Kind.DOWNLOAD, "https://www.qobuz.com/us-en/interpreter/band/download-streaming-albums"),
+            l(Records.Kind.SOCIAL, "https://twitter.com/band"),
+            l(Records.Kind.SOCIAL, "https://x.com/band/"),
+            l(Records.Kind.SOCIAL, "https://twitter.com/band/"),
+        ))
+        assertEquals(listOf(
+            "" to "https://www.avengedsevenfold.com/", "Amazon" to "https://www.amazon.com/-/e/B00197GPBG", "ptvmerch.com" to "https://www.ptvmerch.com/",
+            "Apple" to "https://music.apple.com/us/artist/6766228", "Qobuz" to "https://open.qobuz.com/artist/1", "X" to "https://x.com/band/",
+        ), shown.map { it.label to it.url })
+        // The only shop is "the official shop".
+        assertEquals(listOf(""), Records.shownLinks(listOf(l(Records.Kind.SHOP, "https://www.ptvmerch.com/"))).map { it.label })
     }
 
     @Test fun theArtistsCollectionInADistributorsShop() = runBlocking {

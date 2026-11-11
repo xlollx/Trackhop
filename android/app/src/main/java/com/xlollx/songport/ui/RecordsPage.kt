@@ -286,12 +286,12 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
                 HorizontalDivider()
                 Text(stringResource(R.string.records_links), style = MaterialTheme.typography.labelLarge)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    a.links.forEach { l ->
+                    Records.shownLinks(a.links).forEach { l ->
                         OutlinedButton(onClick = { openUrl(ctx, l.url) }) {
-                            Text(when (l.kind) {
-                                Records.Kind.OFFICIAL -> stringResource(R.string.concerts_official_site)
-                                Records.Kind.SHOP -> stringResource(R.string.records_shop)
-                                else -> l.label
+                            Text(when {
+                                l.label.isNotEmpty() -> l.label
+                                l.kind == Records.Kind.SHOP -> stringResource(R.string.records_shop)
+                                else -> stringResource(R.string.concerts_official_site)
                             })
                         }
                     }
