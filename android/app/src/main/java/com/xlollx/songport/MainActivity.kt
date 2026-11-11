@@ -513,7 +513,7 @@ private fun MainScreen(
             firstSheet = false
             // The same connector Accounts → add makes; one already added and not signed in is reused.
             val p = Providers.connectors().firstOrNull { it.serviceId == service.serviceId && it.requiresAuth && !it.isConnected(ctx) }
-                ?: Providers.byId(com.xlollx.songport.ui.addConnector(store, service, service.displayName)) ?: service
+                ?: Providers.byId(com.xlollx.songport.ui.addConnector(store, service, service.displayName).also { Scheduler.applyKeepAlive(ctx) }) ?: service
             firstSyncFor = p.id
             when {
                 p.isConnected(ctx) -> { firstSyncFor = null; firstSyncReady = p.id }

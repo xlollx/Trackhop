@@ -139,12 +139,7 @@ class SoundCloudWebClient(private val ctx: Context) {
                     switched = false
                     target = session.get(ctx, "apiHost") ?: SoundCloudBridge.API_V2
                 }
-                code == 401 && tok != null -> {
-                    // A renewed token refused everywhere too: the session is over, said once.
-                    if (renewed) SoundCloudRenewal.markExpired(ctx, "the renewed token was refused too")
-                    throw BridgeException(EXPIRED)
-                }
-                code == 401 -> throw BridgeException("SoundCloud refused the web app's client id: it may have changed its web app")
+                code == 401 -> throw BridgeException(if (tok != null) EXPIRED else "SoundCloud refused the web app's client id: it may have changed its web app")
                 code == 403 -> throw BridgeException("SoundCloud refused this ($method ${url.encodedPath}): HTTP 403")
                 code == 422 -> throw BridgeException("SoundCloud did not accept the change ($method ${url.encodedPath}): ${text.take(200)}")
                 code == 429 -> throw BridgeException("SoundCloud asks to slow down (429): try again in a few minutes")

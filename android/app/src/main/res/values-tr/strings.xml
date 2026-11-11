@@ -117,6 +117,9 @@
     <string name="setup_now">Kur</string>
     <string name="connect">Bağlan</string>
     <string name="disconnect">Bağlantıyı kes</string>
+    <string name="session_expired">Oturum sona erdi</string>
+    <string name="session_expired_hint">Oturumun süresi doldu: senkronizasyonların çalışmaya devam etmesi için yeniden giriş yap</string>
+    <string name="sign_in_again">Yeniden giriş yap</string>
     <string name="connecting">Bağlanıyor…</string>
     <string name="always_available">Her zaman kullanılabilir</string>
 

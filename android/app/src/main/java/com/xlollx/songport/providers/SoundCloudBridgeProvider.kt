@@ -74,6 +74,9 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "soundcloud.status").getBoolean("connected", false) }.getOrDefault(false)
     override fun accountName(ctx: Env): String? = runCatching { call(ctx, "soundcloud.status").getString("account") }.getOrNull()
 
+    /** Signed in, but the session has expired for good: Accounts says to sign in again. */
+    fun sessionExpired(ctx: Env): Boolean = runCatching { call(ctx, "soundcloud.status").getString("expiredAt") != null }.getOrDefault(false)
+
     /** A public page needs no sign-in; the account's sets and likes do. */
     override fun canRead(ctx: Env, playlistId: String): Boolean = when {
         isPage(playlistId) -> readsLinksItself || isConfigured(ctx)
@@ -186,7 +189,11 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
-        b.getString("error")?.let { throw ProviderException("$displayName: $it") }
+        b.getString("error")?.let {
+            // The session found gone for good (by a sync or any call): one notification per expiry.
+            b.getString("expiredAt")?.let { at -> runCatching { com.xlollx.songport.sync.SessionKeepAlive.noticeExpiry(ctx.android, at) } }
+            throw ProviderException("$displayName: $it")
+        }
         return b
     }
 

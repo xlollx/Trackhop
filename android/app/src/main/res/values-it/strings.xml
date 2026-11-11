@@ -117,6 +117,9 @@
     <string name="setup_now">Configura</string>
     <string name="connect">Collega</string>
     <string name="disconnect">Scollega</string>
+    <string name="session_expired">Sessione scaduta</string>
+    <string name="session_expired_hint">La sessione è scaduta: accedi di nuovo per far continuare le sync</string>
+    <string name="sign_in_again">Accedi di nuovo</string>
     <string name="connecting">Connessione…</string>
     <string name="always_available">Sempre disponibile</string>
 

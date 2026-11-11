@@ -117,6 +117,9 @@
     <string name="setup_now">Einrichten</string>
     <string name="connect">Verbinden</string>
     <string name="disconnect">Trennen</string>
+    <string name="session_expired">Sitzung abgelaufen</string>
+    <string name="session_expired_hint">Die Sitzung ist abgelaufen: Melde dich erneut an, damit deine Syncs weiterlaufen</string>
+    <string name="sign_in_again">Erneut anmelden</string>
     <string name="connecting">Verbindung wird hergestellt…</string>
     <string name="always_available">Immer verfügbar</string>
 

@@ -117,6 +117,9 @@
     <string name="setup_now">Configurer</string>
     <string name="connect">Connecter</string>
     <string name="disconnect">Déconnecter</string>
+    <string name="session_expired">Session expirée</string>
+    <string name="session_expired_hint">La session a expiré : reconnecte-toi pour que tes synchros continuent</string>
+    <string name="sign_in_again">Se reconnecter</string>
     <string name="connecting">Connexion…</string>
     <string name="always_available">Toujours disponible</string>
 

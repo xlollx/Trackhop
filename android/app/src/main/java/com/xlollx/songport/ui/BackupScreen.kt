@@ -107,6 +107,7 @@ fun BackupScreen(onClose: () -> Unit) {
                         done.onSuccess { r ->
                             // The imported syncs' schedules start here as they would have where they came from.
                             store.data.jobs.forEach { Scheduler.apply(ctx, it) }
+                            Scheduler.applyKeepAlive(ctx)
                             snackbar.showSnackbar(ctx.getString(R.string.backup_config_restored, r.syncs))
                         }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
                     }
