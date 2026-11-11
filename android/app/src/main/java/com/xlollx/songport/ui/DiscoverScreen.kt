@@ -164,6 +164,8 @@ fun DiscoverScreen(
     var open by rememberSaveable { mutableStateOf<DiscoverCard?>(null) }
     LaunchedEffect(openWrapped) { if (openWrapped) { open = DiscoverCard.WRAPPED; onWrappedOpened() } }
     LaunchedEffect(openFollowed) { if (openFollowed) { open = DiscoverCard.FOLLOWED; onFollowedOpened() } }
+    // A setlist made on setlist.fm's own site in the app: shown on the Setlists page.
+    LaunchedEffect(SetlistsKept.showBrowsed) { if (SetlistsKept.showBrowsed) { open = DiscoverCard.SETLISTS; SetlistsKept.showBrowsed = false } }
     val listState = rememberLazyGridState()
     // Two playlist links shared together open the comparison straight away.
     LaunchedEffect(compareLinks) { if (compareLinks != null) open = DiscoverCard.COMPAT }

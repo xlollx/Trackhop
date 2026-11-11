@@ -110,6 +110,19 @@ internal object SetlistsKept {
         stopped = at
     }
 
+    /**
+     * A setlist the person opened on setlist.fm's own site in the in-app browser (GitHub and F-Droid
+     * builds, no key): shown at the top of the page with where it goes already asked.
+     */
+    var browsed by mutableStateOf<Setlists.Setlist?>(null)
+    /** The browser closed with a setlist: the app shows this page ([browsed]); set back once shown. */
+    var showBrowsed by mutableStateOf(false)
+
+    /** From the in-app browser: [s] as a new playlist, or added to an existing one ([existing]). */
+    fun browsed(s: Setlists.Setlist, existing: Boolean) {
+        browsed = s; open = s.id; sendFor = s.id; sendExisting = existing; showBrowsed = true
+    }
+
     /** The key saved or removed: what the old key found (or "key refused") no longer holds, the next search uses the new one. */
     fun keyChanged() { result = null; open = null; sendFor = null; stopped = null }
 }
@@ -150,6 +163,13 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onReview: (String) -> Uni
         Text(if (k.pick == null) stringResource(R.string.setlists_find) else artistsAction(k.artists, k.choice, LookupCaps.SETLISTS, R.string.setlists_find, R.plurals.setlists_find_for, R.string.setlists_find_top))
     }
     if (busy) SearchRunning(k.progress) { k.stop() }
+    // No key, in the GitHub and F-Droid builds: setlist.fm's own site, browsed by the person in the app.
+    val site = if (Setlists.key(ctx.env) == null) siteBrowsing(ctx) else null
+    if (site != null) OutlinedButton(
+        onClick = { site.second(k.artists?.let { ArtistPick.chosen(it, k.choice.pickedOrNull) }?.firstOrNull()) },
+        modifier = Modifier.fillMaxWidth(),
+    ) { Text(site.first) }
+    k.browsed?.let { b -> ArtistSetlistsCard(Setlists.ArtistSetlists(b.artist, listOf(b)), busy = false, keyless = false, snackbar, null) }
 
     val r = k.result
     if (r == null || busy) {
@@ -180,7 +200,7 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onReview: (String) -> Uni
     // A long list can be searched by name, both the artists with setlists and those without.
     var query by rememberSaveable { mutableStateOf("") }
     if (r.artists.size > 5) ArtistSearchField(query) { query = it }
-    ArtistPick.named(found, query) { it.artist }.forEach { a -> ArtistSetlistsCard(a, busy, keyless, snackbar) }
+    ArtistPick.named(found, query) { it.artist }.forEach { a -> ArtistSetlistsCard(a, busy, keyless, snackbar, site) }
     val without = ArtistPick.named(r.artists.filter { it.setlists.isEmpty() }, query) { it.artist }
     if (without.isNotEmpty()) Text(
         stringResource(R.string.setlists_without, without.joinToString(", ") { it.artist }),
@@ -197,12 +217,14 @@ private fun dateText(s: Setlists.Setlist): String =
     runCatching { LocalDate.parse(s.date).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)) }.getOrDefault(s.date)
 
 @Composable
-private fun ArtistSetlistsCard(a: Setlists.ArtistSetlists, busy: Boolean, keyless: Boolean, snackbar: SnackbarHostState) {
+private fun ArtistSetlistsCard(a: Setlists.ArtistSetlists, busy: Boolean, keyless: Boolean, snackbar: SnackbarHostState, site: Pair<String, (String?) -> Unit>?) {
     val ctx = LocalContext.current
     val k = SetlistsKept
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ArtistTitle(a.artist)
+            // MusicBrainz's setlists: the artist's full ones on setlist.fm's own site, browsed in the app.
+            if (keyless && site != null) TextButton(onClick = { site.second(a.artist) }) { Text(site.first) }
             a.setlists.forEachIndexed { i, s ->
                 if (i > 0) HorizontalDivider()
                 val opened = k.open == s.id
@@ -314,6 +336,7 @@ private fun send(ctx: Context, s: Setlists.Setlist, target: PlaylistRef) {
             Store.get(app).upsertJob(job)
             Scheduler.runNow(app, job.id)
             SetlistsKept.sent = job.id; SetlistsKept.sendFor = null
+            if (SetlistsKept.browsed?.id == s.id) SetlistsKept.browsed = null
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             SetlistsKept.error = e.message ?: app.getString(R.string.error_generic)
         }
@@ -406,4 +429,12 @@ internal fun setlistFmKeyState(ctx: Context): Int = when {
     Setlists.ownKey(ctx.env) != null -> R.string.concerts_key_own
     Setlists.key(ctx.env) != null -> R.string.concerts_key_shared
     else -> R.string.setlists_key_none
+}
+
+/**
+ * setlist.fm's own site in the app ([com.xlollx.songport.providers.BuiltIn.setlistSite]), GitHub and
+ * F-Droid builds only (null in the store builds): its label, and opening it on an artist's search.
+ */
+private fun siteBrowsing(ctx: Context): Pair<String, (String?) -> Unit>? = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null)?.let { (label, _) ->
+    label to { artist: String? -> com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, artist)?.second?.let { runCatching { ctx.startActivity(it) } }; Unit }
 }

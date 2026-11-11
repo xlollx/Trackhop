@@ -510,6 +510,10 @@ private fun MainScreen(
                     val id = LocalFilesProvider.importTracks(ctx, s.name, s.tracks)
                     editing = newJob().copy(name = s.name, source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id))
                     snackbar.showSnackbar(ctx.getString(R.string.setlist_imported, s.tracks.size))
+                } catch (e: com.xlollx.songport.sync.SetlistImport.NoKey) {
+                    // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid).
+                    val site = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null, setlist)
+                    if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
                 } catch (e: Exception) {
                     snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
                 }
@@ -532,6 +536,8 @@ private fun MainScreen(
     // Esiti dei login che non tornano da un'Activity (flusso loopback di Google).
     val authMessage by AuthEvents.message.collectAsState()
     LaunchedEffect(authMessage) { authMessage?.let { snackbar.showSnackbar(it); AuthEvents.consume() } }
+    // A setlist made on setlist.fm's own site in the app: its page (Discover › Setlists) shows it.
+    LaunchedEffect(com.xlollx.songport.ui.SetlistsKept.showBrowsed) { if (com.xlollx.songport.ui.SetlistsKept.showBrowsed) tab = MainActivity.TAB_DISCOVER }
     val requestedTab by tabRequests.collectAsState()
     LaunchedEffect(requestedTab) {
         if (requestedTab >= 0) {

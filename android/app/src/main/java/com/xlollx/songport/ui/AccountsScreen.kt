@@ -598,7 +598,11 @@ internal fun FilesCard(
                         // A pasted list, like an imported file, can go straight to a service.
                         offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
                     }
-                } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: com.xlollx.songport.sync.SetlistImport.NoKey) {
+                    // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid).
+                    val site = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null, com.xlollx.songport.sync.SetlistImport.linkIn(text))
+                    onMain { if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+                } catch (e: Exception) {
                     onMain { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
                 }
             }

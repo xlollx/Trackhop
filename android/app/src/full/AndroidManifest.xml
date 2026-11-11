@@ -4,4 +4,12 @@
     <queries>
         <package android:name="com.xlollx.songport.ytmbridge" />
     </queries>
+    <application>
+        <!-- setlist.fm's own site, browsed by the person to make a playlist of a concert (no key): see SetlistSiteActivity. -->
+        <activity
+            android:name=".ui.SetlistSiteActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation"
+            android:theme="@style/Theme.Songport" />
+    </application>
 </manifest>

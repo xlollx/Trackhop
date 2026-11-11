@@ -86,9 +86,10 @@ private object RecordsKept {
 }
 
 /**
- * The artists' shops, read by the page one artist at a time as their cards come into view, not
- * all at once with the search: Shopify limits a phone's requests to all its shops together, and a
- * page of 50 artists asking at once got "too many requests" from nearly every shop. What [Merch]
+ * The artists' shops, read by the page one artist at a time: all of them for a few artists
+ * ([LookupCaps.eagerShops], a result shown again from what was kept), else as their cards come into
+ * view. Shopify limits a phone's requests to all its shops together, and a page of 50 artists asking
+ * at once got "too many requests" from nearly every shop. What [Merch]
  * found stays here while the app runs (and in [Merch]'s own cache, two days).
  */
 private object ShopsKept {
@@ -178,9 +179,10 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         k.start(p.playlist.id) { progress ->
             val tracks = if (known == null) p.provider.tracks(env, p.playlist.id) else null
             val all = known ?: Concerts.artistsOf(tracks!!)
-            // Kept answers are reused per artist; the shops are read by the cards as they show.
+            // Kept answers are reused per artist. The shops: read during the search for a few artists
+            // ([LookupCaps.eagerShops]), so the page is complete when it ends; for more, by the cards as they show.
             Records.find(
-                env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress, shops = false,
+                env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress, shops = null,
                 evidence = tracks?.let { Records.evidenceOf(it) } ?: ev, partial = k::keep,
             )
         }
@@ -235,19 +237,25 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     }
     if (busy) SearchRunning(progress) { k.stop() }
 
-    val r = RecordsKept.fresh()?.takeIf { pick == null || k.key == pick?.playlist?.id }
-    if (r != null && !busy) {
-        SearchStopped(k.stopped)
+    // While a search runs, the artists it has found so far, their shops included as they arrive.
+    val r = (if (busy) k.found else RecordsKept.fresh()?.takeIf { pick == null || k.key == pick?.playlist?.id })
+    // A result shown again from what was kept leaves the shops out: for a few artists they are all read
+    // now, one after the other, as a search would; for more, as their cards show.
+    if (r != null && !busy && LookupCaps.eagerShops(r.artists.size)) LaunchedEffect(r) {
+        r.artists.filter(::readsShops).forEach { ShopsKept.load(ctx.env, it.artist, it.links) }
+    }
+    if (r != null) {
+        if (!busy) SearchStopped(k.stopped)
         val discogs = look.records && r.look.records
         val notes = buildList {
             if (discogs && r.slowedDown) add(stringResource(R.string.records_slowed))
             if (discogs && r.tokenRefused) add(stringResource(R.string.records_token_refused))
             if (discogs && !r.token) add(stringResource(R.string.records_no_token))
-            if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
+            if (!busy && r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
         }
         // How old the records shown are, when they come from an earlier search.
         val age = System.currentTimeMillis() - r.at
-        if (r.at > 0 && age >= DateUtils.MINUTE_IN_MILLIS) Text(
+        if (!busy && r.at > 0 && age >= DateUtils.MINUTE_IN_MILLIS) Text(
             stringResource(R.string.records_updated, DateUtils.getRelativeTimeSpanString(r.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

@@ -3,4 +3,8 @@
 <resources>
     <string name="security_fact_2">Trackhop 只保存可撤销的访问令牌，以及内置网页连接器所需的服务会话，全部使用 Android Keystore 加密。</string>
     <string name="onboarding_security">你在各服务自己的页面上登录。Trackhop 只在这部手机上保存经过加密、可撤销的令牌或网页会话，并且没有自己的服务器。</string>
+    <!-- setlist.fm's own site in the app (no key): GitHub and F-Droid builds only. -->
+    <string name="setlists_browse">浏览 setlist.fm</string>
+    <string name="setlists_browse_hint">setlist.fm 官方网站。打开一场演出，然后把它做成歌单。</string>
+    <string name="setlists_browse_unread">此页面还没有歌曲。请等待加载完成，或打开一场有歌单的演出。</string>
 </resources>

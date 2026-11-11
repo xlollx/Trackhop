@@ -76,6 +76,15 @@ object LookupCaps {
     const val RECORDS_TOKEN = DEFAULT
     /** Records & merch without a token: Discogs takes 25 a minute. */
     const val RECORDS_ANON = DEFAULT
+    /**
+     * Records & merch: a search of at most this many artists also reads every artist's shops (one at
+     * a time, through the shops' pacer), so the page is complete when it ends; with more (picked by
+     * hand) the shops are read as the artists' cards come into view.
+     */
+    const val EAGER_SHOPS = DEFAULT
+
+    /** Whether a search of [artists] artists reads their shops itself ([EAGER_SHOPS]). */
+    fun eagerShops(artists: Int): Boolean = artists <= EAGER_SHOPS
 
     /** [list] cut to [cap] when it is the whole playlist ([whole]); the artists picked by hand, all of them. */
     fun <T> cut(list: List<T>, cap: Int, whole: Boolean): List<T> = if (whole) list.take(cap) else list

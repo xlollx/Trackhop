@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -279,6 +280,22 @@ class RecordsTest {
         clock += Records.NO_LINKS_TTL_MS
         assertNull(Records.fromCache(env, listOf("Nobody Known"), "EUR", look = Records.Look.MERCH))
         assertEquals(1, Records.fromCache(env, listOf("Radiohead"), "EUR", look = Records.Look.MERCH)!!.artists.size)
+    }
+
+    @Test fun aSmallSearchReadsTheShopsItselfALargeOneLeavesThemToTheCards() = runBlocking {
+        assertTrue(LookupCaps.eagerShops(LookupCaps.DEFAULT))
+        assertFalse(LookupCaps.eagerShops(LookupCaps.DEFAULT + 1))
+        // The default cap: every artist's shops read during the search.
+        val small = Records.find(env, listOf("Radiohead", "Nobody Known"), "EUR", shops = null)
+        assertNotNull(small.artists.first { it.artist == "Radiohead" }.merch)
+        // More artists picked by hand: the shops are left to the page, read as the cards show.
+        search = { 200 to """{"results":[]}""" }
+        val many = listOf("Radiohead") + (1..LookupCaps.DEFAULT).map { "Artist $it" }
+        val large = Records.find(env, many, "EUR", whole = false, shops = null)
+        assertEquals(LookupCaps.DEFAULT + 1, large.artists.size)
+        val rh2 = large.artists.first { it.artist == "Radiohead" }
+        assertNull(rh2.merch)
+        assertNull(rh2.shopRecords)
     }
 
     @Test fun lookupsAreLimitedWithoutAToken() = runBlocking {

@@ -34,8 +34,22 @@ of a new sync, as for any sync.
 ## setlist.fm links
 
 A setlist.fm link shared to Trackhop (or pasted in Services › File › Paste a list) also becomes a
-playlist. With a setlist.fm key (below) it is read through setlist.fm's API; without one Trackhop
-tries the public page, which setlist.fm sometimes protects with a browser check: then add a key.
+playlist. With a setlist.fm key (below) it is read through setlist.fm's API. Without one, Trackhop
+never reads the page in the background: the GitHub and F-Droid builds open it on setlist.fm's own
+site in the app (below); the Google Play and AppGallery builds ask for a key.
+
+## Browse setlist.fm (GitHub and F-Droid builds)
+
+Without a key, the GitHub and F-Droid builds of the app also offer **Browse setlist.fm** on the
+Setlists page (and on each artist's card): it opens **setlist.fm's own website** inside the app, on
+its search for the artist, like a browser. You browse it yourself and open a concert's page; while
+a setlist is on screen, a bar at the bottom offers **Make a playlist** and **Add to a playlist**.
+Trackhop then reads the songs from the page you are looking at (that page only, nothing else is
+asked of setlist.fm) and brings you back to the Setlists page with the concert ready: the same
+choices as above, where only the songs not already in the playlist are added, with the review of
+the songs not found. Nothing happens in the background and nothing is read for you: you browse,
+you choose the concert. The Google Play and AppGallery builds don't have this: there, setlist.fm
+needs your key.
 
 ## Without a key: MusicBrainz
 
@@ -44,7 +58,8 @@ concert pages carry: free, no account, no key. MusicBrainz has them for far fewe
 big tours and festivals), so many artists will show none: the setlist.fm key below shows many more.
 Each artist takes two or three lookups (MusicBrainz answers once a second) and is kept for a week.
 Trackhop never reads setlist.fm's own web pages for this: setlist.fm's terms don't allow programs
-to read the site, only its API with a key. Docker and Desktop still need the key.
+to read the site, only its API with a key (in the GitHub and F-Droid builds you can browse the site
+yourself, see **Browse setlist.fm** above). Docker and Desktop still need the key.
 
 ## The setlist.fm key
 
@@ -91,5 +106,7 @@ MusicBrainz", and each one links to its concert page there.
 ## What is sent
 
 The artist names of the playlist you pick go to setlist.fm (api.setlist.fm) with a key, or to
-MusicBrainz (musicbrainz.org) without one, only when you tap **Find setlists**; a shared link sends its setlist's id. Nothing else: no account, no location, no
+MusicBrainz (musicbrainz.org) without one, only when you tap **Find setlists**; a shared link sends its setlist's id.
+**Browse setlist.fm** opens www.setlist.fm in the app like a browser: what it sees is what you
+browse there. Nothing else: no account, no location, no
 playlist. See the [privacy policy](../privacy-policy).

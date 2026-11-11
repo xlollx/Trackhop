@@ -217,11 +217,12 @@ object Records {
      * Records, links and searches for [artists] (the playlist's, most held first). [progress] gets
      * (done, total). One artist's failure never stops the rest: that artist has fewer things.
      * [look] says what is asked and shown: Discogs is not called for [Look.MERCH]; the artists' shops
-     * are read for every look (their records are shown with the records, the rest as merch).
+     * are read for every look (their records are shown with the records, the rest as merch). [shops]
+     * null: read when the search covers few artists ([LookupCaps.eagerShops]), else left to the app.
      */
     suspend fun find(
         env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL,
-        progress: (Int, Int) -> Unit = { _, _ -> }, shops: Boolean = true,
+        progress: (Int, Int) -> Unit = { _, _ -> }, shops: Boolean? = true,
         evidence: Map<String, Evidence> = emptyMap(), partial: (Result) -> Unit = {},
     ): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
@@ -229,6 +230,7 @@ object Records {
         val hadToken = token != null
         val asked = asked(artists)
         val list = LookupCaps.cut(asked, if (hadToken) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON, whole)
+        val readShops = shops ?: LookupCaps.eagerShops(list.size)
         val startedAt = now()
         var refused = false
         var slowed = false
@@ -256,7 +258,7 @@ object Records {
             if (links == null) env.log("records", "$artist: MusicBrainz did not answer")
             out += artistRecords(artist, records, mb, look, when {
                 links == null -> Merch.Found(emptyList(), unread = true)
-                shops -> Merch.find(env, artist, links)
+                readShops -> Merch.find(env, artist, links)
                 else -> null
             })
             // What is found so far: kept when the user stops the search.

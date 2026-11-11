@@ -3,4 +3,8 @@
 <resources>
     <string name="security_fact_2">Trackhop が保存するのは取り消し可能なアクセストークンと、ウェブコネクタの場合はサービスのセッションのみで、すべて Android Keystore で暗号化されます。</string>
     <string name="onboarding_security">各サービス自身のページでログインします。Trackhop はこの端末上に暗号化された取り消し可能なトークンまたはウェブセッションのみを保存し、独自のサーバーは持ちません。</string>
+    <!-- setlist.fm's own site in the app (no key): GitHub and F-Droid builds only. -->
+    <string name="setlists_browse">setlist.fm を見る</string>
+    <string name="setlists_browse_hint">setlist.fm のサイトです。コンサートを開いて、プレイリストにしましょう。</string>
+    <string name="setlists_browse_unread">このページにはまだ曲がありません。読み込みを待つか、セットリストのあるコンサートを開いてください。</string>
 </resources>

@@ -25,6 +25,10 @@ object BuiltIn {
     @Suppress("UNUSED_PARAMETER")
     fun onAppStart(ctx: Context, interceptor: okhttp3.Interceptor) = PluginRelay.install(ctx)
 
+    /** setlist.fm's own site in the app: GitHub and F-Droid builds only. */
+    @Suppress("UNUSED_PARAMETER")
+    fun setlistSite(ctx: Context, artist: String?, link: String? = null): Pair<String, Intent>? = null
+
     /** No built-in web connectors here, so no capture of a web player either. */
     fun captureIntent(ctx: Context, url: String): Intent? = null
 }

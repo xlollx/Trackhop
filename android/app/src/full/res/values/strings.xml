@@ -3,4 +3,8 @@
 <resources>
     <string name="security_fact_2">Trackhop keeps only revocable access tokens and, for the web connectors, the service\'s session, all encrypted with the Android Keystore.</string>
     <string name="onboarding_security">You sign in on each service\'s own page. Trackhop keeps only an encrypted, revocable token or web session on this phone and has no server of its own.</string>
+    <!-- setlist.fm's own site in the app (no key): GitHub and F-Droid builds only. -->
+    <string name="setlists_browse">Browse setlist.fm</string>
+    <string name="setlists_browse_hint">setlist.fm’s own site. Open a concert, then make a playlist of it.</string>
+    <string name="setlists_browse_unread">No songs on this page yet. Wait for it to load, or open a concert that has its setlist.</string>
 </resources>

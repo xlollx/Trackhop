@@ -178,13 +178,14 @@ class PlaylistFilesTest {
         val html = """<html><head><meta property="og:title" content="Daft Punk Setlist at Bercy, Paris, France"></head>
             <body><a class="songLabel" href="#">One More Time</a><a class="songLabel" href="#">Get Lucky</a>
             <a class="songLabel">Rock &amp; Roll (Led Zeppelin cover)</a></body></html>"""
-        val s = SetlistImport.parse(html)
+        val s = SetlistImport.fromPage(html, "https://www.setlist.fm/setlist/daft-punk/2007/bercy-paris-france-1bd6c5a8.html")
         assertEquals("Daft Punk", s.artist)
-        assertEquals(3, s.tracks.size)
-        assertEquals(listOf("Daft Punk"), s.tracks[0].artists)
-        assertEquals("Rock & Roll", s.tracks[2].title)
-        assertEquals(listOf("Led Zeppelin"), s.tracks[2].artists)
-        assertTrue(s.name.startsWith("Daft Punk"))
+        val tracks = Setlists.tracks(s)
+        assertEquals(3, tracks.size)
+        assertEquals(listOf("Daft Punk"), tracks[0].artists)
+        assertEquals("Rock & Roll", tracks[2].title)
+        assertEquals(listOf("Led Zeppelin"), tracks[2].artists)
+        assertTrue(Setlists.playlistName(s).startsWith("Daft Punk"))
     }
 
     @Test fun readsOpmlSubscriptions() {
