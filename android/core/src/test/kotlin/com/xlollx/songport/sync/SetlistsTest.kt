@@ -240,6 +240,23 @@ class SetlistsTest {
         assertEquals(1, hits.size)
     }
 
+    @Test fun aKeyFixedAfterARefusalIsUsedAtOnceAndNothingRefusedIsKept() = runBlocking {
+        val right = "RIGHT"
+        // setlist.fm refuses any key but the right one.
+        search = { if (keys.lastOrNull() == right) 200 to page(museConcert) else 403 to """{"code":403}""" }
+        Setlists.saveKey(env, "WRONG")
+        val refused = Setlists.find(env, listOf("Muse"))
+        assertTrue(refused.keyRefused)
+        assertTrue(refused.artists.single().setlists.isEmpty())
+
+        Setlists.saveKey(env, right)
+        val r = Setlists.find(env, listOf("Muse"))
+        assertFalse(r.keyRefused)
+        assertEquals(0, r.unanswered)
+        assertEquals(1, r.artists.single().setlists.size)
+        assertEquals(listOf("WRONG", right), keys)
+    }
+
     @Test fun anUnansweredArtistIsCountedAndNotKept() = runBlocking {
         search = { 500 to "oops" }
         val r = Setlists.find(env, listOf("A"))

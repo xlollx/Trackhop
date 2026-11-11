@@ -2006,7 +2006,11 @@
     <string name="concerts_key_title">Ticketmaster キー</string>
     <string name="concerts_key_body">Ticketmaster の日程には自分の無料キーが必要です。キーがなければ MusicBrainz の日程のみです。</string>
     <string name="concerts_key_steps">1. 「キーを取得」をタップすると Ticketmaster の開発者サイトが開きます。チケット購入用ではなく、開発者アカウントが必要です。\n2. Get your API key をタップし、登録またはログインします。\n3. My Apps で自分のアプリを開き、Consumer Key をコピーします（Consumer Secret は不可）。\n4. 下に貼り付けて「保存」をタップします。</string>
-    <string name="setlists_key_steps">1. setlist.fm で無料アカウントを作成するか、ログインします。\n2. 「キーを取得」をタップすると setlist.fm の Settings › API が開きます。\n3. キーを申請します。アプリ名は Trackhop、説明は \"Personal use: setlists of my playlists\' artists\"、非商用です。\n4. 表示されたキーをコピーし、下に貼り付けて「保存」をタップします。</string>
+    <string name="setlists_key_step1">1. setlist.fm で無料アカウントを作成します。Google や Facebook でもログインできますが、setlist.fm での登録の完了は必要です。</string>
+    <string name="setlists_key_signup">アカウントを作成</string>
+    <string name="setlists_key_step2">2. ログインしたら「キーを取得」をタップし、setlist.fm の API ページで新しいアプリケーションを作成します。</string>
+    <string name="setlists_key_step3">3. 名前は自由です（Trackhop で OK）。説明は 30 文字以上必要です。例えばこちら:</string>
+    <string name="setlists_key_step4">4. setlist.fm にキーが表示されます。コピーして下に貼り付け、「保存」をタップします。</string>
     <string name="records_token_steps">1. Discogs にログインします（無料アカウントで十分です）。\n2. 「トークンを取得」をタップすると Discogs の Settings › Developers が開きます。\n3. Generate new token をタップしてコピーします。\n4. 下に貼り付けて「保存」をタップします。</string>
     <string name="concerts_key_get">キーを取得</string>
     <string name="concerts_key_field">Consumer Key</string>

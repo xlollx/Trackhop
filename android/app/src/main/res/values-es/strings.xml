@@ -2048,7 +2048,11 @@
     <string name="concerts_key_title">Clave de Ticketmaster</string>
     <string name="concerts_key_body">Para las fechas de Ticketmaster necesitas tu propia clave gratuita: sin ella, solo fechas de MusicBrainz.</string>
     <string name="concerts_key_steps">1. Toca Obtener una clave: se abre el sitio para desarrolladores de Ticketmaster. Necesitas una cuenta de desarrollador, no la de comprar entradas.\n2. Toca Get your API key y regístrate o inicia sesión.\n3. En My Apps, abre tu app y copia su Consumer Key (nunca el Consumer Secret).\n4. Pégala abajo y toca Guardar.</string>
-    <string name="setlists_key_steps">1. Crea una cuenta gratuita en setlist.fm o inicia sesión.\n2. Toca Obtener una clave: se abre Settings › API en setlist.fm.\n3. Solicita una clave: como nombre de la aplicación Trackhop, como descripción \"Personal use: setlists of my playlists\' artists\", no comercial.\n4. Copia la clave que aparece, pégala abajo y toca Guardar.</string>
+    <string name="setlists_key_step1">1. Crea una cuenta gratuita en setlist.fm. También puedes entrar con Google o Facebook, pero setlist.fm te pedirá igualmente completar el registro.</string>
+    <string name="setlists_key_signup">Crear una cuenta</string>
+    <string name="setlists_key_step2">2. Con la sesión iniciada, toca Obtener una clave: en la página de la API de setlist.fm, crea una nueva aplicación.</string>
+    <string name="setlists_key_step3">3. Ponle el nombre que quieras (Trackhop sirve) y una descripción de al menos 30 caracteres, como esta:</string>
+    <string name="setlists_key_step4">4. setlist.fm te muestra la clave: cópiala, pégala abajo y toca Guardar.</string>
     <string name="records_token_steps">1. Inicia sesión en Discogs (basta una cuenta gratuita).\n2. Toca Obtener un token: se abre Settings › Developers en Discogs.\n3. Toca Generate new token y cópialo.\n4. Pégalo abajo y toca Guardar.</string>
     <string name="concerts_key_get">Obtener una clave</string>
     <string name="concerts_key_field">Consumer Key</string>

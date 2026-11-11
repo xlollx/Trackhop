@@ -65,11 +65,21 @@ setlist.fm answers only apps with a key, free for non-commercial use, and each k
 
 ### Getting the key, step by step
 
-1. Make a free account on [setlist.fm](https://www.setlist.fm/), or log in.
-2. Open [Settings › API](https://www.setlist.fm/settings/api) (the **Get a key** button in the app opens it).
-3. Apply for a key: application name *Trackhop*, description *Personal use: setlists of my
-   playlists' artists*, non-commercial.
-4. Copy the key shown there, paste it in Trackhop and tap **Save**.
+It takes a couple of minutes. The key dialog in the app (and Settings › setlist.fm key on Docker
+and Desktop) walks you through the same steps.
+
+1. **Make a free setlist.fm account** on [setlist.fm's sign-up page](https://www.setlist.fm/signup)
+   (**Create an account** in the app). You can sign in with Google or Facebook, but setlist.fm
+   still asks you to finish registering an account there.
+2. **Signed in, open [setlist.fm's API page](https://www.setlist.fm/settings/api)** (**Get a key**
+   in the app) and create a new **application**.
+3. **Name it** as you like (*Trackhop* is fine) and give it a **description of at least 30
+   characters**; you can copy this one (the app has a **Copy** button):
+   `Personal use: setlists to playlists in Trackhop`
+4. **setlist.fm shows your key** right away: copy it, paste it in Trackhop and tap **Save**.
+
+If you saved a wrong key, Trackhop says "setlist.fm refused the key": paste the right one and tap
+**Find setlists** again.
 
 ## Where the setlists come from
 

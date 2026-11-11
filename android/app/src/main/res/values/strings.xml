@@ -2041,7 +2041,11 @@
     <string name="concerts_key_title">Ticketmaster key</string>
     <string name="concerts_key_body">Ticketmaster\'s dates need your own free key: without one, only MusicBrainz\'s dates.</string>
     <string name="concerts_key_steps">1. Tap Get a key: it opens Ticketmaster\'s developer site. You need a developer account there, not your ticket account.\n2. Tap Get your API key, then register or log in.\n3. In My Apps, open your app and copy its Consumer Key (never the Consumer Secret).\n4. Paste it below and tap Save.</string>
-    <string name="setlists_key_steps">1. Make a free account on setlist.fm, or log in.\n2. Tap Get a key: it opens Settings › API on setlist.fm.\n3. Apply for a key: application name Trackhop, description \"Personal use: setlists of my playlists\' artists\", non-commercial.\n4. Copy the key it shows, paste it below and tap Save.</string>
+    <string name="setlists_key_step1">1. Make a free setlist.fm account. Signing in with Google or Facebook works too, but setlist.fm still asks you to finish signing up.</string>
+    <string name="setlists_key_signup">Create an account</string>
+    <string name="setlists_key_step2">2. Signed in, tap Get a key: on setlist.fm\'s API page, create a new application.</string>
+    <string name="setlists_key_step3">3. Give it any name (Trackhop is fine) and a description of at least 30 characters, like this one:</string>
+    <string name="setlists_key_step4">4. setlist.fm shows your key: copy it, paste it below and tap Save.</string>
     <string name="records_token_steps">1. Log in to Discogs (a free account is enough).\n2. Tap Get a token: it opens Settings › Developers on Discogs.\n3. Tap Generate new token and copy it.\n4. Paste it below and tap Save.</string>
     <string name="concerts_key_get">Get a key</string>
     <string name="concerts_key_field">Consumer Key</string>

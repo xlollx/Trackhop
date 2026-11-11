@@ -2005,7 +2005,11 @@
     <string name="concerts_key_title">Ticketmaster 키</string>
     <string name="concerts_key_body">Ticketmaster 일정을 보려면 본인의 무료 키가 필요해요. 키가 없으면 MusicBrainz 일정만 보여요.</string>
     <string name="concerts_key_steps">1. 키 받기를 누르면 Ticketmaster 개발자 사이트가 열려요. 티켓 구매 계정이 아니라 개발자 계정이 필요해요.\n2. Get your API key를 누르고 가입하거나 로그인하세요.\n3. My Apps에서 앱을 열고 Consumer Key를 복사하세요(Consumer Secret은 안 돼요).\n4. 아래에 붙여 넣고 저장을 누르세요.</string>
-    <string name="setlists_key_steps">1. setlist.fm에서 무료 계정을 만들거나 로그인하세요.\n2. 키 받기를 누르면 setlist.fm의 Settings › API가 열려요.\n3. 키를 신청하세요. 앱 이름은 Trackhop, 설명은 \"Personal use: setlists of my playlists\' artists\", 비상업용이에요.\n4. 표시된 키를 복사해 아래에 붙여 넣고 저장을 누르세요.</string>
+    <string name="setlists_key_step1">1. setlist.fm에서 무료 계정을 만드세요. Google이나 Facebook으로 로그인해도 되지만, setlist.fm에서 가입을 마쳐야 해요.</string>
+    <string name="setlists_key_signup">계정 만들기</string>
+    <string name="setlists_key_step2">2. 로그인한 뒤 키 받기를 누르고, setlist.fm의 API 페이지에서 새 애플리케이션을 만드세요.</string>
+    <string name="setlists_key_step3">3. 이름은 자유롭게 정하고(Trackhop도 좋아요) 설명은 30자 이상으로 쓰세요. 예를 들면 이렇게요:</string>
+    <string name="setlists_key_step4">4. setlist.fm에 키가 표시돼요. 복사해서 아래에 붙여 넣고 저장을 누르세요.</string>
     <string name="records_token_steps">1. Discogs에 로그인하세요(무료 계정이면 충분해요).\n2. 토큰 받기를 누르면 Discogs의 Settings › Developers가 열려요.\n3. Generate new token을 누르고 복사하세요.\n4. 아래에 붙여 넣고 저장을 누르세요.</string>
     <string name="concerts_key_get">키 받기</string>
     <string name="concerts_key_field">Consumer Key</string>

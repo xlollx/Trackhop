@@ -208,7 +208,13 @@ internal fun Web.setlistfmKeyCard(): String {
         else -> "No key: Tools › Setlists needs one."
     }
     return """<form method="post" action="/settings" class="card" id="setlistfm"><input type="hidden" name="action" value="setlistfm"><h3>setlist.fm key</h3>
-<p class="muted">For Tools › Setlists and setlist.fm links. Free for non-commercial use: with a setlist.fm account, ask for one on <a href="${Setlists.KEY_URL}" rel="noopener noreferrer" target="_blank">setlist.fm's API page</a>. A key has 2 calls a second and 1440 a day; each artist's setlists are kept a week. $state</p>
+<p class="muted">For Tools › Setlists and setlist.fm links. Free for non-commercial use. A key has 2 calls a second and 1440 a day; each artist's setlists are kept a week. $state</p>
+<ol class="muted">
+<li>Make a free <a href="${Setlists.SIGNUP_URL}" rel="noopener noreferrer" target="_blank">setlist.fm account</a>. Signing in with Google or Facebook works too, but setlist.fm still asks you to finish signing up.</li>
+<li>Signed in, open <a href="${Setlists.KEY_URL}" rel="noopener noreferrer" target="_blank">setlist.fm's API page</a> and create a new application.</li>
+<li>Give it any name (Trackhop is fine) and a description of at least 30 characters, like: <code>${h(Setlists.KEY_DESCRIPTION)}</code></li>
+<li>setlist.fm shows your key: paste it below and save.</li>
+</ol>
 <label>API key</label><input name="key" autocomplete="off" placeholder="${if (own) "saved: leave empty to keep it" else ""}">
 <p class="actions"><button>Save</button>${if (own) """ <button name="remove" value="1" class="secondary">Remove</button>""" else ""}</p></form>"""
 }
