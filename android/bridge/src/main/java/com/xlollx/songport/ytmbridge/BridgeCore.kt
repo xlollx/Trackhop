@@ -457,69 +457,47 @@ object BridgeCore {
         }
     }
 
-    // A playlist is fetched once and served in pages (Binder transactions are capped at ~1 MB).
-    private var lastTracks: Triple<String, Long, List<TrackDto>>? = null
+    // A playlist is fetched once and served in pages (Binder transactions are capped at ~1 MB): see [ListCache].
+    private val ytmCache = ListCache<TrackDto>()
 
     /** A cache key that tells the accounts apart: the same playlist id in two slots is two listings. */
     private fun ck(slot: String, id: String): String = if (slot.isEmpty()) id else "$slot@$id"
 
     @Synchronized
     private fun cachedTracks(client: YtmClient, id: String, slot: String): List<TrackDto> {
-        val now = System.currentTimeMillis()
-        val key = ck(slot, id)
-        lastTracks?.let { (pid, at, list) -> if (pid == key && now - at < 120_000) return list }
-        val list = when (id) { ALBUMS -> client.libraryAlbums(); ARTISTS -> client.librarySubscriptions(); RECENT -> client.history(); else -> client.tracks(id) }
-        lastTracks = Triple(key, now, list)
-        return list
+        return ytmCache.get(ck(slot, id)) {
+            when (id) { ALBUMS -> client.libraryAlbums(); ARTISTS -> client.librarySubscriptions(); RECENT -> client.history(); else -> client.tracks(id) }
+        }
     }
 
     @Synchronized
-    private fun freshTracks(id: String, slot: String): List<TrackDto>? =
-        lastTracks?.takeIf { (pid, at, _) -> pid == ck(slot, id) && System.currentTimeMillis() - at < 120_000 }?.third
+    private fun freshTracks(id: String, slot: String): List<TrackDto>? = ytmCache.peek(ck(slot, id))
 
     @Synchronized
-    private fun freshSpotify(id: String, slot: String): List<TrackDto>? =
-        lastSpotify?.takeIf { (pid, at, _) -> pid == ck(slot, id) && System.currentTimeMillis() - at < 120_000 }?.third
+    private fun freshSpotify(id: String, slot: String): List<TrackDto>? = spotifyCache.peek(ck(slot, id))
 
     @Synchronized
-    private fun invalidate(id: String, slot: String) { if (lastTracks?.first == ck(slot, id)) lastTracks = null }
+    private fun invalidate(id: String, slot: String) { ytmCache.invalidate(ck(slot, id)) }
 
-    private var lastSpotify: Triple<String, Long, List<TrackDto>>? = null
+    private val spotifyCache = ListCache<TrackDto>()
 
     @Synchronized
     private fun cachedSpotifyTracks(ctx: Context, id: String, slot: String): List<TrackDto> {
-        val now = System.currentTimeMillis()
-        val key = ck(slot, id)
-        lastSpotify?.let { (pid, at, list) -> if (pid == key && now - at < 120_000) return list }
-        val c = SpotifyWebClient(ctx, slot)
-        val list = when (id) {
-            "__liked__" -> c.likedTracks()
-            "__albums__" -> c.libraryItems("album")
-            "__artists__" -> c.libraryItems("artist")
-            else -> c.playlistTracks(id)
+        return spotifyCache.get(ck(slot, id)) {
+            val c = SpotifyWebClient(ctx, slot)
+            when (id) {
+                "__liked__" -> c.likedTracks()
+                "__albums__" -> c.libraryItems("album")
+                "__artists__" -> c.libraryItems("artist")
+                else -> c.playlistTracks(id)
+            }
         }
-        lastSpotify = Triple(key, now, list)
-        return list
     }
 
     @Synchronized
-    private fun invalidateSpotify(id: String, slot: String) { if (lastSpotify?.first == ck(slot, id)) lastSpotify = null }
+    private fun invalidateSpotify(id: String, slot: String) { spotifyCache.invalidate(ck(slot, id)) }
 
     private const val LIKED = "__liked__"
-
-    /** One listing at a time, fetched once and served in pages for two minutes; a write to it drops it. */
-    private class ListCache<T> {
-        private var last: Triple<String, Long, List<T>>? = null
-        @Synchronized fun get(id: String, load: () -> List<T>): List<T> {
-            val now = System.currentTimeMillis()
-            last?.let { (pid, at, list) -> if (pid == id && now - at < 120_000) return list }
-            return load().also { last = Triple(id, now, it) }
-        }
-        /** The listing kept for [id] when there is one still fresh; never reads. */
-        @Synchronized fun peek(id: String): List<T>? = last?.let { (pid, at, list) -> if (pid == id && System.currentTimeMillis() - at < 120_000) list else null }
-        @Synchronized fun invalidate(id: String) { if (last?.first == id) last = null }
-        @Synchronized fun clear() { last = null }
-    }
 
     private val deezerCache = ListCache<TrackDto>()
     private val anghamiCache = ListCache<TrackDto>()
