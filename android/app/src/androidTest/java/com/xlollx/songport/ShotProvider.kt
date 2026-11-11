@@ -50,8 +50,18 @@ class ShotProvider(
 
     private fun list(size: Int, offset: Int = 0) = (0 until size).map { track(offset + it) }
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) } +
-        (if (Demo.carouselOn) listOf(Demo.CAROUSEL_SRC, Demo.CAROUSEL_DST).map { Playlist(it, Demo.CAROUSEL_NAME, Demo.carousel(it)!!.size) } else emptyList())
+    override suspend fun playlists(ctx: Env): List<Playlist> {
+        // A long library answers as a real service does: after a moment.
+        if (Demo.manyOn) kotlinx.coroutines.delay(700)
+        return Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) } +
+            (if (Demo.carouselOn) listOf(Demo.CAROUSEL_SRC, Demo.CAROUSEL_DST).map { Playlist(it, Demo.CAROUSEL_NAME, Demo.carousel(it)!!.size) } else emptyList()) +
+            (if (Demo.manyOn) Demo.many(serviceId) else emptyList())
+    }
+
+    // With a long library on show, the library's sections too (the picker's Playlists / Library choice).
+    override val supportsAlbums: Boolean get() = Demo.manyOn
+    override val supportsArtists: Boolean get() = Demo.manyOn
+    override val supportsRecent: Boolean get() = Demo.manyOn
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =
         Demo.PLAYLISTS.firstOrNull { it.first == playlistId }?.let { Playlist(it.first, it.second, it.third) }
@@ -163,6 +173,14 @@ object Demo {
     const val CAROUSEL_NAME = "Summer Vibes"
     /** The carousel's pictures are being taken: its playlists are in the library too. */
     @Volatile var carouselOn = false
+    /** The pickers' pictures with a long library: over a hundred more playlists, and the library's sections. */
+    @Volatile var manyOn = false
+    private val MOODS = listOf("Morning", "Late Night", "Sunday", "Rainy Day", "Summer", "Winter", "Road", "Gym", "Focus", "Dinner", "Garden")
+    private val KINDS = listOf("Rock", "Jazz", "Classics", "Indie", "Soul", "Electronic", "Acoustic", "Blues", "Pop", "Metal")
+    /** A hundred and ten playlists of [serviceId], each service's a little different in length. */
+    fun many(serviceId: String): List<Playlist> = MOODS.flatMapIndexed { i, mood ->
+        KINDS.mapIndexed { j, kind -> Playlist("many-$serviceId-$i-$j", "$mood $kind", 12 + (i * 37 + j * 11 + serviceId.length * 5) % 240) }
+    }
     /** The Discover tools' pictures are being taken: the libraries differ from one service to the other. */
     @Volatile var discoverOn = false
     /** Songs only the carousel's target still holds (taken off by the next run). */
