@@ -135,31 +135,10 @@ fun MakePlaylistCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                     }
                 }
                 if (picked.isEmpty() || op == Op.MERGE) {
-                    var expanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(if (picked.isEmpty()) R.string.editor_playlist else R.string.tools_make_add_playlist)) },
-                            placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                        )
-                        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            items.filter { p -> picked.none { it.id == p.id } }.forEach { p ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(p.name)
-                                            if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall)
-                                        }
-                                    },
-                                    onClick = { picked = picked + p; expanded = false },
-                                )
-                            }
-                        }
-                    }
+                    PlaylistChoice(
+                        stringResource(if (picked.isEmpty()) R.string.editor_playlist else R.string.tools_make_add_playlist),
+                        items.filter { p -> picked.none { it.id == p.id } }, null, provider, onPick = { picked = picked + it },
+                    )
                 }
             }
             Spacer(Modifier.height(8.dp))

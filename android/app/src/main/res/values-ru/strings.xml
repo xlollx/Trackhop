@@ -2560,4 +2560,6 @@
     <string name="recent_transfers_row">Сет-листы, отправленные в плейлист, с проверкой</string>
     <string name="recent_transfers_intro">Разовые переносы, например сет-лист, ставший плейлистом: это не синхронизации. Каждый хранится здесь неделю или пока вы не проверите ненайденные песни. Удаление не меняет плейлист.</string>
     <string name="recent_transfers_none">Недавних переносов нет.</string>
+    <string name="picker_recent">Недавние</string>
+    <string name="picker_all">Все плейлисты · %1$d</string>
 </resources>

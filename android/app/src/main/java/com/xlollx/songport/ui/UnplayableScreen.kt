@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -92,7 +93,6 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
     var lists by remember(provider.id) { mutableStateOf<List<Playlist>?>(null) }
     // null = every playlist of the service.
     var chosen by remember(provider.id) { mutableStateOf<Playlist?>(null) }
-    var expanded by remember { mutableStateOf(false) }
     var scan by remember(provider.id) { mutableStateOf<LibraryTools.UnplayableScan?>(null) }
     var scanning by remember { mutableStateOf<String?>(null) }
     var applying by remember { mutableStateOf<Progress?>(null) }
@@ -233,18 +233,12 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
                 if (items == null) {
                     Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading)) }
                 } else {
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                        OutlinedTextField(
-                            value = chosen?.name ?: stringResource(R.string.unplayable_all_playlists),
-                            onValueChange = {}, readOnly = true,
-                            label = { Text(stringResource(R.string.editor_playlist)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    run {
+                        val all = stringResource(R.string.unplayable_all_playlists)
+                        PlaylistChoice(
+                            stringResource(R.string.editor_playlist), items, chosen, provider, onPick = { chosen = it }, title = chosen?.name ?: all,
+                            first = { close -> item("all") { PickerRow(all, onClick = { chosen = null; close() }, selected = chosen == null) { PlaylistThumb(all, null, 48.dp, icon = androidx.compose.material.icons.Icons.Filled.LibraryMusic) } } },
                         )
-                        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            DropdownMenuItem(text = { Text(stringResource(R.string.unplayable_all_playlists)) }, onClick = { chosen = null; expanded = false })
-                            items.forEach { p -> DropdownMenuItem(text = { Text(p.name) }, onClick = { chosen = p; expanded = false }) }
-                        }
                     }
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {

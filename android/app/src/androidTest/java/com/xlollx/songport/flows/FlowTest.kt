@@ -203,6 +203,17 @@ abstract class FlowTest {
         waitFor("text \"$text\"", ms) { compose.onAllNodesWithText(text, substring = substring, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
 
     /** A tile of the editor's source or target row, which scrolls sideways: off screen on a phone, the row goes to it first. */
+    /**
+     * The sync editor's source picker: the Source card's playlist field opens its sheet, where the
+     * services' marks, the link, Shazam and the radio are.
+     */
+    protected fun openSourcePicker() {
+        waitText(s(com.xlollx.songport.R.string.editor_playlist))
+        click(s(com.xlollx.songport.R.string.editor_playlist))
+        // The sheet is titled as the step is: two "Source" on screen.
+        waitFor("the source picker's sheet") { compose.onAllNodesWithText(s(com.xlollx.songport.R.string.editor_source)).fetchSemanticsNodes().size >= 2 }
+    }
+
     protected fun clickTile(label: String) {
         val tile = androidx.compose.ui.test.hasText(label)
         compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->

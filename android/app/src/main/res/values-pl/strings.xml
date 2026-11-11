@@ -2562,4 +2562,6 @@
     <string name="recent_transfers_row">Setlisty wysłane do playlisty, z ich przeglądem</string>
     <string name="recent_transfers_intro">Jednorazowe przeniesienia, np. setlista zamieniona w playlistę: to nie synchronizacje. Każde zostaje tu tydzień albo do przejrzenia nieznalezionych utworów. Usunięcie zostawia playlistę bez zmian.</string>
     <string name="recent_transfers_none">Brak ostatnich przeniesień.</string>
+    <string name="picker_recent">Ostatnie</string>
+    <string name="picker_all">Wszystkie playlisty · %1$d</string>
 </resources>

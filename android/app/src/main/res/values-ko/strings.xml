@@ -2415,4 +2415,6 @@
     <string name="recent_transfers_row">플레이리스트로 보낸 세트리스트와 검토</string>
     <string name="recent_transfers_intro">세트리스트를 플레이리스트로 만든 것 같은 일회성 전송입니다. 동기화가 아닙니다. 일주일 동안 또는 찾지 못한 곡을 검토할 때까지 여기에 남습니다. 삭제해도 플레이리스트는 그대로입니다.</string>
     <string name="recent_transfers_none">최근 전송이 없습니다.</string>
+    <string name="picker_recent">최근</string>
+    <string name="picker_all">모든 플레이리스트 · %1$d</string>
 </resources>

@@ -318,7 +318,6 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     var lists by remember(provider.id) { mutableStateOf<List<Playlist>?>(null) }
     var selected by remember(provider.id) { mutableStateOf<Playlist?>(null) }
     var busy by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
     var pendingFormat by remember { mutableStateOf<LocalFilesProvider.Export?>(null) }
 
     LaunchedEffect(provider.id) {
@@ -366,22 +365,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
             if (items == null) {
                 Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading)) }
             } else {
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                    OutlinedTextField(
-                        value = selected?.name ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.editor_playlist)) },
-                        placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        items.forEach { p ->
-                            DropdownMenuItem(text = { Text(p.name) }, onClick = { selected = p; expanded = false })
-                        }
-                    }
-                }
+                PlaylistChoice(stringResource(R.string.editor_playlist), items, selected, provider, onPick = { selected = it })
             }
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -410,7 +394,6 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     var groups by remember(provider.id) { mutableStateOf<List<List<Track>>?>(null) }
     var busy by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf<Progress?>(null) }
-    var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(provider.id) {
         lists = try { provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { emptyList() }
@@ -434,22 +417,7 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
             if (items == null) {
                 Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading)) }
             } else {
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                    OutlinedTextField(
-                        value = selected?.name ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.editor_playlist)) },
-                        placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        items.forEach { p ->
-                            DropdownMenuItem(text = { Text(p.name) }, onClick = { selected = p; groups = null; expanded = false })
-                        }
-                    }
-                }
+                PlaylistChoice(stringResource(R.string.editor_playlist), items, selected, provider, onPick = { selected = it; groups = null })
             }
             val g = groups
             if (g != null) {

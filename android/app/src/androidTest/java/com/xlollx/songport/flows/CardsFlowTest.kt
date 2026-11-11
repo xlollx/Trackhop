@@ -65,17 +65,17 @@ class CardsFlowTest : FlowTest() {
     }
 
     /**
-     * In a playlist source card: the service tile, then its playlist from the drop-down; the card
-     * then folds into one row with the playlist's name and "Change". A playlist kept from an earlier
-     * visit has the card folded already: "Change" opens it again.
+     * A playlist source: its field opens the picker's sheet (with a playlist kept from an earlier
+     * visit or none); there the service's mark, then its playlist from the rows. The sheet closes
+     * and the field shows the playlist's name and "Change".
      */
     private fun pickOwnPlaylist(service: String, playlist: String) {
         compose.waitForIdle()
-        if (exists(s(R.string.share_sheet_change))) click(s(R.string.share_sheet_change))
-        val tile = compose.onAllNodes(hasClickAction() and hasText(service)).onFirst()
-        tile.performScrollTo(); tile.performClick()
         waitText(s(R.string.editor_playlist))
         click(s(R.string.editor_playlist))
+        val tile = hasClickAction() and hasText(service)
+        waitFor("the picker's services") { compose.onAllNodes(tile).fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodes(tile).onFirst().performClick()
         waitText(playlist)
         click(playlist)
         waitText(s(R.string.share_sheet_change))
@@ -110,16 +110,16 @@ class CardsFlowTest : FlowTest() {
         openTool(R.string.tools_compat_title)
         waitText(s(R.string.card_compat_first))
         // First: a pasted link; second: one of my own Deezer playlists.
-        val field = compose.onAllNodes(androidx.compose.ui.test.hasSetTextAction()).onFirst()
-        field.performScrollTo()
-        field.performTextInput("https://open.spotify.com/playlist/${FakeWorld.PUBLIC_SPOTIFY}")
+        click(s(R.string.card_compat_first))
+        waitNode("the link field in the picker", androidx.compose.ui.test.hasSetTextAction())
+        compose.onAllNodes(androidx.compose.ui.test.hasSetTextAction()).onFirst().performTextInput("https://open.spotify.com/playlist/${FakeWorld.PUBLIC_SPOTIFY}")
         click(s(R.string.link_use))
-        waitText("Friday Night Rock", substring = true)
-        val deezerTiles = compose.onAllNodes(hasClickAction() and hasText("Deezer"))
-        // The second source card's Deezer tile.
-        deezerTiles[deezerTiles.fetchSemanticsNodes().size - 1].apply { performScrollTo(); performClick() }
-        val playlistFields = compose.onAllNodes(hasClickAction() and hasText(s(R.string.editor_playlist)))
-        playlistFields[playlistFields.fetchSemanticsNodes().size - 1].apply { performScrollTo(); performClick() }
+        // The sheet closes on the playlist the link leads to: the first field shows it.
+        waitFor("the first playlist in its field") { compose.onAllNodes(hasText(s(R.string.card_compat_first)) and hasText("Friday Night Rock", substring = true)).fetchSemanticsNodes().isNotEmpty() }
+        // The second: Deezer's mark in its picker, then the playlist.
+        click(s(R.string.card_compat_second))
+        waitFor("the picker's services") { compose.onAllNodes(hasClickAction() and hasText("Deezer")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodes(hasClickAction() and hasText("Deezer")).onFirst().performClick()
         waitText("Workout"); click("Workout")
         click(s(R.string.card_compat_run))
         waitText(s(R.string.card_share), ms = 30_000)

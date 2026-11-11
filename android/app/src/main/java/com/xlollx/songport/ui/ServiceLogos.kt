@@ -6,12 +6,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.BarChart
@@ -129,22 +133,23 @@ fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 
 
 /**
  * One choice in [ServiceTiles]: a service, or an extra entry such as "Link" with its own icon. With
- * a [brandColor] the icon is a brand's round mark (Shazam), drawn whole in that colour.
+ * a [brandColor] the icon is a brand's round mark (Shazam), drawn whole in that colour. An [action]
+ * is not a choice but a way out ("Connect"): a dashed ring, never selected.
  */
 class ServiceTile(
     val key: String, val label: String, val provider: MusicProvider? = null, val icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    val detail: String? = null, val brandColor: Long? = null,
+    val detail: String? = null, val brandColor: Long? = null, val action: Boolean = false,
 )
 
 /**
- * The service picker: a horizontal row of tiles, the mark large enough to recognise at a glance
- * and the name under it; the selected tile takes the tonal container and a check. Scrolls when
- * the services do not fit, instead of wrapping into uneven rows of chips.
+ * The service picker: a strip of round marks with the name under each; the selected one wears a
+ * ring and a check and its name is bolder, so the choice never rests on colour alone. Scrolls when
+ * the services do not fit, instead of wrapping into uneven rows.
  *
- * When they do not fit, it shows that the row goes on: the tiles are sized from the width so the
- * last one in view is cut about a third of the way ([tileLayout]), a slim bar under the row tells
- * where the view is and how much of the row it shows, and TalkBack hears "N services, scroll for
- * more". The selected tile is brought into view, so a sync on the fifth account opens with it shown.
+ * When they do not fit, it shows that the row goes on: the cells are sized from the width so the
+ * last one in view is cut about a third of the way ([tileLayout]), the row fades out at the edge
+ * it continues past, and TalkBack hears "N services, scroll for more". The selected one is brought
+ * into view, so a sync on the fifth account opens with it shown.
  */
 @Composable
 fun ServiceTiles(tiles: List<ServiceTile>, selected: String?, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -177,39 +182,46 @@ fun ServiceTiles(tiles: List<ServiceTile>, selected: String?, onSelect: (String)
             placed = true
         }
         val hint = androidx.compose.ui.res.pluralStringResource(com.xlollx.songport.R.plurals.service_tiles_scroll, tiles.size, tiles.size)
-        androidx.compose.foundation.layout.Column {
-            androidx.compose.foundation.lazy.LazyRow(
-                Modifier.fillMaxWidth().then(if (overflows) Modifier.semantics { contentDescription = hint } else Modifier),
-                state = state,
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(TILE_GAP),
-            ) {
-                items(tiles.size, key = { tiles[it].key }) { i -> Tile(tiles[i], tiles[i].key == selected, layout.width, onSelect) }
-            }
-            if (overflows) {
-                // Where the view is along the row (the thumb's place) and how much of it shows (its length).
-                val track = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                val thumb = MaterialTheme.colorScheme.primary
-                androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
-                Box(
-                    Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(0.4f).height(4.dp).clip(CircleShape).background(track)
-                        .drawBehind {
-                            val maxScroll = (contentPx - viewPx).coerceAtLeast(1f)
-                            val pos = (state.firstVisibleItemIndex * stepPx + state.firstVisibleItemScrollOffset).coerceIn(0f, maxScroll)
-                            val len = (size.width * viewPx / contentPx).coerceIn(size.height * 3, size.width)
-                            val x = (size.width - len) * pos / maxScroll
-                            drawRoundRect(thumb, topLeft = androidx.compose.ui.geometry.Offset(x, 0f), size = androidx.compose.ui.geometry.Size(len, size.height),
-                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2))
-                        },
-                )
-            }
+        // Every cell as tall as a mark and two lines of name, so the row keeps its height as it scrolls.
+        val line = with(density) { MaterialTheme.typography.labelMedium.lineHeight.toDp() }
+        val cellHeight = MARK_BOX + 4.dp + line * 2 + 8.dp
+        val fade = with(density) { 16.dp.toPx() }
+        androidx.compose.foundation.lazy.LazyRow(
+            Modifier.fillMaxWidth()
+                .then(if (overflows) Modifier.semantics { contentDescription = hint } else Modifier)
+                // The row fades out where it goes on: at the end until the last cell shows, at the start once scrolled.
+                .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    if (!overflows) return@drawWithContent
+                    val rtl = layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl
+                    val atLeft = if (rtl) state.canScrollForward else state.canScrollBackward
+                    val atRight = if (rtl) state.canScrollBackward else state.canScrollForward
+                    if (atLeft) drawRect(
+                        androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), 0f, fade),
+                        size = androidx.compose.ui.geometry.Size(fade, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                    )
+                    if (atRight) drawRect(
+                        androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), size.width - fade, size.width),
+                        topLeft = androidx.compose.ui.geometry.Offset(size.width - fade, 0f),
+                        size = androidx.compose.ui.geometry.Size(fade, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                    )
+                },
+            state = state,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(TILE_GAP),
+        ) {
+            items(tiles.size, key = { tiles[it].key }) { i -> Tile(tiles[i], tiles[i].key == selected, layout.width, cellHeight, onSelect) }
         }
     }
 }
 
-private val TILE_GAP = 8.dp
-private val TILE_WIDTH = 96.dp
-private val TILE_MIN = 80.dp
-private val TILE_MAX = 124.dp
+private val TILE_GAP = 4.dp
+private val TILE_WIDTH = 76.dp
+private val TILE_MIN = 64.dp
+private val TILE_MAX = 92.dp
+/** The mark and the room its ring takes around it. */
+private val MARK = 48.dp
+private val MARK_BOX = 60.dp
 /** The share of the last tile in view left showing when the row goes on. */
 private const val PEEK = 0.35f
 
@@ -233,43 +245,73 @@ internal fun tileLayout(available: Dp, count: Int): TileLayout {
     return TileLayout(w.dp, best.first + PEEK)
 }
 
+/**
+ * A tile's words: the service's name, and under it what tells it from its namesakes: the route in
+ * brackets ("Spotify (web)" is "Spotify" over "web") and a further account's name ("Spotify · anna").
+ * A name the user gave the connector is shown as it is.
+ */
+internal fun tileWords(label: String, provider: MusicProvider?, detail: String?): Pair<String, String?> {
+    if (detail != null || provider == null || Providers.customName(provider.id) != null) return label to detail
+    val account = label.substringAfter(" · ", "").takeIf { it.isNotBlank() }
+    val head = label.substringBefore(" · ")
+    val route = Regex("^(.+?) \\(([^()]+)\\)$").find(head)
+    val name = route?.groupValues?.get(1) ?: head
+    return name to listOfNotNull(route?.groupValues?.get(2), account).joinToString(" · ").takeIf { it.isNotEmpty() }
+}
+
 @Composable
-private fun Tile(t: ServiceTile, on: Boolean, width: Dp, onSelect: (String) -> Unit) {
+private fun Tile(t: ServiceTile, on: Boolean, width: Dp, height: Dp, onSelect: (String) -> Unit) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    val shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
-    androidx.compose.material3.Surface(
-        onClick = { if (!on) haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove); onSelect(t.key) },
-        shape = shape,
-        color = if (on) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-        border = if (on) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.semantics { this.selected = on }.size(width = width, height = 104.dp),
+    val scheme = MaterialTheme.colorScheme
+    val (name, detail) = tileWords(t.label, t.provider, t.detail)
+    // A further account of a service wears its number on the mark.
+    val account = t.provider?.slot?.takeIf { it.isNotEmpty() && it.length <= 2 }
+    androidx.compose.foundation.layout.Column(
+        Modifier.semantics { this.selected = on }.size(width = width, height = height)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+            .clickable { if (!on) haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove); onSelect(t.key) }
+            .padding(horizontal = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box {
-            androidx.compose.foundation.layout.Column(
-                Modifier.align(Alignment.Center).padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                if (t.provider != null) ServiceLogo(t.provider, 40.dp)
-                else if (t.icon != null && t.brandColor != null) Icon(t.icon, null, tint = Color(t.brandColor), modifier = Modifier.size(40.dp))
-                else Box(Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
-                    t.icon?.let { Icon(it, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp)) }
+        Box(Modifier.size(MARK_BOX), contentAlignment = Alignment.Center) {
+            if (on) Box(Modifier.size(MARK_BOX - 2.dp).border(2.dp, scheme.primary, CircleShape))
+            when {
+                t.action -> {
+                    val dash = scheme.outline
+                    Box(
+                        Modifier.size(MARK).drawBehind {
+                            drawCircle(dash, radius = size.minDimension / 2 - 1.dp.toPx(), style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                1.5.dp.toPx(), pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx())),
+                            ))
+                        },
+                        contentAlignment = Alignment.Center,
+                    ) { t.icon?.let { Icon(it, null, tint = scheme.primary, modifier = Modifier.size(22.dp)) } }
                 }
-                androidx.compose.foundation.layout.Spacer(Modifier.size(6.dp))
-                Text(
-                    t.label, style = MaterialTheme.typography.labelMedium, maxLines = 2,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                    color = if (on) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                )
-                t.detail?.let {
-                    Text(it, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                t.provider != null -> ServiceLogo(t.provider, MARK, Modifier.clearAndSetSemantics {})
+                t.icon != null && t.brandColor != null -> Icon(t.icon, null, tint = Color(t.brandColor), modifier = Modifier.size(MARK))
+                else -> Box(Modifier.size(MARK).clip(CircleShape).background(scheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+                    t.icon?.let { Icon(it, null, tint = scheme.onSurfaceVariant, modifier = Modifier.size(24.dp)) }
                 }
             }
-            if (on) Icon(
-                Icons.Filled.CheckCircle, null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(18.dp),
-            )
+            if (on) Box(
+                Modifier.align(Alignment.TopEnd).size(20.dp).clip(CircleShape).background(scheme.primary),
+                contentAlignment = Alignment.Center,
+            ) { Icon(Icons.Filled.Check, null, tint = scheme.onPrimary, modifier = Modifier.size(14.dp)) }
+            if (account != null) Box(
+                Modifier.align(Alignment.BottomEnd).padding(2.dp).size(18.dp).clip(CircleShape).background(scheme.inverseSurface),
+                contentAlignment = Alignment.Center,
+            ) { Text(account, color = scheme.inverseOnSurface, fontSize = 10.sp, lineHeight = 10.sp, fontWeight = FontWeight.Bold) }
+        }
+        androidx.compose.foundation.layout.Spacer(Modifier.size(4.dp))
+        Text(
+            name, style = MaterialTheme.typography.labelMedium, maxLines = if (detail == null) 2 else 1,
+            fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            color = if (on) scheme.onSurface else scheme.onSurfaceVariant,
+        )
+        detail?.let {
+            Text(it, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, color = scheme.onSurfaceVariant)
         }
     }
 }

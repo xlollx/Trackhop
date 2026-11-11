@@ -60,9 +60,8 @@ class RadioSyncFlowTest : FlowTest() {
         field(R.string.radio_stream_address).performTextInput(STREAM)
         field(R.string.radio_station_name).performTextInput(STATION)
         click(s(R.string.radio_use_stream))
-        // The station chosen, the way to another, and the days and hours in place of the schedule.
-        waitText(STREAM)
-        waitText(s(R.string.radio_another))
+        // The station chosen (the sheet closes on it: the field shows it), the way to another, and the days and hours in place of the schedule.
+        waitFor("the station in the source field") { compose.onAllNodes(hasText(STATION) and hasText(STREAM) and hasText(s(R.string.share_sheet_change))).fetchSemanticsNodes().isNotEmpty() }
         waitText(s(R.string.radio_days))
         assertFalse(exists(s(R.string.editor_mirror)))
         click(s(R.string.save))
@@ -116,6 +115,7 @@ class RadioSyncFlowTest : FlowTest() {
 
     /** The Radio tile is last in the source row, off screen on a phone: the row scrolls to it first. */
     private fun clickRadioTile() {
+        openSourcePicker()
         val tile = hasText(s(R.string.editor_source_radio))
         compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
             runCatching { compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())[i].performScrollToNode(tile) }

@@ -123,15 +123,16 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
     var picked by remember { mutableStateOf(kept?.takeIf { it.pastedLink != null || mode != null }) }
     var busy by remember { mutableStateOf(false) }
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
-    var expanded by remember { mutableStateOf(false) }
-
-    // Folded on the playlist chosen ([compact]) until "Change" opens the picker again.
-    var editing by remember { mutableStateOf(false) }
-    fun choose(p: CardPick?) { picked = p; if (p != null) editing = false; PickMemory.set(memory, p); onPick(p) }
+    // The picker's sheet, and what went wrong in it (the page's snackbar would show under the sheet).
+    var sheet by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    var sheetError by remember { mutableStateOf<String?>(null) }
+    suspend fun say(message: String) { if (sheet) sheetError = message else snackbar.showSnackbar(message) }
+    fun choose(p: CardPick?) { picked = p; if (p != null) sheet = false; PickMemory.set(memory, p); onPick(p) }
     LaunchedEffect(Unit) { picked?.let(onPick) }
 
     suspend fun resolve(text: String) {
         busy = true
+        sheetError = null
         val ref = LinkResolver.resolve(ctx, text)
         val named = ref?.let { com.xlollx.songport.providers.linkProvider(ctx, it.providerId) }
         val provider = ref?.let { r ->
@@ -139,12 +140,12 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
                 ?: Providers.connectors().firstOrNull { it.familyName == named?.familyName && it.canRead(ctx, r.playlistId) }
         }
         when {
-            ref == null -> snackbar.showSnackbar(ctx.getString(R.string.link_invalid))
-            provider == null -> snackbar.showSnackbar(ctx.getString(R.string.link_not_connected, named?.displayName ?: ref.providerId))
+            ref == null -> say(ctx.getString(R.string.link_invalid))
+            provider == null -> say(ctx.getString(R.string.link_not_connected, named?.displayName ?: ref.providerId))
             else -> {
                 val got = runCatching { provider.playlistInfo(ctx, ref.playlistId) }
                 val failed = got.exceptionOrNull()?.takeIf { provider.reportsLinkErrors(ref.playlistId) && it !is kotlinx.coroutines.CancellationException }
-                if (failed != null) snackbar.showSnackbar(failed.message ?: ctx.getString(R.string.error_generic))
+                if (failed != null) say(failed.message ?: ctx.getString(R.string.error_generic))
                 else choose(CardPick(provider, got.getOrElse { Playlist(ref.playlistId, ctx.getString(R.string.card_unnamed_playlist), ownedByMe = false) }, text.trim()))
             }
         }
@@ -156,56 +157,48 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
         val id = mode ?: return@LaunchedEffect
         val p = connected.firstOrNull { it.id == id } ?: return@LaunchedEffect
         lists = null
+        sheetError = null
         lists = try { p.libraryEntries(ctx, asTarget = false) + p.playlists(ctx) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); emptyList()
+            say(e.message ?: ctx.getString(R.string.error_generic)); emptyList()
         }
     }
 
+    // One field: the playlist chosen (its picture, its name, where it lives, "Change"), or the invitation
+    // to choose one. Its sheet has the link and the services, each with its playlists.
     val chosen = picked
-    if (compact && chosen != null && !editing && !busy) { PickedPlaylist(label, chosen) { editing = true }; return }
-    ToolSection(label) {
-        run {
-            val linkLabel = stringResource(R.string.card_source_link)
-            ServiceTiles(
-                listOf(ServiceTile(LINK_TILE, linkLabel, icon = Icons.Filled.Link)) + connected.map { ServiceTile(it.id, it.label(ctx), it) },
-                selected = mode ?: LINK_TILE,
-                onSelect = { key -> mode = if (key == LINK_TILE) null else key; choose(null) },
-            )
-            if (mode == null) {
+    PlaylistField(
+        label, chosen?.playlist?.name?.ifBlank { stringResource(R.string.card_unnamed_playlist) }, stringResource(R.string.editor_choose_playlist),
+        onClick = { sheet = true }, subtitle = chosen?.let { playlistWhere(it.provider, it.playlist) }, provider = chosen?.provider,
+        shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer,
+        thumb = { if (chosen != null) PlaylistArt(chosen, 48.dp) else PlaylistThumb(null, null, 48.dp) },
+    )
+    if (sheet) PickerSheet(label, onDismiss = { sheet = false }) {
+        val linkLabel = stringResource(R.string.card_source_link)
+        ServiceTiles(
+            listOf(ServiceTile(LINK_TILE, linkLabel, icon = Icons.Filled.Link)) + connected.map { ServiceTile(it.id, it.label(ctx), it) },
+            selected = mode ?: LINK_TILE,
+            onSelect = { key -> mode = if (key == LINK_TILE) null else key; sheetError = null; choose(null) },
+            modifier = Modifier.padding(horizontal = PickerSheetMargin),
+        )
+        if (mode == null) {
+            Column(Modifier.padding(horizontal = PickerSheetMargin).padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedTextField(
-                    value = link, onValueChange = { link = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    value = link, onValueChange = { link = it; sheetError = null }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.card_source_link_hint)) },
                     trailingIcon = {
                         if (busy) CircularProgressIndicator(Modifier.size(18.dp))
                         else TextButton(enabled = link.isNotBlank(), onClick = { scope.launch { resolve(link) } }) { Text(stringResource(R.string.link_use)) }
                     },
                 )
-            } else {
-                val items = lists
-                if (items == null) Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading)) }
-                else ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                    OutlinedTextField(
-                        value = picked?.playlist?.name ?: "", onValueChange = {}, readOnly = true,
-                        label = { Text(stringResource(R.string.editor_playlist)) }, placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        items.forEach { p ->
-                            DropdownMenuItem(text = { Text(p.name) }, onClick = {
-                                expanded = false
-                                connected.firstOrNull { it.id == mode }?.let { choose(CardPick(it, p)) }
-                            })
-                        }
-                    }
-                }
+                sheetError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
             }
-            if (!compact) picked?.let { p ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ProviderDot(p.provider); Spacer(Modifier.width(6.dp))
-                    Text(p.playlist.name.ifBlank { stringResource(R.string.card_unnamed_playlist) } + (if (p.playlist.trackCount >= 0) "  ·  ${p.playlist.trackCount}" else ""), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
+        } else {
+            val provider = connected.firstOrNull { it.id == mode }
+            PlaylistRows(
+                lists, sheetError, provider, chosen?.takeIf { it.provider.id == mode }?.playlist?.id,
+                onPick = { p -> provider?.let { choose(CardPick(it, p)) } },
+                recentIds = remember(mode) { recentPlaylistIds(ctx, mode) },
+            )
         }
     }
 }
@@ -223,25 +216,6 @@ internal fun PlaylistArt(pick: CardPick, size: androidx.compose.ui.unit.Dp, modi
         val b = bmp
         if (b != null) Image(b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
         else ServiceLogo(pick.provider, size = size * 0.5f)
-    }
-}
-
-/** The playlist chosen, on one row: its picture, what it is for, its name, where it lives and how long it is, and "Change". */
-@Composable
-private fun PickedPlaylist(label: String, pick: CardPick, onChange: () -> Unit) {
-    val ctx = LocalContext.current
-    Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
-        Row(Modifier.padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            PlaylistArt(pick, 52.dp)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(pick.playlist.name.ifBlank { stringResource(R.string.card_unnamed_playlist) }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                val count = pick.playlist.trackCount.takeIf { it >= 0 }?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.card_tracks, it, it) }
-                Text(listOfNotNull(pick.provider.label(ctx), count).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            TextButton(onClick = onChange, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.share_sheet_change)) }
-        }
     }
 }
 

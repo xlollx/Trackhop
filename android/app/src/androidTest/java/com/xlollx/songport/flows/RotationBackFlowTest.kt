@@ -41,10 +41,11 @@ class RotationBackFlowTest : FlowTest() {
         waitText(s(R.string.discover_records_title))
         clickTile(s(R.string.discover_records_title))
         waitText(s(R.string.records_find))
-        val tile = compose.onAllNodes(hasClickAction() and hasText("Spotify")).onFirst()
-        tile.performScrollTo(); tile.performClick()
+        // The playlist field opens the picker's sheet: the service, then its playlist.
         waitText(s(R.string.editor_playlist))
         click(s(R.string.editor_playlist))
+        waitFor("the picker's services") { compose.onAllNodes(hasClickAction() and hasText("Spotify")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodes(hasClickAction() and hasText("Spotify")).onFirst().performClick()
         waitText("Road Trip")
         click("Road Trip")
         click(s(R.string.records_find))

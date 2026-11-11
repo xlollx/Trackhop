@@ -2416,4 +2416,6 @@
     <string name="recent_transfers_row">プレイリストに送ったセットリストとその確認</string>
     <string name="recent_transfers_intro">セットリストをプレイリストにしたような一回限りの転送です。同期ではありません。1週間、または見つからなかった曲を確認するまでここに残ります。削除してもプレイリストはそのままです。</string>
     <string name="recent_transfers_none">最近の転送はありません。</string>
+    <string name="picker_recent">最近</string>
+    <string name="picker_all">すべてのプレイリスト · %1$d</string>
 </resources>

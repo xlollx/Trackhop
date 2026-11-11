@@ -1498,14 +1498,20 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var srcLists by remember { mutableStateOf<Loaded>(Loaded.Loading) }
     var dstLists by remember { mutableStateOf<Loaded>(Loaded.Loading) }
 
-    LaunchedEffect(srcProvider) {
+    // "Try again" in the picker asks the service once more.
+    var srcReload by remember { mutableIntStateOf(0) }
+    var dstReload by remember { mutableIntStateOf(0) }
+    LaunchedEffect(srcProvider, srcReload) {
         srcLists = Loaded.Loading
         srcLists = loadPlaylists(ctx, srcProvider, forTarget = false)
     }
-    LaunchedEffect(dstProvider) {
+    LaunchedEffect(dstProvider, dstReload) {
         dstLists = Loaded.Loading
         dstLists = loadPlaylists(ctx, dstProvider, forTarget = true)
     }
+    // The pickers' sheets: the services and what each offers, opened from the Source and Target fields.
+    var srcSheet by rememberSaveable { mutableStateOf(false) }
+    var dstSheet by rememberSaveable { mutableStateOf(false) }
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
     // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
@@ -1730,17 +1736,66 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     // lista da cui leggere, e l'app lo promette ("importa un file, poi usalo come
                     // origine della sync"). Senza questo non si poteva scegliere "File" come origine.
                     val srcProviders = (available + listOfNotNull(Providers.byId(srcProvider), Providers.byId(LocalFilesProvider.id))).distinctBy { it.id }
-                    ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
-                        onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
-                        shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam() },
-                        radio = true, radioSelected = radioMode, onRadio = { useRadio() },
-                    ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
+                    val srcObj = Providers.byId(srcProvider)
+                    // One field: what the sync reads. Its sheet has the services, the link, Shazam and the radio.
+                    when {
+                        radioMode -> PlaylistField(
+                            stringResource(R.string.editor_source_radio), radioStation.takeIf { radioStream.isNotEmpty() }?.ifBlank { radioStream },
+                            stringResource(R.string.radio_search), onClick = { srcSheet = true },
+                            subtitle = radioStream.takeIf { it.isNotEmpty() },
+                            thumb = { PlaylistThumb(radioStation.takeIf { radioStream.isNotEmpty() }, null, 48.dp, icon = Icons.Filled.Radio) },
+                        )
+                        shazamMode -> PlaylistField(
+                            stringResource(R.string.editor_playlist), stringResource(R.string.editor_source_shazam), "", onClick = { srcSheet = true },
+                            subtitle = srcPlaylist?.let { playlistWhere(srcObj, it) }, provider = srcObj.takeIf { srcPlaylist != null },
+                            thumb = { Icon(ShazamGlyph, null, Modifier.size(48.dp), tint = shazamTint()) },
+                        )
+                        else -> PlaylistField(
+                            stringResource(R.string.editor_playlist), srcPlaylist?.let { playlistDisplayName(it.id, it.name, srcProvider) },
+                            stringResource(if (linkMode) R.string.link_paste else R.string.editor_choose_playlist), onClick = { srcSheet = true },
+                            subtitle = srcPlaylist?.let { listOfNotNull(playlistWhere(srcObj, it).takeIf { w -> w.isNotEmpty() } ?: srcProvider, stringResource(R.string.editor_source_link).takeIf { linkMode }).joinToString(" · ") },
+                            provider = srcObj.takeIf { srcPlaylist != null },
+                            thumb = { PlaylistThumb(srcPlaylist?.let { it.name.ifBlank { it.id } }, srcPlaylist?.id, 48.dp, imageUrl = srcPlaylist?.imageUrl, icon = Icons.Filled.Link.takeIf { linkMode && srcPlaylist == null }) },
+                        )
+                    }
+                    if (srcSheet) PickerSheet(stringResource(R.string.editor_source), onDismiss = { srcSheet = false }) {
+                        Box(Modifier.padding(horizontal = PickerSheetMargin)) {
+                            ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
+                                onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
+                                // Shazam needs nothing more chosen: the page shows what it found.
+                                shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
+                                radio = true, radioSelected = radioMode, onRadio = { useRadio() },
+                                onConnect = { srcSheet = false; onConnectService() },
+                            ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
+                        }
+                        when {
+                            radioMode -> Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = PickerSheetMargin), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                if (radioStream.isEmpty()) RadioStationPicker { st ->
+                                    radioStation = st.name
+                                    radioStream = st.stream
+                                    radioHome = st.homepage
+                                    srcSheet = false
+                                } else RadioStationCard(radioStation, radioStream) { radioStream = ""; radioStation = ""; radioHome = "" }
+                            }
+                            shazamMode -> Unit
+                            linkMode -> Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = PickerSheetMargin)) {
+                                LinkImportField(initial = linkText, keep = true) { providerId, playlist, text ->
+                                    srcProvider = providerId
+                                    srcPlaylist = playlist
+                                    linkText = text
+                                    srcSheet = false
+                                }
+                            }
+                            else -> PlaylistRows(
+                                (srcLists as? Loaded.Ok)?.items, (srcLists as? Loaded.Failed)?.message, srcObj, srcPlaylist?.id,
+                                onPick = { srcPlaylist = it; srcSheet = false },
+                                recentIds = remember(srcProvider) { recentPlaylistIds(ctx, srcProvider) },
+                                onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
+                            )
+                        }
+                    }
                     if (radioMode) {
-                        if (radioStream.isEmpty()) RadioStationPicker { st ->
-                            radioStation = st.name
-                            radioStream = st.stream
-                            radioHome = st.homepage
-                        } else RadioStationCard(radioStation, radioStream) { radioStream = ""; radioStation = ""; radioHome = "" }
+                        // The station is in the field above; it is chosen and changed in its sheet.
                     } else if (shazamMode) {
                         ShazamSource(
                             shazamLookup, srcProvider, srcPlaylist,
@@ -1748,16 +1803,9 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             onConnect = onConnectService,
                         )
                     } else if (linkMode) {
-                        LinkImportField(initial = linkText, keep = true) { providerId, playlist, text ->
-                            srcProvider = providerId
-                            srcPlaylist = playlist
-                            linkText = text
-                        }
-                        srcPlaylist?.let { sp ->
-                            Text((Providers.byId(srcProvider)?.label(ctx) ?: srcProvider) + " · " + playlistDisplayName(sp.id, sp.name, srcProvider), style = MaterialTheme.typography.bodyMedium)
-                        }
+                        // The link is pasted in the sheet; the playlist it leads to is in the field above.
                     } else {
-                        PlaylistPicker(srcLists, srcPlaylist, label = stringResource(R.string.editor_playlist), provider = srcProvider) { srcPlaylist = it }
+                        (srcLists as? Loaded.Failed)?.let { Text(it.message, color = MaterialTheme.colorScheme.error) }
                         // A playlist that changes by itself (Discover Weekly, a daylist, a chart): replace or keep everything, said here.
                         val changing = srcPlaylist?.let { com.xlollx.songport.sync.ChangingPlaylists.isSelfChanging(Providers.byId(srcProvider)?.serviceId, it.name) } == true
                         if (changing) ChangesChoice(
@@ -1783,10 +1831,35 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             }
 
             EditorStep(2, stringResource(R.string.editor_target), Modifier.tourTarget(TourTarget.EDITOR_TARGET), help = { HelpButton(Helps.target, Helps.liked, label = stringResource(R.string.editor_target)) }) {
-                ProviderPicker(writable, dstProvider) { dstProvider = it; dstPlaylist = null }
                 val dstObj = Providers.byId(dstProvider)
                 val canCreate = dstObj?.canCreatePlaylists != false
                 if (!canCreate && createNew) createNew = false
+                // One field: where the sync writes. A new playlist shows the name it will get.
+                val newTitle = newName.ifBlank { radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) }.orEmpty() }.ifBlank { stringResource(R.string.editor_new_playlist) }
+                PlaylistField(
+                    stringResource(R.string.editor_playlist), if (createNew) newTitle else dstPlaylist?.let { playlistDisplayName(it.id, it.name) },
+                    stringResource(R.string.editor_choose_playlist), onClick = { dstSheet = true },
+                    subtitle = if (createNew) dstObj?.label(ctx) ?: dstProvider else playlistWhere(dstObj, dstPlaylist).ifEmpty { dstProvider },
+                    provider = dstObj,
+                    thumb = { if (createNew) NewPlaylistThumb(48.dp) else PlaylistThumb(dstPlaylist?.let { it.name.ifBlank { it.id } }, dstPlaylist?.id, 48.dp, imageUrl = dstPlaylist?.imageUrl) },
+                )
+                if (dstSheet) PickerSheet(stringResource(R.string.editor_target), onDismiss = { dstSheet = false }) {
+                    Box(Modifier.padding(horizontal = PickerSheetMargin)) {
+                        ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null }
+                    }
+                    PlaylistRows(
+                        (dstLists as? Loaded.Ok)?.items?.filter { it.ownedByMe }, (dstLists as? Loaded.Failed)?.message, dstObj,
+                        dstPlaylist?.id.takeIf { !createNew },
+                        onPick = { createNew = false; dstPlaylist = it; dstSheet = false },
+                        recentIds = remember(dstProvider) { recentPlaylistIds(ctx, dstProvider) },
+                        onRetry = { dstReload++ }, onSignIn = { dstSheet = false; onConnectService() },
+                        first = if (canCreate) ({
+                            item("new") {
+                                PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
+                            }
+                        }) else null,
+                    )
+                }
                 SwitchRow(stringResource(R.string.editor_new_playlist), null, createNew, enabled = canCreate, help = { HelpButton(Helps.newPlaylist) }) { createNew = it }
                 if (!canCreate && dstObj != null) {
                     Text(stringResource(R.string.error_create_unsupported, dstObj.displayName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -1797,7 +1870,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") },
                         supportingText = { Text(stringResource(R.string.editor_new_playlist_name_hint)) })
                 } else {
-                    PlaylistPicker(dstLists, dstPlaylist, label = stringResource(R.string.editor_playlist), onlyOwned = true) { dstPlaylist = it }
+                    (dstLists as? Loaded.Failed)?.let { Text(it.message, color = MaterialTheme.colorScheme.error) }
                 }
             }
 
@@ -2015,16 +2088,16 @@ private fun EditorStep(
 ) {
     androidx.compose.material3.Card(
         modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        shape = ToolCardShape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(28.dp).clip(androidx.compose.foundation.shape.CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
-                    Text(number.toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelLarge)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+                    Text(number.toString(), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 }
-                Spacer(Modifier.width(12.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(10.dp))
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
                 if (help != null) help()
             }
             content()
@@ -2121,9 +2194,11 @@ private fun ProviderPicker(
     link: Boolean = false, linkSelected: Boolean = false, onLink: () -> Unit = {},
     shazam: Boolean = false, shazamSelected: Boolean = false, onShazam: () -> Unit = {},
     radio: Boolean = false, radioSelected: Boolean = false, onRadio: () -> Unit = {},
+    onConnect: (() -> Unit)? = null,
     onSelect: (String) -> Unit,
 ) {
     val ctx = LocalContext.current
+    val connectLabel = stringResource(R.string.connect)
     // A row of tiles that scrolls: with several accounts and personal servers there can be many.
     val linkLabel = stringResource(R.string.editor_source_link)
     val shazamLabel = stringResource(R.string.editor_source_shazam)
@@ -2131,70 +2206,26 @@ private fun ProviderPicker(
     val tiles = available.map { ServiceTile(it.id, it.label(ctx), it) } +
         (if (link) listOf(ServiceTile(LINK_KEY, linkLabel, icon = Icons.Filled.Link)) else emptyList()) +
         (if (shazam) listOf(ServiceTile(SHAZAM_KEY, shazamLabel, icon = ShazamGlyph, brandColor = ServiceMarks.SHAZAM_COLOR)) else emptyList()) +
-        (if (radio) listOf(ServiceTile(RADIO_KEY, radioLabel, icon = Icons.Filled.Radio)) else emptyList())
+        (if (radio) listOf(ServiceTile(RADIO_KEY, radioLabel, icon = Icons.Filled.Radio)) else emptyList()) +
+        // Last, the way to another service: Accounts.
+        (if (onConnect != null) listOf(ServiceTile(CONNECT_KEY, connectLabel, icon = Icons.Filled.Add, action = true)) else emptyList())
     val current = when { linkSelected -> LINK_KEY; shazamSelected -> SHAZAM_KEY; radioSelected -> RADIO_KEY; else -> selected }
-    ServiceTiles(tiles, current, { key -> when (key) { LINK_KEY -> onLink(); SHAZAM_KEY -> onShazam(); RADIO_KEY -> onRadio(); else -> onSelect(key) } })
+    ServiceTiles(tiles, current, { key -> when (key) { LINK_KEY -> onLink(); SHAZAM_KEY -> onShazam(); RADIO_KEY -> onRadio(); CONNECT_KEY -> onConnect?.invoke(); else -> onSelect(key) } })
 }
 
 /** The "from a link" tile among the services. */
 private const val LINK_KEY = "link:"
 private const val SHAZAM_KEY = "shazam:"
 private const val RADIO_KEY = "radio:"
+private const val CONNECT_KEY = "connect:"
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** The picture of a playlist that does not exist yet: a "+" on the target's green. */
 @Composable
-private fun PlaylistPicker(loaded: Loaded, selected: Playlist?, label: String, onlyOwned: Boolean = false, provider: String? = null, onSelect: (Playlist) -> Unit) {
-    when (loaded) {
-        Loaded.Loading -> SkeletonPicker()
-        is Loaded.Failed -> Text(loaded.message, color = MaterialTheme.colorScheme.error)
-        is Loaded.Ok -> {
-            var expanded by remember { mutableStateOf(false) }
-            val all = if (onlyOwned) loaded.items.filter { it.ownedByMe } else loaded.items
-            // Le sezioni della libreria (album, artisti, podcast, ascolti) stanno a parte dalle playlist, dietro
-            // un selettore: di default si vedono le playlist. I brani preferiti restano con le playlist, in testa.
-            val isSection = { p: Playlist -> MusicProvider.isLibrary(p.id) && p.id != MusicProvider.LIKED_ID }
-            val (library, playlists) = all.partition(isSection)
-            var showLibrary by remember { mutableStateOf(selected?.let(isSection) ?: false) }
-            if (library.isEmpty()) showLibrary = false
-            val items = if (showLibrary) library else playlists
-            if (library.isNotEmpty()) {
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    SegmentedButton(selected = !showLibrary, onClick = { showLibrary = false },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)) { Text(stringResource(R.string.editor_section_playlists)) }
-                    SegmentedButton(selected = showLibrary, onClick = { showLibrary = true },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)) { Text(stringResource(R.string.editor_section_library)) }
-                }
-            }
-            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                OutlinedTextField(
-                    value = selected?.let { playlistDisplayName(it.id, it.name, provider) } ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(if (showLibrary) stringResource(R.string.editor_section_library) else label) },
-                    placeholder = { Text(stringResource(if (showLibrary) R.string.editor_choose_library else R.string.editor_choose_playlist)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    items.forEach { p ->
-                        DropdownMenuItem(
-                            text = {
-                                Column {
-                                    Text(playlistDisplayName(p.id, p.name, provider))
-                                    // What a list of a service without playlists is (Last.fm's loved, recent, most played).
-                                    if (provider == com.xlollx.songport.providers.LastFmProvider.SERVICE && p.description.isNotBlank()) {
-                                        Text(p.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
-                                    if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall)
-                                }
-                            },
-                            onClick = { onSelect(p); expanded = false },
-                        )
-                    }
-                }
-            }
-        }
-    }
+private fun NewPlaylistThumb(size: androidx.compose.ui.unit.Dp) {
+    Box(
+        Modifier.size(size).clip(RoundedCornerShape(size / 5)).background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFF2FB67A), Color(0xFF0E7C56)))),
+        contentAlignment = Alignment.Center,
+    ) { Icon(Icons.Filled.Add, null, tint = Color.White, modifier = Modifier.size(size * 0.5f)) }
 }
 
 /** Campo per incollare il link di una playlist pubblica e usarla come origine. */
