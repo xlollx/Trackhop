@@ -114,6 +114,14 @@ data class Settings(
     val roastAdultConfirmed: Boolean = false,
     /** The named colours the syncs can wear (SyncJob.label); see sync/Labels. */
     val labels: List<com.xlollx.songport.model.Label> = emptyList(),
+    /** The artists followed in Discover, and what to be told about each (sync/ArtistAlerts). */
+    val followedArtists: List<com.xlollx.songport.sync.ArtistAlerts.Followed> = emptyList(),
+    /** Alerts for the artists followed: the background look on or off, once a week instead of a day, Wi-Fi only. */
+    val artistAlerts: Boolean = true,
+    val artistAlertsWeekly: Boolean = false,
+    val artistAlertsWifiOnly: Boolean = false,
+    /** What an artist followed from now on is checked for. */
+    val artistAlertKinds: com.xlollx.songport.sync.ArtistAlerts.Kinds = com.xlollx.songport.sync.ArtistAlerts.Kinds(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

@@ -38,8 +38,9 @@ import java.util.Locale
  * Ticketmaster takes a Consumer Key (never its secret): the user's own, in the token vault
  * ([KEY_ID], [ServiceKeys]), or else a server's owner's ([BUILD_KEY], the environment of a Docker or
  * Desktop server). No app build carries one: Ticketmaster's licence cannot be passed on to the
- * app's users, so without their own key the app shows MusicBrainz's dates only. It is used only
- * when the user asks, never in the background, every answer is kept a day per artist, country and
+ * app's users, so without their own key the app shows MusicBrainz's dates only. It is used when
+ * the user asks, and in the background only with the user's own key, for the artists they follow
+ * ([ArtistAlerts], once a day at most), every answer is kept a day per artist, country and
  * time range ([TTL_MS]), and when the day's calls (5000) are gone it stops and says so
  * ([Result.quotaHit]) until Ticketmaster's reset. On the whole playlist, the
  * [LookupCaps.CONCERTS] artists it holds most are looked up. MusicBrainz is free and keyless, one request a second (shared with
@@ -152,6 +153,11 @@ object Concerts {
 
     fun saveRange(env: Env, range: Range) { env.keyValues(STATE)["range"] = range.id }
 
+    /** The country last picked (an ISO code), remembered for the artists followed ([ArtistAlerts]); null before any. */
+    fun savedCountry(env: Env): String? = country(env.keyValues(STATE)["country"])
+
+    fun saveCountry(env: Env, country: String) { country(country)?.let { env.keyValues(STATE)["country"] = it } }
+
     /** What a calendar entry for [e] holds: an all-day one when its time is not known. */
     data class CalendarEntry(
         val title: String,
@@ -234,13 +240,16 @@ object Concerts {
 
     /**
      * The upcoming dates of [artists] in [country] (an ISO code). [progress] gets (done, total).
-     * Never throws for one artist's failure: that artist just has fewer dates.
+     * Never throws for one artist's failure: that artist just has fewer dates. [background]: the
+     * check of the artists followed, with no one looking: Ticketmaster only with the user's own key,
+     * and no source read in a browser engine on the phone ([TicketOne]).
      */
     suspend fun find(
         env: Env, artists: List<String>, country: String, range: Range = Range.ANY, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> },
+        background: Boolean = false,
     ): Result {
         val c = country(country) ?: throw IllegalArgumentException("\"$country\" is not a country code (IT, US, DE...)")
-        val key = key(env)
+        val key = if (background) ownKey(env) else key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
         val list = LookupCaps.cut(asked, LookupCaps.CONCERTS, whole)
@@ -249,14 +258,14 @@ object Concerts {
         val end = range.end(today)
         var quotaHit = key != null && now() < exhaustedUntil(env, key)
         var refused = false
-        var ticketOneRead = c == TicketOne.COUNTRY && withContext(Dispatchers.IO) { TicketOne.enabled }
+        var ticketOneRead = !background && c == TicketOne.COUNTRY && withContext(Dispatchers.IO) { TicketOne.enabled }
         val out = ArrayList<ArtistDates>()
         list.forEachIndexed { i, artist ->
             progress(i, list.size)
             val (tm, mb, sites) = coroutineScope {
                 val mb = async { musicBrainz(env, artist, c, today, end) }
                 val vt = async { Vivaticket.dates(env, artist, c, end) }
-                val t1 = async { TicketOne.dates(env, artist, c).also { if (it == null) ticketOneRead = false } }
+                val t1 = async { if (background) emptyList() else TicketOne.dates(env, artist, c).also { if (it == null) ticketOneRead = false } }
                 val tm = if (key == null || quotaHit || refused) null else try {
                     ticketmaster(env, key, artist, c, end)
                 } catch (e: QuotaGone) {
