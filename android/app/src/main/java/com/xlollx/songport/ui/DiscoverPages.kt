@@ -757,7 +757,8 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
         }
     }
     // The roast first once there is one, the playlist and "another roast" under it.
-    if (roast != null) ToolSplit(start = { verdict() }, end = { ask() }) else ask()
+    val askSlot = rememberToolSlot()
+    if (roast != null) ToolSplit(start = { verdict() }, end = { askSlot(ask) }) else askSlot(ask)
 }
 
 /**

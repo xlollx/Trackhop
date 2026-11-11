@@ -206,7 +206,8 @@ internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -
     }
     // The answer first once there is one (or one on its way), what was asked under it.
     ToolResultOnTop(if (hasOutcome) (result ?: kept.busy) else null)
-    if (hasOutcome) ToolSplit(start = { outcome() }, end = { setup() }) else setup()
+    val setupSlot = rememberToolSlot()
+    if (hasOutcome) ToolSplit(start = { outcome() }, end = { setupSlot(setup) }) else setupSlot(setup)
 }
 
 /** A connected service to tick: its logo and name, a line around it and a tick when it is one of the two. */

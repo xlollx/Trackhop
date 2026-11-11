@@ -110,6 +110,15 @@ internal fun ToolResultOnTop(result: Any?) {
     androidx.compose.runtime.LaunchedEffect(result) { if (result != null && scroll.value > 0) scroll.animateScrollTo(0) }
 }
 
+/**
+ * A part of a page that changes place (what the tool asks goes under its answer once there is one)
+ * and must keep what it holds while it does: the playlist chosen, a field half typed. Call the
+ * slot with the part's content wherever it goes.
+ */
+@Composable
+internal fun rememberToolSlot(): @Composable (@Composable () -> Unit) -> Unit =
+    androidx.compose.runtime.remember { androidx.compose.runtime.movableContentOf { content: @Composable () -> Unit -> content() } }
+
 /** The longer word on how the tool works, said by the page ([ToolIntro]) and shown from the header's "how it works". */
 private val LocalToolIntro = staticCompositionLocalOf<androidx.compose.runtime.MutableState<String?>> { androidx.compose.runtime.mutableStateOf(null) }
 

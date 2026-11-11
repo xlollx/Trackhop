@@ -359,7 +359,9 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
         if (busy && r == null) ToolLoading(stringResource(R.string.loading))
         error?.let { ToolError(it, onRetry = if (a != null && b != null) ({ run() }) else null) }
     }
-    if (r == null) { pair(); return }
+    // The pickers keep their playlists when they move under the answer.
+    val pairSlot = rememberToolSlot()
+    if (r == null) { pairSlot(pair); return }
     val nameA = a?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
     val nameB = b?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
     val serviceA = a?.provider?.serviceId.orEmpty()
@@ -392,7 +394,7 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
             Suggestions(stringResource(R.string.card_compat_for, nameB), r.forB, serviceA)
         },
     )
-    pair()
+    pairSlot(pair)
 }
 
 /** The two playlists facing each other, each as four of its covers, with the score between them. */
@@ -609,7 +611,9 @@ fun PosterCard(snackbar: SnackbarHostState) {
         }
     }
     // The poster first once there is one (or one on its way), what it is made from under it.
-    if (busy || error != null || bitmaps != null) ToolSplit(start = { made() }, end = { setup() }) else setup()
+    // (The picker keeps its playlist when it moves under the poster.)
+    val setupSlot = rememberToolSlot()
+    if (busy || error != null || bitmaps != null) ToolSplit(start = { made() }, end = { setupSlot(setup) }) else setupSlot(setup)
 }
 
 /**
