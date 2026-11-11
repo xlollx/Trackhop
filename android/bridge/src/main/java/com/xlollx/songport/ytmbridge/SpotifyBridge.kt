@@ -190,10 +190,7 @@ object SpotifyBridge {
         }
         latch.await(35, TimeUnit.SECONDS)
         main.post { runCatching { web?.stopLoading(); web?.destroy() } }
-        return result ?: throw BridgeException(
-            "Spotify did not hand out a token" + (error?.let { ": $it" } ?: " (timed out)") +
-                ". Sign in to Spotify again."
-        )
+        return result ?: throw BridgeException(SpotifyWebClient.tokenFailure(error))
     }
 
     // The web player requests its token at start-up; mirror that response to SpBridge.token.
