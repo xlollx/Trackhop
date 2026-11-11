@@ -227,7 +227,10 @@ internal fun ColumnScope.PlaylistRows(
     val q = query.trim()
     // The search has its place while the list loads too, so the rows do not start lower once it is there.
     val showSearch = other == null && error == null && (items == null || items.size > 6)
-    val showChips = other == null && error == null && library.isNotEmpty()
+    // The choice keeps its place while another service's list loads, if the one before had it.
+    var hadLibrary by remember { mutableStateOf(false) }
+    if (items != null) hadLibrary = library.isNotEmpty()
+    val showChips = other == null && error == null && hadLibrary
 
     val search: @Composable (Modifier) -> Unit = { m ->
         TextField(
