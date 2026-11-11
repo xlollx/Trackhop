@@ -131,3 +131,28 @@ www.ticketone.it (nothing else is opened). The plugin opens it in a WebView out 
 `cards` (event links with the text around them) and `artists` (artist links). Trackhop reads the
 dates out of it. A plugin that does not know the method answers `error` ("unknown method"), and
 Trackhop then shows the TicketOne search button only.
+
+### Vivaticket for Concerts (`vivaticket.read`, Trackhop Bridge 1.11.0)
+
+For Discover › Concerts in Italy, in the store builds (the GitHub and F-Droid builds ask Vivaticket
+themselves): `arg` is an address of Vivaticket's gateway, `https://apigatewayb2cstore.vivaticket.com/api/`
+followed by `Home/Search/`, `Artist/` or `Event/` (nothing else is asked); `extras` may carry
+`userAgent`, Trackhop's own (a browser's is never used: the plugin then names itself as Trackhop).
+The plugin makes that one GET, without cookies, sign-in or key, at least a second after the previous
+one, follows no redirect, and answers `code` (the HTTP status) and `json` (the body). Trackhop paces
+the requests too, reads the dates out of the answers and, on an error status or an answer it no
+longer understands, leaves Vivaticket alone for an hour. Trackhop asks it only of a plugin whose
+status reports `version` 56 or more.
+
+### setlist.fm browsed without a key (`com.xlollx.songport.ytmbridge.SETLIST_BROWSE`, Trackhop Bridge 1.11.0)
+
+For Discover › Setlists in the store builds (the GitHub and F-Droid builds have their own screen):
+an activity Trackhop starts for a result with this action, with the extra `artist` (its search on
+setlist.fm opens) or `link` (a setlist.fm concert page). It shows www.setlist.fm in a plain WebView
+with its normal user agent; the person browses it and opens a concert. While a concert's page is
+shown, a bar offers **Add to a playlist** and **Make a playlist**; the tap reads that page once and
+answers `RESULT_OK` with `html` (the page's og:title tag, date box and song labels, as the page has
+them), `url` (the page's address) and `existing` (`true` for "Add to a playlist"). Nothing else is
+asked of setlist.fm, nothing in the background. Only Trackhop gets the answer: started by another
+app, the screen closes at once. Trackhop starts it only when the plugin's status reports `version`
+56 or more, and says to update the plugin otherwise.

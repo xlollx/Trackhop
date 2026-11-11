@@ -515,7 +515,7 @@ private fun MainScreen(
                     editing = newJob().copy(name = s.name, source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id))
                     snackbar.showSnackbar(ctx.getString(R.string.setlist_imported, s.tracks.size))
                 } catch (e: com.xlollx.songport.sync.SetlistImport.NoKey) {
-                    // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid).
+                    // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid; the store builds with a connector plugin).
                     val site = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null, setlist)
                     if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
                 } catch (e: Exception) {

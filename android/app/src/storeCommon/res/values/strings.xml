@@ -12,4 +12,7 @@
     <string name="bridge_needed_hint">This service needs a connector plugin app that is not installed. Trackhop does not include or download plugins.</string>
     <string name="provider_note_deezer_bridge">Deezer through a connector plugin that holds the Deezer sign-in; an alternative to the official route with your own app ID, which stays available as \"Deezer\".</string>
     <string name="provider_note_soundcloud_account">SoundCloud through a connector plugin that holds the SoundCloud sign-in: your sets and liked tracks as sources and destinations.</string>
+    <!-- setlist.fm's own site, browsed in a connector plugin (no key); said when the plugin is too old for it. -->
+    <string name="setlists_browse">Browse setlist.fm</string>
+    <string name="setlists_browse_need_plugin">Browsing setlist.fm needs a newer version of the connector plugin: update it, then try again.</string>
 </resources>

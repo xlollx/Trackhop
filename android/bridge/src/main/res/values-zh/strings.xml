@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">删除</string>
     <string name="bridge_capture_keep">保留</string>
     <string name="bridge_page_crashed">页面已停止运行并被关闭。请重试。</string>
+    <string name="bridge_setlist_hint">setlist.fm 官方网站。打开一场演出，然后把它做成歌单。</string>
+    <string name="bridge_setlist_unread">此页面还没有歌曲。请等待加载完成，或打开一场有歌单的演出。</string>
+    <string name="bridge_setlist_add">添加到播放列表</string>
+    <string name="bridge_setlist_make">生成歌单</string>
+    <string name="bridge_setlist_cancel">取消</string>
 </resources>

@@ -10,6 +10,8 @@ is which services they can reach, and how.
 | Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | no |
 | LiveOne (web player), NetEase Cloud Music, QQ Music and JioSaavn links | yes | no |
+| Browse setlist.fm without a key (Discover › Setlists) | yes | through an optional connector plugin |
+| Concerts in Italy: Vivaticket's and TicketOne's dates (unofficial) | yes | through an optional connector plugin |
 | Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play: yes · AppGallery: no |
 | Ads | none | none |
 | Updates | F-Droid, Obtainium or the GitHub release page | the store |

@@ -12,4 +12,6 @@
     <string name="bridge_needed_hint">This service needs a connector plugin app that is not installed. Trackhop does not include or download plugins.</string>
     <string name="provider_note_deezer_bridge">Deezer oturumunu tutan bir bağlayıcı eklentisi üzerinden Deezer; kendi uygulama kimliğinizle resmi yola bir alternatif, o yol \"Deezer\" olarak kullanılabilir kalır.</string>
     <string name="provider_note_soundcloud_account">SoundCloud oturumunu tutan bir bağlayıcı eklentisi üzerinden SoundCloud: setleriniz ve beğendiğiniz parçalar kaynak ve hedef olarak.</string>
+    <string name="setlists_browse">setlist.fm’e göz at</string>
+    <string name="setlists_browse_need_plugin">setlist.fm’e göz atmak için bağlantı eklentisinin daha yeni bir sürümü gerekir: güncelleyip yeniden deneyin.</string>
 </resources>

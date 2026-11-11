@@ -10,4 +10,6 @@
     <string name="provider_note_spotify_bridge">Spotify through a connector plugin that holds the Spotify sign-in; an alternative to the official route with your own developer key, which stays available as \"Spotify\".</string>
     <string name="provider_note_apple_bridge">Apple Music through a connector plugin that holds the Apple ID sign-in; an alternative to the official route with your own developer token, which stays available as \"Apple Music\".</string>
     <string name="bridge_needed_hint">This service needs a connector plugin app that is not installed. Trackhop does not include or download plugins.</string>
+    <string name="setlists_browse">Przeglądaj setlist.fm</string>
+    <string name="setlists_browse_need_plugin">Przeglądanie setlist.fm wymaga nowszej wersji wtyczki połączeń: zaktualizuj ją i spróbuj ponownie.</string>
 </resources>

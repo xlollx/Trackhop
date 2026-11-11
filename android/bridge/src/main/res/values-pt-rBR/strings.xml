@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">Apagar</string>
     <string name="bridge_capture_keep">Manter</string>
     <string name="bridge_page_crashed">A página parou de funcionar e foi fechada. Tente de novo.</string>
+    <string name="bridge_setlist_hint">O site do setlist.fm. Abra um show e faça uma playlist dele.</string>
+    <string name="bridge_setlist_unread">Ainda não há músicas nesta página. Espere carregar ou abra um show com o setlist.</string>
+    <string name="bridge_setlist_add">Adicionar a uma playlist</string>
+    <string name="bridge_setlist_make">Criar uma playlist</string>
+    <string name="bridge_setlist_cancel">Cancelar</string>
 </resources>

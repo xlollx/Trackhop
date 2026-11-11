@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">削除</string>
     <string name="bridge_capture_keep">残す</string>
     <string name="bridge_page_crashed">ページが動作しなくなったため閉じました。もう一度お試しください。</string>
+    <string name="bridge_setlist_hint">setlist.fm のサイトです。コンサートを開いて、プレイリストにしましょう。</string>
+    <string name="bridge_setlist_unread">このページにはまだ曲がありません。読み込みを待つか、セットリストのあるコンサートを開いてください。</string>
+    <string name="bridge_setlist_add">プレイリストに追加</string>
+    <string name="bridge_setlist_make">プレイリストを作成</string>
+    <string name="bridge_setlist_cancel">キャンセル</string>
 </resources>

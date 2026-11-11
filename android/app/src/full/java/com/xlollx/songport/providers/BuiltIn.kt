@@ -26,7 +26,8 @@ object BuiltIn {
         com.xlollx.songport.ytmbridge.BridgeNet.interceptor = interceptor
         com.xlollx.songport.ytmbridge.BridgeNet.logSink = { tag, message -> com.xlollx.songport.data.Diagnostics.log(app, tag, message) }
         com.xlollx.songport.sync.TikTokShare.recognizer = PluginRelay.recognizer(app)
-        // Concerts: Vivaticket's dates in Italy, read from its site (unofficial: never in the store builds).
+        // Concerts: Vivaticket's dates in Italy, read from its site (unofficial; asked by this app itself here,
+        // in the store builds only through a connector plugin that reads it: see PluginRelay.install).
         com.xlollx.songport.sync.Vivaticket.enabled = true
         // and TicketOne's, its pages read in a WebView out of sight (unofficial too).
         com.xlollx.songport.sync.TicketOne.reader = PluginRelay.ticketOneReader(app)

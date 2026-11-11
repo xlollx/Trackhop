@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">Sil</string>
     <string name="bridge_capture_keep">Sakla</string>
     <string name="bridge_page_crashed">Sayfa çalışmayı durdurdu ve kapatıldı. Lütfen tekrar dene.</string>
+    <string name="bridge_setlist_hint">setlist.fm’in kendi sitesi. Bir konser aç, sonra ondan çalma listesi yap.</string>
+    <string name="bridge_setlist_unread">Bu sayfada henüz şarkı yok. Yüklenmesini bekle ya da set listesi olan bir konser aç.</string>
+    <string name="bridge_setlist_add">Bir çalma listesine ekle</string>
+    <string name="bridge_setlist_make">Çalma listesi oluştur</string>
+    <string name="bridge_setlist_cancel">İptal</string>
 </resources>

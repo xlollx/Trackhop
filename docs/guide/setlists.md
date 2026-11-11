@@ -38,9 +38,10 @@ of a new sync, as for any sync.
 A setlist.fm link shared to Trackhop (or pasted in Services › File › Paste a list) also becomes a
 playlist. With a setlist.fm key (below) it is read through setlist.fm's API. Without one, Trackhop
 never reads the page in the background: the GitHub and F-Droid builds open it on setlist.fm's own
-site in the app (below); the Google Play and AppGallery builds ask for a key.
+site in the app (below); the Google Play and AppGallery builds do the same through a connector
+plugin that offers it, and otherwise ask for a key.
 
-## Browse setlist.fm (GitHub and F-Droid builds)
+## Browse setlist.fm (GitHub and F-Droid builds, or a connector plugin)
 
 Without a key, the GitHub and F-Droid builds of the app also offer **Browse setlist.fm** on the
 Setlists page (and on each artist's card): it opens **setlist.fm's own website** inside the app, on
@@ -50,8 +51,10 @@ Trackhop then reads the songs from the page you are looking at (that page only, 
 asked of setlist.fm) and brings you back to the Setlists page with the concert ready: the same
 choices as above, where only the songs not already in the playlist are added, with the review of
 the songs not found. Nothing happens in the background and nothing is read for you: you browse,
-you choose the concert. The Google Play and AppGallery builds don't have this: there, setlist.fm
-needs your key.
+you choose the concert. The Google Play and AppGallery builds offer the same when a connector plugin
+that browses setlist.fm is installed (see [Which Trackhop?](versions)): the site then opens in the
+plugin's screen, which hands the concert you chose back to the Setlists page. If the plugin is too
+old for it, Trackhop says to update it. Without a plugin, setlist.fm needs your key there.
 
 ## Without a key: MusicBrainz
 
@@ -60,8 +63,9 @@ concert pages carry: free, no account, no key. MusicBrainz has them for far fewe
 big tours and festivals), so many artists will show none: the setlist.fm key below shows many more.
 Each artist takes two or three lookups (MusicBrainz answers once a second) and is kept for a week.
 Trackhop never reads setlist.fm's own web pages for this: setlist.fm's terms don't allow programs
-to read the site, only its API with a key (in the GitHub and F-Droid builds you can browse the site
-yourself, see **Browse setlist.fm** above). Docker and Desktop still need the key.
+to read the site, only its API with a key (in the GitHub and F-Droid builds, or with a connector
+plugin, you can browse the site yourself, see **Browse setlist.fm** above). Docker and Desktop still
+need the key.
 
 ## The setlist.fm key
 

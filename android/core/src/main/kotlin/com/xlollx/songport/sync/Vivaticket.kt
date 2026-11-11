@@ -9,6 +9,8 @@ import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.platform.Env
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import java.time.Instant
@@ -18,8 +20,9 @@ import java.time.LocalDate
  * Vivaticket (vivaticket.com) as an unofficial source of concert dates in Italy, for [Concerts]: the
  * JSON its own web pages read (its "API gateway"), without signing in. Only where the unofficial
  * sources are allowed ([enabled]: the GitHub and F-Droid builds, Docker and Desktop but the Microsoft
- * Store package; never Google Play or AppGallery) and only for Italy ([COUNTRY]). Polite: one request
- * a second ([pace]), the app's own User-Agent, each artist's answer kept a day like Ticketmaster's.
+ * Store package; in the Google Play and AppGallery builds only through a connector plugin that reads
+ * it, [reader]) and only for Italy ([COUNTRY]). Polite: one request a second ([pace]), the app's own
+ * User-Agent, each artist's answer kept a day like Ticketmaster's.
  * When the site answers with an error, or with something no longer shaped as it was, it is left
  * alone for an hour ([STOP_MS]) and the log says why: the other sources carry on.
  *
@@ -41,6 +44,19 @@ object Vivaticket {
 
     /** On where the unofficial sources are allowed: set at start by those builds only. */
     @Volatile var enabled: Boolean = false
+
+    /** One answer of the gateway: its HTTP status and its body. */
+    class Answer(val code: Int, val body: String)
+
+    /**
+     * Who asks the gateway when this app does not ask it itself: in the store builds, the connector
+     * plugin's `vivaticket.read` (null when the plugin is too old to know it). Null (the default)
+     * where the app's own HTTP client asks it: GitHub, F-Droid, Docker, Desktop.
+     */
+    @Volatile var reader: (suspend (String) -> Answer?)? = null
+
+    /** Whether [reader] may be used now: in the store builds, only while a plugin that reads it answers. */
+    @Volatile var gate: () -> Boolean = { true }
 
     // Tests point it at a local server.
     @Volatile internal var base = "https://apigatewayb2cstore.vivaticket.com/api"
@@ -68,6 +84,8 @@ object Vivaticket {
      */
     internal suspend fun dates(env: Env, artist: String, country: String, end: LocalDate? = null): List<Concerts.Event>? {
         if (!enabled || !country.equals(COUNTRY, ignoreCase = true)) return emptyList()
+        // The gate may ask the plugin (a call to another app): never on the main thread.
+        if (reader != null && !withContext(Dispatchers.IO) { gate() }) return emptyList()
         val ck = Concerts.cacheKey(Concerts.Source.VIVATICKET, artist, COUNTRY, end)
         Concerts.cached(env, ck)?.let { return it }
         if (Concerts.now() < stoppedUntil) return null
@@ -92,16 +110,21 @@ object Vivaticket {
         }
     }
 
-    /** One paced GET of the gateway; null for "no content" (a product without its own dates). */
+    /**
+     * One paced GET of the gateway, by this app or by [reader] (the same address, the same pace);
+     * null for "no content" (a product without its own dates).
+     */
     private suspend fun get(path: String): String? {
+        val via = reader
         val r = pace.paced {
-            Http.send(
+            if (via != null) via("$base/$path") ?: throw Stop("the connector plugin does not read it (too old)")
+            else Http.send(
                 "GET", "$base/$path", mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to "application/json"),
                 maxRateLimitRetries = 0, retryServerErrors = false,
-            )
+            ).let { Answer(it.code, it.body) }
         }
         if (r.code == 204) return null
-        if (!r.ok) throw Stop("answered ${r.code}")
+        if (r.code !in 200..299) throw Stop("answered ${r.code}")
         // A waiting room or a challenge page instead of the JSON: the site does not want this now.
         if (!r.body.trimStart().startsWith("{")) throw Stop("the answer is no longer JSON")
         return r.body

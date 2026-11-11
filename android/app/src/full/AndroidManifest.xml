@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Direct-download build only: also recognise plugin versions that predate the discovery action. -->
     <queries>
         <package android:name="com.xlollx.songport.ytmbridge" />
@@ -11,5 +12,10 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation"
             android:theme="@style/Theme.Songport" />
+        <!-- The :bridge module's setlist.fm screen is for the store builds, through the separate
+             plugin app (where it is exported): this build has its own, above, and never exports it. -->
+        <activity
+            android:name="com.xlollx.songport.ytmbridge.SetlistBrowseActivity"
+            tools:node="remove" />
     </application>
 </manifest>

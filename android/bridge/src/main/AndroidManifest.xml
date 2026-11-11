@@ -25,6 +25,20 @@
             android:name=".VerifyActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation" />
+        <!-- setlist.fm's own site, browsed by the person, for the Trackhop builds without their own
+             screen for it (Google Play, AppGallery): they start it with the action below, for a
+             result, so it is exported here, the one screen of this module that is. It answers only
+             Trackhop (it checks who started it). Trackhop's GitHub/F-Droid build has its own screen
+             and removes this one from its manifest. -->
+        <activity
+            android:name=".SetlistBrowseActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation">
+            <intent-filter>
+                <action android:name="com.xlollx.songport.ytmbridge.SETLIST_BROWSE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <!-- Development aid: records the Amazon web player's API calls so a changed method can be fixed. -->
         <activity
             android:name=".AmazonCaptureActivity"

@@ -45,6 +45,28 @@ object BridgePlugin {
     /** Every feature of the built-in connectors is available, built in or through the plugin. */
     val full: Boolean get() = builtIn || pluginVersion >= FULL_VERSION
 
+    /**
+     * A plugin reporting this "version" (or more) also browses setlist.fm for the store builds
+     * ([SETLIST_ACTION]) and reads Vivaticket's gateway for Concerts (`vivaticket.read`), the two
+     * features the GitHub and F-Droid build carries itself. Trackhop Bridge does so since 1.11.0.
+     */
+    const val SITES_VERSION = 56
+
+    /** The plugin's screen for setlist.fm, started for a result (see [SITES_VERSION]). */
+    const val SETLIST_ACTION = "com.xlollx.songport.ytmbridge.SETLIST_BROWSE"
+
+    /**
+     * The "version" the connectors report: every feature when built in, 0 without a plugin, else
+     * what the plugin's last status call said, asked now (`net.status`) when [ask] or when none has
+     * answered yet. Blocks when it asks: never on the main thread.
+     */
+    fun version(ctx: Context, ask: Boolean = false): Int {
+        if (builtIn) return Int.MAX_VALUE
+        if (find(ctx) == null) return 0
+        if (ask || pluginVersion == 0) runCatching { call(ctx, "net.status") }
+        return pluginVersion
+    }
+
     /** Where to get a plugin: nowhere to go when the connectors are built in, and never in the Play build. */
     val installUrl: String? = if (BuildConfig.PLUGIN_LINKS && !BuiltIn.available) "https://github.com/xlollx/Trackhop-Bridge/releases/latest" else null
 

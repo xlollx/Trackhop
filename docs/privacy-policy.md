@@ -60,9 +60,10 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   (app.ticketmaster.com, under Ticketmaster's own privacy policy) and to the public music database
   MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
-  kept encrypted on the device. In the GitHub and F-Droid builds (and on Docker and Desktop), when
-  the country is Italy, the artist names also go to Vivaticket (apigatewayb2cstore.vivaticket.com,
-  read unofficially, under Vivaticket's own privacy policy). In the Android app, when the country is
+  kept encrypted on the device. In the GitHub and F-Droid builds (and on Docker and Desktop, and in
+  the store builds through a connector plugin that reads it), when the country is Italy, the artist
+  names also go to Vivaticket (apigatewayb2cstore.vivaticket.com, read unofficially, under
+  Vivaticket's own privacy policy). In the Android app, when the country is
   Italy and the app can open TicketOne's pages, the artist names are searched on TicketOne
   (www.ticketone.it) in a web view the app opens out of sight on your phone, like your own browser
   would (read unofficially, it may stop working): TicketOne sees your phone's connection and keeps its
