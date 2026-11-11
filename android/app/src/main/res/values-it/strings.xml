@@ -2040,7 +2040,11 @@
     <string name="concerts_key_title">Chiave Ticketmaster</string>
     <string name="concerts_key_body">Per le date di Ticketmaster serve una tua chiave gratuita: senza, solo le date di MusicBrainz.</string>
     <string name="concerts_key_steps">1. Tocca Ottieni una chiave: si apre il sito sviluppatori di Ticketmaster. Serve un account sviluppatore, non quello con cui compri i biglietti.\n2. Tocca Get your API key, poi registrati o accedi.\n3. In My Apps apri la tua app e copia la sua Consumer Key (mai il Consumer Secret).\n4. Incollala qui sotto e tocca Salva.</string>
-    <string name="setlists_key_steps">1. Crea un account gratuito su setlist.fm, o accedi.\n2. Tocca Ottieni una chiave: si apre Settings › API su setlist.fm.\n3. Chiedi una chiave: come nome dell\'applicazione Trackhop, come descrizione \"Personal use: setlists of my playlists\' artists\", non commerciale.\n4. Copia la chiave che mostra, incollala qui sotto e tocca Salva.</string>
+    <string name="setlists_key_step1">1. Crea un account gratuito su setlist.fm. Puoi entrare anche con Google o Facebook, ma setlist.fm ti chiede comunque di completare la registrazione.</string>
+    <string name="setlists_key_signup">Crea un account</string>
+    <string name="setlists_key_step2">2. Dopo l\'accesso tocca Ottieni una chiave: nella pagina API di setlist.fm crea una nuova applicazione.</string>
+    <string name="setlists_key_step3">3. Dalle un nome a scelta (va bene Trackhop) e una descrizione di almeno 30 caratteri, come questa:</string>
+    <string name="setlists_key_step4">4. setlist.fm ti mostra la chiave: copiala, incollala qui sotto e tocca Salva.</string>
     <string name="records_token_steps">1. Accedi a Discogs (basta un account gratuito).\n2. Tocca Ottieni un token: si apre Settings › Developers su Discogs.\n3. Tocca Generate new token e copialo.\n4. Incollalo qui sotto e tocca Salva.</string>
     <string name="concerts_key_get">Ottieni una chiave</string>
     <string name="concerts_key_field">Consumer Key</string>

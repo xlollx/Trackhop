@@ -58,8 +58,12 @@ object Setlists {
     const val TTL_MS = 7L * 24 * 3_600_000
     /** setlist.fm's daily calls per key. */
     const val DAILY = 1440
-    /** Where to ask for a key (a free setlist.fm account, then "API" in its settings). */
+    /** Where a free setlist.fm account is made (signing in with Google or Facebook still asks to register). */
+    const val SIGNUP_URL = "https://www.setlist.fm/signup"
+    /** Where to ask for a key, signed in: a new "application", then its key is shown. */
     const val KEY_URL = "https://www.setlist.fm/settings/api"
+    /** A ready description for that application: setlist.fm asks for at least 30 characters. */
+    const val KEY_DESCRIPTION = "Personal use: setlists to playlists in Trackhop"
     const val HOME = "https://www.setlist.fm/"
     const val ATTRIBUTION = "Setlists from setlist.fm"
     const val MB_HOME = "https://musicbrainz.org/"

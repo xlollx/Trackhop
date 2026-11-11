@@ -2040,7 +2040,11 @@
     <string name="concerts_key_title">Ticketmaster-Schlüssel</string>
     <string name="concerts_key_body">Für die Termine von Ticketmaster brauchst du deinen eigenen kostenlosen Schlüssel: ohne ihn nur Termine von MusicBrainz.</string>
     <string name="concerts_key_steps">1. Tippe auf Schlüssel holen: Die Entwicklerseite von Ticketmaster öffnet sich. Du brauchst dort ein Entwicklerkonto, nicht dein Ticketkonto.\n2. Tippe auf Get your API key, registriere dich oder melde dich an.\n3. Öffne unter My Apps deine App und kopiere ihren Consumer Key (nie das Consumer Secret).\n4. Füge ihn unten ein und tippe auf Speichern.</string>
-    <string name="setlists_key_steps">1. Lege ein kostenloses Konto auf setlist.fm an oder melde dich an.\n2. Tippe auf Schlüssel holen: Settings › API auf setlist.fm öffnet sich.\n3. Beantrage einen Schlüssel: als Anwendungsname Trackhop, als Beschreibung \"Personal use: setlists of my playlists\' artists\", nicht kommerziell.\n4. Kopiere den angezeigten Schlüssel, füge ihn unten ein und tippe auf Speichern.</string>
+    <string name="setlists_key_step1">1. Lege ein kostenloses Konto auf setlist.fm an. Die Anmeldung mit Google oder Facebook geht auch, aber setlist.fm bittet dich trotzdem, die Registrierung abzuschließen.</string>
+    <string name="setlists_key_signup">Konto anlegen</string>
+    <string name="setlists_key_step2">2. Angemeldet tippst du auf Schlüssel holen: Lege auf der API-Seite von setlist.fm eine neue Anwendung an.</string>
+    <string name="setlists_key_step3">3. Gib ihr einen beliebigen Namen (Trackhop passt) und eine Beschreibung mit mindestens 30 Zeichen, zum Beispiel diese:</string>
+    <string name="setlists_key_step4">4. setlist.fm zeigt dir den Schlüssel: Kopiere ihn, füge ihn unten ein und tippe auf Speichern.</string>
     <string name="records_token_steps">1. Melde dich bei Discogs an (ein kostenloses Konto reicht).\n2. Tippe auf Token holen: Settings › Developers auf Discogs öffnet sich.\n3. Tippe auf Generate new token und kopiere es.\n4. Füge es unten ein und tippe auf Speichern.</string>
     <string name="concerts_key_get">Schlüssel holen</string>
     <string name="concerts_key_field">Consumer Key</string>

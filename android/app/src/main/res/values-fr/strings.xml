@@ -2048,7 +2048,11 @@
     <string name="concerts_key_title">Clé Ticketmaster</string>
     <string name="concerts_key_body">Pour les dates de Ticketmaster, il te faut ta propre clé gratuite : sans elle, seulement les dates de MusicBrainz.</string>
     <string name="concerts_key_steps">1. Touche Obtenir une clé : le site développeurs de Ticketmaster s\'ouvre. Il te faut un compte développeur, pas ton compte billetterie.\n2. Touche Get your API key, puis inscris-toi ou connecte-toi.\n3. Dans My Apps, ouvre ton app et copie sa Consumer Key (jamais le Consumer Secret).\n4. Colle-la ci-dessous et touche Enregistrer.</string>
-    <string name="setlists_key_steps">1. Crée un compte gratuit sur setlist.fm, ou connecte-toi.\n2. Touche Obtenir une clé : Settings › API s\'ouvre sur setlist.fm.\n3. Demande une clé : nom de l\'application Trackhop, description \"Personal use: setlists of my playlists\' artists\", non commerciale.\n4. Copie la clé affichée, colle-la ci-dessous et touche Enregistrer.</string>
+    <string name="setlists_key_step1">1. Crée un compte gratuit sur setlist.fm. Tu peux aussi te connecter avec Google ou Facebook, mais setlist.fm te demande quand même de terminer l\'inscription.</string>
+    <string name="setlists_key_signup">Créer un compte</string>
+    <string name="setlists_key_step2">2. Une fois connecté, touche Obtenir une clé : sur la page API de setlist.fm, crée une nouvelle application.</string>
+    <string name="setlists_key_step3">3. Donne-lui le nom que tu veux (Trackhop convient) et une description d\'au moins 30 caractères, comme celle-ci :</string>
+    <string name="setlists_key_step4">4. setlist.fm t\'affiche ta clé : copie-la, colle-la ci-dessous et touche Enregistrer.</string>
     <string name="records_token_steps">1. Connecte-toi à Discogs (un compte gratuit suffit).\n2. Touche Obtenir un jeton : Settings › Developers s\'ouvre sur Discogs.\n3. Touche Generate new token et copie-le.\n4. Colle-le ci-dessous et touche Enregistrer.</string>
     <string name="concerts_key_get">Obtenir une clé</string>
     <string name="concerts_key_field">Consumer Key</string>

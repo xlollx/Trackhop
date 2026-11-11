@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -108,6 +109,9 @@ internal object SetlistsKept {
         found?.let { result = it }
         stopped = at
     }
+
+    /** The key saved or removed: what the old key found (or "key refused") no longer holds, the next search uses the new one. */
+    fun keyChanged() { result = null; open = null; sendFor = null; stopped = null }
 }
 
 /**
@@ -359,9 +363,21 @@ internal fun SetlistFmKeyDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.setlists_key_body), style = MaterialTheme.typography.bodySmall)
-                Text(stringResource(R.string.setlists_key_steps), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(setlistFmKeyState(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // How to get a key, step by step: an account, an "application" on the API page, its key.
+                Text(stringResource(R.string.setlists_key_step1), style = MaterialTheme.typography.bodySmall)
+                TextButton(onClick = { openUrl(ctx, Setlists.SIGNUP_URL) }) { Text(stringResource(R.string.setlists_key_signup)) }
+                Text(stringResource(R.string.setlists_key_step2), style = MaterialTheme.typography.bodySmall)
                 TextButton(onClick = { openUrl(ctx, Setlists.KEY_URL) }) { Text(stringResource(R.string.concerts_key_get)) }
+                Text(stringResource(R.string.setlists_key_step3), style = MaterialTheme.typography.bodySmall)
+                var copied by remember { mutableStateOf(false) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(Setlists.KEY_DESCRIPTION, style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), modifier = Modifier.weight(1f))
+                    TextButton(onClick = { clipboard.setText(AnnotatedString(Setlists.KEY_DESCRIPTION)); copied = true }) {
+                        Text(stringResource(if (copied) R.string.setup_copied else R.string.setup_copy))
+                    }
+                }
+                Text(stringResource(R.string.setlists_key_step4), style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(
                     value = key, onValueChange = { key = it.trim() }, singleLine = true,
                     label = { Text(stringResource(R.string.setlists_key_field)) },
@@ -375,10 +391,10 @@ internal fun SetlistFmKeyDialog(onDismiss: () -> Unit) {
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { Setlists.saveKey(ctx.env, key); onDismiss() }) { Text(stringResource(R.string.save)) } },
+        confirmButton = { TextButton(onClick = { Setlists.saveKey(ctx.env, key); if (key != saved) SetlistsKept.keyChanged(); onDismiss() }) { Text(stringResource(R.string.save)) } },
         dismissButton = {
             Row {
-                if (Setlists.ownKey(ctx.env) != null) TextButton(onClick = { Setlists.saveKey(ctx.env, ""); onDismiss() }) { Text(stringResource(R.string.remove)) }
+                if (Setlists.ownKey(ctx.env) != null) TextButton(onClick = { Setlists.saveKey(ctx.env, ""); SetlistsKept.keyChanged(); onDismiss() }) { Text(stringResource(R.string.remove)) }
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             }
         },

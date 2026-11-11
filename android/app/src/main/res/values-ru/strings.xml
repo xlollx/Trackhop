@@ -2108,7 +2108,11 @@
     <string name="concerts_key_title">Ключ Ticketmaster</string>
     <string name="concerts_key_body">Для дат Ticketmaster нужен ваш собственный бесплатный ключ: без него — только даты из MusicBrainz.</string>
     <string name="concerts_key_steps">1. Нажмите «Получить ключ»: откроется сайт для разработчиков Ticketmaster. Нужен аккаунт разработчика, а не аккаунт для покупки билетов.\n2. Нажмите Get your API key, затем зарегистрируйтесь или войдите.\n3. В My Apps откройте своё приложение и скопируйте его Consumer Key (никогда не Consumer Secret).\n4. Вставьте его ниже и нажмите «Сохранить».</string>
-    <string name="setlists_key_steps">1. Создайте бесплатный аккаунт на setlist.fm или войдите.\n2. Нажмите «Получить ключ»: откроется Settings › API на setlist.fm.\n3. Запросите ключ: название приложения Trackhop, описание \"Personal use: setlists of my playlists\' artists\", некоммерческое использование.\n4. Скопируйте показанный ключ, вставьте его ниже и нажмите «Сохранить».</string>
+    <string name="setlists_key_step1">1. Создайте бесплатный аккаунт на setlist.fm. Можно войти через Google или Facebook, но setlist.fm всё равно попросит завершить регистрацию.</string>
+    <string name="setlists_key_signup">Создать аккаунт</string>
+    <string name="setlists_key_step2">2. Войдя, нажмите «Получить ключ»: на странице API setlist.fm создайте новое приложение.</string>
+    <string name="setlists_key_step3">3. Дайте ему любое название (подойдёт Trackhop) и описание не короче 30 символов, например такое:</string>
+    <string name="setlists_key_step4">4. setlist.fm покажет ваш ключ: скопируйте его, вставьте ниже и нажмите «Сохранить».</string>
     <string name="records_token_steps">1. Войдите в Discogs (хватит бесплатного аккаунта).\n2. Нажмите «Получить токен»: откроется Settings › Developers на Discogs.\n3. Нажмите Generate new token и скопируйте его.\n4. Вставьте его ниже и нажмите «Сохранить».</string>
     <string name="concerts_key_get">Получить ключ</string>
     <string name="concerts_key_field">Consumer Key</string>
