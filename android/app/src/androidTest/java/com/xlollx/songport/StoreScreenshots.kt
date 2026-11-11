@@ -117,6 +117,12 @@ class StoreScreenshots {
             shootCarousel()
             return
         }
+        // -e discover true: the Discover tools' pages in their main states (English, dark), kept apart too.
+        if (InstrumentationRegistry.getArguments().getString("discover") == "true") {
+            setLanguage("en-US")
+            shootDiscover()
+            return
+        }
         val only = InstrumentationRegistry.getArguments().getString("locales")?.split(',')?.map { it.trim() }?.toSet()
         for ((tag, folder) in locales) {
             if (only != null && tag !in only) continue
@@ -891,6 +897,188 @@ class StoreScreenshots {
         store.updateSettings { it.copy(minimalSyncs = false) }; store.flush()
         resumed()?.let { a -> instr.runOnMainSync { a.finish() } }
     }
+
+    // ------------------------------------------------------------------ the Discover tools
+
+    private val ROAST_DEMO = "“Road Trip 2026” is 73 songs of a person who has clearly never driven anywhere quiet. " +
+        "Metallica nine times, Slipknot seven, and then, out of nowhere, Evanescence, like a diary left open on the dashboard. " +
+        "You call it a road trip; the neighbours call it a noise complaint with a fuel budget. " +
+        "Still, credit where it is due: nobody falls asleep at the wheel with “Painkiller” at motorway volume."
+
+    /** A setter of a private holder object's state (the pages keep their last result in one). */
+    private fun holderSet(holder: String, setter: String, type: Class<*>, value: Any?) {
+        val k = Class.forName(holder)
+        val instance = k.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null)
+        instr.runOnMainSync { k.getDeclaredMethod(setter, type).apply { isAccessible = true }.invoke(instance, value) }
+    }
+
+    /**
+     * The Discover tools' pages, each in its main states (what it asks, what it answers), top to
+     * bottom, English and dark; two of them once more with the phone on its side.
+     * discover/<tool>_<state>_<n>.png.
+     */
+    private fun shootDiscover() {
+        Demo.carouselOn = true
+        Demo.discoverOn = true
+        carouselDemo()
+        val store = Store.get(app)
+        val now = System.currentTimeMillis()
+        // Songs that left two playlists (their mirror syncs took them off the other side too).
+        store.update { d ->
+            d.copy(reports = d.reports.map { r ->
+                when (r.id) {
+                    "job-metal-9" -> r.copy(removedTracks = listOf(2, 7, 11).map { n -> Demo.SONGS[n].let { com.xlollx.songport.model.Track(ytm.id(n), it.title, listOf(it.artist), it.album, it.seconds * 1000L) } })
+                    "job-metal-6" -> r.copy(removedTracks = listOf(13, 16).map { n -> Demo.SONGS[n].let { com.xlollx.songport.model.Track(ytm.id(n), it.title, listOf(it.artist), it.album, it.seconds * 1000L) } })
+                    "job-chill-8" -> r.copy(removedTracks = listOf(1, 4, 9).map { n -> Demo.EXTRA[n].let { com.xlollx.songport.model.Track(ytm.id(900 + n), it.title, listOf(it.artist), it.album, it.seconds * 1000L) } })
+                    "job-chill-3" -> r.copy(removedTracks = listOf(6, 10).map { n -> Demo.EXTRA[n].let { com.xlollx.songport.model.Track(ytm.id(900 + n), it.title, listOf(it.artist), it.album, it.seconds * 1000L) } })
+                    else -> r
+                }
+            })
+        }
+        store.flush()
+        // An AI for the roast (never called: the roast on show is put there), and what the two services cost.
+        com.xlollx.songport.ai.AiClient.save(app.env, com.xlollx.songport.ai.AiClient.Config(com.xlollx.songport.ai.AiClient.Vendor.OPENAI, "demo", "gpt-demo", ""))
+        app.getSharedPreferences("discover_prices", Context.MODE_PRIVATE).edit().putString("spotify", "11.99").putString(if (play) "youtube" else "ytm", "10.99").commit()
+
+        fun shell(cmd: String) = instr.uiAutomation.executeShellCommand(cmd).use { java.io.FileInputStream(it.fileDescriptor).readBytes() }
+        step("demo mode") {
+            shell("settings put global sysui_demo_allowed 1")
+            listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
+                "-e command network -e wifi show -e level 4 -e fully true", "-e command notifications -e visible false").forEach {
+                shell("am broadcast -a com.android.systemui.demo $it")
+            }
+        }
+        var sideways = false
+        // A slow drag up: a real scroll, with no fling.
+        fun swipe() {
+            if (sideways) shell("input swipe 1200 880 1200 280 1200") else shell("input swipe 540 1900 540 500 1500")
+            compose.waitForIdle(); Thread.sleep(800)
+        }
+        val dir = File(app.getExternalFilesDir(null), "discover").apply { mkdirs() }
+        fun shot(settle: Long = 1500): Bitmap? {
+            compose.waitForIdle(); Thread.sleep(settle); compose.waitForIdle()
+            return instr.uiAutomation.takeScreenshot()
+        }
+        fun save(bmp: Bitmap, name: String) {
+            File(dir, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            android.util.Log.i("StoreScreenshots", "discover $name")
+        }
+        // The page from its top to its end, at most [max] pictures: <name>_1, <name>_2…
+        fun pages(name: String, max: Int = 5) {
+            var last: Bitmap? = null
+            for (k in 1..max) {
+                val bmp = shot(if (k == 1) 2500 else 1200) ?: return
+                if (last != null && bmp.sameAs(last)) return
+                save(bmp, "${name}_$k"); last = bmp
+                if (k < max) swipe()
+            }
+        }
+        fun main(): Intent = Intent(app, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        fun waitText(text: String, ms: Long = 15_000) = compose.waitUntil(ms) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() }
+        fun tapText(text: String) {
+            compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasText(text)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
+        }
+        fun open(intent: Intent, what: String, body: () -> Unit) {
+            store.updateSettings { it.copy(appOpens = 1) }
+            carouselPictures()
+            discoverPictures()
+            val before = resumed()
+            app.startActivity(intent)
+            val end = System.currentTimeMillis() + 30_000
+            while (System.currentTimeMillis() < end) {
+                val a = resumed()
+                if (a is MainActivity && a !== before) break
+                Thread.sleep(200)
+            }
+            compose.waitForIdle()
+            step("discover $what") { body() }
+        }
+        // A tool's page, from the Discover tab.
+        fun tool(title: Int, what: String, body: () -> Unit = {}) = open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER), what) {
+            waitText(s(R.string.discover_wrapped_title))
+            compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(s(title)))
+            tapText(s(title))
+            compose.waitForIdle(); Thread.sleep(600)
+            body()
+        }
+        val road = com.xlollx.songport.model.Playlist(Demo.PLAYLISTS[1].first, Demo.PLAYLISTS[1].second, Demo.PLAYLISTS[1].third)
+        val linkA = "https://music.youtube.com/playlist?list=${Demo.LINK_ID}"
+        val linkB = "https://music.youtube.com/playlist?list=${Demo.OTHER_LINK_ID}"
+        fun roastOn() {
+            com.xlollx.songport.ui.PickMemory.set("roast", com.xlollx.songport.ui.CardPick(ytm, road))
+            val covers = (0 until 6).map { n -> cover(DISCOVER_PALETTES[n % DISCOVER_PALETTES.size], n) }
+            val card = com.xlollx.songport.ui.Cards.RoastCard(s(R.string.discover_roast_title), null, road.name, ROAST_DEMO, null, covers, listOf("Metallica", "Slipknot", "Linkin Park"))
+            val bitmaps = com.xlollx.songport.ui.Cards.Format.entries.associateWith { com.xlollx.songport.ui.Cards.roast(app, card, it) }
+            holderSet("com.xlollx.songport.ui.RoastKept", "setPlaylistId", String::class.java, road.id)
+            holderSet("com.xlollx.songport.ui.RoastKept", "setText", String::class.java, ROAST_DEMO)
+            holderSet("com.xlollx.songport.ui.RoastKept", "setBitmaps", Map::class.java, bitmaps)
+        }
+
+        // Playlist roast: what it asks, then a roast.
+        tool(R.string.discover_roast_title, "roast setup"); pages("roast_setup", 2)
+        step("roast demo") { roastOn() }
+        tool(R.string.discover_roast_title, "roast"); pages("roast_result", 4)
+        // How compatible are we?: empty, then two links shared together.
+        tool(R.string.tools_compat_title, "compat setup"); pages("compat_setup", 2)
+        open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "$linkA\n$linkB"), "compat") { waitText(s(R.string.card_share), 30_000) }
+        pages("compat_result", 5)
+        // Vanished songs.
+        tool(R.string.discover_vanished_title, "vanished") { waitText("Toxicity") }; pages("vanished", 3)
+        // Playlist poster: what it asks, then a poster.
+        tool(R.string.tools_poster_title, "poster setup"); pages("poster_setup", 2)
+        com.xlollx.songport.ui.PickMemory.set("poster", com.xlollx.songport.ui.CardPick(ytm, road))
+        tool(R.string.tools_poster_title, "poster") {
+            tapText(s(R.string.card_poster_run))
+            waitText(s(R.string.card_share), 40_000)
+        }
+        pages("poster_result", 4)
+        // Universal link: what it asks, then the link.
+        tool(R.string.discover_link_title, "link setup"); pages("link_setup", 1)
+        com.xlollx.songport.ui.PickMemory.set("link", com.xlollx.songport.ui.CardPick(ytm, road))
+        tool(R.string.discover_link_title, "link") { waitText(s(R.string.discover_link_copy), 20_000) }; pages("link_result", 3)
+        // Wrapped: the last one made.
+        tool(R.string.discover_wrapped_title, "wrapped") { waitText(s(R.string.card_share), 30_000) }; pages("wrapped", 6)
+        // Two subscriptions?: what it asks, then the result.
+        tool(R.string.discover_subs_title, "subs setup"); pages("subs_setup", 2)
+        tool(R.string.discover_subs_title, "subs") {
+            tapText(s(R.string.discover_subs_run))
+            waitText(s(R.string.card_share), 40_000)
+        }
+        pages("subs_result", 6)
+        // The phone on its side, once: a roast and a comparison.
+        step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
+        sideways = true
+        tool(R.string.discover_roast_title, "roast sideways"); pages("land_roast", 3)
+        open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "$linkA\n$linkB"), "compat sideways") { waitText(s(R.string.card_share), 30_000) }
+        pages("land_compat", 3)
+        tool(R.string.discover_subs_title, "subs sideways"); pages("land_subs", 3)
+        step("upright") { shell("settings put system user_rotation 0"); Thread.sleep(2000) }
+        resumed()?.let { a -> instr.runOnMainSync { a.finish() } }
+    }
+
+    private val DISCOVER_PALETTES = listOf(
+        intArrayOf(0xFF1B1B3A.toInt(), 0xFFE63946.toInt()), intArrayOf(0xFF0F2027.toInt(), 0xFF2C5364.toInt()),
+        intArrayOf(0xFF3A1C71.toInt(), 0xFFFFAF7B.toInt()), intArrayOf(0xFF000000.toInt(), 0xFF8E9EAB.toInt()),
+        intArrayOf(0xFF42275A.toInt(), 0xFF734B6D.toInt()), intArrayOf(0xFF141E30.toInt(), 0xFFF7971E.toInt()),
+        intArrayOf(0xFF232526.toInt(), 0xFFB31217.toInt()), intArrayOf(0xFF1D2B64.toInt(), 0xFFF8CDDA.toInt()),
+        intArrayOf(0xFF0B486B.toInt(), 0xFFF56217.toInt()),
+    )
+
+    /** The Discover pages' own pictures (the artists' round ones), put where the pages look first. */
+    @Suppress("UNCHECKED_CAST")
+    private fun discoverPictures() {
+        val field = com.xlollx.songport.ui.Cards::class.java.getDeclaredField("coverCache").apply { isAccessible = true }
+        val cache = field.get(com.xlollx.songport.ui.Cards) as HashMap<String, Bitmap?>
+        val pics = com.xlollx.songport.sync.DeezerCatalog::class.java.getDeclaredField("artistPictures").apply { isAccessible = true }
+        val byName = pics.get(com.xlollx.songport.sync.DeezerCatalog) as MutableMap<String, String>
+        (Demo.SONGS + Demo.EXTRA).map { it.artist }.distinct().forEachIndexed { i, name ->
+            val url = img("discover-artist", i)
+            synchronized(cache) { cache[url] = discoverArtists.getOrPut(url) { cover(DISCOVER_PALETTES[(i * 2 + 3) % DISCOVER_PALETTES.size], i + 2) } }
+            byName[com.xlollx.songport.sync.Matcher.normalizeArtist(name)] = url
+        }
+    }
+    private val discoverArtists = HashMap<String, Bitmap>()
 
     /** One fallible part of a picture: a miss is logged and the picture is taken anyway. */
     private fun step(what: String, body: () -> Unit) {

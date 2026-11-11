@@ -11,6 +11,8 @@ name: Screenshots
 # leaving the fastlane pictures (the full build's, used by F-Droid) alone.
 # With "carousel" on it takes only the social carousel's pictures (English, dark, full build) and
 # uploads them as the "carousel" artifact, committing nothing.
+# With "discover" on it takes the pages of the Discover tools in their main states (English, dark,
+# full build, one page turned on its side) and uploads them as the "discover" artifact, committing nothing.
 # The Play pictures are 9:16 and show no other brand's mark (LogoMode.neutral: initials on plain circles).
 on:
   workflow_dispatch:
@@ -21,6 +23,10 @@ on:
         default: false
       carousel:
         description: Only the social carousel pictures, uploaded as an artifact (no commit)
+        type: boolean
+        default: false
+      discover:
+        description: Only the Discover tools' pages, uploaded as an artifact (no commit)
         type: boolean
         default: false
       flavor:
@@ -45,7 +51,8 @@ jobs:
       LOCALES: en,it,fr,de,es,pt-BR,pl,ru,tr,zh,ja,ko
       REVIEW: ${{ inputs.review && 'true' || 'false' }}
       CAROUSEL: ${{ inputs.carousel && 'true' || 'false' }}
-      FLAVOR: ${{ inputs.flavor == 'play' && !inputs.carousel && 'play' || 'full' }}
+      DISCOVER: ${{ inputs.discover && 'true' || 'false' }}
+      FLAVOR: ${{ inputs.flavor == 'play' && !inputs.carousel && !inputs.discover && 'play' || 'full' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -121,8 +128,16 @@ jobs:
           path: android/carousel
           if-no-files-found: ignore
 
+      - name: Keep the Discover pictures
+        if: always() && inputs.discover
+        uses: actions/upload-artifact@v7
+        with:
+          name: discover
+          path: android/discover
+          if-no-files-found: ignore
+
       - name: Keep the raw pictures
-        if: always() && !inputs.review && !inputs.carousel
+        if: always() && !inputs.review && !inputs.carousel && !inputs.discover
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.FLAVOR == 'play' && 'shots-play' || 'shots' }}
@@ -130,7 +145,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Commit the pictures to the branch
-        if: ${{ !inputs.review && !inputs.carousel }}
+        if: ${{ !inputs.review && !inputs.carousel && !inputs.discover }}
         working-directory: android
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick > /dev/null

@@ -70,6 +70,9 @@ class ShotProvider(
         // The carousel's sync to preview: some songs to add, some to take off, two the target lacks.
         Demo.carousel(playlistId)?.let { songs -> return songs.map { (n, s) -> if (s == null) track(n) else Track(id = id(n), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) } }
         val size = playlistInfo(ctx, playlistId).trackCount.coerceAtLeast(1)
+        // The Discover pictures: YouTube Music holds most of Spotify's songs and some of its own, so two libraries overlap in part.
+        if (Demo.discoverOn && idStyle == IdStyle.YOUTUBE) return list(size).filterIndexed { i, _ -> i % 4 != 3 } +
+            Demo.EXTRA.mapIndexed { i, s -> Track(id = id(900 + i), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) }
         return list(size)
     }
 
@@ -160,6 +163,8 @@ object Demo {
     const val CAROUSEL_NAME = "Summer Vibes"
     /** The carousel's pictures are being taken: its playlists are in the library too. */
     @Volatile var carouselOn = false
+    /** The Discover tools' pictures are being taken: the libraries differ from one service to the other. */
+    @Volatile var discoverOn = false
     /** Songs only the carousel's target still holds (taken off by the next run). */
     private val GONE = listOf(
         Song("Hysteria", "Muse", "Absolution", 227, "GBAHT0300392"),
