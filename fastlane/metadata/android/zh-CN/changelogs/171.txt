@@ -1,1 +1,1 @@
-新功能：工具中的共享歌单，一个小组共用一份歌单，每人用自己的服务。策展人修改，其他人以完全一致或保留自己添加的方式关注。用二维码或链接邀请；小组通过共享文件夹（Drive、Nextcloud、Syncthing、Dropbox）、端到端加密的 ntfy 频道或你自己的 Trackhop 服务器相聚。我的服务器：把同步交给你的 Trackhop 服务器，也能带回来，审核选择双向共享。
+“发现”新增歌单艺人页面：新发行（生成歌单或每周同步）；来自 Ticketmaster 和 MusicBrainz 的演唱会，并可搜索票务网站；来自 setlist.fm 的演出曲目（使用你自己的免费密钥）可变成歌单；唱片与周边：Discogs 上的 CD、黑胶和磁带，官网和官方商店，仅提供链接。通知渠道：同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 通知你。
