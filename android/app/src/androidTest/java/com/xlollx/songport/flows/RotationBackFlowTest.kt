@@ -56,15 +56,19 @@ class RotationBackFlowTest : FlowTest() {
         instr.runOnMainSync { before.recreate() }
         waitForNewMain(before)
         compose.waitForIdle()
+        // The new screen still shows the lookup under way, with its Stop.
+        waitText(s(R.string.search_stop))
 
         hold.complete(Unit)
-        // The network is closed in the tests: Discogs "does not answer", which the results say per artist.
-        waitText(s(R.string.records_discogs_down), ms = 120_000, substring = true)
-        // Once the playlist's artists are read, the button says how many it looks up.
+        // Once the playlist's artists are read, the button says how many it looks up; it is free again when the lookup ends
+        // (the artists found are shown while it runs, so their results alone do not say it ended).
         val labels = setOf(s(R.string.records_find)) + (1..60).map { plural(R.plurals.records_find_for, it, it) } +
             listOf(LookupCaps.RECORDS_ANON, LookupCaps.RECORDS_TOKEN).map { s(R.string.records_find_top, it) }
         val search = SemanticsMatcher("a search button label") { n -> n.config.getOrNull(SemanticsProperties.Text).orEmpty().any { it.text in labels } }
-        assertTrue("the search button is free again", compose.onAllNodes(hasClickAction() and isEnabled() and search).fetchSemanticsNodes().isNotEmpty())
+        waitFor("the search button free again", ms = 120_000) { compose.onAllNodes(hasClickAction() and isEnabled() and search).fetchSemanticsNodes().isNotEmpty() }
+        assertFalse("the lookup ended", exists(s(R.string.search_stop)))
+        // The network is closed in the tests: Discogs "does not answer", which the results say per artist.
+        assertTrue("the lookup's results are shown", exists(s(R.string.records_discogs_down), substring = true))
     }
 
     private fun openCreateGroup() {
