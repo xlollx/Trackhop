@@ -79,6 +79,11 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   pictures load from the shops' image servers (cdn.shopify.com, bcbits.com), like any web picture
   (turn them off in Settings › Images in Discover). Shop, Discogs and official-site links open in your
   browser, without any affiliate tag.
+- **Artist alerts (optional)**: for the artists you follow in Discover (Followed artists), the app asks
+  the same services as New releases, Concerts and Records and merch once a day (or a week), in the
+  background: Deezer, MusicBrainz, Discogs, the artists' own shops, Ticketmaster only with your own key,
+  and the country you last searched in Concerts. Only the names of the artists you follow are sent;
+  what was found stays on the device. Turn it off in Settings or unfollow the artists.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -179,6 +184,11 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   prodotti arrivano dai server di immagini dei negozi (cdn.shopify.com, bcbits.com), come ogni immagine
   web (si spengono in Opzioni › Immagini in Scopri). I link a negozi, Discogs e siti ufficiali si aprono
   nel browser, senza codici di affiliazione.
+- **Avvisi per artista (facoltativi)**: per gli artisti che segui in Scopri (Artisti seguiti), l'app
+  chiede agli stessi servizi di Nuove uscite, Concerti e Dischi e merch una volta al giorno (o alla
+  settimana), in background: Deezer, MusicBrainz, Discogs, i negozi degli artisti, Ticketmaster solo con
+  la tua chiave, e il paese dell'ultima ricerca in Concerti. Vengono inviati solo i nomi degli artisti
+  che segui; quello che si trova resta sul dispositivo. Si spengono in Opzioni o smettendo di seguirli.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per

@@ -88,8 +88,8 @@ dates only.
 
 Each key has a daily
 limit (about 5,000 lookups): if it runs out you'll see "Today's Ticketmaster limit is reached", try
-again tomorrow. Trackhop asks only when you tap **Find concerts** (never in the background) and keeps
-each answer for a day.
+again tomorrow. Trackhop asks when you tap **Find concerts**, and once a day for the
+[artists you follow](artist-alerts), and keeps each answer for a day.
 
 On **Docker and Desktop**: put your key in **Settings › Ticketmaster key** on the page, or give the
 container `TICKETMASTER_API_KEY` (the server's owner's own key, for everyone on that server). Each
