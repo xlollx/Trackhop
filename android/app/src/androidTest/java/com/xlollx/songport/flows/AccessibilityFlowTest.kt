@@ -102,7 +102,8 @@ class AccessibilityFlowTest : FlowTest() {
         click(s(R.string.tab_discover))
         waitText(s(R.string.discover_wrapped_title))
         audit("Discover")
-        click(s(R.string.tools_poster_title))
+        // The cards are a lazy grid and the Poster is last by default: scrolled to before the tap.
+        clickTile(s(R.string.tools_poster_title))
         waitText(s(R.string.card_cover_title))
         audit("Poster")
         back()
