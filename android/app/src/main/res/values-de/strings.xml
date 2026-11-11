@@ -2098,6 +2098,8 @@
     <string name="server_bring_back_title">Zurück auf dieses Handy holen?</string>
     <string name="server_bring_back_body">Die Sync wird auf deinem Server gelöscht (die Playlists bleiben, wie sie sind) und läuft wieder auf diesem Handy, mit den auf dem Server getroffenen Prüfentscheidungen.</string>
     <string name="server_bring_back_done">Fertig: Die Sync läuft wieder auf diesem Handy.</string>
+    <string name="server_bring_back_here">Ohne Server zurückholen</string>
+    <string name="server_bring_back_here_warning">Dein Server ist nicht erreichbar, daher kann der Sync dort noch existieren und weiterlaufen: Lösche ihn auf dem Server, wenn du kannst. Prüfentscheidungen, die seit der Übergabe auf dem Server getroffen wurden, kommen nicht zurück.</string>
     <string name="server_on_server">Auf dem Server</string>
     <string name="server_runs_there">Läuft auf deinem Server</string>
     <string name="server_run_started">Auf deinem Server gestartet.</string>

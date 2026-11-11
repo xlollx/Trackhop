@@ -2096,6 +2096,8 @@
     <string name="server_bring_back_title">Bu telefona geri alınsın mı?</string>
     <string name="server_bring_back_body">Senkronizasyon sunucundan silinir (çalma listeleri olduğu gibi kalır) ve sunucuda verilen inceleme kararlarıyla birlikte yeniden bu telefonda çalışır.</string>
     <string name="server_bring_back_done">Tamam: senkronizasyon yeniden bu telefonda çalışıyor.</string>
+    <string name="server_bring_back_here">Sunucu olmadan geri al</string>
+    <string name="server_bring_back_here_warning">Sunucuna ulaşılamıyor; bu yüzden eşitleme orada hâlâ var olabilir ve çalışmaya devam edebilir: yapabiliyorsan sunucudan sil. Devirden sonra sunucuda verilen inceleme kararları geri gelmez.</string>
     <string name="server_on_server">Sunucuda</string>
     <string name="server_runs_there">Sunucunda çalışır</string>
     <string name="server_run_started">Sunucunda başlatıldı.</string>

@@ -2098,6 +2098,8 @@
     <string name="server_bring_back_title">Riportarla su questo telefono?</string>
     <string name="server_bring_back_body">La sync viene eliminata dal tuo server (le playlist restano come sono) e torna a girare su questo telefono, con le scelte di revisione fatte sul server.</string>
     <string name="server_bring_back_done">Fatto: la sync torna a girare su questo telefono.</string>
+    <string name="server_bring_back_here">Riporta senza il server</string>
+    <string name="server_bring_back_here_warning">Il server non risponde, quindi la sync potrebbe esistere ancora lì e continuare a girare: se puoi, eliminala sul server. Le scelte di revisione fatte sul server dopo il passaggio non vengono riportate.</string>
     <string name="server_on_server">Sul server</string>
     <string name="server_runs_there">Gira sul tuo server</string>
     <string name="server_run_started">Avviata sul tuo server.</string>

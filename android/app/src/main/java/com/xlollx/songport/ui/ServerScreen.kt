@@ -255,22 +255,35 @@ fun HandOverDialog(job: SyncJob, back: Boolean, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var answer by remember { mutableStateOf<ServerLink.Outcome?>(null) }
+    // No server to ask (Coordinate off) or one that cannot be reached: the phone can take it back alone, with a warning.
+    val serverOff = remember { back && !ServerLink.isOn(ctx) }
+    var offerHere by remember { mutableStateOf(serverOff) }
+    val here = offerHere && answer?.ok != true
     FitDialog(
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(stringResource(if (back) R.string.server_bring_back_title else R.string.server_handover_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(if (back) R.string.server_bring_back_body else R.string.server_handover_body), style = MaterialTheme.typography.bodyMedium)
+                if (!serverOff) Text(stringResource(if (back) R.string.server_bring_back_body else R.string.server_handover_body), style = MaterialTheme.typography.bodyMedium)
+                if (here) Text(stringResource(R.string.server_bring_back_here_warning), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
                 if (busy) CircularProgressIndicator(Modifier.size(24.dp))
                 answer?.let { Text(it.message, style = MaterialTheme.typography.bodyMedium, color = if (it.ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error) }
             }
         },
         confirmButton = {
             if (answer?.ok == true) TextButton(onClick = onDismiss) { Text(stringResource(R.string.ok)) }
+            else if (here) TextButton(enabled = !busy, onClick = {
+                busy = true; answer = null
+                scope.launch {
+                    answer = ServerLink.bringBackHere(ctx, job)
+                    busy = false
+                }
+            }) { Text(stringResource(R.string.server_bring_back_here)) }
             else TextButton(enabled = !busy, onClick = {
                 busy = true; answer = null
                 scope.launch {
                     answer = if (back) ServerLink.bringBack(ctx, job) else ServerLink.handOver(ctx, job)
+                    if (answer?.canBringBackHere == true) offerHere = true
                     busy = false
                 }
             }) { Text(stringResource(if (back) R.string.server_bring_back else R.string.server_handover)) }

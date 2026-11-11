@@ -2099,6 +2099,8 @@
     <string name="server_bring_back_title">Bring it back to this phone?</string>
     <string name="server_bring_back_body">The sync is deleted on your server (the playlists stay as they are) and runs on this phone again, with the review choices made on the server.</string>
     <string name="server_bring_back_done">Done: the sync runs on this phone again.</string>
+    <string name="server_bring_back_here">Bring back without the server</string>
+    <string name="server_bring_back_here_warning">Your server can\'t be asked, so the sync may still exist there and keep running: delete it on the server if you can. Review choices made on the server since the hand-over don\'t come back.</string>
     <string name="server_on_server">On server</string>
     <string name="server_runs_there">Runs on your server</string>
     <string name="server_run_started">Started on your server.</string>

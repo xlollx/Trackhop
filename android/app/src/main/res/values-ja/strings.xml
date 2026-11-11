@@ -2060,6 +2060,8 @@
     <string name="server_bring_back_title">このスマホに戻しますか？</string>
     <string name="server_bring_back_body">同期はサーバーから削除され（プレイリストはそのまま）、サーバーでのレビューの選択とともに、またこのスマホで実行されます。</string>
     <string name="server_bring_back_done">完了：同期はまたこのスマホで実行されます。</string>
+    <string name="server_bring_back_here">サーバーなしで戻す</string>
+    <string name="server_bring_back_here_warning">サーバーに問い合わせできないため、同期はサーバー上にまだ残り実行され続けている可能性があります。可能ならサーバーで削除してください。引き渡し後にサーバーで行った確認の選択は戻りません。</string>
     <string name="server_on_server">サーバー上</string>
     <string name="server_runs_there">サーバーで実行</string>
     <string name="server_run_started">サーバーで開始しました。</string>

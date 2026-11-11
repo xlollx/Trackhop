@@ -2106,6 +2106,8 @@
     <string name="server_bring_back_title">Trazer de volta para este celular?</string>
     <string name="server_bring_back_body">A sincronização é apagada do seu servidor (as playlists ficam como estão) e volta a rodar neste celular, com as escolhas de revisão feitas no servidor.</string>
     <string name="server_bring_back_done">Pronto: a sincronização voltou a rodar neste celular.</string>
+    <string name="server_bring_back_here">Trazer de volta sem o servidor</string>
+    <string name="server_bring_back_here_warning">Não é possível consultar seu servidor, então a sincronização pode continuar existindo e rodando lá: apague-a no servidor se puder. As escolhas de revisão feitas no servidor desde a transferência não voltam.</string>
     <string name="server_on_server">No servidor</string>
     <string name="server_runs_there">Roda no seu servidor</string>
     <string name="server_run_started">Iniciada no seu servidor.</string>

@@ -2174,6 +2174,8 @@
     <string name="server_bring_back_title">Вернуть на этот телефон?</string>
     <string name="server_bring_back_body">Синхронизация удаляется с вашего сервера (плейлисты остаются как есть) и снова работает на этом телефоне, вместе с решениями проверки, принятыми на сервере.</string>
     <string name="server_bring_back_done">Готово: синхронизация снова работает на этом телефоне.</string>
+    <string name="server_bring_back_here">Вернуть без сервера</string>
+    <string name="server_bring_back_here_warning">Сервер недоступен, поэтому синхронизация может всё ещё существовать и работать там: удалите её на сервере, если можете. Решения проверки, принятые на сервере после передачи, не вернутся.</string>
     <string name="server_on_server">На сервере</string>
     <string name="server_runs_there">Работает на вашем сервере</string>
     <string name="server_run_started">Запущено на вашем сервере.</string>

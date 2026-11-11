@@ -2106,6 +2106,8 @@
     <string name="server_bring_back_title">La ramener sur ce téléphone ?</string>
     <string name="server_bring_back_body">La synchro est supprimée de ton serveur (les playlists restent telles quelles) et s\'exécute de nouveau sur ce téléphone, avec les choix de vérification faits sur le serveur.</string>
     <string name="server_bring_back_done">C\'est fait : la synchro s\'exécute de nouveau sur ce téléphone.</string>
+    <string name="server_bring_back_here">Ramener sans le serveur</string>
+    <string name="server_bring_back_here_warning">Ton serveur ne peut pas être joint, la synchro peut donc encore y exister et continuer à tourner : supprime-la sur le serveur si tu peux. Les choix de révision faits sur le serveur depuis le transfert ne reviennent pas.</string>
     <string name="server_on_server">Sur le serveur</string>
     <string name="server_runs_there">S\'exécute sur ton serveur</string>
     <string name="server_run_started">Lancée sur ton serveur.</string>

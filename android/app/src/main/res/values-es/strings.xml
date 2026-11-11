@@ -2106,6 +2106,8 @@
     <string name="server_bring_back_title">¿Traerla de vuelta a este teléfono?</string>
     <string name="server_bring_back_body">La sincronización se borra de tu servidor (las playlists quedan como están) y vuelve a ejecutarse en este teléfono, con las decisiones de revisión tomadas en el servidor.</string>
     <string name="server_bring_back_done">Listo: la sincronización vuelve a ejecutarse en este teléfono.</string>
+    <string name="server_bring_back_here">Traer de vuelta sin el servidor</string>
+    <string name="server_bring_back_here_warning">No se puede consultar a tu servidor, así que la sincronización puede seguir existiendo y ejecutándose allí: bórrala en el servidor si puedes. Las decisiones de revisión tomadas en el servidor desde el traspaso no vuelven.</string>
     <string name="server_on_server">En el servidor</string>
     <string name="server_runs_there">Se ejecuta en tu servidor</string>
     <string name="server_run_started">Iniciada en tu servidor.</string>

@@ -2176,6 +2176,8 @@
     <string name="server_bring_back_title">Przywrócić na ten telefon?</string>
     <string name="server_bring_back_body">Synchronizacja zostanie usunięta z twojego serwera (playlisty zostaną bez zmian) i znów będzie działać na tym telefonie, z decyzjami z przeglądu podjętymi na serwerze.</string>
     <string name="server_bring_back_done">Gotowe: synchronizacja znów działa na tym telefonie.</string>
+    <string name="server_bring_back_here">Przywróć bez serwera</string>
+    <string name="server_bring_back_here_warning">Nie można połączyć się z serwerem, więc synchronizacja może tam nadal istnieć i działać: usuń ją na serwerze, jeśli możesz. Decyzje przeglądu podjęte na serwerze od przekazania nie wrócą.</string>
     <string name="server_on_server">Na serwerze</string>
     <string name="server_runs_there">Działa na twoim serwerze</string>
     <string name="server_run_started">Uruchomiono na twoim serwerze.</string>

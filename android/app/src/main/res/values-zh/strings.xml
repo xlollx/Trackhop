@@ -2060,6 +2060,8 @@
     <string name="server_bring_back_title">带回这部手机？</string>
     <string name="server_bring_back_body">同步会从你的服务器删除（歌单保持不变），并带着在服务器上做的审核选择，重新在这部手机上运行。</string>
     <string name="server_bring_back_done">完成：同步重新在这部手机上运行。</string>
+    <string name="server_bring_back_here">不经服务器取回</string>
+    <string name="server_bring_back_here_warning">无法连接你的服务器，因此该同步可能仍在服务器上存在并继续运行：如果可以，请在服务器上删除它。移交后在服务器上做出的审核选择不会带回。</string>
     <string name="server_on_server">在服务器上</string>
     <string name="server_runs_there">在你的服务器上运行</string>
     <string name="server_run_started">已在你的服务器上开始。</string>

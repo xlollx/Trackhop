@@ -291,6 +291,19 @@ object HandOver {
     }
 
     /**
+     * [d] with the handed-over sync [jobId] back on this device: no longer marked as on the server,
+     * and on or off as it was when handed over. Nothing else changes; a sync not handed over stays as it is.
+     * The same whether the server deleted its copy or could not be asked (brought back without it).
+     */
+    fun takenBack(d: com.xlollx.songport.data.StoreData, jobId: String): com.xlollx.songport.data.StoreData {
+        val h = d.handedOver[jobId] ?: return d
+        return d.copy(
+            handedOver = d.handedOver - jobId,
+            jobs = d.jobs.map { if (it.id == jobId) it.copy(enabled = h.wasEnabled) else it },
+        )
+    }
+
+    /**
      * A sync of this device that is the same as the server's [s] (the same two playlists, on the
      * same services), not handed over: its review choices are shared too.
      */
