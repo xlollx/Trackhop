@@ -158,7 +158,7 @@ object Setlists {
         progress(list.size, list.size)
         if (quotaHit) env.log("setlists", "setlist.fm: today's limit reached")
         val (with, without) = out.partition { it.setlists.isNotEmpty() }
-        return Result(with.sortedByDescending { it.setlists.first().date } + without, asked.size, true, own, quotaHit, refused, unanswered)
+        return Result(with.sortedByDescending { it.setlists.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, true, own, quotaHit, refused, unanswered)
     }
 
     /** One setlist by its id (a shared link), from the cache or the API; null when there is no key. */

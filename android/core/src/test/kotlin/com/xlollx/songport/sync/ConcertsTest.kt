@@ -36,6 +36,7 @@ class ConcertsTest {
                 path.startsWith("/tm/") -> tm(query)
                 path == "/ws/2/event" -> Triple(200, mbEvents, emptyMap())
                 path == "/ws/2/place/p-milano" -> Triple(200, """{"id":"p-milano","name":"Forum","area":{"id":"a-milano","name":"Milano"}}""", emptyMap())
+                path == "/ws/2/place/p-busy" -> Triple(200, """{"id":"p-busy","name":"Somewhere","area":{"id":"a-busy","name":"Somewhere"}}""", emptyMap())
                 path == "/ws/2/place/p-paris" -> Triple(200, """{"id":"p-paris","name":"Zenith","area":{"id":"a-paris","name":"Paris"}}""", emptyMap())
                 path == "/ws/2/area/a-milano" -> Triple(200, """{"name":"Milano","relations":[{"type":"part of","direction":"backward","area":{"id":"a-mi","name":"Milano","iso-3166-2-codes":["IT-MI"]}}]}""", emptyMap())
                 path == "/ws/2/area/a-paris" -> Triple(200, """{"name":"Paris","relations":[{"type":"part of","direction":"backward","area":{"id":"a-idf","name":"Île-de-France"}}]}""", emptyMap())
@@ -224,10 +225,11 @@ class ConcertsTest {
         assertTrue(hits.any { it.startsWith("/ws/2/event") && it.contains("begin:[2026-11-10 TO") })
     }
 
-    @Test fun ownKeyIsUsedAndTheSharedOneLooksUpFewerArtists() = runBlocking {
+    @Test fun ownKeyIsUsedAndWithoutAnyKeyFewerArtistsAreLookedUp() = runBlocking {
         tm = { Triple(200, tmPage(), emptyMap()) }
         val many = (1..60).map { "Artist $it" }
-        assertEquals(Concerts.MAX_SHARED, Concerts.find(env, many, "IT").artists.size)
+        BuildDefaults.values = emptyMap()
+        assertEquals(Concerts.MAX_NO_KEY, Concerts.find(env, many, "IT").artists.size)
         Concerts.saveKey(env, "  MINE ")
         val r = Concerts.find(env, many, "IT")
         assertTrue(r.ownKey)
@@ -235,6 +237,9 @@ class ConcertsTest {
         assertTrue(hits.any { it.contains("apikey=MINE") })
         Concerts.saveKey(env, "")
         assertEquals(null, Concerts.ownKey(env))
+        // A server's own key (its environment) looks them all up too.
+        BuildDefaults.values = mapOf(Concerts.BUILD_KEY to "SERVER")
+        assertEquals(60, Concerts.find(env, many, "IT").artists.size)
     }
 
     @Test fun withoutAnyKeyOnlyMusicBrainzIsAsked() = runBlocking {
@@ -251,6 +256,95 @@ class ConcertsTest {
         val r = Concerts.find(env, listOf("A", "B"), "IT")
         assertTrue(r.keyRefused)
         assertEquals(1, hits.count { it.startsWith("/tm/") })
+    }
+
+    @Test fun theTimeRangeEndsBothSearchesAndItsDates() = runBlocking {
+        tm = { Triple(200, tmPage(tmEvent("Muse", "2026-11-20", "Milano", "IT", "Muse"), tmEvent("Muse", "2027-01-20", "Roma", "IT", "Muse")), emptyMap()) }
+        mbEvents = """{"events":[${mbEvent("soon", "Muse", "2026-12-01", "p-milano")},${mbEvent("late", "Muse", "2027-05-01", "p-milano")}]}"""
+        val r = Concerts.find(env, listOf("Muse"), "IT", Concerts.Range.MONTH)
+        assertEquals(listOf("2026-11-20", "2026-12-01"), r.artists.single().events.map { it.date })
+        assertEquals(Concerts.Range.MONTH, r.range)
+        assertTrue(hits.any { it.startsWith("/tm/") && it.contains("endDateTime=2026-12-11T00:00:00Z") })
+        assertTrue(hits.any { it.startsWith("/ws/2/event") && it.contains("begin:[2026-11-10 TO 2026-12-10]") })
+        // Any date: no end, and not the month's cached answer.
+        val all = Concerts.find(env, listOf("Muse"), "IT", Concerts.Range.ANY)
+        assertEquals(4, all.artists.single().events.size)
+        assertTrue(hits.any { it.startsWith("/tm/") && !it.contains("endDateTime") })
+    }
+
+    @Test fun theRangeIsRememberedAndReadBack() {
+        assertEquals(Concerts.Range.ANY, Concerts.savedRange(env))
+        Concerts.saveRange(env, Concerts.Range.SIX_MONTHS)
+        assertEquals(Concerts.Range.SIX_MONTHS, Concerts.savedRange(env))
+        assertEquals(Concerts.Range.ANY, Concerts.Range.of("nonsense"))
+        val today = java.time.LocalDate.parse("2026-01-31")
+        assertEquals("2026-02-28", Concerts.Range.MONTH.end(today).toString())
+        assertEquals(null, Concerts.Range.ANY.end(today))
+        val e = Concerts.Event("A", "A", "2026-02-28", source = Concerts.Source.MUSICBRAINZ)
+        assertTrue(Concerts.inRange(e, today, Concerts.Range.MONTH.end(today)))
+        assertFalse(Concerts.inRange(e.copy(date = "2026-03-01"), today, Concerts.Range.MONTH.end(today)))
+        assertFalse(Concerts.inRange(e.copy(date = "2026-01-30"), today, null))
+    }
+
+    @Test fun theArtistsWithoutDatesComeInAlphabeticalOrder() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        val r = Concerts.find(env, listOf("zucchero", "Ásgeir", "Muse", "arctic Monkeys", "Azealia Banks"), "IT")
+        assertEquals(listOf("arctic Monkeys", "Ásgeir", "Azealia Banks", "Muse", "zucchero"), r.artists.map { it.artist })
+    }
+
+    @Test fun aCalendarEntryInTheEventsOwnTimeZone() {
+        val e = Concerts.Event(
+            "Muse", "Muse Live", "2027-06-18", "21:00", "Milano", "Ippodromo SNAI San Siro", "IT",
+            "https://www.ticketmaster.it/event/1", Concerts.Source.TICKETMASTER, timeZone = "Europe/Rome",
+        )
+        val c = Concerts.calendarEntry(e, java.time.ZoneId.of("America/New_York"))
+        assertEquals("Muse – Ippodromo SNAI San Siro", c.title)
+        assertEquals(java.time.Instant.parse("2027-06-18T19:00:00Z").toEpochMilli(), c.begin)
+        assertEquals(c.begin + 3 * 3_600_000L, c.end)
+        assertFalse(c.allDay)
+        assertEquals("Europe/Rome", c.timeZone)
+        assertEquals("Ippodromo SNAI San Siro, Milano", c.location)
+        assertEquals("https://www.ticketmaster.it/event/1", c.description)
+        // No zone said: the fallback one. No time: a whole day, at UTC midnight as calendars want it.
+        assertEquals(java.time.Instant.parse("2027-06-19T01:00:00Z").toEpochMilli(), Concerts.calendarEntry(e.copy(timeZone = null), java.time.ZoneId.of("America/New_York")).begin)
+        val day = Concerts.calendarEntry(e.copy(time = null, venue = ""), java.time.ZoneId.of("Europe/Rome"))
+        assertTrue(day.allDay)
+        assertEquals(java.time.Instant.parse("2027-06-18T00:00:00Z").toEpochMilli(), day.begin)
+        assertEquals("Muse – Muse Live", day.title)
+        assertEquals("Milano", day.location)
+    }
+
+    @Test fun ticketmastersTimeZoneIsKept() {
+        val body = tmPage(tmEvent("Muse", "2026-12-01", "Milano", "IT", "Muse").replace("\"status\"", "\"timezone\":\"Europe/Rome\",\"status\""))
+        assertEquals("Europe/Rome", Concerts.parseTicketmaster(body, "Muse", "IT").single().timeZone)
+    }
+
+    @Test fun aRecordedMusicBrainzAnswerIsRead() {
+        // musicbrainz.org's answer on 11 November 2026 for artist:"Muse" from that day on: two festivals, Muse among 50 acts.
+        val body = javaClass.getResource("/concerts/musicbrainz-muse-upcoming.json")!!.readText()
+        val got = Concerts.parseMusicBrainz(body, "Muse")
+        assertEquals(listOf("Southside 2027", "Hurricane Festival 2027"), got.map { it.event.name })
+        assertTrue(got.all { it.event.date == "2027-06-18" && it.placeId != null })
+        assertEquals(listOf("Flugplatz Neuhausen ob Eck", "Eichenring"), got.map { it.event.venue })
+        assertTrue(Concerts.parseMusicBrainz(body, "Muse Maya").isEmpty())
+    }
+
+    @Test fun anEventHeldInACityWithNoPlaceIsKept() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        mbEvents = """{"events":[{"id":"e9","type":"Concert","name":"Muse in Milan","life-span":{"begin":"2027-01-10"},
+            "relations":[{"type":"main performer","direction":"backward","artist":{"id":"x","name":"Muse"}},
+                         {"type":"held in","direction":"backward","area":{"id":"a-milano","name":"Milano"}}]}]}"""
+        val e = Concerts.find(env, listOf("Muse"), "IT").artists.single().events.single()
+        assertEquals("Milano", e.city); assertEquals("IT", e.country)
+    }
+
+    @Test fun aPlaceWhoseCountryCouldNotBeReadIsAskedAgain() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        // p-nowhere's area answers 404 (MusicBrainz busy): not remembered as "no country" for months.
+        mbEvents = """{"events":[${mbEvent("e", "Muse", "2027-03-01", "p-busy")}]}"""
+        Concerts.find(env, listOf("Muse"), "IT")
+        Concerts.find(env, listOf("Muse"), "IT")
+        assertEquals(2, hits.count { it.startsWith("/ws/2/place/p-busy") })
     }
 
     // ------------------------------------------------------------------ helpers

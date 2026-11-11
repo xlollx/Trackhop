@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
@@ -36,6 +37,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
+import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.Concerts
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -87,6 +90,16 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
     var pick by remember { mutableStateOf<CardPick?>(null) }
     var country by rememberSaveable { mutableStateOf(defaultConcertCountry(ctx)) }
     var result by remember { mutableStateOf(ConcertsKept.result) }
+    var range by remember { mutableStateOf(Concerts.savedRange(ctx.env)) }
+    // The playlist's artists, read when it is picked: some can be ticked to look up only those.
+    var artists by remember { mutableStateOf<List<String>?>(null) }
+    var ticked by remember { mutableStateOf(emptySet<String>()) }
+    var typed by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
+        artists = null; ticked = emptySet()
+        val p = pick ?: return@LaunchedEffect
+        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+    }
     var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var keyOpen by rememberSaveable { mutableStateOf(false) }
     if (keyOpen) TicketmasterKeyDialog { keyOpen = false }
@@ -96,8 +109,8 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         progress = 0 to 0
         scope.launch {
             try {
-                val artists = Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id))
-                val r = Concerts.find(ctx.env, artists, country) { done, total -> progress = done to total }
+                val all = artists ?: Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { artists = it }
+                val r = Concerts.find(ctx.env, ArtistPick.chosen(all, ticked, typed), country, range) { done, total -> progress = done to total }
                 result = r; ConcertsKept.result = r; ConcertsKept.playlistId = p.playlist.id
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
@@ -110,7 +123,9 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         if (it == null || it.playlist.id != ConcertsKept.playlistId) { result = null; ConcertsKept.result = null }
         pick = it
     }
+    if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
     CountryPicker(country) { country = it; result = null; ConcertsKept.result = null }
+    RangePicker(range) { range = it; Concerts.saveRange(ctx.env, it); result = null; ConcertsKept.result = null }
     val busy = progress != null
     Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
@@ -132,15 +147,18 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-                if (r.quotaHit || r.keyRefused || !r.ticketmaster || r.total > r.artists.size) {
+                if (r.quotaHit || r.keyRefused || !r.ticketmaster) {
                     TextButton(onClick = { keyOpen = true }) { Text(stringResource(R.string.concerts_key_title)) }
                 }
             }
         }
         val dated = r.artists.filter { it.events.isNotEmpty() }
         if (dated.isEmpty()) Text(stringResource(R.string.concerts_none_found), style = MaterialTheme.typography.bodyMedium)
-        dated.forEach { a -> ArtistDatesCard(a) }
-        val without = r.artists.filter { it.events.isEmpty() }
+        // A long list can be searched by name, both the artists with dates and those without.
+        var query by rememberSaveable { mutableStateOf("") }
+        if (r.artists.size > 5) ArtistSearchField(query) { query = it }
+        ArtistPick.named(dated, query) { it.artist }.forEach { a -> ArtistDatesCard(a, snackbar) }
+        val without = ArtistPick.named(r.artists.filter { it.events.isEmpty() }, query) { it.artist }
         if (without.isNotEmpty()) NoDatesCard(without)
         // The sources, as their terms ask: the dates are theirs.
         Text(
@@ -168,6 +186,26 @@ private fun CountryPicker(country: String, onPick: (String) -> Unit) {
     }
 }
 
+private val RANGES = listOf(
+    Concerts.Range.MONTH to R.string.concerts_range_1m, Concerts.Range.THREE_MONTHS to R.string.concerts_range_3m,
+    Concerts.Range.SIX_MONTHS to R.string.concerts_range_6m, Concerts.Range.YEAR to R.string.concerts_range_1y,
+    Concerts.Range.ANY to R.string.concerts_range_any,
+)
+
+@Composable
+private fun RangePicker(range: Concerts.Range, onPick: (Concerts.Range) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.concerts_range) + ": " + stringResource(RANGES.first { it.first == range }.second), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Icon(Icons.Filled.ArrowDropDown, null)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            RANGES.forEach { (r, label) -> DropdownMenuItem(text = { Text(stringResource(label)) }, onClick = { open = false; onPick(r) }) }
+        }
+    }
+}
+
 private fun dateText(e: Concerts.Event): String {
     val d = runCatching { LocalDate.parse(e.date).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)) }.getOrDefault(e.date)
     return if (e.time != null) "$d · ${e.time}" else d
@@ -175,8 +213,9 @@ private fun dateText(e: Concerts.Event): String {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ArtistDatesCard(a: Concerts.ArtistDates) {
+private fun ArtistDatesCard(a: Concerts.ArtistDates, snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -190,7 +229,14 @@ private fun ArtistDatesCard(a: Concerts.ArtistDates) {
                         Text(
                             if (e.source == Concerts.Source.TICKETMASTER) stringResource(R.string.concerts_on_ticketmaster) else e.source.label,
                             style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f),
                         )
+                        TextButton(onClick = {
+                            if (!addToCalendar(ctx, e)) scope.launch { snackbar.showSnackbar(ctx.getString(R.string.concerts_no_calendar)) }
+                        }) {
+                            Icon(Icons.Filled.Event, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.concerts_add_calendar))
+                        }
                     }
                 }
             }
@@ -223,7 +269,7 @@ private fun NoDatesCard(artists: List<Concerts.ArtistDates>) {
     }
 }
 
-/** The user's own Ticketmaster Consumer Key: optional, lifts the shared key's limits. */
+/** The user's own Ticketmaster Consumer Key: without one, MusicBrainz's dates only. */
 @Composable
 internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
     val ctx = LocalContext.current
@@ -260,9 +306,6 @@ internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
     )
 }
 
-/** Which Ticketmaster key the concerts use: the user's, the app's shared one, or none. */
-internal fun ticketmasterKeyState(ctx: Context): Int = when {
-    Concerts.ownKey(ctx.env) != null -> R.string.concerts_key_own
-    Concerts.key(ctx.env) != null -> R.string.concerts_key_shared
-    else -> R.string.concerts_key_none
-}
+/** Whether the concerts have the user's own Ticketmaster key (the app carries none). */
+internal fun ticketmasterKeyState(ctx: Context): Int =
+    if (Concerts.ownKey(ctx.env) != null) R.string.concerts_key_own else R.string.concerts_key_none

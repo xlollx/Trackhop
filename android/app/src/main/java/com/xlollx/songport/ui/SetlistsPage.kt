@@ -49,6 +49,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.importTracks
+import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.Setlists
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,11 @@ internal object SetlistsKept {
     var open by mutableStateOf<String?>(null)
     var progress by mutableStateOf<Pair<Int, Int>?>(null)
     var error by mutableStateOf<String?>(null)
+    /** The playlist's artists (null while read), the ticked ones (none = all) and one typed by name. */
+    var artists by mutableStateOf<List<String>?>(null)
+    var ticked by mutableStateOf(emptySet<String>())
+    var typed by mutableStateOf("")
+    var artistsOf: String? = null
 }
 
 /**
@@ -90,6 +96,15 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
         if (p?.playlist?.id != k.pick?.playlist?.id || p?.provider?.id != k.pick?.provider?.id) { k.result = null; k.open = null }
         k.pick = p
     }
+    LaunchedEffect(k.pick?.provider?.id, k.pick?.playlist?.id) {
+        val p = k.pick
+        if (p == null) { k.artists = null; return@LaunchedEffect }
+        val of = p.provider.id + "|" + p.playlist.id
+        if (k.artists != null && k.artistsOf == of) return@LaunchedEffect // back on the page: kept
+        k.artists = null; k.ticked = emptySet(); k.artistsOf = of
+        k.artists = try { Setlists.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+    }
+    if (k.pick != null) ArtistChooser(k.artists, k.ticked, k.typed, { k.ticked = it }, { k.typed = it })
     Button(onClick = { find(ctx) }, enabled = k.pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
         Text(stringResource(R.string.setlists_find))
@@ -121,8 +136,11 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
     if (!r.hasKey) return
     val found = r.artists.filter { it.setlists.isNotEmpty() }
     if (found.isEmpty()) Text(stringResource(R.string.setlists_none), style = MaterialTheme.typography.bodyMedium)
-    found.forEach { a -> ArtistSetlistsCard(a, busy, onNewSync) }
-    val without = r.artists.filter { it.setlists.isEmpty() }
+    // A long list can be searched by name, both the artists with setlists and those without.
+    var query by rememberSaveable { mutableStateOf("") }
+    if (r.artists.size > 5) ArtistSearchField(query) { query = it }
+    ArtistPick.named(found, query) { it.artist }.forEach { a -> ArtistSetlistsCard(a, busy, onNewSync) }
+    val without = ArtistPick.named(r.artists.filter { it.setlists.isEmpty() }, query) { it.artist }
     if (without.isNotEmpty()) Text(
         stringResource(R.string.setlists_without, without.joinToString(", ") { it.artist }),
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -194,7 +212,8 @@ private fun find(ctx: Context) {
     k.progress = 0 to 0; k.result = null; k.open = null
     k.scope.launch {
         try {
-            val artists = Setlists.artistsOf(p.provider.tracks(app.env, p.playlist.id))
+            val all = k.artists ?: Setlists.artistsOf(p.provider.tracks(app.env, p.playlist.id)).also { k.artists = it }
+            val artists = ArtistPick.chosen(all, k.ticked, k.typed)
             k.result = withContext(Dispatchers.IO) { Setlists.find(app.env, artists) { done, total -> k.progress = done to total } }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             k.error = e.message ?: app.getString(R.string.error_generic)
