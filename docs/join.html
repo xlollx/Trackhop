@@ -64,6 +64,7 @@ footer a{color:inherit}
           ntfy: "This group meets on an encrypted channel ({s}): the invite is its key. Anyone with it can read the group, so don't pass it on.",
           server: "This group meets on a Trackhop server ({s}): the invite is its key, no account needed there. Anyone with it can read the group, so don't pass it on.",
           open: "Open in Trackhop", get: "Get Trackhop", note: "No Trackhop yet? Install it, then open this page again, or paste the link in Tools › Shared playlists › Join with a link.",
+          signIn: "This ntfy server needs sign-in: Trackhop asks for your own access token, or your user name and password there. The invite doesn't carry them.",
           code: "Group code: {c}", codeCheck: "Check it matches the code on the group page of whoever invited you: a link changed on its way shows another code.",
           bad: "This invite is incomplete or damaged: ask for it again." },
     it: { kicker: "Playlist condivisa", sub: "Sei invitato a una playlist condivisa da un gruppo, ognuno sul suo servizio musicale.",
@@ -73,6 +74,7 @@ footer a{color:inherit}
           ntfy: "Questo gruppo si incontra su un canale cifrato ({s}): l'invito ne è la chiave. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           server: "Questo gruppo si incontra su un server Trackhop ({s}): l'invito ne è la chiave, lì non serve un account. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           open: "Apri in Trackhop", get: "Scarica Trackhop", note: "Non hai ancora Trackhop? Installalo e riapri questa pagina, oppure incolla il link in Strumenti › Playlist condivise › Entra con un link.",
+          signIn: "Questo server ntfy richiede l'accesso: Trackhop ti chiede il tuo token di accesso, oppure nome utente e password su quel server. L'invito non li contiene.",
           code: "Codice del gruppo: {c}", codeCheck: "Controlla che sia uguale al codice sulla pagina del gruppo di chi ti ha invitato: un link cambiato per strada mostra un altro codice.",
           bad: "Questo invito è incompleto o danneggiato: chiedilo di nuovo." }
   };
@@ -107,6 +109,7 @@ footer a{color:inherit}
   folder.textContent = ntfy || server ? (ntfy ? t.ntfy : t.server).replace("{s}", function () { return host; })
     : params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny;
   body.appendChild(folder);
+  if (ntfy && params.a === "1") { var sign = document.createElement("p"); sign.textContent = t.signIn; body.appendChild(sign); }
   // The group code, as the app shows it (Invite.codeOf): the first 100 bits of the SHA-256 of the
   // creator's key, in Crockford base 32, in four groups of five.
   if (window.crypto && crypto.subtle && window.TextEncoder) {

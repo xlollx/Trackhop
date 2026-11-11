@@ -186,18 +186,31 @@ object NtfyWire {
     }.getOrNull()
 }
 
-/** An ntfy server's two calls this transport makes. */
-class NtfyServer(address: String) {
+/**
+ * An ntfy server's two calls this transport makes; [auth], when the server needs sign-in, is the
+ * member's own Authorization header ([authorization]), sent to that server only (no redirects).
+ */
+class NtfyServer(address: String, private val auth: String? = null) {
     private val base: HttpUrl = address.trim().trimEnd('/').toHttpUrlOrNull() ?: throw IOException("not an address")
+
+    /** The server would not let this member in: no sign-in, or one it does not take (wrong, expired, without access to the topic). */
+    class SignInRefused(code: Int) : IOException("HTTP $code: sign-in refused")
+
+    private fun Request.Builder.signedIn(): Request.Builder = apply { auth?.let { header("Authorization", it) } }
+
+    private fun check(res: okhttp3.Response) {
+        if (res.code == 401 || res.code == 403) throw SignInRefused(res.code)
+        if (!res.isSuccessful) throw IOException("HTTP ${res.code}")
+    }
 
     /** Publishes [text] to [topic]; answers the server's time for it (seconds), when it says. */
     fun publish(topic: String, text: String): Long? {
         val req = Request.Builder().url(base.newBuilder().addPathSegment(topic).build()).header("User-Agent", "Trackhop")
             // Never handed on to a push service: the members poll.
             .header("X-Firebase", "no")
-            .post(text.toRequestBody(TEXT)).build()
+            .signedIn().post(text.toRequestBody(TEXT)).build()
         client.newCall(req).execute().use { res ->
-            if (!res.isSuccessful) throw IOException("HTTP ${res.code}")
+            check(res)
             val o = runCatching { Json.parseToJsonElement(res.body?.string().orEmpty()).jsonObject }.getOrNull()
             return o?.get("time")?.jsonPrimitive?.longOrNull
         }
@@ -206,8 +219,8 @@ class NtfyServer(address: String) {
     /** The messages [topic] holds since [since] (seconds, or "all"), at most [MAX_POLL_BYTES] of them. */
     fun poll(topic: String, since: String): List<NtfyMessage> {
         val url = base.newBuilder().addPathSegment(topic).addPathSegment("json").addQueryParameter("poll", "1").addQueryParameter("since", since).build()
-        client.newCall(Request.Builder().url(url).header("User-Agent", "Trackhop").get().build()).execute().use { res ->
-            if (!res.isSuccessful) throw IOException("HTTP ${res.code}")
+        client.newCall(Request.Builder().url(url).header("User-Agent", "Trackhop").signedIn().get().build()).execute().use { res ->
+            check(res)
             val source = res.body?.source() ?: return emptyList()
             val out = ArrayList<NtfyMessage>()
             var read = 0L
@@ -251,6 +264,22 @@ class NtfyServer(address: String) {
             return a.length <= 200 && (a.startsWith("https://") || a.startsWith("http://")) && a.trimEnd('/').toHttpUrlOrNull() != null
         }
 
+        /**
+         * The Authorization header for a protected ntfy server: an access token ("tk_…") as Bearer,
+         * else a user name and password as Basic; null when neither is given (or one is unusable).
+         */
+        fun authorization(token: String, user: String, password: String): String? {
+            val t = token.trim()
+            if (t.isNotEmpty()) return "Bearer $t".takeIf { validAuthorization(it) }
+            val u = user.trim()
+            if (u.isEmpty() || password.isEmpty() || ':' in u) return null
+            return ("Basic " + java.util.Base64.getEncoder().encodeToString("$u:$password".toByteArray(Charsets.UTF_8))).takeIf { validAuthorization(it) }
+        }
+
+        /** A header value [authorization] makes: printable, one line, not too long. */
+        fun validAuthorization(a: String): Boolean =
+            a.length in 8..1024 && (a.startsWith("Bearer ") || a.startsWith("Basic ")) && a.substringAfter(' ').let { v -> v.isNotEmpty() && v.all { it.code in 0x21..0x7e } }
+
         /** The server's name as members see it ("ntfy.sh"). */
         fun hostOf(address: String): String = address.trim().trimEnd('/').toHttpUrlOrNull()?.host ?: address
     }
@@ -275,14 +304,18 @@ data class NtfyState(
 )
 
 /** An encrypted ntfy topic as a group's transport (see the top of this file). */
-class NtfyTransport(private val env: Env, private val groupId: String, private val address: String, groupKey: String) : GroupTransport {
+class NtfyTransport(
+    private val env: Env, private val groupId: String, private val address: String, groupKey: String, private val auth: String? = null,
+) : GroupTransport {
     private val key = NtfyKey.of(groupKey) ?: throw IOException("not a group key")
-    private val server by lazy { NtfyServer(address) }
+    private val server by lazy { NtfyServer(address, auth) }
+    /** The last call was refused for its sign-in: said so, not as a server out of reach. */
+    private var refused = false
     private var state = load(env, groupId)
 
     override fun readAll(first: Set<String>): List<MemberFile> {
         val since = if (state.since <= 0) "all" else (state.since - OVERLAP_S).coerceAtLeast(1).toString()
-        val messages = server.poll(key.topic, since)
+        val messages = signedIn { server.poll(key.topic, since) }
         val packets = bounded(NtfyWire.assemble(key, groupId, messages), first)
         var st = state.copy(since = maxOf(state.since, messages.maxOfOrNull { it.time } ?: 0))
         val cards = HashMap(st.cards)
@@ -350,12 +383,20 @@ class NtfyTransport(private val env: Env, private val groupId: String, private v
         return written
     }
 
-    override fun unreachable(env: Env, group: SharedGroup): String = env.text("shared_error_server", group.folderName.ifBlank { NtfyServer.hostOf(address) })
+    override fun unreachable(env: Env, group: SharedGroup): String =
+        env.text(if (refused) "shared_error_ntfy_signin" else "shared_error_server", group.folderName.ifBlank { NtfyServer.hostOf(address) })
+
+    private fun <T> signedIn(call: () -> T): T = try {
+        call().also { refused = false }
+    } catch (e: NtfyServer.SignInRefused) {
+        refused = true
+        throw e
+    }
 
     /** [packed] as messages on the topic; answers the server time of the last. */
     private fun send(packed: ByteArray, snap: String = NtfyWire.newSnap()): Long {
         var time = clock() / 1000
-        for (m in NtfyWire.messages(key, groupId, snap, packed)) server.publish(key.topic, m)?.let { time = it }
+        for (m in NtfyWire.messages(key, groupId, snap, packed)) signedIn { server.publish(key.topic, m) }?.let { time = it }
         return time
     }
 

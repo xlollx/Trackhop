@@ -2264,6 +2264,13 @@
     <string name="shared_via_ntfy_desc">Bez folderu do udostępniania: zmiany idą zaszyfrowane przez serwer ntfy, ntfy.sh albo twój własny.</string>
     <string name="shared_ntfy_server">Serwer ntfy</string>
     <string name="shared_ntfy_server_invalid">Adres zaczynający się od https:// lub http://.</string>
+    <string name="shared_ntfy_signin">Ten serwer wymaga logowania</string>
+    <string name="shared_ntfy_signin_desc">Twój własny token dostępu (tk_…) albo nazwa użytkownika i hasło na tym serwerze. Zostają na tym telefonie: zaproszenie mówi tylko, że serwer wymaga logowania, a każdy członek wpisuje własne.</string>
+    <string name="shared_ntfy_token">Token dostępu</string>
+    <string name="shared_ntfy_signin_change">Logowanie do serwera ntfy</string>
+    <string name="shared_ntfy_signin_on">Zalogowano</string>
+    <string name="shared_ntfy_signin_off">Brak</string>
+    <string name="shared_error_ntfy_signin">Serwer ntfy %1$s odrzucił logowanie: sprawdź token dostępu lub hasło na stronie grupy.</string>
     <string name="shared_invite_secret">Każdy, kto ma to zaproszenie, może czytać grupę: wyślij je tylko osobom, które zapraszasz.</string>
     <string name="shared_join_ntfy">Szyfrowany kanał na %1$s. Każdy, kto ma to zaproszenie, może czytać grupę: nie przekazuj go dalej.</string>
     <string name="shared_joined_waiting">Jesteś w %1$s. Utwory dotrą, gdy Trackhop innego członka się zsynchronizuje.</string>

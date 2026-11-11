@@ -265,6 +265,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
     var folderName by rememberSaveable { mutableStateOf("") }
     var transport by rememberSaveable { mutableStateOf(Invite.FOLDER) }
     var server by rememberSaveable { mutableStateOf(DEFAULT_NTFY_SERVER) }
+    val signIn = remember { NtfySignIn() }
     // The user's own Trackhop server, when "Coordinate with my server" is set: a third way to meet.
     val myServer = remember { ServerLocks.config(ctx.env)?.address }
     var busy by remember { mutableStateOf(false) }
@@ -294,7 +295,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                 OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = "service" }
                 ChoiceField(stringResource(R.string.shared_playlist), playlist?.name, enabled = lists != null) { choosing = "playlist" }
-                TransportChoice(transport, { transport = it }, server, { server = it }, myServer?.let { NtfyServer.hostOf(it) })
+                TransportChoice(transport, { transport = it }, server, { server = it }, myServer?.let { NtfyServer.hostOf(it) }, signIn)
                 if (transport == Invite.FOLDER) FolderField(folderName) { pick.launch(null) }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
@@ -303,7 +304,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
             TextButton(
                 enabled = !busy && name.isNotBlank() && myName.isNotBlank() && service != null && playlist != null &&
                     when (transport) {
-                        Invite.NTFY -> NtfyServer.valid(server)
+                        Invite.NTFY -> NtfyServer.valid(server) && signIn.ready
                         Invite.SERVER -> myServer != null
                         else -> folder != null
                     },
@@ -316,7 +317,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                             runCatching {
                                 val local = PlaylistRef(p.id, pl.id, pl.name)
                                 when (transport) {
-                                    Invite.NTFY -> SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY)
+                                    Invite.NTFY -> SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY, signIn.auth)
                                     Invite.SERVER -> SharedGroups.create(ctx.env, name, myServer!!, NtfyServer.hostOf(myServer), myName, p.displayName, local, Invite.SERVER)
                                     else -> SharedGroups.create(ctx.env, name, folder!!, folderName, myName, p.displayName, local)
                                 }
@@ -349,6 +350,8 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
     var error by remember { mutableStateOf<String?>(null) }
     val pick = rememberFolderPicker { uri, n -> folder = uri.toString(); folderName = n }
     val invite = remember(link) { Invite.parse(link) }
+    // A protected ntfy server: this member's own sign-in (the invite only says one is needed).
+    val signIn = remember(invite?.signIn) { NtfySignIn(on = invite?.signIn == true) }
     // A new invite of a group this device is in (its creator replaced the server key): only the key changes.
     val rekey = remember(link) { invite?.let { SharedGroups.rekeyed(ctx.env, it) } }
     val service = serviceId?.let { Providers.byId(it) }
@@ -378,7 +381,10 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
                     Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 when (invite?.transport) {
-                    Invite.NTFY -> InviteSecretNote(stringResource(R.string.shared_join_ntfy, NtfyServer.hostOf(invite.server)))
+                    Invite.NTFY -> {
+                        InviteSecretNote(stringResource(R.string.shared_join_ntfy, NtfyServer.hostOf(invite.server)))
+                        if (rekey == null) NtfySignInFields(signIn)
+                    }
                     Invite.SERVER -> InviteSecretNote(stringResource(R.string.shared_join_server, NtfyServer.hostOf(invite.server)))
                     else -> FolderField(folderName.ifBlank { invite?.folderName?.let { "($it)" }.orEmpty() }) { pick.launch(null) }
                 }
@@ -387,7 +393,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
         },
         confirmButton = {
             TextButton(
-                enabled = !busy && invite != null && (rekey != null || myName.isNotBlank() && service != null && (invite.transport != Invite.FOLDER || folder != null)),
+                enabled = !busy && invite != null && (rekey != null || myName.isNotBlank() && service != null && (invite.transport != Invite.FOLDER || folder != null) && (invite.transport != Invite.NTFY || signIn.ready)),
                 onClick = {
                     val inv = invite ?: return@TextButton
                     rekey?.let { g ->
@@ -407,7 +413,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
                                 if (SharedGroups.group(ctx.env, inv.groupId) != null) throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.shared_error_already, inv.name))
                                 // The member's own copy: a new playlist on their service, filled by the first sync.
                                 val made = p.createPlaylist(ctx.env, inv.name, MusicProvider.description(ctx.getString(R.string.app_name)))
-                                SharedGroups.join(ctx.env, inv, folder.orEmpty(), folderName, myName, p.displayName, PlaylistRef(p.id, made.id, made.name))
+                                SharedGroups.join(ctx.env, inv, folder.orEmpty(), folderName, myName, p.displayName, PlaylistRef(p.id, made.id, made.name), signIn.auth?.takeIf { inv.transport == Invite.NTFY })
                             }
                         }
                         busy = false
@@ -528,6 +534,8 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
 
     var confirmLeave by remember { mutableStateOf(false) }
     var confirmKey by remember { mutableStateOf(false) }
+    var signInOpen by remember { mutableStateOf(false) }
+    if (signInOpen) NtfySignInDialog(group, onDismiss = { signInOpen = false }) { signInOpen = false; version++ }
     val via = when (group.transport) {
         Invite.NTFY -> R.string.shared_via_ntfy
         Invite.SERVER -> R.string.shared_via_server
@@ -535,7 +543,14 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     }
     PrefSection(stringResource(via), accent = JobColor.GREEN) {
         when (group.transport) {
-            Invite.NTFY -> PrefRow(Icons.Filled.Lock, stringResource(R.string.shared_ntfy_server), group.folderName, chevron = false)
+            Invite.NTFY -> {
+                PrefRow(Icons.Filled.Lock, stringResource(R.string.shared_ntfy_server), group.folderName, chevron = false)
+                // This member's own sign-in to a protected server: changed when their token or password changes.
+                PrefRow(
+                    Icons.Filled.Key, stringResource(R.string.shared_ntfy_signin_change),
+                    stringResource(if (remember(version) { SharedTransports.ntfyAuth(env, group) } != null) R.string.shared_ntfy_signin_on else R.string.shared_ntfy_signin_off),
+                ) { signInOpen = true }
+            }
             Invite.SERVER -> {
                 PrefRow(Icons.Filled.Dns, stringResource(R.string.shared_server_label), group.folderName, chevron = false)
                 // The creator, with that server's token on this device: a new key shuts out whoever holds the old invite.
@@ -572,6 +587,37 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
             }) { Text(stringResource(R.string.shared_leave), color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = { TextButton(onClick = { confirmLeave = false }) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** This member's sign-in to the group's ntfy server, changed: kept only when the server takes it. */
+@Composable
+private fun NtfySignInDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val signIn = remember { NtfySignIn(on = SharedTransports.ntfyAuth(ctx.env, group) != null) }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    FitDialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        title = { Text(stringResource(R.string.shared_ntfy_signin_change)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                NtfySignInFields(signIn)
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+            }
+        },
+        confirmButton = {
+            TextButton(enabled = !busy && signIn.ready, onClick = {
+                busy = true; error = null
+                scope.launch {
+                    val r = withContext(Dispatchers.IO) { runCatching { SharedGroups.setNtfyAuth(ctx.env, group, signIn.auth) } }
+                    busy = false
+                    r.onSuccess { onDone() }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                }
+            }) { Text(stringResource(R.string.save)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )
 }
 

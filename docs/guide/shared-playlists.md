@@ -87,7 +87,8 @@ say) doesn't bring it back.
    - *Shared folder*: pick the folder your group shares, as your phone sees it (in the Drive,
      Nextcloud or Dropbox app's place in the picker, or the Syncthing folder on the phone).
    - *Encrypted ntfy channel*: leave the server as it is (ntfy.sh), or put the address of your
-     own ntfy server.
+     own ntfy server. If it needs sign-in, tick *This server needs sign-in* and enter your access
+     token (`tk_…`), or your user name and password there.
    - *My Trackhop server*: offered when *Coordinate with my server* has your server's address and
      API token. The token stays on your phone; only the group's key goes in the invite.
 4. On the group's page, **send the invite**: the others scan the QR code with their phone's camera,
@@ -131,8 +132,11 @@ say) doesn't bring it back.
   group again from time to time, followers' too: someone whose phone was off for days catches up
   completely as soon as any other member's Trackhop syncs.
 - ntfy.sh limits how much each person can send in a day. That is plenty for a group playlist of
-  ordinary size; for a very large one, use your own ntfy server or a shared folder. Your own server
-  has to let Trackhop send and read without signing in.
+  ordinary size; for a very large one, use your own ntfy server or a shared folder.
+- An ntfy server that needs sign-in: each member enters their own access token or user name and
+  password, when joining or later on the group's page (*Sign-in to the ntfy server*). They stay on
+  that phone and never go in the invite, which only says the server needs sign-in; give each member
+  an account (or token) with read and write access to the group's topic.
 - On your Trackhop server, the group's creator can **Replace the key** from the group's page: the
   current invite stops working for everyone, to shut out someone who should no longer read the
   group. Send the new invite to the members you want to keep; opening it in Trackhop swaps the key

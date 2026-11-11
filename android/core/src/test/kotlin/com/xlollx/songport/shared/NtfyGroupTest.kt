@@ -194,4 +194,44 @@ class NtfyGroupTest {
         ana.refresh()
         assertTrue(SharedGroups.members(ana.group, SharedGroups.load(ana.env, ana.groupId)).first { it.name == "Ben" }.left)
     }
+
+    /** A protected ntfy server: each member signs in with their own credentials, which never travel in the invite. */
+    @Test fun aProtectedServerTakesEachMembersOwnSignInAndTheInviteOnlySaysSo() {
+        // Built at run time: nothing shaped like a real secret in the sources.
+        val anaToken = NtfyServer.authorization("tk_" + "a1".repeat(14) + "z", "", "")!!
+        val benLogin = NtfyServer.authorization("", "ben", "pass" + "w".repeat(6))!!
+        assertEquals("Bearer tk_", anaToken.take(10))
+        assertTrue(benLogin.startsWith("Basic "))
+        assertEquals(null, NtfyServer.authorization("", "ben", ""))
+        assertEquals(null, NtfyServer.authorization("", "b:en", "x"))
+        assertEquals(null, NtfyServer.authorization("tk_ with space", "", ""))
+        ntfy.signIns = setOf(anaToken, benLogin)
+
+        // Without a sign-in the server refuses, and the group is not made.
+        val refused = runCatching { SharedGroups.create(ana.env, "Road trip", address, NtfyServer.hostOf(address), "Ana", "TIDAL", ana.local, transport = Invite.NTFY) }
+        assertTrue(refused.exceptionOrNull()?.message.orEmpty().startsWith("shared_error_ntfy_signin"))
+
+        val g = SharedGroups.create(ana.env, "Road trip", address, NtfyServer.hostOf(address), "Ana", "TIDAL", ana.local, transport = Invite.NTFY, ntfyAuth = anaToken)
+        ana.groupId = g.id
+        ana.add("1")
+        val link = SharedTransports.invite(ana.env, g).link()
+        val invite = Invite.parse(link)!!
+        assertTrue(invite.signIn)
+        for (secret in listOf(anaToken, anaToken.substringAfter(' '), "tk_")) assertFalse(secret in link)
+
+        // Ben signs in with his own user name and password; with Ana's or none he gets in only with his.
+        assertTrue(runCatching { SharedGroups.join(ben.env, invite, "", "", "Ben", "Spotify", ben.local) }.exceptionOrNull()?.message.orEmpty().startsWith("shared_error_ntfy_signin"))
+        ben.groupId = SharedGroups.join(ben.env, invite, "", "", "Ben", "Spotify", ben.local, ntfyAuth = benLogin).first.id
+        assertEquals(listOf("1"), ben.songs)
+        assertTrue(ntfy.headers.all { it == anaToken || it == benLogin })
+
+        // A new sign-in the server refuses is not kept: the old one still works.
+        val wrong = NtfyServer.authorization("tk_" + "b2".repeat(14) + "z", "", "")!!
+        assertTrue(runCatching { SharedGroups.setNtfyAuth(ben.env, ben.group, wrong) }.isFailure)
+        assertEquals(benLogin, SharedTransports.ntfyAuth(ben.env, ben.group))
+        ntfy.signIns = setOf(anaToken, wrong)
+        SharedGroups.setNtfyAuth(ben.env, ben.group, wrong)
+        assertEquals(wrong, SharedTransports.ntfyAuth(ben.env, ben.group))
+        ben.refresh()
+    }
 }

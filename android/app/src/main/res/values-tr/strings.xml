@@ -2184,6 +2184,13 @@
     <string name="shared_via_ntfy_desc">Paylaşılacak klasör yok: değişiklikler bir ntfy sunucusu üzerinden şifreli gider, ntfy.sh ya da kendi sunucunuz.</string>
     <string name="shared_ntfy_server">ntfy sunucusu</string>
     <string name="shared_ntfy_server_invalid">https:// veya http:// ile başlayan bir adres.</string>
+    <string name="shared_ntfy_signin">Bu sunucu oturum açmayı gerektiriyor</string>
+    <string name="shared_ntfy_signin_desc">Kendi erişim belirtecin (tk_…) ya da o sunucudaki kullanıcı adın ve şifren. Bu telefonda kalır: davet yalnızca sunucunun oturum açma istediğini söyler, her üye kendininkini girer.</string>
+    <string name="shared_ntfy_token">Erişim belirteci</string>
+    <string name="shared_ntfy_signin_change">ntfy sunucusunda oturum açma</string>
+    <string name="shared_ntfy_signin_on">Oturum açık</string>
+    <string name="shared_ntfy_signin_off">Yok</string>
+    <string name="shared_error_ntfy_signin">ntfy sunucusu %1$s oturum açmayı reddetti: grubun sayfasında erişim belirtecini ya da şifreni kontrol et.</string>
     <string name="shared_invite_secret">Bu davete sahip olan herkes grubu okuyabilir: yalnızca davet ettiğiniz kişilere gönderin.</string>
     <string name="shared_join_ntfy">%1$s üzerinde şifreli kanal. Bu davete sahip olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
     <string name="shared_joined_waiting">%1$s grubundasınız. Şarkılar, başka bir üyenin Trackhop\'u senkronize olunca gelir.</string>

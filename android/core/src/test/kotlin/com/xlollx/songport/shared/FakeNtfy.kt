@@ -22,8 +22,15 @@ class FakeNtfy(private val now: () -> Long, private val retentionS: Long = 12 * 
 
     fun topics(): Set<String> = synchronized(messages) { messages.mapTo(HashSet()) { it.topic } }
 
+    /** A protected server: only these Authorization headers get in (null: anyone). */
+    @Volatile var signIns: Set<String>? = null
+    /** Every Authorization header received, in order. */
+    val headers: MutableList<String> = java.util.Collections.synchronizedList(ArrayList())
+
     override fun dispatch(request: RecordedRequest): MockResponse {
         val url = request.requestUrl ?: return MockResponse().setResponseCode(400)
+        request.getHeader("Authorization")?.let { headers += it }
+        signIns?.let { ok -> if (request.getHeader("Authorization") !in ok) return MockResponse().setResponseCode(if (request.getHeader("Authorization") == null) 401 else 403) }
         val segments = url.pathSegments.filter { it.isNotEmpty() }
         val t = now() / 1000
         synchronized(messages) {

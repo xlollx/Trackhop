@@ -35,6 +35,10 @@ class RedactTest {
         assertFalse(out, apiToken.drop(3) in out)
         assertTrue(out, "g=0123456789abcdef" in out)
         assertEquals("[shared] the_quick_brown_fox", Redact.text("[shared] the_quick_brown_fox"))
+        // An ntfy access token, alone or in a header.
+        val ntfy = "tk_" + "a7".repeat(14) + "q"
+        val sent = Redact.text("[shared] ntfy token $ntfy, Authorization: Bearer $ntfy")
+        assertFalse(sent, ntfy.drop(3) in sent)
     }
 
     @Test fun anOrdinaryLogLineIsLeftAsItIs() {

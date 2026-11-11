@@ -2194,6 +2194,13 @@
     <string name="shared_via_ntfy_desc">Aucun dossier à partager : les changements passent chiffrés par un serveur ntfy, ntfy.sh ou le tien.</string>
     <string name="shared_ntfy_server">Serveur ntfy</string>
     <string name="shared_ntfy_server_invalid">Une adresse qui commence par https:// ou http://.</string>
+    <string name="shared_ntfy_signin">Ce serveur demande une connexion</string>
+    <string name="shared_ntfy_signin_desc">Ton propre jeton d\'accès (tk_…), ou ton nom d\'utilisateur et ton mot de passe sur ce serveur. Ils restent sur ce téléphone : l\'invitation dit seulement que le serveur demande une connexion, et chaque membre saisit les siens.</string>
+    <string name="shared_ntfy_token">Jeton d\'accès</string>
+    <string name="shared_ntfy_signin_change">Connexion au serveur ntfy</string>
+    <string name="shared_ntfy_signin_on">Connecté</string>
+    <string name="shared_ntfy_signin_off">Aucune</string>
+    <string name="shared_error_ntfy_signin">Le serveur ntfy %1$s a refusé la connexion : vérifie ton jeton d\'accès ou ton mot de passe sur la page du groupe.</string>
     <string name="shared_invite_secret">Toute personne qui a cette invitation peut lire le groupe : envoie-la seulement aux personnes que tu invites.</string>
     <string name="shared_join_ntfy">Canal chiffré sur %1$s. Toute personne qui a cette invitation peut lire le groupe : ne la transmets pas.</string>
     <string name="shared_joined_waiting">Tu es dans %1$s. Ses morceaux arrivent dès que le Trackhop d\'un autre membre se synchronise.</string>

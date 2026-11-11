@@ -2262,6 +2262,13 @@
     <string name="shared_via_ntfy_desc">Общая папка не нужна: изменения идут в зашифрованном виде через сервер ntfy — ntfy.sh или ваш собственный.</string>
     <string name="shared_ntfy_server">Сервер ntfy</string>
     <string name="shared_ntfy_server_invalid">Адрес, начинающийся с https:// или http://.</string>
+    <string name="shared_ntfy_signin">Этот сервер требует входа</string>
+    <string name="shared_ntfy_signin_desc">Ваш собственный токен доступа (tk_…) или имя пользователя и пароль на этом сервере. Они остаются на этом телефоне: приглашение говорит лишь, что серверу нужен вход, и каждый участник вводит свои.</string>
+    <string name="shared_ntfy_token">Токен доступа</string>
+    <string name="shared_ntfy_signin_change">Вход на сервер ntfy</string>
+    <string name="shared_ntfy_signin_on">Вход выполнен</string>
+    <string name="shared_ntfy_signin_off">Нет</string>
+    <string name="shared_error_ntfy_signin">Сервер ntfy %1$s отклонил вход: проверьте токен доступа или пароль на странице группы.</string>
     <string name="shared_invite_secret">Любой, у кого есть это приглашение, может читать группу: отправляйте его только тем, кого приглашаете.</string>
     <string name="shared_join_ntfy">Зашифрованный канал на %1$s. Любой, у кого есть это приглашение, может читать группу: не пересылайте его.</string>
     <string name="shared_joined_waiting">Вы в группе %1$s. Треки появятся, когда Trackhop другого участника синхронизируется.</string>

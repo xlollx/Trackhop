@@ -84,6 +84,11 @@ data class GroupState(
 data class Invite(
     val groupId: String, val name: String, val creator: String, val folderName: String = "", val transport: String = FOLDER,
     val server: String = "", val key: String = "",
+    /**
+     * An encrypted channel on an ntfy server that needs sign-in: each member enters their own access
+     * token or user name and password, kept in this device's vault. The invite only says so, never carries them.
+     */
+    val signIn: Boolean = false,
 ) {
     /**
      * The group's code, from the creator's key: what the person joining compares with the code on
@@ -99,6 +104,7 @@ data class Invite(
         append("&n=").append(enc(name.take(MAX_NAME)))
         if (folderName.isNotBlank()) append("&f=").append(enc(folderName.take(MAX_FOLDER)))
         if (transport == NTFY || transport == SERVER) append("&s=").append(enc(server)).append("&x=").append(key)
+        if (transport == NTFY && signIn) append("&a=1")
     }
 
     companion object {
@@ -140,7 +146,7 @@ data class Invite(
                     // The channel's address and its group key: 32 random bytes, exactly 43 base64url characters.
                     val server = params["s"]?.takeIf { plain(it, 200) }?.trim()?.takeIf { NtfyServer.valid(it) } ?: return null
                     val secret = params["x"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.size == 32 } ?: return null
-                    Invite(id, name, key, transport = transport, server = server, key = secret)
+                    Invite(id, name, key, transport = transport, server = server, key = secret, signIn = params["a"] == "1")
                 }
                 SERVER -> {
                     // The Trackhop server's address and the key of the group's mailbox there.
@@ -407,7 +413,7 @@ object SharedGroups {
      */
     fun create(
         env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
-        transport: String = Invite.FOLDER,
+        transport: String = Invite.FOLDER, ntfyAuth: String? = null,
     ): SharedGroup {
         val me = Identity.create()
         val id = newGroupId()
@@ -415,7 +421,7 @@ object SharedGroups {
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)
         val secret = when (transport) {
-            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey())
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey()) + SharedTransports.authEntry(ntfyAuth)
             Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to ServerGroupTransport.makeMailbox(env, folder, id, me.id, group.name))
             else -> emptyMap()
         }
@@ -432,8 +438,12 @@ object SharedGroups {
      * as a follower until the creator makes them a curator. Answers the group and whether the folder
      * held any other member's file (none: probably not the group's folder). An encrypted channel's
      * invite, or a server mailbox's, says where the group is: [folder] and [folderName] are not used then.
+     * [ntfyAuth]: this member's own sign-in to a protected ntfy server ([NtfyServer.authorization]).
      */
-    fun join(env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef): Pair<SharedGroup, Boolean> {
+    fun join(
+        env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
+        ntfyAuth: String? = null,
+    ): Pair<SharedGroup, Boolean> {
         if (group(env, invite.groupId) != null) throw ProviderException(env.text("shared_error_already", invite.name))
         val me = Identity.create()
         val remote = invite.transport == Invite.NTFY || invite.transport == Invite.SERVER
@@ -441,7 +451,7 @@ object SharedGroups {
             if (remote) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport)
         val secret = when (invite.transport) {
-            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key)
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key) + SharedTransports.authEntry(ntfyAuth)
             Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to invite.key)
             else -> emptyMap()
         }
@@ -524,6 +534,23 @@ object SharedGroups {
         val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
         env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra + (SharedTransports.MAILBOX_KEY to key)))
         env.log("shared", "${group.name}: the mailbox has a new key, the old invite no longer works")
+    }
+
+    /**
+     * This member's sign-in to the ntfy server of [group] ([NtfyServer.authorization]; null: none),
+     * changed: kept only when the server lets the group be read with it, else the old one stays.
+     */
+    fun setNtfyAuth(env: Env, group: SharedGroup, auth: String?) {
+        if (group.transport != Invite.NTFY) return
+        val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra - SharedTransports.NTFY_AUTH + SharedTransports.authEntry(auth)))
+        try {
+            refresh(env, group, write = false)
+        } catch (e: Exception) {
+            env.tokens.set(tokenKey(group.id), old)
+            throw e
+        }
+        env.log("shared", "${group.name}: ntfy sign-in ${if (auth == null) "removed" else "changed"}")
     }
 
     /** A follower's choice: keep their own additions (true) or an exact copy. */

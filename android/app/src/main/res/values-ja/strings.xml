@@ -2148,6 +2148,13 @@
     <string name="shared_via_ntfy_desc">共有フォルダーは不要です。変更は暗号化されて ntfy サーバー（ntfy.sh または自分のサーバー）を通ります。</string>
     <string name="shared_ntfy_server">ntfy サーバー</string>
     <string name="shared_ntfy_server_invalid">https:// または http:// で始まるアドレスを入力してください。</string>
+    <string name="shared_ntfy_signin">このサーバーはサインインが必要</string>
+    <string name="shared_ntfy_signin_desc">自分のアクセストークン（tk_…）、またはそのサーバーのユーザー名とパスワード。このスマホにだけ保存されます。招待にはサインインが必要なことだけが書かれ、各メンバーが自分のものを入力します。</string>
+    <string name="shared_ntfy_token">アクセストークン</string>
+    <string name="shared_ntfy_signin_change">ntfy サーバーへのサインイン</string>
+    <string name="shared_ntfy_signin_on">サインイン済み</string>
+    <string name="shared_ntfy_signin_off">なし</string>
+    <string name="shared_error_ntfy_signin">ntfy サーバー %1$s がサインインを拒否しました。グループのページでアクセストークンかパスワードを確認してください。</string>
     <string name="shared_invite_secret">この招待を持っている人は誰でもグループを読めます。招待する人だけに送ってください。</string>
     <string name="shared_join_ntfy">%1$s 上の暗号化チャンネルです。この招待を持っている人は誰でもグループを読めます。ほかの人に渡さないでください。</string>
     <string name="shared_joined_waiting">%1$s に参加しました。ほかのメンバーの Trackhop が同期すると曲が届きます。</string>

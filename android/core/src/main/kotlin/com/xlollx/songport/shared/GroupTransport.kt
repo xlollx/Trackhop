@@ -54,9 +54,11 @@ object SharedTransports {
     const val GROUP_KEY = "groupKey"
     /** Where the key of a server mailbox is kept, the same way. */
     const val MAILBOX_KEY = "mailboxKey"
+    /** This member's own sign-in to a protected ntfy server (the Authorization header's value), the same way: never in an invite. */
+    const val NTFY_AUTH = "ntfyAuth"
 
     fun open(env: Env, group: SharedGroup): GroupTransport = when (group.transport) {
-        Invite.NTFY -> NtfyTransport(env, group.id, group.folder, groupKey(env, group) ?: throw ProviderException(env.text("shared_error_key", group.name)))
+        Invite.NTFY -> NtfyTransport(env, group.id, group.folder, groupKey(env, group) ?: throw ProviderException(env.text("shared_error_key", group.name)), ntfyAuth(env, group))
         Invite.SERVER -> ServerGroupTransport(env, group.id, group.folder, mailboxKey(env, group) ?: throw ProviderException(env.text("shared_error_key", group.name)))
         else -> FolderGroupTransport(SharedFolders.open(group.folder), group.id)
     }
@@ -69,11 +71,18 @@ object SharedTransports {
     fun mailboxKey(env: Env, group: SharedGroup): String? =
         env.tokens.get(SharedGroups.tokenKey(group.id))?.extra?.get(MAILBOX_KEY)?.takeIf { ServerGroupTransport.validKey(it) }
 
+    /** This member's sign-in to the group's ntfy server, or null when it needs none. */
+    fun ntfyAuth(env: Env, group: SharedGroup): String? =
+        env.tokens.get(SharedGroups.tokenKey(group.id))?.extra?.get(NTFY_AUTH)?.takeIf { NtfyServer.validAuthorization(it) }
+
+    /** The vault entry for [auth], or none. */
+    fun authEntry(auth: String?): Map<String, String> = auth?.takeIf { NtfyServer.validAuthorization(it) }?.let { mapOf(NTFY_AUTH to it) } ?: emptyMap()
+
     fun newGroupKey(): String = B64.encode(ByteArray(32).also { SecureRandom().nextBytes(it) })
 
     /** The group's invite as this device can give it: for an encrypted channel or a server mailbox, with its key. */
     fun invite(env: Env, group: SharedGroup): Invite = when (group.transport) {
-        Invite.NTFY -> group.invite().copy(key = groupKey(env, group).orEmpty())
+        Invite.NTFY -> group.invite().copy(key = groupKey(env, group).orEmpty(), signIn = ntfyAuth(env, group) != null)
         Invite.SERVER -> group.invite().copy(key = mailboxKey(env, group).orEmpty())
         else -> group.invite()
     }

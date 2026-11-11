@@ -2194,6 +2194,13 @@
     <string name="shared_via_ntfy_desc">Nenhuma pasta para compartilhar: as mudanças passam criptografadas por um servidor ntfy, o ntfy.sh ou o seu.</string>
     <string name="shared_ntfy_server">Servidor ntfy</string>
     <string name="shared_ntfy_server_invalid">Um endereço que começa com https:// ou http://.</string>
+    <string name="shared_ntfy_signin">Este servidor pede login</string>
+    <string name="shared_ntfy_signin_desc">Seu próprio token de acesso (tk_…), ou seu usuário e senha nesse servidor. Fica neste celular: o convite só diz que o servidor pede login, e cada membro coloca os seus.</string>
+    <string name="shared_ntfy_token">Token de acesso</string>
+    <string name="shared_ntfy_signin_change">Login no servidor ntfy</string>
+    <string name="shared_ntfy_signin_on">Conectado</string>
+    <string name="shared_ntfy_signin_off">Nenhum</string>
+    <string name="shared_error_ntfy_signin">O servidor ntfy %1$s recusou o login: confira seu token de acesso ou senha na página do grupo.</string>
     <string name="shared_invite_secret">Qualquer pessoa com este convite pode ler o grupo: envie só para quem você está convidando.</string>
     <string name="shared_join_ntfy">Canal criptografado em %1$s. Qualquer pessoa com este convite pode ler o grupo: não repasse.</string>
     <string name="shared_joined_waiting">Você está em %1$s. As músicas chegam quando o Trackhop de outro membro sincronizar.</string>
