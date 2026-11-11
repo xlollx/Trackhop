@@ -39,6 +39,7 @@ main{max-width:640px;margin:0 auto;padding:0 16px 40px}
 .btn.p{background:var(--pri);color:var(--on-pri)}
 .btn.s{background:transparent;color:var(--pri);border:1px solid var(--line)}
 .note{color:var(--ink2);font-size:13px;margin:14px 2px}
+.code strong{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
 footer{margin-top:28px;text-align:center;color:var(--ink2);font-size:13px}
 footer a{color:inherit}
 </style>
@@ -63,6 +64,8 @@ footer a{color:inherit}
           ntfy: "This group meets on an encrypted channel ({s}): the invite is its key. Anyone with it can read the group, so don't pass it on.",
           server: "This group meets on a Trackhop server ({s}): the invite is its key, no account needed there. Anyone with it can read the group, so don't pass it on.",
           open: "Open in Trackhop", get: "Get Trackhop", note: "No Trackhop yet? Install it, then open this page again, or paste the link in Tools › Shared playlists › Join with a link.",
+          signIn: "This ntfy server needs sign-in: Trackhop asks for your own access token, or your user name and password there. The invite doesn't carry them.",
+          code: "Group code: {c}", codeCheck: "Check it matches the code on the group page of whoever invited you: a link changed on its way shows another code.",
           bad: "This invite is incomplete or damaged: ask for it again." },
     it: { kicker: "Playlist condivisa", sub: "Sei invitato a una playlist condivisa da un gruppo, ognuno sul suo servizio musicale.",
           how: "Apri l'invito in Trackhop, scegli il tuo servizio e la cartella condivisa del gruppo: la tua copia della playlist si riempie alla prima sincronizzazione.",
@@ -71,6 +74,8 @@ footer a{color:inherit}
           ntfy: "Questo gruppo si incontra su un canale cifrato ({s}): l'invito ne è la chiave. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           server: "Questo gruppo si incontra su un server Trackhop ({s}): l'invito ne è la chiave, lì non serve un account. Chiunque lo abbia può leggere il gruppo, quindi non girarlo ad altri.",
           open: "Apri in Trackhop", get: "Scarica Trackhop", note: "Non hai ancora Trackhop? Installalo e riapri questa pagina, oppure incolla il link in Strumenti › Playlist condivise › Entra con un link.",
+          signIn: "Questo server ntfy richiede l'accesso: Trackhop ti chiede il tuo token di accesso, oppure nome utente e password su quel server. L'invito non li contiene.",
+          code: "Codice del gruppo: {c}", codeCheck: "Controlla che sia uguale al codice sulla pagina del gruppo di chi ti ha invitato: un link cambiato per strada mostra un altro codice.",
           bad: "Questo invito è incompleto o danneggiato: chiedilo di nuovo." }
   };
   var lang = (navigator.language || "en").slice(0, 2).toLowerCase();
@@ -104,6 +109,24 @@ footer a{color:inherit}
   folder.textContent = ntfy || server ? (ntfy ? t.ntfy : t.server).replace("{s}", function () { return host; })
     : params.f ? t.folder.replace("{f}", function () { return params.f.slice(0, 40); }) : t.folderAny;
   body.appendChild(folder);
+  if (ntfy && params.a === "1") { var sign = document.createElement("p"); sign.textContent = t.signIn; body.appendChild(sign); }
+  // The group code, as the app shows it (Invite.codeOf): the first 100 bits of the SHA-256 of the
+  // creator's key, in Crockford base 32, in four groups of five.
+  if (window.crypto && crypto.subtle && window.TextEncoder) {
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(params.k)).then(function (buf) {
+      var h = new Uint8Array(buf), L = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", c = "";
+      for (var i = 0; i < 20; i++) {
+        var v = 0;
+        for (var b = i * 5; b < i * 5 + 5; b++) v = (v << 1) | ((h[b >> 3] >> (7 - (b & 7))) & 1);
+        c += L.charAt(v) + (i % 5 === 4 && i < 19 ? "-" : "");
+      }
+      var code = document.createElement("p"); code.className = "code";
+      var strong = document.createElement("strong"); strong.textContent = t.code.replace("{c}", function () { return c; });
+      code.appendChild(strong); code.appendChild(document.createElement("br"));
+      code.appendChild(document.createTextNode(t.codeCheck));
+      body.appendChild(code);
+    }, function () {});
+  }
   var actions = document.getElementById("actions");
   actions.appendChild(link(t.open, "songport://join#" + hash, "p"));
   actions.appendChild(link(t.get, "{{ '/' | relative_url }}", "s"));

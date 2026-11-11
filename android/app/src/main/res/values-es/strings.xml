@@ -2106,6 +2106,8 @@
     <string name="server_bring_back_title">¿Traerla de vuelta a este teléfono?</string>
     <string name="server_bring_back_body">La sincronización se borra de tu servidor (las playlists quedan como están) y vuelve a ejecutarse en este teléfono, con las decisiones de revisión tomadas en el servidor.</string>
     <string name="server_bring_back_done">Listo: la sincronización vuelve a ejecutarse en este teléfono.</string>
+    <string name="server_bring_back_here">Traer de vuelta sin el servidor</string>
+    <string name="server_bring_back_here_warning">No se puede consultar a tu servidor, así que la sincronización puede seguir existiendo y ejecutándose allí: bórrala en el servidor si puedes. Las decisiones de revisión tomadas en el servidor desde el traspaso no vuelven.</string>
     <string name="server_on_server">En el servidor</string>
     <string name="server_runs_there">Se ejecuta en tu servidor</string>
     <string name="server_run_started">Iniciada en tu servidor.</string>
@@ -2192,6 +2194,13 @@
     <string name="shared_via_ntfy_desc">Sin carpeta que compartir: los cambios viajan cifrados por un servidor ntfy, ntfy.sh o el tuyo.</string>
     <string name="shared_ntfy_server">Servidor ntfy</string>
     <string name="shared_ntfy_server_invalid">Una dirección que empiece por https:// o http://.</string>
+    <string name="shared_ntfy_signin">Este servidor pide iniciar sesión</string>
+    <string name="shared_ntfy_signin_desc">Tu propio token de acceso (tk_…), o tu usuario y contraseña en ese servidor. Se queda en este teléfono: la invitación solo dice que el servidor pide iniciar sesión, y cada miembro pone los suyos.</string>
+    <string name="shared_ntfy_token">Token de acceso</string>
+    <string name="shared_ntfy_signin_change">Inicio de sesión en el servidor ntfy</string>
+    <string name="shared_ntfy_signin_on">Sesión iniciada</string>
+    <string name="shared_ntfy_signin_off">Ninguno</string>
+    <string name="shared_error_ntfy_signin">El servidor ntfy %1$s rechazó el inicio de sesión: revisa tu token de acceso o contraseña en la página del grupo.</string>
     <string name="shared_invite_secret">Cualquiera con esta invitación puede leer el grupo: envíala solo a las personas que invitas.</string>
     <string name="shared_join_ntfy">Canal cifrado en %1$s. Cualquiera con esta invitación puede leer el grupo: no la compartas.</string>
     <string name="shared_joined_waiting">Estás en %1$s. Sus canciones llegan cuando el Trackhop de otro miembro se sincroniza.</string>
@@ -2209,4 +2218,9 @@
     <string name="shared_new_key_confirm">La invitación actual deja de funcionar para todos, también para quienes ya están en el grupo. Luego envía la nueva invitación a los miembros que quieras mantener: conservan su lugar.</string>
     <string name="shared_key_new_invite">Una nueva invitación para %1$s, donde ya estás: su clave reemplaza la anterior.</string>
     <string name="shared_key_updated">%1$s: nueva clave guardada.</string>
+    <string name="shared_change_server">Cambiar servidor</string>
+    <string name="shared_change_server_desc">El grupo se muda a este servidor ntfy, con el mismo cifrado. Los miembros lo siguen en su próxima sincronización; quien se lo pierda puede abrir la nueva invitación del grupo.</string>
+    <string name="shared_server_new_invite">Una nueva invitación para %1$s, donde ya estás: el grupo ahora se reúne en %2$s.</string>
+    <string name="shared_server_updated">%1$s: movido al nuevo servidor.</string>
+    <string name="shared_error_not_curator">Solo un curador puede mover el grupo.</string>
 </resources>

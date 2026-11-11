@@ -2098,6 +2098,8 @@
     <string name="server_bring_back_title">Riportarla su questo telefono?</string>
     <string name="server_bring_back_body">La sync viene eliminata dal tuo server (le playlist restano come sono) e torna a girare su questo telefono, con le scelte di revisione fatte sul server.</string>
     <string name="server_bring_back_done">Fatto: la sync torna a girare su questo telefono.</string>
+    <string name="server_bring_back_here">Riporta senza il server</string>
+    <string name="server_bring_back_here_warning">Il server non risponde, quindi la sync potrebbe esistere ancora lì e continuare a girare: se puoi, eliminala sul server. Le scelte di revisione fatte sul server dopo il passaggio non vengono riportate.</string>
     <string name="server_on_server">Sul server</string>
     <string name="server_runs_there">Gira sul tuo server</string>
     <string name="server_run_started">Avviata sul tuo server.</string>
@@ -2184,6 +2186,13 @@
     <string name="shared_via_ntfy_desc">Nessuna cartella da condividere: le modifiche viaggiano cifrate attraverso un server ntfy, ntfy.sh o il tuo.</string>
     <string name="shared_ntfy_server">Server ntfy</string>
     <string name="shared_ntfy_server_invalid">Un indirizzo che inizia con https:// o http://.</string>
+    <string name="shared_ntfy_signin">Questo server richiede l\'accesso</string>
+    <string name="shared_ntfy_signin_desc">Il tuo token di accesso (tk_…), oppure nome utente e password su quel server. Resta su questo telefono: l\'invito dice solo che il server richiede l\'accesso, e ogni membro inserisce i suoi.</string>
+    <string name="shared_ntfy_token">Token di accesso</string>
+    <string name="shared_ntfy_signin_change">Accesso al server ntfy</string>
+    <string name="shared_ntfy_signin_on">Accesso attivo</string>
+    <string name="shared_ntfy_signin_off">Nessuno</string>
+    <string name="shared_error_ntfy_signin">Il server ntfy %1$s ha rifiutato l\'accesso: controlla token o password nella pagina del gruppo.</string>
     <string name="shared_invite_secret">Chiunque abbia questo invito può leggere il gruppo: mandalo solo alle persone che inviti.</string>
     <string name="shared_join_ntfy">Canale cifrato su %1$s. Chiunque abbia questo invito può leggere il gruppo: non girarlo ad altri.</string>
     <string name="shared_joined_waiting">Sei in %1$s. I brani arrivano quando il Trackhop di un altro membro si sincronizza.</string>
@@ -2201,4 +2210,9 @@
     <string name="shared_new_key_confirm">L\'invito attuale smette di funzionare per tutti, anche per chi è già nel gruppo. Poi manda il nuovo invito ai membri che vuoi tenere: mantengono il loro posto.</string>
     <string name="shared_key_new_invite">Un nuovo invito per %1$s, di cui fai già parte: la sua chiave sostituisce quella vecchia.</string>
     <string name="shared_key_updated">%1$s: nuova chiave salvata.</string>
+    <string name="shared_change_server">Cambia server</string>
+    <string name="shared_change_server_desc">Il gruppo si sposta su questo server ntfy, con la stessa cifratura. I membri lo seguono alla loro prossima sincronizzazione; chi se lo perde può aprire il nuovo invito del gruppo.</string>
+    <string name="shared_server_new_invite">Un nuovo invito per %1$s, di cui fai già parte: ora il gruppo si incontra su %2$s.</string>
+    <string name="shared_server_updated">%1$s: spostato sul nuovo server.</string>
+    <string name="shared_error_not_curator">Solo un curatore può spostare il gruppo.</string>
 </resources>

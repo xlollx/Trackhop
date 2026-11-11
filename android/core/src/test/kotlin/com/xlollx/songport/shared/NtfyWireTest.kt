@@ -2,6 +2,7 @@ package com.xlollx.songport.shared
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -61,8 +62,8 @@ class NtfyWireTest {
         val texts = NtfyWire.messages(k, gid, NtfyWire.newSnap(), packed)
         assertTrue("several messages: ${texts.size}", texts.size >= 3)
         assertTrue(texts.all { it.toByteArray().size < NtfyWire.MAX_MESSAGE })
-        // Nothing readable on the server.
-        assertTrue(texts.none { "Song" in it || "Ana" in it || ana.id in it })
+        // Nothing readable on the server ("Ana" quoted, as the packet's JSON has it: three bare letters turn up in random base64 now and then).
+        assertTrue(texts.none { "Song " in it || "\"Ana\"" in it || ana.id in it })
 
         val shuffled = (texts + texts.take(2)).shuffled(java.util.Random(7))
         val back = NtfyWire.assemble(k, gid, msgs(shuffled))
@@ -128,6 +129,11 @@ class NtfyWireTest {
         assertNull(Invite.parse(link.replace("https%3A%2F%2Fntfy.example.org%2Fbase", "https%3A%2F%2Fntfy.example.org%0A")))
         // The group code is the creator's, whichever way the group talks.
         assertEquals(Invite(gid, "Road trip", ana.id).code, Invite.parse(link)!!.code)
+        // A protected server: the invite says so, and carries no sign-in.
+        val signed = inv.copy(signIn = true)
+        assertTrue(signed.link().endsWith("&a=1"))
+        assertEquals(signed, Invite.parse(signed.link()))
+        assertFalse(Invite.parse(link)!!.signIn)
         // A folder group's invite holds no secret.
         val folder = Invite(gid, "Road trip", ana.id, "Trackhop")
         assertTrue("&x=" !in folder.link() && "&s=" !in folder.link())

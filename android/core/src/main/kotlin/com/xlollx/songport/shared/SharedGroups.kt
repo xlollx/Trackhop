@@ -44,6 +44,8 @@ data class SharedGroup(
     val joinedAt: Long = 0,
     /** How the members reach each other (see [GroupTransport]). */
     val transport: String = Invite.FOLDER,
+    /** When the group's ntfy channel last moved to [folder] here: an older word of a move is not followed. */
+    val movedAt: Long = 0,
 ) {
     val createdHere: Boolean get() = creator == me
     /** The invite without its secret part: [SharedTransports.invite] adds an encrypted channel's key, or a server mailbox's. */
@@ -84,12 +86,18 @@ data class GroupState(
 data class Invite(
     val groupId: String, val name: String, val creator: String, val folderName: String = "", val transport: String = FOLDER,
     val server: String = "", val key: String = "",
+    /**
+     * An encrypted channel on an ntfy server that needs sign-in: each member enters their own access
+     * token or user name and password, kept in this device's vault. The invite only says so, never carries them.
+     */
+    val signIn: Boolean = false,
 ) {
     /**
      * The group's code, from the creator's key: what the person joining compares with the code on
      * the inviter's group page. A link can be changed on its way (a forwarded message, a QR code
      * stuck over another); one with another key would make its maker the group's creator for
-     * whoever joins with it. 60 bits, as 12 characters in three groups.
+     * whoever joins with it. 100 bits, as 20 characters in four groups of five: finding another key
+     * with the same code is out of reach.
      */
     val code: String get() = codeOf(creator)
 
@@ -98,6 +106,7 @@ data class Invite(
         append("&n=").append(enc(name.take(MAX_NAME)))
         if (folderName.isNotBlank()) append("&f=").append(enc(folderName.take(MAX_FOLDER)))
         if (transport == NTFY || transport == SERVER) append("&s=").append(enc(server)).append("&x=").append(key)
+        if (transport == NTFY && signIn) append("&a=1")
     }
 
     companion object {
@@ -114,10 +123,13 @@ data class Invite(
         /** A key's group code (see [code]): Crockford base 32 of its SHA-256, no letters that read alike. */
         fun codeOf(creator: String): String {
             val h = java.security.MessageDigest.getInstance("SHA-256").digest(creator.toByteArray(Charsets.UTF_8))
-            var bits = 0L
-            for (i in 0 until 8) bits = (bits shl 8) or (h[i].toLong() and 0xff)
-            val chars = (0 until 12).map { CODE_LETTERS[((bits ushr (59 - it * 5)) and 31).toInt()] }.joinToString("")
-            return chars.chunked(4).joinToString("-")
+            // The first 100 bits, 5 at a time, most significant first.
+            val chars = (0 until 20).map { c ->
+                var v = 0
+                for (b in c * 5 until c * 5 + 5) v = (v shl 1) or ((h[b / 8].toInt() ushr (7 - b % 8)) and 1)
+                CODE_LETTERS[v]
+            }.joinToString("")
+            return chars.chunked(5).joinToString("-")
         }
 
         private fun enc(s: String) = java.net.URLEncoder.encode(s, "UTF-8").replace("+", "%20")
@@ -136,7 +148,7 @@ data class Invite(
                     // The channel's address and its group key: 32 random bytes, exactly 43 base64url characters.
                     val server = params["s"]?.takeIf { plain(it, 200) }?.trim()?.takeIf { NtfyServer.valid(it) } ?: return null
                     val secret = params["x"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.size == 32 } ?: return null
-                    Invite(id, name, key, transport = transport, server = server, key = secret)
+                    Invite(id, name, key, transport = transport, server = server, key = secret, signIn = params["a"] == "1")
                 }
                 SERVER -> {
                     // The Trackhop server's address and the key of the group's mailbox there.
@@ -259,9 +271,99 @@ object SharedGroups {
             seq = maxOf(before.seq, mine, highest[group.me] ?: 0),
             seen = events.associate { it.id to (before.seen[it.id] ?: now) },
         )
+        // A curator moved the channel to another ntfy server: followed when newer than the last move
+        // followed here (a member joining with an old invite follows too; a stale word sends them to
+        // a server whose newer word sends them on, so they end where the group is).
+        val move = (transport as? NtfyTransport)?.moves
+            ?.filter { it.by in roster.curators && it.at > group.movedAt && !sameServer(it.server, group.folder) }
+            ?.maxByOrNull { it.at }
+        if (move != null) {
+            save(env, group.id, state)
+            val moved = switchServer(env, group, move.server, null, move.at)
+            env.log("shared", "${group.name}: the channel moved to ${moved.folderName}, as a curator said")
+            return@synchronized runCatching { refresh(env, moved, write) }.getOrElse { state }
+        }
         if (write) state = publish(env, group, state, transport)
         save(env, group.id, state)
         state
+    }
+
+    private fun sameServer(a: String, b: String) = a.trim().trimEnd('/').equals(b.trim().trimEnd('/'), ignoreCase = true)
+
+    /**
+     * [group]'s channel on the ntfy server at [server] from now on, with [auth] as this member's
+     * sign-in there (null: none; the old server's is never sent to another): the same topic and
+     * key, read there from the start. Answers the group as stored.
+     */
+    private fun switchServer(env: Env, group: SharedGroup, server: String, auth: String?, at: Long): SharedGroup {
+        val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra - SharedTransports.NTFY_AUTH + SharedTransports.authEntry(auth)))
+        val moved = group.copy(folder = server.trim(), folderName = NtfyServer.hostOf(server), movedAt = at)
+        NtfyTransport.forget(env, group.id)
+        // A group being joined is stored only once read: it is stored moved (see [start]).
+        if (env.store.data.groups.none { it.id == group.id }) joining[group.id] = moved
+        env.store.update { d -> d.copy(groups = d.groups.map { if (it.id == group.id) moved else it }) }
+        return moved
+    }
+
+    /** A group being joined that moved while first read, by id. */
+    private val joining = java.util.concurrent.ConcurrentHashMap<String, SharedGroup>()
+
+    /**
+     * A curator moves [group]'s encrypted channel to the ntfy server at [server] ([auth]: their
+     * sign-in there): the group is read and written there first (nothing changes when it fails),
+     * then a signed word of the move goes on the old topic, which the other members follow on their
+     * next sync. Should the old server be gone, members switch with a new invite ([moved]).
+     */
+    fun moveNtfy(env: Env, group: SharedGroup, server: String, auth: String?): SharedGroup {
+        if (group.transport != Invite.NTFY || !NtfyServer.valid(server) || sameServer(server, group.folder)) throw ProviderException(env.text("shared_ntfy_server_invalid"))
+        val me = identity(env, group)
+        val before = load(env, group.id)
+        if (role(group, before) != Role.CURATOR) throw ProviderException(env.text("shared_error_not_curator"))
+        val oldTokens = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        val oldState = NtfyTransport.load(env, group.id)
+        val move = NtfyMove(group.id, server.trim(), maxOf(clock(), group.movedAt + 1), auth != null).signed(me)
+        val moved = switchServer(env, group, move.server, auth, move.at)
+        val state = try {
+            refresh(env, moved)
+        } catch (e: Exception) {
+            env.tokens.set(tokenKey(group.id), oldTokens)
+            NtfyTransport.restore(env, group.id, oldState)
+            env.store.update { d -> d.copy(groups = d.groups.map { if (it.id == group.id) group else it }) }
+            throw e
+        }
+        val card = state.members.firstOrNull { it.member == me.id }
+        runCatching {
+            NtfyTransport(env, group.id, group.folder, SharedTransports.groupKey(env, group)!!, oldTokens.extra[SharedTransports.NTFY_AUTH]).announce(card!!, move)
+        }.onFailure { env.log("shared", "${group.name}: the move not said on the old server: ${it.message?.take(120)}") }
+        env.log("shared", "${group.name}: the channel moved to ${moved.folderName}")
+        return moved
+    }
+
+    /**
+     * The group [invite] moves to another ntfy server: one this device is in, on an encrypted
+     * channel with the same key, from the same creator, on another server. Null otherwise.
+     */
+    fun moved(env: Env, invite: Invite): SharedGroup? = group(env, invite.groupId)?.takeIf {
+        it.transport == Invite.NTFY && invite.transport == Invite.NTFY && it.creator == invite.creator &&
+            !sameServer(it.folder, invite.server) && SharedTransports.groupKey(env, it) == invite.key
+    }
+
+    /** Takes the server of [invite] for [group] (see [moved]), with [auth] as this member's sign-in there; nothing changes when it cannot be read. */
+    fun takeServer(env: Env, group: SharedGroup, invite: Invite, auth: String?): SharedGroup {
+        val oldTokens = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        val oldState = NtfyTransport.load(env, group.id)
+        val moved = switchServer(env, group, invite.server, auth, maxOf(clock(), group.movedAt + 1))
+        try {
+            refresh(env, moved)
+        } catch (e: Exception) {
+            env.tokens.set(tokenKey(group.id), oldTokens)
+            NtfyTransport.restore(env, group.id, oldState)
+            env.store.update { d -> d.copy(groups = d.groups.map { if (it.id == group.id) group else it }) }
+            throw e
+        }
+        env.log("shared", "${group.name}: moved to ${moved.folderName} with a new invite")
+        return moved
     }
 
     /** This member's file, published when the transport needs it (see [GroupTransport.publish]). */
@@ -403,7 +505,7 @@ object SharedGroups {
      */
     fun create(
         env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
-        transport: String = Invite.FOLDER,
+        transport: String = Invite.FOLDER, ntfyAuth: String? = null,
     ): SharedGroup {
         val me = Identity.create()
         val id = newGroupId()
@@ -411,7 +513,7 @@ object SharedGroups {
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)
         val secret = when (transport) {
-            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey())
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey()) + SharedTransports.authEntry(ntfyAuth)
             Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to ServerGroupTransport.makeMailbox(env, folder, id, me.id, group.name))
             else -> emptyMap()
         }
@@ -428,8 +530,12 @@ object SharedGroups {
      * as a follower until the creator makes them a curator. Answers the group and whether the folder
      * held any other member's file (none: probably not the group's folder). An encrypted channel's
      * invite, or a server mailbox's, says where the group is: [folder] and [folderName] are not used then.
+     * [ntfyAuth]: this member's own sign-in to a protected ntfy server ([NtfyServer.authorization]).
      */
-    fun join(env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef): Pair<SharedGroup, Boolean> {
+    fun join(
+        env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
+        ntfyAuth: String? = null,
+    ): Pair<SharedGroup, Boolean> {
         if (group(env, invite.groupId) != null) throw ProviderException(env.text("shared_error_already", invite.name))
         val me = Identity.create()
         val remote = invite.transport == Invite.NTFY || invite.transport == Invite.SERVER
@@ -437,7 +543,7 @@ object SharedGroups {
             if (remote) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport)
         val secret = when (invite.transport) {
-            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key)
+            Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key) + SharedTransports.authEntry(ntfyAuth)
             Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to invite.key)
             else -> emptyMap()
         }
@@ -446,15 +552,19 @@ object SharedGroups {
         return g to others
     }
 
-    private fun start(env: Env, group: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, extra: Map<String, String>): SharedGroup {
-        env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id, extra = extra))
-        synchronized(lockOf(group.id)) { save(env, group.id, state) }
+    private fun start(env: Env, first: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, extra: Map<String, String>): SharedGroup {
+        env.tokens.set(tokenKey(first.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id, extra = extra))
+        synchronized(lockOf(first.id)) { save(env, first.id, state) }
+        joining.remove(first.id)
         try {
-            refresh(env, group)
+            refresh(env, first)
         } catch (e: Exception) {
-            forget(env, group)
+            joining.remove(first.id)
+            forget(env, first)
             throw e
         }
+        // Joined with an invite older than a move a curator made: on the server the group moved to.
+        val group = joining.remove(first.id) ?: first
         val (down, up) = jobsFor(group, local)
         env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id } + group, jobs = d.jobs + down + up) }
         env.log("shared", "${group.name}: ${if (group.createdHere) "created" else "joined"}, files in ${group.folderName.ifBlank { "the chosen folder" }}")
@@ -520,6 +630,23 @@ object SharedGroups {
         val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
         env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra + (SharedTransports.MAILBOX_KEY to key)))
         env.log("shared", "${group.name}: the mailbox has a new key, the old invite no longer works")
+    }
+
+    /**
+     * This member's sign-in to the ntfy server of [group] ([NtfyServer.authorization]; null: none),
+     * changed: kept only when the server lets the group be read with it, else the old one stays.
+     */
+    fun setNtfyAuth(env: Env, group: SharedGroup, auth: String?) {
+        if (group.transport != Invite.NTFY) return
+        val old = env.tokens.get(tokenKey(group.id)) ?: throw ProviderException(env.text("shared_error_key", group.name))
+        env.tokens.set(tokenKey(group.id), old.copy(extra = old.extra - SharedTransports.NTFY_AUTH + SharedTransports.authEntry(auth)))
+        try {
+            refresh(env, group, write = false)
+        } catch (e: Exception) {
+            env.tokens.set(tokenKey(group.id), old)
+            throw e
+        }
+        env.log("shared", "${group.name}: ntfy sign-in ${if (auth == null) "removed" else "changed"}")
     }
 
     /** A follower's choice: keep their own additions (true) or an exact copy. */

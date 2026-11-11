@@ -2096,6 +2096,8 @@
     <string name="server_bring_back_title">Bu telefona geri alınsın mı?</string>
     <string name="server_bring_back_body">Senkronizasyon sunucundan silinir (çalma listeleri olduğu gibi kalır) ve sunucuda verilen inceleme kararlarıyla birlikte yeniden bu telefonda çalışır.</string>
     <string name="server_bring_back_done">Tamam: senkronizasyon yeniden bu telefonda çalışıyor.</string>
+    <string name="server_bring_back_here">Sunucu olmadan geri al</string>
+    <string name="server_bring_back_here_warning">Sunucuna ulaşılamıyor; bu yüzden eşitleme orada hâlâ var olabilir ve çalışmaya devam edebilir: yapabiliyorsan sunucudan sil. Devirden sonra sunucuda verilen inceleme kararları geri gelmez.</string>
     <string name="server_on_server">Sunucuda</string>
     <string name="server_runs_there">Sunucunda çalışır</string>
     <string name="server_run_started">Sunucunda başlatıldı.</string>
@@ -2182,6 +2184,13 @@
     <string name="shared_via_ntfy_desc">Paylaşılacak klasör yok: değişiklikler bir ntfy sunucusu üzerinden şifreli gider, ntfy.sh ya da kendi sunucunuz.</string>
     <string name="shared_ntfy_server">ntfy sunucusu</string>
     <string name="shared_ntfy_server_invalid">https:// veya http:// ile başlayan bir adres.</string>
+    <string name="shared_ntfy_signin">Bu sunucu oturum açmayı gerektiriyor</string>
+    <string name="shared_ntfy_signin_desc">Kendi erişim belirtecin (tk_…) ya da o sunucudaki kullanıcı adın ve şifren. Bu telefonda kalır: davet yalnızca sunucunun oturum açma istediğini söyler, her üye kendininkini girer.</string>
+    <string name="shared_ntfy_token">Erişim belirteci</string>
+    <string name="shared_ntfy_signin_change">ntfy sunucusunda oturum açma</string>
+    <string name="shared_ntfy_signin_on">Oturum açık</string>
+    <string name="shared_ntfy_signin_off">Yok</string>
+    <string name="shared_error_ntfy_signin">ntfy sunucusu %1$s oturum açmayı reddetti: grubun sayfasında erişim belirtecini ya da şifreni kontrol et.</string>
     <string name="shared_invite_secret">Bu davete sahip olan herkes grubu okuyabilir: yalnızca davet ettiğiniz kişilere gönderin.</string>
     <string name="shared_join_ntfy">%1$s üzerinde şifreli kanal. Bu davete sahip olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
     <string name="shared_joined_waiting">%1$s grubundasınız. Şarkılar, başka bir üyenin Trackhop\'u senkronize olunca gelir.</string>
@@ -2199,4 +2208,9 @@
     <string name="shared_new_key_confirm">Mevcut davet, gruptaki üyeler dahil herkes için çalışmayı bırakır. Ardından yeni daveti tutmak istediğiniz üyelere gönderin: yerlerini korurlar.</string>
     <string name="shared_key_new_invite">Zaten içinde olduğunuz %1$s için yeni bir davet: anahtarı eskisinin yerini alır.</string>
     <string name="shared_key_updated">%1$s: yeni anahtar kaydedildi.</string>
+    <string name="shared_change_server">Sunucuyu değiştir</string>
+    <string name="shared_change_server_desc">Grup aynı şifrelemeyle bu ntfy sunucusuna taşınır. Üyeler bir sonraki eşitlemede takip eder; kaçıran olursa grubun yeni davetini açabilir.</string>
+    <string name="shared_server_new_invite">Zaten içinde olduğun %1$s için yeni bir davet: grup artık %2$s üzerinde buluşuyor.</string>
+    <string name="shared_server_updated">%1$s: yeni sunucuya taşındı.</string>
+    <string name="shared_error_not_curator">Grubu yalnızca bir küratör taşıyabilir.</string>
 </resources>

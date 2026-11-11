@@ -2174,6 +2174,8 @@
     <string name="server_bring_back_title">Вернуть на этот телефон?</string>
     <string name="server_bring_back_body">Синхронизация удаляется с вашего сервера (плейлисты остаются как есть) и снова работает на этом телефоне, вместе с решениями проверки, принятыми на сервере.</string>
     <string name="server_bring_back_done">Готово: синхронизация снова работает на этом телефоне.</string>
+    <string name="server_bring_back_here">Вернуть без сервера</string>
+    <string name="server_bring_back_here_warning">Сервер недоступен, поэтому синхронизация может всё ещё существовать и работать там: удалите её на сервере, если можете. Решения проверки, принятые на сервере после передачи, не вернутся.</string>
     <string name="server_on_server">На сервере</string>
     <string name="server_runs_there">Работает на вашем сервере</string>
     <string name="server_run_started">Запущено на вашем сервере.</string>
@@ -2260,6 +2262,13 @@
     <string name="shared_via_ntfy_desc">Общая папка не нужна: изменения идут в зашифрованном виде через сервер ntfy — ntfy.sh или ваш собственный.</string>
     <string name="shared_ntfy_server">Сервер ntfy</string>
     <string name="shared_ntfy_server_invalid">Адрес, начинающийся с https:// или http://.</string>
+    <string name="shared_ntfy_signin">Этот сервер требует входа</string>
+    <string name="shared_ntfy_signin_desc">Ваш собственный токен доступа (tk_…) или имя пользователя и пароль на этом сервере. Они остаются на этом телефоне: приглашение говорит лишь, что серверу нужен вход, и каждый участник вводит свои.</string>
+    <string name="shared_ntfy_token">Токен доступа</string>
+    <string name="shared_ntfy_signin_change">Вход на сервер ntfy</string>
+    <string name="shared_ntfy_signin_on">Вход выполнен</string>
+    <string name="shared_ntfy_signin_off">Нет</string>
+    <string name="shared_error_ntfy_signin">Сервер ntfy %1$s отклонил вход: проверьте токен доступа или пароль на странице группы.</string>
     <string name="shared_invite_secret">Любой, у кого есть это приглашение, может читать группу: отправляйте его только тем, кого приглашаете.</string>
     <string name="shared_join_ntfy">Зашифрованный канал на %1$s. Любой, у кого есть это приглашение, может читать группу: не пересылайте его.</string>
     <string name="shared_joined_waiting">Вы в группе %1$s. Треки появятся, когда Trackhop другого участника синхронизируется.</string>
@@ -2279,4 +2288,9 @@
     <string name="shared_new_key_confirm">Текущее приглашение перестанет работать для всех, в том числе для тех, кто уже в группе. Затем отправьте новое приглашение участникам, которых хотите оставить: их место сохранится.</string>
     <string name="shared_key_new_invite">Новое приглашение в %1$s, где вы уже состоите: его ключ заменяет старый.</string>
     <string name="shared_key_updated">%1$s: новый ключ сохранён.</string>
+    <string name="shared_change_server">Сменить сервер</string>
+    <string name="shared_change_server_desc">Группа переезжает на этот сервер ntfy с тем же шифрованием. Участники последуют при следующей синхронизации; кто пропустит, может открыть новое приглашение группы.</string>
+    <string name="shared_server_new_invite">Новое приглашение в %1$s, где вы уже состоите: теперь группа встречается на %2$s.</string>
+    <string name="shared_server_updated">%1$s: перенесено на новый сервер.</string>
+    <string name="shared_error_not_curator">Перенести группу может только куратор.</string>
 </resources>

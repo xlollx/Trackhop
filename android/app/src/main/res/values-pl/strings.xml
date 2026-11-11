@@ -2176,6 +2176,8 @@
     <string name="server_bring_back_title">Przywrócić na ten telefon?</string>
     <string name="server_bring_back_body">Synchronizacja zostanie usunięta z twojego serwera (playlisty zostaną bez zmian) i znów będzie działać na tym telefonie, z decyzjami z przeglądu podjętymi na serwerze.</string>
     <string name="server_bring_back_done">Gotowe: synchronizacja znów działa na tym telefonie.</string>
+    <string name="server_bring_back_here">Przywróć bez serwera</string>
+    <string name="server_bring_back_here_warning">Nie można połączyć się z serwerem, więc synchronizacja może tam nadal istnieć i działać: usuń ją na serwerze, jeśli możesz. Decyzje przeglądu podjęte na serwerze od przekazania nie wrócą.</string>
     <string name="server_on_server">Na serwerze</string>
     <string name="server_runs_there">Działa na twoim serwerze</string>
     <string name="server_run_started">Uruchomiono na twoim serwerze.</string>
@@ -2262,6 +2264,13 @@
     <string name="shared_via_ntfy_desc">Bez folderu do udostępniania: zmiany idą zaszyfrowane przez serwer ntfy, ntfy.sh albo twój własny.</string>
     <string name="shared_ntfy_server">Serwer ntfy</string>
     <string name="shared_ntfy_server_invalid">Adres zaczynający się od https:// lub http://.</string>
+    <string name="shared_ntfy_signin">Ten serwer wymaga logowania</string>
+    <string name="shared_ntfy_signin_desc">Twój własny token dostępu (tk_…) albo nazwa użytkownika i hasło na tym serwerze. Zostają na tym telefonie: zaproszenie mówi tylko, że serwer wymaga logowania, a każdy członek wpisuje własne.</string>
+    <string name="shared_ntfy_token">Token dostępu</string>
+    <string name="shared_ntfy_signin_change">Logowanie do serwera ntfy</string>
+    <string name="shared_ntfy_signin_on">Zalogowano</string>
+    <string name="shared_ntfy_signin_off">Brak</string>
+    <string name="shared_error_ntfy_signin">Serwer ntfy %1$s odrzucił logowanie: sprawdź token dostępu lub hasło na stronie grupy.</string>
     <string name="shared_invite_secret">Każdy, kto ma to zaproszenie, może czytać grupę: wyślij je tylko osobom, które zapraszasz.</string>
     <string name="shared_join_ntfy">Szyfrowany kanał na %1$s. Każdy, kto ma to zaproszenie, może czytać grupę: nie przekazuj go dalej.</string>
     <string name="shared_joined_waiting">Jesteś w %1$s. Utwory dotrą, gdy Trackhop innego członka się zsynchronizuje.</string>
@@ -2281,4 +2290,9 @@
     <string name="shared_new_key_confirm">Obecne zaproszenie przestanie działać dla wszystkich, także dla osób już w grupie. Potem wyślij nowe zaproszenie członkom, których chcesz zatrzymać: zachowają swoje miejsce.</string>
     <string name="shared_key_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: jego klucz zastępuje stary.</string>
     <string name="shared_key_updated">%1$s: nowy klucz zapisany.</string>
+    <string name="shared_change_server">Zmień serwer</string>
+    <string name="shared_change_server_desc">Grupa przenosi się na ten serwer ntfy, z tym samym szyfrowaniem. Członkowie podążą za nią przy następnej synchronizacji; kto to przegapi, może otworzyć nowe zaproszenie grupy.</string>
+    <string name="shared_server_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: grupa spotyka się teraz na %2$s.</string>
+    <string name="shared_server_updated">%1$s: przeniesiono na nowy serwer.</string>
+    <string name="shared_error_not_curator">Tylko kurator może przenieść grupę.</string>
 </resources>

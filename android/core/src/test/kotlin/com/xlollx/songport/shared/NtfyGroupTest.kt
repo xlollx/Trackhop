@@ -194,4 +194,104 @@ class NtfyGroupTest {
         ana.refresh()
         assertTrue(SharedGroups.members(ana.group, SharedGroups.load(ana.env, ana.groupId)).first { it.name == "Ben" }.left)
     }
+
+    /** A protected ntfy server: each member signs in with their own credentials, which never travel in the invite. */
+    @Test fun aProtectedServerTakesEachMembersOwnSignInAndTheInviteOnlySaysSo() {
+        // Built at run time: nothing shaped like a real secret in the sources.
+        val anaToken = NtfyServer.authorization("tk_" + "a1".repeat(14) + "z", "", "")!!
+        val benLogin = NtfyServer.authorization("", "ben", "pass" + "w".repeat(6))!!
+        assertEquals("Bearer tk_", anaToken.take(10))
+        assertTrue(benLogin.startsWith("Basic "))
+        assertEquals(null, NtfyServer.authorization("", "ben", ""))
+        assertEquals(null, NtfyServer.authorization("", "b:en", "x"))
+        assertEquals(null, NtfyServer.authorization("tk_ with space", "", ""))
+        ntfy.signIns = setOf(anaToken, benLogin)
+
+        // Without a sign-in the server refuses, and the group is not made.
+        val refused = runCatching { SharedGroups.create(ana.env, "Road trip", address, NtfyServer.hostOf(address), "Ana", "TIDAL", ana.local, transport = Invite.NTFY) }
+        assertTrue(refused.exceptionOrNull()?.message.orEmpty().startsWith("shared_error_ntfy_signin"))
+
+        val g = SharedGroups.create(ana.env, "Road trip", address, NtfyServer.hostOf(address), "Ana", "TIDAL", ana.local, transport = Invite.NTFY, ntfyAuth = anaToken)
+        ana.groupId = g.id
+        ana.add("1")
+        val link = SharedTransports.invite(ana.env, g).link()
+        val invite = Invite.parse(link)!!
+        assertTrue(invite.signIn)
+        for (secret in listOf(anaToken, anaToken.substringAfter(' '), "tk_")) assertFalse(secret in link)
+
+        // Ben signs in with his own user name and password; with Ana's or none he gets in only with his.
+        assertTrue(runCatching { SharedGroups.join(ben.env, invite, "", "", "Ben", "Spotify", ben.local) }.exceptionOrNull()?.message.orEmpty().startsWith("shared_error_ntfy_signin"))
+        ben.groupId = SharedGroups.join(ben.env, invite, "", "", "Ben", "Spotify", ben.local, ntfyAuth = benLogin).first.id
+        assertEquals(listOf("1"), ben.songs)
+        assertTrue(ntfy.headers.all { it == anaToken || it == benLogin })
+
+        // A new sign-in the server refuses is not kept: the old one still works.
+        val wrong = NtfyServer.authorization("tk_" + "b2".repeat(14) + "z", "", "")!!
+        assertTrue(runCatching { SharedGroups.setNtfyAuth(ben.env, ben.group, wrong) }.isFailure)
+        assertEquals(benLogin, SharedTransports.ntfyAuth(ben.env, ben.group))
+        ntfy.signIns = setOf(anaToken, wrong)
+        SharedGroups.setNtfyAuth(ben.env, ben.group, wrong)
+        assertEquals(wrong, SharedTransports.ntfyAuth(ben.env, ben.group))
+        ben.refresh()
+    }
+
+    /** A curator moves the channel to another ntfy server: members still on the old one follow the signed word; one who missed it takes a new invite. */
+    @Test fun aCuratorMovesTheChannelAndTheMembersFollow() {
+        val ntfy2 = FakeNtfy({ now })
+        val server2 = MockWebServer().apply { dispatcher = ntfy2; start() }
+        try {
+            val address2 = server2.url("/").toString()
+            val invite = create("1")
+            join(ben, invite)
+            join(cleo, invite)
+            everyone()
+
+            // Only a curator can move it: Ben follows.
+            assertTrue(runCatching { SharedGroups.moveNtfy(ben.env, ben.group, address2, null) }.isFailure)
+            assertEquals(address, ben.group.folder)
+
+            hours(1)
+            SharedGroups.moveNtfy(ana.env, ana.group, address2, null)
+            assertEquals(address2, ana.group.folder)
+            ana.add("2")
+            // Cleo holds the key but follows: her own word of a move elsewhere is not followed.
+            val cleoMe = Identity.of(cleo.env.tokens.get(SharedGroups.tokenKey(cleo.groupId))!!.accessToken)!!
+            val cleoCard = SharedGroups.load(cleo.env, cleo.groupId).members.first { it.member == cleoMe.id }
+            NtfyTransport(cleo.env, cleo.groupId, address, SharedTransports.groupKey(cleo.env, cleo.group)!!)
+                .announce(cleoCard, NtfyMove(cleo.groupId, "https://ntfy.example.org", now + 5, false).signed(cleoMe))
+
+            hours(1)
+            ben.refresh()
+            assertEquals(address2, ben.group.folder)
+            assertEquals(listOf("1", "2"), ben.songs)
+            // Ben followed Ana's word, not Cleo's, and now writes on the new server too.
+            assertTrue(ntfy2.published > 0)
+
+            // Dan joins with the old invite after the move: he follows the word too.
+            val dan = Member("Dan")
+            join(dan, invite)
+            dan.refresh()
+            assertEquals(address2, dan.group.folder)
+            assertEquals(listOf("1", "2"), dan.songs)
+
+            // Cleo's phone missed the word (the old server forgot it): she stays, then takes the new invite.
+            ntfy.messages.clear()
+            cleo.refresh()
+            assertEquals(address, cleo.group.folder)
+            val newInvite = Invite.parse(SharedTransports.invite(ana.env, ana.group).link())!!
+            assertEquals(cleo.groupId, SharedGroups.moved(cleo.env, newInvite)?.id)
+            assertEquals(null, SharedGroups.moved(cleo.env, invite))
+            SharedGroups.takeServer(cleo.env, cleo.group, newInvite, null)
+            assertEquals(address2, cleo.group.folder)
+            assertEquals(listOf("1", "2"), cleo.songs)
+
+            // A move whose new server can't be reached changes nothing.
+            hours(1)
+            assertTrue(runCatching { SharedGroups.moveNtfy(ana.env, ana.group, "http://127.0.0.1:9/", null) }.isFailure)
+            assertEquals(address2, ana.group.folder)
+            ana.refresh()
+        } finally {
+            server2.shutdown()
+        }
+    }
 }

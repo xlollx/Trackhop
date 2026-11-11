@@ -2106,6 +2106,8 @@
     <string name="server_bring_back_title">La ramener sur ce téléphone ?</string>
     <string name="server_bring_back_body">La synchro est supprimée de ton serveur (les playlists restent telles quelles) et s\'exécute de nouveau sur ce téléphone, avec les choix de vérification faits sur le serveur.</string>
     <string name="server_bring_back_done">C\'est fait : la synchro s\'exécute de nouveau sur ce téléphone.</string>
+    <string name="server_bring_back_here">Ramener sans le serveur</string>
+    <string name="server_bring_back_here_warning">Ton serveur ne peut pas être joint, la synchro peut donc encore y exister et continuer à tourner : supprime-la sur le serveur si tu peux. Les choix de révision faits sur le serveur depuis le transfert ne reviennent pas.</string>
     <string name="server_on_server">Sur le serveur</string>
     <string name="server_runs_there">S\'exécute sur ton serveur</string>
     <string name="server_run_started">Lancée sur ton serveur.</string>
@@ -2192,6 +2194,13 @@
     <string name="shared_via_ntfy_desc">Aucun dossier à partager : les changements passent chiffrés par un serveur ntfy, ntfy.sh ou le tien.</string>
     <string name="shared_ntfy_server">Serveur ntfy</string>
     <string name="shared_ntfy_server_invalid">Une adresse qui commence par https:// ou http://.</string>
+    <string name="shared_ntfy_signin">Ce serveur demande une connexion</string>
+    <string name="shared_ntfy_signin_desc">Ton propre jeton d\'accès (tk_…), ou ton nom d\'utilisateur et ton mot de passe sur ce serveur. Ils restent sur ce téléphone : l\'invitation dit seulement que le serveur demande une connexion, et chaque membre saisit les siens.</string>
+    <string name="shared_ntfy_token">Jeton d\'accès</string>
+    <string name="shared_ntfy_signin_change">Connexion au serveur ntfy</string>
+    <string name="shared_ntfy_signin_on">Connecté</string>
+    <string name="shared_ntfy_signin_off">Aucune</string>
+    <string name="shared_error_ntfy_signin">Le serveur ntfy %1$s a refusé la connexion : vérifie ton jeton d\'accès ou ton mot de passe sur la page du groupe.</string>
     <string name="shared_invite_secret">Toute personne qui a cette invitation peut lire le groupe : envoie-la seulement aux personnes que tu invites.</string>
     <string name="shared_join_ntfy">Canal chiffré sur %1$s. Toute personne qui a cette invitation peut lire le groupe : ne la transmets pas.</string>
     <string name="shared_joined_waiting">Tu es dans %1$s. Ses morceaux arrivent dès que le Trackhop d\'un autre membre se synchronise.</string>
@@ -2209,4 +2218,9 @@
     <string name="shared_new_key_confirm">L\'invitation actuelle ne fonctionne plus pour personne, y compris les membres déjà dans le groupe. Envoie ensuite la nouvelle invitation aux membres que tu veux garder : ils gardent leur place.</string>
     <string name="shared_key_new_invite">Une nouvelle invitation pour %1$s, dont tu fais déjà partie : sa clé remplace l\'ancienne.</string>
     <string name="shared_key_updated">%1$s : nouvelle clé enregistrée.</string>
+    <string name="shared_change_server">Changer de serveur</string>
+    <string name="shared_change_server_desc">Le groupe passe sur ce serveur ntfy, avec le même chiffrement. Les membres suivent à leur prochaine synchro ; si quelqu\'un le rate, il peut ouvrir la nouvelle invitation du groupe.</string>
+    <string name="shared_server_new_invite">Une nouvelle invitation pour %1$s, dont tu fais déjà partie : le groupe se retrouve maintenant sur %2$s.</string>
+    <string name="shared_server_updated">%1$s : passé sur le nouveau serveur.</string>
+    <string name="shared_error_not_curator">Seul un curateur peut déplacer le groupe.</string>
 </resources>

@@ -2060,6 +2060,8 @@
     <string name="server_bring_back_title">このスマホに戻しますか？</string>
     <string name="server_bring_back_body">同期はサーバーから削除され（プレイリストはそのまま）、サーバーでのレビューの選択とともに、またこのスマホで実行されます。</string>
     <string name="server_bring_back_done">完了：同期はまたこのスマホで実行されます。</string>
+    <string name="server_bring_back_here">サーバーなしで戻す</string>
+    <string name="server_bring_back_here_warning">サーバーに問い合わせできないため、同期はサーバー上にまだ残り実行され続けている可能性があります。可能ならサーバーで削除してください。引き渡し後にサーバーで行った確認の選択は戻りません。</string>
     <string name="server_on_server">サーバー上</string>
     <string name="server_runs_there">サーバーで実行</string>
     <string name="server_run_started">サーバーで開始しました。</string>
@@ -2146,6 +2148,13 @@
     <string name="shared_via_ntfy_desc">共有フォルダーは不要です。変更は暗号化されて ntfy サーバー（ntfy.sh または自分のサーバー）を通ります。</string>
     <string name="shared_ntfy_server">ntfy サーバー</string>
     <string name="shared_ntfy_server_invalid">https:// または http:// で始まるアドレスを入力してください。</string>
+    <string name="shared_ntfy_signin">このサーバーはサインインが必要</string>
+    <string name="shared_ntfy_signin_desc">自分のアクセストークン（tk_…）、またはそのサーバーのユーザー名とパスワード。このスマホにだけ保存されます。招待にはサインインが必要なことだけが書かれ、各メンバーが自分のものを入力します。</string>
+    <string name="shared_ntfy_token">アクセストークン</string>
+    <string name="shared_ntfy_signin_change">ntfy サーバーへのサインイン</string>
+    <string name="shared_ntfy_signin_on">サインイン済み</string>
+    <string name="shared_ntfy_signin_off">なし</string>
+    <string name="shared_error_ntfy_signin">ntfy サーバー %1$s がサインインを拒否しました。グループのページでアクセストークンかパスワードを確認してください。</string>
     <string name="shared_invite_secret">この招待を持っている人は誰でもグループを読めます。招待する人だけに送ってください。</string>
     <string name="shared_join_ntfy">%1$s 上の暗号化チャンネルです。この招待を持っている人は誰でもグループを読めます。ほかの人に渡さないでください。</string>
     <string name="shared_joined_waiting">%1$s に参加しました。ほかのメンバーの Trackhop が同期すると曲が届きます。</string>
@@ -2162,4 +2171,9 @@
     <string name="shared_new_key_confirm">今の招待は、すでにグループにいるメンバーも含めて全員使えなくなります。そのあと、残ってほしいメンバーに新しい招待を送ってください。メンバーの立場はそのままです。</string>
     <string name="shared_key_new_invite">すでに参加している %1$s の新しい招待です。新しい鍵が古い鍵に置き換わります。</string>
     <string name="shared_key_updated">%1$s: 新しい鍵を保存しました。</string>
+    <string name="shared_change_server">サーバーを変更</string>
+    <string name="shared_change_server_desc">グループは同じ暗号化のまま、この ntfy サーバーに移ります。メンバーは次回の同期で追従します。見逃した人はグループの新しい招待を開けます。</string>
+    <string name="shared_server_new_invite">すでに参加している %1$s の新しい招待です。グループは今後 %2$s で集まります。</string>
+    <string name="shared_server_updated">%1$s：新しいサーバーに移りました。</string>
+    <string name="shared_error_not_curator">グループを移せるのはキュレーターだけです。</string>
 </resources>

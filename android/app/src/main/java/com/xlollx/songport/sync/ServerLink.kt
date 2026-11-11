@@ -40,7 +40,7 @@ object ServerLink {
     fun handedOver(ctx: Context, jobId: String): HandedOver? = Store.get(ctx).data.handedOver[jobId]
 
     /** What happened, in words for the user. */
-    class Outcome(val ok: Boolean, val message: String)
+    class Outcome(val ok: Boolean, val message: String, val canBringBackHere: Boolean = false)
 
     /** [e] in plain words: nothing of the phone has changed when a call fails. */
     fun say(ctx: Context, e: Throwable): String = when ((e as? ServerSyncs.Failure)?.kind) {
@@ -172,7 +172,7 @@ object ServerLink {
      * nothing; a sync already deleted there comes back all the same.
      */
     suspend fun bringBack(ctx: Context, job: SyncJob): Outcome = withContext(NonCancellable) {
-        val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
+        val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)), canBringBackHere = true)
         val h = handedOver(ctx, job.id) ?: return@withContext Outcome(true, ctx.getString(R.string.server_bring_back_done))
         try {
             try {
@@ -182,22 +182,36 @@ object ServerLink {
                 if (e.kind != ServerSyncs.Failure.Kind.GONE && e.kind != ServerSyncs.Failure.Kind.OLD) throw e
             }
             api.delete(h.serverId)
-            val store = Store.get(ctx)
-            store.update { d ->
-                d.copy(
-                    handedOver = d.handedOver - job.id,
-                    jobs = d.jobs.map { if (it.id == job.id) it.copy(enabled = h.wasEnabled) else it },
-                )
-            }
-            store.flush()
-            store.job(job.id)?.let { Scheduler.apply(ctx, it) }
+            takeBack(ctx, job.id)
             _known.value = _known.value - h.serverId
             log(ctx, "${job.name}: back from ${api.base}")
             Outcome(true, ctx.getString(R.string.server_bring_back_done))
         } catch (e: ServerSyncs.Failure) {
             log(ctx, "${job.name}: not brought back (${e.kind})")
-            Outcome(false, say(ctx, e))
+            // A server that cannot be asked (gone, unreachable, its token no longer valid): the phone can still take the sync back alone.
+            val stuck = e.kind == ServerSyncs.Failure.Kind.UNREACHABLE || e.kind == ServerSyncs.Failure.Kind.TOKEN || e.kind == ServerSyncs.Failure.Kind.OLD
+            Outcome(false, say(ctx, e), canBringBackHere = stuck)
         }
+    }
+
+    /**
+     * [job] back on this phone without the server (gone for good, or "Coordinate with my server"
+     * turned off): only this phone's record of the hand-over is cleared and the sync turned on as it
+     * was. The server's copy, if any, is left as it is, and its review choices are not taken in.
+     */
+    suspend fun bringBackHere(ctx: Context, job: SyncJob): Outcome = withContext(NonCancellable) {
+        val serverId = handedOver(ctx, job.id)?.serverId
+        takeBack(ctx, job.id)
+        serverId?.let { _known.value = _known.value - it }
+        log(ctx, "${job.name}: brought back without the server")
+        Outcome(true, ctx.getString(R.string.server_bring_back_done))
+    }
+
+    private fun takeBack(ctx: Context, jobId: String) {
+        val store = Store.get(ctx)
+        store.update { d -> HandOver.takenBack(d, jobId) }
+        store.flush()
+        store.job(jobId)?.let { Scheduler.apply(ctx, it) }
     }
 
     /** Starts the server's sync [serverId]; the answer in words. */

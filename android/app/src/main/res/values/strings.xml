@@ -2099,6 +2099,8 @@
     <string name="server_bring_back_title">Bring it back to this phone?</string>
     <string name="server_bring_back_body">The sync is deleted on your server (the playlists stay as they are) and runs on this phone again, with the review choices made on the server.</string>
     <string name="server_bring_back_done">Done: the sync runs on this phone again.</string>
+    <string name="server_bring_back_here">Bring back without the server</string>
+    <string name="server_bring_back_here_warning">Your server can\'t be asked, so the sync may still exist there and keep running: delete it on the server if you can. Review choices made on the server since the hand-over don\'t come back.</string>
     <string name="server_on_server">On server</string>
     <string name="server_runs_there">Runs on your server</string>
     <string name="server_run_started">Started on your server.</string>
@@ -2185,6 +2187,13 @@
     <string name="shared_via_ntfy_desc">No folder to share: changes travel encrypted through an ntfy server, ntfy.sh or your own.</string>
     <string name="shared_ntfy_server">ntfy server</string>
     <string name="shared_ntfy_server_invalid">An address that starts with https:// or http://.</string>
+    <string name="shared_ntfy_signin">This server needs sign-in</string>
+    <string name="shared_ntfy_signin_desc">Your own access token (tk_…), or your user name and password on that server. It stays on this phone: the invite only says the server needs sign-in, and each member enters their own.</string>
+    <string name="shared_ntfy_token">Access token</string>
+    <string name="shared_ntfy_signin_change">Sign-in to the ntfy server</string>
+    <string name="shared_ntfy_signin_on">Signed in</string>
+    <string name="shared_ntfy_signin_off">None</string>
+    <string name="shared_error_ntfy_signin">The ntfy server %1$s refused the sign-in: check your access token or password in the group\'s page.</string>
     <string name="shared_invite_secret">Anyone with this invite can read the group: send it only to the people you\'re inviting.</string>
     <string name="shared_join_ntfy">Encrypted channel on %1$s. Anyone with this invite can read the group: don\'t pass it on.</string>
     <string name="shared_joined_waiting">You\'re in %1$s. Its songs arrive once another member\'s Trackhop syncs.</string>
@@ -2202,4 +2211,9 @@
     <string name="shared_new_key_confirm">The current invite stops working for everyone, members already in the group too. Then send the new invite to the members you want to keep: they keep their place.</string>
     <string name="shared_key_new_invite">A new invite for %1$s, which you\'re already in: its key replaces the old one.</string>
     <string name="shared_key_updated">%1$s: new key saved.</string>
+    <string name="shared_change_server">Change server</string>
+    <string name="shared_change_server_desc">The group moves to this ntfy server, with the same encryption. Members follow on their next sync; anyone who misses it can open the group\'s new invite.</string>
+    <string name="shared_server_new_invite">A new invite for %1$s, which you\'re already in: the group now meets on %2$s.</string>
+    <string name="shared_server_updated">%1$s: moved to the new server.</string>
+    <string name="shared_error_not_curator">Only a curator can move the group.</string>
 </resources>

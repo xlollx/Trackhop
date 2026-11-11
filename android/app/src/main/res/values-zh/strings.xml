@@ -2060,6 +2060,8 @@
     <string name="server_bring_back_title">带回这部手机？</string>
     <string name="server_bring_back_body">同步会从你的服务器删除（歌单保持不变），并带着在服务器上做的审核选择，重新在这部手机上运行。</string>
     <string name="server_bring_back_done">完成：同步重新在这部手机上运行。</string>
+    <string name="server_bring_back_here">不经服务器取回</string>
+    <string name="server_bring_back_here_warning">无法连接你的服务器，因此该同步可能仍在服务器上存在并继续运行：如果可以，请在服务器上删除它。移交后在服务器上做出的审核选择不会带回。</string>
     <string name="server_on_server">在服务器上</string>
     <string name="server_runs_there">在你的服务器上运行</string>
     <string name="server_run_started">已在你的服务器上开始。</string>
@@ -2146,6 +2148,13 @@
     <string name="shared_via_ntfy_desc">无需共享文件夹：更改经加密后通过 ntfy 服务器传递，可用 ntfy.sh 或你自己的服务器。</string>
     <string name="shared_ntfy_server">ntfy 服务器</string>
     <string name="shared_ntfy_server_invalid">请输入以 https:// 或 http:// 开头的地址。</string>
+    <string name="shared_ntfy_signin">此服务器需要登录</string>
+    <string name="shared_ntfy_signin_desc">你自己的访问令牌（tk_…），或你在该服务器上的用户名和密码。它只保存在这部手机上：邀请只说明服务器需要登录，每位成员输入自己的。</string>
+    <string name="shared_ntfy_token">访问令牌</string>
+    <string name="shared_ntfy_signin_change">ntfy 服务器登录</string>
+    <string name="shared_ntfy_signin_on">已登录</string>
+    <string name="shared_ntfy_signin_off">无</string>
+    <string name="shared_error_ntfy_signin">ntfy 服务器 %1$s 拒绝了登录：请在群组页面检查你的访问令牌或密码。</string>
     <string name="shared_invite_secret">任何拿到此邀请的人都能读取小组：只发给你要邀请的人。</string>
     <string name="shared_join_ntfy">%1$s 上的加密频道。任何拿到此邀请的人都能读取小组：请勿转发。</string>
     <string name="shared_joined_waiting">你已加入 %1$s。其他成员的 Trackhop 同步后，歌曲就会到达。</string>
@@ -2162,4 +2171,9 @@
     <string name="shared_new_key_confirm">当前的邀请将对所有人失效，包括已经在小组里的成员。之后把新邀请发给你想保留的成员：他们的位置保持不变。</string>
     <string name="shared_key_new_invite">这是你已加入的 %1$s 的新邀请：新密钥会替换旧密钥。</string>
     <string name="shared_key_updated">%1$s：新密钥已保存。</string>
+    <string name="shared_change_server">更换服务器</string>
+    <string name="shared_change_server_desc">群组将迁移到这个 ntfy 服务器，加密方式不变。成员会在下次同步时跟随；错过的人可以打开群组的新邀请。</string>
+    <string name="shared_server_new_invite">你已加入的 %1$s 的新邀请：群组现在在 %2$s 上交流。</string>
+    <string name="shared_server_updated">%1$s：已迁移到新服务器。</string>
+    <string name="shared_error_not_curator">只有策展人可以迁移群组。</string>
 </resources>

@@ -168,4 +168,22 @@ class ServerSyncsTest {
         assertEquals("""{"action":"ignore","tracks":["x"]}""", bodies.last())
         assertEquals(listOf("POST /api/v1/syncs/s1/run", "GET /api/v1/runs/r9/review", "POST /api/v1/runs/r9/review"), calls.takeLast(3))
     }
+
+    @Test fun aSyncTakenBackWithoutTheServerRunsHereAsItWas() {
+        val other = job.copy(id = "other", enabled = false)
+        val d = com.xlollx.songport.data.StoreData(
+            jobs = listOf(job.copy(enabled = false), other),
+            handedOver = mapOf(job.id to HandedOver("phone-${job.id}", 1L, wasEnabled = true), "other" to HandedOver("phone-other", 1L, wasEnabled = true)),
+        )
+        val back = HandOver.takenBack(d, job.id)
+        assertEquals(setOf("other"), back.handedOver.keys)
+        assertTrue(back.jobs.first { it.id == job.id }.enabled)
+        // Only that sync: the other one stays on the server, off here.
+        assertFalse(back.jobs.first { it.id == "other" }.enabled)
+        // Off when handed over: off when back.
+        val wasOff = d.copy(handedOver = mapOf(job.id to HandedOver("s", 1L, wasEnabled = false)))
+        assertFalse(HandOver.takenBack(wasOff, job.id).jobs.first { it.id == job.id }.enabled)
+        // Not handed over: nothing changes.
+        assertEquals(back, HandOver.takenBack(back, job.id))
+    }
 }

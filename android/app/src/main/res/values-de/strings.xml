@@ -2098,6 +2098,8 @@
     <string name="server_bring_back_title">Zurück auf dieses Handy holen?</string>
     <string name="server_bring_back_body">Die Sync wird auf deinem Server gelöscht (die Playlists bleiben, wie sie sind) und läuft wieder auf diesem Handy, mit den auf dem Server getroffenen Prüfentscheidungen.</string>
     <string name="server_bring_back_done">Fertig: Die Sync läuft wieder auf diesem Handy.</string>
+    <string name="server_bring_back_here">Ohne Server zurückholen</string>
+    <string name="server_bring_back_here_warning">Dein Server ist nicht erreichbar, daher kann der Sync dort noch existieren und weiterlaufen: Lösche ihn auf dem Server, wenn du kannst. Prüfentscheidungen, die seit der Übergabe auf dem Server getroffen wurden, kommen nicht zurück.</string>
     <string name="server_on_server">Auf dem Server</string>
     <string name="server_runs_there">Läuft auf deinem Server</string>
     <string name="server_run_started">Auf deinem Server gestartet.</string>
@@ -2184,6 +2186,13 @@
     <string name="shared_via_ntfy_desc">Kein Ordner zu teilen: Änderungen gehen verschlüsselt über einen ntfy-Server, ntfy.sh oder deinen eigenen.</string>
     <string name="shared_ntfy_server">ntfy-Server</string>
     <string name="shared_ntfy_server_invalid">Eine Adresse, die mit https:// oder http:// beginnt.</string>
+    <string name="shared_ntfy_signin">Dieser Server verlangt eine Anmeldung</string>
+    <string name="shared_ntfy_signin_desc">Dein eigenes Zugriffstoken (tk_…) oder dein Benutzername und Passwort auf diesem Server. Es bleibt auf diesem Handy: Die Einladung sagt nur, dass der Server eine Anmeldung verlangt, und jedes Mitglied gibt seine eigene ein.</string>
+    <string name="shared_ntfy_token">Zugriffstoken</string>
+    <string name="shared_ntfy_signin_change">Anmeldung beim ntfy-Server</string>
+    <string name="shared_ntfy_signin_on">Angemeldet</string>
+    <string name="shared_ntfy_signin_off">Keine</string>
+    <string name="shared_error_ntfy_signin">Der ntfy-Server %1$s hat die Anmeldung abgelehnt: Prüfe dein Zugriffstoken oder Passwort auf der Seite der Gruppe.</string>
     <string name="shared_invite_secret">Wer diese Einladung hat, kann die Gruppe lesen: Schick sie nur den Leuten, die du einlädst.</string>
     <string name="shared_join_ntfy">Verschlüsselter Kanal auf %1$s. Wer diese Einladung hat, kann die Gruppe lesen: Gib sie nicht weiter.</string>
     <string name="shared_joined_waiting">Du bist in %1$s. Die Songs kommen, sobald das Trackhop eines anderen Mitglieds synchronisiert.</string>
@@ -2201,4 +2210,9 @@
     <string name="shared_new_key_confirm">Die aktuelle Einladung funktioniert dann für niemanden mehr, auch nicht für Mitglieder, die schon in der Gruppe sind. Schick die neue Einladung danach an die Mitglieder, die bleiben sollen: Sie behalten ihren Platz.</string>
     <string name="shared_key_new_invite">Eine neue Einladung für %1$s, wo du schon dabei bist: Ihr Schlüssel ersetzt den alten.</string>
     <string name="shared_key_updated">%1$s: neuer Schlüssel gespeichert.</string>
+    <string name="shared_change_server">Server wechseln</string>
+    <string name="shared_change_server_desc">Die Gruppe zieht auf diesen ntfy-Server um, mit derselben Verschlüsselung. Die Mitglieder folgen bei ihrem nächsten Sync; wer es verpasst, kann die neue Einladung der Gruppe öffnen.</string>
+    <string name="shared_server_new_invite">Eine neue Einladung für %1$s, wo du schon dabei bist: Die Gruppe trifft sich jetzt auf %2$s.</string>
+    <string name="shared_server_updated">%1$s: auf den neuen Server umgezogen.</string>
+    <string name="shared_error_not_curator">Nur Kuratoren können die Gruppe umziehen.</string>
 </resources>
