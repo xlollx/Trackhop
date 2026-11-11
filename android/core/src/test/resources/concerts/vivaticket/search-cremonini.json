@@ -1,0 +1,73 @@
+{
+ "shows": {
+  "items": [
+   {
+    "id": "313707",
+    "name": "CESARE CREMONINI - AMATOUR",
+    "cityName": "CASALECCHIO DI RENO",
+    "slug": "cesare-cremonini",
+    "startDate": "2026-11-27T21:00:00Z",
+    "endDate": "2026-12-06T21:00:00Z",
+    "typology": "ticket",
+    "venueName": "Unipol Arena"
+   },
+   {
+    "id": "313709",
+    "name": "CESARE CREMONINI - AMATOUR",
+    "cityName": "TORINO",
+    "slug": "cesare-cremonini",
+    "startDate": "2026-12-09T21:00:00Z",
+    "endDate": "2026-12-12T21:00:00Z",
+    "typology": "ticket",
+    "venueName": "Inalpi Arena"
+   }
+  ],
+  "itemsCount": 4
+ },
+ "artists": {
+  "items": [
+   {
+    "id": "66874",
+    "name": "Cesare Cremonini",
+    "cityName": "",
+    "slug": "cesare-cremonini",
+    "startDate": null,
+    "endDate": null,
+    "typology": "artist",
+    "venueName": ""
+   }
+  ],
+  "itemsCount": 1
+ },
+ "venues": {
+  "items": [],
+  "itemsCount": 0
+ },
+ "tours": {
+  "items": [
+   {
+    "id": "5009",
+    "name": "CESARE CREMONINI - AMATOUR",
+    "cityName": "",
+    "slug": "cesare-cremonini-amatour",
+    "startDate": "2026-11-24T01:00:00Z",
+    "endDate": "2026-12-21T01:00:00Z",
+    "typology": "tour",
+    "venueName": ""
+   }
+  ],
+  "itemsCount": 1
+ },
+ "filters": {
+  "provinces": [],
+  "categories": [
+   {
+    "id": "10",
+    "label": "Musica",
+    "icon": "guitar",
+    "slug": "",
+    "eventCount": 4
+   }
+  ]
+ }
+}

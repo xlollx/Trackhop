@@ -1,0 +1,76 @@
+{
+ "infoPerformance": {
+  "hasCalendarView": false,
+  "hours": [
+   "21:00"
+  ],
+  "dates": [
+   "2027-06-06"
+  ],
+  "performances": [
+   {
+    "id": "1",
+    "code": "",
+    "datetime": "2027-06-06T21:00:00",
+    "title": "VASCO RESIDENCY SHOW - ROMA 2027",
+    "label": "DOMENICA 6 GIUGNO 2027",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "SOLD OUT",
+      "active": true,
+      "url": "https://vascolive.vivaticket.it/tour-2027/index.html"
+     }
+    ]
+   },
+   {
+    "id": "2",
+    "code": "",
+    "datetime": "2027-06-06T21:00:00",
+    "title": "VASCO RESIDENCY SHOW - ROMA 2027",
+    "label": "LUNEDÌ 7 GIUGNO 2027",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "SOLD OUT",
+      "active": true,
+      "url": "https://vascolive.vivaticket.it/tour-2027/index.html"
+     }
+    ]
+   },
+   {
+    "id": "3",
+    "code": "",
+    "datetime": "2027-06-06T21:00:00",
+    "title": "VASCO RESIDENCY SHOW - ROMA 2027",
+    "label": "GIOVEDÌ 10 GIUGNO 2027",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "SOLD OUT",
+      "active": true,
+      "url": "https://vascolive.vivaticket.it/tour-2027/index.html"
+     }
+    ]
+   }
+  ]
+ },
+ "infoEvent": {
+  "venueDetail": {
+   "name": "Stadio Olimpico",
+   "city": "ROMA",
+   "id": "1004062",
+   "slug": "stadio-olimpico",
+   "provinceCode": "RM"
+  },
+  "eventDetail": {
+   "title": "VASCO RESIDENCY SHOW - ROMA 2027"
+  }
+ }
+}

@@ -2006,6 +2006,8 @@
     <string name="concerts_on_ticketmaster">Tickets bei Ticketmaster</string>
     <string name="concerts_sources_both">Termine von Ticketmaster und MusicBrainz.</string>
     <string name="concerts_sources_mb">Termine von MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Tickets bei Vivaticket (inoffiziell)</string>
+    <string name="concerts_sources_unofficial">Die Vivaticket-Termine werden von der Website gelesen (inoffiziell): Das kann jederzeit aufhören zu funktionieren.</string>
     <string name="concerts_coverage_it">In Italien fehlen Konzerte, die nur bei TicketOne verkauft werden: Nutze dafür die Suchknöpfe.</string>
     <string name="concerts_coverage">Nicht jedes Konzert ist aufgeführt: Schau auch auf der offiziellen Seite des Künstlers nach.</string>
     <string name="concerts_quota">Das heutige Ticketmaster-Limit ist erreicht: Versuch es morgen wieder. Einige Termine unten stammen nur von MusicBrainz.</string>

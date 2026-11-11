@@ -1,0 +1,27 @@
+# Lists the open code scanning alerts (CodeQL) in the run's log and summary, so they can be read
+# without access to the Security tab. Daily and by hand; read-only.
+name: Code scanning list
+
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  security-events: read
+  contents: read
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open alerts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate "repos/${{ github.repository }}/code-scanning/alerts?state=open&per_page=100" \
+            --jq '.[] | "#\(.number) [\(.rule.security_severity_level // .rule.severity)] \(.rule.id) \(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) (ref \(.most_recent_instance.ref), since \(.created_at))"' > alerts.txt || true
+          n=$(grep -c . alerts.txt || true)
+          echo "OPEN_ALERTS=$n"
+          cat alerts.txt
+          { echo "### Open code scanning alerts: $n"; echo '```'; cat alerts.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

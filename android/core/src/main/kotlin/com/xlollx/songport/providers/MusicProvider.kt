@@ -156,6 +156,11 @@ interface MusicProvider {
      * file tagged with one of them, and the candidates it lists carry their own.
      */
     val matchesByMbid: Boolean get() = false
+    /**
+     * True when [search] asks the service for the title alone and leaves the artists to the scoring
+     * (Jellyfin, Emby, Plex): asking again with other artists would only repeat the same requests.
+     */
+    val searchesTitleOnly: Boolean get() = false
 
     /**
      * Every song of the server's library, each with the MusicBrainz recording ids its file is tagged

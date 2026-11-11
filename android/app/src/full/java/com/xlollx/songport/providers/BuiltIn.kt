@@ -26,6 +26,8 @@ object BuiltIn {
         com.xlollx.songport.ytmbridge.BridgeNet.interceptor = interceptor
         com.xlollx.songport.ytmbridge.BridgeNet.logSink = { tag, message -> com.xlollx.songport.data.Diagnostics.log(app, tag, message) }
         com.xlollx.songport.sync.TikTokShare.recognizer = PluginRelay.recognizer(app)
+        // Concerts: Vivaticket's dates in Italy, read from its site (unofficial: never in the store builds).
+        com.xlollx.songport.sync.Vivaticket.enabled = true
         AmazonCaptureActivity.forgetOld(app)
     }
 

@@ -2014,6 +2014,8 @@
     <string name="concerts_on_ticketmaster">Ingressos na Ticketmaster</string>
     <string name="concerts_sources_both">Datas da Ticketmaster e do MusicBrainz.</string>
     <string name="concerts_sources_mb">Datas do MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Ingressos na Vivaticket (não oficial)</string>
+    <string name="concerts_sources_unofficial">As datas da Vivaticket são lidas do site dela (não oficial): isso pode parar de funcionar a qualquer momento.</string>
     <string name="concerts_coverage_it">Na Itália faltam os shows vendidos só na TicketOne: para esses, use os botões de busca.</string>
     <string name="concerts_coverage">Nem todo show aparece aqui: veja também o site oficial do artista.</string>
     <string name="concerts_quota">O limite de hoje do Ticketmaster foi atingido: tente de novo amanhã. Algumas datas abaixo vêm só do MusicBrainz.</string>

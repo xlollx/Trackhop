@@ -182,6 +182,8 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         }
     }
 
+    override val searchesTitleOnly: Boolean get() = true
+
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         when (track.kind) {
             // Jellyfin's search term matches names: the album title alone finds the album, the artist filters after.
@@ -202,11 +204,8 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
             tagged.filter { c -> c.mbids.any { it in track.mbids } }.takeIf { it.isNotEmpty() }?.let { return it }
         }
         // Jellyfin 10.8 does not fold accents: "energie" misses "Énergie". The title as written, then.
-        val folded = Matcher.searchTitle(track.title)
-        val plain = Matcher.plainTitle(track.title)
-        val found = find(folded).ifEmpty { if (plain.equals(folded, ignoreCase = true)) emptyList() else find(plain) }
-            // "Oxygene, Pt. 4" against "Oxygene (Part IV)" (#57): the title without its part, the scoring picks the part.
-            .ifEmpty { Matcher.baseTitle(track.title)?.let { find(it) }.orEmpty() }
+        // "Oxygene, Pt. 4" against "Oxygène (Part IV)" (#57): the bare title, the scoring picks the part.
+        val found = Matcher.searchByTitles(track) { find(it) }
         // The closest first: a search by the bare title brings every part of the piece, the right one may be the sixth.
         return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }

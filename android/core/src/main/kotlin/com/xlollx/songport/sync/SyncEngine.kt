@@ -1018,7 +1018,10 @@ class SyncEngine(
             val withIsrc = if (s.isrc == null && s.kind.isEmpty() && dst.searchesByIsrc && dst.serviceId != "deezer" && store.data.settings.isrcLookup)
                 IsrcOracle.find(env, s)?.let { s.copy(isrc = it) } ?: s else s
             consider(dst.search(env, withIsrc))?.let { return it }
-            val tried = hashSetOf(query(s))
+            // A server that searches by title alone asked every form of the title already: another
+            // artist would only repeat those requests.
+            fun key(t: Track) = if (dst.searchesTitleOnly) t.kind + "|" + Matcher.searchTitle(t.title) else query(t)
+            val tried = hashSetOf(key(s))
             val title = Matcher.searchTitle(s.title)
             val first = s.artists.firstOrNull()?.let { Matcher.searchArtist(it) }?.takeIf { it.isNotBlank() }
             // "Calvin Harris, Dua Lipa" in one artist field: the first name alone, before the title alone.
@@ -1030,7 +1033,7 @@ class SyncEngine(
                 // By title only from here: the search by MusicBrainz id was the first one.
             ).map { it.copy(mbids = emptyList()) }
             for (v in variants) {
-                if (!tried.add(query(v))) continue
+                if (!tried.add(key(v))) continue
                 consider(dst.search(env, v))?.let { return it }
             }
             // Last resort, where the service has one: a wider catalogue (YouTube videos for YouTube Music).

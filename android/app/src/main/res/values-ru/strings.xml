@@ -2074,6 +2074,8 @@
     <string name="concerts_on_ticketmaster">Билеты на Ticketmaster</string>
     <string name="concerts_sources_both">Даты от Ticketmaster и MusicBrainz.</string>
     <string name="concerts_sources_mb">Даты от MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Билеты на Vivaticket (неофициально)</string>
+    <string name="concerts_sources_unofficial">Даты Vivaticket берутся с его сайта (неофициально): это может перестать работать в любой момент.</string>
     <string name="concerts_coverage_it">В Италии нет концертов, которые продаются только на TicketOne: для них используйте кнопки поиска.</string>
     <string name="concerts_coverage">Здесь есть не все концерты: загляните и на официальный сайт артиста.</string>
     <string name="concerts_quota">Дневной лимит Ticketmaster исчерпан: попробуйте завтра. Некоторые даты ниже взяты только из MusicBrainz.</string>

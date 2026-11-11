@@ -100,6 +100,25 @@ class ConcertsWebTest {
         assertEquals("Concert data from Ticketmaster and MusicBrainz.", o.s("attribution"))
     }
 
+    @Test fun aDateOnTwoTicketSitesCarriesBothLinksAndTheUnofficialOneSaysSo() {
+        val tm = Concerts.Event("Muse", "Muse live", "2026-12-01", "21:00", "Milano", "Forum", "IT", "https://www.ticketmaster.it/event/1", Concerts.Source.TICKETMASTER)
+        val vt = Concerts.Event("Muse", "MUSE", "2026-12-01", "21:00", "Milano", "Unipol Forum", "IT", "https://www.vivaticket.com/it/ticket/muse/1", Concerts.Source.VIVATICKET)
+        val r = Concerts.Result(
+            "IT", listOf(Concerts.ArtistDates("Muse", Concerts.merge(listOf(tm), emptyList(), listOf(vt)), emptyList())),
+            total = 1, ticketmaster = true, ownKey = true, quotaHit = false, keyRefused = false,
+        )
+        val o = concertsJson(r)
+        val e = o["artists"]!!.jsonArray.single().jsonObject["events"]!!.jsonArray.single().jsonObject
+        assertEquals("Ticketmaster", e.s("source"))
+        val also = e["alsoOn"]!!.jsonArray.single().jsonObject
+        assertEquals("Vivaticket", also.s("source")); assertEquals("https://www.vivaticket.com/it/ticket/muse/1", also.s("url"))
+        assertEquals("true", also["unofficial"]!!.jsonPrimitive.content)
+        assertTrue(o.s("attribution"), o.s("attribution")!!.endsWith(ConcertTexts.UNOFFICIAL))
+        assertEquals("Tickets on Vivaticket (unofficial)", ConcertTexts.tickets(Concerts.Source.VIVATICKET))
+        // Without an unofficial date, no word of it.
+        assertFalse(ConcertTexts.unofficial(r.copy(artists = listOf(Concerts.ArtistDates("Muse", listOf(tm), emptyList())))))
+    }
+
     @Test fun theCommandLineAndTheAssistantAsk() {
         val out = ByteArrayOutputStream(); val err = ByteArrayOutputStream()
         val code = Cli.run(listOf("concerts", "csv", "Quiet", "--country", "IT"), emptyMap(), PrintStream(out, true, "UTF-8"), PrintStream(err, true, "UTF-8")) { data }

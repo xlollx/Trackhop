@@ -37,6 +37,8 @@ import java.io.File
 fun installServerConnectors(officialOnly: Boolean = false) {
     // TikTok's page is read only where unofficial sources are allowed (not the Microsoft Store package).
     com.xlollx.songport.sync.TikTokShare.enabled = !officialOnly
+    // Concerts: Vivaticket's dates in Italy, read from its site (unofficial too).
+    com.xlollx.songport.sync.Vivaticket.enabled = !officialOnly
     if (!officialOnly) com.xlollx.songport.sync.TikTokShare.recognizer = ServerAudio.recognizer
     installServerConnectorsOnly(officialOnly)
 }
