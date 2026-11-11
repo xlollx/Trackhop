@@ -66,6 +66,12 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
         return true
     }
 
+    /** Shows [result] for [key] at once (one put together from what was kept), unless a run is going on. */
+    fun show(key: String?, result: T) {
+        if (job?.isActive == true) return
+        this.result = result; this.key = key; at = now()
+    }
+
     /** Stops the run going on, if any; the last result stays. */
     fun cancel() { job?.cancel() }
 
