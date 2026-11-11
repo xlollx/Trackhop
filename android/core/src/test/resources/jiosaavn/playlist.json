@@ -1,0 +1,188 @@
+{
+ "id": "77076833",
+ "title": "Best Of Ghazals - Hindi",
+ "subtitle": "77.8K Fans",
+ "header_desc": "Top Ghazals in Hindi.        \nArtists on cover: Jagjit Singh",
+ "type": "playlist",
+ "perma_url": "https://www.jiosaavn.com/featured/best-of-ghazals-hindi/Kdb2rW52fiE_",
+ "image": "https://c.saavncdn.com/editorial/BestOfGhazalsHindi_20260909061521.jpg",
+ "language": "",
+ "year": "",
+ "explicit_content": "0",
+ "list_count": "3",
+ "list": [
+  {
+   "id": "9vXZ2ueQ",
+   "title": "Koi Fariyaad",
+   "subtitle": "Jagjit Singh - Tum Bin",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/koi-fariyaad/SR4za0ZFUmI",
+   "language": "hindi",
+   "year": "2001",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "1052498",
+    "album": "Tum Bin",
+    "album_url": "https://www.jiosaavn.com/album/tum-bin/-F0cBDosYnc_",
+    "duration": "539",
+    "release_date": "2001-05-02",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "457857",
+       "name": "Nikhil-Vinay",
+       "role": "music"
+      },
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "singer"
+      },
+      {
+       "id": "468469",
+       "name": "Faaiz Anwar",
+       "role": "lyricist"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "UmanntR6",
+   "title": "Hothon Se Chhu Lo Tum (From &quot;Prem Geet&quot;)",
+   "subtitle": "Jagjit Singh - Prem Geet",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/hothon-se-chhu-lo-tum-from-prem-geet/JQUKXxpEZQU",
+   "language": "hindi",
+   "year": "2008",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "3169939",
+    "album": "Prem Geet",
+    "album_url": "https://www.jiosaavn.com/album/prem-geet/J111MXawomo_",
+    "duration": "291",
+    "release_date": "1981-01-01",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "music"
+      },
+      {
+       "id": "456004",
+       "name": "Indeevar",
+       "role": "lyricist"
+      },
+      {
+       "id": "456751",
+       "name": "Raj Babbar",
+       "role": "starring"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "Bx7-n4Qk",
+   "title": "Khuda Jaane",
+   "subtitle": "Vishal &amp; Shekhar, KK, Shilpa Rao, Anvita Dutt Guptan - Bachna Ae Haseeno",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/khuda-jaane/MhBcHBoEZlg",
+   "language": "hindi",
+   "year": "2008",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "1020942",
+    "album": "Bachna Ae Haseeno",
+    "album_url": "https://www.jiosaavn.com/album/bachna-ae-haseeno/e8v2nNXEfzo_",
+    "duration": "333",
+    "release_date": "2008-08-15",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "459880",
+       "name": "Vishal &amp; Shekhar",
+       "role": "primary_artists"
+      },
+      {
+       "id": "455782",
+       "name": "KK",
+       "role": "primary_artists"
+      },
+      {
+       "id": "455148",
+       "name": "Shilpa Rao",
+       "role": "primary_artists"
+      },
+      {
+       "id": "462689",
+       "name": "Anvita Dutt Guptan",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "459880",
+       "name": "Vishal &amp; Shekhar",
+       "role": "music"
+      },
+      {
+       "id": "455782",
+       "name": "KK",
+       "role": "singer"
+      },
+      {
+       "id": "455148",
+       "name": "Shilpa Rao",
+       "role": "singer"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "more_info": {
+  "uid": "phulki_user",
+  "last_updated": "1792401846",
+  "firstname": "JioSaavn",
+  "follower_count": "77881",
+  "playlist_type": "playlist",
+  "share": "1"
+ }
+}

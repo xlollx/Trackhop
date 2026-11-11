@@ -2219,4 +2219,8 @@
     <string name="discover_move_later">Sposta dopo</string>
     <string name="discover_order_hint">Tieni premuta una scheda e trascinala per cambiare l’ordine.</string>
     <string name="discover_order_reset">Ripristina ordine</string>
+    <string name="jiosaavn_label">JioSaavn (link pubblici, non ufficiale)</string>
+    <string name="provider_note_jiosaavn">Playlist, album e brani pubblici di JioSaavn, in sola lettura e senza accesso: incolla il link (jiosaavn.com/featured/…, /album/…, /song/…) come sorgente di una sync. Non è un\'interfaccia ufficiale: può smettere di funzionare se il sito cambia.</string>
+    <string name="jiosaavn_not_public">Questo link di JioSaavn è privato o non esiste: funzionano solo i link pubblici</string>
+    <string name="jiosaavn_changed">JioSaavn ha cambiato il sito; Trackhop va aggiornato</string>
 </resources>

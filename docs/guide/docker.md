@@ -107,6 +107,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | ListenBrainz | yes, as a source | Your user name |
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
 | NetEase Cloud Music, QQ Music | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
+| JioSaavn | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public playlist, album or song link |
 | CSV files | yes | Put them in `csv/` inside the data volume |
 | YouTube Music | yes (unofficial, alpha) | The cookies of a browser where you are signed in: [see below](#youtube-music-unofficial) |
 | Spotify (web) | yes (unofficial, alpha) | The `sp_dc` cookie of a browser where you are signed in: [see below](#spotify-and-deezer-without-a-key-unofficial) |
@@ -337,7 +338,7 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
 - **What each person may use**, ticked by the admin in **Users** and changed there at any time:
   - *Co-admin*: manages the others as the admin does (not themselves: another admin does that).
   - *Unofficial connectors*: YouTube Music, Spotify and Deezer with browser cookies; NetEase, QQ
-    Music and SoundCloud links. Off, they are not even offered. A service may limit an account that
+    Music, JioSaavn and SoundCloud links. Off, they are not even offered. A service may limit an account that
     uses them, so it is the admin's call.
   - *Radio syncs*: the server listens to a station for hours, with its bandwidth.
   - *Folders on the server*: backups copied to a folder of the server.

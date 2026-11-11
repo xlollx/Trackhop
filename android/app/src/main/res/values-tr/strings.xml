@@ -2217,4 +2217,8 @@
     <string name="discover_move_later">Sona taşı</string>
     <string name="discover_order_hint">Sırayı değiştirmek için bir karta basılı tut ve sürükle.</string>
     <string name="discover_order_reset">Sırayı sıfırla</string>
+    <string name="jiosaavn_label">JioSaavn (herkese açık bağlantılar, resmî değil)</string>
+    <string name="provider_note_jiosaavn">Herkese açık JioSaavn listeleri, albümleri ve şarkıları, salt okunur ve giriş yapmadan: bağlantıyı (jiosaavn.com/featured/…, /album/…, /song/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
+    <string name="jiosaavn_not_public">Bu JioSaavn bağlantısı gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
+    <string name="jiosaavn_changed">JioSaavn sitesini değiştirdi; Trackhop güncellenmeli</string>
 </resources>

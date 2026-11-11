@@ -5,7 +5,7 @@ import okhttp3.RequestBody
 
 /**
  * Where the requests of the unofficial read-only sources (public playlist links of NetEase Cloud
- * Music, QQ Music and Anghami; TikTok video pages) are made. The builds that carry unofficial
+ * Music, QQ Music, Anghami and JioSaavn; TikTok video pages) are made. The builds that carry unofficial
  * connectors make them here ([via] null). The Google Play build makes none of them itself: when a
  * connector plugin is installed it hands them to the plugin, which makes them and answers with the
  * response, so a Play user with the plugin has what the GitHub build has, and one without it sees

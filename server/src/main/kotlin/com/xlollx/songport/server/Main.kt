@@ -10,6 +10,7 @@ import com.xlollx.songport.providers.LyrionProvider
 import com.xlollx.songport.providers.MopidyProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.AnghamiProvider
+import com.xlollx.songport.providers.JioSaavnProvider
 import com.xlollx.songport.providers.NeteaseProvider
 import com.xlollx.songport.providers.QqMusicProvider
 import com.xlollx.songport.providers.SoundCloudProvider
@@ -70,6 +71,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         NeteaseProvider.takeUnless { officialOnly },
         AnghamiProvider.takeUnless { officialOnly },
         QqMusicProvider.takeUnless { officialOnly },
+        JioSaavnProvider.takeUnless { officialOnly },
     ),
 )
 

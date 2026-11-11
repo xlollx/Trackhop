@@ -865,6 +865,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         com.xlollx.songport.sync.NeteasePublic.SERVICE -> "https://music.163.com/#/playlist?id=…"
         com.xlollx.songport.sync.AnghamiPublic.SERVICE -> "https://play.anghami.com/playlist/…"
         com.xlollx.songport.sync.QqMusicPublic.SERVICE -> "https://y.qq.com/n/ryqq/playlist/…"
+        com.xlollx.songport.sync.JioSaavnPublic.SERVICE -> "https://www.jiosaavn.com/featured/…"
         else -> "https://soundcloud.com/user/sets/…"
     }
 

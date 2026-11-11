@@ -2299,4 +2299,8 @@
     <string name="discover_move_later">Przesuń dalej</string>
     <string name="discover_order_hint">Przytrzymaj kartę i przeciągnij ją, aby zmienić kolejność.</string>
     <string name="discover_order_reset">Przywróć kolejność</string>
+    <string name="jiosaavn_label">JioSaavn (publiczne linki, nieoficjalnie)</string>
+    <string name="provider_note_jiosaavn">Publiczne playlisty, albumy i utwory JioSaavn, tylko do odczytu i bez logowania: wklej link (jiosaavn.com/featured/…, /album/…, /song/…) jako źródło synchronizacji. To nie jest oficjalny interfejs: może przestać działać, gdy strona się zmieni.</string>
+    <string name="jiosaavn_not_public">Ten link JioSaavn jest prywatny lub nie istnieje: działają tylko publiczne linki</string>
+    <string name="jiosaavn_changed">JioSaavn zmienił stronę; Trackhop wymaga aktualizacji</string>
 </resources>

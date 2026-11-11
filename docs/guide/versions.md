@@ -9,7 +9,7 @@ is which services they can reach, and how.
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
 | Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | no |
-| LiveOne (web player), NetEase Cloud Music and QQ Music links | yes | no |
+| LiveOne (web player), NetEase Cloud Music, QQ Music and JioSaavn links | yes | no |
 | Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play: yes · AppGallery: no |
 | Ads | none | none |
 | Updates | F-Droid, Obtainium or the GitHub release page | the store |

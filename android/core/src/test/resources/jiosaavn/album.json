@@ -1,0 +1,125 @@
+{
+ "id": "1052498",
+ "title": "Tum Bin",
+ "subtitle": "Nikhil-Vinay,  Ravi Pawar,  Taz Stereo Nation",
+ "header_desc": "2001 · Hindi Album · Nikhil-Vinay, Ravi Pawar, and Taz Stereo Nation",
+ "type": "album",
+ "perma_url": "https://www.jiosaavn.com/album/tum-bin/-F0cBDosYnc_",
+ "image": "https://c.saavncdn.com/792/Tum-Bin-Hindi-2001-20221206162237-150x150.jpg",
+ "language": "hindi",
+ "year": "2001",
+ "explicit_content": "0",
+ "list_count": "2",
+ "list": [
+  {
+   "id": "Wq9tbmTv",
+   "title": "Chhoti Chhoti Raatein",
+   "subtitle": "Sonu Nigam, Anuradha Paudwal - Tum Bin",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/chhoti-chhoti-raatein/JxlSRRZdY0U",
+   "language": "hindi",
+   "year": "2001",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "1052498",
+    "album": "Tum Bin",
+    "album_url": "https://www.jiosaavn.com/album/tum-bin/-F0cBDosYnc_",
+    "duration": "357",
+    "release_date": "2001-05-02",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "455125",
+       "name": "Sonu Nigam",
+       "role": "primary_artists"
+      },
+      {
+       "id": "455126",
+       "name": "Anuradha Paudwal",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "457857",
+       "name": "Nikhil-Vinay",
+       "role": "music"
+      },
+      {
+       "id": "455125",
+       "name": "Sonu Nigam",
+       "role": "singer"
+      },
+      {
+       "id": "455126",
+       "name": "Anuradha Paudwal",
+       "role": "singer"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "u3ZWyIEi",
+   "title": "Tumhare Siva",
+   "subtitle": "Anuradha Paudwal, Udit Narayan - Tum Bin",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/tumhare-siva/BVsxZg15clo",
+   "language": "hindi",
+   "year": "2001",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "1052498",
+    "album": "Tum Bin",
+    "album_url": "https://www.jiosaavn.com/album/tum-bin/-F0cBDosYnc_",
+    "duration": "291",
+    "release_date": "2001-05-02",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "455126",
+       "name": "Anuradha Paudwal",
+       "role": "primary_artists"
+      },
+      {
+       "id": "455127",
+       "name": "Udit Narayan",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "457857",
+       "name": "Nikhil-Vinay",
+       "role": "music"
+      },
+      {
+       "id": "455126",
+       "name": "Anuradha Paudwal",
+       "role": "singer"
+      },
+      {
+       "id": "455127",
+       "name": "Udit Narayan",
+       "role": "singer"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
