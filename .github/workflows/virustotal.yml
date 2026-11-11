@@ -90,8 +90,22 @@ jobs:
           git -C badges commit -q -m "VirusTotal: $TAG"
           git -C badges push origin badges
 
+      # The run fails only on a serious flag: two or more engines on one file, or a verdict that is not
+      # one engine's machine-learning or generic guess ("…!ml", "Generic…"). A lone guess stays in the
+      # release notes and the security page, as a warning here (the owner's choice, 11/11).
       - name: Flagged
         if: ${{ steps.scan.outputs.flagged == 'true' }}
         run: |
-          echo "::error::An engine flags a file of $TAG: see the release notes' VirusTotal section."
-          exit 1
+          python3 - <<'PY'
+          import json, sys
+          r = json.load(open("out/report.json"))
+          serious, guesses = [], []
+          for f in r["files"]:
+              fb = f.get("flagged_by") or {}
+              if not fb: continue
+              guess = all(v.endswith("!ml") or "generic" in v.lower() for v in fb.values())
+              (guesses if len(fb) == 1 and guess else serious).append(f"{f['name']}: {fb}")
+          for g in guesses: print(f"::warning::One engine's guess (likely a false positive, report it): {g}")
+          for s_ in serious: print(f"::error::Flagged: {s_}")
+          sys.exit(1 if serious else 0)
+          PY

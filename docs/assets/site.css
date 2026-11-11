@@ -327,3 +327,7 @@ ul.press .press-kind.article { background: #5b3fd9; }
 .support-menu .pop small { display: block; font-size: 12px; color: var(--ink-2); }
 .support-menu .pop .i { font-size: 22px; }
 .top:has(.support-menu[open]) { overflow: visible; }
+
+/* The carousel pictures: a row that scrolls sideways, snapping to each picture. */
+.gallery-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 14px; -webkit-overflow-scrolling: touch; }
+.gallery-row img { flex: 0 0 auto; width: 270px; height: auto; border-radius: 14px; scroll-snap-align: start; box-shadow: 0 6px 20px rgba(0,0,0,.25); }

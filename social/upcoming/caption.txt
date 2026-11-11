@@ -1,0 +1,11 @@
+What Trackhop can do, and what's coming next 🎶
+
+Today: keep your playlists identical across Spotify, YouTube Music, Apple Music, TIDAL, Deezer and more, by hand or on a schedule. See every change before it happens, review the tracks it can't match, and get your Wrapped whenever you want.
+
+Upcoming in the next updates:
+• Concerts of your artists, with tickets and your calendar
+• Vinyl, CDs and merch from Discogs and the artists' own shops
+• Follow your favourite artists and get one notification for new releases, concerts and merch
+• Card sizes and a new compact view
+
+Free, open source, no ads, no account. trackhop.org

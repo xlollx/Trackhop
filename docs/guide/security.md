@@ -41,10 +41,14 @@ and the badge then says "checked" instead of "clean".
 
 **What a lone warning means.** A verdict ending in `!ml` (*machine learning*), or one with
 *generic* in its name, is an engine's guess about a program it has never seen, not a virus it
-recognises; new unsigned apps get them now and then. When that happens, the release notes name the
-engine and the verdict, the file is reported to that engine as a false positive, and the table
-updates itself once it is corrected. It happened once, to the Intel Mac file of Desktop 1.0.0
-(Microsoft, `Trojan:Script/Wacatac.C!ml`): reported, and cleared by Microsoft the same day.
+recognises; new apps get them now and then. It can land on any file, the Android app included: some
+engines are built to judge Windows programs, and an Android package (`.apk`, `.aab`) or a Mac disk
+image (`.dmg`) is an archive they cannot run, so a few of them guess from its shape alone. That is a
+limit of those scanners, not something found inside the file. When it happens, the release notes
+name the engine and the verdict, the file is reported to that engine as a false positive, and the
+table updates itself once it is corrected. So far it has always been the same engine (Microsoft,
+`Trojan:Script/Wacatac!ml`): on the Intel Mac file of Desktop 1.0.0 (cleared the same day), on the Mac
+files of Desktop 1.9 and on the Google Play bundle of the app 1.16.2 (all reported).
 
 [All guide pages](./)
 

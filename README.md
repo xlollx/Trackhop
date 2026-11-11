@@ -50,13 +50,15 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
-THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo
+THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo · Alan
 <!-- supporters:end -->
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
 
 <p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements"></p>
+
+<p align="center"><img src="docs/assets/gallery/01.jpg" width="150" alt="Trackhop: keep your playlists identical across music services"> <img src="docs/assets/gallery/02.jpg" width="150" alt="Your playlists, in sync everywhere"> <img src="docs/assets/gallery/03.jpg" width="150" alt="See every change before it happens"> <img src="docs/assets/gallery/04.jpg" width="150" alt="Nothing goes missing quietly: the review"> <img src="docs/assets/gallery/05.jpg" width="150" alt="Discover, from your own music"> <img src="docs/assets/gallery/06.jpg" width="150" alt="Your Wrapped, whenever you want"> <img src="docs/assets/gallery/07.jpg" width="150" alt="Upcoming: concerts of your artists"> <img src="docs/assets/gallery/08.jpg" width="150" alt="Upcoming: vinyl, CDs and merch"> <img src="docs/assets/gallery/09.jpg" width="150" alt="Upcoming: follow your favourite artists"> <img src="docs/assets/gallery/10.jpg" width="150" alt="How compatible are we?"> <img src="docs/assets/gallery/11.jpg" width="150" alt="Upcoming: card sizes and styles"> <img src="docs/assets/gallery/12.jpg" width="150" alt="Get Trackhop"> <img src="docs/assets/gallery/13.jpg" width="150" alt="Desktop and Docker: the web page"> <img src="docs/assets/gallery/14.jpg" width="150" alt="Desktop and Docker: the trackhop command"> <img src="docs/assets/gallery/15.jpg" width="150" alt="Desktop and Docker: the HTTP API"> <img src="docs/assets/gallery/16.jpg" width="150" alt="Desktop and Docker: MCP for AI assistants"> <img src="docs/assets/gallery/17.jpg" width="150" alt="Desktop and Docker: webhooks"> <img src="docs/assets/gallery/18.jpg" width="150" alt="Desktop and Docker: what your server is missing"><br><sub>Pictures marked <i>Upcoming</i> show what arrives in the next updates.</sub></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
