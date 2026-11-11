@@ -477,8 +477,8 @@ private fun ProviderCard(
                 }
                 OverflowMenu(actions)
                 when {
-                    // Signed in again over the expired session: the sign-in replaces it.
-                    expired -> Button(onClick = onConnect) { Text(stringResource(R.string.sign_in_again)) }
+                    // The dead session is cleared first (its cookie would be taken again by the sign-in), then a fresh sign-in.
+                    expired -> Button(onClick = { p.disconnect(ctx); onConnect() }) { Text(stringResource(R.string.sign_in_again)) }
                     connected -> OutlinedButton(onClick = { p.disconnect(ctx); onChanged() }) { Text(stringResource(R.string.disconnect)) }
                     // Servizio che passa da un'app compagna non ancora installata: il pulsante la scarica.
                     !configured && p.installUrl != null -> Button(onClick = {
