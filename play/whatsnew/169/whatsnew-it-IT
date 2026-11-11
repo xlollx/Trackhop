@@ -1,1 +1,1 @@
-SoundCloud resta collegato: l'app ora rinnova la sessione di SoundCloud in background, così non scade più dopo qualche giorno senza sync. Se scade comunque, una sola notifica ti porta dritto in Account per accedere di nuovo.
+Correzioni di affidabilità per le sync in background e i promemoria di accesso.
