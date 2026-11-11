@@ -63,6 +63,9 @@ internal object ReleasesKept {
     var progress by mutableStateOf<Pair<Int, Int>?>(null)
     var readingTracks by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
+    /** "Add to an existing playlist" open, and the playlist picked to add to. */
+    var addOpen by mutableStateOf(false)
+    var addTo by mutableStateOf<CardPick?>(null)
 }
 
 private fun typeName(ctx: Context, t: NewReleases.Type) = ctx.getString(
@@ -149,7 +152,20 @@ internal fun ReleasesPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
     val pick = k.pick
     val name = stringResource(R.string.releases_playlist_name, pick?.playlist?.name.orEmpty())
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(enabled = chosen.isNotEmpty() && !busy, onClick = { k.addOpen = !k.addOpen }) { Text(stringResource(R.string.releases_add_existing)) }
         Button(enabled = chosen.isNotEmpty() && !busy, onClick = { makePlaylist(ctx, name, chosen, onNewSync) }) { Text(stringResource(R.string.releases_make)) }
+    }
+    if (k.addOpen) {
+        // A sync from the releases into the playlist picked: it adds only the songs not already there.
+        Text(stringResource(R.string.releases_add_existing_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PlaylistSource(stringResource(R.string.releases_add_existing_target), null, snackbar, memory = "releases_add") { k.addTo = it }
+        val to = k.addTo?.takeIf { it.pastedLink == null }
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Button(enabled = to != null && chosen.isNotEmpty() && !busy, onClick = {
+                val target = PlaylistRef(provider = to!!.provider.id, playlistId = to.playlist.id, playlistName = to.playlist.name)
+                makePlaylist(ctx, name, chosen, onNewSync, target)
+            }) { Text(stringResource(R.string.releases_add_existing_go)) }
+        }
     }
     if (pick != null) {
         Text(stringResource(R.string.releases_weekly_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -182,7 +198,7 @@ private fun find(ctx: Context) {
 }
 
 /** The ticked releases' tracks, as a File playlist, and the editor of a new sync from it. */
-private fun makePlaylist(ctx: Context, name: String, chosen: List<NewReleases.Release>, onNewSync: (SyncJob.() -> SyncJob) -> Unit) {
+private fun makePlaylist(ctx: Context, name: String, chosen: List<NewReleases.Release>, onNewSync: (SyncJob.() -> SyncJob) -> Unit, target: PlaylistRef? = null) {
     val k = ReleasesKept
     val app = ctx.applicationContext
     k.progress = 0 to chosen.size; k.readingTracks = true
@@ -192,7 +208,8 @@ private fun makePlaylist(ctx: Context, name: String, chosen: List<NewReleases.Re
             if (tracks.isEmpty()) k.error = app.getString(R.string.releases_no_tracks)
             else {
                 val id = withContext(Dispatchers.IO) { LocalFilesProvider.importTracks(app, name, tracks) }
-                onNewSync { copy(name = name, source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id)) }
+                val source = PlaylistRef(provider = LocalFilesProvider.id, playlistId = id, playlistName = id)
+                onNewSync { if (target == null) copy(name = name, source = source) else copy(name = target.playlistName.ifBlank { name }, source = source, target = target, mirrorRemovals = false) }
             }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             k.error = e.message ?: app.getString(R.string.error_generic)

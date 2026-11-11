@@ -172,16 +172,16 @@ class SetlistsTest {
         assertEquals("", s.url)
     }
 
-    @Test fun theOwnKeyGoesFirstAndLooksUpMoreArtists() = runBlocking {
-        val artists = (1..30).map { "Artist $it" }
+    @Test fun theOwnKeyGoesFirstAndTheCapIsOnlyTheWholePlaylists() = runBlocking {
+        val artists = (1..(LookupCaps.SETLISTS + 5)).map { "Artist $it" }
         val shared = Setlists.find(env, artists)
-        assertEquals(Setlists.MAX_SHARED, shared.artists.size); assertEquals(30, shared.total)
+        assertEquals(LookupCaps.SETLISTS, shared.artists.size); assertEquals(LookupCaps.SETLISTS + 5, shared.total)
         Setlists.saveKey(env, " MINE ")
         hits.clear(); keys.clear()
         clock += 8L * 24 * 3_600_000
-        val own = Setlists.find(env, artists)
+        val own = Setlists.find(env, artists, whole = false)
         assertTrue(own.ownKey)
-        assertEquals(30, own.artists.size)
+        assertEquals(LookupCaps.SETLISTS + 5, own.artists.size)
         assertTrue(keys.all { it == "MINE" })
     }
 

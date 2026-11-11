@@ -98,6 +98,8 @@ class VivaticketTest {
         val p = vasco.single()
         assertEquals("ROMA", p.city); assertEquals("Stadio Olimpico", p.venue); assertTrue(p.severalDays)
         assertEquals("https://www.vivaticket.com/it/ticket/vasco-residency-show/307081", p.url)
+        assertTrue(p.image, p.image.startsWith("https://res.cloudinary.com/vivaticket/"))
+        assertEquals(p.image, Vivaticket.toEvents("Vasco Rossi", p, null, today).single().image)
         assertEquals(3, Vivaticket.parseArtist(fixture("artist-cremonini.json"), today).size)
         // Once its last night is over, a product is gone.
         assertTrue(Vivaticket.parseArtist(fixture("artist-vasco.json"), LocalDate.parse("2027-06-26")).isEmpty())
@@ -172,6 +174,14 @@ class VivaticketTest {
         clock += Concerts.TTL_MS + 1
         Concerts.find(env, listOf("Cesare Cremonini"), "IT")
         assertTrue("asked again after a day", hits.count { it.startsWith("/vt/") } > asked)
+    }
+
+    @Test fun theTimeRangeLimitsItsDatesAndWhatIsOpened() = runBlocking {
+        // A month from 10 November: Bologna's seven nights and Turin's first; Assago's (15 December) not opened.
+        val r = Concerts.find(env, listOf("Cesare Cremonini"), "IT", Concerts.Range.MONTH)
+        assertEquals(8, r.artists.single().events.size)
+        assertTrue(r.artists.single().events.all { it.date <= "2026-12-10" })
+        assertTrue(hits.none { it.startsWith("/vt/Event/313710") })
     }
 
     @Test fun elsewhereOrWhereNotAllowedItIsNeverAsked() = runBlocking {

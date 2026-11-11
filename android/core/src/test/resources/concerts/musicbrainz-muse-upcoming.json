@@ -1,0 +1,1058 @@
+{
+ "created": "2026-11-11T06:09:20.108Z",
+ "count": 2,
+ "offset": 0,
+ "events": [
+  {
+   "id": "675127cc-2c4d-49df-bb4b-159687733f88",
+   "type": "Festival",
+   "score": 100,
+   "name": "Southside 2027",
+   "life-span": {
+    "begin": "2027-06-18",
+    "end": "2027-06-20"
+   },
+   "relations": [
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "cff9699d-4693-476f-adc6-0d187eeb8840",
+      "name": "Tulpe",
+      "sort-name": "Tulpe",
+      "disambiguation": "rockchansons from Germany"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "c74a9a82-29bf-486d-bf93-b4516ac3e338",
+      "name": "Temper City",
+      "sort-name": "Temper City"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "95f5b748-d370-47fe-85bd-0af2dc450bc0",
+      "name": "Sublime",
+      "sort-name": "Sublime",
+      "disambiguation": "ska punk"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "de701d16-34d0-4ffb-a64e-2f07dea8e7a3",
+      "name": "South Arcade",
+      "sort-name": "South Arcade"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f1d46f29-34fd-4cd5-959f-0a213e1f1d8e",
+      "name": "Ski Aggu",
+      "sort-name": "Ski Aggu"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "4af64db6-0182-4538-800c-bece70ae3a2a",
+      "name": "Showing Teeth",
+      "sort-name": "Showing Teeth"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "aa62b28e-b6d4-4086-91d4-e5fac1ed56f3",
+      "name": "Royal Blood",
+      "sort-name": "Royal Blood",
+      "disambiguation": "Brighton UK two piece rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "26df36c0-79fa-4d34-8f9d-926e1458f487",
+      "name": "Raum27",
+      "sort-name": "Raum27"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "847e8284-8582-4b0e-9c26-b042a4f49e57",
+      "name": "Placebo",
+      "sort-name": "Placebo",
+      "disambiguation": "UK alternative rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "2eab1dfb-3a24-4389-b3d4-e8a53b9d5e36",
+      "name": "The Paradox",
+      "sort-name": "Paradox, The",
+      "disambiguation": "US pop punk band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "7ed85dd7-124e-477b-9bdf-81f4b3237042",
+      "name": "Ely Oaks",
+      "sort-name": "Oaks, Ely"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "d0d49b8a-7995-4e0f-9a0a-1c4b1e744477",
+      "name": "makko",
+      "sort-name": "makko",
+      "disambiguation": "German rapper"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "8a0c3b86-af55-42d2-85b9-6372e7430986",
+      "name": "Madsen",
+      "sort-name": "Madsen",
+      "disambiguation": "German indie rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "58e80cb1-6b99-43de-b3f8-0d24ab25688e",
+      "name": "Leoniden",
+      "sort-name": "Leoniden"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6b25f301-8144-4e5b-80b9-0b23ce6dbab7",
+      "name": "Kontra K",
+      "sort-name": "Kontra K",
+      "disambiguation": "German rapper"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "aa9ea04c-6d55-4244-9139-22c75bd19f97",
+      "name": "Dermot Kennedy",
+      "sort-name": "Kennedy, Dermot",
+      "disambiguation": "Irish singer‐songwriter"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "930448f9-a67a-402f-bc73-2bf6b279afaa",
+      "name": "Felix Jaehn",
+      "sort-name": "Jaehn, Felix"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "736c8ea9-b5c3-4c5f-8782-28e633f0c084",
+      "name": "Holly Humberstone",
+      "sort-name": "Humberstone, Holly"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "a84a3df1-a873-4be9-b6ff-4238393d46d7",
+      "name": "Good Neighbours",
+      "sort-name": "Good Neighbours"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "2814407d-05f1-4d0e-a6d2-04fd832ffa1c",
+      "name": "Evening Elephants",
+      "sort-name": "Evening Elephants"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "329f95db-f02e-40bf-a5f7-0dea11529ce3",
+      "name": "Enter Shikari",
+      "sort-name": "Enter Shikari"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "38ed4923-005f-4ba0-baf7-749269dfea29",
+      "name": "Dexter and The Moonrocks",
+      "sort-name": "Dexter and The Moonrocks",
+      "disambiguation": "US | country-rock"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6a93afbb-257f-4166-b389-9f2a1e5c5df8",
+      "name": "CHVRCHES",
+      "sort-name": "CHVRCHES",
+      "disambiguation": "Glaswegian electronic pop trio"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "5b58a620-4390-4373-913e-eeb68bdb37c3",
+      "name": "Chapo102",
+      "sort-name": "Chapo102",
+      "disambiguation": "German rapper"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6dc9bc09-a0c7-40f9-b491-f90845927533",
+      "name": "Boy Harsher",
+      "sort-name": "Boy Harsher",
+      "disambiguation": "American synthpop/darkwave band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "d77c5531-a158-45ec-a0ba-b0e8b09337fd",
+      "name": "Blumengarten",
+      "sort-name": "Blumengarten",
+      "disambiguation": "German pop duo"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "77127115-2daf-4ca8-81c2-c3acb4ce0c31",
+      "name": "Bleech 9:3",
+      "sort-name": "Bleech 9:3",
+      "disambiguation": "Irish alt-rock 4-piece"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "58e235fc-f6ea-4614-9ed4-9855a5665ae1",
+      "name": "Bleachers",
+      "sort-name": "Bleachers"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "456104db-b21e-46a6-a094-1dd396f4c6a6",
+      "name": "Bilderbuch",
+      "sort-name": "Bilderbuch"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "88d17133-abbc-42db-9526-4e2c1db60336",
+      "name": "beabadoobee",
+      "sort-name": "beabadoobee"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "5b80c774-788c-4cda-87ad-887ca2c7741b",
+      "name": "Anna Grey",
+      "sort-name": "Anna Grey",
+      "disambiguation": "singer‐songwriter from Berlin"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "fc7bbf00-fbaa-4736-986b-b3ac0266ca9b",
+      "name": "alt‐J",
+      "sort-name": "alt‐J",
+      "disambiguation": "English indie‐rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "b345af35-205e-4eca-8006-029e5c20127e",
+      "name": "Simple Plan",
+      "sort-name": "Simple Plan"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "8ed919fb-eaee-45a1-ba99-b3ede9ca5f1d",
+      "name": "Pierce the Veil",
+      "sort-name": "Pierce the Veil"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "9c9f1380-2516-4fc9-a3e6-f9f61941d090",
+      "name": "Muse",
+      "sort-name": "Muse",
+      "disambiguation": "UK rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f6af669a-56ea-448a-a044-de76181ada33",
+      "name": "mgk",
+      "sort-name": "mgk",
+      "disambiguation": "rapper Colson Baker, fka Machine Gun Kelly"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "bbf47ed4-c76f-4b5d-9d64-257fc0d066a0",
+      "name": "Mehnersmoos",
+      "sort-name": "Mehnersmoos"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "65d52cca-0cc8-4ebf-aabc-473da2e4458f",
+      "name": "SOFIA ISELLA",
+      "sort-name": "ISELLA, SOFIA"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f8ed032c-0d34-4ae6-a069-91417097509e",
+      "name": "The Interrupters",
+      "sort-name": "Interrupters, The"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "b0061f91-ca53-45b9-ad13-d217f4f6caa2",
+      "name": "Ikkimel",
+      "sort-name": "Ikkimel"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "1921c28c-ec61-4725-8e35-38dd656f7923",
+      "name": "I Prevail",
+      "sort-name": "I Prevail"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "40c1bbd0-45d1-485a-8f4c-3943fa97208a",
+      "name": "Paula Hartmann",
+      "sort-name": "Hartmann, Paula"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "917f3950-9a2a-4c0b-804c-06b1ffddd0c5",
+      "name": "Giant Rooks",
+      "sort-name": "Giant Rooks"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "18fd16ff-1807-4951-bfcf-700018019edb",
+      "name": "Feine Sahne Fischfilet",
+      "sort-name": "Feine Sahne Fischfilet"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "e8374874-4178-4869-b92e-fef6bf30dc04",
+      "name": "Dropkick Murphys",
+      "sort-name": "Dropkick Murphys"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "ce09226e-3480-423b-8fae-a6855128124f",
+      "name": "Deine Cousine",
+      "sort-name": "Deine Cousine",
+      "disambiguation": "German band with lead singer Ina Bredehorn"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "96855c21-b832-4366-ba12-0d2330c36a86",
+      "name": "Phoebe Bridgers",
+      "sort-name": "Bridgers, Phoebe"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "1ac970a1-2d7d-4ac6-b962-f242874f0a4a",
+      "name": "Apsilon",
+      "sort-name": "Apsilon"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "5fd29907-c3c5-4b1d-a799-7cf9bbd288fc",
+      "name": "Angine de Poitrine",
+      "sort-name": "Angine de Poitrine"
+     }
+    },
+    {
+     "type": "held at",
+     "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+     "direction": "backward",
+     "place": {
+      "id": "6dc16f15-044d-4e92-9609-e3ae4cfadab0",
+      "name": "Flugplatz Neuhausen ob Eck"
+     }
+    }
+   ]
+  },
+  {
+   "id": "3e5626e2-8e28-4126-8a5c-9637f8c10e28",
+   "type": "Festival",
+   "score": 100,
+   "name": "Hurricane Festival 2027",
+   "life-span": {
+    "begin": "2027-06-18",
+    "end": "2027-06-20"
+   },
+   "relations": [
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "cff9699d-4693-476f-adc6-0d187eeb8840",
+      "name": "Tulpe",
+      "sort-name": "Tulpe",
+      "disambiguation": "rockchansons from Germany"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "c74a9a82-29bf-486d-bf93-b4516ac3e338",
+      "name": "Temper City",
+      "sort-name": "Temper City"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "95f5b748-d370-47fe-85bd-0af2dc450bc0",
+      "name": "Sublime",
+      "sort-name": "Sublime",
+      "disambiguation": "ska punk"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "de701d16-34d0-4ffb-a64e-2f07dea8e7a3",
+      "name": "South Arcade",
+      "sort-name": "South Arcade"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f1d46f29-34fd-4cd5-959f-0a213e1f1d8e",
+      "name": "Ski Aggu",
+      "sort-name": "Ski Aggu"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "4af64db6-0182-4538-800c-bece70ae3a2a",
+      "name": "Showing Teeth",
+      "sort-name": "Showing Teeth"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "aa62b28e-b6d4-4086-91d4-e5fac1ed56f3",
+      "name": "Royal Blood",
+      "sort-name": "Royal Blood",
+      "disambiguation": "Brighton UK two piece rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "26df36c0-79fa-4d34-8f9d-926e1458f487",
+      "name": "Raum27",
+      "sort-name": "Raum27"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "847e8284-8582-4b0e-9c26-b042a4f49e57",
+      "name": "Placebo",
+      "sort-name": "Placebo",
+      "disambiguation": "UK alternative rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "2eab1dfb-3a24-4389-b3d4-e8a53b9d5e36",
+      "name": "The Paradox",
+      "sort-name": "Paradox, The",
+      "disambiguation": "US pop punk band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "7ed85dd7-124e-477b-9bdf-81f4b3237042",
+      "name": "Ely Oaks",
+      "sort-name": "Oaks, Ely"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "d0d49b8a-7995-4e0f-9a0a-1c4b1e744477",
+      "name": "makko",
+      "sort-name": "makko",
+      "disambiguation": "German rapper"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "8a0c3b86-af55-42d2-85b9-6372e7430986",
+      "name": "Madsen",
+      "sort-name": "Madsen",
+      "disambiguation": "German indie rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "58e80cb1-6b99-43de-b3f8-0d24ab25688e",
+      "name": "Leoniden",
+      "sort-name": "Leoniden"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6b25f301-8144-4e5b-80b9-0b23ce6dbab7",
+      "name": "Kontra K",
+      "sort-name": "Kontra K",
+      "disambiguation": "German rapper"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "aa9ea04c-6d55-4244-9139-22c75bd19f97",
+      "name": "Dermot Kennedy",
+      "sort-name": "Kennedy, Dermot",
+      "disambiguation": "Irish singer‐songwriter"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "930448f9-a67a-402f-bc73-2bf6b279afaa",
+      "name": "Felix Jaehn",
+      "sort-name": "Jaehn, Felix"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "736c8ea9-b5c3-4c5f-8782-28e633f0c084",
+      "name": "Holly Humberstone",
+      "sort-name": "Humberstone, Holly"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "a84a3df1-a873-4be9-b6ff-4238393d46d7",
+      "name": "Good Neighbours",
+      "sort-name": "Good Neighbours"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "2814407d-05f1-4d0e-a6d2-04fd832ffa1c",
+      "name": "Evening Elephants",
+      "sort-name": "Evening Elephants"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "329f95db-f02e-40bf-a5f7-0dea11529ce3",
+      "name": "Enter Shikari",
+      "sort-name": "Enter Shikari"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "38ed4923-005f-4ba0-baf7-749269dfea29",
+      "name": "Dexter and The Moonrocks",
+      "sort-name": "Dexter and The Moonrocks",
+      "disambiguation": "US | country-rock"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6a93afbb-257f-4166-b389-9f2a1e5c5df8",
+      "name": "CHVRCHES",
+      "sort-name": "CHVRCHES",
+      "disambiguation": "Glaswegian electronic pop trio"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "6dc9bc09-a0c7-40f9-b491-f90845927533",
+      "name": "Boy Harsher",
+      "sort-name": "Boy Harsher",
+      "disambiguation": "American synthpop/darkwave band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "d77c5531-a158-45ec-a0ba-b0e8b09337fd",
+      "name": "Blumengarten",
+      "sort-name": "Blumengarten",
+      "disambiguation": "German pop duo"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "77127115-2daf-4ca8-81c2-c3acb4ce0c31",
+      "name": "Bleech 9:3",
+      "sort-name": "Bleech 9:3",
+      "disambiguation": "Irish alt-rock 4-piece"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "58e235fc-f6ea-4614-9ed4-9855a5665ae1",
+      "name": "Bleachers",
+      "sort-name": "Bleachers"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "456104db-b21e-46a6-a094-1dd396f4c6a6",
+      "name": "Bilderbuch",
+      "sort-name": "Bilderbuch"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "88d17133-abbc-42db-9526-4e2c1db60336",
+      "name": "beabadoobee",
+      "sort-name": "beabadoobee"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "5b80c774-788c-4cda-87ad-887ca2c7741b",
+      "name": "Anna Grey",
+      "sort-name": "Anna Grey",
+      "disambiguation": "singer‐songwriter from Berlin"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "fc7bbf00-fbaa-4736-986b-b3ac0266ca9b",
+      "name": "alt‐J",
+      "sort-name": "alt‐J",
+      "disambiguation": "English indie‐rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "b345af35-205e-4eca-8006-029e5c20127e",
+      "name": "Simple Plan",
+      "sort-name": "Simple Plan"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "8ed919fb-eaee-45a1-ba99-b3ede9ca5f1d",
+      "name": "Pierce the Veil",
+      "sort-name": "Pierce the Veil"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "9c9f1380-2516-4fc9-a3e6-f9f61941d090",
+      "name": "Muse",
+      "sort-name": "Muse",
+      "disambiguation": "UK rock band"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f6af669a-56ea-448a-a044-de76181ada33",
+      "name": "mgk",
+      "sort-name": "mgk",
+      "disambiguation": "rapper Colson Baker, fka Machine Gun Kelly"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "bbf47ed4-c76f-4b5d-9d64-257fc0d066a0",
+      "name": "Mehnersmoos",
+      "sort-name": "Mehnersmoos"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "65d52cca-0cc8-4ebf-aabc-473da2e4458f",
+      "name": "SOFIA ISELLA",
+      "sort-name": "ISELLA, SOFIA"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "f8ed032c-0d34-4ae6-a069-91417097509e",
+      "name": "The Interrupters",
+      "sort-name": "Interrupters, The"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "b0061f91-ca53-45b9-ad13-d217f4f6caa2",
+      "name": "Ikkimel",
+      "sort-name": "Ikkimel"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "1921c28c-ec61-4725-8e35-38dd656f7923",
+      "name": "I Prevail",
+      "sort-name": "I Prevail"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "40c1bbd0-45d1-485a-8f4c-3943fa97208a",
+      "name": "Paula Hartmann",
+      "sort-name": "Hartmann, Paula"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "917f3950-9a2a-4c0b-804c-06b1ffddd0c5",
+      "name": "Giant Rooks",
+      "sort-name": "Giant Rooks"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "18fd16ff-1807-4951-bfcf-700018019edb",
+      "name": "Feine Sahne Fischfilet",
+      "sort-name": "Feine Sahne Fischfilet"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "e8374874-4178-4869-b92e-fef6bf30dc04",
+      "name": "Dropkick Murphys",
+      "sort-name": "Dropkick Murphys"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "ce09226e-3480-423b-8fae-a6855128124f",
+      "name": "Deine Cousine",
+      "sort-name": "Deine Cousine",
+      "disambiguation": "German band with lead singer Ina Bredehorn"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "96855c21-b832-4366-ba12-0d2330c36a86",
+      "name": "Phoebe Bridgers",
+      "sort-name": "Bridgers, Phoebe"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "1ac970a1-2d7d-4ac6-b962-f242874f0a4a",
+      "name": "Apsilon",
+      "sort-name": "Apsilon"
+     }
+    },
+    {
+     "type": "main performer",
+     "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+     "direction": "backward",
+     "artist": {
+      "id": "5fd29907-c3c5-4b1d-a799-7cf9bbd288fc",
+      "name": "Angine de Poitrine",
+      "sort-name": "Angine de Poitrine"
+     }
+    },
+    {
+     "type": "held at",
+     "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+     "direction": "backward",
+     "place": {
+      "id": "2ccced5d-0897-4ffd-94d5-afb321bbdb0c",
+      "name": "Eichenring"
+     }
+    }
+   ]
+  }
+ ]
+}

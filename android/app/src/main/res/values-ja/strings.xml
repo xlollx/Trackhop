@@ -865,6 +865,10 @@
     <string name="services_group_servers">自分のサーバー</string>
     <string name="services_group_other">その他</string>
     <string name="settings_new_look">新しい見た目</string>
+    <string name="settings_discover_images">「発見」の画像</string>
+    <string name="settings_discover_images_summary">コンサートの写真とレコードのジャケット。オフにするとデータを節約できます。</string>
+    <string name="settings_discover_images_wifi">画像は Wi-Fi のときだけ</string>
+    <string name="settings_discover_images_wifi_summary">モバイルデータでは「発見」に画像を表示しません。</string>
     <string name="settings_new_look_desc">前回の実行を数字で、最近の実行履歴とあわせて表示する同期カード。</string>
     <string name="stat_added">追加</string>
     <string name="stat_removed">削除</string>
@@ -1892,6 +1896,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">シングル</string>
     <string name="releases_make">プレイリストを作成</string>
+    <string name="releases_add_existing">プレイリストに追加</string>
+    <string name="releases_add_existing_desc">プレイリストを選ぶと、チェックしたリリースを追加する同期が開きます。すでにある曲はスキップされます。</string>
+    <string name="releases_add_existing_target">追加先のプレイリスト</string>
+    <string name="releases_add_existing_go">リリースを追加</string>
     <string name="releases_playlist_name">%1$s の新作</string>
     <string name="releases_weekly">毎週</string>
     <string name="releases_weekly_desc">または、同期で毎週、どのサービスのプレイリストにもこれらのアーティストの新作を追加できます。</string>
@@ -1960,17 +1968,34 @@
     <string name="concerts_sources_unofficial">Vivaticket の公演情報はサイトから読み取っています（非公式）。いつでも使えなくなる可能性があります。</string>
     <string name="concerts_coverage_it">イタリアでは TicketOne のみで販売される公演は含まれません。検索ボタンをお使いください。</string>
     <string name="concerts_coverage">すべての公演が載っているわけではありません。アーティストの公式サイトも確認してください。</string>
-    <string name="concerts_quota">今日の Ticketmaster の上限に達しました。明日もう一度試すか、ご自身のキーを追加してください。下の一部の公演は MusicBrainz のみの情報です。</string>
+    <string name="concerts_quota">本日の Ticketmaster の上限に達しました。明日もう一度お試しください。下の一部の日程は MusicBrainz のみのものです。</string>
     <string name="concerts_key_refused">Ticketmaster がキーを拒否しました。確認してください。</string>
-    <string name="concerts_no_key">MusicBrainz の公演のみです。無料の Ticketmaster キーを追加すると、ずっと多く表示されます。</string>
-    <string name="concerts_limited">よく聴く %1$d 組のアーティストだけを探しました。ご自身の Ticketmaster キーを追加すると %2$d 組すべてを探せます。</string>
+    <string name="concerts_no_key">Ticketmaster には自分の無料キーが必要です。日程を見るにはキーを追加してください。</string>
     <string name="concerts_key_title">Ticketmaster キー</string>
-    <string name="concerts_key_body">任意です。ご自身の無料キーがあれば、Trackhop はより多くのアーティストを探し、1 日の上限を他の人と共有しません。Ticketmaster の開発者サイトでアプリを作り、その Consumer Key をここに貼り付けてください (Consumer Secret は絶対に貼らないでください)。</string>
+    <string name="concerts_key_body">Ticketmaster の日程には自分の無料キーが必要です。キーがなければ MusicBrainz の日程のみです。</string>
+    <string name="concerts_key_steps">1. 「キーを取得」をタップすると Ticketmaster の開発者サイトが開きます。チケット購入用ではなく、開発者アカウントが必要です。\n2. Get your API key をタップし、登録またはログインします。\n3. My Apps で自分のアプリを開き、Consumer Key をコピーします（Consumer Secret は不可）。\n4. 下に貼り付けて「保存」をタップします。</string>
+    <string name="setlists_key_steps">1. setlist.fm で無料アカウントを作成するか、ログインします。\n2. 「キーを取得」をタップすると setlist.fm の Settings › API が開きます。\n3. キーを申請します。アプリ名は Trackhop、説明は \"Personal use: setlists of my playlists\' artists\"、非商用です。\n4. 表示されたキーをコピーし、下に貼り付けて「保存」をタップします。</string>
+    <string name="records_token_steps">1. Discogs にログインします（無料アカウントで十分です）。\n2. 「トークンを取得」をタップすると Discogs の Settings › Developers が開きます。\n3. Generate new token をタップしてコピーします。\n4. 下に貼り付けて「保存」をタップします。</string>
     <string name="concerts_key_get">キーを取得</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">ご自身のキーを使用中</string>
     <string name="concerts_key_shared">アプリの共有キーを使用中</string>
     <string name="concerts_key_none">キーなし: MusicBrainz の公演のみ</string>
+    <string name="concerts_range">期間</string>
+    <string name="concerts_range_1m">今後1か月</string>
+    <string name="concerts_range_3m">今後3か月</string>
+    <string name="concerts_range_6m">今後6か月</string>
+    <string name="concerts_range_1y">今後12か月</string>
+    <string name="concerts_range_any">すべての日程</string>
+    <string name="concerts_add_calendar">カレンダーに追加</string>
+    <string name="concerts_no_calendar">カレンダーアプリが見つかりません。</string>
+    <string name="artists_search">アーティストを検索</string>
+    <string name="artists_choose">アーティストを選ぶ</string>
+    <string name="artists_choose_hint">検索するアーティストにチェックを入れてください。チェックがなければプレイリスト全体です。</string>
+    <string name="artists_chosen">アーティスト：%2$d 組中 %1$d 組</string>
+    <string name="artists_whole_playlist">アーティスト：プレイリスト全体</string>
+    <string name="artists_typed">ほかのアーティスト（名前で）</string>
+    <string name="artists_capped">よく聴く %1$d 組を検索しました（全 %2$d 組中）。ほかを検索するにはアーティストを選んでください。</string>
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
@@ -1983,7 +2008,6 @@
     <string name="setlists_quota">setlist.fm の今日の上限に達しました。明日もう一度試してください。</string>
     <string name="setlists_key_refused">setlist.fm がキーを拒否しました。確認してください。</string>
     <string name="setlists_no_key">セットリストには setlist.fm のキーが必要です。無料なので自分のキーを追加してください。</string>
-    <string name="setlists_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm から %d 組のアーティストの応答がありませんでした。後でもう一度試してください。</item>
     </plurals>
@@ -1997,7 +2021,7 @@
     <string name="setlists_make">プレイリストを作成</string>
     <string name="setlists_attribution">セットリスト提供: setlist.fm</string>
     <string name="setlists_key_title">setlist.fm キー</string>
-    <string name="setlists_key_body">セットリストには自分の無料 setlist.fm キーが必要です。setlist.fm アカウント › Settings › API で作成して、ここに貼り付けてください。Trackhop は公開セットリストを読むだけです。</string>
+    <string name="setlists_key_body">セットリストには自分の無料 setlist.fm キーが必要です。Trackhop は公開セットリストのみを読み取ります。</string>
     <string name="setlists_key_field">API キー</string>
     <string name="setlists_key_none">キーなし: セットリストを見るには追加してください</string>
     <string name="discover_records_title">レコードとグッズ</string>
@@ -2014,7 +2038,6 @@
     <string name="records_slowed">Discogs からペースを落とすよう求められました。今回は一部のアーティストのレコードがありません。1 分後にもう一度お試しください。</string>
     <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › 詳細設定 › サービスのキーで確認してください。</string>
     <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、より多くのアーティストを検索できます。</string>
-    <string name="records_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <string name="records_links">公式ページ</string>
     <string name="records_shop">公式ショップ</string>
     <string name="records_search">ショップで検索</string>

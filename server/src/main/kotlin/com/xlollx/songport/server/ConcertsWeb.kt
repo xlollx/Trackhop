@@ -23,9 +23,9 @@ import java.util.Locale
  * TICKETMASTER_API_KEY; without one, MusicBrainz's dates alone.
  */
 internal object ConcertTexts {
-    const val QUOTA = "Today's Ticketmaster limit is reached: try again tomorrow or add your own key (Settings › Ticketmaster key). Some dates come from MusicBrainz only."
+    const val QUOTA = "Today's Ticketmaster limit is reached: try again tomorrow. Some dates come from MusicBrainz only."
     const val REFUSED = "Ticketmaster refused the key: check it in Settings › Ticketmaster key."
-    const val NO_KEY = "Only MusicBrainz dates: add a free Ticketmaster key in Settings for many more."
+    const val NO_KEY = "Ticketmaster needs your own free key: add it in Settings › Ticketmaster key to see its dates."
     const val GAP_IT = "In Italy, concerts sold only on TicketOne are missing: use the search links for those."
     const val GAP = "Not every concert is listed: check the artist's official site too."
     const val UNOFFICIAL = "Vivaticket's dates are read from its website (unofficial): this may stop working at any time."
@@ -40,7 +40,7 @@ internal object ConcertTexts {
     /** Some dates come from an unofficial source. */
     fun unofficial(r: Concerts.Result) = r.artists.any { a -> a.events.any { e -> e.source.unofficial || e.alsoOn.any { it.source.unofficial } } }
 
-    fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up: add your own Ticketmaster key to look up all $total."
+    fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up, of $total."
 
     /** The notes a result comes with, in the order they matter. */
     fun notes(r: Concerts.Result): List<String> = listOfNotNull(
@@ -68,7 +68,7 @@ private suspend fun Web.playlistsOf(p: MusicProvider): List<Playlist> = p.librar
 /** Looks the playlist's artists up: what the page's task and the API both run. */
 private suspend fun Web.concertsOf(p: MusicProvider, playlistId: String, country: String, progress: (Int, Int) -> Unit = { _, _ -> }): Concerts.Result {
     val artists = Concerts.artistsOf(p.tracks(env, playlistId))
-    val r = Concerts.find(env, artists, country, progress)
+    val r = Concerts.find(env, artists, country, progress = progress)
     env.log("concerts", "${p.label(env)} / $playlistId in ${r.country}: ${r.artists.count { it.events.isNotEmpty() }} of ${r.artists.size} artists with dates")
     return r
 }
@@ -214,7 +214,7 @@ internal fun Web.ticketmasterKeyCard(): String {
         else -> "No key: Concerts shows MusicBrainz dates only."
     }
     return """<form method="post" action="/settings" class="card" id="ticketmaster"><input type="hidden" name="action" value="ticketmaster"><h3>Ticketmaster key</h3>
-<p class="muted">For Tools › Concerts. Free: make an app on <a href="${Concerts.KEY_URL}" rel="noopener noreferrer" target="_blank">Ticketmaster's developer site</a> and paste its <strong>Consumer Key</strong> (never the Consumer Secret). Your own key looks up more artists and has its own daily limit. $state</p>
+<p class="muted">For Tools › Concerts. Free: make an app on <a href="${Concerts.KEY_URL}" rel="noopener noreferrer" target="_blank">Ticketmaster's developer site</a> and paste its <strong>Consumer Key</strong> (never the Consumer Secret). Without a key, MusicBrainz's dates only. $state</p>
 <label>Consumer Key</label><input name="key" autocomplete="off" placeholder="${if (own) "saved: leave empty to keep it" else ""}">
 <p class="actions"><button>Save</button>${if (own) """ <button name="remove" value="1" class="secondary">Remove</button>""" else ""}</p></form>"""
 }

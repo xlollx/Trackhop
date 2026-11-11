@@ -62,7 +62,7 @@ private suspend fun Web.recordPlaylists(p: MusicProvider): List<Playlist> = p.li
 
 private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency: String, progress: (Int, Int) -> Unit = { _, _ -> }): Records.Result {
     val artists = Concerts.artistsOf(p.tracks(env, playlistId))
-    val r = Records.find(env, artists, currency, progress)
+    val r = Records.find(env, artists, currency, progress = progress)
     env.log("records", "${p.label(env)} / $playlistId: ${r.artists.count { !it.records.isNullOrEmpty() }} of ${r.artists.size} artists with records")
     return r
 }

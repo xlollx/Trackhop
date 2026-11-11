@@ -49,7 +49,8 @@
    "cityName": "ROMA",
    "subtitle": "",
    "ticketTypeId": "0",
-   "typology": "ticket"
+   "typology": "ticket",
+   "image": "https://res.cloudinary.com/vivaticket/image/fetch/q_auto:eco,f_auto/https://shopcdn.vivaticket.com/shop/img_eventi_new/390x390_156_6a55eabe94780.png"
   }
  ],
  "color": {

@@ -48,7 +48,7 @@ private fun Web.readableForSetlists(): List<MusicProvider> =
 private suspend fun Web.playlistsFor(p: MusicProvider): List<Playlist> = p.libraryEntries(env, false) + p.playlists(env)
 
 private suspend fun Web.setlistsOf(p: MusicProvider, playlistId: String, progress: (Int, Int) -> Unit = { _, _ -> }): Setlists.Result {
-    val r = Setlists.find(env, Setlists.artistsOf(p.tracks(env, playlistId)), progress)
+    val r = Setlists.find(env, Setlists.artistsOf(p.tracks(env, playlistId)), progress = progress)
     env.log("setlists", "${p.label(env)} / $playlistId: ${r.artists.count { it.setlists.isNotEmpty() }} of ${r.artists.size} artists with setlists")
     return r
 }

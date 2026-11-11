@@ -43,6 +43,8 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.EditNotifications
@@ -233,6 +235,12 @@ fun SettingsScreen(
             }
             PrefSwitch(Icons.Filled.Dashboard, stringResource(R.string.settings_new_look), stringResource(R.string.settings_new_look_summary), settings.newLook, help = { HelpButton(Helps.newLook) }) { v ->
                 store.updateSettings { it.copy(newLook = v) }
+            }
+            PrefSwitch(Icons.Filled.Image, stringResource(R.string.settings_discover_images), stringResource(R.string.settings_discover_images_summary), settings.discoverImages) { v ->
+                store.updateSettings { it.copy(discoverImages = v) }
+            }
+            PrefSwitch(Icons.Filled.Wifi, stringResource(R.string.settings_discover_images_wifi), stringResource(R.string.settings_discover_images_wifi_summary), settings.discoverImagesWifiOnly, enabled = settings.discoverImages) { v ->
+                store.updateSettings { it.copy(discoverImagesWifiOnly = v) }
             }
         }
 

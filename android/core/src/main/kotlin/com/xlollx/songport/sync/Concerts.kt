@@ -8,6 +8,7 @@ import com.xlollx.songport.net.Pacer
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.bool
 import com.xlollx.songport.net.get
+import com.xlollx.songport.net.int
 import com.xlollx.songport.net.json
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
@@ -21,7 +22,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import java.net.URLEncoder
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
@@ -30,12 +34,13 @@ import java.util.Locale
  * in one country, from the Ticketmaster Discovery API and from MusicBrainz's events.
  *
  * Ticketmaster takes a Consumer Key (never its secret): the user's own, in the token vault
- * ([KEY_ID], [ServiceKeys]), or else the build's ([BUILD_KEY], the Play and AppGallery builds only;
- * the GitHub and F-Droid builds carry none, like Last.fm's). A build's key is shared by everyone
- * (5000 calls a day, 5 a second): it is used only when the user asks, never in the background,
- * fewer artists are looked up with it ([MAX_SHARED]), every answer is kept a day per artist and
- * country ([TTL_MS]), and when the day's calls are gone it stops and says so ([Result.quotaHit])
- * until Ticketmaster's reset. MusicBrainz is free and keyless, one request a second (shared with
+ * ([KEY_ID], [ServiceKeys]), or else a server's owner's ([BUILD_KEY], the environment of a Docker or
+ * Desktop server). No app build carries one: Ticketmaster's licence cannot be passed on to the
+ * app's users, so without their own key the app shows MusicBrainz's dates only. It is used only
+ * when the user asks, never in the background, every answer is kept a day per artist, country and
+ * time range ([TTL_MS]), and when the day's calls (5000) are gone it stops and says so
+ * ([Result.quotaHit]) until Ticketmaster's reset. On the whole playlist, the
+ * [LookupCaps.CONCERTS] artists it holds most are looked up. MusicBrainz is free and keyless, one request a second (shared with
  * the rest of the app through [MusicBrainz.pace]); its places are looked up once to know their
  * city and country, and remembered for months. In Italy, where the unofficial sources are allowed,
  * Vivaticket's dates too ([Vivaticket], unofficial). A date several know is shown once: a ticket
@@ -46,14 +51,11 @@ import java.util.Locale
 object Concerts {
     /** The user's own key, in the token vault ([ServiceKeys]). */
     const val KEY_ID = "ticketmaster"
-    /** The build's key, through BuildDefaults (BuildConfig on Android, the environment on a server). */
+    /** A server's own key, through BuildDefaults (the environment; app builds carry none). */
     const val BUILD_KEY = "TICKETMASTER_API_KEY"
-    /** How many artists one search looks up: fewer on the shared key, to spare everyone's daily calls. */
-    const val MAX_SHARED = 40
-    const val MAX_OWN = 150
     const val TTL_MS = 24L * 3_600_000
-    /** Where to get a key: Ticketmaster's developer site. */
-    const val KEY_URL = "https://developer.ticketmaster.com/"
+    /** Where to get a key: the first page of the steps (Ticketmaster's "Getting started", with "Get your API key"). */
+    const val KEY_URL = "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/"
 
     /** [unofficial]: read from the site's own web pages, not from an API offered to apps. */
     enum class Source(val label: String, val unofficial: Boolean = false) {
@@ -63,6 +65,18 @@ object Concerts {
     /** Another ticket site selling the same date. */
     @Serializable
     data class TicketLink(val source: Source, val url: String)
+
+    /** How far ahead to look: [months] from today, null = any date. */
+    enum class Range(val id: String, val months: Long?) {
+        MONTH("1m", 1), THREE_MONTHS("3m", 3), SIX_MONTHS("6m", 6), YEAR("1y", 12), ANY("any", null);
+
+        /** The last day included, from [today]; null = no end. */
+        fun end(today: LocalDate): LocalDate? = months?.let { today.plusMonths(it) }
+
+        companion object {
+            fun of(id: String?): Range = entries.firstOrNull { it.id.equals(id?.trim(), ignoreCase = true) } ?: ANY
+        }
+    }
 
     /** One date: [date] is yyyy-MM-dd, [time] HH:mm when known, [country] ISO 3166 (two letters). */
     @Serializable
@@ -78,6 +92,11 @@ object Concerts {
         val source: Source,
         /** The other ticket sites with the same date ([merge]). */
         val alsoOn: List<TicketLink> = emptyList(),
+        /** The event's time zone (an IANA id) when the source says it: Ticketmaster does. */
+        val timeZone: String? = null,
+        /** A small picture of the event (Ticketmaster's), and the credit it asks for; "" when none. */
+        val image: String = "",
+        val imageCredit: String = "",
     )
 
     /** A search on a ticket site; [site] null = the artist's official site, through a web search. */
@@ -89,7 +108,7 @@ object Concerts {
         val country: String,
         /** Artists with dates first (soonest first), then those without. */
         val artists: List<ArtistDates>,
-        /** The artists of the playlist, before [MAX_SHARED]/[MAX_OWN]. */
+        /** The artists asked for, before [LookupCaps.CONCERTS]. */
         val total: Int,
         /** Ticketmaster was asked (a key is there). */
         val ticketmaster: Boolean,
@@ -98,6 +117,7 @@ object Concerts {
         val quotaHit: Boolean,
         /** Ticketmaster refused the key (401/403). */
         val keyRefused: Boolean,
+        val range: Range = Range.ANY,
     )
 
     // Tests point these at a local server and a fixed clock.
@@ -118,8 +138,44 @@ object Concerts {
     /** The key used: the user's, else the build's; null when there is none (MusicBrainz only). */
     fun key(env: Env): String? = ownKey(env) ?: BuildDefaults[BUILD_KEY].trim().takeIf { it.isNotEmpty() }
 
-    /** Saves the user's own Consumer Key (blank removes it, back to the build's). */
+    /** Saves the user's own Consumer Key (blank removes it). */
     fun saveKey(env: Env, key: String) = ServiceKeys.save(env, KEY_ID, key)
+
+    /** The time range last picked, remembered. */
+    fun savedRange(env: Env): Range = Range.of(env.keyValues(STATE)["range"])
+
+    fun saveRange(env: Env, range: Range) { env.keyValues(STATE)["range"] = range.id }
+
+    /** What a calendar entry for [e] holds: an all-day one when its time is not known. */
+    data class CalendarEntry(
+        val title: String,
+        /** Epoch millis; for an all-day entry, the date's midnight in UTC (as calendars want it). */
+        val begin: Long,
+        val end: Long,
+        val allDay: Boolean,
+        val timeZone: String,
+        val location: String,
+        val description: String,
+    )
+
+    /**
+     * The calendar entry for [e]: "Artist – Venue", starting at its local time in its own time zone
+     * (else [fallbackZone]), three hours long, at "Venue, City", the event's link in the description.
+     */
+    fun calendarEntry(e: Event, fallbackZone: ZoneId): CalendarEntry {
+        val zone = e.timeZone?.let { runCatching { ZoneId.of(it) }.getOrNull() } ?: fallbackZone
+        val day = LocalDate.parse(e.date)
+        val time = e.time?.let { runCatching { LocalTime.parse(it) }.getOrNull() }
+        val title = e.artist + " – " + e.venue.ifBlank { e.name.ifBlank { e.city } }
+        val location = listOf(e.venue, e.city).filter { it.isNotBlank() }.joinToString(", ")
+        return if (time != null) {
+            val begin = day.atTime(time).atZone(zone).toInstant().toEpochMilli()
+            CalendarEntry(title, begin, begin + 3 * 3_600_000L, false, zone.id, location, e.url)
+        } else {
+            val begin = day.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            CalendarEntry(title, begin, begin + 24 * 3_600_000L, true, "UTC", location, e.url)
+        }
+    }
 
     /** The artists to look up, the ones the playlist holds most first (the same pick as the artist mix). */
     fun artistsOf(tracks: List<Track>): List<String> = ArtistMix.topArtists(tracks, Int.MAX_VALUE)
@@ -171,22 +227,27 @@ object Concerts {
      * The upcoming dates of [artists] in [country] (an ISO code). [progress] gets (done, total).
      * Never throws for one artist's failure: that artist just has fewer dates.
      */
-    suspend fun find(env: Env, artists: List<String>, country: String, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(
+        env: Env, artists: List<String>, country: String, range: Range = Range.ANY, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> },
+    ): Result {
         val c = country(country) ?: throw IllegalArgumentException("\"$country\" is not a country code (IT, US, DE...)")
         val key = key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
-        val list = asked.take(if (own) MAX_OWN else MAX_SHARED)
+        val list = LookupCaps.cut(asked, LookupCaps.CONCERTS, whole)
+        // The user's day, not UTC's: in the evening in the Americas tonight's concerts are still to come.
+        val today = Instant.ofEpochMilli(now()).atZone(zone()).toLocalDate()
+        val end = range.end(today)
         var quotaHit = key != null && now() < exhaustedUntil(env, key)
         var refused = false
         val out = ArrayList<ArtistDates>()
         list.forEachIndexed { i, artist ->
             progress(i, list.size)
             val (tm, mb, vt) = coroutineScope {
-                val mb = async { musicBrainz(env, artist, c) }
-                val vt = async { Vivaticket.dates(env, artist, c) }
+                val mb = async { musicBrainz(env, artist, c, today, end) }
+                val vt = async { Vivaticket.dates(env, artist, c, end) }
                 val tm = if (key == null || quotaHit || refused) null else try {
-                    ticketmaster(env, key, artist, c)
+                    ticketmaster(env, key, artist, c, end)
                 } catch (e: QuotaGone) {
                     quotaHit = true; null
                 } catch (e: KeyRefused) {
@@ -194,14 +255,18 @@ object Concerts {
                 }
                 Triple(tm, mb.await(), vt.await())
             }
-            val events = merge(tm.orEmpty(), mb.orEmpty(), vt.orEmpty())
+            val events = merge(tm.orEmpty(), mb.orEmpty(), vt.orEmpty()).filter { inRange(it, today, end) }
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
         }
         progress(list.size, list.size)
         if (quotaHit) env.log("concerts", "Ticketmaster: today's limit reached")
         val (dated, without) = out.partition { it.events.isNotEmpty() }
-        return Result(c, dated.sortedBy { it.events.first().date } + without, asked.size, key != null, own, quotaHit, refused)
+        return Result(c, dated.sortedBy { it.events.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, key != null, own, quotaHit, refused, range)
     }
+
+    /** [e] is on [today] or after, and on [end] or before (no end = any later date). */
+    fun inRange(e: Event, today: LocalDate, end: LocalDate?): Boolean =
+        e.date >= today.toString() && (end == null || e.date <= end.toString())
 
     /**
      * One list for an artist: each source's own repeats gone; the same day in the same city (or a
@@ -247,18 +312,20 @@ object Concerts {
         kv[k] = "${now()}|" + json.encodeToString(eventsSerializer, events)
     }
 
-    internal fun cacheKey(source: Source, artist: String, country: String) =
-        "${source.name}|$country|${Matcher.normalizeArtist(artist).ifEmpty { artist.lowercase() }}"
+    internal fun cacheKey(source: Source, artist: String, country: String, end: LocalDate?) =
+        "${source.name}|$country|${end ?: ""}|${Matcher.normalizeArtist(artist).ifEmpty { artist.lowercase() }}"
 
     // ---------------------------------------------------------------- Ticketmaster
 
     /** The artist's dates on Ticketmaster in [country]; null when it did not answer (then not remembered). */
-    private suspend fun ticketmaster(env: Env, key: String, artist: String, country: String): List<Event>? {
-        val ck = cacheKey(Source.TICKETMASTER, artist, country)
+    private suspend fun ticketmaster(env: Env, key: String, artist: String, country: String, end: LocalDate?): List<Event>? {
+        val ck = cacheKey(Source.TICKETMASTER, artist, country, end)
         cached(env, ck)?.let { return it }
         val start = Instant.ofEpochMilli(now()).truncatedTo(ChronoUnit.SECONDS).toString()
+        // The end's whole day, in UTC: a few hours past it are filtered out by date afterwards.
+        val until = end?.let { "&endDateTime=" + enc(it.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toString()) }.orEmpty()
         val url = "$tmBase/events.json?apikey=${enc(key)}&keyword=${enc(artist)}&classificationName=music" +
-            "&countryCode=$country&size=50&sort=date,asc&startDateTime=${enc(start)}"
+            "&countryCode=$country&size=50&sort=date,asc&startDateTime=${enc(start)}$until"
         for (attempt in 0..1) {
             val r = try {
                 tmPace.paced { Http.send("GET", url, mapOf("Accept" to "application/json"), maxRateLimitRetries = 0) }
@@ -308,27 +375,43 @@ object Concerts {
                 time = e["dates"]["start"]["localTime"].str?.take(5),
                 city = venue["city"]["name"].str.orEmpty(), venue = venue["name"].str.orEmpty(),
                 country = where.ifEmpty { country }, url = webUrl(e["url"].str), source = Source.TICKETMASTER,
-            )
+                timeZone = e["dates"]["timezone"].str?.takeIf { it.isNotBlank() },
+            ).let { ev -> image(e["images"].arr)?.let { (url, credit) -> ev.copy(image = url, imageCredit = credit) } ?: ev }
         }
+    }
+
+    /**
+     * The picture to show small from a Discovery API event's images: a 16:9 one (else 3:2, else any)
+     * of the smallest width from 200 pixels up (else the widest), with its attribution; null when none.
+     */
+    fun image(images: List<kotlinx.serialization.json.JsonElement>): Pair<String, String>? {
+        val all = images.mapNotNull { i -> webUrl(i["url"].str).takeIf { it.isNotEmpty() }?.let { Triple(i, it, i["width"].int ?: 0) } }
+        val shape = listOf("16_9", "3_2").firstNotNullOfOrNull { r -> all.filter { it.first["ratio"].str == r }.takeIf { it.isNotEmpty() } } ?: all
+        val pick = shape.filter { it.third >= 200 }.minByOrNull { it.third } ?: shape.maxByOrNull { it.third } ?: return null
+        return pick.second to pick.first["attribution"].str.orEmpty().trim()
     }
 
     // ---------------------------------------------------------------- MusicBrainz
 
     /** The artist's upcoming events on MusicBrainz in [country]; null when it did not answer. */
-    private suspend fun musicBrainz(env: Env, artist: String, country: String): List<Event>? {
-        val ck = cacheKey(Source.MUSICBRAINZ, artist, country)
+    private suspend fun musicBrainz(env: Env, artist: String, country: String, today: LocalDate, end: LocalDate?): List<Event>? {
+        val ck = cacheKey(Source.MUSICBRAINZ, artist, country, end)
         cached(env, ck)?.let { return it }
-        // The user's day, not UTC's: in the evening in the Americas tonight's concerts are still to come.
-        val today = Instant.ofEpochMilli(now()).atZone(zone()).toLocalDate()
-        val query = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\" AND begin:[$today TO 2100-12-31]"
+        val query = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\" AND begin:[$today TO ${end ?: "2100-12-31"}]"
         val body = mbGet("event?query=${enc(query)}&fmt=json&limit=50") ?: return null
         val found = parseMusicBrainz(body, artist)
         val events = ArrayList<Event>()
         var unplaced = false
-        for ((e, placeId) in found) {
-            if (e.date < today.toString()) continue
+        for ((e, placeId, area) in found) {
+            if (!inRange(e, today, end)) continue
             val at = placeId?.let { place(env, it).also { p -> if (p == null) unplaced = true } }
-            val (city, where) = at ?: (null to null)
+            var (city, where) = at ?: (null to null)
+            // A place with no area (or no place at all, only "held in" a city): the event's own area.
+            if (where.isNullOrEmpty() && area != null) {
+                val code = areaCountry(env, area.first, 0)
+                if (code == null) unplaced = true
+                where = code; if (city.isNullOrEmpty()) city = area.second
+            }
             // Without a known country the date cannot be placed: left out rather than shown in the wrong country.
             if (where != country) continue
             events += e.copy(city = city.orEmpty(), country = where)
@@ -338,11 +421,14 @@ object Concerts {
         return events
     }
 
+    /** A MusicBrainz event, the id of the place it is held at, and the area it is held in (id, name). */
+    data class MbEvent(val event: Event, val placeId: String?, val area: Pair<String, String>?)
+
     /**
      * The events of a MusicBrainz event search that [artist] performs at (a performer relation
-     * naming them), not cancelled, each with the id of the place it is held at.
+     * naming them), not cancelled, each with the place it is held at and the area it is held in.
      */
-    fun parseMusicBrainz(body: String, artist: String): List<Pair<Event, String?>> {
+    fun parseMusicBrainz(body: String, artist: String): List<MbEvent> {
         val want = Matcher.normalizeArtist(artist)
         if (want.isEmpty()) return emptyList()
         return parseJson(body)["events"].arr.mapNotNull { e ->
@@ -351,11 +437,15 @@ object Concerts {
             if (rels.none { r -> r["artist"]["name"].str?.let { Matcher.normalizeArtist(it) } == want }) return@mapNotNull null
             val date = e["life-span"]["begin"].str?.takeIf { it.length == 10 } ?: return@mapNotNull null
             val place = rels.firstOrNull { it["place"]["id"].str != null }?.get("place")
+            val area = rels.firstOrNull { it["area"]["id"].str != null }?.get("area")
             val id = e["id"].str ?: return@mapNotNull null
-            Event(
-                artist = artist, name = e["name"].str.orEmpty(), date = date, time = e["time"].str?.take(5),
-                venue = place["name"].str.orEmpty(), url = "https://musicbrainz.org/event/$id", source = Source.MUSICBRAINZ,
-            ) to place["id"].str
+            MbEvent(
+                Event(
+                    artist = artist, name = e["name"].str.orEmpty(), date = date, time = e["time"].str?.take(5),
+                    venue = place["name"].str.orEmpty(), url = "https://musicbrainz.org/event/$id", source = Source.MUSICBRAINZ,
+                ),
+                place["id"].str, area?.let { a -> a["id"].str!! to a["name"].str.orEmpty() },
+            )
         }
     }
 
@@ -369,7 +459,10 @@ object Concerts {
         val body = mbGet("place/${enc(id)}?fmt=json") ?: return null
         val area = parseJson(body)["area"]
         val city = area["name"].str.orEmpty()
-        val country = area["id"].str?.let { areaCountry(env, it, 0) }.orEmpty()
+        val areaId = area["id"].str
+        // An area whose country could not be read (MusicBrainz busy on the way up) is not remembered
+        // for months as "nowhere": asked again next time.
+        val country = areaId?.let { areaCountry(env, it, 0) ?: return null }.orEmpty()
         if (kv.size >= 5_000) kv.clear()
         kv["p|$id"] = "${now()}|$city\t$country"
         return city to country

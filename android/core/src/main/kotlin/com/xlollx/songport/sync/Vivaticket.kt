@@ -51,18 +51,23 @@ object Vivaticket {
     class Stop(message: String) : Exception(message)
 
     /** A product on sale: [start]/[end] are the site's local date-times (yyyy-MM-ddTHH:mm). */
-    data class Product(val id: String, val title: String, val slug: String, val start: String, val end: String, val city: String, val venue: String) {
+    data class Product(
+        val id: String, val title: String, val slug: String, val start: String, val end: String, val city: String, val venue: String,
+        /** The product's picture ("" when none): shown where Discover's images are on. */
+        val image: String = "",
+    ) {
         val url: String get() = "$SITE/ticket/${Http.enc(slug)}/${Http.enc(id)}"
         val severalDays: Boolean get() = start.take(10) != end.take(10)
     }
 
     /**
-     * [artist]'s dates on Vivaticket in [country]: empty when it is not asked (not allowed in this
-     * build, another country), null when it did not answer (then not remembered).
+     * [artist]'s dates on Vivaticket in [country] up to [end] (null = any later date): empty when it
+     * is not asked (not allowed in this build, another country), null when it did not answer (then
+     * not remembered). A product starting after [end] is not opened.
      */
-    internal suspend fun dates(env: Env, artist: String, country: String): List<Concerts.Event>? {
+    internal suspend fun dates(env: Env, artist: String, country: String, end: LocalDate? = null): List<Concerts.Event>? {
         if (!enabled || !country.equals(COUNTRY, ignoreCase = true)) return emptyList()
-        val ck = Concerts.cacheKey(Concerts.Source.VIVATICKET, artist, COUNTRY)
+        val ck = Concerts.cacheKey(Concerts.Source.VIVATICKET, artist, COUNTRY, end)
         Concerts.cached(env, ck)?.let { return it }
         if (Concerts.now() < stoppedUntil) return null
         val today = Instant.ofEpochMilli(Concerts.now()).atZone(Concerts.zone()).toLocalDate()
@@ -70,6 +75,7 @@ object Vivaticket {
             val id = get("Home/Search/it/it-IT?q=${Http.enc(artist)}")?.let { artistId(it, artist) }
             val events = if (id == null) emptyList() else {
                 val products = get("Artist/${Http.enc(id)}/it/it-IT")?.let { parseArtist(it, today) }.orEmpty()
+                    .filter { end == null || it.start.take(10) <= end.toString() }
                 var opened = 0
                 products.flatMap { p ->
                     val days = if (p.severalDays && opened++ < MAX_DETAILS) get("Event/${Http.enc(p.id)}/it/it-IT")?.let { parseDates(it) } else null
@@ -124,7 +130,10 @@ object Vivaticket {
             val end = e["endDate"].str?.takeIf { DAY.matches(it.take(10)) } ?: start
             val city = e["cityName"].str?.trim().orEmpty()
             if (city.isEmpty() || end.take(10) < today.toString()) return@mapNotNull null
-            Product(id, e["title"].str.orEmpty(), e["slug"].str.orEmpty().ifEmpty { "event" }, start, end, city, e["venueName"].str?.trim().orEmpty())
+            Product(
+                id, e["title"].str.orEmpty(), e["slug"].str.orEmpty().ifEmpty { "event" }, start, end, city, e["venueName"].str?.trim().orEmpty(),
+                image = webUrl(e["image"].str),
+            )
         }
     }
 
@@ -156,7 +165,7 @@ object Vivaticket {
         return list.filter { it.first >= today.toString() }.map { (d, t) ->
             Concerts.Event(
                 artist = artist, name = p.title, date = d, time = t, city = cityName(p.city), venue = p.venue,
-                country = COUNTRY, url = p.url, source = Concerts.Source.VIVATICKET,
+                country = COUNTRY, url = p.url, source = Concerts.Source.VIVATICKET, image = p.image,
             )
         }
     }
