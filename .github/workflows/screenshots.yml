@@ -9,12 +9,18 @@ name: Screenshots
 # With flavor "play" it takes the Google Play listing's pictures from the Play build instead (only
 # the services that build reaches on its own, no ad) and commits them to docs/store/play/<locale>/,
 # leaving the fastlane pictures (the full build's, used by F-Droid) alone.
+# With "carousel" on it takes only the social carousel's pictures (English, dark, full build) and
+# uploads them as the "carousel" artifact, committing nothing.
 # The Play pictures are 9:16 and show no other brand's mark (LogoMode.neutral: initials on plain circles).
 on:
   workflow_dispatch:
     inputs:
       review:
         description: Only the Settings/Tools review pictures, uploaded as an artifact (no commit)
+        type: boolean
+        default: false
+      carousel:
+        description: Only the social carousel pictures, uploaded as an artifact (no commit)
         type: boolean
         default: false
       flavor:
@@ -38,7 +44,8 @@ jobs:
       # Languages to take (app tags); all of the store listing's.
       LOCALES: en,it,fr,de,es,pt-BR,pl,ru,tr,zh,ja,ko
       REVIEW: ${{ inputs.review && 'true' || 'false' }}
-      FLAVOR: ${{ inputs.flavor == 'play' && 'play' || 'full' }}
+      CAROUSEL: ${{ inputs.carousel && 'true' || 'false' }}
+      FLAVOR: ${{ inputs.flavor == 'play' && !inputs.carousel && 'play' || 'full' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -106,8 +113,16 @@ jobs:
           path: android/review
           if-no-files-found: ignore
 
+      - name: Keep the carousel pictures
+        if: always() && inputs.carousel
+        uses: actions/upload-artifact@v7
+        with:
+          name: carousel
+          path: android/carousel
+          if-no-files-found: ignore
+
       - name: Keep the raw pictures
-        if: always() && !inputs.review
+        if: always() && !inputs.review && !inputs.carousel
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.FLAVOR == 'play' && 'shots-play' || 'shots' }}
@@ -115,7 +130,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Commit the pictures to the branch
-        if: ${{ !inputs.review }}
+        if: ${{ !inputs.review && !inputs.carousel }}
         working-directory: android
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick > /dev/null
