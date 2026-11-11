@@ -918,7 +918,8 @@ class StoreScreenshots {
      * discover/<tool>_<state>_<n>.png.
      */
     private fun shootDiscover() {
-        Demo.carouselOn = true
+        // Not the carousel's extra playlists: with them the two libraries would hold the same songs.
+        Demo.carouselOn = false
         Demo.discoverOn = true
         carouselDemo()
         val store = Store.get(app)
