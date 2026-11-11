@@ -89,7 +89,8 @@ data class Invite(
      * The group's code, from the creator's key: what the person joining compares with the code on
      * the inviter's group page. A link can be changed on its way (a forwarded message, a QR code
      * stuck over another); one with another key would make its maker the group's creator for
-     * whoever joins with it. 60 bits, as 12 characters in three groups.
+     * whoever joins with it. 100 bits, as 20 characters in four groups of five: finding another key
+     * with the same code is out of reach.
      */
     val code: String get() = codeOf(creator)
 
@@ -114,10 +115,13 @@ data class Invite(
         /** A key's group code (see [code]): Crockford base 32 of its SHA-256, no letters that read alike. */
         fun codeOf(creator: String): String {
             val h = java.security.MessageDigest.getInstance("SHA-256").digest(creator.toByteArray(Charsets.UTF_8))
-            var bits = 0L
-            for (i in 0 until 8) bits = (bits shl 8) or (h[i].toLong() and 0xff)
-            val chars = (0 until 12).map { CODE_LETTERS[((bits ushr (59 - it * 5)) and 31).toInt()] }.joinToString("")
-            return chars.chunked(4).joinToString("-")
+            // The first 100 bits, 5 at a time, most significant first.
+            val chars = (0 until 20).map { c ->
+                var v = 0
+                for (b in c * 5 until c * 5 + 5) v = (v shl 1) or ((h[b / 8].toInt() ushr (7 - b % 8)) and 1)
+                CODE_LETTERS[v]
+            }.joinToString("")
+            return chars.chunked(5).joinToString("-")
         }
 
         private fun enc(s: String) = java.net.URLEncoder.encode(s, "UTF-8").replace("+", "%20")

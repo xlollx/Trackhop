@@ -98,9 +98,10 @@ say) doesn't bring it back.
 
 1. Open the invite link on the phone (or send it to Trackhop with *Share*), or paste it in
    *Tools → Shared playlists → Join with a link*.
-2. Check the **group code** under the link: it must be the same as the one on the group's page of
-   whoever invited you (ask them, or look at their screen). A link changed on its way would show
-   another code.
+2. Check the **group code** under the link (20 characters in four groups, like `Q9W1D-FWF07-7YMGA-183F5`):
+   it must be the same as the one on the group's page of whoever invited you (ask them, or look at
+   their screen), group by group. A link changed on its way would show another code. The invite
+   page on trackhop.org shows it too.
 3. Pick **your service**: Trackhop makes a new playlist there, named after the group.
 4. For a group on a shared folder, **choose the shared folder**, the same one the group uses. For
    an encrypted channel or a Trackhop server there is nothing to choose: the invite says where the

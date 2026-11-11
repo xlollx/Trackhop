@@ -271,7 +271,9 @@ class GroupLogTest {
         assertEquals(null, Invite.parse("https://trackhop.org/join#g=$gid&k=${ana.id}&n=x&t=relay"))
         val inv = Invite.parse("https://trackhop.org/join#g=$gid&k=${ana.id}&n=Road%0Atrip%07")!!
         assertEquals("Road trip", inv.name)
-        assertTrue(inv.code, Regex("[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}").matches(inv.code))
+        assertTrue(inv.code, Regex("[0-9A-HJKMNP-TV-Z]{5}(-[0-9A-HJKMNP-TV-Z]{5}){3}").matches(inv.code))
+        // 100 bits of SHA-256("abc") = ba7816bf8f01cfea41..., in base 32 (Crockford) — the same as docs/join.html computes.
+        assertEquals("Q9W1D-FWF07-7YMGA-183F5", Invite.codeOf("abc"))
         assertEquals(inv.code, Invite(gid, "Other", ana.id).code)
         assertNotEquals(inv.code, Invite(gid, "Road trip", ben.id).code)
     }
