@@ -51,7 +51,9 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   (app.ticketmaster.com, under Ticketmaster's own privacy policy) and to the public music database
   MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
-  kept encrypted on the device. Ticket and search links open in your browser.
+  kept encrypted on the device. In the GitHub and F-Droid builds (and on Docker and Desktop), when
+  the country is Italy, the artist names also go to Vivaticket (apigatewayb2cstore.vivaticket.com,
+  read unofficially, under Vivaticket's own privacy policy). Ticket and search links open in your browser.
 - **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
   of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
   privacy policy); a setlist.fm link you share or paste sends its setlist's id (or, without a key,

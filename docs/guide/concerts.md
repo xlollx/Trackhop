@@ -19,12 +19,22 @@ In the app: **Discover › Concerts**. On Docker and Desktop: **Tools › Concer
   the tickets are. Marked "Tickets on Ticketmaster".
 - **MusicBrainz** events: a free, community-made database. Its dates are marked "MusicBrainz" and
   link to the event's page there. A date both know is shown once, Ticketmaster's.
+- **Vivaticket** (unofficial, Italy only): in the GitHub and F-Droid builds and on Docker and
+  Desktop (not in the Google Play, AppGallery or Microsoft Store builds), when the country is Italy,
+  Trackhop also reads the dates on vivaticket.com, the way its own web pages do: no account, one
+  request a second, each answer kept a day. They are marked "Tickets on Vivaticket (unofficial)".
+  It is not an API offered to apps: **it may stop working at any time** when the site changes.
+  Then Trackhop leaves it alone for an hour and shows the other sources' dates as usual.
 
-No source lists every concert. **In Italy, concerts sold only on TicketOne are missing.** For each
-artist with no date found, Trackhop shows search buttons for the country's ticket sites (in Italy
-TicketOne and Vivaticket; Eventim in Germany, oeticket in Austria, Ticketcorner in Switzerland) and
-for the artist's official site. They just open the search in your browser: Trackhop never reads
-those sites.
+The same date (same day, same city) from several sources is shown once, with a link for each ticket
+site that sells it: "Tickets on Ticketmaster", "Tickets on Vivaticket (unofficial)".
+
+No source lists every concert. **In Italy, concerts sold only on TicketOne are missing**: TicketOne's
+site answers browsers only, and the search behind it is closed to apps by the site's rules
+(robots.txt), so Trackhop does not read it. For each artist with no date found, Trackhop shows
+search buttons for the country's ticket sites (in Italy TicketOne and Vivaticket; Eventim in
+Germany, oeticket in Austria, Ticketcorner in Switzerland) and for the artist's official site. They
+just open the search in your browser.
 
 ## The country
 
@@ -52,5 +62,6 @@ Ticketmaster answers only apps with a key, and each key has a daily limit (about
 ## What is sent
 
 The artist names of the playlist you pick and the country go to Ticketmaster
-(app.ticketmaster.com) and MusicBrainz (musicbrainz.org), only when you tap **Find concerts**.
+(app.ticketmaster.com) and MusicBrainz (musicbrainz.org), and, in Italy where Vivaticket is read,
+the artist names to Vivaticket (apigatewayb2cstore.vivaticket.com), only when you tap **Find concerts**.
 Nothing else: no account, no location, no playlist. See the [privacy policy](../privacy-policy).

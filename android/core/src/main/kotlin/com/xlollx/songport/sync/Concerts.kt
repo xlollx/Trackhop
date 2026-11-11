@@ -37,9 +37,11 @@ import java.util.Locale
  * country ([TTL_MS]), and when the day's calls are gone it stops and says so ([Result.quotaHit])
  * until Ticketmaster's reset. MusicBrainz is free and keyless, one request a second (shared with
  * the rest of the app through [MusicBrainz.pace]); its places are looked up once to know their
- * city and country, and remembered for months. A date both know is shown once, Ticketmaster's
- * (it has the ticket link). The artists with no date found get search links to ticket sites
- * ([searches]): links only, their pages are never read.
+ * city and country, and remembered for months. In Italy, where the unofficial sources are allowed,
+ * Vivaticket's dates too ([Vivaticket], unofficial). A date several know is shown once: a ticket
+ * site's own (Ticketmaster's first), with the other ticket sites' links ([Event.alsoOn]). The artists
+ * with no date found get search links to ticket sites ([searches]): links only, those pages are
+ * never read.
  */
 object Concerts {
     /** The user's own key, in the token vault ([ServiceKeys]). */
@@ -53,7 +55,14 @@ object Concerts {
     /** Where to get a key: Ticketmaster's developer site. */
     const val KEY_URL = "https://developer.ticketmaster.com/"
 
-    enum class Source(val label: String) { TICKETMASTER("Ticketmaster"), MUSICBRAINZ("MusicBrainz") }
+    /** [unofficial]: read from the site's own web pages, not from an API offered to apps. */
+    enum class Source(val label: String, val unofficial: Boolean = false) {
+        TICKETMASTER("Ticketmaster"), MUSICBRAINZ("MusicBrainz"), VIVATICKET("Vivaticket", unofficial = true),
+    }
+
+    /** Another ticket site selling the same date. */
+    @Serializable
+    data class TicketLink(val source: Source, val url: String)
 
     /** One date: [date] is yyyy-MM-dd, [time] HH:mm when known, [country] ISO 3166 (two letters). */
     @Serializable
@@ -67,6 +76,8 @@ object Concerts {
         val country: String = "",
         val url: String = "",
         val source: Source,
+        /** The other ticket sites with the same date ([merge]). */
+        val alsoOn: List<TicketLink> = emptyList(),
     )
 
     /** A search on a ticket site; [site] null = the artist's official site, through a web search. */
@@ -127,7 +138,7 @@ object Concerts {
     fun searches(artist: String, country: String): List<Link> {
         val q = enc(artist)
         val sites = when (country.uppercase()) {
-            "IT" -> listOf("TicketOne" to "https://www.ticketone.it/search/?searchterm=$q", "Vivaticket" to "https://www.vivaticket.com/it/ricerca?q=$q")
+            "IT" -> listOf("TicketOne" to "https://www.ticketone.it/search/?searchterm=$q", "Vivaticket" to "https://www.vivaticket.com/it/search?q=$q")
             "DE" -> listOf("Eventim" to "https://www.eventim.de/search/?searchterm=$q")
             "AT" -> listOf("oeticket" to "https://www.oeticket.com/search/?searchterm=$q")
             "CH" -> listOf("Ticketcorner" to "https://www.ticketcorner.ch/search/?searchterm=$q")
@@ -171,8 +182,9 @@ object Concerts {
         val out = ArrayList<ArtistDates>()
         list.forEachIndexed { i, artist ->
             progress(i, list.size)
-            val (tm, mb) = coroutineScope {
+            val (tm, mb, vt) = coroutineScope {
                 val mb = async { musicBrainz(env, artist, c) }
+                val vt = async { Vivaticket.dates(env, artist, c) }
                 val tm = if (key == null || quotaHit || refused) null else try {
                     ticketmaster(env, key, artist, c)
                 } catch (e: QuotaGone) {
@@ -180,9 +192,9 @@ object Concerts {
                 } catch (e: KeyRefused) {
                     refused = true; null
                 }
-                tm to mb.await()
+                Triple(tm, mb.await(), vt.await())
             }
-            val events = merge(tm.orEmpty(), mb.orEmpty())
+            val events = merge(tm.orEmpty(), mb.orEmpty(), vt.orEmpty())
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
         }
         progress(list.size, list.size)
@@ -192,18 +204,27 @@ object Concerts {
     }
 
     /**
-     * One list for an artist: each source's own repeats gone, and a MusicBrainz date dropped when
-     * Ticketmaster has the same day in the same city (or a city one of them does not say).
+     * One list for an artist: each source's own repeats gone; the same day in the same city (or a
+     * city one of them does not say) shown once. A ticket site's date ([sites]: Vivaticket's) joins
+     * Ticketmaster's as one more link ([Event.alsoOn]); a MusicBrainz date is dropped when a ticket
+     * site has it.
      */
-    fun merge(tm: List<Event>, mb: List<Event>): List<Event> {
+    fun merge(tm: List<Event>, mb: List<Event>, sites: List<Event> = emptyList()): List<Event> {
         fun city(e: Event) = Matcher.normalizeArtist(e.city)
+        fun same(k: Event, e: Event) = k.date == e.date && (city(k) == city(e) || city(k).isEmpty() || city(e).isEmpty())
         val seen = HashSet<String>()
         val kept = ArrayList<Event>()
-        for (e in tm + mb) {
+        for (e in tm + sites + mb) {
             if (!seen.add("${e.source}|${e.date}|${city(e)}|${Matcher.normalizeArtist(e.venue)}")) continue
-            if (e.source == Source.MUSICBRAINZ && kept.any { k ->
-                    k.source == Source.TICKETMASTER && k.date == e.date && (city(k) == city(e) || city(k).isEmpty() || city(e).isEmpty())
-                }) continue
+            if (e.source == Source.MUSICBRAINZ && kept.any { k -> k.source != Source.MUSICBRAINZ && same(k, e) }) continue
+            if (e.source != Source.TICKETMASTER && e.source != Source.MUSICBRAINZ) {
+                val i = kept.indexOfFirst { k -> k.source != e.source && same(k, e) }
+                if (i >= 0) {
+                    val k = kept[i]
+                    if (e.url.isNotEmpty() && k.alsoOn.none { it.source == e.source }) kept[i] = k.copy(alsoOn = k.alsoOn + TicketLink(e.source, e.url))
+                    continue
+                }
+            }
             kept += e
         }
         return kept.sortedWith(compareBy({ it.date }, { it.time ?: "" }))
@@ -213,20 +234,20 @@ object Concerts {
 
     private val eventsSerializer = ListSerializer(Event.serializer())
 
-    private fun cached(env: Env, k: String): List<Event>? {
+    internal fun cached(env: Env, k: String): List<Event>? {
         val saved = env.keyValues(CACHE)[k] ?: return null
         val at = saved.substringBefore('|').toLongOrNull() ?: return null
         if (now() - at >= TTL_MS) return null
         return runCatching { json.decodeFromString(eventsSerializer, saved.substringAfter('|')) }.getOrNull()
     }
 
-    private fun remember(env: Env, k: String, events: List<Event>) {
+    internal fun remember(env: Env, k: String, events: List<Event>) {
         val kv = env.keyValues(CACHE)
         if (kv.size >= 4_000) kv.clear()
         kv[k] = "${now()}|" + json.encodeToString(eventsSerializer, events)
     }
 
-    private fun cacheKey(source: Source, artist: String, country: String) =
+    internal fun cacheKey(source: Source, artist: String, country: String) =
         "${source.name}|$country|${Matcher.normalizeArtist(artist).ifEmpty { artist.lowercase() }}"
 
     // ---------------------------------------------------------------- Ticketmaster

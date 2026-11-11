@@ -1991,6 +1991,8 @@
     <string name="concerts_on_ticketmaster">Tickets on Ticketmaster</string>
     <string name="concerts_sources_both">Dates from Ticketmaster and MusicBrainz.</string>
     <string name="concerts_sources_mb">Dates from MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Tickets on Vivaticket (unofficial)</string>
+    <string name="concerts_sources_unofficial">Vivaticket\'s dates are read from its website (unofficial): this may stop working at any time.</string>
     <string name="concerts_coverage_it">In Italy, concerts sold only on TicketOne are missing: use the search buttons for those.</string>
     <string name="concerts_coverage">Not every concert is listed: check the artist\'s official site too.</string>
     <string name="concerts_quota">Today\'s Ticketmaster limit is reached: try again tomorrow or add your own key. Some dates below come from MusicBrainz only.</string>

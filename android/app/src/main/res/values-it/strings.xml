@@ -1990,6 +1990,8 @@
     <string name="concerts_on_ticketmaster">Biglietti su Ticketmaster</string>
     <string name="concerts_sources_both">Date da Ticketmaster e MusicBrainz.</string>
     <string name="concerts_sources_mb">Date da MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Biglietti su Vivaticket (non ufficiale)</string>
+    <string name="concerts_sources_unofficial">Le date di Vivaticket sono lette dal suo sito (non ufficiale): potrebbe smettere di funzionare in qualsiasi momento.</string>
     <string name="concerts_coverage_it">In Italia mancano i concerti venduti solo su TicketOne: per quelli usa i pulsanti di ricerca.</string>
     <string name="concerts_coverage">Non tutti i concerti sono elencati: guarda anche il sito ufficiale dell\'artista.</string>
     <string name="concerts_quota">Limite di oggi di Ticketmaster raggiunto: riprova domani o aggiungi la tua chiave. Alcune date qui sotto vengono solo da MusicBrainz.</string>

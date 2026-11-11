@@ -147,6 +147,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
             stringResource(if (r.ticketmaster) R.string.concerts_sources_both else R.string.concerts_sources_mb),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        UnofficialSourcesNote(r)
     }
     if (r == null && !busy) TextButton(onClick = { keyOpen = true }) { Text(stringResource(R.string.concerts_key_title)) }
 }
@@ -188,9 +189,10 @@ private fun ArtistDatesCard(a: Concerts.ArtistDates) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         // Ticketmaster's events link to its own page, as they come: the tickets are there.
                         Text(
-                            if (e.source == Concerts.Source.TICKETMASTER) stringResource(R.string.concerts_on_ticketmaster) else e.source.label,
+                            ticketsLabel(e.source),
                             style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
                         )
+                        AlsoOnLinks(e)
                     }
                 }
             }

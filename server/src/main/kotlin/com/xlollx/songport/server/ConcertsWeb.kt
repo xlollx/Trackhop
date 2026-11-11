@@ -28,6 +28,17 @@ internal object ConcertTexts {
     const val NO_KEY = "Only MusicBrainz dates: add a free Ticketmaster key in Settings for many more."
     const val GAP_IT = "In Italy, concerts sold only on TicketOne are missing: use the search links for those."
     const val GAP = "Not every concert is listed: check the artist's official site too."
+    const val UNOFFICIAL = "Vivaticket's dates are read from its website (unofficial): this may stop working at any time."
+
+    /** Where a date's tickets are, as its link says. */
+    fun tickets(s: Concerts.Source): String = when (s) {
+        Concerts.Source.TICKETMASTER -> "Tickets on Ticketmaster"
+        Concerts.Source.VIVATICKET -> "Tickets on Vivaticket (unofficial)"
+        else -> s.label
+    }
+
+    /** Some dates come from an unofficial source. */
+    fun unofficial(r: Concerts.Result) = r.artists.any { a -> a.events.any { e -> e.source.unofficial || e.alsoOn.any { it.source.unofficial } } }
 
     fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up: add your own Ticketmaster key to look up all $total."
 
@@ -78,7 +89,8 @@ internal fun concertsJson(r: Concerts.Result): JsonObject = buildJsonObject {
                 buildJsonObject {
                     put("date", e.date); put("time", e.time?.let { JsonPrimitive(it) } ?: JsonNull)
                     put("city", e.city); put("venue", e.venue); put("country", e.country)
-                    put("name", e.name); put("url", e.url); put("source", e.source.label)
+                    put("name", e.name); put("url", e.url); put("source", e.source.label); put("unofficial", e.source.unofficial)
+                    put("alsoOn", JsonArray(e.alsoOn.map { l -> buildJsonObject { put("source", l.source.label); put("url", l.url); put("unofficial", l.source.unofficial) } }))
                 }
             }))
             put("searches", JsonArray(a.searches.map { l ->
@@ -86,7 +98,8 @@ internal fun concertsJson(r: Concerts.Result): JsonObject = buildJsonObject {
             }))
         }
     }))
-    put("attribution", if (r.ticketmaster) "Concert data from Ticketmaster and MusicBrainz." else "Concert data from MusicBrainz.")
+    put("attribution", (if (r.ticketmaster) "Concert data from Ticketmaster and MusicBrainz." else "Concert data from MusicBrainz.") +
+        (if (ConcertTexts.unofficial(r)) " " + ConcertTexts.UNOFFICIAL else ""))
 }
 
 /** GET /api/v1/concerts?service=&playlist=&country= */
@@ -172,9 +185,9 @@ private fun concertsHtml(playlist: String, r: Concerts.Result): String = buildSt
         append("""<div class="card"><h3>${h(a.artist)}</h3><ul>""")
         a.events.forEach { e ->
             val where = listOf(e.city, e.venue).filter { it.isNotBlank() }.joinToString(" · ")
-            val link = if (e.source == Concerts.Source.TICKETMASTER) "Tickets on Ticketmaster" else e.source.label
             // A date without a web link (none given, or not http/https) says its source as plain text.
-            val source = if (e.url.isBlank()) h(e.source.label) else """<a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(link)}</a>"""
+            val source = (if (e.url.isBlank()) h(e.source.label) else """<a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(e.source))}</a>""") +
+                e.alsoOn.joinToString("") { l -> """ · <a href="${h(l.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(l.source))}</a>""" }
             append("""<li><strong>${h(e.date)}${e.time?.let { " " + h(it) } ?: ""}</strong> ${h(where)} · $source</li>""")
         }
         append("</ul></div>")
@@ -189,6 +202,7 @@ private fun concertsHtml(playlist: String, r: Concerts.Result): String = buildSt
         append("</ul></div>")
     }
     append("""<p class="muted">${if (r.ticketmaster) "Concert data from Ticketmaster and MusicBrainz." else "Concert data from MusicBrainz."}</p>""")
+    if (ConcertTexts.unofficial(r)) append("""<p class="muted">${h(ConcertTexts.UNOFFICIAL)}</p>""")
 }
 
 /** Settings › Ticketmaster key: the card, and its form's handling. */

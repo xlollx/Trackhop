@@ -1998,6 +1998,8 @@
     <string name="concerts_on_ticketmaster">Billets sur Ticketmaster</string>
     <string name="concerts_sources_both">Dates de Ticketmaster et MusicBrainz.</string>
     <string name="concerts_sources_mb">Dates de MusicBrainz.</string>
+    <string name="concerts_on_vivaticket">Billets sur Vivaticket (non officiel)</string>
+    <string name="concerts_sources_unofficial">Les dates de Vivaticket sont lues sur son site (non officiel) : ça peut cesser de fonctionner à tout moment.</string>
     <string name="concerts_coverage_it">En Italie, les concerts vendus uniquement sur TicketOne manquent : utilise les boutons de recherche pour ceux-là.</string>
     <string name="concerts_coverage">Tous les concerts ne sont pas listés : regarde aussi le site officiel de l\'artiste.</string>
     <string name="concerts_quota">La limite du jour de Ticketmaster est atteinte : réessaie demain ou ajoute ta propre clé. Certaines dates ci-dessous viennent seulement de MusicBrainz.</string>

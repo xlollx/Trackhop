@@ -1988,6 +1988,8 @@
     <string name="concerts_on_ticketmaster">Ticketmaster\'da biletler</string>
     <string name="concerts_sources_both">Tarihler Ticketmaster ve MusicBrainz\'den.</string>
     <string name="concerts_sources_mb">Tarihler MusicBrainz\'den.</string>
+    <string name="concerts_on_vivaticket">Vivaticket\'ta biletler (resmi değil)</string>
+    <string name="concerts_sources_unofficial">Vivaticket tarihleri sitesinden okunur (resmi değil): her an çalışmayı bırakabilir.</string>
     <string name="concerts_coverage_it">İtalya\'da yalnızca TicketOne\'da satılan konserler eksik: onlar için arama düğmelerini kullan.</string>
     <string name="concerts_coverage">Her konser listede yok: sanatçının resmi sitesine de bak.</string>
     <string name="concerts_quota">Ticketmaster\'ın bugünkü sınırına ulaşıldı: yarın tekrar dene ya da kendi anahtarını ekle. Aşağıdaki bazı tarihler yalnızca MusicBrainz\'den.</string>
