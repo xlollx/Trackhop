@@ -126,7 +126,8 @@ class SoundCloudWebClient(private val ctx: Context) {
                 BridgeNet.log("soundcloud", "the session's token was refused by api-v2 and by ${SoundCloudBridge.API_MOBI} (HTTP 401)")
             }
             when {
-                code in 200..299 -> return runCatching { parseJson(text) }.getOrNull() ?: JsonNull
+                // A call that works shows the session alive: pages that renewed nothing before no longer count.
+                code in 200..299 -> { if (tok != null) SoundCloudRenewal.clearStrikes(ctx); return runCatching { parseJson(text) }.getOrNull() ?: JsonNull }
                 code == 404 -> throw NotFound()
                 code == 403 && DataDome.kindOfBody(text) != null -> throw BridgeException(SoundCloudBridge.BLOCKED)
                 (code == 401 || code == 403) && !refreshed -> { refreshed = true; runCatching { clientId(refresh = true) } }
