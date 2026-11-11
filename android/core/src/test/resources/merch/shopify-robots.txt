@@ -1,0 +1,40 @@
+User-agent: *
+Allow: /
+Allow: /products/account
+Allow: /products/orders
+Allow: /products/checkout
+Allow: /*/products/account
+Allow: /*/products/orders
+Allow: /*/products/checkout
+Allow: /collections/account
+Allow: /collections/orders
+Allow: /collections/checkout
+Allow: /*/collections/account
+Allow: /*/collections/orders
+Allow: /*/collections/checkout
+Allow: /pages/checkout
+Allow: /*/pages/checkout
+Allow: /blogs/*account
+Allow: /blogs/*orders
+Allow: /blogs/*checkout
+Allow: /*/blogs/*account
+Allow: /*/blogs/*orders
+Allow: /*/blogs/*checkout
+
+# Private / transactional
+Disallow: /admin
+Disallow: /cart/
+Disallow: /*/cart/
+Disallow: /checkout
+Disallow: /*/checkout
+Disallow: /checkouts/
+Disallow: /*/checkouts/
+Disallow: /orders
+Disallow: /*/orders
+Allow: /account/login
+Allow: /*/account/login
+Disallow: /account
+Disallow: /*/account
+Disallow: /65264910583
+Disallow: /cdn/wpm/*.js
+

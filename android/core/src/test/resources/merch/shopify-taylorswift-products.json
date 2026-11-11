@@ -1,0 +1,66 @@
+{
+ "products": [
+  {
+   "id": 8346356842696,
+   "title": "\"Patient Zero\" Piano Version Digital Download",
+   "handle": "patient-zero-piano-version-digital-download",
+   "vendor": "Taylor Swift Official Store",
+   "product_type": "",
+   "variants": [
+    {
+     "id": 45229656277192,
+     "title": "Default Title",
+     "price": "0.69",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 40161722925256,
+     "src": "https://cdn.shopify.com/s/files/1/0011/4651/9637/files/piano.png?v=1791561167",
+     "width": 2048,
+     "height": 2048
+    }
+   ]
+  },
+  {
+   "id": 7505580622024,
+   "title": "Taylor Swift Eras Crewneck",
+   "handle": "taylor-swift-eras-crewneck",
+   "vendor": "Taylor Swift Official Store",
+   "product_type": "Crewneck",
+   "variants": [
+    {
+     "id": 42535170375880,
+     "title": "XS",
+     "price": "55.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "id": 42535170408648,
+     "title": "S",
+     "price": "55.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "id": 42535170441416,
+     "title": "M",
+     "price": "55.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 33948674490568,
+     "src": "https://cdn.shopify.com/s/files/1/0011/4651/9637/products/OhhScmqFs8ws2OLTVSGD.png?v=1675104045",
+     "width": 1100,
+     "height": 1100
+    }
+   ]
+  }
+ ]
+}

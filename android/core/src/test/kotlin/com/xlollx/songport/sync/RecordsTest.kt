@@ -61,6 +61,10 @@ class RecordsTest {
         Records.tokenPace = Pacer(0)
         MusicBrainz.base = "$base/ws/2"
         MusicBrainz.pace = Pacer(0)
+        // The shops' merch: asked of the stand-in too (it has none), never of the real sites.
+        Merch.hostBase = { "$base/$it" }
+        Merch.hostGap = 0
+        Merch.resetPaces()
     }
 
     @After fun tearDown() {
@@ -71,6 +75,9 @@ class RecordsTest {
         Records.tokenPace = Pacer(1_050)
         MusicBrainz.base = "https://musicbrainz.org/ws/2"
         MusicBrainz.pace = Pacer(1100)
+        Merch.hostBase = { "https://$it" }
+        Merch.hostGap = 1_000
+        Merch.resetPaces()
     }
 
     private fun result(id: Long, master: Long, title: String, year: String?, vararg formats: String, have: Int = 100) = """

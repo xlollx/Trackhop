@@ -30,9 +30,9 @@ import java.util.Locale
 /**
  * "Records and merch of the artists of this playlist" (Discover): for each artist, their records
  * on CD, vinyl and cassette from the Discogs database, the official shop and pages MusicBrainz
- * links to the artist (official site, Bandcamp, mail-order shop, downloads, social), and searches
- * on Bandcamp, Discogs and general shops. Links only: no shop page is ever read, and no link
- * carries an affiliate tag.
+ * links to the artist (official site, Bandcamp, mail-order shop, downloads, social), the merch on
+ * sale in those shops ([Merch]: their public storefront data) and searches on Bandcamp, Discogs
+ * and general shops. No link carries an affiliate tag. [Look] says which part is looked up.
  *
  * Discogs needs no key: anonymous calls are allowed 25 a minute ([anonPace]). With the user's own
  * personal access token ([TOKEN_ID] in the token vault, encrypted on the phone) it is 60 a minute
@@ -86,6 +86,20 @@ object Records {
 
     enum class Kind { OFFICIAL, SHOP, BANDCAMP, DOWNLOAD, SOCIAL, DISCOGS }
 
+    /** What is looked up and shown: records and merch, the records on Discogs only, or the shops' merch only. */
+    enum class Look {
+        ALL, RECORDS, MERCH;
+        val records: Boolean get() = this != MERCH
+        val merch: Boolean get() = this != RECORDS
+        /** Whether a search for this covers [other] too. */
+        fun covers(other: Look) = this == ALL || this == other
+
+        companion object {
+            /** "all", "records" or "merch" (any case); null for anything else. */
+            fun of(name: String?): Look? = entries.firstOrNull { it.name.equals(name?.trim(), ignoreCase = true) }
+        }
+    }
+
     /** A page MusicBrainz links to the artist; [label] the site's name. */
     @Serializable
     data class Link(val kind: Kind, val label: String, val url: String)
@@ -95,12 +109,14 @@ object Records {
 
     data class ArtistRecords(
         val artist: String,
-        /** Null when Discogs could not be asked (limit, network): the searches still work. */
+        /** Null when Discogs could not be asked (limit, network) or was not ([Look.MERCH]): the searches still work. */
         val records: List<Record>?,
         val links: List<Link>,
         val searches: List<Search>,
         /** The artist on Discogs: MusicBrainz's link when it has one, else a search. The attribution links here. */
         val discogsPage: String,
+        /** The merch in the artist's shops ([Merch]); null when not looked up ([Look.RECORDS]). */
+        val merch: List<Merch.Item>? = null,
     )
 
     data class Result(
@@ -113,6 +129,7 @@ object Records {
         /** Discogs asked to slow down (429): the artists after have no records this time. */
         val slowedDown: Boolean,
         val currency: String,
+        val look: Look = Look.ALL,
     )
 
     // Tests point these at a local server and a fixed clock.
@@ -154,8 +171,9 @@ object Records {
     /**
      * Records, links and searches for [artists] (the playlist's, most held first). [progress] gets
      * (done, total). One artist's failure never stops the rest: that artist has fewer things.
+     * [look] says what is asked: Discogs is not called for [Look.MERCH], the shops not for [Look.RECORDS].
      */
-    suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
         var token = token(env)
         val hadToken = token != null
@@ -168,7 +186,7 @@ object Records {
             progress(i, list.size)
             val (records, links) = coroutineScope {
                 val links = async { links(env, artist) }
-                val records = if (slowed) null else try {
+                val records = if (slowed || !look.records) null else try {
                     discogs(env, token, artist, cur)
                 } catch (e: TokenRefused) {
                     refused = true; token = null
@@ -178,12 +196,13 @@ object Records {
                 }
                 records to links.await()
             }
+            val merch = if (look.merch) Merch.find(env, artist, links) else null
             val page = links.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
-            out += ArtistRecords(artist, records, links.filter { it.kind != Kind.DISCOGS }, searches(artist), page)
+            out += ArtistRecords(artist, records, links.filter { it.kind != Kind.DISCOGS }, searches(artist), page, merch)
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")
-        return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur)
+        return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur, look)
     }
 
     class TokenRefused : Exception("Discogs refused the token")
@@ -194,20 +213,20 @@ object Records {
     private val recordsSerializer = ListSerializer(Record.serializer())
     private val linksSerializer = ListSerializer(Link.serializer())
 
-    private fun <T> cached(env: Env, k: String, ttl: Long, read: (String) -> T): T? {
+    internal fun <T> cached(env: Env, k: String, ttl: Long, read: (String) -> T): T? {
         val saved = env.keyValues(CACHE)[k] ?: return null
         val at = saved.substringBefore('|').toLongOrNull() ?: return null
         if (now() - at >= ttl) return null
         return runCatching { read(saved.substringAfter('|')) }.getOrNull()
     }
 
-    private fun remember(env: Env, k: String, value: String) {
+    internal fun remember(env: Env, k: String, value: String) {
         val kv = env.keyValues(CACHE)
         if (kv.size >= 4_000) kv.clear()
         kv[k] = "${now()}|$value"
     }
 
-    private fun norm(artist: String) = Matcher.normalizeArtist(artist).ifEmpty { artist.lowercase() }
+    internal fun norm(artist: String) = Matcher.normalizeArtist(artist).ifEmpty { artist.lowercase() }
 
     // ---------------------------------------------------------------- Discogs
 

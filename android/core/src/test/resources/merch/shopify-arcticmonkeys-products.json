@@ -1,0 +1,128 @@
+{
+ "products": [
+  {
+   "id": 7736805425399,
+   "title": "Arctic Monkeys Logo Hood",
+   "handle": "arctic-monkeys-logo-hood",
+   "vendor": "Arctic Monkeys",
+   "product_type": "Hoodie",
+   "variants": [
+    {
+     "id": 43126132310263,
+     "title": "S",
+     "price": "60.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "id": 43126132343031,
+     "title": "M",
+     "price": "60.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "id": 43126132375799,
+     "title": "L",
+     "price": "60.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 37584237920503,
+     "src": "https://cdn.shopify.com/s/files/1/0652/6491/0583/products/AMO016A-HOBLK-FRONT.png?v=1660289021",
+     "width": 1100,
+     "height": 1100
+    }
+   ]
+  },
+  {
+   "id": 8001381695735,
+   "title": "Gold Logo Black T-Shirt",
+   "handle": "gold-logo-black-t-shirt",
+   "vendor": "Arctic Monkeys",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "id": 44069907038455,
+     "title": "S",
+     "price": "35.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "id": 44069907103991,
+     "title": "M",
+     "price": "35.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "id": 44069907136759,
+     "title": "L",
+     "price": "35.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 40780289573111,
+     "src": "https://cdn.shopify.com/s/files/1/0652/6491/0583/files/Classic-Logo-Front_2.png?v=1698942099",
+     "width": 1500,
+     "height": 1500
+    }
+   ]
+  },
+  {
+   "id": 7704617681143,
+   "title": "Tranquility Base Hotel & Casino (LP)",
+   "handle": "tranquility-base-hotel-and-casino-lp",
+   "vendor": "Arctic Monkeys",
+   "product_type": "LP",
+   "variants": [
+    {
+     "id": 43006738792695,
+     "title": "Default Title",
+     "price": "20.99",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 37349781569783,
+     "src": "https://cdn.shopify.com/s/files/1/0652/6491/0583/products/tranq.png?v=1657192873",
+     "width": 1100,
+     "height": 1100
+    }
+   ]
+  },
+  {
+   "id": 7746049704183,
+   "title": "'The Car' LP",
+   "handle": "the-car-lp",
+   "vendor": "Arctic Monkeys",
+   "product_type": "LP",
+   "variants": [
+    {
+     "id": 43163873411319,
+     "title": "Default Title",
+     "price": "21.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "id": 37678495072503,
+     "src": "https://cdn.shopify.com/s/files/1/0652/6491/0583/products/SuffolkPunch-Standard-LP.png?v=1661269704",
+     "width": 1500,
+     "height": 1500
+    }
+   ]
+  }
+ ]
+}
