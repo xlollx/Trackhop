@@ -213,6 +213,7 @@ object SoundCloudBridge {
         rememberRenewedToken(ctx, found)
         session.put(ctx, "apiHost", null)
         // A new sign-in: renewals may run again.
+        SoundCloudRenewal.clearStrikes(ctx)
         session.put(ctx, "expiredAt", null)
     }
 
