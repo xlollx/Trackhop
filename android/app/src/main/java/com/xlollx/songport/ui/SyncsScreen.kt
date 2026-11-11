@@ -1069,10 +1069,9 @@ private fun JobCard(
                             ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                             (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        // Beside the buttons (a medium or small card) it ends in "…": a line gliding there
-                        // showed cut at its start, as if under the logos or the button.
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f).let { if (large) it.cardMarquee() else it },
+                        // Glides like the name and the services line (the fade shows it is moving, not cut).
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f).cardMarquee(),
                     )
                 }
             }
