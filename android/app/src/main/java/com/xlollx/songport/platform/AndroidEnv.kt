@@ -105,7 +105,6 @@ class AndroidEnv private constructor(val context: Context) : Env {
             "APPLE_DEVELOPER_TOKEN" to BuildConfig.APPLE_DEVELOPER_TOKEN,
             "LASTFM_API_KEY" to BuildConfig.LASTFM_API_KEY,
             "LASTFM_SHARED_SECRET" to BuildConfig.LASTFM_SHARED_SECRET,
-            "TICKETMASTER_API_KEY" to BuildConfig.TICKETMASTER_API_KEY,
         )
     }
 }
