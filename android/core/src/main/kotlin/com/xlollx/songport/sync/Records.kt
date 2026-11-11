@@ -404,6 +404,28 @@ object Records {
     /** "Instagram" for instagram.com, "radiohead.com" for a site we do not name. */
     fun siteName(host: String): String = SITES.firstOrNull { (h, _) -> host == h || host.endsWith(".$h") || (h.endsWith(".") && h in host) }?.second ?: host
 
+    /**
+     * The links shown as the artist's official pages: each page once, and each name once (of two
+     * Apple, Qobuz or X pages the shortest address, of two official sites the shortest). The shops
+     * are named by their site ("Amazon", "band-store.com") when there are several, each once; the
+     * one official site, and a shop when it is the only one, get an empty [Link.label]: shown as
+     * "Official site" / "Official shop".
+     */
+    fun shownLinks(links: List<Link>): List<Link> {
+        fun address(l: Link) = runCatching { URI(l.url) }.getOrNull()
+            ?.let { (it.host.orEmpty().lowercase().removePrefix("www.") + it.rawPath.orEmpty().trimEnd('/')) + (it.rawQuery?.let { q -> "?$q" } ?: "") }
+            ?: l.url
+        val pages = links.distinctBy { address(it) }
+        val shops = pages.filter { it.kind == Kind.SHOP }.distinctBy { it.label }.size
+        fun name(l: Link) = when {
+            l.kind == Kind.OFFICIAL || (l.kind == Kind.SHOP && shops == 1) -> ""
+            else -> l.label
+        }
+        val best = pages.groupBy { "${if (name(it).isEmpty()) it.kind.name else ""}|${name(it)}" }
+            .mapValues { (_, same) -> same.minBy { address(it).length } }
+        return pages.mapNotNull { l -> best["${if (name(l).isEmpty()) l.kind.name else ""}|${name(l)}"]?.takeIf { it === l }?.copy(label = name(l)) }
+    }
+
     private suspend fun mbGet(path: String): String? = try {
         MusicBrainz.pace.paced {
             val r = Http.send(

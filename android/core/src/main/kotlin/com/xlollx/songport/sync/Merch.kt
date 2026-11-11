@@ -25,12 +25,14 @@ import java.util.concurrent.ConcurrentHashMap
  * the public storefront data shops give every shopper, and only from the artist's own shops:
  *
  * - a shop on Shopify: the mail-order shops MusicBrainz links to the artist ([Records.parseLinks]),
- *   the official site, and the shops the official site's home page links to (a store subdomain
- *   like shop.band.com, a label's collection of the artist, a link page like lnk.to/store followed
- *   once): its public catalogue, `/products.json` (first page), and its currency from `/meta.json`;
+ *   the official site, the shops the official site's home page links to (a store subdomain like
+ *   shop.band.com, a link named "Store", a label's collection of the artist, a link page like
+ *   lnk.to/store followed once; a splash page's "/home" read first), else store. and shop. of the
+ *   site's domain: its public catalogue, `/products.json` (first page), and its currency from `/meta.json`;
  * - the artist's Bandcamp: the merch page, `/merch`.
  *
- * Each shop's robots.txt is read first and honoured (a shop that closes those pages is skipped),
+ * Each shop's robots.txt is read first and honoured (a shop that closes those pages is skipped; a
+ * link page whose robots.txt does not answer only has the one link the site gives opened, as a click would),
  * at most one request a second goes to a host, every request names the app, and what is found is
  * kept a day ([TTL_MS]). A shop that did not answer is not taken for one with nothing:
  * [Found.unread], never kept. Each artist's look-up leaves one line in the app's log ("merch").
@@ -95,6 +97,12 @@ object Merch {
 
     /** A host or link that names a shop: store.band.com, shop.band.com, merch.band.com, bandstore.com, lnk.to/store. */
     private val STORE = Regex("store|shop|merch")
+    /** A link's text or label naming a shop: "Store", "Shop", "Merch" (a shop on a host that does not say so: a7xworld.com). */
+    private val STORE_WORD = Regex("""\b(stores?|shop|merch|merchandise)\b""", RegexOption.IGNORE_CASE)
+    /** A splash page's link to the real home page: followed once when the splash names no shop. */
+    private val ENTRY = setOf("home", "index", "main", "enter", "welcome")
+    /** Subdomains many official shops live on, tried when the official site names none (its menu built by a script). */
+    private val STORE_SUBDOMAINS = listOf("store", "shop")
 
     private val serializer = ListSerializer(Item.serializer())
 
@@ -188,7 +196,19 @@ object Merch {
         return Shop(h, COLLECTION.find(u.rawPath.orEmpty())?.groupValues?.get(1)?.lowercase().orEmpty())
     }
 
-    private val ANCHOR = Regex("""<a\b[^>]*?\bhref\s*=\s*["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+    private val ANCHOR = Regex("""<a\b([^>]*)>""", RegexOption.IGNORE_CASE)
+    /** An attribute's value, quoted or not (`href=https://...`, as minified pages write it). */
+    private val HREF_ATTR = Regex("""\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))""", RegexOption.IGNORE_CASE)
+
+    /** A page's links: the address and what names it (its text, title and other attributes), in page order. */
+    private fun anchors(html: String): Sequence<Pair<String, String>> = ANCHOR.findAll(html).mapNotNull { m ->
+        val attrs = m.groupValues[1]
+        val h = HREF_ATTR.find(attrs) ?: return@mapNotNull null
+        val href = (h.groupValues.drop(1).firstOrNull { it.isNotEmpty() } ?: return@mapNotNull null).trim().replace("&amp;", "&")
+        val after = m.range.last + 1
+        val end = listOf(html.indexOf("</a", after, true), html.indexOf("<a", after, true), after + 300).filter { it >= 0 }.min().coerceAtMost(html.length)
+        href to (attrs.removeRange(h.range) + " " + text(html.substring(after, end)))
+    }
     private val ABSOLUTE = Regex("""https?://[A-Za-z0-9.-]+[^\s"'<>\\]*""")
 
     /**
@@ -198,8 +218,7 @@ object Merch {
      */
     internal fun storeLinks(html: String, site: String): List<String> {
         val domain = site.removePrefix("www.")
-        return ANCHOR.findAll(html).mapNotNull { m ->
-            val href = m.groupValues[1].trim().replace("&amp;", "&")
+        return anchors(html).mapNotNull { (href, label) ->
             val url = when {
                 href.startsWith("//") -> "https:$href"
                 href.startsWith("http://") || href.startsWith("https://") -> href
@@ -208,11 +227,18 @@ object Merch {
             val h = host(url) ?: return@mapNotNull null
             if (h.removePrefix("www.") == domain || !isShopHost(h)) return@mapNotNull null
             val path = runCatching { URI(url).rawPath }.getOrNull().orEmpty().lowercase()
-            if (!STORE.containsMatchIn(h) && !(isRedirector(h) && STORE.containsMatchIn(path))) return@mapNotNull null
+            if (!STORE.containsMatchIn(h) && !(isRedirector(h) && STORE.containsMatchIn(path)) && !STORE_WORD.containsMatchIn(label)) return@mapNotNull null
             url
         }.distinctBy { u -> if (isRedirector(host(u)!!)) u.substringBefore('?') else shopOf(u) }
             .sortedBy { if (host(it)!!.endsWith(".$domain")) 0 else 1 }.toList()
     }
+
+    /** A splash page's link to the site's real home page ("/home" on [site]), or null. */
+    internal fun entryPath(html: String, site: String): String? = anchors(html).mapNotNull { (href, _) ->
+        val u = runCatching { URI(href) }.getOrNull() ?: return@mapNotNull null
+        if (u.host != null && u.host.lowercase().removePrefix("www.") != site.removePrefix("www.")) return@mapNotNull null
+        u.rawPath?.takeIf { it.trim('/').lowercase() in ENTRY }
+    }.firstOrNull()
 
     /** The shop a link page ([page] of [redirector]) sends to: the first link to another host that names a shop. */
     internal fun landingShop(page: String, redirector: String): String? =
@@ -231,11 +257,24 @@ object Merch {
         }
         for (h in shopHosts(links)) read(Shop(h))?.let { return it }
         // Many official sites are not the shop but link to it: a store subdomain, a label's shop, a link page.
-        val site = links.firstOrNull { it.kind == Records.Kind.OFFICIAL }?.let { host(it.url) }?.takeIf { isShopHost(it) } ?: return emptyList()
-        val home = allowedGet(site, "/", "text/html", t) ?: return emptyList()
-        val linked = storeLinks(home.body, host(home.url?.let { unbase(it) } ?: "") ?: site).take(MAX_LINKED)
-        if (linked.isEmpty()) t.steps += "$site: no shop linked"
-        for (url in linked) read(resolve(url, t))?.let { return it }
+        val official = links.firstOrNull { it.kind == Records.Kind.OFFICIAL }?.url ?: return emptyList()
+        val site = host(official)?.takeIf { isShopHost(it) } ?: return emptyList()
+        val home = allowedGet(site, "/", "text/html", t)
+        val at = home?.url?.let { host(unbase(it)) } ?: site
+        var linked = home?.let { storeLinks(it.body, at) }.orEmpty()
+        // A splash page that only leads to the real home page ("/home"): that page is read once.
+        val entry = if (home != null && linked.isEmpty()) entryPath(home.body, at) else null
+        if (entry != null) linked = allowedGet(at, entry, "text/html", t)?.let { storeLinks(it.body, at) }.orEmpty()
+        if (home != null && linked.isEmpty()) t.steps += "$site: no shop linked"
+        for (url in linked.take(MAX_LINKED)) read(resolve(url, t))?.let { return it }
+        // A home page drawn by a script names no shop: store. and shop. of the site's own domain (the site itself, not a page on a host).
+        if (runCatching { URI(official).rawPath.orEmpty().trim('/') }.getOrDefault("x").isNotEmpty()) return emptyList()
+        // A guessed host that does not exist is not a shop that did not answer.
+        val unread = t.unread
+        val domain = at.removePrefix("www.")
+        try {
+            for (sub in STORE_SUBDOMAINS) read(Shop("$sub.$domain"))?.let { return it }
+        } finally { t.unread = unread }
         return emptyList()
     }
 
@@ -244,7 +283,7 @@ object Merch {
         val h = host(url) ?: return null
         if (!isRedirector(h)) return shopOf(url)
         val u = URI(url)
-        val r = allowedGet(h, u.rawPath.orEmpty().ifEmpty { "/" } + (u.rawQuery?.let { "?$it" } ?: ""), "text/html", t) ?: return null
+        val r = allowedGet(h, u.rawPath.orEmpty().ifEmpty { "/" } + (u.rawQuery?.let { "?$it" } ?: ""), "text/html", t, link = true) ?: return null
         // An HTTP redirect lands on the shop; a page names it.
         val target = r.url?.let { unbase(it) }?.takeIf { host(it) != h } ?: landingShop(r.body, h)
         t.steps += "$h${u.rawPath.orEmpty()} → ${target?.let { host(it) } ?: "no shop"}"
@@ -266,24 +305,30 @@ object Merch {
         return items
     }
 
-    /** The shop's currency and name from its `/meta.json`, when it gives them. */
-    internal fun parseMeta(body: String?): Pair<String?, String?> {
-        val o = body?.let { runCatching { parseJson(it) }.getOrNull() } ?: return null to null
-        return o["currency"].str?.uppercase()?.takeIf { it.length == 3 } to o["name"].str
+    /** The shop's currency, name and description from its `/meta.json`, when it gives them. */
+    internal fun parseMeta(body: String?): Triple<String?, String?, String?> {
+        val o = body?.let { runCatching { parseJson(it) }.getOrNull() } ?: return Triple(null, null, null)
+        return Triple(o["currency"].str?.uppercase()?.takeIf { it.length == 3 }, o["name"].str, o["description"].str)
     }
 
     /**
      * A Shopify catalogue as items: available, shipped things (digital downloads left out), the
      * lowest price of the variants on sale, the first picture as Shopify's 200-pixel copy. When
-     * the shop is not named after [artist] (a label's shop) and is not [whole]ly theirs (the artist's
-     * collection there), only the products naming the artist.
+     * the shop is not named after [artist] (its name, its initials "ADTR", or its description "A Day
+     * To Remember's official online store"; not a label's shop) and is not [whole]ly theirs (the
+     * artist's collection there), only the products naming the artist.
      */
     fun parseShopify(body: String, meta: String?, base: String, artist: String, whole: Boolean = false): List<Item> {
-        val (currency, shopName) = parseMeta(meta)
+        val (currency, shopName, about) = parseMeta(meta)
         val want = Matcher.normalizeArtist(artist)
         if (want.isEmpty()) return emptyList()
-        fun names(s: String?) = s != null && " ${Matcher.normalizeArtist(s)} ".contains(" $want ")
-        val wholeShop = whole || names(shopName)
+        val words = want.split(' ')
+        val initials = if (words.size >= 3) words.joinToString("") { it.take(1) } else ""
+        fun names(s: String?): Boolean {
+            val n = " ${Matcher.normalizeArtist(s ?: return false)} "
+            return n.contains(" $want ") || n.contains(" ${want}s ") || (initials.isNotEmpty() && n.contains(" $initials "))
+        }
+        val wholeShop = whole || names(shopName) || names(about)
         return parseJson(body)["products"].arr.mapNotNull { e ->
             val p = e as? JsonObject ?: return@mapNotNull null
             val title = p["title"].str?.trim()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
@@ -401,9 +446,20 @@ object Merch {
 
     // ---------------------------------------------------------------- requests
 
-    /** A GET to [h] that its robots.txt allows; null when it does not, or did not answer with the page (why, in [t]). */
-    private suspend fun allowedGet(h: String, path: String, accept: String, t: Trace): HttpResponse? {
-        val robots = robots(h, t) ?: return null
+    /**
+     * A GET to [h] that its robots.txt allows; null when it does not, or did not answer with the page (why, in [t]).
+     * A [link] the artist's site gives to a link page (found.ee/band-store) is opened even when that host's
+     * robots.txt cannot be read: that one address, as a click would, nothing else on the host.
+     */
+    private suspend fun allowedGet(h: String, path: String, accept: String, t: Trace, link: Boolean = false): HttpResponse? {
+        val unread = t.unread
+        val robots = robots(h, t)
+        if (robots == null && link) {
+            val r = request(h, path, accept, t)?.takeIf { it.ok } ?: return null
+            t.unread = unread; t.steps += "$h: robots.txt unreadable, the link opened once"
+            return r
+        }
+        robots ?: return null
         if (!robotsAllows(robots, path)) { t.steps += "$h${path.substringBefore('?')}: closed by robots.txt"; return null }
         return request(h, path, accept, t)?.takeIf { it.ok }
     }

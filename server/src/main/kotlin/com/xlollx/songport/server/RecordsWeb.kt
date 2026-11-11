@@ -227,8 +227,8 @@ private fun recordsHtml(playlist: String, r: Records.Result): String = buildStri
             append("<p>Merch:</p>")
             if (items.isEmpty()) append("""<p class="muted">${if (ar.shopsUnread) RecordTexts.SHOPS_UNREAD else RecordTexts.NO_MERCH}</p>""") else shopItems(items)
         }
-        if (ar.links.isNotEmpty()) append("<p>Official pages: ").append(ar.links.joinToString(" · ") { l ->
-            a(l.url, when (l.kind) { Records.Kind.OFFICIAL -> "Official site"; Records.Kind.SHOP -> "Official shop"; else -> l.label })
+        if (ar.links.isNotEmpty()) append("<p>Official pages: ").append(Records.shownLinks(ar.links).joinToString(" · ") { l ->
+            a(l.url, l.label.ifEmpty { if (l.kind == Records.Kind.SHOP) "Official shop" else "Official site" })
         }).append("</p>")
         append("<p>Search the shops: ").append(ar.searches.joinToString(" · ") { s -> a(s.url, s.site ?: "Web") }).append("</p></div>")
     }
