@@ -86,13 +86,19 @@ class SpotifyWebClient(private val host: Host) {
 
     // ---- client token: names the application; two weeks, granted to the player's id and version
 
-    /** Null when Spotify would not grant one: the call goes without, and the answer says whether it was needed. */
-    private fun clientToken(): String? {
+    /**
+     * Null when Spotify would not grant one: the call goes without, and the answer says whether it was needed.
+     * It is not needed today: pathfinder and spclient answer the bearer alone (the 11/2026 reports: every
+     * grant refused with a 400, the syncs read and wrote all the same). So a refusal is believed for the
+     * rest of the process: asked again on every call it only filled the log. A network failure is retried
+     * after a minute. One request at a time: parallel searches each asked for their own.
+     */
+    private fun clientToken(): String? = synchronized(CLIENT_TOKEN_LOCK) {
         host.get("clientToken")?.let { t ->
             val exp = host.get("clientTokenExp")?.toLongOrNull() ?: 0
             if (exp > System.currentTimeMillis()) return t
         }
-        if (System.currentTimeMillis() - clientTokenFailedAt < 60_000) return null
+        if (clientTokenRefused || System.currentTimeMillis() - clientTokenFailedAt < 60_000) return null
         return try { grantClientToken() } catch (e: Exception) { clientTokenFailedAt = System.currentTimeMillis(); lastClientTokenError = e.message; null }
     }
 
@@ -123,7 +129,10 @@ class SpotifyWebClient(private val host: Host) {
             // What came back instead, for the diagnostics log: the status, the answer's type and the
             // start of the body with anything token-like removed; the client version tells a stale page.
             BridgeNet.log("spotify", "client token refused: HTTP $status, ${j["response_type"].str ?: "no response_type"}, client version $version, " +
-                "body ${raw.replace(Regex("[A-Za-z0-9_\\-]{40,}"), "…").take(200).ifBlank { "empty" }}")
+                "body ${raw.replace(Regex("[A-Za-z0-9_\\-]{40,}"), "…").take(200).ifBlank { "empty" }}" +
+                if (status == 429 || status >= 500) "" else "; going on without it until the app restarts")
+            // A busy or failing server may grant one in a minute; any other answer is Spotify's word.
+            if (status != 429 && status < 500) clientTokenRefused = true
             throw BridgeException("Spotify did not grant a client token (${j["response_type"].str ?: "HTTP $status"})")
         }
         val ttl = (j["granted_token"]["refresh_after_seconds"].long ?: j["granted_token"]["expires_after_seconds"].long ?: 1_209_600L) * 1000
@@ -797,6 +806,18 @@ class SpotifyWebClient(private val host: Host) {
         const val WEB_PLAYER_CLIENT_ID = "d8a5ed958d274c2e8ee717e6a4b0971d"
         const val DEFAULT_APP_VERSION = "1.2.70.0"
         @Volatile private var clientTokenFailedAt = 0L
+        @Volatile private var clientTokenRefused = false
+        private val CLIENT_TOKEN_LOCK = Any()
+        /** Forgets a refused client token (tests). */
+        internal fun resetClientToken() { clientTokenRefused = false; clientTokenFailedAt = 0L; lastClientTokenError = null }
+        /**
+         * Why the access token could not be had. Only an expired session asks to sign in again: a
+         * player that did not answer in time is a slow load (the sync retries it as a network hiccup,
+         * "timed out"), not a reason to send the user to the sign-in page.
+         */
+        fun tokenFailure(error: String?): String =
+            if (error == null) "Spotify did not hand out a token in time (timed out): the web player was slow to load, trying again"
+            else "Spotify did not hand out a token: $error" + if (error.contains("sign in", true)) "" else " (trying again shortly)"
         @Volatile private var lastClientTokenError: String? = null
         const val SPCLIENT = "https://spclient.wg.spotify.com"
         private val JSON = "application/json".toMediaType()
