@@ -1,0 +1,1 @@
+SoundCloud oturumu açık kalır: uygulama artık SoundCloud oturumunu arka planda yeniliyor, böylece birkaç gün eşitleme yapılmadığında sona ermiyor. Yine de sona ererse tek bir bildirim seni yeniden giriş yapman için doğrudan Hesaplar'a götürür.

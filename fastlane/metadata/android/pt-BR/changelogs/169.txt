@@ -1,0 +1,1 @@
+O SoundCloud continua conectado: o app agora renova a sessão do SoundCloud em segundo plano, então ela não expira mais depois de alguns dias sem sincronizar. Se expirar mesmo assim, uma única notificação leva você direto a Contas para entrar de novo.

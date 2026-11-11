@@ -1,0 +1,1 @@
+SoundCloud sigue conectado: la app ahora renueva la sesión de SoundCloud en segundo plano, así que ya no caduca tras unos días sin sincronizar. Si aun así caduca, una sola notificación te lleva directo a Cuentas para volver a iniciar sesión.

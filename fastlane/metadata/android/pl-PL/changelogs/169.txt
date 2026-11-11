@@ -1,0 +1,1 @@
+SoundCloud pozostaje zalogowany: aplikacja odnawia teraz sesję SoundCloud w tle, więc nie wygasa już po kilku dniach bez synchronizacji. Jeśli jednak wygaśnie, jedno powiadomienie zabierze cię prosto do Kont, by zalogować się ponownie.
