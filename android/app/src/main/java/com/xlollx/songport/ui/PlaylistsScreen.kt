@@ -128,8 +128,9 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     renaming?.let { pl ->
         var name by rememberSaveable(pl.id) { mutableStateOf(pl.name) }
+        val close = rememberDiscardGuard(name.trim() != pl.name) { renaming = null }
         FitDialog(
-            onDismissRequest = { renaming = null },
+            onDismissRequest = close,
             title = { Text(stringResource(R.string.manage_rename)) },
             text = { OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, label = { Text(stringResource(R.string.manage_rename_title)) }, modifier = Modifier.fillMaxWidth()) },
             confirmButton = {

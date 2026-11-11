@@ -213,7 +213,8 @@ object Records {
 
     /** The artist's records on Discogs; null when Discogs did not answer (then nothing is remembered). */
     private suspend fun discogs(env: Env, token: String?, artist: String, currency: String): List<Record>? {
-        val ck = if (token != null) "dg|$currency|${norm(artist)}" else "dg|${norm(artist)}"
+        // "dg2": records saved before they carried a picture are not shown again with empty boxes.
+        val ck = if (token != null) "dg2|$currency|${norm(artist)}" else "dg2|${norm(artist)}"
         cached(env, ck, DISCOGS_TTL_MS) { json.decodeFromString(recordsSerializer, it) }?.let { return it }
         val search = discogsGet(token, "database/search?" + Http.query(mapOf(
             "artist" to artist, "type" to "release", "sort" to "have", "sort_order" to "desc", "per_page" to "100",

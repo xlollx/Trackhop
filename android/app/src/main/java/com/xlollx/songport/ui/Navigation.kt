@@ -19,6 +19,13 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.xlollx.songport.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.coroutines.cancellation.CancellationException
@@ -102,3 +109,27 @@ val ProviderSaver = androidx.compose.runtime.saveable.Saver<com.xlollx.songport.
     save = { it?.id },
     restore = { com.xlollx.songport.providers.Providers.byId(it) },
 )
+
+/**
+ * Leaving a form (a dialog, the sync editor) with something typed or chosen and not saved: back, a
+ * tap beside the dialog or the top bar's arrow asks "Discard changes?" (Discard / Keep editing)
+ * instead of dropping it; with nothing [changed] it closes at once. Returns that close: for the
+ * dialog's onDismissRequest, the arrow and, on a full-screen editor, [ScreenBackHandler]. An
+ * explicit Cancel button keeps closing at once. [onKeep]: "Keep editing" chosen (a sheet swiped
+ * away shows itself again).
+ */
+@Composable
+fun rememberDiscardGuard(changed: Boolean, onKeep: () -> Unit = {}, onClose: () -> Unit): () -> Unit {
+    var asking by rememberSaveable { mutableStateOf(false) }
+    val nowChanged by rememberUpdatedState(changed)
+    val close by rememberUpdatedState(onClose)
+    val keep by rememberUpdatedState(onKeep)
+    if (asking) FitDialog(
+        onDismissRequest = { asking = false; keep() },
+        title = { Text(stringResource(R.string.discard_changes_title)) },
+        text = { Text(stringResource(R.string.discard_changes_body)) },
+        confirmButton = { TextButton(onClick = { asking = false; close() }) { Text(stringResource(R.string.discard_changes_discard)) } },
+        dismissButton = { TextButton(onClick = { asking = false; keep() }) { Text(stringResource(R.string.discard_changes_keep)) } },
+    )
+    return remember { { if (nowChanged) asking = true else close() } }
+}

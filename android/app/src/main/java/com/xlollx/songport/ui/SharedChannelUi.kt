@@ -243,6 +243,9 @@ class NtfySignIn(on: Boolean = false) {
 
     /** Nothing asked, or enough given. */
     val ready: Boolean get() = !on || auth != null
+
+    /** Something typed in it (asked before it is dropped). */
+    val typed: Boolean get() = token.isNotBlank() || user.isNotBlank() || password.isNotBlank()
 }
 
 /** "This server needs sign-in", and when ticked an access token or a user name and password. */

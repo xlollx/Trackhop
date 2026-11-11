@@ -49,8 +49,9 @@ fun ServerLocksDialog(initial: ServerLocks.Config?, onDismiss: () -> Unit, onSav
     /** The test's answer, as said to the user; null = not tried since the last change. */
     var result by remember { mutableStateOf<String?>(null) }
     val complete = address.isNotBlank() && token.isNotBlank()
+    val close = rememberDiscardGuard(address != initial?.address.orEmpty() || token != initial?.token.orEmpty(), onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.server_locks_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

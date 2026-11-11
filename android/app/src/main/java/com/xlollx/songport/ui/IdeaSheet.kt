@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import kotlinx.coroutines.launch
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -76,7 +77,11 @@ fun IdeaSheet(onDismiss: () -> Unit) {
     var why by rememberSaveable { mutableStateOf("") }
     val services = remember { mutableStateListOf<String>() }
     val ready = idea.isNotBlank()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    // Swiped away or back with an idea written: asked first; "Keep editing" brings the sheet back.
+    val close = rememberDiscardGuard(idea.isNotBlank() || why.isNotBlank(), onKeep = { scope.launch { sheet.show() } }, onClose = onDismiss)
+    ModalBottomSheet(onDismissRequest = close, sheetState = sheet) {
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

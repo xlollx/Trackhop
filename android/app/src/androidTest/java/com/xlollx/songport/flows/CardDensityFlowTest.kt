@@ -261,8 +261,9 @@ class CardDensityFlowTest : FlowTest() {
             assertTrue("New sync beside the cards, not over them", fab.boundsInRoot.right <= one.boundsInRoot.left)
         } finally {
             val before = resumed()
+            val was = configOf(before)
             shell("wm size reset")
-            runCatching { waitForNewMain(before, ms = 10_000) }
+            runCatching { waitForConfigChange(before, was, ms = 10_000) }
             compose.waitForIdle()
         }
     }

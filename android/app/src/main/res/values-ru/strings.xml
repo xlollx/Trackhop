@@ -2357,4 +2357,8 @@
     <string name="provider_note_jiosaavn">Публичные плейлисты, альбомы и треки JioSaavn, только чтение и без входа: вставьте ссылку (jiosaavn.com/featured/…, /album/…, /song/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
     <string name="jiosaavn_not_public">Эта ссылка JioSaavn закрыта или не существует: работают только публичные ссылки</string>
     <string name="jiosaavn_changed">JioSaavn изменил сайт; Trackhop нужно обновить</string>
+    <string name="discard_changes_title">Отменить изменения?</string>
+    <string name="discard_changes_body">Введённое здесь ещё не сохранено.</string>
+    <string name="discard_changes_discard">Отменить</string>
+    <string name="discard_changes_keep">Продолжить</string>
 </resources>

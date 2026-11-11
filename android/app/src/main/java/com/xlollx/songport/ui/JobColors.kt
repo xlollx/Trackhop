@@ -314,8 +314,9 @@ fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> 
             Text(stringResource(R.string.job_color_preview), Modifier.padding(horizontal = 14.dp), color = jobInk(key) ?: MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
         }
     }
+    val close = rememberDiscardGuard(CustomColor.key(color) != CustomColor.key(initial), onClose = onDismiss)
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         modifier = if (wide) WideDialog.modifier else Modifier,
         properties = if (wide) WideDialog.properties else androidx.compose.ui.window.DialogProperties(),
         title = { Text(stringResource(R.string.job_color_custom)) },

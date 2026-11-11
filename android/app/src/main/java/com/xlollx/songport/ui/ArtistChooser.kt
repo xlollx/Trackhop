@@ -139,12 +139,16 @@ internal fun discoverImagesOn(ctx: Context): Boolean {
 
 /**
  * A small picture from [url] (a concert's, a record's cover) in a box of the given size, so nothing
- * moves when it arrives: a plain placeholder until then, or for good when it does not load.
+ * moves when it arrives: a plain placeholder until then, or for good when it does not load. With no
+ * [url] (or one that does not load), the address [fallback] finds, if any.
  */
 @Composable
-internal fun DiscoverImage(url: String, width: Dp, height: Dp) {
+internal fun DiscoverImage(url: String, width: Dp, height: Dp, fallback: (suspend () -> String?)? = null) {
     var bmp by remember(url) { mutableStateOf<android.graphics.Bitmap?>(null) }
-    LaunchedEffect(url) { bmp = Cards.bitmap(url, 300) }
+    LaunchedEffect(url) {
+        bmp = url.takeIf { it.isNotBlank() }?.let { Cards.bitmap(it, 300) }
+            ?: fallback?.invoke()?.let { Cards.bitmap(it, 300) }
+    }
     Box(Modifier.size(width, height).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
         bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
     }

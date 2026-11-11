@@ -97,21 +97,22 @@ class LandscapeDialogsFlowTest : FlowTest() {
 
     /**
      * Sets the phone's text size and waits until the app has it: the change reaches the app a moment
-     * later and recreates the activity on screen. Started (or rotated) before that, the activity was
+     * later and redraws the activity on screen. Started (or rotated) before that, the activity was
      * replaced under the test and Settings was not found in time (CI, 10/11).
      */
     private fun fontScale(scale: Float) {
         if (kotlin.math.abs(app.resources.configuration.fontScale - scale) <= 0.01f) return
         val before = resumed()
+        val was = configOf(before)
         shell("settings put system font_scale $scale")
         val end = System.currentTimeMillis() + 15_000
         while (kotlin.math.abs(app.resources.configuration.fontScale - scale) > 0.01f) {
             if (System.currentTimeMillis() > end) throw AssertionError("font scale $scale not applied (${app.resources.configuration.fontScale})")
             Thread.sleep(100)
         }
-        // An activity on screen is recreated with the new size: wait for the new one.
+        // An activity on screen takes the new size (redrawn, not remade): wait until it has it.
         if (before is MainActivity) {
-            waitForNewMain(before)
+            waitForConfigChange(before, was)
             compose.waitForIdle()
         }
     }

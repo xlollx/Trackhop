@@ -539,9 +539,14 @@ private fun CoverSearchRow() = Column(Modifier.fillMaxWidth()) {
 
 /** The last roast, its playlist and its card, kept in memory while the app runs. */
 private object RoastKept {
-    @Volatile var text: String? = null
+    var text by mutableStateOf<String?>(null)
     @Volatile var playlistId: String? = null
-    @Volatile var bitmaps: Map<Cards.Format, Bitmap>? = null
+    var bitmaps by mutableStateOf<Map<Cards.Format, Bitmap>?>(null)
+    /** A roast being written, in the app's scope ([AppWork]): the screen turned, it goes on. */
+    var busy by mutableStateOf(false)
+    var coverSearch by mutableStateOf(false)
+    /** What the last run has to say (refused, failed), not shown yet. */
+    var notice by mutableStateOf<String?>(null)
 }
 
 /** How long the roast's covers are looked up at most. */
@@ -557,15 +562,16 @@ private const val ROAST_COVERS = 6
 @Composable
 internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetUpAi: () -> Unit = {}) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
     val store = remember { Store.get(ctx) }
     val settings by store.state.collectAsState()
     var pick by remember { mutableStateOf<CardPick?>(null) }
-    var busy by remember { mutableStateOf(false) }
-    var coverSearch by remember { mutableStateOf(false) }
-    // The last roast and its card stay for as long as the app runs: another tab and back kept nothing.
-    var roast by remember { mutableStateOf(RoastKept.text) }
-    var bitmaps by remember { mutableStateOf(RoastKept.bitmaps) }
+    // The roast being written, the last one and its card live outside the page for as long as the
+    // app runs: another tab and back, or the screen turned, keeps them (and a run goes on).
+    var busy by RoastKept::busy
+    var coverSearch by RoastKept::coverSearch
+    var roast by RoastKept::text
+    var bitmaps by RoastKept::bitmaps
+    RoastKept.notice?.let { n -> LaunchedEffect(n) { snackbar.showSnackbar(n, withDismissAction = true, duration = SnackbarDuration.Long); RoastKept.notice = null } }
     fun forget() { roast = null; bitmaps = null; RoastKept.text = null; RoastKept.bitmaps = null; RoastKept.playlistId = null }
     // One roast, as it always was: the levels and the explicit switch were tried and dropped.
     val level = AiRoast.Level.DEFAULT
@@ -581,7 +587,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
         val p = pick ?: return
         val lv = level; val ex = explicit
         busy = true; bitmaps = null
-        scope.launch {
+        AppWork.scope.launch {
             try {
                 val tracks = p.provider.tracks(ctx, p.playlist.id)
                 val name = p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
@@ -615,13 +621,13 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                 if (RoastKept.playlistId == p.playlist.id) RoastKept.bitmaps = bitmaps
             } catch (e: CancellationException) { throw e } catch (e: AiRoast.Refused) {
                 // A refusal or an empty answer: a friendly word, a lower level when there is one.
-                snackbar.showSnackbar(ctx.getString(R.string.discover_roast_refused), withDismissAction = true, duration = SnackbarDuration.Long)
+                RoastKept.notice = ctx.getString(R.string.discover_roast_refused)
             } catch (e: Exception) {
-                snackbar.showSnackbar(errorText(ctx, e))
+                RoastKept.notice = errorText(ctx, e)
             } catch (e: Throwable) {
                 // An Error (out of memory, a library's own) would close the app: logged and said instead.
                 com.xlollx.songport.data.Diagnostics.log(ctx, "roast", com.xlollx.songport.data.CrashLog.describe(e))
-                snackbar.showSnackbar(ctx.getString(R.string.error_generic) + " (" + e.javaClass.simpleName + ")")
+                RoastKept.notice = ctx.getString(R.string.error_generic) + " (" + e.javaClass.simpleName + ")"
             }
             busy = false
         }
@@ -764,6 +770,14 @@ private fun SearchOnMenu(t: Track) {
 
 private fun pricePrefs(ctx: Context) = ctx.applicationContext.getSharedPreferences("discover_prices", Context.MODE_PRIVATE)
 
+/** The two libraries being compared and the last comparison, for as long as the app runs. */
+private object SubscriptionsKept {
+    var busy by mutableStateOf(false)
+    var step by mutableStateOf("")
+    var result by mutableStateOf<Triple<MusicProvider, MusicProvider, LibraryOverlap.Result>?>(null)
+    var notice by mutableStateOf<String?>(null)
+}
+
 /**
  * "Two subscriptions?": how much of the music on two services overlaps ([LibraryOverlap]), and
  * what both cost at the prices the user types (kept on the phone, never ours). It measures; it
@@ -772,7 +786,6 @@ private fun pricePrefs(ctx: Context) = ctx.applicationContext.getSharedPreferenc
 @Composable
 internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
     val services = remember { LibraryReader.services(ctx) }
     if (services.size < 2) { Intro(stringResource(R.string.discover_subs_intro)); NoServices(stringResource(R.string.discover_subs_need_two), onGoToAccounts); return }
     var aId by rememberSaveable { mutableStateOf(services[0].id) }
@@ -781,13 +794,15 @@ internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -
     val b = services.firstOrNull { it.id == bId } ?: services[1]
     var priceA by remember(a.serviceId) { mutableStateOf(pricePrefs(ctx).getString(a.serviceId, "").orEmpty()) }
     var priceB by remember(b.serviceId) { mutableStateOf(pricePrefs(ctx).getString(b.serviceId, "").orEmpty()) }
-    var busy by remember { mutableStateOf(false) }
-    var step by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf<Triple<MusicProvider, MusicProvider, LibraryOverlap.Result>?>(null) }
+    // The comparison lives outside the page (SubscriptionsKept): the screen turned, it goes on.
+    var busy by SubscriptionsKept::busy
+    var step by SubscriptionsKept::step
+    var result by SubscriptionsKept::result
+    SubscriptionsKept.notice?.let { n -> LaunchedEffect(n) { snackbar.showSnackbar(n); SubscriptionsKept.notice = null } }
 
     fun run() {
         busy = true; result = null
-        scope.launch {
+        AppWork.scope.launch {
             try {
                 val ta = LibraryReader.read(ctx, a) { d, t -> step = ctx.getString(R.string.discover_reading, a.displayName, d, t) }
                 val tb = LibraryReader.read(ctx, b) { d, t -> step = ctx.getString(R.string.discover_reading, b.displayName, d, t) }
@@ -795,7 +810,7 @@ internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -
                 val r = withContext(Dispatchers.Default) { LibraryOverlap.compute(ta, tb) { t -> store.cachedMatch(a.id, t.id, b.id) } }
                 result = Triple(a, b, r)
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(errorText(ctx, e))
+                SubscriptionsKept.notice = errorText(ctx, e)
             }
             busy = false
         }

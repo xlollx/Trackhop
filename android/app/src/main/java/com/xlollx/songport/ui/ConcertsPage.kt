@@ -65,10 +65,9 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
-/** The last search, kept while the app runs: another tab and back keeps the list. */
+/** The search going on and the last one found, kept while the app runs: another tab and back, or the screen turned, keeps it. */
 private object ConcertsKept {
-    @Volatile var result: Concerts.Result? = null
-    @Volatile var playlistId: String? = null
+    val work = KeptWork<Concerts.Result>()
 }
 
 /** The country to start from: the mobile network's, the SIM's, then the language's. No location permission. */
@@ -86,10 +85,10 @@ internal fun defaultConcertCountry(ctx: Context): String {
 @Composable
 internal fun ConcertsPage(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val k = ConcertsKept.work
     var pick by remember { mutableStateOf<CardPick?>(null) }
     var country by rememberSaveable { mutableStateOf(defaultConcertCountry(ctx)) }
-    var result by remember { mutableStateOf(ConcertsKept.result) }
+    k.error?.let { e -> LaunchedEffect(e) { snackbar.showSnackbar(e.ifBlank { ctx.getString(R.string.error_generic) }); k.error = null } }
     var range by remember { mutableStateOf(Concerts.savedRange(ctx.env)) }
     // The playlist's artists, read when it is picked: some can be ticked to look up only those.
     var artists by remember { mutableStateOf<List<String>?>(null) }
@@ -100,33 +99,30 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         val p = pick ?: return@LaunchedEffect
         artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
     }
-    var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var keyOpen by rememberSaveable { mutableStateOf(false) }
     if (keyOpen) TicketmasterKeyDialog { keyOpen = false }
 
+    // Outside the page (ConcertsKept): the screen turned or another tab opened, the search goes on.
     fun run() {
         val p = pick ?: return
-        progress = 0 to 0
-        scope.launch {
-            try {
-                val all = artists ?: Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { artists = it }
-                val r = Concerts.find(ctx.env, ArtistPick.chosen(all, ticked, typed), country, range, ArtistPick.isWhole(all, ticked, typed)) { done, total -> progress = done to total }
-                result = r; ConcertsKept.result = r; ConcertsKept.playlistId = p.playlist.id
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
-            } finally { progress = null }
+        val env = ctx.env
+        val known = artists; val tick = ticked; val type = typed; val c = country; val rg = range
+        k.start(p.playlist.id) { progress ->
+            val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
+            Concerts.find(env, ArtistPick.chosen(all, tick, type), c, rg, ArtistPick.isWhole(all, tick, type), progress)
         }
     }
 
     Text(stringResource(R.string.concerts_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "concerts") {
-        if (it == null || it.playlist.id != ConcertsKept.playlistId) { result = null; ConcertsKept.result = null }
+        if (it == null || it.playlist.id != k.key) k.clear()
         pick = it
     }
     if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
-    CountryPicker(country) { country = it; result = null; ConcertsKept.result = null }
-    RangePicker(range) { range = it; Concerts.saveRange(ctx.env, it); result = null; ConcertsKept.result = null }
-    val busy = progress != null
+    CountryPicker(country) { country = it; k.clear() }
+    RangePicker(range) { range = it; Concerts.saveRange(ctx.env, it); k.clear() }
+    val busy = k.running
+    val progress = k.progress
     Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
         Text(stringResource(R.string.concerts_find))
@@ -135,7 +131,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 
-    val r = result
+    val r = k.result?.takeIf { pick == null || k.key == pick?.playlist?.id }
     if (r != null && !busy) {
         val notes = buildList {
             if (r.quotaHit) add(stringResource(R.string.concerts_quota))
@@ -281,9 +277,11 @@ private fun NoDatesCard(artists: List<Concerts.ArtistDates>) {
 internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
     val ctx = LocalContext.current
     val clipboard = LocalClipboardManager.current
-    var key by remember { mutableStateOf(Concerts.ownKey(ctx.env).orEmpty()) }
+    val saved = remember { Concerts.ownKey(ctx.env).orEmpty() }
+    var key by remember { mutableStateOf(saved) }
+    val close = rememberDiscardGuard(key != saved, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.concerts_key_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

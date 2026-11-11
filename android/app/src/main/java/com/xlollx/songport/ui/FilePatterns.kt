@@ -52,8 +52,9 @@ internal fun FilePatternsDialog(initial: List<String>, onDismiss: () -> Unit, on
     val errors = compiled.mapIndexedNotNull { i, r -> r.exceptionOrNull()?.let { i + 1 to (it.message ?: "?") } }
     val patterns = compiled.mapNotNull { it.getOrNull() }
     val ctx = LocalContext.current
+    val close = rememberDiscardGuard(lines != initial.map { it.trim() }.filter { it.isNotEmpty() }, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.files_patterns_title)) },
         text = {
             Column {

@@ -68,7 +68,6 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val clipboard = LocalClipboardManager.current
-    ScreenBackHandler(onClose)
 
     val settings = store.data.settings
     // Keys pasted and not saved yet survive a rotation; the secret in memory only, never in the saved state.
@@ -77,6 +76,13 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
     var redirectUrl by rememberSaveable { mutableStateOf(settings.deezerRedirectUrl.ifBlank { BuildConfig.DEEZER_REDIRECT_URL }) }
     var error by remember { mutableStateOf<String?>(null) }
     var copied by remember { mutableStateOf(false) }
+    // Back or the arrow with a key pasted and not saved: asked first.
+    val leave = rememberDiscardGuard(
+        clientId != settings.clientIds[provider.serviceId].orEmpty() || secret != settings.clientSecrets[provider.serviceId].orEmpty() ||
+            (guide.needsRedirectUrl && redirectUrl != settings.deezerRedirectUrl.ifBlank { BuildConfig.DEEZER_REDIRECT_URL }),
+        onClose = onClose,
+    )
+    ScreenBackHandler(leave)
 
     fun save(): Boolean {
         val id = clientId.trim()
@@ -106,7 +112,7 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
             TopAppBar(
                 title = { Text(stringResource(R.string.setup_title, provider.displayName)) },
                 navigationIcon = {
-                    IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) }
+                    IconButton(onClick = leave) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) }
                 },
                 actions = { HelpButton(Helps.fields, Helps.clearKey, label = stringResource(R.string.help_keys_title)) },
             )

@@ -7,6 +7,7 @@ import android.app.LocaleManager
 import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
 import android.util.Log
@@ -142,13 +143,31 @@ abstract class FlowTest {
 
     protected fun main(): MainActivity = resumed() as? MainActivity ?: throw AssertionError("MainActivity is not on screen")
 
-    /** Rotates the screen and waits for the activity to be recreated. */
+    /** Rotates the screen and waits until the app is drawn turned (MainActivity is not remade for it: the same one). */
     protected fun rotate(to: Int) {
         val before = resumed()
+        val was = configOf(before)
         setRotation(to)
         rotatedAway = to != UiAutomation.ROTATION_FREEZE_0
-        waitForNewMain(before)
+        waitForConfigChange(before, was)
         compose.waitForIdle()
+    }
+
+    protected fun configOf(a: Activity?): Configuration? = a?.let { Configuration(it.resources.configuration) }
+
+    /**
+     * After the phone's configuration changed (turned, text size, window size, language): the activity
+     * on screen has the change, whether it is the same one (MainActivity handles the screen, the
+     * theme and the text size itself) or a new one (a language).
+     */
+    protected fun waitForConfigChange(before: Activity?, was: Configuration?, ms: Long = 30_000): MainActivity {
+        val end = System.currentTimeMillis() + ms
+        while (System.currentTimeMillis() < end) {
+            val now = resumed()
+            if (now is MainActivity && (now !== before || was == null || now.resources.configuration.diff(was) != 0)) return now
+            Thread.sleep(100)
+        }
+        throw AssertionError("MainActivity did not take the new configuration (resumed: ${resumed()?.javaClass?.simpleName})")
     }
 
     /** The test left the screen turned or the app in another language: putting them back recreates the activity. */
@@ -367,8 +386,8 @@ abstract class FlowTest {
     /**
      * Puts rotation and language back, then waits until the app is still. This runs inside the compose
      * rule, whose teardown drains the frames still queued on its test clock from the instrumentation
-     * thread, laying out every compose root there: had the phone just been turned back, the recreated
-     * activity would be in its own first layout on the main thread at that moment, and Compose throws
+     * thread, laying out every compose root there: had the phone just been turned back, the activity
+     * (recreated for a language, redrawn for a rotation) would be in its own layout on the main thread at that moment, and Compose throws
      * "performMeasureAndLayout called during measure layout" (CardsFlowTest.twoSharedLinksAreComparedAtOnce
      * on API 34, ending in landscape). Waiting for the new activity and for idle here leaves no frame
      * queued and no layout under way.
@@ -376,10 +395,11 @@ abstract class FlowTest {
     private fun restoreAndSettle() {
         val recreates = rotatedAway || (localeChanged && Build.VERSION.SDK_INT >= 33)
         val before = if (recreates) runCatching { resumed() }.getOrNull() else null
+        val was = configOf(before)
         if (rotatedAway) setRotation(UiAutomation.ROTATION_FREEZE_0)
         if (localeChanged) runCatching { setLocale("") }
         rotatedAway = false; localeChanged = false
-        if (before is MainActivity) runCatching { waitForNewMain(before, ms = 10_000) }
+        if (before is MainActivity) runCatching { waitForConfigChange(before, was, ms = 10_000) }
         runCatching { compose.waitForIdle() }
     }
 

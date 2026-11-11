@@ -318,8 +318,9 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
 @Composable
 private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var name by rememberSaveable { mutableStateOf(initial) }
+    val close = rememberDiscardGuard(name != initial, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(title) },
         text = {
             OutlinedTextField(
@@ -667,8 +668,9 @@ private fun displayName(ctx: android.content.Context, uri: Uri): String {
 private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
     var text by rememberSaveable { mutableStateOf("") }
+    val close = rememberDiscardGuard(name.isNotBlank() || text.isNotBlank(), onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.paste_list)) },
         text = {
             Column {
