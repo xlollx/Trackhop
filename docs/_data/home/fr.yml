@@ -1,9 +1,9 @@
 # The home page's text in French: same keys as _data/home/en.yml, read by _includes/home.html.
 title: Trackhop
-description: Gardez vos playlists identiques sur Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL, Deezer et votre propre serveur de musique. Sur votre téléphone, sans compte, sans serveur.
-h1: "Vos playlists,<br>partout."
-lead: Trackhop synchronise vos playlists entre services de musique, à la main ou selon un planning.
-sub: "Gratuit et open source. Pas de compte, pas de serveur, pas d’abonnement : tout tourne sur votre téléphone."
+description: Garde tes playlists identiques sur Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL, Deezer et ton propre serveur de musique. Sur ton téléphone, sans compte, sans serveur.
+h1: "Tes playlists,<br>partout."
+lead: Trackhop synchronise tes playlists entre services de musique, à la main ou selon un planning.
+sub: "Gratuit et open source. Pas de compte, pas de serveur, pas d’abonnement : tout tourne sur ton téléphone."
 tabs_label: Où installer Trackhop
 tab_phone: Android
 tab_computer: Ordinateur
@@ -12,7 +12,7 @@ play_alt: "Google Play : bientôt disponible"
 play_note: 'En test'
 appgallery_alt: "Huawei AppGallery : bientôt disponible"
 appgallery_note: "En préparation · sans services Google"
-store_bridge: '<b>Google Play ou AppGallery ?</b> Ajoutez Trackhop Bridge pour YouTube Music, Amazon Music et plus'
+store_bridge: '<b>Google Play ou AppGallery ?</b> Ajoute Trackhop Bridge pour YouTube Music, Amazon Music et plus'
 fdroid_alt: Disponible sur F-Droid
 fdroid_note: Compilé depuis le code source · nouvelles versions quelques jours plus tard
 obtainium_alt: Obtenir avec Obtainium
@@ -28,72 +28,72 @@ mac_alt: Télécharger pour macOS (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">pour Intel</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Télécharger pour Linux
 linux_note: '.deb · ou <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
-computer_more: 'Sur Mac, ouvrez-le la première fois avec clic droit › Ouvrir (<a href="/guide/desktop#macos">pourquoi</a>) · <a href="#docker">Tous les téléchargements</a>'
+computer_more: 'Sur Mac, ouvre-le la première fois avec clic droit › Ouvrir (<a href="/guide/desktop#macos">pourquoi</a>) · <a href="#docker">Tous les téléchargements</a>'
 docker_alt: Lancer avec Docker
 docker_note: 'Bêta · ghcr.io ou <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">sur un NAS</a>'
-azure_title: "Bêta : tourne dans votre propre abonnement Azure (environ 5 $ par mois)"
+azure_title: "Bêta : tourne dans ton propre abonnement Azure (environ 5 $ par mois)"
 azure_alt: Déployer sur Azure (bêta)
-azure_note: 'Bêta · votre propre abonnement, environ 5 &#36; par mois · <a href="/guide/docker#on-azure-beta">détails</a>'
+azure_note: 'Bêta · ton propre abonnement, environ 5 &#36; par mois · <a href="/guide/docker#on-azure-beta">détails</a>'
 server_more: 'Une page web, des syncs planifiées, une API · <a href="/guide/docker#several-people-on-one-server">Un compte par personne</a> pour toute la maison'
 virustotal: Chaque téléchargement vérifié sur VirusTotal
 downloads: "{n} téléchargements"
 downloads_title: Téléchargements des versions GitHub et pulls Docker Hub. F-Droid et les stores ne publient aucun chiffre, le nombre réel est donc plus élevé.
 demo_alt: "Visite de Trackhop : les syncs, une nouvelle sync, les comptes, les outils, un titre partagé, les cartes de compatibilité et d’affiche, les titres injouables, les réglages"
 what_title: Ce qu’il fait
-what_intro: Choisissez une source et une destination, puis la fréquence. Trackhop retrouve chaque titre de l’autre côté, vous montre ce qui va changer et garde les deux en phase.
+what_intro: Choisis une source et une destination, puis la fréquence. Trackhop retrouve chaque titre de l’autre côté, te montre ce qui va changer et garde les deux en phase.
 card1_title: De n’importe quel service vers n’importe quel autre
 card1: "Playlists, titres likés, albums enregistrés et artistes suivis. Ou le lien de n’importe quelle playlist publique, ou une playlist partagée avec des amis qui ont chacun leur propre service."
 card2_title: Selon un planning
 card2: "Toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine. Seulement les ajouts, ou aussi les suppressions, en gardant l’ordre de la source. Aussi dans les deux sens, retraits compris."
 card3_title: Rien n’est deviné
-card3: "Un aperçu avant chaque sync. Les titres introuvables passent en vérification : choisissez le bon une fois, Trackhop s’en souvient."
-card4_title: Vos comptes restent les vôtres
-card4: Vous vous connectez sur la page de chaque service. Les jetons d’accès sont chiffrés sur le téléphone et ne le quittent jamais.
-card5_title: Votre propre serveur de musique
+card3: "Un aperçu avant chaque sync. Les titres introuvables passent en vérification : choisis le bon une fois, Trackhop s’en souvient."
+card4_title: Tes comptes restent les tiens
+card4: Tu te connectes sur la page de chaque service. Les jetons d’accès sont chiffrés sur le téléphone et ne le quittent jamais.
+card5_title: Ton propre serveur de musique
 card5: "Navidrome et les autres serveurs Subsonic, Jellyfin, Emby, Plex, Lyrion et Mopidy, à côté des services de streaming, avec la liste des titres qui manquent encore au serveur. Et aussi des fichiers : CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Référencée dans le catalogue d’applications de Navidrome.</a>"
 card6_title: Outils pour playlists
-card6: "Sauvegardes, suppression des doublons, fusion, division et tri, un générateur de playlists qui utilise votre propre clé d’IA, et les nouveautés, concerts, setlists et disques des artistes de vos playlists."
+card6: "Sauvegardes, suppression des doublons, fusion, division et tri, un générateur de playlists qui utilise ta propre clé d’IA, et les nouveautés, concerts, setlists et disques des artistes de tes playlists."
 one_title: "Même avec un seul service"
-one_intro: "Pas besoin d’un second service. Si vous n’utilisez que Spotify, Apple Music, YouTube Music ou un autre, Trackhop prend quand même soin de vos playlists."
-one1_title: "Gardez Discover Weekly"
-one1: "Discover Weekly, Radar des sorties ou votre daylist copiées chaque semaine dans une playlist à vous, avant qu’elles ne changent."
+one_intro: "Pas besoin d’un second service. Si tu n’utilises que Spotify, Apple Music, YouTube Music ou un autre, Trackhop prend quand même soin de tes playlists."
+one1_title: "Garde Discover Weekly"
+one1: "Discover Weekly, Radar des sorties ou ta daylist copiées chaque semaine dans une playlist à toi, avant qu’elles ne changent."
 one1_href: "/guide/save-discover-weekly"
 one2_title: "Sauvegardes automatiques"
-one2: "Chaque playlist et vos titres likés enregistrés en fichiers datés, chaque jour ou chaque semaine, dans le dossier de votre choix."
+one2: "Chaque playlist et tes titres likés enregistrés en fichiers datés, chaque jour ou chaque semaine, dans le dossier de ton choix."
 one2_href: "/guide/backup-spotify-playlists"
-one3_title: "Supprimez les doublons"
+one3_title: "Supprime les doublons"
 one3: "Les titres présents deux fois, même issus d’un autre album, trouvés et supprimés d’un coup. La première copie reste."
 one3_href: "/guide/remove-duplicates-spotify"
-one4_title: "Réparez les titres grisés"
+one4_title: "Répare les titres grisés"
 one4: "Les titres qui ne se lisent plus remplacés par une version qui fonctionne, au même endroit. Avec Annuler."
 one4_href: "/guide/fix-greyed-out-songs"
-one5_title: "Votre Wrapped, quand vous voulez"
-one5: "Artistes favoris, décennies et votre âge musical sur une carte pour vos stories, quand vous voulez, avec un historique."
+one5_title: "Ton Wrapped, quand tu veux"
+one5: "Artistes favoris, décennies et ton âge musical sur une carte pour tes stories, quand tu veux, avec un historique."
 one5_href: "/guide/wrapped-anytime"
 one6_title: "Shazam, radio, classements"
-one6: "Vos Shazam, ce que passe une radio, la chanson d’un TikTok ou le Top 100 d’un pays, directement dans une playlist."
+one6: "Tes Shazam, ce que passe une radio, la chanson d’un TikTok ou le Top 100 d’un pays, directement dans une playlist."
 one6_href: "/guide/shazam"
 one_more: "Comment ça marche"
 shots_alt: Les syncs et leurs chiffres, une nouvelle sync, un titre partagé ajouté à une playlist, la compatibilité de deux playlists, une affiche de playlist, des titres injouables et leurs remplaçants
 works_title: Compatible avec
-works_intro: "Les services marqués bêta fonctionnent et suivent l’API documentée de chaque service, mais ont été moins utilisés en conditions réelles : vos retours sont les bienvenus."
+works_intro: "Les services marqués bêta fonctionnent et suivent l’API documentée de chaque service, mais ont été moins utilisés en conditions réelles : tes retours sont les bienvenus."
 group_streaming: Services de streaming
-group_server: Votre propre serveur
+group_server: Ton propre serveur
 group_sources: Sources et fichiers
 read_only: lecture seule
 pasted_text: Texte collé
 why_title: Pourquoi pas un service de transfert en ligne ?
-why_intro: 'Soundiiz, TuneMyMusic et FreeYourMusic sont parfaits pour un transfert ponctuel. Trackhop sert à garder vos playlists à jour dans la durée, sans confier vos comptes à qui que ce soit. Comparaisons : <a href="/guide/soundiiz-alternative">Trackhop et Soundiiz</a>, <a href="/guide/tunemymusic-alternative">Trackhop et TuneMyMusic</a>.'
+why_intro: 'Soundiiz, TuneMyMusic et FreeYourMusic sont parfaits pour un transfert ponctuel. Trackhop sert à garder tes playlists à jour dans la durée, sans confier tes comptes à qui que ce soit. Comparaisons : <a href="/guide/soundiiz-alternative">Trackhop et Soundiiz</a>, <a href="/guide/tunemymusic-alternative">Trackhop et TuneMyMusic</a>.'
 why_them: Services de transfert en ligne
 why_rows:
-  - ["Où ça tourne", "Sur votre téléphone", "Sur leurs serveurs"]
-  - ["Qui détient vos identifiants", "Seulement votre téléphone, chiffrés", "Le service"]
+  - ["Où ça tourne", "Sur ton téléphone", "Sur leurs serveurs"]
+  - ["Qui détient tes identifiants", "Seulement ton téléphone, chiffrés", "Le service"]
   - ["Compte, abonnement", "Aucun", "Compte ; limites sur l’offre gratuite"]
   - ["Sync planifiée, suppressions répercutées", "Oui", "Surtout dans les offres payantes"]
   - ["Serveurs personnels", "Oui", "Rarement"]
   - ["Code source", "Ouvert, AGPL-3.0-only", "Fermé"]
 also_title: Aussi sur un ordinateur ou un NAS
-also_intro: "Envie d’essayer sans téléphone, ou de faire tourner vos syncs sur une machine toujours allumée ? Le même moteur fonctionne sur votre ordinateur et sur un serveur, avec une page web pour connecter les services et créer des syncs. Les deux sont en <strong>bêta</strong> : ils conviennent à un usage quotidien mais sont encore jeunes, alors gardez une copie de votre configuration et dites-nous ce qui ne marche pas."
+also_intro: "Envie d’essayer sans téléphone, ou de faire tourner tes syncs sur une machine toujours allumée ? Le même moteur fonctionne sur ton ordinateur et sur un serveur, avec une page web pour connecter les services et créer des syncs. Les deux sont en <strong>bêta</strong> : ils conviennent à un usage quotidien mais sont encore jeunes, alors garde une copie de ta configuration et dis-nous ce qui ne marche pas."
 desktop_intro: '<strong>Trackhop Desktop</strong> pour Windows, macOS et Linux : il s’installe comme n’importe quel programme, sans Docker ni Java, sans droits d’administrateur. Il se place à côté de l’horloge et lance les syncs planifiées tant que l’ordinateur est allumé. Version %V% (<a href="https://github.com/xlollx/Trackhop/releases/tag/server-v%V%">nouveautés</a>).'
 dl_windows: Installateur Windows
 dl_windows_zip: Windows, sans installation (.zip)
@@ -108,32 +108,31 @@ pm_scoop: Windows, avec Scoop
 pm_brew: macOS, avec Homebrew
 desktop_links: '<a href="/guide/desktop">Comment l’installer</a> · <a href="https://github.com/xlollx/Trackhop/releases?q=server-v&amp;expanded=true">Toutes les versions</a> · <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P">Microsoft Store</a> · Pour <a href="/guide/playlist-sync-windows">Windows</a>, <a href="/guide/playlist-sync-mac">Mac</a>, <a href="/guide/playlist-sync-linux">Linux</a>'
 docker_intro: '<strong>Docker</strong> <span class="stage">bêta</span>, pour un serveur maison, un NAS ou un Raspberry Pi :'
-docker_password: choisissez-en-un
-docker_after: 'Ouvrez ensuite <code>http://127.0.0.1:8080</code>. Pour mettre à jour, récupérez la nouvelle image et relancez le conteneur : vos syncs restent dans le volume. Réglages, Docker Compose et ce qui fonctionne : <a href="/guide/docker"><strong>le guide Docker</strong></a>. Aussi sur <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> sous le nom <code>xlollx/trackhop</code>. Sur un <a href="/guide/playlist-sync-nas">NAS (Synology, Unraid, TrueNAS)</a>, ou <a href="/guide/self-hosted-playlist-sync">à côté de Navidrome, Jellyfin ou Plex</a>. Pour toute la maison, <a href="/guide/docker#several-people-on-one-server">un compte par personne</a> : chacun se connecte et a ses propres services et syncs.'
+docker_password: choisis-en-un
+docker_after: 'Ouvre ensuite <code>http://127.0.0.1:8080</code>. Pour mettre à jour, récupère la nouvelle image et relance le conteneur : tes syncs restent dans le volume. Réglages, Docker Compose et ce qui fonctionne : <a href="/guide/docker"><strong>le guide Docker</strong></a>. Aussi sur <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> sous le nom <code>xlollx/trackhop</code>. Sur un <a href="/guide/playlist-sync-nas">NAS (Synology, Unraid, TrueNAS)</a>, ou <a href="/guide/self-hosted-playlist-sync">à côté de Navidrome, Jellyfin ou Plex</a>. Pour toute la maison, <a href="/guide/docker#several-people-on-one-server">un compte par personne</a> : chacun se connecte et a ses propres services et syncs.'
 azure_before: '<strong>Sur Azure</strong> <span class="stage">bêta</span>, sans serveur à la maison :'
-azure_after: 'crée Trackhop dans votre propre abonnement Azure (Container Apps, HTTPS, données sur Azure Files). Facturé sur votre abonnement : environ 5 &#36; par mois dans la plupart des régions s’il reste inactif entre les syncs, jusqu’à environ 15 &#36; s’il est occupé en permanence (estimation d’après les tarifs publics d’Azure pour Container Apps, après la franchise gratuite mensuelle ; le stockage coûte quelques centimes). <a href="/guide/docker#on-azure-beta">En savoir plus</a>.'
-both_have: "Les deux ont le look de l’app, la vérification des titres introuvables, les playlists de fichiers dans tous les formats et les Outils de l’app : export, sauvegardes complètes (aussi planifiées), doublons, titres injouables, playlists par IA et vos statistiques."
-data_title: Comment Trackhop utilise vos données
-data1: "Trackhop se connecte aux services de musique que vous choisissez (Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, serveurs personnels) avec la connexion propre à chaque service. Il lit vos playlists et leurs titres et, quand vous lancez ou planifiez une sync, crée des playlists et ajoute ou retire des titres dans votre propre compte. Pour YouTube Music via l’API de Google, cela signifie la YouTube Data API avec l’autorisation <code>youtube</code>, utilisée uniquement pour vos playlists et uniquement sur votre appareil."
+azure_after: 'crée Trackhop dans ton propre abonnement Azure (Container Apps, HTTPS, données sur Azure Files). Facturé sur ton abonnement : environ 5 &#36; par mois dans la plupart des régions s’il reste inactif entre les syncs, jusqu’à environ 15 &#36; s’il est occupé en permanence (estimation d’après les tarifs publics d’Azure pour Container Apps, après la franchise gratuite mensuelle ; le stockage coûte quelques centimes). <a href="/guide/docker#on-azure-beta">En savoir plus</a>.'
+both_have: "Les deux ont le look de l’app, la vérification des titres introuvables, les playlists de fichiers dans tous les formats et les Outils de l’app : export, sauvegardes complètes (aussi planifiées), doublons, titres injouables, playlists par IA et tes statistiques."
+data_title: Comment Trackhop utilise tes données
+data1: "Trackhop se connecte aux services de musique que tu choisis (Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, serveurs personnels) avec la connexion propre à chaque service. Il lit tes playlists et leurs titres et, quand tu lances ou planifies une sync, crée des playlists et ajoute ou retire des titres dans ton propre compte. Pour YouTube Music via l’API de Google, cela signifie la YouTube Data API avec l’autorisation <code>youtube</code>, utilisée uniquement pour tes playlists et uniquement sur ton appareil."
 data2: 'Les jetons d’accès sont stockés chiffrés sur le téléphone et ne sont jamais envoyés au développeur de Trackhop ni à aucun tiers. Il n’y a pas de serveur Trackhop. Détails dans la <a href="/privacy-policy">politique de confidentialité</a>.'
 start_title: Commencer
-start_intro: 'Android 8.0 ou plus récent, en anglais, italien, français, allemand, espagnol, portugais, polonais, russe, turc, chinois, japonais et coréen. Vous hésitez entre les versions ? <a href="/guide/versions">Quel Trackhop ?</a> les compare. Le <a href="/guide/">guide</a> accompagne la première sync et les erreurs courantes ; si quelque chose ne fonctionne pas comme décrit, <em>Journal → Signaler sur GitHub</em> ouvre un rapport avec les détails déjà remplis.'
+start_intro: 'Android 8.0 ou plus récent, en anglais, italien, français, allemand, espagnol, portugais, polonais, russe, turc, chinois, japonais et coréen. Tu hésites entre les versions ? <a href="/guide/versions">Quel Trackhop ?</a> les compare. Le <a href="/guide/">guide</a> accompagne la première sync et les erreurs courantes ; si quelque chose ne fonctionne pas comme décrit, <em>Journal → Signaler sur GitHub</em> ouvre un rapport avec les détails déjà remplis.'
 start_apk: ou l’APK depuis GitHub
-step_by_step: 'Pas à pas : <a href="/guide/spotify-to-youtube-music">de Spotify vers YouTube Music</a> · <a href="/guide/apple-music-to-spotify">d’Apple Music vers Spotify</a> · <a href="/guide/spotify-to-tidal">de Spotify vers TIDAL</a> · <a href="/guide/spotify-to-apple-music">de Spotify vers Apple Music</a> · <a href="/guide/youtube-music-to-spotify">de YouTube Music vers Spotify</a> · <a href="/guide/deezer-to-spotify">de Deezer vers Spotify</a> · <a href="/guide/amazon-music-to-spotify">d’Amazon Music vers Spotify</a> · <a href="/guide/spotify-to-navidrome-jellyfin">de Spotify vers Navidrome, Jellyfin ou Plex</a> · <a href="/guide/export-playlist-csv">une playlist en CSV ou M3U</a> · <a href="/guide/shazam">vos Shazams dans une playlist</a>. Guide en français : <a href="/guide/transferer-playlists">Transférer des playlists entre Spotify, YouTube Music, Apple Music et Deezer, gratuitement</a>.'
-no_phone: 'Pas de téléphone Android sous la main ? <a href="#docker">Essayez Trackhop Desktop</a> sur Windows ou Linux, ou la version Docker.'
-play_bridge: 'Vous utilisez la version Google Play ou AppGallery ? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Téléchargez Trackhop Bridge</strong></a>, le plugin qui ajoute YouTube Music, Amazon Music, ainsi que Spotify et Apple Music sans clés de développeur (interfaces web non officielles : lisez d’abord ses notes).'
+step_by_step: 'Pas à pas : <a href="/guide/spotify-to-youtube-music">de Spotify vers YouTube Music</a> · <a href="/guide/apple-music-to-spotify">d’Apple Music vers Spotify</a> · <a href="/guide/spotify-to-tidal">de Spotify vers TIDAL</a> · <a href="/guide/spotify-to-apple-music">de Spotify vers Apple Music</a> · <a href="/guide/youtube-music-to-spotify">de YouTube Music vers Spotify</a> · <a href="/guide/deezer-to-spotify">de Deezer vers Spotify</a> · <a href="/guide/amazon-music-to-spotify">d’Amazon Music vers Spotify</a> · <a href="/guide/spotify-to-navidrome-jellyfin">de Spotify vers Navidrome, Jellyfin ou Plex</a> · <a href="/guide/export-playlist-csv">une playlist en CSV ou M3U</a> · <a href="/guide/shazam">tes Shazams dans une playlist</a>. Guide en français : <a href="/guide/transferer-playlists">Transférer des playlists entre Spotify, YouTube Music, Apple Music et Deezer, gratuitement</a>.'
+no_phone: 'Pas de téléphone Android sous la main ? <a href="#docker">Essaie Trackhop Desktop</a> sur Windows ou Linux, ou la version Docker.'
+play_bridge: 'Tu utilises la version Google Play ou AppGallery ? <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><strong>Télécharge Trackhop Bridge</strong></a>, le plugin qui ajoute YouTube Music, Amazon Music, ainsi que Spotify et Apple Music sans clés de développeur (interfaces web non officielles : lis d’abord ses notes).'
 thanks_title: Merci
-thanks_how: 'aux personnes qui permettent à Trackhop de rester gratuit. Vous voulez voir votre nom ici ? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> (carte ou PayPal) ou <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
+thanks_how: 'aux personnes qui permettent à Trackhop de rester gratuit. Tu veux voir ton nom ici ? <a href="https://ko-fi.com/xlollx" target="_blank" rel="noopener">Ko-fi</a> (carte ou PayPal) ou <a href="https://github.com/sponsors/xlollx" target="_blank" rel="noopener">GitHub Sponsors</a>.'
 renamed: '<strong>Songport s’appelle désormais Trackhop.</strong> Même app, même code, mêmes mises à jour : seul le nom a changé, car un service sans rapport appelé « SongPort » opère dans le même domaine. L’app installée se met à jour normalement et garde toutes ses données, et les anciens liens continuent de fonctionner.'
 public_links: liens publics
 radio_shazam: Radio en ligne · Shazam
 charts: Classements
 press_title: Ils parlent de Trackhop
-press_intro: "Vid\xE9os et articles qui citent Trackhop. Vous en avez fait un ? Dites-le-moi dans\
-  \ une issue sur GitHub."
-social_title: 'Suivez Trackhop'
+press_intro: "Vidéos et articles qui citent Trackhop. Tu en as fait un ? Dis-le-moi dans une issue sur GitHub."
+social_title: 'Suis Trackhop'
 social_note: 'Nouvelles versions, astuces et ce qui arrive, en anglais.'
-instagram_alt: 'Suivez Trackhop sur Instagram'
+instagram_alt: 'Suis Trackhop sur Instagram'
 say_title: 'Ce qu''on en dit'
 say_intro: 'Commentaires sous des vidéos et des posts sur Trackhop, et messages de soutiens. Noms et photos masqués.'
 say_alt: 'Commentaires de personnes qui utilisent Trackhop et deux messages de soutiens qui saluent la synchro automatique et la sécurité, et des posts sur X qui le qualifient de "a game changer for music lovers who use multiple platforms"'
