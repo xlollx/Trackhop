@@ -889,8 +889,14 @@ class StoreScreenshots {
         // the source's sheet, then frame by frame as another service is chosen, then the phone on its side.
         Demo.manyOn = true
         val mark = { name: String -> androidx.compose.ui.test.hasClickAction() and hasText(name) and androidx.compose.ui.test.SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsProperties.Selected) }
-        fun frames(name: String, n: Int) = repeat(n) { k ->
-            instr.uiAutomation.takeScreenshot()?.let { bmp -> File(dir, "%s_%02d.png".format(name, k)).outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) } }
+        // The test's clock moved by hand, 80 ms a picture: what the sheet does between a tap and its rest.
+        fun frames(name: String, n: Int) {
+            compose.mainClock.autoAdvance = false
+            repeat(n) { k ->
+                compose.mainClock.advanceTimeBy(80)
+                instr.uiAutomation.takeScreenshot()?.let { bmp -> File(dir, "%s_%02d.png".format(name, k)).outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) } }
+            }
+            compose.mainClock.autoAdvance = true
         }
         fun sourceSheet(what: String) = open(main().setAction(MainActivity.ACTION_NEW_SYNC), what) {
             waitText(s(R.string.editor_playlist))
@@ -900,12 +906,12 @@ class StoreScreenshots {
         // Opening: from the tap on the field to the list.
         compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasText(s(R.string.editor_playlist))).onFirst().performSemanticsAction(SemanticsActions.OnClick)
         frames("12_open", 14)
-        waitText("Morning Rock")
+        waitText(s(R.string.liked_songs))
         snap("13_many_playlists")
         // Another service: its list comes after a moment.
         compose.onAllNodes(mark("YouTube Music")).onFirst().performSemanticsAction(SemanticsActions.OnClick)
         frames("14_switch", 14)
-        waitText("Morning Rock")
+        waitText(s(R.string.liked_songs))
         tapText(s(R.string.editor_section_library))
         snap("15_library")
         step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
