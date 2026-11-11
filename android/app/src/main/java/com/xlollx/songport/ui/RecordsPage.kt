@@ -1,6 +1,7 @@
 package com.xlollx.songport.ui
 
 import android.content.Context
+import android.text.format.DateUtils
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,12 +39,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -53,6 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
+import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.LookupCaps
@@ -61,6 +66,11 @@ import com.xlollx.songport.sync.DeezerCatalog
 import com.xlollx.songport.sync.Merch
 import com.xlollx.songport.sync.Records
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -71,8 +81,48 @@ import java.util.Currency
 private object RecordsKept {
     val work = KeptWork<Records.Result>()
 
-    /** Discogs' terms: nothing shown more than six hours older than on Discogs, even with the app left open. */
-    fun fresh(): Records.Result? = work.result?.takeIf { System.currentTimeMillis() - work.at < Records.DISCOGS_TTL_MS }
+    /** Discogs' terms: nothing shown more than six hours older than on Discogs (its answer, kept or not), even with the app left open. */
+    fun fresh(): Records.Result? = work.result?.takeIf { System.currentTimeMillis() - (it.at.takeIf { at -> at > 0 } ?: work.at) < Records.DISCOGS_TTL_MS }
+}
+
+/**
+ * The artists' shops, read by the page one artist at a time as their cards come into view, not
+ * all at once with the search: Shopify limits a phone's requests to all its shops together, and a
+ * page of 50 artists asking at once got "too many requests" from nearly every shop. What [Merch]
+ * found stays here while the app runs (and in [Merch]'s own cache, two days).
+ */
+private object ShopsKept {
+    private val turn = Mutex()
+    val found = mutableStateMapOf<String, Merch.Found>()
+
+    /** Reads [artist]'s shops once, after the artist before; leaving the screen while waiting gives up the turn. */
+    suspend fun load(env: Env, artist: String, links: List<Records.Link>) {
+        if (artist in found) return
+        turn.withLock {
+            if (artist in found) return
+            // Once started it ends, even if the card scrolls away: its requests are not wasted.
+            found[artist] = withContext(NonCancellable) { Merch.find(env, artist, links) }
+        }
+    }
+
+    /** A new search asks again the shops that could not be read, except those still asking to wait. */
+    fun forgetUnread() {
+        val now = System.currentTimeMillis()
+        found.entries.removeAll { it.value.unread && it.value.retryAt <= now }
+    }
+}
+
+/** What an artist's shops gave: from the search ([Records.find] with shops), or read by the page ([ShopsKept]); null while being read. */
+private class Shops(val merch: List<Merch.Item>?, val records: List<Merch.Item>?, val unread: Boolean, val busy: Boolean, val retryAt: Long)
+
+/** Whether the page reads [a]'s shops itself: the search left them out. */
+private fun readsShops(a: Records.ArtistRecords) = a.merch == null && a.shopRecords == null && !a.shopsUnread
+
+private fun shopsOf(a: Records.ArtistRecords, look: Records.Look): Shops? {
+    if (!readsShops(a)) return Shops(a.merch, a.shopRecords, a.shopsUnread, a.shopsBusy, 0L)
+    val f = ShopsKept.found[a.artist] ?: return null
+    val (records, merch) = f.items.partition { it.format != null }
+    return Shops(merch.takeIf { look.merch }, records.takeIf { look.records }, f.unread, f.busy, f.retryAt)
 }
 
 /** What the page shows and looks up (All / CD & vinyl / Merch), kept between visits. */
@@ -115,10 +165,26 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         val env = ctx.env
         val known = artists; val picked = choice.pickedOrNull
         val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
+        ShopsKept.forgetUnread()
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
-            Records.find(env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress)
+            // Kept answers are reused per artist; the shops are read by the cards as they show.
+            Records.find(env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress, shops = false)
         }
+    }
+
+    // Opened again: what was kept is shown at once, with no request; the button asks only for what is missing or too old.
+    LaunchedEffect(pick?.playlist?.id, artists, choice.ready, choice.pickedOrNull, look) {
+        val p = pick ?: return@LaunchedEffect
+        val all = artists ?: return@LaunchedEffect
+        if (!choice.ready || k.running) return@LaunchedEffect
+        val shown = RecordsKept.fresh()?.takeIf { k.key == p.playlist.id }
+        if (shown != null && shown.look.covers(look)) return@LaunchedEffect
+        val env = ctx.env
+        val picked = choice.pickedOrNull
+        val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
+        val kept = withContext(Dispatchers.IO) { Records.fromCache(env, ArtistPick.chosen(all, picked), currency, picked == null, look) }
+        if (kept != null) k.show(p.playlist.id, kept)
     }
 
     // Only what is shown is looked up: a part not found yet is looked up when it is picked (the rest comes from the cache).
@@ -167,6 +233,12 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
             if (discogs && !r.token) add(stringResource(R.string.records_no_token))
             if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
         }
+        // How old the records shown are, when they come from an earlier search.
+        val age = System.currentTimeMillis() - r.at
+        if (r.at > 0 && age >= DateUtils.MINUTE_IN_MILLIS) Text(
+            stringResource(R.string.records_updated, DateUtils.getRelativeTimeSpanString(r.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()),
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         if (notes.isNotEmpty()) Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
@@ -184,14 +256,16 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         // With one format picked, the artists with nothing in it (and no merch to show) take one line, not a card each.
         val f = format
         val without = if (f == null || !discogs) emptyList() else named.filter { a ->
-            a.records?.none { f in it.formats } == true && a.shopRecords.orEmpty().none { it.format == f } &&
-                (!look.merch || (a.merch.isNullOrEmpty() && !a.shopsUnread))
+            val shops = shopsOf(a, look)
+            // Shops not read yet: the card stays, so they are read when it shows.
+            a.records?.none { f in it.formats } == true && shops != null && shops.records.orEmpty().none { it.format == f } &&
+                (!look.merch || (shops.merch.isNullOrEmpty() && !shops.unread))
         }
         if (f != null && without.isNotEmpty()) Text(
             stringResource(noneForLabel(f), without.joinToString(", ") { it.artist }),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        (named - without.toSet()).forEach { a -> ArtistRecordsCard(a, r.slowedDown, discogs, format, look.merch) { run() } }
+        (named - without.toSet()).forEach { a -> ArtistRecordsCard(a, r.slowedDown, discogs, format, look) { run() } }
     }
     if (r == null && !busy && look.records) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
 }
@@ -220,15 +294,23 @@ private fun price(value: Double, currency: String?): String = runCatching {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRecords: Boolean, format: Records.Format?, showMerch: Boolean, onRetry: () -> Unit) {
+private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRecords: Boolean, format: Records.Format?, look: Records.Look, onRetry: () -> Unit) {
     val ctx = LocalContext.current
     val images = remember { discoverImagesOn(ctx) }
-    Card(Modifier.fillMaxWidth()) {
+    val showMerch = look.merch
+    // The shops are read when the card is on screen, one artist at a time ([ShopsKept]).
+    var onScreen by remember { mutableStateOf(false) }
+    val reads = readsShops(a)
+    val shops = shopsOf(a, look)
+    if (reads) LaunchedEffect(a.artist, onScreen, shops == null) { if (onScreen && shops == null) ShopsKept.load(ctx.env, a.artist, a.links) }
+    // "Try again" while the shop still asks to wait: said so, not asked again.
+    var tooSoon by remember(shops?.retryAt) { mutableStateOf(false) }
+    Card(Modifier.fillMaxWidth().then(if (reads) Modifier.onGloballyPositioned { onScreen = it.boundsInWindow().height > 0f } else Modifier)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             // The format picked (null: all of them), on Discogs and in their shops.
             val records = a.records?.filter { rec -> format == null || format in rec.formats }
-            val shopRecords = a.shopRecords?.filter { format == null || it.format == format }
+            val shopRecords = shops?.records?.filter { format == null || it.format == format }
             if (showRecords) when {
                 records == null -> Text(stringResource(if (slowed) R.string.records_not_asked else R.string.records_discogs_down), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 records.isEmpty() && format == null -> Text(stringResource(R.string.records_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -268,14 +350,28 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
                     items(shopRecords) { MerchCard(it, images) }
                 }
             }
-            val merch = a.merch
+            val merch = shops?.merch
+            if (showMerch && shops == null) {
+                if (showRecords) HorizontalDivider()
+                Text(stringResource(R.string.records_kind_merch), style = MaterialTheme.typography.labelLarge)
+                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+            }
             if (showMerch && merch != null) {
                 if (showRecords) HorizontalDivider()
                 Text(stringResource(R.string.records_kind_merch), style = MaterialTheme.typography.labelLarge)
-                // A shop that did not answer is not a shop with nothing: say so, and offer to ask again.
-                if (merch.isEmpty() && a.shopsUnread) Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.records_shop_unread), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    TextButton(onClick = onRetry) { Text(stringResource(R.string.records_shop_retry)) }
+                // A shop that did not answer is not a shop with nothing, and one that asked to wait is busy: say which, and offer to ask again.
+                if (merch.isEmpty() && shops.unread) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(when { tooSoon -> R.string.records_shop_wait; shops.busy -> R.string.records_shop_busy; else -> R.string.records_shop_unread }),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = {
+                        when {
+                            !reads -> onRetry()
+                            System.currentTimeMillis() < shops.retryAt -> tooSoon = true
+                            else -> ShopsKept.found.remove(a.artist)
+                        }
+                    }) { Text(stringResource(R.string.records_shop_retry)) }
                 }
                 else if (merch.isEmpty()) Text(stringResource(R.string.records_merch_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

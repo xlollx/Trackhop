@@ -64,7 +64,7 @@ class RecordsTest {
         // The shops' merch: asked of the stand-in too (it has none), never of the real sites.
         Merch.hostBase = { "$base/$it" }
         Merch.hostGap = 0
-        Merch.resetPaces()
+        Merch.resetPaces(0)
     }
 
     @After fun tearDown() {
@@ -248,6 +248,33 @@ class RecordsTest {
         clock += Records.LINKS_TTL_MS
         Records.find(env, listOf("Radiohead"), "EUR")
         assertTrue(hits.count { it.startsWith("/ws/2/") } > mb)
+    }
+
+    @Test fun thePageOpenedAgainShowsWhatIsKeptWithoutAsking() = runBlocking {
+        // Nothing kept yet: nothing to show without asking.
+        assertNull(Records.fromCache(env, listOf("Radiohead", "Nobody Known"), "EUR"))
+        val asked = clock
+        Records.find(env, listOf("Radiohead", "Nobody Known"), "EUR", shops = false)
+        val n = hits.size
+        clock += 2 * 3_600_000L
+        val kept = Records.fromCache(env, listOf("Radiohead", "Nobody Known"), "EUR")!!
+        assertEquals(n, hits.size)
+        assertEquals(listOf("Nobody Known", "Radiohead"), kept.artists.map { it.artist })
+        assertEquals(3, kept.artists[1].records!!.size)
+        // When it was asked, for "updated 2 hours ago"; the shops are left to the page.
+        assertEquals(asked, kept.at)
+        assertNull(kept.artists[1].merch)
+        // Searching again asks only for what is missing or too old.
+        Records.find(env, listOf("Radiohead", "Nobody Known", "Muse"), "EUR", shops = false)
+        assertEquals(1, hits.drop(n).count { it.startsWith("/dg/database/search") })
+        // Discogs' six hours over: shown no more without asking.
+        clock += Records.DISCOGS_TTL_MS
+        assertNull(Records.fromCache(env, listOf("Radiohead"), "EUR"))
+        // Merch only does not need Discogs; an artist MusicBrainz did not know is asked again after a day.
+        assertEquals(1, Records.fromCache(env, listOf("Radiohead"), "EUR", look = Records.Look.MERCH)!!.artists.size)
+        clock += Records.NO_LINKS_TTL_MS
+        assertNull(Records.fromCache(env, listOf("Nobody Known"), "EUR", look = Records.Look.MERCH))
+        assertEquals(1, Records.fromCache(env, listOf("Radiohead"), "EUR", look = Records.Look.MERCH)!!.artists.size)
     }
 
     @Test fun lookupsAreLimitedWithoutAToken() = runBlocking {

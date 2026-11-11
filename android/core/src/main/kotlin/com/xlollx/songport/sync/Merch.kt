@@ -4,6 +4,7 @@ import com.xlollx.songport.ai.ArtistMixSource
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.HttpResponse
 import com.xlollx.songport.net.Pacer
+import com.xlollx.songport.net.ShopPacer
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.bool
 import com.xlollx.songport.net.get
@@ -17,6 +18,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
+import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -33,15 +35,26 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each shop's robots.txt is read first and honoured (a shop that closes those pages is skipped; a
  * link page whose robots.txt does not answer only has the one link the site gives opened, as a click would),
- * at most one request a second goes to a host, every request names the app, and what is found is
- * kept a day ([TTL_MS]). A shop that did not answer is not taken for one with nothing:
- * [Found.unread], never kept. Each artist's look-up leaves one line in the app's log ("merch").
+ * at most one request a second goes to a host, and the Shopify catalogues go through one [ShopPacer]
+ * for all shops ([shopify]): Shopify limits a phone's requests to all its shops together, and
+ * answers a burst with 429 everywhere. Every request names the app, at most [MAX_REQUESTS] per
+ * artist, and what is found is kept two days ([TTL_MS]; nothing found, [EMPTY_TTL_MS]). A shop that
+ * did not answer is not taken for one with nothing: [Found.unread], never kept; one that answered
+ * "too many requests" is [Found.busy]. Each artist's look-up leaves one line in the app's log ("merch").
  * Links only: no login, no cart, no affiliate tag.
  */
 object Merch {
     /** Items shown per artist. */
     const val PER_ARTIST = 12
-    const val TTL_MS = 24L * 3_600_000
+    const val TTL_MS = 48L * 3_600_000
+    /** How long "nothing found" is kept: a shop may open or come back sooner. */
+    const val EMPTY_TTL_MS = 12L * 3_600_000
+    /** Requests per artist, robots.txt included: past them the look-up ends with what it has. */
+    const val MAX_REQUESTS = 16
+    /** Between two calls to Shopify shops, any of them: its limit is per phone, not per shop. */
+    const val SHOPIFY_GAP_MS = 2_500L
+    /** How long a robots.txt read is reused for other artists on the same host (a label's shop). */
+    const val ROBOTS_TTL_MS = 3_600_000L
     /** Products read from a Shopify shop: the first page of its catalogue. */
     const val SHOPIFY_PAGE = 30
     /** Shopify shops tried per artist; the first that answers with items is used. */
@@ -72,9 +85,11 @@ object Merch {
 
     /**
      * What the artist's shops gave: [items]; [unread] when nothing was found and a shop could not be
-     * read (no answer, a server error): "couldn't read their shop", asked again next time.
+     * read (no answer, a server error): "couldn't read their shop", asked again next time. [busy]
+     * when that was a shop saying "too many requests" (or one cooling down after it): asking again
+     * before [retryAt] would only be refused.
      */
-    data class Found(val items: List<Item>, val unread: Boolean = false)
+    data class Found(val items: List<Item>, val unread: Boolean = false, val busy: Boolean = false, val retryAt: Long = 0L)
 
     /** A Shopify shop: [host], and [collection] the artist's collection in a shared shop (a label's), "" for the whole shop. */
     internal data class Shop(val host: String, val collection: String = "")
@@ -83,6 +98,10 @@ object Merch {
     @Volatile internal var hostBase: (String) -> String = { "https://$it" }
     @Volatile internal var hostGap = 1_000L
     private val paces = ConcurrentHashMap<String, Pacer>()
+    /** Every Shopify catalogue call, all shops together (tests set a gap of 0). */
+    @Volatile internal var shopify = ShopPacer(SHOPIFY_GAP_MS)
+    /** The robots.txt read lately, per host: (when, body). */
+    private val robotsRead = ConcurrentHashMap<String, Pair<Long, String>>()
 
     /** Big retailers and sites that are not an artist's own shop: never asked. */
     private val NOT_SHOPS = listOf(
@@ -114,7 +133,7 @@ object Merch {
     suspend fun find(env: Env, artist: String, links: List<Records.Link>): Found {
         // "merch3": the results of builds that kept a failure as "nothing" and knew no shop beyond MusicBrainz's are not reused.
         val ck = "merch3|${Records.norm(artist)}"
-        Records.cached(env, ck, TTL_MS) { json.decodeFromString(serializer, it) }?.let { return Found(it) }
+        cachedItems(env, ck)?.let { return Found(it) }
         val t = Trace()
         val shop = guarded(t) { shopify(artist, links, t) }
         val bc = links.firstOrNull { it.kind == Records.Kind.BANDCAMP }?.let { host(it.url) }
@@ -122,10 +141,20 @@ object Merch {
         // Records and other goods counted apart: a shop full of records still shows its t-shirts.
         val items = mix(shop.filter { it.format == null }, band.filter { it.format == null }, PER_ARTIST) +
             mix(shop.filter { it.format != null }, band.filter { it.format != null }, PER_ARTIST)
-        val unread = items.isEmpty() && t.unread
-        env.log("merch", "$artist: " + t.steps.joinToString("; ").ifEmpty { "no shop known" } + " → " + if (unread) "not read" else "${items.size} items")
+        val busy = items.isEmpty() && t.busy
+        val unread = items.isEmpty() && (t.unread || busy)
+        env.log("merch", "$artist: " + t.steps.joinToString("; ").ifEmpty { "no shop known" } + " → " + when {
+            busy -> "shop busy"; unread -> "not read"; else -> "${items.size} items"
+        })
+        // A shop that did not answer, or asked to wait, is never kept: asked again next time.
         if (!unread) Records.remember(env, ck, json.encodeToString(serializer, items))
-        return Found(items, unread)
+        return Found(items, unread, busy, if (busy) t.retryAt else 0L)
+    }
+
+    /** The items kept for [key]: two days, or [EMPTY_TTL_MS] when there were none. */
+    internal fun cachedItems(env: Env, key: String): List<Item>? {
+        val items = Records.cached(env, key, TTL_MS) { json.decodeFromString(serializer, it) } ?: return null
+        return items.takeIf { it.isNotEmpty() || Records.cached(env, key, EMPTY_TTL_MS) { true } != null }
     }
 
     /** One artist's look-up: what was asked and how it went (for the log), whether a shop did not answer, the robots.txt read. */
@@ -133,6 +162,12 @@ object Merch {
         val steps = ArrayList<String>()
         var unread = false
         val robots = HashMap<String, String?>()
+        /** A Shopify shop answered "too many requests", or was not asked while it cools down. */
+        var busy = false
+        var retryAt = 0L
+        /** A Shopify shop answered (or was busy): the store./shop. guesses are not needed. */
+        var shopSeen = false
+        var requests = 0
     }
 
     private suspend fun guarded(t: Trace, block: suspend () -> List<Item>): List<Item> = try {
@@ -252,7 +287,8 @@ object Merch {
     private suspend fun shopify(artist: String, links: List<Records.Link>, t: Trace): List<Item> {
         val tried = HashSet<Shop>()
         suspend fun read(s: Shop?): List<Item>? {
-            if (s == null || tried.size >= MAX_SHOPS || !tried.add(s)) return null
+            // Shopify busy: its other shops would be refused too, and asking them makes it last longer.
+            if (s == null || t.busy || tried.size >= MAX_SHOPS || !tried.add(s)) return null
             return readShopify(artist, s, t).takeIf { it.isNotEmpty() }
         }
         for (h in shopHosts(links)) read(Shop(h))?.let { return it }
@@ -269,6 +305,8 @@ object Merch {
         for (url in linked.take(MAX_LINKED)) read(resolve(url, t))?.let { return it }
         // A home page drawn by a script names no shop: store. and shop. of the site's own domain (the site itself, not a page on a host).
         if (runCatching { URI(official).rawPath.orEmpty().trim('/') }.getOrDefault("x").isNotEmpty()) return emptyList()
+        // A shop was found (with nothing of theirs) or is busy: no guessing beside it.
+        if (t.shopSeen || t.busy) return emptyList()
         // A guessed host that does not exist is not a shop that did not answer.
         val unread = t.unread
         val domain = at.removePrefix("www.")
@@ -297,6 +335,7 @@ object Merch {
         if (runCatching { parseJson(products.body)["products"] as? JsonArray }.getOrNull() == null) {
             t.steps += "${s.host}: not a Shopify shop"; return emptyList()
         }
+        t.shopSeen = true
         val meta = allowedGet(s.host, "/meta.json", "application/json", t)?.body
         // A label's collection named after the artist ("/collections/starset") is all theirs.
         val whole = s.collection.isNotEmpty() && Matcher.normalizeArtist(s.collection.replace('-', ' ')) == Matcher.normalizeArtist(artist)
@@ -397,6 +436,7 @@ object Merch {
     /** The host's robots.txt ("" when it has none); null when it could not be read (then the host is skipped). */
     private suspend fun robots(h: String, t: Trace): String? {
         if (h in t.robots) return t.robots[h]
+        robotsRead[h]?.takeIf { Records.now() - it.first < ROBOTS_TTL_MS }?.let { t.robots[h] = it.second; return it.second }
         val r = request(h, "/robots.txt", "text/plain", t)
         val robots = when {
             r == null -> null
@@ -405,6 +445,7 @@ object Merch {
             else -> null
         }
         t.robots[h] = robots
+        if (robots != null) robotsRead[h] = Records.now() to robots
         return robots
     }
 
@@ -464,28 +505,57 @@ object Merch {
         return request(h, path, accept, t)?.takeIf { it.ok }
     }
 
+    /** A Shopify catalogue call: paced with every other Shopify shop's ([shopify]). */
+    private fun isShopify(path: String) = path.substringBefore('?').let { it.endsWith("/products.json") || it == "/meta.json" }
+
     /**
-     * One GET to [h], no more than one a second per host. Null when it did not answer; a server
-     * error or "too many requests" is answered but noted in [t] as not read, like no answer.
+     * One GET to [h], no more than one a second per host, and the Shopify catalogues no faster than
+     * [shopify] lets them. Null when it did not answer (or was not asked: busy shop, [MAX_REQUESTS]
+     * reached); a server error or "too many requests" is answered but noted in [t] as not read, like
+     * no answer. A host that does not exist is not a shop that did not answer.
      */
     private suspend fun request(h: String, path: String, accept: String, t: Trace): HttpResponse? {
-        val r = try {
-            paces.getOrPut(h) { Pacer(hostGap) }.paced {
+        val p = h + path.substringBefore('?')
+        val shop = isShopify(path)
+        var retried = false
+        while (true) {
+            if (t.requests >= MAX_REQUESTS) { if (t.requests++ == MAX_REQUESTS) t.steps += "request cap reached"; return null }
+            t.requests++
+            val send: suspend () -> HttpResponse = {
                 Http.send("GET", hostBase(h) + path, mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to accept), maxRateLimitRetries = 0, retryServerErrors = false)
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            t.unread = true; t.steps += "$h${path.substringBefore('?')}: no answer (${e.javaClass.simpleName})"; return null
+            val r = try {
+                if (shop) shopify.paced(h, send) else paces.getOrPut(h) { Pacer(hostGap) }.paced { send() }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: UnknownHostException) {
+                t.steps += "$h: no such host"; return null
+            } catch (e: Exception) {
+                t.unread = true; t.steps += "$p: no answer (${e.javaClass.simpleName})"; return null
+            }
+            if (r == null) {
+                t.busy = true; t.shopSeen = true; t.retryAt = maxOf(t.retryAt, shopify.freeAt(h))
+                t.steps += "$p: not asked, Shopify busy"; return null
+            }
+            if (shop && r.code == 429) {
+                val wait = ShopPacer.retryAfterMs(r.header("Retry-After"), System.currentTimeMillis())
+                t.steps += "$p: 429" + (wait?.let { " (retry after ${it / 1000} s)" } ?: "")
+                if (shopify.tooMany(h, wait, mayRetry = !retried)) { retried = true; continue }
+                t.busy = true; t.shopSeen = true; t.unread = true; t.retryAt = maxOf(t.retryAt, shopify.freeAt(h))
+                return r
+            }
+            if (shop) shopify.answered()
+            if (!r.ok) t.steps += "$p: ${r.code}"
+            if (r.code == 429 || r.code >= 500) t.unread = true
+            return r
         }
-        if (!r.ok) t.steps += "$h${path.substringBefore('?')}: ${r.code}"
-        if (r.code == 429 || r.code >= 500) t.unread = true
-        return r
     }
 
     /** A URL as the shop's own, where tests answered it from the local server. */
     private fun unbase(url: String): String = hostBase("").let { b -> if (url.startsWith(b)) "https://" + url.removePrefix(b) else url }
 
-    /** Tests: forgets the per-host pacers (after [hostGap] changes). */
-    internal fun resetPaces() = paces.clear()
+    /** Tests: forgets the per-host pacers (after [hostGap] changes), the Shopify pacer's state and the robots.txt read. */
+    internal fun resetPaces(shopifyGap: Long = SHOPIFY_GAP_MS) {
+        paces.clear(); robotsRead.clear(); shopify = ShopPacer(shopifyGap)
+    }
 }

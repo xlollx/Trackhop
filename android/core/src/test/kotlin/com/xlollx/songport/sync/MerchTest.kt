@@ -28,12 +28,18 @@ class MerchTest {
     private val agents: MutableList<String?> = Collections.synchronizedList(ArrayList())
     /** host/path → status and body; anything else is a 404. */
     private val answers = HashMap<String, Pair<Int, String>>()
+    /** host/path → the answer to its first request only (then [answers]'). */
+    private val first = HashMap<String, Pair<Int, String>>()
+    /** host/path → extra headers of a 429 answer (Retry-After). */
+    private val headers = HashMap<String, Map<String, String>>()
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
         createContext("/") { ex ->
             val path = ex.requestURI.path
             hits += path
             agents += ex.requestHeaders.getFirst("User-Agent")
-            val (code, body) = answers[path] ?: (404 to "not here")
+            val once = synchronized(first) { first.remove(path) }
+            val (code, body) = once ?: answers[path] ?: (404 to "not here")
+            if (code == 429) headers[path]?.forEach { (k, v) -> ex.responseHeaders.add(k, v) }
             val bytes = body.toByteArray()
             ex.sendResponseHeaders(code, bytes.size.toLong())
             ex.responseBody.use { it.write(bytes) }
@@ -47,7 +53,7 @@ class MerchTest {
         val base = "http://127.0.0.1:${server.address.port}"
         Merch.hostBase = { "$base/$it" }
         Merch.hostGap = 0
-        Merch.resetPaces()
+        Merch.resetPaces(0)
         Records.discogsBase = "$base/dg"
         Records.now = { clock }
         Records.anonPace = Pacer(0)
@@ -187,7 +193,7 @@ class MerchTest {
 
     // ------------------------------------------------------------------ asking the shops
 
-    @Test fun theOfficialShopAndBandcampAreReadAndKeptADay() = runBlocking {
+    @Test fun theOfficialShopAndBandcampAreReadAndKeptTwoDays() = runBlocking {
         arcticShop()
         answers["/khruangbin.bandcamp.com/robots.txt"] = 200 to fixture("bandcamp-robots.txt")
         answers["/khruangbin.bandcamp.com/merch"] = 200 to fixture("bandcamp-khruangbin-merch.html")
@@ -202,7 +208,7 @@ class MerchTest {
         ), hits)
         assertTrue(agents.all { it != null && it.startsWith("Trackhop") })
         hits.clear()
-        clock += 23 * 3_600_000L
+        clock += 47 * 3_600_000L
         assertEquals(items, Merch.find(env, "Arctic Monkeys", links).items)
         assertTrue(hits.isEmpty())
         clock += 2 * 3_600_000L
@@ -470,6 +476,64 @@ class MerchTest {
         assertNull(f("Bundle", "Hoodie + Poster Bundle"))
         assertNull(f("", "Enamel Pin"))
         assertNull(f("Hoodie", "Logo Hood"))
+    }
+
+    // ------------------------------------------------------------------ Shopify's "too many requests"
+
+    @Test fun aShopAsking429IsBusyNotKeptAndNotAskedAgainWhileItCoolsDown() = runBlocking {
+        // November 2026, on a phone: the shared Shopify edge answers 429 to every shop after a burst.
+        answers["/badomensofficial.com/"] = 200 to fixture("home-badomens.html")
+        answers["/merchjungle.com/collections/bad-omens/products.json"] = 429 to "Too Many Requests"
+        headers["/merchjungle.com/collections/bad-omens/products.json"] = mapOf("Retry-After" to "600")
+        val links = listOf(link(Records.Kind.OFFICIAL, "https://badomensofficial.com/"))
+        val found = Merch.find(env, "Bad Omens", links)
+        assertTrue(found.items.isEmpty())
+        assertTrue(found.unread)
+        assertTrue(found.busy)
+        assertTrue(found.retryAt > System.currentTimeMillis() + 500_000)
+        // Asked once (no quick retry for a long wait); the other shops and the guesses are not asked into a 429.
+        assertEquals(1, hits.count { it == "/merchjungle.com/collections/bad-omens/products.json" })
+        assertFalse(hits.any { it.startsWith("/cutloosemerch.ca") || it.startsWith("/store.") || it.startsWith("/shop.") })
+        assertTrue(env.logs.last(), env.logs.last().contains("429 (retry after 600 s)") && env.logs.last().endsWith("shop busy"))
+        // Not kept, and the shop is not hammered: asked again, it is not called while it cools down.
+        hits.clear()
+        val again = Merch.find(env, "Bad Omens", links)
+        assertTrue(again.busy)
+        assertFalse(hits.any { it.startsWith("/merchjungle.com/") && it.endsWith("/products.json") })
+    }
+
+    @Test fun aShortRetryAfterIsWaitedOutOnce() = runBlocking {
+        arcticShop()
+        first["/www.arcticmonkeys.com/products.json"] = 429 to "slow down"
+        headers["/www.arcticmonkeys.com/products.json"] = mapOf("Retry-After" to "1")
+        val found = Merch.find(env, "Arctic Monkeys", am)
+        assertEquals(3, found.items.size)
+        assertFalse(found.busy)
+        assertEquals(2, hits.count { it == "/www.arcticmonkeys.com/products.json" })
+    }
+
+    @Test fun nothingFoundIsKeptLessThanWhatWasFound() = runBlocking {
+        answers["/www.arcticmonkeys.com/products.json"] = 200 to "<html>not a shop</html>"
+        assertTrue(Merch.find(env, "Arctic Monkeys", am).items.isEmpty())
+        hits.clear()
+        clock += Merch.EMPTY_TTL_MS - 1
+        Merch.find(env, "Arctic Monkeys", am)
+        assertTrue(hits.isEmpty())
+        clock += 2
+        Merch.find(env, "Arctic Monkeys", am)
+        assertTrue(hits.isNotEmpty())
+    }
+
+    @Test fun theShopsLeftToTheAppAreNotReadBySearch() = runBlocking {
+        arcticShop()
+        val id = "ada7a83c-e3e1-40f1-93f9-3e73dbc9298a"
+        answers["/ws/2/artist"] = 200 to """{"artists":[{"id":"$id","name":"Arctic Monkeys","score":100}]}"""
+        answers["/ws/2/artist/$id"] = 200 to """{"relations":[{"type":"official homepage","ended":false,"url":{"resource":"https://www.arcticmonkeys.com/"}}]}"""
+        val r = Records.find(env, listOf("Arctic Monkeys"), "EUR", look = Records.Look.MERCH, shops = false)
+        assertNull(r.artists[0].merch)
+        assertFalse(r.artists[0].shopsUnread)
+        assertEquals("https://www.arcticmonkeys.com/", r.artists[0].links.single().url)
+        assertTrue(hits.none { it.startsWith("/www.") })
     }
 
     @Test fun looksByName() {

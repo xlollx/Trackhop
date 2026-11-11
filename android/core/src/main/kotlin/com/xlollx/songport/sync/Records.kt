@@ -55,6 +55,8 @@ object Records {
     /** Discogs' terms: nothing shown more than six hours older than on Discogs. */
     const val DISCOGS_TTL_MS = 6L * 3_600_000
     const val LINKS_TTL_MS = 7L * 24 * 3_600_000
+    /** An artist MusicBrainz did not know is asked again sooner: it may be added. */
+    const val NO_LINKS_TTL_MS = 24L * 3_600_000
     /** The attribution Discogs' terms ask for, next to its data, linking to it. */
     const val ATTRIBUTION = "Data provided by Discogs"
     /** The currencies Discogs' marketplace answers in. */
@@ -122,6 +124,8 @@ object Records {
         val shopRecords: List<Merch.Item>? = null,
         /** Their shops (or MusicBrainz, which names them) could not be read: nothing found is not "nothing there" ([Merch.Found.unread]). */
         val shopsUnread: Boolean = false,
+        /** Of those, a shop said "too many requests": try again in a few minutes ([Merch.Found.busy]). */
+        val shopsBusy: Boolean = false,
     )
 
     data class Result(
@@ -135,6 +139,8 @@ object Records {
         val slowedDown: Boolean,
         val currency: String,
         val look: Look = Look.ALL,
+        /** When the oldest of the Discogs answers shown was asked (kept ones are older than the search); 0 when none. */
+        val at: Long = 0L,
     )
 
     // Tests point these at a local server and a fixed clock.
@@ -179,12 +185,16 @@ object Records {
      * [look] says what is asked and shown: Discogs is not called for [Look.MERCH]; the artists' shops
      * are read for every look (their records are shown with the records, the rest as merch).
      */
-    suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(
+        env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL,
+        progress: (Int, Int) -> Unit = { _, _ -> }, shops: Boolean = true,
+    ): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
         var token = token(env)
         val hadToken = token != null
-        val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
+        val asked = asked(artists)
         val list = LookupCaps.cut(asked, if (hadToken) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON, whole)
+        val startedAt = now()
         var refused = false
         var slowed = false
         val out = ArrayList<ArtistRecords>()
@@ -203,19 +213,52 @@ object Records {
                 records to links.await()
             }
             // The shops are read for every look: their records go with the records, the rest is the merch.
-            // Without MusicBrainz no shop is known: not read, rather than nothing there.
+            // Without MusicBrainz no shop is known: not read, rather than nothing there. Without [shops]
+            // the app reads them itself, one artist at a time as their card shows.
             if (links == null) env.log("records", "$artist: MusicBrainz did not answer")
-            val found = if (links == null) Merch.Found(emptyList(), unread = true) else Merch.find(env, artist, links)
-            val (shopRecords, merch) = found.items.partition { it.format != null }
-            val page = links?.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
-            out += ArtistRecords(
-                artist, records, links.orEmpty().filter { it.kind != Kind.DISCOGS }, searches(artist), page,
-                merch.takeIf { look.merch }, shopRecords.takeIf { look.records }, found.unread,
-            )
+            out += artistRecords(artist, records, links, look, when {
+                links == null -> Merch.Found(emptyList(), unread = true)
+                shops -> Merch.find(env, artist, links)
+                else -> null
+            })
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")
-        return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur, look)
+        val at = if (look.records) list.mapNotNull { discogsAt(env, if (refused) null else token, it, cur) }.minOrNull() ?: startedAt else 0L
+        return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur, look, at)
+    }
+
+    private fun asked(artists: List<String>) =
+        artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
+
+    private fun artistRecords(artist: String, records: List<Record>?, links: List<Link>?, look: Look, found: Merch.Found?): ArtistRecords {
+        val (shopRecords, merch) = found?.items.orEmpty().partition { it.format != null }
+        val page = links?.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
+        return ArtistRecords(
+            artist, records, links.orEmpty().filter { it.kind != Kind.DISCOGS }, searches(artist), page,
+            found?.let { merch.takeIf { look.merch } }, found?.let { shopRecords.takeIf { look.records } },
+            found?.unread == true, found?.busy == true,
+        )
+    }
+
+    /**
+     * What [find] would show, from what is kept alone, with no request at all: null unless every artist's
+     * links (and, for records, Discogs answer) are still fresh. The shops are left to the app ([find]'s shops = false).
+     * The page shows this at once when opened again, and asks only when something is missing or too old.
+     */
+    fun fromCache(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL): Result? {
+        val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
+        val token = token(env)
+        val asked = asked(artists)
+        val list = LookupCaps.cut(asked, if (token != null) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON, whole)
+        if (list.isEmpty()) return null
+        val out = list.map { artist ->
+            val links = cachedLinks(env, artist) ?: return null
+            val records = if (!look.records) null else cached(env, discogsKey(token, artist, cur), DISCOGS_TTL_MS) { json.decodeFromString(recordsSerializer, it) } ?: return null
+            artistRecords(artist, records, links, look, null)
+        }
+        val at = if (look.records) list.mapNotNull { discogsAt(env, token, it, cur) }.minOrNull() ?: return null else 0L
+        return Result(ArtistPick.byName(out) { it.artist }, asked.size, token != null, false, false, cur, look, at)
     }
 
     class TokenRefused : Exception("Discogs refused the token")
@@ -233,6 +276,24 @@ object Records {
         return runCatching { read(saved.substringAfter('|')) }.getOrNull()
     }
 
+    /** When [k] was kept, or null. */
+    private fun keptAt(env: Env, k: String): Long? = env.keyValues(CACHE)[k]?.substringBefore('|')?.toLongOrNull()
+
+    /** When the artist's Discogs answer in use was asked, while still fresh. */
+    private fun discogsAt(env: Env, token: String?, artist: String, currency: String): Long? =
+        keptAt(env, discogsKey(token, artist, currency))?.takeIf { now() - it < DISCOGS_TTL_MS }
+
+    // "dg2": records saved before they carried a picture are not shown again with empty boxes.
+    private fun discogsKey(token: String?, artist: String, currency: String) = if (token != null) "dg2|$currency|${norm(artist)}" else "dg2|${norm(artist)}"
+    private fun linksKey(artist: String) = "mb|${norm(artist)}"
+
+    /** The artist's links kept a week, or a day when MusicBrainz knew none. */
+    private fun cachedLinks(env: Env, artist: String): List<Link>? {
+        val k = linksKey(artist)
+        val links = cached(env, k, LINKS_TTL_MS) { json.decodeFromString(linksSerializer, it) } ?: return null
+        return links.takeIf { it.isNotEmpty() || cached(env, k, NO_LINKS_TTL_MS) { true } != null }
+    }
+
     internal fun remember(env: Env, k: String, value: String) {
         val kv = env.keyValues(CACHE)
         if (kv.size >= 4_000) kv.clear()
@@ -245,8 +306,7 @@ object Records {
 
     /** The artist's records on Discogs; null when Discogs did not answer (then nothing is remembered). */
     private suspend fun discogs(env: Env, token: String?, artist: String, currency: String): List<Record>? {
-        // "dg2": records saved before they carried a picture are not shown again with empty boxes.
-        val ck = if (token != null) "dg2|$currency|${norm(artist)}" else "dg2|${norm(artist)}"
+        val ck = discogsKey(token, artist, currency)
         cached(env, ck, DISCOGS_TTL_MS) { json.decodeFromString(recordsSerializer, it) }?.let { return it }
         val search = discogsGet(token, "database/search?" + Http.query(mapOf(
             "artist" to artist, "type" to "release", "sort" to "have", "sort_order" to "desc", "per_page" to "100",
@@ -349,8 +409,8 @@ object Records {
 
     /** The artist's pages on MusicBrainz (empty when it does not know the artist); null when it could not be asked. */
     private suspend fun links(env: Env, artist: String): List<Link>? {
-        val ck = "mb|${norm(artist)}"
-        cached(env, ck, LINKS_TTL_MS) { json.decodeFromString(linksSerializer, it) }?.let { return it }
+        val ck = linksKey(artist)
+        cachedLinks(env, artist)?.let { return it }
         val q = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\""
         val found = mbGet("artist?query=${enc(q)}&limit=5&fmt=json") ?: return null
         val id = pickArtist(found, artist)

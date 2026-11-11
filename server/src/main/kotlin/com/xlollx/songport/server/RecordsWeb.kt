@@ -117,6 +117,7 @@ internal fun recordsJson(r: Records.Result): JsonObject = buildJsonObject {
             put("shopRecords", a.shopRecords?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
             put("merch", a.merch?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
             put("shopsUnread", a.shopsUnread)
+            put("shopsBusy", a.shopsBusy)
         }
     }))
     put("attribution", RecordTexts.ATTRIBUTION)
