@@ -59,8 +59,9 @@ class CardsFlowTest : FlowTest() {
 
     private fun openTool(title: Int) {
         launch(tabIntent(MainActivity.TAB_DISCOVER))
-        waitText(s(title))
-        click(s(title))
+        waitText(s(R.string.discover_wrapped_title))
+        // The cards are a lazy grid: the one asked for may be further down.
+        clickTile(s(title))
     }
 
     /** In a playlist source card: the service tile, then its playlist from the drop-down. */

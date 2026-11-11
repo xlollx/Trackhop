@@ -2176,4 +2176,8 @@
     <string name="shared_server_new_invite">你已加入的 %1$s 的新邀请：群组现在在 %2$s 上交流。</string>
     <string name="shared_server_updated">%1$s：已迁移到新服务器。</string>
     <string name="shared_error_not_curator">只有策展人可以迁移群组。</string>
+    <string name="discover_move_earlier">前移</string>
+    <string name="discover_move_later">后移</string>
+    <string name="discover_order_hint">按住卡片并拖动即可调整顺序。</string>
+    <string name="discover_order_reset">恢复默认顺序</string>
 </resources>

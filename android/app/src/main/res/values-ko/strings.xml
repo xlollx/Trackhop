@@ -2175,4 +2175,8 @@
     <string name="shared_server_new_invite">이미 참여 중인 %1$s의 새 초대입니다. 이제 그룹은 %2$s에서 모입니다.</string>
     <string name="shared_server_updated">%1$s: 새 서버로 옮겼습니다.</string>
     <string name="shared_error_not_curator">큐레이터만 그룹을 옮길 수 있습니다.</string>
+    <string name="discover_move_earlier">앞으로 이동</string>
+    <string name="discover_move_later">뒤로 이동</string>
+    <string name="discover_order_hint">카드를 길게 누른 채 끌어서 순서를 바꾸세요.</string>
+    <string name="discover_order_reset">순서 초기화</string>
 </resources>

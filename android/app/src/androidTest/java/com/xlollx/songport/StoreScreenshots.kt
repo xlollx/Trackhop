@@ -16,6 +16,8 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasScrollToNodeAction
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -320,8 +322,10 @@ class StoreScreenshots {
         // 8 The playlist poster.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) {
             step("shot $n") {
-                waitText(s(R.string.tools_poster_title))
-                compose.onNodeWithText(s(R.string.tools_poster_title)).performScrollTo().performClick()
+                waitText(s(R.string.discover_wrapped_title))
+                // The cards are a lazy grid: the poster may be further down.
+                compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(s(R.string.tools_poster_title)))
+                compose.onNodeWithText(s(R.string.tools_poster_title)).performClick()
                 waitText(s(R.string.card_source_link_hint))
                 compose.onNode(hasSetTextAction()).performTextInput(linkA)
                 compose.onNodeWithText(s(R.string.link_use)).performClick()

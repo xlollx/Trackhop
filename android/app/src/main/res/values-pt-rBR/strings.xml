@@ -2223,4 +2223,8 @@
     <string name="shared_server_new_invite">Um novo convite para %1$s, do qual você já participa: o grupo agora se encontra em %2$s.</string>
     <string name="shared_server_updated">%1$s: movido para o novo servidor.</string>
     <string name="shared_error_not_curator">Só um curador pode mover o grupo.</string>
+    <string name="discover_move_earlier">Mover para antes</string>
+    <string name="discover_move_later">Mover para depois</string>
+    <string name="discover_order_hint">Toque e segure um cartão e arraste para mudar a ordem.</string>
+    <string name="discover_order_reset">Redefinir ordem</string>
 </resources>

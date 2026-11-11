@@ -190,7 +190,7 @@ class SyncJobFlowTest : FlowTest() {
         // Discover too: a card's page open before the rotation is still open after it.
         click(s(R.string.tab_discover))
         waitText(s(R.string.discover_wrapped_title))
-        click(s(R.string.tools_poster_title))
+        clickTile(s(R.string.tools_poster_title))
         waitText(s(R.string.card_cover_title))
         rotate(UiAutomation.ROTATION_FREEZE_0)
         waitText(s(R.string.card_cover_title))

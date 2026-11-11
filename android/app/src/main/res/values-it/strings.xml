@@ -2215,4 +2215,8 @@
     <string name="shared_server_new_invite">Un nuovo invito per %1$s, di cui fai già parte: ora il gruppo si incontra su %2$s.</string>
     <string name="shared_server_updated">%1$s: spostato sul nuovo server.</string>
     <string name="shared_error_not_curator">Solo un curatore può spostare il gruppo.</string>
+    <string name="discover_move_earlier">Sposta prima</string>
+    <string name="discover_move_later">Sposta dopo</string>
+    <string name="discover_order_hint">Tieni premuta una scheda e trascinala per cambiare l’ordine.</string>
+    <string name="discover_order_reset">Ripristina ordine</string>
 </resources>

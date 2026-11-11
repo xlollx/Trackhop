@@ -84,6 +84,8 @@ data class Settings(
     val minimalSyncs: Boolean = false,
     /** Starred syncs shown first, dragged among themselves only; off: they go anywhere in the order. */
     val favoritesOnTop: Boolean = true,
+    /** The Discover tab's cards in the user's order, by id (sync/DiscoverOrder); empty = the default order. */
+    val discoverOrder: List<String> = emptyList(),
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */
     val tourDone: Boolean = false,
     /**

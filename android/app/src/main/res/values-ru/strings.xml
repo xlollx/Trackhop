@@ -2293,4 +2293,8 @@
     <string name="shared_server_new_invite">Новое приглашение в %1$s, где вы уже состоите: теперь группа встречается на %2$s.</string>
     <string name="shared_server_updated">%1$s: перенесено на новый сервер.</string>
     <string name="shared_error_not_curator">Перенести группу может только куратор.</string>
+    <string name="discover_move_earlier">Переместить раньше</string>
+    <string name="discover_move_later">Переместить позже</string>
+    <string name="discover_order_hint">Удерживайте карточку и перетащите её, чтобы изменить порядок.</string>
+    <string name="discover_order_reset">Сбросить порядок</string>
 </resources>

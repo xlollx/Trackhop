@@ -2295,4 +2295,8 @@
     <string name="shared_server_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: grupa spotyka się teraz na %2$s.</string>
     <string name="shared_server_updated">%1$s: przeniesiono na nowy serwer.</string>
     <string name="shared_error_not_curator">Tylko kurator może przenieść grupę.</string>
+    <string name="discover_move_earlier">Przesuń wcześniej</string>
+    <string name="discover_move_later">Przesuń dalej</string>
+    <string name="discover_order_hint">Przytrzymaj kartę i przeciągnij ją, aby zmienić kolejność.</string>
+    <string name="discover_order_reset">Przywróć kolejność</string>
 </resources>

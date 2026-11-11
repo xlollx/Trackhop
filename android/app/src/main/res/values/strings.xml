@@ -2216,4 +2216,8 @@
     <string name="shared_server_new_invite">A new invite for %1$s, which you\'re already in: the group now meets on %2$s.</string>
     <string name="shared_server_updated">%1$s: moved to the new server.</string>
     <string name="shared_error_not_curator">Only a curator can move the group.</string>
+    <string name="discover_move_earlier">Move earlier</string>
+    <string name="discover_move_later">Move later</string>
+    <string name="discover_order_hint">Hold a card and drag it to change the order.</string>
+    <string name="discover_order_reset">Reset order</string>
 </resources>
