@@ -46,6 +46,15 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   (musicbrainz.org) and ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org), and, for artists
   ListenBrainz has no data on, to Deezer's public catalogue (api.deezer.com): anonymous lookups, no
   account. If you connected ListenBrainz with your token, that token goes along to ListenBrainz.
+- **Wrapped from your listening (optional)**: when you make a Wrapped from what you listened to
+  (Discover › Your Wrapped), the app reads the songs and artists you played most in the period you
+  choose from the one service you pick: Last.fm or ListenBrainz (public statistics of your user name),
+  Spotify (your top tracks and artists: this needs the Spotify permission "user-top-read", asked when
+  you sign in; an older sign-in asks for it again only if you choose to sign in again) or, in the
+  GitHub and F-Droid version, YouTube Music's listening history. For up to thirty of those songs that
+  the service does not date, the title and artist are looked up in Deezer's public catalogue
+  (api.deezer.com) for their release year and cover: anonymous searches, one at a time, no account.
+  The Wrapped keeps only its figures and top five songs and artists, on the device.
 - **Concerts (optional)**: when you tap Find concerts (Discover › Concerts), the names of the artists
   of the playlist you picked and the country you chose are sent to Ticketmaster's Discovery API
   (app.ticketmaster.com, under Ticketmaster's own privacy policy) and to the public music database
@@ -154,6 +163,15 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   MusicBrainz (musicbrainz.org) e ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org) e, per gli
   artisti di cui ListenBrainz non ha dati, al catalogo pubblico di Deezer (api.deezer.com): ricerche
   anonime, senza account. Se hai collegato ListenBrainz con il tuo token, quel token viene inviato a ListenBrainz.
+- **Wrapped dai tuoi ascolti (facoltativo)**: quando crei un Wrapped da quello che hai ascoltato
+  (Scopri › Il tuo Wrapped), l'app legge i brani e gli artisti che hai ascoltato di più nel periodo
+  scelto dall'unico servizio che indichi: Last.fm o ListenBrainz (statistiche pubbliche del tuo nome
+  utente), Spotify (i tuoi brani e artisti più ascoltati: serve il permesso Spotify "user-top-read",
+  chiesto all'accesso; un accesso precedente lo chiede di nuovo solo se scegli di accedere di nuovo)
+  oppure, nella versione GitHub e F-Droid, la cronologia di ascolto di YouTube Music. Per un massimo di
+  trenta di quei brani che il servizio non data, titolo e artista vengono cercati nel catalogo pubblico
+  di Deezer (api.deezer.com) per l'anno di uscita e la copertina: ricerche anonime, una alla volta,
+  senza account. Il Wrapped conserva solo i suoi numeri e i primi cinque brani e artisti, sul dispositivo.
 - **Concerti (facoltativo)**: quando tocchi Cerca concerti (Scopri › Concerti), i nomi degli artisti
   della playlist scelta e il paese indicato vengono inviati alla Discovery API di Ticketmaster
   (app.ticketmaster.com, secondo l'informativa di Ticketmaster) e al database musicale pubblico

@@ -14,24 +14,35 @@ card is made on your phone.
 
 ## What's on the card?
 
-- **Top artists**: the artists that fill your playlists the most.
+- **Top artists**: the artists you played most (or, from your playlists, those that fill them the
+  most), with their plays when the service counts them.
+- **Top songs**: your five most played songs of the period, with their covers.
 - **Decades**: how your music splits across the 60s, 70s, 80s and on, as percentages.
 - **Your musical age**: "you listen like someone born in…", worked out from when your songs came
   out.
 - **The numbers**: songs in your playlists, artists, and hours (or minutes) of music.
-- **Oldest song** and **latest addition**.
-- **Services**: which of your services the card was made from.
+- **Discovery of the period**: the artist you played most who was not in your previous period
+  (with Last.fm).
+- **Oldest song** and, from your playlists, the **latest addition**.
+- **Where it comes from**: "From your listening on Last.fm", "…on Spotify", or "From your playlists".
 
 It comes in two sizes, a tall one for **stories** and a **square** one for posts, ready to share.
 
-## How is it different from Spotify Wrapped?
+## Is it made from what I listen to?
 
-Spotify Wrapped counts what you **played** during the year, from Spotify's own listening data.
-Trackhop cannot see your plays: it reads **what you keep**, your liked songs and the playlists you
-made, and makes the card from that. So it is not a replacement for the year-end recap; it is a
-portrait of your library, available whenever you want and on any service. The upside is that it
-works the same on services that have no Wrapped at all, and it can mix several of them into one
-card if you use more than one.
+Yes, when a connected service knows what you played. Trackhop picks the best one you have:
+
+1. **Last.fm** or **ListenBrainz**: every play counted (scrobbles), for the **last month**, **6
+   months** or **12 months**.
+2. **Spotify**: your top songs and artists for the same three periods, ranked by Spotify (no play
+   counts). Spotify asks for one more permission for this: if you connected Spotify before, the page
+   offers **Sign in to Spotify again**; nothing changes until you do.
+3. **YouTube Music** (GitHub and F-Droid version): your recent plays, a weaker guide, since it keeps
+   no counts.
+
+With none of them, or if you pick **Playlists**, the card is made from **what you keep**: your liked
+songs and the playlists you made, on any service, several mixed into one card if you like. The card
+always says which it is.
 
 ## How do I make my Wrapped card?
 
@@ -39,9 +50,10 @@ card if you use more than one.
 2. **Connect your service**: *Accounts → Add connector*, signing in on the service's own page.
    One service is enough.
 3. Open the **Discover** tab and tap **Your Wrapped, whenever you want**.
-4. Under **Services to include**, tick the services to read (your choice is remembered for next
-   time).
-5. Tap **Make my card**. Trackhop reads your liked songs and playlists, counts, and shows the card.
+4. Under **Based on**, pick where to read from and the period (your choice is remembered for next
+   time). With **Playlists**, tick the services to include.
+5. Tap **Make my card**. Trackhop reads your plays (or your playlists), looks up when the songs came
+   out, and shows the card.
 6. Share it as a story or a square image, or just keep it.
 
 A big library takes a little while to read; the page shows how many songs it has found so far.
@@ -56,7 +68,9 @@ often move more than you would expect.
 ## Is my data sent anywhere?
 
 No. The card is computed on your phone from what your services already return to Trackhop.
-Trackhop has no server; nothing leaves the phone unless you share the image yourself.
+Trackhop has no server; nothing leaves the phone unless you share the image yourself. When the
+service does not say when songs came out, their titles are looked up anonymously in Deezer's
+public catalogue.
 
 ## More in the Discover tab
 

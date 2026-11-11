@@ -15,25 +15,36 @@ niente: la scheda nasce sul tuo telefono.
 
 ## Cosa c'è nella scheda?
 
-- **Artisti più ascoltati**: gli artisti che riempiono di più le tue playlist.
+- **Artisti più ascoltati**: gli artisti che hai ascoltato di più (o, dalle playlist, quelli che le
+  riempiono di più), con gli ascolti quando il servizio li conta.
+- **Brani più ascoltati**: i tuoi cinque brani più ascoltati del periodo, con le copertine.
 - **Decenni**: come si divide la tua musica tra anni '60, '70, '80 e così via, in percentuale.
 - **La tua età musicale**: "ascolti come chi è nato nel…", calcolata da quando sono usciti i tuoi
   brani.
 - **I numeri**: brani nelle playlist, artisti, ore (o minuti) di musica.
-- **Brano più vecchio** e **ultima aggiunta**.
-- **Servizi**: da quali dei tuoi servizi è stata creata la scheda.
+- **La scoperta del periodo**: l'artista che hai ascoltato di più e che non c'era nel periodo
+  precedente (con Last.fm).
+- **Brano più vecchio** e, dalle playlist, **ultima aggiunta**.
+- **Da dove viene**: "Dai tuoi ascolti su Last.fm", "…su Spotify" oppure "Dalle tue playlist".
 
 Arriva in due formati, uno verticale per le **storie** e uno **quadrato** per i post, pronta da
 condividere.
 
-## In cosa è diverso dallo Spotify Wrapped?
+## Nasce da quello che ascolto?
 
-Lo Spotify Wrapped conta quello che hai **ascoltato** durante l'anno, dai dati di ascolto di Spotify.
-Trackhop non vede i tuoi ascolti: legge **quello che tieni**, i brani che ti piacciono e le playlist
-che hai creato, e fa la scheda da lì. Quindi non sostituisce il riepilogo di fine anno: è un
-ritratto della tua libreria, disponibile quando vuoi e su qualsiasi servizio. Il vantaggio è che
-funziona allo stesso modo sui servizi che un Wrapped non ce l'hanno, e se ne usi più di uno può
-metterli insieme in un'unica scheda.
+Sì, quando un servizio collegato sa cosa hai ascoltato. Trackhop sceglie il migliore che hai:
+
+1. **Last.fm** o **ListenBrainz**: ogni ascolto contato (scrobble), per l'**ultimo mese**, **6
+   mesi** o **12 mesi**.
+2. **Spotify**: i tuoi brani e artisti più ascoltati negli stessi tre periodi, in ordine di Spotify
+   (senza il numero di ascolti). Per questo Spotify chiede un permesso in più: se avevi già collegato
+   Spotify, la pagina propone **Accedi di nuovo a Spotify**; finché non lo fai non cambia nulla.
+3. **YouTube Music** (versione GitHub e F-Droid): i tuoi ascolti recenti, un'indicazione più debole,
+   perché non tiene il conto degli ascolti.
+
+Senza nessuno di questi, o se scegli **Playlist**, la scheda nasce da **quello che tieni**: i brani
+che ti piacciono e le playlist che hai creato, su qualsiasi servizio, anche più d'uno insieme. La
+scheda dice sempre da dove viene.
 
 ## Come creo la mia scheda Wrapped?
 
@@ -41,10 +52,10 @@ metterli insieme in un'unica scheda.
 2. **Collega il tuo servizio**: *Account → Aggiungi connettore*, accedendo sulla pagina del
    servizio. Ne basta uno.
 3. Apri la scheda **Scopri** e tocca **Il tuo Wrapped, quando vuoi**.
-4. In **Servizi da includere** spunta i servizi da leggere (la scelta viene ricordata per la volta
-   dopo).
-5. Tocca **Crea la mia scheda**. Trackhop legge i brani preferiti e le playlist, conta e ti mostra
-   la scheda.
+4. In **Basato su** scegli da dove leggere e il periodo (la scelta viene ricordata per la volta
+   dopo). Con **Playlist**, spunta i servizi da includere.
+5. Tocca **Crea la mia scheda**. Trackhop legge i tuoi ascolti (o le playlist), cerca quando sono
+   usciti i brani e ti mostra la scheda.
 6. Condividila come storia o come immagine quadrata, o semplicemente tienila.
 
 Una libreria grande richiede un po' di tempo; la pagina mostra quanti brani ha trovato finora.
@@ -60,7 +71,8 @@ di musica nuova, età musicale e decenni si spostano spesso più di quanto pensi
 
 No. La scheda viene calcolata sul telefono da quello che i tuoi servizi già restituiscono a
 Trackhop. Trackhop non ha un server; non esce niente dal telefono a meno che non condivida tu
-l'immagine.
+l'immagine. Quando il servizio non dice quando sono usciti i brani, i titoli vengono cercati in modo
+anonimo nel catalogo pubblico di Deezer.
 
 ## Altro nella scheda Scopri
 

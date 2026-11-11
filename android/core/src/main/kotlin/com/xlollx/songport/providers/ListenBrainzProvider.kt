@@ -5,6 +5,7 @@ import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.jsonObj
@@ -55,7 +56,21 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
             val why = runCatching { parseJson(resp.body)["error"].str ?: "" }.getOrElse { resp.body.take(160) }
             throw ProviderException("$displayName API ${resp.code}: $why")
         }
+        // 204: statistics not computed yet (a new account): nothing, rather than a parse error.
+        if (resp.code == 204 || resp.body.isBlank()) return kotlinx.serialization.json.JsonNull
         return parseJson(resp.body)
+    }
+
+    /**
+     * What the user played most in [period], for the Wrapped: ListenBrainz's statistics of the
+     * recordings and the artists, with their listens. Statistics not ready yet read as none.
+     */
+    suspend fun listening(ctx: Env, period: Listening.Period): Listening.Report {
+        val range = Listening.listenBrainzRange(period) ?: unsupported(ctx)
+        val user = Http.enc(creds(ctx).userName)
+        val (tracks, totalTracks) = Listening.listenBrainzTracks(api(ctx, "/1/stats/user/$user/recordings?range=$range&count=${Listening.TOP}"))
+        val (artists, totalArtists) = Listening.listenBrainzArtists(api(ctx, "/1/stats/user/$user/artists?range=$range&count=${Listening.TOP}"))
+        return Listening.Report(tracks, artists, totalTracks, totalArtists)
     }
 
     private fun token(ctx: Env): String? = creds(ctx).extra["token"]?.takeIf { it.isNotBlank() }

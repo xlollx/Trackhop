@@ -25,12 +25,53 @@ object DeezerCatalog {
                 cover(j["album"])?.let { return it }
             }
         }
+        return cover(searchHit(t)?.get("album"))
+    }
+
+    /** Release years and covers already looked up by [details], by song: asked once per run of the app. */
+    private val details = java.util.concurrent.ConcurrentHashMap<String, Listening.Details>()
+
+    /** Lookups for [details] go one at a time, spaced: a Wrapped asks for thirty songs, never in a burst. */
+    private val detailsPace = com.xlollx.songport.net.Pacer(250)
+
+    /**
+     * A song's release year and cover in Deezer's catalogue, for a Wrapped of listening whose
+     * service does not date its songs: by ISRC, else the search [coverUrl] makes and the found
+     * track's own page. What was found is kept for the app's run; null when nothing fits.
+     */
+    suspend fun details(t: Track): Listening.Details? {
+        val key = Wrapped.key(t)
+        details[key]?.let { return it }
+        val found = lookupDetails(t)?.takeIf { it.year > 0 || it.cover != null } ?: return null
+        if (details.size > 2_000) details.clear()
+        details[key] = found
+        return found
+    }
+
+    private suspend fun lookupDetails(t: Track): Listening.Details? {
+        suspend fun get(url: String) = detailsPace.paced { runCatching { Http.send("GET", url, maxRateLimitRetries = 0) }.getOrNull() }
+            ?.takeIf { it.ok && !it.body.contains("\"error\"") }?.let { runCatching { parseJson(it.body) }.getOrNull() }
+        t.isrcNorm?.let { isrc -> get("$API/track/isrc:$isrc")?.let { j -> return trackDetails(j) } }
+        val hit = searchHit(t) { url -> detailsPace.paced { runCatching { Http.send("GET", url, maxRateLimitRetries = 0) }.getOrNull() } } ?: return null
+        val page = hit["id"].long?.let { get("$API/track/$it") }
+        return Listening.Details(Durations.year(page["release_date"].str ?: page["album"]["release_date"].str), cover(hit["album"]))
+    }
+
+    /** A Deezer track's page: its release year and its album's cover. */
+    internal fun trackDetails(j: kotlinx.serialization.json.JsonElement?): Listening.Details =
+        Listening.Details(Durations.year(j["release_date"].str ?: j["album"]["release_date"].str), cover(j["album"]))
+
+    /** The search hit that is [t] (an exact enough match), or null. */
+    private suspend fun searchHit(
+        t: Track,
+        send: suspend (String) -> com.xlollx.songport.net.HttpResponse? = { url -> runCatching { Http.send("GET", url, maxRateLimitRetries = 0) }.getOrNull() },
+    ): kotlinx.serialization.json.JsonElement? {
         val artist = t.artists.firstOrNull()?.let { Matcher.searchArtist(it) }.orEmpty()
         val title = Matcher.searchTitle(t.title)
         if (title.isBlank()) return null
         // Deezer's artist:"…" filter answers nothing (#46): the title filtered, the artist as plain words.
         val q = if (artist.isBlank()) title else "track:\"$title\" $artist"
-        val resp = runCatching { Http.send("GET", "$API/search?limit=8&q=" + Http.enc(q), maxRateLimitRetries = 0) }.getOrNull() ?: return null
+        val resp = send("$API/search?limit=8&q=" + Http.enc(q)) ?: return null
         if (!resp.ok) return null
         val hits = parseJson(resp.body)["data"].arr
         val candidates = hits.mapNotNull { d ->
@@ -42,8 +83,7 @@ object DeezerCatalog {
             )
         }
         val best = Matcher.bestScored(t, candidates, 0.0)?.takeIf { it.score >= 0.80 } ?: return null
-        val hit = hits.firstOrNull { it["id"].long?.toString() == best.track.id } ?: return null
-        return cover(hit["album"])
+        return hits.firstOrNull { it["id"].long?.toString() == best.track.id }
     }
 
     /** Thumbnails YouTube serves for any video id without an API call: 1280×720, else 320×180 (no bars). */

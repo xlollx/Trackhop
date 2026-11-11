@@ -6,7 +6,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.FiberNew
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Search
@@ -90,6 +92,8 @@ import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.providers.brand
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.entries
 import com.xlollx.songport.providers.isConnected
 import com.xlollx.songport.providers.libraryEntries
@@ -99,6 +103,7 @@ import com.xlollx.songport.providers.tracks
 import com.xlollx.songport.sync.ServiceSearch
 import com.xlollx.songport.sync.UniversalLink
 import com.xlollx.songport.sync.Vanished
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Wrapped
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -180,7 +185,11 @@ private fun wrappedHeadline(ctx: Context, w: Wrapped.Saved): String =
 internal fun wrappedCard(ctx: Context, w: Wrapped.Saved): Cards.WrappedCard {
     val nf = NumberFormat.getIntegerInstance(locale(ctx))
     val res = ctx.resources
-    val tiles = buildList {
+    val tiles = if (w.listening) buildList {
+        if (w.plays > 0) add(nf.format(w.plays) to ctx.getString(R.string.discover_wrapped_plays_label))
+        add(nf.format(w.trackCount) to ctx.getString(R.string.discover_wrapped_songs_played))
+        if (w.artistCount > 0) add(nf.format(w.artistCount) to ctx.getString(R.string.discover_wrapped_artists))
+    } else buildList {
         add(nf.format(w.trackCount) to ctx.getString(R.string.discover_wrapped_tracks))
         if (w.artistCount > 0) add(nf.format(w.artistCount) to ctx.getString(R.string.discover_wrapped_artists))
         val hours = w.durationMs / 3_600_000
@@ -189,22 +198,32 @@ internal fun wrappedCard(ctx: Context, w: Wrapped.Saved): Cards.WrappedCard {
             w.durationMs >= 60_000 -> add(nf.format(w.durationMs / 60_000) to ctx.getString(R.string.discover_wrapped_minutes))
         }
     }
-    val facts = buildList {
+    val facts = if (w.listening) buildList {
+        w.topTracks.firstOrNull()?.let { add(ctx.getString(R.string.discover_wrapped_top_song) to songLine(it, withYear = false)) }
+        w.discovery?.let { add(ctx.getString(R.string.discover_wrapped_discovery) to it) }
+        w.oldest?.let { add(ctx.getString(R.string.discover_wrapped_oldest) to songLine(it, withYear = true)) }
+    } else buildList {
         w.oldest?.let { add(ctx.getString(R.string.discover_wrapped_oldest) to songLine(it, withYear = true)) }
         w.newest?.takeIf { n -> w.oldest?.let { it.title == n.title && it.artist == n.artist } != true }
             ?.let { add(ctx.getString(R.string.discover_wrapped_newest) to songLine(it, withYear = false)) }
     }
     return Cards.WrappedCard(
-        eyebrow = ctx.getString(R.string.discover_wrapped_eyebrow, w.year),
+        eyebrow = wrappedEyebrow(ctx, w),
         headline = wrappedHeadline(ctx, w),
         subline = w.bornIn?.let { ctx.getString(R.string.discover_wrapped_born, it) },
         artistsTitle = ctx.getString(R.string.discover_wrapped_top_artists),
-        artists = w.topArtists.map { it.name to res.getQuantityString(R.plurals.card_tracks, it.tracks, it.tracks) },
+        artists = w.topArtists.map {
+            it.name to when {
+                it.plays > 0 -> res.getQuantityString(R.plurals.discover_wrapped_plays, it.plays, it.plays)
+                w.listening -> ""
+                else -> res.getQuantityString(R.plurals.card_tracks, it.tracks, it.tracks)
+            }
+        },
         decadesTitle = ctx.getString(R.string.discover_wrapped_decades),
         decades = w.decades.map { ctx.getString(R.string.discover_wrapped_decade_label, it.decade) to it.percent },
         tiles = tiles,
         facts = facts,
-        servicesTitle = ctx.getString(R.string.discover_wrapped_services),
+        servicesTitle = wrappedSourceLine(ctx, w),
         services = w.services.map { Cards.Mark(it.name, it.color.toInt(), it.serviceId) },
     )
 }
@@ -226,6 +245,14 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     val labels = remember(services) { Wrapped.chipLabels(services.map(::connector)) }
     val skipped = data.settings.wrappedSkipped
     val chosenIds = Wrapped.chosen(services.map { it.id }, skipped).toSet()
+    // What it is made from: the best listening service connected (or the one chosen), else the playlists.
+    val listeners = remember { listeningSources(ctx) }
+    val source = if (data.settings.wrappedSource == WRAPPED_FROM_PLAYLISTS) null
+        else Listening.choose(listeners.map { it.first }, Listening.Source.of(data.settings.wrappedSource))
+    val period = source?.let { Listening.period(it, Listening.Period.of(data.settings.wrappedPeriod)) }
+    // A new sign-in (to give Spotify's permission) clears the note that asked for it.
+    val authVersion by com.xlollx.songport.auth.AuthEvents.version.collectAsState()
+    LaunchedEffect(authVersion) { if (!WrappedRun.busy) WrappedRun.missingScope = null }
     // The reading lives in [WrappedRun], not in this page: leaving the page (or the tab) while it
     // reads does not stop it, and the new Wrapped is there when the page is opened again.
     val busy = WrappedRun.busy
@@ -263,11 +290,14 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     }
 
     fun run() {
-        WrappedRun.error = null; WrappedRun.empty = false
-        WrappedRun.start(ctx.applicationContext, services.filter { it.id in chosenIds }) { saved ->
+        WrappedRun.error = null; WrappedRun.empty = false; WrappedRun.missingScope = null
+        val onDone = { saved: Wrapped.Saved ->
             store.update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
             shownId = saved.id
         }
+        val reader = listeners.firstOrNull { it.first == source }?.second
+        if (source != null && period != null && reader != null) WrappedRun.startListening(ctx.applicationContext, source, reader, period, onDone)
+        else WrappedRun.start(ctx.applicationContext, services.filter { it.id in chosenIds }, onDone)
     }
 
     fun delete(w: Wrapped.Saved) {
@@ -281,14 +311,14 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
 
     val id = LocalToolIdentity.current
     ToolIntro(stringResource(R.string.discover_wrapped_intro))
-    if (services.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
+    if (services.isEmpty() && listeners.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
 
     // The Wrapped on show (or the one being made): its story, card after card, then the card to share with its art.
     val result: @Composable () -> Unit = {
         if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
         else if (shown != null && card != null) {
-            WrappedStory(card, shown, covers.orEmpty(), stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))))
+            WrappedStory(card, shown, covers.orEmpty(), stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))) + " · " + wrappedSourceLine(ctx, shown))
             ToolShare(
                 bitmaps, "trackhop-wrapped", listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
                 busy = bitmaps == null || rendering, formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
@@ -308,11 +338,17 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
         }
     }
 
-    // A new one: the services to read, chosen every time (the last choice comes back ticked), then the older ones.
+    // A new one: what it is made from (a listening service and its period, or the playlists of the
+    // services ticked: the last choice comes back), then the older ones.
     val make: @Composable () -> Unit = {
-        if (services.isEmpty()) NoServices(stringResource(R.string.discover_no_services), onGoToAccounts)
+        if (listeners.isNotEmpty()) WrappedSourcePicker(
+            listeners, source, period ?: Listening.Period.MONTH, enabled = !busy,
+            onSource = { s -> store.updateSettings { it.copy(wrappedSource = s?.serviceId ?: WRAPPED_FROM_PLAYLISTS) } },
+            onPeriod = { p -> store.updateSettings { it.copy(wrappedPeriod = p.key) } },
+        )
+        if (source == null && services.isEmpty()) NoServices(stringResource(R.string.discover_no_services), onGoToAccounts)
         else {
-            ToolSection(stringResource(R.string.discover_wrapped_pick), hint = stringResource(R.string.discover_wrapped_pick_hint)) {
+            if (source == null) ToolSection(stringResource(R.string.discover_wrapped_pick), hint = stringResource(R.string.discover_wrapped_pick_hint)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     services.forEach { p ->
                         val on = p.id in chosenIds
@@ -339,6 +375,9 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
                 stringResource(if (history.isEmpty()) R.string.discover_wrapped_button else R.string.discover_wrapped_new),
                 onClick = { run() }, icon = Icons.Filled.AutoAwesome, busy = busy,
             )
+            WrappedRun.missingScope?.let { pid -> listeners.firstOrNull { it.second.id == pid }?.second }?.let { p ->
+                SpotifyScopeNote { com.xlollx.songport.auth.AuthFlow.start(ctx, p) }
+            }
             if (failed != null) ToolError(failed, onRetry = if (!busy) ({ run() }) else null)
             else if (empty) ToolError(stringResource(R.string.discover_wrapped_empty), onRetry = if (!busy) ({ run() }) else null)
         }
@@ -356,7 +395,10 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (selected) { Icon(Icons.Filled.CheckCircle, null, tint = id.tint(), modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)) }
-                                Text(df.format(Date(w.madeAt)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    df.format(Date(w.madeAt)) + (Listening.Period.of(w.period)?.let { " · " + periodLabel(ctx, it) } ?: ""),
+                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
                             Text(wrappedHeadline(ctx, w), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             w.topArtist?.let { Text("♪ $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
@@ -394,6 +436,10 @@ private fun WrappedStory(card: Cards.WrappedCard, w: Wrapped.Saved, covers: List
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val id = LocalToolIdentity.current
     val white = androidx.compose.ui.graphics.Color.White
+    // The facts' icons, in the order [wrappedCard] puts them.
+    val factIcons = if (w.listening) listOfNotNull(
+        Icons.Filled.MusicNote.takeIf { w.topTracks.isNotEmpty() }, Icons.Filled.Explore.takeIf { w.discovery != null }, Icons.Filled.History.takeIf { w.oldest != null },
+    ) else listOf(Icons.Filled.History.takeIf { w.oldest != null }, Icons.Filled.FiberNew).filterNotNull()
     // 1. The headline.
     Box(Modifier.fillMaxWidth().clip(ToolHeroShape).background(id.brush).background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.14f)).semantics(mergeDescendants = true) {}) {
         Column(Modifier.padding(start = 22.dp, end = 22.dp, top = 20.dp, bottom = 20.dp)) {
@@ -446,7 +492,7 @@ private fun WrappedStory(card: Cards.WrappedCard, w: Wrapped.Saved, covers: List
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text(count, style = MaterialTheme.typography.bodyMedium, color = id.tint(), fontWeight = FontWeight.SemiBold)
+                        if (count.isNotEmpty()) Text(count, style = MaterialTheme.typography.bodyMedium, color = id.tint(), fontWeight = FontWeight.SemiBold)
                     }
                     Text("1", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = id.tint().copy(alpha = 0.45f))
                 } else {
@@ -461,6 +507,8 @@ private fun WrappedStory(card: Cards.WrappedCard, w: Wrapped.Saved, covers: List
             }
         }
     }
+    // 3b. The songs played most, with their covers (a Wrapped of listening).
+    WrappedTopSongs(w.topTracks)
     // 4. The decades, as bars in the story's colours.
     if (card.decades.isNotEmpty()) ToolSection(card.decadesTitle) {
         card.decades.forEachIndexed { i, (label, share) ->
@@ -482,7 +530,7 @@ private fun WrappedStory(card: Cards.WrappedCard, w: Wrapped.Saved, covers: List
             card.facts.forEachIndexed { i, (label, value) ->
                 Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(40.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)).background(WRAPPED_HUES[(i + 1) % WRAPPED_HUES.size].copy(alpha = 0.22f)), contentAlignment = Alignment.Center) {
-                        Icon(if (i == 0) Icons.Filled.History else Icons.Filled.FiberNew, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(22.dp))
+                        Icon(factIcons.getOrElse(i) { Icons.Filled.History }, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(22.dp))
                     }
                     Spacer(Modifier.width(12.dp))
                     Column {
@@ -1007,6 +1055,8 @@ internal object WrappedRun {
     /** A failure or an empty result not yet told to the person (the page says it when it shows). */
     var error by mutableStateOf<String?>(null)
     var empty by mutableStateOf(false)
+    /** The connector (Spotify's) that refused the top songs for want of a permission: the page offers a new sign-in. */
+    var missingScope by mutableStateOf<String?>(null)
 
     /** How long the covers are looked up at most, after the reading. */
     private const val COVER_WAIT_MS = 25_000L
@@ -1050,6 +1100,50 @@ internal object WrappedRun {
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 error = errorText(ctx, e)
             }
+            busy = false
+        }
+    }
+
+    /**
+     * A Wrapped of what was listened to in [period], read from [p] ([source]'s connector): its
+     * top songs and artists, then the years and covers it did not give, looked up one song at a
+     * time ([Listening.fill]), shown as [p]'s progress.
+     */
+    fun startListening(ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period, onDone: (Wrapped.Saved) -> Unit) {
+        if (busy) return
+        busy = true; reading = emptyMap(); current = p.id; coverSearch = false; readingFrom = listOf(p); missingScope = null
+        scope.launch {
+            try {
+                val env = ctx.env
+                val report = when (source) {
+                    Listening.Source.LASTFM -> (p as com.xlollx.songport.providers.LastFmProvider).listening(env, period)
+                    Listening.Source.LISTENBRAINZ -> (p as com.xlollx.songport.providers.ListenBrainzProvider).listening(env, period)
+                    Listening.Source.SPOTIFY -> (p as com.xlollx.songport.providers.SpotifyProvider).listening(env, period)
+                    // The recent plays: their videos' own pictures as covers.
+                    Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID)).let { r ->
+                        r.copy(tracks = r.tracks.map { it.copy(cover = com.xlollx.songport.sync.DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
+                    }
+                }
+                val songs = report.tracks.size
+                if (songs == 0) error = ctx.getString(R.string.discover_wrapped_no_plays, p.brand)
+                else {
+                    val filled = Listening.fill(report, onProgress = { done, total -> reading = mapOf(p.id to Triple(done, total, songs)) }) {
+                        com.xlollx.songport.sync.DeezerCatalog.details(it)
+                    }
+                    current = null
+                    val saved = Wrapped.fromListening(
+                        filled, Wrapped.services(listOf(connector(p))).first(), period,
+                        Calendar.getInstance().get(Calendar.YEAR), System.currentTimeMillis(),
+                    )
+                    Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
+                    runCatching { onDone(saved) }
+                }
+            } catch (e: CancellationException) { throw e } catch (_: Listening.MissingScope) {
+                missingScope = p.id
+            } catch (e: Exception) {
+                error = errorText(ctx, e)
+            }
+            current = null
             busy = false
         }
     }

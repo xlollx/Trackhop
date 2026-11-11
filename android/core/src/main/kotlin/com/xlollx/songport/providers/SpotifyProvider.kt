@@ -6,6 +6,7 @@ import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.model.UnplayableEntry
 import com.xlollx.songport.sync.Unplayable
 import com.xlollx.songport.net.Http
@@ -64,7 +65,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
     override val tokenEndpoint = "https://accounts.spotify.com/api/token"
     override val scopes =
         "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public " +
-            "user-library-read user-library-modify user-follow-read user-follow-modify user-read-recently-played ugc-image-upload"
+            "user-library-read user-library-modify user-follow-read user-follow-modify user-read-recently-played ugc-image-upload user-top-read"
     // Forces the consent page, which names the signed-in account and offers "Not you?" to switch.
     override val switchAccountParams = mapOf("show_dialog" to "true")
 
@@ -154,6 +155,23 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
         MusicProvider.PODCASTS_ID -> api(ctx, "GET", "$API/me/shows?limit=1").let { "${it["total"].int}|${it["items"][0]["added_at"].str}" }
         MusicProvider.RECENT_ID -> null
         else -> api(ctx, "GET", "$API/playlists/$playlistId?fields=snapshot_id")["snapshot_id"].str
+    }
+
+    /**
+     * What the user played most in [period], for the Wrapped: Spotify's top tracks and artists
+     * (ranked, not counted). A sign-in made before the permission was asked for is refused:
+     * [Listening.MissingScope], so the app can offer a new sign-in.
+     */
+    suspend fun listening(ctx: Env, period: Listening.Period): Listening.Report {
+        val range = Listening.spotifyRange(period) ?: throw IllegalArgumentException("no Spotify range for $period")
+        try {
+            val tracks = Listening.spotifyTracks(api(ctx, "GET", "$API/me/top/tracks?limit=${Listening.TOP}&time_range=$range"))
+            val artists = Listening.spotifyArtists(api(ctx, "GET", "$API/me/top/artists?limit=${Listening.TOP}&time_range=$range"))
+            return Listening.Report(tracks, artists)
+        } catch (e: ProviderException) {
+            if (e.code == 403 && e.message.orEmpty().contains("scope", ignoreCase = true)) throw Listening.MissingScope()
+            throw e
+        }
     }
 
     /** The last fifty plays, newest first, a track once. */

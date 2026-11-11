@@ -100,6 +100,10 @@ data class Settings(
     val whatsNewSeen: String = "",
     /** Connectors (provider ids) the user left out of the Wrapped: the chips start from this choice next time. */
     val wrappedSkipped: Set<String> = emptySet(),
+    /** What the Wrapped reads: a listening service's id, "playlists", or "" for the best one connected. */
+    val wrappedSource: String = "",
+    /** The period last chosen for a Wrapped of listening ([com.xlollx.songport.sync.Listening.Period.key]); "" = a month. */
+    val wrappedPeriod: String = "",
     /** The "Did you know?" pill on Syncs (widgets, shortcuts, automation) was closed or opened: not shown again. */
     val tipsPillDismissed: Boolean = false,
     /**

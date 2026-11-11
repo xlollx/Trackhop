@@ -25,6 +25,7 @@ object Wrapped {
     /** Artists and decades kept in a Wrapped. */
     const val TOP_ARTISTS = 5
     const val TOP_DECADES = 4
+    const val TOP_TRACKS = 5
 
     /** Wrapped kept in the history. */
     const val MAX_HISTORY = 20
@@ -33,17 +34,17 @@ object Wrapped {
     const val MAX_COVERS = 9
     const val COVER_LOOKUPS = 24
 
-    /** An artist and the different songs of theirs in the playlists. */
+    /** An artist and the different songs of theirs in the playlists; in a Wrapped of listening, [plays] (0: not counted). */
     @Serializable
-    data class Artist(val name: String, val tracks: Int)
+    data class Artist(val name: String, val tracks: Int, val plays: Int = 0)
 
     /** A decade (its first year, 1990), its songs and their share of the dated songs, in whole percent. */
     @Serializable
     data class Decade(val decade: Int, val tracks: Int, val percent: Int)
 
-    /** A song named on the card: the oldest one, the one added last. */
+    /** A song named on the card: the oldest one, the one added last; in a Wrapped of listening, a top song with its [plays] (0: not counted) and [cover]. */
     @Serializable
-    data class Song(val title: String, val artist: String, val year: Int = 0, val addedAt: Long = 0)
+    data class Song(val title: String, val artist: String, val year: Int = 0, val addedAt: Long = 0, val plays: Int = 0, val cover: String = "")
 
     /** A service as the Wrapped shows it: its plain brand name, the id that picks its glyph, its colour (ARGB). */
     @Serializable
@@ -98,8 +99,20 @@ object Wrapped {
          * best first, for the card's art and colours; empty in a Wrapped made before they were kept.
          */
         val covers: List<String> = emptyList(),
+        /**
+         * What was listened to in a period ([Listening.Period.key]), read from the one service in
+         * [services]; "" = made from the playlists (every Wrapped made before listening was read).
+         */
+        val period: String = "",
+        /** The plays in the period, when the service counts them (0: not said). */
+        val plays: Int = 0,
+        /** The songs played most, up to [TOP_TRACKS], in a Wrapped of listening. */
+        val topTracks: List<Song> = emptyList(),
+        /** The artist played most that was not heard in the period before, when the service can tell. */
+        val discovery: String? = null,
     ) {
         val topArtist: String? get() = topArtists.firstOrNull()?.name
+        val listening: Boolean get() = period.isNotEmpty()
     }
 
     /** The year one "is born in" and the age it gives in [currentYear]. */
@@ -160,6 +173,60 @@ object Wrapped {
         topArtists = s.topArtists, decades = s.decades, artistCount = s.artistCount, durationMs = s.durationMs,
         oldest = s.oldest, newest = s.newest, services = services, covers = covers(covers),
     )
+
+    // ------------------------------------------------------------------ listening
+
+    /**
+     * A Wrapped of what was listened to ([Listening.Report], its years and covers already looked
+     * up): the top songs and artists as the service ranks them, and the musical age and decades of
+     * the songs played, each song weighing as many plays as it had (one, where the service does
+     * not count). [source] is the service read, [covers] the art's covers (the top songs' first).
+     */
+    fun fromListening(
+        r: Listening.Report, source: Service, period: Listening.Period, currentYear: Int, madeAt: Long,
+        id: String = madeAt.toString(36),
+    ): Saved {
+        val plays = r.tracks.filter { it.track.title.isNotBlank() }.distinctBy { key(it.track) }
+        val weight = { p: Listening.Play -> p.plays.coerceAtLeast(1) }
+        val validYear = 1900..(currentYear + 1)
+        val dated = plays.filter { it.track.year in validYear }
+        val total = dated.sumOf { weight(it) }
+        val decades = dated.groupBy { it.track.year / 10 * 10 }.entries
+            .map { (d, ps) -> Triple(d, ps.size, ps.sumOf { weight(it) }) }
+            .sortedWith(compareByDescending<Triple<Int, Int, Int>> { it.third }.thenBy { it.first })
+            .take(TOP_DECADES).map { (d, n, w) -> Decade(d, n, Math.round(w * 100.0 / total).toInt()) }
+        val median = weightedMedian(dated.map { it.track.year to weight(it) })
+        val age = median?.takeIf { dated.size >= MIN_DATED }?.let { musicalAge(it, currentYear) }
+        fun song(p: Listening.Play) = Song(
+            p.track.title.trim(), p.track.artists.firstOrNull { it.isNotBlank() }?.trim().orEmpty(), p.track.year,
+            plays = p.plays, cover = p.cover.orEmpty(),
+        )
+        return Saved(
+            id = id, madeAt = madeAt, year = currentYear,
+            trackCount = r.totalTracks.takeIf { it > 0 } ?: plays.size,
+            age = age?.second, bornIn = age?.first,
+            topArtists = r.artists.take(TOP_ARTISTS).map { Artist(it.name, 0, it.plays) },
+            decades = decades,
+            artistCount = r.totalArtists.takeIf { it > 0 } ?: r.artists.size,
+            oldest = dated.minByOrNull { it.track.year }?.let(::song),
+            services = listOf(source),
+            covers = covers(plays.map { it.cover }),
+            period = period.key, plays = r.totalPlays,
+            topTracks = plays.take(TOP_TRACKS).map(::song),
+            discovery = Listening.discovery(r),
+        )
+    }
+
+    /** The middle year when each year counts as often as its weight (the lower one for an even total); null for none. */
+    fun weightedMedian(years: List<Pair<Int, Int>>): Int? {
+        val s = years.filter { it.second > 0 }.sortedBy { it.first }
+        val total = s.sumOf { it.second.toLong() }
+        if (total == 0L) return null
+        val mid = (total - 1) / 2
+        var seen = 0L
+        for ((y, w) in s) { seen += w; if (seen > mid) return y }
+        return s.last().first
+    }
 
     // ------------------------------------------------------------------ covers
 

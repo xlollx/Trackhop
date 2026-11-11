@@ -6,6 +6,7 @@ import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
@@ -179,6 +180,26 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
         } while (page <= pages && page <= 50)
         return out
     }
+
+    /**
+     * What the user played most in [period], for the Wrapped: the top songs and artists with their
+     * scrobbles, the period's plays and the artists of the period before (for its discovery; one
+     * weekly chart spanning it). The last two are extras: without them the Wrapped still stands.
+     */
+    suspend fun listening(ctx: Env, period: Listening.Period): Listening.Report {
+        val p = Listening.lastFmPeriod(period) ?: unsupported(ctx)
+        val user = creds(ctx).userName
+        val (tracks, totalTracks) = Listening.lastFmTracks(call(ctx, mapOf("method" to "user.gettoptracks", "user" to user, "period" to p, "limit" to "${Listening.TOP}")))
+        val (artists, totalArtists) = Listening.lastFmArtists(call(ctx, mapOf("method" to "user.gettopartists", "user" to user, "period" to p, "limit" to "${Listening.TOP}")))
+        val now = System.currentTimeMillis() / 1000
+        val span = period.days * 86_400L
+        val plays = extra { Listening.lastFmTotal(call(ctx, mapOf("method" to "user.getrecenttracks", "user" to user, "from" to "${now - span}", "limit" to "1"))) } ?: 0
+        val before = extra { Listening.lastFmBefore(call(ctx, mapOf("method" to "user.getweeklyartistchart", "user" to user, "from" to "${now - 2 * span}", "to" to "${now - span}"))) }
+        return Listening.Report(tracks, artists, totalTracks, totalArtists, plays, before)
+    }
+
+    private suspend fun <T> extra(block: suspend () -> T): T? =
+        try { block() } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
 
     /** Last.fm's JSON comes from its XML: a list of one arrives as the object itself, not an array of one. */
     private fun list(e: JsonElement?): List<JsonElement> = if (e is kotlinx.serialization.json.JsonObject) listOf(e) else e.arr
