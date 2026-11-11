@@ -130,6 +130,7 @@ data class QuotaDay(val day: String, val units: Long)
 
 @Serializable
 data class StoreData(
+    /** Every job, the one-off transfers ([SyncJob.oneOff]) included: what the user calls syncs are [syncs]. */
     val jobs: List<SyncJob> = emptyList(),
     /** Ultimi report, dal piu' recente. */
     val reports: List<SyncReport> = emptyList(),
@@ -184,7 +185,10 @@ data class StoreData(
     val serverPairs: Map<String, String> = emptyMap(),
     /** The shared playlists this device takes part in (see shared/SharedGroups); their logs live in files of their own. */
     val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
-)
+) {
+    /** The user's syncs: [jobs] without the one-off transfers ([SyncJob.oneOff]), which never show or run as syncs. */
+    val syncs: List<SyncJob> get() = jobs.filterNot { it.oneOff }
+}
 
 /**
  * One entry of the "Missing on my server" list as this device remembers it: when it first showed up,
@@ -307,7 +311,15 @@ open class FileStore(dir: File) {
         d.copy(jobs = rest.take(at) + job + rest.drop(at))
     }
 
-    fun deleteJob(id: String) = update { d ->
+    fun deleteJob(id: String) = update { d -> withoutJob(d, id) }
+
+    /** Deletes the one-off transfers over ([com.xlollx.songport.sync.OneOffs.over]); their target playlists are not touched. */
+    fun dropOldOneOffs(now: Long = System.currentTimeMillis()) {
+        if (com.xlollx.songport.sync.OneOffs.over(data, now).isEmpty()) return
+        update { d -> com.xlollx.songport.sync.OneOffs.over(d, now).fold(d) { acc, id -> withoutJob(acc, id) } }
+    }
+
+    private fun withoutJob(d: StoreData, id: String) =
         d.copy(
             jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id,
             pairStates = d.pairStates.filterKeys { id !in it.split('|') },
@@ -315,7 +327,6 @@ open class FileStore(dir: File) {
             handedOver = d.handedOver - id,
             serverPairs = d.serverPairs - id,
         )
-    }
 
     /** The common state of the pair [job] is half of, when it is still about [job]'s two playlists; null otherwise. */
     fun pairState(job: SyncJob): PairState? {
@@ -375,7 +386,12 @@ open class FileStore(dir: File) {
     fun report(id: String): SyncReport? = data.reports.firstOrNull { it.id == id }
 
     fun updateReport(id: String, fn: (SyncReport) -> SyncReport) = update { d ->
-        d.copy(reports = d.reports.map { if (it.id == id) fn(it) else it })
+        val before = d.reports.firstOrNull { it.id == id }
+        val next = d.copy(reports = d.reports.map { if (it.id == id) fn(it) else it })
+        val after = next.reports.firstOrNull { it.id == id }
+        // A one-off transfer whose review is done (nothing left to review) goes: its report stays in the log.
+        if (before != null && after != null && com.xlollx.songport.sync.OneOffs.reviewed(before, after) && next.jobs.any { it.id == after.jobId && it.oneOff }) withoutJob(next, after.jobId)
+        else next
     }
 
     fun updateSettings(fn: (Settings) -> Settings) = update { d -> d.copy(settings = fn(d.settings)) }

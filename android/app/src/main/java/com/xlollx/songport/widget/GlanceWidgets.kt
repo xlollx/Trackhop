@@ -97,7 +97,7 @@ object Widgets {
     fun rows(ctx: Context): List<Row> {
         val data = Store.get(ctx).data
         val running = SyncState.running.value.keys
-        return data.jobs.filter { !it.twin }.map { row(ctx, it, running) }
+        return data.syncs.filter { !it.twin }.map { row(ctx, it, running) }
     }
 
     fun row(ctx: Context, job: SyncJob, running: Set<String> = SyncState.running.value.keys): Row {

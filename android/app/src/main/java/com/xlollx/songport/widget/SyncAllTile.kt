@@ -66,7 +66,7 @@ class SyncAllTile : TileService() {
     override fun onClick() {
         super.onClick()
         val data = Store.get(this).data
-        if (data.jobs.none { it.enabled }) return
+        if (data.syncs.none { it.enabled }) return
         if (SyncState.running.value.isNotEmpty()) {
             openSyncs()
             return
@@ -94,7 +94,7 @@ class SyncAllTile : TileService() {
     private data class Shown(val jobs: Int, val enabled: Int, val busy: Boolean, val lastRun: Long) {
         companion object {
             fun of(data: StoreData, busy: Boolean) = Shown(
-                data.jobs.size, data.jobs.count { it.enabled }, busy, data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L,
+                data.syncs.size, data.syncs.count { it.enabled }, busy, data.syncs.maxOfOrNull { it.lastRunEpoch } ?: 0L,
             )
         }
     }

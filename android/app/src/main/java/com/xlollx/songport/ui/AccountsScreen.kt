@@ -144,7 +144,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
     }
 
     fun remove(p: MusicProvider) {
-        val inUse = data.jobs.any { it.source.provider == p.id || it.target.provider == p.id }
+        val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id }
         if (inUse) {
             scope.launch { snackbar.showSnackbar(ctx.getString(R.string.account_remove_blocked)) }
             return

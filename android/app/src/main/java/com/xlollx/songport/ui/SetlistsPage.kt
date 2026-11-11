@@ -130,8 +130,9 @@ internal object SetlistsKept {
 /**
  * Discover › Setlists: a playlist, then the latest setlists of its artists ([Setlists]): setlist.fm's
  * with a key, MusicBrainz's without one. One picked goes to a service, as a new playlist or added to
- * one of the user's: only where to put it is asked (the setlist is the source), and a sync run once
- * does it, kept in Syncs for its review. Asked only when the user taps: never in the background.
+ * one of the user's: only where to put it is asked (the setlist is the source), and a one-off
+ * transfer run once does it ([com.xlollx.songport.sync.OneOffs]): not a sync, its review is here,
+ * in its notification and in Tools › Recent transfers. Asked only when the user taps: never in the background.
  * Each setlist links to its page where it comes from, and the page says where that is.
  */
 @Composable
@@ -325,7 +326,7 @@ private fun SendSetlist(s: Setlists.Setlist, snackbar: SnackbarHostState) {
     }
 }
 
-/** The setlist as a File playlist, and a sync from it to [target] run once now (kept in Syncs for its review). */
+/** The setlist as a File playlist, and a one-off transfer from it to [target] run now (not a sync: Tools › Recent transfers keeps it for its review). */
 private fun send(ctx: Context, s: Setlists.Setlist, target: PlaylistRef) {
     val app = ctx.applicationContext
     val name = Setlists.playlistName(s)

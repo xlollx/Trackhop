@@ -2420,4 +2420,9 @@
         <item quantity="one">%d novidade dos seus artistas</item>
         <item quantity="other">%d novidades dos seus artistas</item>
     </plurals>
+    <!-- Tools › Recent transfers: one-off transfers (a setlist to a playlist), not syncs. -->
+    <string name="recent_transfers_title">Transferências recentes</string>
+    <string name="recent_transfers_row">Setlists enviados para uma playlist, com a revisão</string>
+    <string name="recent_transfers_intro">Transferências únicas, como um setlist virando playlist: não são syncs. Cada uma fica aqui por uma semana ou até você revisar as músicas não encontradas. Excluir deixa a playlist como está.</string>
+    <string name="recent_transfers_none">Nenhuma transferência recente.</string>
 </resources>

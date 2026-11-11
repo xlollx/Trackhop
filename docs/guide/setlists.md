@@ -25,8 +25,10 @@ In the app: **Discover › Setlists**. On Docker and Desktop: **Tools › Setlis
 Under the concert, **Make a playlist** asks only where: pick the service and Trackhop creates the
 playlist there. **Add to a playlist** asks for one of your playlists instead and adds only the songs
 not already in it. Either way you see what was added, what was already there and what was not
-found, with **Start now** to fix the songs not found. The setlist is kept as a File playlist and
-the sync stays in Syncs, so you can run it again.
+found, with **Start now** to fix the songs not found. It is a one-off transfer, not a sync: it
+doesn't appear in Syncs. Its notification opens the songs to fix, and **Tools › Recent transfers**
+keeps the last 20 with their summary and review for a week (or until the review is done); deleting
+one there leaves the playlist as it is. The setlist itself is kept as a File playlist.
 
 In the app this works with or without a key; on Docker and Desktop the setlist opens the editor
 of a new sync, as for any sync.

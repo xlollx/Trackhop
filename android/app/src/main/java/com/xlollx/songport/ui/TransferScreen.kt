@@ -98,8 +98,8 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
     }
 
     // Sync gia' esistenti da questa origine verso la destinazione scelta, per playlist.
-    val existing = remember(srcId, dstId, store.data.jobs) {
-        store.data.jobs.filter { it.source.provider == srcId && it.target.provider == dstId && it.source.playlistId != null }
+    val existing = remember(srcId, dstId, store.data.syncs) {
+        store.data.syncs.filter { it.source.provider == srcId && it.target.provider == dstId && it.source.playlistId != null }
             .associateBy { it.source.playlistId!! }
     }
 

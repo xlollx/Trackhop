@@ -36,7 +36,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
         val batch = inputData.getStringArray(KEY_JOBS)
         val jobs = when {
             batch != null -> batch.mapNotNull { store.job(it) }
-            jobId == ALL -> store.data.jobs.filter { it.enabled }
+            jobId == ALL -> store.data.syncs.filter { it.enabled }
             else -> listOfNotNull(store.job(jobId))
         }.filter {
             // Handed over to the user's server: it runs there, never here too (ServerLink).
@@ -93,7 +93,8 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                     SupportPrompt.offer(store, report)
                     com.xlollx.songport.automation.Automation.announce(ctx, report)
                     val notable = report.added > 0 || report.removed > 0 || !report.ok
-                    if (!networkGone && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok) && notable) {
+                    // A one-off transfer (a setlist to a playlist) always says how it went: its review opens from there.
+                    if (!networkGone && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok || job.oneOff) && (notable || job.oneOff)) {
                         Notifications.syncResult(ctx, report)
                     }
                     // The channels set up in Settings › Notification channels (Telegram, ntfy…): sent here, before the

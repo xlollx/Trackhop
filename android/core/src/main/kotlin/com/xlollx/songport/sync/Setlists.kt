@@ -431,10 +431,14 @@ object Setlists {
     /**
      * The sync that takes a setlist (a File playlist, [fileId]) to [target]: a new playlist there
      * (no playlist id) or one of the user's, where only the songs not already in it are added
-     * (nothing is ever removed). Run once by hand; it stays in Syncs, where its songs not found are reviewed.
+     * (nothing is ever removed). A one-off transfer ([OneOffs]), run once: not a sync, its songs not
+     * found are reviewed from the page, its notification or Tools › Recent transfers.
      */
-    fun job(id: String, name: String, fileId: String, target: PlaylistRef): SyncJob =
-        SyncJob(id = id, name = target.playlistName.ifBlank { name }, source = PlaylistRef(LocalFilesProvider.id, fileId, fileId), target = target.copy(playlistName = target.playlistName.ifBlank { name }))
+    fun job(id: String, name: String, fileId: String, target: PlaylistRef, now: Long = System.currentTimeMillis()): SyncJob =
+        SyncJob(
+            id = id, name = target.playlistName.ifBlank { name }, source = PlaylistRef(LocalFilesProvider.id, fileId, fileId),
+            target = target.copy(playlistName = target.playlistName.ifBlank { name }), oneOff = true, createdEpoch = now,
+        )
 
     /** After the run: songs added, already in the playlist, not found. */
     data class Summary(val added: Int, val alreadyThere: Int, val notFound: Int)

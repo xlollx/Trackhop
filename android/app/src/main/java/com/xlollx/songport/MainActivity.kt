@@ -289,6 +289,8 @@ class MainActivity : ComponentActivity() {
         }
         // A sync tapped in a widget: the Syncs tab, scrolled to its card, which lights up.
         i?.getStringExtra(EXTRA_FOCUS_JOB)?.let { com.xlollx.songport.ui.JobFocus.request.value = it; tabRequests.value = TAB_SYNCS; i.removeExtra(EXTRA_FOCUS_JOB) }
+        // A one-off transfer's notification: the review of its songs not found.
+        i?.getStringExtra(EXTRA_REVIEW)?.let { com.xlollx.songport.ui.ReviewFocus.request.value = it; i.removeExtra(EXTRA_REVIEW) }
         // A connector to sign in to again (its notification): the Accounts tab, scrolled to its card.
         i?.getStringExtra(EXTRA_FOCUS_CONNECTOR)?.let { com.xlollx.songport.ui.ConnectorFocus.request.value = it; tabRequests.value = TAB_ACCOUNTS; i.removeExtra(EXTRA_FOCUS_CONNECTOR) }
     }
@@ -307,6 +309,8 @@ class MainActivity : ComponentActivity() {
         const val RELEASES_PREFIX = "https://github.com/xlollx/Trackhop/releases"
         const val RELEASES_URL = "$RELEASES_PREFIX/latest"
         const val EXTRA_FOCUS_JOB = "focusJob"
+        /** A report to review (a one-off transfer's notification). */
+        const val EXTRA_REVIEW = "review"
         const val EXTRA_FOCUS_CONNECTOR = "focusConnector"
         const val TOOL_UNPLAYABLE = "unplayable"
         /** Not a tool: the alerts' notification asks this way for Discover › Followed artists. */
@@ -348,7 +352,7 @@ private fun MainScreen(
     // What saving a sync does, from the editor or from a card's menu: stored, and its scheduled work
     // brought in line with it (cancelled when it is off or manual).
     fun saveJob(job: SyncJob) {
-        val warning = when (val c = com.xlollx.songport.sync.JobConflicts.of(store.data.jobs, job)) {
+        val warning = when (val c = com.xlollx.songport.sync.JobConflicts.of(store.data.syncs, job)) {
             is com.xlollx.songport.sync.JobConflicts.Conflict.Duplicate -> ctx.getString(R.string.conflict_duplicate, c.other.name)
             is com.xlollx.songport.sync.JobConflicts.Conflict.SharedTarget -> ctx.getString(R.string.conflict_shared_target, c.others.joinToString(", ") { it.name })
             null -> null
@@ -536,6 +540,8 @@ private fun MainScreen(
     // Esiti dei login che non tornano da un'Activity (flusso loopback di Google).
     val authMessage by AuthEvents.message.collectAsState()
     LaunchedEffect(authMessage) { authMessage?.let { snackbar.showSnackbar(it); AuthEvents.consume() } }
+    val reviewAsked by com.xlollx.songport.ui.ReviewFocus.request.collectAsState()
+    LaunchedEffect(reviewAsked) { reviewAsked?.let { unmatchedReport = it; com.xlollx.songport.ui.ReviewFocus.request.value = null } }
     // A setlist made on setlist.fm's own site in the app: its page (Discover › Setlists) shows it.
     LaunchedEffect(com.xlollx.songport.ui.SetlistsKept.showBrowsed) { if (com.xlollx.songport.ui.SetlistsKept.showBrowsed) tab = MainActivity.TAB_DISCOVER }
     val requestedTab by tabRequests.collectAsState()
@@ -817,7 +823,7 @@ private fun MainScreen(
                         MainActivity.TAB_SYNCS -> {
                             com.xlollx.songport.ui.UpdatePill()
                             com.xlollx.songport.ui.CoffeePill()
-                            if (data.jobs.isNotEmpty()) com.xlollx.songport.ui.HelpButton(
+                            if (data.syncs.isNotEmpty()) com.xlollx.songport.ui.HelpButton(
                                 Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow, label = stringResource(R.string.help_cards_title),
                             )
                         }
@@ -945,7 +951,7 @@ private fun MainScreen(
                     },
                     onReview = { unmatchedReport = it },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false }, onReview = { unmatchedReport = it })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } } }

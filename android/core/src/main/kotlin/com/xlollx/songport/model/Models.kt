@@ -171,6 +171,15 @@ data class SyncJob(
     val label: String? = null,
     /** The user's tags, key to value ("genre" to "metal"); the value may be empty (a key alone). */
     val tags: Map<String, String> = emptyMap(),
+    /**
+     * A one-off transfer (a setlist made a playlist, or added to one), run once: never shown or run
+     * as a sync (the Syncs list and its counters, widgets, Sync all, schedules, stats, backups), kept
+     * for its summary and review in Tools › Recent transfers, and deleted once reviewed or after a
+     * week ([com.xlollx.songport.sync.OneOffs]).
+     */
+    val oneOff: Boolean = false,
+    /** When a [oneOff] was made (epoch ms). */
+    val createdEpoch: Long = 0,
 )
 
 /**

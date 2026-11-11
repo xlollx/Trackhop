@@ -2413,4 +2413,9 @@
         <item quantity="one">%d update from your artists</item>
         <item quantity="other">%d updates from your artists</item>
     </plurals>
+    <!-- Tools › Recent transfers: one-off transfers (a setlist to a playlist), not syncs. -->
+    <string name="recent_transfers_title">Recent transfers</string>
+    <string name="recent_transfers_row">Setlists sent to a playlist, with their review</string>
+    <string name="recent_transfers_intro">One-off transfers, like a setlist made into a playlist: not syncs. Each one stays here for a week, or until its songs not found are reviewed. Deleting one leaves the playlist as it is.</string>
+    <string name="recent_transfers_none">No recent transfers.</string>
 </resources>

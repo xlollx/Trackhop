@@ -230,7 +230,7 @@ fun SyncsScreen(
     val stoppingSet by SyncState.stopping.collectAsState()
     // Find and filter: kept across rotation; only in use from FIND_MIN_SYNCS syncs on.
     var filter by rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) }
-    if (data.jobs.isEmpty()) {
+    if (data.syncs.isEmpty()) {
         val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
         // With a service connected: what one service alone can do, a tap away, under the usual words.
         val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
@@ -264,7 +264,7 @@ fun SyncsScreen(
         }
         return
     }
-    val lastRun = data.jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L
+    val lastRun = data.syncs.maxOfOrNull { it.lastRunEpoch } ?: 0L
     // One column on a phone, as ever; two or three side by side in a wider window, and always two on
     // a phone on its side. A grid either way, so the order, the dragging and the scrolling are the same code.
     // The minimal view: tiles in as many columns as fit (two on a phone). The cards are as big as
@@ -284,7 +284,7 @@ fun SyncsScreen(
     // The order as shown: starred syncs first (unless turned off in Settings › Appearance). Positions
     // (a drag, "Move to") are places in this order.
     val onTop = data.settings.favoritesOnTop
-    val order = remember(data.jobs, onTop) { com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, onTop).map { it.id } }
+    val order = remember(data.syncs, onTop) { com.xlollx.songport.sync.Labels.favoritesFirst(data.syncs, onTop).map { it.id } }
     val lastOrder = remember { arrayOf(order) }
     SideEffect {
         if (order != lastOrder[0]) {
@@ -325,7 +325,7 @@ fun SyncsScreen(
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
     // old order was taken for "no change" and the card snapped back).
-    val orderNow = { Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.favoritesFirst(d.jobs, d.settings.favoritesOnTop).map { it.id } } }
+    val orderNow = { Store.get(ctx).data.let { d -> com.xlollx.songport.sync.Labels.favoritesFirst(d.syncs, d.settings.favoritesOnTop).map { it.id } } }
     val reorder = rememberReorderableLazyGridState(listState) { from, to ->
         val o = (dragOrder ?: orderNow()).toMutableList()
         val a = o.indexOf(from.key as? String); val b = o.indexOf(to.key as? String)
@@ -351,9 +351,9 @@ fun SyncsScreen(
     var flashing by remember { mutableStateOf<String?>(null) }
     // "Up to date" is checked, not assumed: each sync's source against its last run, when the list
     // shows and again after a run (FreshnessChecks).
-    val toCheck = FreshnessChecks.worthChecking(data.jobs)
+    val toCheck = FreshnessChecks.worthChecking(data.syncs)
     LifecycleResumeEffect(toCheck.map { Triple(it.id, it.lastRunEpoch, it.sourceVersion) }) {
-        FreshnessChecks.keepOnly(data.jobs.mapTo(HashSet()) { it.id })
+        FreshnessChecks.keepOnly(data.syncs.mapTo(HashSet()) { it.id })
         val check = scope.launch { FreshnessChecks.refresh(ctx.env, toCheck) }
         onPauseOrDispose { check.cancel() }
     }
@@ -361,13 +361,13 @@ fun SyncsScreen(
     // One open in ten: a small card that goes away by itself at the next open.
     val nudge = support == null && data.settings.appOpens > 0 && SupportPrompt.nudge(Store.get(ctx))
     // Also with fewer syncs while the crowded-schedule card's "Show them" is on: its bar turns it off.
-    val finder = data.jobs.size >= FIND_MIN_SYNCS || filter.ids.isNotEmpty()
+    val finder = data.syncs.size >= FIND_MIN_SYNCS || filter.ids.isNotEmpty()
     // A colour or a service no sync uses any more has no chip to turn it off: it is dropped.
-    val effective = if (finder) filter.pruned(data.jobs) else SyncFilter()
+    val effective = if (finder) filter.pruned(data.syncs) else SyncFilter()
     val runningIds = running.keys
-    val shown = remember(data.jobs, data.reports, runningIds, effective, onTop) {
+    val shown = remember(data.syncs, data.reports, runningIds, effective, onTop) {
         // Starred syncs first, then the others, each in the list's own order.
-        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.jobs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }, onTop)
+        com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.syncs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }, onTop)
     }
     // Pull to refresh = sync all. The indicator stays only while the gesture and the start are under
     // way: the cards show the progress. While syncs run, the pull is off (the pill says how many).
@@ -396,7 +396,7 @@ fun SyncsScreen(
     ) {
         LaunchedEffect(focusAsked, shown) {
             val id = focusAsked ?: return@LaunchedEffect
-            if (data.jobs.none { it.id == id }) { JobFocus.request.value = null; return@LaunchedEffect }
+            if (data.syncs.none { it.id == id }) { JobFocus.request.value = null; return@LaunchedEffect }
             // Hidden by the search or a filter: the whole list again, then the card.
             if (shown.none { it.id == id }) { filter = SyncFilter(); return@LaunchedEffect }
             kotlinx.coroutines.delay(150)
@@ -408,9 +408,9 @@ fun SyncsScreen(
         }
         val crowdPrefs = remember { ctx.getSharedPreferences("hints", android.content.Context.MODE_PRIVATE) }
         var crowdSeen by remember { mutableStateOf(crowdPrefs.getString("seen", null)) }
-        val crowd = remember(data.jobs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.jobs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
+        val crowd = remember(data.syncs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.syncs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
         var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
-        spreading?.let { c -> SpreadDialog(data.jobs, c) { spreading = null } }
+        spreading?.let { c -> SpreadDialog(data.syncs, c) { spreading = null } }
         androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
         // Measured here, the rail, the cutout and the system's bars already left out.
         val columns = if (minimal) WindowLayout.tileColumns(maxWidth.value.toInt())
@@ -431,7 +431,7 @@ fun SyncsScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(key = "hero", span = wholeRow) {
-                val n = data.jobs.size
+                val n = data.syncs.size
                 val last = if (lastRun > 0) " · " + stringResource(R.string.hero_last, formatDate(lastRun)) else ""
                 // "Your numbers" once a sync has completed: before that there is nothing to count.
                 val anyRun = data.reports.any { it.ok && !it.partial }
@@ -464,11 +464,11 @@ fun SyncsScreen(
             }
             // Under the hero and scrolling with the list, so it never fights the pinned pill below.
             if (finder) item(key = "finder", span = wholeRow) {
-                SyncFinder(data.jobs, effective, shown.size, remember(data.jobs, data.reports, runningIds) { SyncFilter.counts(data.jobs, data.reports, runningIds) }, data.settings.labels) { filter = it }
+                SyncFinder(data.syncs, effective, shown.size, remember(data.syncs, data.reports, runningIds) { SyncFilter.counts(data.syncs, data.reports, runningIds) }, data.settings.labels) { filter = it }
             }
             // "Sync all": a pill centred under the header that stays at the top while the list scrolls.
             // While syncs run it says how many, and a tap brings the first running card into view.
-            if (data.jobs.size >= 2) stickyHeader(key = "runall") {
+            if (data.syncs.size >= 2) stickyHeader(key = "runall") {
                 // Index of the first card: hero, finder, pill, then the support card when there is one.
                 val firstCard = runAllIndex + 1 + (if (support != null || nudge) 1 else 0) + (if (crowd != null) 1 else 0)
                 // A card brought into view lands just under the pinned pill, not beneath it.
@@ -480,7 +480,7 @@ fun SyncsScreen(
                         return@RunAllPill
                     }
                     val firstShown = shown.indexOfFirst { running.containsKey(it.id) }
-                    val firstAll = data.jobs.indexOfFirst { running.containsKey(it.id) }
+                    val firstAll = data.syncs.indexOfFirst { running.containsKey(it.id) }
                     when {
                         firstShown >= 0 -> scope.launch { listState.animateScrollToItem(firstCard + firstShown, -pillHeight) }
                         // Running, but hidden by the filter: show every card again, then go to it.
@@ -506,7 +506,7 @@ fun SyncsScreen(
                         onDismiss = { crowdPrefs.edit().putString("seen", crowdKey(c)).apply(); crowdSeen = crowdKey(c) },
                         onShow = { filter = SyncFilter(ids = c.jobIds.toSet()) },
                         // Nothing to move (syncs every few hours only): no button that opens an empty list.
-                        onSpread = if (com.xlollx.songport.sync.Timing.spread(data.jobs, c, sensitive = ::spreads).isEmpty()) null else ({ spreading = c }),
+                        onSpread = if (com.xlollx.songport.sync.Timing.spread(data.syncs, c, sensitive = ::spreads).isEmpty()) null else ({ spreading = c }),
                     )
                 }
             }
@@ -604,7 +604,7 @@ fun SyncsScreen(
     }
     // A tile tapped: its whole card, as the list of cards shows it, in a sheet. Whatever leads to
     // another page closes the sheet first; a run, a pause or a style change stay on it.
-    data.jobs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
+    data.syncs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
         val close = { tileOpen = null }
         ModalBottomSheet(onDismissRequest = close, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
@@ -731,8 +731,8 @@ private fun JobMenuHost(
     var colorOpen by rememberSaveable { mutableStateOf(false) }
     var moveToOpen by rememberSaveable { mutableStateOf(false) }
     if (moveToOpen) {
-        val total = data.jobs.size
-        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, data.settings.favoritesOnTop).indexOfFirst { it.id == job.id } + 1
+        val total = data.syncs.size
+        val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.syncs, data.settings.favoritesOnTop).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
         val close = rememberDiscardGuard(typed != now.toString()) { moveToOpen = false }
@@ -807,7 +807,7 @@ private fun JobMenuHost(
             // The order is the list's, Sync all's and the widgets': cards are dragged (held), or put
             // at a position typed as a number.
             // Many syncs: a position typed as a number, quicker than many taps on the arrows.
-            if (data.jobs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
+            if (data.syncs.size >= 2) MenuAction(stringResource(R.string.sync_menu_move_to), { moveToOpen = true }, icon = Icons.Outlined.Numbers) else null,
             if (sharedGroup == null) MenuAction(stringResource(R.string.delete), { confirmDelete = true }, destructive = true, icon = Icons.Outlined.Delete) else null,
         ),
     )
@@ -1807,7 +1807,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") })
                 Text(stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
                 JobColorPicker(color, storeNow.settings.labels) { color = it }
-                TagsEditor(tagDraft, storeNow.jobs) { tagDraft = it }
+                TagsEditor(tagDraft, storeNow.syncs) { tagDraft = it }
                 // A radio sync runs by its window: days and hours instead of a schedule, and no
                 // removals, two-way or reordering (its source only grows).
                 if (radioMode) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

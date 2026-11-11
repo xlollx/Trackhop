@@ -86,7 +86,7 @@ object ServerLink {
     private suspend fun exchangeAll(ctx: Context, api: ServerSyncs, list: List<ServerSyncs.Sync>) {
         val store = Store.get(ctx)
         val byId = list.associateBy { it.id }
-        for (job in store.data.jobs) {
+        for (job in store.data.syncs) {
             val serverId = store.data.handedOver[job.id]?.serverId?.takeIf { it in byId }
                 ?: store.data.serverPairs[job.id]?.takeIf { id -> byId[id]?.let { HandOver.sameAs(job, it) } == true }
                 ?: continue

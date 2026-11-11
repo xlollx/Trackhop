@@ -10,6 +10,11 @@ object JobFocus {
     val request = MutableStateFlow<String?>(null)
 }
 
+/** A report whose songs to review open (by its id): asked by a one-off transfer's notification. */
+object ReviewFocus {
+    val request = MutableStateFlow<String?>(null)
+}
+
 /** A connector to bring into view on the Accounts tab: asked by the "sign in again" notification. */
 object ConnectorFocus {
     val request = MutableStateFlow<String?>(null)

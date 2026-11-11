@@ -74,7 +74,7 @@ object ConfigBackup {
         val snapshot = Snapshot(
             writtenBy = writtenBy, writtenAt = now,
             // A shared playlist's syncs stay: the group's key is this device's, and does not travel.
-            jobs = d.jobs.filter { com.xlollx.songport.shared.SharedGroups.sharedSide(it) == null }.let { jobs -> if (history) jobs else jobs.map { it.copy(lastReportId = null) } },
+            jobs = d.syncs.filter { com.xlollx.songport.shared.SharedGroups.sharedSide(it) == null }.let { jobs -> if (history) jobs else jobs.map { it.copy(lastReportId = null) } },
             reports = if (history) d.reports else emptyList(),
             matchCache = d.matchCache, ignoredTracks = d.ignoredTracks,
             settings = portable(d.settings), files = files,
