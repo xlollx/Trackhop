@@ -41,14 +41,24 @@ import androidx.compose.ui.unit.sp
 import com.xlollx.songport.R
 import com.xlollx.songport.model.SyncReport
 
-/** How a coloured sync wears its colour on its card: chosen in Settings, and per sync in the editor. */
-enum class CardAccent(val key: String, val label: Int) {
-    CLASSIC("classic", R.string.accent_classic),
-    FADE("fade", R.string.accent_fade),
-    OUTLINE("outline", R.string.accent_outline),
-    CRESCENT("crescent", R.string.accent_crescent),
-    PILL("pill", R.string.accent_pill),
-    WASH("wash", R.string.accent_wash);
+/**
+ * How a coloured sync wears its colour on its card: chosen in Settings, and per sync in the editor.
+ * [reach] is how far in from the card's leading edge it draws (see [cardAccent]).
+ */
+enum class CardAccent(val key: String, val label: Int, val reach: Dp) {
+    CLASSIC("classic", R.string.accent_classic, ACCENT_BAND),
+    FADE("fade", R.string.accent_fade, ACCENT_BAND),
+    OUTLINE("outline", R.string.accent_outline, 2.dp),
+    CRESCENT("crescent", R.string.accent_crescent, 8.dp), // TileAccent.of(CRESCENT): it peaks at its width
+    PILL("pill", R.string.accent_pill, PILL_INSET + PILL_WIDTH),
+    WASH("wash", R.string.accent_wash, 0.dp);
+
+    /**
+     * The card's padding on the leading side: its usual [base], or more when the accent reaches
+     * that far, so that the logos and the text keep [ACCENT_GAP] from it (the pill sat 2 dp from
+     * the logos of a small card). Null [accent]: an uncoloured card, which draws none.
+     */
+    fun startPadding(base: Dp, accent: Color?): Dp = if (accent == null) base else maxOf(base, reach + ACCENT_GAP)
 
     companion object {
         fun of(key: String?) = entries.firstOrNull { it.key == key }
@@ -56,6 +66,12 @@ enum class CardAccent(val key: String, val label: Int) {
         fun resolve(job: String?, settings: String?) = of(job) ?: of(settings) ?: CLASSIC
     }
 }
+
+private val ACCENT_BAND = 6.dp
+private val PILL_INSET = 9.dp
+private val PILL_WIDTH = 5.dp
+/** The least room between a card's accent and its content. */
+private val ACCENT_GAP = 10.dp
 
 /** How the last runs show under a card's figures (Settings). */
 enum class RunHistoryStyle(val key: String, val label: Int) {
@@ -121,8 +137,7 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false
     if (t != null) return@drawBehind drawTileAccent(t, accent)
     val r = 28.dp.toPx() // MaterialTheme.shapes.large, the card's corners
     val rtl = layoutDirection == LayoutDirection.Rtl
-    val w = 6.dp.toPx()
-    fun x(v: Float) = if (rtl) size.width - v else v
+    val w = ACCENT_BAND.toPx()
     when (style) {
         CardAccent.CLASSIC -> drawRect(accent, topLeft = Offset(if (rtl) size.width - w else 0f, 0f), size = Size(w, size.height))
         // The card's outline on the leading side, as thick in the corners, fading out towards top and bottom.
@@ -137,8 +152,9 @@ fun Modifier.cardAccent(style: CardAccent, accent: Color?, tile: Boolean = false
         CardAccent.CRESCENT -> Unit // drawn as on a tile, above
         // A rounded bar inside the card, clear of the corners.
         CardAccent.PILL -> {
-            val pw = 5.dp.toPx()
-            drawRoundRect(accent, topLeft = Offset(if (rtl) size.width - 9.dp.toPx() - pw else 9.dp.toPx(), r), size = Size(pw, (size.height - 2 * r).coerceAtLeast(pw)), cornerRadius = CornerRadius(pw / 2))
+            val pw = PILL_WIDTH.toPx()
+            val inset = PILL_INSET.toPx()
+            drawRoundRect(accent, topLeft = Offset(if (rtl) size.width - inset - pw else inset, r), size = Size(pw, (size.height - 2 * r).coerceAtLeast(pw)), cornerRadius = CornerRadius(pw / 2))
         }
         CardAccent.WASH -> drawRect(
             if (rtl) Brush.horizontalGradient(listOf(Color.Transparent, accent.copy(alpha = 0.40f)), startX = size.width * 0.55f, endX = size.width)
@@ -250,7 +266,9 @@ fun JobStyleDialog(
             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = jobContainer(c)),
         ) {
             androidx.compose.foundation.layout.Column(
-                Modifier.cardAccent(CardAccent.resolve(st, settingsAccent), jobAccent(c)).padding(horizontal = 20.dp, vertical = 16.dp),
+                CardAccent.resolve(st, settingsAccent).let { a ->
+                    Modifier.cardAccent(a, jobAccent(c)).padding(start = a.startPadding(20.dp, jobAccent(c)), end = 20.dp, top = 16.dp, bottom = 16.dp)
+                },
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)

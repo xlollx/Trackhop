@@ -84,6 +84,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.horizontalScroll
@@ -931,21 +932,29 @@ private fun JobCard(
         // A coloured sync wears its colour on its controls too, as a gradient.
         val controls = jobControlBrush(job.color)
         val ink = jobInk(job.color)
+        val accentStyle = CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent)
+        val side = if (large) 20.dp else 16.dp
+        val vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> 14.dp }
         Column(
-            Modifier.cardAccent(CardAccent.resolve(job.accentStyle, Store.get(ctx).state.collectAsState().value.settings.cardAccent), accent)
-                .padding(horizontal = if (large) 20.dp else 16.dp, vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> 12.dp }),
+            Modifier.cardAccent(accentStyle, accent)
+                .padding(start = accentStyle.startPadding(side, accent), end = side, top = vertical, bottom = vertical),
         ) {
             // Shown as a pill by the schedule, or as a badge on the logos.
             val statusOnLogos = Store.get(ctx).state.collectAsState().value.settings.cardStatusPlace == "badge"
             val status = statusInfo(job, report, run, onPreview, onReview, onOpenLog, onRun)
             val logo = when (size) { CardSize.LARGE -> 34.dp; CardSize.MEDIUM -> 30.dp; CardSize.SMALL -> 28.dp }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(logo + 22.dp).height(logo + 2.dp)) {
-                    ProviderBadge(src, logo)
-                    Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo) }
-                    if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 6.dp))
+                // The badge hangs off the logos' corner: the room it takes is reserved, so that it
+                // neither sticks out of the stack nor sits on the text beside it.
+                val overhang = if (statusOnLogos) 6.dp else 0.dp
+                Box {
+                    Box(Modifier.padding(end = overhang, bottom = overhang).width(logo + 22.dp).height(logo + 2.dp)) {
+                        ProviderBadge(src, logo)
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo) }
+                    }
+                    if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd))
                 }
-                Spacer(Modifier.width(if (small) 10.dp else 12.dp))
+                Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         JobMarks(job, ink)
@@ -1011,7 +1020,7 @@ private fun JobCard(
             } else if (marksBeside) {
                 // Beside the name already.
             } else if (statsShown) {
-                Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 10.dp; CardSize.SMALL -> 8.dp }))
+                Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> 10.dp }))
                 if (small) SmallStats(job.color, report, onAdded, onRemoved, onNotFound, onTracks)
                 else RunStats(
                     job.color, report, data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
@@ -1045,7 +1054,7 @@ private fun JobCard(
             if (handed != null && run == null) ServerCardStatus(handed.serverId, small)
             // A radio sync while it listens: what is on air (or that it waits for Wi-Fi, or what went wrong).
             if (job.radio != null) RadioCardStatus(job)
-            Spacer(Modifier.height(if (small) 4.dp else 6.dp))
+            Spacer(Modifier.height(if (small) 6.dp else 8.dp))
             val schedule: @Composable (Modifier) -> Unit = { m ->
                 Row(m, verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Schedule, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -1060,7 +1069,10 @@ private fun JobCard(
                             ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
                             (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, modifier = Modifier.weight(1f).cardMarquee(),
+                        // Beside the buttons (a medium or small card) it ends in "…": a line gliding there
+                        // showed cut at its start, as if under the logos or the button.
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f).let { if (large) it.cardMarquee() else it },
                     )
                 }
             }
@@ -1075,15 +1087,17 @@ private fun JobCard(
                         schedule(Modifier.weight(1f))
                     } else Spacer(Modifier.weight(1f))
                 } else schedule(Modifier.weight(1f))
+                Spacer(Modifier.width(8.dp))
+                // Smaller on a medium or small card, where a 48 dp disc outweighed the line beside it.
                 FilledTonalIconButton(
                     onClick = { haptic(); onRun(job) }, enabled = !isRunning,
-                    modifier = Modifier.size(48.dp).let { m -> controls?.let { m.clip(CircleShape).background(it, alpha = if (isRunning) 0.4f else 1f) } ?: m },
+                    modifier = Modifier.size(if (large) 48.dp else 40.dp).let { m -> controls?.let { m.clip(CircleShape).background(it, alpha = if (isRunning) 0.4f else 1f) } ?: m },
                     colors = if (controls != null) IconButtonDefaults.filledTonalIconButtonColors(
                         containerColor = Color.Transparent, contentColor = ink ?: Color.Unspecified,
                         disabledContainerColor = Color.Transparent,
                     ) else IconButtonDefaults.filledTonalIconButtonColors(),
                 ) {
-                    Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now))
+                    Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now), Modifier.size(if (large) 24.dp else 22.dp))
                 }
                 // The menu wears the card's colour: a teal card opens a teal-tinted menu.
                 OverflowMenu(
@@ -2501,7 +2515,7 @@ private fun SmallStats(
             Text("$value", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = tint ?: MaterialTheme.colorScheme.onSurface, maxLines = 1)
         }
     }
-    Row(modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Mark(Icons.Filled.Add, r.added, stringResource(R.string.stat_added), Modifier.weight(1f), if (r.added > 0) ink ?: MaterialTheme.colorScheme.primary else null, onAdded.takeIf { r.added > 0 })
         Mark(Icons.Filled.Remove, r.removed, stringResource(R.string.stat_removed), Modifier.weight(1f), onClick = onRemoved.takeIf { r.removed > 0 })
         Mark(Icons.Filled.SearchOff, r.unmatched.size, stringResource(R.string.stat_not_found), Modifier.weight(1f), if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
@@ -2545,6 +2559,7 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
  * A long line on a sync's card: it can be dragged sideways, and on its own it glides to the end and back,
  * pausing at each end, slowly. A short line stays still. A drag stops the gliding for a while; a card
  * scrolled away and back starts again from the beginning (basicMarquee stayed stuck half-way there).
+ * An edge with more of the line beyond it fades out.
  * With animations turned off in Android, only the drag.
  */
 @Composable
@@ -2571,7 +2586,27 @@ private fun Modifier.cardMarquee(): Modifier {
             }
         }
     }
-    return this.horizontalScroll(state)
+    // Faded at an edge with more text beyond it: a line part-way through its glide showed cut at its
+    // start (") · Brani preferiti"), as if hidden under the logos beside it.
+    return this.graphicsLayer(compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen)
+        .drawWithContent {
+            drawContent()
+            val fade = 16.dp.toPx().coerceAtMost(size.width / 4)
+            val rtl = layoutDirection == LayoutDirection.Rtl
+            // Scrolled from its start: text hidden at the leading edge; short of its end: at the trailing one.
+            val hiddenLeft = if (rtl) state.value < state.maxValue else state.value > 0
+            val hiddenRight = if (rtl) state.value > 0 else state.value < state.maxValue
+            if (hiddenLeft) drawRect(
+                Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), startX = 0f, endX = fade),
+                size = androidx.compose.ui.geometry.Size(fade, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+            )
+            if (hiddenRight) drawRect(
+                Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), startX = size.width - fade, endX = size.width),
+                topLeft = Offset(size.width - fade, 0f), size = androidx.compose.ui.geometry.Size(fade, size.height),
+                blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+            )
+        }
+        .horizontalScroll(state)
 }
 
 /** What a sync's card says about it: a few words, their tone, an icon, and what a tap does (if anything). */
