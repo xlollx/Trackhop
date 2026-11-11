@@ -53,7 +53,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val defaultClientId: String get() = BuildDefaults["TIDAL_CLIENT_ID"]
     override val authorizeEndpoint = "https://login.tidal.com/authorize"
     override val tokenEndpoint = "https://auth.tidal.com/v1/oauth2/token"
-    // collection.* for saved albums and followed artists (userCollections). TIDAL's dashboard leaves every
+    // collection.* for saved albums and followed artists (userCollectionAlbums, userCollectionArtists). TIDAL's dashboard leaves every
     // scope off on a new app: the setup steps say which to tick.
     override val scopes = "user.read playlists.read playlists.write search.read collection.read collection.write"
     override val apiAccept = "application/vnd.api+json"
@@ -141,7 +141,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         return Playlist(playlistId, d["attributes"]["name"].str ?: playlistId, d["attributes"]["numberOfItems"].int ?: -1, ownedByMe = false, description = d["attributes"]["description"].str.orEmpty())
     }
 
-    // ---- collection: saved albums and followed artists (userCollections, the same JSON:API shapes)
+    // ---- collection: saved albums and followed artists (userCollectionAlbums / userCollectionArtists, JSON:API)
 
     private fun albumFrom(res: JsonElement?, names: Map<String, String>): Track? {
         val id = res["id"].str ?: return null
@@ -163,26 +163,40 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         return resources.mapNotNull { albumFrom(it, names) }
     }
 
+    /**
+     * The saved albums or followed artists: GET /userCollectionAlbums/me/relationships/items (or
+     * /userCollectionArtists/…). TIDAL split /userCollections/{userId}/relationships/{albums,artists}
+     * into one resource per kind (spec 1.10, seen 11/2026; the old path answers 404 "Resource not found"). These
+     * paths take no countryCode. An included album may come without its artists' ids (only a link):
+     * those are asked for again with their artists, twenty at a time, as for playlist tracks.
+     */
     private suspend fun collection(ctx: Env, kind: String): List<Track> {
-        val t = tokens(ctx)
         val order = ArrayList<String>()
         val included = LinkedHashMap<String, JsonElement>()
-        var url: String? = "$API/userCollections/${Http.enc(t.userId)}/relationships/$kind?countryCode=${cc(ctx)}&include=$kind"
+        var url: String? = "${collectionItems(kind)}?include=items"
         while (url != null) {
             val j = api(ctx, "GET", url)
             for (d in j["data"].arr) if (d["type"].str == kind) order += d["id"].str ?: continue
             for (inc in j["included"].arr) if (inc["type"].str == kind) included[inc["id"].str ?: continue] = inc
             url = nextUrl(j)
         }
+        if (kind == "albums") {
+            val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
+            bare.chunked(20).forEach { chunk ->
+                val j = runCatching { api(ctx, "GET", "$API/albums?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
+                for (a in j["data"].arr) { val id = a["id"].str ?: continue; if (a["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = a }
+            }
+        }
         val resources = order.mapNotNull { included[it] }
         return if (kind == "albums") albumsOf(ctx, resources) else resources.mapNotNull { artistFrom(it) }
     }
 
+    private fun collectionItems(kind: String): String =
+        "$API/" + (if (kind == "albums") "userCollectionAlbums" else "userCollectionArtists") + "/me/relationships/items"
+
     private suspend fun editCollection(ctx: Env, kind: String, method: String, ids: List<String>) {
-        val t = tokens(ctx)
         ids.chunked(20).forEach { chunk ->
-            api(ctx, method, "$API/userCollections/${Http.enc(t.userId)}/relationships/$kind?countryCode=${cc(ctx)}",
-                jsonObj("data" to jsonArr(chunk.map { mapOf("type" to kind, "id" to it) })))
+            api(ctx, method, collectionItems(kind), jsonObj("data" to jsonArr(chunk.map { mapOf("type" to kind, "id" to it) })))
         }
     }
 
