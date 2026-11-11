@@ -403,7 +403,7 @@ internal fun TrackCover(t: com.xlollx.songport.model.Track, serviceId: String?, 
             b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop,
             colorFilter = if (gone) androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(0f) }) else null,
         ) else Icon(Icons.Filled.MusicNote, null, tint = Color.White.copy(alpha = 0.75f), modifier = Modifier.size(size * 0.42f))
-        if (gone) Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)))
+        if (gone) Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface.copy(alpha = if (b != null) 0.22f else 0.5f)))
     }
 }
 

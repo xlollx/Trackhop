@@ -71,7 +71,7 @@ class ShotProvider(
         Demo.carousel(playlistId)?.let { songs -> return songs.map { (n, s) -> if (s == null) track(n) else Track(id = id(n), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) } }
         val size = playlistInfo(ctx, playlistId).trackCount.coerceAtLeast(1)
         // The Discover pictures: YouTube Music holds most of Spotify's songs and some of its own, so two libraries overlap in part.
-        if (Demo.discoverOn && idStyle == IdStyle.YOUTUBE) return list(size).filterIndexed { i, _ -> i % 4 != 3 } +
+        if (Demo.discoverOn && idStyle == IdStyle.YOUTUBE) return list(size).filterIndexed { i, _ -> i % Demo.SONGS.size % 4 != 3 } +
             Demo.EXTRA.mapIndexed { i, s -> Track(id = id(900 + i), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) }
         return list(size)
     }

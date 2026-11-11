@@ -1054,6 +1054,17 @@ class StoreScreenshots {
         pages("land_compat", 3)
         tool(R.string.discover_subs_title, "subs sideways"); pages("land_subs", 3)
         step("upright") { shell("settings put system user_rotation 0"); Thread.sleep(2000) }
+        sideways = false
+        // The light theme, once: the answers of four tools.
+        step("light") { shell("cmd uimode night no"); store.updateSettings { it.copy(themeMode = "LIGHT") }; store.flush(); Thread.sleep(1500) }
+        tool(R.string.discover_roast_title, "roast light"); pages("light_roast", 1)
+        open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "$linkA\n$linkB"), "compat light") { waitText(s(R.string.card_share), 30_000) }
+        pages("light_compat", 2)
+        tool(R.string.discover_wrapped_title, "wrapped light") { waitText(s(R.string.card_share), 30_000) }; pages("light_wrapped", 2)
+        tool(R.string.discover_subs_title, "subs light"); pages("light_subs", 2)
+        tool(R.string.discover_vanished_title, "vanished light") { waitText("Toxicity") }; pages("light_vanished", 1)
+        tool(R.string.tools_poster_title, "poster light"); pages("light_poster", 1)
+        step("dark") { shell("cmd uimode night yes"); store.updateSettings { it.copy(themeMode = "DARK") }; store.flush() }
         resumed()?.let { a -> instr.runOnMainSync { a.finish() } }
     }
 

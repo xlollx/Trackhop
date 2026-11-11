@@ -404,11 +404,11 @@ private fun CompatHero(nameA: String, nameB: String, tracksA: List<Track>, track
         Modifier.fillMaxWidth().clip(ToolHeroShape).background(MaterialTheme.colorScheme.surfaceContainerHigh).background(glow)
             .semantics(mergeDescendants = true) {}.padding(horizontal = 18.dp, vertical = 22.dp),
     ) {
-        val cover = ((maxWidth - 124.dp) / 2).coerceIn(56.dp, 132.dp)
+        val cover = ((maxWidth - 156.dp) / 2).coerceIn(56.dp, 128.dp)
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    CoverMosaic(tracksA, serviceA, cover, Modifier.graphicsLayer { rotationZ = -5f })
+                    CoverMosaic(tracksA, serviceA, cover, Modifier.graphicsLayer { rotationZ = -4f })
                     Text(nameA, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
                 Text(
@@ -416,7 +416,7 @@ private fun CompatHero(nameA: String, nameB: String, tracksA: List<Track>, track
                     modifier = Modifier.padding(horizontal = 6.dp).padding(bottom = 28.dp),
                 )
                 Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    CoverMosaic(tracksB, serviceB, cover, Modifier.graphicsLayer { rotationZ = 5f })
+                    CoverMosaic(tracksB, serviceB, cover, Modifier.graphicsLayer { rotationZ = 4f })
                     Text(nameB, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
