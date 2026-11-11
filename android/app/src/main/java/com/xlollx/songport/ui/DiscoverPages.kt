@@ -793,8 +793,8 @@ private fun RoastQuote(pick: CardPick?, text: String, onShare: () -> Unit, onRep
             // Short roasts are said bigger; a long one still fits a phone without a wall of small type.
             val size = when { text.length < 180 -> 26; text.length < 340 -> 23; text.length < 560 -> 20; else -> 18 }
             Text(
-                text, color = white, fontFamily = androidx.compose.ui.text.font.FontFamily.Serif, fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = size.sp, lineHeight = (size * 1.36f).sp),
+                text, color = white, fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = size.sp, lineHeight = (size * 1.32f).sp, letterSpacing = (-0.2).sp),
             )
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
