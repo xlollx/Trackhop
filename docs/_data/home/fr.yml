@@ -42,17 +42,17 @@ demo_alt: "Visite de Trackhop : les syncs, une nouvelle sync, les comptes, les o
 what_title: Ce qu’il fait
 what_intro: Choisissez une source et une destination, puis la fréquence. Trackhop retrouve chaque titre de l’autre côté, vous montre ce qui va changer et garde les deux en phase.
 card1_title: De n’importe quel service vers n’importe quel autre
-card1: Playlists, titres likés, albums enregistrés et artistes suivis. Ou collez le lien de n’importe quelle playlist publique.
+card1: "Playlists, titres likés, albums enregistrés et artistes suivis. Ou le lien de n’importe quelle playlist publique, ou une playlist partagée avec des amis qui ont chacun leur propre service."
 card2_title: Selon un planning
-card2: Toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine. Seulement les ajouts, ou aussi les suppressions, en gardant l’ordre de la source.
+card2: "Toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine. Seulement les ajouts, ou aussi les suppressions, en gardant l’ordre de la source. Aussi dans les deux sens, retraits compris."
 card3_title: Rien n’est deviné
 card3: "Un aperçu avant chaque sync. Les titres introuvables passent en vérification : choisissez le bon une fois, Trackhop s’en souvient."
 card4_title: Vos comptes restent les vôtres
 card4: Vous vous connectez sur la page de chaque service. Les jetons d’accès sont chiffrés sur le téléphone et ne le quittent jamais.
 card5_title: Votre propre serveur de musique
-card5: "Navidrome et les autres serveurs Subsonic, Jellyfin et Plex, à côté des services de streaming. Et aussi des fichiers : CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Référencée dans le catalogue d’applications de Navidrome.</a>"
+card5: "Navidrome et les autres serveurs Subsonic, Jellyfin, Emby, Plex, Lyrion et Mopidy, à côté des services de streaming, avec la liste des titres qui manquent encore au serveur. Et aussi des fichiers : CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Référencée dans le catalogue d’applications de Navidrome.</a>"
 card6_title: Outils pour playlists
-card6: Sauvegardes, suppression des doublons, fusion, division et tri, et un générateur de playlists qui utilise votre propre clé d’IA.
+card6: "Sauvegardes, suppression des doublons, fusion, division et tri, un générateur de playlists qui utilise votre propre clé d’IA, et les nouveautés, concerts, setlists et disques des artistes de vos playlists."
 one_title: "Même avec un seul service"
 one_intro: "Pas besoin d’un second service. Si vous n’utilisez que Spotify, Apple Music, YouTube Music ou un autre, Trackhop prend quand même soin de vos playlists."
 one1_title: "Gardez Discover Weekly"

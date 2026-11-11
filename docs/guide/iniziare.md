@@ -62,4 +62,16 @@ numeri (da aggiungere, da togliere, già presenti, non trovati) e gli elenchi. *
 trovati finiscono nella **revisione**, dove cerchi tu sulla destinazione o scegli un suggerimento; l'app
 ricorda la tua scelta.
 
+## Mettere ordine
+
+- **Preferite**: *⋮ → Aggiungi alle preferite* dà una stella alla sync, che resta in cima (si spegne in
+  Opzioni › Aspetto › Preferite sempre in cima).
+- **Etichette e tag**: *⋮ → Stile* sceglie il colore della scheda, e un nome a quel colore lo rende
+  un'etichetta; nell'editor, i **Tag** raggruppano le sync a modo tuo (genere = metal). Ricerca e filtri sopra
+  l'elenco trovano le sync per nome, etichetta o tag.
+- **Dimensione delle card** e **Vista minimal** (piccoli riquadri in griglia) in Opzioni › Aspetto; tieni
+  premuta una scheda e trascinala per cambiare l'ordine.
+
+Nell'app, Opzioni › Come fare raccoglie guide brevi su tutto, con una ricerca in cima.
+
 [Trasferire playlist gratis](trasferire-playlist) · [Guida completa (inglese)](./)

@@ -548,6 +548,13 @@ class WebTest {
         assertFalse(File(data, "csv/Road.csv").exists())
     }
 
+    @Test fun everyPageLeadsToTheGuidesSearch() {
+        val home = get("/").body()
+        assertTrue(home.contains("""<a href="https://trackhop.org/guide/">Search the guides</a>"""))
+        assertTrue(home.contains("""<a href="https://trackhop.org/guide/docker">Guide</a>"""))
+        assertTrue(get("/tools").body().contains("Search the guides"))
+    }
+
     @Test fun backLeadsOneLevelUp() {
         assertEquals(null, Html.backTo(""))
         assertEquals(null, Html.backTo("tools"))

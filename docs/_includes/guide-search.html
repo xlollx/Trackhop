@@ -1,0 +1,73 @@
+<!-- The guide's search: every guide page's title, description and first words, gathered here by
+     Liquid when the site is built, filtered in the browser as you type (no external script, no
+     request). Without JavaScript the form stays hidden and the full list below is the way in.
+     ?q=… opens the page with a search already typed. -->
+{%- assign guide_pages = site.pages | where_exp: "p", "p.url contains '/guide/'" -%}
+<form class="guide-search" id="guide-search" role="search" hidden>
+  <label for="guide-q">Search the guide</label>
+  <div class="guide-search-row">
+    <input type="search" id="guide-q" name="q" autocomplete="off" spellcheck="false"
+      placeholder="Spotify to YouTube Music, Docker, duplicates…" aria-describedby="guide-count">
+    <button type="button" id="guide-clear" hidden>Clear</button>
+  </div>
+  <p class="guide-search-count" id="guide-count" aria-live="polite"></p>
+  <ul class="guide-results" id="guide-results"></ul>
+</form>
+<script type="application/json" id="guide-index">[
+{%- for p in guide_pages -%}{%- if p.url != page.url -%}
+{"t":{{ p.title | default: p.name | jsonify }},"d":{{ p.description | default: "" | jsonify }},"u":{{ p.url | relative_url | jsonify }},"c":{{ p.content | strip_html | normalize_whitespace | truncatewords: 120, "" | jsonify }}},
+{%- endif -%}{%- endfor -%}
+null]</script>
+<script>
+  (function () {
+    var form = document.getElementById('guide-search'), data = document.getElementById('guide-index');
+    if (!form || !data || !window.JSON || !''.normalize) return;
+    var pages;
+    try { pages = JSON.parse(data.textContent).filter(Boolean); } catch (e) { return; }
+    var input = document.getElementById('guide-q'), clear = document.getElementById('guide-clear');
+    var count = document.getElementById('guide-count'), list = document.getElementById('guide-results');
+    // Case, accents and the Turkish dotless i don't count: "citta" finds "città".
+    function fold(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ı/g, 'i'); }
+    pages.forEach(function (p) { p.ft = fold(p.t); p.fd = fold(p.d); p.fc = fold(p.c); });
+    // What the page shows after the search (read when typing: this script runs before the rest is
+    // parsed), hidden while results are on screen.
+    function after() {
+      var rest = [], n = form.nextElementSibling;
+      while (n) { if (n.tagName !== 'SCRIPT') rest.push(n); n = n.nextElementSibling; }
+      return rest;
+    }
+    function show(q) {
+      var words = fold(q).split(/\s+/).filter(Boolean), rest = after();
+      clear.hidden = !q;
+      rest.forEach(function (el) { el.hidden = words.length > 0; });
+      list.textContent = '';
+      if (!words.length) { count.textContent = ''; return; }
+      var hits = pages.map(function (p) {
+        var score = 0;
+        for (var i = 0; i < words.length; i++) {
+          var w = words[i];
+          if (p.ft.indexOf(w) >= 0) score += 3;
+          else if (p.fd.indexOf(w) >= 0) score += 2;
+          else if (p.fc.indexOf(w) >= 0) score += 1;
+          else return null;
+        }
+        return { p: p, s: score };
+      }).filter(Boolean).sort(function (a, b) { return b.s - a.s; });
+      count.textContent = hits.length === 0 ? 'No guide page matches. Try another word, or browse the list.'
+        : hits.length === 1 ? '1 guide page' : hits.length + ' guide pages';
+      if (!hits.length) rest.forEach(function (el) { el.hidden = false; });
+      hits.slice(0, 40).forEach(function (h) {
+        var li = document.createElement('li'), a = document.createElement('a'), d = document.createElement('span');
+        a.href = h.p.u; a.textContent = h.p.t; d.textContent = h.p.d;
+        li.appendChild(a); li.appendChild(d); list.appendChild(li);
+      });
+    }
+    input.addEventListener('input', function () { show(input.value); });
+    form.addEventListener('submit', function (e) { e.preventDefault(); var a = list.querySelector('a'); if (a) a.focus(); });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Escape' && input.value) { input.value = ''; show(''); } });
+    clear.addEventListener('click', function () { input.value = ''; show(''); input.focus(); });
+    form.hidden = false;
+    var q = new URLSearchParams(location.search).get('q');
+    if (q) { input.value = q; document.addEventListener('DOMContentLoaded', function () { show(q); }); }
+  })();
+</script>

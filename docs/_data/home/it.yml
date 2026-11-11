@@ -44,17 +44,17 @@ demo_alt: "Un giro in Trackhop: sync, una nuova sync, account, strumenti, un bra
 what_title: Cosa fa
 what_intro: Scegli un'origine e una destinazione e ogni quanto sincronizzare. Trackhop trova ogni brano dall'altra parte, ti mostra cosa cambierà e tiene le due playlist allineate.
 card1_title: Da qualsiasi servizio a qualsiasi servizio
-card1: Playlist, brani preferiti, album salvati e artisti seguiti. Oppure incolla il link di una qualsiasi playlist pubblica.
+card1: "Playlist, brani preferiti, album salvati e artisti seguiti. Oppure incolla il link di una playlist pubblica, o condividi una playlist con amici che usano ognuno il proprio servizio."
 card2_title: In automatico
-card2: Ogni ora, ogni 6 ore, ogni giorno o ogni settimana. Solo aggiunte, oppure anche le rimozioni, mantenendo l'ordine dell'origine.
+card2: "Ogni ora, ogni 6 ore, ogni giorno o ogni settimana. Solo aggiunte, oppure anche le rimozioni, mantenendo l'ordine dell'origine. Anche bidirezionale, rimozioni comprese."
 card3_title: Niente a caso
 card3: "Un'anteprima prima di ogni sync. I brani non trovati finiscono in revisione: scegli quello giusto una volta e Trackhop se lo ricorda."
 card4_title: I tuoi account restano tuoi
 card4: Accedi dalla pagina di ciascun servizio. I token di accesso sono cifrati sul telefono e non lo lasciano mai.
 card5_title: Il tuo server musicale
-card5: "Navidrome e altri server Subsonic, Jellyfin e Plex, accanto ai servizi di streaming. Anche file: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Presente nel catalogo app di Navidrome.</a>"
+card5: "Navidrome e altri server Subsonic, Jellyfin, Emby, Plex, Lyrion e Mopidy, accanto ai servizi di streaming, con la lista dei brani che al tuo server mancano ancora. Anche file: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Presente nel catalogo app di Navidrome.</a>"
 card6_title: Strumenti per le playlist
-card6: Backup, rimozione dei duplicati, unione, divisione e ordinamento, e un generatore di playlist con la tua chiave AI.
+card6: "Backup, rimozione dei duplicati, unione, divisione e ordinamento, un generatore di playlist con la tua chiave AI, e le nuove uscite, i concerti, le scalette e i dischi degli artisti delle tue playlist."
 one_title: "Anche con un solo servizio"
 one_intro: "Non serve un secondo servizio. Se usi solo Spotify, Apple Music, YouTube Music o un altro, Trackhop si prende cura lo stesso delle tue playlist."
 one1_title: "Salva Discover Weekly"
