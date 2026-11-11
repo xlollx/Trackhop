@@ -250,9 +250,10 @@ object Mcp {
             listOf(SERVICE, PLAYLIST), readOnly = true) { a ->
             Call("setlists", listOf(a.text("service"), a.text("playlist")))
         },
-        Tool("find_records", "Records and merch of a playlist's artists", "For each artist of a playlist: their CDs, vinyl and cassettes on Discogs (with the server's Discogs token, copies for sale and the lowest price), their official site, shop, Bandcamp and social pages from MusicBrainz, and search links on shops. Plain links only. Looked up only now (cached); can take a few minutes. Show the attribution line with the records.",
-            listOf(SERVICE, PLAYLIST, Param("currency", "string", "Currency for prices: USD, EUR, GBP, JPY... (default: the server's).", required = false)), readOnly = true) { a ->
-            Call("records", listOf(a.text("service"), a.text("playlist")), values = a.values("currency"))
+        Tool("find_records", "Records and merch of a playlist's artists", "For each artist of a playlist: their CDs, vinyl and cassettes on Discogs (with the server's Discogs token, copies for sale and the lowest price), the merch on sale in their own shops (official Shopify shop, Bandcamp: title, type, price, picture, link), their official site, shop, Bandcamp and social pages from MusicBrainz, and search links on shops. Plain links only. Looked up only now (cached); can take a few minutes. Show the attribution line with the records.",
+            listOf(SERVICE, PLAYLIST, Param("currency", "string", "Currency for prices: USD, EUR, GBP, JPY... (default: the server's).", required = false),
+                Param("kind", "string", "What to look up: all (default), records (Discogs only) or merch (the shops only).", required = false)), readOnly = true) { a ->
+            Call("records", listOf(a.text("service"), a.text("playlist")), values = a.values("currency", "kind"))
         },
         Tool("remove_duplicates", "Remove duplicates", "Removes a playlist's extra copies (the first of each stays). Ask the user first.",
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->

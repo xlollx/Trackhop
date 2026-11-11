@@ -2,6 +2,7 @@ package com.xlollx.songport.server
 
 import com.sun.net.httpserver.HttpServer
 import com.xlollx.songport.platform.BuildDefaults
+import com.xlollx.songport.sync.Merch
 import com.xlollx.songport.sync.Records
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -70,6 +71,11 @@ class RecordsWebTest {
         assertEquals(400, api("records?service=csv&playlist=Quiet&currency=XYZ").statusCode())
         assertEquals(404, api("records?service=csv&playlist=Nope").statusCode())
         assertEquals(404, api("records?service=nope&playlist=Quiet").statusCode())
+        assertEquals(400, api("records?service=csv&playlist=Quiet&kind=posters").statusCode())
+        val merchOnly = Json.parseToJsonElement(api("records?service=csv&playlist=Quiet&kind=merch").body()).jsonObject
+        assertEquals("merch", merchOnly.s("kind"))
+        // Discogs not asked: no note about its token.
+        assertFalse(merchOnly["notes"]!!.jsonArray.map { it.jsonPrimitive.content }.contains(RecordTexts.NO_TOKEN))
         val r = api("records?service=csv&playlist=quiet&currency=eur")
         assertEquals(r.body(), 200, r.statusCode())
         val o = Json.parseToJsonElement(r.body()).jsonObject
@@ -87,7 +93,9 @@ class RecordsWebTest {
         val r = Records.Result(
             listOf(
                 Records.ArtistRecords("Radiohead", listOf(rec), listOf(Records.Link(Records.Kind.SHOP, "shop.radiohead.com", "https://shop.radiohead.com/")),
-                    Records.searches("Radiohead"), "https://www.discogs.com/artist/3840"),
+                    Records.searches("Radiohead"), "https://www.discogs.com/artist/3840",
+                    listOf(Merch.Item(Merch.Source.SHOP, "Logo Tee", "T-Shirt", "https://cdn.shopify.com/a/tee_200x.png", 30.0, "GBP", "https://shop.radiohead.com/products/logo-tee"),
+                        Merch.Item(Merch.Source.BANDCAMP, "Kid A – Vinyl LP", "Vinyl", "", 32.28, null, "https://radiohead.bandcamp.com/album/kid-a"))),
                 Records.ArtistRecords("Muse", null, emptyList(), Records.searches("Muse"), Records.discogsSearch("Muse")),
             ),
             total = 80, token = true, tokenRefused = false, slowedDown = true, currency = "EUR",
@@ -99,6 +107,14 @@ class RecordsWebTest {
         assertEquals("12", ok.s("forSale")); assertEquals("18.5", ok.s("lowestPrice")); assertEquals("https://www.discogs.com/sell/release/4950798", ok.s("sellUrl"))
         assertEquals("Official shop", first["links"]!!.jsonArray[0].jsonObject.s("kind"))
         assertEquals(listOf("Bandcamp", "Discogs", "eBay", "Web"), first["searches"]!!.jsonArray.map { it.jsonObject.s("site") })
+        val tee = first["merch"]!!.jsonArray[0].jsonObject
+        assertEquals("Logo Tee", tee.s("title")); assertEquals("Official shop", tee.s("source")); assertEquals("30.0", tee.s("price")); assertEquals("GBP", tee.s("currency"))
+        assertEquals("https://shop.radiohead.com/products/logo-tee", tee.s("url"))
+        assertEquals("Bandcamp", first["merch"]!!.jsonArray[1].jsonObject.s("source"))
+        assertEquals("32.28", RecordTexts.price(Merch.Item(Merch.Source.BANDCAMP, "x", price = 32.28, url = "u")))
+        // Merch not looked up for Muse: null.
+        assertEquals(kotlinx.serialization.json.JsonNull, o["artists"]!!.jsonArray[1].jsonObject["merch"])
+        assertEquals("all", o.s("kind"))
         // Discogs not asked about Muse: null, not an empty list.
         assertEquals(kotlinx.serialization.json.JsonNull, o["artists"]!!.jsonArray[1].jsonObject["records"])
         val notes = o["notes"]!!.jsonArray.map { it.jsonPrimitive.content }

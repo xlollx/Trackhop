@@ -102,9 +102,10 @@ object Cli {
         Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist>"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
             "Asked only now, never on a schedule; answers are kept a week. Needs a setlist.fm key: the server's own (Settings) or SETLISTFM_API_KEY.\n" +
                 "--json gives each setlist's tracks, ready for \"trackhop add\" or a File playlist (Tools › Setlists on the page saves one)."),
-        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR]"), "the records (CD, vinyl, cassette) and official shops of a playlist's artists (Discogs, MusicBrainz)",
-            "Asked only now; Discogs answers are kept six hours, MusicBrainz's links a week. With the server's Discogs token (Settings)\n" +
-                "the first records of each artist also say how many copies are for sale and from what price. Plain links, no affiliate tags."),
+        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR] [--kind all|records|merch]"), "the records (CD, vinyl, cassette), merch and official shops of a playlist's artists (Discogs, MusicBrainz, their shops)",
+            "Asked only now; Discogs answers are kept six hours, MusicBrainz's links a week, the shops' merch a day. With the server's Discogs token (Settings)\n" +
+                "the first records of each artist also say how many copies are for sale and from what price. --kind records skips the shops, --kind merch\n" +
+                "skips Discogs. Merch comes from the artist's own Shopify shop and Bandcamp (their public product lists, robots.txt honoured). Plain links, no affiliate tags."),
         Cmd("wanted", "Services and playlists", listOf("wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]"),
             "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
