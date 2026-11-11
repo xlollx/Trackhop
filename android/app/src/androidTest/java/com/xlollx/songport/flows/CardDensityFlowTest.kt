@@ -200,14 +200,27 @@ class CardDensityFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        // The header and the finder may fill a phone's height on its side: the cards are further down.
         waitText(s(R.string.hero_title))
+        // The header is one slim row and the pill shares its row with the filter chips: on its side too,
+        // a card shows whole under them before anything is scrolled.
+        val teal = androidx.compose.ui.test.hasContentDescription(s(R.string.filter_color, s(R.string.color_teal)))
+        val chips = { compose.onAllNodes(teal).fetchSemanticsNodes(atLeastOneRootRequired = false) }
+        assertEquals("the colour's filter chip in the pill's row", 1, chips().size)
+        val pillAtRest = compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).onFirst().fetchSemanticsNode()
+        assertTrue("the chips after the pill, on its row", chips().single().boundsInRoot.left > pillAtRest.boundsInRoot.right &&
+            chips().single().boundsInRoot.center.y in pillAtRest.boundsInRoot.top..pillAtRest.boundsInRoot.bottom)
+        assertTrue("a whole card on screen under the header", cards().any { it.positionInRoot.y > pillAtRest.boundsInRoot.bottom && it.positionInRoot.y + it.size.height <= list().boundsInRoot.bottom + 1 })
+        snapshot("home-landscape-top")
         val window = main().resources.configuration.let { WindowLayout.of(it.screenWidthDp, it.screenHeightDp) }
         assertTrue("a low window", window.short)
         // Large chosen, small shown: the user's large cards would fill the whole height.
         assertEquals("large", store.data.settings.cardSize)
 
         pinPill()
+        // Pinned, only the pill (and its "?") floats over the cards: the chips and the cards-or-tiles
+        // button, which have no ground of their own, are gone until the list is back at its top.
+        waitFor("the chips gone while the pill is pinned") { chips().isEmpty() }
+        waitFor("the cards-or-tiles button gone too") { compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.syncs_view_tiles))).fetchSemanticsNodes().isEmpty() }
         val pill = band()!!
         val fade = com.xlollx.songport.ui.PILL_FADE.value * density()
         val viewBottom = list().boundsInRoot.bottom
@@ -227,6 +240,17 @@ class CardDensityFlowTest : FlowTest() {
         // Pinned, the pill floats over the cards (no band behind it, the owner's choice).
         // The pill itself still answers.
         assertTrue(compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).fetchSemanticsNodes().isNotEmpty())
+        // Its row holds nothing else, and is no wider than the pill and its "?": no strip across the list.
+        val floating = compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).onFirst().fetchSemanticsNode()
+        val inBand = compose.onAllNodes(androidx.compose.ui.test.hasAnyAncestor(hasTestTag(RUN_ALL_BAND_TAG)) and hasClickAction(), useUnmergedTree = true).fetchSemanticsNodes()
+        assertEquals("the pill and its help, nothing else, in the pinned row", 2, inBand.size)
+        assertTrue("the pill at the row's start", floating.boundsInRoot.left < list().boundsInRoot.left + 40 * density())
+
+        // Back at the top: the chips and the button again.
+        scrollList(-100_000f)
+        waitFor("the chips back at the top of the list") { chips().size == 1 }
+        assertTrue(band() == null)
+        assertTrue(compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.syncs_view_tiles))).fetchSemanticsNodes().isNotEmpty())
     }
 
     /**

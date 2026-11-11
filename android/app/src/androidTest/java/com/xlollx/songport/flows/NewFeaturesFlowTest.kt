@@ -139,12 +139,36 @@ class NewFeaturesFlowTest : FlowTest() {
         // With two syncs or more, the pinned "Sync all" pill.
         assertTrue(exists(s(R.string.sync_all)))
         snapshot("sync-all-pill")
-        // By word.
+        // By word: the search is closed until its magnifier, in the header, is tapped.
+        val fields = { compose.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size }
+        assertEquals("no search field before the magnifier is tapped", 0, fields())
+        clickDesc(s(R.string.syncs_find_hint))
+        waitFor("the search field open") { fields() == 1 }
+        // The pill and the chips are still there, in their one row under the header.
+        assertTrue(exists(s(R.string.sync_all)))
         val field = compose.onAllNodes(hasSetTextAction() and hasText(s(R.string.syncs_find_hint))).onFirst()
         scrollTo(field).performTextReplacement("Road")
         waitText(plural(R.plurals.filter_shown, 6, 1, 6))
         assertTrue(exists("Road Trip"))
         assertFalse(exists("Chill Evening"))
+        snapshot("home-search-open")
+        // Turned on its side and back: the field still open, with what was typed and what it found.
+        rotate(android.app.UiAutomation.ROTATION_FREEZE_90)
+        waitFor("the search field open on its side") { compose.onAllNodes(hasSetTextAction() and hasText("Road")).fetchSemanticsNodes().size == 1 }
+        waitText(plural(R.plurals.filter_shown, 6, 1, 6))
+        assertFalse(exists("Chill Evening"))
+        snapshot("home-search-open-landscape")
+        rotate(android.app.UiAutomation.ROTATION_FREEZE_0)
+        waitFor("the search field open upright again") { compose.onAllNodes(hasSetTextAction() and hasText("Road")).fetchSemanticsNodes().size == 1 }
+        // The magnifier again (now "Close search"): the field goes, and its words with it.
+        clickDesc(s(R.string.syncs_find_close))
+        waitFor("the search field closed") { fields() == 0 }
+        waitText("Chill Evening")
+        waitGone(plural(R.plurals.filter_shown, 6, 1, 6))
+        // Typed again and cleared with "Clear": every sync back, the field closed with nothing in it.
+        clickDesc(s(R.string.syncs_find_hint))
+        scrollTo(compose.onAllNodes(hasSetTextAction() and hasText(s(R.string.syncs_find_hint))).onFirst()).performTextReplacement("Road")
+        waitText(plural(R.plurals.filter_shown, 6, 1, 6))
         click(s(R.string.filter_clear))
         waitText("Chill Evening")
         // By colour: only the teal ones.

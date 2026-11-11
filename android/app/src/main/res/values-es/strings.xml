@@ -968,6 +968,7 @@
     <string name="shazam_editor_suggest">Tus Shazam: %1$s</string>
     <string name="syncs_find_hint">Buscar una sincronización</string>
     <string name="syncs_find_clear">Borrar la búsqueda</string>
+    <string name="syncs_find_close">Cerrar la búsqueda</string>
     <string name="filter_up_to_date">Al día</string>
     <string name="filter_needs_fix">Por revisar</string>
     <string name="filter_never_run">Sin ejecutar</string>

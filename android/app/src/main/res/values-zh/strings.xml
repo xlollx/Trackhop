@@ -950,6 +950,7 @@
     <string name="shazam_editor_suggest">你的 Shazam：%1$s</string>
     <string name="syncs_find_hint">查找同步</string>
     <string name="syncs_find_clear">清除搜索</string>
+    <string name="syncs_find_close">关闭搜索</string>
     <string name="filter_up_to_date">已同步</string>
     <string name="filter_needs_fix">待处理</string>
     <string name="filter_never_run">从未运行</string>

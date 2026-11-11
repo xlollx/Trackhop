@@ -145,6 +145,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.getValue
@@ -162,6 +163,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xlollx.songport.Notifications
 import com.xlollx.songport.sync.ShazamLibrary
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.Edit
@@ -380,8 +382,22 @@ fun SyncsScreen(
         starting = false
     }
     val pullOff = running.isNotEmpty() && !starting
-    // The pill's place in the list (after the hero and, when shown, the finder) and its height once laid out.
-    val runAllIndex = if (finder) 2 else 1
+    // The search field: closed until the header's magnifier is tapped, open (with what was typed, kept in
+    // the filter) across a turn of the phone. Words typed are never hidden: the field shows while there are any.
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
+    val searchShown = finder && (searchOpen || effective.query.isNotEmpty())
+    // The cursor goes in the field at a tap on the magnifier, not when the page is built again.
+    var searchFocus by remember { mutableStateOf(false) }
+    // Cards or tiles: its button is at the end of the row of the pill.
+    val viewToggle = data.syncs.size >= 2 || minimal
+    // The row under the header: the pill (two syncs or more), the filter chips, the cards-or-tiles button.
+    val runAllRow = data.syncs.size >= 2 || finder || viewToggle
+    val filterLine = finder && effective.isActive
+    // The pill's place in the list: right after the hero (the search field is part of the hero's item).
+    val runAllIndex = 1
+    // Index of the first card: hero, the pill's row, the filter's line, then the support card and the
+    // crowded-schedule card when there are any. With the filter cleared, its line is not there.
+    val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0)
     var pillHeight by remember { mutableIntStateOf(0) }
     // Pinned once the list has scrolled past its place: the cards are then passing beneath it.
     val pillPinned by remember(runAllIndex) {
@@ -443,16 +459,22 @@ fun SyncsScreen(
                     HeroHeader(
                         stringResource(R.string.hero_title), ctx.resources.getQuantityString(R.plurals.hero_jobs, n, n) + last,
                         link = if (anyRun) stringResource(R.string.stats_hero_link) else null, onLink = onStats,
-                        // Cards or tiles, at a tap; remembered (also in Settings).
-                        action = if (n >= 2 || minimal) ({
-                            IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {
-                                Icon(
-                                    if (minimal) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
-                                    stringResource(if (minimal) R.string.syncs_view_cards else R.string.syncs_view_tiles), tint = Color.White,
-                                )
+                        // The search, at a tap on its magnifier: the field opens under the header, and closes
+                        // (its words dropped, so nothing stays hidden by them) at a second tap.
+                        action = if (finder) ({
+                            IconButton(
+                                onClick = {
+                                    if (searchShown) { searchOpen = false; filter = filter.copy(query = "") }
+                                    else { searchFocus = true; searchOpen = true }
+                                },
+                                colors = IconButtonDefaults.iconButtonColors(containerColor = if (searchShown) Color.White.copy(alpha = 0.22f) else Color.Transparent),
+                            ) {
+                                Icon(Icons.Filled.Search, stringResource(if (searchShown) R.string.syncs_find_close else R.string.syncs_find_hint), tint = Color.White)
                             }
                         }) else null,
                     )
+                    // In the same item as the header, so the list's positions stay as they are.
+                    if (searchShown) SyncFinderField(effective, focus = searchFocus, onFocused = { searchFocus = false }) { filter = it }
                     if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
                         ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
                     }
@@ -462,22 +484,32 @@ fun SyncsScreen(
                     }
                 }
             }
-            // Under the hero and scrolling with the list, so it never fights the pinned pill below.
-            if (finder) item(key = "finder", span = wholeRow) {
-                SyncFinder(data.syncs, effective, shown.size, remember(data.syncs, data.reports, runningIds) { SyncFilter.counts(data.syncs, data.reports, runningIds) }, data.settings.labels) { filter = it }
-            }
-            // "Sync all": a pill centred under the header that stays at the top while the list scrolls.
-            // While syncs run it says how many, and a tap brings the first running card into view.
-            if (data.syncs.size >= 2) stickyHeader(key = "runall") {
-                // Index of the first card: hero, finder, pill, then the support card when there is one.
-                val firstCard = runAllIndex + 1 + (if (support != null || nudge) 1 else 0) + (if (crowd != null) 1 else 0)
+            // One row under the header: "Sync all", a pill that stays at the top while the list scrolls
+            // (while syncs run it says how many, and a tap brings the first running card into view), then
+            // the filter chips and, at the row's end, cards or tiles. Pinned, only the pill is left.
+            if (runAllRow) stickyHeader(key = "runall") {
+                val firstCardNoFilter = firstCardUnfiltered + (if (crowd != null) 1 else 0)
+                val firstCard = firstCardNoFilter + (if (filterLine) 1 else 0)
                 // A card brought into view lands just under the pinned pill, not beneath it.
                 val tally = SyncState.tally(running.keys, pausedSet, parkedSet, stoppingSet)
-                RunAllPill(tally, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height }) {
+                val counts = remember(data.syncs, data.reports, runningIds) { SyncFilter.counts(data.syncs, data.reports, runningIds) }
+                RunAllRow(
+                    tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height },
+                    chips = if (finder) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels) { filter = it } }) else null,
+                    // Cards or tiles, at a tap; remembered (also in Settings).
+                    trailing = if (viewToggle) ({
+                        IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {
+                            Icon(
+                                if (minimal) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
+                                stringResource(if (minimal) R.string.syncs_view_cards else R.string.syncs_view_tiles), tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }) else null,
+                ) {
                     // Every running sync paused: the pill is the way to resume them all.
                     if (tally.allPaused) {
                         running.keys.forEach { SyncState.resume(it) }
-                        return@RunAllPill
+                        return@RunAllRow
                     }
                     val firstShown = shown.indexOfFirst { running.containsKey(it.id) }
                     val firstAll = data.syncs.indexOfFirst { running.containsKey(it.id) }
@@ -487,14 +519,16 @@ fun SyncsScreen(
                         firstAll >= 0 -> {
                             filter = SyncFilter()
                             scope.launch {
-                                withTimeoutOrNull(1000) { snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it > firstCard + firstAll } }
-                                listState.animateScrollToItem(firstCard + firstAll, -pillHeight)
+                                withTimeoutOrNull(1000) { snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it > firstCardNoFilter + firstAll } }
+                                listState.animateScrollToItem(firstCardNoFilter + firstAll, -pillHeight)
                             }
                         }
                         else -> onRunAll()
                     }
                 }
             }
+            // With a filter on: how many cards are shown, and a way to clear it all. Under the row, with the list.
+            if (filterLine) item(key = "filterline", span = wholeRow) { SyncFinderSummary(data.syncs.size, shown.size) { filter = SyncFilter() } }
             // Una volta sola, dopo la prima sync grande: il momento in cui si vede quanto tempo ha fatto risparmiare.
             if (support != null) item(key = "support", span = wholeRow) { SupportCard(support) }
             else if (nudge) item(key = "nudge", span = wholeRow) { CoffeeCard() }
@@ -656,62 +690,90 @@ private class PullGuard : NestedScrollConnection {
 }
 
 /**
- * The "sync all" pill: filled and inviting when idle, a quiet progress state while syncs run.
+ * The row under the header: the "sync all" pill first (filled and inviting when idle, a quiet progress
+ * state while syncs run; [tally] null with a single sync, which has no pill), then the filter [chips],
+ * all in one line that scrolls sideways, and [trailing] (cards or tiles) at its end.
  *
- * It floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
+ * The pill floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
  * (1.3.2–1.4.0, and again briefly in 1.17) was dropped both times on the owner's request. The pill
  * keeps its shadow, and the "?" beside it sits on a small raised circle of its own, so both read
- * over any card.
+ * over any card. The chips and the button have nothing of the kind: pinned, they fade away and come
+ * back with the top of the list, where they are part of the page.
  */
 @Composable
-private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun RunAllRow(
+    tally: SyncState.Tally?, pinned: Boolean, modifier: Modifier = Modifier,
+    chips: (@Composable () -> Unit)? = null, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit,
+) {
     val haptic = rememberConfirmHaptic()
-    val runningCount = tally.total
-    val busy = runningCount > 0
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
-    Box(
-        modifier.fillMaxWidth()
+    Row(
+        // As wide as the window, over the list's own side padding: the chips scroll from edge to edge,
+        // and the pill's shadow is not cut at the scroller's side.
+        modifier
+            .layout { measurable, constraints ->
+                val side = LIST_SIDE.roundToPx()
+                val p = measurable.measure(constraints.copy(minWidth = constraints.maxWidth + 2 * side, maxWidth = constraints.maxWidth + 2 * side))
+                layout(constraints.maxWidth, p.height) { p.place(-side, 0) }
+            }
             // Pinned, it floats over the cards: no band behind it (the owner's choice, again on 11/11).
             .then(if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG) else Modifier)
-            .padding(top = 4.dp, bottom = 12.dp),
-        contentAlignment = Alignment.Center,
+            .padding(top = 4.dp, bottom = 12.dp, end = if (trailing != null) 4.dp else 0.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Balances the "?" on the other side, so the pill stays centred.
-            Spacer(Modifier.width(48.dp))
-            androidx.compose.material3.Surface(
-                onClick = { if (!busy || tally.allPaused) haptic(); onClick() },
-                shape = RoundedCornerShape(50),
-                color = if (busy) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primary,
-                contentColor = if (busy) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimary,
-                shadowElevation = 6.dp,
+        // The scroller is only as wide as what it holds: pinned, a touch beside the pill reaches the card beneath.
+        Box(Modifier.weight(1f)) {
+            Row(
+                Modifier.horizontalScroll(rememberScrollState()).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(Modifier.heightIn(min = 48.dp).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
-                    // All of them paused: nothing moves, so no spinner; a still pause sign, and a tap resumes them.
-                    when {
-                        tally.allPaused -> Icon(Icons.Filled.Pause, null, Modifier.size(20.dp))
-                        busy -> CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                        else -> Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
+                if (tally != null) Row(verticalAlignment = Alignment.CenterVertically) {
+                    val runningCount = tally.total
+                    val busy = runningCount > 0
+                    androidx.compose.material3.Surface(
+                        onClick = { if (!busy || tally.allPaused) haptic(); onClick() },
+                        shape = RoundedCornerShape(50),
+                        color = if (busy) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primary,
+                        contentColor = if (busy) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimary,
+                        shadowElevation = 6.dp,
+                    ) {
+                        Row(Modifier.heightIn(min = 48.dp).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+                            // All of them paused: nothing moves, so no spinner; a still pause sign, and a tap resumes them.
+                            when {
+                                tally.allPaused -> Icon(Icons.Filled.Pause, null, Modifier.size(20.dp))
+                                busy -> CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                else -> Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                when {
+                                    tally.allPaused -> pluralStringResource(R.plurals.syncs_paused, runningCount, runningCount)
+                                    tally.somePaused -> stringResource(R.string.syncs_running_paused, tally.running, tally.paused)
+                                    busy -> pluralStringResource(R.plurals.syncs_running, runningCount, runningCount)
+                                    else -> stringResource(R.string.sync_all)
+                                },
+                                style = MaterialTheme.typography.labelLarge, maxLines = 1,
+                            )
+                        }
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        when {
-                            tally.allPaused -> pluralStringResource(R.plurals.syncs_paused, runningCount, runningCount)
-                            tally.somePaused -> stringResource(R.string.syncs_running_paused, tally.running, tally.paused)
-                            busy -> pluralStringResource(R.plurals.syncs_running, runningCount, runningCount)
-                            else -> stringResource(R.string.sync_all)
-                        },
-                        style = MaterialTheme.typography.labelLarge,
-                    )
+                    // Its own small raised circle: over a card scrolling beneath, the "?" still reads.
+                    androidx.compose.material3.Surface(
+                        shape = CircleShape,
+                        color = if (pinned) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
+                        shadowElevation = helpShadow,
+                    ) { HelpButton(Helps.syncAll) }
+                }
+                if (chips != null) androidx.compose.animation.AnimatedVisibility(
+                    !pinned, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(),
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
                 }
             }
-            // Its own small raised circle: over a card scrolling beneath, the "?" still reads.
-            androidx.compose.material3.Surface(
-                shape = CircleShape,
-                color = if (pinned) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
-                shadowElevation = helpShadow,
-            ) { HelpButton(Helps.syncAll) }
         }
+        if (trailing != null) androidx.compose.animation.AnimatedVisibility(
+            !pinned, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(),
+        ) { trailing() }
     }
 }
 
@@ -1281,6 +1343,9 @@ const val JOB_CARD_TAG = "job-card"
 /** The pinned Sync-all pill's background and where it ends (for the UI tests); the fade under it, inside a card's padding. */
 const val RUN_ALL_BAND_TAG = "run-all-band"
 val PILL_FADE = 10.dp
+
+/** The sync list's padding at each side. */
+private val LIST_SIDE = 16.dp
 
 /** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
 internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =

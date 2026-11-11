@@ -77,6 +77,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 
 /** The find bar shows from this many syncs on: with fewer, the whole list fits on a screen or two. */
 const val FIND_MIN_SYNCS = 5
@@ -112,105 +115,109 @@ val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
 )
 
 /**
- * Find and filter, under the hero when there are many syncs: a compact search field, then one row
- * of chips (status, the services in use, the colours in use) that scrolls sideways. With a filter
- * on, a line says how many cards are shown, with a way to clear it all.
+ * The search field of the sync list: closed until the header's magnifier is tapped, then shown
+ * under the header. [focus] puts the cursor in it (a tap on the magnifier; not a turn of the phone).
  */
 @Composable
-fun SyncFinder(
-    jobs: List<SyncJob>, filter: SyncFilter, shown: Int, counts: Map<SyncFilter.Status, Int> = emptyMap(),
+fun SyncFinderField(filter: SyncFilter, focus: Boolean, onFocused: () -> Unit, onChange: (SyncFilter) -> Unit) {
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    // Once: the field coming back into view as the list scrolls does not bring the keyboard up again.
+    LaunchedEffect(Unit) { if (focus) { runCatching { focusRequester.requestFocus() }; onFocused() } }
+    OutlinedTextField(
+        value = filter.query,
+        onValueChange = { onChange(filter.copy(query = it)) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).focusRequester(focusRequester),
+        singleLine = true,
+        shape = RoundedCornerShape(50),
+        textStyle = MaterialTheme.typography.bodyLarge,
+        placeholder = { Text(stringResource(R.string.syncs_find_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        leadingIcon = { Icon(Icons.Filled.Search, null) },
+        trailingIcon = if (filter.query.isNotEmpty()) ({
+            IconButton(onClick = { onChange(filter.copy(query = "")) }) {
+                Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear))
+            }
+        }) else null,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+        ),
+    )
+}
+
+/**
+ * The filter chips (starred, status, the services in use, the colours and tags in use), one after
+ * the other: the caller's row lays them out, after the "Sync all" pill, and scrolls sideways.
+ */
+@Composable
+fun SyncFinderChips(
+    jobs: List<SyncJob>, filter: SyncFilter, counts: Map<SyncFilter.Status, Int> = emptyMap(),
     labels: List<com.xlollx.songport.model.Label> = emptyList(), onChange: (SyncFilter) -> Unit,
 ) {
     val ctx = LocalContext.current
-    val keyboard = LocalSoftwareKeyboardController.current
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-            value = filter.query,
-            onValueChange = { onChange(filter.copy(query = it)) },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-            singleLine = true,
-            shape = RoundedCornerShape(50),
-            textStyle = MaterialTheme.typography.bodyLarge,
-            placeholder = { Text(stringResource(R.string.syncs_find_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            leadingIcon = { Icon(Icons.Filled.Search, null) },
-            trailingIcon = if (filter.query.isNotEmpty()) ({
-                IconButton(onClick = { onChange(filter.copy(query = "")) }) {
-                    Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear))
-                }
-            }) else null,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            ),
+    // The starred syncs, when there are any.
+    if (jobs.any { it.favorite }) StatusChip(stringResource(R.string.filter_favorites), Icons.Filled.Star, filter.favorite) { onChange(filter.toggleFavorite()) }
+    // By status, each with how many syncs it holds; a status no sync is in shows only while chosen.
+    SyncFilter.Status.entries.forEach { s ->
+        val n = counts[s] ?: 0
+        if (n > 0 || s in filter.statuses || counts.isEmpty()) {
+            val (label, icon) = when (s) {
+                SyncFilter.Status.UP_TO_DATE -> R.string.filter_up_to_date to Icons.Filled.CheckCircle
+                SyncFilter.Status.ERROR -> R.string.filter_errors to Icons.Filled.Warning
+                SyncFilter.Status.NEEDS_FIX -> R.string.filter_needs_fix to Icons.Filled.Build
+                SyncFilter.Status.RUNNING -> R.string.filter_running to Icons.Filled.Sync
+                SyncFilter.Status.NEVER_RUN -> R.string.filter_never_run to Icons.Filled.Schedule
+                SyncFilter.Status.DISABLED -> R.string.filter_disabled to Icons.Filled.Block
+            }
+            val text = stringResource(label)
+            StatusChip(if (counts.isEmpty()) text else "$text · $n", icon, s in filter.statuses) { onChange(filter.toggle(s)) }
+        }
+    }
+    val services = SyncFilter.servicesInUse(jobs)
+    if (services.size > 1) {
+        services.forEach { id ->
+            val p = Providers.byId(id)
+            FilterChip(
+                selected = id in filter.services,
+                onClick = { onChange(filter.toggleService(id)) },
+                label = { Text(p?.label(ctx) ?: id, maxLines = 1) },
+                // The mark says which service, the label says it in words: the mark itself stays silent.
+                leadingIcon = { Box(Modifier.clearAndSetSemantics {}) { ServiceLogo(p, FilterChipDefaults.IconSize) } },
+            )
+        }
+    }
+    // By label: a named one says its name; a ready colour nobody named stays a dot. A colour of
+    // the user's own without a name is no label, and has no chip.
+    Labels.inUse(jobs).forEach { id ->
+        val l = Labels.find(labels, id) ?: return@forEach
+        if (l.name.isBlank()) ColorDot(l.color, id in filter.labels) { onChange(filter.toggleLabel(id)) }
+        else FilterChip(
+            selected = id in filter.labels,
+            onClick = { onChange(filter.toggleLabel(id)) },
+            label = { Text(l.name, maxLines = 1) },
+            leadingIcon = {
+                Box(Modifier.size(FilterChipDefaults.IconSize).clip(CircleShape).background(jobAccent(l.color) ?: MaterialTheme.colorScheme.outline).clearAndSetSemantics {})
+            },
         )
-        // One row that scrolls sideways: it never grows into a wall of chips above the cards.
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // The starred syncs, when there are any.
-            if (jobs.any { it.favorite }) StatusChip(stringResource(R.string.filter_favorites), Icons.Filled.Star, filter.favorite) { onChange(filter.toggleFavorite()) }
-            // By status, each with how many syncs it holds; a status no sync is in shows only while chosen.
-            SyncFilter.Status.entries.forEach { s ->
-                val n = counts[s] ?: 0
-                if (n > 0 || s in filter.statuses || counts.isEmpty()) {
-                    val (label, icon) = when (s) {
-                        SyncFilter.Status.UP_TO_DATE -> R.string.filter_up_to_date to Icons.Filled.CheckCircle
-                        SyncFilter.Status.ERROR -> R.string.filter_errors to Icons.Filled.Warning
-                        SyncFilter.Status.NEEDS_FIX -> R.string.filter_needs_fix to Icons.Filled.Build
-                        SyncFilter.Status.RUNNING -> R.string.filter_running to Icons.Filled.Sync
-                        SyncFilter.Status.NEVER_RUN -> R.string.filter_never_run to Icons.Filled.Schedule
-                        SyncFilter.Status.DISABLED -> R.string.filter_disabled to Icons.Filled.Block
-                    }
-                    val text = stringResource(label)
-                    StatusChip(if (counts.isEmpty()) text else "$text · $n", icon, s in filter.statuses) { onChange(filter.toggle(s)) }
-                }
-            }
-            val services = SyncFilter.servicesInUse(jobs)
-            if (services.size > 1) {
-                services.forEach { id ->
-                    val p = Providers.byId(id)
-                    FilterChip(
-                        selected = id in filter.services,
-                        onClick = { onChange(filter.toggleService(id)) },
-                        label = { Text(p?.label(ctx) ?: id, maxLines = 1) },
-                        // The mark says which service, the label says it in words: the mark itself stays silent.
-                        leadingIcon = { Box(Modifier.clearAndSetSemantics {}) { ServiceLogo(p, FilterChipDefaults.IconSize) } },
-                    )
-                }
-            }
-            // By label: a named one says its name; a ready colour nobody named stays a dot. A colour of
-            // the user's own without a name is no label, and has no chip.
-            Labels.inUse(jobs).forEach { id ->
-                val l = Labels.find(labels, id) ?: return@forEach
-                if (l.name.isBlank()) ColorDot(l.color, id in filter.labels) { onChange(filter.toggleLabel(id)) }
-                else FilterChip(
-                    selected = id in filter.labels,
-                    onClick = { onChange(filter.toggleLabel(id)) },
-                    label = { Text(l.name, maxLines = 1) },
-                    leadingIcon = {
-                        Box(Modifier.size(FilterChipDefaults.IconSize).clip(CircleShape).background(jobAccent(l.color) ?: MaterialTheme.colorScheme.outline).clearAndSetSemantics {})
-                    },
-                )
-            }
-            // By tag: one chip per key. A key with values opens them; a key alone is on or off.
-            Labels.keysInUse(jobs).forEach { key -> TagChip(key, Labels.valuesInUse(jobs, key), filter, onChange) }
-        }
-        if (filter.isActive) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    pluralStringResource(R.plurals.filter_shown, jobs.size, shown, jobs.size),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f).padding(start = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
-                )
-                TextButton(onClick = { onChange(SyncFilter()) }) { Text(stringResource(R.string.filter_clear)) }
-            }
-        }
+    }
+    // By tag: one chip per key. A key with values opens them; a key alone is on or off.
+    Labels.keysInUse(jobs).forEach { key -> TagChip(key, Labels.valuesInUse(jobs, key), filter, onChange) }
+}
+
+/** With a filter on: how many cards are shown, with a way to clear it all. */
+@Composable
+fun SyncFinderSummary(total: Int, shown: Int, onClear: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            pluralStringResource(R.plurals.filter_shown, total, shown, total),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f).padding(start = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        TextButton(onClick = onClear) { Text(stringResource(R.string.filter_clear)) }
     }
 }
 
