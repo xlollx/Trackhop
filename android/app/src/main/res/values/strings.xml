@@ -2261,4 +2261,8 @@
     <string name="provider_note_jiosaavn">Public JioSaavn playlists, albums and songs, read-only and without signing in: paste the link (jiosaavn.com/featured/…, /album/…, /song/…) as the source of a sync. Not an official interface: it can stop working when the site changes.</string>
     <string name="jiosaavn_not_public">This JioSaavn link is private or doesn\'t exist: only public links work</string>
     <string name="jiosaavn_changed">JioSaavn changed its site; Trackhop needs an update</string>
+    <string name="discard_changes_title">Discard changes?</string>
+    <string name="discard_changes_body">What you entered here isn\'t saved yet.</string>
+    <string name="discard_changes_discard">Discard</string>
+    <string name="discard_changes_keep">Keep editing</string>
 </resources>

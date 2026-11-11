@@ -2221,4 +2221,8 @@
     <string name="provider_note_jiosaavn">JioSaavn 的公开歌单、专辑和歌曲，只读且无需登录：把链接（jiosaavn.com/featured/…、/album/…、/song/…）粘贴为同步的来源。这不是官方接口：网站变化时可能失效。</string>
     <string name="jiosaavn_not_public">这个 JioSaavn 链接是私密的或不存在：只支持公开链接</string>
     <string name="jiosaavn_changed">JioSaavn 改了网站，Trackhop 需要更新</string>
+    <string name="discard_changes_title">放弃更改？</string>
+    <string name="discard_changes_body">你在这里输入的内容尚未保存。</string>
+    <string name="discard_changes_discard">放弃</string>
+    <string name="discard_changes_keep">继续编辑</string>
 </resources>

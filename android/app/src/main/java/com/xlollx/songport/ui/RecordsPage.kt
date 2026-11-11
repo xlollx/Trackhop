@@ -217,8 +217,9 @@ internal fun DiscogsTokenDialog(onDismiss: () -> Unit) {
     val clipboard = LocalClipboardManager.current
     val saved = Records.token(ctx.env) != null
     var token by remember { mutableStateOf("") }
+    val close = rememberDiscardGuard(token.isNotBlank(), onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.records_token_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

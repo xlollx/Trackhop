@@ -751,8 +751,9 @@ private fun JobMenuHost(
         val now = com.xlollx.songport.sync.Labels.favoritesFirst(data.jobs, data.settings.favoritesOnTop).indexOfFirst { it.id == job.id } + 1
         var typed by rememberSaveable { mutableStateOf(now.toString()) }
         val wanted = typed.toIntOrNull()?.takeIf { it in 1..total }
+        val close = rememberDiscardGuard(typed != now.toString()) { moveToOpen = false }
         FitDialog(
-            onDismissRequest = { moveToOpen = false },
+            onDismissRequest = close,
             title = { Text(stringResource(R.string.sync_menu_move_to)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1408,7 +1409,6 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 @Composable
 fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null, onSave: (SyncJob, SyncJob?) -> Unit) {
     val ctx = LocalContext.current
-    ScreenBackHandler(onCancel)
     val saveHaptic = rememberConfirmHaptic()
     val isNew = job.name.isEmpty()
     // Solo i connettori aggiunti nella scheda Account: uno tolto di li' non deve piu' essere
@@ -1483,6 +1483,20 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     var matchingOpen by rememberSaveable { mutableStateOf(job.policy != com.xlollx.songport.model.MatchPolicy()) }
     var error by remember { mutableStateOf<String?>(null) }
 
+    // Everything the user can change, as one line: back or the arrow with a line other than the one
+    // the editor opened with asks "Discard changes?". What the editor fills in by itself (a playlist
+    // found by its name, liked songs as the target, Shazam's playlist) moves the starting line along.
+    fun shape() = listOf(
+        name, srcProvider, srcPlaylist?.id, linkMode, linkText, shazamMode, radioMode, radioStation, radioStream, radioHome, radioDays,
+        radioStart, radioEnd, dstProvider, createNew, dstPlaylist?.id, newName, schedule, everyM, atStr, daysCsv, mirror, keepOrder, follows,
+        archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy,
+    ).joinToString("\u0001")
+    var opened by rememberSaveable { mutableStateOf(shape()) }
+    /** Runs [fill] (the editor filling something in) without counting it as the user's change. */
+    fun filling(fill: () -> Unit) { val clean = shape() == opened; fill(); if (clean) opened = shape() }
+    val leave = rememberDiscardGuard(shape() != opened, onClose = onCancel)
+    ScreenBackHandler(leave)
+
     var srcLists by remember { mutableStateOf<Loaded>(Loaded.Loading) }
     var dstLists by remember { mutableStateOf<Loaded>(Loaded.Loading) }
 
@@ -1499,7 +1513,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
         val dstObj = Providers.byId(dstProvider)
         val sid = srcPlaylist?.id
-        if (MusicProvider.isLibrary(sid) && dstProvider != srcProvider && dstObj?.supportsLibrary(sid, asTarget = true) == true && dstPlaylist == null) {
+        if (MusicProvider.isLibrary(sid) && dstProvider != srcProvider && dstObj?.supportsLibrary(sid, asTarget = true) == true && dstPlaylist == null) filling {
             createNew = false
             dstPlaylist = Playlist(sid!!, srcPlaylist?.name ?: "")
         }
@@ -1509,7 +1523,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
         val items = (srcLists as? Loaded.Ok)?.items ?: return@LaunchedEffect
         pickByName = false
         val wanted = job.source.playlistName.trim()
-        items.firstOrNull { it.name.trim().equals(wanted, ignoreCase = true) }?.let { if (srcPlaylist == null) srcPlaylist = it }
+        items.firstOrNull { it.name.trim().equals(wanted, ignoreCase = true) }?.let { if (srcPlaylist == null) filling { srcPlaylist = it } }
     }
     // Job creato da un link condiviso: l'id c'e', il nome ancora no.
     LaunchedEffect(Unit) {
@@ -1547,8 +1561,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             val l = loadPlaylists(ctx, p.id, forTarget = false)
             if (l is Loaded.Failed) errors += p.label(ctx) + ": " + l.message
             val found = (l as? Loaded.Ok)?.items?.let { ShazamLibrary.find(it) } ?: continue
-            srcProvider = p.id
-            srcPlaylist = found
+            filling { srcProvider = p.id; srcPlaylist = found }
             shazamLookup = ShazamLookup.Found
             return@LaunchedEffect
         }
@@ -1663,7 +1676,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(if (isNew) R.string.editor_title_new else R.string.editor_title_edit)) },
-                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cancel)) } },
+                navigationIcon = { IconButton(onClick = leave) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cancel)) } },
             )
         },
         // Save stays in reach at the bottom whatever the length of the form. On a phone on its side

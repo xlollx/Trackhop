@@ -277,9 +277,11 @@ private fun NoDatesCard(artists: List<Concerts.ArtistDates>) {
 internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
     val ctx = LocalContext.current
     val clipboard = LocalClipboardManager.current
-    var key by remember { mutableStateOf(Concerts.ownKey(ctx.env).orEmpty()) }
+    val saved = remember { Concerts.ownKey(ctx.env).orEmpty() }
+    var key by remember { mutableStateOf(saved) }
+    val close = rememberDiscardGuard(key != saved, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(stringResource(R.string.concerts_key_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

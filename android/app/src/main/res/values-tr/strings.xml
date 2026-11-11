@@ -2258,4 +2258,8 @@
     <string name="provider_note_jiosaavn">Herkese açık JioSaavn listeleri, albümleri ve şarkıları, salt okunur ve giriş yapmadan: bağlantıyı (jiosaavn.com/featured/…, /album/…, /song/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
     <string name="jiosaavn_not_public">Bu JioSaavn bağlantısı gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
     <string name="jiosaavn_changed">JioSaavn sitesini değiştirdi; Trackhop güncellenmeli</string>
+    <string name="discard_changes_title">Değişikliklerden vazgeçilsin mi?</string>
+    <string name="discard_changes_body">Buraya girilenler henüz kaydedilmedi.</string>
+    <string name="discard_changes_discard">Vazgeç</string>
+    <string name="discard_changes_keep">Düzenlemeye devam et</string>
 </resources>

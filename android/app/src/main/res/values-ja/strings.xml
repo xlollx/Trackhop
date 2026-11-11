@@ -2221,4 +2221,8 @@
     <string name="provider_note_jiosaavn">JioSaavn の公開プレイリスト・アルバム・曲を読み取り専用・ログインなしで：リンク（jiosaavn.com/featured/…、/album/…、/song/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
     <string name="jiosaavn_not_public">この JioSaavn のリンクは非公開か存在しません：公開リンクのみ使えます</string>
     <string name="jiosaavn_changed">JioSaavn のサイトが変わりました。Trackhop の更新が必要です</string>
+    <string name="discard_changes_title">変更を破棄しますか？</string>
+    <string name="discard_changes_body">ここに入力した内容はまだ保存されていません。</string>
+    <string name="discard_changes_discard">破棄</string>
+    <string name="discard_changes_keep">編集を続ける</string>
 </resources>

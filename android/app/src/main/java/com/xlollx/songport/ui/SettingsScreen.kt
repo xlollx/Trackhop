@@ -460,8 +460,9 @@ fun SettingsScreen(
                 PrefRow(Icons.Filled.NetworkCheck, stringResource(R.string.capture_site_title), stringResource(R.string.capture_site_desc)) { captureOpen = true }
                 if (captureOpen) {
                     var address by rememberSaveable { mutableStateOf("https://play.qobuz.com") }
+                    val close = rememberDiscardGuard(address != "https://play.qobuz.com") { captureOpen = false }
                     FitDialog(
-                        onDismissRequest = { captureOpen = false },
+                        onDismissRequest = close,
                         title = { Text(stringResource(R.string.capture_site_title)) },
                         text = { OutlinedTextField(address, { address = it.trim() }, singleLine = true, label = { Text(stringResource(R.string.capture_site_address)) }) },
                         confirmButton = {

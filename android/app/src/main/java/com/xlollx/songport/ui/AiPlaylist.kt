@@ -538,7 +538,7 @@ private fun ModelRow(c: AiClient.Config, onChange: () -> Unit, onModel: (String)
 @Composable
 fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (AiClient.Config?) -> Unit) {
     // Closed on purpose: the unsaved key is forgotten (see AiSetupDraft).
-    val close = { AiSetupDraft.closing = true; AiSetupDraft.key = null; onDismiss() }
+    val cancel = { AiSetupDraft.closing = true; AiSetupDraft.key = null; onDismiss() }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     // What is being chosen survives leaving the app and coming back (the activity may be made anew
@@ -557,6 +557,10 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
     /** "" = the test passed; text = its error; null = not tried. */
     var checkResult by remember { mutableStateOf<String?>(null) }
     fun current() = AiClient.Config(vendor, key.trim(), model.trim(), baseUrl.trim(), if (vendor == AiClient.Vendor.CUSTOM) imageModel.trim() else "")
+    // Back or a tap beside it with a key or a choice not saved: asked first.
+    val changed = vendor != (initial?.vendor ?: AiClient.Vendor.OPENAI) || key.trim() != initial?.apiKey.orEmpty().trim() ||
+        model.trim() != initial?.model.orEmpty().trim() || baseUrl.trim() != initial?.baseUrl.orEmpty().trim() || imageModel.trim() != initial?.imageModel.orEmpty().trim()
+    val close = rememberDiscardGuard(changed, onClose = cancel)
 
     FitDialog(
         onDismissRequest = close,
@@ -659,7 +663,7 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
         dismissButton = {
             Row {
                 if (initial != null) TextButton(onClick = { AiClient.clear(ctx); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(null) }) { Text(stringResource(R.string.ai_forget), color = MaterialTheme.colorScheme.error) }
-                TextButton(onClick = close) { Text(stringResource(R.string.cancel)) }
+                TextButton(onClick = cancel) { Text(stringResource(R.string.cancel)) }
             }
         },
     )
@@ -829,8 +833,9 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
         }
         return
     }
+    val close = rememberDiscardGuard(prompt.isNotBlank(), onClose = onClose)
     FitDialog(
-        onDismissRequest = { if (!busy) onClose() },
+        onDismissRequest = { if (!busy) close() },
         title = { Text(stringResource(R.string.ai_extend_title)) },
         text = {
             Column {

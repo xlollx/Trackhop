@@ -502,8 +502,14 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
             else -> stringResource(R.string.shared_folder).takeIf { folder == null }
         },
     )
+    // Back or a tap beside it with something filled in: asked first, as on every form.
+    val close = rememberDiscardGuard(
+        name != from?.name.orEmpty() || myName.isNotBlank() || playlist?.id != from?.local?.playlistId || makeNew || folder != null ||
+            transport != Invite.FOLDER || server != DEFAULT_NTFY_SERVER || signIn.typed,
+        onClose = onDismiss,
+    )
     FitDialog(
-        onDismissRequest = { if (!busy) onDismiss() },
+        onDismissRequest = { if (!busy) close() },
         title = { Text(stringResource(R.string.shared_create)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -591,8 +597,9 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
             stringResource(R.string.shared_ntfy_signin_change).takeIf { invite.transport == Invite.NTFY && !signIn.ready },
         )
     }
+    val close = rememberDiscardGuard(link != initial || myName.isNotBlank() || folder != null || signIn.typed, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = { if (!busy) onDismiss() },
+        onDismissRequest = { if (!busy) close() },
         title = { Text(stringResource(R.string.shared_join)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -896,8 +903,9 @@ private fun NtfySignInDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: 
     val signIn = remember { NtfySignIn(on = SharedTransports.ntfyAuth(ctx.env, group) != null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    val close = rememberDiscardGuard(signIn.typed, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = { if (!busy) onDismiss() },
+        onDismissRequest = { if (!busy) close() },
         title = { Text(stringResource(R.string.shared_ntfy_signin_change)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -928,8 +936,9 @@ private fun MoveServerDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: 
     val signIn = remember { NtfySignIn() }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    val close = rememberDiscardGuard(server.isNotBlank() || signIn.typed, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = { if (!busy) onDismiss() },
+        onDismissRequest = { if (!busy) close() },
         title = { Text(stringResource(R.string.shared_change_server)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

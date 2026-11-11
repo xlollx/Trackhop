@@ -2268,4 +2268,8 @@
     <string name="provider_note_jiosaavn">Playlists, álbumes y canciones públicas de JioSaavn, solo lectura y sin iniciar sesión: pega el enlace (jiosaavn.com/featured/…, /album/…, /song/…) como origen de una sync. No es una interfaz oficial: puede dejar de funcionar si la web cambia.</string>
     <string name="jiosaavn_not_public">Este enlace de JioSaavn es privado o no existe: solo funcionan los enlaces públicos</string>
     <string name="jiosaavn_changed">JioSaavn ha cambiado su web; Trackhop necesita una actualización</string>
+    <string name="discard_changes_title">¿Descartar los cambios?</string>
+    <string name="discard_changes_body">Lo que has escrito aquí aún no se ha guardado.</string>
+    <string name="discard_changes_discard">Descartar</string>
+    <string name="discard_changes_keep">Seguir editando</string>
 </resources>

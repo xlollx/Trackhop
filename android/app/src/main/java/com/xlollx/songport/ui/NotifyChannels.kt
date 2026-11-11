@@ -209,8 +209,10 @@ private fun ChannelEditor(
         return Notify.build(c.id, c.kind, name, enabled, events, values, old).getOrElse { problem = it.message; null }
     }
 
+    val typed = remember { c.kind.fields.associate { f -> f.key to if (f.secret) "" else c.value(f.key) } }
+    val close = rememberDiscardGuard(name != c.name || enabled != c.enabled || events != c.events || values != typed, onClose = onDismiss)
     FitDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         title = { Text(c.kind.label) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { // FitDialog scrolls it
