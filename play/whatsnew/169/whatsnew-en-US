@@ -1,0 +1,1 @@
+SoundCloud stays signed in: the app now renews the SoundCloud session in the background, so it no longer expires after a few days without syncs. If it does expire, a single notification takes you straight to Accounts to sign in again.

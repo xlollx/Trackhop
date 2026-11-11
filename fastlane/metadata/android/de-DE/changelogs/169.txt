@@ -1,0 +1,1 @@
+SoundCloud bleibt angemeldet: Die App erneuert die SoundCloud-Sitzung jetzt im Hintergrund, damit sie nach ein paar Tagen ohne Sync nicht mehr abläuft. Läuft sie doch ab, bringt dich eine einzige Benachrichtigung direkt zu den Konten, um dich erneut anzumelden.

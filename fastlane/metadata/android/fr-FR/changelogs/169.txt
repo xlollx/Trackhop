@@ -1,0 +1,1 @@
+SoundCloud reste connecté : l'app renouvelle maintenant la session SoundCloud en arrière-plan, elle n'expire donc plus après quelques jours sans synchronisation. Si elle expire quand même, une seule notification t'emmène directement dans Comptes pour te reconnecter.
