@@ -2176,4 +2176,16 @@
     <string name="shared_server_new_invite">すでに参加している %1$s の新しい招待です。グループは今後 %2$s で集まります。</string>
     <string name="shared_server_updated">%1$s：新しいサーバーに移りました。</string>
     <string name="shared_error_not_curator">グループを移せるのはキュレーターだけです。</string>
+    <string name="shared_empty_title">グループとプレイリストを共有</string>
+    <string name="shared_empty_copy">各自が自分のサービスに自分のコピーを持ちます。</string>
+    <string name="shared_empty_meet">変更は共有フォルダ、暗号化された ntfy チャンネル、または自分の Trackhop サーバーを通って届きます。</string>
+    <string name="shared_empty_invite">招待リンクだけで OK。アカウントは不要です。</string>
+    <string name="shared_how">しくみ</string>
+    <string name="shared_via_folder_short">Google Drive、Nextcloud、Dropbox、Syncthing</string>
+    <string name="shared_via_ntfy_short">暗号化。ntfy.sh または自分のサーバー経由</string>
+    <string name="shared_via_server_short">自分のサーバー（%1$s）</string>
+    <string name="shared_missing">未入力: %1$s</string>
+    <string name="shared_join_secret">この招待を持つ人は誰でもグループを読めます。転送しないでください。</string>
+    <string name="shared_link_hint">送られてきたリンクを貼り付けるか、メッセージから開いてください。</string>
+    <string name="shared_code_label">グループコード</string>
 </resources>

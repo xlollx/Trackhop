@@ -2223,4 +2223,16 @@
     <string name="shared_server_new_invite">Una nueva invitación para %1$s, donde ya estás: el grupo ahora se reúne en %2$s.</string>
     <string name="shared_server_updated">%1$s: movido al nuevo servidor.</string>
     <string name="shared_error_not_curator">Solo un curador puede mover el grupo.</string>
+    <string name="shared_empty_title">Comparte una playlist con tu grupo</string>
+    <string name="shared_empty_copy">Cada uno tiene su propia copia, en su propio servicio.</string>
+    <string name="shared_empty_meet">Los cambios viajan por una carpeta compartida, un canal ntfy cifrado o tu servidor Trackhop.</string>
+    <string name="shared_empty_invite">Basta con un enlace de invitación: sin cuenta.</string>
+    <string name="shared_how">Cómo funciona</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Cifrado, a través de ntfy.sh o tu propio servidor</string>
+    <string name="shared_via_server_short">Tu servidor, %1$s</string>
+    <string name="shared_missing">Falta: %1$s</string>
+    <string name="shared_join_secret">Quien tenga esta invitación puede leer el grupo: no la reenvíes.</string>
+    <string name="shared_link_hint">Pega el enlace que te enviaron o ábrelo desde el mensaje.</string>
+    <string name="shared_code_label">Código del grupo</string>
 </resources>

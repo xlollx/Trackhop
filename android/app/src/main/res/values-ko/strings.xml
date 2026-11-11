@@ -2175,4 +2175,16 @@
     <string name="shared_server_new_invite">이미 참여 중인 %1$s의 새 초대입니다. 이제 그룹은 %2$s에서 모입니다.</string>
     <string name="shared_server_updated">%1$s: 새 서버로 옮겼습니다.</string>
     <string name="shared_error_not_curator">큐레이터만 그룹을 옮길 수 있습니다.</string>
+    <string name="shared_empty_title">그룹과 플레이리스트 공유하기</string>
+    <string name="shared_empty_copy">각자 자기 서비스에 자기 사본을 둡니다.</string>
+    <string name="shared_empty_meet">변경 내용은 공유 폴더, 암호화된 ntfy 채널 또는 내 Trackhop 서버를 거쳐 전달됩니다.</string>
+    <string name="shared_empty_invite">초대 링크 하나면 충분해요. 계정은 필요 없어요.</string>
+    <string name="shared_how">작동 방식</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">암호화, ntfy.sh 또는 내 서버를 통해</string>
+    <string name="shared_via_server_short">내 서버, %1$s</string>
+    <string name="shared_missing">아직 필요: %1$s</string>
+    <string name="shared_join_secret">이 초대를 가진 사람은 누구나 그룹을 읽을 수 있어요. 다른 사람에게 전달하지 마세요.</string>
+    <string name="shared_link_hint">받은 링크를 붙여넣거나 메시지에서 여세요.</string>
+    <string name="shared_code_label">그룹 코드</string>
 </resources>
