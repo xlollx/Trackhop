@@ -658,12 +658,10 @@ private class PullGuard : NestedScrollConnection {
 /**
  * The "sync all" pill: filled and inviting when idle, a quiet progress state while syncs run.
  *
- * Pinned, it never covers a card (1.17 report: on a phone on its side it hid a card's name): the
- * cards scroll away under the page's own background, which reaches from the top of the list to
- * just under the pill and fades out over the next few dp (no more than a card's padding). No edge
- * line and no tint, so it reads as where the list begins, not as a bar across the screen (the
- * hard-edged band of 1.3.2–1.4.0, dropped on the owner's request). Touches there go to the pill and
- * its "?", never to a card out of sight beneath.
+ * It floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
+ * (1.3.2–1.4.0, and again briefly in 1.17) was dropped both times on the owner's request. The pill
+ * keeps its shadow, and the "?" beside it sits on a small raised circle of its own, so both read
+ * over any card.
  */
 @Composable
 private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -671,25 +669,10 @@ private fun RunAllPill(tally: SyncState.Tally, pinned: Boolean, modifier: Modifi
     val runningCount = tally.total
     val busy = runningCount > 0
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
-    val bg = MaterialTheme.colorScheme.background
     Box(
         modifier.fillMaxWidth()
-            .then(
-                if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG)
-                    .drawBehind {
-                        // The list pads its items by 16dp on each side: the background covers that gutter as well.
-                        val gutter = 16.dp.toPx()
-                        val fade = PILL_FADE.toPx()
-                        drawRect(bg, topLeft = Offset(-gutter, 0f), size = Size(size.width + 2 * gutter, size.height))
-                        drawRect(
-                            Brush.verticalGradient(listOf(bg, bg.copy(alpha = 0f)), startY = size.height, endY = size.height + fade),
-                            topLeft = Offset(-gutter, size.height), size = Size(size.width + 2 * gutter, fade),
-                        )
-                    }
-                    // Taken here: a tap or a hold beside the pill must not reach a card hidden beneath.
-                    .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent(PointerEventPass.Final) } }
-                else Modifier,
-            )
+            // Pinned, it floats over the cards: no band behind it (the owner's choice, again on 11/11).
+            .then(if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG) else Modifier)
             .padding(top = 4.dp, bottom = 12.dp),
         contentAlignment = Alignment.Center,
     ) {

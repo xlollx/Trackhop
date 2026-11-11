@@ -224,25 +224,7 @@ class CardDensityFlowTest : FlowTest() {
         // Two rows of cards fit one above the other, whatever the columns.
         assertTrue("two cards of ${h / density()} dp fit one above the other", 2 * h + 12 * density() <= viewBottom - pill.boundsInRoot.bottom)
 
-        // A card half under the pill: what is under it does not show, beside the pill either.
-        val card = cards().filter { it.positionInRoot.y > pill.boundsInRoot.bottom }.minBy { it.positionInRoot.y }
-        val mid = (pill.boundsInRoot.top + pill.boundsInRoot.bottom) / 2
-        scrollList(card.positionInRoot.y - mid + 2 * density())
-        val under = cardOf(card.config[SemanticsProperties.Text].first { it.text.startsWith("Sync number") }.text.removePrefix("Sync number ").trim().toInt())
-        assertTrue("the card has gone half under the pill", under.positionInRoot.y < mid && under.positionInRoot.y + under.size.height > pill.boundsInRoot.bottom + fade)
-        snapshot("landscape-card-under-pill")
-        val shot = compose.onAllNodes(isRoot())[0].captureToImage().asAndroidBitmap()
-        val inCard = (under.positionInRoot.x + 12 * density()).toInt()
-        val gutter = (under.positionInRoot.x - 8 * density()).toInt()
-        val y = (mid + pill.boundsInRoot.height / 4).toInt()
-        val below = (pill.boundsInRoot.bottom + fade + 6 * density()).toInt()
-        fun same(a: Int, b: Int) = listOf(16, 8, 0).all { sh -> kotlin.math.abs((a shr sh and 0xFF) - (b shr sh and 0xFF)) <= 6 }
-        assertFalse("the card's own colour differs from the page's (else this proves nothing)", same(shot.getPixel(inCard, below), shot.getPixel(gutter, below)))
-        assertTrue("under the pill the page's background, not the card", same(shot.getPixel(inCard, y), shot.getPixel(gutter, y)))
-        // A tap beside the pill reaches no card hidden beneath: nothing opens, nothing runs.
-        compose.onAllNodes(isRoot())[0].performTouchInput { touchClick(androidx.compose.ui.geometry.Offset(inCard.toFloat(), y.toFloat())) }
-        compose.waitForIdle()
-        assertTrue("nothing started", com.xlollx.songport.sync.SyncState.running.value.isEmpty())
+        // Pinned, the pill floats over the cards (no band behind it, the owner's choice).
         // The pill itself still answers.
         assertTrue(compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).fetchSemanticsNodes().isNotEmpty())
     }
