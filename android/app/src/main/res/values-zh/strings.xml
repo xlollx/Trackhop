@@ -865,6 +865,10 @@
     <string name="services_group_servers">你的服务器</string>
     <string name="services_group_other">其他</string>
     <string name="settings_new_look">新外观</string>
+    <string name="settings_discover_images">发现中的图片</string>
+    <string name="settings_discover_images_summary">演出图片和唱片封面。关闭可节省流量。</string>
+    <string name="settings_discover_images_wifi">仅在 Wi-Fi 下显示图片</string>
+    <string name="settings_discover_images_wifi_summary">使用移动数据时，发现中不显示图片。</string>
     <string name="settings_new_look_desc">以数字显示上次运行并附带近期运行记录的同步卡片。</string>
     <string name="stat_added">已添加</string>
     <string name="stat_removed">已移除</string>

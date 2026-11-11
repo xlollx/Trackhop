@@ -314,6 +314,22 @@ class ConcertsTest {
         assertEquals("Milano", day.location)
     }
 
+    @Test fun aSmallWidePictureOfTheEventWithItsCredit() {
+        val images = com.xlollx.songport.net.parseJson("""[
+            {"ratio":"4_3","url":"https://s1.ticketm.net/a-305.jpg","width":305},
+            {"ratio":"16_9","url":"https://s1.ticketm.net/b-2048.jpg","width":2048},
+            {"ratio":"16_9","url":"https://s1.ticketm.net/b-205.jpg","width":205,"attribution":"Photo: Jane Doe"},
+            {"ratio":"16_9","url":"https://s1.ticketm.net/b-100.jpg","width":100},
+            {"ratio":"3_2","url":"https://s1.ticketm.net/c-305.jpg","width":305}]""") as kotlinx.serialization.json.JsonArray
+        assertEquals("https://s1.ticketm.net/b-205.jpg" to "Photo: Jane Doe", Concerts.image(images))
+        // Only small ones: the widest; only other shapes: any; none: null.
+        assertEquals("https://s1.ticketm.net/b-100.jpg" to "", Concerts.image(images.filter { it.toString().contains("b-100") }))
+        assertEquals("https://s1.ticketm.net/a-305.jpg", Concerts.image(images.take(1))?.first)
+        assertEquals(null, Concerts.image(emptyList()))
+        val body = tmPage(tmEvent("Muse", "2026-12-01", "Milano", "IT", "Muse").replace("\"_embedded\"", "\"images\":${images},\"_embedded\""))
+        assertEquals("https://s1.ticketm.net/b-205.jpg", Concerts.parseTicketmaster(body, "Muse", "IT").single().image)
+    }
+
     @Test fun ticketmastersTimeZoneIsKept() {
         val body = tmPage(tmEvent("Muse", "2026-12-01", "Milano", "IT", "Muse").replace("\"status\"", "\"timezone\":\"Europe/Rome\",\"status\""))
         assertEquals("Europe/Rome", Concerts.parseTicketmaster(body, "Muse", "IT").single().timeZone)

@@ -877,6 +877,10 @@
     <string name="services_group_servers">Tu servidor</string>
     <string name="services_group_other">Otros</string>
     <string name="settings_new_look">Nuevo aspecto</string>
+    <string name="settings_discover_images">Imágenes en Descubrir</string>
+    <string name="settings_discover_images_summary">Fotos de conciertos y portadas de discos. Desactívalo para ahorrar datos.</string>
+    <string name="settings_discover_images_wifi">Imágenes solo con Wi-Fi</string>
+    <string name="settings_discover_images_wifi_summary">Con datos móviles, Descubrir no muestra imágenes.</string>
     <string name="settings_new_look_desc">Tarjetas de sincronización con la última ejecución en números y el historial reciente.</string>
     <string name="stat_added">añadidas</string>
     <string name="stat_removed">quitadas</string>

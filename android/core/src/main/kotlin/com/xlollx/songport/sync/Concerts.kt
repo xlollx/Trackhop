@@ -8,6 +8,7 @@ import com.xlollx.songport.net.Pacer
 import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.bool
 import com.xlollx.songport.net.get
+import com.xlollx.songport.net.int
 import com.xlollx.songport.net.json
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
@@ -82,6 +83,9 @@ object Concerts {
         val source: Source,
         /** The event's time zone (an IANA id) when the source says it: Ticketmaster does. */
         val timeZone: String? = null,
+        /** A small picture of the event (Ticketmaster's), and the credit it asks for; "" when none. */
+        val image: String = "",
+        val imageCredit: String = "",
     )
 
     /** A search on a ticket site; [site] null = the artist's official site, through a web search. */
@@ -351,8 +355,19 @@ object Concerts {
                 city = venue["city"]["name"].str.orEmpty(), venue = venue["name"].str.orEmpty(),
                 country = where.ifEmpty { country }, url = webUrl(e["url"].str), source = Source.TICKETMASTER,
                 timeZone = e["dates"]["timezone"].str?.takeIf { it.isNotBlank() },
-            )
+            ).let { ev -> image(e["images"].arr)?.let { (url, credit) -> ev.copy(image = url, imageCredit = credit) } ?: ev }
         }
+    }
+
+    /**
+     * The picture to show small from a Discovery API event's images: a 16:9 one (else 3:2, else any)
+     * of the smallest width from 200 pixels up (else the widest), with its attribution; null when none.
+     */
+    fun image(images: List<kotlinx.serialization.json.JsonElement>): Pair<String, String>? {
+        val all = images.mapNotNull { i -> webUrl(i["url"].str).takeIf { it.isNotEmpty() }?.let { Triple(i, it, i["width"].int ?: 0) } }
+        val shape = listOf("16_9", "3_2").firstNotNullOfOrNull { r -> all.filter { it.first["ratio"].str == r }.takeIf { it.isNotEmpty() } } ?: all
+        val pick = shape.filter { it.third >= 200 }.minByOrNull { it.third } ?: shape.maxByOrNull { it.third } ?: return null
+        return pick.second to pick.first["attribution"].str.orEmpty().trim()
     }
 
     // ---------------------------------------------------------------- MusicBrainz

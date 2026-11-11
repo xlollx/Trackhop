@@ -877,6 +877,10 @@
     <string name="services_group_servers">Eigener Server</string>
     <string name="services_group_other">Sonstiges</string>
     <string name="settings_new_look">Neuer Look</string>
+    <string name="settings_discover_images">Bilder in Entdecken</string>
+    <string name="settings_discover_images_summary">Konzertbilder und Plattencover. Ausschalten, um Daten zu sparen.</string>
+    <string name="settings_discover_images_wifi">Bilder nur im WLAN</string>
+    <string name="settings_discover_images_wifi_summary">Mit mobilen Daten zeigt Entdecken keine Bilder.</string>
     <string name="settings_new_look_desc">Sync-Karten mit dem letzten Lauf in Zahlen und dem Verlauf der letzten Läufe.</string>
     <string name="stat_added">hinzugefügt</string>
     <string name="stat_removed">entfernt</string>

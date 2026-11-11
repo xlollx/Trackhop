@@ -77,6 +77,8 @@ object Records {
         val forSale: Int? = null,
         val lowestPrice: Double? = null,
         val currency: String? = null,
+        /** Discogs' small cover (the search's thumb, as its API gives it); "" when none. */
+        val thumb: String = "",
     ) {
         /** Where the copies for sale are listed. */
         val sellUrl: String get() = "https://www.discogs.com/sell/release/$releaseId"
@@ -294,7 +296,9 @@ object Records {
                 uri != null && uri.startsWith("/") -> "https://www.discogs.com$uri"
                 else -> "https://www.discogs.com/release/$id"
             }
-            Record(title, g.year, Format.entries.filter { it in g.formats }, url, id, o["community"]["have"].int ?: 0)
+            // Discogs puts a blank spacer where there is no picture.
+            val thumb = webUrl(o["thumb"].str).takeUnless { it.endsWith("spacer.gif") }.orEmpty()
+            Record(title, g.year, Format.entries.filter { it in g.formats }, url, id, o["community"]["have"].int ?: 0, thumb = thumb)
         }
     }
 

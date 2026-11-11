@@ -216,12 +216,17 @@ private fun dateText(e: Concerts.Event): String {
 private fun ArtistDatesCard(a: Concerts.ArtistDates, snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             a.events.forEachIndexed { i, e ->
                 if (i > 0) HorizontalDivider()
                 Column(Modifier.fillMaxWidth().clickable(enabled = e.url.isNotBlank()) { openUrl(ctx, e.url) }.padding(vertical = 2.dp)) {
+                    if (images && e.image.isNotBlank()) {
+                        DiscoverImage(e.image, 160.dp, 90.dp)
+                        if (e.imageCredit.isNotBlank()) Text(e.imageCredit, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     Text(dateText(e), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     Text(listOf(e.city, e.venue).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
                     Row(verticalAlignment = Alignment.CenterVertically) {

@@ -877,6 +877,10 @@
     <string name="services_group_servers">Your server</string>
     <string name="services_group_other">Other</string>
     <string name="settings_new_look">New look</string>
+    <string name="settings_discover_images">Images in Discover</string>
+    <string name="settings_discover_images_summary">Concert pictures and record covers. Turn off to save data.</string>
+    <string name="settings_discover_images_wifi">Images only on Wi-Fi</string>
+    <string name="settings_discover_images_wifi_summary">On mobile data, Discover shows no images.</string>
     <string name="settings_new_look_desc">Sync cards with the last run in numbers and the history of recent runs.</string>
     <string name="stat_added">added</string>
     <string name="stat_removed">removed</string>

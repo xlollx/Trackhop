@@ -4,7 +4,19 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.LaunchedEffect
+import com.xlollx.songport.platform.env
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -117,4 +129,23 @@ internal fun addToCalendar(ctx: Context, e: Concerts.Event): Boolean {
         .putExtra(CalendarContract.Events.EVENT_TIMEZONE, c.timeZone)
     if (ctx !is android.app.Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     return try { ctx.startActivity(intent); true } catch (_: ActivityNotFoundException) { false }
+}
+
+/** Discover shows pictures: the setting is on, and on mobile data unless it says Wi-Fi only. */
+internal fun discoverImagesOn(ctx: Context): Boolean {
+    val s = ctx.env.store.data.settings
+    return s.discoverImages && (!s.discoverImagesWifiOnly || com.xlollx.songport.sync.onUnmetered(ctx))
+}
+
+/**
+ * A small picture from [url] (a concert's, a record's cover) in a box of the given size, so nothing
+ * moves when it arrives: a plain placeholder until then, or for good when it does not load.
+ */
+@Composable
+internal fun DiscoverImage(url: String, width: Dp, height: Dp) {
+    var bmp by remember(url) { mutableStateOf<android.graphics.Bitmap?>(null) }
+    LaunchedEffect(url) { bmp = Cards.bitmap(url, 300) }
+    Box(Modifier.size(width, height).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
+        bmp?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+    }
 }

@@ -875,6 +875,10 @@
     <string name="services_group_servers">Kendi sunucun</string>
     <string name="services_group_other">Diğer</string>
     <string name="settings_new_look">Yeni görünüm</string>
+    <string name="settings_discover_images">Keşfet\'te görseller</string>
+    <string name="settings_discover_images_summary">Konser görselleri ve plak kapakları. Veri tasarrufu için kapat.</string>
+    <string name="settings_discover_images_wifi">Görseller yalnızca Wi-Fi\'da</string>
+    <string name="settings_discover_images_wifi_summary">Mobil veride Keşfet görsel göstermez.</string>
     <string name="settings_new_look_desc">Son çalıştırmayı sayılarla ve son çalıştırmaların geçmişini gösteren senkronizasyon kartları.</string>
     <string name="stat_added">eklendi</string>
     <string name="stat_removed">kaldırıldı</string>

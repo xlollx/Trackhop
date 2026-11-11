@@ -864,6 +864,10 @@
     <string name="services_group_servers">내 서버</string>
     <string name="services_group_other">기타</string>
     <string name="settings_new_look">새 디자인</string>
+    <string name="settings_discover_images">발견의 이미지</string>
+    <string name="settings_discover_images_summary">공연 사진과 음반 커버예요. 데이터를 아끼려면 끄세요.</string>
+    <string name="settings_discover_images_wifi">이미지는 Wi-Fi에서만</string>
+    <string name="settings_discover_images_wifi_summary">모바일 데이터에서는 발견에 이미지를 표시하지 않아요.</string>
     <string name="settings_new_look_desc">마지막 실행을 숫자로, 최근 실행 기록과 함께 보여 주는 동기화 카드.</string>
     <string name="stat_added">추가</string>
     <string name="stat_removed">삭제</string>

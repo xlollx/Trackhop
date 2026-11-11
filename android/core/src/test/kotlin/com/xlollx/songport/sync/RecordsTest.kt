@@ -250,4 +250,12 @@ class RecordsTest {
         assertEquals(LookupCaps.RECORDS_ANON + 5, r.total)
         assertEquals(LookupCaps.RECORDS_ANON, r.artists.size)
     }
+
+    @Test fun theThumbIsKeptButNotDiscogsBlankSpacer() {
+        val body = """{"results":[
+            {"id":1,"master_id":10,"title":"Radiohead - Kid A","year":"2000","format":["CD"],"thumb":"https://i.discogs.com/kid-a-150.jpg","cover_image":"https://i.discogs.com/kid-a-600.jpg"},
+            {"id":2,"master_id":20,"title":"Radiohead - Amnesiac","year":"2001","format":["CD"],"thumb":"https://st.discogs.com/images/spacer.gif"},
+            {"id":3,"master_id":30,"title":"Radiohead - Pablo Honey","year":"1993","format":["CD"],"thumb":"javascript:alert(1)"}]}"""
+        assertEquals(listOf("https://i.discogs.com/kid-a-150.jpg", "", ""), Records.parseSearch(body, "Radiohead").map { it.thumb })
+    }
 }

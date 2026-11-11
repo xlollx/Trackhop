@@ -865,6 +865,10 @@
     <string name="services_group_servers">自分のサーバー</string>
     <string name="services_group_other">その他</string>
     <string name="settings_new_look">新しい見た目</string>
+    <string name="settings_discover_images">「発見」の画像</string>
+    <string name="settings_discover_images_summary">コンサートの写真とレコードのジャケット。オフにするとデータを節約できます。</string>
+    <string name="settings_discover_images_wifi">画像は Wi-Fi のときだけ</string>
+    <string name="settings_discover_images_wifi_summary">モバイルデータでは「発見」に画像を表示しません。</string>
     <string name="settings_new_look_desc">前回の実行を数字で、最近の実行履歴とあわせて表示する同期カード。</string>
     <string name="stat_added">追加</string>
     <string name="stat_removed">削除</string>

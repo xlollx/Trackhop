@@ -901,6 +901,10 @@
     <string name="services_group_servers">Ваш сервер</string>
     <string name="services_group_other">Другое</string>
     <string name="settings_new_look">Новый вид</string>
+    <string name="settings_discover_images">Изображения в «Открытиях»</string>
+    <string name="settings_discover_images_summary">Фото концертов и обложки альбомов. Отключите, чтобы экономить трафик.</string>
+    <string name="settings_discover_images_wifi">Изображения только по Wi-Fi</string>
+    <string name="settings_discover_images_wifi_summary">При мобильном интернете «Открытия» не показывают изображения.</string>
     <string name="settings_new_look_desc">Карточки синхронизации с последним запуском в цифрах и историей недавних запусков.</string>
     <string name="stat_added">добавлено</string>
     <string name="stat_removed">удалено</string>

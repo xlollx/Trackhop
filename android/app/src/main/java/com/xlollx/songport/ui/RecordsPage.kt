@@ -154,6 +154,7 @@ private fun price(value: Double, currency: String?): String = runCatching {
 @Composable
 private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
     val ctx = LocalContext.current
+    val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -164,7 +165,9 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                 else -> {
                     records.forEachIndexed { i, rec ->
                         if (i > 0) HorizontalDivider()
-                        Column(Modifier.fillMaxWidth().clickable { openUrl(ctx, rec.url) }.padding(vertical = 2.dp)) {
+                        Row(Modifier.fillMaxWidth().clickable { openUrl(ctx, rec.url) }.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (images) DiscoverImage(rec.thumb, 56.dp, 56.dp)
+                        Column(Modifier.weight(1f)) {
                             Text(rec.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                             val formats = rec.formats.map { stringResource(formatLabel(it)) }
                             Text(listOfNotNull(rec.year?.toString()).plus(formats).joinToString(" · "), style = MaterialTheme.typography.bodySmall)
@@ -175,6 +178,7 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                                 Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable(enabled = n > 0) { openUrl(ctx, rec.sellUrl) })
                             }
+                        }
                         }
                     }
                 }

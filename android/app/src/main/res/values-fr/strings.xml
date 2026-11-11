@@ -877,6 +877,10 @@
     <string name="services_group_servers">Ton serveur</string>
     <string name="services_group_other">Autres</string>
     <string name="settings_new_look">Nouveau look</string>
+    <string name="settings_discover_images">Images dans Découvrir</string>
+    <string name="settings_discover_images_summary">Photos de concerts et pochettes de disques. Désactive pour économiser des données.</string>
+    <string name="settings_discover_images_wifi">Images en Wi-Fi seulement</string>
+    <string name="settings_discover_images_wifi_summary">Avec les données mobiles, Découvrir n\'affiche pas d\'images.</string>
     <string name="settings_new_look_desc">Cartes de synchro avec la dernière exécution en chiffres et l\'historique récent.</string>
     <string name="stat_added">ajoutés</string>
     <string name="stat_removed">retirés</string>

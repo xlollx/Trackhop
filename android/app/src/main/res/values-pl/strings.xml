@@ -903,6 +903,10 @@
     <string name="services_group_servers">Twój serwer</string>
     <string name="services_group_other">Inne</string>
     <string name="settings_new_look">Nowy wygląd</string>
+    <string name="settings_discover_images">Obrazy w Odkrywaj</string>
+    <string name="settings_discover_images_summary">Zdjęcia koncertów i okładki płyt. Wyłącz, aby oszczędzać dane.</string>
+    <string name="settings_discover_images_wifi">Obrazy tylko przez Wi-Fi</string>
+    <string name="settings_discover_images_wifi_summary">Na danych komórkowych Odkrywaj nie pokazuje obrazów.</string>
     <string name="settings_new_look_desc">Karty synchronizacji z ostatnim uruchomieniem w liczbach i historią ostatnich uruchomień.</string>
     <string name="stat_added">dodane</string>
     <string name="stat_removed">usunięte</string>
