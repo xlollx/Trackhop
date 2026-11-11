@@ -211,6 +211,7 @@ class ReorderFlowTest : FlowTest() {
         toTheEnd()
         waitText("Sync number $n")
         val cards = cardsOnScreen()
+        android.util.Log.d("Reorder", "test: cards on screen $cards, list top ${listTop()}, pill bottom ${pinnedPillBottom()}")
         assertTrue("several cards on screen: $cards", cards.size >= 2)
         val (upper, upperTop) = cards.first()
         val (next, nextTop) = cards[1]
