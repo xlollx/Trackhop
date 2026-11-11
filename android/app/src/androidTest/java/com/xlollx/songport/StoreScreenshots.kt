@@ -984,6 +984,8 @@ class StoreScreenshots {
             store.updateSettings { it.copy(appOpens = 1) }
             carouselPictures()
             discoverPictures()
+            // A "launcher isn't responding" dialog of a busy emulator would sit over the page and take its swipes.
+            runCatching { shell("am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS") }
             val before = resumed()
             app.startActivity(intent)
             val end = System.currentTimeMillis() + 30_000
