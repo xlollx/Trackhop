@@ -55,6 +55,7 @@ class ShotProvider(
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =
         Demo.PLAYLISTS.firstOrNull { it.first == playlistId }?.let { Playlist(it.first, it.second, it.third) }
             ?: Demo.LINKED[playlistId]?.let { Playlist(playlistId, it.first, it.second) }
+            ?: Demo.carousel(playlistId)?.let { Playlist(playlistId, Demo.CAROUSEL_NAME, it.size) }
             ?: Playlist(playlistId, "Metal & More", 1152)
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
@@ -65,6 +66,8 @@ class ShotProvider(
                 Track(id = id(900 + i), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc)
             }
         }
+        // The carousel's sync to preview: some songs to add, some to take off, two the target lacks.
+        Demo.carousel(playlistId)?.let { songs -> return songs.map { (n, s) -> if (s == null) track(n) else Track(id = id(n), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) } }
         val size = playlistInfo(ctx, playlistId).trackCount.coerceAtLeast(1)
         return list(size)
     }
@@ -150,5 +153,23 @@ object Demo {
     const val LINK_ID = "PLDemoMetalAndMore2026xx"
     const val OTHER_LINK_ID = "0vvXsWCC9xrXsKd4FyS8kM"
     /** Public playlists opened from a link, by id: (name, track count). */
+    /** The carousel's extra sync (Spotify to YouTube Music): its source and target. */
+    const val CAROUSEL_SRC = "5aGvC4rouSe1Src0000000"
+    const val CAROUSEL_DST = "PLcarouselSummerVibes"
+    const val CAROUSEL_NAME = "Summer Vibes"
+    /** Songs only the carousel's target still holds (taken off by the next run). */
+    private val GONE = listOf(
+        Song("Hysteria", "Muse", "Absolution", 227, "GBAHT0300392"),
+        Song("Chalk Outline", "Three Days Grace", "Transit of Venus", 186, "USJI11200401"),
+        Song("Lithium", "Nirvana", "Nevermind", 257, "USGF19942504"),
+    )
+
+    /** The carousel playlists as (track number, song or null for the demo's song at that number). */
+    fun carousel(playlistId: String): List<Pair<Int, Song?>>? = when (playlistId) {
+        CAROUSEL_SRC -> (0 until 20).map { it to null } + EXTRA.take(2).mapIndexed { i, s -> 950 + i to s }
+        CAROUSEL_DST -> (0 until 12).map { it to null } + GONE.mapIndexed { i, s -> 980 + i to s }
+        else -> null
+    }
+
     val LINKED = mapOf(LINK_ID to ("Metal & More" to 1152), OTHER_LINK_ID to ("Friday Night Rock" to 60))
 }
