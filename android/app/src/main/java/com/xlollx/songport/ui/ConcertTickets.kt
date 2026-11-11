@@ -26,7 +26,7 @@ internal fun ticketsLabel(source: Concerts.Source): String = when (source) {
 internal fun AlsoOnLinks(e: Concerts.Event) {
     val ctx = LocalContext.current
     e.alsoOn.forEach { l ->
-        TextButton(onClick = { openUrl(ctx, l.url) }) { Text(ticketsLabel(l.source), style = MaterialTheme.typography.labelMedium) }
+        TextButton(onClick = { openUrl(ctx, l.url) }) { Text(ticketsLabel(l.source), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) }
     }
 }
 

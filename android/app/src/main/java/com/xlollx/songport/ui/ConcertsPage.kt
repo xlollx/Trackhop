@@ -226,19 +226,19 @@ private fun ArtistDatesCard(a: Concerts.ArtistDates, snackbar: SnackbarHostState
                     }
                     Text(dateText(e), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     Text(listOf(e.city, e.venue).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Ticketmaster's events link to its own page, as they come: the tickets are there.
-                        Text(
-                            ticketsLabel(e.source),
-                            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.weight(1f),
-                        )
+                    // One button per ticket site and the calendar, wrapping onto new lines: a row of them
+                    // squeezed the first label to one letter a line (11/11 report).
+                    FlowRow(verticalArrangement = Arrangement.Center) {
+                        // Each site's own event page, as it comes: the tickets are there.
+                        if (e.url.isNotBlank()) TextButton(onClick = { openUrl(ctx, e.url) }) {
+                            Text(ticketsLabel(e.source), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false)
+                        }
                         AlsoOnLinks(e)
                         TextButton(onClick = {
                             if (!addToCalendar(ctx, e)) scope.launch { snackbar.showSnackbar(ctx.getString(R.string.concerts_no_calendar)) }
                         }) {
                             Icon(Icons.Filled.Event, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp))
-                            Text(stringResource(R.string.concerts_add_calendar))
+                            Text(stringResource(R.string.concerts_add_calendar), maxLines = 1, softWrap = false)
                         }
                     }
                 }
