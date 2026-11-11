@@ -2,20 +2,27 @@ package com.xlollx.songport.sync
 
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
-import com.xlollx.songport.net.Http
 import com.xlollx.songport.platform.Env
-import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /**
- * From a setlist.fm link to the songs played. With a setlist.fm key (the user's or the build's) the
- * official API ([Setlists.byId]); without one, or when the API cannot answer (the day's calls
- * gone), the public page as before, whose title gives the name ("Artist Setlist at Venue, City, date").
+ * From a setlist.fm link to the songs played: with a setlist.fm key (the user's or the build's) the
+ * official API ([Setlists.byId]). Without a key nothing is read in the background: setlist.fm's terms
+ * do not allow programs to read its pages. The GitHub and F-Droid builds open setlist.fm's own site in
+ * the app instead, where the person opens a concert's page and the songs are read from the page they
+ * see ([fromDom]): one page, no other request.
  */
 object SetlistImport {
 
     private val LINK = Regex("""https?://(?:www\.)?setlist\.fm/setlist/[^\s<>"']+""", RegexOption.IGNORE_CASE)
     private val SONG = Regex("""class="songLabel"[^>]*>([^<]+)<""")
     private val TITLE = Regex("""<meta property="og:title" content="([^"]+)"""")
+    private val DATE = Regex("""class="month">\s*(\w{3})\w*\s*</span>\s*<span class="day">\s*(\d{1,2})\s*</span>\s*<span class="year">\s*(\d{4})""")
+    private val DATE_SUFFIX = Regex(""" on \w+ \d{1,2}, \d{4}$""")
     private val COVER_OF = Regex("""\s*\((.*?)\bcover\)$""", RegexOption.IGNORE_CASE)
 
     fun isLink(text: String): Boolean = LINK.containsMatchIn(text)
@@ -23,47 +30,50 @@ object SetlistImport {
 
     data class Setlist(val name: String, val artist: String, val tracks: List<Track>)
 
-    suspend fun fetch(env: Env?, url: String): Setlist {
-        val id = Setlists.idFromLink(url)
-        if (env != null && id != null && Setlists.key(env) != null) {
-            try {
-                val s = Setlists.byId(env, id)
-                if (s != null) {
-                    val tracks = Setlists.tracks(s)
-                    if (tracks.isNotEmpty()) return Setlist(Setlists.playlistName(s), s.artist, tracks)
-                }
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                env.log("setlists", "setlist.fm API: ${e.message}; trying the public page")
-            }
-        }
-        return fetchPage(url)
+    /** No setlist.fm key: the link is not read in the background (the full build opens setlist.fm's site instead). */
+    class NoKey : Exception("setlist.fm links need a setlist.fm key: add one in Settings › Service keys")
+
+    suspend fun fetch(env: Env, url: String): Setlist {
+        if (Setlists.key(env) == null) throw NoKey()
+        val id = Setlists.idFromLink(url) ?: throw ProviderException("setlist.fm: no setlist in this link")
+        val s = Setlists.byId(env, id) ?: throw ProviderException("setlist.fm: this setlist was not found")
+        val tracks = Setlists.tracks(s)
+        if (tracks.isEmpty()) throw ProviderException("setlist.fm: no songs on this page")
+        return Setlist(Setlists.playlistName(s), s.artist, tracks)
     }
 
-    /** The public page, without a key. */
-    private suspend fun fetchPage(url: String): Setlist {
-        // The User-Agent keeps "Songport" after the rename to Trackhop: an identifier the sites already see.
-        val r = Http.send("GET", url, mapOf("User-Agent" to "Mozilla/5.0 (Linux; Android 14) Songport", "Accept" to "text/html"))
-        if (!r.ok) throw ProviderException("setlist.fm ${r.code}")
-        // An empty 202 is a browser check the app cannot pass: the page needs a key to be read.
-        if (r.body.isBlank()) throw ProviderException("setlist.fm did not let the app read the page: add a setlist.fm key in Settings › Service keys")
-        return parse(r.body)
+    /**
+     * The page shown in the in-app browser, as `document.documentElement.outerHTML` hands it back
+     * through `evaluateJavascript` (a JSON string): the same as [fromPage].
+     */
+    fun fromDom(jsResult: String, url: String): Setlists.Setlist {
+        val html = runCatching { Json.decodeFromString(String.serializer(), jsResult) }.getOrNull()
+            ?: throw ProviderException("setlist.fm: the page could not be read")
+        return fromPage(html, url)
     }
 
-    /** Kotlin puro per i test: HTML della pagina -> nome e brani. */
-    fun parse(html: String): Setlist {
-        val title = TITLE.find(html)?.groupValues?.get(1)?.let { unescape(it) } ?: "Setlist"
+    /** A setlist.fm concert page ([url] its address): the artist, venue, city, date and songs, a cover under its original artist. */
+    fun fromPage(html: String, url: String): Setlists.Setlist {
+        // "Muse Setlist at Forum, Milan, Italy" (or "… Concert Setlist at … on November 8, 2026 | setlist.fm").
+        val title = TITLE.find(html)?.groupValues?.get(1)?.let { unescape(it) }.orEmpty().substringBefore(" | ")
         val artist = title.substringBefore(" Setlist").substringBefore(" Concert").trim()
-        val tracks = SONG.findAll(html).map { unescape(it.groupValues[1]).trim() }.filter { it.isNotEmpty() }.map { raw ->
+        val place = title.substringAfter(" Setlist at ", "").replace(DATE_SUFFIX, "").split(",").map { it.trim() }
+        val songs = SONG.findAll(html).map { unescape(it.groupValues[1]).trim() }.filter { it.isNotEmpty() }.map { raw ->
             // "Song (Original Artist cover)": the song is by the original artist, not the band on stage.
             val cover = COVER_OF.find(raw)
-            val songTitle = if (cover != null) raw.removeRange(cover.range).trim() else raw
-            val by = cover?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() } ?: artist
-            CsvCodec.withStableId(Track(id = "", title = songTitle, artists = listOfNotNull(by.takeIf { it.isNotEmpty() })))
+            Setlists.Song(if (cover != null) raw.removeRange(cover.range).trim() else raw, cover?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() })
         }.toList()
-        if (tracks.isEmpty()) throw ProviderException("setlist.fm: no songs on this page")
-        val venue = title.substringAfter(" Setlist at ", "").substringBefore(",").trim()
-        val name = if (venue.isEmpty()) artist.ifBlank { "Setlist" } else "$artist · $venue"
-        return Setlist(name, artist, tracks)
+        if (songs.isEmpty()) throw ProviderException("setlist.fm: no songs on this page")
+        val date = DATE.find(html)?.let { m ->
+            runCatching {
+                LocalDate.parse("${m.groupValues[1]} ${m.groupValues[2].padStart(2, '0')} ${m.groupValues[3]}", DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH)).toString()
+            }.getOrNull()
+        }.orEmpty()
+        val page = url.substringBefore('?').substringBefore('#')
+        return Setlists.Setlist(
+            id = Setlists.idFromLink(page) ?: page, artist = artist.ifBlank { "Setlist" }, date = date,
+            venue = place.getOrNull(0).orEmpty(), city = place.getOrNull(1).orEmpty(), url = page, songs = songs,
+        )
     }
 
     private fun unescape(s: String): String = s

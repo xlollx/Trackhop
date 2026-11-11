@@ -5,6 +5,7 @@ import com.xlollx.songport.contract.ContractEnv
 import com.xlollx.songport.net.Pacer
 import com.xlollx.songport.platform.BuildDefaults
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.builtins.serializer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -19,7 +20,7 @@ import java.util.Collections
 /**
  * Setlists of a playlist's artists and setlist.fm links, against a stand-in for the setlist.fm API
  * and its public page: what is read (encores, tapes, covers), the week-long cache, the per-key
- * limits, and the public page when there is no key or the API cannot answer.
+ * limits, a link not read without a key, and the page shown in the in-app browser.
  */
 class SetlistsTest {
     private val hits: MutableList<String> = Collections.synchronizedList(ArrayList())
@@ -282,26 +283,40 @@ class SetlistsTest {
         assertEquals(1, hits.size)
     }
 
-    @Test fun withoutAKeyOrWhenTheApiFailsThePublicPage() = runBlocking {
+    @Test fun withoutAKeyALinkIsNotReadInTheBackground() = runBlocking {
         page = 200 to html
         BuildDefaults.values = emptyMap()
-        val s = SetlistImport.fetch(env, link)
-        assertEquals("Muse · Forum", s.name)
-        assertEquals(listOf("Hysteria", "Uprising"), s.tracks.map { it.title })
-        assertTrue(hits.none { it.startsWith("/rest/") })
-
+        assertTrue(runCatching { SetlistImport.fetch(env, link) }.exceptionOrNull() is SetlistImport.NoKey)
+        assertTrue(hits.isEmpty())
+        // With a key whose API cannot answer: said so, the public page is not read either.
         BuildDefaults.values = mapOf(Setlists.BUILD_KEY to "SHARED")
-        hits.clear()
         byId = { 500 to "oops" }
-        assertEquals(2, SetlistImport.fetch(env, link).tracks.size)
-        assertEquals(listOf("/rest/setlist/63de4613", "/setlist/muse/2026/forum-milan-italy-63de4613.html"), hits.map { it.substringBefore('?') })
+        assertTrue(runCatching { SetlistImport.fetch(env, link) }.isFailure)
+        assertTrue(hits.none { it.startsWith("/setlist/") })
     }
 
-    @Test fun aBrowserCheckOnThePublicPageIsSaidPlainly() = runBlocking {
-        BuildDefaults.values = emptyMap()
-        page = 202 to ""
-        val e = runCatching { SetlistImport.fetch(env, link) }.exceptionOrNull()
-        assertTrue(e?.message.orEmpty().contains("setlist.fm key"))
+    /** The page as the in-app browser hands it back: `document.documentElement.outerHTML`, a JSON string. */
+    @Test fun theSetlistIsReadFromThePageShownInTheBrowser() {
+        val dom = """<html lang="en"><head><meta property="og:title" content="Muse Setlist at Unipol Forum, Milan, Italy">
+            <title>Muse Concert Setlist at Unipol Forum, Milan on November 8, 2026 | setlist.fm</title></head>
+            <body><div class="dateBlock"><span class="month">Nov</span><span class="day">8</span><span class="year">2026</span></div>
+            <ol class="songsList"><li class="setlistParts song"><a class="songLabel" href="/stats/songs/x.html">Hysteria</a></li>
+            <li class="setlistParts song"><a class="songLabel" href="#">Rock &amp; Roll</a> <span class="infoPart">(Led Zeppelin cover)</span></li>
+            <li class="setlistParts song"><a class="songLabel" href="#">Feeling Good (Nina Simone cover)</a></li></ol></body></html>"""
+        val js = kotlinx.serialization.json.Json.encodeToString(String.serializer(), dom)
+        val s = SetlistImport.fromDom(js, "$link?utm=1")
+        assertEquals("63de4613", s.id)
+        assertEquals("Muse", s.artist)
+        assertEquals("Unipol Forum", s.venue)
+        assertEquals("Milan", s.city)
+        assertEquals("2026-11-08", s.date)
+        assertEquals(link, s.url)
+        assertEquals(listOf("Hysteria", "Rock & Roll", "Feeling Good"), s.songs.map { it.title })
+        assertEquals(listOf("Muse", "Muse", "Nina Simone"), Setlists.tracks(s).map { it.artists.single() })
+        assertEquals("Muse · Unipol Forum, Milan · 2026-11-08", Setlists.playlistName(s))
+        // Not a setlist page (or not read): said so, nothing made of it.
+        assertTrue(runCatching { SetlistImport.fromDom("null", link) }.isFailure)
+        assertTrue(runCatching { SetlistImport.fromDom(kotlinx.serialization.json.Json.encodeToString(String.serializer(), "<html></html>"), link) }.isFailure)
     }
 
     // ---------------------------------------------------------------- without a key: MusicBrainz

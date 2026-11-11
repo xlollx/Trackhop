@@ -140,7 +140,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                         try {
                             provider.renamePlaylist(ctx, pl.id, name.trim())
                             // Syncs show the playlist by the name they saved: keep it current.
-                            store.data.jobs.filter { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
+                            store.data.syncs.filter { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
                                 .forEach { j ->
                                     val srcHit = j.source.provider == provider.id && j.source.playlistId == pl.id
                                     val dstHit = j.target.provider == provider.id && j.target.playlistId == pl.id
@@ -161,7 +161,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         )
     }
     deleting?.let { pl ->
-        val used = store.data.jobs.count { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
+        val used = store.data.syncs.count { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
         FitDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.delete)) },

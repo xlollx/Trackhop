@@ -359,9 +359,15 @@ object Notifications {
 
     fun syncResult(context: Context, report: SyncReport) {
         if (!canPost(context)) return
+        // A one-off transfer: its songs to review, else Tools (Recent transfers); a sync: the log.
+        val oneOff = com.xlollx.songport.data.Store.get(context).job(report.jobId)?.oneOff == true
         val open = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_LOG)
+            when {
+                oneOff && com.xlollx.songport.sync.OneOffs.toReview(report) > 0 -> putExtra(MainActivity.EXTRA_REVIEW, report.id)
+                oneOff -> putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)
+                else -> putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_LOG)
+            }
         }
         val pi = PendingIntent.getActivity(context, report.jobId.hashCode(), open,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)

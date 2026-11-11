@@ -64,7 +64,7 @@ fun WantedCard(snackbar: SnackbarHostState) {
     var byAlbum by rememberSaveable { mutableStateOf(false) }
     var showGot by rememberSaveable { mutableStateOf(false) }
     val list = remember(data, showGot) { Wanted.list(data, { MusicBrainz.known(ctx.env, it) }, Wanted.Filter(withGot = showGot)) }
-    val hasServer = data.jobs.any { Wanted.isServer(it.target.provider) }
+    val hasServer = data.syncs.any { Wanted.isServer(it.target.provider) }
 
     var pending by remember { mutableStateOf<Wanted.Format?>(null) }
     val formats = listOf(Wanted.Format.CSV, Wanted.Format.M3U, Wanted.Format.TEXT, Wanted.Format.JSON, Wanted.Format.LIDARR)

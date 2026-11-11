@@ -52,7 +52,7 @@ class SyncWidget : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.widget_sync)
             views.setTextViewText(R.id.widget_title, context.getString(R.string.app_name))
             views.setTextViewText(R.id.widget_status, lastText)
-            views.setTextViewText(R.id.widget_count, context.resources.getQuantityString(R.plurals.widget_jobs, data.jobs.size, data.jobs.size))
+            views.setTextViewText(R.id.widget_count, context.resources.getQuantityString(R.plurals.widget_jobs, data.syncs.size, data.syncs.size))
 
             val open = PendingIntent.getActivity(
                 context, 0, Intent(context, MainActivity::class.java),

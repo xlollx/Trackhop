@@ -96,9 +96,9 @@ fun ServerSyncsPage(snackbar: SnackbarHostState) {
         val shown = list
         if (shown != null && shown.isEmpty()) Text(stringResource(R.string.server_empty), style = MaterialTheme.typography.bodyMedium)
         shown?.forEach { s ->
-            val mine = data.jobs.firstOrNull { j -> data.handedOver[j.id]?.serverId == s.id }
+            val mine = data.syncs.firstOrNull { j -> data.handedOver[j.id]?.serverId == s.id }
             // The same sync on this phone: its review choices are shared once the user says so.
-            val same = if (mine != null) null else data.jobs.firstOrNull { j -> data.handedOver[j.id] == null && HandOver.sameAs(j, s) }
+            val same = if (mine != null) null else data.syncs.firstOrNull { j -> data.handedOver[j.id] == null && HandOver.sameAs(j, s) }
             val paired = same != null && data.serverPairs[same.id] == s.id
             ServerSyncCard(s, fromPhone = mine != null, alsoHere = same != null, paired = paired, onPair = same?.let { j -> {
                 ServerLink.pair(ctx, j, if (paired) null else s.id)

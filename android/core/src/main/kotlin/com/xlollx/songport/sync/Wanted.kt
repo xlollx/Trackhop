@@ -76,7 +76,7 @@ object Wanted {
 
     /** The list, sorted by artist and title ("The" left aside). [known] gives what MusicBrainz said of an ISRC, from the cache only. */
     fun list(data: StoreData, known: (String?) -> MusicBrainz.Known? = { null }, filter: Filter = Filter()): List<Want> =
-        collect(data, known).filter { w -> keep(w, filter, data.jobs) }
+        collect(data, known).filter { w -> keep(w, filter, data.syncs) }
 
     private fun keep(w: Want, f: Filter, jobs: List<SyncJob>): Boolean {
         if (!f.withGot && w.got) return false
@@ -100,7 +100,7 @@ object Wanted {
 
     private fun collect(data: StoreData, known: (String?) -> MusicBrainz.Known?): List<Want> {
         val items = ArrayList<Item>()
-        for (job in data.jobs) {
+        for (job in data.syncs) {
             if (!isServer(job.target.provider)) continue
             val run = lastRun(data, job) ?: continue
             val ignored = job.ignoredSourceIds.toHashSet()

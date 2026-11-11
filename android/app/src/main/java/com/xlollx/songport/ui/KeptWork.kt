@@ -47,9 +47,12 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
     var stopped by mutableStateOf<Pair<Int, Int>?>(null)
         private set
 
+    /** What the run going on has found so far ([keep]), for a page that shows it as it arrives; null when idle. */
+    var found by mutableStateOf<T?>(null)
+        private set
+
     private var job: Job? = null
     private var runKey: String? = null
-    private var found: T? = null
     private var runs = 0
 
     /** Starts [work] for [key] unless a run is going on (then false). [work] reports its steps to the function it is given. */
@@ -75,7 +78,7 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
             } catch (e: Exception) {
                 if (run == runs) error = e.message.orEmpty()
             } finally {
-                if (run == runs) progress = null
+                if (run == runs) { progress = null; found = null }
             }
         }
         return true
@@ -100,10 +103,12 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
     fun stop() {
         val j = job?.takeIf { it.isActive } ?: return
         val at = progress ?: (0 to 0)
+        // Read first: the run's end, on cancelling, forgets what it found.
+        val kept = found
         j.cancel()
         runs++
         progress = null
-        found?.let { result = it; key = runKey; this.at = now() }
+        kept?.let { result = it; key = runKey; this.at = now() }
         found = null
         stopped = at
     }

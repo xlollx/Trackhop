@@ -165,7 +165,7 @@ fun TipsScreen(data: StoreData, onClose: () -> Unit, onOpenAutomation: () -> Uni
             ) {
                 PrefRow(Icons.Filled.Sync, stringResource(R.string.shortcut_sync_all_short), stringResource(R.string.shortcut_sync_all_long))
                 PrefRow(Icons.Filled.Add, stringResource(R.string.shortcut_new_short), stringResource(R.string.shortcut_new_long))
-                if (data.jobs.isNotEmpty()) PrefRow(Icons.Filled.History, stringResource(R.string.tips_shortcuts_recent), stringResource(R.string.tips_shortcuts_recent_desc))
+                if (data.syncs.isNotEmpty()) PrefRow(Icons.Filled.History, stringResource(R.string.tips_shortcuts_recent), stringResource(R.string.tips_shortcuts_recent_desc))
             }
 
             // Automation: off by default, switched on in Settings › Notifications.

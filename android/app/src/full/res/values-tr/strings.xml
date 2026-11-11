@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GitHub and F-Droid build only. -->
+<resources>
+    <!-- setlist.fm's own site in the app (no key): GitHub and F-Droid builds only. -->
+    <string name="setlists_browse">setlist.fm’e göz at</string>
+    <string name="setlists_browse_hint">setlist.fm’in kendi sitesi. Bir konser aç, sonra ondan çalma listesi yap.</string>
+    <string name="setlists_browse_unread">Bu sayfada henüz şarkı yok. Yüklenmesini bekle ya da set listesi olan bir konser aç.</string>
+</resources>

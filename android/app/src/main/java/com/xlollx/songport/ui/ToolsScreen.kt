@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -115,7 +116,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
     SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
-    SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false);
+    SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
+    RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -137,7 +139,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}) {
+fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}, onReview: (reportId: String) -> Unit = {}) {
     val ctx = LocalContext.current
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     var selectedId by rememberSaveable { mutableStateOf(connected.firstOrNull()?.id) }
@@ -156,7 +158,9 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         AiDraft.setupAsked = true; open = Tool.AI
         onAiSetupOpened()
     }
-    val hasServerSync = remember { com.xlollx.songport.data.Store.get(ctx) }.state.collectAsState().value.jobs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
+    val storeData = remember { com.xlollx.songport.data.Store.get(ctx) }.state.collectAsState().value
+    val hasOneOffs = storeData.jobs.any { it.oneOff }
+    val hasServerSync = storeData.syncs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
     val serverOn = remember { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()
@@ -205,6 +209,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
                     Tool.WANTED -> WantedCard(local)
                     Tool.SERVER -> ServerSyncsPage(local)
+                    Tool.RECENT -> RecentTransfersPage(onReview)
                     else -> {}
                 }
             }
@@ -252,6 +257,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.EXPORT, provider) { open = Tool.EXPORT }
             ToolRow(Tool.MAKE, provider) { open = Tool.MAKE }
             ToolRow(Tool.FILES, provider) { open = Tool.FILES }
+            // The one-off transfers (a setlist to a playlist): not syncs, kept a week for their review.
+            if (hasOneOffs) ToolRow(Tool.RECENT, provider) { open = Tool.RECENT }
         }
 
         PrefSection(stringResource(R.string.tools_section_clean), accent = JobColor.ORANGE, description = stringResource(R.string.tools_section_clean_desc)) {
@@ -548,6 +555,44 @@ private fun MbTagsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                         busy = false
                     }
                 }) { Text(stringResource(R.string.tools_mbtags_scan)) }
+            }
+        }
+    }
+}
+
+/**
+ * Tools › Recent transfers: the one-off transfers ([com.xlollx.songport.sync.OneOffs]), the newest
+ * first: where they went, when, what they did, the review of the songs not found, and Delete (the
+ * playlist made or added to stays as it is). Each goes by itself once reviewed or after a week.
+ */
+@Composable
+private fun RecentTransfersPage(onReview: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val store = remember { com.xlollx.songport.data.Store.get(ctx) }
+    LaunchedEffect(Unit) { store.dropOldOneOffs() }
+    val data by store.state.collectAsState()
+    val list = com.xlollx.songport.sync.OneOffs.recent(data)
+    Text(stringResource(R.string.recent_transfers_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (list.isEmpty()) Text(stringResource(R.string.recent_transfers_none), style = MaterialTheme.typography.bodyMedium)
+    list.forEach { job ->
+        val report = job.lastReportId?.let { r -> data.reports.firstOrNull { it.id == r } }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(job.name, style = MaterialTheme.typography.titleSmall)
+                val where = Providers.byId(job.target.provider)?.label(ctx) ?: job.target.provider
+                val at = android.text.format.DateUtils.getRelativeTimeSpanString(job.createdEpoch, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()
+                Text("$where · $at", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (report == null) Text(stringResource(R.string.setlists_adding, where), style = MaterialTheme.typography.bodySmall)
+                else {
+                    val sum = com.xlollx.songport.sync.Setlists.summary(report)
+                    report.error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                    Text(stringResource(R.string.setlists_summary, sum.added, sum.alreadyThere, sum.notFound), style = MaterialTheme.typography.bodySmall)
+                }
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    val toFix = report?.let { com.xlollx.songport.sync.OneOffs.toReview(it) } ?: 0
+                    TextButton(onClick = { store.deleteJob(job.id) }) { Text(stringResource(R.string.delete)) }
+                    if (toFix > 0) TextButton(onClick = { onReview(report!!.id) }) { Text(stringResource(R.string.review_now, toFix)) }
+                }
             }
         }
     }

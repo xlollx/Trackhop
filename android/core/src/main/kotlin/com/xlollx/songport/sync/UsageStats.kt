@@ -96,7 +96,7 @@ object UsageStats {
             ?.let { Route(it.source, it.target, it.runs, it.added) }
 
         // Each current sync, as its latest run that read the source saw it ("unchanged" runs read nothing).
-        val latest: List<Pair<SyncJob, SyncReport>> = data.jobs.mapNotNull { job ->
+        val latest: List<Pair<SyncJob, SyncReport>> = data.syncs.mapNotNull { job ->
             completed.firstOrNull { it.jobId == job.id && it.sourceCount > 0 }?.let { job to it }
         }
         var searched = 0; var found = 0
@@ -134,7 +134,7 @@ object UsageStats {
             historyCapped = data.reports.size >= historyLimit,
             added = finished.sumOf { it.added },
             addedThisMonth = finished.filter { it.startedEpoch in monthStart until monthEnd }.sumOf { it.added },
-            syncs = data.jobs.size,
+            syncs = data.syncs.size,
             route = route,
             matchFound = found,
             matchSearched = searched,

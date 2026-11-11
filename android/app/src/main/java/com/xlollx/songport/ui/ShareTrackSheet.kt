@@ -186,7 +186,7 @@ fun ShareTrackSheet(
             }
             // From Shazam, and no sync of the Shazam playlist yet: the way to have every Shazam everywhere.
             if (ref.service == ShazamShare.SERVICE && onNewSync != null &&
-                store.data.jobs.none { it.shazam || it.source.playlistName.contains("shazam", ignoreCase = true) }
+                store.data.syncs.none { it.shazam || it.source.playlistName.contains("shazam", ignoreCase = true) }
             ) {
                 Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
                     Column(Modifier.padding(14.dp)) {

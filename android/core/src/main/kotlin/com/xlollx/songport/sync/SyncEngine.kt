@@ -571,7 +571,7 @@ class SyncEngine(
         // removal here could come first. Removals are never made in a pair.
         val paired = job.linkedJobId?.let { store.job(it) } != null
         // Another sync writes to this playlist too: what matches none of this source may be its.
-        val sharing = JobConflicts.sharingTarget(store.data.jobs, job)
+        val sharing = JobConflicts.sharingTarget(store.data.syncs, job)
         // An archive keeps every track it was ever given: nothing goes, whatever the switches say.
         if ((job.mirrorRemovals || pairOn) && !job.archive) {
             // An entry the service lists by id alone cannot be told apart from one of the source's
@@ -1598,8 +1598,8 @@ class SyncEngine(
         if (host !in SHORT_LINK_HOSTS) return null
         return withContext(kotlinx.coroutines.Dispatchers.IO) {
             runCatching {
-                // The User-Agent keeps "Songport" after the rename to Trackhop: an identifier the hosts already see.
-                val req = okhttp3.Request.Builder().url(url).header("User-Agent", "Mozilla/5.0 (Linux; Android 14) Songport").build()
+                // The app says what it is ("Trackhop/<version>"), never a browser.
+                val req = okhttp3.Request.Builder().url(url).header("User-Agent", com.xlollx.songport.ai.ArtistMixSource.userAgent).build()
                 com.xlollx.songport.net.Http.client.newCall(req).execute().use { it.request.url.toString() }
             }.getOrNull()
         }

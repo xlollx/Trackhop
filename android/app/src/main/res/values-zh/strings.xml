@@ -2365,4 +2365,9 @@
     <plurals name="alerts_notif_title">
         <item quantity="other">关注的艺人有 %d 条新动态</item>
     </plurals>
+    <!-- Tools › Recent transfers: one-off transfers (a setlist to a playlist), not syncs. -->
+    <string name="recent_transfers_title">最近的传输</string>
+    <string name="recent_transfers_row">发送到歌单的演出歌单及其检查</string>
+    <string name="recent_transfers_intro">一次性传输，比如把演出歌单做成歌单：它们不是同步。每项在这里保留一周，或直到你检查完未找到的歌曲。删除不会改动歌单。</string>
+    <string name="recent_transfers_none">没有最近的传输。</string>
 </resources>

@@ -33,6 +33,13 @@ object BuiltIn {
         AmazonCaptureActivity.forgetOld(app)
     }
 
+    /**
+     * setlist.fm's own site in the app, without a setlist.fm key: the person browses it ([artist]'s
+     * search, or a pasted [link]) and makes a playlist of the concert page they open. Its label first.
+     */
+    fun setlistSite(ctx: Context, artist: String?, link: String? = null): Pair<String, Intent>? =
+        ctx.getString(com.xlollx.songport.R.string.setlists_browse) to com.xlollx.songport.ui.SetlistSiteActivity.intent(ctx, artist, link)
+
     fun call(ctx: Context, method: String, arg: String?, extras: Bundle?): Bundle =
         BridgeCore.call(ctx.applicationContext, method, arg, extras)
 

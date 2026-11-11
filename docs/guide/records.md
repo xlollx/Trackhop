@@ -44,7 +44,10 @@ vinyl, the **Vinyl / CD / Cassette** chips narrow the records to those formats, 
   The records among them (a vinyl, LP, 7", CD or cassette, by the shop's product type or else its
   name) are shown with the records, under **In their shops**, and the rest as merch: up to 12 of
   each per artist, each labelled **Official shop** or **Bandcamp**; a tap opens the product's page. Each shop's robots.txt is read first and honoured (a shop that closes those pages
-  is skipped), Trackhop asks a shop at most once a second and keeps what it found for a day. The
+  is skipped), Trackhop asks a shop at most once a second and keeps what it found for a day. For
+  up to 15 artists (the default) the shops are read during the search, one artist at a time, so the
+  page is complete when it ends; when you pick more artists, each artist's shops are read as its
+  card comes into view. The
   pictures follow **Settings › Images in Discover** (and its Wi-Fi only option).
 - **Shop searches**: Bandcamp, Discogs, eBay and a web search for the artist's store and merch.
   They just open the search in your browser.

@@ -2410,4 +2410,9 @@
         <item quantity="one">Sanatçılarından %d yenilik</item>
         <item quantity="other">Sanatçılarından %d yenilik</item>
     </plurals>
+    <!-- Tools › Recent transfers: one-off transfers (a setlist to a playlist), not syncs. -->
+    <string name="recent_transfers_title">Son aktarımlar</string>
+    <string name="recent_transfers_row">Bir çalma listesine gönderilen set listeleri ve incelemeleri</string>
+    <string name="recent_transfers_intro">Tek seferlik aktarımlar, örneğin çalma listesine dönüşen bir set listesi: senkronizasyon değildir. Her biri bir hafta ya da bulunamayan şarkıları inceleyene kadar burada kalır. Silmek çalma listesini olduğu gibi bırakır.</string>
+    <string name="recent_transfers_none">Son aktarım yok.</string>
 </resources>

@@ -9,7 +9,7 @@ import com.xlollx.songport.providers.Providers
  * migration that needs Android (which connectors are signed in).
  */
 class Store private constructor(context: Context) : FileStore(context.filesDir) {
-    init { migrateConnectors(context) }
+    init { migrateConnectors(context); dropOldOneOffs() }
 
     /** First run of the connector model: whatever is connected or used by a sync becomes a connector. */
     private fun migrateConnectors(ctx: Context) {

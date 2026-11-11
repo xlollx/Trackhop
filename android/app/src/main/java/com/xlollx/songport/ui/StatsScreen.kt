@@ -125,7 +125,7 @@ fun StatsScreen(data: StoreData, onClose: () -> Unit) {
     val services = remember {
         Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }.map { FileStore.family(it.id) }.distinct().size
     }
-    val summary = remember(data.jobs, data.reports) { UsageStats.compute(data, System.currentTimeMillis(), ZoneId.systemDefault()) }
+    val summary = remember(data.syncs, data.reports) { UsageStats.compute(data, System.currentTimeMillis(), ZoneId.systemDefault()) }
     val text = remember(summary, services) { StatsText(ctx, summary, services) }
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
     LaunchedEffect(text) {
