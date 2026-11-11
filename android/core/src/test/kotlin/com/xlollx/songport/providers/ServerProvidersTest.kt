@@ -241,6 +241,26 @@ class FakeServerProvidersTest {
         assertEquals(listOf("home"), requests.filter { it.path == "/hubs/search" }.map { it.query["query"]?.single() })
     }
 
+    @Test fun plexTriesTheBareTitleAndPutsTheClosestFirst() = runBlocking {
+        // #57 on Plex: the full title brings other songs by the same artist, the bare one every part.
+        fun track(key: String, title: String) = """{"ratingKey":"$key","title":"$title","grandparentTitle":"Jean-Michel Jarre","duration":254000}"""
+        answer = { r ->
+            when (r.path) {
+                "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                "/hubs/search" -> 200 to """{"MediaContainer":{"Hub":[{"type":"track","Metadata":[""" + when (r.query["query"]?.single()) {
+                    "oxygene" -> (1..6).joinToString(",") { n -> track("o$n", "Oxygene (Part ${listOf("I", "II", "III", "IV", "V", "VI")[n - 1]})") }
+                    else -> listOf(track("e4", "Equinoxe (Part IV)"), track("z", "Zoolookologie")).joinToString(",")
+                } + "]}]}}"
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        val found = p.search(ctx, Track(id = "q", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"), durationMs = 254_000))
+        assertEquals("o4", found.first().id)
+        assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), requests.filter { it.path == "/hubs/search" }.map { it.query["query"]?.single() })
+    }
+
     @Test fun plexCreatesAnEmptyPlaylistOnTheLibrary() = runBlocking {
         // Plex 1.43: POST /playlists with the library's uri and no item makes an empty audio playlist.
         answer = { r ->
@@ -528,7 +548,7 @@ class FakeServerProvidersTest {
                     {"ratingKey":"3","title":"Oxygene (Troisième)","grandparentTitle":"Jean-Michel Jarre","duration":204000},
                     {"ratingKey":"4","title":"Oxygene (Quatrième)","grandparentTitle":"Jean-Michel Jarre","duration":204000}]}]}}"""
                 // ...the items read with includeGuids have them.
-                r.path == "/library/metadata/3,4" -> 200 to """{"MediaContainer":{"Metadata":[
+                r.path == "/library/metadata/3,4" || r.path == "/library/metadata/4,3" -> 200 to """{"MediaContainer":{"Metadata":[
                     {"ratingKey":"3","title":"Oxygene (Troisième)","Guid":[{"id":"plex://track/abc"},{"id":"mbid://$other"}]},
                     {"ratingKey":"4","title":"Oxygene (Quatrième)","Guid":[{"id":"mbid://$mbid"}]}]}}"""
                 else -> 404 to ""
@@ -539,10 +559,13 @@ class FakeServerProvidersTest {
         val found = p.search(ctx, wanted)
         assertEquals(listOf("4", "3"), found.map { it.id })
         assertEquals(1.0, Matcher.score(wanted, found.first()), 0.0)
-        assertEquals(listOf("1"), requests.single { it.path == "/library/metadata/3,4" }.query["includeGuids"])
-        // Without an id in hand: searches alone (every form of the title, none being close), in the server's order.
+        assertEquals(listOf("1"), requests.single { it.path.startsWith("/library/metadata/") }.query["includeGuids"])
+        // Without an id in hand: searches alone (every form of the title, none being close), the closest first.
         requests.clear()
-        assertEquals(listOf("3", "4"), p.search(ctx, wanted.copy(mbids = emptyList())).map { it.id })
+        val plain = wanted.copy(mbids = emptyList())
+        val byTitle = p.search(ctx, plain)
+        assertEquals(setOf("3", "4"), byTitle.map { it.id }.toSet())
+        assertEquals(byTitle.sortedByDescending { Matcher.score(plain, it) }, byTitle)
         assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), requests.map { assertEquals("/hubs/search", it.path); it.query["query"]?.single() })
     }
 

@@ -71,10 +71,10 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         // Plex matches the query against one name at a time ("metallica battery" finds nothing): the
-        // title alone (folded, as written, bare while nothing close is found), then the artist's songs first.
+        // title alone (folded, as written, bare while nothing close is found), the artist's songs and the closest first.
         suspend fun find(q: String) = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20&includeGuids=1")["MediaContainer"]["Hub"].arr
             .filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }
-        var found = Matcher.byArtist(track, Matcher.searchByTitles(track) { find(it) }).take(20)
+        var found = Matcher.byArtist(track, Matcher.searchByTitles(track) { find(it) }).sortedByDescending { Matcher.score(track, it) }.take(20)
         if (track.mbids.isEmpty() || found.isEmpty()) return found.take(5)
         // Looking for a MusicBrainz recording: where the search left the ids out, the candidates are
         // read once more with them. The one tagged with the recording goes first.
