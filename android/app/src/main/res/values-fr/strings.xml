@@ -2160,6 +2160,15 @@
     <string name="records_format_vinyl">Vinyle</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">Cassette</string>
+    <string name="records_format_all">Tous les formats</string>
+    <string name="records_none_vinyl">Aucun vinyle pour cet artiste.</string>
+    <string name="records_none_cd">Aucun CD pour cet artiste.</string>
+    <string name="records_none_cassette">Aucune cassette pour cet artiste.</string>
+    <string name="records_none_vinyl_for">Aucun vinyle pour : %1$s</string>
+    <string name="records_none_cd_for">Aucun CD pour : %1$s</string>
+    <string name="records_none_cassette_for">Aucune cassette pour : %1$s</string>
+    <string name="records_shop_unread">Impossible de lire leur boutique.</string>
+    <string name="records_shop_retry">Réessayer</string>
     <string name="records_token_title">Jeton Discogs</string>
     <string name="records_token_body">Facultatif. Un jeton d\'accès personnel de ton compte Discogs (Settings › Developers) montre combien d\'exemplaires sont en vente et à partir de quel prix, et cherche plus d\'artistes. Trackhop ne fait que lire avec, et le garde chiffré sur ce téléphone.</string>
     <string name="records_token_get">Obtenir un jeton</string>

@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -98,7 +99,8 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     var artists by remember { mutableStateOf<List<String>?>(null) }
     val choice = rememberArtistChoice()
     var look by remember { mutableStateOf(savedLook(ctx)) }
-    var formats by rememberSaveable { mutableStateOf(emptyList<Records.Format>()) }
+    // One format at a time (null: all of them), for this visit only.
+    var format by rememberSaveable { mutableStateOf<Records.Format?>(null) }
     LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
         artists = null
         val p = pick ?: return@LaunchedEffect
@@ -172,13 +174,24 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
             }
         }
         if (discogs) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Records.Format.entries.forEach { f ->
-                FilterChip(selected = f in formats, onClick = { formats = if (f in formats) formats - f else formats + f }, label = { Text(stringResource(formatLabel(f))) })
+            (listOf(null) + Records.Format.entries).forEach { f ->
+                FilterChip(selected = format == f, onClick = { format = f }, label = { Text(stringResource(f?.let { formatLabel(it) } ?: R.string.records_format_all)) })
             }
         }
         var query by rememberSaveable { mutableStateOf("") }
         if (r.artists.size > 5) ArtistSearchField(query) { query = it }
-        ArtistPick.named(r.artists, query) { it.artist }.forEach { a -> ArtistRecordsCard(a, r.slowedDown, discogs, formats, look.merch) }
+        val named = ArtistPick.named(r.artists, query) { it.artist }
+        // With one format picked, the artists with nothing in it (and no merch to show) take one line, not a card each.
+        val f = format
+        val without = if (f == null || !discogs) emptyList() else named.filter { a ->
+            a.records?.none { f in it.formats } == true && a.shopRecords.orEmpty().none { it.format == f } &&
+                (!look.merch || (a.merch.isNullOrEmpty() && !a.shopsUnread))
+        }
+        if (f != null && without.isNotEmpty()) Text(
+            stringResource(noneForLabel(f), without.joinToString(", ") { it.artist }),
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        (named - without.toSet()).forEach { a -> ArtistRecordsCard(a, r.slowedDown, discogs, format, look.merch) { run() } }
     }
     if (r == null && !busy && look.records) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
 }
@@ -189,23 +202,38 @@ private fun formatLabel(f: Records.Format) = when (f) {
     Records.Format.CASSETTE -> R.string.records_format_cassette
 }
 
+private fun noneLabel(f: Records.Format) = when (f) {
+    Records.Format.VINYL -> R.string.records_none_vinyl
+    Records.Format.CD -> R.string.records_none_cd
+    Records.Format.CASSETTE -> R.string.records_none_cassette
+}
+
+private fun noneForLabel(f: Records.Format) = when (f) {
+    Records.Format.VINYL -> R.string.records_none_vinyl_for
+    Records.Format.CD -> R.string.records_none_cd_for
+    Records.Format.CASSETTE -> R.string.records_none_cassette_for
+}
+
 private fun price(value: Double, currency: String?): String = runCatching {
     NumberFormat.getCurrencyInstance().apply { this.currency = Currency.getInstance(currency ?: "EUR") }.format(value)
 }.getOrDefault("$value ${currency.orEmpty()}")
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRecords: Boolean, formats: List<Records.Format>, showMerch: Boolean) {
+private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRecords: Boolean, format: Records.Format?, showMerch: Boolean, onRetry: () -> Unit) {
     val ctx = LocalContext.current
     val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            // The formats ticked (none: all of them).
-            val records = a.records?.filter { rec -> formats.isEmpty() || rec.formats.any { it in formats } }
+            // The format picked (null: all of them), on Discogs and in their shops.
+            val records = a.records?.filter { rec -> format == null || format in rec.formats }
+            val shopRecords = a.shopRecords?.filter { format == null || it.format == format }
             if (showRecords) when {
                 records == null -> Text(stringResource(if (slowed) R.string.records_not_asked else R.string.records_discogs_down), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                records.isEmpty() -> Text(stringResource(R.string.records_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                records.isEmpty() && format == null -> Text(stringResource(R.string.records_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Nothing in that format anywhere; found only in their shops, the shops' row says it.
+                records.isEmpty() -> if (shopRecords.isNullOrEmpty()) Text(stringResource(noneLabel(format!!)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> {
                     records.forEachIndexed { i, rec ->
                         if (i > 0) HorizontalDivider()
@@ -234,7 +262,6 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
                 modifier = Modifier.clickable { openUrl(ctx, a.discogsPage) },
             )
             // The records on sale in their own shops (Bandcamp, their official shop): with the records, not the merch.
-            val shopRecords = a.shopRecords?.filter { formats.isEmpty() || it.format in formats }
             if (showRecords && !shopRecords.isNullOrEmpty()) {
                 Text(stringResource(R.string.records_in_shops), style = MaterialTheme.typography.labelLarge)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -245,7 +272,12 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
             if (showMerch && merch != null) {
                 if (showRecords) HorizontalDivider()
                 Text(stringResource(R.string.records_kind_merch), style = MaterialTheme.typography.labelLarge)
-                if (merch.isEmpty()) Text(stringResource(R.string.records_merch_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // A shop that did not answer is not a shop with nothing: say so, and offer to ask again.
+                if (merch.isEmpty() && a.shopsUnread) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.records_shop_unread), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    TextButton(onClick = onRetry) { Text(stringResource(R.string.records_shop_retry)) }
+                }
+                else if (merch.isEmpty()) Text(stringResource(R.string.records_merch_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(merch) { MerchCard(it, images) }
                 }

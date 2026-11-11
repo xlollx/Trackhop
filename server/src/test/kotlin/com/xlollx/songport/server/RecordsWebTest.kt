@@ -98,6 +98,7 @@ class RecordsWebTest {
                         Merch.Item(Merch.Source.BANDCAMP, "Tote", "Bag", "", 12.0, null, "https://radiohead.bandcamp.com/merch/tote")),
                     listOf(Merch.Item(Merch.Source.BANDCAMP, "Kid A – Vinyl LP", "Vinyl", "", 32.28, null, "https://radiohead.bandcamp.com/album/kid-a"))),
                 Records.ArtistRecords("Muse", null, emptyList(), Records.searches("Muse"), Records.discogsSearch("Muse")),
+                Records.ArtistRecords("Architects", null, emptyList(), Records.searches("Architects"), Records.discogsSearch("Architects"), emptyList(), shopsUnread = true),
             ),
             total = 80, token = true, tokenRefused = false, slowedDown = true, currency = "EUR",
         )
@@ -119,6 +120,9 @@ class RecordsWebTest {
         assertEquals("32.28", RecordTexts.price(Merch.Item(Merch.Source.BANDCAMP, "x", price = 32.28, url = "u")))
         // Merch not looked up for Muse: null.
         assertEquals(kotlinx.serialization.json.JsonNull, o["artists"]!!.jsonArray[1].jsonObject["merch"])
+        // A shop that did not answer is told apart from one with nothing.
+        assertEquals("false", first.s("shopsUnread"))
+        assertEquals("true", o["artists"]!!.jsonArray[2].jsonObject.s("shopsUnread"))
         assertEquals("all", o.s("kind"))
         // Discogs not asked about Muse: null, not an empty list.
         assertEquals(kotlinx.serialization.json.JsonNull, o["artists"]!!.jsonArray[1].jsonObject["records"])

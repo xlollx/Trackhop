@@ -1,0 +1,81 @@
+{
+ "products": [
+  {
+   "title": "Halloween 2026 Button Set",
+   "handle": "fall-out-boy-halloween-2026-button-set",
+   "vendor": "Fall Out Boy",
+   "product_type": "Accessory",
+   "variants": [
+    {
+     "price": "10.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/1602/4471/files/halloween-2026-button-set-accessory-552.png?v=1790885376"
+    }
+   ]
+  },
+  {
+   "title": "Scar Crossed Lovers Bumper Sticker",
+   "handle": "fall-out-boy-scar-crossed-lovers-bumper-sticker",
+   "vendor": "Fall Out Boy",
+   "product_type": "Sticker",
+   "variants": [
+    {
+     "price": "10.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/1602/4471/files/scar-crossed-lovers-bumper-sticker-309.png?v=1790885359"
+    }
+   ]
+  },
+  {
+   "title": "Nightmare Kitty Tote",
+   "handle": "fall-out-boy-nightmare-kitty-tote",
+   "vendor": "Fall Out Boy",
+   "product_type": "Accessory",
+   "variants": [
+    {
+     "price": "20.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/1602/4471/files/nightmare-kitty-tote-accessory-618.png?v=1790885347"
+    }
+   ]
+  },
+  {
+   "title": "Scar Crossed Pumpkins T-Shirt",
+   "handle": "fall-out-boy-scar-crossed-pumpkins-t-shirt",
+   "vendor": "Fall Out Boy",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/1602/4471/files/scar-crossed-pumpkins-t-shirt-638.png?v=1790885299"
+    }
+   ]
+  }
+ ]
+}

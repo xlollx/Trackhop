@@ -2108,6 +2108,15 @@
     <string name="records_format_vinyl">レコード</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">カセット</string>
+    <string name="records_format_all">すべての形式</string>
+    <string name="records_none_vinyl">このアーティストのレコードはありません。</string>
+    <string name="records_none_cd">このアーティストのCDはありません。</string>
+    <string name="records_none_cassette">このアーティストのカセットはありません。</string>
+    <string name="records_none_vinyl_for">レコードなし：%1$s</string>
+    <string name="records_none_cd_for">CDなし：%1$s</string>
+    <string name="records_none_cassette_for">カセットなし：%1$s</string>
+    <string name="records_shop_unread">ショップを読み込めませんでした。</string>
+    <string name="records_shop_retry">再試行</string>
     <string name="records_token_title">Discogs トークン</string>
     <string name="records_token_body">任意です。Discogs アカウントの個人アクセストークン（Settings › Developers）で、販売中の点数と最低価格が表示され、より多くのアーティストを検索できます。Trackhop は読み取りにのみ使い、この端末に暗号化して保存します。</string>
     <string name="records_token_get">トークンを取得</string>

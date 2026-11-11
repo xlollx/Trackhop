@@ -13,7 +13,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
-class HttpResponse(val code: Int, val body: String, val headers: Headers) {
+/** [url]: where the answer came from after redirects (null when not known). */
+class HttpResponse(val code: Int, val body: String, val headers: Headers, val url: String? = null) {
     val ok: Boolean get() = code in 200..299
     fun header(name: String): String? = headers[name]
 }
@@ -85,7 +86,7 @@ object Http {
             }.build()
             val resp = client.newCall(req).execute()
             val text = resp.body?.string() ?: ""
-            val out = HttpResponse(resp.code, text, resp.headers)
+            val out = HttpResponse(resp.code, text, resp.headers, resp.request.url.toString())
             last = out
             if (out.code == 429 && attempt < maxRateLimitRetries) {
                 // A short pause is absorbed here. A long one (Spotify can ask for hours) is not: the

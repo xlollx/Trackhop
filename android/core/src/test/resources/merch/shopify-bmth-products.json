@@ -1,0 +1,96 @@
+{
+ "products": [
+  {
+   "title": "Dance on Your Grave | T-Shirt",
+   "handle": "dance-on-your-grave-t-shirt",
+   "vendor": "Bring Me The Horizon",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0501/3012/4960/files/Dance-On-Your-Grave.png?v=1783963700"
+    }
+   ]
+  },
+  {
+   "title": "Recount Your Blessings | T-Shirt",
+   "handle": "recount-your-blessings-t-shirt",
+   "vendor": "Bring Me The Horizon",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "price": "45.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0501/3012/4960/files/recount-your-blessings-front.png?v=1783963667"
+    }
+   ]
+  },
+  {
+   "title": "Medusa Long | LS T-Shirt",
+   "handle": "medusa-long-ls-t-shirt",
+   "vendor": "Bring Me The Horizon",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "price": "55.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "price": "55.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0501/3012/4960/files/medusa-front.png?v=1783963595"
+    }
+   ]
+  },
+  {
+   "title": "Cleanse This Earth | T-Shirt",
+   "handle": "cleanse-this-earth-t-shirt",
+   "vendor": "Bring Me The Horizon",
+   "product_type": "T-Shirt",
+   "variants": [
+    {
+     "price": "45.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "price": "45.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0501/3012/4960/files/Cleanse-This-Earth-Front_9eabb8e6-da01-4fb5-a2b1-9649dde77fe8.png?v=1783963552"
+    }
+   ]
+  }
+ ]
+}

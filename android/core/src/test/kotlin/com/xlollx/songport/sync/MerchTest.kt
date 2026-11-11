@@ -17,8 +17,9 @@ import java.util.Collections
 /**
  * Merch from the artists' own shops: a Shopify shop's public catalogue and a Bandcamp merch page,
  * read from trimmed copies of real answers (Arctic Monkeys' and Taylor Swift's shops, Khruangbin's
- * Bandcamp, November 2026); robots.txt honoured, one shop per artist, a day's cache, and nothing
- * asked for records only.
+ * Bandcamp; Bring Me The Horizon's, Fall Out Boy's and Bad Omens' home pages and the shops they link
+ * to, November 2026); robots.txt honoured, one shop per artist, a day's cache, a shop that did not
+ * answer told apart from one with nothing, and nothing asked for records only.
  */
 class MerchTest {
     private fun fixture(name: String) = javaClass.getResource("/merch/$name")!!.readText()
@@ -146,6 +147,25 @@ class MerchTest {
         assertTrue(Merch.robotsAllows("", "/merch"))
     }
 
+    @Test fun robotsOfRealShopsAndGroupsForOtherAgents() {
+        // Shopify, 2026: the catalogue, a collection's and the home page are open; carts and sorted lists are not.
+        val shopify = fixture("shopify-robots-2026.txt")
+        assertTrue(Merch.robotsAllows(shopify, "/products.json?limit=30"))
+        assertTrue(Merch.robotsAllows(shopify, "/collections/bad-omens/products.json?limit=30"))
+        assertTrue(Merch.robotsAllows(shopify, "/"))
+        assertFalse(Merch.robotsAllows(shopify, "/cart/add"))
+        assertFalse(Merch.robotsAllows(shopify, "/collections/all?sort_by=price"))
+        // Squarespace: AI crawlers grouped with "*" share its rules, no "Disallow: /" for everyone.
+        val squarespace = fixture("squarespace-robots.txt")
+        assertTrue(Merch.robotsAllows(squarespace, "/"))
+        assertFalse(Merch.robotsAllows(squarespace, "/search"))
+        // A group for other crawlers is not this app's, even when their name is part of it or empty.
+        assertTrue(Merch.robotsAllows("User-agent: track\nDisallow: /\n\nUser-agent: *\nAllow: /", "/products.json"))
+        assertTrue(Merch.robotsAllows("User-agent:\nDisallow: /", "/products.json"))
+        assertTrue(Merch.robotsAllows("User-agent: GPTBot\nUser-agent: ClaudeBot\nDisallow: /\n\nUser-agent: *\nDisallow: /cart", "/products.json"))
+        assertFalse(Merch.robotsAllows("User-agent: Trackhop/2.0\nDisallow: /", "/products.json"))
+    }
+
     @Test fun retailersAreNeverAskedAndShopsComeFirst() {
         val hosts = Merch.shopHosts(listOf(
             link(Records.Kind.OFFICIAL, "https://www.taylorswift.com/"),
@@ -172,7 +192,7 @@ class MerchTest {
         answers["/khruangbin.bandcamp.com/robots.txt"] = 200 to fixture("bandcamp-robots.txt")
         answers["/khruangbin.bandcamp.com/merch"] = 200 to fixture("bandcamp-khruangbin-merch.html")
         val links = am + link(Records.Kind.BANDCAMP, "https://khruangbin.bandcamp.com/")
-        val items = Merch.find(env, "Arctic Monkeys", links)
+        val items = Merch.find(env, "Arctic Monkeys", links).items
         assertEquals(3, items.count { it.source == Merch.Source.SHOP })
         assertEquals(3, items.count { it.source == Merch.Source.BANDCAMP })
         // Robots first; the retailers never.
@@ -183,29 +203,120 @@ class MerchTest {
         assertTrue(agents.all { it != null && it.startsWith("Trackhop") })
         hits.clear()
         clock += 23 * 3_600_000L
-        assertEquals(items, Merch.find(env, "Arctic Monkeys", links))
+        assertEquals(items, Merch.find(env, "Arctic Monkeys", links).items)
         assertTrue(hits.isEmpty())
         clock += 2 * 3_600_000L
-        Merch.find(env, "Arctic Monkeys", links)
+        Merch.find(env, "Arctic Monkeys", links).items
         assertTrue(hits.isNotEmpty())
     }
 
     @Test fun aShopClosedByRobotsIsNotRead() = runBlocking {
         arcticShop()
         answers["/www.arcticmonkeys.com/robots.txt"] = 200 to "User-agent: *\nDisallow: /products"
-        assertTrue(Merch.find(env, "Arctic Monkeys", am).isEmpty())
-        assertEquals(listOf("/www.arcticmonkeys.com/robots.txt"), hits)
+        assertTrue(Merch.find(env, "Arctic Monkeys", am).items.isEmpty())
+        // The home page is still open to it: read for the shops it links to.
+        assertEquals(listOf("/www.arcticmonkeys.com/robots.txt", "/www.arcticmonkeys.com/"), hits)
     }
 
-    @Test fun aSiteThatIsNotShopifyOrDoesNotAnswerGivesNothing() = runBlocking {
+    @Test fun aSiteThatIsNotShopifyGivesNothingAndOneThatDoesNotAnswerIsNotRead() = runBlocking {
         answers["/www.arcticmonkeys.com/products.json"] = 200 to "<html>not a shop</html>"
-        assertTrue(Merch.find(env, "Arctic Monkeys", am).isEmpty())
+        val none = Merch.find(env, "Arctic Monkeys", am)
+        assertTrue(none.items.isEmpty())
+        assertFalse(none.unread)
         assertFalse(hits.contains("/www.arcticmonkeys.com/meta.json"))
-        // A robots.txt that fails (5xx): the host is skipped altogether.
+        // A robots.txt that fails (5xx): the host is skipped altogether, and that is not "nothing there".
         hits.clear(); clock += Merch.TTL_MS
         answers["/www.arcticmonkeys.com/robots.txt"] = 503 to "busy"
-        assertTrue(Merch.find(env, "Arctic Monkeys", am).isEmpty())
+        val down = Merch.find(env, "Arctic Monkeys", am)
+        assertTrue(down.items.isEmpty())
+        assertTrue(down.unread)
         assertEquals(listOf("/www.arcticmonkeys.com/robots.txt"), hits)
+        assertTrue(env.logs.last(), env.logs.last().startsWith("[merch] Arctic Monkeys: www.arcticmonkeys.com/robots.txt: 503") && env.logs.last().endsWith("not read"))
+        // Not kept: asked again at once, and found when the shop is back.
+        hits.clear()
+        arcticShop()
+        assertEquals(3, Merch.find(env, "Arctic Monkeys", am).items.size)
+        assertTrue(hits.contains("/www.arcticmonkeys.com/products.json"))
+    }
+
+    // ------------------------------------------------------------------ shops the official site links to
+
+    @Test fun theShopsAnOfficialHomePageLinksTo() {
+        // A store subdomain, after a link that does not name a shop (horizonsupply.co).
+        assertEquals(listOf("https://shop.bmthofficial.com/?utm_source=Website&utm_medium=Organic&utm_content=Site%20Navigation"),
+            Merch.storeLinks(fixture("home-bmth.html"), "www.bmthofficial.com"))
+        // A link page named "store"; the other link pages (music, an album) and the social pages are not shops.
+        assertEquals(listOf("https://falloutboy.lnk.to/store"), Merch.storeLinks(fixture("home-falloutboy.html"), "www.falloutboy.com"))
+        // The artist's collections in the distributors' shops; the site's own /shop pages are the site itself.
+        assertEquals(listOf("https://merchjungle.com/collections/bad-omens", "https://cutloosemerch.ca/collections/bad-omens"),
+            Merch.storeLinks(fixture("home-badomens.html"), "badomensofficial.com"))
+        // Those on the site's own domain first.
+        assertEquals(listOf("https://store.band.com/", "https://label-store.com/x"),
+            Merch.storeLinks("""<a href="https://label-store.com/x">x</a><a href='https://store.band.com/'>s</a><a href="https://cdn.shopify.com/s">c</a>""", "www.band.com"))
+    }
+
+    @Test fun aLinkPageSendsToTheShopItNames() {
+        assertEquals("https://store.falloutboy.com", Merch.landingShop(fixture("lnk-falloutboy-store.html"), "falloutboy.lnk.to"))
+        assertNull(Merch.landingShop("""<a href="https://open.spotify.com/x">""", "x.lnk.to"))
+    }
+
+    @Test fun aShopsCollectionIsTheArtists() {
+        assertEquals(Merch.Shop("merchjungle.com", "bad-omens"), Merch.shopOf("https://merchjungle.com/collections/bad-omens"))
+        assertEquals(Merch.Shop("store.falloutboy.com"), Merch.shopOf("https://store.falloutboy.com"))
+        assertEquals(Merch.Shop("shop.band.com"), Merch.shopOf("https://shop.band.com/products/tee"))
+        assertNull(Merch.shopOf("https://www.amazon.com/shop/band"))
+    }
+
+    @Test fun theStoreSubdomainOfTheOfficialSiteIsRead() = runBlocking {
+        answers["/www.bmthofficial.com/"] = 200 to fixture("home-bmth.html")
+        answers["/shop.bmthofficial.com/robots.txt"] = 200 to fixture("shopify-robots-2026.txt")
+        answers["/shop.bmthofficial.com/products.json"] = 200 to fixture("shopify-bmth-products.json")
+        answers["/shop.bmthofficial.com/meta.json"] = 200 to fixture("shopify-bmth-meta.json")
+        val found = Merch.find(env, "Bring Me The Horizon", listOf(link(Records.Kind.OFFICIAL, "https://www.bmthofficial.com/")))
+        // "Cleanse This Earth" has no size left.
+        assertEquals(listOf("Dance on Your Grave | T-Shirt", "Recount Your Blessings | T-Shirt", "Medusa Long | LS T-Shirt"), found.items.map { it.title })
+        assertEquals("https://shop.bmthofficial.com/products/dance-on-your-grave-t-shirt", found.items[0].url)
+        assertEquals("GBP", found.items[0].currency)
+        assertEquals(listOf(
+            "/www.bmthofficial.com/robots.txt", "/www.bmthofficial.com/products.json", "/www.bmthofficial.com/",
+            "/shop.bmthofficial.com/robots.txt", "/shop.bmthofficial.com/products.json", "/shop.bmthofficial.com/meta.json",
+        ), hits)
+    }
+
+    @Test fun aLinkPageIsFollowedOnceToTheShop() = runBlocking {
+        answers["/www.falloutboy.com/"] = 200 to fixture("home-falloutboy.html")
+        answers["/falloutboy.lnk.to/store"] = 200 to fixture("lnk-falloutboy-store.html")
+        answers["/store.falloutboy.com/products.json"] = 200 to fixture("shopify-falloutboy-products.json")
+        answers["/store.falloutboy.com/meta.json"] = 200 to fixture("shopify-falloutboy-meta.json")
+        val found = Merch.find(env, "Fall Out Boy", listOf(link(Records.Kind.OFFICIAL, "https://www.falloutboy.com/")))
+        assertEquals(4, found.items.size)
+        assertTrue(found.items.all { it.url.startsWith("https://store.falloutboy.com/products/") && it.currency == "USD" })
+        assertTrue(hits.containsAll(listOf("/falloutboy.lnk.to/robots.txt", "/falloutboy.lnk.to/store", "/store.falloutboy.com/robots.txt")))
+        assertTrue(env.logs.last(), env.logs.last().contains("falloutboy.lnk.to/store → store.falloutboy.com"))
+    }
+
+    @Test fun theArtistsCollectionInADistributorsShop() = runBlocking {
+        answers["/badomensofficial.com/"] = 200 to fixture("home-badomens.html")
+        answers["/merchjungle.com/robots.txt"] = 200 to fixture("shopify-robots-2026.txt")
+        answers["/merchjungle.com/collections/bad-omens/products.json"] = 200 to fixture("shopify-merchjungle-badomens-products.json")
+        answers["/merchjungle.com/meta.json"] = 200 to fixture("shopify-merchjungle-meta.json")
+        val found = Merch.find(env, "Bad Omens", listOf(link(Records.Kind.OFFICIAL, "https://badomensofficial.com/")))
+        // Sold out (the vinyl, the hood, a tee) left out.
+        assertEquals(listOf("Bad Omens / Drip Reaper Tee (Black)", "Bad Omens / Cherub Tote (Black)", "Bad Omens / Take Me Tee"), found.items.map { it.title })
+        assertEquals("AUD", found.items[0].currency)
+        assertFalse(hits.contains("/cutloosemerch.ca/robots.txt"))
+        // A collection named after the artist is theirs, even where the products do not name them.
+        val unnamed = fixture("shopify-merchjungle-badomens-products.json").replace("Bad Omens", "BO")
+        assertTrue(Merch.parseShopify(unnamed, fixture("shopify-merchjungle-meta.json"), "https://merchjungle.com", "Bad Omens").isEmpty())
+        assertEquals(3, Merch.parseShopify(unnamed, fixture("shopify-merchjungle-meta.json"), "https://merchjungle.com", "Bad Omens", whole = true).size)
+    }
+
+    @Test fun withoutMusicBrainzTheShopsAreNotReadRatherThanEmpty() = runBlocking {
+        answers["/ws/2/artist"] = 503 to "busy"
+        val r = Records.find(env, listOf("Arctic Monkeys"), "EUR", look = Records.Look.MERCH)
+        assertEquals(emptyList<Merch.Item>(), r.artists[0].merch)
+        assertTrue(r.artists[0].shopsUnread)
+        assertTrue(hits.none { it.startsWith("/www.") })
     }
 
     @Test fun recordsInTheShopsGoWithTheRecordsAndMerchOnlyAsksNotDiscogs() = runBlocking {

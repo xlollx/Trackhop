@@ -2108,6 +2108,15 @@
     <string name="records_format_vinyl">黑胶</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">磁带</string>
+    <string name="records_format_all">全部格式</string>
+    <string name="records_none_vinyl">该艺人没有黑胶。</string>
+    <string name="records_none_cd">该艺人没有 CD。</string>
+    <string name="records_none_cassette">该艺人没有磁带。</string>
+    <string name="records_none_vinyl_for">没有黑胶：%1$s</string>
+    <string name="records_none_cd_for">没有 CD：%1$s</string>
+    <string name="records_none_cassette_for">没有磁带：%1$s</string>
+    <string name="records_shop_unread">无法读取他们的商店。</string>
+    <string name="records_shop_retry">重试</string>
     <string name="records_token_title">Discogs 令牌</string>
     <string name="records_token_body">可选。你的 Discogs 账户的个人访问令牌（Settings › Developers）可显示在售数量和最低价格，并查找更多艺人。Trackhop 只用它读取数据，并加密保存在这部手机上。</string>
     <string name="records_token_get">获取令牌</string>

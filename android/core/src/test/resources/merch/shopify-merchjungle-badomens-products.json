@@ -1,0 +1,132 @@
+{
+ "products": [
+  {
+   "title": "Bad Omens / Concrete Jungle [The OST] (Green & Orange Vinyl)",
+   "handle": "bad-omens-concrete-jungle-the-ost-green-orange-vinyl",
+   "vendor": "Bad Omens",
+   "product_type": "Vinyl",
+   "variants": [
+    {
+     "price": "130.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/BadOmensConcreteVinyl.png?v=1751583780"
+    }
+   ]
+  },
+  {
+   "title": "Bad Omens / Snake Hood (Black)",
+   "handle": "bad-omens-snake-hood-black",
+   "vendor": "Bad Omens",
+   "product_type": "Hood",
+   "variants": [
+    {
+     "price": "80.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "price": "80.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/BadOmens-productimage-03.png?v=1740094609"
+    }
+   ]
+  },
+  {
+   "title": "Bad Omens / Drip Reaper Tee (Black)",
+   "handle": "bad-omens-drip-reaper-tee-black",
+   "vendor": "Bad Omens",
+   "product_type": "Tee",
+   "variants": [
+    {
+     "price": "50.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "price": "50.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/BadOmens-product_image-05.png?v=1740094604"
+    }
+   ]
+  },
+  {
+   "title": "Bad Omens / Beat Death Cherub Tee (Black)",
+   "handle": "bad-omens-beat-death-cherub-tee-black",
+   "vendor": "Bad Omens",
+   "product_type": "Tee",
+   "variants": [
+    {
+     "price": "50.00",
+     "available": false,
+     "requires_shipping": true
+    },
+    {
+     "price": "50.00",
+     "available": false,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/BadOmens-productimage-01.png?v=1740094598"
+    }
+   ]
+  },
+  {
+   "title": "Bad Omens / Cherub Tote (Black)",
+   "handle": "bad-omens-cherub-tote-black",
+   "vendor": "Bad Omens",
+   "product_type": "Bag",
+   "variants": [
+    {
+     "price": "35.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/BadOmens-productimage-15.png?v=1740094612"
+    }
+   ]
+  },
+  {
+   "title": "Bad Omens / Take Me Tee",
+   "handle": "bad-omens-take-me-tee",
+   "vendor": "Bad Omens",
+   "product_type": "Tee",
+   "variants": [
+    {
+     "price": "50.00",
+     "available": true,
+     "requires_shipping": true
+    },
+    {
+     "price": "50.00",
+     "available": true,
+     "requires_shipping": true
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0006/9566/4758/files/Untitleddesign-2024-05-12T211503.873_369000f4-f768-4c24-baee-5264026507ec.png?v=1740087922"
+    }
+   ]
+  }
+ ]
+}

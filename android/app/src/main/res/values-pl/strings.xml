@@ -2242,6 +2242,15 @@
     <string name="records_format_vinyl">Winyl</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">Kaseta</string>
+    <string name="records_format_all">Wszystkie formaty</string>
+    <string name="records_none_vinyl">Brak winyli tego wykonawcy.</string>
+    <string name="records_none_cd">Brak płyt CD tego wykonawcy.</string>
+    <string name="records_none_cassette">Brak kaset tego wykonawcy.</string>
+    <string name="records_none_vinyl_for">Brak winyli: %1$s</string>
+    <string name="records_none_cd_for">Brak płyt CD: %1$s</string>
+    <string name="records_none_cassette_for">Brak kaset: %1$s</string>
+    <string name="records_shop_unread">Nie udało się odczytać ich sklepu.</string>
+    <string name="records_shop_retry">Spróbuj ponownie</string>
     <string name="records_token_title">Token Discogs</string>
     <string name="records_token_body">Opcjonalnie. Osobisty token dostępu z twojego konta Discogs (Settings › Developers) pokazuje, ile egzemplarzy jest na sprzedaż i od jakiej ceny, oraz sprawdza więcej artystów. Trackhop tylko czyta za jego pomocą i trzyma go zaszyfrowanego na tym telefonie.</string>
     <string name="records_token_get">Zdobądź token</string>

@@ -30,6 +30,7 @@ internal object RecordTexts {
     const val NO_TOKEN = "Add your own Discogs token (Settings) to see how many copies are for sale and to look up more artists."
     const val ATTRIBUTION = "${Records.ATTRIBUTION} (records) and MusicBrainz (links); merch from the artists' own shops. Plain links, no affiliate tags."
     const val NO_MERCH = "No merch found in their shops."
+    const val SHOPS_UNREAD = "Couldn't read their shop: try again later."
 
     fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up, of $total."
 
@@ -115,6 +116,7 @@ internal fun recordsJson(r: Records.Result): JsonObject = buildJsonObject {
             put("searches", JsonArray(a.searches.map { s -> buildJsonObject { put("site", s.site ?: "Web"); put("url", s.url) } }))
             put("shopRecords", a.shopRecords?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
             put("merch", a.merch?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
+            put("shopsUnread", a.shopsUnread)
         }
     }))
     put("attribution", RecordTexts.ATTRIBUTION)
@@ -223,7 +225,7 @@ private fun recordsHtml(playlist: String, r: Records.Result): String = buildStri
         ar.shopRecords?.takeIf { it.isNotEmpty() }?.let { items -> append("<p>Records in their shops:</p>"); shopItems(items) }
         ar.merch?.let { items ->
             append("<p>Merch:</p>")
-            if (items.isEmpty()) append("""<p class="muted">${RecordTexts.NO_MERCH}</p>""") else shopItems(items)
+            if (items.isEmpty()) append("""<p class="muted">${if (ar.shopsUnread) RecordTexts.SHOPS_UNREAD else RecordTexts.NO_MERCH}</p>""") else shopItems(items)
         }
         if (ar.links.isNotEmpty()) append("<p>Official pages: ").append(ar.links.joinToString(" · ") { l ->
             a(l.url, when (l.kind) { Records.Kind.OFFICIAL -> "Official site"; Records.Kind.SHOP -> "Official shop"; else -> l.label })

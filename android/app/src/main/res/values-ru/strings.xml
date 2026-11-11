@@ -2240,6 +2240,15 @@
     <string name="records_format_vinyl">Винил</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">Кассета</string>
+    <string name="records_format_all">Все форматы</string>
+    <string name="records_none_vinyl">У этого исполнителя нет винила.</string>
+    <string name="records_none_cd">У этого исполнителя нет CD.</string>
+    <string name="records_none_cassette">У этого исполнителя нет кассет.</string>
+    <string name="records_none_vinyl_for">Нет винила: %1$s</string>
+    <string name="records_none_cd_for">Нет CD: %1$s</string>
+    <string name="records_none_cassette_for">Нет кассет: %1$s</string>
+    <string name="records_shop_unread">Не удалось прочитать их магазин.</string>
+    <string name="records_shop_retry">Повторить</string>
     <string name="records_token_title">Токен Discogs</string>
     <string name="records_token_body">Необязательно. Личный токен доступа вашего аккаунта Discogs (Settings › Developers) показывает, сколько экземпляров в продаже и от какой цены, и ищет больше артистов. Trackhop только читает с ним и хранит его зашифрованным на этом телефоне.</string>
     <string name="records_token_get">Получить токен</string>

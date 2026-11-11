@@ -120,6 +120,8 @@ object Records {
         val merch: List<Merch.Item>? = null,
         /** The records (vinyl, CD, cassette) on sale in the artist's own shops ([Merch.Item.format]); null when not shown ([Look.MERCH]). */
         val shopRecords: List<Merch.Item>? = null,
+        /** Their shops (or MusicBrainz, which names them) could not be read: nothing found is not "nothing there" ([Merch.Found.unread]). */
+        val shopsUnread: Boolean = false,
     )
 
     data class Result(
@@ -201,11 +203,14 @@ object Records {
                 records to links.await()
             }
             // The shops are read for every look: their records go with the records, the rest is the merch.
-            val (shopRecords, merch) = Merch.find(env, artist, links).partition { it.format != null }
-            val page = links.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
+            // Without MusicBrainz no shop is known: not read, rather than nothing there.
+            if (links == null) env.log("records", "$artist: MusicBrainz did not answer")
+            val found = if (links == null) Merch.Found(emptyList(), unread = true) else Merch.find(env, artist, links)
+            val (shopRecords, merch) = found.items.partition { it.format != null }
+            val page = links?.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
             out += ArtistRecords(
-                artist, records, links.filter { it.kind != Kind.DISCOGS }, searches(artist), page,
-                merch.takeIf { look.merch }, shopRecords.takeIf { look.records },
+                artist, records, links.orEmpty().filter { it.kind != Kind.DISCOGS }, searches(artist), page,
+                merch.takeIf { look.merch }, shopRecords.takeIf { look.records }, found.unread,
             )
         }
         progress(list.size, list.size)
@@ -342,14 +347,14 @@ object Records {
 
     // ---------------------------------------------------------------- MusicBrainz
 
-    /** The artist's pages on MusicBrainz (empty when it does not know the artist, or could not be asked). */
-    private suspend fun links(env: Env, artist: String): List<Link> {
+    /** The artist's pages on MusicBrainz (empty when it does not know the artist); null when it could not be asked. */
+    private suspend fun links(env: Env, artist: String): List<Link>? {
         val ck = "mb|${norm(artist)}"
         cached(env, ck, LINKS_TTL_MS) { json.decodeFromString(linksSerializer, it) }?.let { return it }
         val q = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\""
-        val found = mbGet("artist?query=${enc(q)}&limit=5&fmt=json") ?: return emptyList()
+        val found = mbGet("artist?query=${enc(q)}&limit=5&fmt=json") ?: return null
         val id = pickArtist(found, artist)
-        val links = if (id == null) emptyList() else parseLinks(mbGet("artist/$id?inc=url-rels&fmt=json") ?: return emptyList())
+        val links = if (id == null) emptyList() else parseLinks(mbGet("artist/$id?inc=url-rels&fmt=json") ?: return null)
         remember(env, ck, json.encodeToString(linksSerializer, links))
         return links
     }

@@ -2150,6 +2150,15 @@
     <string name="records_format_vinyl">Plak</string>
     <string name="records_format_cd">CD</string>
     <string name="records_format_cassette">Kaset</string>
+    <string name="records_format_all">Tüm formatlar</string>
+    <string name="records_none_vinyl">Bu sanatçının plağı yok.</string>
+    <string name="records_none_cd">Bu sanatçının CD\'si yok.</string>
+    <string name="records_none_cassette">Bu sanatçının kaseti yok.</string>
+    <string name="records_none_vinyl_for">Plak yok: %1$s</string>
+    <string name="records_none_cd_for">CD yok: %1$s</string>
+    <string name="records_none_cassette_for">Kaset yok: %1$s</string>
+    <string name="records_shop_unread">Mağazaları okunamadı.</string>
+    <string name="records_shop_retry">Tekrar dene</string>
     <string name="records_token_title">Discogs token\'ı</string>
     <string name="records_token_body">İsteğe bağlı. Discogs hesabından alınan kişisel erişim token\'ı (Settings › Developers) kaç kopyanın hangi fiyattan satışta olduğunu gösterir ve daha çok sanatçı arar. Trackhop onunla yalnızca okur ve onu bu telefonda şifreli saklar.</string>
     <string name="records_token_get">Token al</string>
