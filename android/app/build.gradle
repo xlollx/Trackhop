@@ -29,9 +29,7 @@ def appleDeveloperToken = cfg('APPLE_DEVELOPER_TOKEN', '')
 def lastfmApiKey = cfg('LASTFM_API_KEY', '')
 // Its shared secret: only for signed calls (loving tracks, #51). A secret: kept in the repo's Secrets.
 def lastfmSharedSecret = cfg('LASTFM_SHARED_SECRET', '')
-// Ticketmaster Discovery API (Discover › Concerts): the Consumer Key only, never its Consumer Secret.
-// Shared by everyone using the build: on-demand searches only (see core sync/Concerts.kt).
-def ticketmasterApiKey = cfg('TICKETMASTER_API_KEY', '')
+// No Ticketmaster key in the builds either: its licence cannot be passed on to the app's users; they add their own.
 // No setlist.fm key in the builds: setlist.fm's API terms forbid sharing one; users add their own.
 // Google richiede come redirect lo schema "client id invertito".
 def googleScheme = googleClientId
@@ -71,7 +69,6 @@ android {
         buildConfigField "String", "APPLE_DEVELOPER_TOKEN", "\"${appleDeveloperToken}\""
         buildConfigField "String", "LASTFM_API_KEY", "\"${lastfmApiKey}\""
         buildConfigField "String", "LASTFM_SHARED_SECRET", "\"${lastfmSharedSecret}\""
-        buildConfigField "String", "TICKETMASTER_API_KEY", "\"${ticketmasterApiKey}\""
         buildConfigField "String", "GOOGLE_REDIRECT_SCHEME", "\"${googleScheme}\""
         buildConfigField "String", "PRIVACY_POLICY_URL", "\"${privacyUrl}\""
         buildConfigField "String", "KOFI_URL", "\"${kofiUrl}\""

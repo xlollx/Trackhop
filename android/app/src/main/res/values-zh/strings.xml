@@ -865,6 +865,10 @@
     <string name="services_group_servers">你的服务器</string>
     <string name="services_group_other">其他</string>
     <string name="settings_new_look">新外观</string>
+    <string name="settings_discover_images">发现中的图片</string>
+    <string name="settings_discover_images_summary">演出图片和唱片封面。关闭可节省流量。</string>
+    <string name="settings_discover_images_wifi">仅在 Wi-Fi 下显示图片</string>
+    <string name="settings_discover_images_wifi_summary">使用移动数据时，发现中不显示图片。</string>
     <string name="settings_new_look_desc">以数字显示上次运行并附带近期运行记录的同步卡片。</string>
     <string name="stat_added">已添加</string>
     <string name="stat_removed">已移除</string>
@@ -1892,6 +1896,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">单曲</string>
     <string name="releases_make">创建歌单</string>
+    <string name="releases_add_existing">添加到播放列表</string>
+    <string name="releases_add_existing_desc">选择你的一个播放列表：将打开一个同步，把勾选的新发行添加进去，跳过已有的歌曲。</string>
+    <string name="releases_add_existing_target">要添加到的播放列表</string>
+    <string name="releases_add_existing_go">添加新发行</string>
     <string name="releases_playlist_name">%1$s 的新发行</string>
     <string name="releases_weekly">每周</string>
     <string name="releases_weekly_desc">或者让同步每周把这些艺人的新作品加到任意服务上的歌单里。</string>
@@ -1958,17 +1966,34 @@
     <string name="concerts_sources_mb">演出信息来自 MusicBrainz。</string>
     <string name="concerts_coverage_it">在意大利，只在 TicketOne 售票的演出不在其中：请使用搜索按钮。</string>
     <string name="concerts_coverage">并非所有演出都会列出：也请看看艺人的官方网站。</string>
-    <string name="concerts_quota">今天的 Ticketmaster 额度已用完：请明天再试，或添加你自己的密钥。下面部分演出仅来自 MusicBrainz。</string>
+    <string name="concerts_quota">今天的 Ticketmaster 额度已用完：请明天再试。下面的部分日期仅来自 MusicBrainz。</string>
     <string name="concerts_key_refused">Ticketmaster 拒绝了该密钥：请检查。</string>
-    <string name="concerts_no_key">仅有 MusicBrainz 的演出：添加免费的 Ticketmaster 密钥可看到更多。</string>
-    <string name="concerts_limited">只查找了你最常听的 %1$d 位艺人：添加你自己的 Ticketmaster 密钥即可查找全部 %2$d 位。</string>
+    <string name="concerts_no_key">Ticketmaster 需要你自己的免费密钥：添加后即可看到它的日期。</string>
     <string name="concerts_key_title">Ticketmaster 密钥</string>
-    <string name="concerts_key_body">可选。有了你自己的免费密钥，Trackhop 会查找更多艺人，也不必与所有人共用每日额度。在 Ticketmaster 开发者网站创建一个应用，并把它的 Consumer Key 粘贴到这里（切勿粘贴 Consumer Secret）。</string>
+    <string name="concerts_key_body">Ticketmaster 的日期需要你自己的免费密钥：没有密钥时，仅显示 MusicBrainz 的日期。</string>
+    <string name="concerts_key_steps">1. 点按“获取密钥”：将打开 Ticketmaster 开发者网站。你需要一个开发者账号，而不是买票用的账号。\n2. 点按 Get your API key，然后注册或登录。\n3. 在 My Apps 中打开你的应用，复制它的 Consumer Key（切勿复制 Consumer Secret）。\n4. 粘贴到下方并点按“保存”。</string>
+    <string name="setlists_key_steps">1. 在 setlist.fm 注册免费账号或登录。\n2. 点按“获取密钥”：将打开 setlist.fm 的 Settings › API。\n3. 申请密钥：应用名称填 Trackhop，描述填 \"Personal use: setlists of my playlists\' artists\"，非商业用途。\n4. 复制显示的密钥，粘贴到下方并点按“保存”。</string>
+    <string name="records_token_steps">1. 登录 Discogs（免费账号即可）。\n2. 点按“获取令牌”：将打开 Discogs 的 Settings › Developers。\n3. 点按 Generate new token 并复制。\n4. 粘贴到下方并点按“保存”。</string>
     <string name="concerts_key_get">获取密钥</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">正在使用你自己的密钥</string>
     <string name="concerts_key_shared">正在使用应用的共享密钥</string>
     <string name="concerts_key_none">没有密钥：仅 MusicBrainz 的演出</string>
+    <string name="concerts_range">时间</string>
+    <string name="concerts_range_1m">未来 1 个月</string>
+    <string name="concerts_range_3m">未来 3 个月</string>
+    <string name="concerts_range_6m">未来 6 个月</string>
+    <string name="concerts_range_1y">未来 12 个月</string>
+    <string name="concerts_range_any">任何日期</string>
+    <string name="concerts_add_calendar">添加到日历</string>
+    <string name="concerts_no_calendar">未找到日历应用。</string>
+    <string name="artists_search">搜索艺人</string>
+    <string name="artists_choose">选择艺人</string>
+    <string name="artists_choose_hint">勾选要查找的艺人：不勾选则查找整个播放列表。</string>
+    <string name="artists_chosen">艺人：%1$d / %2$d</string>
+    <string name="artists_whole_playlist">艺人：整个播放列表</string>
+    <string name="artists_typed">其他艺人（按名称）</string>
+    <string name="artists_capped">已查找你最常听的 %1$d 位艺人（共 %2$d 位）：选择艺人以查找其他人。</string>
     <plurals name="backup_config_channels">
         <item quantity="other">另有 %d 个通知渠道:在你开启并填写密钥之前保持关闭。</item>
     </plurals>
@@ -1981,7 +2006,6 @@
     <string name="setlists_quota">今天的 setlist.fm 额度已用完：请明天再试。</string>
     <string name="setlists_key_refused">setlist.fm 拒绝了该密钥：请检查。</string>
     <string name="setlists_no_key">演出曲目需要 setlist.fm 密钥：添加你自己的，免费。</string>
-    <string name="setlists_limited">只查找了 %2$d 位艺人中你最常听的 %1$d 位。</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm 没有回应 %d 位艺人：请稍后再试。</item>
     </plurals>
@@ -1995,7 +2019,7 @@
     <string name="setlists_make">生成歌单</string>
     <string name="setlists_attribution">演出曲目来自 setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 密钥</string>
-    <string name="setlists_key_body">演出曲目需要你自己的免费 setlist.fm 密钥：在 setlist.fm 账户 › Settings › API 中创建，然后粘贴到这里。Trackhop 只读取公开的演出曲目。</string>
+    <string name="setlists_key_body">歌单需要你自己的免费 setlist.fm 密钥。Trackhop 只读取公开的歌单。</string>
     <string name="setlists_key_field">API 密钥</string>
     <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
     <string name="discover_records_title">唱片与周边</string>
@@ -2012,7 +2036,6 @@
     <string name="records_slowed">Discogs 要求放慢速度：这次部分艺人没有唱片信息。请一分钟后再试。</string>
     <string name="records_token_refused">Discogs 拒绝了你的令牌：请在 设置 › 高级 › 服务密钥 中检查。</string>
     <string name="records_no_token">添加你自己的 Discogs 令牌，即可查看在售数量并查找更多艺人。</string>
-    <string name="records_limited">只查找了 %2$d 位艺人中你最常听的 %1$d 位。</string>
     <string name="records_links">官方页面</string>
     <string name="records_shop">官方商店</string>
     <string name="records_search">在商店中搜索</string>

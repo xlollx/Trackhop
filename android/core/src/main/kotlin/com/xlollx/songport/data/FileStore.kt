@@ -25,6 +25,9 @@ data class Settings(
     val captureUnlocked: Boolean = false,
     /** Chiedere al catalogo Deezer l'ISRC dei brani che non lo portano (vedi IsrcOracle). */
     val isrcLookup: Boolean = true,
+    /** Pictures in Discover (Ticketmaster's concert images, Discogs' record covers); [discoverImagesWifiOnly]: only off mobile data. */
+    val discoverImages: Boolean = true,
+    val discoverImagesWifiOnly: Boolean = false,
     /** Client ID inseriti dall'utente, per servizio (vuoto = usa quello della build). */
     val clientIds: Map<String, String> = emptyMap(),
     /**
