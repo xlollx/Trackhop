@@ -450,7 +450,10 @@ object BridgeCore {
                 else -> err("unknown method $method")
             }
         } catch (e: Exception) {
-            err(e.message ?: e.javaClass.simpleName)
+            err(e.message ?: e.javaClass.simpleName).apply {
+                // A SoundCloud session found gone: since when, so Trackhop tells it once.
+                if (method.startsWith("soundcloud.")) SoundCloudRenewal.expiredAt(ctx)?.let { putString("expiredAt", it) }
+            }
         }
     }
 

@@ -374,6 +374,8 @@ private fun ProviderCard(
     val configured = remember(p.id) { p.isConfigured(ctx) }
     val connected = remember(p.id) { p.isConnected(ctx) }
     val account = remember(p.id) { p.accountName(ctx) }
+    // A web session gone for good (SoundCloud): connected on paper, but only a new sign-in brings it back.
+    val expired = remember(p.id) { connected && p is SoundCloudBridgeProvider && p.sessionExpired(ctx.env) }
     // The edge tells the state at a glance: the success tone when connected, a hairline otherwise.
     val edge = if (connected) Tones.onSuccessContainer().copy(alpha = 0.45f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
     Card(
@@ -394,6 +396,7 @@ private fun ProviderCard(
                     )
                     Text(
                         when {
+                            expired -> stringResource(R.string.session_expired_hint)
                             connected -> stringResource(R.string.connected_as, account ?: p.displayName)
                             p.slot.isEmpty() -> stringResource(p.noteRes)
                             else -> stringResource(R.string.not_connected)
@@ -403,7 +406,8 @@ private fun ProviderCard(
                     )
                 }
                 Spacer(Modifier.width(8.dp))
-                if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
+                if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
+                else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
                 else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
             }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx))
@@ -473,6 +477,8 @@ private fun ProviderCard(
                 }
                 OverflowMenu(actions)
                 when {
+                    // Signed in again over the expired session: the sign-in replaces it.
+                    expired -> Button(onClick = onConnect) { Text(stringResource(R.string.sign_in_again)) }
                     connected -> OutlinedButton(onClick = { p.disconnect(ctx); onChanged() }) { Text(stringResource(R.string.disconnect)) }
                     // Servizio che passa da un'app compagna non ancora installata: il pulsante la scarica.
                     !configured && p.installUrl != null -> Button(onClick = {

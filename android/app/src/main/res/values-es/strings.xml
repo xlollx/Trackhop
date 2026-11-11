@@ -117,6 +117,9 @@
     <string name="setup_now">Configurar</string>
     <string name="connect">Conectar</string>
     <string name="disconnect">Desconectar</string>
+    <string name="session_expired">Sesión caducada</string>
+    <string name="session_expired_hint">La sesión ha caducado: vuelve a iniciar sesión para que tus sincronizaciones sigan funcionando</string>
+    <string name="sign_in_again">Volver a iniciar sesión</string>
     <string name="connecting">Conectando…</string>
     <string name="always_available">Siempre disponible</string>
 

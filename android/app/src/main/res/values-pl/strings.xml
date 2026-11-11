@@ -117,6 +117,9 @@
     <string name="setup_now">Skonfiguruj</string>
     <string name="connect">Połącz</string>
     <string name="disconnect">Rozłącz</string>
+    <string name="session_expired">Sesja wygasła</string>
+    <string name="session_expired_hint">Sesja wygasła: zaloguj się ponownie, aby synchronizacje działały dalej</string>
+    <string name="sign_in_again">Zaloguj się ponownie</string>
     <string name="connecting">Łączenie…</string>
     <string name="always_available">Zawsze dostępne</string>
 

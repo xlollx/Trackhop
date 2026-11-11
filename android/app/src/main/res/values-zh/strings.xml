@@ -117,6 +117,9 @@
     <string name="setup_now">设置</string>
     <string name="connect">连接</string>
     <string name="disconnect">断开连接</string>
+    <string name="session_expired">会话已过期</string>
+    <string name="session_expired_hint">会话已过期：请重新登录以继续同步</string>
+    <string name="sign_in_again">重新登录</string>
     <string name="connecting">正在连接…</string>
     <string name="always_available">始终可用</string>
 

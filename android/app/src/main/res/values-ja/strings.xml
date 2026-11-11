@@ -117,6 +117,9 @@
     <string name="setup_now">設定</string>
     <string name="connect">接続</string>
     <string name="disconnect">接続解除</string>
+    <string name="session_expired">セッション切れ</string>
+    <string name="session_expired_hint">セッションの有効期限が切れました。同期を続けるには再度ログインしてください</string>
+    <string name="sign_in_again">再度ログイン</string>
     <string name="connecting">接続中…</string>
     <string name="always_available">常に利用可能</string>
 

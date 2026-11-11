@@ -117,6 +117,9 @@
     <string name="setup_now">설정</string>
     <string name="connect">연결</string>
     <string name="disconnect">연결 해제</string>
+    <string name="session_expired">세션 만료</string>
+    <string name="session_expired_hint">세션이 만료되었습니다. 동기화를 계속하려면 다시 로그인하세요</string>
+    <string name="sign_in_again">다시 로그인</string>
     <string name="connecting">연결 중…</string>
     <string name="always_available">항상 사용 가능</string>
 

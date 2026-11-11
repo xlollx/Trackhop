@@ -117,6 +117,9 @@
     <string name="setup_now">Set up</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
+    <string name="session_expired">Session expired</string>
+    <string name="session_expired_hint">The session has expired: sign in again to keep your syncs running</string>
+    <string name="sign_in_again">Sign in again</string>
     <string name="connecting">Connecting…</string>
     <string name="always_available">Always available</string>
 
