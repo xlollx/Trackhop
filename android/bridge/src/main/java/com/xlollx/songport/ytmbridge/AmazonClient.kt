@@ -286,8 +286,24 @@ class AmazonClient(private val ctx: Context) {
      * then the real player is run in a WebView and the call is made with its headers. If Amazon
      * still refuses our HTTP client, the call is sent by the player page itself, and so are the
      * following ones for a while: only when the player is refused too is the session really over.
+     *
+     * A persisted query Amazon no longer knows (PERSISTED_QUERY_NOT_FOUND) is sent once more with
+     * its text when [AmazonQueries] has it, as the player's Apollo client does; else, or when Amazon
+     * refuses the text too, the connector needs an update.
      */
-    private fun gql(operation: String, variables: JsonObject): Answer {
+    private fun gql(operation: String, variables: JsonObject): Answer = try {
+        gqlOnce(operation, variables)
+    } catch (e: UnknownQuery) {
+        if (operation !in QUERIES || !WITH_TEXT.add(operation)) throw BridgeException(e.message.orEmpty())
+        BridgeNet.log("amazon", "$operation: Amazon does not know its persisted query; sent again with the query's text, as the player does")
+        try { gqlOnce(operation, variables) } catch (again: UnknownQuery) { throw BridgeException(again.message.orEmpty()) }
+    }
+
+    /** A persisted query Amazon answered PERSISTED_QUERY_NOT_FOUND to. */
+    private class UnknownQuery(operation: String) :
+        Exception("Amazon Music updated its web player ($operation is no longer known): the connector needs an update.")
+
+    private fun gqlOnce(operation: String, variables: JsonObject): Answer {
         val domain = domain()
         if (System.currentTimeMillis() < pageModeUntil && AmazonBridge.pageOpen) {
             inPage(domain, operation, variables)?.let { return it }
@@ -396,6 +412,8 @@ class AmazonClient(private val ctx: Context) {
                 "clientLibrary" to jsonObj("name" to "@apollo/client", "version" to "4.1.6"),
                 "persistedQuery" to jsonObj("version" to 1, "sha256Hash" to hash),
             ),
+            // After Amazon said it does not know the hash: the text too, which registers it.
+            "query" to QUERIES[operation]?.takeIf { operation in WITH_TEXT },
         ).toString()
     }
 
@@ -431,9 +449,7 @@ class AmazonClient(private val ctx: Context) {
         val codes = errors.mapNotNull { it["extensions"]["code"].str }
         val messages = errors.mapNotNull { it["message"].str }
         noteInvalidCustomer((codes + messages).joinToString())
-        if (codes.any { it == "PERSISTED_QUERY_NOT_FOUND" } || messages.any { it.contains("PersistedQueryNotFound", true) }) {
-            throw BridgeException("Amazon Music updated its web player ($operation is no longer known): the connector needs an update.")
-        }
+        if (codes.any { it == "PERSISTED_QUERY_NOT_FOUND" } || messages.any { it.contains("PersistedQueryNotFound", true) }) throw UnknownQuery(operation)
         // 294 is how this endpoint answers "done with GraphQL errors"; anything else outside 2xx is a failure.
         if (code !in 200..299 && errors.isEmpty()) throw BridgeException("Amazon Music $code on $operation: ${text.take(200)}")
         return Answer(j["data"], codes, messages)
@@ -518,16 +534,14 @@ class AmazonClient(private val ctx: Context) {
         return out
     }
 
-    /** Catalogue search, songs only. Track ids are ASINs. */
+    /**
+     * Catalogue search, songs only, as the player's search page lists them (searchTracksResult: its
+     * first page). Track ids are ASINs. SpecSearchPage, the search of October 2026, is no longer in
+     * the player and Amazon has forgotten its persisted query (11/2026).
+     */
     fun searchTracks(query: String): List<TrackDto> {
-        val vars = jsonObj(
-            "searchText" to query,
-            "specifications" to listOf(mapOf("label" to SONGS_LABEL, "types" to listOf("track"), "limit" to 25)),
-            "isAuthenticated" to true, "audiobooksEnabled" to false, "merchEnabled" to false, "categoryInEntityUnionEnabled" to false,
-        )
-        val d = gql("SpecSearchPage", vars).orThrow("search")
-        val nodes = d["specificationSearch"]["result"].arr.flatMap { r -> r["edges"].arr.map { it["node"] } }
-            .filter { it["__typename"].str == "Track" }
+        val d = gql(SEARCH, jsonObj("query" to query)).orThrow("search")
+        val nodes = d["searchTracks"]["edges"].arr.map { it["node"] }.filter { it["__typename"].str.let { t -> t == null || t == "Track" } }
         // Amazon lists the same recording once per edition (album, single, deluxe): one row per
         // title and artist is enough, and a longer list lets the right artist show up further down.
         val seen = HashSet<String>()
@@ -667,7 +681,6 @@ class AmazonClient(private val ctx: Context) {
         /** The web player's application key, sent with every GraphQL call (the same for every user). */
         private const val API_KEY = "amzn1.application.4ff5579ca2e3407aba989a1f5dbdaf69"
         private const val FEATURE_FLAGS = "api-cache,use-ups"
-        private const val SONGS_LABEL = "dmusic_find_song_results_label"
         private const val PLAYLISTS_LIMIT = 500
         /** Entries per page of playlistDetail, as the player asks for them. */
         private const val PAGE_SIZE = 100
@@ -684,11 +697,16 @@ class AmazonClient(private val ctx: Context) {
         /** Mirrored headers the request sets itself. */
         private val SKIPPED_HEADERS = setOf("cookie", "content-length", "host", "origin", "referer", "user-agent", "accept", "content-type")
 
-        /** Persisted queries of the web player (October 2026), by operation name. */
+        private const val SEARCH = "searchTracksResult"
+        /** Texts of the persisted queries Amazon may have to be sent again (see [gql]). */
+        private val QUERIES = mapOf(SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT)
+        /** Operations Amazon did not know by hash: sent with their text from then on. */
+        private val WITH_TEXT: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+        /** Persisted queries of the web player (October 2026; the search November 2026), by operation name. */
         private val HASHES = mapOf(
             "AddToPlaylistModalUserPlaylists" to "8a2d8eb88470373f0191fdac28083d74233a31c769cefb4c2da22ae8e9706cd9",
             "playlistDetail" to "797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109",
-            "SpecSearchPage" to "87bf53f123f26696e4db91cc88f2bcbd2ff941986db1506081a30e71155537cf",
+            SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT_HASH,
             "CreatePlaylist" to "5d91097d90465b2ca7b9ba52a96449ff1993750b76373a470663ce210ee1f829",
             "addTrackToPlaylist" to "b812f642b8a343680492dca706aefa5bf9e4c82bb800bf7031e09c55495aef8e",
             "removeTrackFromPlaylist" to "3c7d125e1c584c70c80d97367054aebff7f2866944297d54cc3dc9d4822e0d26",
@@ -700,7 +718,7 @@ class AmazonClient(private val ctx: Context) {
         @Volatile private var pageModeUntil = 0L
         private val logged = java.util.concurrent.ConcurrentHashMap<String, Long>()
         private const val PAGE_MODE_MS = 30 * 60_000L
-        fun forgetConfig() { cachedConfig = null; libraryCounts = null }
+        fun forgetConfig() { cachedConfig = null; libraryCounts = null; WITH_TEXT.clear() }
 
         /** When Amazon last refused a call as AUTH_INVALID_CUSTOMER_ID: [AmazonRoute] may then try the skill API. */
         @Volatile private var invalidCustomerAt = 0L
