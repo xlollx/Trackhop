@@ -135,7 +135,7 @@ internal fun rememberArtistChoice(): ArtistChoice = rememberSaveable(saver = Art
  */
 @Composable
 internal fun artistsAction(all: List<String>?, choice: ArtistChoice, cap: Int, plain: Int, chosen: Int, top: Int): String {
-    if (all == null && !choice.choose) return stringResource(plain)
+    if ((all == null && !choice.choose) || !choice.ready) return stringResource(plain)
     val list = all.orEmpty()
     val n = ArtistPick.count(list, choice.pickedOrNull, cap)
     return if (!choice.choose && list.size > cap) stringResource(top, n) else pluralStringResource(chosen, n, n)
