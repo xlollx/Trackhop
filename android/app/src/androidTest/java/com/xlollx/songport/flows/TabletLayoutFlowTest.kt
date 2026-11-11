@@ -157,6 +157,7 @@ class TabletLayoutFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         click(s(R.string.new_sync))
         waitText(s(R.string.editor_source))
+        openSourcePicker()
         click(s(R.string.editor_source_link))
         val link = "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
         compose.onAllNodes(hasSetTextAction() and hasText(s(R.string.link_paste))).onFirst().performTextReplacement(link)

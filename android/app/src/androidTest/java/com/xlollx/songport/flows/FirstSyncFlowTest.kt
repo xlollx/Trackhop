@@ -49,6 +49,7 @@ class FirstSyncFlowTest : FlowTest() {
         click(s(R.string.first_sync_create))
         waitText(s(R.string.editor_title_new))
         waitText(s(R.string.editor_source))
+        openSourcePicker()
         tileSelected("Spotify")
         // One service only: the hint, and a file on the phone as the target.
         waitText(s(R.string.editor_one_service_hint))

@@ -2442,4 +2442,6 @@
     <string name="recent_transfers_row">Setlists enviados para uma playlist, com a revisão</string>
     <string name="recent_transfers_intro">Transferências únicas, como um setlist virando playlist: não são syncs. Cada uma fica aqui por uma semana ou até você revisar as músicas não encontradas. Excluir deixa a playlist como está.</string>
     <string name="recent_transfers_none">Nenhuma transferência recente.</string>
+    <string name="picker_recent">Recentes</string>
+    <string name="picker_all">Todas as playlists · %1$d</string>
 </resources>

@@ -34,6 +34,8 @@ class ServiceRowFlowTest : FlowTest() {
         clickDesc(s(R.string.more_actions))
         click(s(R.string.edit))
         waitText(s(R.string.editor_title_edit))
+        // The services are in the source picker's sheet.
+        openSourcePicker()
 
         // The row tells TalkBack it scrolls. (The strings first: the matcher runs on the main thread, where plural() cannot.)
         val hints = (2..20).map { k -> plural(R.plurals.service_tiles_scroll, k, k) }.toSet()

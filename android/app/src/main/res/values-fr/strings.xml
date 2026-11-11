@@ -2442,4 +2442,6 @@
     <string name="recent_transfers_row">Setlists envoyées vers une playlist, avec leur vérification</string>
     <string name="recent_transfers_intro">Transferts uniques, comme une setlist devenue playlist : ce ne sont pas des syncs. Chacun reste ici une semaine, ou jusqu’à ce que tu vérifies ses titres introuvables. Le supprimer laisse la playlist telle quelle.</string>
     <string name="recent_transfers_none">Aucun transfert récent.</string>
+    <string name="picker_recent">Récentes</string>
+    <string name="picker_all">Toutes les playlists · %1$d</string>
 </resources>

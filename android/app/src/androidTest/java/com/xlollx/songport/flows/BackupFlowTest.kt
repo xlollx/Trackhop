@@ -219,7 +219,8 @@ class BackupFlowTest : FlowTest() {
         waitText(s(R.string.empty_syncs_title))
         click(s(R.string.new_sync))
         waitText(s(R.string.editor_title_new))
-        // The files are a source like the services: the tile is there.
+        // The files are a source like the services: the tile is there, in the source picker.
+        openSourcePicker()
         assertTrue("the file is one of the sources", exists("File"))
         click("File")
         waitText(s(R.string.editor_playlist))

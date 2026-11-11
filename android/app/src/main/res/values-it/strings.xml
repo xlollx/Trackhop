@@ -2434,4 +2434,6 @@
     <string name="recent_transfers_row">Scalette mandate in una playlist, con la loro revisione</string>
     <string name="recent_transfers_intro">Trasferimenti singoli, come una scaletta trasformata in playlist: non sono sync. Ognuno resta qui una settimana, o finché non rivedi i brani non trovati. Eliminarlo lascia la playlist com\'è.</string>
     <string name="recent_transfers_none">Nessun trasferimento recente.</string>
+    <string name="picker_recent">Recenti</string>
+    <string name="picker_all">Tutte le playlist · %1$d</string>
 </resources>

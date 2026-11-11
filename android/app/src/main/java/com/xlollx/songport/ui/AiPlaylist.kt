@@ -464,7 +464,6 @@ private fun SeedPlaylistPicker() {
     }
     val source = sources.firstOrNull { it.id == d.mixSourceId } ?: sources.firstOrNull { it.requiresAuth } ?: sources.firstOrNull() ?: return
     var lists by remember(source.id) { mutableStateOf<List<Playlist>?>(null) }
-    var open by remember { mutableStateOf(false) }
     LaunchedEffect(source.id) {
         if (d.mixSourceId != source.id) d.mixSourceId = source.id
         lists = runCatching { source.playlists(ctx.applicationContext) }.getOrElse { e ->
@@ -475,21 +474,11 @@ private fun SeedPlaylistPicker() {
     ServicePicker(sources, source.id, { id ->
         if (id != d.mixSourceId) { d.mixSourceId = id; d.mixPlaylistId = ""; d.mixPlaylistName = ""; d.persist(ctx) }
     })
-    androidx.compose.foundation.layout.Box {
-        OutlinedButton(enabled = lists != null, onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
-            if (lists == null) { CircularProgressIndicator(Modifier.size(14.dp)); Spacer(Modifier.width(6.dp)) }
-            Text(d.mixPlaylistName.ifEmpty { stringResource(R.string.lb_playlist_pick) }, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-            Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            lists.orEmpty().forEach { p ->
-                DropdownMenuItem(
-                    text = { Text(if (p.trackCount >= 0) "${p.name} (${p.trackCount})" else p.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    onClick = { open = false; d.mixPlaylistId = p.id; d.mixPlaylistName = p.name; d.persist(ctx) },
-                )
-            }
-        }
-    }
+    PlaylistChoice(
+        stringResource(R.string.editor_playlist), lists, lists?.firstOrNull { it.id == d.mixPlaylistId }, source,
+        onPick = { p -> d.mixPlaylistId = p.id; d.mixPlaylistName = p.name; d.persist(ctx) },
+        placeholder = stringResource(R.string.lb_playlist_pick), title = d.mixPlaylistName.ifEmpty { null },
+    )
     Text(stringResource(R.string.lb_playlist_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 

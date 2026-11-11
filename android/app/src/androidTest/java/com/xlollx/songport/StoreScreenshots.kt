@@ -291,12 +291,7 @@ class StoreScreenshots {
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) { waitText(Demo.PLAYLISTS[0].second); snap() }
         // 2 A new sync: Spotify to YouTube Music.
         open(main().setAction(MainActivity.ACTION_NEW_SYNC)) {
-            step("shot $n") {
-                waitText("Spotify")
-                compose.waitForIdle()
-                val yt = compose.onAllNodesWithText("YouTube Music").fetchSemanticsNodes()
-                if (yt.size >= 2) compose.onAllNodesWithText("YouTube Music")[1].performClick()
-            }
+            step("shot $n") { fillEditor(Demo.PLAYLISTS[0].second) }
             snap()
         }
         // 3 Accounts, 4 the add-a-service grid.
@@ -819,13 +814,7 @@ class StoreScreenshots {
         snap("01_syncs")
         // 2 A new sync: Spotify's "Metal & More" to YouTube Music.
         open(main().setAction(MainActivity.ACTION_NEW_SYNC), "editor") {
-            waitText("Spotify")
-            compose.waitForIdle()
-            if (compose.onAllNodesWithText("YouTube Music").fetchSemanticsNodes().size >= 2) compose.onAllNodesWithText("YouTube Music")[1].performClick()
-            compose.waitForIdle()
-            tapText(s(R.string.editor_playlist))
-            waitText(firstJob)
-            tapText(firstJob)
+            fillEditor(firstJob, onTargetSheet = { snap("02c_target_picker") }, onSourceSheet = { snap("02b_source_picker") })
             Thread.sleep(800)
             hideKeyboard()
             runCatching { compose.onAllNodesWithText(s(R.string.editor_source)).onFirst().performScrollTo() }
@@ -1020,6 +1009,13 @@ class StoreScreenshots {
 
         // Playlist roast: what it asks, then a roast.
         tool(R.string.discover_roast_title, "roast setup"); pages("roast_setup", 2)
+        // The playlist picker's sheet: on the link, then on a service's playlists.
+        tool(R.string.discover_roast_title, "picker link") { tapText(s(R.string.editor_playlist)); waitText(s(R.string.card_source_link_hint)) }; pages("picker_link", 1)
+        tool(R.string.discover_roast_title, "picker list") {
+            tapText(s(R.string.editor_playlist)); waitText(s(R.string.card_source_link_hint))
+            tapText("Spotify"); waitText(Demo.PLAYLISTS[0].second)
+        }
+        pages("picker_list", 1)
         step("roast demo") { roastOn() }
         tool(R.string.discover_roast_title, "roast"); pages("roast_result", 4)
         // How compatible are we?: empty, then two links shared together.
@@ -1106,6 +1102,32 @@ class StoreScreenshots {
     /** One fallible part of a picture: a miss is logged and the picture is taken anyway. */
     private fun step(what: String, body: () -> Unit) {
         runCatching(body).onFailure { android.util.Log.w("StoreScreenshots", "$what: $it") }
+    }
+
+    /**
+     * The sync editor filled through its pickers' sheets: YouTube Music as the target (a new playlist),
+     * then [playlist] of the first service as the source. [onTargetSheet] and [onSourceSheet] run
+     * with each sheet open on its choices.
+     */
+    private fun fillEditor(playlist: String, onTargetSheet: () -> Unit = {}, onSourceSheet: () -> Unit = {}) {
+        val field = androidx.compose.ui.test.hasClickAction() and hasText(s(R.string.editor_playlist))
+        fun click(m: androidx.compose.ui.test.SemanticsMatcher) {
+            compose.waitUntil(15_000) { compose.onAllNodes(m).fetchSemanticsNodes().isNotEmpty() }
+            compose.onAllNodes(m).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
+        }
+        compose.waitUntil(15_000) { compose.onAllNodes(field).fetchSemanticsNodes().size >= 2 }
+        // The target's field is the second.
+        compose.onAllNodes(field)[1].performSemanticsAction(SemanticsActions.OnClick)
+        compose.waitForIdle()
+        click(androidx.compose.ui.test.hasClickAction() and hasText("YouTube Music"))
+        onTargetSheet()
+        // The sheet's "Create a new playlist" row (the page's switch says the same, but is not a row to select).
+        click(androidx.compose.ui.test.hasClickAction() and hasText(s(R.string.editor_new_playlist)) and androidx.compose.ui.test.SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsProperties.Selected))
+        compose.onAllNodes(field).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+        compose.waitUntil(15_000) { compose.onAllNodesWithText(playlist).fetchSemanticsNodes().isNotEmpty() }
+        onSourceSheet()
+        click(androidx.compose.ui.test.hasClickAction() and hasText(playlist))
     }
 
     private fun hideKeyboard() {
