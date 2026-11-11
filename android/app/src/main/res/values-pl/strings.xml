@@ -2122,11 +2122,52 @@
     <string name="concerts_no_calendar">Nie znaleziono aplikacji kalendarza.</string>
     <string name="artists_search">Szukaj wykonawców</string>
     <string name="artists_choose">Wybierz wykonawców</string>
-    <string name="artists_choose_hint">Zaznacz tych, których szukać: bez zaznaczenia – cała playlista.</string>
-    <string name="artists_chosen">Wykonawcy: %1$d z %2$d</string>
-    <string name="artists_whole_playlist">Wykonawcy: cała playlista</string>
-    <string name="artists_typed">Inny wykonawca, po nazwie</string>
     <string name="artists_capped">Wyszukano %1$d najczęściej słuchanych wykonawców z %2$d: wybierz wykonawców, aby wyszukać innych.</string>
+    <string name="artists_title">Wykonawcy do wyszukania</string>
+    <string name="artists_mode_top">Najczęściej słuchani</string>
+    <string name="artists_top_hint">%1$d najczęściej słuchanych wykonawców z %2$d w playliście.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">Cała playlista (wykonawcy: %d).</item>
+        <item quantity="few">Cała playlista (wykonawcy: %d).</item>
+        <item quantity="many">Cała playlista (wykonawcy: %d).</item>
+        <item quantity="other">Cała playlista (wykonawcy: %d).</item>
+    </plurals>
+    <string name="artists_none_chosen">Nie wybrano jeszcze wykonawców: dodaj tych, których chcesz wyszukać.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">Wybrani wykonawcy: %d</item>
+        <item quantity="few">Wybrani wykonawcy: %d</item>
+        <item quantity="many">Wybrani wykonawcy: %d</item>
+        <item quantity="other">Wybrani wykonawcy: %d</item>
+    </plurals>
+    <string name="artists_add">Dodaj wykonawców</string>
+    <string name="artists_remove">Usuń: %s</string>
+    <string name="artists_sheet_search">Szukaj lub dodaj wykonawcę</string>
+    <string name="artists_search_clear">Wyczyść wyszukiwanie</string>
+    <string name="artists_add_free">Dodaj „%s”</string>
+    <string name="artists_select_shown">Zaznacz widocznych</string>
+    <string name="artists_clear">Odznacz</string>
+    <string name="artists_done">Gotowe (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">Szukaj koncertów (wykonawcy: %d)</item>
+        <item quantity="few">Szukaj koncertów (wykonawcy: %d)</item>
+        <item quantity="many">Szukaj koncertów (wykonawcy: %d)</item>
+        <item quantity="other">Szukaj koncertów (wykonawcy: %d)</item>
+    </plurals>
+    <string name="concerts_find_top">Szukaj koncertów %d najczęściej słuchanych</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">Szukaj setlist (wykonawcy: %d)</item>
+        <item quantity="few">Szukaj setlist (wykonawcy: %d)</item>
+        <item quantity="many">Szukaj setlist (wykonawcy: %d)</item>
+        <item quantity="other">Szukaj setlist (wykonawcy: %d)</item>
+    </plurals>
+    <string name="setlists_find_top">Szukaj setlist %d najczęściej słuchanych</string>
+    <plurals name="records_find_for">
+        <item quantity="one">Szukaj płyt (wykonawcy: %d)</item>
+        <item quantity="few">Szukaj płyt (wykonawcy: %d)</item>
+        <item quantity="many">Szukaj płyt (wykonawcy: %d)</item>
+        <item quantity="other">Szukaj płyt (wykonawcy: %d)</item>
+    </plurals>
+    <string name="records_find_top">Szukaj płyt %d najczęściej słuchanych</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Także %d kanał powiadomień: pozostaje wyłączony, dopóki go nie włączysz i nie wpiszesz kluczy.</item>
         <item quantity="few">Także %d kanały powiadomień: pozostają wyłączone, dopóki ich nie włączysz i nie wpiszesz kluczy.</item>

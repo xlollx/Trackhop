@@ -2060,11 +2060,42 @@
     <string name="concerts_no_calendar">Aucune app de calendrier trouvée.</string>
     <string name="artists_search">Chercher des artistes</string>
     <string name="artists_choose">Choisir les artistes</string>
-    <string name="artists_choose_hint">Coche ceux à chercher : si tu n\'en coches aucun, toute la playlist.</string>
-    <string name="artists_chosen">Artistes : %1$d sur %2$d</string>
-    <string name="artists_whole_playlist">Artistes : toute la playlist</string>
-    <string name="artists_typed">Un autre artiste, par son nom</string>
     <string name="artists_capped">Les %1$d artistes que tu écoutes le plus ont été cherchés, sur %2$d : choisis des artistes pour en chercher d\'autres.</string>
+    <string name="artists_title">Artistes à chercher</string>
+    <string name="artists_mode_top">Les plus écoutés</string>
+    <string name="artists_top_hint">Les %1$d artistes que tu écoutes le plus, sur %2$d dans la playlist.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">%d artiste : toute la playlist.</item>
+        <item quantity="other">Les %d artistes de la playlist.</item>
+    </plurals>
+    <string name="artists_none_chosen">Aucun artiste choisi : ajoute ceux à chercher.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">%d artiste choisi</item>
+        <item quantity="other">%d artistes choisis</item>
+    </plurals>
+    <string name="artists_add">Ajouter des artistes</string>
+    <string name="artists_remove">Retirer %s</string>
+    <string name="artists_sheet_search">Cherche ou ajoute un artiste</string>
+    <string name="artists_search_clear">Effacer la recherche</string>
+    <string name="artists_add_free">Ajouter « %s »</string>
+    <string name="artists_select_shown">Cocher ceux affichés</string>
+    <string name="artists_clear">Décocher</string>
+    <string name="artists_done">Terminé (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">Chercher les concerts de %d artiste</item>
+        <item quantity="other">Chercher les concerts de %d artistes</item>
+    </plurals>
+    <string name="concerts_find_top">Chercher les concerts des %d que tu écoutes le plus</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">Chercher les setlists de %d artiste</item>
+        <item quantity="other">Chercher les setlists de %d artistes</item>
+    </plurals>
+    <string name="setlists_find_top">Chercher les setlists des %d que tu écoutes le plus</string>
+    <plurals name="records_find_for">
+        <item quantity="one">Chercher les disques de %d artiste</item>
+        <item quantity="other">Chercher les disques de %d artistes</item>
+    </plurals>
+    <string name="records_find_top">Chercher les disques des %d que tu écoutes le plus</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Aussi %d canal de notification : il reste désactivé jusqu\'à ce que tu l\'actives et saisisses ses clés.</item>
         <item quantity="other">Aussi %d canaux de notification : ils restent désactivés jusqu\'à ce que tu les actives et saisisses leurs clés.</item>

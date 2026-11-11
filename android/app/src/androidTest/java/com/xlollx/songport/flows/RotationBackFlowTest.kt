@@ -1,9 +1,13 @@
 package com.xlollx.songport.flows
 
 import android.app.UiAutomation
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -12,6 +16,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.R
+import com.xlollx.songport.sync.LookupCaps
 import com.xlollx.songport.ui.SharedUi
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertFalse
@@ -55,7 +60,11 @@ class RotationBackFlowTest : FlowTest() {
         hold.complete(Unit)
         // The network is closed in the tests: Discogs "does not answer", which the results say per artist.
         waitText(s(R.string.records_discogs_down), ms = 120_000, substring = true)
-        assertTrue("the search button is free again", compose.onAllNodes(hasClickAction() and hasText(s(R.string.records_find))).fetchSemanticsNodes().isNotEmpty())
+        // Once the playlist's artists are read, the button says how many it looks up.
+        val labels = setOf(s(R.string.records_find)) + (1..60).map { plural(R.plurals.records_find_for, it, it) } +
+            listOf(LookupCaps.RECORDS_ANON, LookupCaps.RECORDS_TOKEN).map { s(R.string.records_find_top, it) }
+        val search = SemanticsMatcher("a search button label") { n -> n.config.getOrNull(SemanticsProperties.Text).orEmpty().any { it.text in labels } }
+        assertTrue("the search button is free again", compose.onAllNodes(hasClickAction() and isEnabled() and search).fetchSemanticsNodes().isNotEmpty())
     }
 
     private fun openCreateGroup() {

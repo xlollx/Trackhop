@@ -2052,11 +2052,42 @@
     <string name="concerts_no_calendar">Keine Kalender-App gefunden.</string>
     <string name="artists_search">Künstler suchen</string>
     <string name="artists_choose">Künstler auswählen</string>
-    <string name="artists_choose_hint">Hake die an, die gesucht werden sollen: ohne Haken die ganze Playlist.</string>
-    <string name="artists_chosen">Künstler: %1$d von %2$d</string>
-    <string name="artists_whole_playlist">Künstler: die ganze Playlist</string>
-    <string name="artists_typed">Ein anderer Künstler, nach Name</string>
     <string name="artists_capped">Gesucht wurden die %1$d Künstler, die du am meisten hörst (von %2$d): Wähle Künstler aus, um andere zu suchen.</string>
+    <string name="artists_title">Künstler für die Suche</string>
+    <string name="artists_mode_top">Meistgehört</string>
+    <string name="artists_top_hint">Die %1$d Künstler, die du am meisten hörst, von %2$d in der Playlist.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">%d Künstler: die ganze Playlist.</item>
+        <item quantity="other">Alle %d Künstler der Playlist.</item>
+    </plurals>
+    <string name="artists_none_chosen">Noch keine Künstler gewählt: Füge die hinzu, die du suchen willst.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">%d Künstler gewählt</item>
+        <item quantity="other">%d Künstler gewählt</item>
+    </plurals>
+    <string name="artists_add">Künstler hinzufügen</string>
+    <string name="artists_remove">%s entfernen</string>
+    <string name="artists_sheet_search">Künstler suchen oder hinzufügen</string>
+    <string name="artists_search_clear">Suche löschen</string>
+    <string name="artists_add_free">„%s“ hinzufügen</string>
+    <string name="artists_select_shown">Alle angezeigten auswählen</string>
+    <string name="artists_clear">Auswahl aufheben</string>
+    <string name="artists_done">Fertig (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">Konzerte für %d Künstler suchen</item>
+        <item quantity="other">Konzerte für %d Künstler suchen</item>
+    </plurals>
+    <string name="concerts_find_top">Konzerte für die %d meistgehörten suchen</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">Setlists für %d Künstler suchen</item>
+        <item quantity="other">Setlists für %d Künstler suchen</item>
+    </plurals>
+    <string name="setlists_find_top">Setlists für die %d meistgehörten suchen</string>
+    <plurals name="records_find_for">
+        <item quantity="one">Platten für %d Künstler suchen</item>
+        <item quantity="other">Platten für %d Künstler suchen</item>
+    </plurals>
+    <string name="records_find_top">Platten für die %d meistgehörten suchen</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Dazu %d Benachrichtigungskanal: Er bleibt aus, bis du ihn einschaltest und seine Schlüssel eingibst.</item>
         <item quantity="other">Dazu %d Benachrichtigungskanäle: Sie bleiben aus, bis du sie einschaltest und ihre Schlüssel eingibst.</item>

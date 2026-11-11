@@ -50,6 +50,7 @@ import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.importTracks
 import com.xlollx.songport.sync.ArtistPick
+import com.xlollx.songport.sync.LookupCaps
 import com.xlollx.songport.sync.Setlists
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,10 +70,9 @@ internal object SetlistsKept {
     var open by mutableStateOf<String?>(null)
     var progress by mutableStateOf<Pair<Int, Int>?>(null)
     var error by mutableStateOf<String?>(null)
-    /** The playlist's artists (null while read), the ticked ones (none = all) and one typed by name. */
+    /** The playlist's artists (null while read), and the ones played most or some chosen. */
     var artists by mutableStateOf<List<String>?>(null)
-    var ticked by mutableStateOf(emptySet<String>())
-    var typed by mutableStateOf("")
+    val choice = ArtistChoice()
     var artistsOf: String? = null
 }
 
@@ -101,13 +101,13 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
         if (p == null) { k.artists = null; return@LaunchedEffect }
         val of = p.provider.id + "|" + p.playlist.id
         if (k.artists != null && k.artistsOf == of) return@LaunchedEffect // back on the page: kept
-        k.artists = null; k.ticked = emptySet(); k.artistsOf = of
+        k.artists = null; k.choice.forPlaylist(of); k.artistsOf = of
         k.artists = try { Setlists.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
     }
-    if (k.pick != null) ArtistChooser(k.artists, k.ticked, k.typed, { k.ticked = it }, { k.typed = it })
-    Button(onClick = { find(ctx) }, enabled = k.pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
+    if (k.pick != null) ArtistChooser(k.artists, k.choice, LookupCaps.SETLISTS)
+    Button(onClick = { find(ctx) }, enabled = k.pick != null && !busy && k.choice.ready, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-        Text(stringResource(R.string.setlists_find))
+        Text(if (k.pick == null) stringResource(R.string.setlists_find) else artistsAction(k.artists, k.choice, LookupCaps.SETLISTS, R.string.setlists_find, R.plurals.setlists_find_for, R.string.setlists_find_top))
     }
     k.progress?.takeIf { it.second > 0 }?.let { (done, total) ->
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -213,9 +213,9 @@ private fun find(ctx: Context) {
     k.scope.launch {
         try {
             val all = k.artists ?: Setlists.artistsOf(p.provider.tracks(app.env, p.playlist.id)).also { k.artists = it }
-            val artists = ArtistPick.chosen(all, k.ticked, k.typed)
-            val whole = ArtistPick.isWhole(all, k.ticked, k.typed)
-            k.result = withContext(Dispatchers.IO) { Setlists.find(app.env, artists, whole) { done, total -> k.progress = done to total } }
+            val picked = k.choice.pickedOrNull
+            val artists = ArtistPick.chosen(all, picked)
+            k.result = withContext(Dispatchers.IO) { Setlists.find(app.env, artists, picked == null) { done, total -> k.progress = done to total } }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             k.error = e.message ?: app.getString(R.string.error_generic)
         }

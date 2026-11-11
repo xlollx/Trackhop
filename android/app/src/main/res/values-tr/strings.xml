@@ -2050,11 +2050,42 @@
     <string name="concerts_no_calendar">Takvim uygulaması bulunamadı.</string>
     <string name="artists_search">Sanatçı ara</string>
     <string name="artists_choose">Sanatçıları seç</string>
-    <string name="artists_choose_hint">Aranacakları işaretle: hiçbiri işaretli değilse tüm çalma listesi.</string>
-    <string name="artists_chosen">Sanatçılar: %1$d / %2$d</string>
-    <string name="artists_whole_playlist">Sanatçılar: tüm çalma listesi</string>
-    <string name="artists_typed">Başka bir sanatçı, adıyla</string>
     <string name="artists_capped">En çok dinlediğin %1$d sanatçı arandı (%2$d sanatçıdan): başkalarını aramak için sanatçı seç.</string>
+    <string name="artists_title">Aranacak sanatçılar</string>
+    <string name="artists_mode_top">En çok dinlenenler</string>
+    <string name="artists_top_hint">Çalma listesindeki %2$d sanatçıdan en çok dinlediğin %1$d sanatçı.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">Tüm çalma listesi: %d sanatçı.</item>
+        <item quantity="other">Tüm çalma listesi: %d sanatçı.</item>
+    </plurals>
+    <string name="artists_none_chosen">Henüz sanatçı seçmedin: aranacakları ekle.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">%d sanatçı seçildi</item>
+        <item quantity="other">%d sanatçı seçildi</item>
+    </plurals>
+    <string name="artists_add">Sanatçı ekle</string>
+    <string name="artists_remove">Kaldır: %s</string>
+    <string name="artists_sheet_search">Sanatçı ara veya ekle</string>
+    <string name="artists_search_clear">Aramayı temizle</string>
+    <string name="artists_add_free">“%s” ekle</string>
+    <string name="artists_select_shown">Gösterilenleri seç</string>
+    <string name="artists_clear">Seçimi kaldır</string>
+    <string name="artists_done">Tamam (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">%d sanatçının konserlerini ara</item>
+        <item quantity="other">%d sanatçının konserlerini ara</item>
+    </plurals>
+    <string name="concerts_find_top">En çok dinlediğin %d sanatçının konserlerini ara</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">%d sanatçının setlistlerini bul</item>
+        <item quantity="other">%d sanatçının setlistlerini bul</item>
+    </plurals>
+    <string name="setlists_find_top">En çok dinlediğin %d sanatçının setlistlerini bul</string>
+    <plurals name="records_find_for">
+        <item quantity="one">%d sanatçının plaklarını bul</item>
+        <item quantity="other">%d sanatçının plaklarını bul</item>
+    </plurals>
+    <string name="records_find_top">En çok dinlediğin %d sanatçının plaklarını bul</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
         <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
