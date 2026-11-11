@@ -1208,7 +1208,7 @@
     <string name="howto_organise_body"># 收藏\n在卡片的 ⋮ 菜单中点“加入收藏”，同步就会带上星标。带星标的同步留在“同步”顶部，“收藏”筛选只显示它们。想把它们放在任意位置，请关闭 设置 › 外观 ›“收藏始终置顶”。\n# 色标\n在卡片的 ⋮ 菜单 ›“样式”中选一种颜色并给它起名：这种颜色的所有同步共用这个色标。同一个窗口还能选择卡片如何显示颜色。\n# 标签\n在编辑器的“标签”中按你的方式给同步分组，例如 genre = metal。值可以不填。\n# 查找同步\n“同步”中的搜索和筛选可按名称、状态、色标、收藏或标签查找。\n# 顺序\n长按卡片并拖到新位置，或使用 ⋮ ›“移动到指定位置…”。\n# 大小和视图\n• 设置 › 外观 ›“卡片大小”：大、中、小。\n•“简洁视图”把同步显示为网格中的小方块。点一下方块查看完整卡片；长按打开菜单，或直接拖动。\n• 在平板或横放的手机上，标签页移到侧边栏，卡片按列排列。</string>
     <string name="howto_discover_title">新发行、演唱会、演出曲目、唱片</string>
     <string name="howto_discover_summary">你歌单里的艺人最近在做什么。</string>
-    <string name="howto_discover_body">“发现”标签页只在你要求时才查询你某个歌单中艺人的信息，后台只会查看你关注的艺人。在“演唱会”“演出曲目”和“唱片与周边”中，“选择艺人”可指定要查的艺人。\n# 新发行\n最近 7、30 或 90 天的新专辑、EP 和单曲，以及即将发行的作品。可以在任何服务上创建歌单，用“添加到播放列表”放进已有歌单，或选“每周”创建一个持续添加新作的同步。\n# 演唱会\n某个国家在“时间”所选范围内的近期演出，附购票链接和“添加到日历”。某位艺人没有日期？按钮会在票务网站上搜索。\n# 演出曲目\n艺人现场演唱的曲目，来自 setlist.fm。选一场演出，在任何服务上生成歌单。\n# 唱片与周边\nDiscogs 上的 CD、黑胶和磁带，官方网站和官方商店，以及在其他商店中的搜索。只有链接：在它们的网站上购买。\n# 关注的艺人\n点艺人旁边的铃铛即可关注，然后在“关注的艺人”中选择想知道的内容：新发行、附近的演唱会、新周边、唱片。Trackhop 每天（或每周）查看一次，并用一条通知发送新内容。第一次查看只会记下已有的内容。\n# 密钥\nTicketmaster 的演出日期和演出曲目需要你自己的免费密钥；Discogs 令牌还会显示在售数量和最低价格。在 设置 › 高级 ›“服务密钥”中添加，点“获取密钥”打开第一步。没有 Ticketmaster 密钥时，日期来自 MusicBrainz。\n# 这个标签页\n长按卡片并拖动可调整顺序，“恢复默认顺序”可还原。设置 › 外观 ›“发现中的图片”可关闭图片，或只在 Wi‑Fi 下显示。</string>
+    <string name="howto_discover_body">“发现”标签页只在你要求时才查询你某个歌单中艺人的信息，后台只会查看你关注的艺人。在“演唱会”“演出曲目”和“唱片与周边”中，“选择艺人”可指定要查的艺人。\n# 新发行\n最近 7、30 或 90 天的新专辑、EP 和单曲，以及即将发行的作品。可以在任何服务上创建歌单，用“添加到播放列表”放进已有歌单，或选“每周”创建一个持续添加新作的同步。\n# 演唱会\n某个国家在“时间”所选范围内的近期演出，附购票链接和“添加到日历”。某位艺人没有日期？按钮会在票务网站上搜索。\n# 演出曲目\n艺人现场演唱的曲目，来自 setlist.fm。选一场演出，在任何服务上生成新歌单，或加入你已有的歌单。\n# 唱片与周边\nDiscogs 上的 CD、黑胶和磁带，官方网站和官方商店，以及在其他商店中的搜索。只有链接：在它们的网站上购买。\n# 关注的艺人\n点艺人旁边的铃铛即可关注，然后在“关注的艺人”中选择想知道的内容：新发行、附近的演唱会、新周边、唱片。Trackhop 每天（或每周）查看一次，并用一条通知发送新内容。第一次查看只会记下已有的内容。\n# 密钥\nTicketmaster 的演出日期和演出曲目需要你自己的免费密钥；Discogs 令牌还会显示在售数量和最低价格。在 设置 › 高级 ›“服务密钥”中添加，点“获取密钥”打开第一步。没有 Ticketmaster 密钥时，日期来自 MusicBrainz。没有 setlist.fm 密钥时，演出曲目来自 MusicBrainz，覆盖的演出较少。\n# 这个标签页\n长按卡片并拖动可调整顺序，“恢复默认顺序”可还原。设置 › 外观 ›“发现中的图片”可关闭图片，或只在 Wi‑Fi 下显示。</string>
     <string name="howto_shared_title">共享歌单</string>
     <string name="howto_shared_summary">一个小组共用一个歌单，各自用自己的服务。</string>
     <string name="howto_shared_body">工具 ›“共享歌单”：给不都用同一服务的人共用的一个歌单。每人在自己的服务上保留一份副本，Trackhop 让各副本保持一致。\n# 创建或加入\n“创建小组”：起个名字，选择你的服务、歌单以及小组的交汇方式。“邀请”会显示二维码和可发送的链接。其他人点“通过链接加入”，并核对“群组代码”与你的一致。\n# 小组如何交汇\n• 共享文件夹：小组已经在共享的 Google Drive、Nextcloud、Dropbox 或 Syncthing 文件夹。能打开文件夹的人就能读取小组内容。\n• 加密的 ntfy 频道：更改经 ntfy.sh 或你自己的 ntfy 服务器加密传递。\n• 我的 Trackhop 服务器：更改在 设置 › 高级 ›“与我的服务器协调”中设置的 Trackhop 服务器上交汇。服务器的管理者能看到小组的歌曲。\n使用 ntfy 频道或服务器时，拿到邀请的任何人都能读取小组内容：只发给你邀请的人。\n# 角色\n策展人的更改会到达所有人；由小组创建者指定策展人。其他人关注，可选“完全一致”或“保留我添加的”，后者让自己添加的歌只留在自己的歌单里。\n# 你的服务没有的歌\n你的服务找不到的歌，永远不会从其他人那里删除：它会在你的同步审核中等待。\n# 小组页面\n成员、谁改了什么以及群组代码。“退出小组”会停止接收更改，你的歌单保持原样。</string>
@@ -2080,9 +2080,16 @@
     <string name="setlists_make">生成歌单</string>
     <string name="setlists_attribution">演出曲目来自 setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 密钥</string>
-    <string name="setlists_key_body">歌单需要你自己的免费 setlist.fm 密钥。Trackhop 只读取公开的歌单。</string>
+    <string name="setlists_key_body">可选：有了你自己的免费 setlist.fm 密钥，可以看到多得多的演出曲目。Trackhop 只读取公开的演出曲目。</string>
     <string name="setlists_key_field">API 密钥</string>
-    <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
+    <string name="setlists_key_none">没有密钥：仅显示来自 MusicBrainz 的演出曲目</string>
+    <string name="setlists_keyless">没有 setlist.fm 密钥时，演出曲目来自 MusicBrainz，只有部分演出有。添加你的免费密钥可以看到多得多的曲目。</string>
+    <string name="setlists_open_mb">在 MusicBrainz 查看</string>
+    <string name="setlists_attribution_mb">演出曲目来自 MusicBrainz</string>
+    <string name="setlists_make_go">创建歌单</string>
+    <string name="setlists_add_go">添加歌曲</string>
+    <string name="setlists_adding">正在 %1$s 上添加歌曲…</string>
+    <string name="setlists_summary">已添加 %1$d · 已存在 %2$d · 未找到 %3$d</string>
     <string name="discover_records_title">唱片与周边</string>
     <string name="discover_records_desc">播放列表艺人的 CD、黑胶和周边</string>
     <string name="records_intro">选择一个播放列表：Trackhop 会在 Discogs 上查找其艺人的 CD、黑胶和磁带，列出他们自己商店（官方商店、Bandcamp）里的周边，以及他们的官网。只提供链接，购买在对方网站上完成。</string>

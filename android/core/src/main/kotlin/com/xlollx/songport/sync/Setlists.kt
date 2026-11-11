@@ -1,6 +1,10 @@
 package com.xlollx.songport.sync
 
+import com.xlollx.songport.model.PlaylistRef
+import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.Pacer
 import com.xlollx.songport.net.arr
@@ -36,6 +40,12 @@ import java.time.temporal.ChronoUnit
  *
  * setlist.fm's API terms: non-commercial use only, and the data shown with attribution, the link
  * each answer carries ([Setlist.url]) plus "Setlists from setlist.fm" ([ATTRIBUTION], [HOME]).
+ *
+ * Without a key, when the caller allows it (`keyless`, the app), the setlists MusicBrainz's events
+ * carry: free and keyless (one request a second, [MusicBrainz.pace]), far fewer than setlist.fm's
+ * (a few concerts per artist, mostly big tours and festivals), so the key stays the way to all of
+ * them. setlist.fm's own pages are never read for this: its terms forbid "any computer program,
+ * bot, robot, spider, offline reader, site search/retrieval application" on the site.
  */
 object Setlists {
     /** The user's own key, in the token vault ([ServiceKeys]). */
@@ -52,6 +62,12 @@ object Setlists {
     const val KEY_URL = "https://www.setlist.fm/settings/api"
     const val HOME = "https://www.setlist.fm/"
     const val ATTRIBUTION = "Setlists from setlist.fm"
+    const val MB_HOME = "https://musicbrainz.org/"
+    const val MB_ATTRIBUTION = "Setlists from MusicBrainz"
+    /** Without a key, the pages of an artist's MusicBrainz events read (100 each): the setlists are among them, in no order. */
+    const val MB_PAGES = 2
+
+    enum class Source { SETLISTFM, MUSICBRAINZ }
 
     /** One song as played: [by] the original artist of a cover; [tape] played from a tape (an intro); [encore] 0 = the main set. */
     @Serializable
@@ -87,6 +103,8 @@ object Setlists {
         val keyRefused: Boolean,
         /** Artists setlist.fm did not answer for (an error, not "no setlists"). */
         val unanswered: Int = 0,
+        /** Where the setlists come from: MusicBrainz without a key. */
+        val source: Source = Source.SETLISTFM,
     )
 
     // Tests point these at a local server and a fixed clock.
@@ -131,10 +149,11 @@ object Setlists {
      * The latest setlists of [artists] ([PER_ARTIST] each). [progress] gets (done, total). Never
      * throws for one artist's failure: that artist just has none. Without a key nothing is asked.
      */
-    suspend fun find(env: Env, artists: List<String>, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(env: Env, artists: List<String>, whole: Boolean = true, keyless: Boolean = false, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val key = key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { norm(it) }
+        if (key == null && keyless) return findOnMusicBrainz(env, asked, whole, progress)
         if (key == null) return Result(emptyList(), asked.size, hasKey = false, ownKey = false, quotaHit = false, keyRefused = false)
         val list = LookupCaps.cut(asked, LookupCaps.SETLISTS, whole)
         var quotaHit = false
@@ -222,17 +241,21 @@ object Setlists {
 
     private val listSerializer = ListSerializer(Setlist.serializer())
 
-    private fun cachedArtist(env: Env, artist: String): List<Setlist>? {
-        val saved = env.keyValues(CACHE)["a|${norm(artist)}"] ?: return null
+    private fun cachedArtist(env: Env, artist: String): List<Setlist>? = cached(env, "a|${norm(artist)}")
+
+    private fun cached(env: Env, k: String): List<Setlist>? {
+        val saved = env.keyValues(CACHE)[k] ?: return null
         val at = saved.substringBefore('|').toLongOrNull() ?: return null
         if (now() - at >= TTL_MS) return null
         return runCatching { json.decodeFromString(listSerializer, saved.substringAfter('|')) }.getOrNull()
     }
 
-    private fun rememberArtist(env: Env, artist: String, setlists: List<Setlist>) {
+    private fun rememberArtist(env: Env, artist: String, setlists: List<Setlist>) = remember(env, "a|${norm(artist)}", setlists)
+
+    private fun remember(env: Env, k: String, setlists: List<Setlist>) {
         val kv = env.keyValues(CACHE)
         if (kv.size >= 2_000) kv.clear()
-        kv["a|${norm(artist)}"] = "${now()}|" + json.encodeToString(listSerializer, setlists)
+        kv[k] = "${now()}|" + json.encodeToString(listSerializer, setlists)
         // Each one by its id too: a setlist picked from the list (on the server's page) is not asked again.
         setlists.forEach { kv["s|${it.id}"] = "${now()}|" + json.encodeToString(Setlist.serializer(), it) }
     }
@@ -299,6 +322,114 @@ object Setlists {
         }
         return null
     }
+
+
+    // ---------------------------------------------------------------- MusicBrainz, without a key
+
+    private suspend fun findOnMusicBrainz(env: Env, asked: List<String>, whole: Boolean, progress: (Int, Int) -> Unit): Result {
+        val list = LookupCaps.cut(asked, LookupCaps.SETLISTS, whole)
+        var unanswered = 0
+        val out = list.mapIndexed { i, artist ->
+            progress(i, list.size)
+            val found = cached(env, "m|" + norm(artist)) ?: musicBrainzArtist(env, artist)
+            if (found == null) unanswered++
+            ArtistSetlists(artist, found.orEmpty())
+        }
+        progress(list.size, list.size)
+        val (with, without) = out.partition { it.setlists.isNotEmpty() }
+        return Result(
+            with.sortedByDescending { it.setlists.first().date } + ArtistPick.byName(without) { it.artist }, asked.size,
+            hasKey = false, ownKey = false, quotaHit = false, keyRefused = false, unanswered = unanswered, source = Source.MUSICBRAINZ,
+        )
+    }
+
+    /** The artist on MusicBrainz (the same name), then the setlists of their events; null when MusicBrainz did not answer. */
+    private suspend fun musicBrainzArtist(env: Env, artist: String): List<Setlist>? {
+        val q = "artist:\"" + artist.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+        val id = parseMbArtist(MusicBrainz.get("artist?query=${enc(q)}&fmt=json&limit=5") ?: return null, artist)
+        val found = ArrayList<Setlist>()
+        if (id != null) for (page in 0 until MB_PAGES) {
+            val body = MusicBrainz.get("event?artist=$id&inc=place-rels+area-rels&fmt=json&limit=100&offset=${page * 100}") ?: return null
+            found += parseMbEvents(body, artist, id)
+            if ((parseJson(body)["event-count"].int ?: 0) <= (page + 1) * 100) break
+        }
+        val today = Instant.ofEpochMilli(now()).toString().take(10)
+        val latest = found.filter { it.date <= today }.sortedByDescending { it.date }.take(PER_ARTIST)
+        remember(env, "m|" + norm(artist), latest)
+        return latest
+    }
+
+    /** The id of the artist of an artist search named [artist] (the best scored); null when none is. */
+    fun parseMbArtist(body: String, artist: String): String? {
+        val want = norm(artist)
+        return parseJson(body)["artists"].arr.firstOrNull { a -> a["name"].str?.let { norm(it) } == want }?.get("id").str
+    }
+
+    /** The setlists of an artist's events (a browse by artist): those with songs of [artist], not cancelled. */
+    fun parseMbEvents(body: String, artist: String, artistId: String): List<Setlist> = parseJson(body)["events"].arr.mapNotNull { e ->
+        if (e["cancelled"].bool == true) return@mapNotNull null
+        val id = e["id"].str ?: return@mapNotNull null
+        val date = e["life-span"]["begin"].str?.takeIf { it.length == 10 } ?: return@mapNotNull null
+        val songs = parseMbSetlist(e["setlist"].str.orEmpty(), artist, artistId)
+        if (songs.none { !it.tape }) return@mapNotNull null
+        val rels = e["relations"].arr
+        Setlist(
+            id = "mb-$id", artist = artist, date = date,
+            venue = rels.firstNotNullOfOrNull { it["place"]["name"].str }.orEmpty(),
+            city = rels.firstNotNullOfOrNull { it["area"]["name"].str }.orEmpty(),
+            tour = e["name"].str.orEmpty(), url = "https://musicbrainz.org/event/$id", songs = songs,
+        )
+    }
+
+    private val MB_LINK = Regex("""\[(?:[^|\]]*\|)?([^\]]*)]""")
+
+    /**
+     * MusicBrainz's setlist text (https://musicbrainz.org/doc/Event/Setlist): "@ performer" starts a
+     * performer's part, "* song" is a song, "# comment" a note (an "Encore" heading, "from tape" after
+     * a song); links are "[id|name]". Only [artist]'s part is kept: the whole text when it names no performer.
+     */
+    fun parseMbSetlist(text: String, artist: String, artistId: String): List<Song> {
+        val want = norm(artist)
+        val lines = text.lines().map { it.trim() }
+        val named = lines.any { it.startsWith("@") }
+        var ours = !named
+        var encore = 0
+        val songs = ArrayList<Song>()
+        for (line in lines) {
+            when {
+                line.startsWith("@") -> {
+                    val who = line.drop(1).trim()
+                    ours = artistId in who || norm(MB_LINK.replace(who) { it.groupValues[1] }) == want
+                }
+                !ours -> {}
+                line.startsWith("*") -> {
+                    val title = MB_LINK.replace(line.drop(1).substringBefore(" # ").substringBefore("\t#")) { it.groupValues[1] }.trim()
+                    if (title.isNotEmpty()) songs += Song(title, encore = encore)
+                }
+                line.startsWith("#") -> {
+                    val note = line.drop(1).trim().lowercase()
+                    if ("encore" in note) encore++
+                    else if (note.startsWith("from tape") || note == "tape" || note.startsWith("(tape")) songs.lastOrNull()?.let { songs[songs.size - 1] = it.copy(tape = true) }
+                }
+            }
+        }
+        return songs
+    }
+
+    // ---------------------------------------------------------------- to a service
+
+    /**
+     * The sync that takes a setlist (a File playlist, [fileId]) to [target]: a new playlist there
+     * (no playlist id) or one of the user's, where only the songs not already in it are added
+     * (nothing is ever removed). Run once by hand; it stays in Syncs, where its songs not found are reviewed.
+     */
+    fun job(id: String, name: String, fileId: String, target: PlaylistRef): SyncJob =
+        SyncJob(id = id, name = target.playlistName.ifBlank { name }, source = PlaylistRef(LocalFilesProvider.id, fileId, fileId), target = target.copy(playlistName = target.playlistName.ifBlank { name }))
+
+    /** After the run: songs added, already in the playlist, not found. */
+    data class Summary(val added: Int, val alreadyThere: Int, val notFound: Int)
+
+    fun summary(r: SyncReport) = Summary(r.added, (r.sourceCount - r.added - r.unmatched.size - r.ignored).coerceAtLeast(0), r.unmatched.size)
 
     private fun norm(s: String) = Matcher.normalizeArtist(s).ifEmpty { s.trim().lowercase() }
 

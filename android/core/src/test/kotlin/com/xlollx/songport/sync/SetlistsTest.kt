@@ -28,6 +28,9 @@ class SetlistsTest {
     private var search: (String) -> Pair<Int, String> = { 404 to """{"code":404,"message":"not found"}""" }
     private var byId: (String) -> Pair<Int, String> = { 404 to "{}" }
     private var page: Pair<Int, String> = 200 to ""
+    /** MusicBrainz's answers: the artist search and the events browsed by artist. */
+    private var mbArtist: Pair<Int, String> = 200 to """{"artists":[]}"""
+    private var mbEvents: (String) -> Pair<Int, String> = { 200 to """{"event-count":0,"events":[]}""" }
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
         createContext("/") { ex ->
             val path = ex.requestURI.path
@@ -38,6 +41,8 @@ class SetlistsTest {
                 path == "/rest/search/setlists" -> search(query.substringAfter("artistName=").substringBefore("&"))
                 path.startsWith("/rest/setlist/") -> byId(path.substringAfterLast('/'))
                 path.startsWith("/setlist/") -> page
+                path == "/ws/artist" -> mbArtist
+                path == "/ws/event" -> mbEvents(query)
                 else -> 404 to "{}"
             }
             val bytes = body.toByteArray()
@@ -55,6 +60,8 @@ class SetlistsTest {
         Setlists.now = { clock }
         Setlists.pace = Pacer(0)
         BuildDefaults.values = mapOf(Setlists.BUILD_KEY to "SHARED")
+        MusicBrainz.base = "$base/ws"
+        MusicBrainz.pace = Pacer(0)
     }
 
     @After fun tearDown() {
@@ -63,6 +70,8 @@ class SetlistsTest {
         Setlists.now = { System.currentTimeMillis() }
         Setlists.pace = Pacer(550)
         BuildDefaults.values = emptyMap()
+        MusicBrainz.base = "https://musicbrainz.org/ws/2"
+        MusicBrainz.pace = Pacer(1100)
     }
 
     private fun song(name: String, tape: Boolean = false, cover: String? = null) =
@@ -276,5 +285,72 @@ class SetlistsTest {
         page = 202 to ""
         val e = runCatching { SetlistImport.fetch(env, link) }.exceptionOrNull()
         assertTrue(e?.message.orEmpty().contains("setlist.fm key"))
+    }
+
+    // ---------------------------------------------------------------- without a key: MusicBrainz
+
+    private val muse = "9c9f1380-2516-4fc9-a3e6-f9f61941d090"
+
+    private fun mbEvent(id: String, date: String, setlist: String, cancelled: Boolean = false) = """
+        {"id":"$id","name":"Muse at Forum","cancelled":$cancelled,"life-span":{"begin":"$date","end":"$date"},
+         "setlist":${kotlinx.serialization.json.JsonPrimitive(setlist)},
+         "relations":[{"type":"held at","place":{"id":"p","name":"Forum"}},{"type":"held in","area":{"id":"a","name":"Milano"}}]}"""
+
+    @Test fun musicBrainzSetlistTextKeepsTheArtistsPartEncoresAndTapes() {
+        val text = "@ [$muse|Muse]\r\n* Intro\r\n# from tape\r\n* [abc|Uprising] # (live debut)\r\n# Encore:\r\n* Knights of Cydonia\r\n\r\n@ Opener\r\n* Not Ours"
+        val songs = Setlists.parseMbSetlist(text, "Muse", muse)
+        assertEquals(listOf("Intro", "Uprising", "Knights of Cydonia"), songs.map { it.title })
+        assertTrue(songs[0].tape)
+        assertEquals(listOf(0, 0, 1), songs.map { it.encore })
+        // No performer named: the whole text is the artist's.
+        assertEquals(listOf("A", "B"), Setlists.parseMbSetlist("* A\n* B", "Muse", muse).map { it.title })
+        // Another performer's part only: nothing.
+        assertTrue(Setlists.parseMbSetlist("@ Someone\n* A", "Muse", muse).isEmpty())
+    }
+
+    @Test fun withoutAKeyTheAppFindsMusicBrainzSetlists() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        mbArtist = 200 to """{"artists":[{"id":"other","name":"Muse Tribute"},{"id":"$muse","name":"Muse"}]}"""
+        mbEvents = { q ->
+            assertTrue(q, "artist=$muse" in q)
+            200 to """{"event-count":4,"events":[
+                ${mbEvent("e1", "2023-05-01", "* Old Song")},
+                ${mbEvent("e2", "2025-06-01", "* New Song\n* Hysteria")},
+                ${mbEvent("e3", "2024-01-01", "")},
+                ${mbEvent("e4", "2024-02-01", "* Cancelled", cancelled = true)}]}"""
+        }
+        val r = Setlists.find(env, listOf("Muse", "Muse"), keyless = true)
+        assertEquals(Setlists.Source.MUSICBRAINZ, r.source)
+        assertFalse(r.hasKey)
+        val got = r.artists.single().setlists
+        assertEquals(listOf("2025-06-01", "2023-05-01"), got.map { it.date })
+        assertEquals("Forum", got[0].venue)
+        assertEquals("Milano", got[0].city)
+        assertEquals("https://musicbrainz.org/event/e2", got[0].url)
+        assertEquals(listOf("New Song", "Hysteria"), Setlists.tracks(got[0]).map { it.title })
+        // setlist.fm is never asked without a key, and the answer is kept.
+        assertTrue(hits.none { it.startsWith("/rest") || it.startsWith("/setlist") })
+        val asked = hits.size
+        Setlists.find(env, listOf("Muse"), keyless = true)
+        assertEquals(asked, hits.size)
+    }
+
+    @Test fun withoutAKeyAnUnknownArtistHasNoneAndASilentMusicBrainzIsCounted() = runBlocking {
+        BuildDefaults.values = emptyMap()
+        mbArtist = 200 to """{"artists":[{"id":"x","name":"Someone Else"}]}"""
+        val none = Setlists.find(env, listOf("Muse"), keyless = true)
+        assertTrue(none.artists.single().setlists.isEmpty())
+        assertEquals(0, none.unanswered)
+        assertTrue(hits.none { it.startsWith("/ws/event") })
+        mbArtist = 503 to "{}"
+        val busy = Setlists.find(env, listOf("Placebo"), keyless = true)
+        assertEquals(1, busy.unanswered)
+    }
+
+    @Test fun theKeyStillGoesFirstWhenKeylessIsAllowed() = runBlocking {
+        search = { 200 to page(setlist("1", "Muse", "01-06-2025", set(song("Uprising")))) }
+        val r = Setlists.find(env, listOf("Muse"), keyless = true)
+        assertEquals(Setlists.Source.SETLISTFM, r.source)
+        assertTrue(hits.none { it.startsWith("/ws") })
     }
 }

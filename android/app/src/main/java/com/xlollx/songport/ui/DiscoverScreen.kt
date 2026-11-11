@@ -147,6 +147,8 @@ fun DiscoverScreen(
     onNewSyncFromFile: (name: String, fileId: String) -> Unit = { _, _ -> },
     /** A new sync opened in the editor, as the page sets it up (New releases: from its file, or the weekly one). */
     onNewSync: (com.xlollx.songport.model.SyncJob.() -> com.xlollx.songport.model.SyncJob) -> Unit = {},
+    /** The songs a sync did not find, to review (a setlist sent to a service). */
+    onReview: (reportId: String) -> Unit = {},
     /** Grows when the Discover tab is tapped again while it is open: back to the list of cards. */
     homeRequests: Int = 0,
     /** Asked from elsewhere (an idea on the Syncs tab): the Wrapped opens, once. */
@@ -218,7 +220,7 @@ fun DiscoverScreen(
                     DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
                     DiscoverCard.POSTER -> PosterCard(local)
                     DiscoverCard.CONCERTS -> ConcertsPage(local)
-                    DiscoverCard.SETLISTS -> SetlistsPage(local, onNewSync)
+                    DiscoverCard.SETLISTS -> SetlistsPage(local, onReview)
                     DiscoverCard.RECORDS -> RecordsPage(local)
                     DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                 }

@@ -1207,7 +1207,7 @@
     <string name="howto_organise_body"># 즐겨찾기\n카드의 ⋮ 메뉴에서 즐겨찾기에 추가를 누르면 동기화에 별이 붙어요. 별이 붙은 동기화는 동기화 탭 맨 위에 있고, 즐겨찾기 필터로 그것만 볼 수 있어요. 순서 어디에나 두고 싶다면 설정 › 모양 › 즐겨찾기 항상 맨 위에를 꺼 주세요.\n# 라벨\n카드의 ⋮ 메뉴 › 스타일에서 색을 고르고 이름을 붙이면, 그 색의 모든 동기화가 같은 라벨을 써요. 같은 창에서 카드가 색을 어떻게 보여 줄지도 골라요.\n# 태그\n편집 화면의 태그로 동기화를 원하는 대로 묶을 수 있어요. 예: genre = metal. 값은 비워 둬도 돼요.\n# 동기화 찾기\n동기화 탭의 검색과 필터로 이름, 상태, 라벨, 즐겨찾기, 태그로 찾을 수 있어요.\n# 순서\n카드를 길게 누른 채 원하는 곳으로 끌거나, ⋮ › 위치로 이동…을 써요.\n# 크기와 보기\n• 설정 › 모양 › 카드 크기: 크게, 보통, 작게.\n• 미니멀 보기는 동기화를 작은 타일 격자로 보여 줘요. 타일을 누르면 카드 전체가 보이고, 길게 누르면 메뉴가 열리거나 끌어서 옮길 수 있어요.\n• 태블릿이나 가로로 돌린 휴대폰에서는 탭이 옆 레일로 가고 카드가 여러 열로 놓여요.</string>
     <string name="howto_discover_title">신곡, 콘서트, 세트리스트, 음반</string>
     <string name="howto_discover_summary">플레이리스트 아티스트들의 소식.</string>
-    <string name="howto_discover_body">발견 탭은 요청할 때만 플레이리스트 아티스트의 정보를 찾아요. 백그라운드에서는 팔로우한 아티스트만 확인해요. 콘서트, 세트리스트, 음반과 굿즈에서는 아티스트 선택으로 찾을 아티스트를 고를 수 있어요.\n# 신곡\n지난 7일, 30일, 90일 동안 나온 새 앨범, EP, 싱글과 곧 나올 작품. 어느 서비스에든 플레이리스트를 만들거나, 플레이리스트에 추가로 기존 플레이리스트에 넣거나, 매주를 골라 새 곡을 계속 추가하는 동기화를 만들어요.\n# 콘서트\n기간에서 고른 범위 안의 한 나라의 다가오는 공연 날짜를 티켓 링크, 캘린더에 추가와 함께 보여 줘요. 날짜가 없는 아티스트는 버튼으로 티켓 사이트에서 찾아요.\n# 세트리스트\n아티스트가 라이브에서 연주한 곡을 setlist.fm에서 가져와요. 공연을 골라 어느 서비스에든 플레이리스트로 만들어요.\n# 음반과 굿즈\nDiscogs의 CD, LP, 카세트, 공식 사이트와 공식 숍, 다른 숍에서의 검색. 링크만 있어요. 구매는 각 사이트에서 해요.\n# 팔로우한 아티스트\n아티스트 옆의 종을 눌러 팔로우하고, 팔로우한 아티스트에서 알고 싶은 것을 고르세요: 신곡, 가까운 콘서트, 새 굿즈, 음반. 하루(또는 일주일)에 한 번 Trackhop이 확인하고 새 소식을 알림 하나로 보내요. 첫 확인에서는 이미 있는 것만 기록해요.\n# 키\nTicketmaster 공연 날짜와 세트리스트에는 무료 개인 키가 필요해요. Discogs 토큰이 있으면 판매 중인 수량과 최저가도 보여요. 설정 › 고급 › 서비스 키에서 추가하고, 키 받기를 누르면 첫 단계가 열려요. Ticketmaster 키가 없으면 날짜는 MusicBrainz에서 가져와요.\n# 탭\n카드를 길게 눌러 끌면 순서를 바꿀 수 있고, 순서 초기화로 되돌려요. 설정 › 모양 › 발견의 이미지에서 이미지를 끄거나 Wi‑Fi에서만 보이게 해요.</string>
+    <string name="howto_discover_body">발견 탭은 요청할 때만 플레이리스트 아티스트의 정보를 찾아요. 백그라운드에서는 팔로우한 아티스트만 확인해요. 콘서트, 세트리스트, 음반과 굿즈에서는 아티스트 선택으로 찾을 아티스트를 고를 수 있어요.\n# 신곡\n지난 7일, 30일, 90일 동안 나온 새 앨범, EP, 싱글과 곧 나올 작품. 어느 서비스에든 플레이리스트를 만들거나, 플레이리스트에 추가로 기존 플레이리스트에 넣거나, 매주를 골라 새 곡을 계속 추가하는 동기화를 만들어요.\n# 콘서트\n기간에서 고른 범위 안의 한 나라의 다가오는 공연 날짜를 티켓 링크, 캘린더에 추가와 함께 보여 줘요. 날짜가 없는 아티스트는 버튼으로 티켓 사이트에서 찾아요.\n# 세트리스트\n아티스트가 라이브에서 연주한 곡을 setlist.fm에서 가져와요. 공연을 골라 어느 서비스에든 새 플레이리스트로 만들거나 내 플레이리스트에 추가해요.\n# 음반과 굿즈\nDiscogs의 CD, LP, 카세트, 공식 사이트와 공식 숍, 다른 숍에서의 검색. 링크만 있어요. 구매는 각 사이트에서 해요.\n# 팔로우한 아티스트\n아티스트 옆의 종을 눌러 팔로우하고, 팔로우한 아티스트에서 알고 싶은 것을 고르세요: 신곡, 가까운 콘서트, 새 굿즈, 음반. 하루(또는 일주일)에 한 번 Trackhop이 확인하고 새 소식을 알림 하나로 보내요. 첫 확인에서는 이미 있는 것만 기록해요.\n# 키\nTicketmaster 공연 날짜와 세트리스트에는 무료 개인 키가 필요해요. Discogs 토큰이 있으면 판매 중인 수량과 최저가도 보여요. 설정 › 고급 › 서비스 키에서 추가하고, 키 받기를 누르면 첫 단계가 열려요. Ticketmaster 키가 없으면 날짜는 MusicBrainz에서 가져와요. setlist.fm 키가 없으면 세트리스트는 MusicBrainz에서 가져와요 (공연 수는 더 적어요).\n# 탭\n카드를 길게 눌러 끌면 순서를 바꿀 수 있고, 순서 초기화로 되돌려요. 설정 › 모양 › 발견의 이미지에서 이미지를 끄거나 Wi‑Fi에서만 보이게 해요.</string>
     <string name="howto_shared_title">공유 플레이리스트</string>
     <string name="howto_shared_summary">그룹을 위한 하나의 플레이리스트, 각자 자기 서비스에서.</string>
     <string name="howto_shared_body">도구 › 공유 플레이리스트: 같은 서비스를 쓰지 않는 사람들을 위한 하나의 플레이리스트예요. 각자 자기 서비스에 사본을 두고, Trackhop이 사본을 맞춰 줘요.\n# 만들기와 참여\n그룹 만들기: 이름을 정하고, 내 서비스와 플레이리스트, 그룹이 만나는 방식을 골라요. 초대를 누르면 QR 코드와 보낼 링크가 나와요. 다른 사람은 링크로 참여를 누르고 그룹 코드가 내 것과 같은지 확인해요.\n# 그룹이 만나는 방식\n• 공유 폴더: 그룹이 이미 공유하는 Google Drive, Nextcloud, Dropbox, Syncthing 폴더. 폴더를 열 수 있는 사람은 그룹을 읽을 수 있어요.\n• 암호화된 ntfy 채널: 변경 사항이 ntfy.sh나 내 ntfy 서버를 거쳐 암호화된 채로 전달돼요.\n• 내 Trackhop 서버: 설정 › 고급 › 내 서버와 조율하기에서 설정한 Trackhop 서버에서 변경 사항이 만나요. 서버 관리자는 그룹의 곡을 볼 수 있어요.\nntfy 채널이나 서버에서는 초대를 가진 누구나 그룹을 읽을 수 있어요. 초대하는 사람에게만 보내 주세요.\n# 역할\n큐레이터의 변경은 모두에게 전달돼요. 큐레이터는 그룹을 만든 사람이 정해요. 나머지는 팔로우하며, 그대로 복사나 내가 추가한 곡 유지를 골라요. 유지를 고르면 직접 추가한 곡은 자기 플레이리스트에만 남아요.\n# 내 서비스에 없는 곡\n내 서비스에서 찾지 못한 곡이 다른 사람에게서 지워지는 일은 없어요. 그 곡은 내 동기화의 검토에서 기다려요.\n# 그룹 페이지\n멤버, 누가 무엇을 바꿨는지, 그룹 코드. 그룹 나가기를 누르면 변경을 더 받지 않고, 플레이리스트는 그대로 남아요.</string>
@@ -2079,9 +2079,16 @@
     <string name="setlists_make">플레이리스트 만들기</string>
     <string name="setlists_attribution">세트리스트 출처: setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 키</string>
-    <string name="setlists_key_body">세트리스트를 보려면 본인의 무료 setlist.fm 키가 필요해요. Trackhop은 공개 세트리스트만 읽어요.</string>
+    <string name="setlists_key_body">선택 사항: 본인의 무료 setlist.fm 키가 있으면 훨씬 많은 세트리스트를 볼 수 있어요. Trackhop은 공개 세트리스트만 읽어요.</string>
     <string name="setlists_key_field">API 키</string>
-    <string name="setlists_key_none">키 없음: 세트리스트를 보려면 추가하세요</string>
+    <string name="setlists_key_none">키 없음: MusicBrainz 세트리스트만</string>
+    <string name="setlists_keyless">setlist.fm 키가 없으면 세트리스트는 MusicBrainz에서 가져와요. 일부 공연에만 있어요. 무료 키를 추가하면 훨씬 많이 볼 수 있어요.</string>
+    <string name="setlists_open_mb">MusicBrainz에서 보기</string>
+    <string name="setlists_attribution_mb">세트리스트 출처: MusicBrainz</string>
+    <string name="setlists_make_go">플레이리스트 만들기</string>
+    <string name="setlists_add_go">곡 추가</string>
+    <string name="setlists_adding">%1$s에 곡 추가 중…</string>
+    <string name="setlists_summary">추가 %1$d · 이미 있음 %2$d · 못 찾음 %3$d</string>
     <string name="discover_records_title">음반과 굿즈</string>
     <string name="discover_records_desc">플레이리스트 아티스트의 CD, LP, 굿즈</string>
     <string name="records_intro">플레이리스트를 고르면 Trackhop이 Discogs에서 아티스트의 CD, LP, 카세트를 찾고, 공식 쇼핑몰과 Bandcamp의 굿즈, 공식 사이트도 보여 줍니다. 링크만 제공하며 구매는 해당 사이트에서 합니다.</string>

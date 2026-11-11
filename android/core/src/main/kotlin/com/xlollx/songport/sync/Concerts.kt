@@ -1,7 +1,6 @@
 package com.xlollx.songport.sync
 
 import com.xlollx.songport.ai.ArtistMix
-import com.xlollx.songport.ai.ArtistMixSource
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.Pacer
@@ -508,17 +507,7 @@ object Concerts {
         area["iso-3166-1-codes"].arr.firstNotNullOfOrNull { country(it.str) }
             ?: area["iso-3166-2-codes"].arr.firstNotNullOfOrNull { country(it.str?.substringBefore('-')) }
 
-    private suspend fun mbGet(path: String): String? = try {
-        MusicBrainz.pace.paced {
-            // No retry inside: a second request right after a 503 would break the one-a-second rule.
-            val r = Http.send(
-                "GET", "${MusicBrainz.base}/$path",
-                mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to "application/json"),
-                maxRateLimitRetries = 0, retryServerErrors = false,
-            )
-            r.body.takeIf { r.ok }
-        }
-    } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+    private suspend fun mbGet(path: String): String? = MusicBrainz.get(path)
 
     private fun enc(s: String) = URLEncoder.encode(s, "UTF-8").replace("+", "%20")
 }

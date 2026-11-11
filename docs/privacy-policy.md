@@ -63,7 +63,7 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   TicketOne's and Discogs' image servers, like any web picture (turn them off in Settings › Images in Discover).
 - **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
   of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
-  privacy policy); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
+  privacy policy) when a setlist.fm key is set, otherwise to MusicBrainz (musicbrainz.org); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
   opens its public page). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own setlist.fm key it goes along to setlist.fm and is kept
   encrypted on the device.
@@ -170,7 +170,7 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   ogni immagine web (si spengono in Opzioni › Immagini in Scopri).
 - **Scalette (facoltativo)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
   della playlist scelta vengono inviati all'API di setlist.fm (api.setlist.fm, secondo l'informativa di
-  setlist.fm); un link di setlist.fm che condividi o incolli invia l'id della sua scaletta (o, senza
+  setlist.fm) se c'è una chiave setlist.fm, altrimenti a MusicBrainz (musicbrainz.org); un link di setlist.fm che condividi o incolli invia l'id della sua scaletta (o, senza
   chiave, apre la sua pagina pubblica). Solo quando lo chiedi, mai in background; nessun account,
   nessuna posizione, nient'altro su di te. Se aggiungi la tua chiave setlist.fm, viene inviata a
   setlist.fm e resta cifrata sul dispositivo.

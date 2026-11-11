@@ -56,6 +56,22 @@ object MusicBrainz {
     /** [s] as a MusicBrainz id (lowercase), or null when it is not one. */
     fun mbid(s: String?): String? = s?.trim()?.lowercase()?.takeIf { MBID.matches(it) }
 
+    /**
+     * One GET of the MusicBrainz API ([path] under ws/2), paced and named: the body, or null when
+     * it did not answer (busy, offline). Concerts and keyless setlists ask this way.
+     */
+    suspend fun get(path: String): String? = try {
+        pace.paced {
+            // No retry inside: a second request right after a 503 would break the one-a-second rule.
+            val r = Http.send(
+                "GET", "$base/$path",
+                mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to "application/json"),
+                maxRateLimitRetries = 0, retryServerErrors = false,
+            )
+            r.body.takeIf { r.ok }
+        }
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+
     /** The recording ids MusicBrainz lists for [isrc]; empty when it knows none, or could not be asked. Never throws. */
     suspend fun recordings(env: Env, isrc: String): List<String> {
         val k = isrc.trim().uppercase().replace("-", "")
