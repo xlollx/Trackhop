@@ -892,6 +892,8 @@
     <string name="settings_unplayable">Еженедельная проверка недоступных треков</string>
     <string name="settings_unplayable_desc">Раз в неделю Trackhop просматривает ваши плейлисты и сообщает, если трек больше нельзя воспроизвести. Сам ничего не меняет.</string>
     <string name="notif_unplayable_title">Недоступные треки</string>
+    <string name="notif_signin_again_title">%1$s: войдите снова, чтобы синхронизации продолжали работать</string>
+    <string name="notif_signin_again_text">Сеанс истёк. Нажмите, чтобы открыть «Аккаунты».</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d трек в ваших плейлистах больше не воспроизводится. Нажмите, чтобы заменить.</item>
         <item quantity="other">%1$d треков в ваших плейлистах больше не воспроизводятся. Нажмите, чтобы заменить.</item>

@@ -868,6 +868,8 @@
     <string name="settings_unplayable">Controllo settimanale dei brani non riproducibili</string>
     <string name="settings_unplayable_desc">Una volta a settimana Trackhop scorre le tue playlist e ti avvisa quando un brano non si può più ascoltare. Non cambia nulla da solo.</string>
     <string name="notif_unplayable_title">Brani non riproducibili</string>
+    <string name="notif_signin_again_title">%1$s: accedi di nuovo per far continuare le sync</string>
+    <string name="notif_signin_again_text">La sessione è scaduta. Tocca per aprire Account.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d brano nelle tue playlist non si può più ascoltare. Tocca per sostituirlo.</item>
         <item quantity="other">%1$d brani nelle tue playlist non si possono più ascoltare. Tocca per sostituirli.</item>

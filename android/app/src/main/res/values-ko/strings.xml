@@ -855,6 +855,8 @@
     <string name="settings_unplayable">재생할 수 없는 곡 주간 확인</string>
     <string name="settings_unplayable_desc">일주일에 한 번 Trackhop이 플레이리스트를 살펴보고 더 이상 재생할 수 없는 곡이 있으면 알려 줍니다. 스스로 아무것도 바꾸지 않습니다.</string>
     <string name="notif_unplayable_title">재생할 수 없는 곡</string>
+    <string name="notif_signin_again_title">%1$s: 동기화를 계속하려면 다시 로그인하세요</string>
+    <string name="notif_signin_again_text">세션이 만료되었습니다. 탭하여 계정을 여세요.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">플레이리스트의 곡 %1$d개를 더 이상 재생할 수 없습니다. 탭하여 교체하세요.</item>
         <item quantity="other">플레이리스트의 곡 %1$d개를 더 이상 재생할 수 없습니다. 탭하여 교체하세요.</item>

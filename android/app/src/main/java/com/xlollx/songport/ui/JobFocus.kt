@@ -9,3 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 object JobFocus {
     val request = MutableStateFlow<String?>(null)
 }
+
+/** A connector to bring into view on the Accounts tab: asked by the "sign in again" notification. */
+object ConnectorFocus {
+    val request = MutableStateFlow<String?>(null)
+}

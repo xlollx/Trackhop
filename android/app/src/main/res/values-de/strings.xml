@@ -868,6 +868,8 @@
     <string name="settings_unplayable">Wöchentliche Prüfung auf nicht abspielbare Titel</string>
     <string name="settings_unplayable_desc">Einmal pro Woche geht Trackhop deine Playlists durch und meldet, wenn ein Titel nicht mehr abgespielt werden kann. Von selbst wird nichts geändert.</string>
     <string name="notif_unplayable_title">Nicht abspielbare Titel</string>
+    <string name="notif_signin_again_title">%1$s: Melde dich erneut an, damit deine Syncs weiterlaufen</string>
+    <string name="notif_signin_again_text">Die Sitzung ist abgelaufen. Tippe, um Konten zu öffnen.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d Titel in deinen Playlists kann nicht mehr abgespielt werden. Tippen zum Ersetzen.</item>
         <item quantity="other">%1$d Titel in deinen Playlists können nicht mehr abgespielt werden. Tippen zum Ersetzen.</item>

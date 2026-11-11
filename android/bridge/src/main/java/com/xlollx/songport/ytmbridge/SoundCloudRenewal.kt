@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicReference
  *
  * When a renewal fails (no new token in time, DataDome's puzzle or block, a page that would not
  * load) the caller keeps the "sign in again" error; the log says why. Tokens are never logged.
+ *
+ * A page that loads and renews nothing means the site's own session is gone (a few idle days are
+ * enough): the session is then marked expired ([expiredAt]) and no hidden page is opened again
+ * until the next sign-in. Trackhop renews the session in the background twice a day ([keepAlive])
+ * so that, in use or not, the site's session never lapses.
  */
 object SoundCloudRenewal {
     /** What a hidden page gave: a token other than the old one and the jar as it was then, or why not. */
@@ -45,15 +50,52 @@ object SoundCloudRenewal {
     const val RENEW_AFTER_MS = 50 * 60_000L
     /** One ahead-of-time attempt per this long: a page that renews nothing is not reopened on every call. */
     private const val PROACTIVE_EVERY_MS = 15 * 60_000L
+    /** A token older than this is surely over: a page that renews nothing then means the site's session is gone. */
+    private const val TOKEN_LIFE_MS = 65 * 60_000L
     private const val TIMEOUT_S = 40L
     /** After the page has loaded, how long a renewal is waited for before giving up early. */
     private const val SETTLE_MS = 12_000L
     private const val VIEW_W = 412
     private const val VIEW_H = 915
 
+    /** What a page that loaded without renewing anything says: the site's own session is gone. */
+    const val RENEWED_NOTHING = "the page loaded but renewed nothing"
+    private const val EXPIRED_AT = "expiredAt"
+
     private val lastProactive = AtomicLong(0)
 
     fun forget() { lastProactive.set(0) }
+
+    /**
+     * When the session was found gone for good (epoch ms, as text), or null while it can still be
+     * renewed. Kept with the session: a sign-in ([SoundCloudBridge.rememberToken]) or a sign-out clears it.
+     */
+    fun expiredAt(ctx: Context): String? = SoundCloudBridge.session.get(ctx, EXPIRED_AT)
+
+    /** The session is gone: said once, and no hidden page is opened for it again until the person signs in. */
+    fun markExpired(ctx: Context, why: String) {
+        if (expiredAt(ctx) != null) return
+        SoundCloudBridge.session.put(ctx, EXPIRED_AT, System.currentTimeMillis().toString())
+        BridgeNet.log("soundcloud", "the session has expired ($why): no more renewals until the next sign-in")
+    }
+
+    /**
+     * The background renewal (Trackhop's keep-alive, twice a day): one hidden page, whatever the
+     * token's age, so the site's session and its cookies stay alive between uses. Nothing when not
+     * signed in or already expired. One log line. True when the session was renewed.
+     */
+    fun keepAlive(ctx: Context): Boolean {
+        val app = ctx.applicationContext
+        if (!SoundCloudBridge.session.isConnected(app) || expiredAt(app) != null) return false
+        // A token renewed less than ~50 minutes ago: the session is alive, nothing to do.
+        SoundCloudBridge.tokenAt(app)?.let { if (System.currentTimeMillis() - it < RENEW_AFTER_MS) return false }
+        lastProactive.set(System.currentTimeMillis())
+        return renew(app, SoundCloudBridge.token(app), "keep-alive", quiet = true, ahead = true)
+    }
+
+    /** Whether the kept token has surely run out (or its age is unknown). */
+    private fun tokenOver(ctx: Context): Boolean =
+        SoundCloudBridge.tokenAt(ctx)?.let { System.currentTimeMillis() - it > TOKEN_LIFE_MS } ?: true
 
     /**
      * Before a call: when the token is older than about 50 minutes ([SoundCloudBridge.tokenAt]),
@@ -61,36 +103,43 @@ object SoundCloudRenewal {
      * goes on with the token there is, and a refusal renews again.
      */
     fun renewIfOld(ctx: Context) {
+        if (expiredAt(ctx) != null) return
         val at = SoundCloudBridge.tokenAt(ctx) ?: return
         val now = System.currentTimeMillis()
         val age = now - at
         if (age < RENEW_AFTER_MS) return
         val last = lastProactive.get()
         if (now - last < PROACTIVE_EVERY_MS || !lastProactive.compareAndSet(last, now)) return
-        renew(ctx, SoundCloudBridge.token(ctx), "the token is ${age / 60_000} minutes old")
+        renew(ctx, SoundCloudBridge.token(ctx), "the token is ${age / 60_000} minutes old", ahead = true)
     }
 
     /**
      * Opens the hidden page and keeps the new token it gives. [refused] is the token a call was just
      * refused with: when the kept one is already another (renewed a moment ago by another call), that
      * one is used without opening anything. True when there is a new token to retry with.
+     * A session already expired ([expiredAt]) opens nothing. [quiet]: one log line, the outcome.
+     * [ahead]: before any refusal, so a page that renews a token still valid for a few minutes
+     * proves nothing; only a token surely over, or refused, ends the session when nothing is renewed.
      */
     @Synchronized
-    fun renew(ctx: Context, refused: String?, why: String): Boolean {
+    fun renew(ctx: Context, refused: String?, why: String, quiet: Boolean = false, ahead: Boolean = false): Boolean {
         val app = ctx.applicationContext
         val current = SoundCloudBridge.token(app)
         if (current != null && current != refused) return true
+        if (expiredAt(app) != null) return false
         val started = System.currentTimeMillis()
-        BridgeNet.log("soundcloud", "renewing the session in a hidden page ($why)")
+        if (!quiet) BridgeNet.log("soundcloud", "renewing the session in a hidden page ($why)")
         val page = runCatching { hiddenPage(app, current) }.getOrElse { Page(null, null, it.message ?: it.javaClass.simpleName) }
         val found = page.found
         if (found == null || found.token == current) {
-            BridgeNet.log("soundcloud", "the session could not be renewed: ${page.problem ?: "the page gave no new token"}")
+            val problem = page.problem ?: "the page gave no new token"
+            BridgeNet.log("soundcloud", "the session could not be renewed${if (quiet) " ($why)" else ""}: $problem")
+            if (problem == RENEWED_NOTHING && (!ahead || tokenOver(app))) markExpired(app, problem)
             return false
         }
         SoundCloudBridge.rememberRenewedToken(app, found)
         page.cookies?.takeIf { it.isNotBlank() }?.let { SoundCloudBridge.session.save(app, it, SoundCloudBridge.session.account(app)) }
-        BridgeNet.log("soundcloud", "session renewed in a hidden page: new token from ${found.source} in ${(System.currentTimeMillis() - started) / 1000} s")
+        BridgeNet.log("soundcloud", "session renewed in a hidden page${if (quiet) " ($why)" else ""}: new token from ${found.source} in ${(System.currentTimeMillis() - started) / 1000} s")
         return true
     }
 
@@ -173,7 +222,7 @@ object SoundCloudRenewal {
                         if (over.get()) return
                         if (newToken(null, jars(), old) != null) { latch.countDown(); return }
                         val at = loadedAt.get()
-                        if (at > 0 && System.currentTimeMillis() - at > SETTLE_MS) { problem.compareAndSet(null, "the page loaded but renewed nothing"); latch.countDown(); return }
+                        if (at > 0 && System.currentTimeMillis() - at > SETTLE_MS) { problem.compareAndSet(null, RENEWED_NOTHING); latch.countDown(); return }
                         main.postDelayed(this, 1_000)
                     }
                 }, 1_000)

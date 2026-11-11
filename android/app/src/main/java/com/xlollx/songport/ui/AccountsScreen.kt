@@ -134,6 +134,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         ) { name ->
             naming = null
             addConnector(store, service, name)
+            com.xlollx.songport.sync.Scheduler.applyKeepAlive(ctx)
         }
     }
     var renaming by remember { mutableStateOf<MusicProvider?>(null) }
@@ -159,6 +160,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                 else s.extraAccounts + (p.serviceId to s.extraAccounts[p.serviceId].orEmpty().filter { it != p.slot }),
             )
         }
+        com.xlollx.songport.sync.Scheduler.applyKeepAlive(ctx)
     }
 
     // Reading the settings here subscribes this scope to the store: a new connector shows up at once.
@@ -169,7 +171,16 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         EmptyState(Icons.Filled.AccountCircle, stringResource(R.string.connectors_empty_title), stringResource(R.string.connectors_empty_body))
         return
     }
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    // A connector asked by a notification (ConnectorFocus): scrolled to; the intro is the first item.
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val focusAsked by ConnectorFocus.request.collectAsState()
+    LaunchedEffect(focusAsked, providers) {
+        val id = focusAsked ?: return@LaunchedEffect
+        val index = providers.indexOfFirst { it.id == id }
+        if (index >= 0) runCatching { listState.animateScrollToItem(index + 1) }
+        ConnectorFocus.request.value = null
+    }
+    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item(key = "intro") { TrustBanner() }
         items(providers, key = { it.id }) { p ->
             key(refresh) {

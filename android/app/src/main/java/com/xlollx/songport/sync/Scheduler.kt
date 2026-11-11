@@ -181,6 +181,26 @@ object Scheduler {
     private const val BACKUP_WORK = "backup-export"
     private const val UNPLAYABLE_WORK = "unplayable-check"
     private const val UPDATE_WORK = "app-update-check"
+    private const val KEEP_ALIVE_WORK = "session-keep-alive"
+
+    /** What the keep-alive waits for: the network, a battery not low. */
+    internal fun keepAliveConstraints(): Constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .setRequiresBatteryNotLow(true)
+        .build()
+
+    /** The twice-daily renewal of a web session ([SessionKeepAlive]) while a connector that needs it is there. */
+    fun applyKeepAlive(ctx: Context) {
+        val wm = WorkManager.getInstance(ctx)
+        if (!SessionKeepAlive.wanted(Store.get(ctx).data.settings.connectors)) {
+            wm.cancelUniqueWork(KEEP_ALIVE_WORK)
+            return
+        }
+        val req = PeriodicWorkRequestBuilder<KeepAliveWorker>(SessionKeepAlive.EVERY_HOURS, TimeUnit.HOURS)
+            .setConstraints(keepAliveConstraints())
+            .build()
+        wm.enqueueUniquePeriodicWork(KEEP_ALIVE_WORK, ExistingPeriodicWorkPolicy.KEEP, req)
+    }
 
     /** The daily update notification on or off with Settings › About's switch (only builds that check GitHub themselves). */
     fun applyUpdateCheck(ctx: Context) {
@@ -269,6 +289,7 @@ object Scheduler {
         applyBackup(ctx)
         applyUnplayable(ctx)
         applyUpdateCheck(ctx)
+        applyKeepAlive(ctx)
         // At every start of the process, in the background too: the radio's alarm armed, no listening started from here.
         RadioPlan.refresh(ctx, start = false)
     }
