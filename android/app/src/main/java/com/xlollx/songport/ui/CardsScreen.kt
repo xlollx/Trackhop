@@ -174,32 +174,32 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
     )
     if (sheet) PickerSheet(label, onDismiss = { sheet = false }) {
         val linkLabel = stringResource(R.string.card_source_link)
-        ServiceTiles(
-            listOf(ServiceTile(LINK_TILE, linkLabel, icon = Icons.Filled.Link)) + connected.map { ServiceTile(it.id, it.label(ctx), it) },
-            selected = mode ?: LINK_TILE,
-            onSelect = { key -> mode = if (key == LINK_TILE) null else key; sheetError = null; choose(null) },
-            modifier = Modifier.padding(horizontal = PickerSheetMargin),
-        )
-        if (mode == null) {
-            Column(Modifier.padding(horizontal = PickerSheetMargin).padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                OutlinedTextField(
-                    value = link, onValueChange = { link = it; sheetError = null }, singleLine = true, modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.card_source_link_hint)) },
-                    trailingIcon = {
-                        if (busy) CircularProgressIndicator(Modifier.size(18.dp))
-                        else TextButton(enabled = link.isNotBlank(), onClick = { scope.launch { resolve(link) } }) { Text(stringResource(R.string.link_use)) }
-                    },
+        val provider = connected.firstOrNull { it.id == mode }
+        PlaylistRows(
+            lists, sheetError.takeIf { mode != null }, provider, chosen?.takeIf { it.provider.id == mode }?.playlist?.id,
+            onPick = { p -> provider?.let { choose(CardPick(it, p)) } },
+            recentIds = remember(mode) { recentPlaylistIds(ctx, mode) },
+            header = {
+                ServiceTiles(
+                    listOf(ServiceTile(LINK_TILE, linkLabel, icon = Icons.Filled.Link)) + connected.map { ServiceTile(it.id, it.label(ctx), it) },
+                    selected = mode ?: LINK_TILE,
+                    onSelect = { key -> mode = if (key == LINK_TILE) null else key; sheetError = null; choose(null) },
                 )
-                sheetError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-            }
-        } else {
-            val provider = connected.firstOrNull { it.id == mode }
-            PlaylistRows(
-                lists, sheetError, provider, chosen?.takeIf { it.provider.id == mode }?.playlist?.id,
-                onPick = { p -> provider?.let { choose(CardPick(it, p)) } },
-                recentIds = remember(mode) { recentPlaylistIds(ctx, mode) },
-            )
-        }
+            },
+            other = if (mode == null) ({
+                Column(Modifier.padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    OutlinedTextField(
+                        value = link, onValueChange = { link = it; sheetError = null }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.card_source_link_hint)) },
+                        trailingIcon = {
+                            if (busy) CircularProgressIndicator(Modifier.size(18.dp))
+                            else TextButton(enabled = link.isNotBlank(), onClick = { scope.launch { resolve(link) } }) { Text(stringResource(R.string.link_use)) }
+                        },
+                    )
+                    sheetError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                }
+            }) else null,
+        )
     }
 }
 

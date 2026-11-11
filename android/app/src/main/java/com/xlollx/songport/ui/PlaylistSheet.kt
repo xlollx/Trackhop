@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -169,14 +171,23 @@ internal fun playlistWhere(provider: MusicProvider?, playlist: Playlist?): Strin
 /**
  * The picker's sheet, from the bottom: [title] says what is being chosen. One sheet for every window
  * (as wide as a readable column on a tablet or a phone on its side), so what is typed in it is still
- * there after a rotation.
+ * there after a rotation. [tall]: as high as the window allows whatever is in it, so it does not
+ * grow and shrink as a list loads or another service is chosen; in a low window (a phone on its
+ * side) it takes all of it, without the handle and with a smaller title.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun PickerSheet(title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Column(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp).semantics { heading() })
+internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
+    val short = LocalWindowLayout.current.short
+    ModalBottomSheet(
+        onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        dragHandle = if (short) null else ({ androidx.compose.material3.BottomSheetDefaults.DragHandle() }),
+    ) {
+        Column(
+            Modifier.fillMaxWidth().then(if (tall) Modifier.fillMaxHeight(if (short) 1f else 0.92f) else Modifier).padding(top = if (short) 12.dp else 0.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp),
+        ) {
+            Text(title, style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp).semantics { heading() })
             content()
         }
     }
@@ -186,29 +197,43 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, content: @Composa
 internal val PickerSheetMargin = 16.dp
 
 /**
- * A service's playlists in the sheet, as rows with their pictures: a search once they are many, the
- * Playlists / Library choice where the service has library sections (liked songs stay with the
- * playlists, first), the ones already in the user's syncs first as "Recent", then all of them.
- * [items] null: still loading (grey rows). [error]: what the service answered instead, with "Try
- * again" and, where given, the way to sign in again. [first]: the page's own rows above the list
- * ("Create a new playlist").
+ * What a picker's sheet holds under its title: the services' strip ([header]) and a service's
+ * playlists as rows with their pictures: a search once they are many, the Playlists / Library
+ * choice where the service has library sections (liked songs stay with the playlists, first), the
+ * ones already in the user's syncs first as "Recent", then all of them.
+ * [items] null: still loading (grey rows, which the list fades in over). [error]: what the service
+ * answered instead, with "Try again" and, where given, the way to sign in again. [first]: the page's
+ * own rows above the list ("Create a new playlist"). [other]: what is chosen is not from a list (a
+ * pasted link, a radio): this instead of the search and the rows.
+ *
+ * In a low window (a phone on its side) the strip, the search and the choice scroll away with the
+ * rows, the search and the choice on one line: the list has the sheet's height. [fill]: the list
+ * takes what is left of a sheet of a fixed height.
  */
 @Composable
 internal fun ColumnScope.PlaylistRows(
     items: List<Playlist>?, error: String?, provider: MusicProvider?, selectedId: String?, onPick: (Playlist) -> Unit,
     recentIds: List<String> = emptyList(), onRetry: (() -> Unit)? = null, onSignIn: (() -> Unit)? = null,
     first: (LazyListScope.() -> Unit)? = null,
+    header: (@Composable () -> Unit)? = null, other: (@Composable () -> Unit)? = null, fill: Boolean = true,
 ) {
+    val short = LocalWindowLayout.current.short
     val isSection = { p: Playlist -> MusicProvider.isLibrary(p.id) && p.id != MusicProvider.LIKED_ID }
     val (library, playlists) = items.orEmpty().partition(isSection)
     var showLibrary by rememberSaveable(provider?.id) { mutableStateOf(MusicProvider.isLibrary(selectedId) && selectedId != MusicProvider.LIKED_ID) }
-    if (library.isEmpty()) showLibrary = false
+    if (items != null && library.isEmpty()) showLibrary = false
     var query by rememberSaveable(provider?.id) { mutableStateOf("") }
     val shown = if (showLibrary) library else playlists
     val q = query.trim()
+    // The search has its place while the list loads too, so the rows do not start lower once it is there.
+    val showSearch = other == null && error == null && (items == null || items.size > 6)
+    // The choice keeps its place while another service's list loads, if the one before had it.
+    var hadLibrary by remember { mutableStateOf(false) }
+    if (items != null) hadLibrary = library.isNotEmpty()
+    val showChips = other == null && error == null && hadLibrary
 
-    if (items != null && error == null) {
-        if (items.size > 6) TextField(
+    val search: @Composable (Modifier) -> Unit = { m ->
+        TextField(
             value = query, onValueChange = { query = it }, singleLine = true,
             placeholder = { Text(stringResource(R.string.unmatched_search)) },
             leadingIcon = { Icon(Icons.Filled.Search, null) },
@@ -219,15 +244,50 @@ internal fun ColumnScope.PlaylistRows(
                 focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, disabledIndicatorColor = Color.Transparent,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             ),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = PickerSheetMargin),
+            modifier = m,
         )
-        if (library.isNotEmpty()) Row(Modifier.padding(horizontal = PickerSheetMargin), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    }
+    val chips: @Composable () -> Unit = {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = !showLibrary, onClick = { showLibrary = false }, label = { Text(stringResource(R.string.editor_section_playlists)) })
             FilterChip(selected = showLibrary, onClick = { showLibrary = true }, label = { Text(stringResource(R.string.editor_section_library)) })
         }
     }
-    LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+    // Upright: the search over the choice. On its side: both on one line.
+    val tools: @Composable () -> Unit = {
+        if (short) Row(Modifier.fillMaxWidth().animateContentSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (showSearch) search(Modifier.weight(1f))
+            if (showChips) chips()
+        } else Column(Modifier.fillMaxWidth().animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (showSearch) search(Modifier.fillMaxWidth())
+            if (showChips) chips()
+        }
+    }
+    val hasTools = showSearch || showChips
+
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    // Another service, the other section, a search: the list from its top.
+    var seen by remember { mutableStateOf(Triple(provider?.id, showLibrary, other != null)) }
+    LaunchedEffect(provider?.id, showLibrary, other != null) {
+        val now = Triple(provider?.id, showLibrary, other != null)
+        if (now != seen) { seen = now; listState.scrollToItem(0) }
+    }
+    if (!short) {
+        if (header != null) Box(Modifier.padding(horizontal = PickerSheetMargin)) { header() }
+        if (hasTools) Box(Modifier.padding(horizontal = PickerSheetMargin)) { tools() }
+    }
+    LazyColumn(
+        Modifier.fillMaxWidth().weight(1f, fill = fill), state = listState,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
+    ) {
+        if (short) {
+            if (header != null) item("picker-head") { Box(Modifier.padding(horizontal = 8.dp)) { header() } }
+            if (hasTools) item("picker-tools") { Box(Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) { tools() } }
+        }
+        if (other != null) { item("picker-other") { Box(Modifier.padding(horizontal = 8.dp).padding(top = if (short) 6.dp else 0.dp)) { other() } }; return@LazyColumn }
         first?.invoke(this)
+        // The rows fade in where the grey ones were: nothing slides, nothing waits.
+        val fade = androidx.compose.animation.core.tween<Float>(200)
         when {
             error != null -> item("error") {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -239,14 +299,14 @@ internal fun ColumnScope.PlaylistRows(
                     }
                 }
             }
-            items == null -> items(5) { SkeletonPlaylistRow() }
+            items == null -> items(8, key = { "skeleton:$it" }) { SkeletonPlaylistRow() }
             else -> {
                 val found = if (q.isEmpty()) shown else shown.filter { it.name.contains(q, ignoreCase = true) }
                 val recent = if (q.isEmpty() && !showLibrary && shown.size >= 8) recentIds.mapNotNull { id -> shown.firstOrNull { it.id == id } }.distinctBy { it.id }.take(3) else emptyList()
                 if (recent.isNotEmpty()) {
-                    item("recent-title") { PickerSectionTitle(stringResource(R.string.picker_recent)) }
-                    items(recent, key = { "recent:" + it.id }) { p -> PlaylistRow(p, provider, p.id == selectedId) { onPick(p) } }
-                    item("all-title") { PickerSectionTitle(stringResource(R.string.picker_all, shown.size)) }
+                    item("recent-title") { PickerSectionTitle(stringResource(R.string.picker_recent), Modifier.animateItem(fadeInSpec = fade, placementSpec = null, fadeOutSpec = null)) }
+                    items(recent, key = { "recent:" + it.id }) { p -> PlaylistRow(p, provider, p.id == selectedId, Modifier.animateItem(fadeInSpec = fade, placementSpec = null, fadeOutSpec = null)) { onPick(p) } }
+                    item("all-title") { PickerSectionTitle(stringResource(R.string.picker_all, shown.size), Modifier.animateItem(fadeInSpec = fade, placementSpec = null, fadeOutSpec = null)) }
                 }
                 if (found.isEmpty()) item("none") {
                     Text(
@@ -255,17 +315,17 @@ internal fun ColumnScope.PlaylistRows(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                     )
                 }
-                items(found, key = { it.id }) { p -> PlaylistRow(p, provider, p.id == selectedId) { onPick(p) } }
+                items(found, key = { it.id }) { p -> PlaylistRow(p, provider, p.id == selectedId, Modifier.animateItem(fadeInSpec = fade, placementSpec = null, fadeOutSpec = null)) { onPick(p) } }
             }
         }
     }
 }
 
 @Composable
-private fun PickerSectionTitle(text: String) {
+private fun PickerSectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 8.dp, top = 10.dp, bottom = 4.dp).semantics { heading() },
+        modifier = modifier.padding(start = 8.dp, top = 10.dp, bottom = 4.dp).semantics { heading() },
     )
 }
 
@@ -294,13 +354,13 @@ internal fun PickerRow(title: String, onClick: () -> Unit, modifier: Modifier = 
 }
 
 @Composable
-private fun PlaylistRow(p: Playlist, provider: MusicProvider?, selected: Boolean, onClick: () -> Unit) {
+private fun PlaylistRow(p: Playlist, provider: MusicProvider?, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     // The heart is on the picture here, not in the name.
     val name = playlistDisplayName(p.id, p.name, provider?.id).removePrefix("\u2665 ")
     // What a list of a service without playlists is (Last.fm's loved, recent, most played).
     val note = p.description.takeIf { provider?.serviceId == com.xlollx.songport.providers.LastFmProvider.SERVICE && it.isNotBlank() }
     val count = p.trackCount.takeIf { it >= 0 }?.let { stringResource(R.string.tracks_count, it) }
-    PickerRow(name, onClick, subtitle = listOfNotNull(note, count).joinToString("\n"), selected = selected) {
+    PickerRow(name, onClick, modifier, subtitle = listOfNotNull(note, count).joinToString("\n"), selected = selected) {
         PlaylistThumb(p.name.ifBlank { name }, p.id, 48.dp, imageUrl = p.imageUrl)
     }
 }
@@ -344,11 +404,13 @@ internal fun PlaylistChoice(
         subtitle = if (selected != null) playlistWhere(provider, selected) else null, provider = provider.takeIf { selected != null },
         thumb = { PlaylistThumb(title, selected?.id, 48.dp, imageUrl = selected?.imageUrl) },
     )
-    if (open) PickerSheet(label, onDismiss = { open = false }) {
+    // The service is chosen on the page: one list, as high as it is long.
+    if (open) PickerSheet(label, onDismiss = { open = false }, tall = false) {
         PlaylistRows(
             items, null, provider, selected?.id, onPick = { onPick(it); open = false },
             recentIds = remember(provider?.id) { recentPlaylistIds(ctx, provider?.id) },
             first = first?.let { f -> { f { open = false } } },
+            fill = false,
         )
     }
 }

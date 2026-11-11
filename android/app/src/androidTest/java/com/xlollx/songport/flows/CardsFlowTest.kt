@@ -260,6 +260,7 @@ class CardsFlowTest : FlowTest() {
         assertEquals(expected.trackCount, w.trackCount)
         assertEquals(expected.topArtists, w.topArtists)
         val madeOn = s(R.string.discover_wrapped_made_on, DateFormat.getDateInstance(DateFormat.MEDIUM, app.resources.configuration.locales[0]).format(Date(w.madeAt)))
+        // The line goes on with where the numbers come from ("· From your playlists").
         waitText(madeOn, substring = true)
         waitText(s(R.string.card_share), ms = 30_000)
 
@@ -267,7 +268,7 @@ class CardsFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_DISCOVER))
         waitText(s(R.string.discover_wrapped_title))
         click(s(R.string.discover_wrapped_title))
-        waitText(madeOn, ms = 5_000, substring = true)
+        waitText(madeOn, substring = true, ms = 5_000)
         waitText(s(R.string.discover_wrapped_history))
         scrollTo(deezer()).assertIsNotSelected()
         assertTrue(exists(s(R.string.discover_wrapped_new)))
