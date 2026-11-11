@@ -28,8 +28,9 @@ import java.time.LocalDate
  * several nights (first and last on different days) is opened for its dates, at most [MAX_DETAILS]
  * an artist. Its robots.txt allows every agent everywhere.
  *
- * TicketOne is not read: its site answers browsers only, and the search API behind it
- * (public-api.eventim.com) is closed by its robots.txt to every agent but Google's.
+ * TicketOne is not read this way: its site answers browsers only, and the search API behind it
+ * (public-api.eventim.com) is closed by its robots.txt to every agent but Google's. Its normal web
+ * pages are read in a browser engine on the phone instead ([TicketOne]).
  */
 object Vivaticket {
     const val COUNTRY = "IT"

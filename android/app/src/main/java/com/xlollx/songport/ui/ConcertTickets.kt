@@ -10,13 +10,14 @@ import com.xlollx.songport.R
 import com.xlollx.songport.sync.Concerts
 
 /**
- * Concerts: where a date's tickets are. Vivaticket's dates come from its site, unofficially (only
- * the builds that allow unofficial sources read it), and say so.
+ * Concerts: where a date's tickets are. Vivaticket's and TicketOne's dates come from their sites,
+ * unofficially (only where unofficial sources are allowed), and say so.
  */
 @Composable
 internal fun ticketsLabel(source: Concerts.Source): String = when (source) {
     Concerts.Source.TICKETMASTER -> stringResource(R.string.concerts_on_ticketmaster)
     Concerts.Source.VIVATICKET -> stringResource(R.string.concerts_on_vivaticket)
+    Concerts.Source.TICKETONE -> stringResource(R.string.concerts_on_ticketone)
     else -> source.label
 }
 
@@ -32,9 +33,8 @@ internal fun AlsoOnLinks(e: Concerts.Event) {
 /** Under the results, when some dates come from an unofficial source: it may stop working. */
 @Composable
 internal fun UnofficialSourcesNote(r: Concerts.Result) {
-    val unofficial = r.artists.any { a -> a.events.any { e -> e.source.unofficial || e.alsoOn.any { it.source.unofficial } } }
-    if (unofficial) Text(
-        stringResource(R.string.concerts_sources_unofficial),
-        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    val used = r.artists.flatMap { a -> a.events.flatMap { e -> listOf(e.source) + e.alsoOn.map { it.source } } }.toSet()
+    listOf(Concerts.Source.VIVATICKET to R.string.concerts_sources_unofficial, Concerts.Source.TICKETONE to R.string.concerts_sources_ticketone).forEach { (source, note) ->
+        if (source in used) Text(stringResource(note), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }

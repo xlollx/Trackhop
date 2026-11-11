@@ -28,6 +28,8 @@ object BuiltIn {
         com.xlollx.songport.sync.TikTokShare.recognizer = PluginRelay.recognizer(app)
         // Concerts: Vivaticket's dates in Italy, read from its site (unofficial: never in the store builds).
         com.xlollx.songport.sync.Vivaticket.enabled = true
+        // and TicketOne's, its pages read in a WebView out of sight (unofficial too).
+        com.xlollx.songport.sync.TicketOne.reader = PluginRelay.ticketOneReader(app)
         AmazonCaptureActivity.forgetOld(app)
     }
 

@@ -32,6 +32,21 @@ object PluginRelay {
         com.xlollx.songport.sync.TikTokShare.gate = { capable(app) }
         Relay.via = { c -> withContext(Dispatchers.IO) { relay(app, c) } }
         com.xlollx.songport.sync.TikTokShare.recognizer = recognizer(app)
+        com.xlollx.songport.sync.TicketOne.gate = { capable(app) }
+        com.xlollx.songport.sync.TicketOne.reader = ticketOneReader(app)
+    }
+
+    /**
+     * Concerts in Italy: a TicketOne page read by the connectors' browser engine (in-process in the
+     * full build, the plugin's in the Play one), as the JSON the core reads its dates from. Null when
+     * the plugin is too old to know "ticketone.read"; its other errors fail the page.
+     */
+    fun ticketOneReader(app: Context): suspend (String) -> String? = { url ->
+        withContext(Dispatchers.IO) {
+            val b = BridgePlugin.call(app, "ticketone.read", url) ?: throw java.io.IOException("the page reader did not answer")
+            b.getString("error")?.let { if (it.startsWith("unknown method")) return@withContext null; throw java.io.IOException(it) }
+            b.getString("json")
+        }
     }
 
     /**

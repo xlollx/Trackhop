@@ -142,7 +142,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
             if (r.keyRefused) add(stringResource(R.string.concerts_key_refused))
             if (!r.ticketmaster) add(stringResource(R.string.concerts_no_key))
             if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
-            add(stringResource(if (Concerts.ticketOneGap(r.country)) R.string.concerts_coverage_it else R.string.concerts_coverage))
+            add(stringResource(if (Concerts.ticketOneGap(r.country) && !r.ticketOneRead) R.string.concerts_coverage_it else R.string.concerts_coverage))
         }
         Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

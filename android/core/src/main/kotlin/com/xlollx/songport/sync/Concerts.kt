@@ -15,9 +15,11 @@ import com.xlollx.songport.net.str
 import com.xlollx.songport.platform.BuildDefaults
 import com.xlollx.songport.platform.Env
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import java.net.URLEncoder
@@ -43,10 +45,11 @@ import java.util.Locale
  * [LookupCaps.CONCERTS] artists it holds most are looked up. MusicBrainz is free and keyless, one request a second (shared with
  * the rest of the app through [MusicBrainz.pace]); its places are looked up once to know their
  * city and country, and remembered for months. In Italy, where the unofficial sources are allowed,
- * Vivaticket's dates too ([Vivaticket], unofficial). A date several know is shown once: a ticket
+ * Vivaticket's dates too ([Vivaticket], unofficial), and on Android TicketOne's, read from its web
+ * pages in a browser engine on the phone ([TicketOne], unofficial). A date several know is shown once: a ticket
  * site's own (Ticketmaster's first), with the other ticket sites' links ([Event.alsoOn]). The artists
- * with no date found get search links to ticket sites ([searches]): links only, those pages are
- * never read.
+ * with no date found get search links to ticket sites ([searches]): links only, opened in the
+ * user's browser.
  */
 object Concerts {
     /** The user's own key, in the token vault ([ServiceKeys]). */
@@ -60,6 +63,7 @@ object Concerts {
     /** [unofficial]: read from the site's own web pages, not from an API offered to apps. */
     enum class Source(val label: String, val unofficial: Boolean = false) {
         TICKETMASTER("Ticketmaster"), MUSICBRAINZ("MusicBrainz"), VIVATICKET("Vivaticket", unofficial = true),
+        TICKETONE("TicketOne", unofficial = true),
     }
 
     /** Another ticket site selling the same date. */
@@ -118,6 +122,8 @@ object Concerts {
         /** Ticketmaster refused the key (401/403). */
         val keyRefused: Boolean,
         val range: Range = Range.ANY,
+        /** TicketOne's pages were read for every artist ([TicketOne]): its concerts are not missing. */
+        val ticketOneRead: Boolean = false,
     )
 
     // Tests point these at a local server and a fixed clock.
@@ -203,7 +209,10 @@ object Concerts {
         return sites.map { (s, u) -> Link(s, u) } + Link(null, "https://duckduckgo.com/?q=" + enc("$artist official site tour"))
     }
 
-    /** True when a known gap is worth saying for [country]: in Italy, the concerts sold only on TicketOne. */
+    /**
+     * True when a known gap is worth saying for [country]: in Italy, the concerts sold only on
+     * TicketOne (the app says it unless [Result.ticketOneRead]).
+     */
     fun ticketOneGap(country: String) = country.equals("IT", ignoreCase = true)
 
     /** When the day's calls are back: Ticketmaster's reset when it said one, for this key. */
@@ -240,12 +249,14 @@ object Concerts {
         val end = range.end(today)
         var quotaHit = key != null && now() < exhaustedUntil(env, key)
         var refused = false
+        var ticketOneRead = c == TicketOne.COUNTRY && withContext(Dispatchers.IO) { TicketOne.enabled }
         val out = ArrayList<ArtistDates>()
         list.forEachIndexed { i, artist ->
             progress(i, list.size)
-            val (tm, mb, vt) = coroutineScope {
+            val (tm, mb, sites) = coroutineScope {
                 val mb = async { musicBrainz(env, artist, c, today, end) }
                 val vt = async { Vivaticket.dates(env, artist, c, end) }
+                val t1 = async { TicketOne.dates(env, artist, c).also { if (it == null) ticketOneRead = false } }
                 val tm = if (key == null || quotaHit || refused) null else try {
                     ticketmaster(env, key, artist, c, end)
                 } catch (e: QuotaGone) {
@@ -253,15 +264,15 @@ object Concerts {
                 } catch (e: KeyRefused) {
                     refused = true; null
                 }
-                Triple(tm, mb.await(), vt.await())
+                Triple(tm, mb.await(), vt.await().orEmpty() + t1.await().orEmpty())
             }
-            val events = merge(tm.orEmpty(), mb.orEmpty(), vt.orEmpty()).filter { inRange(it, today, end) }
+            val events = merge(tm.orEmpty(), mb.orEmpty(), sites).filter { inRange(it, today, end) }
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
         }
         progress(list.size, list.size)
         if (quotaHit) env.log("concerts", "Ticketmaster: today's limit reached")
         val (dated, without) = out.partition { it.events.isNotEmpty() }
-        return Result(c, dated.sortedBy { it.events.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, key != null, own, quotaHit, refused, range)
+        return Result(c, dated.sortedBy { it.events.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead)
     }
 
     /** [e] is on [today] or after, and on [end] or before (no end = any later date). */
@@ -270,7 +281,7 @@ object Concerts {
 
     /**
      * One list for an artist: each source's own repeats gone; the same day in the same city (or a
-     * city one of them does not say) shown once. A ticket site's date ([sites]: Vivaticket's) joins
+     * city one of them does not say) shown once. A ticket site's date ([sites]: Vivaticket's, TicketOne's) joins
      * Ticketmaster's as one more link ([Event.alsoOn]); a MusicBrainz date is dropped when a ticket
      * site has it.
      */

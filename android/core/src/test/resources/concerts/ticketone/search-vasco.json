@@ -1,0 +1,10 @@
+{"v":1,"state":"ready","url":"https://www.ticketone.it/search/?searchterm=Vasco%20Rossi","title":"Risultati della ricerca | TicketOne",
+ "ld":[],
+ "cards":[
+  {"href":"https://www.ticketone.it/event/vasco-live-2027-stadio-san-siro-20001001/","title":"VASCO LIVE 2027","text":"VASCO LIVE 2027\nVasco Rossi\nven, 04/06/2027\n21:00\nStadio San Siro\nMILANO\nda 69,00 €\nBiglietti","time":"","img":"https://www.ticketone.it/obj/media/IT-eventim/teaser/222x222/2026/vasco.jpg"},
+  {"href":"https://www.ticketone.it/event/vasco-live-2027-bari-20001003/","title":"VASCO LIVE 2027","text":"VASCO LIVE 2027\nVasco Rossi\nStadio San Nicola\nBari\nBiglietti","time":"2027-06-12T21:00","img":""},
+  {"href":"https://www.ticketone.it/event/vasco-live-2027-ancona-20001007/","title":"VASCO LIVE 2027","text":"VASCO LIVE 2027\nVasco Rossi\n19 giu 2027 ore 20.45\nStadio del Conero\nAncona\nAcquista","time":"","img":""},
+  {"href":"https://www.ticketone.it/event/ligabue-20001008/","title":"LIGABUE IN CONCERTO","text":"LIGABUE IN CONCERTO\n02/07/2027\nRCF Arena\nReggio Emilia","time":"","img":""},
+  {"href":"https://www.example.com/event/vasco-20001009/","title":"VASCO LIVE 2027","text":"VASCO LIVE 2027\nVasco Rossi\n03/07/2027","time":"","img":""}
+ ],
+ "artists":[{"href":"https://www.ticketone.it/artist/vasco-rossi/","text":"Vasco Rossi"}]}

@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Written for the tests from how an artist page of ticketone.it (an Eventim site) is assumed to
+     look: its dates as schema.org JSON-LD in the page. Trimmed; not a recording of the real page. -->
+<html lang="it">
+<head>
+<title>Biglietti Vasco Rossi | TicketOne</title>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.ticketone.it/"}]}
+</script>
+<script type="application/ld+json">
+[
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027","startDate":"2027-06-04T21:00:00+02:00",
+  "eventStatus":"https://schema.org/EventScheduled",
+  "url":"https://www.ticketone.it/event/vasco-live-2027-stadio-san-siro-20001001/",
+  "image":["https://www.ticketone.it/obj/media/IT-eventim/teaser/222x222/2026/vasco.jpg"],
+  "location":{"@type":"Place","name":"Stadio San Siro","address":{"@type":"PostalAddress","addressLocality":"MILANO","addressCountry":"IT"}},
+  "performer":[{"@type":"MusicGroup","name":"Vasco Rossi"}],
+  "offers":{"@type":"Offer","url":"https://www.ticketone.it/event/vasco-live-2027-stadio-san-siro-20001001/","priceCurrency":"EUR"}},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027","startDate":"2027-06-05T21:00:00+02:00",
+  "url":"https://www.ticketone.it/event/vasco-live-2027-stadio-san-siro-20001002/",
+  "location":{"@type":"Place","name":"Stadio San Siro","address":{"@type":"PostalAddress","addressLocality":"MILANO","addressCountry":{"@type":"Country","name":"Italia"}}},
+  "performer":{"@type":"Person","name":"Vasco Rossi"}},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027","startDate":"2027-06-12",
+  "url":"https://www.ticketone.it/event/vasco-live-2027-bari-20001003/",
+  "image":{"@type":"ImageObject","url":"https://www.ticketone.it/obj/media/IT-eventim/teaser/222x222/2026/vasco-bari.jpg"},
+  "location":[{"@type":"Place","name":"Stadio San Nicola","address":{"@type":"PostalAddress","addressLocality":"Bari","addressCountry":"IT"}}],
+  "performer":[{"@type":"Person","name":"Vasco Rossi"}]},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027 - Lugano","startDate":"2027-06-20T21:00:00+02:00",
+  "url":"https://www.ticketone.it/event/vasco-live-2027-lugano-20001004/",
+  "location":{"@type":"Place","name":"Stadio di Cornaredo","address":{"@type":"PostalAddress","addressLocality":"Lugano","addressCountry":"CH"}},
+  "performer":[{"@type":"Person","name":"Vasco Rossi"}]},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027","startDate":"2027-06-24T21:00:00+02:00",
+  "eventStatus":"https://schema.org/EventCancelled",
+  "url":"https://www.ticketone.it/event/vasco-live-2027-roma-20001005/",
+  "location":{"@type":"Place","name":"Circo Massimo","address":{"@type":"PostalAddress","addressLocality":"Roma","addressCountry":"IT"}},
+  "performer":[{"@type":"Person","name":"Vasco Rossi"}]},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"Tributo a Vasco - Siamo Solo Noi","startDate":"2027-01-15T21:30:00+01:00",
+  "url":"https://www.ticketone.it/event/siamo-solo-noi-tributo-vasco-20001006/",
+  "location":{"@type":"Place","name":"Alcatraz","address":{"@type":"PostalAddress","addressLocality":"Milano","addressCountry":"IT"}},
+  "performer":[{"@type":"MusicGroup","name":"Siamo Solo Noi"}]},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2026","startDate":"2026-06-04T21:00:00+02:00",
+  "url":"https://www.ticketone.it/event/vasco-live-2026-20000001/",
+  "location":{"@type":"Place","name":"Stadio San Siro","address":{"@type":"PostalAddress","addressLocality":"Milano","addressCountry":"IT"}},
+  "performer":[{"@type":"Person","name":"Vasco Rossi"}]},
+ {"@context":"https://schema.org","@type":"MusicEvent","name":"VASCO LIVE 2027","startDate":"2027-07-01T21:00:00+02:00",
+  "url":"javascript:alert(1)",
+  "location":{"@type":"Place","name":"Arena della Vittoria","address":{"@type":"PostalAddress","addressLocality":"Bari","addressCountry":"IT"}},
+  "performer":[{"@type":"Person","name":"Vasco Rossi"}]}
+]
+</script>
+</head>
+<body><h1>Vasco Rossi</h1></body>
+</html>
