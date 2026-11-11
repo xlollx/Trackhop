@@ -94,7 +94,7 @@ object Concerts {
     @Volatile internal var now: () -> Long = { System.currentTimeMillis() }
     @Volatile internal var zone: () -> ZoneId = { ZoneId.systemDefault() }
     /** Under Ticketmaster's 5 a second, for the whole process. */
-    @Volatile var tmPace = Pacer(220)
+    @Volatile var tmPace = Pacer(550) // the FAQ says 2 a second (the API page 5): the lower one
         internal set
 
     private const val CACHE = "concerts"
