@@ -19,6 +19,11 @@ object Matcher {
     const val EXISTING_THRESHOLD = 0.82
     /** Sotto questo punteggio l'abbinamento viene accettato ma segnalato "da verificare". */
     const val REVIEW_THRESHOLD = 0.86
+    /**
+     * Raised whenever matching or searching changes so that a track missed before may be found now:
+     * the misses remembered under another revision are searched again on the next run (#57).
+     */
+    const val REVISION = 1
 
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",

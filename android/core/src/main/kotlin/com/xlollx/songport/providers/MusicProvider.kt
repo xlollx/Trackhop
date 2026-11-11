@@ -150,6 +150,11 @@ interface MusicProvider {
     val notConfiguredName: String? get() = null
     /** True se [search] usa l'ISRC del brano quando c'e' (Spotify, Apple Music, TIDAL, Deezer): vale la pena procurarglielo. */
     val searchesByIsrc: Boolean get() = false
+    /**
+     * True when [search] asks the service for the title alone and leaves the artists to the scoring
+     * (Jellyfin, Emby, Plex): asking again with other artists would only repeat the same requests.
+     */
+    val searchesTitleOnly: Boolean get() = false
     /** Ricerche in parallelo tollerate dal servizio (1 per le interfacce web non ufficiali, che bloccano le raffiche). */
     val searchParallelism: Int get() = 4
     /**

@@ -161,6 +161,8 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         }
     }
 
+    override val searchesTitleOnly: Boolean get() = true
+
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         when (track.kind) {
             // Jellyfin's search term matches names: the album title alone finds the album, the artist filters after.
