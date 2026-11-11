@@ -2242,4 +2242,16 @@
     <string name="discover_move_later">Sposta dopo</string>
     <string name="discover_order_hint">Tieni premuta una scheda e trascinala per cambiare l’ordine.</string>
     <string name="discover_order_reset">Ripristina ordine</string>
+    <string name="shared_empty_title">Condividi una playlist con il tuo gruppo</string>
+    <string name="shared_empty_copy">Ognuno tiene la sua copia, sul suo servizio.</string>
+    <string name="shared_empty_meet">Le modifiche passano da una cartella condivisa, da un canale ntfy cifrato o dal tuo server Trackhop.</string>
+    <string name="shared_empty_invite">Basta un link di invito: nessun account.</string>
+    <string name="shared_how">Come funziona</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Cifrato, tramite ntfy.sh o un tuo server</string>
+    <string name="shared_via_server_short">Il tuo server, %1$s</string>
+    <string name="shared_missing">Manca ancora: %1$s</string>
+    <string name="shared_join_secret">Chi ha questo invito può leggere il gruppo: non inoltrarlo.</string>
+    <string name="shared_link_hint">Incolla il link che ti hanno mandato, o aprilo dal messaggio.</string>
+    <string name="shared_code_label">Codice del gruppo</string>
 </resources>

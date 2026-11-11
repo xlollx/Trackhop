@@ -2322,4 +2322,16 @@
     <string name="discover_move_later">Przesuń dalej</string>
     <string name="discover_order_hint">Przytrzymaj kartę i przeciągnij ją, aby zmienić kolejność.</string>
     <string name="discover_order_reset">Przywróć kolejność</string>
+    <string name="shared_empty_title">Udostępnij playlistę swojej grupie</string>
+    <string name="shared_empty_copy">Każdy ma własną kopię, w swoim serwisie.</string>
+    <string name="shared_empty_meet">Zmiany przechodzą przez udostępniony folder, szyfrowany kanał ntfy albo twój serwer Trackhop.</string>
+    <string name="shared_empty_invite">Wystarczy link z zaproszeniem: bez konta.</string>
+    <string name="shared_how">Jak to działa</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Szyfrowane, przez ntfy.sh lub twój własny serwer</string>
+    <string name="shared_via_server_short">Twój serwer, %1$s</string>
+    <string name="shared_missing">Jeszcze brakuje: %1$s</string>
+    <string name="shared_join_secret">Każdy, kto ma to zaproszenie, może czytać grupę: nie przekazuj go dalej.</string>
+    <string name="shared_link_hint">Wklej otrzymany link albo otwórz go z wiadomości.</string>
+    <string name="shared_code_label">Kod grupy</string>
 </resources>

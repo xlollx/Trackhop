@@ -2203,4 +2203,16 @@
     <string name="discover_move_later">后移</string>
     <string name="discover_order_hint">按住卡片并拖动即可调整顺序。</string>
     <string name="discover_order_reset">恢复默认顺序</string>
+    <string name="shared_empty_title">与你的群组共享播放列表</string>
+    <string name="shared_empty_copy">每个人在自己的服务上保留自己的副本。</string>
+    <string name="shared_empty_meet">更改通过共享文件夹、加密的 ntfy 频道或你的 Trackhop 服务器传递。</string>
+    <string name="shared_empty_invite">只需一个邀请链接，无需账号。</string>
+    <string name="shared_how">工作原理</string>
+    <string name="shared_via_folder_short">Google Drive、Nextcloud、Dropbox、Syncthing</string>
+    <string name="shared_via_ntfy_short">加密，经由 ntfy.sh 或你自己的服务器</string>
+    <string name="shared_via_server_short">你的服务器：%1$s</string>
+    <string name="shared_missing">还需要：%1$s</string>
+    <string name="shared_join_secret">任何拿到此邀请的人都能读取该群组：请勿转发。</string>
+    <string name="shared_link_hint">粘贴收到的链接，或从消息中打开它。</string>
+    <string name="shared_code_label">群组代码</string>
 </resources>

@@ -2320,4 +2320,16 @@
     <string name="discover_move_later">Переместить позже</string>
     <string name="discover_order_hint">Удерживайте карточку и перетащите её, чтобы изменить порядок.</string>
     <string name="discover_order_reset">Сбросить порядок</string>
+    <string name="shared_empty_title">Поделитесь плейлистом с группой</string>
+    <string name="shared_empty_copy">У каждого своя копия, в своём сервисе.</string>
+    <string name="shared_empty_meet">Изменения идут через общую папку, зашифрованный канал ntfy или ваш сервер Trackhop.</string>
+    <string name="shared_empty_invite">Достаточно ссылки-приглашения: без аккаунта.</string>
+    <string name="shared_how">Как это работает</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Зашифровано, через ntfy.sh или ваш сервер</string>
+    <string name="shared_via_server_short">Ваш сервер, %1$s</string>
+    <string name="shared_missing">Ещё нужно: %1$s</string>
+    <string name="shared_join_secret">Любой, у кого есть это приглашение, может читать группу: не пересылайте его.</string>
+    <string name="shared_link_hint">Вставьте присланную ссылку или откройте её из сообщения.</string>
+    <string name="shared_code_label">Код группы</string>
 </resources>

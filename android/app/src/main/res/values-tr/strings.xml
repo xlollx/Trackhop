@@ -2240,4 +2240,16 @@
     <string name="discover_move_later">Sona taşı</string>
     <string name="discover_order_hint">Sırayı değiştirmek için bir karta basılı tut ve sürükle.</string>
     <string name="discover_order_reset">Sırayı sıfırla</string>
+    <string name="shared_empty_title">Grubunuzla bir çalma listesi paylaşın</string>
+    <string name="shared_empty_copy">Herkes kendi kopyasını kendi servisinde tutar.</string>
+    <string name="shared_empty_meet">Değişiklikler paylaşılan bir klasör, şifreli bir ntfy kanalı veya Trackhop sunucunuz üzerinden gider.</string>
+    <string name="shared_empty_invite">Bir davet bağlantısı yeterli: hesap yok.</string>
+    <string name="shared_how">Nasıl çalışır</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Şifreli, ntfy.sh veya kendi sunucunuz üzerinden</string>
+    <string name="shared_via_server_short">Sunucunuz, %1$s</string>
+    <string name="shared_missing">Eksik: %1$s</string>
+    <string name="shared_join_secret">Bu daveti olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
+    <string name="shared_link_hint">Size gönderilen bağlantıyı yapıştırın veya mesajdan açın.</string>
+    <string name="shared_code_label">Grup kodu</string>
 </resources>

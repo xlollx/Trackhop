@@ -2250,4 +2250,16 @@
     <string name="discover_move_later">Déplacer après</string>
     <string name="discover_order_hint">Maintiens une carte et fais-la glisser pour changer l’ordre.</string>
     <string name="discover_order_reset">Rétablir l’ordre</string>
+    <string name="shared_empty_title">Partage une playlist avec ton groupe</string>
+    <string name="shared_empty_copy">Chacun garde sa propre copie, sur son propre service.</string>
+    <string name="shared_empty_meet">Les modifications passent par un dossier partagé, un canal ntfy chiffré ou ton serveur Trackhop.</string>
+    <string name="shared_empty_invite">Un lien d\'invitation suffit : pas de compte.</string>
+    <string name="shared_how">Comment ça marche</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Chiffré, via ntfy.sh ou ton propre serveur</string>
+    <string name="shared_via_server_short">Ton serveur, %1$s</string>
+    <string name="shared_missing">Il manque encore : %1$s</string>
+    <string name="shared_join_secret">Quiconque a cette invitation peut lire le groupe : ne la transmets pas.</string>
+    <string name="shared_link_hint">Colle le lien que tu as reçu, ou ouvre-le depuis le message.</string>
+    <string name="shared_code_label">Code du groupe</string>
 </resources>

@@ -2243,4 +2243,16 @@
     <string name="discover_move_later">Move later</string>
     <string name="discover_order_hint">Hold a card and drag it to change the order.</string>
     <string name="discover_order_reset">Reset order</string>
+    <string name="shared_empty_title">Share a playlist with your group</string>
+    <string name="shared_empty_copy">Everyone keeps their own copy, on their own service.</string>
+    <string name="shared_empty_meet">Changes travel through a shared folder, an encrypted ntfy channel or your Trackhop server.</string>
+    <string name="shared_empty_invite">An invite link is all it takes: no account.</string>
+    <string name="shared_how">How it works</string>
+    <string name="shared_via_folder_short">Google Drive, Nextcloud, Dropbox, Syncthing</string>
+    <string name="shared_via_ntfy_short">Encrypted, through ntfy.sh or your own server</string>
+    <string name="shared_via_server_short">Your server, %1$s</string>
+    <string name="shared_missing">Still needed: %1$s</string>
+    <string name="shared_join_secret">Anyone with this invite can read the group: don\'t pass it on.</string>
+    <string name="shared_link_hint">Paste the link you were sent, or open it from the message.</string>
+    <string name="shared_code_label">Group code</string>
 </resources>

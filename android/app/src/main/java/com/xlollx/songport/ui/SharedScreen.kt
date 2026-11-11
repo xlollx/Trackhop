@@ -1,6 +1,34 @@
 package com.xlollx.songport.ui
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.width
 import android.content.Intent
 import android.net.Uri
@@ -210,23 +238,133 @@ fun SharedScreen(onClose: () -> Unit) {
 
 @Composable
 private fun GroupList(groups: List<SharedGroup>, onOpen: (String) -> Unit, onCreate: () -> Unit, onJoin: () -> Unit) {
-    val ctx = LocalContext.current
-    Text(stringResource(R.string.shared_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (groups.isEmpty()) {
+        SharedEmptyState(onCreate, onJoin)
+        return
+    }
     // Side by side when they fit, one under the other when not: a label never breaks inside its button.
     androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(onClick = onCreate) { Icon(Icons.Filled.GroupAdd, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_create), maxLines = 1, softWrap = false) }
-        OutlinedButton(onClick = onJoin) { Icon(Icons.Filled.Link, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_join), maxLines = 1, softWrap = false) }
+        Button(onClick = onCreate, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Filled.GroupAdd, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_create), maxLines = 1, softWrap = false) }
+        OutlinedButton(onClick = onJoin, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Filled.Link, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_join), maxLines = 1, softWrap = false) }
     }
-    if (groups.isNotEmpty()) PrefSection(stringResource(R.string.shared_title), accent = JobColor.PINK) {
-        for (g in groups) {
-            val st = remember(g.id) { SharedGroups.load(ctx.env, g.id) }
-            val curator = SharedGroups.role(g, st) == SharedGroups.Role.CURATOR
-            val count = SharedGroups.members(g, st).count { !it.left }
-            PrefRow(
-                Icons.Filled.Groups, g.name,
-                stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower) + " · " +
-                    pluralStringResource(R.plurals.shared_members_n, count, count) + " · " + g.folderName,
-            ) { onOpen(g.id) }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        for (g in groups) GroupCard(g) { onOpen(g.id) }
+        HowItWorks()
+    }
+}
+
+/** No group yet: what a shared playlist is, in three lines, and the two ways in. */
+@Composable
+private fun SharedEmptyState(onCreate: () -> Unit, onJoin: () -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(96.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+            Icon(Icons.Filled.Groups, null, Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+        Spacer(Modifier.height(20.dp))
+        Text(
+            stringResource(R.string.shared_empty_title), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center,
+            modifier = Modifier.semantics { heading() },
+        )
+        Spacer(Modifier.height(20.dp))
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            EmptyPoint(Icons.Filled.LibraryMusic, stringResource(R.string.shared_empty_copy))
+            EmptyPoint(Icons.Filled.Sync, stringResource(R.string.shared_empty_meet))
+            EmptyPoint(Icons.Filled.Link, stringResource(R.string.shared_empty_invite))
+        }
+        Spacer(Modifier.height(28.dp))
+        Button(onClick = onCreate, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Icon(Icons.Filled.GroupAdd, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_create))
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onJoin, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Icon(Icons.Filled.Link, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_join))
+        }
+    }
+}
+
+@Composable
+private fun EmptyPoint(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        PrefIcon(icon)
+        Spacer(Modifier.width(16.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+    }
+}
+
+/** The longer explanation, folded under the groups: they already know the basics. */
+@Composable
+private fun HowItWorks() {
+    var open by rememberSaveable { mutableStateOf(false) }
+    Column {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(MaterialTheme.shapes.medium)
+                .toggleable(open, role = Role.Button) { open = it }.padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.AutoMirrored.Filled.HelpOutline, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(R.string.shared_how), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+            Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.primary)
+        }
+        AnimatedVisibility(open) {
+            Text(
+                stringResource(R.string.shared_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp),
+            )
+        }
+    }
+}
+
+/** When the group last synced here (either way), and whether that run failed. */
+private data class GroupRuns(val last: Long, val failed: Boolean)
+
+@Composable
+private fun groupRuns(g: SharedGroup): GroupRuns {
+    val data by Store.get(LocalContext.current).state.collectAsState()
+    val jobs = data.jobs.filter { it.id == g.jobId || it.id == g.twinId }
+    val failed = jobs.any { j -> data.reports.firstOrNull { it.id == j.lastReportId }?.ok == false }
+    return GroupRuns(jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L, failed)
+}
+
+/** One group in the list: its name, this member's role, how it meets, how many are in it, the last sync, a warning when that failed. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun GroupCard(g: SharedGroup, onOpen: () -> Unit) {
+    val ctx = LocalContext.current
+    val st = remember(g.id) { SharedGroups.load(ctx.env, g.id) }
+    val curator = SharedGroups.role(g, st) == SharedGroups.Role.CURATOR
+    val count = SharedGroups.members(g, st).count { !it.left }
+    val runs = groupRuns(g)
+    val dark = LocalAppDark.current
+    androidx.compose.material3.Card(
+        onClick = onOpen,
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = if (dark) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = if (dark) 0.dp else 1.dp),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            PrefIcon(transportIcon(g.transport))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(g.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    StatusPill(stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower), if (curator) Tone.Accent else Tone.Neutral)
+                    if (runs.failed) StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+                }
+                Text(
+                    listOf(
+                        transportLabel(g.transport),
+                        pluralStringResource(R.plurals.shared_members_n, count, count),
+                        if (runs.last > 0) stringResource(R.string.pill_last_run, relativeTime(runs.last)) else stringResource(R.string.last_run_never),
+                    ).joinToString(" · "),
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.Filled.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -238,24 +376,88 @@ private fun writableServices(ctx: android.content.Context, needsCreate: Boolean)
             (!needsCreate || it.canCreatePlaylists)
     }
 
+/** The service a member listens on, as a dropdown with each service's mark. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FolderField(name: String, onPick: () -> Unit) {
-    Column {
-        Text(stringResource(R.string.shared_folder), style = MaterialTheme.typography.labelLarge)
-        Text(name.ifBlank { stringResource(R.string.shared_folder_none) }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        TextButton(onClick = onPick) { Icon(Icons.Filled.Folder, null, Modifier.size(18.dp)); Text("  " + stringResource(R.string.shared_folder_pick)) }
+private fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvider?, onSelect: (String) -> Unit) {
+    val ctx = LocalContext.current
+    var open by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && services.isNotEmpty() }) {
+        OutlinedTextField(
+            value = selected?.label(ctx.env).orEmpty(), onValueChange = {}, readOnly = true, singleLine = true, enabled = services.isNotEmpty(),
+            label = { Text(stringResource(R.string.shared_service)) },
+            leadingIcon = selected?.let { p -> { ServiceLogo(p, 24.dp) } },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(open) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            for (p in services) DropdownMenuItem(
+                text = { Text(p.label(ctx.env)) },
+                leadingIcon = { ServiceLogo(p, 24.dp) },
+                onClick = { open = false; onSelect(p.id) },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+            )
+        }
     }
 }
 
+/**
+ * The playlist a new group starts from, as the sync editor's picker: the user's own playlists on
+ * the chosen service and, first, a new one named after the group ([canCreate]). [lists] null: loading.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChoiceField(label: String, value: String?, enabled: Boolean = true, onClick: () -> Unit) {
-    Column {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-        TextButton(onClick = onClick, enabled = enabled) { Text(value ?: "—") }
+private fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit, onSelect: (Playlist) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && lists != null }) {
+        OutlinedTextField(
+            value = when {
+                makeNew -> stringResource(R.string.shared_new_playlist)
+                else -> selected?.name.orEmpty()
+            },
+            onValueChange = {}, readOnly = true, singleLine = true, enabled = lists != null,
+            label = { Text(stringResource(R.string.shared_playlist)) },
+            placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
+            leadingIcon = { Icon(if (makeNew) Icons.AutoMirrored.Filled.PlaylistAdd else Icons.AutoMirrored.Filled.QueueMusic, null) },
+            trailingIcon = {
+                if (lists == null) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                else ExposedDropdownMenuDefaults.TrailingIcon(open)
+            },
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            if (canCreate) DropdownMenuItem(
+                text = { Text(stringResource(R.string.shared_new_playlist)) },
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null) },
+                onClick = { open = false; onNew() },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+            )
+            for (p in lists.orEmpty()) DropdownMenuItem(
+                text = {
+                    Column {
+                        Text(p.name)
+                        if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                },
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.QueueMusic, null) },
+                onClick = { open = false; onSelect(p) },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+            )
+        }
     }
 }
 
-/** A new group: its name, the user's playlist it starts from, their name, the shared folder. */
+/** Under a form whose button is still off: what it waits for, by the fields' names. */
+@Composable
+private fun MissingNote(missing: List<String>) {
+    if (missing.isEmpty()) return
+    Text(
+        stringResource(R.string.shared_missing, missing.joinToString(", ")),
+        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+/** A new group: its name, the user's playlist it starts from (or a new one), their name, how it meets. */
 @Composable
 private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> Unit, onDone: (SharedGroup) -> Unit) {
     val ctx = LocalContext.current
@@ -265,8 +467,9 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
     var myName by rememberSaveable { mutableStateOf("") }
     var serviceId by rememberSaveable { mutableStateOf(from?.local?.provider ?: services.firstOrNull()?.id) }
     var playlist by remember { mutableStateOf(from?.local?.takeIf { it.playlistId != null }?.let { Playlist(it.playlistId!!, it.playlistName) }) }
+    // A new playlist on the service, named after the group, made when the group is.
+    var makeNew by rememberSaveable { mutableStateOf(false) }
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
-    var choosing by remember { mutableStateOf<String?>(null) }
     var folder by rememberSaveable { mutableStateOf<String?>(null) }
     var folderName by rememberSaveable { mutableStateOf("") }
     var transport by rememberSaveable { mutableStateOf(Invite.FOLDER) }
@@ -278,50 +481,60 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
     var error by remember { mutableStateOf<String?>(null) }
     val pick = rememberFolderPicker { uri, n -> folder = uri.toString(); folderName = n }
     val service = serviceId?.let { Providers.byId(it) }
+    val canCreate = service?.canCreatePlaylists == true
     LaunchedEffect(serviceId) {
         lists = null
         val p = service ?: return@LaunchedEffect
         lists = withContext(Dispatchers.IO) { runCatching { p.playlists(ctx.env).filter { it.ownedByMe } }.getOrDefault(emptyList()) }
     }
-    when (choosing) {
-        "service" -> ChoiceDialog(stringResource(R.string.shared_service), services.map { it.id to it.label(ctx.env) }, serviceId, onDismiss = { choosing = null }) {
-            choosing = null; if (it != serviceId) { serviceId = it; playlist = null }
-        }
-        "playlist" -> ChoiceDialog(stringResource(R.string.shared_playlist), lists.orEmpty().map { it to it.name }, playlist, onDismiss = { choosing = null }) {
-            choosing = null; playlist = it; if (name.isBlank()) name = it.name
-        }
-    }
+    val missing = listOfNotNull(
+        stringResource(R.string.shared_name).takeIf { name.isBlank() },
+        stringResource(R.string.shared_your_name).takeIf { myName.isBlank() },
+        stringResource(R.string.shared_service).takeIf { service == null },
+        stringResource(R.string.shared_playlist).takeIf { service != null && playlist == null && !makeNew },
+        when (transport) {
+            Invite.NTFY -> when {
+                !NtfyServer.valid(server) -> stringResource(R.string.shared_ntfy_server)
+                !signIn.ready -> stringResource(R.string.shared_ntfy_signin_change)
+                else -> null
+            }
+            Invite.SERVER -> null
+            else -> stringResource(R.string.shared_folder).takeIf { folder == null }
+        },
+    )
     FitDialog(
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(stringResource(R.string.shared_create)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (services.isEmpty()) Text(stringResource(R.string.shared_no_services))
+                if (services.isEmpty()) Text(stringResource(R.string.shared_no_services), color = MaterialTheme.colorScheme.error)
                 OutlinedTextField(name, { name = it.take(Invite.MAX_NAME) }, label = { Text(stringResource(R.string.shared_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = "service" }
-                ChoiceField(stringResource(R.string.shared_playlist), playlist?.name, enabled = lists != null) { choosing = "playlist" }
-                TransportChoice(transport, { transport = it }, server, { server = it }, myServer?.let { NtfyServer.hostOf(it) }, signIn)
-                if (transport == Invite.FOLDER) FolderField(folderName) { pick.launch(null) }
+                ServiceDropdown(services, service) { if (it != serviceId) { serviceId = it; playlist = null; makeNew = false } }
+                if (service != null) PlaylistDropdown(lists, playlist, makeNew, canCreate, onNew = { makeNew = true; playlist = null }) {
+                    makeNew = false; playlist = it; if (name.isBlank()) name = it.name
+                }
+                TransportChoice(transport, { transport = it }, server, { server = it }, myServer?.let { NtfyServer.hostOf(it) }, signIn) {
+                    FolderPicker(folderName) { pick.launch(null) }
+                }
+                if (busy) CircularProgressIndicator(Modifier.size(24.dp))
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                if (!busy) MissingNote(missing)
             }
         },
         confirmButton = {
             TextButton(
-                enabled = !busy && name.isNotBlank() && myName.isNotBlank() && service != null && playlist != null &&
-                    when (transport) {
-                        Invite.NTFY -> NtfyServer.valid(server) && signIn.ready
-                        Invite.SERVER -> myServer != null
-                        else -> folder != null
-                    },
+                enabled = !busy && missing.isEmpty() && (transport != Invite.SERVER || myServer != null),
                 onClick = {
                     val p = service ?: return@TextButton
-                    val pl = playlist ?: return@TextButton
+                    val pl = playlist
+                    if (pl == null && !makeNew) return@TextButton
                     busy = true; error = null
                     scope.launch {
                         val made = withContext(Dispatchers.IO) {
                             runCatching {
-                                val local = PlaylistRef(p.id, pl.id, pl.name)
+                                val local = if (pl != null) PlaylistRef(p.id, pl.id, pl.name)
+                                else p.createPlaylist(ctx.env, name, MusicProvider.description(ctx.getString(R.string.app_name))).let { PlaylistRef(p.id, it.id, it.name) }
                                 when (transport) {
                                     Invite.NTFY -> SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY, signIn.auth)
                                     Invite.SERVER -> SharedGroups.create(ctx.env, name, myServer!!, NtfyServer.hostOf(myServer), myName, p.displayName, local, Invite.SERVER)
@@ -339,17 +552,21 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
     )
 }
 
-/** Joining: the invite link, the service the member listens on (a new playlist there), their name, the shared folder. */
+/**
+ * Joining: the invite link (pasted, or opened from a message). Until it reads as an invite nothing
+ * else shows; then what it says (the group, how it meets, the code) and only what that way needs:
+ * the member's name and service (a new playlist there), the shared folder, a sign-in.
+ */
 @Composable
 private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (SharedGroup, Int) -> Unit, onDone: (SharedGroup, Boolean) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     val services = remember { writableServices(ctx, needsCreate = true) }
     // A new invite opened while the form shows replaces the one in it.
     var link by rememberSaveable(initial) { mutableStateOf(initial) }
     var myName by rememberSaveable { mutableStateOf("") }
     var serviceId by rememberSaveable { mutableStateOf(services.firstOrNull()?.id) }
-    var choosing by remember { mutableStateOf(false) }
     var folder by rememberSaveable { mutableStateOf<String?>(null) }
     var folderName by rememberSaveable { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
@@ -363,46 +580,62 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
     // A new invite of a group this device is in, on another ntfy server (it moved): only the server changes.
     val move = remember(link) { invite?.let { SharedGroups.moved(ctx.env, it) } }
     val service = serviceId?.let { Providers.byId(it) }
-    if (choosing) ChoiceDialog(stringResource(R.string.shared_service), services.map { it.id to it.label(ctx.env) }, serviceId, onDismiss = { choosing = false }) {
-        choosing = false; serviceId = it
+    val asksSignIn = invite?.transport == Invite.NTFY && invite.signIn && rekey == null
+    val missing = when {
+        invite == null || rekey != null -> emptyList()
+        move != null -> listOfNotNull(stringResource(R.string.shared_ntfy_signin_change).takeIf { !signIn.ready })
+        else -> listOfNotNull(
+            stringResource(R.string.shared_your_name).takeIf { myName.isBlank() },
+            stringResource(R.string.shared_service).takeIf { service == null },
+            stringResource(R.string.shared_folder).takeIf { invite.transport == Invite.FOLDER && folder == null },
+            stringResource(R.string.shared_ntfy_signin_change).takeIf { invite.transport == Invite.NTFY && !signIn.ready },
+        )
     }
     FitDialog(
         onDismissRequest = { if (!busy) onDismiss() },
-        title = { Text(invite?.name ?: stringResource(R.string.shared_join)) },
+        title = { Text(stringResource(R.string.shared_join)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (services.isEmpty()) Text(stringResource(R.string.shared_no_services))
+                val bad = link.isNotBlank() && invite == null
                 OutlinedTextField(
                     link, { link = it.trim() }, label = { Text(stringResource(R.string.shared_link)) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
-                    isError = link.isNotBlank() && invite == null,
-                    supportingText = if (link.isNotBlank() && invite == null) { { Text(stringResource(R.string.shared_link_invalid)) } } else null,
+                    isError = bad,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                    trailingIcon = {
+                        IconButton(onClick = { clipboard.getText()?.text?.trim()?.takeIf { it.isNotEmpty() }?.let { link = it } }) {
+                            Icon(Icons.Filled.ContentPaste, stringResource(R.string.lastfm_key_paste))
+                        }
+                    },
+                    supportingText = when {
+                        bad -> { { Text(stringResource(R.string.shared_link_invalid)) } }
+                        link.isBlank() -> { { Text(stringResource(R.string.shared_link_hint)) } }
+                        else -> null
+                    },
                 )
-                // A link changed on its way would make its maker the group's creator here: the code says whose group it is.
-                if (invite != null) Column {
-                    Text(stringResource(R.string.shared_code, invite.code), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                    Text(stringResource(R.string.shared_code_check), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                if (rekey != null) Text(stringResource(R.string.shared_key_new_invite, rekey.name), style = MaterialTheme.typography.bodyMedium)
-                else if (move != null) Text(stringResource(R.string.shared_server_new_invite, move.name, NtfyServer.hostOf(invite!!.server)), style = MaterialTheme.typography.bodyMedium)
-                else {
-                    OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    ChoiceField(stringResource(R.string.shared_service), service?.label(ctx.env), enabled = services.isNotEmpty()) { choosing = true }
-                    Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                when (invite?.transport) {
-                    Invite.NTFY -> {
-                        InviteSecretNote(stringResource(R.string.shared_join_ntfy, NtfyServer.hostOf(invite.server)))
-                        if (rekey == null) NtfySignInFields(signIn)
+                if (invite != null) {
+                    InviteSummary(invite)
+                    if (rekey != null) Text(stringResource(R.string.shared_key_new_invite, rekey.name), style = MaterialTheme.typography.bodyMedium)
+                    else if (move != null) Text(stringResource(R.string.shared_server_new_invite, move.name, NtfyServer.hostOf(invite.server)), style = MaterialTheme.typography.bodyMedium)
+                    else {
+                        if (services.isEmpty()) Text(stringResource(R.string.shared_no_services), color = MaterialTheme.colorScheme.error)
+                        OutlinedTextField(myName, { myName = it.take(40) }, label = { Text(stringResource(R.string.shared_your_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        ServiceDropdown(services, service) { serviceId = it }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.shared_new_playlist), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (invite.transport == Invite.FOLDER) FolderPicker(folderName) { pick.launch(null) }
                     }
-                    Invite.SERVER -> InviteSecretNote(stringResource(R.string.shared_join_server, NtfyServer.hostOf(invite.server)))
-                    else -> FolderField(folderName.ifBlank { invite?.folderName?.let { "($it)" }.orEmpty() }) { pick.launch(null) }
+                    if (asksSignIn) NtfySignInFields(signIn)
                 }
+                if (busy) CircularProgressIndicator(Modifier.size(24.dp))
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                if (!busy) MissingNote(missing)
             }
         },
         confirmButton = {
             TextButton(
-                enabled = !busy && invite != null && (rekey != null || move != null && signIn.ready || myName.isNotBlank() && service != null && (invite.transport != Invite.FOLDER || folder != null) && (invite.transport != Invite.NTFY || signIn.ready)),
+                enabled = !busy && invite != null && missing.isEmpty(),
                 onClick = {
                     val inv = invite ?: return@TextButton
                     rekey?.let { g ->
@@ -445,6 +678,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
 }
 
 /** A group's page: sync, invite, members and roles, the follower's choice, the log, the folder, leaving. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: () -> Unit) {
     val ctx = LocalContext.current
@@ -472,35 +706,77 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
         releaseFolder(ctx, before)
     }
 
-    problem?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
-    Text(
-        stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower) + " · " + group.folderName,
-        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    Button(onClick = {
-        Scheduler.runInSequence(ctx, listOf(group.twinId, group.jobId))
-        scope.launch { snackbar.showSnackbar(ctx.getString(R.string.running)) }
-    }) { Icon(Icons.Filled.Sync, null, Modifier.size(18.dp)); Text("  " + stringResource(R.string.shared_sync_now)) }
+    problem?.let {
+        Row(
+            Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.errorContainer).padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(Icons.Filled.Warning, null, tint = MaterialTheme.colorScheme.onErrorContainer)
+            Text(it, color = MaterialTheme.colorScheme.onErrorContainer, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        }
+    }
 
-    // The invite: a QR code for the phone's camera, and the same link to send.
+    // Who this member is in the group, how it meets, how many are in it and when it last synced.
+    val runs = groupRuns(group)
+    val count = members.count { !it.left }
+    val dark = LocalAppDark.current
+    androidx.compose.material3.Card(
+        Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = if (dark) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
+        ),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = if (dark) 0.dp else 1.dp),
+    ) {
+        Row(Modifier.padding(16.dp)) {
+            PrefIcon(transportIcon(group.transport))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    listOf(transportLabel(group.transport), group.folderName).filter { it.isNotBlank() }.joinToString(" · "),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    StatusPill(stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower), if (curator) Tone.Accent else Tone.Neutral)
+                    StatusPill(pluralStringResource(R.plurals.shared_members_n, count, count), Tone.Neutral, Icons.Filled.Groups)
+                    if (runs.failed) StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+                }
+                Text(
+                    if (runs.last > 0) stringResource(R.string.pill_last_run, relativeTime(runs.last)) else stringResource(R.string.last_run_never),
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FilledTonalButton(onClick = {
+                    Scheduler.runInSequence(ctx, listOf(group.twinId, group.jobId))
+                    scope.launch { snackbar.showSnackbar(ctx.getString(R.string.running)) }
+                }, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Filled.Sync, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_sync_now)) }
+            }
+        }
+    }
+
+    // The invite: a QR code for the phone's camera, the code to compare, and the same link to send.
     val secret = group.transport != Invite.FOLDER
     val link = remember(group, version) { SharedTransports.invite(env, group).link() }
     PrefSection(stringResource(R.string.shared_invite), accent = JobColor.PINK, description = if (secret) null else stringResource(R.string.shared_invite_desc)) {
-        PrefBlock {
+        PrefBlock(indent = false) {
             if (secret) InviteSecretNote()
             val symbol = remember(link) { runCatching { QrCode.encode(link) }.getOrNull() }
-            if (symbol != null) Box(Modifier.size(200.dp).clip(RoundedCornerShape(12.dp)).background(Color.White).padding(12.dp)) {
+            val qrSaid = stringResource(R.string.shared_invite)
+            if (symbol != null) Box(
+                Modifier.align(Alignment.CenterHorizontally).padding(vertical = 4.dp).size(200.dp).clip(RoundedCornerShape(16.dp)).background(Color.White).padding(12.dp)
+                    .semantics { contentDescription = qrSaid },
+            ) {
                 Canvas(Modifier.size(176.dp)) {
                     val m = size.width / symbol.size
                     for (y in 0 until symbol.size) for (x in 0 until symbol.size) if (symbol[x, y]) drawRect(Color.Black, Offset(x * m, y * m), Size(m + 0.5f, m + 0.5f))
                 }
             }
-            SelectionContainer { Text(link, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            Text(stringResource(R.string.shared_code, group.invite().code), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-            TextButton(onClick = {
+            GroupCode(group.invite().code, Modifier.align(Alignment.CenterHorizontally))
+            Button(onClick = {
                 val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, link)
                 runCatching { ctx.startActivity(Intent.createChooser(send, null)) }
-            }) { Text(stringResource(R.string.shared_share_link)) }
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_share_link))
+            }
+            SelectionContainer { Text(link, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis) }
         }
     }
 
@@ -517,7 +793,7 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
                 m.service.takeIf { it.isNotBlank() },
             ).joinToString(" · ")
             PrefRow(
-                null, names[m.id].orEmpty(), listOf(role, who).filter { it.isNotBlank() }.joinToString(" · "), chevron = false,
+                if (m.curator && !m.left) Icons.Filled.Star else Icons.Filled.Person, names[m.id].orEmpty(), listOf(role, who).filter { it.isNotBlank() }.joinToString(" · "), chevron = false,
                 trailing = if (group.createdHere && !m.left && (!m.me || members.count { it.curator } > 1)) {
                     { TextButton(onClick = { act { SharedGroups.setCurator(env, group, m.id, !m.curator) } }) {
                         Text(stringResource(if (m.curator) R.string.shared_unmake_curator else R.string.shared_make_curator))
