@@ -10,8 +10,8 @@ tab_computer: Bilgisayar
 tab_server: Kendi sunucun
 play_alt: "Google Play: çok yakında"
 play_note: 'Test aşamasında'
-appgallery_alt: "Huawei AppGallery: çok yakında"
-appgallery_note: "Hazırlanıyor · Google hizmetleri gerekmez"
+appgallery_alt: "Huawei AppGallery’de keşfet"
+appgallery_note: "Google hizmetleri gerekmez"
 store_bridge: '<b>Google Play veya AppGallery mi?</b> YouTube Music, Amazon Music ve fazlası için Trackhop Bridge''i ekle'
 fdroid_alt: F-Droid'den edin
 fdroid_note: Kaynak koddan derlenir · yeni sürümler birkaç gün sonra

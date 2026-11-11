@@ -14,7 +14,7 @@ is which services they can reach, and how.
 | Ads | none | none |
 | Updates | F-Droid, Obtainium or the GitHub release page | the store |
 
-The AppGallery listing is in preparation. Samsung phones: Google Play, GitHub or F-Droid (the Galaxy
+Huawei phones: [AppGallery](https://appgallery.huawei.com/app/C119677919). Samsung phones: Google Play, GitHub or F-Droid (the Galaxy
 Store takes Android apps from companies only).
 
 **Which one to choose.** If you want to move playlists between the big streaming services without

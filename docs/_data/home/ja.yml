@@ -10,8 +10,8 @@ tab_computer: デスクトップ
 tab_server: セルフホスト
 play_alt: "Google Play：近日公開"
 play_note: 'テスト中'
-appgallery_alt: "Huawei AppGallery：近日公開"
-appgallery_note: "準備中 · Google サービス不要"
+appgallery_alt: "Huawei AppGallery で入手"
+appgallery_note: "Google サービス不要"
 store_bridge: '<b>Google Play 版・AppGallery 版なら</b> Trackhop Bridge で YouTube Music や Amazon Music などを追加'
 fdroid_alt: F-Droid で入手
 fdroid_note: ソースからビルド · 新バージョンは数日遅れで公開

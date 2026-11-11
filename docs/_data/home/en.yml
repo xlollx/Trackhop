@@ -12,8 +12,8 @@ tab_computer: Desktop
 tab_server: Self-hosted
 play_alt: "Google Play: coming soon"
 play_note: 'In testing'
-appgallery_alt: "Huawei AppGallery: coming soon"
-appgallery_note: "In preparation · no Google services needed"
+appgallery_alt: "Explore it on Huawei AppGallery"
+appgallery_note: "No Google services needed"
 store_bridge: '<b>Google Play or AppGallery?</b> Add Trackhop Bridge for YouTube Music, Amazon Music and more'
 fdroid_alt: Get it on F-Droid
 fdroid_note: Built from source · new versions a few days later

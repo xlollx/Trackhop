@@ -1,0 +1,42 @@
+# Deletes the branches already fully merged into a base branch (next-* by default), by hand only.
+# main, badges and the base itself are always kept; a branch with any commit the base lacks is kept too.
+name: Prune merged branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Branch the others must already be merged into
+        required: true
+        default: main
+      dry_run:
+        description: Only list what would be deleted
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Delete merged branches
+        env:
+          BASE: ${{ inputs.base }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          git fetch --prune origin
+          git rev-parse --verify "origin/$BASE" >/dev/null
+          for b in $(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin); do
+            case "$b" in HEAD|main|badges|gh-pages|"$BASE") continue;; esac
+            if git merge-base --is-ancestor "origin/$b" "origin/$BASE"; then
+              echo "merged: $b"
+              [ "$DRY" = "true" ] || git push origin --delete "$b"
+            else
+              echo "kept (not merged): $b"
+            fi
+          done
