@@ -73,6 +73,38 @@ object DeezerCatalog {
         return art.replace("100x100bb", "600x600bb")
     }
 
+    /** Album covers already looked up by [albumCover], by artist and title ("" when none fits): asked once per run of the app. */
+    private val albumCovers = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    /**
+     * The cover of [artist]'s album or record [title] in Deezer's catalogue (250 px), for a record
+     * that came without a picture (Discogs gives none to calls without a token). Null when no album
+     * of that very artist has that title, or Deezer did not answer.
+     */
+    suspend fun albumCover(artist: String, title: String): String? {
+        val key = Matcher.normalizeArtist(artist) + "|" + Matcher.normalizeTitle(title)
+        albumCovers[key]?.let { return it.ifEmpty { null } }
+        val q = "${Matcher.searchArtist(artist)} ${Matcher.searchTitle(title)}".trim()
+        val resp = runCatching { Http.send("GET", "$API/search/album?limit=10&q=" + Http.enc(q), maxRateLimitRetries = 0) }.getOrNull() ?: return null
+        if (!resp.ok) return null
+        val found = runCatching { pickAlbum(resp.body, artist, title) }.getOrNull()
+        if (albumCovers.size > 500) albumCovers.clear()
+        albumCovers[key] = found.orEmpty()
+        return found
+    }
+
+    /** From an album search's answer: the album of [artist] titled [title] (else an edition of it, "… (Deluxe)"), its cover; null when none. */
+    internal fun pickAlbum(body: String, artist: String, title: String): String? {
+        val want = Matcher.normalizeArtist(artist)
+        val t = Matcher.normalizeTitle(title)
+        if (want.isEmpty() || t.isEmpty()) return null
+        val hits = parseJson(body)["data"].arr.filter { Matcher.normalizeArtist(it["artist"]["name"].str.orEmpty()) == want }
+        val named = { h: kotlinx.serialization.json.JsonElement -> Matcher.normalizeTitle(h["title"].str.orEmpty()) }
+        val hit = hits.firstOrNull { it["title"].str?.trim().equals(title.trim(), ignoreCase = true) }
+            ?: hits.firstOrNull { named(it) == t } ?: hits.firstOrNull { named(it).startsWith("$t ") } ?: return null
+        return webUrl(hit["cover_medium"].str ?: hit["cover"].str).ifEmpty { null }
+    }
+
     private fun cover(album: kotlinx.serialization.json.JsonElement?): String? =
         album["cover_big"].str ?: album["cover_medium"].str ?: album["cover"].str
 }

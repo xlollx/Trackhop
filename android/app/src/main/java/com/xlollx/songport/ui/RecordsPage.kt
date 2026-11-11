@@ -48,6 +48,7 @@ import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.Concerts
+import com.xlollx.songport.sync.DeezerCatalog
 import com.xlollx.songport.sync.Records
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -166,7 +167,8 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                     records.forEachIndexed { i, rec ->
                         if (i > 0) HorizontalDivider()
                         Row(Modifier.fillMaxWidth().clickable { openUrl(ctx, rec.url) }.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (images) DiscoverImage(rec.thumb, 56.dp, 56.dp)
+                        // Discogs gives no picture without a token: the album's cover on Deezer, when it has it.
+                        if (images) DiscoverImage(rec.thumb, 56.dp, 56.dp) { DeezerCatalog.albumCover(a.artist, rec.title) }
                         Column(Modifier.weight(1f)) {
                             Text(rec.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                             val formats = rec.formats.map { stringResource(formatLabel(it)) }
