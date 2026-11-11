@@ -19,6 +19,11 @@ object Matcher {
     const val EXISTING_THRESHOLD = 0.82
     /** Sotto questo punteggio l'abbinamento viene accettato ma segnalato "da verificare". */
     const val REVIEW_THRESHOLD = 0.86
+    /**
+     * Raised whenever matching or searching changes so that a track missed before may be found now:
+     * the misses remembered under another revision are searched again on the next run (#57).
+     */
+    const val REVISION = 1
 
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
@@ -40,6 +45,9 @@ object Matcher {
     )
     private val ARTIST_TAIL = Regex("""\s+(feat\.?|ft\.?|featuring|vs\.?)\s+.*$""", RegexOption.IGNORE_CASE)
     private val NON_ALNUM = Regex("""[^\p{L}\p{N}\s]""")
+    /** Initials with dots, "U.S.A", "R.E.M.", "L.A.": one word, as most libraries write them ("USA"). */
+    private val ACRONYM = Regex("""(?<![\p{L}\p{N}.])\p{L}(?:\.\p{L})+\.?(?![\p{L}\p{N}])""")
+    private fun joinInitials(s: String) = ACRONYM.replace(s) { it.value.replace(".", "") }
     /** "Don't" is one word to a search engine: "dont", never "don t". */
     private val APOSTROPHES = Regex("""[’'`´]""")
     private val ARTIST_PARTS = Regex("""\s*(?:,|&|\+|/|\s+x\s+|\s+and\s+|\s+e\s+)\s*""", RegexOption.IGNORE_CASE)
@@ -89,6 +97,7 @@ object Matcher {
         t = DASH_TAIL.replace(t, " ")
         t = t.replace("&", " and ").replace("$", "s")
         t = APOSTROPHES.replace(t, "")
+        t = joinInitials(t)
         t = NON_ALNUM.replace(t, " ")
         t = SPACES.replace(t, " ").trim()
         // "Oxygene, Pt. 4", "Oxygene (Part IV)" and "Oxygene Part 4" are one title (issue #57).
@@ -118,15 +127,57 @@ object Matcher {
         return sb.toString()
     }
 
+    /** A subtitle as written: from the first bracket or spaced dash on ("Song (Live)", "Song - Mono"). */
+    private val SUBTITLE = Regex("""\s*(?:[(\[]|\s[-–—]\s).*$""")
+    /** A numbered part as written, with what follows: ", Pt. 4", " Part IV", " - Teil 2". */
+    private val PART_AS_WRITTEN = Regex("""[\s,:;.\-–—]*\b(?:pts?\.?|parts?|parte|partie|teil)\s*(?:\d+|[ivxlc]+)\b.*$""", RegexOption.IGNORE_CASE)
+
     /**
-     * The title without its numbered part ("oxygene part 4" → "oxygene"), or null when it has none:
-     * an extra search for servers whose search matches names only, where "Oxygene, Pt. 4" never
-     * finds "Oxygene (Part IV)". The scoring then tells the parts apart by their numbers.
+     * The title alone, as written: without its subtitle, numbered part, featuring or version
+     * ("Oxygène, Pt. 4" → "Oxygène", "Song (Something Else) - Mono" → "Song"), or null when that
+     * leaves the title as it was or too short to search. Only an extra search: the scoring still
+     * compares the whole titles, so another part or another version stays another song.
      */
-    fun baseTitle(title: String): String? {
-        val t = normalizeTitle(title)
-        val m = Regex("""\s*\bpart \d+\b.*$""").find(t) ?: return null
-        return t.substring(0, m.range.first).trim().takeIf { it.length >= 3 }
+    fun bareTitle(title: String): String? {
+        val t = PART_AS_WRITTEN.replace(SUBTITLE.replace(title, ""), "").trim().trimEnd(',', ':', ';', '-', '–', '—', ' ')
+        return t.takeIf { normalizeTitle(it).length >= 3 && !it.equals(title.trim(), ignoreCase = true) }
+    }
+
+    /**
+     * What a server whose search matches names only is asked for a song, in turn: the title folded,
+     * as written (servers that do not fold accents), then the bare title folded and as written.
+     */
+    fun titleTerms(title: String): List<String> {
+        val bare = bareTitle(title)
+        return listOfNotNull(searchTitle(title), plainTitle(title), bare?.let { searchTitle(it) }, bare)
+    }
+
+    /**
+     * The candidates a server whose search matches names only finds for [track]: [found] (what it
+     * answered already, if anything), then each of [terms] in turn, until one candidate is close
+     * enough to be the track. Each term is asked once, and only when the answers so far are only
+     * other songs: a first search that brings unrelated names ("Oxygene part 4" finding another
+     * piece) no longer stops the bare title from being tried (#57). The candidates come back
+     * without repeats, in the order found.
+     */
+    suspend fun searchByTitles(
+        track: Track,
+        terms: List<String> = titleTerms(track.title),
+        found: List<Track> = emptyList(),
+        find: suspend (String) -> List<Track>,
+    ): List<Track> {
+        val s = norm(track)
+        val all = LinkedHashMap<String, Track>()
+        var good = false
+        fun take(tracks: List<Track>) = tracks.forEach { c ->
+            if (all.putIfAbsent(c.id, c) == null && !good) good = scoreN(s, norm(c)) >= REVIEW_THRESHOLD
+        }
+        take(found)
+        for (term in terms.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }) {
+            if (good) break
+            take(find(term))
+        }
+        return all.values.toList()
     }
 
     /** The numbers in a normalised title, as words: two titles with different ones are different pieces. */
@@ -137,6 +188,7 @@ object Matcher {
         a = ARTIST_TAIL.replace(a, " ")
         a = a.replace("&", " and ").replace("$", "s")
         a = APOSTROPHES.replace(a, "")
+        a = joinInitials(a)
         a = NON_ALNUM.replace(a, " ")
         a = SPACES.replace(a, " ").trim()
         return a.removePrefix("the ").trim()

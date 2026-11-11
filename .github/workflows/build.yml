@@ -307,15 +307,6 @@ jobs:
       tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
-  wikidata:
-    # The new version on Trackhop's Wikidata item (wikidata.yml). Does nothing without the
-    # WIKIDATA_USER / WIKIDATA_PASSWORD secrets, and never fails the release.
-    needs: publish
-    uses: ./.github/workflows/wikidata.yml
-    with:
-      version: ${{ needs.publish.outputs.tag }}
-    secrets: inherit
-
   telegram:
     # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
     needs: publish

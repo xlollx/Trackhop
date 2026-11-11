@@ -1,6 +1,7 @@
 name: Wikidata
 
-# Keeps Trackhop's Wikidata item (Q142072916) on the released version: called by build.yml after each
+# Wikidata deleted Trackhop's item (Q142072916, notability) on 10/11/2026: no longer called after a release;
+# kept for a future item, by hand only. Was: keeps the item on the released version, called by build.yml after each
 # app release, or by hand. Uses a bot password (secrets WIKIDATA_USER, WIKIDATA_PASSWORD); without
 # them it does nothing. Never fails a release: a refusal from Wikidata is only reported here.
 on:

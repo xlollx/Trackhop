@@ -22,6 +22,10 @@ the Docker image carried the app's version.
 - **Records and merch**: Tools › Records and merch finds a playlist's artists' CDs, vinyl and cassettes on Discogs, the official sites and shops MusicBrainz links them to, and searches on Bandcamp, Discogs, eBay and the web; plain links. With your own Discogs token (Settings), the copies for sale and the lowest price. `GET /api/v1/records`, `trackhop records` and the MCP tool `find_records`.
 - **Safer notification channels**: a channel that comes with a set-up file stays off until you turn it on; saved keys stay with a channel only while its server or webhook address is the same; the ntfy topic is kept as a secret; failures and technical reports leave out webhook addresses, tokens and keys.
 
+## 1.9.1
+
+- **Better matching on your own media servers** (#57): Jellyfin, Emby, Plex and Navidrome/Subsonic also search the bare title (without "Pt. 4", subtitles or "- Remastered", with and without accents) when the first answers bring only other songs; dotted initials are one word ("U.S.A" is "USA"); tracks missed before an update to matching are searched again on the next run instead of staying "not found" for a week. Different parts of a piece are still never matched to each other.
+
 ## 1.9.0
 
 - **Files your way** (#49): artist and album read from file names and folders ("Artist - Album - Title", phone library paths), or from your own patterns (templates or `re:`) with a Try button; tick files to delete them or download them as a .zip; *Send to a service* on each File playlist.

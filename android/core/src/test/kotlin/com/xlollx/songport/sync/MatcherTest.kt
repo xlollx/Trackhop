@@ -183,8 +183,8 @@ class VersionPenaltyTest {
         assertEquals("oxygene part 4", Matcher.normalizeTitle("Oxygene, Pt. 4"))
         assertEquals("oxygene part 4", Matcher.normalizeTitle("Oxygène (Part IV)"))
         assertEquals("equinoxe part 5", Matcher.normalizeTitle("Equinoxe Pt 5"))
-        assertEquals("oxygene", Matcher.baseTitle("Oxygene, Pt. 4"))
-        assertEquals(null, Matcher.baseTitle("Oxygene"))
+        assertEquals("Oxygene", Matcher.bareTitle("Oxygene, Pt. 4"))
+        assertEquals(null, Matcher.bareTitle("Oxygene"))
         // "I" alone, or words that only look like numerals, stay as they are.
         assertEquals("i want it", Matcher.normalizeTitle("I Want It"))
         assertEquals("part civil", Matcher.normalizeTitle("Part Civil"))
@@ -193,6 +193,71 @@ class VersionPenaltyTest {
         val five = Track(id = "5", title = "Oxygene (Part V)", artists = listOf("Jean-Michel Jarre"))
         assertTrue(Matcher.score(src, four) >= 0.9)
         assertTrue(Matcher.score(src, five) < 0.7)
+    }
+
+    @Test fun theReportedJarreTitlesMatchTheirOwnPartOnly() {
+        // #57, as the reporter's playlist and library name them: the album accented on one side only.
+        fun jarre(id: String, title: String, album: String, sec: Int) = Track(id = id, title = title, artists = listOf("Jean-Michel Jarre"), album = album, durationMs = sec * 1000L)
+        val parts = listOf("I" to 460, "II" to 488, "III" to 174, "IV" to 254, "V" to 623, "VI" to 400)
+            .map { (n, sec) -> jarre("o$n", "Oxygene (Part $n)", "Oxygene", sec) }
+        val four = Matcher.bestScored(jarre("s", "Oxygene, Pt. 4", "Oxygène", 255), parts)!!
+        assertEquals("oIV", four.track.id)
+        assertTrue(four.score.toString(), four.score >= Matcher.REVIEW_THRESHOLD)
+        assertEquals("oII", Matcher.best(jarre("s", "Oxygene, Pt. 2", "Oxygène", 488), parts)?.id)
+        // Part 4 is never Part 5, even when Part 4 is missing and Part 5 is all there is.
+        assertNull(Matcher.best(jarre("s", "Oxygene, Pt. 4", "Oxygène", 254), parts.filter { it.id != "oIV" }))
+        assertNull(Matcher.best(jarre("s", "Oxygene, Pt. 4", "Oxygène", 254), listOf(jarre("e", "Equinoxe (Part IV)", "Equinoxe", 254))))
+        assertEquals("chronology part 4", Matcher.normalizeTitle("Chronology, Pt. 4 - Remastered"))
+        assertTrue(Matcher.score(jarre("s", "Chronology, Pt. 4 - Remastered", "Chronology", 200), jarre("c", "Chronology (Part 4)", "Chronology", 200)) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(jarre("s", "Equinoxe, Pt. 5", "Equinoxe", 230), jarre("c", "Equinoxe (Part V)", "Equinoxe", 230)) >= Matcher.REVIEW_THRESHOLD)
+    }
+
+    @Test fun theBareTitleDropsPartSubtitleAndVersionAsWritten() {
+        assertEquals("Oxygene", Matcher.bareTitle("Oxygene, Pt. 4"))
+        assertEquals("Oxygène", Matcher.bareTitle("Oxygène (Part IV)"))
+        assertEquals("Chronology", Matcher.bareTitle("Chronology, Pt. 4 - Remastered"))
+        assertEquals("Magnetic Fields", Matcher.bareTitle("Magnetic Fields, Pt. 1"))
+        assertEquals("Equinoxe", Matcher.bareTitle("Equinoxe Teil 5"))
+        assertEquals("Song", Matcher.bareTitle("Song (Something Else) - Mono"))
+        // Nothing to drop, or nothing left worth a search.
+        assertNull(Matcher.bareTitle("Oxygene"))
+        assertNull(Matcher.bareTitle("Up (Live)"))
+        assertNull(Matcher.bareTitle("Part 2"))
+        // Each form once, folded first.
+        assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene", "Oxygene"), Matcher.titleTerms("Oxygene, Pt. 4"))
+    }
+
+    @Test fun initialsWithDotsAreOneWord() {
+        assertEquals("usa", Matcher.normalizeTitle("U.S.A"))
+        assertEquals("usa", Matcher.normalizeTitle("U.S.A."))
+        assertEquals("la woman", Matcher.normalizeTitle("L.A. Woman"))
+        assertEquals("rem", Matcher.normalizeArtist("R.E.M."))
+        assertEquals(Matcher.normalizeArtist("REM"), Matcher.normalizeArtist("R.E.M."))
+        // Not initials: a word before the dot, or a part number.
+        assertEquals("mr brightside", Matcher.normalizeTitle("Mr. Brightside"))
+        assertEquals("oxygene part 4", Matcher.normalizeTitle("Oxygene, Pt. 4"))
+        val src = Track(id = "s", title = "U.S.A", artists = listOf("The Exploited"))
+        assertTrue(Matcher.score(src, Track(id = "c", title = "USA", artists = listOf("Exploited"))) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(Track(id = "s", title = "Losing My Religion", artists = listOf("R.E.M.")), Track(id = "c", title = "Losing My Religion", artists = listOf("REM"))) >= Matcher.REVIEW_THRESHOLD)
+    }
+
+    @Test fun aSearchByTitlesGoesOnWhileOnlyOtherSongsCameBack() = kotlinx.coroutines.runBlocking {
+        val src = Track(id = "s", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"))
+        val asked = ArrayList<String>()
+        val found = Matcher.searchByTitles(src) { term ->
+            asked += term
+            when (term) {
+                "oxygene part 4" -> listOf(Track(id = "x", title = "Part of Me", artists = listOf("Katy Perry")))
+                "oxygene" -> listOf(Track(id = "o5", title = "Oxygene (Part V)", artists = listOf("Jean-Michel Jarre")), Track(id = "o4", title = "Oxygene (Part IV)", artists = listOf("Jean-Michel Jarre")))
+                else -> emptyList()
+            }
+        }
+        assertEquals(listOf("x", "o5", "o4"), found.map { it.id })
+        // Stops once the track is there: "Oxygene" as written is never asked.
+        assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), asked)
+        asked.clear()
+        Matcher.searchByTitles(src) { asked += it; listOf(Track(id = "o4", title = "Oxygene (Part IV)", artists = listOf("Jean-Michel Jarre"))) }
+        assertEquals(listOf("oxygene part 4"), asked)
     }
 
     @Test fun aRangeOfPartsWrittenTwoWaysIsOnePieceAndOnlyDifferentNumbersArePenalised() {

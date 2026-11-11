@@ -3,6 +3,7 @@ package com.xlollx.songport.data
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.net.json
+import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.Wrapped
 import com.xlollx.songport.providers.Providers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -126,6 +127,8 @@ data class StoreData(
     val matchCache: Map<String, String> = emptyMap(),
     /** Ricerche senza esito, stessa chiave -> quando (epoch ms): non si ripetono per una settimana. */
     val missCache: Map<String, Long> = emptyMap(),
+    /** The [Matcher.REVISION] the misses were found under: another one searches them again. */
+    val missRevision: Int = 0,
     /**
      * Tracks a service said a playlist holds although its listing leaves them out (Amazon Music
      * answering DUPLICATE_TRACK), key [FileStore.presentKey] -> when (epoch ms): present, not to be
@@ -389,6 +392,8 @@ open class FileStore(dir: File) {
 
     /** True se questa ricerca e' fallita da poco: inutile ripeterla a ogni esecuzione o ripresa. */
     fun cachedMiss(srcProvider: String, srcTrackId: String, dstProvider: String): Boolean {
+        // Missed by an older matching: the new one may find it (#57, the misses kept the fix from showing).
+        if (data.missRevision != Matcher.REVISION) return false
         val at = data.missCache[cacheKey(srcProvider, srcTrackId, dstProvider)] ?: data.missCache["$srcProvider:$srcTrackId>$dstProvider"] ?: return false
         return System.currentTimeMillis() - at < MISS_TTL_MS
     }
@@ -397,9 +402,10 @@ open class FileStore(dir: File) {
         if (keys.isEmpty()) return
         val now = System.currentTimeMillis()
         update { d ->
-            var cache = d.missCache.filterValues { now - it < MISS_TTL_MS } + keys.associateWith { now }
+            val kept = if (d.missRevision == Matcher.REVISION) d.missCache.filterValues { now - it < MISS_TTL_MS } else emptyMap()
+            var cache = kept + keys.associateWith { now }
             if (cache.size > MAX_CACHE) cache = cache.entries.drop(cache.size - MAX_CACHE).associate { it.key to it.value }
-            d.copy(missCache = cache)
+            d.copy(missCache = cache, missRevision = Matcher.REVISION)
         }
     }
 

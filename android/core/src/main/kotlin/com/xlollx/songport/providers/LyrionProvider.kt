@@ -117,15 +117,10 @@ class LyrionProvider(override val slot: String = "") : CredentialsProvider() {
         // Albums and artists are not something a Lyrion playlist holds.
         if (track.kind.isNotEmpty()) return emptyList()
         suspend fun find(term: String) = rpc(ctx, "titles", 0, 25, "search:$term", "tags:$TAGS")["titles_loop"].arr.mapNotNull { toTrack(it) }
-        val title = Matcher.searchTitle(track.title)
-        val plain = Matcher.plainTitle(track.title)
-        val both = (listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }) + title).joinToString(" ")
+        val both = (listOfNotNull(track.artists.firstOrNull()?.let { Matcher.searchArtist(it) }) + Matcher.searchTitle(track.title)).joinToString(" ")
         // With the full-text search (on by default) artist and title find the song; without it the
-        // term is matched against titles alone, so the title follows, as folded and as written.
-        val found = find(both)
-            .ifEmpty { if (both == title) emptyList() else find(title) }
-            .ifEmpty { if (plain.equals(title, ignoreCase = true)) emptyList() else find(plain) }
-            .ifEmpty { Matcher.baseTitle(track.title)?.let { find(it) }.orEmpty() }
+        // term is matched against titles alone, so the title follows, as folded and as written, then bare.
+        val found = Matcher.searchByTitles(track, listOf(both) + Matcher.titleTerms(track.title)) { find(it) }
         return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
