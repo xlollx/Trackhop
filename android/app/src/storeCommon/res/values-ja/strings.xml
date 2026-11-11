@@ -10,4 +10,6 @@
     <string name="provider_note_spotify_bridge">Spotify へのログインを保持するコネクタプラグイン経由の Spotify です。自分の開発者キーを使う公式の方法に代わる選択肢で、公式の方法は「Spotify」として引き続き利用できます。</string>
     <string name="provider_note_apple_bridge">Apple ID でのサインインを保持するコネクタプラグイン経由の Apple Music です。自分のデベロッパートークンを使う公式の方法に代わる選択肢で、公式の方法は「Apple Music」として引き続き利用できます。</string>
     <string name="bridge_needed_hint">このサービスには、インストールされていないコネクタプラグインアプリが必要です。Trackhop はプラグインを同梱・ダウンロードしません。</string>
+    <string name="setlists_browse">setlist.fm を見る</string>
+    <string name="setlists_browse_need_plugin">setlist.fm を見るには、連携プラグインの新しいバージョンが必要です。更新してからもう一度お試しください。</string>
 </resources>

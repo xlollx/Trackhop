@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">Supprimer</string>
     <string name="bridge_capture_keep">Garder</string>
     <string name="bridge_page_crashed">La page a cessé de fonctionner et a été fermée. Réessaie.</string>
+    <string name="bridge_setlist_hint">Le site de setlist.fm. Ouvre un concert, puis fais-en une playlist.</string>
+    <string name="bridge_setlist_unread">Pas encore de titres sur cette page. Attends qu’elle se charge, ou ouvre un concert avec sa setlist.</string>
+    <string name="bridge_setlist_add">Ajouter à une playlist</string>
+    <string name="bridge_setlist_make">Créer une playlist</string>
+    <string name="bridge_setlist_cancel">Annuler</string>
 </resources>

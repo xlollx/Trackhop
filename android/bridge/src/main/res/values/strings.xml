@@ -29,4 +29,10 @@
     <string name="bridge_capture_delete">Delete</string>
     <string name="bridge_capture_keep">Keep</string>
     <string name="bridge_page_crashed">The page stopped working and was closed. Please try again.</string>
+    <!-- setlist.fm browsed for Trackhop's store builds (SetlistBrowseActivity). -->
+    <string name="bridge_setlist_hint">setlist.fm’s own site. Open a concert, then make a playlist of it.</string>
+    <string name="bridge_setlist_unread">No songs on this page yet. Wait for it to load, or open a concert that has its setlist.</string>
+    <string name="bridge_setlist_add">Add to a playlist</string>
+    <string name="bridge_setlist_make">Make a playlist</string>
+    <string name="bridge_setlist_cancel">Cancel</string>
 </resources>

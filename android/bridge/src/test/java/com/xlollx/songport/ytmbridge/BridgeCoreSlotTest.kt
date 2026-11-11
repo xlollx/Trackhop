@@ -92,7 +92,7 @@ class BridgeCoreSlotTest {
     }
 
     @Test fun theOneAccountConnectorsRefuseASlotAndServeThePrimaryAsBefore() {
-        for (m in listOf("amazon.status", "amazon.playlists", "soundcloud.status", "soundcloud.playlists", "net.fetch", "audio.recognize", "ticketone.read")) {
+        for (m in listOf("amazon.status", "amazon.playlists", "soundcloud.status", "soundcloud.playlists", "net.fetch", "audio.recognize", "ticketone.read", "vivaticket.read")) {
             assertEquals(m, BridgeCore.ONE_ACCOUNT, call(m, slot("2")).getString("error"))
         }
         // Without a slot they answer as always (not connected here, but answered).

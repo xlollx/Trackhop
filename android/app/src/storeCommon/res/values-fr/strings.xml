@@ -11,4 +11,6 @@
     <string name="bridge_needed_hint">Ce service nécessite une application plugin connecteur qui n\'est pas installée. Trackhop n\'inclut ni ne télécharge de plugins.</string>
     <string name="provider_note_deezer_bridge">Deezer via un plugin connecteur qui conserve la connexion à Deezer ; une alternative à la voie officielle avec ton propre ID d\'app, qui reste disponible sous \"Deezer\".</string>
     <string name="provider_note_soundcloud_account">SoundCloud via un plugin connecteur qui conserve la connexion à SoundCloud : tes playlists et titres aimés comme sources et destinations.</string>
+    <string name="setlists_browse">Parcourir setlist.fm</string>
+    <string name="setlists_browse_need_plugin">Parcourir setlist.fm nécessite une version plus récente du plugin de connexions : mets-le à jour, puis réessaie.</string>
 </resources>

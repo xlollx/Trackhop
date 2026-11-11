@@ -319,6 +319,29 @@ class SetlistsTest {
         assertTrue(runCatching { SetlistImport.fromDom(kotlinx.serialization.json.Json.encodeToString(String.serializer(), "<html></html>"), link) }.isFailure)
     }
 
+    /**
+     * The store builds browse setlist.fm in a connector plugin, which hands back only the parts of the
+     * page the setlist is read from (the og:title tag, the date block, the song labels), as they
+     * appear in the page: read the same way as the whole page.
+     */
+    @Test fun theSetlistIsReadFromThePartsAPluginHandsBack() {
+        val link = "https://www.setlist.fm/setlist/muse/2026/unipol-forum-milan-italy-63de4613.html"
+        val parts = listOf(
+            """<meta property="og:title" content="Muse Setlist at Unipol Forum, Milan, Italy">""",
+            """<div class="dateBlock"><span class="month">Nov</span><span class="day">8</span><span class="year">2026</span></div>""",
+            """<a class="songLabel" href="/stats/songs/x.html">Hysteria</a>""",
+            """<a class="songLabel" href="#">Rock &amp; Roll</a>""",
+            """<a class="songLabel" href="#">Feeling Good (Nina Simone cover)</a>""",
+        ).joinToString("\n")
+        val s = SetlistImport.fromPage(parts, link)
+        assertEquals("Muse", s.artist); assertEquals("Unipol Forum", s.venue); assertEquals("Milan", s.city)
+        assertEquals("2026-11-08", s.date); assertEquals(link, s.url)
+        assertEquals(listOf("Hysteria", "Rock & Roll", "Feeling Good"), s.songs.map { it.title })
+        assertEquals(listOf("Muse", "Muse", "Nina Simone"), Setlists.tracks(s).map { it.artists.single() })
+        // No song labels handed back: nothing made of it.
+        assertTrue(runCatching { SetlistImport.fromPage(parts.lines().take(2).joinToString("\n"), link) }.isFailure)
+    }
+
     // ---------------------------------------------------------------- without a key: MusicBrainz
 
     private val muse = "9c9f1380-2516-4fc9-a3e6-f9f61941d090"

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Store builds: setlist.fm browsed in a connector plugin's screen, opened from here for a
+             result (no screen of its own): see SetlistPluginActivity. -->
+        <activity
+            android:name=".ui.SetlistPluginActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    </application>
+</manifest>

@@ -12,4 +12,6 @@
     <string name="bridge_needed_hint">This service needs a connector plugin app that is not installed. Trackhop does not include or download plugins.</string>
     <string name="provider_note_deezer_bridge">Deezer 로그인을 보관하는 커넥터 플러그인을 통한 Deezer예요. 직접 만든 앱 ID를 쓰는 공식 경로의 대안이며, 공식 경로는 \"Deezer\"로 계속 사용할 수 있어요.</string>
     <string name="provider_note_soundcloud_account">SoundCloud 로그인을 보관하는 커넥터 플러그인을 통한 SoundCloud예요. 내 플레이리스트와 좋아요한 트랙을 원본과 대상으로 쓸 수 있어요.</string>
+    <string name="setlists_browse">setlist.fm 둘러보기</string>
+    <string name="setlists_browse_need_plugin">setlist.fm을 둘러보려면 연결 플러그인의 최신 버전이 필요합니다. 업데이트한 뒤 다시 시도하세요.</string>
 </resources>

@@ -29,4 +29,9 @@
     <string name="bridge_capture_delete">Удалить</string>
     <string name="bridge_capture_keep">Оставить</string>
     <string name="bridge_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
+    <string name="bridge_setlist_hint">Сайт setlist.fm. Откройте концерт и сделайте из него плейлист.</string>
+    <string name="bridge_setlist_unread">На этой странице пока нет песен. Дождитесь загрузки или откройте концерт с сет-листом.</string>
+    <string name="bridge_setlist_add">Добавить в плейлист</string>
+    <string name="bridge_setlist_make">Создать плейлист</string>
+    <string name="bridge_setlist_cancel">Отмена</string>
 </resources>

@@ -20,9 +20,11 @@ In the app: **Discover › Concerts**. On Docker and Desktop: **Tools › Concer
 - **MusicBrainz** events: a free, community-made database. Its dates are marked "MusicBrainz" and
   link to the event's page there. A date both know is shown once, Ticketmaster's.
 - **Vivaticket** (unofficial, Italy only): in the GitHub and F-Droid builds and on Docker and
-  Desktop (not in the Google Play, AppGallery or Microsoft Store builds), when the country is Italy,
+  Desktop (not in the Microsoft Store build; in the Google Play and AppGallery builds only through a
+  connector plugin that reads it, see [Which Trackhop?](versions)), when the country is Italy,
   Trackhop also reads the dates on vivaticket.com, the way its own web pages do: no account, one
   request a second, each answer kept a day. They are marked "Tickets on Vivaticket (unofficial)".
+  Through a plugin the requests are the same, made by the plugin app instead of Trackhop.
   It is not an API offered to apps: **it may stop working at any time** when the site changes.
   Then Trackhop leaves it alone for an hour and shows the other sources' dates as usual.
 - **TicketOne** (unofficial, Italy only, Android app only): TicketOne's site answers browsers only,

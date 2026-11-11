@@ -75,6 +75,8 @@ class VivaticketTest {
         Vivaticket.pace = Pacer(1_100)
         Vivaticket.enabled = false
         Vivaticket.stoppedUntil = 0
+        Vivaticket.reader = null
+        Vivaticket.gate = { true }
         Concerts.tmBase = "https://app.ticketmaster.com/discovery/v2"
         Concerts.now = { System.currentTimeMillis() }
         Concerts.zone = { java.time.ZoneId.systemDefault() }
@@ -190,6 +192,55 @@ class VivaticketTest {
         Vivaticket.enabled = false
         assertTrue(Concerts.find(env, listOf("Cesare Cremonini"), "IT").artists.single().events.isEmpty())
         assertTrue(hits.none { it.startsWith("/vt/") })
+    }
+
+    // ------------------------------------------------------------------ through a connector plugin (store builds)
+
+    /** The plugin's `vivaticket.read` as the stand-in gateway answers it, and what it was asked. */
+    private val pluginAsked: MutableList<String> = Collections.synchronizedList(ArrayList())
+    private fun throughPlugin(open: () -> Boolean) {
+        Vivaticket.reader = { url ->
+            pluginAsked += url
+            val (code, body) = site(URLDecoder.decode(url.substringAfter("/vt/"), "UTF-8"))
+            Vivaticket.Answer(code, body)
+        }
+        Vivaticket.gate = open
+    }
+
+    @Test fun inTheStoreBuildsThePluginReadsTheSameAddressesWhileItAnswers() = runBlocking {
+        var answers = false
+        throughPlugin { answers }
+        // No plugin that reads it (none installed, or one too old): never asked, no dates, nothing remembered.
+        assertTrue(Concerts.find(env, listOf("Cesare Cremonini"), "IT").artists.single().events.isEmpty())
+        assertTrue(pluginAsked.isEmpty())
+        answers = true
+        val r = Concerts.find(env, listOf("Cesare Cremonini"), "IT")
+        assertEquals(9, r.artists.single().events.size)
+        assertTrue(r.artists.single().events.all { it.source == Concerts.Source.VIVATICKET })
+        // The same five requests (search, artist page, three products' pages), all to the gateway, none made by the app itself.
+        assertEquals(5, pluginAsked.size)
+        assertTrue(pluginAsked.toString(), pluginAsked.all { it.startsWith(Vivaticket.base + "/") })
+        assertTrue(hits.none { it.startsWith("/vt/") })
+        // Another country: the plugin is not asked either.
+        Concerts.find(env, listOf("Cesare Cremonini"), "FR")
+        assertEquals(5, pluginAsked.size)
+    }
+
+    @Test fun aPluginThatDoesNotKnowTheMethodStopsItForAnHour() = runBlocking {
+        throughPlugin { true }
+        Vivaticket.reader = { url -> pluginAsked += url; null }
+        val r = Concerts.find(env, listOf("A", "B"), "IT")
+        assertEquals(2, r.artists.size)
+        assertEquals("one call, no more for the other artist", 1, pluginAsked.size)
+        assertTrue(Vivaticket.stoppedUntil > clock)
+    }
+
+    @Test fun aPluginsErrorAnswerStopsItLikeTheSitesOwn() = runBlocking {
+        throughPlugin { true }
+        site = { 429 to "{}" }
+        Concerts.find(env, listOf("A", "B"), "IT")
+        assertEquals(1, pluginAsked.size)
+        assertTrue(Vivaticket.stoppedUntil > clock)
     }
 
     @Test fun anErrorStopsItForAnHourWithoutStoppingTheSearch() = runBlocking {

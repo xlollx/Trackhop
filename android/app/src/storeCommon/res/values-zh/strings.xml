@@ -12,4 +12,6 @@
     <string name="bridge_needed_hint">此服务需要一个尚未安装的连接器插件应用。Trackhop 不包含也不下载插件。</string>
     <string name="provider_note_deezer_bridge">通过保存 Deezer 登录的连接器插件使用 Deezer；这是使用你自己应用 ID 的官方途径之外的另一种方式，官方途径仍以“Deezer”提供。</string>
     <string name="provider_note_soundcloud_account">通过保存 SoundCloud 登录的连接器插件使用 SoundCloud：你的歌单和喜欢的曲目可作为来源和目标。</string>
+    <string name="setlists_browse">浏览 setlist.fm</string>
+    <string name="setlists_browse_need_plugin">浏览 setlist.fm 需要较新版本的连接插件：请更新后重试。</string>
 </resources>

@@ -8,7 +8,7 @@ import kotlinx.serialization.encodeToString
 /**
  * The connectors' methods, the same the Trackhop Bridge app answers through its ContentProvider
  * (`status`, `playlists`, `tracks`, `search`, `add`, `amazon.*`, `spotify.*`, `apple.*`, `deezer.*`,
- * `soundcloud.*`, `anghami.*`, `qobuz.*`, `ticketone.read`...), called by
+ * `soundcloud.*`, `anghami.*`, `qobuz.*`, `ticketone.read`, `vivaticket.read`...), called by
  * Trackhop in-process. No caller check is needed: nothing outside this app can reach it.
  * Callers block, so this is never called on the main thread.
  */
@@ -98,6 +98,8 @@ object BridgeCore {
                 } ?: "{}")
                 // A page of TicketOne read in a browser engine out of sight, for Concerts (see [TicketOnePage]).
                 "ticketone.read" -> ok(TicketOnePage.read(ctx, arg ?: return err("missing address")))
+                // An answer of Vivaticket's gateway, for Concerts in the builds that do not ask it themselves (see [VivaticketRead]).
+                "vivaticket.read" -> VivaticketRead.read(arg ?: return err("missing address"), extras)
                 "log" -> Bundle().apply { putString("log", BridgeNet.recent(extras?.getInt("lines")?.takeIf { it > 0 } ?: 300)) }
                 "create" -> ok(json.encodeToString(client.createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "add" -> {

@@ -112,7 +112,8 @@ internal object SetlistsKept {
 
     /**
      * A setlist the person opened on setlist.fm's own site in the in-app browser (GitHub and F-Droid
-     * builds, no key): shown at the top of the page with where it goes already asked.
+     * builds; the store builds browse it in a connector plugin; no key): shown at the top of the page
+     * with where it goes already asked.
      */
     var browsed by mutableStateOf<Setlists.Setlist?>(null)
     /** The browser closed with a setlist: the app shows this page ([browsed]); set back once shown. */
@@ -164,7 +165,7 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onReview: (String) -> Uni
         Text(if (k.pick == null) stringResource(R.string.setlists_find) else artistsAction(k.artists, k.choice, LookupCaps.SETLISTS, R.string.setlists_find, R.plurals.setlists_find_for, R.string.setlists_find_top))
     }
     if (busy) SearchRunning(k.progress) { k.stop() }
-    // No key, in the GitHub and F-Droid builds: setlist.fm's own site, browsed by the person in the app.
+    // No key: setlist.fm's own site, browsed by the person in the app (in a connector plugin in the store builds).
     val site = if (Setlists.key(ctx.env) == null) siteBrowsing(ctx) else null
     if (site != null) OutlinedButton(
         onClick = { site.second(k.artists?.let { ArtistPick.chosen(it, k.choice.pickedOrNull) }?.firstOrNull()) },
@@ -433,8 +434,9 @@ internal fun setlistFmKeyState(ctx: Context): Int = when {
 }
 
 /**
- * setlist.fm's own site in the app ([com.xlollx.songport.providers.BuiltIn.setlistSite]), GitHub and
- * F-Droid builds only (null in the store builds): its label, and opening it on an artist's search.
+ * setlist.fm's own site in the app ([com.xlollx.songport.providers.BuiltIn.setlistSite]): in the GitHub
+ * and F-Droid builds, and in the store builds through a connector plugin (null without one): its
+ * label, and opening it on an artist's search.
  */
 private fun siteBrowsing(ctx: Context): Pair<String, (String?) -> Unit>? = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null)?.let { (label, _) ->
     label to { artist: String? -> com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, artist)?.second?.let { runCatching { ctx.startActivity(it) } }; Unit }

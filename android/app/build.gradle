@@ -114,7 +114,7 @@ android {
         }
     }
 
-    // Shared sources: full's for fdroid, the stores' common part (BuiltIn, texts) for the three store
+    // Shared sources: full's for fdroid, the stores' common part (BuiltIn, texts, manifest) for the three store
     // builds, and Gemini Nano real (src/mlkit) or empty (src/nomlkit). appgallery's own update stub is
     // in src/appgallery.
     sourceSets {
@@ -127,10 +127,12 @@ android {
         play {
             java.srcDirs += ['src/storeCommon/java', 'src/mlkit/java']
             res.srcDirs += ['src/storeCommon/res']
+            manifest.srcFile 'src/storeCommon/AndroidManifest.xml'
         }
         appgallery {
             java.srcDirs += ['src/storeCommon/java', 'src/nomlkit/java']
             res.srcDirs += ['src/storeCommon/res']
+            manifest.srcFile 'src/storeCommon/AndroidManifest.xml'
         }
     }
 
