@@ -139,6 +139,48 @@ class AmazonClientContractTest {
         assertEquals(1, BridgeMock.calls.size)
     }
 
+    /** Regression (11/11/2026): SpecSearchPage answered PERSISTED_QUERY_NOT_FOUND on every search. */
+    @Test fun searchByHashThenWithItsTextWhenAmazonForgotIt() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        val found = """{"data":{"searchTracks":{"edgeCount":3,"edges":[{"node":${node(1)}},{"node":${node(1)}},{"node":${node(2, "Ñandú – Ünïcode")}}],"pageInfo":{"hasNextPage":true,"token":"t2"}}}}"""
+        answer(notFound)
+        answer(found)
+        answer(found)
+        val r = amazon.searchTracks("Metallica Metallica")
+        // The same recording twice (two editions): listed once.
+        assertEquals(listOf("Song 1", "Ñandú – Ünïcode"), r.map { it.title })
+        assertEquals(listOf("Main 1", "Guest"), r[0].artists)
+        assertEquals(201_000L, r[0].durationMs)
+        val first = call(0).json()
+        assertEquals("searchTracksResult", first["operationName"].str)
+        assertEquals("Metallica Metallica", first["variables"]["query"].str)
+        assertEquals(AmazonQueries.SEARCH_TRACKS_RESULT_HASH, first["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(null, first["query"].str)
+        val second = call(1).json()
+        assertEquals(AmazonQueries.SEARCH_TRACKS_RESULT, second["query"].str)
+        assertEquals(AmazonQueries.SEARCH_TRACKS_RESULT_HASH, second["extensions"]["persistedQuery"]["sha256Hash"].str)
+        // From then on the text goes with the hash at once.
+        amazon.searchTracks("Electric Callboy")
+        assertEquals(3, BridgeMock.calls.size)
+        assertEquals(AmazonQueries.SEARCH_TRACKS_RESULT, call(2).json()["query"].str)
+    }
+
+    @Test fun searchTextRefusedTooAsksForAnUpdate() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer(notFound)
+        try { amazon.searchTracks("x"); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("needs an update")) }
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    /** The hash Amazon is sent is the SHA-256 of the text, or Amazon refuses the pair. */
+    @Test fun searchHashIsTheTextsSha256() {
+        val sha = java.security.MessageDigest.getInstance("SHA-256").digest(AmazonQueries.SEARCH_TRACKS_RESULT.toByteArray())
+        assertEquals(AmazonQueries.SEARCH_TRACKS_RESULT_HASH, sha.joinToString("") { "%02x".format(it) })
+        assertTrue(AmazonQueries.SEARCH_TRACKS_RESULT.startsWith("query searchTracksResult(\$query: String!, \$nextPageToken: String) {\n"))
+        assertTrue("@localOnly" !in AmazonQueries.SEARCH_TRACKS_RESULT)
+    }
+
     @Test fun serverErrorIsAClearErrorWithoutRetrying() {
         answer("<html>Internal Server Error</html>", 500)
         try { amazon.libraryPlaylists(); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.startsWith("Amazon Music 500 on AddToPlaylistModalUserPlaylists")) }
