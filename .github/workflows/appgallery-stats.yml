@@ -1,0 +1,80 @@
+# AppGallery downloads: once a day, AppGallery Connect's report API (the API client of appgallery.yml)
+# gives the daily download/install report as CSV; the totals go to appgallery.json in the "badges"
+# branch, read by the evening check. Never public on the site. Skipped until the API client exists.
+name: AppGallery stats
+
+on:
+  schedule:
+    - cron: "41 5 * * *"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: How many days back
+        default: "90"
+
+permissions:
+  contents: write
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLIENT_ID: ${{ secrets.AGC_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.AGC_CLIENT_SECRET }}
+      API: https://connect-api.cloud.huawei.com/api
+      APP_ID: "119677919"
+      DAYS: ${{ inputs.days || '90' }}
+    steps:
+      - name: Read the reports
+        run: |
+          [ -n "$CLIENT_ID" ] || { echo "::notice::No AppGallery API client."; exit 0; }
+          token=$(jq -n --arg id "$CLIENT_ID" --arg s "$CLIENT_SECRET" '{grant_type:"client_credentials",client_id:$id,client_secret:$s}' \
+            | curl -sS -X POST "$API/oauth2/v1/token" -H 'Content-Type: application/json' -d @- | jq -r '.access_token // empty')
+          [ -n "$token" ] || { echo "::error::No access token."; exit 1; }
+          echo "::add-mask::$token"
+          H=(-H "client_id: $CLIENT_ID" -H "Authorization: Bearer $token")
+          start=$(date -u -d "-$DAYS days" +%Y%m%d); end=$(date -u -d "-1 day" +%Y%m%d)
+          mkdir -p out
+          # Two reports: downloads (and installs) per day, and the installation report when the API has it.
+          for kind in appDownloadExport appInstallationExport; do
+            res=$(curl -sS "${H[@]}" "$API/report/distribution-operation-quality/v1/$kind/$APP_ID?language=en-US&startTime=$start&endTime=$end&groupBy=date&exportType=CSV")
+            url=$(jq -r '.fileURL // empty' <<<"$res" 2>/dev/null)
+            if [ -z "$url" ]; then echo "::warning::$kind: $(jq -c '.ret // .' <<<"$res" 2>/dev/null | head -c 300)"; continue; fi
+            curl -sSL "$url" -o "out/$kind.csv" && echo "$kind: $(wc -l < out/$kind.csv) lines" && head -3 "out/$kind.csv"
+          done
+          ls out/*.csv >/dev/null 2>&1 || { echo "::warning::No report: the API client may need the report permission (AppGallery Connect › Users and permissions › API key › add 'Reports'/'Operations')."; exit 0; }
+          python3 - <<'PY'
+          import csv, json, glob, io, os, datetime
+          out = {"checked": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "reports": {}}
+          for f in glob.glob("out/*.csv"):
+              text = open(f, encoding="utf-8-sig").read()
+              rows = list(csv.reader(io.StringIO(text)))
+              if not rows: continue
+              head, body = rows[0], [r for r in rows[1:] if any(c.strip() for c in r)]
+              totals = {}
+              for i, h in enumerate(head):
+                  try: totals[h] = sum(float(r[i]) for r in body if i < len(r) and r[i].strip() not in ("", "-"))
+                  except ValueError: pass
+              last = dict(zip(head, body[-1])) if body else {}
+              out["reports"][os.path.basename(f)[:-4]] = {"columns": head, "days": len(body), "totals": totals, "last_day": last}
+          json.dump(out, open("out/appgallery.json", "w"), indent=1)
+          print(json.dumps(out, indent=1)[:3000])
+          PY
+      - name: Into the badges branch
+        run: |
+          [ -f out/appgallery.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for try in 1 2 3 4; do
+            rm -rf badges; git worktree prune 2>/dev/null || true
+            git init -q badges 2>/dev/null; cd badges
+            git fetch -q --depth=1 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" badges && git checkout -q -B badges FETCH_HEAD
+            cp ../out/appgallery.json .
+            git add appgallery.json
+            git diff --cached --quiet && { echo "No change."; exit 0; }
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "AppGallery stats"
+            git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" badges && exit 0
+            cd ..; sleep $((try * 5))
+          done
+          exit 1
