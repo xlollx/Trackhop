@@ -50,11 +50,13 @@ class ShotProvider(
 
     private fun list(size: Int, offset: Int = 0) = (0 until size).map { track(offset + it) }
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) }
+    override suspend fun playlists(ctx: Env): List<Playlist> = Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) } +
+        (if (Demo.carouselOn) listOf(Demo.CAROUSEL_SRC, Demo.CAROUSEL_DST).map { Playlist(it, Demo.CAROUSEL_NAME, Demo.carousel(it)!!.size) } else emptyList())
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =
         Demo.PLAYLISTS.firstOrNull { it.first == playlistId }?.let { Playlist(it.first, it.second, it.third) }
             ?: Demo.LINKED[playlistId]?.let { Playlist(playlistId, it.first, it.second) }
+            ?: Demo.carousel(playlistId)?.let { Playlist(playlistId, Demo.CAROUSEL_NAME, it.size) }
             ?: Playlist(playlistId, "Metal & More", 1152)
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
@@ -65,7 +67,12 @@ class ShotProvider(
                 Track(id = id(900 + i), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc)
             }
         }
+        // The carousel's sync to preview: some songs to add, some to take off, two the target lacks.
+        Demo.carousel(playlistId)?.let { songs -> return songs.map { (n, s) -> if (s == null) track(n) else Track(id = id(n), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) } }
         val size = playlistInfo(ctx, playlistId).trackCount.coerceAtLeast(1)
+        // The Discover pictures: YouTube Music holds most of Spotify's songs and some of its own, so two libraries overlap in part.
+        if (Demo.discoverOn && idStyle == IdStyle.YOUTUBE) return list(size).filterIndexed { i, _ -> i % Demo.SONGS.size % 4 != 3 } +
+            Demo.EXTRA.mapIndexed { i, s -> Track(id = id(900 + i), title = s.title, artists = listOf(s.artist), album = s.album, durationMs = s.seconds * 1000L, isrc = s.isrc) }
         return list(size)
     }
 
@@ -150,5 +157,27 @@ object Demo {
     const val LINK_ID = "PLDemoMetalAndMore2026xx"
     const val OTHER_LINK_ID = "0vvXsWCC9xrXsKd4FyS8kM"
     /** Public playlists opened from a link, by id: (name, track count). */
+    /** The carousel's extra sync (Spotify to YouTube Music): its source and target. */
+    const val CAROUSEL_SRC = "5aGvC4rouSe1Src0000000"
+    const val CAROUSEL_DST = "PLcarouselSummerVibes"
+    const val CAROUSEL_NAME = "Summer Vibes"
+    /** The carousel's pictures are being taken: its playlists are in the library too. */
+    @Volatile var carouselOn = false
+    /** The Discover tools' pictures are being taken: the libraries differ from one service to the other. */
+    @Volatile var discoverOn = false
+    /** Songs only the carousel's target still holds (taken off by the next run). */
+    private val GONE = listOf(
+        Song("Hysteria", "Muse", "Absolution", 227, "GBAHT0300392"),
+        Song("Chalk Outline", "Three Days Grace", "Transit of Venus", 186, "USJI11200401"),
+        Song("Lithium", "Nirvana", "Nevermind", 257, "USGF19942504"),
+    )
+
+    /** The carousel playlists as (track number, song or null for the demo's song at that number). */
+    fun carousel(playlistId: String): List<Pair<Int, Song?>>? = when (playlistId) {
+        CAROUSEL_SRC -> (0 until 20).map { it to null } + EXTRA.take(2).mapIndexed { i, s -> 950 + i to s }
+        CAROUSEL_DST -> (0 until 12).map { it to null } + GONE.mapIndexed { i, s -> 980 + i to s }
+        else -> null
+    }
+
     val LINKED = mapOf(LINK_ID to ("Metal & More" to 1152), OTHER_LINK_ID to ("Friday Night Rock" to 60))
 }

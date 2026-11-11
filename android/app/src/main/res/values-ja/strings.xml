@@ -1496,6 +1496,7 @@
     <string name="discover_wrapped_empty">プレイリストに曲が見つかりませんでした。</string>
     <string name="discover_wrapped_eyebrow">私の %1$d 年・今日まで</string>
     <string name="discover_wrapped_age">音楽年齢：%1$d 歳</string>
+    <string name="discover_wrapped_age_label">音楽年齢</string>
     <string name="discover_wrapped_born">%1$d 年生まれの人のように聴いています</string>
     <string name="discover_wrapped_tracks">プレイリストの曲数</string>
     <string name="discover_wrapped_services">サービス</string>
@@ -1549,6 +1550,8 @@
     <string name="discover_subs_keep_only">%1$s だけ</string>
     <string name="discover_subs_left_behind">もう一方に残る曲: %1$s</string>
     <string name="discover_subs_save">月 %1$s、年 %2$s の節約になります。</string>
+    <string name="discover_subs_saved_month">月の節約</string>
+    <string name="discover_subs_saved_year">年の節約</string>
     <string name="discover_subs_together">現在、2つ合わせて月 %1$s、年 %2$s です。</string>
     <string name="lb_mode_keyless">キー不要</string>
     <string name="lb_mode_ai">自分の AI で</string>

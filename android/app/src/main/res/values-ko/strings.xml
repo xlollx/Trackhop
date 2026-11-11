@@ -1495,6 +1495,7 @@
     <string name="discover_wrapped_empty">플레이리스트에서 곡을 찾지 못했습니다.</string>
     <string name="discover_wrapped_eyebrow">나의 %1$d년, 지금까지</string>
     <string name="discover_wrapped_age">음악 나이: %1$d세</string>
+    <string name="discover_wrapped_age_label">음악 나이</string>
     <string name="discover_wrapped_born">%1$d년생처럼 듣고 있어요</string>
     <string name="discover_wrapped_tracks">플레이리스트 속 곡</string>
     <string name="discover_wrapped_services">서비스</string>
@@ -1548,6 +1549,8 @@
     <string name="discover_subs_keep_only">%1$s만</string>
     <string name="discover_subs_left_behind">다른 쪽에 남는 곡: %1$s</string>
     <string name="discover_subs_save">한 달에 %1$s, 1년에 %2$s를 아낄 수 있어요.</string>
+    <string name="discover_subs_saved_month">월 절약</string>
+    <string name="discover_subs_saved_year">연 절약</string>
     <string name="discover_subs_together">지금 둘을 합쳐 한 달에 %1$s, 1년에 %2$s를 내고 있어요.</string>
     <string name="lb_mode_keyless">키 필요 없음</string>
     <string name="lb_mode_ai">내 AI로</string>

@@ -64,15 +64,22 @@ class CardsFlowTest : FlowTest() {
         clickTile(s(title))
     }
 
-    /** In a playlist source card: the service tile, then its playlist from the drop-down. */
+    /**
+     * In a playlist source card: the service tile, then its playlist from the drop-down; the card
+     * then folds into one row with the playlist's name and "Change". A playlist kept from an earlier
+     * visit has the card folded already: "Change" opens it again.
+     */
     private fun pickOwnPlaylist(service: String, playlist: String) {
+        compose.waitForIdle()
+        if (exists(s(R.string.share_sheet_change))) click(s(R.string.share_sheet_change))
         val tile = compose.onAllNodes(hasClickAction() and hasText(service)).onFirst()
         tile.performScrollTo(); tile.performClick()
         waitText(s(R.string.editor_playlist))
         click(s(R.string.editor_playlist))
         waitText(playlist)
         click(playlist)
-        waitText("$playlist  ·  ", substring = true)
+        waitText(s(R.string.share_sheet_change))
+        waitText(playlist, substring = true)
     }
 
     @Test

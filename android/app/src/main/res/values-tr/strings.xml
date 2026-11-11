@@ -1520,6 +1520,7 @@
     <string name="discover_wrapped_empty">Çalma listelerinde şarkı bulunamadı.</string>
     <string name="discover_wrapped_eyebrow">Bugüne kadarki %1$d yılım</string>
     <string name="discover_wrapped_age">Müzik yaşı: %1$d</string>
+    <string name="discover_wrapped_age_label">Müzik yaşı</string>
     <string name="discover_wrapped_born">%1$d doğumlu biri gibi dinliyorsun</string>
     <string name="discover_wrapped_tracks">Çalma listelerindeki şarkılar</string>
     <string name="discover_wrapped_services">Servisler</string>
@@ -1573,6 +1574,8 @@
     <string name="discover_subs_keep_only">Yalnızca %1$s</string>
     <string name="discover_subs_left_behind">Diğerinde kalacak şarkılar: %1$s</string>
     <string name="discover_subs_save">Ayda %1$s, yılda %2$s tasarruf edersin.</string>
+    <string name="discover_subs_saved_month">aylık tasarruf</string>
+    <string name="discover_subs_saved_year">yıllık tasarruf</string>
     <string name="discover_subs_together">Bugün ikisi sana ayda %1$s, yılda %2$s tutuyor.</string>
     <string name="lb_mode_keyless">Anahtar gerekmez</string>
     <string name="lb_mode_ai">Kendi yapay zekânla</string>

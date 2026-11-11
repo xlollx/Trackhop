@@ -5,6 +5,11 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -170,14 +175,15 @@ internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -
     val hasOutcome = kept.busy || kept.error != null || (result != null && shownPair != null)
 
     val setup: @Composable () -> Unit = {
-        ToolSection(stringResource(R.string.discover_subs_step_services), step = 1, hint = if (services.size > 2 || picked.size < 2) stringResource(R.string.discover_subs_pick_two) else null) {
+        ToolSection(stringResource(R.string.discover_subs_step_services), hint = if (services.size > 2 || picked.size < 2) stringResource(R.string.discover_subs_pick_two) else null) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 services.forEach { p -> ServiceChoice(p, p.id in chosen, enabled = !kept.busy) { toggle(p.id) } }
             }
         }
-        ToolSection(stringResource(R.string.discover_subs_step_prices), step = 2, hint = stringResource(R.string.discover_subs_cost_note)) {
+        ToolSection(stringResource(R.string.discover_subs_step_prices), hint = stringResource(R.string.discover_subs_cost_note)) {
             // One service through two routes (Spotify and Spotify (web)) is one subscription: one price.
-            picked.distinctBy { it.serviceId }.forEach { p ->
+            picked.distinctBy { it.serviceId }.forEachIndexed { i, p ->
+                if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 PriceField(
                     p, money.symbol, prices[p.serviceId].orEmpty(), yearly[p.serviceId] == true,
                     onPrice = { v -> prices = prices + (p.serviceId to v); prefs.edit().putString(p.serviceId, v).apply() },
@@ -198,7 +204,10 @@ internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -
             result != null && shownPair != null -> OverlapResult(shownPair.first, shownPair.second, result, monthlyOf(shownPair.first), monthlyOf(shownPair.second), money, kept.bitmaps)
         }
     }
-    if (hasOutcome) ToolSplit(start = { setup() }, end = { outcome() }) else setup()
+    // The answer first once there is one (or one on its way), what was asked under it.
+    ToolResultOnTop(if (hasOutcome) (result ?: kept.busy) else null)
+    val setupSlot = rememberToolSlot()
+    if (hasOutcome) ToolSplit(start = { outcome() }, end = { setupSlot(setup) }) else setupSlot(setup)
 }
 
 /** A connected service to tick: its logo and name, a line around it and a tick when it is one of the two. */
@@ -225,32 +234,30 @@ private fun ServiceChoice(p: MusicProvider, on: Boolean, enabled: Boolean, onTog
     }
 }
 
-/** What a service costs: the amount with the phone's currency in front, and whether it is a month's or a year's. */
-@OptIn(ExperimentalLayoutApi::class)
+/** What a service costs: its mark and name, the amount with the phone's currency in front, and whether it is a month's or a year's. */
 @Composable
 private fun PriceField(p: MusicProvider, symbol: String?, price: String, yearly: Boolean, onPrice: (String) -> Unit, onYearly: (Boolean) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        OutlinedTextField(
-            value = price, onValueChange = { v -> if (v.length <= 12) onPrice(v) },
-            singleLine = true, modifier = Modifier.fillMaxWidth(),
-            label = { Text(p.brand) },
-            leadingIcon = { ServiceLogo(p, size = 24.dp) },
-            prefix = symbol?.let { s -> { Text("$s ") } },
-            isError = price.isNotBlank() && LibraryOverlap.parsePrice(price) == null,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PeriodChip(stringResource(R.string.discover_subs_per_month), !yearly) { onYearly(false) }
-            PeriodChip(stringResource(R.string.discover_subs_per_year), yearly) { onYearly(true) }
+    val brand = p.brand
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ServiceLogo(p, size = 36.dp)
+            Spacer(Modifier.width(12.dp))
+            Text(brand, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(12.dp))
+            OutlinedTextField(
+                value = price, onValueChange = { v -> if (v.length <= 12) onPrice(v) },
+                singleLine = true, modifier = Modifier.width(132.dp).semantics { contentDescription = brand },
+                textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, textAlign = androidx.compose.ui.text.style.TextAlign.End),
+                prefix = symbol?.let { s -> { Text(s) } },
+                placeholder = { Text("0", style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.End, modifier = Modifier.fillMaxWidth()) },
+                isError = price.isNotBlank() && LibraryOverlap.parsePrice(price) == null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(14.dp),
+            )
         }
+        ToolSegmented(listOf(stringResource(R.string.discover_subs_per_month), stringResource(R.string.discover_subs_per_year)), if (yearly) 1 else 0, Modifier.fillMaxWidth()) { onYearly(it == 1) }
     }
 }
-
-@Composable
-private fun PeriodChip(text: String, on: Boolean, onClick: () -> Unit) = FilterChip(
-    selected = on, onClick = onClick, label = { Text(text) },
-    leadingIcon = if (on) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
-)
 
 /** The two libraries being read: a row each with its bar, a tick once read, then the matching. */
 @Composable
@@ -325,19 +332,26 @@ private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.
     val colorB = MaterialTheme.colorScheme.tertiary
     val summary = "${r.percent}% " + stringResource(R.string.discover_subs_overlap) + ". " +
         stringResource(R.string.discover_subs_counts, nf.format(r.common.size), nf.format(r.onlyA.size), nameA, nf.format(r.onlyB.size), nameB)
-    ToolSectionTitle(stringResource(R.string.discover_result), step = 3)
-    ToolResultCard {
+    // The answer: the two libraries as two circles, how much of the music is on both said big, the three counts.
+    val glow = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(id.accent.copy(alpha = 0.30f), Color.Transparent))
+    Column(
+        Modifier.fillMaxWidth().clip(ToolHeroShape).background(MaterialTheme.colorScheme.surfaceContainerHigh).background(glow).padding(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         val venn = remember(r) { LibraryOverlap.venn(r.sizeA, r.sizeB, r.common.size) }
         VennDrawing(venn, colorA, colorB, Modifier.fillMaxWidth().height(150.dp).clearAndSetSemantics { contentDescription = summary })
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("${r.percent}%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold, color = colorA)
-            Text(stringResource(R.string.discover_subs_overlap), style = MaterialTheme.typography.bodyLarge)
+        Text("${r.percent}%", style = MaterialTheme.typography.displayLarge.copy(fontSize = 68.sp, lineHeight = 76.sp), fontWeight = FontWeight.Black, color = colorA, maxLines = 1)
+        Text(stringResource(R.string.discover_subs_overlap), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val tile = MaterialTheme.colorScheme.surfaceContainerHighest
+            ToolStat(nf.format(r.onlyA.size), stringResource(R.string.discover_subs_only, nameA), Modifier.weight(1f).fillMaxHeight(), color = tile) { ServiceLogo(a, size = 28.dp); Spacer(Modifier.height(4.dp)) }
+            ToolStat(nf.format(r.common.size), stringResource(R.string.discover_subs_legend_both), Modifier.weight(1f).fillMaxHeight(), color = id.container(), valueColor = colorA) {
+                Row(horizontalArrangement = Arrangement.spacedBy((-10).dp)) { ServiceLogo(a, size = 28.dp); ServiceLogo(b, size = 28.dp) }
+                Spacer(Modifier.height(4.dp))
+            }
+            ToolStat(nf.format(r.onlyB.size), stringResource(R.string.discover_subs_only, nameB), Modifier.weight(1f).fillMaxHeight(), color = tile) { ServiceLogo(b, size = 28.dp); Spacer(Modifier.height(4.dp)) }
         }
-        HorizontalDivider()
-        val (shareA, shareBoth, shareB) = r.shares
-        LegendRow(Swatch.A, colorA, colorB, stringResource(R.string.discover_subs_only, nameA), nf.format(r.onlyA.size), shareA) { ServiceLogo(a, size = 20.dp) }
-        LegendRow(Swatch.BOTH, colorA, colorB, stringResource(R.string.discover_subs_legend_both), nf.format(r.common.size), shareBoth, null)
-        LegendRow(Swatch.B, colorA, colorB, stringResource(R.string.discover_subs_only, nameB), nf.format(r.onlyB.size), shareB) { ServiceLogo(b, size = 20.dp) }
     }
     Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = id.container()) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -355,61 +369,43 @@ private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.
         }
     }
     // The same service through two routes is one subscription: nothing to save by "leaving one".
-    if (a.serviceId != b.serviceId) ToolSection(stringResource(R.string.discover_subs_keep_title)) {
+    if (a.serviceId != b.serviceId) {
+        ToolSectionTitle(stringResource(R.string.discover_subs_keep_title), Modifier.padding(start = 4.dp, top = 4.dp))
         KeepOnly(a, nameA, nf.format(r.onlyB.size), priceB, money)
-        HorizontalDivider()
         KeepOnly(b, nameB, nf.format(r.onlyA.size), priceA, money)
-        if (priceA != null && priceB != null) {
-            HorizontalDivider()
-            Text(
-                stringResource(R.string.discover_subs_together, money.of(priceA + priceB), money.of((priceA + priceB) * 12)),
-                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        if (priceA != null && priceB != null) Text(
+            stringResource(R.string.discover_subs_together, money.of(priceA + priceB), money.of((priceA + priceB) * 12)),
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp),
+        )
     }
     ToolShare(bitmaps, "trackhop-two-subscriptions", summary)
-    OnlyOn(stringResource(R.string.discover_subs_only, nameA), r.onlyA, nf)
-    OnlyOn(stringResource(R.string.discover_subs_only, nameB), r.onlyB, nf)
+    OnlyOn(stringResource(R.string.discover_subs_only, nameA), r.onlyA, a.serviceId)
+    OnlyOn(stringResource(R.string.discover_subs_only, nameB), r.onlyB, b.serviceId)
 }
 
-/** Keeping only [keep]: the songs that would stay behind on the other, and what the other costs. */
+/** Keeping only [keep]: the songs that would stay behind on the other, and what leaving the other saves, said big. */
 @Composable
 private fun KeepOnly(keep: MusicProvider, name: String, left: String, saved: Double?, money: Money) {
-    Row(verticalAlignment = Alignment.Top) {
-        ServiceLogo(keep, size = 32.dp)
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(R.string.discover_subs_keep_only, name), style = MaterialTheme.typography.titleSmall)
-            Text(stringResource(R.string.discover_subs_left_behind, left), style = MaterialTheme.typography.bodyMedium)
-            if (saved != null && saved > 0) Text(
-                stringResource(R.string.discover_subs_save, money.of(saved), money.of(saved * 12)),
-                style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = LocalToolIdentity.current.tint(),
-            )
+    val id = LocalToolIdentity.current
+    Surface(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ServiceLogo(keep, size = 40.dp)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.discover_subs_keep_only, name), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.discover_subs_left_behind, left), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (saved != null && saved > 0) {
+                val sentence = stringResource(R.string.discover_subs_save, money.of(saved), money.of(saved * 12))
+                // The saving as two figures; TalkBack hears the whole sentence.
+                Row(Modifier.height(IntrinsicSize.Min).clearAndSetSemantics { contentDescription = sentence }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ToolStat(money.of(saved), stringResource(R.string.discover_subs_saved_month), Modifier.weight(1f).fillMaxHeight(), color = id.container(), valueColor = id.tint())
+                    ToolStat(money.of(saved * 12), stringResource(R.string.discover_subs_saved_year), Modifier.weight(1f).fillMaxHeight(), color = id.container(), valueColor = id.tint())
+                }
+            }
         }
-    }
-}
-
-private enum class Swatch { A, BOTH, B }
-
-/** One of the three counts: its mark (as the circles are drawn), what it counts, the figure and its share. */
-@Composable
-private fun LegendRow(swatch: Swatch, colorA: Color, colorB: Color, label: String, count: String, share: Int, logo: (@Composable () -> Unit)?) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 32.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(18.dp)) {
-            val r = size.minDimension / 2 - 1.5.dp.toPx()
-            val dash = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 2.5.dp.toPx()))
-            if (swatch != Swatch.B) drawCircle(colorA.copy(alpha = 0.45f), r)
-            if (swatch != Swatch.A) drawCircle(colorB.copy(alpha = 0.45f), r)
-            if (swatch != Swatch.B) drawCircle(colorA, r, style = Stroke(1.5.dp.toPx()))
-            if (swatch != Swatch.A) drawCircle(colorB, r, style = Stroke(1.5.dp.toPx(), pathEffect = dash))
-        }
-        Spacer(Modifier.width(10.dp))
-        if (logo != null) { logo(); Spacer(Modifier.width(6.dp)) }
-        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Spacer(Modifier.width(8.dp))
-        Text(count, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.width(8.dp))
-        Text("$share%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -434,11 +430,9 @@ internal fun VennDrawing(venn: LibraryOverlap.Venn, colorA: Color, colorB: Color
 
 /** The songs on one side only: the first few, the rest on request. */
 @Composable
-private fun OnlyOn(title: String, tracks: List<Track>, nf: NumberFormat) {
+private fun OnlyOn(title: String, tracks: List<Track>, serviceId: String) {
     if (tracks.isEmpty()) return
-    ToolSection(title, trailing = { Text(nf.format(tracks.size), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
-        ToolTrackList(tracks)
-    }
+    ToolSection(title, trailing = { CountPill(tracks.size) }) { ToolTrackList(tracks, serviceId = serviceId) }
 }
 
 /** Which circle is whose, under a [VennDrawing]: the whole line and the dashed one, each with its name. */

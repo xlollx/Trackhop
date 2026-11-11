@@ -220,9 +220,10 @@ fun DiscoverScreen(
                 )
             },
         ) { padding ->
-            Column(
-                Modifier.padding(padding).verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + LocalBottomBarInset.current),
+            val scroll = rememberScrollState()
+            androidx.compose.runtime.CompositionLocalProvider(LocalToolScroll provides scroll) { Column(
+                Modifier.padding(padding).verticalScroll(scroll)
+                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp + LocalBottomBarInset.current),
             ) {
                 // The pages redesigned on their own keep the whole width (their lists run in columns there).
                 val wide = current in setOf(DiscoverCard.RELEASES, DiscoverCard.CONCERTS, DiscoverCard.SETLISTS, DiscoverCard.RECORDS, DiscoverCard.FOLLOWED)
@@ -246,7 +247,7 @@ fun DiscoverScreen(
                         DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                     }
                 }
-            }
+            } }
         }
         return
     }

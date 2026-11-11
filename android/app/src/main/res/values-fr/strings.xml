@@ -1530,6 +1530,7 @@
     <string name="discover_wrapped_empty">Aucun titre trouvé dans tes playlists.</string>
     <string name="discover_wrapped_eyebrow">Mon %1$d jusqu\'ici</string>
     <string name="discover_wrapped_age">Âge musical : %1$d</string>
+    <string name="discover_wrapped_age_label">Âge musical</string>
     <string name="discover_wrapped_born">tu écoutes comme quelqu\'un né en %1$d</string>
     <string name="discover_wrapped_tracks">Titres dans les playlists</string>
     <string name="discover_wrapped_services">Services</string>
@@ -1583,6 +1584,8 @@
     <string name="discover_subs_keep_only">Seulement %1$s</string>
     <string name="discover_subs_left_behind">Titres qui resteraient sur l\'autre : %1$s</string>
     <string name="discover_subs_save">Tu économiserais %1$s par mois, %2$s par an.</string>
+    <string name="discover_subs_saved_month">économisés par mois</string>
+    <string name="discover_subs_saved_year">économisés par an</string>
     <string name="discover_subs_together">Aujourd\'hui, les deux te coûtent %1$s par mois, %2$s par an.</string>
     <string name="lb_mode_keyless">Sans clé</string>
     <string name="lb_mode_ai">Avec ton IA</string>
