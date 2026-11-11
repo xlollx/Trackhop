@@ -127,7 +127,7 @@ internal fun DiscoverToolScaffold(
     maxWidth: Dp = 840.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val intro = androidx.compose.runtime.remember(identity) { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    val intro = androidx.compose.runtime.remember(identity.icon) { androidx.compose.runtime.mutableStateOf<String?>(null) }
     CompositionLocalProvider(LocalToolIdentity provides identity, LocalToolIntro provides intro) {
         Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = maxWidth).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
