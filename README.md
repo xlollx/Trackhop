@@ -26,8 +26,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <!-- Google Play: replace with the official badge linking to the listing once it is public. -->
   <img src="docs/assets/badges/play-soon.svg" height="56" alt="Google Play: coming soon">
-  <!-- Huawei AppGallery: official badge once the listing is public (docs/other-stores.md). -->
-  <img src="docs/assets/badges/appgallery-soon.svg" height="56" alt="Huawei AppGallery: coming soon">
+  <a href="https://appgallery.huawei.com/app/C119677919"><img src="docs/assets/badges/appgallery.svg" height="56" alt="Explore it on Huawei AppGallery"></a>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
 </p>
