@@ -649,7 +649,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.card_poster_show_name), style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.card_poster_show_name), style = MaterialTheme.typography.bodyMedium)
                         Text(ownerName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     androidx.compose.material3.Switch(

@@ -1037,8 +1037,8 @@ class StoreScreenshots {
         }
         pages("poster_result", 4)
         // The other two layouts of the same poster, and the posters themselves as they are shared.
-        step("poster minimal") { tapText(s(R.string.card_layout_minimal)) }; pages("poster_minimal", 1)
-        step("poster bold") { tapText(s(R.string.card_layout_bold)) }; pages("poster_bold", 1)
+        step("poster minimal") { tapText(s(R.string.card_layout_minimal)); Thread.sleep(6000) }; pages("poster_minimal", 1)
+        step("poster bold") { tapText(s(R.string.card_layout_bold)); Thread.sleep(6000) }; pages("poster_bold", 1)
         step("poster classic") { tapText(s(R.string.card_layout_classic)) }
         step("posters") {
             val covers = (0 until 4).map { n -> cover(DISCOVER_PALETTES[n % DISCOVER_PALETTES.size], n) }
