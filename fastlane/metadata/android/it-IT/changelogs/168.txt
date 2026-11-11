@@ -1,0 +1,1 @@
+Abbinamenti migliori sui tuoi server (Jellyfin, Emby, Plex, Navidrome): titoli come "Oxygene, Pt. 4" o con un sottotitolo vengono trovati anche quando il server risponde prima con altri brani, "U.S.A" corrisponde a "USA" e i brani non trovati dalle versioni precedenti vengono cercati di nuovo alla prossima sync. Le parti diverse di un brano restano distinte.
