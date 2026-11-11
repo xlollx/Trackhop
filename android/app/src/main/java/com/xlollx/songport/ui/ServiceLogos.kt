@@ -247,13 +247,14 @@ internal fun tileLayout(available: Dp, count: Int): TileLayout {
 
 /**
  * A tile's words: the service's name, and under it what tells it from its namesakes: the route in
- * brackets ("Spotify (web)" is "Spotify" over "web") and a further account's name ("Spotify · anna").
- * A name the user gave the connector is shown as it is.
+ * brackets ("Spotify (web)" is "Spotify" over "web", also where that is the name the connector was
+ * given) and a further account's name ("Spotify · anna").
  */
 internal fun tileWords(label: String, provider: MusicProvider?, detail: String?): Pair<String, String?> {
-    if (detail != null || provider == null || Providers.customName(provider.id) != null) return label to detail
-    val account = label.substringAfter(" · ", "").takeIf { it.isNotBlank() }
-    val head = label.substringBefore(" · ")
+    if (detail != null || provider == null) return label to detail
+    val named = Providers.customName(provider.id) != null
+    val account = if (named) null else label.substringAfter(" · ", "").takeIf { it.isNotBlank() }
+    val head = if (named) label else label.substringBefore(" · ")
     val route = Regex("^(.+?) \\(([^()]+)\\)$").find(head)
     val name = route?.groupValues?.get(1) ?: head
     return name to listOfNotNull(route?.groupValues?.get(2), account).joinToString(" · ").takeIf { it.isNotEmpty() }

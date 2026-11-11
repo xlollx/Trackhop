@@ -1759,40 +1759,45 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         )
                     }
                     if (srcSheet) PickerSheet(stringResource(R.string.editor_source), onDismiss = { srcSheet = false }) {
-                        Box(Modifier.padding(horizontal = PickerSheetMargin)) {
-                            ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
-                                onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
-                                // Shazam needs nothing more chosen: the page shows what it found.
-                                shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
-                                radio = true, radioSelected = radioMode, onRadio = { useRadio() },
-                                onConnect = { srcSheet = false; onConnectService() },
-                            ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
-                        }
-                        when {
-                            radioMode -> Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = PickerSheetMargin), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                if (radioStream.isEmpty()) RadioStationPicker { st ->
-                                    radioStation = st.name
-                                    radioStream = st.stream
-                                    radioHome = st.homepage
-                                    srcSheet = false
-                                } else RadioStationCard(radioStation, radioStream) { radioStream = ""; radioStation = ""; radioHome = "" }
-                            }
-                            shazamMode -> Unit
-                            linkMode -> Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = PickerSheetMargin)) {
+                        // Not a list to choose from: the radio's stations, the link's field (Shazam: nothing more).
+                        val other: (@Composable () -> Unit)? = when {
+                            radioMode -> ({
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    if (radioStream.isEmpty()) RadioStationPicker { st ->
+                                        radioStation = st.name
+                                        radioStream = st.stream
+                                        radioHome = st.homepage
+                                        srcSheet = false
+                                    } else RadioStationCard(radioStation, radioStream) { radioStream = ""; radioStation = ""; radioHome = "" }
+                                }
+                            })
+                            shazamMode -> ({})
+                            linkMode -> ({
                                 LinkImportField(initial = linkText, keep = true) { providerId, playlist, text ->
                                     srcProvider = providerId
                                     srcPlaylist = playlist
                                     linkText = text
                                     srcSheet = false
                                 }
-                            }
-                            else -> PlaylistRows(
-                                (srcLists as? Loaded.Ok)?.items, (srcLists as? Loaded.Failed)?.message, srcObj, srcPlaylist?.id,
-                                onPick = { srcPlaylist = it; srcSheet = false },
-                                recentIds = remember(srcProvider) { recentPlaylistIds(ctx, srcProvider) },
-                                onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
-                            )
+                            })
+                            else -> null
                         }
+                        PlaylistRows(
+                            (srcLists as? Loaded.Ok)?.items, (srcLists as? Loaded.Failed)?.message, srcObj, srcPlaylist?.id,
+                            onPick = { srcPlaylist = it; srcSheet = false },
+                            recentIds = remember(srcProvider) { recentPlaylistIds(ctx, srcProvider) },
+                            onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
+                            header = {
+                                ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
+                                    onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
+                                    // Shazam needs nothing more chosen: the page shows what it found.
+                                    shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
+                                    radio = true, radioSelected = radioMode, onRadio = { useRadio() },
+                                    onConnect = { srcSheet = false; onConnectService() },
+                                ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
+                            },
+                            other = other,
+                        )
                     }
                     if (radioMode) {
                         // The station is in the field above; it is chosen and changed in its sheet.
@@ -1844,9 +1849,6 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     thumb = { if (createNew) NewPlaylistThumb(48.dp) else PlaylistThumb(dstPlaylist?.let { it.name.ifBlank { it.id } }, dstPlaylist?.id, 48.dp, imageUrl = dstPlaylist?.imageUrl) },
                 )
                 if (dstSheet) PickerSheet(stringResource(R.string.editor_target), onDismiss = { dstSheet = false }) {
-                    Box(Modifier.padding(horizontal = PickerSheetMargin)) {
-                        ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null }
-                    }
                     PlaylistRows(
                         (dstLists as? Loaded.Ok)?.items?.filter { it.ownedByMe }, (dstLists as? Loaded.Failed)?.message, dstObj,
                         dstPlaylist?.id.takeIf { !createNew },
@@ -1858,6 +1860,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                                 PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
                             }
                         }) else null,
+                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null } },
                     )
                 }
                 SwitchRow(stringResource(R.string.editor_new_playlist), null, createNew, enabled = canCreate, help = { HelpButton(Helps.newPlaylist) }) { createNew = it }
