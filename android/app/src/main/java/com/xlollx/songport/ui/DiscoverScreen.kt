@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -178,6 +179,8 @@ fun DiscoverScreen(
 
     if (current != null) {
         val local = remember { SnackbarHostState() }
+        // Followed artists: its settings sheet, opened from the gear in the bar.
+        var followedSettings by remember { mutableStateOf(false) }
         BackHandler { close() }
         Scaffold(
             // Above the glass bottom bar, which the page runs under: a snackbar there would be hidden by it.
@@ -187,6 +190,11 @@ fun DiscoverScreen(
                 TopAppBar(
                     title = { Text(stringResource(current.titleRes)) },
                     navigationIcon = { IconButton(onClick = { close() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
+                    actions = {
+                        if (current == DiscoverCard.FOLLOWED) IconButton(onClick = { followedSettings = true }) {
+                            Icon(Icons.Filled.Settings, stringResource(R.string.alerts_settings))
+                        }
+                    },
                     windowInsets = WindowInsets(0, 0, 0, 0),
                 )
             },
@@ -212,7 +220,7 @@ fun DiscoverScreen(
                     DiscoverCard.CONCERTS -> ConcertsPage(local)
                     DiscoverCard.SETLISTS -> SetlistsPage(local, onNewSync)
                     DiscoverCard.RECORDS -> RecordsPage(local)
-                    DiscoverCard.FOLLOWED -> FollowedArtistsPage()
+                    DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                 }
             }
         }

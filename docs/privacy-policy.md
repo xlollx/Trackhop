@@ -83,7 +83,9 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   the same services as New releases, Concerts and Records and merch once a day (or a week), in the
   background: Deezer, MusicBrainz, Discogs, the artists' own shops, Ticketmaster only with your own key,
   and the country you last searched in Concerts. Only the names of the artists you follow are sent;
-  what was found stays on the device. Turn it off in Settings or unfollow the artists.
+  what was found stays on the device. Turn it off in Settings or unfollow the artists. While you search
+  for an artist to follow, the name you type is sent to MusicBrainz for the suggestions, and the
+  artists shown are looked up on Deezer for their picture (not when Images in Discover is off).
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any

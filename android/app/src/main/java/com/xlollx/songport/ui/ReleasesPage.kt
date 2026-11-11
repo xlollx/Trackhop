@@ -187,7 +187,7 @@ private fun find(ctx: Context) {
     k.progress = 0 to 0; k.readingTracks = false; k.result = null; k.unticked = emptySet()
     k.scope.launch {
         try {
-            val artists = NewReleases.artists(p.provider.tracks(app.env, p.playlist.id))
+            val artists = NewReleases.artists(p.provider.tracks(app.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(app.env, it) }
             k.result = withContext(Dispatchers.IO) {
                 NewReleases.find(app.env, artists, k.days, k.upcoming) { done, total -> k.progress = done to total }
             }

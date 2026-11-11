@@ -98,7 +98,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         artists = null
         val p = pick ?: return@LaunchedEffect
         choice.forPlaylist(p.provider.id + "|" + p.playlist.id)
-        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) } } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
     }
     var keyOpen by rememberSaveable { mutableStateOf(false) }
     if (keyOpen) TicketmasterKeyDialog { keyOpen = false }

@@ -139,6 +139,62 @@ class ArtistAlertsTest {
         assertTrue(ArtistAlerts.toggle(list, "bring me the horizon", Kinds()).isEmpty())
     }
 
+    @Test fun aMutedArtistIsNotLookedUpAndStartsOverWithoutAFloodWhenTurnedOnAgain() {
+        val env = ContractEnv()
+        val fake = Fake(mapOf("A" to Found(releases = listOf(rel("A", "1"))), "B" to Found(releases = emptyList())))
+        var list = listOf(Followed("A"), Followed("B"))
+        check(env, list, fake)
+        // Muted: still in the list with its kinds, never asked.
+        list = ArtistAlerts.setMuted(list, "a", true)
+        assertTrue(list.first().muted); assertTrue(list.first().kinds.any); assertFalse(list.first().active)
+        fake.asked.clear()
+        clock += ArtistAlerts.DAY_MS
+        fake.answers = mapOf("A" to Found(releases = listOf(rel("A", "1"), rel("A", "2"))), "B" to Found(releases = emptyList()))
+        assertTrue(check(env, list, fake).notify.isEmpty())
+        assertEquals(listOf("B"), fake.asked)
+        // On again: what came out meanwhile is only taken note of, the next one is news.
+        list = ArtistAlerts.setMuted(list, "A", false)
+        clock += ArtistAlerts.DAY_MS
+        assertTrue(check(env, list, fake).notify.isEmpty())
+        clock += ArtistAlerts.DAY_MS
+        fake.answers = mapOf("A" to Found(releases = listOf(rel("A", "1"), rel("A", "2"), rel("A", "3"))), "B" to Found(releases = emptyList()))
+        assertEquals(listOf("3"), check(env, list, fake).notify.map { it.id })
+    }
+
+    @Test fun withEveryoneMutedNothingRuns() {
+        val s = Settings(followedArtists = listOf(Followed("A", muted = true), Followed("B")))
+        assertEquals(1L, ArtistAlerts.plan(s)?.periodDays)
+        assertNull(ArtistAlerts.plan(s.copy(followedArtists = ArtistAlerts.setMuted(s.followedArtists, "b", true))))
+    }
+
+    @Test fun followingTwiceKeepsOneHoweverTheNameIsWritten() {
+        val id = "a".repeat(8) + "-" + "b".repeat(4) + "-" + "c".repeat(4) + "-" + "d".repeat(4) + "-" + "e".repeat(12)
+        var list = ArtistAlerts.follow(emptyList(), "  Parkway   Drive ", Kinds(records = false), id.uppercase())
+        assertEquals(Followed("Parkway Drive", Kinds(records = false), mbid = id), list.single())
+        list = ArtistAlerts.follow(list, "parkway drive", Kinds())
+        list = ArtistAlerts.follow(list, "PARKWAY DRIVE", Kinds(), "not an id")
+        assertEquals(1, list.size)
+        assertTrue(ArtistAlerts.follow(emptyList(), "  ", Kinds()).isEmpty())
+        assertNull(ArtistAlerts.follow(emptyList(), "X", Kinds(), "not an id").single().mbid)
+    }
+
+    @Test fun aNameTypedByHandTakesItsProperSpellingOnlyWhenItIsTheSameName() {
+        val id = "1".repeat(8) + "-" + "2".repeat(4) + "-" + "3".repeat(4) + "-" + "4".repeat(4) + "-" + "5".repeat(12)
+        val list = listOf(Followed("parkway drive", Kinds(merch = false), muted = true), Followed("Muse"))
+        val fixed = ArtistAlerts.canonical(list, "parkway drive", "Parkway Drive", id)
+        assertEquals(Followed("Parkway Drive", Kinds(merch = false), muted = true, mbid = id), fixed.first())
+        assertEquals(list, ArtistAlerts.canonical(list, "parkway drive", "Parkway Drive Tribute", id))
+    }
+
+    @Test fun thePageListsAToZAndAnUnfollowUndoneGoesBackWhereItWas() {
+        val list = listOf(Followed("muse"), Followed("Ásgeir"), Followed("Architects"))
+        assertEquals(listOf("Architects", "Ásgeir", "muse"), ArtistAlerts.sorted(list).map { it.name })
+        val without = list.filter { it.name != "Ásgeir" }
+        assertEquals(list, ArtistAlerts.restore(without, list[1], 1))
+        assertEquals(list, ArtistAlerts.restore(list, list[1], 1))
+        assertEquals(without + list[1], ArtistAlerts.restore(without, list[1], 9))
+    }
+
     @Test fun thePlanFollowsTheSettings() {
         assertNull("nobody followed", ArtistAlerts.plan(Settings()))
         val s = Settings(followedArtists = listOf(Followed("A")))
@@ -152,11 +208,13 @@ class ArtistAlertsTest {
 class ArtistAlertsBackupTest {
     @Test fun theFollowedArtistsGoWithTheSetUpButNotWhatWasSeen() {
         val env = ContractEnv()
-        env.store.updateSettings { it.copy(followedArtists = listOf(Followed("Architects", Kinds(merch = false))), artistAlertsWeekly = true) }
+        val id = "0".repeat(8) + "-" + "1".repeat(4) + "-" + "2".repeat(4) + "-" + "3".repeat(4) + "-" + "4".repeat(12)
+        val followed = listOf(Followed("Architects", Kinds(merch = false)), Followed("Parkway Drive", muted = true, mbid = id))
+        env.store.updateSettings { it.copy(followedArtists = followed, artistAlertsWeekly = true) }
         env.keyValues("artist_alerts")["seen"] = "{}"
         val other = ContractEnv()
         com.xlollx.songport.data.ConfigBackup.import(other, com.xlollx.songport.data.ConfigBackup.read(com.xlollx.songport.data.ConfigBackup.export(env, "test")))
-        assertEquals(listOf(Followed("Architects", Kinds(merch = false))), other.store.data.settings.followedArtists)
+        assertEquals(followed, other.store.data.settings.followedArtists)
         assertTrue(other.store.data.settings.artistAlertsWeekly)
         assertNull(other.keyValues("artist_alerts")["seen"])
     }

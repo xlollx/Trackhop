@@ -2298,15 +2298,13 @@
     <string name="alerts_follow">%1$s をフォロー</string>
     <string name="alerts_unfollow">%1$s のフォローをやめる</string>
     <string name="alerts_no_permission">Trackhop の通知がオフです。お知らせを受け取るにはオンにしてください。</string>
-    <string name="alerts_add_hint">アーティスト名</string>
     <string name="alerts_add">フォロー</string>
-    <string name="alerts_latest">最新のお知らせ</string>
     <string name="alerts_none">まだフォローしているアーティストはいません。</string>
     <string name="alerts_kind_releases">新作</string>
     <string name="alerts_kind_concerts">近くのコンサート</string>
     <string name="alerts_kind_merch">新しいグッズ</string>
     <string name="alerts_kind_records">レコード</string>
-    <string name="alerts_settings">確認</string>
+    <string name="alerts_settings">お知らせの設定</string>
     <string name="alerts_master">アーティストのお知らせ</string>
     <string name="alerts_master_summary">「発見」でフォローしたアーティストを確認し、新しいことをお知らせします。</string>
     <string name="alerts_daily">毎日</string>
@@ -2323,6 +2321,24 @@
     <string name="alerts_news_concert_somewhere">%1$s の新しいコンサート</string>
     <string name="alerts_news_merch">%1$s の新しいグッズ</string>
     <string name="alerts_news_record">%1$s の新しいレコード</string>
+    <string name="alerts_search">フォローするアーティストを検索</string>
+    <string name="alerts_search_clear">検索を消去</string>
+    <string name="alerts_already">フォロー中</string>
+    <string name="alerts_as_typed">入力したとおりの名前でフォロー</string>
+    <string name="alerts_from_playlists">あなたのプレイリストから</string>
+    <string name="alerts_search_offline">名前の検索が応答しません。入力したとおりの名前でフォローできます。</string>
+    <string name="alerts_muted">お知らせを一時停止中</string>
+    <string name="alerts_for">%1$s のお知らせ</string>
+    <string name="alerts_off">アーティストのお知らせはオフです。誰も確認されません。</string>
+    <string name="alerts_turn_on">オンにする</string>
+    <string name="alerts_unfollowed">%1$s のフォローをやめました</string>
+    <string name="alerts_chip_releases">リリース</string>
+    <string name="alerts_chip_concerts">ライブ</string>
+    <string name="alerts_chip_merch">グッズ</string>
+    <string name="alerts_chip_records">レコード</string>
+    <plurals name="alerts_count">
+        <item quantity="other">%d 組をフォロー中</item>
+    </plurals>
     <plurals name="alerts_notif_title">
         <item quantity="other">フォロー中のアーティストから %d 件のお知らせ</item>
     </plurals>

@@ -105,6 +105,34 @@ object DeezerCatalog {
         return webUrl(hit["cover_medium"].str ?: hit["cover"].str).ifEmpty { null }
     }
 
+    /** Artist pictures already looked up by [artistPicture], by name ("" when none): asked once per run of the app. */
+    private val artistPictures = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    /**
+     * The picture of [artist] in Deezer's catalogue (250 px), for the Followed artists page. Null
+     * when Deezer has no artist of that very name, only its blank placeholder, or did not answer.
+     */
+    suspend fun artistPicture(artist: String): String? {
+        val key = Matcher.normalizeArtist(artist)
+        if (key.isEmpty()) return null
+        artistPictures[key]?.let { return it.ifEmpty { null } }
+        val resp = runCatching { Http.send("GET", "$API/search/artist?limit=10&q=" + Http.enc(artist.trim()), maxRateLimitRetries = 0) }.getOrNull() ?: return null
+        if (!resp.ok || resp.body.contains("\"error\"")) return null
+        val found = runCatching { pickArtistPicture(resp.body, artist) }.getOrNull()
+        if (artistPictures.size > 1_000) artistPictures.clear()
+        artistPictures[key] = found.orEmpty()
+        return found
+    }
+
+    /** From an artist search's answer: the picture of the artist named [artist] with the most fans; null when none or Deezer's placeholder. */
+    internal fun pickArtistPicture(body: String, artist: String): String? {
+        val want = Matcher.normalizeArtist(artist)
+        val hit = parseJson(body)["data"].arr.filter { Matcher.normalizeArtist(it["name"].str.orEmpty()) == want }
+            .maxByOrNull { it["nb_fan"].long ?: 0L } ?: return null
+        // An artist without a picture gets a grey silhouette, its address with no image id: "/artist//250x250…".
+        return webUrl(hit["picture_medium"].str ?: hit["picture"].str).takeIf { it.isNotEmpty() && !it.contains("/artist//") }
+    }
+
     private fun cover(album: kotlinx.serialization.json.JsonElement?): String? =
         album["cover_big"].str ?: album["cover_medium"].str ?: album["cover"].str
 }

@@ -102,7 +102,7 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
         val of = p.provider.id + "|" + p.playlist.id
         if (k.artists != null && k.artistsOf == of) return@LaunchedEffect // back on the page: kept
         k.artists = null; k.choice.forPlaylist(of); k.artistsOf = of
-        k.artists = try { Setlists.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+        k.artists = try { Setlists.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
     }
     if (k.pick != null) ArtistChooser(k.artists, k.choice, LookupCaps.SETLISTS)
     Button(onClick = { find(ctx) }, enabled = k.pick != null && !busy && k.choice.ready, modifier = Modifier.fillMaxWidth()) {

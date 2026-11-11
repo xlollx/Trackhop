@@ -23,7 +23,7 @@ import kotlinx.serialization.builtins.serializer
  *
  * Every artist keeps what was seen of each kind ([Seen]); only what was never seen is news. The
  * first look at a kind only takes note of what is there (no flood after following); a kind turned
- * off forgets it, so turning it on again starts over the same way; a source that did not answer
+ * off (or an artist muted) forgets it, so turning it on again starts over the same way; a source that did not answer
  * changes nothing. Artists are looked up one after another with a pause between them, those
  * looked up longest ago first, within a time budget: the ones left are looked up by a later run
  * ([Outcome.remaining]), and the news waits for them, so one look at all of them is one notification.
@@ -41,9 +41,16 @@ object ArtistAlerts {
         }
     }
 
-    /** An artist followed, as the user wrote or tapped it, and what to be told about. */
+    /**
+     * An artist followed and what to be told about: [name] as MusicBrainz writes it when picked from
+     * the suggestions (with its [mbid]), else as the user wrote or tapped it. [muted]: still followed,
+     * but not looked up and nothing said until turned on again.
+     */
     @Serializable
-    data class Followed(val name: String, val kinds: Kinds = Kinds())
+    data class Followed(val name: String, val kinds: Kinds = Kinds(), val muted: Boolean = false, val mbid: String? = null) {
+        /** Looked up by the background look: not muted, and something wanted. */
+        val active: Boolean get() = !muted && kinds.any
+    }
 
     enum class Kind { RELEASE, CONCERT, MERCH, RECORD }
 
@@ -112,11 +119,42 @@ object ArtistAlerts {
     fun toggle(list: List<Followed>, name: String, defaults: Kinds): List<Followed> {
         val k = key(name)
         if (k.isEmpty()) return list
-        return if (list.any { key(it.name) == k }) list.filter { key(it.name) != k } else list + Followed(name.trim(), defaults)
+        return if (list.any { key(it.name) == k }) list.filter { key(it.name) != k } else follow(list, name, defaults)
     }
+
+    /**
+     * [list] with [name] followed (with [defaults], and the [mbid] a suggestion came with); as it
+     * was when the artist is followed already, however the name is written.
+     */
+    fun follow(list: List<Followed>, name: String, defaults: Kinds, mbid: String? = null): List<Followed> {
+        val n = name.trim().replace(Regex("\\s+"), " ")
+        if (key(n).isEmpty() || isFollowed(list, n)) return list
+        return list + Followed(n, defaults, mbid = MusicBrainz.mbid(mbid))
+    }
+
+    /** [list] with [f] back where it was ([at]), after an unfollow undone; unchanged when followed again meanwhile. */
+    fun restore(list: List<Followed>, f: Followed, at: Int): List<Followed> =
+        if (isFollowed(list, f.name)) list else list.toMutableList().apply { add(at.coerceIn(0, size), f) }
 
     fun setKinds(list: List<Followed>, name: String, kinds: Kinds): List<Followed> =
         key(name).let { k -> list.map { if (key(it.name) == k) it.copy(kinds = kinds) else it } }
+
+    /** [name]'s alerts as a whole off ([muted]) or on again, the artist still followed and its kinds kept. */
+    fun setMuted(list: List<Followed>, name: String, muted: Boolean): List<Followed> =
+        key(name).let { k -> list.map { if (key(it.name) == k) it.copy(muted = muted) else it } }
+
+    /**
+     * [list] with the artist followed as [name] written as MusicBrainz does ([canonical], with its
+     * [mbid]): only when it is the same name but for case, accents and the like.
+     */
+    fun canonical(list: List<Followed>, name: String, canonical: String, mbid: String?): List<Followed> {
+        val k = key(name)
+        if (canonical.isBlank() || key(canonical) != k) return list
+        return list.map { if (key(it.name) == k) it.copy(name = canonical.trim(), mbid = MusicBrainz.mbid(mbid) ?: it.mbid) else it }
+    }
+
+    /** The artists as the page lists them: A to Z, case and accents ignored. */
+    fun sorted(list: List<Followed>): List<Followed> = ArtistPick.byName(list) { it.name }
 
     // ---------------------------------------------------------------- when
 
@@ -125,7 +163,7 @@ object ArtistAlerts {
 
     /** The plan for [s]; null when nothing is to run (alerts off, nobody followed or nothing wanted). */
     fun plan(s: Settings): Plan? {
-        if (!s.artistAlerts || s.followedArtists.none { it.kinds.any }) return null
+        if (!s.artistAlerts || s.followedArtists.none { it.active }) return null
         return Plan(if (s.artistAlertsWeekly) 7 else 1, s.artistAlertsWifiOnly)
     }
 
@@ -173,9 +211,9 @@ object ArtistAlerts {
         budgetMs: Long = BUDGET_MS, gapMs: Long = ARTIST_GAP_MS, now: () -> Long = { System.currentTimeMillis() },
     ): Outcome {
         val start = now()
-        val wanted = followed.filter { it.kinds.any }.distinctBy { key(it.name) }
+        val wanted = followed.filter { it.active }.distinctBy { key(it.name) }
         var seen = loadSeen(env)
-        // Unfollowed artists are forgotten: following again starts over without a flood.
+        // Unfollowed and muted artists are forgotten: following or turning on again starts over without a flood.
         val keys = wanted.map { key(it.name) }.toSet()
         if (seen.keys.any { it !in keys }) { seen = seen.filterKeys { it in keys }; saveSeen(env, seen) }
         val due = wanted.filter { start - (seen[key(it.name)]?.checkedAt ?: 0) >= dueAfter(periodDays) }

@@ -2298,15 +2298,13 @@
     <string name="alerts_follow">关注 %1$s</string>
     <string name="alerts_unfollow">取消关注 %1$s</string>
     <string name="alerts_no_permission">Trackhop 的通知已关闭：打开后才能收到提醒。</string>
-    <string name="alerts_add_hint">艺人名字</string>
     <string name="alerts_add">关注</string>
-    <string name="alerts_latest">最新动态</string>
     <string name="alerts_none">还没有关注任何艺人。</string>
     <string name="alerts_kind_releases">新发行</string>
     <string name="alerts_kind_concerts">附近的演唱会</string>
     <string name="alerts_kind_merch">新周边</string>
     <string name="alerts_kind_records">唱片</string>
-    <string name="alerts_settings">检查</string>
+    <string name="alerts_settings">提醒设置</string>
     <string name="alerts_master">艺人提醒</string>
     <string name="alerts_master_summary">查看你在“发现”中关注的艺人，并告诉你有什么新内容。</string>
     <string name="alerts_daily">每天</string>
@@ -2323,6 +2321,24 @@
     <string name="alerts_news_concert_somewhere">%1$s 新演唱会</string>
     <string name="alerts_news_merch">%1$s 新周边</string>
     <string name="alerts_news_record">%1$s 新唱片</string>
+    <string name="alerts_search">搜索要关注的艺人</string>
+    <string name="alerts_search_clear">清除搜索</string>
+    <string name="alerts_already">已关注</string>
+    <string name="alerts_as_typed">按输入的名字关注</string>
+    <string name="alerts_from_playlists">来自你的歌单</string>
+    <string name="alerts_search_offline">名字搜索没有响应。你仍可按输入的名字关注。</string>
+    <string name="alerts_muted">提醒已暂停</string>
+    <string name="alerts_for">%1$s 的提醒</string>
+    <string name="alerts_off">艺人提醒已关闭：不会检查任何人。</string>
+    <string name="alerts_turn_on">开启</string>
+    <string name="alerts_unfollowed">已不再关注 %1$s</string>
+    <string name="alerts_chip_releases">发行</string>
+    <string name="alerts_chip_concerts">演出</string>
+    <string name="alerts_chip_merch">周边</string>
+    <string name="alerts_chip_records">唱片</string>
+    <plurals name="alerts_count">
+        <item quantity="other">已关注 %d 位艺人</item>
+    </plurals>
     <plurals name="alerts_notif_title">
         <item quantity="other">关注的艺人有 %d 条新动态</item>
     </plurals>
