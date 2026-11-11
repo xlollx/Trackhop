@@ -58,6 +58,19 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.JoinInner
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.NewReleases
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,23 +107,27 @@ import com.xlollx.songport.providers.importTracks
 
 /**
  * The cards of the Discover tab, each opening its own page. The names are kept stable: a page
- * open survives a rotation by name. [emoji] and [tint] draw the tile's icon; [ai] puts the "AI"
+ * open survives a rotation by name. [emoji] and [tint] draw the tile's icon, [icon], [tint] and
+ * [gradient] the header of its page ([identity]); [ai] puts the "AI"
  * tag on the card (it then needs the user's own AI key, see [AiClient]).
  */
-internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes: Int, val descRes: Int, val ai: Boolean = false) {
-    WRAPPED("✨", 0xFF6B4BD8, R.string.discover_wrapped_title, R.string.discover_wrapped_desc),
-    RELEASES("🆕", 0xFF8E24AA, R.string.discover_releases_title, R.string.discover_releases_desc),
-    LINK("🔗", 0xFF5B3FD9, R.string.discover_link_title, R.string.discover_link_desc),
-    COMPAT("💞", 0xFFC2185B, R.string.tools_compat_title, R.string.discover_compat_desc),
-    ROAST("🔥", 0xFFE65100, R.string.discover_roast_title, R.string.discover_roast_desc, ai = true),
-    VANISHED("👻", 0xFF00838F, R.string.discover_vanished_title, R.string.discover_vanished_desc),
-    SUBS("💸", 0xFF2E7D32, R.string.discover_subs_title, R.string.discover_subs_desc),
-    POSTER("🖼️", 0xFFF9A825, R.string.tools_poster_title, R.string.discover_poster_desc),
-    CONCERTS("🎟️", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc),
-    SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc),
-    RECORDS("💿", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc),
-    FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc),
+internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes: Int, val descRes: Int, val icon: ImageVector, val gradient: LongArray = LongArray(0), val ai: Boolean = false) {
+    WRAPPED("✨", 0xFF6B4BD8, R.string.discover_wrapped_title, R.string.discover_wrapped_desc, Icons.Filled.AutoAwesome, longArrayOf(0xFF5B3FD9, 0xFFC2185B, 0xFFE0562F)),
+    RELEASES("🆕", 0xFF8E24AA, R.string.discover_releases_title, R.string.discover_releases_desc, Icons.Filled.NewReleases),
+    LINK("🔗", 0xFF1976D2, R.string.discover_link_title, R.string.discover_link_desc, Icons.Filled.Link, longArrayOf(0xFF0D47A1, 0xFF1976D2, 0xFF0097A7)),
+    COMPAT("💞", 0xFFC2185B, R.string.tools_compat_title, R.string.discover_compat_desc, Icons.Filled.JoinInner, longArrayOf(0xFFC2185B, 0xFF7B1FA2, 0xFF1565C0)),
+    ROAST("🔥", 0xFFD84315, R.string.discover_roast_title, R.string.discover_roast_desc, Icons.Filled.LocalFireDepartment, longArrayOf(0xFFB71C1C, 0xFFD84315, 0xFFEF6C00), ai = true),
+    VANISHED("👻", 0xFF607D8B, R.string.discover_vanished_title, R.string.discover_vanished_desc, Icons.Filled.VisibilityOff, longArrayOf(0xFF263238, 0xFF455A64, 0xFF78909C)),
+    SUBS("💸", 0xFF2E7D32, R.string.discover_subs_title, R.string.discover_subs_desc, Icons.Filled.Payments, longArrayOf(0xFF1B5E20, 0xFF2E7D32, 0xFF00796B)),
+    POSTER("🖼️", 0xFFF9A825, R.string.tools_poster_title, R.string.discover_poster_desc, Icons.Filled.Palette, longArrayOf(0xFF3E2723, 0xFF8D5A2B, 0xFFC68A12)),
+    CONCERTS("🎟️", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc, Icons.Filled.ConfirmationNumber),
+    SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc, Icons.Filled.Mic),
+    RECORDS("💿", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc, Icons.Filled.Album),
+    FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc, Icons.Filled.Notifications),
     ;
+
+    /** The tool's look on its page: this card's colour, its icon and its header's gradient ([DiscoverToolScaffold]). */
+    val identity: ToolIdentity get() = ToolIdentity(icon, tint, *gradient)
 
     /** The card's id in the saved order (Settings.discoverOrder, sync/DiscoverOrder). */
     val id: String get() = name.lowercase()
@@ -206,25 +223,28 @@ fun DiscoverScreen(
             Column(
                 Modifier.padding(padding).verticalScroll(rememberScrollState())
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + LocalBottomBarInset.current),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                when (current) {
-                    DiscoverCard.WRAPPED -> WrappedPage(local, onGoToAccounts)
-                    DiscoverCard.RELEASES -> ReleasesPage(local, onNewSync)
-                    DiscoverCard.LINK -> UniversalLinkPage(local)
-                    DiscoverCard.COMPAT -> CompatibilityCard(local, compareLinks) { name, tracks ->
-                        // The songs in common become a file playlist, the source of a new sync to any service.
-                        val id = LocalFilesProvider.importTracks(ctx, name, tracks)
-                        onNewSyncFromFile(name, id)
+                // The pages redesigned on their own keep the whole width (their lists run in columns there).
+                val wide = current in setOf(DiscoverCard.RELEASES, DiscoverCard.CONCERTS, DiscoverCard.SETLISTS, DiscoverCard.RECORDS, DiscoverCard.FOLLOWED)
+                DiscoverToolScaffold(current.identity, stringResource(current.descRes), maxWidth = if (wide) WindowLayout.WIDE_CONTENT else 840.dp) {
+                    when (current) {
+                        DiscoverCard.WRAPPED -> WrappedPage(local, onGoToAccounts)
+                        DiscoverCard.RELEASES -> ReleasesPage(local, onNewSync)
+                        DiscoverCard.LINK -> UniversalLinkPage(local)
+                        DiscoverCard.COMPAT -> CompatibilityCard(local, compareLinks) { name, tracks ->
+                            // The songs in common become a file playlist, the source of a new sync to any service.
+                            val id = LocalFilesProvider.importTracks(ctx, name, tracks)
+                            onNewSyncFromFile(name, id)
+                        }
+                        DiscoverCard.ROAST -> RoastPage(local, ai, onSetUpAi)
+                        DiscoverCard.VANISHED -> VanishedPage(onBackup)
+                        DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
+                        DiscoverCard.POSTER -> PosterCard(local)
+                        DiscoverCard.CONCERTS -> ConcertsPage(local)
+                        DiscoverCard.SETLISTS -> SetlistsPage(local, onReview)
+                        DiscoverCard.RECORDS -> RecordsPage(local)
+                        DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                     }
-                    DiscoverCard.ROAST -> RoastPage(local, ai, onSetUpAi)
-                    DiscoverCard.VANISHED -> VanishedPage(onBackup)
-                    DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
-                    DiscoverCard.POSTER -> PosterCard(local)
-                    DiscoverCard.CONCERTS -> ConcertsPage(local)
-                    DiscoverCard.SETLISTS -> SetlistsPage(local, onReview)
-                    DiscoverCard.RECORDS -> RecordsPage(local)
-                    DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                 }
             }
         }
