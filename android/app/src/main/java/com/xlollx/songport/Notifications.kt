@@ -309,6 +309,33 @@ object Notifications {
         mgr.notify(ALERTS_ID, n)
     }
 
+    private const val SIGN_IN_ID = 4246
+
+    /**
+     * "SoundCloud: sign in again to keep your syncs running": a web session gone for good. A tap
+     * opens Accounts on that connector. False when it could not be posted.
+     */
+    fun signInAgain(context: Context, service: String, connectorId: String): Boolean {
+        if (!canPost(context)) return false
+        ensureChannel(context)
+        val open = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_FOCUS_CONNECTOR, connectorId)
+        }
+        val pi = PendingIntent.getActivity(context, SIGN_IN_ID, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val text = context.getString(R.string.notif_signin_again_text)
+        val n = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notif_signin_again_title, service))
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(pi)
+            .setAutoCancel(true)
+            .build()
+        ContextCompat.getSystemService(context, NotificationManager::class.java)?.notify(SIGN_IN_ID, n)
+        return true
+    }
+
     /** "N tracks can no longer be played": opens the Unplayable tracks tool. */
     fun unplayable(context: Context, id: Int, count: Int) {
         if (!canPost(context)) return

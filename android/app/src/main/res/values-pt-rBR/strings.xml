@@ -869,6 +869,8 @@
     <string name="settings_unplayable">Verificação semanal de faixas que não tocam</string>
     <string name="settings_unplayable_desc">Uma vez por semana o Trackhop percorre suas playlists e avisa quando uma faixa não pode mais ser tocada. Nada é alterado sozinho.</string>
     <string name="notif_unplayable_title">Faixas que não tocam</string>
+    <string name="notif_signin_again_title">%1$s: entre de novo para suas sincronizações continuarem</string>
+    <string name="notif_signin_again_text">A sessão expirou. Toque para abrir Contas.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d faixa das suas playlists não toca mais. Toque para substituir.</item>
         <item quantity="other">%1$d faixas das suas playlists não tocam mais. Toque para substituir.</item>

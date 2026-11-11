@@ -212,6 +212,8 @@ object SoundCloudBridge {
     fun rememberToken(ctx: Context, found: Found) {
         rememberRenewedToken(ctx, found)
         session.put(ctx, "apiHost", null)
+        // A new sign-in: renewals may run again.
+        session.put(ctx, "expiredAt", null)
     }
 
     /**

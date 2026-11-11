@@ -869,6 +869,8 @@
     <string name="settings_unplayable">Weekly check for unplayable tracks</string>
     <string name="settings_unplayable_desc">Once a week Trackhop looks through your playlists and tells you when a track can no longer be played. Nothing is changed by itself.</string>
     <string name="notif_unplayable_title">Unplayable tracks</string>
+    <string name="notif_signin_again_title">%1$s: sign in again to keep your syncs running</string>
+    <string name="notif_signin_again_text">The session has expired. Tap to open Accounts.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d track in your playlists can no longer be played. Tap to replace it.</item>
         <item quantity="other">%1$d tracks in your playlists can no longer be played. Tap to replace them.</item>

@@ -289,6 +289,8 @@ class MainActivity : ComponentActivity() {
         }
         // A sync tapped in a widget: the Syncs tab, scrolled to its card, which lights up.
         i?.getStringExtra(EXTRA_FOCUS_JOB)?.let { com.xlollx.songport.ui.JobFocus.request.value = it; tabRequests.value = TAB_SYNCS; i.removeExtra(EXTRA_FOCUS_JOB) }
+        // A connector to sign in to again (its notification): the Accounts tab, scrolled to its card.
+        i?.getStringExtra(EXTRA_FOCUS_CONNECTOR)?.let { com.xlollx.songport.ui.ConnectorFocus.request.value = it; tabRequests.value = TAB_ACCOUNTS; i.removeExtra(EXTRA_FOCUS_CONNECTOR) }
     }
 
     private fun askNotificationPermission() {
@@ -305,6 +307,7 @@ class MainActivity : ComponentActivity() {
         const val RELEASES_PREFIX = "https://github.com/xlollx/Trackhop/releases"
         const val RELEASES_URL = "$RELEASES_PREFIX/latest"
         const val EXTRA_FOCUS_JOB = "focusJob"
+        const val EXTRA_FOCUS_CONNECTOR = "focusConnector"
         const val TOOL_UNPLAYABLE = "unplayable"
         /** Not a tool: the alerts' notification asks this way for Discover › Followed artists. */
         const val TOOL_FOLLOWED = "followed"

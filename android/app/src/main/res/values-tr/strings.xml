@@ -867,6 +867,8 @@
     <string name="settings_unplayable">Çalınamayan parçalar için haftalık kontrol</string>
     <string name="settings_unplayable_desc">Trackhop haftada bir çalma listelerini tarar ve bir parça artık çalınamadığında haber verir. Kendi başına hiçbir şeyi değiştirmez.</string>
     <string name="notif_unplayable_title">Çalınamayan parçalar</string>
+    <string name="notif_signin_again_title">%1$s: senkronizasyonların çalışmaya devam etmesi için yeniden giriş yap</string>
+    <string name="notif_signin_again_text">Oturumun süresi doldu. Hesaplar\'ı açmak için dokun.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">Çalma listelerindeki %1$d parça artık çalınamıyor. Değiştirmek için dokun.</item>
         <item quantity="other">Çalma listelerindeki %1$d parça artık çalınamıyor. Değiştirmek için dokun.</item>

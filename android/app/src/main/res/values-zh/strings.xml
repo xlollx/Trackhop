@@ -857,6 +857,8 @@
     <string name="settings_unplayable">每周检查无法播放的曲目</string>
     <string name="settings_unplayable_desc">Trackhop 每周查看一次你的播放列表，当有曲目无法再播放时通知你。它不会自行更改任何内容。</string>
     <string name="notif_unplayable_title">无法播放的曲目</string>
+    <string name="notif_signin_again_title">%1$s：请重新登录以继续同步</string>
+    <string name="notif_signin_again_text">会话已过期。点按打开账号。</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">你的播放列表中有 %1$d 首曲目已无法播放。点按即可替换。</item>
         <item quantity="other">你的播放列表中有 %1$d 首曲目已无法播放。点按即可替换。</item>

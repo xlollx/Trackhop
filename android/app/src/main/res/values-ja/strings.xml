@@ -857,6 +857,8 @@
     <string name="settings_unplayable">再生できない曲の週次チェック</string>
     <string name="settings_unplayable_desc">週に一度、Trackhop がプレイリストを確認し、再生できなくなった曲があればお知らせします。勝手に変更することはありません。</string>
     <string name="notif_unplayable_title">再生できない曲</string>
+    <string name="notif_signin_again_title">%1$s：同期を続けるには再度ログインしてください</string>
+    <string name="notif_signin_again_text">セッションの有効期限が切れました。タップしてアカウントを開きます。</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">プレイリスト内の %1$d 曲が再生できなくなりました。タップして置き換えます。</item>
         <item quantity="other">プレイリスト内の %1$d 曲が再生できなくなりました。タップして置き換えます。</item>

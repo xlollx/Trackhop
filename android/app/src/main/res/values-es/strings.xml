@@ -869,6 +869,8 @@
     <string name="settings_unplayable">Comprobación semanal de canciones no reproducibles</string>
     <string name="settings_unplayable_desc">Una vez a la semana Trackhop revisa tus listas y te avisa cuando una canción ya no se puede reproducir. No cambia nada por sí solo.</string>
     <string name="notif_unplayable_title">Canciones no reproducibles</string>
+    <string name="notif_signin_again_title">%1$s: vuelve a iniciar sesión para que tus sincronizaciones sigan funcionando</string>
+    <string name="notif_signin_again_text">La sesión ha caducado. Toca para abrir Cuentas.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d canción de tus listas ya no se puede reproducir. Toca para sustituirla.</item>
         <item quantity="other">%1$d canciones de tus listas ya no se pueden reproducir. Toca para sustituirlas.</item>

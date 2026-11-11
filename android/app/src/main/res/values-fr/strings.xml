@@ -869,6 +869,8 @@
     <string name="settings_unplayable">Vérification hebdomadaire des titres injouables</string>
     <string name="settings_unplayable_desc">Une fois par semaine, Trackhop parcourt tes playlists et te prévient quand un titre ne peut plus être lu. Rien n\'est changé tout seul.</string>
     <string name="notif_unplayable_title">Titres injouables</string>
+    <string name="notif_signin_again_title">%1$s : reconnecte-toi pour que tes synchros continuent</string>
+    <string name="notif_signin_again_text">La session a expiré. Touche pour ouvrir Comptes.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d titre de tes playlists ne peut plus être lu. Touche pour le remplacer.</item>
         <item quantity="other">%1$d titres de tes playlists ne peuvent plus être lus. Touche pour les remplacer.</item>

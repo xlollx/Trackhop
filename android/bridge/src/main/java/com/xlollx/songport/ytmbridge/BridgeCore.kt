@@ -406,6 +406,13 @@ object BridgeCore {
                     putString("account", SoundCloudBridge.session.account(ctx))
                     putInt("version", VERSION)
                     putBoolean("slots", slotsFor(method))
+                    SoundCloudRenewal.expiredAt(ctx)?.let { putString("expiredAt", it) }
+                }
+                // Trackhop's background keep-alive: the site's session renewed once, and whether it is gone (and since when).
+                "soundcloud.keepAlive" -> Bundle().apply {
+                    putBoolean("renewed", SoundCloudRenewal.keepAlive(ctx))
+                    putBoolean("connected", SoundCloudBridge.session.isConnected(ctx))
+                    SoundCloudRenewal.expiredAt(ctx)?.let { putString("expiredAt", it) }
                 }
                 "soundcloud.disconnect" -> { SoundCloudBridge.session.clear(ctx); SoundCloudBridge.forgetWebStorage(); SoundCloudRenewal.forget(); soundCloudCache.clear(); Bundle() }
                 "soundcloud.playlists" -> ok(json.encodeToString(SoundCloudWebClient(ctx).libraryPlaylists()))

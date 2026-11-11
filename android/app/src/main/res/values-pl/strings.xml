@@ -895,6 +895,8 @@
     <string name="settings_unplayable">Cotygodniowe sprawdzanie nieodtwarzalnych utworów</string>
     <string name="settings_unplayable_desc">Raz w tygodniu Trackhop przegląda twoje playlisty i daje znać, gdy jakiegoś utworu nie da się już odtworzyć. Sam niczego nie zmienia.</string>
     <string name="notif_unplayable_title">Nieodtwarzalne utwory</string>
+    <string name="notif_signin_again_title">%1$s: zaloguj się ponownie, aby synchronizacje działały dalej</string>
+    <string name="notif_signin_again_text">Sesja wygasła. Dotknij, aby otworzyć Konta.</string>
     <plurals name="notif_unplayable_text">
         <item quantity="one">%1$d utwór z twoich playlist nie daje się już odtworzyć. Dotknij, aby go zastąpić.</item>
         <item quantity="other">%1$d utworów z twoich playlist nie daje się już odtworzyć. Dotknij, aby je zastąpić.</item>
