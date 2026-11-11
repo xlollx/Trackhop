@@ -185,7 +185,7 @@ fun ServiceTiles(tiles: List<ServiceTile>, selected: String?, onSelect: (String)
         // Every cell as tall as a mark and two lines of name, so the row keeps its height as it scrolls.
         val line = with(density) { MaterialTheme.typography.labelMedium.lineHeight.toDp() }
         val cellHeight = MARK_BOX + 4.dp + line * 2 + 8.dp
-        val fade = with(density) { 28.dp.toPx() }
+        val fade = with(density) { 16.dp.toPx() }
         androidx.compose.foundation.lazy.LazyRow(
             Modifier.fillMaxWidth()
                 .then(if (overflows) Modifier.semantics { contentDescription = hint } else Modifier)

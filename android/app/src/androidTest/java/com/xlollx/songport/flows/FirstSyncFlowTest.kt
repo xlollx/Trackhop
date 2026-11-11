@@ -88,8 +88,11 @@ class OneServiceFlowTest : FlowTest() {
         // Target: Spotify and File, File chosen (the other side of the only service).
         val file = LocalFilesProvider.label(app)
         waitText(file)
-        // File is a source too (an imported list), so it is in both rows: the target's is the last one.
-        compose.onAllNodes(hasClickAction() and hasText(file)).onLast().assertIsSelected()
+        // The target's field (the second) names File; in its picker's sheet, File is the mark selected.
+        tap(compose.onAllNodes(hasClickAction() and hasText(s(R.string.editor_playlist))).onLast(), "the target's field")
+        waitFor("File selected among the targets") {
+            compose.onAllNodes(hasClickAction() and hasText(file) and androidx.compose.ui.test.isSelected()).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // The hint's button goes to Accounts, with the service grid open.
         click(s(R.string.empty_syncs_cta_accounts))

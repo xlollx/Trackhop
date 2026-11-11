@@ -295,7 +295,8 @@ internal fun PickerRow(title: String, onClick: () -> Unit, modifier: Modifier = 
 
 @Composable
 private fun PlaylistRow(p: Playlist, provider: MusicProvider?, selected: Boolean, onClick: () -> Unit) {
-    val name = playlistDisplayName(p.id, p.name, provider?.id)
+    // The heart is on the picture here, not in the name.
+    val name = playlistDisplayName(p.id, p.name, provider?.id).removePrefix("\u2665 ")
     // What a list of a service without playlists is (Last.fm's loved, recent, most played).
     val note = p.description.takeIf { provider?.serviceId == com.xlollx.songport.providers.LastFmProvider.SERVICE && it.isNotBlank() }
     val count = p.trackCount.takeIf { it >= 0 }?.let { stringResource(R.string.tracks_count, it) }
