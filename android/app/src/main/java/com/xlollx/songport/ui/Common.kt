@@ -412,52 +412,52 @@ fun AppTopBar(
 @Composable
 fun HeroHeader(
     title: String, subtitle: String, link: String? = null, onLink: (() -> Unit)? = null,
-    /** A small button at the end of the title's row (white on the beam). */
+    /** Small buttons at the end of the row (white on the beam). */
     action: (@Composable () -> Unit)? = null,
-    content: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    // Kept low, so the syncs start high on the screen: the title on one line beside the logo and the
-    // button, the subtitle and the link under it, on the beam's dark side (the band crosses the
-    // top-right corner). On a phone on its side the subtitle has room on one line.
-    val side = LocalWindowLayout.current.short
-    val linkButton: @Composable () -> Unit = {
-        if (link != null && onLink != null) Row(
-            Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50))
-                .clickable(role = Role.Button, onClick = onLink).padding(start = 8.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(link, color = Color.White, style = MaterialTheme.typography.labelLarge, maxLines = 1)
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(18.dp))
-        }
+    // Kept slim, so the syncs start high on the screen: one row with the title at the left, the link
+    // and the buttons at the right. Where the row is wide (a tablet, a phone on its side) the logo
+    // leads it and the subtitle sits under the title, inside the row's own height; on a phone upright
+    // the title may take the row's two lines, and the subtitle is one small line under it.
+    val wide = LocalWindowLayout.current.let { it.rail || it.short }
+    val hasLink = link != null && onLink != null
+    val subtitleText: @Composable (Modifier) -> Unit = { m ->
+        Text(
+            subtitle, color = Color.White.copy(alpha = 0.92f), style = MaterialTheme.typography.bodySmall,
+            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = m,
+        )
     }
     Box(
         Modifier.fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .brandBeam()
-            .padding(start = 16.dp, end = if (action != null) 4.dp else 12.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = 16.dp, end = if (action != null) 4.dp else if (hasLink) 8.dp else 12.dp, top = 4.dp, bottom = 4.dp),
     ) {
         Column {
             Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                BrandTile(28.dp)
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
-                )
+                // The logo where there is room for it beside the title: not next to the link on a phone upright.
+                if (wide || !hasLink) {
+                    BrandTile(28.dp)
+                    Spacer(Modifier.width(10.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
+                        maxLines = if (wide) 1 else 2, overflow = TextOverflow.Ellipsis,
+                    )
+                    if (wide) subtitleText(Modifier)
+                }
+                if (hasLink) Row(
+                    Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50))
+                        .clickable(role = Role.Button, onClick = onLink!!).padding(start = 8.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(link!!, color = Color.White, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                }
                 action?.invoke()
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    subtitle, color = Color.White.copy(alpha = 0.92f), style = MaterialTheme.typography.bodySmall,
-                    maxLines = if (side) 1 else 2, overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f).padding(bottom = if (link == null || onLink == null) 8.dp else 0.dp),
-                )
-                linkButton()
-            }
-            if (content != null) {
-                Spacer(Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically, content = content)
-            }
+            if (!wide) subtitleText(Modifier.padding(end = 8.dp, bottom = 6.dp))
         }
     }
 }
