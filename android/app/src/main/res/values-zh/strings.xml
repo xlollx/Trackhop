@@ -1626,6 +1626,11 @@
     <string name="card_cover_covers_note">歌单自己的图片，或歌单中出现最多的艺人的封面。</string>
     <string name="card_cover_drawn_note">在手机上根据标题、主要艺人和封面颜色绘制：不会发送任何内容。</string>
     <string name="card_cover_another">换一个版本</string>
+    <string name="card_layout_title">布局</string>
+    <string name="card_layout_classic">经典</string>
+    <string name="card_layout_minimal">极简</string>
+    <string name="card_layout_bold">醒目</string>
+    <string name="card_poster_show_name">显示我的名字</string>
     <string name="card_ai_cover_failed_drawn">你的 AI 无法绘制封面（%1$s）。海报将使用在手机上绘制的封面。</string>
     <string name="error_same_playlist">来源和目标是同一个歌单：请为目标选择另一个歌单。</string>
     <string name="job_archive_badge">保留每首歌</string>

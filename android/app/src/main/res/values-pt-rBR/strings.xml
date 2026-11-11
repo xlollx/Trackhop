@@ -1660,6 +1660,11 @@
     <string name="card_cover_covers_note">A imagem da playlist, ou as capas dos artistas que mais aparecem nela.</string>
     <string name="card_cover_drawn_note">Desenhada no seu celular com o título, os principais artistas e as cores das capas: nada é enviado.</string>
     <string name="card_cover_another">Outra versão</string>
+    <string name="card_layout_title">Layout</string>
+    <string name="card_layout_classic">Clássico</string>
+    <string name="card_layout_minimal">Minimalista</string>
+    <string name="card_layout_bold">Marcante</string>
+    <string name="card_poster_show_name">Mostrar meu nome</string>
     <string name="card_ai_cover_failed_drawn">Sua IA não conseguiu desenhar a capa (%1$s). O pôster usa uma capa desenhada no seu celular.</string>
     <string name="error_same_playlist">A origem e o destino são a mesma playlist: escolha outra playlist como destino.</string>
     <string name="job_archive_badge">guarda todas as faixas</string>

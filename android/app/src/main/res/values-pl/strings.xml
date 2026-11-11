@@ -1706,6 +1706,11 @@
     <string name="card_cover_covers_note">Obraz playlisty albo okładki artystów, którzy pojawiają się w niej najczęściej.</string>
     <string name="card_cover_drawn_note">Rysowana na telefonie z tytułu, głównych artystów i kolorów okładek: nic nie jest wysyłane.</string>
     <string name="card_cover_another">Inna wersja</string>
+    <string name="card_layout_title">Układ</string>
+    <string name="card_layout_classic">Klasyczny</string>
+    <string name="card_layout_minimal">Minimalny</string>
+    <string name="card_layout_bold">Wyrazisty</string>
+    <string name="card_poster_show_name">Pokaż moją nazwę</string>
     <string name="card_ai_cover_failed_drawn">Twoja AI nie mogła narysować okładki (%1$s). Plakat używa okładki narysowanej na telefonie.</string>
     <string name="error_same_playlist">Źródło i cel to ta sama playlista: wybierz inną playlistę jako cel.</string>
     <string name="job_archive_badge">zachowuje każdy utwór</string>

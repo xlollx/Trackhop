@@ -1626,6 +1626,11 @@
     <string name="card_cover_covers_note">プレイリスト自体の画像、またはよく登場するアーティストのジャケット。</string>
     <string name="card_cover_drawn_note">タイトル、主なアーティスト、ジャケットの色からスマホ上で描画します。何も送信されません。</string>
     <string name="card_cover_another">別のバージョン</string>
+    <string name="card_layout_title">レイアウト</string>
+    <string name="card_layout_classic">クラシック</string>
+    <string name="card_layout_minimal">ミニマル</string>
+    <string name="card_layout_bold">ボールド</string>
+    <string name="card_poster_show_name">自分の名前を表示</string>
     <string name="card_ai_cover_failed_drawn">AIがカバーを描けませんでした（%1$s）。ポスターにはスマホで描いたジャケットを使います。</string>
     <string name="error_same_playlist">ソースとターゲットが同じプレイリストです。ターゲットには別のプレイリストを選んでください。</string>
     <string name="job_archive_badge">すべての曲を保存</string>

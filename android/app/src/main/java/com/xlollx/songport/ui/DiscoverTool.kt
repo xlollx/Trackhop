@@ -3,6 +3,7 @@ package com.xlollx.songport.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -216,6 +217,18 @@ internal fun ToolResultCard(modifier: Modifier = Modifier, content: @Composable 
     ) { Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content) }
 }
 
+/** A word of explanation under a result: a quiet row with an "i", not a paragraph left on its own. */
+@Composable
+internal fun ToolNote(text: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest).padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+    }
+}
+
 /** The tool's main button: as wide as its column, in the tool's colour, with a wheel while it works. */
 @Composable
 internal fun ToolPrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, busy: Boolean = false) {
@@ -295,22 +308,27 @@ internal fun ToolSplit(start: @Composable ColumnScope.() -> Unit, end: @Composab
     }
 }
 
-/** A choice of a few, side by side on one pill: the chosen one filled with the tool's colour. */
+/**
+ * A choice of a few, side by side on one pill: the chosen one filled with the tool's colour, or
+ * ([quiet]) only tinted with it, where the choice stands next to a button that is already filled.
+ */
 @Composable
-internal fun ToolSegmented(options: List<String>, selected: Int, modifier: Modifier = Modifier, enabled: Boolean = true, onSelect: (Int) -> Unit) {
+internal fun ToolSegmented(options: List<String>, selected: Int, modifier: Modifier = Modifier, enabled: Boolean = true, quiet: Boolean = false, onSelect: (Int) -> Unit) {
     val id = LocalToolIdentity.current
+    val fill = if (quiet) id.container() else id.accent
+    val onFill = if (quiet) id.tint() else id.onAccent
     Row(modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest).selectableGroup()) {
         options.forEachIndexed { i, label ->
             val on = i == selected
             Box(
                 Modifier.weight(1f).heightIn(min = 48.dp).clip(CircleShape)
                     .selectable(selected = on, enabled = enabled, role = androidx.compose.ui.semantics.Role.RadioButton, onClick = { onSelect(i) })
-                    .padding(4.dp).clip(CircleShape).background(if (on) id.accent else Color.Transparent).padding(horizontal = 10.dp, vertical = 6.dp),
+                    .padding(4.dp).clip(CircleShape).background(if (on) fill else Color.Transparent).padding(horizontal = 10.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     label, style = MaterialTheme.typography.labelLarge, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium, textAlign = TextAlign.Center,
-                    color = if (on) id.onAccent else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    color = if (on) onFill else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
             }
         }
@@ -320,7 +338,9 @@ internal fun ToolSegmented(options: List<String>, selected: Int, modifier: Modif
 /**
  * The card to share, drawn already: its preview (never taller than half a phone, so the buttons
  * stay in reach), the story/square switch, Share and Save. [description] is what TalkBack reads
- * for the preview; [matte] puts the preview on a sheet of that colour, as a print.
+ * for the preview; [matte] puts the preview on a sheet of that colour, as a print: the same margin
+ * all round, a soft shadow under the sheet. Only Share is filled with the tool's colour; the
+ * format switch and Save are tinted with it.
  */
 @Composable
 internal fun ToolShare(bitmaps: Map<Cards.Format, android.graphics.Bitmap>?, name: String, description: String?, busy: Boolean = bitmaps == null, formats: List<Cards.Format> = Cards.Format.entries, matte: Color? = null, extra: (@Composable ColumnScope.() -> Unit)? = null) {
@@ -336,13 +356,19 @@ internal fun ToolShare(bitmaps: Map<Cards.Format, android.graphics.Bitmap>?, nam
             // While the card is drawn its place is kept (a blank of its shape, the buttons greyed):
             // appearing late, it pushed everything below it down under a finger already on its way.
             val ratio = format.width.toFloat() / format.height
-            val frame = if (matte != null) Modifier.heightIn(max = 400.dp).aspectRatio(ratio).clip(RoundedCornerShape(6.dp)).background(matte).padding(10.dp)
-            else Modifier.heightIn(max = 400.dp).aspectRatio(ratio).clip(RoundedCornerShape(18.dp))
-            if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), contentDescription = description, modifier = frame)
-            else Box(frame.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp, color = id.tint()) }
+            val shape = RoundedCornerShape(if (matte != null) 2.dp else 18.dp)
+            val picture = Modifier.heightIn(max = if (matte != null) 372.dp else 400.dp).aspectRatio(ratio).clip(shape)
+            val framed: @Composable () -> Unit = {
+                if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), contentDescription = description, modifier = picture)
+                else Box(picture.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp, color = id.tint()) }
+            }
+            if (matte != null) Surface(shape = RoundedCornerShape(4.dp), color = matte, shadowElevation = 8.dp) {
+                // A hairline round the print, so a poster on paper does not melt into the sheet.
+                Box(Modifier.padding(14.dp).border(0.5.dp, Color.Black.copy(alpha = 0.14f), shape)) { framed() }
+            } else framed()
             if (formats.size > 1) ToolSegmented(
                 listOf(stringResource(R.string.card_format_story), stringResource(R.string.card_format_square)),
-                selected = if (format == Cards.Format.STORY) 0 else 1, modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
+                selected = if (format == Cards.Format.STORY) 0 else 1, modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(), quiet = true,
             ) { format = if (it == 0) Cards.Format.STORY else Cards.Format.SQUARE }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
@@ -352,7 +378,10 @@ internal fun ToolShare(bitmaps: Map<Cards.Format, android.graphics.Bitmap>?, nam
                     Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.card_share), textAlign = TextAlign.Center)
                 }
-                androidx.compose.material3.FilledTonalButton(enabled = bmp != null, onClick = { save.launch("$name.png") }, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) {
+                androidx.compose.material3.FilledTonalButton(
+                    enabled = bmp != null, onClick = { save.launch("$name.png") }, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = id.container(), contentColor = id.tint()),
+                ) {
                     Icon(Icons.Filled.SaveAlt, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.card_save), textAlign = TextAlign.Center)
                 }
