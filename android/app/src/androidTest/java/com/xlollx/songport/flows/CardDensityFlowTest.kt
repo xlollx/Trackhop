@@ -159,11 +159,22 @@ class CardDensityFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         val heights = com.xlollx.songport.ui.CardSize.entries.map { size ->
+            val shownAlready = com.xlollx.songport.ui.CardSize.of(store.data.settings.cardSize) == size
+            val was = cardOf(1).size.height
             store.updateSettings { it.copy(cardSize = size.key) }
-            compose.waitForIdle()
-            waitFor("${size.key} cards") { cardOf(1).size.height > 0 }
-            Thread.sleep(400) // the card's size change is animated
-            compose.waitForIdle()
+            // The new size reaches the list a frame or more later, and the card then animates to it:
+            // on a slow emulator a fixed pause measured the Medium card again as the Small one. So the
+            // card is measured once it has changed (an unchanged one fails the comparison below) and
+            // has held its height for a while.
+            if (!shownAlready) runCatching { compose.waitUntil(10_000) { runCatching { cardOf(1).size.height != was }.getOrDefault(false) } }
+            var last = -1
+            var since = 0L
+            waitFor("${size.key} cards holding their height") {
+                val h = cardOf(1).size.height
+                val now = android.os.SystemClock.uptimeMillis()
+                if (h != last) { last = h; since = now }
+                h > 0 && now - since >= 600
+            }
             snapshot("cards-${size.key}")
             cardOf(1).size.height / density()
         }
