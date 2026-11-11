@@ -61,18 +61,21 @@ object ArtistPick {
 
 /**
  * How many artists one Discover search looks up when it runs on the whole playlist (the ones it
- * holds most first), sized so a search takes about a minute and a day's calls last many searches.
- * Artists the user picks ([ArtistPick.chosen]) are all looked up: these caps are only the default's.
+ * holds most first): [DEFAULT], a short list that answers quickly and leaves a day's calls for many
+ * searches (50 felt like too many). Artists the user picks ([ArtistPick.chosen]) are all looked up:
+ * these caps are only the default's.
  */
 object LookupCaps {
+    /** The artists played most that a search looks up by default, on every Discover page. */
+    const val DEFAULT = 15
     /** Concerts: MusicBrainz answers one request a second (its places are remembered), Ticketmaster 2 a second, 5000 a day. */
-    const val CONCERTS = 50
-    /** Setlists: setlist.fm takes 2 requests a second and 1440 a day per key, one per artist: about 28 searches a day. */
-    const val SETLISTS = 50
+    const val CONCERTS = DEFAULT
+    /** Setlists: setlist.fm takes 2 requests a second and 1440 a day per key, one per artist. */
+    const val SETLISTS = DEFAULT
     /** Records & merch with a Discogs token: Discogs takes 60 requests a minute with one. */
-    const val RECORDS_TOKEN = 50
+    const val RECORDS_TOKEN = DEFAULT
     /** Records & merch without a token: Discogs takes 25 a minute. */
-    const val RECORDS_ANON = 25
+    const val RECORDS_ANON = DEFAULT
 
     /** [list] cut to [cap] when it is the whole playlist ([whole]); the artists picked by hand, all of them. */
     fun <T> cut(list: List<T>, cap: Int, whole: Boolean): List<T> = if (whole) list.take(cap) else list

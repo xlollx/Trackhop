@@ -2,6 +2,7 @@ package com.xlollx.songport.sync
 
 import com.xlollx.songport.ai.ArtistMixSource
 import com.xlollx.songport.data.Tokens
+import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.HttpResponse
 import com.xlollx.songport.net.Pacer
@@ -17,8 +18,9 @@ import com.xlollx.songport.platform.Env
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
@@ -42,6 +44,11 @@ import java.util.Locale
  * data is shown with "Data provided by Discogs" linking to Discogs, and nothing shown is more than
  * six hours older than on Discogs ([DISCOGS_TTL_MS]). MusicBrainz's links change seldom and are
  * kept a week ([LINKS_TTL_MS]), through the app's one-a-second MusicBrainz pace.
+ *
+ * Two artists can share a name ("Eldritch"): Discogs numbers them ("Eldritch (2)"), MusicBrainz
+ * gives each an id. The artist shown is the playlist's own: MusicBrainz's link to the artist's
+ * Discogs page names the exact one; else the one whose records carry the titles the playlist holds
+ * ([Evidence]); when nothing tells them apart, the most owned is shown with [ArtistRecords.sameName].
  */
 object Records {
     /** The user's own Discogs token, in the token vault (never in settings or the exported set-up). */
@@ -126,7 +133,34 @@ object Records {
         val shopsUnread: Boolean = false,
         /** Of those, a shop said "too many requests": try again in a few minutes ([Merch.Found.busy]). */
         val shopsBusy: Boolean = false,
+        /** Others share the artist's name and nothing told which is the playlist's: what is shown may be another's. */
+        val sameName: Boolean = false,
     )
+
+    /**
+     * What a playlist says about one of its artists, to tell them from others of the same name: the
+     * titles of its [albums] and [tracks] there ([Matcher.normalizeTitle]).
+     */
+    data class Evidence(val albums: Set<String>, val tracks: Set<String>) {
+        val titles: Set<String> get() = albums + tracks
+    }
+
+    /** The playlist's album and track titles of each artist (its first), by [norm] of the name. */
+    fun evidenceOf(tracks: List<Track>): Map<String, Evidence> {
+        val albums = HashMap<String, MutableSet<String>>()
+        val titles = HashMap<String, MutableSet<String>>()
+        fun add(to: HashMap<String, MutableSet<String>>, k: String, title: String) {
+            // Two letters say nothing: only real titles count.
+            val t = Matcher.normalizeTitle(title).takeIf { it.length >= 3 } ?: return
+            to.getOrPut(k) { LinkedHashSet() } += t
+        }
+        for (t in tracks) {
+            val name = t.artists.firstOrNull()?.trim()?.takeIf { it.isNotEmpty() } ?: continue
+            val k = norm(name)
+            if (t.kind == Track.KIND_ALBUM) add(albums, k, t.title) else { add(titles, k, t.title); add(albums, k, t.album) }
+        }
+        return (albums.keys + titles.keys).associateWith { Evidence(albums[it].orEmpty(), titles[it].orEmpty()) }
+    }
 
     data class Result(
         val artists: List<ArtistRecords>,
@@ -188,6 +222,7 @@ object Records {
     suspend fun find(
         env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL,
         progress: (Int, Int) -> Unit = { _, _ -> }, shops: Boolean = true,
+        evidence: Map<String, Evidence> = emptyMap(), partial: (Result) -> Unit = {},
     ): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
         var token = token(env)
@@ -199,28 +234,33 @@ object Records {
         var slowed = false
         val out = ArrayList<ArtistRecords>()
         list.forEachIndexed { i, artist ->
+            currentCoroutineContext().ensureActive()
             progress(i, list.size)
-            val (records, links) = coroutineScope {
-                val links = async { links(env, artist) }
+            val ev = evidence[norm(artist)]
+            val (records, mb) = coroutineScope {
+                val mb = async { musicBrainz(env, artist, ev) }
                 val records = if (slowed || !look.records) null else try {
-                    discogs(env, token, artist, cur)
+                    discogs(env, token, artist, cur, ev) { mb.await() }
                 } catch (e: TokenRefused) {
                     refused = true; token = null
-                    runCatching { discogs(env, null, artist, cur) }.getOrNull()
+                    try { discogs(env, null, artist, cur, ev) { mb.await() } } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
                 } catch (e: SlowDown) {
                     slowed = true; null
                 }
-                records to links.await()
+                records to mb.await()
             }
+            val links = mb?.links
             // The shops are read for every look: their records go with the records, the rest is the merch.
             // Without MusicBrainz no shop is known: not read, rather than nothing there. Without [shops]
             // the app reads them itself, one artist at a time as their card shows.
             if (links == null) env.log("records", "$artist: MusicBrainz did not answer")
-            out += artistRecords(artist, records, links, look, when {
+            out += artistRecords(artist, records, mb, look, when {
                 links == null -> Merch.Found(emptyList(), unread = true)
                 shops -> Merch.find(env, artist, links)
                 else -> null
             })
+            // What is found so far: kept when the user stops the search.
+            partial(Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur, look, if (look.records) startedAt else 0L))
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")
@@ -231,13 +271,16 @@ object Records {
     private fun asked(artists: List<String>) =
         artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
 
-    private fun artistRecords(artist: String, records: List<Record>?, links: List<Link>?, look: Look, found: Merch.Found?): ArtistRecords {
+    private fun artistRecords(artist: String, discogs: DiscogsKept?, mb: MbKept?, look: Look, found: Merch.Found?): ArtistRecords {
         val (shopRecords, merch) = found?.items.orEmpty().partition { it.format != null }
-        val page = links?.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
+        val links = mb?.links
+        // A Discogs page MusicBrainz is not sure of is not linked to: the search is.
+        val page = links?.firstOrNull { it.kind == Kind.DISCOGS && !mb.sameName }?.url ?: discogsSearch(artist)
         return ArtistRecords(
-            artist, records, links.orEmpty().filter { it.kind != Kind.DISCOGS }, searches(artist), page,
+            artist, discogs?.records, links.orEmpty().filter { it.kind != Kind.DISCOGS }, searches(artist), page,
             found?.let { merch.takeIf { look.merch } }, found?.let { shopRecords.takeIf { look.records } },
             found?.unread == true, found?.busy == true,
+            sameName = (look.records && discogs?.sameName == true) || mb?.sameName == true,
         )
     }
 
@@ -254,7 +297,7 @@ object Records {
         if (list.isEmpty()) return null
         val out = list.map { artist ->
             val links = cachedLinks(env, artist) ?: return null
-            val records = if (!look.records) null else cached(env, discogsKey(token, artist, cur), DISCOGS_TTL_MS) { json.decodeFromString(recordsSerializer, it) } ?: return null
+            val records = if (!look.records) null else cached(env, discogsKey(token, artist, cur), DISCOGS_TTL_MS) { json.decodeFromString(DiscogsKept.serializer(), it) } ?: return null
             artistRecords(artist, records, links, look, null)
         }
         val at = if (look.records) list.mapNotNull { discogsAt(env, token, it, cur) }.minOrNull() ?: return null else 0L
@@ -266,8 +309,13 @@ object Records {
 
     // ---------------------------------------------------------------- cache
 
-    private val recordsSerializer = ListSerializer(Record.serializer())
-    private val linksSerializer = ListSerializer(Link.serializer())
+    /** An artist's records as kept: [sameName] when other artists share the name and nothing told them apart. */
+    @Serializable
+    internal data class DiscogsKept(val records: List<Record>, val sameName: Boolean = false)
+
+    /** An artist's MusicBrainz pages as kept: [sameName] when several artists have the name and nothing told them apart. */
+    @Serializable
+    internal data class MbKept(val links: List<Link>, val sameName: Boolean = false)
 
     internal fun <T> cached(env: Env, k: String, ttl: Long, read: (String) -> T): T? {
         val saved = env.keyValues(CACHE)[k] ?: return null
@@ -283,15 +331,15 @@ object Records {
     private fun discogsAt(env: Env, token: String?, artist: String, currency: String): Long? =
         keptAt(env, discogsKey(token, artist, currency))?.takeIf { now() - it < DISCOGS_TTL_MS }
 
-    // "dg2": records saved before they carried a picture are not shown again with empty boxes.
-    private fun discogsKey(token: String?, artist: String, currency: String) = if (token != null) "dg2|$currency|${norm(artist)}" else "dg2|${norm(artist)}"
-    private fun linksKey(artist: String) = "mb|${norm(artist)}"
+    // "dg3"/"mb2": answers kept before artists of the same name were told apart are not shown again.
+    private fun discogsKey(token: String?, artist: String, currency: String) = if (token != null) "dg3|$currency|${norm(artist)}" else "dg3|${norm(artist)}"
+    private fun linksKey(artist: String) = "mb2|${norm(artist)}"
 
     /** The artist's links kept a week, or a day when MusicBrainz knew none. */
-    private fun cachedLinks(env: Env, artist: String): List<Link>? {
+    private fun cachedLinks(env: Env, artist: String): MbKept? {
         val k = linksKey(artist)
-        val links = cached(env, k, LINKS_TTL_MS) { json.decodeFromString(linksSerializer, it) } ?: return null
-        return links.takeIf { it.isNotEmpty() || cached(env, k, NO_LINKS_TTL_MS) { true } != null }
+        val kept = cached(env, k, LINKS_TTL_MS) { json.decodeFromString(MbKept.serializer(), it) } ?: return null
+        return kept.takeIf { it.links.isNotEmpty() || cached(env, k, NO_LINKS_TTL_MS) { true } != null }
     }
 
     internal fun remember(env: Env, k: String, value: String) {
@@ -304,22 +352,93 @@ object Records {
 
     // ---------------------------------------------------------------- Discogs
 
-    /** The artist's records on Discogs; null when Discogs did not answer (then nothing is remembered). */
-    private suspend fun discogs(env: Env, token: String?, artist: String, currency: String): List<Record>? {
+    /**
+     * The artist's records on Discogs; null when Discogs did not answer (then nothing is remembered).
+     * When the search holds several artists of that name, [mb] (MusicBrainz's answer, with its link
+     * to the artist on Discogs) and [ev] (the playlist's titles) say which ([chooseCredit]).
+     */
+    private suspend fun discogs(env: Env, token: String?, artist: String, currency: String, ev: Evidence?, mb: suspend () -> MbKept?): DiscogsKept? {
         val ck = discogsKey(token, artist, currency)
-        cached(env, ck, DISCOGS_TTL_MS) { json.decodeFromString(recordsSerializer, it) }?.let { return it }
+        cached(env, ck, DISCOGS_TTL_MS) { json.decodeFromString(DiscogsKept.serializer(), it) }?.let { return it }
         val search = discogsGet(token, "database/search?" + Http.query(mapOf(
             "artist" to artist, "type" to "release", "sort" to "have", "sort_order" to "desc", "per_page" to "100",
         ))) ?: return null
-        var records = parseSearch(search.body, artist)
+        val credits = credits(search.body, artist)
+        // MusicBrainz's link names the very artist: one more call, kept with the records for six hours.
+        val exact = if (credits.isEmpty()) null else mb()?.takeIf { !it.sameName }?.links
+            ?.firstNotNullOfOrNull { if (it.kind == Kind.DISCOGS) discogsArtistId(it.url) else null }
+            ?.let { id -> discogsGet(token, "artists/$id")?.let { r -> runCatching { parseJson(r.body)["name"].str }.getOrNull() } }
+        val choice = chooseCredit(credits, exact, ev)
+        if (choice.sameName) env.log("records", "$artist: several artists of this name on Discogs, none matching the playlist")
+        var records = parseSearch(search.body, artist, choice.name)
         if (token != null) records = records.mapIndexed { i, r ->
             if (i >= PRICED) r else {
                 val stats = runCatching { discogsGet(token, "marketplace/stats/${r.releaseId}?curr_abbr=$currency") }.getOrNull()
                 stats?.let { s -> parseStats(s.body)?.let { (n, price, cur) -> r.copy(forSale = n, lowestPrice = price, currency = cur) } } ?: r
             }
         }
-        remember(env, ck, json.encodeToString(recordsSerializer, records))
-        return records
+        val kept = DiscogsKept(records, choice.sameName)
+        remember(env, ck, json.encodeToString(DiscogsKept.serializer(), kept))
+        return kept
+    }
+
+    private val DISCOGS_ARTIST = Regex("^https?://(?:www\\.)?discogs\\.com/(?:[a-z]{2}(?:-[a-z]{2})?/)?artist/(\\d+)", RegexOption.IGNORE_CASE)
+
+    /** The artist id in a Discogs artist page's address ("https://www.discogs.com/artist/123-Name"), or null. */
+    fun discogsArtistId(url: String): Long? = DISCOGS_ARTIST.find(url.trim())?.groupValues?.get(1)?.toLongOrNull()
+
+    /** One artist credited in a Discogs search: [name] as Discogs writes it ("Eldritch (2)"), the [titles] of its records there. */
+    data class Credit(val name: String, val titles: Set<String>)
+
+    /** Which artist's records to show: [name] null for any of that name (nothing to choose), [sameName] when it is a guess. */
+    data class Choice(val name: String?, val sameName: Boolean)
+
+    /** [credit] as Discogs names the artist: variant and alias marks gone, its number kept ("Eldritch (2)"). */
+    private fun rawCredit(credit: String) = credit.substringBefore(" = ").trim().trimEnd('*').trim()
+
+    /**
+     * The artists named [artist] in a database search (Discogs numbers the others: "Eldritch (2)"),
+     * the most owned first, each with the titles of its records there.
+     */
+    fun credits(body: String, artist: String): List<Credit> {
+        val want = Matcher.normalizeArtist(artist)
+        if (want.isEmpty()) return emptyList()
+        val names = LinkedHashMap<String, String>()
+        val titles = HashMap<String, MutableSet<String>>()
+        for (e in parseJson(body)["results"].arr) {
+            val full = (e as? JsonObject)?.get("title")?.str ?: continue
+            val credit = full.substringBefore(" - ", "")
+            if (credit.isEmpty() || Matcher.normalizeArtist(creditName(credit)) != want) continue
+            val raw = rawCredit(credit)
+            val k = Labels.fold(raw)
+            names.putIfAbsent(k, raw)
+            titles.getOrPut(k) { HashSet() } += Matcher.normalizeTitle(full.substringAfter(" - "))
+        }
+        return names.map { (k, name) -> Credit(name, titles[k].orEmpty()) }
+    }
+
+    /**
+     * Which of the artists [credits] (most owned first) is the playlist's. One alone is it.
+     * [exact], the name of the one MusicBrainz links to, is it, unless the playlist's titles ([ev])
+     * are only on another's records. Else the one whose records hold the playlist's titles; when
+     * none (or several alike) do, the most owned, as a guess ([Choice.sameName]).
+     */
+    fun chooseCredit(credits: List<Credit>, exact: String?, ev: Evidence?): Choice {
+        if (credits.isEmpty()) return Choice(exact, false)
+        val titles = ev?.titles.orEmpty()
+        val overlap = credits.associateWith { c -> c.titles.count { it in titles } }
+        val top = overlap.values.max()
+        val best = credits.singleOrNull { overlap[it] == top }?.takeIf { top > 0 }
+        if (exact != null) {
+            val named = credits.firstOrNull { Labels.fold(it.name) == Labels.fold(exact) }
+            val evidenceElsewhere = (named == null || overlap[named] == 0) && best != null
+            return Choice(if (evidenceElsewhere) best!!.name else named?.name ?: exact, false)
+        }
+        return when {
+            credits.size == 1 -> Choice(credits[0].name, false)
+            best != null -> Choice(best.name, false)
+            else -> Choice(credits[0].name, true)
+        }
     }
 
     /** A GET to Discogs, paced; null when it did not answer. Throws [SlowDown] on 429 and [TokenRefused] on 401 with a token. */
@@ -355,11 +474,13 @@ object Records {
     /**
      * A database search for releases by [artist], most owned first: those credited to the artist
      * by that very name ("Artist - Title"), on CD, vinyl or cassette, not unofficial, one per
-     * master (its editions' formats together, its first year), the first [PER_ARTIST].
+     * master (its editions' formats together, its first year), the first [PER_ARTIST]. With
+     * [credit] (one of [credits]), only that artist's: "Eldritch (2)" is not "Eldritch".
      */
-    fun parseSearch(body: String, artist: String): List<Record> {
+    fun parseSearch(body: String, artist: String, credit: String? = null): List<Record> {
         val want = Matcher.normalizeArtist(artist)
         if (want.isEmpty()) return emptyList()
+        val exact = credit?.let { Labels.fold(it) }
         class Group(val first: JsonObject, val formats: LinkedHashSet<Format>, var year: Int?)
         val groups = LinkedHashMap<String, Group>()
         for (e in parseJson(body)["results"].arr) {
@@ -367,6 +488,7 @@ object Records {
             val full = o["title"].str ?: continue
             val credit = full.substringBefore(" - ", "")
             if (credit.isEmpty() || Matcher.normalizeArtist(creditName(credit)) != want) continue
+            if (exact != null && Labels.fold(rawCredit(credit)) != exact) continue
             val names = o["format"].arr.mapNotNull { it.str }
             if (names.any { it.equals("Unofficial Release", ignoreCase = true) }) continue
             val formats = names.mapNotNull { format(it) }
@@ -407,26 +529,66 @@ object Records {
 
     // ---------------------------------------------------------------- MusicBrainz
 
-    /** The artist's pages on MusicBrainz (empty when it does not know the artist); null when it could not be asked. */
-    private suspend fun links(env: Env, artist: String): List<Link>? {
+    /**
+     * The artist's pages on MusicBrainz (empty when it does not know the artist); null when it could
+     * not be asked. Of several artists of that name, the one with the playlist's titles ([ev]).
+     */
+    private suspend fun musicBrainz(env: Env, artist: String, ev: Evidence?): MbKept? {
         val ck = linksKey(artist)
         cachedLinks(env, artist)?.let { return it }
-        val q = "artist:\"${artist.replace("\\", "\\\\").replace("\"", "\\\"")}\""
-        val found = mbGet("artist?query=${enc(q)}&limit=5&fmt=json") ?: return null
-        val id = pickArtist(found, artist)
+        val found = mbGet("artist?query=${enc("artist:" + phrase(artist))}&limit=5&fmt=json") ?: return null
+        val ids = pickArtists(found, artist)
+        val (id, sameName) = if (ids.size <= 1) ids.firstOrNull() to false else chooseArtist(ids, ev?.let { mbHits(ids, it) })
         val links = if (id == null) emptyList() else parseLinks(mbGet("artist/$id?inc=url-rels&fmt=json") ?: return null)
-        remember(env, ck, json.encodeToString(linksSerializer, links))
-        return links
+        val kept = MbKept(links, sameName)
+        // A guess made with no titles to go by is not kept: the page, which has them, asks again.
+        if (!sameName || ev != null) remember(env, ck, json.encodeToString(MbKept.serializer(), kept))
+        return kept
+    }
+
+    private fun phrase(s: String) = "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
+    /**
+     * How many of the playlist's titles ([ev]) MusicBrainz has by each of [ids]: one search, of the
+     * albums (or, with none, of the tracks), by those artists only. Null when it could not be asked.
+     */
+    private suspend fun mbHits(ids: List<String>, ev: Evidence): Map<String, Int>? {
+        val (entity, field, titles) = if (ev.albums.isNotEmpty()) Triple("release-group", "releasegroup", ev.albums) else Triple("recording", "recording", ev.tracks)
+        if (titles.isEmpty()) return null
+        val q = "(" + ids.joinToString(" OR ") { "arid:$it" } + ") AND (" + titles.take(8).joinToString(" OR ") { "$field:" + phrase(it) } + ")"
+        return parseHits(mbGet("$entity?query=${enc(q)}&limit=50&fmt=json") ?: return null, ids, titles)
+    }
+
+    /** Of a release-group or recording search, how many answers with one of [titles] each of [ids] is credited on. */
+    fun parseHits(body: String, ids: List<String>, titles: Set<String>): Map<String, Int> {
+        val o = parseJson(body)
+        val hits = HashMap<String, Int>()
+        for (r in o["release-groups"].arr + o["recordings"].arr) {
+            if (Matcher.normalizeTitle(r["title"].str.orEmpty()) !in titles) continue
+            r["artist-credit"].arr.mapNotNull { MusicBrainz.mbid(it["artist"]["id"].str) }.distinct()
+                .filter { it in ids }.forEach { hits[it] = (hits[it] ?: 0) + 1 }
+        }
+        return hits
+    }
+
+    /** Of several artists of the same name ([ids], best first), the one with most of the playlist's titles ([hits]); else the first, as a guess. */
+    fun chooseArtist(ids: List<String>, hits: Map<String, Int>?): Pair<String, Boolean> {
+        val top = hits?.values?.maxOrNull() ?: 0
+        val best = ids.filter { (hits?.get(it) ?: 0) == top }.singleOrNull()?.takeIf { top > 0 }
+        return if (best != null) best to false else ids.first() to true
+    }
+
+    /** The ids of the artist search's answers named exactly [artist] (score 90 or more), best first. */
+    fun pickArtists(body: String, artist: String): List<String> {
+        val want = Matcher.normalizeArtist(artist)
+        if (want.isEmpty()) return emptyList()
+        return parseJson(body)["artists"].arr.filter { a ->
+            (a["score"].int ?: 0) >= 90 && Matcher.normalizeArtist(a["name"].str.orEmpty()) == want
+        }.mapNotNull { MusicBrainz.mbid(it["id"].str) }.distinct()
     }
 
     /** The id of the artist search's best answer named exactly [artist] (score 90 or more), or null. */
-    fun pickArtist(body: String, artist: String): String? {
-        val want = Matcher.normalizeArtist(artist)
-        if (want.isEmpty()) return null
-        return parseJson(body)["artists"].arr.firstOrNull { a ->
-            (a["score"].int ?: 0) >= 90 && Matcher.normalizeArtist(a["name"].str.orEmpty()) == want
-        }?.let { MusicBrainz.mbid(it["id"].str) }
-    }
+    fun pickArtist(body: String, artist: String): String? = pickArtists(body, artist).firstOrNull()
 
     private val ORDER = Kind.entries
 

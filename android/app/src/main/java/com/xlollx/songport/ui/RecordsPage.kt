@@ -147,15 +147,24 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     if (tokenOpen) DiscogsTokenDialog { tokenOpen = false }
     // The playlist's artists, read when it is picked: the ones played most, or some chosen.
     var artists by remember { mutableStateOf<List<String>?>(null) }
+    // Their albums and songs in the playlist: they tell its artist from another of the same name.
+    var evidence by remember { mutableStateOf<Map<String, Records.Evidence>>(emptyMap()) }
+    // Reading them failed (shown with Try again, which counts up [reads]).
+    var artistsFailed by remember { mutableStateOf(false) }
+    var reads by remember { mutableStateOf(0) }
     val choice = rememberArtistChoice()
     var look by remember { mutableStateOf(savedLook(ctx)) }
     // One format at a time (null: all of them), for this visit only.
     var format by rememberSaveable { mutableStateOf<Records.Format?>(null) }
-    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
-        artists = null
+    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id, reads) {
+        artists = null; artistsFailed = false; evidence = emptyMap()
         val p = pick ?: return@LaunchedEffect
         choice.forPlaylist(p.provider.id + "|" + p.playlist.id)
-        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) } } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+        try {
+            val tracks = p.provider.tracks(ctx.env, p.playlist.id)
+            evidence = Records.evidenceOf(tracks)
+            artists = Concerts.artistsOf(tracks).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) }
+        } catch (e: CancellationException) { throw e } catch (_: Exception) { artistsFailed = true }
     }
 
     // Outside the page (RecordsKept): the screen turned or another tab opened, the search goes on.
@@ -163,13 +172,17 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         val p = pick ?: return
         if (!choice.ready) return
         val env = ctx.env
-        val known = artists; val picked = choice.pickedOrNull
+        val known = artists; val ev = evidence; val picked = choice.pickedOrNull
         val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
         ShopsKept.forgetUnread()
         k.start(p.playlist.id) { progress ->
-            val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
+            val tracks = if (known == null) p.provider.tracks(env, p.playlist.id) else null
+            val all = known ?: Concerts.artistsOf(tracks!!)
             // Kept answers are reused per artist; the shops are read by the cards as they show.
-            Records.find(env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress, shops = false)
+            Records.find(
+                env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress, shops = false,
+                evidence = tracks?.let { Records.evidenceOf(it) } ?: ev, partial = k::keep,
+            )
         }
     }
 
@@ -209,7 +222,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         pick = it
     }
     val cap = remember(tokenOpen) { if (Records.token(ctx.env) != null) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON }
-    if (pick != null) ArtistChooser(artists, choice, cap)
+    if (pick != null) ArtistChooser(artists, choice, cap, artistsFailed) { reads++ }
     val busy = k.running
     val progress = k.progress
     Button(onClick = { run() }, enabled = pick != null && !busy && choice.ready, modifier = Modifier.fillMaxWidth()) {
@@ -220,12 +233,11 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
             else artistsAction(artists, choice, cap, R.string.records_find, R.plurals.records_find_for, R.string.records_find_top),
         )
     }
-    progress?.takeIf { it.second > 0 }?.let { (done, total) ->
-        Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
+    if (busy) SearchRunning(progress) { k.stop() }
 
     val r = RecordsKept.fresh()?.takeIf { pick == null || k.key == pick?.playlist?.id }
     if (r != null && !busy) {
+        SearchStopped(k.stopped)
         val discogs = look.records && r.look.records
         val notes = buildList {
             if (discogs && r.slowedDown) add(stringResource(R.string.records_slowed))
@@ -308,6 +320,8 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
     Card(Modifier.fillMaxWidth().then(if (reads) Modifier.onGloballyPositioned { onScreen = it.boundsInWindow().height > 0f } else Modifier)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ArtistTitle(a.artist)
+            // Others share the name and nothing told which is the playlist's: said so, not shown as sure.
+            if (a.sameName) Text(stringResource(R.string.records_same_name), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             // The format picked (null: all of them), on Discogs and in their shops.
             val records = a.records?.filter { rec -> format == null || format in rec.formats }
             val shopRecords = shops?.records?.filter { format == null || it.format == format }

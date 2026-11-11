@@ -55,7 +55,7 @@ setlist.fm answers only apps with a key, free for non-commercial use, and each k
   everyone, so Trackhop carries none. It's free: with a setlist.fm account, ask for one on
   [setlist.fm's API page](https://www.setlist.fm/settings/api) and paste it in the app (Settings ›
   Advanced › Service keys › setlist.fm key, or the button on the Setlists page). Trackhop keeps it
-  encrypted with your sign-ins, looks up the 50 artists the playlist holds most (or the ones you
+  encrypted with your sign-ins, looks up the 15 artists the playlist holds most (or the ones you
   choose under **Artists**), only when you tap
   **Find setlists** (never in the background), and keeps each artist's setlists for a week. If the
   day's lookups run out you'll see "Today's setlist.fm limit is reached": try again tomorrow. It

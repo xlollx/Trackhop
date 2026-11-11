@@ -2086,6 +2086,13 @@
     <string name="artists_select_shown">Marcar los mostrados</string>
     <string name="artists_clear">Desmarcar</string>
     <string name="artists_done">Listo (%d)</string>
+    <string name="artists_loading">Leyendo los artistas de la playlist…</string>
+    <string name="artists_load_failed">No se pudieron leer los artistas de la playlist.</string>
+    <string name="artists_retry">Reintentar</string>
+    <string name="search_stop">Detener</string>
+    <string name="search_stopped">Búsqueda detenida: %1$d de %2$d artistas buscados.</string>
+    <string name="search_stopped_early">Búsqueda detenida.</string>
+    <string name="records_same_name">Puede que otro artista tenga este nombre: parte de esto podría ser suyo.</string>
     <plurals name="concerts_find_for">
         <item quantity="one">Buscar conciertos de %d artista</item>
         <item quantity="other">Buscar conciertos de %d artistas</item>
@@ -2164,7 +2171,7 @@
     <string name="records_not_asked">No se buscó esta vez: inténtalo en un minuto.</string>
     <string name="records_slowed">Discogs pidió ir más despacio: algunos artistas no tienen discos esta vez. Inténtalo en un minuto.</string>
     <string name="records_token_refused">Discogs rechazó tu token: revísalo en Ajustes › Avanzado › Claves de los servicios.</string>
-    <string name="records_no_token">Añade tu propio token de Discogs para ver cuántas copias hay a la venta y buscar más artistas.</string>
+    <string name="records_no_token">Añade tu propio token de Discogs para ver cuántas copias hay a la venta y buscar artistas más rápido.</string>
     <string name="records_links">Páginas oficiales</string>
     <string name="records_shop">Tienda oficial</string>
     <string name="records_search">Buscar en tiendas</string>
@@ -2185,7 +2192,7 @@
     <string name="records_shop_wait">Demasiados intentos, vuelve a intentarlo en unos minutos.</string>
     <string name="records_updated">Actualizado %1$s</string>
     <string name="records_token_title">Token de Discogs</string>
-    <string name="records_token_body">Opcional. Un token de acceso personal de tu cuenta de Discogs (Settings › Developers) muestra cuántas copias hay a la venta y desde qué precio, y busca más artistas. Trackhop solo lee con él y lo guarda cifrado en este teléfono.</string>
+    <string name="records_token_body">Opcional. Un token de acceso personal de tu cuenta de Discogs (Settings › Developers) muestra cuántas copias hay a la venta y desde qué precio, y busca artistas más rápido. Trackhop solo lee con él y lo guarda cifrado en este teléfono.</string>
     <string name="records_token_get">Obtener un token</string>
     <string name="records_token_field">Token de acceso personal</string>
     <string name="records_token_own">Usando tu token</string>

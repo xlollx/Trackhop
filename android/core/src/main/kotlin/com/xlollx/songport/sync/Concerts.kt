@@ -246,6 +246,7 @@ object Concerts {
     suspend fun find(
         env: Env, artists: List<String>, country: String, range: Range = Range.ANY, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> },
         background: Boolean = false,
+        partial: (Result) -> Unit = {},
     ): Result {
         val c = country(country) ?: throw IllegalArgumentException("\"$country\" is not a country code (IT, US, DE...)")
         val key = if (background) ownKey(env) else key(env)
@@ -276,11 +277,19 @@ object Concerts {
             }
             val events = merge(tm.orEmpty(), mb.orEmpty(), sites).filter { inRange(it, today, end) }
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
+            // What is found so far: kept when the user stops the search.
+            partial(result(c, out, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead))
         }
         progress(list.size, list.size)
         if (quotaHit) env.log("concerts", "Ticketmaster: today's limit reached")
+        return result(c, out, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead)
+    }
+
+    private fun result(
+        c: String, out: List<ArtistDates>, total: Int, tm: Boolean, own: Boolean, quotaHit: Boolean, refused: Boolean, range: Range, ticketOneRead: Boolean,
+    ): Result {
         val (dated, without) = out.partition { it.events.isNotEmpty() }
-        return Result(c, dated.sortedBy { it.events.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead)
+        return Result(c, dated.sortedBy { it.events.first().date } + ArtistPick.byName(without) { it.artist }, total, tm, own, quotaHit, refused, range, ticketOneRead)
     }
 
     /** [e] is on [today] or after, and on [end] or before (no end = any later date). */

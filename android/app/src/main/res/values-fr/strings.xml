@@ -2086,6 +2086,13 @@
     <string name="artists_select_shown">Cocher ceux affichés</string>
     <string name="artists_clear">Décocher</string>
     <string name="artists_done">Terminé (%d)</string>
+    <string name="artists_loading">Lecture des artistes de la playlist…</string>
+    <string name="artists_load_failed">Impossible de lire les artistes de la playlist.</string>
+    <string name="artists_retry">Réessayer</string>
+    <string name="search_stop">Arrêter</string>
+    <string name="search_stopped">Recherche arrêtée : %1$d artistes sur %2$d cherchés.</string>
+    <string name="search_stopped_early">Recherche arrêtée.</string>
+    <string name="records_same_name">Un autre artiste porte peut-être ce nom : une partie de ceci pourrait être à lui.</string>
     <plurals name="concerts_find_for">
         <item quantity="one">Chercher les concerts de %d artiste</item>
         <item quantity="other">Chercher les concerts de %d artistes</item>
@@ -2164,7 +2171,7 @@
     <string name="records_not_asked">Pas cherché cette fois : réessaie dans une minute.</string>
     <string name="records_slowed">Discogs a demandé de ralentir : certains artistes n\'ont pas de disques cette fois. Réessaie dans une minute.</string>
     <string name="records_token_refused">Discogs a refusé ton jeton : vérifie-le dans Réglages › Avancé › Clés de service.</string>
-    <string name="records_no_token">Ajoute ton propre jeton Discogs pour voir combien d\'exemplaires sont en vente et chercher plus d\'artistes.</string>
+    <string name="records_no_token">Ajoute ton propre jeton Discogs pour voir combien d\'exemplaires sont en vente et chercher les artistes plus vite.</string>
     <string name="records_links">Pages officielles</string>
     <string name="records_shop">Boutique officielle</string>
     <string name="records_search">Chercher dans les boutiques</string>
@@ -2185,7 +2192,7 @@
     <string name="records_shop_wait">Trop de tentatives, réessaie dans quelques minutes.</string>
     <string name="records_updated">Mis à jour %1$s</string>
     <string name="records_token_title">Jeton Discogs</string>
-    <string name="records_token_body">Facultatif. Un jeton d\'accès personnel de ton compte Discogs (Settings › Developers) montre combien d\'exemplaires sont en vente et à partir de quel prix, et cherche plus d\'artistes. Trackhop ne fait que lire avec, et le garde chiffré sur ce téléphone.</string>
+    <string name="records_token_body">Facultatif. Un jeton d\'accès personnel de ton compte Discogs (Settings › Developers) montre combien d\'exemplaires sont en vente et à partir de quel prix, et cherche les artistes plus vite. Trackhop ne fait que lire avec, et le garde chiffré sur ce téléphone.</string>
     <string name="records_token_get">Obtenir un jeton</string>
     <string name="records_token_field">Jeton d\'accès personnel</string>
     <string name="records_token_own">Ton jeton est utilisé</string>

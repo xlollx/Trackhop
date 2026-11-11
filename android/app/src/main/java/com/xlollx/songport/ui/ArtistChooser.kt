@@ -37,9 +37,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
@@ -144,13 +146,69 @@ internal fun artistsAction(all: List<String>?, choice: ArtistChoice, cap: Int, p
 /** Most chips shown on the page; the rest are counted on a chip that opens the list. */
 private const val CHIPS = 12
 
+/** The playlist's artists being read: a small spinner and a line saying so, as the Discover pages show work going on. */
+@Composable
+private fun ArtistsLoading() {
+    Row(
+        Modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+        Text(stringResource(R.string.artists_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** The playlist's artists could not be read: said so, with Try again. */
+@Composable
+private fun ArtistsFailed(onRetry: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            stringResource(R.string.artists_load_failed), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        TextButton(onClick = onRetry) { Text(stringResource(R.string.artists_retry)) }
+    }
+}
+
+/**
+ * A Discover search going on: how far it is ("Artist 3 of 15") and Stop, which ends it at once and
+ * keeps what it found. It goes on when the page is left: from here it can be stopped.
+ */
+@Composable
+internal fun SearchRunning(progress: Pair<Int, Int>?, onStop: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        val text = progress?.takeIf { it.second > 0 }?.let { (done, total) -> stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total) }
+        Text(
+            text.orEmpty(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        OutlinedButton(onClick = onStop, modifier = Modifier.heightIn(min = 48.dp)) {
+            Icon(Icons.Filled.Stop, null, Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.search_stop))
+        }
+    }
+}
+
+/** A search the user stopped at "done/total": how far it got (what it found is shown below). */
+@Composable
+internal fun SearchStopped(stopped: Pair<Int, Int>?) {
+    val (done, total) = stopped ?: return
+    Text(
+        if (total > 0) stringResource(R.string.search_stopped, done, total) else stringResource(R.string.search_stopped_early),
+        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
 /**
  * The artists a search looks up: the ones played most ([cap] of the playlist's [all], null while it
- * is read) or the chosen ones, as chips, picked in a sheet with one search field.
+ * is read) or the chosen ones, as chips, picked in a sheet with one search field. While [all] is
+ * read a line says so; when it could not be read ([failed]) another says so, with [onRetry], and
+ * artists can still be added by name.
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-internal fun ArtistChooser(all: List<String>?, choice: ArtistChoice, cap: Int) {
+internal fun ArtistChooser(all: List<String>?, choice: ArtistChoice, cap: Int, failed: Boolean = false, onRetry: () -> Unit = {}) {
     var sheet by rememberSaveable { mutableStateOf(false) }
     OutlinedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -166,6 +224,7 @@ internal fun ArtistChooser(all: List<String>?, choice: ArtistChoice, cap: Int) {
             val hintStyle = MaterialTheme.typography.bodySmall
             val hintColor = MaterialTheme.colorScheme.onSurfaceVariant
             val live = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+            if (all == null) { if (failed) ArtistsFailed(onRetry) else ArtistsLoading() }
             if (!choice.choose) {
                 val n = all?.size ?: return@Column
                 Text(
@@ -191,17 +250,19 @@ internal fun ArtistChooser(all: List<String>?, choice: ArtistChoice, cap: Int) {
                 }
                 if (picked.size > CHIPS) AssistChip(onClick = { sheet = true }, label = { Text("+${picked.size - CHIPS}") })
             }
-            OutlinedButton(onClick = { sheet = true }, enabled = all != null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
+            OutlinedButton(onClick = { sheet = true }, enabled = all != null || failed, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                if (all == null && !failed) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                else Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.artists_add))
             }
         }
     }
-    if (sheet && all != null) {
+    // Not read: artists can still be added by name.
+    if (sheet && (all != null || failed)) {
         val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(onDismissRequest = { sheet = false }, sheetState = state) {
-            ArtistSheetContent(all, choice.picked, { choice.picked = it }) { sheet = false }
+            ArtistSheetContent(all.orEmpty(), choice.picked, { choice.picked = it }) { sheet = false }
         }
     }
 }

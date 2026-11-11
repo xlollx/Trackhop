@@ -230,6 +230,7 @@ object NewReleases {
      */
     suspend fun find(
         env: Env, artists: List<String>, days: Int, upcoming: Boolean,
+        partial: (Result) -> Unit = {},
         onProgress: (Int, Int) -> Unit = { _, _ -> },
     ): Result {
         val names = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }
@@ -239,6 +240,8 @@ object NewReleases {
             onProgress(i, names.size)
             val found = ofArtist(env, a)
             if (found == null) unanswered++ else all += found
+            // What is found so far, for the artists asked: kept when the user stops the search.
+            partial(Result(window(all, days, upcoming), names.take(i + 1), unanswered))
         }
         onProgress(names.size, names.size)
         if (unanswered > 0) env.log("releases", "$unanswered of ${names.size} artists not answered (Deezer and MusicBrainz both silent)")

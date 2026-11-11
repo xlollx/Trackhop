@@ -17,6 +17,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,6 +45,7 @@ import com.xlollx.songport.providers.importTracks
 import com.xlollx.songport.sync.NewReleases
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,6 +70,24 @@ internal object ReleasesKept {
     /** "Add to an existing playlist" open, and the playlist picked to add to. */
     var addOpen by mutableStateOf(false)
     var addTo by mutableStateOf<CardPick?>(null)
+    /** The search going on, what it found so far, and where it was when the user stopped it. */
+    var job: Job? = null
+    var found: NewReleases.Result? = null
+    var stopped by mutableStateOf<Pair<Int, Int>?>(null)
+    /** Counts the searches: a stopped one still finishing a request no longer touches the page. */
+    var runs = 0
+
+    /** Stops the search going on: its requests are cancelled, what it found so far is the result. */
+    fun stop() {
+        val j = job?.takeIf { it.isActive } ?: return
+        val at = progress ?: (0 to 0)
+        j.cancel()
+        job = null
+        runs++
+        progress = null
+        found?.let { result = it }
+        stopped = at
+    }
 }
 
 private fun typeName(ctx: Context, t: NewReleases.Type) = ctx.getString(
@@ -110,10 +132,15 @@ internal fun ReleasesPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
                 style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f),
             )
         }
-        Button(enabled = k.pick != null && !busy, onClick = { find(ctx) }) { Text(stringResource(R.string.releases_find)) }
+        // A search going on can be stopped (it goes on when the page is left): what it found stays.
+        if (busy && !k.readingTracks) OutlinedButton(onClick = { k.stop() }) {
+            Icon(Icons.Filled.Stop, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.search_stop))
+        }
+        else Button(enabled = k.pick != null && !busy, onClick = { find(ctx) }) { Text(stringResource(R.string.releases_find)) }
     }
 
     val r = k.result ?: return
+    if (!busy) SearchStopped(k.stopped)
     if (r.unanswered > 0) Text(
         pluralStringResource(R.plurals.releases_unanswered, r.unanswered, r.unanswered),
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
@@ -184,17 +211,23 @@ private fun find(ctx: Context) {
     val k = ReleasesKept
     val p = k.pick ?: return
     val app = ctx.applicationContext
-    k.progress = 0 to 0; k.readingTracks = false; k.result = null; k.unticked = emptySet()
-    k.scope.launch {
+    if (k.job?.isActive == true) return
+    k.progress = 0 to 0; k.readingTracks = false; k.result = null; k.unticked = emptySet(); k.stopped = null; k.found = null
+    // Stopped ([ReleasesKept.stop]): this run no longer touches the page, a new one may be going.
+    val run = ++k.runs
+    fun mine() = run == k.runs
+    k.job = k.scope.launch {
         try {
             val artists = NewReleases.artists(p.provider.tracks(app.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(app.env, it) }
-            k.result = withContext(Dispatchers.IO) {
-                NewReleases.find(app.env, artists, k.days, k.upcoming) { done, total -> k.progress = done to total }
+            val r = withContext(Dispatchers.IO) {
+                NewReleases.find(app.env, artists, k.days, k.upcoming, partial = { if (mine()) k.found = it }) { done, total -> if (mine()) k.progress = done to total }
             }
+            if (mine()) k.result = r
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            k.error = e.message ?: app.getString(R.string.error_generic)
+            if (mine()) k.error = e.message ?: app.getString(R.string.error_generic)
+        } finally {
+            if (mine()) { k.progress = null; k.job = null }
         }
-        k.progress = null
     }
 }
 

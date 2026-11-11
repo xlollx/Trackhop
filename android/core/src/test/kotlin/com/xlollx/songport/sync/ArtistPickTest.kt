@@ -76,4 +76,14 @@ class ArtistPickTest {
         assertEquals(LookupCaps.CONCERTS, LookupCaps.cut(all, LookupCaps.CONCERTS, whole = true).size)
         assertEquals(80, LookupCaps.cut(all, LookupCaps.CONCERTS, whole = false).size)
     }
+
+    @Test fun everyPageLooksUpTheFifteenPlayedMostByDefault() {
+        assertEquals(15, LookupCaps.DEFAULT)
+        listOf(LookupCaps.CONCERTS, LookupCaps.SETLISTS, LookupCaps.RECORDS_TOKEN, LookupCaps.RECORDS_ANON).forEach { assertEquals(15, it) }
+        val all = (1..40).map { "A$it" }
+        assertEquals(15, ArtistPick.count(all, null, LookupCaps.CONCERTS))
+        assertEquals(all.take(15), LookupCaps.cut(all, LookupCaps.RECORDS_ANON, whole = true))
+        // The ones chosen by hand are all looked up, past the default.
+        assertEquals(20, ArtistPick.count(all, all.take(20).toSet(), LookupCaps.SETLISTS))
+    }
 }

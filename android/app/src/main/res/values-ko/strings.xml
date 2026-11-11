@@ -2041,6 +2041,13 @@
     <string name="artists_select_shown">표시된 아티스트 모두 선택</string>
     <string name="artists_clear">선택 해제</string>
     <string name="artists_done">완료(%d)</string>
+    <string name="artists_loading">플레이리스트의 아티스트를 읽는 중…</string>
+    <string name="artists_load_failed">플레이리스트의 아티스트를 읽지 못했어요.</string>
+    <string name="artists_retry">다시 시도</string>
+    <string name="search_stop">중지</string>
+    <string name="search_stopped">중지됨: %2$d명 중 %1$d명을 찾아봤어요.</string>
+    <string name="search_stopped_early">검색을 중지했어요.</string>
+    <string name="records_same_name">같은 이름의 다른 아티스트가 있을 수 있어요. 일부는 그 아티스트의 것일 수 있어요.</string>
     <plurals name="concerts_find_for">
         <item quantity="other">아티스트 %d명의 콘서트 찾기</item>
     </plurals>
@@ -2111,7 +2118,7 @@
     <string name="records_not_asked">이번에는 찾지 않았습니다. 1분 후 다시 시도하세요.</string>
     <string name="records_slowed">Discogs가 속도를 늦춰 달라고 했습니다. 이번에는 일부 아티스트의 음반이 없습니다. 1분 후 다시 시도하세요.</string>
     <string name="records_token_refused">Discogs가 토큰을 거부했습니다. 설정 › 고급 › 서비스 키에서 확인하세요.</string>
-    <string name="records_no_token">내 Discogs 토큰을 추가하면 판매 중인 수량을 보고 더 많은 아티스트를 찾을 수 있습니다.</string>
+    <string name="records_no_token">내 Discogs 토큰을 추가하면 판매 중인 수량을 보고 아티스트를 더 빨리 찾을 수 있습니다.</string>
     <string name="records_links">공식 페이지</string>
     <string name="records_shop">공식 쇼핑몰</string>
     <string name="records_search">쇼핑몰에서 검색</string>
@@ -2132,7 +2139,7 @@
     <string name="records_shop_wait">시도 횟수가 너무 많습니다. 몇 분 후에 다시 시도하세요.</string>
     <string name="records_updated">업데이트: %1$s</string>
     <string name="records_token_title">Discogs 토큰</string>
-    <string name="records_token_body">선택 사항입니다. Discogs 계정의 개인 액세스 토큰(Settings › Developers)이 있으면 판매 중인 수량과 최저가를 보여 주고 더 많은 아티스트를 찾습니다. Trackhop은 읽기에만 사용하며 이 휴대폰에 암호화해 보관합니다.</string>
+    <string name="records_token_body">선택 사항입니다. Discogs 계정의 개인 액세스 토큰(Settings › Developers)이 있으면 판매 중인 수량과 최저가를 보여 주고 아티스트를 더 빨리 찾습니다. Trackhop은 읽기에만 사용하며 이 휴대폰에 암호화해 보관합니다.</string>
     <string name="records_token_get">토큰 받기</string>
     <string name="records_token_field">개인 액세스 토큰</string>
     <string name="records_token_own">내 토큰 사용 중</string>

@@ -2076,6 +2076,13 @@
     <string name="artists_select_shown">Gösterilenleri seç</string>
     <string name="artists_clear">Seçimi kaldır</string>
     <string name="artists_done">Tamam (%d)</string>
+    <string name="artists_loading">Çalma listesinin sanatçıları okunuyor…</string>
+    <string name="artists_load_failed">Çalma listesinin sanatçıları okunamadı.</string>
+    <string name="artists_retry">Tekrar dene</string>
+    <string name="search_stop">Durdur</string>
+    <string name="search_stopped">Durduruldu: %2$d sanatçıdan %1$d tanesi arandı.</string>
+    <string name="search_stopped_early">Arama durduruldu.</string>
+    <string name="records_same_name">Bu adı taşıyan başka bir sanatçı olabilir: buradakilerin bir kısmı onun olabilir.</string>
     <plurals name="concerts_find_for">
         <item quantity="one">%d sanatçının konserlerini ara</item>
         <item quantity="other">%d sanatçının konserlerini ara</item>
@@ -2154,7 +2161,7 @@
     <string name="records_not_asked">Bu kez aranmadı: bir dakika sonra tekrar dene.</string>
     <string name="records_slowed">Discogs yavaşlamamızı istedi: bazı sanatçıların plakları bu kez yok. Bir dakika sonra tekrar dene.</string>
     <string name="records_token_refused">Discogs token\'ını reddetti: Ayarlar › Gelişmiş › Servis anahtarları\'ndan kontrol et.</string>
-    <string name="records_no_token">Kaç kopyanın satışta olduğunu görmek ve daha çok sanatçı aramak için kendi Discogs token\'ını ekle.</string>
+    <string name="records_no_token">Kaç kopyanın satışta olduğunu görmek ve sanatçıları daha hızlı aramak için kendi Discogs token\'ını ekle.</string>
     <string name="records_links">Resmi sayfalar</string>
     <string name="records_shop">Resmi mağaza</string>
     <string name="records_search">Mağazalarda ara</string>
@@ -2175,7 +2182,7 @@
     <string name="records_shop_wait">Çok fazla deneme, birkaç dakika sonra tekrar dene.</string>
     <string name="records_updated">Güncellendi: %1$s</string>
     <string name="records_token_title">Discogs token\'ı</string>
-    <string name="records_token_body">İsteğe bağlı. Discogs hesabından alınan kişisel erişim token\'ı (Settings › Developers) kaç kopyanın hangi fiyattan satışta olduğunu gösterir ve daha çok sanatçı arar. Trackhop onunla yalnızca okur ve onu bu telefonda şifreli saklar.</string>
+    <string name="records_token_body">İsteğe bağlı. Discogs hesabından alınan kişisel erişim token\'ı (Settings › Developers) kaç kopyanın hangi fiyattan satışta olduğunu gösterir ve sanatçıları daha hızlı arar. Trackhop onunla yalnızca okur ve onu bu telefonda şifreli saklar.</string>
     <string name="records_token_get">Token al</string>
     <string name="records_token_field">Kişisel erişim token\'ı</string>
     <string name="records_token_own">Kendi token\'ın kullanılıyor</string>
