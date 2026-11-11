@@ -346,6 +346,66 @@ class DiscoverTest {
         assertNull(LibraryOverlap.parsePrice("free"))
     }
 
+    private fun overlap(common: Int, onlyA: Int, onlyB: Int): LibraryOverlap.Result {
+        val c = (1..common).map { t("c$it", "Common $it", "X") }
+        val a = (1..onlyA).map { t("a$it", "Alpha $it", "Y") }
+        val b = (1..onlyB).map { t("b$it", "Beta $it", "Z") }
+        return LibraryOverlap.Result(common + onlyA, common + onlyB, c.map { Compatibility.Common(it, it) }, a, b)
+    }
+
+    @Test fun overlapSharesAddUpToAHundred() {
+        assertEquals(Triple(20, 60, 20), overlap(3, 1, 1).shares)
+        assertEquals(Triple(0, 0, 0), overlap(0, 0, 0).shares)
+        // 0.5 % on each side of 99 %: never more than a hundred, never below zero.
+        val r = overlap(198, 1, 1)
+        assertEquals(100, r.shares.first + r.shares.second + r.shares.third)
+        assertTrue(r.shares.first >= 0 && r.shares.third >= 0)
+        assertEquals(100, overlap(199, 1, 0).shares.let { it.first + it.second + it.third })
+        assertEquals(75, overlap(3, 1, 7).coveredA)
+        assertEquals(30, overlap(3, 1, 7).coveredB)
+    }
+
+    @Test fun overlapVerdict() {
+        assertNull(LibraryOverlap.verdict(overlap(0, 0, 5)))
+        assertNull(LibraryOverlap.verdict(overlap(0, 0, 0)))
+        assertEquals(LibraryOverlap.Verdict.SAME, LibraryOverlap.verdict(overlap(95, 5, 5)))
+        // A small library all inside a large one: nothing would be lost leaving A.
+        assertEquals(LibraryOverlap.Verdict.A_IN_B, LibraryOverlap.verdict(overlap(100, 2, 900)))
+        assertEquals(LibraryOverlap.Verdict.B_IN_A, LibraryOverlap.verdict(overlap(100, 900, 2)))
+        assertEquals(LibraryOverlap.Verdict.PARTIAL, LibraryOverlap.verdict(overlap(60, 40, 300)))
+        assertEquals(LibraryOverlap.Verdict.APART, LibraryOverlap.verdict(overlap(10, 90, 90)))
+    }
+
+    @Test fun overlapCircles() {
+        // Nothing in common: apart. Everything: one inside the other.
+        val apart = LibraryOverlap.venn(100, 100, 0)
+        assertTrue(apart.distance > apart.rA + apart.rB)
+        val inside = LibraryOverlap.venn(400, 100, 100)
+        assertEquals(1.0, inside.rA, 1e-9)
+        assertEquals(0.5, inside.rB, 1e-9)
+        assertEquals(0.5, inside.distance, 1e-9)
+        // Half of the smaller library is on both: half of its circle is inside the other.
+        val half = LibraryOverlap.venn(400, 100, 50)
+        assertEquals(0.5 * Math.PI * 0.25, LibraryOverlap.lens(half.rA, half.rB, half.distance), 1e-6)
+        assertTrue(half.distance > 0.5 && half.distance < 1.5)
+        // The drawing is centred: as far out on the left as on the right.
+        assertEquals(half.centreA - half.rA, -(half.centreB + half.rB), 1e-9)
+        assertEquals(half.span, half.centreB + half.rB - (half.centreA - half.rA), 1e-9)
+        assertEquals(2.0, inside.span, 1e-9)
+        assertEquals(0.0, inside.centreA, 1e-9)
+        // The more in common, the closer.
+        assertTrue(LibraryOverlap.venn(100, 100, 80).distance < LibraryOverlap.venn(100, 100, 20).distance)
+        // A tiny library is still drawn; an empty pair does not divide by zero.
+        assertEquals(0.35, LibraryOverlap.venn(10_000, 3, 1).rB, 1e-9)
+        val none = LibraryOverlap.venn(0, 0, 0)
+        assertTrue(none.rA > 0 && none.rB > 0 && none.distance > 0)
+    }
+
+    @Test fun priceAMonth() {
+        assertEquals(10.99, LibraryOverlap.monthly(10.99, yearly = false), 1e-9)
+        assertEquals(9.0, LibraryOverlap.monthly(108.0, yearly = true), 1e-9)
+    }
+
     // ------------------------------------------------------------ vanished
 
     @Test fun vanishedAreInAnOlderCopyAndNotInTheNewest() {

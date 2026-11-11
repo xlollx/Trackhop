@@ -937,6 +937,83 @@ object Cards {
         return bmp
     }
 
+    // ------------------------------------------------------------------ two subscriptions
+
+    /**
+     * What the "Two subscriptions?" card shows: the two services by their plain names, how much of
+     * the music is on both, and the three counts under their labels. No prices: those stay on the phone.
+     */
+    class OverlapCard(
+        val eyebrow: String, val nameA: String, val nameB: String, val percent: Int, val caption: String,
+        val venn: com.xlollx.songport.sync.LibraryOverlap.Venn,
+        /** Only on A, on both, only on B: the figure and what it counts. */
+        val stats: List<Pair<String, String>>,
+    )
+
+    private val OVERLAP_PALETTE = intArrayOf(0xFF1B5E20.toInt(), 0xFF2E7D32.toInt(), 0xFF00796B.toInt())
+
+    /**
+     * The two circles of [v] in a box [width] by [height] centred on ([cx], [cy]): the first filled
+     * and drawn with a whole line, the second with a dashed one, so they are told apart without colour.
+     */
+    private fun venn(c: Canvas, v: com.xlollx.songport.sync.LibraryOverlap.Venn, cx: Float, cy: Float, width: Float, height: Float) {
+        val k = minOf(width / v.span, height / (2 * maxOf(v.rA, v.rB))).toFloat()
+        val ax = cx + (v.centreA * k).toFloat(); val bx = cx + (v.centreB * k).toFloat()
+        val ra = (v.rA * k).toFloat(); val rb = (v.rB * k).toFloat()
+        c.drawCircle(ax, cy, ra, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; alpha = 70 })
+        c.drawCircle(bx, cy, rb, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; alpha = 110 })
+        c.drawCircle(ax, cy, ra, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; style = Paint.Style.STROKE; strokeWidth = 6f })
+        c.drawCircle(bx, cy, rb, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE; style = Paint.Style.STROKE; strokeWidth = 6f
+            pathEffect = android.graphics.DashPathEffect(floatArrayOf(22f, 16f), 0f)
+        })
+    }
+
+    fun overlap(ctx: Context, card: OverlapCard, format: Format): Bitmap {
+        val w = format.width; val h = format.height
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), Paint().apply {
+            shader = LinearGradient(0f, 0f, w.toFloat(), h.toFloat(), OVERLAP_PALETTE, floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
+        })
+        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), Paint().apply { color = INK; alpha = 70 })
+        val margin = 72f
+        val story = format == Format.STORY
+        var y = if (story) 220f else 96f
+        val eyebrow = paint(Color.WHITE, 34f, alpha = 210)
+        line(c, card.eyebrow.uppercase(), w / 2f, y, eyebrow, w - 2 * margin, Paint.Align.CENTER)
+        y += if (story) 90f else 50f
+        // The two circles, then the names under them: the first on the left, the second on the right.
+        val vennH = if (story) 520f else 330f
+        venn(c, card.venn, w / 2f, y + vennH / 2, w - 2 * margin - 120f, vennH)
+        y += vennH + (if (story) 80f else 56f)
+        val names = paint(Color.WHITE, 40f, bold = true)
+        val half = (w - 2 * margin - 80f) / 2
+        line(c, card.nameA, margin + half, y, names, half, Paint.Align.RIGHT)
+        val cross = paint(Color.WHITE, 40f, alpha = 170); cross.textAlign = Paint.Align.CENTER
+        c.drawText("+", w / 2f, y, cross)
+        line(c, card.nameB, w - margin - half, y, names, half, Paint.Align.LEFT)
+        y += if (story) 260f else 190f
+        val score = paint(Color.WHITE, if (story) 260f else 180f, bold = true)
+        score.textAlign = Paint.Align.CENTER
+        c.drawText("${card.percent}%", w / 2f, y, score)
+        y += if (story) 80f else 60f
+        line(c, card.caption, w / 2f, y, paint(Color.WHITE, 38f, alpha = 225), w - 2 * margin, Paint.Align.CENTER)
+        y += if (story) 100f else 44f
+        if (card.stats.isNotEmpty()) {
+            val rect = RectF(margin, y, w - margin, y + (if (story) 200f else 150f))
+            panel(c, rect)
+            val col = rect.width() / card.stats.size
+            card.stats.forEachIndexed { i, (value, label) ->
+                val x = rect.left + col * i + col / 2
+                line(c, value, x, rect.top + rect.height() * 0.46f, paint(Color.WHITE, if (story) 60f else 50f, bold = true), col - 24f, Paint.Align.CENTER)
+                line(c, label, x, rect.top + rect.height() * 0.78f, paint(Color.WHITE, 28f, alpha = 210), col - 24f, Paint.Align.CENTER)
+            }
+        }
+        footer(ctx, c, w, h)
+        return bmp
+    }
+
     private fun duration(ms: Long): String {
         val min = ms / 60_000
         return if (min >= 60) "${min / 60} h ${min % 60} min" else "$min min"

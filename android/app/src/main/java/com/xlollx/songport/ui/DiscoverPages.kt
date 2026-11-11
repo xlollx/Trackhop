@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Share
@@ -69,7 +68,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
@@ -86,7 +84,6 @@ import com.xlollx.songport.providers.libraryEntries
 import com.xlollx.songport.providers.playlistInfo
 import com.xlollx.songport.providers.playlists
 import com.xlollx.songport.providers.tracks
-import com.xlollx.songport.sync.LibraryOverlap
 import com.xlollx.songport.sync.ServiceSearch
 import com.xlollx.songport.sync.UniversalLink
 import com.xlollx.songport.sync.Vanished
@@ -133,26 +130,20 @@ internal object LibraryReader {
     }
 }
 
-private fun locale(ctx: Context): Locale = ctx.resources.configuration.locales[0]
+internal fun discoverLocale(ctx: Context): Locale = ctx.resources.configuration.locales[0]
+private fun locale(ctx: Context): Locale = discoverLocale(ctx)
 
-private fun errorText(ctx: Context, e: Exception) = e.message ?: ctx.getString(R.string.error_generic)
+internal fun discoverErrorText(ctx: Context, e: Exception) = e.message ?: ctx.getString(R.string.error_generic)
+private fun errorText(ctx: Context, e: Exception) = discoverErrorText(ctx, e)
 
+/** No service to read from: said in the tool's empty state, with the way to Accounts. */
 @Composable
-private fun Intro(text: String) =
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-@Composable
-private fun Busy(text: String) = Row(verticalAlignment = Alignment.CenterVertically) {
-    CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-    Text(text, style = MaterialTheme.typography.bodyMedium)
-}
-
-@Composable
-private fun NoServices(text: String, onGoToAccounts: () -> Unit) {
-    Text(text, style = MaterialTheme.typography.bodyMedium)
-    Button(onClick = onGoToAccounts, modifier = Modifier.heightIn(min = 48.dp)) {
-        Icon(Icons.Filled.AccountCircle, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-        Text(stringResource(R.string.tools_go_accounts))
+internal fun NoServices(text: String, onGoToAccounts: () -> Unit) {
+    ToolEmpty(text, icon = Icons.Filled.AccountCircle) {
+        Button(onClick = onGoToAccounts, modifier = Modifier.heightIn(min = 48.dp)) {
+            Icon(Icons.Filled.AccountCircle, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.tools_go_accounts))
+        }
     }
 }
 
@@ -274,7 +265,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
         }
     }
 
-    Intro(stringResource(R.string.discover_wrapped_intro))
+    ToolIntro(stringResource(R.string.discover_wrapped_intro))
     if (services.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
     if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
@@ -466,9 +457,9 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
         busy = false
     }
 
-    Intro(stringResource(R.string.discover_link_intro))
+    ToolIntro(stringResource(R.string.discover_link_intro))
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link") { pick = it }
-    if (busy) Busy(stringResource(R.string.loading))
+    if (busy) ToolLoading(stringResource(R.string.loading))
     val parts = built
     val name = pick?.playlist?.name.orEmpty()
     if (parts.isNotEmpty()) {
@@ -633,7 +624,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
         }
     }
 
-    Intro(stringResource(R.string.discover_roast_intro, ai.label))
+    ToolIntro(stringResource(R.string.discover_roast_intro, ai.label))
     val ready = !ai.local || NanoStatus(onUseKey = onSetUpAi)
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (ai.local) NanoSmallNote()
@@ -716,10 +707,10 @@ internal fun VanishedPage(onBackup: () -> Unit) {
         }
     }
 
-    Intro(stringResource(R.string.discover_vanished_intro))
+    ToolIntro(stringResource(R.string.discover_vanished_intro))
     val list = rows
     when {
-        list == null -> Busy(stringResource(R.string.loading))
+        list == null -> ToolLoading(stringResource(R.string.loading))
         list.isEmpty() -> {
             Text(stringResource(R.string.discover_vanished_none), style = MaterialTheme.typography.bodyMedium)
             Button(onClick = onBackup) { Text(stringResource(R.string.discover_vanished_backup)) }
@@ -765,116 +756,6 @@ private fun SearchOnMenu(t: Track) {
         }
     }
 }
-
-// ---------------------------------------------------------------------------- Two subscriptions?
-
-private fun pricePrefs(ctx: Context) = ctx.applicationContext.getSharedPreferences("discover_prices", Context.MODE_PRIVATE)
-
-/** The two libraries being compared and the last comparison, for as long as the app runs. */
-private object SubscriptionsKept {
-    var busy by mutableStateOf(false)
-    var step by mutableStateOf("")
-    var result by mutableStateOf<Triple<MusicProvider, MusicProvider, LibraryOverlap.Result>?>(null)
-    var notice by mutableStateOf<String?>(null)
-}
-
-/**
- * "Two subscriptions?": how much of the music on two services overlaps ([LibraryOverlap]), and
- * what both cost at the prices the user types (kept on the phone, never ours). It measures; it
- * never says which one to keep.
- */
-@Composable
-internal fun SubscriptionsPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit) {
-    val ctx = LocalContext.current
-    val services = remember { LibraryReader.services(ctx) }
-    if (services.size < 2) { Intro(stringResource(R.string.discover_subs_intro)); NoServices(stringResource(R.string.discover_subs_need_two), onGoToAccounts); return }
-    var aId by rememberSaveable { mutableStateOf(services[0].id) }
-    var bId by rememberSaveable { mutableStateOf(services[1].id) }
-    val a = services.firstOrNull { it.id == aId } ?: services[0]
-    val b = services.firstOrNull { it.id == bId } ?: services[1]
-    var priceA by remember(a.serviceId) { mutableStateOf(pricePrefs(ctx).getString(a.serviceId, "").orEmpty()) }
-    var priceB by remember(b.serviceId) { mutableStateOf(pricePrefs(ctx).getString(b.serviceId, "").orEmpty()) }
-    // The comparison lives outside the page (SubscriptionsKept): the screen turned, it goes on.
-    var busy by SubscriptionsKept::busy
-    var step by SubscriptionsKept::step
-    var result by SubscriptionsKept::result
-    SubscriptionsKept.notice?.let { n -> LaunchedEffect(n) { snackbar.showSnackbar(n); SubscriptionsKept.notice = null } }
-
-    fun run() {
-        busy = true; result = null
-        AppWork.scope.launch {
-            try {
-                val ta = LibraryReader.read(ctx, a) { d, t -> step = ctx.getString(R.string.discover_reading, a.displayName, d, t) }
-                val tb = LibraryReader.read(ctx, b) { d, t -> step = ctx.getString(R.string.discover_reading, b.displayName, d, t) }
-                val store = Store.get(ctx)
-                val r = withContext(Dispatchers.Default) { LibraryOverlap.compute(ta, tb) { t -> store.cachedMatch(a.id, t.id, b.id) } }
-                result = Triple(a, b, r)
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                SubscriptionsKept.notice = errorText(ctx, e)
-            }
-            busy = false
-        }
-    }
-
-    Intro(stringResource(R.string.discover_subs_intro))
-    @Composable
-    fun Side(label: String, selected: MusicProvider, onSelect: (String) -> Unit, price: String, onPrice: (String) -> Unit) {
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(label, style = MaterialTheme.typography.titleSmall)
-                ServicePicker(services, selected.id, onSelect)
-                OutlinedTextField(
-                    value = price, onValueChange = { v -> onPrice(v); pricePrefs(ctx).edit().putString(selected.serviceId, v).apply() },
-                    singleLine = true, modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.discover_subs_price, selected.displayName)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                )
-            }
-        }
-    }
-    Side(stringResource(R.string.discover_subs_first), a, { aId = it; result = null }, priceA) { priceA = it }
-    Side(stringResource(R.string.discover_subs_second), b, { bId = it; result = null }, priceB) { priceB = it }
-    val same = a.id == b.id
-    if (same) Text(stringResource(R.string.discover_subs_same), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Button(enabled = !busy && !same, onClick = { run() }) { Text(stringResource(R.string.discover_subs_run)) }
-        if (busy) { Spacer(Modifier.width(12.dp)); Busy(step) }
-    }
-    result?.let { (pa, pb, r) ->
-        val nf = remember { NumberFormat.getIntegerInstance(locale(ctx)) }
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("${r.percent}%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(stringResource(R.string.discover_subs_overlap), style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    stringResource(R.string.discover_subs_counts, nf.format(r.common.size), nf.format(r.onlyA.size), pa.displayName, nf.format(r.onlyB.size), pb.displayName),
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                val pA = LibraryOverlap.parsePrice(priceA)
-                val pB = LibraryOverlap.parsePrice(priceB)
-                if (pA != null && pB != null) {
-                    val money = NumberFormat.getNumberInstance(locale(ctx)).apply { minimumFractionDigits = 2; maximumFractionDigits = 2 }
-                    Text(stringResource(R.string.discover_subs_cost, money.format(pA + pB)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                    Text(stringResource(R.string.discover_subs_cost_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                OnlyOn(stringResource(R.string.discover_subs_only, pa.displayName), r.onlyA)
-                OnlyOn(stringResource(R.string.discover_subs_only, pb.displayName), r.onlyB)
-            }
-        }
-    }
-}
-
-@Composable
-private fun OnlyOn(title: String, tracks: List<Track>) {
-    if (tracks.isEmpty()) return
-    var all by remember { mutableStateOf(false) }
-    Spacer(Modifier.size(4.dp))
-    Text(title, style = MaterialTheme.typography.titleSmall)
-    val shown = if (all) tracks.take(200) else tracks.take(8)
-    shown.forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-    if (!all && tracks.size > 8) TextButton(onClick = { all = true }) { Text(stringResource(R.string.preview_more, tracks.size - 8)) }
-}
-
 
 /**
  * The Wrapped being made: a card in the story's colours with a pulsing spark, a line that changes
