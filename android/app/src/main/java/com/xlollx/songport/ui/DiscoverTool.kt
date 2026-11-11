@@ -31,6 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +72,10 @@ internal class ToolIdentity(val icon: ImageVector, val accent: Color, val gradie
     /** The accent for text, icons and lines on the page: lighter on a dark theme, so it still reads. */
     @Composable
     fun tint(): Color = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) lerp(accent, Color.White, 0.5f) else lerp(accent, Color.Black, 0.15f)
+
+    /** The tool's second colour (the far end of its gradient), for the other half of a pair. */
+    @Composable
+    fun second(): Color = (gradient.lastOrNull() ?: accent).let { if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) lerp(it, Color.White, 0.45f) else it }
 
     /** A quiet fill in the tool's colour (a badge, the result card). */
     @Composable
@@ -252,4 +258,34 @@ internal fun ToolSplit(start: @Composable ColumnScope.() -> Unit, end: @Composab
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp), content = start)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp), content = end)
     }
+}
+
+/**
+ * The card to share, drawn already: its preview with the story/square switch, Share and Save
+ * ([CardActions]). [description] is what TalkBack reads for the preview; [matte] puts the preview
+ * on a sheet of that colour, as a print.
+ */
+@Composable
+internal fun ToolShare(bitmaps: Map<Cards.Format, android.graphics.Bitmap>?, name: String, description: String?, busy: Boolean = bitmaps == null, formats: List<Cards.Format> = Cards.Format.entries, matte: Color? = null, extra: (@Composable ColumnScope.() -> Unit)? = null) {
+    ToolSection(stringResource(R.string.card_share)) {
+        CardActions(bitmaps, name, busy = busy, onRender = null, renderLabel = "", previewDescription = description, formats = formats, matte = matte)
+        extra?.invoke(this)
+    }
+}
+
+/** A list of songs in a section: title and artist, the first [first] and the rest on request. */
+@Composable
+internal fun ToolTrackList(tracks: List<com.xlollx.songport.model.Track>, first: Int = 6, max: Int = 200) {
+    var all by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val shown = if (all) tracks.take(max) else tracks.take(first)
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        shown.forEach { t ->
+            Column {
+                Text(t.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                if (t.artistLine.isNotBlank()) Text(t.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            }
+        }
+    }
+    if (!all && tracks.size > first) androidx.compose.material3.TextButton(onClick = { all = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.preview_more, tracks.size - first)) }
+    else if (all && tracks.size > max) Text(stringResource(R.string.preview_more, tracks.size - max), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }

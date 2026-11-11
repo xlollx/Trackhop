@@ -1570,7 +1570,7 @@
     <string name="discover_subs_step_prices">Lo que pagas (opcional)</string>
     <string name="discover_subs_per_month">Al mes</string>
     <string name="discover_subs_per_year">Al año</string>
-    <string name="discover_subs_step_result">El resultado</string>
+    <string name="discover_result">El resultado</string>
     <string name="discover_subs_legend_both">En los dos</string>
     <string name="discover_subs_matching">Emparejando las canciones…</string>
     <string name="discover_subs_empty">No se encontraron canciones en %1$s: no hay nada que comparar.</string>

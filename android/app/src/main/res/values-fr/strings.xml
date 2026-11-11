@@ -1570,7 +1570,7 @@
     <string name="discover_subs_step_prices">Ce que tu paies (facultatif)</string>
     <string name="discover_subs_per_month">Par mois</string>
     <string name="discover_subs_per_year">Par an</string>
-    <string name="discover_subs_step_result">Le résultat</string>
+    <string name="discover_result">Le résultat</string>
     <string name="discover_subs_legend_both">Sur les deux</string>
     <string name="discover_subs_matching">Association des titres…</string>
     <string name="discover_subs_empty">Aucun titre trouvé sur %1$s : il n\'y a rien à comparer.</string>

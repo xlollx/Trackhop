@@ -1535,7 +1535,7 @@
     <string name="discover_subs_step_prices">내는 요금(선택 사항)</string>
     <string name="discover_subs_per_month">월간</string>
     <string name="discover_subs_per_year">연간</string>
-    <string name="discover_subs_step_result">결과</string>
+    <string name="discover_result">결과</string>
     <string name="discover_subs_legend_both">둘 다에 있음</string>
     <string name="discover_subs_matching">곡을 대조하는 중…</string>
     <string name="discover_subs_empty">%1$s에서 곡을 찾지 못했습니다. 비교할 것이 없습니다.</string>

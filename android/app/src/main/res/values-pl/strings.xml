@@ -1616,7 +1616,7 @@
     <string name="discover_subs_step_prices">Ile płacisz (opcjonalnie)</string>
     <string name="discover_subs_per_month">Miesięcznie</string>
     <string name="discover_subs_per_year">Rocznie</string>
-    <string name="discover_subs_step_result">Wynik</string>
+    <string name="discover_result">Wynik</string>
     <string name="discover_subs_legend_both">W obu</string>
     <string name="discover_subs_matching">Dopasowywanie utworów…</string>
     <string name="discover_subs_empty">Nie znaleziono utworów w %1$s: nie ma czego porównywać.</string>

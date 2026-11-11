@@ -58,6 +58,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.JoinInner
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.xlollx.songport.providers.brand
 import com.xlollx.songport.R
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
@@ -88,10 +95,11 @@ internal object PickMemory {
  * Where a card's playlist comes from: a pasted public link, or one of the user's own playlists on
  * a connected service. [initialLink] pre-fills and resolves a link handed in from the share sheet.
  * [memory]: the page's key in [PickMemory], so the choice is still there when the page comes back.
+ * [step]: its number among the page's steps, when the page counts them.
  */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, memory: String? = null, onPick: (CardPick?) -> Unit) {
+internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, memory: String? = null, step: Int? = null, onPick: (CardPick?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val connected = remember { Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" } }
@@ -138,9 +146,8 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
         }
     }
 
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(label, style = MaterialTheme.typography.titleSmall)
+    ToolSection(label, step = step) {
+        run {
             val linkLabel = stringResource(R.string.card_source_link)
             ServiceTiles(
                 listOf(ServiceTile(LINK_TILE, linkLabel, icon = Icons.Filled.Link)) + connected.map { ServiceTile(it.id, it.label(ctx), it) },
@@ -189,10 +196,10 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
 /**
  * Share and save buttons for a rendered card, with the story/square switch. [onRender] null: the
  * card draws itself (no "make the card" button). [previewDescription] is what TalkBack reads for
- * the preview.
+ * the preview. [matte]: the colour of the sheet the preview lies on, for a card that is a print.
  */
 @Composable
-internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null, formats: List<Cards.Format> = Cards.Format.entries, enabled: Boolean = true) {
+internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy: Boolean, onRender: (() -> Unit)?, renderLabel: String, previewDescription: String? = null, formats: List<Cards.Format> = Cards.Format.entries, enabled: Boolean = true, matte: androidx.compose.ui.graphics.Color? = null) {
     val ctx = LocalContext.current
     var format by remember { mutableStateOf(formats.first()) }
     val bmp = bitmaps?.get(format)
@@ -210,15 +217,21 @@ internal fun CardActions(bitmaps: Map<Cards.Format, Bitmap>?, name: String, busy
             FilterChip(selected = format == Cards.Format.STORY, onClick = { format = Cards.Format.STORY }, label = { Text(stringResource(R.string.card_format_story)) })
             FilterChip(selected = format == Cards.Format.SQUARE, onClick = { format = Cards.Format.SQUARE }, label = { Text(stringResource(R.string.card_format_square)) })
         }
-        val shape = Modifier.fillMaxWidth().aspectRatio(format.width.toFloat() / format.height).clip(RoundedCornerShape(16.dp))
+        // On a matte the card lies on a sheet of paper, as a print: square corners, a margin all round.
+        val shape = if (matte != null) Modifier.fillMaxWidth().clip(RoundedCornerShape(6.dp)).background(matte).padding(14.dp).aspectRatio(format.width.toFloat() / format.height)
+        else Modifier.fillMaxWidth().aspectRatio(format.width.toFloat() / format.height).clip(RoundedCornerShape(16.dp))
         if (bmp != null) Image(bmp.asImageBitmap(), contentDescription = previewDescription, modifier = shape)
         else androidx.compose.foundation.layout.Box(shape.background(MaterialTheme.colorScheme.surfaceVariant))
         // Wraps at a large font size instead of squeezing a button into a column of letters.
         // Until the card is there the buttons keep their room but are not shown nor offered.
         val hidden = if (bmp == null) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier
         androidx.compose.foundation.layout.FlowRow(hidden, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Button(enabled = bmp != null, onClick = { bmp?.let { Cards.share(ctx, it, name) } }) { Text(stringResource(R.string.card_share)) }
-            OutlinedButton(enabled = bmp != null, onClick = { save.launch("$name.png") }) { Text(stringResource(R.string.card_save)) }
+            val tall = Modifier.heightIn(min = 48.dp)
+            Button(enabled = bmp != null, onClick = { bmp?.let { Cards.share(ctx, it, name) } }, modifier = tall) {
+                Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.card_share))
+            }
+            OutlinedButton(enabled = bmp != null, onClick = { save.launch("$name.png") }, modifier = tall) { Text(stringResource(R.string.card_save)) }
         }
     }
 }
@@ -246,10 +259,12 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
     var busy by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<Compatibility.Result?>(null) }
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
+    // What went wrong, said on the page with a way to try again.
+    var error by remember { mutableStateOf<String?>(null) }
 
     fun run() {
         val pa = a ?: return; val pb = b ?: return
-        busy = true; result = null; bitmaps = null
+        busy = true; result = null; bitmaps = null; error = null
         scope.launch {
             try {
                 val (ta, tb) = coroutineScope {
@@ -265,7 +280,7 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                 val card = Cards.CompatibilityCard(pa.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, pb.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, r, covers)
                 bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.compatibility(ctx, card, it) } }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                error = e.message ?: ctx.getString(R.string.error_generic)
             }
             busy = false
         }
@@ -275,52 +290,62 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
     var autoRan by remember { mutableStateOf(false) }
     LaunchedEffect(a, b) { if (initialLinks != null && !autoRan && a != null && b != null) { autoRan = true; run() } }
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(stringResource(R.string.tools_compat_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        PlaylistSource(stringResource(R.string.card_compat_first), initialLinks?.first, snackbar) { a = it }
-        PlaylistSource(stringResource(R.string.card_compat_second), initialLinks?.second, snackbar) { b = it }
-        val r = result
-        if (r != null) {
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("${r.score}%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text(stringResource(R.string.card_compat_subtitle, r.common.size, r.sharedArtists.size), style = MaterialTheme.typography.bodyMedium)
-                    Text(stringResource(R.string.card_compat_common_pct, r.commonPercent), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (r.common.isNotEmpty()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(stringResource(R.string.card_compat_in_common), style = MaterialTheme.typography.titleSmall)
-                        r.common.take(8).forEach { Text("• ${it.a}", style = MaterialTheme.typography.bodySmall) }
-                        if (r.common.size > 8) Text(stringResource(R.string.preview_more, r.common.size - 8), style = MaterialTheme.typography.bodySmall)
-                    }
-                    if (r.sharedArtists.isNotEmpty()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(stringResource(R.string.card_compat_artists), style = MaterialTheme.typography.titleSmall)
-                        Text(r.sharedArtists.take(12).joinToString(" · "), style = MaterialTheme.typography.bodySmall)
-                    }
-                    Suggestions(stringResource(R.string.card_compat_for, a?.playlist?.name.orEmpty()), r.forA)
-                    Suggestions(stringResource(R.string.card_compat_for, b?.playlist?.name.orEmpty()), r.forB)
-                    // The songs in common as a playlist of their own, synced wherever the user chooses.
-                    if (onMakeShared != null && r.common.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(stringResource(R.string.discover_compat_shared_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        OutlinedButton(onClick = {
-                            val name = ctx.getString(R.string.discover_compat_shared_name, a?.playlist?.name.orEmpty(), b?.playlist?.name.orEmpty())
-                            onMakeShared(name, r.common.map { it.a })
-                        }) { Text(stringResource(R.string.discover_compat_shared)) }
-                    }
+    // The two playlists side by side in a wide window, as the pair they are.
+    ToolSplit(
+        start = { PlaylistSource(stringResource(R.string.card_compat_first), initialLinks?.first, snackbar, step = 1) { a = it } },
+        end = { PlaylistSource(stringResource(R.string.card_compat_second), initialLinks?.second, snackbar, step = 2) { b = it } },
+    )
+    ToolPrimaryButton(
+        stringResource(if (result == null) R.string.card_compat_run else R.string.card_again), onClick = { run() },
+        icon = Icons.Filled.JoinInner, enabled = a != null && b != null, busy = busy,
+    )
+    if (busy && result == null) ToolLoading(stringResource(R.string.loading))
+    error?.let { ToolError(it, onRetry = if (a != null && b != null) ({ run() }) else null) }
+    val r = result ?: return
+    val id = LocalToolIdentity.current
+    val nameA = a?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
+    val nameB = b?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
+    val subtitle = stringResource(R.string.card_compat_subtitle, r.common.size, r.sharedArtists.size)
+    ToolSectionTitle(stringResource(R.string.discover_result), step = 3)
+    ToolSplit(
+        start = {
+            // The pair as two circles: the first playlist's with a whole line, the second's dashed.
+            ToolResultCard {
+                val venn = remember(r) { com.xlollx.songport.sync.LibraryOverlap.venn(r.sizeA, r.sizeB, r.common.size) }
+                VennDrawing(venn, id.tint(), id.second(), Modifier.fillMaxWidth().height(140.dp).clearAndSetSemantics {})
+                VennKey(nameA, nameB, id.tint(), id.second())
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("${r.score}%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold, color = id.tint())
+                    Text(subtitle, style = MaterialTheme.typography.bodyLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    Text(stringResource(R.string.card_compat_common_pct, r.commonPercent), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
-        }
-        CardActions(bitmaps, "trackhop-compatibility", busy || a == null || b == null, onRender = { run() }, renderLabel = stringResource(if (result == null) R.string.card_compat_run else R.string.card_again))
-    }
+            if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-compatibility", "${r.score}%. $subtitle")
+        },
+        end = {
+            if (r.common.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_in_common), trailing = { Text("${r.common.size}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
+                ToolTrackList(r.common.map { it.a }, first = 8)
+                // The songs in common as a playlist of their own, synced wherever the user chooses.
+                if (onMakeShared != null) {
+                    Text(stringResource(R.string.discover_compat_shared_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedButton(onClick = {
+                        onMakeShared(ctx.getString(R.string.discover_compat_shared_name, a?.playlist?.name.orEmpty(), b?.playlist?.name.orEmpty()), r.common.map { it.a })
+                    }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_compat_shared)) }
+                }
+            }
+            if (r.sharedArtists.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_artists)) {
+                Text(r.sharedArtists.take(12).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
+            }
+            Suggestions(stringResource(R.string.card_compat_for, nameA), r.forA)
+            Suggestions(stringResource(R.string.card_compat_for, nameB), r.forB)
+        },
+    )
 }
 
 @Composable
 private fun Suggestions(title: String, tracks: List<Track>) {
     if (tracks.isEmpty()) return
-    Spacer(Modifier.height(4.dp))
-    Text(title, style = MaterialTheme.typography.titleSmall)
-    tracks.take(5).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
+    ToolSection(title) { ToolTrackList(tracks.take(5), first = 5) }
 }
 
 /** Covers the user's AI drew in this session, by playlist: "make the card again" does not pay twice. */
@@ -367,6 +392,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var variant by remember { mutableStateOf(0) }
     var drawing by remember { mutableStateOf(false) }
     var drawn by remember { mutableStateOf<Bitmap?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
     val saveCover = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
         val b = drawn
         if (uri != null && b != null) Cards.save(ctx, b, uri)
@@ -377,7 +403,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
         if (nextVariant) variant++
         val v = variant
         val chosen = art
-        busy = true; bitmaps = null
+        busy = true; bitmaps = null; error = null
         scope.launch {
             try {
                 val tracks = p.provider.tracks(ctx, p.playlist.id)
@@ -433,36 +459,49 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 val card = Cards.PosterCard(
                     title = title,
                     owner = if (info.ownedByMe) p.provider.accountName(ctx).orEmpty() else "",
-                    service = p.provider.displayName,
+                    // The service by its plain name: the caption goes on a wall, not the connector's label.
+                    service = p.provider.brand,
                     trackCount = tracks.size, durationMs = tracks.sumOf { it.durationMs },
                     covers = covers, qr = qr,
                 )
                 bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.poster(ctx, card, it) } }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                error = e.message ?: ctx.getString(R.string.error_generic)
             }
             busy = false
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(stringResource(R.string.tools_poster_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster") { pick = it; bitmaps = null; drawn = null; variant = 0 }
-        CoverArtChoice(art, ai, aiSupport, enabled = !busy) {
-            art = it; bitmaps = null; drawn = null
-            runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
-        }
-        if (drawing) Text(stringResource(R.string.card_ai_drawing), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (bitmaps != null && qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        CardActions(bitmaps, "trackhop-poster", busy || pick == null, onRender = { run(nextVariant = bitmaps != null) }, renderLabel = stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again))
-        if (art != PosterArt.COVERS && drawn != null && bitmaps != null) {
-            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }) { Text(stringResource(R.string.card_ai_again)) }
-                else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }) { Text(stringResource(R.string.card_cover_another)) }
-                TextButton(onClick = { saveCover.launch("trackhop-cover.png") }) { Text(stringResource(R.string.card_ai_save)) }
+    ToolSplit(
+        start = {
+            PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", step = 1) { pick = it; bitmaps = null; drawn = null; variant = 0; error = null }
+            ToolSection(stringResource(R.string.card_cover_title), step = 2) {
+                CoverArtChoice(art, ai, aiSupport, enabled = !busy) {
+                    art = it; bitmaps = null; drawn = null
+                    runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
+                }
             }
-        }
-    }
+            ToolPrimaryButton(
+                stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again), onClick = { run(nextVariant = bitmaps != null) },
+                icon = Icons.Filled.Brush, enabled = pick != null, busy = busy,
+            )
+        },
+        end = {
+            if (busy) ToolLoading(stringResource(if (drawing) R.string.card_ai_drawing else R.string.loading))
+            error?.let { ToolError(it, onRetry = if (pick != null) ({ run() }) else null) }
+            // The poster on a sheet of paper, as it would hang on a wall.
+            if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
+                if (qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (art != PosterArt.COVERS && drawn != null) {
+                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
+                        else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
+                        TextButton(onClick = { saveCover.launch("trackhop-cover.png") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_save)) }
+                    }
+                }
+            }
+        },
+    )
 }
 
 /**
@@ -481,7 +520,6 @@ private fun CoverArtChoice(selected: PosterArt, ai: AiClient.Config?, support: A
         else -> stringResource(R.string.card_ai_cover_no_images, ai.vendor.label)
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.card_cover_title), style = MaterialTheme.typography.titleSmall)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             PosterArt.entries.forEach { a ->
                 FilterChip(

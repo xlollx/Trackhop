@@ -1614,7 +1614,7 @@
     <string name="discover_subs_step_prices">Сколько вы платите (необязательно)</string>
     <string name="discover_subs_per_month">В месяц</string>
     <string name="discover_subs_per_year">В год</string>
-    <string name="discover_subs_step_result">Результат</string>
+    <string name="discover_result">Результат</string>
     <string name="discover_subs_legend_both">В обоих</string>
     <string name="discover_subs_matching">Сопоставляю песни…</string>
     <string name="discover_subs_empty">В %1$s не найдено песен: сравнивать нечего.</string>

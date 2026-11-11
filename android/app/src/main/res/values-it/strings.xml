@@ -1562,7 +1562,7 @@
     <string name="discover_subs_step_prices">Quanto paghi (facoltativo)</string>
     <string name="discover_subs_per_month">Al mese</string>
     <string name="discover_subs_per_year">All\'anno</string>
-    <string name="discover_subs_step_result">Il risultato</string>
+    <string name="discover_result">Il risultato</string>
     <string name="discover_subs_legend_both">Su entrambi</string>
     <string name="discover_subs_matching">Abbino i brani…</string>
     <string name="discover_subs_empty">Nessun brano trovato su %1$s: non c\'è nulla da confrontare.</string>

@@ -1536,7 +1536,7 @@
     <string name="discover_subs_step_prices">你支付的费用（可选）</string>
     <string name="discover_subs_per_month">每月</string>
     <string name="discover_subs_per_year">每年</string>
-    <string name="discover_subs_step_result">结果</string>
+    <string name="discover_result">结果</string>
     <string name="discover_subs_legend_both">两边都有</string>
     <string name="discover_subs_matching">正在匹配歌曲…</string>
     <string name="discover_subs_empty">在 %1$s 上没有找到歌曲：没有可比较的内容。</string>

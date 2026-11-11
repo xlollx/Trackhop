@@ -1536,7 +1536,7 @@
     <string name="discover_subs_step_prices">支払っている料金（任意）</string>
     <string name="discover_subs_per_month">月額</string>
     <string name="discover_subs_per_year">年額</string>
-    <string name="discover_subs_step_result">結果</string>
+    <string name="discover_result">結果</string>
     <string name="discover_subs_legend_both">両方にある</string>
     <string name="discover_subs_matching">曲を照合中…</string>
     <string name="discover_subs_empty">%1$s に曲が見つかりません。比較するものがありません。</string>

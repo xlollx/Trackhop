@@ -1560,7 +1560,7 @@
     <string name="discover_subs_step_prices">Ne kadar ödüyorsun (isteğe bağlı)</string>
     <string name="discover_subs_per_month">Aylık</string>
     <string name="discover_subs_per_year">Yıllık</string>
-    <string name="discover_subs_step_result">Sonuç</string>
+    <string name="discover_result">Sonuç</string>
     <string name="discover_subs_legend_both">İkisinde de</string>
     <string name="discover_subs_matching">Şarkılar eşleştiriliyor…</string>
     <string name="discover_subs_empty">%1$s üzerinde şarkı bulunamadı: karşılaştırılacak bir şey yok.</string>

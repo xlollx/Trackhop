@@ -325,7 +325,7 @@ private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.
     val colorB = MaterialTheme.colorScheme.tertiary
     val summary = "${r.percent}% " + stringResource(R.string.discover_subs_overlap) + ". " +
         stringResource(R.string.discover_subs_counts, nf.format(r.common.size), nf.format(r.onlyA.size), nameA, nf.format(r.onlyB.size), nameB)
-    ToolSectionTitle(stringResource(R.string.discover_subs_step_result), step = 3)
+    ToolSectionTitle(stringResource(R.string.discover_result), step = 3)
     ToolResultCard {
         val venn = remember(r) { LibraryOverlap.venn(r.sizeA, r.sizeB, r.common.size) }
         VennDrawing(venn, colorA, colorB, Modifier.fillMaxWidth().height(150.dp).clearAndSetSemantics { contentDescription = summary })
@@ -369,9 +369,7 @@ private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.
     }
     OnlyOn(stringResource(R.string.discover_subs_only, nameA), r.onlyA, nf)
     OnlyOn(stringResource(R.string.discover_subs_only, nameB), r.onlyB, nf)
-    ToolSection(stringResource(R.string.card_share)) {
-        CardActions(bitmaps, "trackhop-two-subscriptions", busy = bitmaps == null, onRender = null, renderLabel = "", previewDescription = summary)
-    }
+    ToolShare(bitmaps, "trackhop-two-subscriptions", summary)
 }
 
 /** Keeping only [keep]: the songs that would stay behind on the other, and what the other costs. */
@@ -438,18 +436,25 @@ internal fun VennDrawing(venn: LibraryOverlap.Venn, colorA: Color, colorB: Color
 @Composable
 private fun OnlyOn(title: String, tracks: List<Track>, nf: NumberFormat) {
     if (tracks.isEmpty()) return
-    var all by rememberSaveable(title) { mutableStateOf(false) }
     ToolSection(title, trailing = { Text(nf.format(tracks.size), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
-        val shown = if (all) tracks.take(200) else tracks.take(6)
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            shown.forEach { t ->
-                Column {
-                    Text(t.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (t.artistLine.isNotBlank()) Text(t.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        ToolTrackList(tracks)
+    }
+}
+
+/** Which circle is whose, under a [VennDrawing]: the whole line and the dashed one, each with its name. */
+@Composable
+internal fun VennKey(nameA: String, nameB: String, colorA: Color, colorB: Color) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        listOf(Triple(nameA, colorA, false), Triple(nameB, colorB, true)).forEach { (name, color, dashed) ->
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = if (dashed) Arrangement.End else Arrangement.Start) {
+                Canvas(Modifier.size(16.dp)) {
+                    val r = size.minDimension / 2 - 1.5.dp.toPx()
+                    drawCircle(color.copy(alpha = 0.4f), r)
+                    drawCircle(color, r, style = Stroke(1.5.dp.toPx(), pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 2.5.dp.toPx())) else null))
                 }
+                Spacer(Modifier.width(6.dp))
+                Text(name, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
-        if (!all && tracks.size > 6) TextButton(onClick = { all = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.preview_more, tracks.size - 6)) }
-        else if (all && tracks.size > 200) Text(stringResource(R.string.preview_more, tracks.size - 200), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
