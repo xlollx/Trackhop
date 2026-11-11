@@ -77,6 +77,14 @@ private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency
     return r
 }
 
+/** One thing on sale in an artist's shop; "format" (Vinyl, CD, Cassette) for a record, null for other goods. */
+private fun shopItemJson(i: Merch.Item): JsonObject = buildJsonObject {
+    put("title", i.title); put("type", i.type); put("format", i.format?.let { JsonPrimitive(it.label) } ?: JsonNull)
+    put("source", RecordTexts.sourceName(i.source))
+    put("image", i.image); put("price", i.price?.let { JsonPrimitive(it) } ?: JsonNull)
+    put("currency", i.currency?.let { JsonPrimitive(it) } ?: JsonNull); put("url", i.url)
+}
+
 internal fun recordsJson(r: Records.Result): JsonObject = buildJsonObject {
     put("artistsInPlaylist", r.total)
     put("artistsLookedUp", r.artists.size)
@@ -105,15 +113,8 @@ internal fun recordsJson(r: Records.Result): JsonObject = buildJsonObject {
             put("discogsPage", a.discogsPage)
             put("links", JsonArray(a.links.map { l -> buildJsonObject { put("kind", RecordTexts.kindName(l.kind)); put("site", l.label); put("url", l.url) } }))
             put("searches", JsonArray(a.searches.map { s -> buildJsonObject { put("site", s.site ?: "Web"); put("url", s.url) } }))
-            put("merch", a.merch?.let { list ->
-                JsonArray(list.map { i ->
-                    buildJsonObject {
-                        put("title", i.title); put("type", i.type); put("source", RecordTexts.sourceName(i.source))
-                        put("image", i.image); put("price", i.price?.let { JsonPrimitive(it) } ?: JsonNull)
-                        put("currency", i.currency?.let { JsonPrimitive(it) } ?: JsonNull); put("url", i.url)
-                    }
-                })
-            } ?: JsonNull)
+            put("shopRecords", a.shopRecords?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
+            put("merch", a.merch?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
         }
     }))
     put("attribution", RecordTexts.ATTRIBUTION)
@@ -154,7 +155,7 @@ internal fun Web.recordsPage(r: Web.Req) {
         return send(r.ex, 200, page(title, body.toString()))
     }
     val tokenLine = if (Records.token(env) != null) "Discogs: your own token." else """No Discogs token: records without prices. <a href="/settings#discogs">Add yours</a>."""
-    val intro = """<p class="muted">The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops (official shop on Shopify, Bandcamp), their official sites and shops from MusicBrainz, and searches on shops. Only links, no affiliate tags: you buy on their sites. $tokenLine</p>"""
+    val intro = """<p class="muted">The CDs, vinyl and cassettes of a playlist's artists on Discogs, the records and merch in their own shops (official shop on Shopify, Bandcamp), their official sites and shops from MusicBrainz, and searches on shops. Only links, no affiliate tags: you buy on their sites. $tokenLine</p>"""
     val service = params["service"]?.let { id -> able.firstOrNull { it.id == id } }
     if (service == null) {
         val opts = able.joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
@@ -211,17 +212,18 @@ private fun recordsHtml(playlist: String, r: Records.Result): String = buildStri
                 append("""<p class="muted">${a(ar.discogsPage, Records.ATTRIBUTION)}</p>""")
             }
         }
+        fun shopItems(items: List<Merch.Item>) {
+            append("<ul>")
+            items.forEach { i ->
+                val what = listOfNotNull(i.type.takeIf { it.isNotBlank() }, RecordTexts.price(i), RecordTexts.sourceName(i.source)).joinToString(" · ")
+                append("""<li>${a(i.url, i.title)} <span class="muted">${h(what)}</span></li>""")
+            }
+            append("</ul>")
+        }
+        ar.shopRecords?.takeIf { it.isNotEmpty() }?.let { items -> append("<p>Records in their shops:</p>"); shopItems(items) }
         ar.merch?.let { items ->
             append("<p>Merch:</p>")
-            if (items.isEmpty()) append("""<p class="muted">${RecordTexts.NO_MERCH}</p>""")
-            else {
-                append("<ul>")
-                items.forEach { i ->
-                    val what = listOfNotNull(i.type.takeIf { it.isNotBlank() }, RecordTexts.price(i), RecordTexts.sourceName(i.source)).joinToString(" · ")
-                    append("""<li>${a(i.url, i.title)} <span class="muted">${h(what)}</span></li>""")
-                }
-                append("</ul>")
-            }
+            if (items.isEmpty()) append("""<p class="muted">${RecordTexts.NO_MERCH}</p>""") else shopItems(items)
         }
         if (ar.links.isNotEmpty()) append("<p>Official pages: ").append(ar.links.joinToString(" · ") { l ->
             a(l.url, when (l.kind) { Records.Kind.OFFICIAL -> "Official site"; Records.Kind.SHOP -> "Official shop"; else -> l.label })

@@ -233,6 +233,14 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
                 Records.ATTRIBUTION, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { openUrl(ctx, a.discogsPage) },
             )
+            // The records on sale in their own shops (Bandcamp, their official shop): with the records, not the merch.
+            val shopRecords = a.shopRecords?.filter { formats.isEmpty() || it.format in formats }
+            if (showRecords && !shopRecords.isNullOrEmpty()) {
+                Text(stringResource(R.string.records_in_shops), style = MaterialTheme.typography.labelLarge)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(shopRecords) { MerchCard(it, images) }
+                }
+            }
             val merch = a.merch
             if (showMerch && merch != null) {
                 if (showRecords) HorizontalDivider()

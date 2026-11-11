@@ -2133,6 +2133,7 @@
     <string name="records_kind_merch">Merch</string>
     <string name="records_find_merch">Cerca merch</string>
     <string name="records_merch_none">Nessun merch trovato nei loro negozi.</string>
+    <string name="records_in_shops">Nei loro negozi</string>
     <string name="records_none">Niente su CD, vinile o cassetta su Discogs.</string>
     <string name="records_not_for_sale">Nessuna copia in vendita ora</string>
     <plurals name="records_for_sale">

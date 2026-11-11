@@ -2219,6 +2219,7 @@
     <string name="records_kind_merch">Мерч</string>
     <string name="records_find_merch">Найти мерч</string>
     <string name="records_merch_none">В их магазинах мерча нет.</string>
+    <string name="records_in_shops">В их магазинах</string>
     <string name="records_none">На Discogs нет CD, винила или кассет.</string>
     <string name="records_not_for_sale">Сейчас нет в продаже</string>
     <plurals name="records_for_sale">

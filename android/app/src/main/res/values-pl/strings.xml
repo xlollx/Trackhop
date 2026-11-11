@@ -2221,6 +2221,7 @@
     <string name="records_kind_merch">Merch</string>
     <string name="records_find_merch">Szukaj merchu</string>
     <string name="records_merch_none">Brak merchu w ich sklepach.</string>
+    <string name="records_in_shops">W ich sklepach</string>
     <string name="records_none">Na Discogs nic na CD, winylu ani kasecie.</string>
     <string name="records_not_for_sale">Teraz nic na sprzedaż</string>
     <plurals name="records_for_sale">

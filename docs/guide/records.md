@@ -6,8 +6,8 @@ description: 'Pick a playlist: Trackhop lists the CDs, vinyl and cassettes of it
 # Records and merch of the artists in your playlist
 
 Pick one of your playlists: **Trackhop** lists, for each of its artists, their records on **CD,
-vinyl and cassette**, the **merch** on sale in their own shops (t-shirts, hoodies, posters, records,
-bundles…) with a picture and the price, their **official site and shop**, and buttons that search for them on
+vinyl and cassette** (from Discogs, and the ones on sale in their own shops), the **merch** on sale
+in their own shops (t-shirts, hoodies, posters, bundles…) with a picture and the price, their **official site and shop**, and buttons that search for them on
 **Bandcamp, Discogs, eBay** and the web. It works from any service you use (Spotify, Apple Music,
 YouTube Music, Deezer, TIDAL, your own Navidrome or Jellyfin…) and from a pasted playlist link.
 
@@ -19,9 +19,10 @@ Trackhop sells nothing and earns nothing: every button is a **plain link** (no a
 buy on the shop's own site. It only shows physical goods and the artists' own pages.
 
 At the top of the page, **All / CD & vinyl / Merch** chooses what is shown and what is looked up
-(Trackhop remembers it): with **CD & vinyl** no shop is asked, with **Merch** Discogs is not. Pick
-the other one later and only that part is looked up. With CD & vinyl, the **Vinyl / CD / Cassette**
-chips narrow the records to those formats.
+(Trackhop remembers it): **CD & vinyl** shows the records, from Discogs and from the artists' own
+shops; **Merch** shows only the other goods of those shops (clothing, pins, posters, bags…), and
+Discogs is not asked. Pick the other one later and only what is missing is looked up. With CD &
+vinyl, the **Vinyl / CD / Cassette** chips narrow the records to those formats, the shops' ones too.
 
 ## Where it comes from
 
@@ -32,7 +33,7 @@ chips narrow the records to those formats.
 - **MusicBrainz**, the free music database: the pages it links to the artist, shown as buttons:
   the **official site**, the **official shop** ("purchase for mail-order"), **Bandcamp**, download
   stores and social networks. Trackhop never opens or reads those pages.
-- **The artist's own shops**, for the merch: among the pages MusicBrainz links to the artist,
+- **The artist's own shops**, for the merch and the records sold there: among the pages MusicBrainz links to the artist,
   - an **official shop on Shopify** (the mail-order shop, or the official site when it is the shop):
     Trackhop reads its public product list (`/products.json`, the first 30 products, and the shop's
     currency from `/meta.json`) and shows the products on sale, digital downloads left out, with
@@ -40,8 +41,9 @@ chips narrow the records to those formats.
     (Amazon, eBay, Target…) are never asked.
   - the artist's **Bandcamp**: the items of its merch page (`/merch`), sold-out ones left out.
 
-  Up to 12 items per artist, each labelled **Official shop** or **Bandcamp**; a tap opens the
-  product's page. Each shop's robots.txt is read first and honoured (a shop that closes those pages
+  The records among them (a vinyl, LP, 7", CD or cassette, by the shop's product type or else its
+  name) are shown with the records, under **In their shops**, and the rest as merch: up to 12 of
+  each per artist, each labelled **Official shop** or **Bandcamp**; a tap opens the product's page. Each shop's robots.txt is read first and honoured (a shop that closes those pages
   is skipped), Trackhop asks a shop at most once a second and keeps what it found for a day. The
   pictures follow **Settings › Images in Discover** (and its Wi-Fi only option).
 - **Shop searches**: Bandcamp, Discogs, eBay and a web search for the artist's store and merch.
@@ -81,7 +83,7 @@ their official pages and searches; try again in a minute.
 
 The artist names of the playlist you pick go to Discogs (api.discogs.com) and MusicBrainz
 (musicbrainz.org), only when you tap **Find records**; with your token, the token goes to Discogs
-too. For the merch, the artist's own shops that MusicBrainz lists (their Shopify shop or official
+too. For their records and merch, the artist's own shops that MusicBrainz lists (their Shopify shop or official
 site, their `name.bandcamp.com`) are asked for their public product list; nothing of yours is sent
 to them, and pictures load from cdn.shopify.com and bcbits.com. Nothing else: no account, no
 location, no playlist. See the [privacy policy](../privacy-policy).
