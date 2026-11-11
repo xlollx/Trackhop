@@ -191,6 +191,8 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   settimana), in background: Deezer, MusicBrainz, Discogs, i negozi degli artisti, Ticketmaster solo con
   la tua chiave, e il paese dell'ultima ricerca in Concerti. Vengono inviati solo i nomi degli artisti
   che segui; quello che si trova resta sul dispositivo. Si spengono in Opzioni o smettendo di seguirli.
+  Mentre cerchi un artista da seguire, il nome che scrivi viene inviato a MusicBrainz per i suggerimenti,
+  e gli artisti mostrati vengono cercati su Deezer per la foto (non se Immagini in Scopri è spento).
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per
