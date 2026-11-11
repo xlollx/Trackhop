@@ -72,8 +72,6 @@ jobs:
       APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
       LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
       LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
-      # Ticketmaster's Consumer Key (Discover › Concerts); never its Consumer Secret.
-      TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
       # Keystore di debug (base64) per una firma stabile dell'APK debug; facoltativo.
@@ -148,8 +146,6 @@ jobs:
       APPLE_DEVELOPER_TOKEN: ${{ secrets.APPLE_DEVELOPER_TOKEN }}
       LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
       LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
-      # Ticketmaster's Consumer Key (Discover › Concerts); never its Consumer Secret.
-      TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
       PRIVACY_POLICY_URL: ${{ vars.PRIVACY_POLICY_URL }}
       KOFI_URL: ${{ vars.KOFI_URL }}
     steps:

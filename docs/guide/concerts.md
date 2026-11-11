@@ -31,23 +31,52 @@ those sites.
 The app starts from the country of your mobile network (or your SIM, or your language). It never
 asks for your location. Change it with the **Country** button.
 
+## The time range
+
+The **When** button keeps the dates of the next month, 3, 6 or 12 months, or any date. Trackhop
+remembers your choice.
+
+## Only some artists
+
+By default Trackhop looks up the 50 artists the playlist holds most. Open **Artists** to tick only the
+ones you want (with a search box, in alphabetical order), or type the name of an artist who is not in
+the playlist: fewer lookups, and quicker.
+
+## Add to calendar
+
+Each date has an **Add to calendar** button: it opens your calendar app on a new event with the
+artist and venue, the start time in the concert's own time zone (a whole-day event when the time is
+not known), the place and the ticket link. You save it there: Trackhop needs no calendar permission.
+
 ## The Ticketmaster key
 
-Ticketmaster answers only apps with a key, and each key has a daily limit (about 5,000 lookups,
-5 a second).
+Ticketmaster answers only apps with a key, and its licence does not let an app share one with its
+users: **Ticketmaster's dates need your own free key**. Without one, Concerts shows MusicBrainz's
+dates only.
 
-- **The app from Google Play** comes with a key shared by everyone who uses it. To spare it,
-  Trackhop looks up only the 40 artists the playlist holds most, only when you tap **Find
-  concerts** (never in the background), and keeps each answer for a day. If the day's lookups run
-  out you'll see "Today's Ticketmaster limit is reached": try again tomorrow, or add your own key.
-- **Your own key** (free) lifts this: up to 150 artists, and a daily limit of your own. Make an app
-  on [Ticketmaster's developer site](https://developer.ticketmaster.com/) and paste its
-  **Consumer Key** in the app (Settings › Advanced › Service keys › Ticketmaster key, or the link on the
-  Concerts page). Only the Consumer Key: never paste the Consumer Secret.
-- **The GitHub and F-Droid builds** carry no key of ours: with no key, Concerts shows MusicBrainz's
-  dates only, until you add yours.
-- **Docker and Desktop**: put your key in **Settings › Ticketmaster key** on the page, or give the
-  container `TICKETMASTER_API_KEY`. Each person on a shared server can save their own.
+### Getting the key, step by step
+
+1. Open Ticketmaster's [Getting started](https://developer.ticketmaster.com/products-and-docs/apis/getting-started/)
+   page (the **Get a key** button in the app opens it). You need a Ticketmaster **developer** account:
+   it's not the account you buy tickets with.
+2. Tap **Get your API key**, then register or log in to the developer portal.
+3. In **My Apps**, open your app and copy its **Consumer Key**. Never the Consumer Secret.
+4. Paste it in Trackhop (Settings › Advanced › Service keys › Ticketmaster key, or the link on the
+   Concerts page) and tap **Save**.
+
+Each key has a daily
+limit (about 5,000 lookups): if it runs out you'll see "Today's Ticketmaster limit is reached", try
+again tomorrow. Trackhop asks only when you tap **Find concerts** (never in the background) and keeps
+each answer for a day.
+
+On **Docker and Desktop**: put your key in **Settings › Ticketmaster key** on the page, or give the
+container `TICKETMASTER_API_KEY` (the server's owner's own key, for everyone on that server). Each
+person on a shared server can save their own.
+
+## MusicBrainz's dates
+
+MusicBrainz is made by its users, and few of them add concerts still to come: for most artists it has
+none, or only the big festivals. Without a Ticketmaster key, expect few dates.
 
 ## What is sent
 

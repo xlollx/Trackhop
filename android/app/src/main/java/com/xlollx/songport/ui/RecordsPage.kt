@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
+import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.Concerts
 import com.xlollx.songport.sync.Records
 import kotlinx.coroutines.CancellationException
@@ -77,15 +79,24 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var tokenOpen by rememberSaveable { mutableStateOf(false) }
     if (tokenOpen) DiscogsTokenDialog { tokenOpen = false }
+    // The playlist's artists, read when it is picked: some can be ticked to look up only those.
+    var artists by remember { mutableStateOf<List<String>?>(null) }
+    var ticked by remember { mutableStateOf(emptySet<String>()) }
+    var typed by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
+        artists = null; ticked = emptySet()
+        val p = pick ?: return@LaunchedEffect
+        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+    }
 
     fun run() {
         val p = pick ?: return
         progress = 0 to 0
         scope.launch {
             try {
-                val artists = Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id))
+                val all = artists ?: Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { artists = it }
                 val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
-                val r = Records.find(ctx.env, artists, currency) { done, total -> progress = done to total }
+                val r = Records.find(ctx.env, ArtistPick.chosen(all, ticked, typed), currency, ArtistPick.isWhole(all, ticked, typed)) { done, total -> progress = done to total }
                 result = r; RecordsKept.result = r; RecordsKept.playlistId = p.playlist.id; RecordsKept.at = System.currentTimeMillis()
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
@@ -98,6 +109,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         if (it == null || it.playlist.id != RecordsKept.playlistId) { result = null; RecordsKept.result = null }
         pick = it
     }
+    if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
     val busy = progress != null
     Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
@@ -113,7 +125,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
             if (r.slowedDown) add(stringResource(R.string.records_slowed))
             if (r.tokenRefused) add(stringResource(R.string.records_token_refused))
             if (!r.token) add(stringResource(R.string.records_no_token))
-            if (r.total > r.artists.size) add(stringResource(R.string.records_limited, r.artists.size, r.total))
+            if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
         }
         if (notes.isNotEmpty()) Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -121,7 +133,9 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
                 TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
             }
         }
-        r.artists.forEach { a -> ArtistRecordsCard(a, r.slowedDown) }
+        var query by rememberSaveable { mutableStateOf("") }
+        if (r.artists.size > 5) ArtistSearchField(query) { query = it }
+        ArtistPick.named(r.artists, query) { it.artist }.forEach { a -> ArtistRecordsCard(a, r.slowedDown) }
     }
     if (r == null && !busy) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
 }
@@ -140,6 +154,7 @@ private fun price(value: Double, currency: String?): String = runCatching {
 @Composable
 private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
     val ctx = LocalContext.current
+    val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -150,7 +165,9 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                 else -> {
                     records.forEachIndexed { i, rec ->
                         if (i > 0) HorizontalDivider()
-                        Column(Modifier.fillMaxWidth().clickable { openUrl(ctx, rec.url) }.padding(vertical = 2.dp)) {
+                        Row(Modifier.fillMaxWidth().clickable { openUrl(ctx, rec.url) }.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (images) DiscoverImage(rec.thumb, 56.dp, 56.dp)
+                        Column(Modifier.weight(1f)) {
                             Text(rec.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                             val formats = rec.formats.map { stringResource(formatLabel(it)) }
                             Text(listOfNotNull(rec.year?.toString()).plus(formats).joinToString(" · "), style = MaterialTheme.typography.bodySmall)
@@ -161,6 +178,7 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                                 Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable(enabled = n > 0) { openUrl(ctx, rec.sellUrl) })
                             }
+                        }
                         }
                     }
                 }
@@ -207,6 +225,7 @@ internal fun DiscogsTokenDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.records_token_body), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.records_token_steps), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(discogsTokenState(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(onClick = { openUrl(ctx, Records.TOKEN_URL) }) { Text(stringResource(R.string.records_token_get)) }
                 // The token is never shown again once saved: an empty field keeps it.
