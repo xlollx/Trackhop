@@ -249,6 +249,7 @@ internal fun SetlistFmKeyDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.setlists_key_body), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.setlists_key_steps), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(setlistFmKeyState(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(onClick = { openUrl(ctx, Setlists.KEY_URL) }) { Text(stringResource(R.string.concerts_key_get)) }
                 OutlinedTextField(

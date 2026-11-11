@@ -51,8 +51,8 @@ object Concerts {
     /** A server's own key, through BuildDefaults (the environment; app builds carry none). */
     const val BUILD_KEY = "TICKETMASTER_API_KEY"
     const val TTL_MS = 24L * 3_600_000
-    /** Where to get a key: Ticketmaster's developer site. */
-    const val KEY_URL = "https://developer.ticketmaster.com/"
+    /** Where to get a key: the first page of the steps (Ticketmaster's "Getting started", with "Get your API key"). */
+    const val KEY_URL = "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/"
 
     enum class Source(val label: String) { TICKETMASTER("Ticketmaster"), MUSICBRAINZ("MusicBrainz") }
 

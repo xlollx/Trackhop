@@ -281,6 +281,7 @@ internal fun TicketmasterKeyDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.concerts_key_body), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.concerts_key_steps), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(ticketmasterKeyState(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(onClick = { openUrl(ctx, Concerts.KEY_URL) }) { Text(stringResource(R.string.concerts_key_get)) }
                 OutlinedTextField(

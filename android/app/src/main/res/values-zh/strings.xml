@@ -1966,7 +1966,10 @@
     <string name="concerts_key_refused">Ticketmaster 拒绝了该密钥：请检查。</string>
     <string name="concerts_no_key">Ticketmaster 需要你自己的免费密钥：添加后即可看到它的日期。</string>
     <string name="concerts_key_title">Ticketmaster 密钥</string>
-    <string name="concerts_key_body">Ticketmaster 的日期需要你自己的免费密钥。在 Ticketmaster 开发者网站创建一个应用，并把它的 Consumer Key 粘贴到这里（切勿粘贴 Consumer Secret）。没有密钥时，仅显示 MusicBrainz 的日期。</string>
+    <string name="concerts_key_body">Ticketmaster 的日期需要你自己的免费密钥：没有密钥时，仅显示 MusicBrainz 的日期。</string>
+    <string name="concerts_key_steps">1. 点按“获取密钥”：将打开 Ticketmaster 开发者网站。你需要一个开发者账号，而不是买票用的账号。\n2. 点按 Get your API key，然后注册或登录。\n3. 在 My Apps 中打开你的应用，复制它的 Consumer Key（切勿复制 Consumer Secret）。\n4. 粘贴到下方并点按“保存”。</string>
+    <string name="setlists_key_steps">1. 在 setlist.fm 注册免费账号或登录。\n2. 点按“获取密钥”：将打开 setlist.fm 的 Settings › API。\n3. 申请密钥：应用名称填 Trackhop，描述填 \"Personal use: setlists of my playlists\' artists\"，非商业用途。\n4. 复制显示的密钥，粘贴到下方并点按“保存”。</string>
+    <string name="records_token_steps">1. 登录 Discogs（免费账号即可）。\n2. 点按“获取令牌”：将打开 Discogs 的 Settings › Developers。\n3. 点按 Generate new token 并复制。\n4. 粘贴到下方并点按“保存”。</string>
     <string name="concerts_key_get">获取密钥</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">正在使用你自己的密钥</string>
@@ -2012,7 +2015,7 @@
     <string name="setlists_make">生成歌单</string>
     <string name="setlists_attribution">演出曲目来自 setlist.fm</string>
     <string name="setlists_key_title">setlist.fm 密钥</string>
-    <string name="setlists_key_body">演出曲目需要你自己的免费 setlist.fm 密钥：在 setlist.fm 账户 › Settings › API 中创建，然后粘贴到这里。Trackhop 只读取公开的演出曲目。</string>
+    <string name="setlists_key_body">歌单需要你自己的免费 setlist.fm 密钥。Trackhop 只读取公开的歌单。</string>
     <string name="setlists_key_field">API 密钥</string>
     <string name="setlists_key_none">没有密钥：添加一个即可查看演出曲目</string>
     <string name="discover_records_title">唱片与周边</string>

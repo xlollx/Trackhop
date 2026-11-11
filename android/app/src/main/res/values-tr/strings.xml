@@ -1998,7 +1998,10 @@
     <string name="concerts_key_refused">Ticketmaster anahtarı reddetti: kontrol et.</string>
     <string name="concerts_no_key">Ticketmaster için kendi ücretsiz anahtarın gerekiyor: tarihlerini görmek için ekle.</string>
     <string name="concerts_key_title">Ticketmaster anahtarı</string>
-    <string name="concerts_key_body">Ticketmaster tarihleri için kendi ücretsiz anahtarın gerekir. Ticketmaster\'ın geliştirici sitesinde bir uygulama oluştur ve Consumer Key\'ini buraya yapıştır (asla Consumer Secret\'ı değil). Anahtar olmadan yalnızca MusicBrainz tarihleri.</string>
+    <string name="concerts_key_body">Ticketmaster tarihleri için kendi ücretsiz anahtarın gerekir: anahtar olmadan yalnızca MusicBrainz tarihleri.</string>
+    <string name="concerts_key_steps">1. Anahtar al\'a dokun: Ticketmaster\'ın geliştirici sitesi açılır. Bilet hesabın değil, bir geliştirici hesabı gerekir.\n2. Get your API key\'e dokun, sonra kaydol veya giriş yap.\n3. My Apps\'te uygulamanı aç ve Consumer Key\'ini kopyala (asla Consumer Secret\'ı değil).\n4. Aşağıya yapıştır ve Kaydet\'e dokun.</string>
+    <string name="setlists_key_steps">1. setlist.fm\'de ücretsiz bir hesap oluştur veya giriş yap.\n2. Anahtar al\'a dokun: setlist.fm\'de Settings › API açılır.\n3. Anahtar iste: uygulama adı Trackhop, açıklama \"Personal use: setlists of my playlists\' artists\", ticari olmayan.\n4. Gösterilen anahtarı kopyala, aşağıya yapıştır ve Kaydet\'e dokun.</string>
+    <string name="records_token_steps">1. Discogs\'a giriş yap (ücretsiz bir hesap yeterli).\n2. Token al\'a dokun: Discogs\'ta Settings › Developers açılır.\n3. Generate new token\'a dokun ve kopyala.\n4. Aşağıya yapıştır ve Kaydet\'e dokun.</string>
     <string name="concerts_key_get">Anahtar al</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">Kendi anahtarın kullanılıyor</string>
@@ -2047,7 +2050,7 @@
     <string name="setlists_make">Çalma listesi oluştur</string>
     <string name="setlists_attribution">Setlistler setlist.fm\'den</string>
     <string name="setlists_key_title">setlist.fm anahtarı</string>
-    <string name="setlists_key_body">Setlistler için kendi ücretsiz setlist.fm anahtarın gerekir: setlist.fm hesabın › Settings › API bölümünde oluştur ve buraya yapıştır. Trackhop yalnızca herkese açık setlistleri okur.</string>
+    <string name="setlists_key_body">Setlist\'ler için kendi ücretsiz setlist.fm anahtarın gerekir. Trackhop yalnızca herkese açık setlist\'leri okur.</string>
     <string name="setlists_key_field">API anahtarı</string>
     <string name="setlists_key_none">Anahtar yok: setlistleri görmek için bir tane ekle</string>
     <string name="discover_records_title">Plaklar ve merch</string>

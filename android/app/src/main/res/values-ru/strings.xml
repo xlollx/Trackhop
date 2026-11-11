@@ -2068,7 +2068,10 @@
     <string name="concerts_key_refused">Ticketmaster отклонил ключ: проверьте его.</string>
     <string name="concerts_no_key">Для Ticketmaster нужен ваш собственный бесплатный ключ: добавьте его, чтобы видеть его даты.</string>
     <string name="concerts_key_title">Ключ Ticketmaster</string>
-    <string name="concerts_key_body">Для дат Ticketmaster нужен ваш собственный бесплатный ключ. Создайте приложение на сайте для разработчиков Ticketmaster и вставьте сюда его Consumer Key (никогда не Consumer Secret). Без ключа — только даты из MusicBrainz.</string>
+    <string name="concerts_key_body">Для дат Ticketmaster нужен ваш собственный бесплатный ключ: без него — только даты из MusicBrainz.</string>
+    <string name="concerts_key_steps">1. Нажмите «Получить ключ»: откроется сайт для разработчиков Ticketmaster. Нужен аккаунт разработчика, а не аккаунт для покупки билетов.\n2. Нажмите Get your API key, затем зарегистрируйтесь или войдите.\n3. В My Apps откройте своё приложение и скопируйте его Consumer Key (никогда не Consumer Secret).\n4. Вставьте его ниже и нажмите «Сохранить».</string>
+    <string name="setlists_key_steps">1. Создайте бесплатный аккаунт на setlist.fm или войдите.\n2. Нажмите «Получить ключ»: откроется Settings › API на setlist.fm.\n3. Запросите ключ: название приложения Trackhop, описание \"Personal use: setlists of my playlists\' artists\", некоммерческое использование.\n4. Скопируйте показанный ключ, вставьте его ниже и нажмите «Сохранить».</string>
+    <string name="records_token_steps">1. Войдите в Discogs (хватит бесплатного аккаунта).\n2. Нажмите «Получить токен»: откроется Settings › Developers на Discogs.\n3. Нажмите Generate new token и скопируйте его.\n4. Вставьте его ниже и нажмите «Сохранить».</string>
     <string name="concerts_key_get">Получить ключ</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">Используется ваш ключ</string>
@@ -2123,7 +2126,7 @@
     <string name="setlists_make">Создать плейлист</string>
     <string name="setlists_attribution">Сет-листы с setlist.fm</string>
     <string name="setlists_key_title">Ключ setlist.fm</string>
-    <string name="setlists_key_body">Для сет-листов нужен ваш собственный бесплатный ключ setlist.fm: создайте его в аккаунте setlist.fm › Settings › API и вставьте сюда. Trackhop читает только публичные сет-листы.</string>
+    <string name="setlists_key_body">Для сет-листов нужен ваш собственный бесплатный ключ setlist.fm. Trackhop читает только публичные сет-листы.</string>
     <string name="setlists_key_field">Ключ API</string>
     <string name="setlists_key_none">Нет ключа: добавьте его, чтобы видеть сет-листы</string>
     <string name="discover_records_title">Пластинки и мерч</string>

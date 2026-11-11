@@ -1966,7 +1966,10 @@
     <string name="concerts_key_refused">Ticketmaster がキーを拒否しました。確認してください。</string>
     <string name="concerts_no_key">Ticketmaster には自分の無料キーが必要です。日程を見るにはキーを追加してください。</string>
     <string name="concerts_key_title">Ticketmaster キー</string>
-    <string name="concerts_key_body">Ticketmaster の日程には自分の無料キーが必要です。Ticketmaster の開発者サイトでアプリを作成し、その Consumer Key をここに貼り付けてください（Consumer Secret は絶対に貼らないこと）。キーがなければ MusicBrainz の日程のみです。</string>
+    <string name="concerts_key_body">Ticketmaster の日程には自分の無料キーが必要です。キーがなければ MusicBrainz の日程のみです。</string>
+    <string name="concerts_key_steps">1. 「キーを取得」をタップすると Ticketmaster の開発者サイトが開きます。チケット購入用ではなく、開発者アカウントが必要です。\n2. Get your API key をタップし、登録またはログインします。\n3. My Apps で自分のアプリを開き、Consumer Key をコピーします（Consumer Secret は不可）。\n4. 下に貼り付けて「保存」をタップします。</string>
+    <string name="setlists_key_steps">1. setlist.fm で無料アカウントを作成するか、ログインします。\n2. 「キーを取得」をタップすると setlist.fm の Settings › API が開きます。\n3. キーを申請します。アプリ名は Trackhop、説明は \"Personal use: setlists of my playlists\' artists\"、非商用です。\n4. 表示されたキーをコピーし、下に貼り付けて「保存」をタップします。</string>
+    <string name="records_token_steps">1. Discogs にログインします（無料アカウントで十分です）。\n2. 「トークンを取得」をタップすると Discogs の Settings › Developers が開きます。\n3. Generate new token をタップしてコピーします。\n4. 下に貼り付けて「保存」をタップします。</string>
     <string name="concerts_key_get">キーを取得</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">ご自身のキーを使用中</string>
@@ -2012,7 +2015,7 @@
     <string name="setlists_make">プレイリストを作成</string>
     <string name="setlists_attribution">セットリスト提供: setlist.fm</string>
     <string name="setlists_key_title">setlist.fm キー</string>
-    <string name="setlists_key_body">セットリストには自分の無料 setlist.fm キーが必要です。setlist.fm アカウント › Settings › API で作成して、ここに貼り付けてください。Trackhop は公開セットリストを読むだけです。</string>
+    <string name="setlists_key_body">セットリストには自分の無料 setlist.fm キーが必要です。Trackhop は公開セットリストのみを読み取ります。</string>
     <string name="setlists_key_field">API キー</string>
     <string name="setlists_key_none">キーなし: セットリストを見るには追加してください</string>
     <string name="discover_records_title">レコードとグッズ</string>

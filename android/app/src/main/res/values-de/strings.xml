@@ -2000,7 +2000,10 @@
     <string name="concerts_key_refused">Ticketmaster hat den Schlüssel abgelehnt: Prüfe ihn.</string>
     <string name="concerts_no_key">Ticketmaster braucht deinen eigenen kostenlosen Schlüssel: Füge ihn hinzu, um seine Termine zu sehen.</string>
     <string name="concerts_key_title">Ticketmaster-Schlüssel</string>
-    <string name="concerts_key_body">Für die Termine von Ticketmaster brauchst du deinen eigenen kostenlosen Schlüssel. Lege auf der Entwicklerseite von Ticketmaster eine App an und füge hier ihren Consumer Key ein (nie das Consumer Secret). Ohne Schlüssel nur Termine von MusicBrainz.</string>
+    <string name="concerts_key_body">Für die Termine von Ticketmaster brauchst du deinen eigenen kostenlosen Schlüssel: ohne ihn nur Termine von MusicBrainz.</string>
+    <string name="concerts_key_steps">1. Tippe auf Schlüssel holen: Die Entwicklerseite von Ticketmaster öffnet sich. Du brauchst dort ein Entwicklerkonto, nicht dein Ticketkonto.\n2. Tippe auf Get your API key, registriere dich oder melde dich an.\n3. Öffne unter My Apps deine App und kopiere ihren Consumer Key (nie das Consumer Secret).\n4. Füge ihn unten ein und tippe auf Speichern.</string>
+    <string name="setlists_key_steps">1. Lege ein kostenloses Konto auf setlist.fm an oder melde dich an.\n2. Tippe auf Schlüssel holen: Settings › API auf setlist.fm öffnet sich.\n3. Beantrage einen Schlüssel: als Anwendungsname Trackhop, als Beschreibung \"Personal use: setlists of my playlists\' artists\", nicht kommerziell.\n4. Kopiere den angezeigten Schlüssel, füge ihn unten ein und tippe auf Speichern.</string>
+    <string name="records_token_steps">1. Melde dich bei Discogs an (ein kostenloses Konto reicht).\n2. Tippe auf Token holen: Settings › Developers auf Discogs öffnet sich.\n3. Tippe auf Generate new token und kopiere es.\n4. Füge es unten ein und tippe auf Speichern.</string>
     <string name="concerts_key_get">Schlüssel holen</string>
     <string name="concerts_key_field">Consumer Key</string>
     <string name="concerts_key_own">Dein eigener Schlüssel</string>
@@ -2049,7 +2052,7 @@
     <string name="setlists_make">Playlist erstellen</string>
     <string name="setlists_attribution">Setlists von setlist.fm</string>
     <string name="setlists_key_title">setlist.fm-Schlüssel</string>
-    <string name="setlists_key_body">Für Setlists brauchst du deinen eigenen kostenlosen setlist.fm-Schlüssel: Erstelle ihn in deinem setlist.fm-Konto › Settings › API und füge ihn hier ein. Trackhop liest nur öffentliche Setlists.</string>
+    <string name="setlists_key_body">Setlists brauchen deinen eigenen kostenlosen setlist.fm-Schlüssel. Trackhop liest nur öffentliche Setlists.</string>
     <string name="setlists_key_field">API-Schlüssel</string>
     <string name="setlists_key_none">Kein Schlüssel: füge einen hinzu, um Setlists zu sehen</string>
     <string name="discover_records_title">Platten &amp; Merch</string>

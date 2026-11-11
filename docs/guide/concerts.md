@@ -38,7 +38,7 @@ remembers your choice.
 
 ## Only some artists
 
-By default Trackhop looks up the artists the playlist holds most. Open **Artists** to tick only the
+By default Trackhop looks up the 50 artists the playlist holds most. Open **Artists** to tick only the
 ones you want (with a search box, in alphabetical order), or type the name of an artist who is not in
 the playlist: fewer lookups, and quicker.
 
@@ -54,9 +54,17 @@ Ticketmaster answers only apps with a key, and its licence does not let an app s
 users: **Ticketmaster's dates need your own free key**. Without one, Concerts shows MusicBrainz's
 dates only.
 
-Make an app on [Ticketmaster's developer site](https://developer.ticketmaster.com/) and paste its
-**Consumer Key** in the app (Settings › Advanced › Service keys › Ticketmaster key, or the link on
-the Concerts page). Only the Consumer Key: never paste the Consumer Secret. Each key has a daily
+### Getting the key, step by step
+
+1. Open Ticketmaster's [Getting started](https://developer.ticketmaster.com/products-and-docs/apis/getting-started/)
+   page (the **Get a key** button in the app opens it). You need a Ticketmaster **developer** account:
+   it's not the account you buy tickets with.
+2. Tap **Get your API key**, then register or log in to the developer portal.
+3. In **My Apps**, open your app and copy its **Consumer Key**. Never the Consumer Secret.
+4. Paste it in Trackhop (Settings › Advanced › Service keys › Ticketmaster key, or the link on the
+   Concerts page) and tap **Save**.
+
+Each key has a daily
 limit (about 5,000 lookups): if it runs out you'll see "Today's Ticketmaster limit is reached", try
 again tomorrow. Trackhop asks only when you tap **Find concerts** (never in the background) and keeps
 each answer for a day.

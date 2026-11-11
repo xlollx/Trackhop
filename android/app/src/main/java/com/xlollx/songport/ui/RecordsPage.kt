@@ -221,6 +221,7 @@ internal fun DiscogsTokenDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.records_token_body), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.records_token_steps), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(discogsTokenState(ctx)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(onClick = { openUrl(ctx, Records.TOKEN_URL) }) { Text(stringResource(R.string.records_token_get)) }
                 // The token is never shown again once saved: an empty field keeps it.
