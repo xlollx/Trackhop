@@ -2097,9 +2097,14 @@
     <string name="setlists_key_field">Clé API</string>
     <string name="setlists_key_none">Pas de clé : ajoutes-en une pour voir les setlists</string>
     <string name="discover_records_title">Disques et merch</string>
-    <string name="discover_records_desc">CD, vinyles et boutiques des artistes d\'une playlist</string>
-    <string name="records_intro">Choisis une playlist : Trackhop trouve sur Discogs les CD, vinyles et cassettes de ses artistes, ainsi que leurs sites et boutiques officiels. Seulement des liens : tu achètes sur leurs sites.</string>
+    <string name="discover_records_desc">CD, vinyles et merch des artistes d\'une playlist</string>
+    <string name="records_intro">Choisis une playlist : Trackhop trouve sur Discogs les CD, vinyles et cassettes de ses artistes, le merch de leurs propres boutiques (boutique officielle, Bandcamp) et leurs sites officiels. Seulement des liens : tu achètes sur leurs sites.</string>
     <string name="records_find">Chercher des disques</string>
+    <string name="records_kind_all">Tout</string>
+    <string name="records_kind_records">CD et vinyles</string>
+    <string name="records_kind_merch">Merch</string>
+    <string name="records_find_merch">Chercher du merch</string>
+    <string name="records_merch_none">Aucun merch trouvé dans leurs boutiques.</string>
     <string name="records_none">Rien en CD, vinyle ou cassette sur Discogs.</string>
     <string name="records_not_for_sale">Aucun exemplaire en vente pour l\'instant</string>
     <plurals name="records_for_sale">

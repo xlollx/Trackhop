@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material3.AlertDialog
@@ -19,12 +21,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,12 +49,14 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.ArtistPick
 import com.xlollx.songport.sync.Concerts
 import com.xlollx.songport.sync.DeezerCatalog
+import com.xlollx.songport.sync.Merch
 import com.xlollx.songport.sync.Records
 import kotlinx.coroutines.CancellationException
 import java.text.NumberFormat
@@ -64,12 +73,18 @@ private object RecordsKept {
     fun fresh(): Records.Result? = work.result?.takeIf { System.currentTimeMillis() - work.at < Records.DISCOGS_TTL_MS }
 }
 
+/** What the page shows and looks up (All / CD & vinyl / Merch), kept between visits. */
+private fun lookPrefs(ctx: Context) = ctx.applicationContext.getSharedPreferences("records", Context.MODE_PRIVATE)
+private fun savedLook(ctx: Context) = Records.Look.of(lookPrefs(ctx).getString("look", null)) ?: Records.Look.ALL
+
 /**
  * Discover › Records and merch: a playlist, then for each of its artists the records on Discogs
- * (CD, vinyl, cassette; with the user's own token, the copies for sale), the official pages
- * MusicBrainz knows (site, shop, Bandcamp, social) and searches on shops. Links only, no
- * affiliate tag; asked only when the user taps.
+ * (CD, vinyl, cassette; with the user's own token, the copies for sale), the merch in their own
+ * shops ([Merch]), the official pages MusicBrainz knows (site, shop, Bandcamp, social) and searches
+ * on shops. All / CD & vinyl / Merch picks what is shown and looked up. Links only, no affiliate
+ * tag; asked only when the user taps.
  */
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun RecordsPage(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
@@ -82,6 +97,8 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     var artists by remember { mutableStateOf<List<String>?>(null) }
     var ticked by remember { mutableStateOf(emptySet<String>()) }
     var typed by rememberSaveable { mutableStateOf("") }
+    var look by remember { mutableStateOf(savedLook(ctx)) }
+    var formats by rememberSaveable { mutableStateOf(emptyList<Records.Format>()) }
     LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
         artists = null; ticked = emptySet()
         val p = pick ?: return@LaunchedEffect
@@ -89,14 +106,30 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     }
 
     // Outside the page (RecordsKept): the screen turned or another tab opened, the search goes on.
-    fun run() {
+    fun run(want: Records.Look = look) {
         val p = pick ?: return
         val env = ctx.env
         val known = artists; val tick = ticked; val type = typed
         val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
-            Records.find(env, ArtistPick.chosen(all, tick, type), currency, ArtistPick.isWhole(all, tick, type), progress)
+            Records.find(env, ArtistPick.chosen(all, tick, type), currency, ArtistPick.isWhole(all, tick, type), want, progress)
+        }
+    }
+
+    // Only what is shown is looked up: a part not found yet is looked up when it is picked (the rest comes from the cache).
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+        val looks = Records.Look.entries
+        looks.forEachIndexed { i, l ->
+            SegmentedButton(
+                selected = look == l, shape = SegmentedButtonDefaults.itemShape(i, looks.size),
+                onClick = {
+                    look = l
+                    lookPrefs(ctx).edit().putString("look", l.name).apply()
+                    val shown = RecordsKept.fresh()?.takeIf { pick != null && k.key == pick?.playlist?.id }
+                    if (shown != null && !k.running && !shown.look.covers(l)) run(Records.Look.ALL)
+                },
+            ) { Text(stringResource(when (l) { Records.Look.ALL -> R.string.records_kind_all; Records.Look.RECORDS -> R.string.records_kind_records; Records.Look.MERCH -> R.string.records_kind_merch }), maxLines = 1) }
         }
     }
 
@@ -110,7 +143,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     val progress = k.progress
     Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-        Text(stringResource(R.string.records_find))
+        Text(stringResource(if (look == Records.Look.MERCH) R.string.records_find_merch else R.string.records_find))
     }
     progress?.takeIf { it.second > 0 }?.let { (done, total) ->
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -118,23 +151,29 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
 
     val r = RecordsKept.fresh()?.takeIf { pick == null || k.key == pick?.playlist?.id }
     if (r != null && !busy) {
+        val discogs = look.records && r.look.records
         val notes = buildList {
-            if (r.slowedDown) add(stringResource(R.string.records_slowed))
-            if (r.tokenRefused) add(stringResource(R.string.records_token_refused))
-            if (!r.token) add(stringResource(R.string.records_no_token))
+            if (discogs && r.slowedDown) add(stringResource(R.string.records_slowed))
+            if (discogs && r.tokenRefused) add(stringResource(R.string.records_token_refused))
+            if (discogs && !r.token) add(stringResource(R.string.records_no_token))
             if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
         }
         if (notes.isNotEmpty()) Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-                TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
+                if (discogs) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
+            }
+        }
+        if (discogs) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Records.Format.entries.forEach { f ->
+                FilterChip(selected = f in formats, onClick = { formats = if (f in formats) formats - f else formats + f }, label = { Text(stringResource(formatLabel(f))) })
             }
         }
         var query by rememberSaveable { mutableStateOf("") }
         if (r.artists.size > 5) ArtistSearchField(query) { query = it }
-        ArtistPick.named(r.artists, query) { it.artist }.forEach { a -> ArtistRecordsCard(a, r.slowedDown) }
+        ArtistPick.named(r.artists, query) { it.artist }.forEach { a -> ArtistRecordsCard(a, r.slowedDown, discogs, formats, look.merch) }
     }
-    if (r == null && !busy) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
+    if (r == null && !busy && look.records) TextButton(onClick = { tokenOpen = true }) { Text(stringResource(R.string.records_token_title)) }
 }
 
 private fun formatLabel(f: Records.Format) = when (f) {
@@ -149,14 +188,15 @@ private fun price(value: Double, currency: String?): String = runCatching {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
+private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRecords: Boolean, formats: List<Records.Format>, showMerch: Boolean) {
     val ctx = LocalContext.current
     val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            val records = a.records
-            when {
+            // The formats ticked (none: all of them).
+            val records = a.records?.filter { rec -> formats.isEmpty() || rec.formats.any { it in formats } }
+            if (showRecords) when {
                 records == null -> Text(stringResource(if (slowed) R.string.records_not_asked else R.string.records_discogs_down), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 records.isEmpty() -> Text(stringResource(R.string.records_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> {
@@ -182,10 +222,19 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                 }
             }
             // Discogs' terms: its data shown with this line, linking to it.
-            if (!records.isNullOrEmpty()) Text(
+            if (showRecords && !records.isNullOrEmpty()) Text(
                 Records.ATTRIBUTION, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { openUrl(ctx, a.discogsPage) },
             )
+            val merch = a.merch
+            if (showMerch && merch != null) {
+                if (showRecords) HorizontalDivider()
+                Text(stringResource(R.string.records_kind_merch), style = MaterialTheme.typography.labelLarge)
+                if (merch.isEmpty()) Text(stringResource(R.string.records_merch_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                else LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(merch) { MerchCard(it, images) }
+                }
+            }
             if (a.links.isNotEmpty()) {
                 HorizontalDivider()
                 Text(stringResource(R.string.records_links), style = MaterialTheme.typography.labelLarge)
@@ -207,6 +256,24 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean) {
                 a.searches.forEach { s -> TextButton(onClick = { openUrl(ctx, s.url) }) { Text(s.site ?: stringResource(R.string.records_search_web)) } }
             }
         }
+    }
+}
+
+/** One thing on sale in the artist's shop: picture (when Discover shows them), title, price, where; a tap opens its page. */
+@Composable
+private fun MerchCard(item: Merch.Item, images: Boolean) {
+    val ctx = LocalContext.current
+    Column(Modifier.width(128.dp).clickable { openUrl(ctx, item.url) }, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        if (images) DiscoverImage(item.image, 128.dp, 128.dp)
+        Text(item.title, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        item.price?.let { p ->
+            Text(if (item.currency != null) price(p, item.currency) else NumberFormat.getNumberInstance().apply { minimumFractionDigits = 2; maximumFractionDigits = 2 }.format(p),
+                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        }
+        Text(
+            listOf(item.type, if (item.source == Merch.Source.BANDCAMP) "Bandcamp" else stringResource(R.string.records_shop)).filter { it.isNotBlank() }.joinToString(" · "),
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
