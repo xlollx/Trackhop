@@ -344,6 +344,45 @@ class FakeServerProvidersTest {
         assertEquals("oxygene", requests.filter { it.path == "/Items" }.last().query["searchTerm"]?.single())
     }
 
+    /** #57 as the reporter's server answered: names-only search, unrelated songs for the full title. */
+    private fun jellyfinNamesOnly(r: Req): Pair<Int, String> = when {
+        r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+        r.path == "/Items" -> 200 to when (r.query["searchTerm"]?.single()) {
+            "oxygene" -> """{"Items":[""" + listOf("I" to 460, "II" to 488, "III" to 174, "IV" to 254, "V" to 623, "VI" to 400).joinToString(",") { (n, sec) ->
+                """{"Id":"o$n","Name":"Oxygene (Part $n)","Album":"Oxygene","Artists":["Jean-Michel Jarre"],"RunTimeTicks":${sec * 10_000_000L}}"""
+            } + "]}"
+            "usa" -> """{"Items":[{"Id":"usa","Name":"USA","Album":"Punks Not Dead","Artists":["The Exploited"],"RunTimeTicks":1800000000}]}"""
+            "oxygene part 4", "Oxygene, Pt. 4", "u s a", "U.S.A" ->
+                """{"Items":[{"Id":"junk","Name":"Part of Me","Artists":["Katy Perry"],"RunTimeTicks":2160000000},{"Id":"junk2","Name":"Party 4 U","Artists":["Charli XCX"],"RunTimeTicks":2010000000}]}"""
+            else -> """{"Items":[]}"""
+        }
+        else -> 404 to ""
+    }
+
+    @Test fun jellyfinTriesTheBareTitleWhenTheFullOneBringsOnlyOtherSongs() = runBlocking {
+        answer = ::jellyfinNamesOnly
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"), album = "Oxygène", durationMs = 254_000)
+        val found = p.search(ctx, src)
+        assertEquals("oIV", found.first().id)
+        assertTrue(Matcher.score(src, found.first()) >= Matcher.REVIEW_THRESHOLD)
+        assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), requests.filter { it.path == "/Items" }.map { it.query["searchTerm"]?.single() })
+        // Part 4 is never taken for another part, even when the library lacks it.
+        assertNull(Matcher.best(src, found.filter { it.id != "oIV" }))
+    }
+
+    @Test fun jellyfinFindsInitialsWrittenWithoutDots() = runBlocking {
+        answer = ::jellyfinNamesOnly
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "U.S.A", artists = listOf("The Exploited"), durationMs = 180_000)
+        val found = p.search(ctx, src)
+        assertEquals("usa", found.first().id)
+        assertTrue(Matcher.score(src, found.first()) >= Matcher.REVIEW_THRESHOLD)
+        assertEquals(listOf("usa"), requests.filter { it.path == "/Items" }.map { it.query["searchTerm"]?.single() })
+    }
+
     // ------------------------------------------------------------------ Jellyfin Quick Connect (#45)
 
     @Test fun jellyfinQuickConnectSignsInOnceTheCodeIsApproved() = runBlocking {

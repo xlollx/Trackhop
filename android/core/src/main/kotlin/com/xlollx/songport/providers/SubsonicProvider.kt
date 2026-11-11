@@ -142,8 +142,10 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         suspend fun songs(query: String, count: Int) = call(ctx, "search3", listOf("query" to query, "songCount" to "$count", "albumCount" to "0", "artistCount" to "0"))["searchResult3"]["song"].arr
             .mapNotNull { toTrack(it) }
         // Gonic and Ampache match the query against the title alone ("metallica battery" finds nothing):
-        // then the title, with the artist's songs first.
-        return songs(q, 5).ifEmpty { if (q == title) emptyList() else Matcher.byArtist(track, songs(title, 20)).take(5) }
+        // then the title, as written and bare, while nothing close is found, with the artist's songs first.
+        val first = songs(q, 5)
+        val found = Matcher.searchByTitles(track, Matcher.titleTerms(track.title).filterNot { it.equals(q, ignoreCase = true) }, first) { songs(it, 20) }
+        return if (found.size == first.size) first else Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
     private fun toAlbum(a: JsonElement?): Track? {

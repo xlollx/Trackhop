@@ -66,10 +66,10 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         // Plex matches the query against one name at a time ("metallica battery" finds nothing): the
-        // title alone, then the artist's songs first.
-        val q = Matcher.searchTitle(track.title)
-        val hubs = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20")["MediaContainer"]["Hub"].arr
-        return Matcher.byArtist(track, hubs.filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }).take(5)
+        // title alone (folded, as written, bare while nothing close is found), the artist's songs and the closest first.
+        suspend fun find(q: String) = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20")["MediaContainer"]["Hub"].arr
+            .filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }
+        return Matcher.byArtist(track, Matcher.searchByTitles(track) { find(it) }).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
