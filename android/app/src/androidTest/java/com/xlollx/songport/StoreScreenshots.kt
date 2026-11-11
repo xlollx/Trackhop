@@ -485,8 +485,8 @@ class StoreScreenshots {
     /** The pictures the carousel's pages show (covers, concerts, merch, artists), by their made-up address. */
     private val carouselImages = HashMap<String, Bitmap>()
 
-    /** The artists followed in the carousel, A to Z; the last one muted. */
-    private val CAROUSEL_FOLLOWED = listOf("Architects", "Bring Me the Horizon", "Metallica", "Sleep Token")
+    /** The artists followed in the carousel, A to Z; the first one muted. */
+    private val CAROUSEL_FOLLOWED = listOf("Alter Bridge", "Architects", "Bring Me the Horizon", "Metallica")
 
     private fun img(kind: String, n: Int) = "https://img.carousel.invalid/$kind/$n.jpg"
 
@@ -537,6 +537,31 @@ class StoreScreenshots {
         return b
     }
 
+    /** A concert's picture: a dark stage, coloured beams from above, the crowd's heads below. */
+    private fun stage(seed: Int): Bitmap {
+        val w = 640; val h = 360
+        val b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(b)
+        val tints = intArrayOf(0xFF7B2FF7.toInt(), 0xFFFF2E63.toInt(), 0xFF08D9D6.toInt(), 0xFFFFB400.toInt())
+        val tint = tints[seed % tints.size]
+        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), Paint().apply { shader = LinearGradient(0f, 0f, 0f, h.toFloat(), 0xFF05030A.toInt(), (tint and 0x00FFFFFF) or 0x66000000, Shader.TileMode.CLAMP) })
+        val beam = Paint(Paint.ANTI_ALIAS_FLAG)
+        for (k in 0 until 5) {
+            val x = 60f + k * 130f + (seed * 37 % 50)
+            beam.shader = LinearGradient(x, 0f, x, h.toFloat(), (tints[(seed + k) % tints.size] and 0x00FFFFFF) or 0x99000000.toInt(), 0x00000000, Shader.TileMode.CLAMP)
+            c.drawPath(android.graphics.Path().apply { moveTo(x - 6f, 0f); lineTo(x + 6f, 0f); lineTo(x + 90f - k * 40f + 60f, h.toFloat()); lineTo(x - 90f - k * 10f, h.toFloat()); close() }, beam)
+        }
+        val crowd = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF000000.toInt() }
+        var x = -10f; var k = seed
+        while (x < w + 20) {
+            val r = 22f + (k * 7 % 9); val y = h - 40f - (k * 13 % 18)
+            c.drawCircle(x, y, r, crowd); c.drawRect(x - r * 1.3f, y + r * 0.6f, x + r * 1.3f, h.toFloat(), crowd)
+            if (k % 5 == 0) c.drawRect(x + r * 0.6f, y - 90f, x + r * 0.6f + 9f, y, crowd)
+            x += 38f + (k * 11 % 14); k++
+        }
+        return b
+    }
+
     private fun carouselDemo() {
         val palettes = listOf(
             intArrayOf(0xFF1B1B3A.toInt(), 0xFFE63946.toInt()), intArrayOf(0xFF0F2027.toInt(), 0xFF2C5364.toInt()),
@@ -546,7 +571,7 @@ class StoreScreenshots {
             intArrayOf(0xFF0B486B.toInt(), 0xFFF56217.toInt()),
         )
         for (i in 0 until 9) carouselImages[img("wrapped", i)] = cover(palettes[i], i)
-        for (i in 0 until 8) carouselImages[img("concert", i)] = cover(palettes[(i + 3) % palettes.size], i + 2)
+        for (i in 0 until 8) carouselImages[img("concert", i)] = stage(i)
         for (i in 0 until 8) carouselImages[img("record", i)] = cover(palettes[(i + 5) % palettes.size], i + 1)
         for (i in CAROUSEL_FOLLOWED.indices) carouselImages[img("artist", i)] = cover(palettes[(i * 2 + 1) % palettes.size], i)
         val goods = listOf(
@@ -588,8 +613,8 @@ class StoreScreenshots {
         store.update { d ->
             val jobs = d.jobs.map { j ->
                 when (j.id) {
-                    "job-metal" -> j.copy(favorite = true, label = "red", color = "red")
-                    "job-road" -> j.copy(label = "orange", color = "orange")
+                    "job-metal" -> j.copy(label = "red", color = "red")
+                    "job-road" -> j.copy(favorite = true, label = "orange", color = "orange")
                     "job-chill" -> j.copy(label = "teal", color = "teal")
                     "job-workout" -> j.copy(label = "purple", color = "purple")
                     else -> j
@@ -609,10 +634,10 @@ class StoreScreenshots {
                     com.xlollx.songport.model.Label("teal", "teal", "Chill"), com.xlollx.songport.model.Label("purple", "purple", "Gym"),
                     com.xlollx.songport.model.Label("green", "green", "Summer"),
                 ),
-                discoverImages = true, discoverImagesWifiOnly = false, artistAlerts = true,
+                discoverImages = true, discoverImagesWifiOnly = false, artistAlerts = true, favoritesOnTop = false,
                 followedArtists = CAROUSEL_FOLLOWED.mapIndexed { i, name ->
                     com.xlollx.songport.sync.ArtistAlerts.Followed(
-                        name, kinds = if (i == 1) kinds.copy(merch = false) else kinds, muted = name == "Sleep Token", mbid = "carousel-artist-$i",
+                        name, kinds = if (i == 2) kinds.copy(merch = false) else kinds, muted = i == 0, mbid = "carousel-artist-$i",
                     )
                 },
             )
@@ -628,7 +653,7 @@ class StoreScreenshots {
             .put(news("Architects", "CONCERT", "c2", "The O2", "London"))
             .put(news("Metallica", "RECORD", "v1", "72 Seasons (Vinyl)", ""))
             .put(news("Bring Me the Horizon", "CONCERT", "c3", "Madison Square Garden", "New York"))
-            .put(news("Sleep Token", "RELEASE", "r3", "Even in Arcadia", "ALBUM"))
+            .put(news("Alter Bridge", "RELEASE", "r3", "Pawns & Kings", "ALBUM"))
         app.env.keyValues("artist_alerts")["latest"] = latest.toString()
         app.getSharedPreferences("records", Context.MODE_PRIVATE).edit().putString("look", "ALL").commit()
         keptShow("com.xlollx.songport.ui.ConcertsKept", carouselConcerts())
@@ -716,6 +741,21 @@ class StoreScreenshots {
     /** The carousel: the best of Trackhop, one page each, English and dark. carousel/<nn>_<what>.png. */
     private fun shootCarousel() {
         carouselDemo()
+        // A tidy status bar again: the system UI may have restarted since the script asked (and forgotten it).
+        fun shell(cmd: String) = instr.uiAutomation.executeShellCommand(cmd).use { java.io.FileInputStream(it.fileDescriptor).readBytes() }
+        step("demo mode") {
+            shell("settings put global sysui_demo_allowed 1")
+            listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
+                "-e command network -e wifi show -e level 4", "-e command network -e mobile show -e datatype none -e level 4",
+                "-e command notifications -e visible false", "-e command status -e volume hide -e bluetooth hide -e alarm hide").forEach {
+                shell("am broadcast -a com.android.systemui.demo $it")
+            }
+        }
+        // A slow drag up by [px]: a real scroll, with no fling.
+        fun swipe(px: Int) {
+            shell("input swipe 540 1900 540 ${1900 - px} 1200")
+            compose.waitForIdle(); Thread.sleep(800)
+        }
         val store = Store.get(app)
         val dir = File(app.getExternalFilesDir(null), "carousel").apply { mkdirs() }
         fun snap(name: String, settle: Long = 1500) {
@@ -766,7 +806,7 @@ class StoreScreenshots {
             Thread.sleep(1500)
             compose.onAllNodes(hasScrollAction() and hasAnyDescendant(hasText(firstJob))).fetchSemanticsNodes().size.let { k ->
                 compose.onAllNodes(hasScrollAction() and hasAnyDescendant(hasText(firstJob)))[k - 1]
-                    .performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 640f) }
+                    .performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 1140f) }
             }
         }
         snap("01_syncs")
@@ -795,8 +835,9 @@ class StoreScreenshots {
         open(tab(MainActivity.TAB_SYNCS), "preview") {
             waitText(firstJob)
             bringIn(Demo.CAROUSEL_NAME)
-            compose.onAllNodes(hasText(Demo.CAROUSEL_NAME) and androidx.compose.ui.test.SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick)).onFirst()
-                .performSemanticsAction(SemanticsActions.OnLongClick)
+            // The last card's menu (the ⋮ of "Summer Vibes").
+            val more = compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.more_actions)) and androidx.compose.ui.test.hasClickAction())
+            more[more.fetchSemanticsNodes().size - 1].performSemanticsAction(SemanticsActions.OnClick)
             waitText(s(R.string.preview))
             tapText(s(R.string.preview))
             waitText(s(R.string.run_now), 30_000)
@@ -813,20 +854,22 @@ class StoreScreenshots {
             tapText(s(R.string.card_format_square))
             Thread.sleep(1000)
             bringIn(s(R.string.card_share))
+            swipe(520)
         }
         snap("06_wrapped", 2500)
         // 7 Concerts.
         open(tab(MainActivity.TAB_DISCOVER), "concerts") {
             discoverPage(s(R.string.discover_concerts_title))
             waitText("Allegiant Stadium")
-            bringIn(s(R.string.concerts_add_calendar), 2)
+            bringIn(s(R.string.concerts_add_calendar), 1)
+            swipe(520)
         }
         snap("07_concerts", 2500)
         // 8 Records and merch.
         open(tab(MainActivity.TAB_DISCOVER), "records") {
             discoverPage(s(R.string.discover_records_title))
             waitText("Master of Puppets")
-            bringIn("M72 World Tour Tee")
+            swipe(760); swipe(760)
         }
         snap("08_records", 2500)
         // 9 Followed artists.
