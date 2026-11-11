@@ -49,6 +49,8 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
     override val authDomain = "qobuz.com"
     override val pluginBased = true
     override val searchParallelism = 2
+    /** The connectors list one Qobuz playlist at a time. */
+    override val readGate: String get() = SERVICE
 
     /** Built in (GitHub, F-Droid), or through a connector plugin that knows it (Google Play). */
     override fun isConfigured(ctx: Env): Boolean =

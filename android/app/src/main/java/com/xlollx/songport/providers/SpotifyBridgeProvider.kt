@@ -59,6 +59,8 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override val notConfiguredName: String? = "bridge_needed_hint"
     /** The player's gateway is quick to say 429 to bursts: two searches at a time. */
     override val searchParallelism = 2
+    /** The connectors list one Spotify or YouTube Music playlist at a time (BridgeCore's lock): see [com.xlollx.songport.sync.ServiceReads]. */
+    override val readGate: String get() = BridgePlugin.BRIDGE_GATE
 
     override fun isConfigured(ctx: Env): Boolean =
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "spotify.status").containsKey("connected") }.getOrDefault(false)

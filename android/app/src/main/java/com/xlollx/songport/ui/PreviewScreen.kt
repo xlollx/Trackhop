@@ -74,6 +74,7 @@ import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.providers.YouTubeProvider
 import com.xlollx.songport.sync.QuotaMeter
+import com.xlollx.songport.sync.ServiceReads
 import com.xlollx.songport.sync.SyncEngine
 import kotlinx.coroutines.launch
 
@@ -96,10 +97,12 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
     var error by remember { mutableStateOf<String?>(null) }
     var confirmRemovals by remember { mutableStateOf(false) }
     var confirmShrink by remember { mutableStateOf(false) }
+    // Another sync reading the same connector, which lists one playlist at a time: said, not a silent spinner.
+    var waitingFor by remember { mutableStateOf<ServiceReads.Reader?>(null) }
     ScreenBackHandler(onClose)
 
     LaunchedEffect(job.id) {
-        try { plan = engine.plan(job, { progress = it }, createTarget = false, interactive = true) }
+        try { plan = engine.plan(job, { progress = it }, createTarget = false, interactive = true, onWait = { waitingFor = it }) }
         catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic) }
     }
 
@@ -143,7 +146,7 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                 error != null -> Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
                     Text(error!!, color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.padding(16.dp))
                 }
-                p == null -> PlanSteps(progress)
+                p == null -> PlanSteps(progress, waitingFor)
                 else -> {
                     // The plan in figures, as on the card after a run.
                     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -281,7 +284,7 @@ private fun RouteCard(job: SyncJob, newTarget: Boolean) {
  * the tracks; the step under way turns, the ones done are ticked, matching fills a bar as it goes.
  */
 @Composable
-private fun PlanSteps(progress: Progress?) {
+private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = null) {
     val step = when (progress?.step) {
         null, Progress.Step.FETCH_SOURCE -> 0
         Progress.Step.CREATE_TARGET, Progress.Step.FETCH_TARGET -> 1
@@ -315,6 +318,14 @@ private fun PlanSteps(progress: Progress?) {
                 if (i == 2 && current == 2) progress?.percent?.let { pc ->
                     LinearProgressIndicator(progress = { pc / 100f }, modifier = Modifier.fillMaxWidth().padding(start = 36.dp))
                 }
+            }
+            if (waitingFor != null) Row(verticalAlignment = Alignment.Top) {
+                Icon(Icons.Outlined.Info, null, Modifier.size(18.dp).padding(top = 2.dp), tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.preview_waiting_read, waitingFor.jobName, waitingFor.service),
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface,
+                )
             }
             if (progress?.step == Progress.Step.WAITING) Text(
                 stringResource(R.string.progress_waiting, (progress.total - progress.done).coerceAtLeast(0)),

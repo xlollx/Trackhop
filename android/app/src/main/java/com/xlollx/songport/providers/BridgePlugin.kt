@@ -129,6 +129,12 @@ object BridgePlugin {
     fun withSlot(extras: Bundle?, slot: String): Bundle? =
         if (slot.isEmpty()) extras else Bundle(extras ?: Bundle()).apply { putString(EXTRA_SLOT, slot) }
 
+    /**
+     * The [MusicProvider.readGate] of Spotify (web) and YouTube Music: the connectors fetch a playlist
+     * of either under one lock (BridgeCore's `cachedTracks` and `cachedSpotifyTracks`), every account.
+     */
+    const val BRIDGE_GATE = "bridge"
+
     /** The extra naming the account in the connectors' calls and sign-ins, as the Bridge reads it. */
     const val EXTRA_SLOT = "slot"
 

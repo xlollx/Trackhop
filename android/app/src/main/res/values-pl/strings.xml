@@ -239,6 +239,7 @@
     <string name="preview">Podgląd</string>
     <string name="preview_title">Podgląd: %1$s</string>
     <string name="preview_computing">Ustalanie, co się zmieni…</string>
+    <string name="preview_waiting_read">Oczekiwanie: inna synchronizacja („%1$s”) odczytuje %2$s. Podgląd będzie kontynuowany, gdy się zakończy.</string>
     <string name="preview_present">Już w celu: %1$d</string>
     <string name="preview_add">Do dodania: %1$d</string>
     <string name="preview_remove">Do usunięcia: %1$d</string>

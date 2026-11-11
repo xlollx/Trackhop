@@ -239,6 +239,7 @@
     <string name="preview">プレビュー</string>
     <string name="preview_title">プレビュー：%1$s</string>
     <string name="preview_computing">変更内容を計算中…</string>
+    <string name="preview_waiting_read">待機中：別の同期（「%1$s」）が %2$s を読み込んでいます。終わり次第プレビューを続けます。</string>
     <string name="preview_present">%1$d 曲は同期先にあります</string>
     <string name="preview_add">%1$d 曲を追加</string>
     <string name="preview_remove">%1$d 曲を削除</string>

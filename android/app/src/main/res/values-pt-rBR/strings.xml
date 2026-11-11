@@ -239,6 +239,7 @@
     <string name="preview">Prévia</string>
     <string name="preview_title">Prévia: %1$s</string>
     <string name="preview_computing">Calculando o que mudaria…</string>
+    <string name="preview_waiting_read">Aguardando: outra sincronização (“%1$s”) está lendo %2$s. A prévia continua assim que ela terminar.</string>
     <string name="preview_present">%1$d já no destino</string>
     <string name="preview_add">%1$d a adicionar</string>
     <string name="preview_remove">%1$d a remover</string>

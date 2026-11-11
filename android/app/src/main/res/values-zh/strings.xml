@@ -239,6 +239,7 @@
     <string name="preview">预览</string>
     <string name="preview_title">预览：%1$s</string>
     <string name="preview_computing">正在计算将发生的变化…</string>
+    <string name="preview_waiting_read">等待中：另一个同步（“%1$s”）正在读取 %2$s。它完成后预览会继续。</string>
     <string name="preview_present">%1$d 首已在目标中</string>
     <string name="preview_add">%1$d 首待添加</string>
     <string name="preview_remove">%1$d 首待移除</string>

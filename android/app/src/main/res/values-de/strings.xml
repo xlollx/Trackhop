@@ -239,6 +239,7 @@
     <string name="preview">Vorschau</string>
     <string name="preview_title">Vorschau: %1$s</string>
     <string name="preview_computing">Änderungen werden ermittelt…</string>
+    <string name="preview_waiting_read">Warten: Ein anderer Sync („%1$s“) liest gerade %2$s. Die Vorschau geht weiter, sobald er fertig ist.</string>
     <string name="preview_present">%1$d bereits auf dem Ziel</string>
     <string name="preview_add">%1$d hinzuzufügen</string>
     <string name="preview_remove">%1$d zu entfernen</string>

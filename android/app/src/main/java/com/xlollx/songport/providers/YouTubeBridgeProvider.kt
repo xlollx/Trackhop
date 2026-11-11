@@ -60,6 +60,8 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     // Due alla volta: Google segna l'indirizzo quando il ritmo non e' quello di una persona, e il
     // Bridge impone comunque una cadenza minima; oltre due non si guadagna nulla e si rischia il blocco.
     override val searchParallelism = 2
+    /** The connectors list one YouTube Music or Spotify playlist at a time (BridgeCore's lock): see [com.xlollx.songport.sync.ServiceReads]. */
+    override val readGate: String get() = BridgePlugin.BRIDGE_GATE
 
     /** "Configured" here means the Bridge app is installed. */
     override fun isConfigured(ctx: Env): Boolean = installed(ctx)

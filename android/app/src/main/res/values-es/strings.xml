@@ -239,6 +239,7 @@
     <string name="preview">Vista previa</string>
     <string name="preview_title">Vista previa: %1$s</string>
     <string name="preview_computing">Calculando qué cambiaría…</string>
+    <string name="preview_waiting_read">En espera: otra sincronización («%1$s») está leyendo %2$s. La vista previa sigue en cuanto termine.</string>
     <string name="preview_present">%1$d ya en el destino</string>
     <string name="preview_add">%1$d por añadir</string>
     <string name="preview_remove">%1$d por quitar</string>

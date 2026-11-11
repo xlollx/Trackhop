@@ -55,6 +55,8 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
     override val installUrl = BridgePlugin.installUrl
     override val notConfiguredName: String? = "bridge_needed_hint"
     override val searchParallelism = 1
+    /** The connectors list one SoundCloud playlist at a time. */
+    override val readGate: String get() = serviceId
     override val canReorder: Boolean get() = true
     override val canSetVisibility: Boolean get() = true
 

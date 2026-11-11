@@ -239,6 +239,7 @@
     <string name="preview">미리보기</string>
     <string name="preview_title">미리보기: %1$s</string>
     <string name="preview_computing">무엇이 바뀔지 계산하는 중…</string>
+    <string name="preview_waiting_read">대기 중: 다른 동기화(“%1$s”)가 %2$s을(를) 읽고 있어요. 끝나는 대로 미리보기를 이어서 진행해요.</string>
     <string name="preview_present">%1$d곡 이미 대상에 있음</string>
     <string name="preview_add">%1$d곡 추가 예정</string>
     <string name="preview_remove">%1$d곡 삭제 예정</string>

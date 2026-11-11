@@ -239,6 +239,7 @@
     <string name="preview">Предпросмотр</string>
     <string name="preview_title">Предпросмотр: %1$s</string>
     <string name="preview_computing">Вычисление изменений…</string>
+    <string name="preview_waiting_read">Ожидание: другая синхронизация («%1$s») читает %2$s. Предпросмотр продолжится, как только она закончит.</string>
     <string name="preview_present">Уже в цели: %1$d</string>
     <string name="preview_add">К добавлению: %1$d</string>
     <string name="preview_remove">К удалению: %1$d</string>

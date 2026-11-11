@@ -239,6 +239,7 @@
     <string name="preview">Anteprima</string>
     <string name="preview_title">Anteprima: %1$s</string>
     <string name="preview_computing">Calcolo di cosa cambierebbe…</string>
+    <string name="preview_waiting_read">In attesa: un\'altra sync (“%1$s”) sta leggendo %2$s. L\'anteprima prosegue appena ha finito.</string>
     <string name="preview_present">%1$d già sulla destinazione</string>
     <string name="preview_add">%1$d da aggiungere</string>
     <string name="preview_remove">%1$d da rimuovere</string>

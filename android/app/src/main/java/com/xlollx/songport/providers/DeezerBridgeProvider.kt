@@ -52,6 +52,8 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebA
     override val notConfiguredName: String? = "bridge_needed_hint"
     /** The gateway and the public API both dislike bursts. */
     override val searchParallelism = 2
+    /** The connectors list one Deezer playlist at a time. */
+    override val readGate: String get() = SERVICE
 
     override fun isConfigured(ctx: Env): Boolean =
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "deezer.status").containsKey("connected") }.getOrDefault(false)

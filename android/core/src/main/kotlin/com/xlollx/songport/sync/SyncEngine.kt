@@ -346,7 +346,11 @@ class SyncEngine(
         if (updated != latest) store.upsertJob(updated)
     }
 
-    suspend fun plan(job: SyncJob, onProgress: (Progress) -> Unit = {}, createTarget: Boolean = true, unattended: Boolean = false, interactive: Boolean = false): SyncPlan {
+    /** [onWait]: the sync whose read this one waits behind, on a connector that reads one playlist at a time; null once it is this one's turn. */
+    suspend fun plan(
+        job: SyncJob, onProgress: (Progress) -> Unit = {}, createTarget: Boolean = true, unattended: Boolean = false, interactive: Boolean = false,
+        onWait: (ServiceReads.Reader?) -> Unit = {},
+    ): SyncPlan {
         val (src, dst) = providers(job)
         val srcPlaylistId = job.source.playlistId ?: throw ProviderException("No source playlist selected")
         // L'origine puo' essere una playlist pubblica leggibile senza login (catalogo Apple Music).
@@ -363,7 +367,7 @@ class SyncEngine(
         // it) must stop the sync with its name, not feed a ghost. One list call per side, per run.
         val srcDeclared = checkStillThere(src, srcPlaylistId, job.source.playlistName, isSource = true)
         val dstDeclared = job.target.playlistId?.let { checkStillThere(dst, it, job.target.playlistName, isSource = false) } ?: -1
-        val allSource = patient(onProgress) { src.tracks(env, srcPlaylistId) }
+        val allSource = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
         // Ignored in this sync, or declared absent from this destination service by any sync.
         val ignoredIds = job.ignoredSourceIds.toHashSet()
         // Verso "album salvati" o "artisti seguiti" (anche da un file) si cercano album o artisti, non brani.
@@ -411,7 +415,7 @@ class SyncEngine(
         onProgress(Progress(Progress.Step.FETCH_TARGET))
         // A playlist created a moment ago is empty: skip the fetch (saves quota, and YouTube's Data API
         // may not even know the playlist yet).
-        val dstTracks = if (targetCreated) emptyList() else readTarget(job, dst, targetId, onProgress, unattended, interactive, notes)
+        val dstTracks = if (targetCreated) emptyList() else listing(job, dst, interactive, onWait) { readTarget(job, dst, targetId, onProgress, unattended, interactive, notes) }
         if (!targetCreated) keepEntries(dst, targetId, dstTracks)
         val targetReadAt = if (targetCreated) 0L else System.currentTimeMillis()
         val shrunkFrom = if (interactive && !targetCreated) shrunkFrom(job, targetId, dstTracks.size) else 0
@@ -740,6 +744,23 @@ class SyncEngine(
         }
         env.log("engine", "${job.name}: stopped, ${dst.displayName} lists ${best.size} tracks twice, the last run left $expected; nothing written")
         throw TargetShrunkException(str("error_target_shrunk", dst.displayName, best.size, expected), expected)
+    }
+
+    /**
+     * A whole listing on [p], noted in [ServiceReads] when its connector reads one playlist at a time:
+     * a wait behind another sync's read is passed to [onWait] and logged once.
+     */
+    private suspend fun <T> listing(job: SyncJob, p: MusicProvider, interactive: Boolean, onWait: (ServiceReads.Reader?) -> Unit, block: suspend () -> T): T {
+        var logged = false
+        val me = ServiceReads.Reader(job.id, job.name, p.displayName, System.currentTimeMillis())
+        return ServiceReads.reading(p.readGate, me, { r ->
+            if (r != null && !logged) {
+                logged = true
+                val secs = (System.currentTimeMillis() - r.since) / 1000
+                env.log("engine", "${if (interactive) "preview of " else ""}${job.name}: waiting for \"${r.jobName}\", reading ${r.service} for ${secs}s (one read at a time there)")
+            }
+            onWait(r)
+        }, block)
     }
 
     /** Anteprima quando la destinazione non esiste ancora: si cerca tutto, non si crea niente. */

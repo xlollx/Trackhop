@@ -172,6 +172,12 @@ interface MusicProvider {
     /** Ricerche in parallelo tollerate dal servizio (1 per le interfacce web non ufficiali, che bloccano le raffiche). */
     val searchParallelism: Int get() = 4
     /**
+     * The lock the connector holds while it lists a whole playlist, shared by the connectors that name
+     * the same one: two such reads run one after the other, the second waiting for the first (see
+     * [com.xlollx.songport.sync.ServiceReads], which says who holds it). Null: reads run side by side.
+     */
+    val readGate: String? get() = null
+    /**
      * True when many syncs reaching the service at once can be turned away (the services that take
      * searches one or two at a time): the Syncs screen suggests spreading their times (issue #56).
      */
