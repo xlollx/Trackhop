@@ -151,13 +151,59 @@ class TidalContractTest : ContractTest() {
         assertCall(next(), "DELETE", api, "/v2/playlists/new-uuid")
     }
 
+    /** Regression (11/11/2026): /userCollections/{userId}/relationships/albums answered 404; the collection is /userCollectionAlbums/me. */
     @Test fun albumsCollectionEditsInTwenties() = runBlocking {
-        repeat(2) { server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204)) }
+        repeat(3) { server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204)) }
         td.addTracks(env, MusicProvider.ALBUMS_ID, (0 until 21).map { Track("al$it", "A", kind = Track.KIND_ALBUM) })
         val r = next()
-        assertCall(r, "POST", api, "/v2/userCollections/u1/relationships/albums")
+        assertCall(r, "POST", api, "/v2/userCollectionAlbums/me/relationships/items")
         assertEquals(20, r.jsonBody()["data"].arr.size)
+        assertEquals("albums", r.jsonBody()["data"][0]["type"].str)
         assertEquals(1, next().jsonBody()["data"].arr.size)
+        td.removeTracks(env, MusicProvider.ALBUMS_ID, listOf(Track("al0", "A", kind = Track.KIND_ALBUM)))
+        val d = next()
+        assertCall(d, "DELETE", api, "/v2/userCollectionAlbums/me/relationships/items")
+        assertEquals(listOf("al0"), d.jsonBody()["data"].arr.map { it["id"].str })
+        noMoreRequests()
+    }
+
+    @Test fun followedArtistsReadAndEdited() = runBlocking {
+        json("""{"data":[{"id":"7","type":"artists","meta":{"addedAt":"2024-01-01T00:00:00Z"}}],"included":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}}],
+            "links":{"self":"x","next":"/userCollectionArtists/me/relationships/items?include=items&page%5Bcursor%5D=c2"}}""")
+        json("""{"data":[{"id":"8","type":"artists","meta":{"addedAt":"2024-01-02T00:00:00Z"}}],"included":[{"id":"8","type":"artists","attributes":{"name":"Beyoncé"}}],"links":{"self":"x"}}""")
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204))
+        val ts = td.tracks(env, MusicProvider.ARTISTS_ID)
+        assertEquals(listOf("Måneskin", "Beyoncé"), ts.map { it.title })
+        assertEquals(Track.KIND_ARTIST, ts[0].kind)
+        val r = next()
+        assertCall(r, "GET", api, "/v2/userCollectionArtists/me/relationships/items")
+        assertEquals("items", r.query("include"))
+        assertEquals(null, r.query("countryCode"))
+        assertEquals("c2", next().query("page[cursor]"))
+        td.addTracks(env, MusicProvider.ARTISTS_ID, listOf(Track("9", "Ñ", kind = Track.KIND_ARTIST)))
+        val a = next()
+        assertCall(a, "POST", api, "/v2/userCollectionArtists/me/relationships/items")
+        assertEquals("artists", a.jsonBody()["data"][0]["type"].str)
+        noMoreRequests()
+    }
+
+    @Test fun savedAlbumsWithoutArtistIdsAreAskedForAgain() = runBlocking {
+        val bare = """{"id":"al1","type":"albums","attributes":{"title":"Album","barcodeId":"0000000000017","releaseDate":"2020-05-01"},"relationships":{"artists":{"links":{"self":"/albums/al1/relationships/artists"}}}}"""
+        json("""{"data":[{"id":"al1","type":"albums","meta":{"addedAt":"2024-01-01T00:00:00Z"}}],"included":[$bare],"links":{"self":"x"}}""")
+        val full = """{"id":"al1","type":"albums","attributes":{"title":"Album","barcodeId":"0000000000017","releaseDate":"2020-05-01"},"relationships":{"artists":{"data":[{"id":"7","type":"artists"}]}}}"""
+        json("""{"data":[$full]}""")
+        json(artists)
+        val al = td.tracks(env, MusicProvider.ALBUMS_ID).single()
+        assertEquals("Album", al.title)
+        assertEquals(listOf("Måneskin"), al.artists)
+        assertEquals(Track.KIND_ALBUM, al.kind)
+        assertCall(next(), "GET", api, "/v2/userCollectionAlbums/me/relationships/items")
+        val again = next()
+        assertCall(again, "GET", api, "/v2/albums")
+        assertEquals("al1", again.query("filter[id]"))
+        assertEquals("artists", again.query("include"))
+        assertCall(next(), "GET", api, "/v2/artists")
+        noMoreRequests()
     }
 
     @Test fun refreshOn401() = runBlocking {
