@@ -191,6 +191,9 @@ object Wrapped {
     /** A connected connector, as the Wrapped needs it: its own id, its service, its names and colour. */
     data class Connector(val id: String, val serviceId: String, val displayName: String, val familyName: String, val color: Long)
 
+    /** The service's plain name ([com.xlollx.songport.providers.ServiceBrand]): what the card shows, whatever the connector is called. */
+    private fun brand(c: Connector): String = com.xlollx.songport.providers.ServiceBrand.of(c.serviceId, c.familyName)
+
     /** Glyphs to prefer when a service has two routes: the music app's own mark (YouTube Music's, not YouTube's). */
     private val PREFERRED = listOf("spotify", "apple", "ytm", "deezer", "tidal", "soundcloud", "amazon")
 
@@ -200,9 +203,9 @@ object Wrapped {
      * route the app knows best ([PREFERRED]), else the first met's.
      */
     fun services(connectors: List<Connector>): List<Service> =
-        connectors.groupBy { brandName(it.familyName).lowercase() }.values.map { members ->
+        connectors.groupBy { brand(it).lowercase() }.values.map { members ->
             val pick = members.minByOrNull { m -> PREFERRED.indexOf(m.serviceId).let { if (it < 0) Int.MAX_VALUE else it } } ?: members.first()
-            Service(pick.serviceId, brandName(members.first().familyName), pick.color)
+            Service(pick.serviceId, brand(members.first()), pick.color)
         }
 
     /**

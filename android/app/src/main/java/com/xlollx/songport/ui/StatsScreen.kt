@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.providers.ServiceBrand
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
@@ -83,11 +84,11 @@ private class StatsText(ctx: Context, val s: UsageStats.Summary, val services: I
 private fun provider(id: String): MusicProvider? = Providers.byId(id)
 
 /** A service's name for the route and the longest playlist: the service's, never an account's. */
-private fun serviceName(id: String): String = provider(id)?.displayName ?: id
+private fun serviceName(id: String): String = provider(id)?.let { ServiceBrand.of(it.serviceId, it.familyName) } ?: id
 
 private fun cardMark(id: String): Cards.Mark {
     val p = provider(id)
-    return Cards.Mark(p?.displayName ?: id, p?.brandColor?.toInt() ?: 0xFF7C3AED.toInt(), p?.serviceId)
+    return Cards.Mark(p?.let { ServiceBrand.of(it.serviceId, it.familyName) } ?: id, p?.brandColor?.toInt() ?: 0xFF7C3AED.toInt(), p?.serviceId)
 }
 
 /** The card: tracks moved as the headline, then up to three figures the history backs, and the route. */
