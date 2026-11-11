@@ -1,0 +1,1 @@
+“发现”新增歌单艺人页面：新发行（生成歌单或每周同步）；来自 Ticketmaster 和 MusicBrainz 的演唱会，并可搜索票务网站；来自 setlist.fm 的演出曲目（使用你自己的免费密钥）可变成歌单；唱片与周边：Discogs 上的 CD、黑胶和磁带，官网和官方商店，仅提供链接。通知渠道：同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 通知你。
