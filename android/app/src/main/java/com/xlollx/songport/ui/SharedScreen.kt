@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -210,9 +212,10 @@ fun SharedScreen(onClose: () -> Unit) {
 private fun GroupList(groups: List<SharedGroup>, onOpen: (String) -> Unit, onCreate: () -> Unit, onJoin: () -> Unit) {
     val ctx = LocalContext.current
     Text(stringResource(R.string.shared_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = onCreate) { Icon(Icons.Filled.GroupAdd, null, Modifier.size(18.dp)); Text("  " + stringResource(R.string.shared_create)) }
-        OutlinedButton(onClick = onJoin) { Icon(Icons.Filled.Link, null, Modifier.size(18.dp)); Text("  " + stringResource(R.string.shared_join)) }
+    // Side by side when they fit, one under the other when not: a label never breaks inside its button.
+    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(onClick = onCreate) { Icon(Icons.Filled.GroupAdd, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_create), maxLines = 1, softWrap = false) }
+        OutlinedButton(onClick = onJoin) { Icon(Icons.Filled.Link, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.shared_join), maxLines = 1, softWrap = false) }
     }
     if (groups.isNotEmpty()) PrefSection(stringResource(R.string.shared_title), accent = JobColor.PINK) {
         for (g in groups) {
