@@ -307,7 +307,7 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
     var tooSoon by remember(shops?.retryAt) { mutableStateOf(false) }
     Card(Modifier.fillMaxWidth().then(if (reads) Modifier.onGloballyPositioned { onScreen = it.boundsInWindow().height > 0f } else Modifier)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            ArtistTitle(a.artist)
             // The format picked (null: all of them), on Discogs and in their shops.
             val records = a.records?.filter { rec -> format == null || format in rec.formats }
             val shopRecords = shops?.records?.filter { format == null || it.format == format }

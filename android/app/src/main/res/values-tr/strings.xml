@@ -1227,7 +1227,7 @@
     <string name="howto_organise_body"># Favoriler\nBir kartın ⋮ menüsünde Favorilere ekle, senkronizasyona bir yıldız verir. Yıldızlılar Senkronizasyonlar\'ın en üstünde kalır ve Favoriler filtresi yalnızca onları gösterir. Onları sıranın herhangi bir yerine koymak için Ayarlar › Görünüm › Favoriler her zaman üstte\'yi kapat.\n# Renk adları\nBir kartın ⋮ menüsü › Stil\'de bir renk seç ve ona bir ad ver: o renkteki tüm senkronizasyonlar bu adı paylaşır. Aynı pencere kartın rengini nasıl taşıyacağını da seçer.\n# Etiketler\nDüzenleyicide Etiketler senkronizasyonları kendi istediğin gibi gruplar, örneğin tür = metal. Değer isteğe bağlıdır.\n# Bir senkronizasyonu bulmak\nSenkronizasyonlar\'daki arama ve filtreler; ada, duruma, renk adına, favorilere ya da etikete göre bulur.\n# Sıra\nBir karta basılı tut ve yeni bir yere sürükle ya da ⋮ › Konuma taşı… seçeneğini kullan.\n# Boyut ve görünüm\n• Ayarlar › Görünüm › Kart boyutu: büyük, orta ya da küçük.\n• Minimal görünüm, senkronizasyonları ızgarada küçük kutucuklar olarak gösterir. Kartın tamamını görmek için kutucuğa dokun; menüsü için basılı tut ya da sürükle.\n• Tablette ya da yan çevrilmiş telefonda sekmeler yan çubuğa geçer ve kartlar sütunlara dizilir.</string>
     <string name="howto_discover_title">Yeni çıkanlar, konserler, setlistler, plaklar</string>
     <string name="howto_discover_summary">Çalma listelerindeki sanatçılar neler yapıyor.</string>
-    <string name="howto_discover_body">Keşfet sekmesi, çalma listelerinden birindeki sanatçılar hakkında yalnızca sen istediğinde bilgi arar: arka planda hiçbir şey kontrol edilmez. Konserler, Setlistler ve Plaklar ve merch\'te Sanatçıları seç, kimlerin aranacağını belirler.\n# Yeni çıkanlar\nSon 7, 30 ya da 90 günün yeni albümleri, EP\'leri ve single\'ları, bir de yakında çıkacaklar. Herhangi bir serviste bir çalma listesi oluştur, zaten olan bir listeye Bir çalma listesine ekle ile ekle ya da çıkanları ekleyen bir senkronizasyon için Her hafta\'yı seç.\n# Konserler\nBir ülkedeki yaklaşan tarihler, Ne zaman\'da seçtiğin aralıkta, bilet bağlantıları ve Takvime ekle ile. Bir sanatçı için tarih yok mu? Düğmeler bilet sitelerinde arar.\n# Setlistler\nSanatçıların canlı çaldıkları, setlist.fm\'den. Bir konser seç ve herhangi bir serviste çalma listesine dönüştür.\n# Plaklar ve merch\nDiscogs\'taki CD\'ler, plaklar ve kasetler, resmi siteler ve mağazalar, diğer mağazalarda aramalar. Yalnızca bağlantılar: satın alma onların sitelerinde.\n# Anahtarlar\nTicketmaster konser tarihleri ve setlistler için kendi ücretsiz anahtarın gerekir; bir Discogs jetonu satıştaki kopyaları ve en düşük fiyatı ekler. Bunları Ayarlar › Gelişmiş › Servis anahtarları\'na ekle: Anahtar al ilk adımı açar. Ticketmaster anahtarı yoksa tarihler MusicBrainz\'den gelir.\n# Sekme\nSırayı değiştirmek için bir karta basılı tut ve sürükle; Sırayı sıfırla eski haline getirir. Ayarlar › Görünüm › Keşfet\'te görseller, görselleri kapatır ya da yalnızca Wi‑Fi\'de gösterir.</string>
+    <string name="howto_discover_body">Keşfet sekmesi, çalma listelerinden birindeki sanatçılar hakkında yalnızca sen istediğinde bilgi arar: arka planda yalnızca takip ettiğin sanatçılar kontrol edilir. Konserler, Setlistler ve Plaklar ve merch\'te Sanatçıları seç, kimlerin aranacağını belirler.\n# Yeni çıkanlar\nSon 7, 30 ya da 90 günün yeni albümleri, EP\'leri ve single\'ları, bir de yakında çıkacaklar. Herhangi bir serviste bir çalma listesi oluştur, zaten olan bir listeye Bir çalma listesine ekle ile ekle ya da çıkanları ekleyen bir senkronizasyon için Her hafta\'yı seç.\n# Konserler\nBir ülkedeki yaklaşan tarihler, Ne zaman\'da seçtiğin aralıkta, bilet bağlantıları ve Takvime ekle ile. Bir sanatçı için tarih yok mu? Düğmeler bilet sitelerinde arar.\n# Setlistler\nSanatçıların canlı çaldıkları, setlist.fm\'den. Bir konser seç ve herhangi bir serviste çalma listesine dönüştür.\n# Plaklar ve merch\nDiscogs\'taki CD\'ler, plaklar ve kasetler, resmi siteler ve mağazalar, diğer mağazalarda aramalar. Yalnızca bağlantılar: satın alma onların sitelerinde.\n# Takip edilen sanatçılar\nBir sanatçıyı takip etmek için yanındaki zile dokun, sonra Takip edilen sanatçılar\'da neyi duymak istediğini seç: yeni çıkanlar, yakınındaki konserler, yeni merch, plaklar. Günde (ya da haftada) bir kez Trackhop onları kontrol eder ve yenilikleri tek bir bildirimle gönderir. İlk kontrol yalnızca var olanı not eder.\n# Anahtarlar\nTicketmaster konser tarihleri ve setlistler için kendi ücretsiz anahtarın gerekir; bir Discogs jetonu satıştaki kopyaları ve en düşük fiyatı ekler. Bunları Ayarlar › Gelişmiş › Servis anahtarları\'na ekle: Anahtar al ilk adımı açar. Ticketmaster anahtarı yoksa tarihler MusicBrainz\'den gelir.\n# Sekme\nSırayı değiştirmek için bir karta basılı tut ve sürükle; Sırayı sıfırla eski haline getirir. Ayarlar › Görünüm › Keşfet\'te görseller, görselleri kapatır ya da yalnızca Wi‑Fi\'de gösterir.</string>
     <string name="howto_shared_title">Ortak çalma listeleri</string>
     <string name="howto_shared_summary">Bir grup için tek liste, herkes kendi servisinde.</string>
     <string name="howto_shared_body">Araçlar › Ortak çalma listeleri: aynı servisi kullanmayan kişiler için tek bir çalma listesi. Herkes kendi servisinde kendi kopyasını tutar, Trackhop da kopyaları aynı tutar.\n# Oluştur ya da katıl\nGrup oluştur: bir ad ver, servisini, çalma listeni ve grubun nasıl buluşacağını seç. Davet, gönderilecek bir QR kodu ve bağlantı gösterir. Diğerleri Bağlantıyla katıl\'a dokunur ve Grup kodu\'nun seninkiyle aynı olduğunu kontrol eder.\n# Grup nasıl buluşur\n• Ortak klasör: grubun zaten paylaştığı bir Google Drive, Nextcloud, Dropbox ya da Syncthing klasörü. Klasörü açabilen herkes grubu okuyabilir.\n• Şifreli ntfy kanalı: değişiklikler ntfy.sh ya da kendi ntfy sunucun üzerinden şifreli gider.\n• Trackhop sunucum: değişiklikler, Ayarlar › Gelişmiş › Sunucumla eşgüdüm sağla\'da ayarlanan Trackhop sunucunda buluşur. Onu yöneten kişi grubun şarkılarını görebilir.\nntfy kanalında ya da sunucuda daveti olan herkes grubu okuyabilir: daveti yalnızca davet ettiğin kişilere gönder.\n# Roller\nBir Küratör\'ün değişiklikleri herkese ulaşır; grubu oluşturan kişi küratörleri seçer. Diğerleri Birebir kopya olarak ya da Eklediklerimi tut ile takip eder; böylece ekledikleri yalnızca kendi listelerinde kalır.\n# Servisinde olmayan şarkılar\nServisinin bulamadığı bir şarkı diğerlerinden asla kaldırılmaz: senkronizasyonunun incelemesinde bekler.\n# Grubun sayfası\nÜyeler, kimin neyi değiştirdiği ve grup kodu. Gruptan ayrıl değişiklikleri durdurur; çalma listen olduğu gibi kalır.</string>
@@ -2007,7 +2007,7 @@
     <string name="notify_field_pushover_user">User key</string>
     <string name="discover_concerts_title">Konserler</string>
     <string name="discover_concerts_desc">Bir çalma listesindeki sanatçıların yaklaşan tarihleri</string>
-    <string name="concerts_intro">Bir çalma listesi ve ülke seç: Trackhop sanatçılarının yaklaşan konserlerini arar. Arka planda hiçbir şey kontrol edilmez.</string>
+    <string name="concerts_intro">Bir çalma listesi ve ülke seç: Trackhop sanatçılarının yaklaşan konserlerini arar. Arka planda yalnızca takip ettiğin sanatçılar (zil).</string>
     <string name="concerts_country">Ülke</string>
     <string name="concerts_find">Konser ara</string>
     <string name="concerts_progress">Sanatçı %1$d / %2$d…</string>
@@ -2335,4 +2335,39 @@
     <string name="discard_changes_body">Buraya girilenler henüz kaydedilmedi.</string>
     <string name="discard_changes_discard">Vazgeç</string>
     <string name="discard_changes_keep">Düzenlemeye devam et</string>
+    <string name="alerts_followed_title">Takip edilen sanatçılar</string>
+    <string name="alerts_followed_desc">Yeni müzikleri, konserleri ve merch için uyarılar</string>
+    <string name="alerts_followed_intro">Yeni çıkanlar, Konserler, Setlistler ya da Plaklar ve merch\'te bir sanatçının yanındaki zile dokun ya da burada adıyla takip et. Trackhop onları arka planda kontrol eder ve yenilikleri tek bir bildirimle söyler.</string>
+    <string name="alerts_follow">%1$s takip et</string>
+    <string name="alerts_unfollow">%1$s takibi bırak</string>
+    <string name="alerts_no_permission">Trackhop bildirimleri kapalı: uyarıları almak için aç.</string>
+    <string name="alerts_add_hint">Sanatçı adı</string>
+    <string name="alerts_add">Takip et</string>
+    <string name="alerts_latest">Son yenilikler</string>
+    <string name="alerts_none">Henüz takip ettiğin sanatçı yok.</string>
+    <string name="alerts_kind_releases">Yeni çıkanlar</string>
+    <string name="alerts_kind_concerts">Yakınımdaki konserler</string>
+    <string name="alerts_kind_merch">Yeni merch</string>
+    <string name="alerts_kind_records">Plaklar</string>
+    <string name="alerts_settings">Kontroller</string>
+    <string name="alerts_master">Sanatçı uyarıları</string>
+    <string name="alerts_master_summary">Keşfet\'te takip ettiğin sanatçıları kontrol eder ve yenilikleri söyler.</string>
+    <string name="alerts_daily">Her gün</string>
+    <string name="alerts_weekly">Her hafta</string>
+    <string name="alerts_wifi">Yalnızca Wi‑Fi\'da</string>
+    <string name="alerts_defaults">Bundan sonra takip ettiğin sanatçılar için</string>
+    <string name="alerts_concerts_where">Konserler %1$s içinde aranır: Konserler\'deki son aramanın ülkesi.</string>
+    <string name="alerts_channel">Sanatçı uyarıları</string>
+    <string name="alerts_channel_desc">Keşfet\'te takip ettiğin sanatçılardan yenilikler</string>
+    <string name="alerts_news_single">%1$s: yeni single</string>
+    <string name="alerts_news_ep">%1$s: yeni EP</string>
+    <string name="alerts_news_album">%1$s: yeni albüm</string>
+    <string name="alerts_news_concert">%1$s konseri: %2$s</string>
+    <string name="alerts_news_concert_somewhere">%1$s: yeni konser</string>
+    <string name="alerts_news_merch">%1$s: yeni merch</string>
+    <string name="alerts_news_record">%1$s: yeni plak</string>
+    <plurals name="alerts_notif_title">
+        <item quantity="one">Sanatçılarından %d yenilik</item>
+        <item quantity="other">Sanatçılarından %d yenilik</item>
+    </plurals>
 </resources>

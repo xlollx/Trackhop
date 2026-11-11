@@ -108,6 +108,7 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
     CONCERTS("🎟️", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc),
     SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc),
     RECORDS("💿", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc),
+    FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc),
     ;
 
     /** The card's id in the saved order (Settings.discoverOrder, sync/DiscoverOrder). */
@@ -150,12 +151,16 @@ fun DiscoverScreen(
     /** Asked from elsewhere (an idea on the Syncs tab): the Wrapped opens, once. */
     openWrapped: Boolean = false,
     onWrappedOpened: () -> Unit = {},
+    /** Asked from the alerts' notification: Followed artists opens, once. */
+    openFollowed: Boolean = false,
+    onFollowedOpened: () -> Unit = {},
     /** No AI to use: where the key is set up (Tools › Playlist generator). */
     onSetUpAi: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     var open by rememberSaveable { mutableStateOf<DiscoverCard?>(null) }
     LaunchedEffect(openWrapped) { if (openWrapped) { open = DiscoverCard.WRAPPED; onWrappedOpened() } }
+    LaunchedEffect(openFollowed) { if (openFollowed) { open = DiscoverCard.FOLLOWED; onFollowedOpened() } }
     val listState = rememberLazyGridState()
     // Two playlist links shared together open the comparison straight away.
     LaunchedEffect(compareLinks) { if (compareLinks != null) open = DiscoverCard.COMPAT }
@@ -207,6 +212,7 @@ fun DiscoverScreen(
                     DiscoverCard.CONCERTS -> ConcertsPage(local)
                     DiscoverCard.SETLISTS -> SetlistsPage(local, onNewSync)
                     DiscoverCard.RECORDS -> RecordsPage(local)
+                    DiscoverCard.FOLLOWED -> FollowedArtistsPage()
                 }
             }
         }

@@ -144,6 +144,7 @@ internal fun ReleasesPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
                         )
                     }
                     if (coming) StatusPill(stringResource(R.string.releases_upcoming), Tone.Accent)
+                    FollowBell(rel.artist)
                 }
             }
         }

@@ -276,6 +276,39 @@ object Notifications {
         return true
     }
 
+    private const val ALERTS_CHANNEL_ID = "artist_alerts"
+    private const val ALERTS_ID = 4245
+
+    /**
+     * "3 updates from your artists: new single by ADTR, Architects concert in Milan, new merch from
+     * BMTH": one notification per look, on its own channel; a tap opens Discover › Followed artists.
+     */
+    fun artistAlerts(context: Context, news: List<com.xlollx.songport.sync.ArtistAlerts.News>) {
+        if (news.isEmpty() || !canPost(context)) return
+        val mgr = context.getSystemService(NotificationManager::class.java)
+        mgr.createNotificationChannel(
+            NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
+                .apply { description = context.getString(R.string.alerts_channel_desc) }
+        )
+        val open = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_FOLLOWED)
+        }
+        val pi = PendingIntent.getActivity(context, ALERTS_ID, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val lines = com.xlollx.songport.sync.ArtistAlerts.group(news).size
+        val title = context.resources.getQuantityString(R.plurals.alerts_notif_title, lines, lines)
+        val text = com.xlollx.songport.sync.ArtistAlerts.summary(com.xlollx.songport.platform.AndroidEnv.of(context), news).replaceFirstChar { it.titlecase() }
+        val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(pi)
+            .setAutoCancel(true)
+            .build()
+        mgr.notify(ALERTS_ID, n)
+    }
+
     /** "N tracks can no longer be played": opens the Unplayable tracks tool. */
     fun unplayable(context: Context, id: Int, count: Int) {
         if (!canPost(context)) return

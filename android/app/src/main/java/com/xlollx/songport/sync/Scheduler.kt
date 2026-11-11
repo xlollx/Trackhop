@@ -185,12 +185,69 @@ class UpdateCheckWorker(ctx: Context, params: WorkerParameters) : CoroutineWorke
     }
 }
 
+/**
+ * The look for news of the artists followed (Discover › Followed artists, [ArtistAlerts]): the
+ * sources and caches of the Discover pages, one artist after another. The artists a run had no time
+ * for are looked up by a second run a little later; the news is said once, when all are done.
+ */
+class ArtistAlertsWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+    override suspend fun doWork(): Result {
+        val ctx = applicationContext
+        val s = Store.get(ctx).data.settings
+        val plan = ArtistAlerts.plan(s) ?: return Result.success()
+        val env = ctx.env
+        val country = Concerts.savedCountry(env) ?: com.xlollx.songport.ui.defaultConcertCountry(ctx)
+        val out = ArtistAlerts.check(env, s.followedArtists, plan.periodDays, ArtistAlerts.live(country, Concerts.savedRange(env)))
+        if (out.remaining > 0) Scheduler.continueArtistAlerts(ctx, plan)
+        if (out.notify.isNotEmpty()) Notifications.artistAlerts(ctx, out.notify)
+        return Result.success()
+    }
+}
+
 object Scheduler {
     /** The unique periodic work of a sync (the UI tests read its state). */
     internal fun name(jobId: String) = "sync-$jobId"
     private const val BACKUP_WORK = "backup-export"
     private const val UNPLAYABLE_WORK = "unplayable-check"
     private const val UPDATE_WORK = "app-update-check"
+    private const val ALERTS_WORK = "artist-alerts"
+    private const val ALERTS_MORE_WORK = "artist-alerts-more"
+
+    /** What the background look of the artists followed waits for: the network (Wi-Fi when asked), a battery not low. */
+    internal fun alertConstraints(plan: ArtistAlerts.Plan): Constraints = Constraints.Builder()
+        .setRequiredNetworkType(if (plan.unmetered) NetworkType.UNMETERED else NetworkType.CONNECTED)
+        .setRequiresBatteryNotLow(plan.batteryNotLow)
+        .build()
+
+    /** The daily (or weekly) look for news of the artists followed, in line with the settings and the list. */
+    fun applyArtistAlerts(ctx: Context) {
+        val wm = WorkManager.getInstance(ctx)
+        val plan = ArtistAlerts.plan(Store.get(ctx).data.settings)
+        if (plan == null) {
+            wm.cancelUniqueWork(ALERTS_WORK); wm.cancelUniqueWork(ALERTS_MORE_WORK)
+            return
+        }
+        com.xlollx.songport.NotificationAsk.onUse()
+        val req = PeriodicWorkRequestBuilder<ArtistAlertsWorker>(plan.periodDays, TimeUnit.DAYS)
+            .setConstraints(alertConstraints(plan))
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
+            .build()
+        // The same plan keeps its run time: following one more artist does not push the next look a day away.
+        val key = "${plan.periodDays}|${plan.unmetered}"
+        val prefs = ctx.getSharedPreferences("artist_alerts", Context.MODE_PRIVATE)
+        val same = prefs.getString("plan", null) == key
+        wm.enqueueUniquePeriodicWork(ALERTS_WORK, if (same) ExistingPeriodicWorkPolicy.KEEP else ExistingPeriodicWorkPolicy.UPDATE, req)
+        prefs.edit().putString("plan", key).apply()
+    }
+
+    /** The artists the last look had no time for, a little later (after the run asking it, which may be this very work). */
+    internal fun continueArtistAlerts(ctx: Context, plan: ArtistAlerts.Plan) {
+        val req = OneTimeWorkRequestBuilder<ArtistAlertsWorker>()
+            .setConstraints(alertConstraints(plan))
+            .setInitialDelay(20, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(ctx).enqueueUniqueWork(ALERTS_MORE_WORK, ExistingWorkPolicy.APPEND_OR_REPLACE, req)
+    }
 
     /** The daily update notification on or off with Settings › About's switch (only builds that check GitHub themselves). */
     fun applyUpdateCheck(ctx: Context) {
@@ -279,6 +336,7 @@ object Scheduler {
         applyBackup(ctx)
         applyUnplayable(ctx)
         applyUpdateCheck(ctx)
+        applyArtistAlerts(ctx)
         // At every start of the process, in the background too: the radio's alarm armed, no listening started from here.
         RadioPlan.refresh(ctx, start = false)
     }

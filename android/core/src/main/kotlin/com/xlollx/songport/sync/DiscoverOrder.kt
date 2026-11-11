@@ -8,7 +8,7 @@ package com.xlollx.songport.sync
  */
 object DiscoverOrder {
     /** The default order, by card id. */
-    val DEFAULT = listOf("releases", "link", "concerts", "records", "setlists", "subs", "compat", "roast", "vanished", "poster")
+    val DEFAULT = listOf("releases", "link", "concerts", "records", "setlists", "subs", "compat", "roast", "vanished", "poster", "followed")
 
     /**
      * The cards in [saved]'s order: the ids of [known] (in their default order) that [saved] names

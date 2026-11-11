@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicOff
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Notifications
@@ -313,6 +314,9 @@ fun SettingsScreen(
             }
             PrefSwitch(Icons.Filled.MusicOff, stringResource(R.string.settings_unplayable), stringResource(R.string.settings_unplayable_summary), settings.unplayableCheck) { v ->
                 store.updateSettings { it.copy(unplayableCheck = v) }; Scheduler.applyUnplayable(ctx)
+            }
+            PrefSwitch(Icons.Filled.NotificationsActive, stringResource(R.string.alerts_master), stringResource(R.string.alerts_master_summary), settings.artistAlerts) { v ->
+                store.updateSettings { it.copy(artistAlerts = v) }; Scheduler.applyArtistAlerts(ctx)
             }
             PrefRow(
                 Icons.Filled.EditNotifications, stringResource(R.string.settings_notifications_system), stringResource(R.string.settings_notifications_system_desc),

@@ -80,7 +80,7 @@ internal fun defaultConcertCountry(ctx: Context): String {
 /**
  * Discover › Concerts: a playlist and a country, then the upcoming dates of its artists from
  * Ticketmaster and MusicBrainz ([Concerts]); the artists with none get searches on the country's
- * ticket sites. Asked only when the user taps: never in the background.
+ * ticket sites. Asked when the user taps; in the background only for the artists followed ([com.xlollx.songport.sync.ArtistAlerts]).
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -108,6 +108,8 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         val p = pick ?: return
         val env = ctx.env
         val known = artists; val picked = choice.pickedOrNull; val c = country; val rg = range
+        // The followed artists' concerts are looked up in the country last searched.
+        Concerts.saveCountry(env, c)
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
             Concerts.find(env, ArtistPick.chosen(all, picked), c, rg, picked == null, progress)
@@ -217,7 +219,7 @@ private fun ArtistDatesCard(a: Concerts.ArtistDates, snackbar: SnackbarHostState
     val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            ArtistTitle(a.artist)
             a.events.forEachIndexed { i, e ->
                 if (i > 0) HorizontalDivider()
                 Column(Modifier.fillMaxWidth().clickable(enabled = e.url.isNotBlank()) { openUrl(ctx, e.url) }.padding(vertical = 2.dp)) {
@@ -262,7 +264,7 @@ private fun NoDatesCard(artists: List<Concerts.ArtistDates>) {
             Text(stringResource(R.string.concerts_no_dates_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (open) artists.forEach { a ->
                 HorizontalDivider()
-                Text(a.artist, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                ArtistTitle(a.artist, small = true)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     a.searches.forEach { l ->
                         TextButton(onClick = { openUrl(ctx, l.url) }) { Text(l.site ?: stringResource(R.string.concerts_official_site)) }

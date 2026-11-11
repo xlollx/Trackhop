@@ -1236,7 +1236,7 @@
     <string name="howto_organise_body"># Favoritas\nNo menu ⋮ de um cartão, Adicionar às favoritas dá uma estrela à sincronização. As com estrela ficam no topo de Sincronizações, e o filtro Favoritas mostra só elas. Desative Configurações › Aparência › Favoritas sempre no topo para colocá-las em qualquer lugar da ordem.\n# Rótulos\nNo menu ⋮ de um cartão › Estilo, escolha uma cor e dê um nome a ela: todas as sincronizações com essa cor compartilham o rótulo. A mesma janela escolhe como o cartão usa a sua cor.\n# Tags\nNo editor, as Tags agrupam as sincronizações do seu jeito, por exemplo genero = metal. O valor é opcional.\n# Encontrar uma sincronização\nA pesquisa e os filtros de Sincronizações encontram sincronizações por nome, status, rótulo, favoritas ou tag.\n# Ordem\nToque e segure um cartão e arraste-o para outro lugar, ou use ⋮ › Mover para a posição…\n# Tamanho e visualização\n• Configurações › Aparência › Tamanho dos cartões: grande, médio ou pequeno.\n• A Visão mínima mostra as sincronizações como pequenos blocos em grade. Toque num bloco para ver o cartão inteiro; segure para o menu, ou arraste.\n• Num tablet ou num celular deitado, as abas vão para uma barra lateral e os cartões ficam em colunas.</string>
     <string name="howto_discover_title">Lançamentos, shows, setlists, discos</string>
     <string name="howto_discover_summary">O que os artistas das suas playlists andam fazendo.</string>
-    <string name="howto_discover_body">A aba Descobrir procura informações sobre os artistas de uma das suas playlists, só quando você pede: nada é verificado em segundo plano. Em Shows, Setlists e Discos e merch, Escolher artistas indica quais procurar.\n# Lançamentos\nOs novos álbuns, EPs e singles dos últimos 7, 30 ou 90 dias, e o que vem por aí. Crie uma playlist em qualquer serviço, use Adicionar a uma playlist que você já tem, ou Toda semana para uma sincronização que adiciona o que sai.\n# Shows\nAs próximas datas num país, no período que você escolhe em Quando, com os links dos ingressos e Adicionar à agenda. Sem datas para um artista? Os botões pesquisam nos sites de ingressos.\n# Setlists\nO que os artistas tocaram ao vivo, do setlist.fm. Escolha um show e transforme-o numa playlist em qualquer serviço.\n# Discos e merch\nCDs, vinis e fitas cassete no Discogs, os sites e lojas oficiais, e pesquisas em outras lojas. Só links: a compra é nos sites deles.\n# Chaves\nAs datas de shows do Ticketmaster e os setlists precisam da sua própria chave gratuita; um token do Discogs mostra as cópias à venda e o menor preço. Adicione-os em Configurações › Avançado › Chaves dos serviços: Obter uma chave abre o primeiro passo. Sem chave do Ticketmaster, as datas vêm do MusicBrainz.\n# A aba\nSegure um cartão e arraste-o para mudar a ordem; Redefinir ordem volta ao que era. Configurações › Aparência › Imagens em Descobrir desliga as imagens ou as mostra só no Wi‑Fi.</string>
+    <string name="howto_discover_body">A aba Descobrir procura informações sobre os artistas de uma das suas playlists, só quando você pede: em segundo plano, só os artistas que você segue são verificados. Em Shows, Setlists e Discos e merch, Escolher artistas indica quais procurar.\n# Lançamentos\nOs novos álbuns, EPs e singles dos últimos 7, 30 ou 90 dias, e o que vem por aí. Crie uma playlist em qualquer serviço, use Adicionar a uma playlist que você já tem, ou Toda semana para uma sincronização que adiciona o que sai.\n# Shows\nAs próximas datas num país, no período que você escolhe em Quando, com os links dos ingressos e Adicionar à agenda. Sem datas para um artista? Os botões pesquisam nos sites de ingressos.\n# Setlists\nO que os artistas tocaram ao vivo, do setlist.fm. Escolha um show e transforme-o numa playlist em qualquer serviço.\n# Discos e merch\nCDs, vinis e fitas cassete no Discogs, os sites e lojas oficiais, e pesquisas em outras lojas. Só links: a compra é nos sites deles.\n# Artistas seguidos\nToque no sino ao lado de um artista para segui-lo e escolha em Artistas seguidos sobre o que quer ser avisado: lançamentos, shows perto de você, merch novo, discos. Uma vez por dia (ou por semana) o Trackhop verifica e manda uma só notificação com as novidades. A primeira verificação só anota o que já existe.\n# Chaves\nAs datas de shows do Ticketmaster e os setlists precisam da sua própria chave gratuita; um token do Discogs mostra as cópias à venda e o menor preço. Adicione-os em Configurações › Avançado › Chaves dos serviços: Obter uma chave abre o primeiro passo. Sem chave do Ticketmaster, as datas vêm do MusicBrainz.\n# A aba\nSegure um cartão e arraste-o para mudar a ordem; Redefinir ordem volta ao que era. Configurações › Aparência › Imagens em Descobrir desliga as imagens ou as mostra só no Wi‑Fi.</string>
     <string name="howto_shared_title">Playlists compartilhadas</string>
     <string name="howto_shared_summary">Uma playlist para um grupo, cada um no seu serviço.</string>
     <string name="howto_shared_body">Ferramentas › Playlists compartilhadas: uma playlist para pessoas que não usam todas o mesmo serviço. Cada um tem a sua cópia no seu serviço, e o Trackhop mantém as cópias em dia.\n# Criar ou entrar\nCriar um grupo: dê um nome, escolha seu serviço, a playlist e como o grupo se encontra. Convite mostra um código QR e um link para enviar. Os outros tocam em Entrar com um link e conferem se o Código do grupo é igual ao seu.\n# Como o grupo se encontra\n• Pasta compartilhada: uma pasta do Google Drive, Nextcloud, Dropbox ou Syncthing que o grupo já compartilha. Quem consegue abrir a pasta consegue ler o grupo.\n• Canal ntfy criptografado: as mudanças viajam criptografadas pelo ntfy.sh ou pelo seu próprio servidor ntfy.\n• Meu servidor Trackhop: as mudanças se encontram no seu servidor Trackhop, configurado em Configurações › Avançado › Coordenar com meu servidor. Quem o administra pode ver as músicas do grupo.\nCom o canal ntfy ou o servidor, qualquer pessoa com o convite consegue ler o grupo: envie só para quem você convida.\n# Papéis\nAs mudanças de um Curador chegam a todos; quem criou o grupo escolhe os curadores. Os outros seguem, como Cópia exata ou com Manter minhas adições, e o que adicionam fica só na própria playlist.\n# Músicas que seu serviço não tem\nUma música que seu serviço não encontra nunca é removida dos outros: ela espera na revisão da sua sincronização.\n# A página do grupo\nOs membros, quem mudou o quê e o código do grupo. Sair do grupo interrompe as mudanças; sua playlist fica como está.</string>
@@ -2017,7 +2017,7 @@
     <string name="notify_field_pushover_user">User key</string>
     <string name="discover_concerts_title">Shows</string>
     <string name="discover_concerts_desc">Próximas datas dos artistas de uma playlist</string>
-    <string name="concerts_intro">Escolha uma playlist e um país: o Trackhop procura os próximos shows dos artistas dela. Nada é verificado em segundo plano.</string>
+    <string name="concerts_intro">Escolha uma playlist e um país: o Trackhop procura os próximos shows dos artistas dela. Em segundo plano, só os artistas que você segue (o sino).</string>
     <string name="concerts_country">País</string>
     <string name="concerts_find">Procurar shows</string>
     <string name="concerts_progress">Artista %1$d de %2$d…</string>
@@ -2345,4 +2345,39 @@
     <string name="discard_changes_body">O que você digitou aqui ainda não foi salvo.</string>
     <string name="discard_changes_discard">Descartar</string>
     <string name="discard_changes_keep">Continuar editando</string>
+    <string name="alerts_followed_title">Artistas seguidos</string>
+    <string name="alerts_followed_desc">Avisos de música nova, shows e merch</string>
+    <string name="alerts_followed_intro">Toque no sino ao lado de um artista em Lançamentos, Shows, Setlists ou Discos e merch, ou siga um pelo nome aqui. O Trackhop verifica em segundo plano e conta as novidades em uma só notificação.</string>
+    <string name="alerts_follow">Seguir %1$s</string>
+    <string name="alerts_unfollow">Deixar de seguir %1$s</string>
+    <string name="alerts_no_permission">As notificações do Trackhop estão desligadas: ative para receber os avisos.</string>
+    <string name="alerts_add_hint">Nome do artista</string>
+    <string name="alerts_add">Seguir</string>
+    <string name="alerts_latest">Últimas novidades</string>
+    <string name="alerts_none">Nenhum artista seguido ainda.</string>
+    <string name="alerts_kind_releases">Lançamentos</string>
+    <string name="alerts_kind_concerts">Shows perto de mim</string>
+    <string name="alerts_kind_merch">Merch novo</string>
+    <string name="alerts_kind_records">Discos</string>
+    <string name="alerts_settings">Verificações</string>
+    <string name="alerts_master">Avisos de artistas</string>
+    <string name="alerts_master_summary">Verifica os artistas que você segue em Descobrir e conta as novidades.</string>
+    <string name="alerts_daily">Todo dia</string>
+    <string name="alerts_weekly">Toda semana</string>
+    <string name="alerts_wifi">Só no Wi‑Fi</string>
+    <string name="alerts_defaults">Para os próximos artistas que você seguir</string>
+    <string name="alerts_concerts_where">Os shows são buscados em %1$s, o país da sua última busca em Shows.</string>
+    <string name="alerts_channel">Avisos de artistas</string>
+    <string name="alerts_channel_desc">Novidades dos artistas que você segue em Descobrir</string>
+    <string name="alerts_news_single">novo single de %1$s</string>
+    <string name="alerts_news_ep">novo EP de %1$s</string>
+    <string name="alerts_news_album">novo álbum de %1$s</string>
+    <string name="alerts_news_concert">show de %1$s em %2$s</string>
+    <string name="alerts_news_concert_somewhere">novo show de %1$s</string>
+    <string name="alerts_news_merch">merch novo de %1$s</string>
+    <string name="alerts_news_record">novo disco de %1$s</string>
+    <plurals name="alerts_notif_title">
+        <item quantity="one">%d novidade dos seus artistas</item>
+        <item quantity="other">%d novidades dos seus artistas</item>
+    </plurals>
 </resources>

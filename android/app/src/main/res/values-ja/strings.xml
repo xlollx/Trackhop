@@ -1206,7 +1206,7 @@
     <string name="howto_organise_body"># お気に入り\nカードの ⋮ メニューの「お気に入りに追加」で同期に星が付きます。星付きの同期は「同期」の一番上に残り、「お気に入り」フィルタでそれだけを表示できます。順番の好きな位置に置きたいときは、設定 › 外観 ›「お気に入りを常に上に表示」をオフにします。\n# ラベル\nカードの ⋮ メニュー ›「スタイル」で色を選んで名前を付けると、その色の同期すべてが同じラベルになります。同じ画面で、カードに色をどう付けるかも選べます。\n# タグ\nエディターの「タグ」で、たとえば genre = metal のように同期を自由にまとめられます。値は省略できます。\n# 同期を探す\n「同期」の検索とフィルタで、名前・状態・ラベル・お気に入り・タグから同期を探せます。\n# 並べ替え\nカードを長押しして好きな位置にドラッグするか、⋮ ›「位置を指定して移動…」を使います。\n# サイズと表示\n• 設定 › 外観 ›「カードのサイズ」：大・中・小。\n•「ミニマル表示」では同期を小さなタイルのグリッドで表示します。タイルをタップするとカード全体を表示、長押しでメニュー、そのままドラッグで移動できます。\n• タブレットや横向きのスマホでは、タブが横のレールに移り、カードが列に並びます。</string>
     <string name="howto_discover_title">新作・コンサート・セットリスト・レコード</string>
     <string name="howto_discover_summary">プレイリストのアーティストの最新情報。</string>
-    <string name="howto_discover_body">「発見」タブは、プレイリストのアーティストについて、頼んだときだけ調べます。バックグラウンドでは何も確認しません。「コンサート」「セットリスト」「レコードとグッズ」では、「アーティストを選ぶ」で調べる相手を指定できます。\n# 新作\n過去 7・30・90 日に出たアルバム、EP、シングルと、近日発売の作品。どのサービスにもプレイリストを作れるほか、「プレイリストに追加」で既存のプレイリストに入れたり、「毎週」で新作を追加し続ける同期を作れます。\n# コンサート\n国ごとの今後の公演日を「期間」で選んだ範囲で表示し、チケットへのリンクと「カレンダーに追加」があります。公演日が見つからないアーティストは、ボタンでチケットサイトを検索できます。\n# セットリスト\nアーティストがライブで演奏した曲を setlist.fm から表示します。公演を選んで、どのサービスにもプレイリストにできます。\n# レコードとグッズ\nDiscogs の CD・レコード・カセット、公式サイトと公式ショップ、ほかのショップでの検索。リンクだけで、購入は各サイトで行います。\n# キー\nTicketmaster の公演日とセットリストには、自分の無料キーが必要です。Discogs のトークンがあると、販売中の枚数と最安値も表示されます。設定 › 詳細設定 ›「サービスのキー」で追加でき、「キーを取得」で最初の手順が開きます。Ticketmaster のキーがない場合、公演日は MusicBrainz から取得します。\n# タブ\nカードを長押ししてドラッグすると順番を変えられ、「順番をリセット」で元に戻ります。設定 › 外観 ›「「発見」の画像」で、画像をオフにしたり Wi‑Fi のときだけにしたりできます。</string>
+    <string name="howto_discover_body">「発見」タブは、プレイリストのアーティストについて、頼んだときだけ調べます。バックグラウンドで確認するのはフォロー中のアーティストだけです。「コンサート」「セットリスト」「レコードとグッズ」では、「アーティストを選ぶ」で調べる相手を指定できます。\n# 新作\n過去 7・30・90 日に出たアルバム、EP、シングルと、近日発売の作品。どのサービスにもプレイリストを作れるほか、「プレイリストに追加」で既存のプレイリストに入れたり、「毎週」で新作を追加し続ける同期を作れます。\n# コンサート\n国ごとの今後の公演日を「期間」で選んだ範囲で表示し、チケットへのリンクと「カレンダーに追加」があります。公演日が見つからないアーティストは、ボタンでチケットサイトを検索できます。\n# セットリスト\nアーティストがライブで演奏した曲を setlist.fm から表示します。公演を選んで、どのサービスにもプレイリストにできます。\n# レコードとグッズ\nDiscogs の CD・レコード・カセット、公式サイトと公式ショップ、ほかのショップでの検索。リンクだけで、購入は各サイトで行います。\n# フォロー中のアーティスト\nアーティストの横のベルをタップしてフォローし、「フォロー中のアーティスト」で知りたいことを選びます：新作、近くのコンサート、新しいグッズ、レコード。1日（または1週間）に1回 Trackhop が確認し、新しいことを1つの通知で送ります。最初の確認では、すでにあるものを記録するだけです。\n# キー\nTicketmaster の公演日とセットリストには、自分の無料キーが必要です。Discogs のトークンがあると、販売中の枚数と最安値も表示されます。設定 › 詳細設定 ›「サービスのキー」で追加でき、「キーを取得」で最初の手順が開きます。Ticketmaster のキーがない場合、公演日は MusicBrainz から取得します。\n# タブ\nカードを長押ししてドラッグすると順番を変えられ、「順番をリセット」で元に戻ります。設定 › 外観 ›「「発見」の画像」で、画像をオフにしたり Wi‑Fi のときだけにしたりできます。</string>
     <string name="howto_shared_title">共有プレイリスト</string>
     <string name="howto_shared_summary">グループでひとつのプレイリスト、それぞれ自分のサービスで。</string>
     <string name="howto_shared_body">ツール ›「共有プレイリスト」：同じサービスを使っていない人たちのための、ひとつのプレイリストです。各自が自分のサービスにコピーを持ち、Trackhop がコピーをそろえます。\n# 作成と参加\n「グループを作成」で名前を付け、自分のサービスとプレイリスト、グループの集まり方を選びます。「招待」で QR コードと送るためのリンクが表示されます。ほかの人は「リンクで参加」をタップし、「グループコード」があなたのものと一致するか確かめます。\n# グループの集まり方\n• 共有フォルダー：グループがすでに共有している Google Drive、Nextcloud、Dropbox、Syncthing のフォルダー。フォルダーを開ける人はグループを読めます。\n• 暗号化された ntfy チャンネル：変更は暗号化され、ntfy.sh か自分の ntfy サーバーを通ります。\n• 自分の Trackhop サーバー：変更は設定 › 詳細設定 ›「自分のサーバーと調整」で設定した Trackhop サーバーに集まります。サーバーの管理者はグループの曲を見られます。\nntfy チャンネルやサーバーでは、招待を持つ人は誰でもグループを読めます。招待する人にだけ送ってください。\n# 役割\nキュレーターの変更は全員に届きます。キュレーターはグループの作成者が選びます。ほかの人はフォローし、「完全なコピー」か「自分の追加を残す」を選べます。後者では自分で追加した曲は自分のプレイリストにだけ残ります。\n# 自分のサービスにない曲\n自分のサービスで見つからない曲が、ほかの人から消されることはありません。その曲は自分の同期のレビューで待ちます。\n# グループのページ\nメンバー、誰が何を変えたか、グループコード。「グループを退出」で変更の受信が止まり、プレイリストはそのまま残ります。</string>
@@ -1976,7 +1976,7 @@
     <string name="notify_field_pushover_user">ユーザーキー</string>
     <string name="discover_concerts_title">コンサート</string>
     <string name="discover_concerts_desc">プレイリストのアーティストの今後の公演</string>
-    <string name="concerts_intro">プレイリストと国を選ぶと、Trackhop がアーティストの今後のコンサートを探します。バックグラウンドでは何も確認しません。</string>
+    <string name="concerts_intro">プレイリストと国を選ぶと、Trackhop がアーティストの今後のコンサートを探します。バックグラウンドではフォロー中（ベル）のアーティストだけを確認します。</string>
     <string name="concerts_country">国</string>
     <string name="concerts_find">コンサートを探す</string>
     <string name="concerts_progress">アーティスト %1$d / %2$d…</string>
@@ -2292,4 +2292,38 @@
     <string name="discard_changes_body">ここに入力した内容はまだ保存されていません。</string>
     <string name="discard_changes_discard">破棄</string>
     <string name="discard_changes_keep">編集を続ける</string>
+    <string name="alerts_followed_title">フォロー中のアーティスト</string>
+    <string name="alerts_followed_desc">新曲・コンサート・グッズのお知らせ</string>
+    <string name="alerts_followed_intro">「新作」「コンサート」「セットリスト」「レコードとグッズ」でアーティストの横のベルをタップするか、ここで名前を入れてフォローします。Trackhop がバックグラウンドで確認し、新しいことを1つの通知でお知らせします。</string>
+    <string name="alerts_follow">%1$s をフォロー</string>
+    <string name="alerts_unfollow">%1$s のフォローをやめる</string>
+    <string name="alerts_no_permission">Trackhop の通知がオフです。お知らせを受け取るにはオンにしてください。</string>
+    <string name="alerts_add_hint">アーティスト名</string>
+    <string name="alerts_add">フォロー</string>
+    <string name="alerts_latest">最新のお知らせ</string>
+    <string name="alerts_none">まだフォローしているアーティストはいません。</string>
+    <string name="alerts_kind_releases">新作</string>
+    <string name="alerts_kind_concerts">近くのコンサート</string>
+    <string name="alerts_kind_merch">新しいグッズ</string>
+    <string name="alerts_kind_records">レコード</string>
+    <string name="alerts_settings">確認</string>
+    <string name="alerts_master">アーティストのお知らせ</string>
+    <string name="alerts_master_summary">「発見」でフォローしたアーティストを確認し、新しいことをお知らせします。</string>
+    <string name="alerts_daily">毎日</string>
+    <string name="alerts_weekly">毎週</string>
+    <string name="alerts_wifi">Wi‑Fi のときだけ</string>
+    <string name="alerts_defaults">これからフォローするアーティスト</string>
+    <string name="alerts_concerts_where">コンサートは %1$s で探します（「コンサート」で最後に検索した国）。</string>
+    <string name="alerts_channel">アーティストのお知らせ</string>
+    <string name="alerts_channel_desc">「発見」でフォローしたアーティストの新着</string>
+    <string name="alerts_news_single">%1$s の新しいシングル</string>
+    <string name="alerts_news_ep">%1$s の新しい EP</string>
+    <string name="alerts_news_album">%1$s の新しいアルバム</string>
+    <string name="alerts_news_concert">%1$s のコンサート（%2$s）</string>
+    <string name="alerts_news_concert_somewhere">%1$s の新しいコンサート</string>
+    <string name="alerts_news_merch">%1$s の新しいグッズ</string>
+    <string name="alerts_news_record">%1$s の新しいレコード</string>
+    <plurals name="alerts_notif_title">
+        <item quantity="other">フォロー中のアーティストから %d 件のお知らせ</item>
+    </plurals>
 </resources>

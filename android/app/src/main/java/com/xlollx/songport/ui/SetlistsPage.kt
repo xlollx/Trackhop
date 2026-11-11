@@ -161,7 +161,7 @@ private fun ArtistSetlistsCard(a: Setlists.ArtistSetlists, busy: Boolean, onNewS
     val k = SetlistsKept
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(a.artist, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            ArtistTitle(a.artist)
             a.setlists.forEachIndexed { i, s ->
                 if (i > 0) HorizontalDivider()
                 val opened = k.open == s.id

@@ -148,3 +148,16 @@ class ArtistAlertsTest {
         assertNull("nothing wanted", ArtistAlerts.plan(Settings(followedArtists = listOf(Followed("A", Kinds(false, false, false, false))))))
     }
 }
+
+class ArtistAlertsBackupTest {
+    @Test fun theFollowedArtistsGoWithTheSetUpButNotWhatWasSeen() {
+        val env = ContractEnv()
+        env.store.updateSettings { it.copy(followedArtists = listOf(Followed("Architects", Kinds(merch = false))), artistAlertsWeekly = true) }
+        env.keyValues("artist_alerts")["seen"] = "{}"
+        val other = ContractEnv()
+        com.xlollx.songport.data.ConfigBackup.import(other, com.xlollx.songport.data.ConfigBackup.read(com.xlollx.songport.data.ConfigBackup.export(env, "test")))
+        assertEquals(listOf(Followed("Architects", Kinds(merch = false))), other.store.data.settings.followedArtists)
+        assertTrue(other.store.data.settings.artistAlertsWeekly)
+        assertNull(other.keyValues("artist_alerts")["seen"])
+    }
+}

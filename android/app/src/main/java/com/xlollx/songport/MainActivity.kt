@@ -306,6 +306,8 @@ class MainActivity : ComponentActivity() {
         const val RELEASES_URL = "$RELEASES_PREFIX/latest"
         const val EXTRA_FOCUS_JOB = "focusJob"
         const val TOOL_UNPLAYABLE = "unplayable"
+        /** Not a tool: the alerts' notification asks this way for Discover › Followed artists. */
+        const val TOOL_FOLLOWED = "followed"
         /** The scrims enableEdgeToEdge() puts behind three-button navigation by default. */
         private val LIGHT_SCRIM = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
         private val DARK_SCRIM = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
@@ -396,6 +398,8 @@ private fun MainScreen(
     var manageProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
     var scanProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
     var unplayableProvider by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    // The alerts' notification: Discover › Followed artists opens, once.
+    var followedAsked by rememberSaveable { mutableStateOf(false) }
     // A notification asked for a tool: the first connected service the tool works with.
     val toolRequest by toolRequests.collectAsState()
     LaunchedEffect(toolRequest) {
@@ -403,6 +407,11 @@ private fun MainScreen(
             toolRequests.value = null
             tab = MainActivity.TAB_TOOLS
             unplayableProvider = Providers.connectors().firstOrNull { it.detectsUnplayable && it.isConnected(ctx) }
+        }
+        if (toolRequest == MainActivity.TOOL_FOLLOWED) {
+            toolRequests.value = null
+            followedAsked = true
+            tab = MainActivity.TAB_DISCOVER
         }
     }
     var previewJob by rememberSaveable(stateSaver = JobSaver) { mutableStateOf<SyncJob?>(null) }
@@ -913,6 +922,7 @@ private fun MainScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },
                     openWrapped = wrappedAsked, onWrappedOpened = { wrappedAsked = false },
+                    openFollowed = followedAsked, onFollowedOpened = { followedAsked = false },
                     onSetUpAi = { aiSetupAsked = true; tab = MainActivity.TAB_TOOLS },
                     // "Make a shared playlist": the songs in common, as a file playlist, the source of a new sync.
                     onNewSyncFromFile = { name, id ->

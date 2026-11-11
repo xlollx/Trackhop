@@ -1229,7 +1229,7 @@
     <string name="howto_organise_body"># Preferite\nNel menu ⋮ di una scheda, Aggiungi alle preferite dà una stella alla sync. Le sync con la stella restano in cima a Sync, e il filtro Preferite mostra solo loro. Spegni Opzioni › Aspetto › Preferite sempre in cima per metterle in qualsiasi punto dell\'ordine.\n# Etichette\nNel menu ⋮ di una scheda › Stile, scegli un colore e dagli un nome: tutte le sync con quel colore condividono l\'etichetta. Lo stesso riquadro sceglie come la scheda porta il suo colore.\n# Tag\nNell\'editor, i Tag raggruppano le sync a modo tuo, per esempio genere = metal. Il valore è facoltativo.\n# Trovare una sync\nLa ricerca e i filtri di Sync trovano le sync per nome, stato, etichetta, preferite o tag.\n# Ordine\nTieni premuta una scheda e trascinala in un altro punto, oppure usa ⋮ › Sposta in posizione…\n# Dimensione e vista\n• Opzioni › Aspetto › Dimensione delle card: grande, media o piccola.\n• La Vista minimal mostra le sync come piccoli riquadri in griglia. Tocca un riquadro per vedere la scheda intera; tienilo premuto per il menu, o trascinalo.\n• Su un tablet o un telefono in orizzontale, le schede di navigazione passano su una barra laterale e le sync si dispongono in colonne.</string>
     <string name="howto_discover_title">Nuove uscite, concerti, scalette, dischi</string>
     <string name="howto_discover_summary">Cosa fanno gli artisti delle tue playlist.</string>
-    <string name="howto_discover_body">La scheda Scopri cerca informazioni sugli artisti di una tua playlist, solo quando lo chiedi: niente viene controllato in background. In Concerti, Scalette e Dischi e merch, Scegli gli artisti indica quali cercare.\n# Nuove uscite\nAlbum, EP e singoli usciti negli ultimi 7, 30 o 90 giorni, e quelli in arrivo. Crea una playlist su qualsiasi servizio, usa Aggiungi a una playlist che hai già, oppure Ogni settimana per una sync che aggiunge ciò che esce.\n# Concerti\nLe prossime date in un paese, nel periodo che scegli in Quando, con i link ai biglietti e Aggiungi al calendario. Nessuna data per un artista? I pulsanti cercano sui siti di biglietti.\n# Scalette\nCosa hanno suonato dal vivo gli artisti, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio.\n# Dischi e merch\nCD, vinili e cassette su Discogs, i siti e i negozi ufficiali, e ricerche in altri negozi. Solo link: si compra sui loro siti.\n# Chiavi\nLe date dei concerti di Ticketmaster e le scalette richiedono una tua chiave gratuita; un token Discogs aggiunge le copie in vendita e il prezzo più basso. Aggiungile in Opzioni › Avanzate › Chiavi dei servizi: Ottieni una chiave apre il primo passo. Senza chiave Ticketmaster, le date arrivano da MusicBrainz.\n# La scheda\nTieni premuta una card e trascinala per cambiare l\'ordine; Ripristina ordine lo rimette com\'era. Opzioni › Aspetto › Immagini in Scopri spegne le immagini o le tiene solo in Wi‑Fi.</string>
+    <string name="howto_discover_body">La scheda Scopri cerca informazioni sugli artisti di una tua playlist, solo quando lo chiedi: in background si controllano solo gli artisti che segui. In Concerti, Scalette e Dischi e merch, Scegli gli artisti indica quali cercare.\n# Nuove uscite\nAlbum, EP e singoli usciti negli ultimi 7, 30 o 90 giorni, e quelli in arrivo. Crea una playlist su qualsiasi servizio, usa Aggiungi a una playlist che hai già, oppure Ogni settimana per una sync che aggiunge ciò che esce.\n# Concerti\nLe prossime date in un paese, nel periodo che scegli in Quando, con i link ai biglietti e Aggiungi al calendario. Nessuna data per un artista? I pulsanti cercano sui siti di biglietti.\n# Scalette\nCosa hanno suonato dal vivo gli artisti, da setlist.fm. Scegli un concerto e fanne una playlist su qualsiasi servizio.\n# Dischi e merch\nCD, vinili e cassette su Discogs, i siti e i negozi ufficiali, e ricerche in altri negozi. Solo link: si compra sui loro siti.\n# Artisti seguiti\nTocca la campanella accanto a un artista per seguirlo, poi scegli in Artisti seguiti di cosa essere avvisato: nuove uscite, concerti vicino a te, merch nuovo, dischi. Una volta al giorno (o alla settimana) Trackhop li controlla e manda una sola notifica con le novità. Il primo controllo prende solo nota di quello che c\'è già.\n# Chiavi\nLe date dei concerti di Ticketmaster e le scalette richiedono una tua chiave gratuita; un token Discogs aggiunge le copie in vendita e il prezzo più basso. Aggiungile in Opzioni › Avanzate › Chiavi dei servizi: Ottieni una chiave apre il primo passo. Senza chiave Ticketmaster, le date arrivano da MusicBrainz.\n# La scheda\nTieni premuta una card e trascinala per cambiare l\'ordine; Ripristina ordine lo rimette com\'era. Opzioni › Aspetto › Immagini in Scopri spegne le immagini o le tiene solo in Wi‑Fi.</string>
     <string name="howto_shared_title">Playlist condivise</string>
     <string name="howto_shared_summary">Una playlist per un gruppo, ognuno sul suo servizio.</string>
     <string name="howto_shared_body">Strumenti › Playlist condivise: una playlist per persone che non usano tutte lo stesso servizio. Ognuno tiene la sua copia sul proprio servizio e Trackhop mantiene le copie allineate.\n# Creare o entrare\nCrea un gruppo: dagli un nome, scegli il tuo servizio, la playlist e come si incontra il gruppo. Invito mostra un codice QR e un link da mandare. Gli altri toccano Entra con un link e controllano che il Codice del gruppo sia uguale al tuo.\n# Come si incontra il gruppo\n• Cartella condivisa: una cartella Google Drive, Nextcloud, Dropbox o Syncthing che il gruppo condivide già. Chi può aprire la cartella può leggere il gruppo.\n• Canale ntfy cifrato: le modifiche viaggiano cifrate attraverso ntfy.sh o un tuo server ntfy.\n• Il mio server Trackhop: le modifiche si incontrano sul tuo server Trackhop, impostato in Opzioni › Avanzate › Coordina con il mio server. Chi lo gestisce può vedere i brani del gruppo.\nCon il canale ntfy o il server, chiunque abbia l\'invito può leggere il gruppo: mandalo solo alle persone che inviti.\n# Ruoli\nLe modifiche di un Curatore arrivano a tutti; chi ha creato il gruppo sceglie i curatori. Gli altri seguono, come Copia esatta o con Tieni le mie aggiunte, così ciò che aggiungono resta solo nella loro playlist.\n# Brani che il tuo servizio non ha\nUn brano che il tuo servizio non trova non viene mai tolto agli altri: aspetta nella revisione della tua sync.\n# La pagina del gruppo\nI membri, chi ha cambiato cosa e il codice del gruppo. Lascia il gruppo ferma le modifiche; la tua playlist resta com\'è.</string>
@@ -2009,7 +2009,7 @@
     <string name="notify_field_pushover_user">User key</string>
     <string name="discover_concerts_title">Concerti</string>
     <string name="discover_concerts_desc">Le prossime date degli artisti di una playlist</string>
-    <string name="concerts_intro">Scegli una playlist e un paese: Trackhop cerca i prossimi concerti dei suoi artisti. Niente viene controllato in background.</string>
+    <string name="concerts_intro">Scegli una playlist e un paese: Trackhop cerca i prossimi concerti dei suoi artisti. In background, solo gli artisti che segui (la campanella).</string>
     <string name="concerts_country">Paese</string>
     <string name="concerts_find">Cerca concerti</string>
     <string name="concerts_progress">Artista %1$d di %2$d…</string>
@@ -2337,4 +2337,39 @@
     <string name="discard_changes_body">Quello che hai inserito qui non è ancora salvato.</string>
     <string name="discard_changes_discard">Scarta</string>
     <string name="discard_changes_keep">Continua a modificare</string>
+    <string name="alerts_followed_title">Artisti seguiti</string>
+    <string name="alerts_followed_desc">Avvisi su nuova musica, concerti e merch</string>
+    <string name="alerts_followed_intro">Tocca la campanella accanto a un artista in Nuove uscite, Concerti, Scalette o Dischi e merch, oppure seguine uno per nome qui. Trackhop li controlla in background e ti dice le novità in una sola notifica.</string>
+    <string name="alerts_follow">Segui %1$s</string>
+    <string name="alerts_unfollow">Smetti di seguire %1$s</string>
+    <string name="alerts_no_permission">Le notifiche di Trackhop sono spente: attivale per ricevere gli avvisi.</string>
+    <string name="alerts_add_hint">Nome dell\'artista</string>
+    <string name="alerts_add">Segui</string>
+    <string name="alerts_latest">Ultime novità</string>
+    <string name="alerts_none">Nessun artista seguito per ora.</string>
+    <string name="alerts_kind_releases">Nuove uscite</string>
+    <string name="alerts_kind_concerts">Concerti vicino a me</string>
+    <string name="alerts_kind_merch">Merch nuovo</string>
+    <string name="alerts_kind_records">Dischi</string>
+    <string name="alerts_settings">Controlli</string>
+    <string name="alerts_master">Avvisi per artista</string>
+    <string name="alerts_master_summary">Controlla gli artisti che segui in Scopri e ti dice le novità.</string>
+    <string name="alerts_daily">Ogni giorno</string>
+    <string name="alerts_weekly">Ogni settimana</string>
+    <string name="alerts_wifi">Solo in Wi‑Fi</string>
+    <string name="alerts_defaults">Per i prossimi artisti che segui</string>
+    <string name="alerts_concerts_where">I concerti si cercano in %1$s, il paese della tua ultima ricerca in Concerti.</string>
+    <string name="alerts_channel">Avvisi artisti</string>
+    <string name="alerts_channel_desc">Novità dagli artisti che segui in Scopri</string>
+    <string name="alerts_news_single">nuovo singolo di %1$s</string>
+    <string name="alerts_news_ep">nuovo EP di %1$s</string>
+    <string name="alerts_news_album">nuovo album di %1$s</string>
+    <string name="alerts_news_concert">concerto %1$s a %2$s</string>
+    <string name="alerts_news_concert_somewhere">nuovo concerto di %1$s</string>
+    <string name="alerts_news_merch">merch nuovo di %1$s</string>
+    <string name="alerts_news_record">nuovo disco di %1$s</string>
+    <plurals name="alerts_notif_title">
+        <item quantity="one">%d novità dai tuoi artisti</item>
+        <item quantity="other">%d novità dai tuoi artisti</item>
+    </plurals>
 </resources>
