@@ -877,8 +877,12 @@ internal fun VanishedPage(onBackup: () -> Unit) {
             val out = ArrayList<GoneRow>()
             val groups = runCatching { LocalFilesProvider.entries(ctx) }.getOrDefault(emptyList())
                 .filter { it.service != null && it.stamped }.groupBy { it.base }
+            val sections = librarySectionNames(ctx)
             for ((_, versions) in groups) {
                 if (versions.size < 2) continue
+                // Saved albums, followed artists, podcasts: their copies list albums and artists, not songs
+                // (the file keeps no kind to tell them apart, so they are known by the name they are saved under).
+                if (versions.first().title in sections) continue
                 val copies = versions.mapNotNull { v -> runCatching { Vanished.Version(v.writtenAt, LocalFilesProvider.tracks(ctx, v.id)) }.getOrNull() }
                 val first = versions.first()
                 Vanished.between(first.title, first.service, copies).forEach { g ->
@@ -945,6 +949,19 @@ internal fun VanishedPage(onBackup: () -> Unit) {
             }
         }
     }
+}
+
+/** The names the library's album, artist and podcast sections are backed up under, in each of the app's languages. */
+private fun librarySectionNames(ctx: Context): Set<String> {
+    val ids = intArrayOf(R.string.saved_albums, R.string.followed_artists, R.string.followed_podcasts)
+    val languages = listOf("en", "it", "fr", "de", "es", "pt-BR", "pl", "ru", "tr", "zh", "ja", "ko")
+    val contexts = listOf(ctx) + languages.mapNotNull { tag ->
+        runCatching {
+            val conf = android.content.res.Configuration(ctx.resources.configuration).apply { setLocale(java.util.Locale.forLanguageTag(tag)) }
+            ctx.createConfigurationContext(conf)
+        }.getOrNull()
+    }
+    return contexts.flatMap { c -> ids.map { c.getString(it) } }.toSet()
 }
 
 /** A song that left: its cover gone grey, its title struck through, where it was last seen and where to look for it. */
