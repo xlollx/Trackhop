@@ -2171,4 +2171,9 @@
     <string name="shared_new_key_confirm">今の招待は、すでにグループにいるメンバーも含めて全員使えなくなります。そのあと、残ってほしいメンバーに新しい招待を送ってください。メンバーの立場はそのままです。</string>
     <string name="shared_key_new_invite">すでに参加している %1$s の新しい招待です。新しい鍵が古い鍵に置き換わります。</string>
     <string name="shared_key_updated">%1$s: 新しい鍵を保存しました。</string>
+    <string name="shared_change_server">サーバーを変更</string>
+    <string name="shared_change_server_desc">グループは同じ暗号化のまま、この ntfy サーバーに移ります。メンバーは次回の同期で追従します。見逃した人はグループの新しい招待を開けます。</string>
+    <string name="shared_server_new_invite">すでに参加している %1$s の新しい招待です。グループは今後 %2$s で集まります。</string>
+    <string name="shared_server_updated">%1$s：新しいサーバーに移りました。</string>
+    <string name="shared_error_not_curator">グループを移せるのはキュレーターだけです。</string>
 </resources>

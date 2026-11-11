@@ -2218,4 +2218,9 @@
     <string name="shared_new_key_confirm">La invitación actual deja de funcionar para todos, también para quienes ya están en el grupo. Luego envía la nueva invitación a los miembros que quieras mantener: conservan su lugar.</string>
     <string name="shared_key_new_invite">Una nueva invitación para %1$s, donde ya estás: su clave reemplaza la anterior.</string>
     <string name="shared_key_updated">%1$s: nueva clave guardada.</string>
+    <string name="shared_change_server">Cambiar servidor</string>
+    <string name="shared_change_server_desc">El grupo se muda a este servidor ntfy, con el mismo cifrado. Los miembros lo siguen en su próxima sincronización; quien se lo pierda puede abrir la nueva invitación del grupo.</string>
+    <string name="shared_server_new_invite">Una nueva invitación para %1$s, donde ya estás: el grupo ahora se reúne en %2$s.</string>
+    <string name="shared_server_updated">%1$s: movido al nuevo servidor.</string>
+    <string name="shared_error_not_curator">Solo un curador puede mover el grupo.</string>
 </resources>

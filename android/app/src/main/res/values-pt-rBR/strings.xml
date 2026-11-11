@@ -2218,4 +2218,9 @@
     <string name="shared_new_key_confirm">O convite atual para de funcionar para todos, inclusive para quem já está no grupo. Depois mande o novo convite para os membros que você quer manter: eles continuam no mesmo lugar.</string>
     <string name="shared_key_new_invite">Um novo convite para %1$s, do qual você já participa: a chave dele substitui a antiga.</string>
     <string name="shared_key_updated">%1$s: nova chave salva.</string>
+    <string name="shared_change_server">Trocar servidor</string>
+    <string name="shared_change_server_desc">O grupo muda para este servidor ntfy, com a mesma criptografia. Os membros acompanham na próxima sincronização; quem perder pode abrir o novo convite do grupo.</string>
+    <string name="shared_server_new_invite">Um novo convite para %1$s, do qual você já participa: o grupo agora se encontra em %2$s.</string>
+    <string name="shared_server_updated">%1$s: movido para o novo servidor.</string>
+    <string name="shared_error_not_curator">Só um curador pode mover o grupo.</string>
 </resources>

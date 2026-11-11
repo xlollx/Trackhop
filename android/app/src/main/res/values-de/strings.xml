@@ -2210,4 +2210,9 @@
     <string name="shared_new_key_confirm">Die aktuelle Einladung funktioniert dann für niemanden mehr, auch nicht für Mitglieder, die schon in der Gruppe sind. Schick die neue Einladung danach an die Mitglieder, die bleiben sollen: Sie behalten ihren Platz.</string>
     <string name="shared_key_new_invite">Eine neue Einladung für %1$s, wo du schon dabei bist: Ihr Schlüssel ersetzt den alten.</string>
     <string name="shared_key_updated">%1$s: neuer Schlüssel gespeichert.</string>
+    <string name="shared_change_server">Server wechseln</string>
+    <string name="shared_change_server_desc">Die Gruppe zieht auf diesen ntfy-Server um, mit derselben Verschlüsselung. Die Mitglieder folgen bei ihrem nächsten Sync; wer es verpasst, kann die neue Einladung der Gruppe öffnen.</string>
+    <string name="shared_server_new_invite">Eine neue Einladung für %1$s, wo du schon dabei bist: Die Gruppe trifft sich jetzt auf %2$s.</string>
+    <string name="shared_server_updated">%1$s: auf den neuen Server umgezogen.</string>
+    <string name="shared_error_not_curator">Nur Kuratoren können die Gruppe umziehen.</string>
 </resources>

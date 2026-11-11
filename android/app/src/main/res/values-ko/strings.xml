@@ -2170,4 +2170,9 @@
     <string name="shared_new_key_confirm">지금 초대는 이미 그룹에 있는 멤버를 포함해 모두에게 더 이상 작동하지 않아요. 그다음 남길 멤버에게 새 초대를 보내세요. 멤버의 자리는 그대로예요.</string>
     <string name="shared_key_new_invite">이미 참여 중인 %1$s의 새 초대예요. 새 키가 예전 키를 대신해요.</string>
     <string name="shared_key_updated">%1$s: 새 키를 저장했어요.</string>
+    <string name="shared_change_server">서버 변경</string>
+    <string name="shared_change_server_desc">그룹이 같은 암호화로 이 ntfy 서버로 옮겨갑니다. 멤버는 다음 동기화 때 따라오고, 놓친 사람은 그룹의 새 초대를 열면 됩니다.</string>
+    <string name="shared_server_new_invite">이미 참여 중인 %1$s의 새 초대입니다. 이제 그룹은 %2$s에서 모입니다.</string>
+    <string name="shared_server_updated">%1$s: 새 서버로 옮겼습니다.</string>
+    <string name="shared_error_not_curator">큐레이터만 그룹을 옮길 수 있습니다.</string>
 </resources>

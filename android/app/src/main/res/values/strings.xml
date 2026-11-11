@@ -2211,4 +2211,9 @@
     <string name="shared_new_key_confirm">The current invite stops working for everyone, members already in the group too. Then send the new invite to the members you want to keep: they keep their place.</string>
     <string name="shared_key_new_invite">A new invite for %1$s, which you\'re already in: its key replaces the old one.</string>
     <string name="shared_key_updated">%1$s: new key saved.</string>
+    <string name="shared_change_server">Change server</string>
+    <string name="shared_change_server_desc">The group moves to this ntfy server, with the same encryption. Members follow on their next sync; anyone who misses it can open the group\'s new invite.</string>
+    <string name="shared_server_new_invite">A new invite for %1$s, which you\'re already in: the group now meets on %2$s.</string>
+    <string name="shared_server_updated">%1$s: moved to the new server.</string>
+    <string name="shared_error_not_curator">Only a curator can move the group.</string>
 </resources>

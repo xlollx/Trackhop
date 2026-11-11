@@ -100,7 +100,23 @@ data class NtfyPacket(
     val file: MemberFile,
     /** Other members' signed cards, so a member who stays quiet is still listed for those who join later. */
     val cards: List<MemberCard> = emptyList(),
+    /** A curator's word that the group's channel moved to another ntfy server. */
+    val moved: NtfyMove? = null,
 )
+
+/**
+ * A curator's word, published on the old topic, that the group's channel moved to the ntfy server
+ * at [server]: the same topic and key there, only the address changes. Signed by [by]; members
+ * follow it only when [by] is a curator in their curators' list (see [SharedGroups.refresh]).
+ * [signIn]: the new server needs sign-in (each member enters their own on the group's page).
+ */
+@Serializable
+data class NtfyMove(val groupId: String, val server: String, val at: Long, val signIn: Boolean = false, val by: String = "", val sig: String = "") {
+    fun signedBytes(): ByteArray = canon("trackhop-ntfy-move-1", groupId, server, at, signIn)
+    fun signed(me: Identity): NtfyMove = copy(by = me.id).let { it.copy(sig = me.sign(it.signedBytes())) }
+    fun wellFormed(): Boolean = KEY_TEXT.matches(by) && SIG_TEXT.matches(sig) && at > 0 && plain(server, 200) && NtfyServer.valid(server)
+    fun verifies(): Boolean = signedBy(by, signedBytes(), sig)
+}
 
 /** A message as the server lists it. */
 data class NtfyMessage(val id: String, val time: Long, val text: String)
@@ -311,6 +327,10 @@ class NtfyTransport(
     private val server by lazy { NtfyServer(address, auth) }
     /** The last call was refused for its sign-in: said so, not as a server out of reach. */
     private var refused = false
+
+    /** The moves to another server ([NtfyMove]) the last read found, well formed and signed by their author (a curator or not: see [SharedGroups.refresh]). */
+    var moves: List<NtfyMove> = emptyList()
+        private set
     private var state = load(env, groupId)
 
     override fun readAll(first: Set<String>): List<MemberFile> {
@@ -319,6 +339,7 @@ class NtfyTransport(
         val packets = bounded(NtfyWire.assemble(key, groupId, messages), first)
         var st = state.copy(since = maxOf(state.since, messages.maxOfOrNull { it.time } ?: 0))
         val cards = HashMap(st.cards)
+        moves = packets.mapNotNull { it.packet.moved }.filter { it.groupId == groupId && it.wellFormed() && it.verifies() }.distinct()
         for (a in packets) {
             val fps = fingerprints(a.packet.file, a.packet.cards)
             val newer = a.time > st.fullAt || a.time == st.fullAt && a.snap > st.fullSnap
@@ -393,6 +414,11 @@ class NtfyTransport(
         throw e
     }
 
+    /** [move], said on this topic by [card]'s member: the members still reading here follow it. */
+    fun announce(card: MemberCard, move: NtfyMove) {
+        send(NtfyWire.pack(NtfyPacket(file = MemberFile(card = card), moved = move)))
+    }
+
     /** [packed] as messages on the topic; answers the server time of the last. */
     private fun send(packed: ByteArray, snap: String = NtfyWire.newSnap()): Long {
         var time = clock() / 1000
@@ -449,5 +475,8 @@ class NtfyTransport(
         }
 
         fun forget(env: Env, groupId: String) { file(env, groupId).delete() }
+
+        /** [s] kept again (a move undone). */
+        fun restore(env: Env, groupId: String, s: NtfyState) = save(env, groupId, s)
     }
 }

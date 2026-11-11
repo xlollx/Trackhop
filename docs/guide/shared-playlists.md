@@ -137,6 +137,12 @@ say) doesn't bring it back.
   password, when joining or later on the group's page (*Sign-in to the ntfy server*). They stay on
   that phone and never go in the invite, which only says the server needs sign-in; give each member
   an account (or token) with read and write access to the group's topic.
+- A curator can move a group on ntfy to another ntfy server: *Change server* on the group's page.
+  The group is written there first, then a signed word of the move goes on the old server, and
+  the others' Trackhop follows it on their next sync (a word signed by someone who is not a curator
+  is ignored). Anyone who missed it (the old server gone, or a phone off for longer than the server
+  keeps messages) opens the group's new invite: Trackhop sees it is the same group and only changes
+  the server. A server that needs sign-in asks each member for their own on the group's page.
 - On your Trackhop server, the group's creator can **Replace the key** from the group's page: the
   current invite stops working for everyone, to shut out someone who should no longer read the
   group. Send the new invite to the members you want to keep; opening it in Trackhop swaps the key

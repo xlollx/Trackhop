@@ -2208,4 +2208,9 @@
     <string name="shared_new_key_confirm">Mevcut davet, gruptaki üyeler dahil herkes için çalışmayı bırakır. Ardından yeni daveti tutmak istediğiniz üyelere gönderin: yerlerini korurlar.</string>
     <string name="shared_key_new_invite">Zaten içinde olduğunuz %1$s için yeni bir davet: anahtarı eskisinin yerini alır.</string>
     <string name="shared_key_updated">%1$s: yeni anahtar kaydedildi.</string>
+    <string name="shared_change_server">Sunucuyu değiştir</string>
+    <string name="shared_change_server_desc">Grup aynı şifrelemeyle bu ntfy sunucusuna taşınır. Üyeler bir sonraki eşitlemede takip eder; kaçıran olursa grubun yeni davetini açabilir.</string>
+    <string name="shared_server_new_invite">Zaten içinde olduğun %1$s için yeni bir davet: grup artık %2$s üzerinde buluşuyor.</string>
+    <string name="shared_server_updated">%1$s: yeni sunucuya taşındı.</string>
+    <string name="shared_error_not_curator">Grubu yalnızca bir küratör taşıyabilir.</string>
 </resources>

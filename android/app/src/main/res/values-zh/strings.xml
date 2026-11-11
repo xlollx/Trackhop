@@ -2171,4 +2171,9 @@
     <string name="shared_new_key_confirm">当前的邀请将对所有人失效，包括已经在小组里的成员。之后把新邀请发给你想保留的成员：他们的位置保持不变。</string>
     <string name="shared_key_new_invite">这是你已加入的 %1$s 的新邀请：新密钥会替换旧密钥。</string>
     <string name="shared_key_updated">%1$s：新密钥已保存。</string>
+    <string name="shared_change_server">更换服务器</string>
+    <string name="shared_change_server_desc">群组将迁移到这个 ntfy 服务器，加密方式不变。成员会在下次同步时跟随；错过的人可以打开群组的新邀请。</string>
+    <string name="shared_server_new_invite">你已加入的 %1$s 的新邀请：群组现在在 %2$s 上交流。</string>
+    <string name="shared_server_updated">%1$s：已迁移到新服务器。</string>
+    <string name="shared_error_not_curator">只有策展人可以迁移群组。</string>
 </resources>

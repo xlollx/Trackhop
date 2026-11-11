@@ -2290,4 +2290,9 @@
     <string name="shared_new_key_confirm">Obecne zaproszenie przestanie działać dla wszystkich, także dla osób już w grupie. Potem wyślij nowe zaproszenie członkom, których chcesz zatrzymać: zachowają swoje miejsce.</string>
     <string name="shared_key_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: jego klucz zastępuje stary.</string>
     <string name="shared_key_updated">%1$s: nowy klucz zapisany.</string>
+    <string name="shared_change_server">Zmień serwer</string>
+    <string name="shared_change_server_desc">Grupa przenosi się na ten serwer ntfy, z tym samym szyfrowaniem. Członkowie podążą za nią przy następnej synchronizacji; kto to przegapi, może otworzyć nowe zaproszenie grupy.</string>
+    <string name="shared_server_new_invite">Nowe zaproszenie do %1$s, w której już jesteś: grupa spotyka się teraz na %2$s.</string>
+    <string name="shared_server_updated">%1$s: przeniesiono na nowy serwer.</string>
+    <string name="shared_error_not_curator">Tylko kurator może przenieść grupę.</string>
 </resources>

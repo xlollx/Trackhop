@@ -74,7 +74,7 @@ internal fun plainOf(s: String, max: Int): String {
 
 /** A public key as text: 43 base64url characters, a usable Ed25519 point. */
 internal val KEY_TEXT = Regex("[A-Za-z0-9_-]{43}")
-private val SIG_TEXT = Regex("[A-Za-z0-9_-]{86}")
+internal val SIG_TEXT = Regex("[A-Za-z0-9_-]{86}")
 
 /** A member's key pair for one group: [seed] is the private key, [id] the public key as text. */
 class Identity(val seed: ByteArray) {
