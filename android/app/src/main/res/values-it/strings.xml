@@ -1542,6 +1542,7 @@
     <string name="discover_compat_shared_made">I brani in comune ora sono una playlist su file: scegli dove sincronizzarla.</string>
     <string name="discover_roast_intro">Scegli una playlist: la tua AI (%1$s) ne riceve un breve riassunto (nome, numeri, artisti principali, decenni e venti titoli) e scrive un roast affettuoso.</string>
     <string name="discover_roast_run">Fai il roast</string>
+    <string name="discover_roast_writing">Affilo i coltelli…</string>
     <string name="discover_roast_again">Un altro roast</string>
     <string name="discover_roast_share_text">Condividi come testo</string>
     <string name="discover_vanished_intro">Quando fai il backup delle playlist (Strumenti › Backup), Trackhop ne conserva copie datate. Un brano presente in una copia più vecchia e assente dalla più recente da allora ha lasciato la playlist. Sono elencati anche i brani tolti da una sync con rimozioni.</string>

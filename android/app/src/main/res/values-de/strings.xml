@@ -1542,6 +1542,7 @@
     <string name="discover_compat_shared_made">Die gemeinsamen Songs sind jetzt eine Datei-Playlist: Wähle, wohin sie synchronisiert wird.</string>
     <string name="discover_roast_intro">Wähle eine Playlist: Deine KI (%1$s) bekommt eine kurze Zusammenfassung (Name, Zahlen, Top-Künstler, Jahrzehnte und zwanzig Titel) und schreibt einen liebevollen Roast.</string>
     <string name="discover_roast_run">Roasten</string>
+    <string name="discover_roast_writing">Die Messer werden gewetzt…</string>
     <string name="discover_roast_again">Noch ein Roast</string>
     <string name="discover_roast_share_text">Als Text teilen</string>
     <string name="discover_vanished_intro">Wenn du deine Playlists sicherst (Werkzeuge › Sicherung), behält Trackhop datierte Kopien. Ein Song, der in einer älteren Kopie steht und in der neuesten fehlt, hat die Playlist seitdem verlassen. Songs, die ein Sync mit Entfernen herausgenommen hat, stehen auch dabei.</string>

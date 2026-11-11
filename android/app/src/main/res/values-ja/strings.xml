@@ -1516,6 +1516,7 @@
     <string name="discover_compat_shared_made">共通の曲がファイルのプレイリストになりました。同期先を選んでください。</string>
     <string name="discover_roast_intro">プレイリストを選ぶと、あなたの AI（%1$s）が短い概要（名前、曲数、主なアーティスト、年代、20曲のタイトル）を受け取り、愛のあるツッコミを書きます。</string>
     <string name="discover_roast_run">いじってもらう</string>
+    <string name="discover_roast_writing">包丁を研いでいます…</string>
     <string name="discover_roast_again">もう一回</string>
     <string name="discover_roast_share_text">テキストでシェア</string>
     <string name="discover_vanished_intro">プレイリストをバックアップすると（ツール › バックアップ）、Trackhop は日付付きのコピーを保存します。古いコピーにあって最新のコピーにない曲は、その後プレイリストから消えた曲です。ミラー同期で削除された曲も表示されます。</string>

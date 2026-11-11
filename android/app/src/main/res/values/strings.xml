@@ -1543,6 +1543,7 @@
     <string name="discover_compat_shared_made">The songs in common are a file playlist now: choose where to sync it.</string>
     <string name="discover_roast_intro">Pick a playlist: your AI (%1$s) gets a short summary of it (name, counts, top artists, decades and twenty titles) and writes a friendly roast.</string>
     <string name="discover_roast_run">Roast it</string>
+    <string name="discover_roast_writing">Sharpening the knives…</string>
     <string name="discover_roast_again">Another roast</string>
     <string name="discover_roast_share_text">Share as text</string>
     <string name="discover_vanished_intro">When you back up your playlists (Tools › Backup), Trackhop keeps dated copies. A song in an older copy that is missing from the newest one has left the playlist since. Songs a mirror sync removed are listed too.</string>

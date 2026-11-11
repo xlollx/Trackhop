@@ -442,9 +442,12 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
     // One link, or several for a long playlist (each one gets through chat apps on its own).
     var built by remember { mutableStateOf<List<UniversalLink.Built>>(emptyList()) }
     var busy by remember { mutableStateOf(false) }
+    // Reading the playlist failed: said on the page, and "Try again" (which counts up [reads]) reads it again.
+    var error by remember { mutableStateOf<String?>(null) }
+    var reads by remember { mutableStateOf(0) }
 
-    LaunchedEffect(pick) {
-        tracks = null; built = emptyList()
+    LaunchedEffect(pick, reads) {
+        tracks = null; built = emptyList(); error = null
         val p = pick ?: return@LaunchedEffect
         busy = true
         try {
@@ -452,24 +455,31 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
             tracks = t
             built = withContext(Dispatchers.Default) { UniversalLink.buildParts(p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, t) }
         } catch (e: CancellationException) { throw e } catch (e: Exception) {
-            snackbar.showSnackbar(errorText(ctx, e))
+            error = errorText(ctx, e)
         }
         busy = false
     }
 
-    ToolIntro(stringResource(R.string.discover_link_intro))
-    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link") { pick = it }
-    if (busy) ToolLoading(stringResource(R.string.loading))
+    val id = LocalToolIdentity.current
     val parts = built
     val name = pick?.playlist?.name.orEmpty()
-    if (parts.isNotEmpty()) {
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    if (parts.size > 1) stringResource(R.string.discover_link_parts, parts.size)
-                    else stringResource(R.string.discover_link_ready, parts[0].included),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+    val list = tracks.orEmpty().filter { it.kind.isEmpty() }
+    val tall = Modifier.heightIn(min = 48.dp)
+    val link: @Composable () -> Unit = {
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link", step = 1) { pick = it }
+        if (busy) ToolLoading(stringResource(R.string.loading))
+        error?.let { ToolError(it, onRetry = { reads++ }) }
+        if (parts.isNotEmpty()) {
+            ToolSectionTitle(stringResource(R.string.discover_link_share), step = 2)
+            ToolResultCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(id.icon, null, tint = id.tint()); Spacer(Modifier.width(12.dp))
+                    Text(
+                        if (parts.size > 1) stringResource(R.string.discover_link_parts, parts.size)
+                        else stringResource(R.string.discover_link_ready, parts[0].included),
+                        style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f),
+                    )
+                }
                 parts.forEach { b ->
                     if (parts.size > 1) Text(
                         stringResource(R.string.discover_link_part, b.part, b.parts, b.first, b.last),
@@ -477,39 +487,42 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
                     )
                     val label = if (parts.size > 1) stringResource(R.string.discover_link_part_name, name, b.part, b.parts) else name
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Button(onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, label, b.url)) }) {
+                        Button(
+                            onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, label, b.url)) }, modifier = tall,
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = id.accent, contentColor = id.onAccent),
+                        ) {
                             Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.discover_link_share))
                         }
                         OutlinedButton(onClick = {
                             clipboard.setText(AnnotatedString(b.url))
                             scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_link_copied)) }
-                        }) { Text(stringResource(R.string.discover_link_copy)) }
+                        }, modifier = tall) { Text(stringResource(R.string.discover_link_copy)) }
                     }
                 }
             }
         }
     }
-    val list = tracks.orEmpty().filter { it.kind.isEmpty() }
-    if (list.isNotEmpty()) {
-        Text(stringResource(R.string.discover_link_one_song), style = MaterialTheme.typography.titleSmall)
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(vertical = 4.dp)) {
+    val songs: @Composable () -> Unit = {
+        ToolSection(stringResource(R.string.discover_link_one_song)) {
+            Column {
                 list.take(50).forEach { t ->
-                    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
                             Text(t.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Text(t.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                         IconButton(onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, t.toString(), UniversalLink.buildTrack(t).url)) }) {
-                            Icon(Icons.Filled.Share, stringResource(R.string.discover_link_share_song, t.title))
+                            Icon(Icons.Filled.Share, stringResource(R.string.discover_link_share_song, t.title), tint = id.tint())
                         }
                     }
                 }
-                if (list.size > 50) Text(stringResource(R.string.preview_more, list.size - 50), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp, 6.dp))
             }
+            if (list.size > 50) Text(stringResource(R.string.preview_more, list.size - 50), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+    ToolIntro(stringResource(R.string.discover_link_intro))
+    if (list.isNotEmpty()) ToolSplit(start = { link() }, end = { songs() }) else link()
 }
 
 // ------------------------------------------------------------------------------------------ Roast
@@ -519,13 +532,6 @@ private fun roastReportUrl(ai: AiClient.Config): String {
     val body = "Roast report\n\nAI: $vendor\nApp: ${versionLine()}\n\n" +
         "<!-- What was offensive about it? Please leave out personal details. -->\n"
     return "https://github.com/xlollx/Trackhop/issues/new?title=" + android.net.Uri.encode("Roast report") + "&body=" + android.net.Uri.encode(body)
-}
-
-/** "Looking for covers…" with a bar, as the Wrapped says it while it looks them up. */
-@Composable
-private fun CoverSearchRow() = Column(Modifier.fillMaxWidth()) {
-    Text(stringResource(R.string.discover_wrapped_covers), style = MaterialTheme.typography.bodyMedium)
-    LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 6.dp))
 }
 
 /** The last roast, its playlist and its card, kept in memory while the app runs. */
@@ -562,8 +568,8 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
     var coverSearch by RoastKept::coverSearch
     var roast by RoastKept::text
     var bitmaps by RoastKept::bitmaps
-    RoastKept.notice?.let { n -> LaunchedEffect(n) { snackbar.showSnackbar(n, withDismissAction = true, duration = SnackbarDuration.Long); RoastKept.notice = null } }
-    fun forget() { roast = null; bitmaps = null; RoastKept.text = null; RoastKept.bitmaps = null; RoastKept.playlistId = null }
+    // What the last run had to say (refused, failed) stays on the page until the next one.
+    fun forget() { roast = null; bitmaps = null; RoastKept.text = null; RoastKept.bitmaps = null; RoastKept.playlistId = null; RoastKept.notice = null }
     // One roast, as it always was: the levels and the explicit switch were tried and dropped.
     val level = AiRoast.Level.DEFAULT
     val explicit = false
@@ -577,7 +583,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
     fun run() {
         val p = pick ?: return
         val lv = level; val ex = explicit
-        busy = true; bitmaps = null
+        busy = true; bitmaps = null; RoastKept.notice = null
         AppWork.scope.launch {
             try {
                 val tracks = p.provider.tracks(ctx, p.playlist.id)
@@ -624,50 +630,55 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
         }
     }
 
+    val id = LocalToolIdentity.current
     ToolIntro(stringResource(R.string.discover_roast_intro, ai.label))
     val ready = !ai.local || NanoStatus(onUseKey = onSetUpAi)
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (ai.local) NanoSmallNote()
-    PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast") {
-        // The same playlist coming back (from the memory) keeps its roast; another one clears it.
-        if (it == null || it.playlist.id != RoastKept.playlistId) forget()
-        pick = it
+    val ask: @Composable () -> Unit = {
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast", step = 1) {
+            // The same playlist coming back (from the memory) keeps its roast; another one clears it.
+            if (it == null || it.playlist.id != RoastKept.playlistId) forget()
+            pick = it
+        }
+        // Spinning only while it works: waiting for a playlist or for Nano just greys the button.
+        ToolPrimaryButton(
+            stringResource(if (roast == null) R.string.discover_roast_run else R.string.discover_roast_again), onClick = { run() },
+            icon = id.icon, enabled = pick != null && ready, busy = busy,
+        )
+        if (busy) ToolLoading(stringResource(if (coverSearch) R.string.discover_wrapped_covers else R.string.discover_roast_writing))
+        RoastKept.notice?.let { n -> ToolError(n, onRetry = if (pick != null && ready && !busy) ({ run() }) else null) }
     }
-    roast?.let { text ->
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val verdict: @Composable () -> Unit = {
+        roast?.let { text ->
+            ToolResultCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(pick?.playlist?.name.orEmpty(), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    }
+                    Icon(id.icon, null, tint = id.tint()); Spacer(Modifier.width(10.dp))
+                    Text(pick?.playlist?.name.orEmpty(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     if (reportable) IconButton(onClick = { askReport = true }) {
                         Icon(Icons.Outlined.Flag, stringResource(R.string.discover_roast_report), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Text(text, style = MaterialTheme.typography.bodyLarge)
-                TextButton(onClick = { shareText(ctx, text + "\n\ntrackhop.org") }) { Text(stringResource(R.string.discover_roast_share_text)) }
+                TextButton(onClick = { shareText(ctx, text + "\n\ntrackhop.org") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_roast_share_text)) }
             }
+            if (askReport) FitDialog(
+                onDismissRequest = { askReport = false },
+                title = { Text(stringResource(R.string.discover_roast_report_title)) },
+                text = { Text(stringResource(R.string.discover_roast_report_body)) },
+                confirmButton = { TextButton(onClick = {
+                    askReport = false
+                    // The roast goes from the screen, and the prefilled report opens.
+                    forget()
+                    openUrl(ctx, roastReportUrl(ai))
+                }) { Text(stringResource(R.string.discover_roast_report_send)) } },
+                dismissButton = { TextButton(onClick = { askReport = false }) { Text(stringResource(R.string.cancel)) } },
+            )
+            // The card: its place is kept while it is drawn, it is not offered when drawing it failed.
+            if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-roast", text)
         }
-        if (askReport) FitDialog(
-            onDismissRequest = { askReport = false },
-            title = { Text(stringResource(R.string.discover_roast_report_title)) },
-            text = { Text(stringResource(R.string.discover_roast_report_body)) },
-            confirmButton = { TextButton(onClick = {
-                askReport = false
-                // The roast goes from the screen, and the prefilled report opens.
-                forget()
-                openUrl(ctx, roastReportUrl(ai))
-            }) { Text(stringResource(R.string.discover_roast_report_send)) } },
-            dismissButton = { TextButton(onClick = { askReport = false }) { Text(stringResource(R.string.cancel)) } },
-        )
     }
-    if (coverSearch) CoverSearchRow()
-    CardActions(
-        // Spinning only while it works: waiting for a playlist or for Nano just greys the button.
-        bitmaps, "trackhop-roast", busy, onRender = { run() }, enabled = pick != null && ready,
-        renderLabel = stringResource(if (roast == null) R.string.discover_roast_run else R.string.discover_roast_again),
-        previewDescription = roast,
-    )
+    if (roast != null) ToolSplit(start = { ask() }, end = { verdict() }) else ask()
 }
 
 // --------------------------------------------------------------------------------- Vanished songs
@@ -709,35 +720,56 @@ internal fun VanishedPage(onBackup: () -> Unit) {
 
     ToolIntro(stringResource(R.string.discover_vanished_intro))
     val list = rows
+    val id = LocalToolIdentity.current
     when {
         list == null -> ToolLoading(stringResource(R.string.loading))
-        list.isEmpty() -> {
-            Text(stringResource(R.string.discover_vanished_none), style = MaterialTheme.typography.bodyMedium)
-            Button(onClick = onBackup) { Text(stringResource(R.string.discover_vanished_backup)) }
+        list.isEmpty() -> ToolEmpty(stringResource(R.string.discover_vanished_none)) {
+            Button(
+                onClick = onBackup, modifier = Modifier.heightIn(min = 48.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = id.accent, contentColor = id.onAccent),
+            ) { Text(stringResource(R.string.discover_vanished_backup)) }
         }
         else -> {
-            Text(ctx.resources.getQuantityString(R.plurals.card_tracks, list.size, list.size), style = MaterialTheme.typography.titleSmall)
+            ToolSectionTitle(ctx.resources.getQuantityString(R.plurals.card_tracks, list.size, list.size))
             val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
-            Card(Modifier.fillMaxWidth()) {
-                Column {
-                    list.forEachIndexed { i, g ->
-                        if (i > 0) HorizontalDivider()
-                        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(g.track.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(g.track.artistLine, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                val date = df.format(Date(g.at))
-                                Text(
-                                    if (g.bySync) stringResource(R.string.discover_vanished_by_sync, g.where, date) else stringResource(R.string.discover_vanished_from, g.where, date),
-                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+            // Two columns of them in a wide window; each song struck through and faded: it is gone.
+            val columns = if (LocalWindowLayout.current.width == WidthClass.COMPACT) 1 else 2
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
+                val per = (list.size + columns - 1) / columns
+                list.chunked(per.coerceAtLeast(1)).forEach { chunk ->
+                    Surface(Modifier.weight(1f), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+                        Column {
+                            chunk.forEachIndexed { i, g ->
+                                if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                GoneSong(g, df.format(Date(g.at)))
                             }
-                            SearchOnMenu(g.track)
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/** A song that left: its title struck through, faded, with where it was last seen and where to look for it. */
+@Composable
+private fun GoneSong(g: GoneRow, date: String) {
+    val id = LocalToolIdentity.current
+    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(id.icon, null, tint = id.tint().copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                g.track.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+            )
+            Text(g.track.artistLine, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f))
+            Text(
+                if (g.bySync) stringResource(R.string.discover_vanished_by_sync, g.where, date) else stringResource(R.string.discover_vanished_from, g.where, date),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        SearchOnMenu(g.track)
     }
 }
 
@@ -747,7 +779,7 @@ private fun SearchOnMenu(t: Track) {
     val ctx = LocalContext.current
     var open by remember { mutableStateOf(false) }
     Box {
-        TextButton(onClick = { open = true }) { Text(stringResource(R.string.discover_search_on)) }
+        TextButton(onClick = { open = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_search_on)) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             val q = ServiceSearch.query(t.title, t.artistLine)
             ServiceSearch.SITES.forEach { s ->

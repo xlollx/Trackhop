@@ -1550,6 +1550,7 @@
     <string name="discover_compat_shared_made">Las canciones en común ya son una playlist de archivo: elige dónde sincronizarla.</string>
     <string name="discover_roast_intro">Elige una playlist: tu IA (%1$s) recibe un breve resumen (nombre, cifras, artistas principales, décadas y veinte títulos) y escribe un roast cariñoso.</string>
     <string name="discover_roast_run">Hacer el roast</string>
+    <string name="discover_roast_writing">Afilando los cuchillos…</string>
     <string name="discover_roast_again">Otro roast</string>
     <string name="discover_roast_share_text">Compartir como texto</string>
     <string name="discover_vanished_intro">Cuando haces copia de tus playlists (Herramientas › Copia de seguridad), Trackhop guarda copias con fecha. Una canción que está en una copia antigua y falta en la más reciente ha salido de la playlist desde entonces. También aparecen las canciones que quitó una sincronización con eliminaciones.</string>

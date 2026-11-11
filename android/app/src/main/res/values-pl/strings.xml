@@ -1596,6 +1596,7 @@
     <string name="discover_compat_shared_made">Wspólne utwory są teraz playlistą w pliku: wybierz, gdzie ją synchronizować.</string>
     <string name="discover_roast_intro">Wybierz playlistę: Twoje AI (%1$s) dostaje krótkie podsumowanie (nazwa, liczby, główni wykonawcy, dekady i dwadzieścia tytułów) i pisze czuły roast.</string>
     <string name="discover_roast_run">Zrób roast</string>
+    <string name="discover_roast_writing">Ostrzenie noży…</string>
     <string name="discover_roast_again">Kolejny roast</string>
     <string name="discover_roast_share_text">Udostępnij jako tekst</string>
     <string name="discover_vanished_intro">Gdy robisz kopię playlist (Narzędzia › Kopia zapasowa), Trackhop przechowuje kopie z datą. Utwór obecny w starszej kopii, a brakujący w najnowszej, od tego czasu opuścił playlistę. Wymienione są też utwory usunięte przez synchronizację lustrzaną.</string>

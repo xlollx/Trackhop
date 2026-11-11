@@ -1516,6 +1516,7 @@
     <string name="discover_compat_shared_made">共同的歌曲已成为一个文件歌单：请选择同步到哪里。</string>
     <string name="discover_roast_intro">选择一个歌单：你的 AI（%1$s）会收到一份简短摘要（名称、数量、主要艺人、年代和二十个歌名），写一段友善的吐槽。</string>
     <string name="discover_roast_run">开始吐槽</string>
+    <string name="discover_roast_writing">正在磨刀…</string>
     <string name="discover_roast_again">再来一段</string>
     <string name="discover_roast_share_text">以文字分享</string>
     <string name="discover_vanished_intro">当你备份歌单时（工具 › 备份），Trackhop 会保留带日期的副本。在旧副本中存在、在最新副本中缺失的歌曲，就是之后离开了歌单的歌曲。镜像同步删除的歌曲也会列出。</string>

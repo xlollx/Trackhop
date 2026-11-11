@@ -1515,6 +1515,7 @@
     <string name="discover_compat_shared_made">공통 곡이 파일 플레이리스트가 되었습니다. 동기화할 곳을 고르세요.</string>
     <string name="discover_roast_intro">플레이리스트를 고르면 내 AI(%1$s)가 짧은 요약(이름, 숫자, 주요 아티스트, 시대, 곡 제목 20개)을 받아 다정한 디스를 씁니다.</string>
     <string name="discover_roast_run">디스하기</string>
+    <string name="discover_roast_writing">칼을 갈고 있어요…</string>
     <string name="discover_roast_again">한 번 더</string>
     <string name="discover_roast_share_text">텍스트로 공유</string>
     <string name="discover_vanished_intro">플레이리스트를 백업하면(도구 › 백업) Trackhop이 날짜별 사본을 보관합니다. 예전 사본에는 있지만 최신 사본에는 없는 곡은 그 사이 플레이리스트에서 빠진 곡입니다. 미러 동기화가 삭제한 곡도 함께 표시됩니다.</string>

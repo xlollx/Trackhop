@@ -1594,6 +1594,7 @@
     <string name="discover_compat_shared_made">Общие треки теперь — плейлист-файл: выберите, куда его синхронизировать.</string>
     <string name="discover_roast_intro">Выберите плейлист: ваш ИИ (%1$s) получит краткую сводку (название, числа, главные исполнители, десятилетия и двадцать названий) и напишет добрую прожарку.</string>
     <string name="discover_roast_run">Прожарить</string>
+    <string name="discover_roast_writing">Точим ножи…</string>
     <string name="discover_roast_again">Ещё одна прожарка</string>
     <string name="discover_roast_share_text">Поделиться текстом</string>
     <string name="discover_vanished_intro">Когда вы делаете резервную копию плейлистов (Инструменты › Резервная копия), Trackhop хранит копии с датами. Трек, который есть в более старой копии и отсутствует в новейшей, с тех пор покинул плейлист. Треки, удалённые зеркальной синхронизацией, тоже показаны.</string>

@@ -1540,6 +1540,7 @@
     <string name="discover_compat_shared_made">Ortak şarkılar artık bir dosya çalma listesi: nereye eşitleneceğini seç.</string>
     <string name="discover_roast_intro">Bir çalma listesi seç: yapay zekân (%1$s) kısa bir özet alır (ad, sayılar, öne çıkan sanatçılar, on yıllar ve yirmi şarkı adı) ve sevecen bir roast yazar.</string>
     <string name="discover_roast_run">Roast\'la</string>
+    <string name="discover_roast_writing">Bıçaklar bileniyor…</string>
     <string name="discover_roast_again">Bir roast daha</string>
     <string name="discover_roast_share_text">Metin olarak paylaş</string>
     <string name="discover_vanished_intro">Çalma listelerini yedeklediğinde (Araçlar › Yedekleme), Trackhop tarihli kopyalar saklar. Eski bir kopyada olup en yenisinde olmayan bir şarkı o zamandan beri listeden çıkmıştır. Ayna eşitlemenin kaldırdığı şarkılar da listelenir.</string>

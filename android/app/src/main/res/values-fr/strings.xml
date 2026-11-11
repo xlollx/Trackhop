@@ -1550,6 +1550,7 @@
     <string name="discover_compat_shared_made">Les titres en commun forment maintenant une playlist fichier : choisis où la synchroniser.</string>
     <string name="discover_roast_intro">Choisis une playlist : ton IA (%1$s) en reçoit un court résumé (nom, chiffres, artistes principaux, décennies et vingt titres) et écrit un roast affectueux.</string>
     <string name="discover_roast_run">Lancer le roast</string>
+    <string name="discover_roast_writing">On aiguise les couteaux…</string>
     <string name="discover_roast_again">Un autre roast</string>
     <string name="discover_roast_share_text">Partager en texte</string>
     <string name="discover_vanished_intro">Quand tu sauvegardes tes playlists (Outils › Sauvegarde), Trackhop garde des copies datées. Un titre présent dans une copie plus ancienne et absent de la plus récente a quitté la playlist depuis. Les titres retirés par une synchro miroir sont listés aussi.</string>
