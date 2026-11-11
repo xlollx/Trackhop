@@ -49,16 +49,20 @@ vinyl, the **Vinyl / CD / Cassette** chips narrow the records to those formats, 
 - **Shop searches**: Bandcamp, Discogs, eBay and a web search for the artist's store and merch.
   They just open the search in your browser.
 
-The same name can belong to more than one artist: a record from a namesake may show up.
+The same name can belong to more than one artist. Trackhop picks the playlist's own: the artist
+MusicBrainz links to on Discogs, else the one whose records share titles with the playlist's albums
+and songs. When nothing tells them apart, the card says another artist may share the name.
+
+A search can be stopped with **Stop**: the artists already looked up stay on the page.
 
 ## The Discogs token (optional)
 
-Discogs answers without any key, 25 lookups a minute: Trackhop looks up the 25 artists the playlist
-holds most, only when you tap **Find records**, and keeps Discogs' answers for six hours (Discogs
+Discogs answers without any key, 25 lookups a minute: Trackhop looks up the 15 artists the playlist
+holds most (or the ones you choose under **Artists**), only when you tap **Find records**, and keeps Discogs' answers for six hours (Discogs
 asks apps not to show anything older than that). MusicBrainz's links are kept a week.
 
-With **your own personal access token** (free) Discogs allows 60 lookups a minute: Trackhop looks
-up up to 50 artists, and the first records of each artist also say **how many copies are for sale
+With **your own personal access token** (free) Discogs allows 60 lookups a minute: lookups are quicker,
+and the first records of each artist also say **how many copies are for sale
 on the Discogs marketplace, and from what price** (in your language's currency when Discogs has it,
 else euros). Make it on Discogs under **Settings › Developers › Generate new token**, then paste it in
 the app (**Settings › Advanced › Service keys › Discogs token**, or the link on the page) or on Docker and

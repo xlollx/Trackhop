@@ -93,12 +93,15 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
     var range by remember { mutableStateOf(Concerts.savedRange(ctx.env)) }
     // The playlist's artists, read when it is picked: the ones played most, or some chosen.
     var artists by remember { mutableStateOf<List<String>?>(null) }
+    // Reading them failed (shown with Try again, which counts up [reads]).
+    var artistsFailed by remember { mutableStateOf(false) }
+    var reads by remember { mutableStateOf(0) }
     val choice = rememberArtistChoice()
-    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
-        artists = null
+    LaunchedEffect(pick?.provider?.id, pick?.playlist?.id, reads) {
+        artists = null; artistsFailed = false
         val p = pick ?: return@LaunchedEffect
         choice.forPlaylist(p.provider.id + "|" + p.playlist.id)
-        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) } } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+        artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { com.xlollx.songport.sync.ArtistSuggest.note(ctx.env, it) } } catch (e: CancellationException) { throw e } catch (_: Exception) { artistsFailed = true; null }
     }
     var keyOpen by rememberSaveable { mutableStateOf(false) }
     if (keyOpen) TicketmasterKeyDialog { keyOpen = false }
@@ -112,7 +115,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         Concerts.saveCountry(env, c)
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
-            Concerts.find(env, ArtistPick.chosen(all, picked), c, rg, picked == null, progress)
+            Concerts.find(env, ArtistPick.chosen(all, picked), c, rg, picked == null, progress, partial = k::keep)
         }
     }
 
@@ -121,7 +124,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         if (it == null || it.playlist.id != k.key) k.clear()
         pick = it
     }
-    if (pick != null) ArtistChooser(artists, choice, LookupCaps.CONCERTS)
+    if (pick != null) ArtistChooser(artists, choice, LookupCaps.CONCERTS, artistsFailed) { reads++ }
     CountryPicker(country) { country = it; k.clear() }
     RangePicker(range) { range = it; Concerts.saveRange(ctx.env, it); k.clear() }
     val busy = k.running
@@ -130,12 +133,11 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
         Text(if (pick == null) stringResource(R.string.concerts_find) else artistsAction(artists, choice, LookupCaps.CONCERTS, R.string.concerts_find, R.plurals.concerts_find_for, R.string.concerts_find_top))
     }
-    progress?.takeIf { it.second > 0 }?.let { (done, total) ->
-        Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
+    if (busy) SearchRunning(progress) { k.stop() }
 
     val r = k.result?.takeIf { pick == null || k.key == pick?.playlist?.id }
     if (r != null && !busy) {
+        SearchStopped(k.stopped)
         val notes = buildList {
             if (r.quotaHit) add(stringResource(R.string.concerts_quota))
             if (r.keyRefused) add(stringResource(R.string.concerts_key_refused))

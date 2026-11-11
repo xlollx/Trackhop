@@ -27,10 +27,11 @@ import java.util.Locale
 internal object RecordTexts {
     const val SLOWED = "Discogs asked to slow down: some artists have no records this time. Try again in a minute."
     const val REFUSED = "Discogs refused the token: check it in Settings › Discogs token."
-    const val NO_TOKEN = "Add your own Discogs token (Settings) to see how many copies are for sale and to look up more artists."
+    const val NO_TOKEN = "Add your own Discogs token (Settings) to see how many copies are for sale, and to look artists up faster."
     const val ATTRIBUTION = "${Records.ATTRIBUTION} (records) and MusicBrainz (links); merch from the artists' own shops. Plain links, no affiliate tags."
     const val NO_MERCH = "No merch found in their shops."
     const val SHOPS_UNREAD = "Couldn't read their shop: try again later."
+    const val SAME_NAME = "Another artist may share this name: some of this could be theirs."
 
     fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up, of $total."
 
@@ -72,8 +73,9 @@ private fun Web.readableForRecords(): List<MusicProvider> =
 private suspend fun Web.recordPlaylists(p: MusicProvider): List<Playlist> = p.libraryEntries(env, false) + p.playlists(env)
 
 private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency: String, look: Records.Look, progress: (Int, Int) -> Unit = { _, _ -> }): Records.Result {
-    val artists = Concerts.artistsOf(p.tracks(env, playlistId))
-    val r = Records.find(env, artists, currency, look = look, progress = progress)
+    val tracks = p.tracks(env, playlistId)
+    // The playlist's own titles tell its artist from another of the same name.
+    val r = Records.find(env, Concerts.artistsOf(tracks), currency, look = look, progress = progress, evidence = Records.evidenceOf(tracks))
     env.log("records", "${p.label(env)} / $playlistId: ${r.artists.count { !it.records.isNullOrEmpty() }} of ${r.artists.size} artists with records")
     return r
 }
@@ -118,6 +120,7 @@ internal fun recordsJson(r: Records.Result): JsonObject = buildJsonObject {
             put("merch", a.merch?.let { list -> JsonArray(list.map { shopItemJson(it) }) } ?: JsonNull)
             put("shopsUnread", a.shopsUnread)
             put("shopsBusy", a.shopsBusy)
+            put("sameName", a.sameName)
         }
     }))
     put("attribution", RecordTexts.ATTRIBUTION)
@@ -199,6 +202,7 @@ private fun recordsHtml(playlist: String, r: Records.Result): String = buildStri
     }
     r.artists.forEach { ar ->
         append("""<div class="card"><h3>${h(ar.artist)}</h3>""")
+        if (ar.sameName) append("""<p class="muted">${h(RecordTexts.SAME_NAME)}</p>""")
         val recs = ar.records
         if (r.look.records) when {
             recs == null -> append("""<p class="muted">${if (r.slowedDown) "Not looked up this time: try again in a minute." else "Discogs didn't answer: try again later."}</p>""")

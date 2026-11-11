@@ -2037,6 +2037,13 @@
     <string name="artists_select_shown">表示中をすべて選択</string>
     <string name="artists_clear">選択を解除</string>
     <string name="artists_done">完了（%d）</string>
+    <string name="artists_loading">プレイリストのアーティストを読み込み中…</string>
+    <string name="artists_load_failed">プレイリストのアーティストを読み込めませんでした。</string>
+    <string name="artists_retry">再試行</string>
+    <string name="search_stop">停止</string>
+    <string name="search_stopped">停止しました：%2$d 組中 %1$d 組を検索しました。</string>
+    <string name="search_stopped_early">検索を停止しました。</string>
+    <string name="records_same_name">同じ名前の別のアーティストがいるかもしれません。一部はそのアーティストのものかもしれません。</string>
     <plurals name="concerts_find_for">
         <item quantity="other">%d 組のコンサートを探す</item>
     </plurals>
@@ -2100,7 +2107,7 @@
     <string name="records_not_asked">今回は検索していません。1 分後にもう一度お試しください。</string>
     <string name="records_slowed">Discogs からペースを落とすよう求められました。今回は一部のアーティストのレコードがありません。1 分後にもう一度お試しください。</string>
     <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › 詳細設定 › サービスのキーで確認してください。</string>
-    <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、より多くのアーティストを検索できます。</string>
+    <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、アーティストをより速く検索できます。</string>
     <string name="records_links">公式ページ</string>
     <string name="records_shop">公式ショップ</string>
     <string name="records_search">ショップで検索</string>
@@ -2121,7 +2128,7 @@
     <string name="records_shop_wait">試行回数が多すぎます。数分後にもう一度お試しください。</string>
     <string name="records_updated">更新: %1$s</string>
     <string name="records_token_title">Discogs トークン</string>
-    <string name="records_token_body">任意です。Discogs アカウントの個人アクセストークン（Settings › Developers）で、販売中の点数と最低価格が表示され、より多くのアーティストを検索できます。Trackhop は読み取りにのみ使い、この端末に暗号化して保存します。</string>
+    <string name="records_token_body">任意です。Discogs アカウントの個人アクセストークン（Settings › Developers）で、販売中の点数と最低価格が表示され、アーティストをより速く検索できます。Trackhop は読み取りにのみ使い、この端末に暗号化して保存します。</string>
     <string name="records_token_get">トークンを取得</string>
     <string name="records_token_field">個人アクセストークン</string>
     <string name="records_token_own">自分のトークンを使用中</string>

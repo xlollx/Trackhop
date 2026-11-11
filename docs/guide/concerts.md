@@ -60,7 +60,7 @@ remembers your choice.
 
 ## Only some artists
 
-By default Trackhop looks up the 50 artists the playlist holds most. Open **Artists** to tick only the
+By default Trackhop looks up the 15 artists the playlist holds most. Open **Artists** to tick only the
 ones you want (with a search box, in alphabetical order), or type the name of an artist who is not in
 the playlist: fewer lookups, and quicker.
 

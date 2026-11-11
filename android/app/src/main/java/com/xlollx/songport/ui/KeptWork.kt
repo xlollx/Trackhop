@@ -20,7 +20,8 @@ internal object AppWork {
  * page: it goes on when the screen turns, the theme or the text size changes, the window is split,
  * or another tab is opened, and the page, drawn again, shows how far it is and then the result.
  * In the app's scope, like [ReleasesKept] and [WrappedRun]; one run at a time. Leaving the page
- * does not stop it: it ends by itself, and its result is there when the page opens again.
+ * does not stop it: it ends by itself, and its result is there when the page opens again. The
+ * user can [stop] it: what it found so far ([keep]) becomes the result.
  */
 internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, private val now: () -> Long = System::currentTimeMillis) {
     /** "done/total" while it runs (0/0 before the first step); null when idle. */
@@ -42,25 +43,39 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
     /** A failure not shown yet ("" when it had no message): the page shows it once, then sets it to null. */
     var error by mutableStateOf<String?>(null)
 
+    /** The run was stopped by the user when it was at "done/total" ([stop]); null otherwise. */
+    var stopped by mutableStateOf<Pair<Int, Int>?>(null)
+        private set
+
     private var job: Job? = null
+    private var runKey: String? = null
+    private var found: T? = null
+    private var runs = 0
 
     /** Starts [work] for [key] unless a run is going on (then false). [work] reports its steps to the function it is given. */
     fun start(key: String?, work: suspend (progress: (done: Int, total: Int) -> Unit) -> T): Boolean {
         if (job?.isActive == true) return false
         progress = 0 to 0
         error = null
+        stopped = null
+        runKey = key
+        found = null
+        // A stopped run may still be finishing a request: it no longer touches what the page shows.
+        val run = ++runs
         job = scope.launch {
             try {
-                val r = work { done, total -> progress = done to total }
-                result = r
-                this@KeptWork.key = key
-                at = now()
+                val r = work { done, total -> if (run == runs) progress = done to total }
+                if (run == runs) {
+                    result = r
+                    this@KeptWork.key = key
+                    at = now()
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                error = e.message.orEmpty()
+                if (run == runs) error = e.message.orEmpty()
             } finally {
-                progress = null
+                if (run == runs) progress = null
             }
         }
         return true
@@ -69,12 +84,30 @@ internal class KeptWork<T>(private val scope: CoroutineScope = AppWork.scope, pr
     /** Shows [result] for [key] at once (one put together from what was kept), unless a run is going on. */
     fun show(key: String?, result: T) {
         if (job?.isActive == true) return
-        this.result = result; this.key = key; at = now()
+        this.result = result; this.key = key; at = now(); stopped = null
     }
 
     /** Stops the run going on, if any; the last result stays. */
     fun cancel() { job?.cancel() }
 
+    /** What the run going on has found so far: the result if the user [stop]s it. */
+    fun keep(partial: T) { found = partial }
+
+    /**
+     * The user stops the run going on: its requests are cancelled, what it found so far ([keep])
+     * becomes the result, and another run can start at once.
+     */
+    fun stop() {
+        val j = job?.takeIf { it.isActive } ?: return
+        val at = progress ?: (0 to 0)
+        j.cancel()
+        runs++
+        progress = null
+        found?.let { result = it; key = runKey; this.at = now() }
+        found = null
+        stopped = at
+    }
+
     /** Forgets the result (another playlist, country or window was picked). */
-    fun clear() { result = null; key = null }
+    fun clear() { result = null; key = null; stopped = null }
 }

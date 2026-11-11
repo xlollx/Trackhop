@@ -2145,6 +2145,13 @@
     <string name="artists_select_shown">Отметить показанных</string>
     <string name="artists_clear">Снять отметки</string>
     <string name="artists_done">Готово (%d)</string>
+    <string name="artists_loading">Читаем исполнителей плейлиста…</string>
+    <string name="artists_load_failed">Не удалось прочитать исполнителей плейлиста.</string>
+    <string name="artists_retry">Повторить</string>
+    <string name="search_stop">Остановить</string>
+    <string name="search_stopped">Остановлено: проверено %1$d из %2$d исполнителей.</string>
+    <string name="search_stopped_early">Поиск остановлен.</string>
+    <string name="records_same_name">Возможно, у другого исполнителя такое же имя: часть этого может быть его.</string>
     <plurals name="concerts_find_for">
         <item quantity="one">Найти концерты (исполнителей: %d)</item>
         <item quantity="few">Найти концерты (исполнителей: %d)</item>
@@ -2232,7 +2239,7 @@
     <string name="records_not_asked">В этот раз не искали: попробуйте через минуту.</string>
     <string name="records_slowed">Discogs попросил замедлиться: у некоторых артистов в этот раз нет пластинок. Попробуйте через минуту.</string>
     <string name="records_token_refused">Discogs отклонил ваш токен: проверьте его в Настройки › Дополнительно › Ключи сервисов.</string>
-    <string name="records_no_token">Добавьте свой токен Discogs, чтобы видеть, сколько экземпляров в продаже, и искать больше артистов.</string>
+    <string name="records_no_token">Добавьте свой токен Discogs, чтобы видеть, сколько экземпляров в продаже, и искать артистов быстрее.</string>
     <string name="records_links">Официальные страницы</string>
     <string name="records_shop">Официальный магазин</string>
     <string name="records_search">Искать в магазинах</string>
@@ -2253,7 +2260,7 @@
     <string name="records_shop_wait">Слишком много попыток, попробуй через несколько минут.</string>
     <string name="records_updated">Обновлено %1$s</string>
     <string name="records_token_title">Токен Discogs</string>
-    <string name="records_token_body">Необязательно. Личный токен доступа вашего аккаунта Discogs (Settings › Developers) показывает, сколько экземпляров в продаже и от какой цены, и ищет больше артистов. Trackhop только читает с ним и хранит его зашифрованным на этом телефоне.</string>
+    <string name="records_token_body">Необязательно. Личный токен доступа вашего аккаунта Discogs (Settings › Developers) показывает, сколько экземпляров в продаже и от какой цены, и ищет артистов быстрее. Trackhop только читает с ним и хранит его зашифрованным на этом телефоне.</string>
     <string name="records_token_get">Получить токен</string>
     <string name="records_token_field">Личный токен доступа</string>
     <string name="records_token_own">Используется ваш токен</string>

@@ -131,7 +131,7 @@ object Setlists {
      * The latest setlists of [artists] ([PER_ARTIST] each). [progress] gets (done, total). Never
      * throws for one artist's failure: that artist just has none. Without a key nothing is asked.
      */
-    suspend fun find(env: Env, artists: List<String>, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(env: Env, artists: List<String>, whole: Boolean = true, partial: (Result) -> Unit = {}, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val key = key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { norm(it) }
@@ -152,11 +152,17 @@ object Setlists {
             }
             if (found == null && !quotaHit && !refused) unanswered++
             out += ArtistSetlists(artist, found.orEmpty())
+            // What is found so far: kept when the user stops the search.
+            partial(result(out, asked.size, own, quotaHit, refused, unanswered))
         }
         progress(list.size, list.size)
         if (quotaHit) env.log("setlists", "setlist.fm: today's limit reached")
+        return result(out, asked.size, own, quotaHit, refused, unanswered)
+    }
+
+    private fun result(out: List<ArtistSetlists>, total: Int, own: Boolean, quotaHit: Boolean, refused: Boolean, unanswered: Int): Result {
         val (with, without) = out.partition { it.setlists.isNotEmpty() }
-        return Result(with.sortedByDescending { it.setlists.first().date } + ArtistPick.byName(without) { it.artist }, asked.size, true, own, quotaHit, refused, unanswered)
+        return Result(with.sortedByDescending { it.setlists.first().date } + ArtistPick.byName(without) { it.artist }, total, true, own, quotaHit, refused, unanswered)
     }
 
     /** One setlist by its id (a shared link), from the cache or the API; null when there is no key. */

@@ -38,6 +38,8 @@ class RecordsTest {
             val (code, body) = when {
                 path == "/dg/database/search" -> search(query)
                 path.startsWith("/dg/marketplace/stats/") -> stats(path)
+                // The artist MusicBrainz links to (discogs.com/artist/3840): the one without a number.
+                path == "/dg/artists/3840" -> 200 to """{"id":3840,"name":"Radiohead"}"""
                 path == "/ws/2/artist" -> 200 to """{"artists":[
                     {"id":"11111111-1111-1111-1111-111111111111","name":"Radiohead Tribute","score":100},
                     {"id":"a74b1b7f-71a5-4011-9441-d0b5e4122711","name":"Radiohead","score":100}]}"""
@@ -184,7 +186,9 @@ class RecordsTest {
         // In alphabetical order.
         assertEquals(listOf("Nobody Known", "Radiohead"), r.artists.map { it.artist })
         val rh = r.artists.first { it.artist == "Radiohead" }
-        assertEquals(3, rh.records!!.size)
+        // "Radiohead (2)" is another band: MusicBrainz's link to Discogs says which is this one.
+        assertEquals(listOf("In Rainbows", "OK Computer"), rh.records!!.map { it.title })
+        assertFalse(rh.sameName)
         assertTrue(rh.records!!.all { it.forSale == null })
         assertEquals("https://www.discogs.com/artist/3840", rh.discogsPage)
         assertTrue(rh.links.none { it.kind == Records.Kind.DISCOGS })
@@ -207,7 +211,7 @@ class RecordsTest {
         assertTrue(r.token)
         val rec = r.artists.single().records!!
         assertEquals(12, rec[0].forSale); assertEquals(18.5, rec[0].lowestPrice!!, 0.001); assertEquals("EUR", rec[0].currency)
-        assertEquals(3, hits.count { it.startsWith("/dg/marketplace/stats/") && it.contains("curr_abbr=EUR") })
+        assertEquals(2, hits.count { it.startsWith("/dg/marketplace/stats/") && it.contains("curr_abbr=EUR") })
         assertTrue(auths.all { it == "Discogs token=" + "t".repeat(40) })
         // Kept in the vault, not in the settings (which a set-up export carries).
         assertTrue(env.store.data.settings.clientIds.values.none { it.contains("tttt") })
@@ -221,7 +225,7 @@ class RecordsTest {
         search = { if (first) { first = false; 401 to """{"message":"Invalid consumer token."}""" } else 200 to searchPage() }
         val r = Records.find(env, listOf("Radiohead"), "EUR")
         assertTrue(r.tokenRefused)
-        assertEquals(3, r.artists.single().records!!.size)
+        assertEquals(2, r.artists.single().records!!.size)
         assertNull(auths.last())
     }
 
@@ -260,7 +264,7 @@ class RecordsTest {
         val kept = Records.fromCache(env, listOf("Radiohead", "Nobody Known"), "EUR")!!
         assertEquals(n, hits.size)
         assertEquals(listOf("Nobody Known", "Radiohead"), kept.artists.map { it.artist })
-        assertEquals(3, kept.artists[1].records!!.size)
+        assertEquals(2, kept.artists[1].records!!.size)
         // When it was asked, for "updated 2 hours ago"; the shops are left to the page.
         assertEquals(asked, kept.at)
         assertNull(kept.artists[1].merch)

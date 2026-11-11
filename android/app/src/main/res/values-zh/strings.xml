@@ -2037,6 +2037,13 @@
     <string name="artists_select_shown">选择显示的全部艺人</string>
     <string name="artists_clear">取消选择</string>
     <string name="artists_done">完成（%d）</string>
+    <string name="artists_loading">正在读取播放列表中的艺人…</string>
+    <string name="artists_load_failed">无法读取播放列表中的艺人。</string>
+    <string name="artists_retry">重试</string>
+    <string name="search_stop">停止</string>
+    <string name="search_stopped">已停止：已查找 %2$d 位艺人中的 %1$d 位。</string>
+    <string name="search_stopped_early">已停止搜索。</string>
+    <string name="records_same_name">可能有同名的其他艺人：部分内容可能属于对方。</string>
     <plurals name="concerts_find_for">
         <item quantity="other">查找 %d 位艺人的演唱会</item>
     </plurals>
@@ -2100,7 +2107,7 @@
     <string name="records_not_asked">这次没有查找：请一分钟后再试。</string>
     <string name="records_slowed">Discogs 要求放慢速度：这次部分艺人没有唱片信息。请一分钟后再试。</string>
     <string name="records_token_refused">Discogs 拒绝了你的令牌：请在 设置 › 高级 › 服务密钥 中检查。</string>
-    <string name="records_no_token">添加你自己的 Discogs 令牌，即可查看在售数量并查找更多艺人。</string>
+    <string name="records_no_token">添加你自己的 Discogs 令牌，即可查看在售数量并更快地查找艺人。</string>
     <string name="records_links">官方页面</string>
     <string name="records_shop">官方商店</string>
     <string name="records_search">在商店中搜索</string>
@@ -2121,7 +2128,7 @@
     <string name="records_shop_wait">尝试次数过多，请几分钟后再试。</string>
     <string name="records_updated">更新于 %1$s</string>
     <string name="records_token_title">Discogs 令牌</string>
-    <string name="records_token_body">可选。你的 Discogs 账户的个人访问令牌（Settings › Developers）可显示在售数量和最低价格，并查找更多艺人。Trackhop 只用它读取数据，并加密保存在这部手机上。</string>
+    <string name="records_token_body">可选。你的 Discogs 账户的个人访问令牌（Settings › Developers）可显示在售数量和最低价格，并更快地查找艺人。Trackhop 只用它读取数据，并加密保存在这部手机上。</string>
     <string name="records_token_get">获取令牌</string>
     <string name="records_token_field">个人访问令牌</string>
     <string name="records_token_own">正在使用你的令牌</string>
