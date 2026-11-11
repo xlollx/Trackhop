@@ -420,6 +420,73 @@ class DiscoverTest {
         assertTrue(Vanished.between("x", null, listOf(v1)).isEmpty())
     }
 
+    private fun songs(from: Int, to: Int, prefix: String = "Song") = (from..to).map { t("$prefix$it", "$prefix $it", "Artist $it") }
+
+    @Test fun anEmptyNewestCopyIsNoProofThatAnythingVanished() {
+        val full = Vanished.Version(1_000, songs(1, 63))
+        assertTrue(Vanished.between("Saved", "YouTube Music", listOf(full, Vanished.Version(2_000, emptyList()))).isEmpty())
+        // A short playlist emptied in one go reads the same way: a listing that did not come, not songs gone.
+        val few = Vanished.Version(1_000, songs(1, 3))
+        assertTrue(Vanished.between("Short", null, listOf(few, Vanished.Version(2_000, emptyList()))).isEmpty())
+    }
+
+    @Test fun aNewestCopyCutShortIsNoProofEither() {
+        val full = Vanished.Version(1_000, songs(1, 63))
+        val cut = Vanished.Version(2_000, songs(1, 12))
+        assertTrue(Vanished.isBreak(full.tracks, cut.tracks))
+        assertTrue(Vanished.between("Saved", "YouTube Music", listOf(full, cut)).isEmpty())
+    }
+
+    @Test fun anotherLibraryUnderTheSameNameIsNotTheFirstOneLosingItsSongs() {
+        // Two accounts of a service once wrote their copies under one name: the second's songs, all different.
+        val first = Vanished.Version(1_000, songs(1, 40))
+        val second = Vanished.Version(2_000, songs(1, 35, prefix = "Other"))
+        assertTrue(Vanished.between("Liked songs", "YouTube Music", listOf(first, second)).isEmpty())
+    }
+
+    @Test fun onlyTheCopiesLinkedToTheNewestOneCount() {
+        // Oldest: another account's copy; then two of this one, one song taken out between them.
+        val other = Vanished.Version(1_000, songs(1, 30, prefix = "Other"))
+        val before = Vanished.Version(2_000, songs(1, 30))
+        val now = Vanished.Version(3_000, songs(2, 30))
+        val gone = Vanished.between("Mix", null, listOf(other, before, now))
+        assertEquals(listOf("Song 1"), gone.map { it.track.title })
+        assertEquals(2_000L, gone.single().lastSeen)
+    }
+
+    @Test fun aRealRemovalOfAFewSongsIsStillListed() {
+        val before = Vanished.Version(1_000, songs(1, 50))
+        val now = Vanished.Version(2_000, songs(10, 50))
+        assertEquals(9, Vanished.between("Mix", null, listOf(before, now)).size)
+        // Most of a short playlist gone (under ten songs) is still a removal, not a break.
+        val small = Vanished.Version(1_000, songs(1, 6))
+        assertEquals(4, Vanished.between("Small", null, listOf(small, Vanished.Version(2_000, songs(5, 6)))).size)
+    }
+
+    @Test fun theSameSongUnderAnotherShapeHasNotVanished() {
+        val before = Vanished.Version(1_000, listOf(
+            t("1", "Damocles", "Sleep Token"),
+            t("2", "Count Your Blessings", "Bring Me The Horizon", isrc = "GBTEST000001"),
+            t("3", "Impose", "Bad Omens, Guest"),
+            t("4", "do or die", "Windwaker"),
+        ))
+        val now = Vanished.Version(2_000, listOf(
+            // It gained an ISRC, lost one, swapped its artists' order, changed the title's case.
+            t("a", "Damocles", "Sleep Token", isrc = "GBTEST000002"),
+            t("b", "Count Your Blessings", "Bring Me The Horizon"),
+            t("c", "Impose", "Guest, Bad Omens"),
+            t("d", "Do Or Die", "Windwaker"),
+        ))
+        assertTrue(Vanished.between("Mix", null, listOf(before, now)).isEmpty())
+    }
+
+    @Test fun albumsAndArtistsAreNotSongs() {
+        val album = Track(id = "MPREb_x", title = "Even In Arcadia", artists = listOf("Sleep Token"), kind = Track.KIND_ALBUM)
+        val artist = Track(id = "UCx", title = "Windwaker", kind = Track.KIND_ARTIST)
+        val before = Vanished.Version(1_000, listOf(album, artist, t("1", "A", "X")))
+        assertTrue(Vanished.between("Saved", null, listOf(before, Vanished.Version(2_000, listOf(t("1", "A", "X"))))).isEmpty())
+    }
+
     // ------------------------------------------------------------ roast
 
     @Test fun roastSummaryIsCompact() {

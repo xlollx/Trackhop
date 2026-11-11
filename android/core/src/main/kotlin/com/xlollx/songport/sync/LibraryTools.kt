@@ -41,13 +41,14 @@ object LibraryTools {
         val failed = ArrayList<Failure>()
         val inUse = LocalFilesProvider.protectedIds(ctx)
         val now = System.currentTimeMillis()
+        val service = backupService(provider)
         for (pl in lists) {
             onProgress(Progress(Progress.Step.BACKUP, done, lists.size))
             try {
                 val items = provider.tracks(ctx, pl.id)
                 // One dated version per run; a playlist that has not changed since the last backup
                 // is not written again, so the Files screen holds versions, not copies.
-                if (LocalFilesProvider.writeBackup(ctx, provider.displayName, pl.name, items, inUse, now) == LocalFilesProvider.BackupOutcome.UNCHANGED) unchanged++
+                if (LocalFilesProvider.writeBackup(ctx, service, pl.name, items, inUse, now) != LocalFilesProvider.BackupOutcome.WRITTEN) unchanged++
                 tracks += items.size
             } catch (e: Exception) {
                 failed += Failure(pl.name, e.message ?: e.javaClass.simpleName)
@@ -56,6 +57,14 @@ object LibraryTools {
         }
         return BackupResult(lists.size - failed.size, tracks, failed, unchanged)
     }
+
+    /**
+     * The name a connector's backup files go under: the service's, and for another account of it
+     * its slot too ("YouTube Music (2)"). Two accounts written under one name became versions of
+     * each other, and the second account's library read as the first one's losing it all.
+     */
+    fun backupService(provider: MusicProvider): String =
+        if (provider.slot.isEmpty()) provider.displayName else "${provider.displayName} (${provider.slot})"
 
     /** Brani doppi in una playlist, raggruppati (il primo di ogni gruppo e' quello da tenere). */
     suspend fun findDuplicates(ctx: Env, provider: MusicProvider, playlistId: String): List<List<Track>> =

@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -98,10 +100,18 @@ object BackupExport {
     }
 
     /**
+     * One run at a time: the scheduled one and "Copy now" used to overlap, each writing the same
+     * playlists' versions within the same minutes while the connectors served one listing at a time.
+     */
+    private val runLock = Mutex()
+
+    /**
      * Aggiorna i backup locali di ogni servizio collegato; con una cartella scelta, ci copia i file
      * nuovi e la configurazione del giorno (Backup & restore).
      */
-    suspend fun run(ctx: Context, onProgress: (String) -> Unit = {}): Result {
+    suspend fun run(ctx: Context, onProgress: (String) -> Unit = {}): Result = runLock.withLock { runAlone(ctx, onProgress) }
+
+    private suspend fun runAlone(ctx: Context, onProgress: (String) -> Unit): Result {
         val folder = Store.get(ctx).data.settings.backupFolder.takeIf { it.isNotBlank() }
         if (folder != null && !folderReachable(ctx, Uri.parse(folder))) {
             val msg = ctx.getString(com.xlollx.songport.R.string.backup_folder_missing)

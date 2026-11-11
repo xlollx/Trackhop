@@ -206,14 +206,17 @@ object LocalFilesProvider : MusicProvider {
 
     /** A fresh formatter per use: SimpleDateFormat is not thread-safe, and backups and the Files screen may overlap. */
     private fun stamp() = java.text.SimpleDateFormat("yyyy-MM-dd HH.mm", java.util.Locale.ROOT)
-    private val STAMP_TAIL = Regex(""" \((\d{4}-\d{2}-\d{2} \d{2}\.\d{2})\)$""")
+    /** The stamp, and the number a second version written in the same minute takes ("… (2026-11-11 19.41) (2)"). */
+    private val STAMP_TAIL = Regex(""" \((\d{4}-\d{2}-\d{2} \d{2}\.\d{2})\)(?: \((\d+)\))?$""")
     private val COPY_TAIL = Regex(""" \(\d+\)$""")
 
     fun entries(ctx: Env): List<Entry> =
         dir(ctx).listFiles { f -> f.extension == "csv" }.orEmpty().map { f ->
             val name = f.nameWithoutExtension
             val tail = STAMP_TAIL.find(name)
+            // A second version of the same minute sorts after the first: a millisecond per number.
             val stampedAt = tail?.let { runCatching { stamp().parse(it.groupValues[1])?.time }.getOrNull() }
+                ?.plus((tail.groupValues[2].toIntOrNull() ?: 1) - 1)
             val base = COPY_TAIL.replace(STAMP_TAIL.replace(name, ""), "")
             Entry(
                 id = name, name = name, trackCount = CsvCodec.parse(read(f)).size,
@@ -222,16 +225,21 @@ object LocalFilesProvider : MusicProvider {
             )
         }
 
-    enum class BackupOutcome { WRITTEN, UNCHANGED }
+    /** [KEPT]: the listing came back empty where the newest version has tracks, and that version stays the newest. */
+    enum class BackupOutcome { WRITTEN, UNCHANGED, KEPT }
 
     /**
      * Writes one dated version of a service playlist's backup, unless the newest version already has
      * exactly these tracks, then trims that playlist's versions to [KEEP_VERSIONS]. Files a sync reads
-     * or writes ([protectedIds]) are never removed, whatever their age.
+     * or writes ([protectedIds]) are never removed, whatever their age. An empty listing over a
+     * newest version that has tracks is not written: far likelier a section the service did not
+     * hand over than a library emptied, and written it would push a good version out and read, in
+     * Vanished songs, as everything gone.
      */
     fun writeBackup(ctx: Env, service: String, playlistName: String, tracks: List<Track>, protectedIds: Set<String>, now: Long = System.currentTimeMillis()): BackupOutcome {
         val base = CsvCodec.safeName("$service - $playlistName")
         val versions = entries(ctx).filter { it.base == base && it.service != null }.sortedByDescending { it.writtenAt }
+        if (tracks.isEmpty() && (versions.firstOrNull()?.trackCount ?: 0) > 0) return BackupOutcome.KEPT
         val text = CsvCodec.encode(tracks)
         if (versions.firstOrNull()?.let { read(file(ctx, it.id)) } == text) return BackupOutcome.UNCHANGED
         val when_ = stamp().format(java.util.Date(now))
