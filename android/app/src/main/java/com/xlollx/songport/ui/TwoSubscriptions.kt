@@ -309,7 +309,7 @@ private fun overlapCard(ctx: Context, a: MusicProvider, b: MusicProvider, r: Lib
     stats = overlapStats(ctx, a.brand, b.brand, r),
 )
 
-/** The result: the circles and the counts, the sentence, what keeping only one means, the songs on one side only, the card. */
+/** The result: the circles and the counts, the sentence, what keeping only one means, the card, the songs on one side only. */
 @Composable
 private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.Result, priceA: Double?, priceB: Double?, money: Money, bitmaps: Map<Cards.Format, Bitmap>?) {
     val ctx = LocalContext.current
@@ -367,9 +367,9 @@ private fun OverlapResult(a: MusicProvider, b: MusicProvider, r: LibraryOverlap.
             )
         }
     }
+    ToolShare(bitmaps, "trackhop-two-subscriptions", summary)
     OnlyOn(stringResource(R.string.discover_subs_only, nameA), r.onlyA, nf)
     OnlyOn(stringResource(R.string.discover_subs_only, nameB), r.onlyB, nf)
-    ToolShare(bitmaps, "trackhop-two-subscriptions", summary)
 }
 
 /** Keeping only [keep]: the songs that would stay behind on the other, and what the other costs. */

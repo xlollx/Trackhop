@@ -220,8 +220,9 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     val reading = WrappedRun.reading
     val readingFrom = WrappedRun.readingFrom
     val current = WrappedRun.current
-    LaunchedEffect(WrappedRun.error) { WrappedRun.error?.let { WrappedRun.error = null; snackbar.showSnackbar(it) } }
-    LaunchedEffect(WrappedRun.empty) { if (WrappedRun.empty) { WrappedRun.empty = false; snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_empty)) } }
+    // A failure or an empty result stays on the page (with Try again) until the next one is made.
+    val failed = WrappedRun.error
+    val empty = WrappedRun.empty
     var shownId by rememberSaveable { mutableStateOf<String?>(null) }
     val shown = history.firstOrNull { it.id == shownId } ?: history.firstOrNull()
     val card = remember(shown) { shown?.let { wrappedCard(ctx, it) } }
@@ -250,6 +251,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     }
 
     fun run() {
+        WrappedRun.error = null; WrappedRun.empty = false
         WrappedRun.start(ctx.applicationContext, services.filter { it.id in chosenIds }) { saved ->
             store.update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
             shownId = saved.id
@@ -265,82 +267,86 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
         }
     }
 
+    val id = LocalToolIdentity.current
     ToolIntro(stringResource(R.string.discover_wrapped_intro))
     if (services.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
-    if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
-    else if (shown != null && card != null) {
-        Text(
-            stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))),
-            style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        WrappedSummary(card, shown)
-        // The card's art, as the poster's drawn covers.
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.card_cover_title), style = MaterialTheme.typography.titleSmall)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                PosterArt.entries.forEach { a ->
-                    val st = a.style ?: return@forEach
-                    FilterChip(selected = st == artStyle, enabled = covers != null, onClick = { style = st }, label = { Text(stringResource(a.label)) })
+
+    // The Wrapped on show (or the one being made): its figures, the card's art, the card to share.
+    val result: @Composable () -> Unit = {
+        if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
+        else if (shown != null && card != null) {
+            ToolSectionTitle(stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))))
+            WrappedSummary(card, shown)
+            // The card's art, as the poster's drawn covers.
+            ToolSection(stringResource(R.string.card_cover_title)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    PosterArt.entries.forEach { a ->
+                        val st = a.style ?: return@forEach
+                        FilterChip(selected = st == artStyle, enabled = covers != null, onClick = { style = st }, label = { Text(stringResource(a.label)) })
+                    }
+                }
+                // Always there (greyed while the card is drawn): appearing late, it pushed what is below it down
+                // under a finger already on its way.
+                OutlinedButton(enabled = bitmaps != null && !rendering, onClick = { variant++ }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
+            }
+            ToolShare(
+                bitmaps, "trackhop-wrapped", listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
+                busy = bitmaps == null || rendering, formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
+            )
+        }
+    }
+
+    // A new one: the services to read, chosen every time (the last choice comes back ticked), then the older ones.
+    val make: @Composable () -> Unit = {
+        if (services.isEmpty()) NoServices(stringResource(R.string.discover_no_services), onGoToAccounts)
+        else {
+            ToolSection(stringResource(R.string.discover_wrapped_pick), hint = stringResource(R.string.discover_wrapped_pick_hint)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    services.forEach { p ->
+                        val on = p.id in chosenIds
+                        FilterChip(
+                            selected = on, enabled = !busy,
+                            onClick = {
+                                if (on && chosenIds.size == 1) scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_keep_one)) }
+                                else store.updateSettings { st ->
+                                    // Ids of services no longer connected stay as they were; the others follow the chips.
+                                    val others = st.wrappedSkipped - services.map { it.id }.toSet()
+                                    val off = services.map { it.id }.filter { it !in chosenIds }.toSet()
+                                    st.copy(wrappedSkipped = others + if (on) off + p.id else off - p.id)
+                                }
+                            },
+                            label = { Text(labels[p.id] ?: p.displayName) },
+                            leadingIcon = { ServiceLogo(p, size = 20.dp) },
+                            // Ticked is said with a tick too, not only with the chip's colour.
+                            trailingIcon = if (on) ({ Icon(Icons.Filled.CheckCircle, null, Modifier.size(18.dp)) }) else null,
+                        )
+                    }
                 }
             }
+            ToolPrimaryButton(
+                stringResource(if (history.isEmpty()) R.string.discover_wrapped_button else R.string.discover_wrapped_new),
+                onClick = { run() }, icon = Icons.Filled.AutoAwesome, busy = busy,
+            )
+            if (failed != null) ToolError(failed, onRetry = if (!busy) ({ run() }) else null)
+            else if (empty) ToolError(stringResource(R.string.discover_wrapped_empty), onRetry = if (!busy) ({ run() }) else null)
         }
-        CardActions(
-            bitmaps, "trackhop-wrapped", busy = bitmaps == null || rendering, onRender = null, renderLabel = "",
-            previewDescription = listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
-            formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
-        )
-        // Always there (greyed while the card is drawn): appearing late, it pushed what is below it down
-        // under a finger already on its way (the history's delete button).
-        OutlinedButton(enabled = bitmaps != null && !rendering, onClick = { variant++ }) { Text(stringResource(R.string.card_cover_another)) }
-    }
-
-    // A new one: the services to read, chosen every time (the last choice comes back ticked).
-    if (services.isEmpty()) NoServices(stringResource(R.string.discover_no_services), onGoToAccounts)
-    else {
-        if (shown != null && !busy) HorizontalDivider(Modifier.padding(vertical = 4.dp))
-        Text(stringResource(R.string.discover_wrapped_pick), style = MaterialTheme.typography.titleSmall)
-        Text(stringResource(R.string.discover_wrapped_pick_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            services.forEach { p ->
-                val on = p.id in chosenIds
-                FilterChip(
-                    selected = on, enabled = !busy,
-                    onClick = {
-                        if (on && chosenIds.size == 1) scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_wrapped_keep_one)) }
-                        else store.updateSettings { st ->
-                            // Ids of services no longer connected stay as they were; the others follow the chips.
-                            val others = st.wrappedSkipped - services.map { it.id }.toSet()
-                            val off = services.map { it.id }.filter { it !in chosenIds }.toSet()
-                            st.copy(wrappedSkipped = others + if (on) off + p.id else off - p.id)
-                        }
-                    },
-                    label = { Text(labels[p.id] ?: p.displayName) },
-                    leadingIcon = { ServiceLogo(p, size = 20.dp) },
-                )
-            }
-        }
-        Button(enabled = !busy, onClick = { run() }, modifier = Modifier.heightIn(min = 48.dp)) {
-            Icon(Icons.Filled.AutoAwesome, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-            Text(stringResource(if (history.isEmpty()) R.string.discover_wrapped_button else R.string.discover_wrapped_new))
-        }
-    }
-
-    if (history.isNotEmpty()) {
-        Text(stringResource(R.string.discover_wrapped_history), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(vertical = 4.dp)) {
+        if (history.isNotEmpty()) ToolSection(stringResource(R.string.discover_wrapped_history)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 history.forEach { w ->
                     val selected = !busy && w.id == shown?.id
                     Row(
-                        Modifier.fillMaxWidth()
-                            .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
+                        Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+                            .background(if (selected) id.container() else androidx.compose.ui.graphics.Color.Transparent)
                             .selectable(selected = selected, enabled = !busy, onClick = { shownId = w.id })
-                            .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+                            .padding(start = 12.dp, top = 8.dp, bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(df.format(Date(w.madeAt)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (selected) { Icon(Icons.Filled.CheckCircle, null, tint = id.tint(), modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)) }
+                                Text(df.format(Date(w.madeAt)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                             Text(wrappedHeadline(ctx, w), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             w.topArtist?.let { Text("♪ $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                             if (w.services.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -360,17 +366,20 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
             }
         }
     }
+
+    if (busy || (shown != null && card != null)) ToolSplit(start = { result() }, end = { make() }) else make()
 }
 
 /** The Wrapped on the page: the same figures as the card, laid out for reading. */
 @Composable
 private fun WrappedSummary(card: Cards.WrappedCard, w: Wrapped.Saved) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    val id = LocalToolIdentity.current
+    ToolResultCard {
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(card.eyebrow.uppercase(), style = MaterialTheme.typography.labelMedium, color = muted)
-                Text(card.headline, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(card.headline, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = id.tint())
                 card.subline?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                 if (w.age == null) Text(stringResource(R.string.discover_wrapped_no_age), style = MaterialTheme.typography.bodySmall, color = muted)
             }
@@ -392,7 +401,7 @@ private fun WrappedSummary(card: Cards.WrappedCard, w: Wrapped.Saved) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 72.dp))
                         Spacer(Modifier.width(8.dp))
-                        LinearProgressIndicator(progress = { share / 100f }, modifier = Modifier.weight(1f).height(8.dp), drawStopIndicator = {})
+                        LinearProgressIndicator(progress = { share / 100f }, color = id.tint(), trackColor = id.container(), modifier = Modifier.weight(1f).height(8.dp), drawStopIndicator = {})
                         Spacer(Modifier.width(8.dp))
                         Text("$share%", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.End, modifier = Modifier.widthIn(min = 44.dp))
                     }
@@ -400,7 +409,7 @@ private fun WrappedSummary(card: Cards.WrappedCard, w: Wrapped.Saved) {
             }
             if (card.tiles.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(IntrinsicSize.Min)) {
                 card.tiles.forEach { (value, label) ->
-                    Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.weight(1f).fillMaxHeight()) {
+                    Surface(color = id.container(), shape = MaterialTheme.shapes.medium, modifier = Modifier.weight(1f).fillMaxHeight()) {
                         Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)
                             Text(label, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
