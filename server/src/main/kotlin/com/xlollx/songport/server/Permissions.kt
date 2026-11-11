@@ -19,7 +19,7 @@ object Permissions {
     /** In the order the Users page lists them: the key, its name and what it allows. */
     val ALL = listOf(
         Triple(ADMIN, "Co-admin", "Adds and removes people, sets their passwords and permissions."),
-        Triple(UNOFFICIAL, "Unofficial connectors", "YouTube Music, Spotify and Deezer with browser cookies; NetEase, QQ Music and SoundCloud links. The services may not like them: an account can be limited."),
+        Triple(UNOFFICIAL, "Unofficial connectors", "YouTube Music, Spotify and Deezer with browser cookies; NetEase, QQ Music, JioSaavn and SoundCloud links. The services may not like them: an account can be limited."),
         Triple(RADIO, "Radio syncs", "The server listens to a station for hours: it uses the server's bandwidth."),
         Triple(FOLDERS, "Folders on the server", "Backups copied to a folder of the server."),
         Triple(API, "API and command line", "A token for scripts and Home Assistant, the webhook, notifications, the trackhop command."),

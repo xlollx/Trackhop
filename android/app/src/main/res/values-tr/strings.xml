@@ -2254,4 +2254,8 @@
     <string name="shared_join_secret">Bu daveti olan herkes grubu okuyabilir: başkasına iletmeyin.</string>
     <string name="shared_link_hint">Size gönderilen bağlantıyı yapıştırın veya mesajdan açın.</string>
     <string name="shared_code_label">Grup kodu</string>
+    <string name="jiosaavn_label">JioSaavn (herkese açık bağlantılar, resmî değil)</string>
+    <string name="provider_note_jiosaavn">Herkese açık JioSaavn listeleri, albümleri ve şarkıları, salt okunur ve giriş yapmadan: bağlantıyı (jiosaavn.com/featured/…, /album/…, /song/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
+    <string name="jiosaavn_not_public">Bu JioSaavn bağlantısı gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
+    <string name="jiosaavn_changed">JioSaavn sitesini değiştirdi; Trackhop güncellenmeli</string>
 </resources>

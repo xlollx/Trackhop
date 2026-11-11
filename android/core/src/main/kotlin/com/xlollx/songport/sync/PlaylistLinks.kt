@@ -37,6 +37,10 @@ object PlaylistLinks {
         // Anghami: https://play.anghami.com/playlist/123 (also anghami.com/playlist/123).
         Regex("""(?:play\.)?anghami\.com/playlist/(\d+)""") to "anghami",
         Regex("""y\.qq\.com/[^\s]*(?:taoge|playlist)[^\s]*?[?&](?:id|disstid)=(\d+)""") to "qqmusic",
+        // JioSaavn: the path is the id, it says what it is: www.jiosaavn.com/featured/<name>/<token> and
+        // /s/playlist/<user>/<name>/<token> (playlists), /album/<name>/<token>, /song/<name>/<token>.
+        // Older saavn.com links say the same; the app's short links are followed first.
+        Regex("""(?<![\w-])(?:(?:www|m)\.)?(?:jio)?saavn\.com/((?:featured|album|song|[sp]/playlist/[^/\s?#]+)/[^/\s?#]+/[A-Za-z0-9_,-]+)""") to "jiosaavn",
     )
 
     /** Every playlist link in [text], in order and without repeats: two links shared together are a comparison. */
@@ -72,6 +76,7 @@ object PlaylistLinks {
             "netease" -> "https://music.163.com/#/playlist?id=$playlistId"
             "anghami" -> "https://play.anghami.com/playlist/$playlistId"
             "qqmusic" -> "https://y.qq.com/n/ryqq/playlist/$playlistId"
+            "jiosaavn" -> "https://www.jiosaavn.com/$playlistId"
             "amazon" -> "https://music.amazon.${region?.lowercase()?.takeIf { it.isNotBlank() } ?: "com"}/user-playlists/$playlistId"
             "jellyfin" -> b?.let { "$it/web/#/details?id=$playlistId" }
             "emby" -> b?.let { it.trimEnd('/').removeSuffix("/emby") + "/web/index.html#!/item?id=$playlistId" }

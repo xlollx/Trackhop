@@ -12,13 +12,13 @@ import java.util.concurrent.TimeUnit
 
 /**
  * The requests Trackhop's Google Play build hands to the plugin: the public pages and APIs its
- * read-only link sources and TikTok lookups read (NetEase Cloud Music, QQ Music, Anghami, TikTok),
+ * read-only link sources and TikTok lookups read (NetEase Cloud Music, QQ Music, Anghami, JioSaavn, TikTok),
  * which that build does not reach by itself. Only those services' hosts, only what Trackhop asks.
  * A long answer goes back in pieces: a call through the plugin carries well under a megabyte.
  */
 object NetRelay {
     /** The services whose public pages the relay reaches, and nothing else. */
-    private val HOSTS = listOf("music.163.com", "qq.com", "anghami.com", "tiktok.com")
+    private val HOSTS = listOf("music.163.com", "qq.com", "anghami.com", "jiosaavn.com", "tiktok.com")
     const val CHUNK = 200_000
 
     private val http = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(40, TimeUnit.SECONDS).withHook().build()

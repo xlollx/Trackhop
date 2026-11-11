@@ -2264,4 +2264,8 @@
     <string name="shared_join_secret">Quiconque a cette invitation peut lire le groupe : ne la transmets pas.</string>
     <string name="shared_link_hint">Colle le lien que tu as reçu, ou ouvre-le depuis le message.</string>
     <string name="shared_code_label">Code du groupe</string>
+    <string name="jiosaavn_label">JioSaavn (liens publics, non officiel)</string>
+    <string name="provider_note_jiosaavn">Playlists, albums et titres publics de JioSaavn, en lecture seule et sans connexion : colle le lien (jiosaavn.com/featured/…, /album/…, /song/…) comme source d\'une sync. Pas une interface officielle : elle peut cesser de fonctionner si le site change.</string>
+    <string name="jiosaavn_not_public">Ce lien JioSaavn est privé ou n\'existe pas : seuls les liens publics fonctionnent</string>
+    <string name="jiosaavn_changed">JioSaavn a changé son site ; Trackhop doit être mis à jour</string>
 </resources>

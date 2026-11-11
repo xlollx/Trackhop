@@ -1,0 +1,54 @@
+{
+ "songs": [
+  {
+   "id": "9vXZ2ueQ",
+   "title": "Koi Fariyaad",
+   "subtitle": "Jagjit Singh - Tum Bin",
+   "type": "song",
+   "perma_url": "https://www.jiosaavn.com/song/koi-fariyaad/SR4za0ZFUmI",
+   "language": "hindi",
+   "year": "2001",
+   "explicit_content": "0",
+   "more_info": {
+    "album_id": "1052498",
+    "album": "Tum Bin",
+    "album_url": "https://www.jiosaavn.com/album/tum-bin/-F0cBDosYnc_",
+    "duration": "539",
+    "release_date": "2001-05-02",
+    "rights": {
+     "code": "1",
+     "cacheable": "true",
+     "delete_cached_object": "false",
+     "reason": "Pro Only"
+    },
+    "artistMap": {
+     "primary_artists": [
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "primary_artists"
+      }
+     ],
+     "featured_artists": [],
+     "artists": [
+      {
+       "id": "457857",
+       "name": "Nikhil-Vinay",
+       "role": "music"
+      },
+      {
+       "id": "455948",
+       "name": "Jagjit Singh",
+       "role": "singer"
+      },
+      {
+       "id": "468469",
+       "name": "Faaiz Anwar",
+       "role": "lyricist"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

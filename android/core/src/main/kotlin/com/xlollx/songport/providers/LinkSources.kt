@@ -7,6 +7,7 @@ import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.Relay
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.sync.AnghamiPublic
+import com.xlollx.songport.sync.JioSaavnPublic
 import com.xlollx.songport.sync.NeteasePublic
 import com.xlollx.songport.sync.QqMusicPublic
 
@@ -108,4 +109,25 @@ object AnghamiProvider : LinkSource() {
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = reading(ctx) { AnghamiPublic.info(playlistId) }
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? = runCatching { AnghamiPublic.version(playlistId) }.getOrNull()
     override fun webSearchUrl(ctx: Env, query: String): String = "${AnghamiPublic.SITE}/search/${Http.enc(query)}"
+}
+
+/** JioSaavn: public playlists, albums and songs from a link, read-only, no account (sync/JioSaavnPublic). */
+object JioSaavnProvider : LinkSource() {
+    override val serviceId = JioSaavnPublic.SERVICE
+    override val displayName = "JioSaavn"
+    override val brandColor = 0xFF2BC5B4
+    override val noteName = "provider_note_jiosaavn"
+
+    private suspend fun <T> reading(ctx: Env, block: suspend () -> T): T = try {
+        block()
+    } catch (e: JioSaavnPublic.NotPublic) {
+        throw ProviderException(ctx.text("jiosaavn_not_public"), e, 404)
+    } catch (e: JioSaavnPublic.Changed) {
+        throw ProviderException(ctx.text("jiosaavn_changed"), e)
+    }
+
+    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = reading(ctx) { JioSaavnPublic.tracks(playlistId) }
+    override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = reading(ctx) { JioSaavnPublic.info(playlistId) }
+    override suspend fun playlistVersion(ctx: Env, playlistId: String): String? = runCatching { JioSaavnPublic.version(playlistId) }.getOrNull()
+    override fun webSearchUrl(ctx: Env, query: String): String = "${JioSaavnPublic.SITE}/search/song/${Http.enc(query)}"
 }

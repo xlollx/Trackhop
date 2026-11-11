@@ -61,7 +61,7 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
-Cloud Music and QQ Music links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
+Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
@@ -95,6 +95,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
+| **JioSaavn** | ✓ | — | — | Paste a public playlist, album or song link | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Anghami** | ✓ | ✓ | ✓ | Quick sign-in with your Anghami account: your playlists and likes (alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Qobuz** | ✓ | ✓ | ✓ | Quick sign-in with your Qobuz account (Google too): your playlists and favourite tracks (alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
 | | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -341,6 +342,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
 | SoundCloud | your account (sets, likes: read, create, add, remove; beta) built into the GitHub/F-Droid build and in the Trackhop Bridge; public links read-only on every non-Play build and the server; unofficial | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
 | NetEase Cloud Music, QQ Music | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist link | nothing | No interface for third-party apps, so a public playlist is read the way the sites' own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. [More](https://trackhop.org/guide/netease-qq-music). |
+| JioSaavn | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist, album or song link | nothing | No interface for third-party apps, so the link is read the way jiosaavn.com's own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. |
 | Qobuz, Pandora | not connectable | | | Partner-only or closed-beta APIs. Use files. |
 
 Own credentials are entered from *Accounts → service card → Use your own credentials*: numbered
