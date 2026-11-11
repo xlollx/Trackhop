@@ -1,8 +1,15 @@
+---
+title: Trackhop guide
+description: How to use Trackhop, the free playlist sync app for Android, Windows, macOS, Linux and Docker, step by step, with a search across every guide page.
+---
+
 # Trackhop guide
 
 Practical notes for people using Trackhop and for whoever maintains it. The full technical
 description (architecture, matching, services and their limits) stays in the
 [README](https://github.com/xlollx/Trackhop#readme); this guide is the "how do I…" side.
+
+{% include guide-search.html %}
 
 **Using the app**
 - [Getting started](getting-started): install, connect a service, the first sync.
@@ -10,6 +17,9 @@ description (architecture, matching, services and their limits) stays in the
 - [Shared links](shared-links): a friend's Spotify link into your YouTube Music, Navidrome or Jellyfin playlist.
 - [SoundCloud](soundcloud): a public SoundCloud set or likes page as the source of a sync, no account needed.
 - [NetEase Cloud Music and QQ Music](netease-qq-music): a public 网易云音乐 or QQ音乐 playlist as the source of a sync, from its link, no Chinese account needed ([中文](netease-qq-music-zh)).
+- [JioSaavn](jiosaavn): a public JioSaavn playlist, album or song as the source of a sync, from its link, no account needed.
+- [Favourites, labels and tags](organise-syncs): star, colour, tag and arrange your syncs; card sizes, tiles, tablets.
+- [Notifications on Telegram, ntfy, Discord and more](notification-channels): a message when a sync changes something or fails.
 - [Troubleshooting](troubleshooting): the errors people actually meet, and what to do about each.
 - [Is it safe?](security): every download checked on VirusTotal, the files' SHA-256 and how Trackhop is built.
 - [Reporting a problem](reporting-a-problem): the diagnostic report, and what makes a report useful.
@@ -23,6 +33,8 @@ description (architecture, matching, services and their limits) stays in the
 - [Playlist sync for Windows](playlist-sync-windows), [for Mac](playlist-sync-mac), [for Linux](playlist-sync-linux): the desktop app, how to install it and what it does.
 - [Self-hosted playlist sync](self-hosted-playlist-sync): your Navidrome, Jellyfin or Plex in step with your streaming service.
 - [Lyrion Music Server](lyrion) (the former Logitech Media Server) and [Mopidy](mopidy): their playlists as a source and a destination (beta).
+- [Missing on my server](missing-on-my-server): the songs your library still lacks, by album, as a list for Lidarr.
+- [Your phone and your Trackhop server](phone-and-server): take turns on each playlist, hand a sync over to the server and bring it back.
 - [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi.
 
 **Step by step**
@@ -37,6 +49,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Transfer Spotify playlists to Deezer](spotify-to-deezer) and [to Amazon Music](spotify-to-amazon-music).
 - [Apple Music to YouTube Music, and back](apple-music-to-youtube-music).
 - [Keep playlists in sync](sync-playlists) between any two services, on a schedule.
+- [Two-way playlist sync](two-way-sync): changes on either side reach the other, removals too if you want.
 - [Free playlist sync](free-playlist-sync): no paid plan, no track limit, no account.
 - [Transfer liked songs](transfer-liked-songs), favourites and saved albums.
 - [Merge playlists and remove duplicates](merge-playlists-remove-duplicates).

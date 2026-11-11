@@ -42,17 +42,17 @@ demo_alt: "Ein Rundgang durch Trackhop: Syncs, ein neuer Sync, Konten, Werkzeuge
 what_title: Was Trackhop kann
 what_intro: Wähle eine Quelle, ein Ziel und wie oft synchronisiert wird. Trackhop findet jeden Titel auf der anderen Seite, zeigt dir vorher, was sich ändert, und hält beide auf demselben Stand.
 card1_title: Von jedem Dienst zu jedem Dienst
-card1: Playlists, Lieblingssongs, gespeicherte Alben und gefolgte Künstler. Oder füge den Link einer beliebigen öffentlichen Playlist ein.
+card1: "Playlists, Lieblingssongs, gespeicherte Alben und gefolgte Künstler. Oder füg den Link einer öffentlichen Playlist ein, oder teil eine Playlist mit Freunden, die jeweils ihren eigenen Dienst nutzen."
 card2_title: Nach Zeitplan
-card2: Jede Stunde, alle 6 Stunden, täglich oder wöchentlich. Nur Neues übernehmen oder auch Entfernungen spiegeln, und die Reihenfolge der Quelle beibehalten.
+card2: "Jede Stunde, alle 6 Stunden, täglich oder wöchentlich. Nur Neues übernehmen oder auch Entfernungen spiegeln, und die Reihenfolge der Quelle beibehalten. Auch beidseitig, Entfernungen inklusive."
 card3_title: Nichts wird geraten
 card3: "Vor jedem Sync eine Vorschau. Nicht gefundene Titel kommen zur Prüfung: einmal den richtigen wählen, Trackhop merkt ihn sich."
 card4_title: Deine Konten bleiben deine
 card4: Du meldest dich auf der Seite des jeweiligen Dienstes an. Zugriffstokens werden auf dem Handy verschlüsselt und verlassen es nie.
 card5_title: Dein eigener Musikserver
-card5: "Navidrome und andere Subsonic-Server, Jellyfin und Plex, neben den Streamingdiensten. Auch Dateien: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Im App-Katalog von Navidrome gelistet.</a>"
+card5: "Navidrome und andere Subsonic-Server, Jellyfin, Emby, Plex, Lyrion und Mopidy, neben den Streamingdiensten, mit einer Liste der Songs, die deinem Server noch fehlen. Auch Dateien: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Im App-Katalog von Navidrome gelistet.</a>"
 card6_title: Playlist-Werkzeuge
-card6: Backups, Duplikate entfernen, Zusammenführen, Aufteilen und Sortieren, dazu ein Playlist-Generator mit deinem eigenen KI-Schlüssel.
+card6: "Backups, Duplikate entfernen, Zusammenführen, Aufteilen und Sortieren, ein Playlist-Generator mit deinem eigenen KI-Schlüssel, und die Neuerscheinungen, Konzerte, Setlists und Platten der Künstler deiner Playlists."
 one_title: "Auch mit nur einem Dienst"
 one_intro: "Kein zweiter Dienst nötig. Auch wenn du nur Spotify, Apple Music, YouTube Music oder einen anderen nutzt, kümmert sich Trackhop um deine Playlists."
 one1_title: "Discover Weekly sichern"

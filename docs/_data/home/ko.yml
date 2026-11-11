@@ -42,17 +42,17 @@ demo_alt: "Trackhop 둘러보기: 동기화 목록, 새 동기화, 계정, 도�
 what_title: 무엇을 하나요
 what_intro: 원본과 대상을 고르고, 얼마나 자주 할지 정하세요. Trackhop이 상대편에서 곡을 하나하나 찾아내고, 무엇이 바뀔지 보여 준 뒤, 두 플레이리스트를 계속 맞춰 줘요.
 card1_title: 어떤 서비스에서 어떤 서비스로든
-card1: 플레이리스트, 좋아요 표시한 곡, 저장한 앨범, 팔로우한 아티스트. 공개 플레이리스트라면 링크만 붙여 넣어도 돼요.
+card1: "플레이리스트, 좋아요 표시한 곡, 저장한 앨범, 팔로우한 아티스트. 공개 플레이리스트 링크를 붙여 넣거나, 각자 다른 서비스를 쓰는 친구들과 플레이리스트 하나를 함께 쓸 수도 있어요."
 card2_title: 일정에 맞춰 자동으로
-card2: 1시간마다, 6시간마다, 매일 또는 매주. 추가만 하거나 삭제까지 반영하고, 원본의 곡 순서도 그대로 유지해요.
+card2: "1시간마다, 6시간마다, 매일 또는 매주. 추가만 하거나 삭제까지 반영하고, 원본의 곡 순서도 그대로 유지해요. 삭제까지 포함한 양방향 동기화도 돼요."
 card3_title: 짐작은 하지 않아요
 card3: "동기화 전에는 항상 미리보기. 찾지 못한 곡은 검토 목록으로: 맞는 곡을 한 번만 고르면 Trackhop이 기억해요."
 card4_title: 내 계정은 내 것
 card4: 로그인은 각 서비스의 공식 페이지에서 해요. 액세스 토큰은 휴대폰에 암호화되어 저장되고 밖으로 나가지 않아요.
 card5_title: 내 음악 서버까지
-card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Plex도 지원해요. 파일도 돼요: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Navidrome 앱 카탈로그에 등재.</a>"
+card5: "스트리밍 서비스와 함께 Navidrome 등 Subsonic 서버, Jellyfin, Emby, Plex, Lyrion, Mopidy도 지원하고, 내 서버에 아직 없는 곡 목록도 보여 줘요. 파일도 돼요: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Navidrome 앱 카탈로그에 등재.</a>"
 card6_title: 플레이리스트 도구
-card6: 백업, 중복 제거, 합치기·나누기·정렬, 그리고 내 AI 키로 동작하는 플레이리스트 생성기.
+card6: "백업, 중복 제거, 합치기·나누기·정렬, 내 AI 키로 동작하는 플레이리스트 생성기, 그리고 플레이리스트 아티스트의 신곡, 콘서트, 세트리스트, 음반."
 one_title: "서비스가 하나뿐이어도"
 one_intro: "두 번째 서비스는 필요 없습니다. Spotify, Apple Music, YouTube Music 등 하나만 써도 Trackhop이 플레이리스트를 챙겨 줍니다."
 one1_title: "Discover Weekly 저장"

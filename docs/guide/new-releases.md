@@ -27,16 +27,19 @@ minute; another window, or another playlist with the same artists, is then insta
 1. Choose a playlist on a connected service, or paste a link to a public one.
 2. Choose **7**, **30** or **90 days**, and **Coming soon** for what is announced.
 3. Tap **Find new releases**. Tap a release to open it on Deezer or MusicBrainz.
-4. Untick what you don't want and tap **Make a playlist**: the songs become a File playlist and a
-   new sync opens, to send them to any service, as a new playlist ("New releases from …") or into
-   one you already have.
+4. Untick what you don't want, then:
+   - **Make a playlist**: the songs become a File playlist and a new sync opens, to send them to any
+     service as a new playlist ("New releases from …");
+   - or **Add to a playlist**: pick one of your playlists, and a sync opens that adds the ticked
+     releases to it, skipping the songs already there.
 
 ### Every week
 
 **Every week** makes a sync whose source is the new releases of that playlist's artists. Choose
 where it goes, as for any sync: once a week it adds what came out to the playlist, and nothing is
 ever removed from it, so it grows into a list of your artists' new music. With
-[notifications](docker#notifications) set up, you are told when it found something.
+[notification channels](notification-channels) set up (Telegram, ntfy, Discord and more), you are
+told when it found something.
 
 ## On Docker and Desktop
 

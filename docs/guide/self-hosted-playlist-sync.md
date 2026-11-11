@@ -81,6 +81,6 @@ shape), the [command line](cli) (`trackhop wanted`) and the AI assistant's tools
 can tell you when new tracks go missing (`wanted.added`). Trackhop downloads and buys nothing: what
 you do with the list is up to you.
 
-Step by step: [Spotify to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin).
+The list on its own page: [Missing on my server](missing-on-my-server). Step by step: [Spotify to Navidrome, Jellyfin or Plex](spotify-to-navidrome-jellyfin).
 
 [All guide pages](./)

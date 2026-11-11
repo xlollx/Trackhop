@@ -45,4 +45,16 @@ Abra a **prévia** antes da primeira execução: ela mostra o que vai entrar e s
 encontradas vão para a **revisão**, onde você busca no destino ou escolhe uma sugestão; o app lembra a
 sua escolha.
 
+## Organizar
+
+- **Favoritas**: *⋮ → Adicionar às favoritas* dá uma estrela à sincronização, que fica no topo (desative em
+  Configurações › Aparência › Favoritas sempre no topo).
+- **Rótulos e tags**: *⋮ → Estilo* escolhe a cor do cartão, e um nome para essa cor vira um rótulo; no editor,
+  as **Tags** agrupam do seu jeito (genero = metal). A pesquisa e os filtros acima da lista encontram as
+  sincronizações por nome, rótulo ou tag.
+- **Tamanho dos cartões** e **Visão mínima** (pequenos blocos em grade) em Configurações › Aparência; segure
+  um cartão e arraste para mudar a ordem.
+
+No app, Configurações › Como fazer reúne guias curtos sobre tudo, com uma pesquisa no topo.
+
 [Transferir playlists grátis](transferir-playlist) · [Guia completo (inglês)](./)

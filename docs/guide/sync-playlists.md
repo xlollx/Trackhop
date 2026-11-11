@@ -12,9 +12,10 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
 ## What a sync does
 
 - **Source and target**: any of Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer,
-  Navidrome/Subsonic, Jellyfin, Plex; liked songs and saved albums too.
+  Navidrome/Subsonic, Jellyfin, Emby, Plex, Lyrion, Mopidy; liked songs and saved albums too.
 - **Schedule**: every few hours, daily, weekly on the day you pick, or on chosen days. On the phone, on [Trackhop Desktop](desktop)
-  (while the computer is on) or on a [Docker server](docker) that is always on.
+  (while the computer is on) or on a [Docker server](docker) that is always on; a sync made on the
+  phone can be [handed over to your server](phone-and-server).
 - **Safe by default**: a preview before the first run; big removals wait for your confirmation; a
   run that could not read everything never removes anything.
 - **When the source changes**: only add new songs (the default), **copy the latest version**
@@ -26,8 +27,12 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
   Weekly into a playlist of your own on the same Spotify), and the app suggests ready-made ideas
   when you have only one service. See [With one service](getting-started#with-one-service).
 - **Order**: optionally keeps the source's order on the target (not for an archive).
-- **Two-way?** Make two syncs, one in each direction, without mirror removals: each side then adds
-  what the other gained.
+- **Two-way**: one switch adds the reverse sync, so what you add on either side reaches the other;
+  with **Removals too**, what you remove on one side goes from the other as well. See
+  [two-way playlist sync](two-way-sync).
+- **Organised**: star your favourite syncs, give colours a name, add tags, and search and filter by
+  them ([how](organise-syncs)). [Notifications](notification-channels) on Telegram, ntfy, Discord and
+  more tell you what a run changed.
 
 ## Popular pairs
 

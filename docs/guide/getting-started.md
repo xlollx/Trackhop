@@ -107,12 +107,15 @@ rule, not an error; the quick route reads them. See [Troubleshooting](troublesho
 Settings › Appearance has the theme (follow the system, light or dark) and **Dynamic colours**: on Android 12 and
 newer the app can take the colours of your wallpaper (Material You) instead of its own indigo and magenta. It is off
 by default; the title banner keeps the brand colours either way. The app follows the system font size, and above
-130% the bottom bar shows the name of the selected tab only.
+130% the bottom bar shows the name of the selected tab only. **Card size** (Large, Medium, Small) and **Minimal
+view** (small tiles in a grid) fit more syncs on the screen; on a tablet or a phone on its side the tabs move to a
+rail and the cards sit in columns.
 
 ## Order and colours
 
 Sync all and the widgets follow the order of the list. Hold a card and drag it to its place, or use
-*⋮ → Move to position* and type the number. *⋮ → Colour* gives a card one of nine colours or any colour
-of your own (the last circle). With several syncs, the filter above the list can show only the cards of
-one colour. On Desktop and Docker: the arrows on each card, or the position field
-on the sync's page.
+*⋮ → Move to position* and type the number. *⋮ → Style* gives a card one of the ready colours or any colour
+of your own (the last circle), and a name for that colour makes it a label. *⋮ → Add to favourites* stars a
+sync, and the editor's **Tags** group syncs your way. With several syncs, the search and the filters above the
+list show only the cards you want. More in [Favourites, labels and tags](organise-syncs). On Desktop and
+Docker: the arrows on each card, or the position field on the sync's page.
