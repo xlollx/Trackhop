@@ -53,9 +53,14 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   nothing else about you. If you add your own Ticketmaster key it goes along to Ticketmaster and is
   kept encrypted on the device. In the GitHub and F-Droid builds (and on Docker and Desktop), when
   the country is Italy, the artist names also go to Vivaticket (apigatewayb2cstore.vivaticket.com,
-  read unofficially, under Vivaticket's own privacy policy). Ticket and search links open in your browser.
-  The concerts' pictures and the records' covers are loaded from Ticketmaster's, Vivaticket's and
-  Discogs' image servers, like any web picture (turn them off in Settings › Images in Discover).
+  read unofficially, under Vivaticket's own privacy policy). In the Android app, when the country is
+  Italy and the app can open TicketOne's pages, the artist names are searched on TicketOne
+  (www.ticketone.it) in a web view the app opens out of sight on your phone, like your own browser
+  would (read unofficially, it may stop working): TicketOne sees your phone's connection and keeps its
+  own cookies in that web view (only the necessary ones when it asks), under TicketOne's own privacy
+  policy. No account, no sign-in, nothing typed but the artist's name. Ticket and search links open in your browser.
+  The concerts' pictures and the records' covers are loaded from Ticketmaster's, Vivaticket's,
+  TicketOne's and Discogs' image servers, like any web picture (turn them off in Settings › Images in Discover).
 - **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
   of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
   privacy policy); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
@@ -141,8 +146,14 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   (app.ticketmaster.com, secondo l'informativa di Ticketmaster) e al database musicale pubblico
   MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background; nessun account, nessuna
   posizione, nient'altro su di te. Se aggiungi la tua chiave Ticketmaster, viene inviata a Ticketmaster
-  e resta cifrata sul dispositivo. I link ai biglietti e alle ricerche si aprono nel browser. Le foto
-  dei concerti e le copertine dei dischi arrivano dai server di immagini di Ticketmaster e Discogs, come
+  e resta cifrata sul dispositivo. Nell'app Android, quando il paese è l'Italia e l'app può aprire le
+  pagine di TicketOne, i nomi degli artisti vengono cercati su TicketOne (www.ticketone.it) in una
+  pagina web che l'app apre in background sul telefono, come farebbe il tuo browser (lettura non
+  ufficiale, potrebbe smettere di funzionare): TicketOne vede la connessione del telefono e tiene i
+  propri cookie in quella pagina (solo quelli necessari quando lo chiede), secondo l'informativa di
+  TicketOne. Nessun account, nessun accesso, nient'altro che il nome dell'artista. I link ai biglietti
+  e alle ricerche si aprono nel browser. Le foto dei concerti e le copertine dei dischi arrivano dai
+  server di immagini di Ticketmaster, TicketOne e Discogs, come
   ogni immagine web (si spengono in Opzioni › Immagini in Scopri).
 - **Scalette (facoltativo)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
   della playlist scelta vengono inviati all'API di setlist.fm (api.setlist.fm, secondo l'informativa di

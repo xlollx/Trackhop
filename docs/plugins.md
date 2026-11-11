@@ -121,3 +121,13 @@ Sign-in activities are started with the actions `com.xlollx.songport.ytmbridge.D
 `com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN` (next to `LOGIN`, `AMAZON_LOGIN`, `SPOTIFY_LOGIN`
 and `APPLE_LOGIN`). Before the first Deezer or SoundCloud sign-in the notice is shown again, since
 its text now names them.
+
+### TicketOne pages for Concerts (`ticketone.read`)
+
+For Discover › Concerts in Italy: `arg` is the address of a search or artist page of
+www.ticketone.it (nothing else is opened). The plugin opens it in a WebView out of sight, at least
+1.5 seconds after the previous one, and answers in `json` what the page shows: `state` (`ready`,
+`empty`, `challenge`, `consent`, `waiting` or `error`), `ld` (the texts of its JSON-LD scripts),
+`cards` (event links with the text around them) and `artists` (artist links). Trackhop reads the
+dates out of it. A plugin that does not know the method answers `error` ("unknown method"), and
+Trackhop then shows the TicketOne search button only.

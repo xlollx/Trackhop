@@ -25,13 +25,25 @@ In the app: **Discover › Concerts**. On Docker and Desktop: **Tools › Concer
   request a second, each answer kept a day. They are marked "Tickets on Vivaticket (unofficial)".
   It is not an API offered to apps: **it may stop working at any time** when the site changes.
   Then Trackhop leaves it alone for an hour and shows the other sources' dates as usual.
+- **TicketOne** (unofficial, Italy only, Android app only): TicketOne's site answers browsers only,
+  so Trackhop opens its normal search page in a web view on your phone, out of sight, the way your
+  browser would, and reads the dates the page shows. Only when you tap **Find concerts** with Italy
+  chosen: one search page per artist (and that artist's own TicketOne page when the search shows only
+  a link to it), at least a second and a half between two pages, each artist's dates kept a day. No
+  account, no sign-in, no form; pictures are not loaded by the web view. If a cookie banner hides
+  the page, Trackhop picks "only necessary cookies" when there is such a choice, otherwise it stops;
+  if the site shows a check (a captcha) it stops too. Then it leaves TicketOne alone for an hour and
+  the search buttons stay. They are marked "Tickets on TicketOne (unofficial)". It reads web pages,
+  not an API offered to apps: **it may stop working at any time** when the site changes. Not on
+  Docker and Desktop, which have no web view: there TicketOne stays a search button.
 
 The same date (same day, same city) from several sources is shown once, with a link for each ticket
-site that sells it: "Tickets on Ticketmaster", "Tickets on Vivaticket (unofficial)".
+site that sells it: "Tickets on Ticketmaster", "Tickets on Vivaticket (unofficial)", "Tickets on
+TicketOne (unofficial)".
 
-No source lists every concert. **In Italy, concerts sold only on TicketOne are missing**: TicketOne's
-site answers browsers only, and the search behind it is closed to apps by the site's rules
-(robots.txt), so Trackhop does not read it. For each artist with no date found, Trackhop shows
+No source lists every concert. **On Docker and Desktop, and whenever TicketOne could not be read,
+concerts sold only on TicketOne are missing in Italy**: the search behind TicketOne's pages is closed
+to apps by the site's rules (robots.txt), so it is never asked directly. For each artist with no date found, Trackhop shows
 search buttons for the country's ticket sites (in Italy TicketOne and Vivaticket; Eventim in
 Germany, oeticket in Austria, Ticketcorner in Switzerland) and for the artist's official site. They
 just open the search in your browser.
@@ -92,5 +104,8 @@ none, or only the big festivals. Without a Ticketmaster key, expect few dates.
 
 The artist names of the playlist you pick and the country go to Ticketmaster
 (app.ticketmaster.com) and MusicBrainz (musicbrainz.org), and, in Italy where Vivaticket is read,
-the artist names to Vivaticket (apigatewayb2cstore.vivaticket.com), only when you tap **Find concerts**.
+the artist names to Vivaticket (apigatewayb2cstore.vivaticket.com); in the Android app, in Italy, the
+artist names are searched on TicketOne (www.ticketone.it) from your phone, as your browser would, so
+TicketOne sees your phone's connection and keeps its own cookies in the app's web view. Only when you
+tap **Find concerts**.
 Nothing else: no account, no location, no playlist. See the [privacy policy](../privacy-policy).
