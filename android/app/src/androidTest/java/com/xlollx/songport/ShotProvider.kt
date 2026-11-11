@@ -50,7 +50,8 @@ class ShotProvider(
 
     private fun list(size: Int, offset: Int = 0) = (0 until size).map { track(offset + it) }
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) }
+    override suspend fun playlists(ctx: Env): List<Playlist> = Demo.PLAYLISTS.map { (id, name, n) -> Playlist(id, name, n) } +
+        (if (Demo.carouselOn) listOf(Demo.CAROUSEL_SRC, Demo.CAROUSEL_DST).map { Playlist(it, Demo.CAROUSEL_NAME, Demo.carousel(it)!!.size) } else emptyList())
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =
         Demo.PLAYLISTS.firstOrNull { it.first == playlistId }?.let { Playlist(it.first, it.second, it.third) }
@@ -157,6 +158,8 @@ object Demo {
     const val CAROUSEL_SRC = "5aGvC4rouSe1Src0000000"
     const val CAROUSEL_DST = "PLcarouselSummerVibes"
     const val CAROUSEL_NAME = "Summer Vibes"
+    /** The carousel's pictures are being taken: its playlists are in the library too. */
+    @Volatile var carouselOn = false
     /** Songs only the carousel's target still holds (taken off by the next run). */
     private val GONE = listOf(
         Song("Hysteria", "Muse", "Absolution", 227, "GBAHT0300392"),

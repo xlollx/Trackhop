@@ -740,13 +740,14 @@ class StoreScreenshots {
 
     /** The carousel: the best of Trackhop, one page each, English and dark. carousel/<nn>_<what>.png. */
     private fun shootCarousel() {
+        Demo.carouselOn = true
         carouselDemo()
         // A tidy status bar again: the system UI may have restarted since the script asked (and forgotten it).
         fun shell(cmd: String) = instr.uiAutomation.executeShellCommand(cmd).use { java.io.FileInputStream(it.fileDescriptor).readBytes() }
         step("demo mode") {
             shell("settings put global sysui_demo_allowed 1")
             listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
-                "-e command network -e wifi show -e level 4", "-e command network -e mobile show -e datatype none -e level 4",
+                "-e command network -e wifi show -e level 4 -e fully true", "-e command network -e mobile show -e datatype none -e level 4",
                 "-e command notifications -e visible false", "-e command status -e volume hide -e bluetooth hide -e alarm hide").forEach {
                 shell("am broadcast -a com.android.systemui.demo $it")
             }
