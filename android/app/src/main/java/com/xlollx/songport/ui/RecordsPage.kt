@@ -33,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -51,18 +50,18 @@ import com.xlollx.songport.sync.Concerts
 import com.xlollx.songport.sync.DeezerCatalog
 import com.xlollx.songport.sync.Records
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Currency
 
-/** The last search, kept while the app runs: another tab and back keeps the list. */
+/**
+ * The search going on and the last one found, kept while the app runs: another tab and back, or
+ * the screen turned, keeps it (the search goes on and its list shows when it ends).
+ */
 private object RecordsKept {
-    @Volatile var result: Records.Result? = null
-    @Volatile var playlistId: String? = null
-    @Volatile var at = 0L
+    val work = KeptWork<Records.Result>()
 
     /** Discogs' terms: nothing shown more than six hours older than on Discogs, even with the app left open. */
-    fun fresh(): Records.Result? = result?.takeIf { System.currentTimeMillis() - at < Records.DISCOGS_TTL_MS }
+    fun fresh(): Records.Result? = work.result?.takeIf { System.currentTimeMillis() - work.at < Records.DISCOGS_TTL_MS }
 }
 
 /**
@@ -74,10 +73,9 @@ private object RecordsKept {
 @Composable
 internal fun RecordsPage(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val k = RecordsKept.work
     var pick by remember { mutableStateOf<CardPick?>(null) }
-    var result by remember { mutableStateOf(RecordsKept.fresh()) }
-    var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    k.error?.let { e -> LaunchedEffect(e) { snackbar.showSnackbar(e.ifBlank { ctx.getString(R.string.error_generic) }); k.error = null } }
     var tokenOpen by rememberSaveable { mutableStateOf(false) }
     if (tokenOpen) DiscogsTokenDialog { tokenOpen = false }
     // The playlist's artists, read when it is picked: some can be ticked to look up only those.
@@ -90,28 +88,26 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
     }
 
+    // Outside the page (RecordsKept): the screen turned or another tab opened, the search goes on.
     fun run() {
         val p = pick ?: return
-        progress = 0 to 0
-        scope.launch {
-            try {
-                val all = artists ?: Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { artists = it }
-                val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
-                val r = Records.find(ctx.env, ArtistPick.chosen(all, ticked, typed), currency, ArtistPick.isWhole(all, ticked, typed)) { done, total -> progress = done to total }
-                result = r; RecordsKept.result = r; RecordsKept.playlistId = p.playlist.id; RecordsKept.at = System.currentTimeMillis()
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
-            } finally { progress = null }
+        val env = ctx.env
+        val known = artists; val tick = ticked; val type = typed
+        val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
+        k.start(p.playlist.id) { progress ->
+            val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
+            Records.find(env, ArtistPick.chosen(all, tick, type), currency, ArtistPick.isWhole(all, tick, type), progress)
         }
     }
 
     Text(stringResource(R.string.records_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "records") {
-        if (it == null || it.playlist.id != RecordsKept.playlistId) { result = null; RecordsKept.result = null }
+        if (it == null || it.playlist.id != k.key) k.clear()
         pick = it
     }
     if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
-    val busy = progress != null
+    val busy = k.running
+    val progress = k.progress
     Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
         Text(stringResource(R.string.records_find))
@@ -120,7 +116,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 
-    val r = result
+    val r = RecordsKept.fresh()?.takeIf { pick == null || k.key == pick?.playlist?.id }
     if (r != null && !busy) {
         val notes = buildList {
             if (r.slowedDown) add(stringResource(R.string.records_slowed))

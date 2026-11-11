@@ -4,22 +4,27 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
-        <!-- Sign-in screens, started by Trackhop itself: nothing here is reachable from other apps. -->
+        <!-- Sign-in screens, started by Trackhop itself: nothing here is reachable from other apps.
+             Not remade when the screen turns or the theme changes: the page being filled in stays. -->
         <activity
             android:name=".LoginActivity"
             android:exported="false"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation"
             android:label="@string/bridge_login_title" />
         <activity
             android:name=".AmazonLoginActivity"
             android:exported="false"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation"
             android:label="@string/bridge_amazon_title" />
         <activity
             android:name=".WebLoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation" />
         <!-- Google's own page when it blocks the address, shown from the YouTube Music connector. -->
         <activity
             android:name=".VerifyActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|navigation" />
         <!-- Development aid: records the Amazon web player's API calls so a changed method can be fixed. -->
         <activity
             android:name=".AmazonCaptureActivity"
