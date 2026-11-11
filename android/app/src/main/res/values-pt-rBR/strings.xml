@@ -1933,6 +1933,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">Single</string>
     <string name="releases_make">Criar uma playlist</string>
+    <string name="releases_add_existing">Adicionar a uma playlist</string>
+    <string name="releases_add_existing_desc">Escolha uma das suas playlists: abre uma sincronização que adiciona os lançamentos marcados, pulando as músicas que já estão lá.</string>
+    <string name="releases_add_existing_target">Playlist de destino</string>
+    <string name="releases_add_existing_go">Adicionar os lançamentos</string>
     <string name="releases_playlist_name">Lançamentos de %1$s</string>
     <string name="releases_weekly">Toda semana</string>
     <string name="releases_weekly_desc">Ou deixe uma sincronização encher toda semana uma playlist, em qualquer serviço, com o que esses artistas lançarem.</string>
@@ -2003,7 +2007,6 @@
     <string name="concerts_quota">O limite de hoje do Ticketmaster foi atingido: tente de novo amanhã. Algumas datas abaixo vêm só do MusicBrainz.</string>
     <string name="concerts_key_refused">A Ticketmaster recusou a chave: confira.</string>
     <string name="concerts_no_key">O Ticketmaster precisa da sua própria chave gratuita: adicione-a para ver as datas dele.</string>
-    <string name="concerts_limited">Só os %1$d artistas que você mais ouve foram buscados, de %2$d.</string>
     <string name="concerts_key_title">Chave da Ticketmaster</string>
     <string name="concerts_key_body">Para as datas do Ticketmaster você precisa da sua própria chave gratuita. Crie um app no site de desenvolvedores do Ticketmaster e cole aqui a Consumer Key dele (nunca o Consumer Secret). Sem chave, só datas do MusicBrainz.</string>
     <string name="concerts_key_get">Obter uma chave</string>
@@ -2025,6 +2028,7 @@
     <string name="artists_chosen">Artistas: %1$d de %2$d</string>
     <string name="artists_whole_playlist">Artistas: a playlist inteira</string>
     <string name="artists_typed">Outro artista, pelo nome</string>
+    <string name="artists_capped">Foram buscados os %1$d artistas que você mais ouve, de %2$d: escolha artistas para buscar outros.</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Também %d canal de notificação: fica desativado até você ativá-lo e inserir as chaves.</item>
         <item quantity="other">Também %d canais de notificação: ficam desativados até você ativá-los e inserir as chaves.</item>
@@ -2038,7 +2042,6 @@
     <string name="setlists_quota">O limite de hoje do setlist.fm foi atingido: tente amanhã.</string>
     <string name="setlists_key_refused">O setlist.fm recusou a chave: confira.</string>
     <string name="setlists_no_key">Os setlists precisam de uma chave do setlist.fm: adicione a sua, é grátis.</string>
-    <string name="setlists_limited">Só os %1$d artistas que você mais ouve foram buscados, de %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">O setlist.fm não respondeu para %d artista: tente mais tarde.</item>
         <item quantity="other">O setlist.fm não respondeu para %d artistas: tente mais tarde.</item>
@@ -2072,7 +2075,6 @@
     <string name="records_slowed">O Discogs pediu para ir mais devagar: alguns artistas ficaram sem discos desta vez. Tente de novo em um minuto.</string>
     <string name="records_token_refused">O Discogs recusou seu token: confira em Configurações › Avançado › Chaves dos serviços.</string>
     <string name="records_no_token">Adicione seu próprio token do Discogs para ver quantas cópias estão à venda e buscar mais artistas.</string>
-    <string name="records_limited">Só os %1$d artistas que você mais ouve foram buscados, de %2$d.</string>
     <string name="records_links">Páginas oficiais</string>
     <string name="records_shop">Loja oficial</string>
     <string name="records_search">Buscar nas lojas</string>

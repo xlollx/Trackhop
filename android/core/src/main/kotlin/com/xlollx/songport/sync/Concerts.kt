@@ -38,8 +38,8 @@ import java.util.Locale
  * app's users, so without their own key the app shows MusicBrainz's dates only. It is used only
  * when the user asks, never in the background, every answer is kept a day per artist, country and
  * time range ([TTL_MS]), and when the day's calls (5000) are gone it stops and says so
- * ([Result.quotaHit]) until Ticketmaster's reset. Without a key fewer artists are looked up
- * ([MAX_NO_KEY]): MusicBrainz answers one request a second. MusicBrainz is free and keyless, one request a second (shared with
+ * ([Result.quotaHit]) until Ticketmaster's reset. On the whole playlist, the
+ * [LookupCaps.CONCERTS] artists it holds most are looked up. MusicBrainz is free and keyless, one request a second (shared with
  * the rest of the app through [MusicBrainz.pace]); its places are looked up once to know their
  * city and country, and remembered for months. A date both know is shown once, Ticketmaster's
  * (it has the ticket link). The artists with no date found get search links to ticket sites
@@ -50,9 +50,6 @@ object Concerts {
     const val KEY_ID = "ticketmaster"
     /** A server's own key, through BuildDefaults (the environment; app builds carry none). */
     const val BUILD_KEY = "TICKETMASTER_API_KEY"
-    /** How many artists one search looks up: fewer without a key, MusicBrainz being one request a second. */
-    const val MAX_NO_KEY = 40
-    const val MAX_KEY = 150
     const val TTL_MS = 24L * 3_600_000
     /** Where to get a key: Ticketmaster's developer site. */
     const val KEY_URL = "https://developer.ticketmaster.com/"
@@ -96,7 +93,7 @@ object Concerts {
         val country: String,
         /** Artists with dates first (soonest first), then those without. */
         val artists: List<ArtistDates>,
-        /** The artists of the playlist, before [MAX_NO_KEY]/[MAX_KEY]. */
+        /** The artists asked for, before [LookupCaps.CONCERTS]. */
         val total: Int,
         /** Ticketmaster was asked (a key is there). */
         val ticketmaster: Boolean,
@@ -216,13 +213,13 @@ object Concerts {
      * Never throws for one artist's failure: that artist just has fewer dates.
      */
     suspend fun find(
-        env: Env, artists: List<String>, country: String, range: Range = Range.ANY, progress: (Int, Int) -> Unit = { _, _ -> },
+        env: Env, artists: List<String>, country: String, range: Range = Range.ANY, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> },
     ): Result {
         val c = country(country) ?: throw IllegalArgumentException("\"$country\" is not a country code (IT, US, DE...)")
         val key = key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
-        val list = asked.take(if (key != null) MAX_KEY else MAX_NO_KEY)
+        val list = LookupCaps.cut(asked, LookupCaps.CONCERTS, whole)
         // The user's day, not UTC's: in the evening in the Americas tonight's concerts are still to come.
         val today = Instant.ofEpochMilli(now()).atZone(zone()).toLocalDate()
         val end = range.end(today)

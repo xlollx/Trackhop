@@ -174,14 +174,16 @@ class RecordsTest {
         val r = Records.find(env, listOf("Radiohead", "radiohead", "Nobody Known"), "EUR")
         assertEquals(2, r.total)
         assertFalse(r.token)
-        val rh = r.artists.first()
+        // In alphabetical order.
+        assertEquals(listOf("Nobody Known", "Radiohead"), r.artists.map { it.artist })
+        val rh = r.artists.first { it.artist == "Radiohead" }
         assertEquals(3, rh.records!!.size)
         assertTrue(rh.records!!.all { it.forSale == null })
         assertEquals("https://www.discogs.com/artist/3840", rh.discogsPage)
         assertTrue(rh.links.none { it.kind == Records.Kind.DISCOGS })
         assertEquals(4, rh.searches.size)
         // An artist MusicBrainz does not know: no links, a Discogs search for the attribution.
-        val nobody = r.artists.last()
+        val nobody = r.artists.first { it.artist == "Nobody Known" }
         assertTrue(nobody.links.isEmpty())
         assertTrue(nobody.discogsPage, nobody.discogsPage.startsWith("https://www.discogs.com/search/?q=Nobody%20Known"))
         assertTrue(hits.none { it.contains("marketplace") })
@@ -222,7 +224,7 @@ class RecordsTest {
         assertTrue(r.slowedDown)
         assertEquals(1, hits.count { it.startsWith("/dg/") })
         assertTrue(r.artists.all { it.records == null && it.searches.isNotEmpty() })
-        assertTrue(r.artists.first().links.isNotEmpty())
+        assertTrue(r.artists.first { it.artist == "Radiohead" }.links.isNotEmpty())
     }
 
     @Test fun discogsIsKeptSixHoursAndTheLinksAWeek() = runBlocking {
@@ -243,9 +245,9 @@ class RecordsTest {
 
     @Test fun lookupsAreLimitedWithoutAToken() = runBlocking {
         search = { 200 to """{"results":[]}""" }
-        val many = (1..(Records.MAX_ANON + 5)).map { "Artist $it" }
+        val many = (1..(LookupCaps.RECORDS_ANON + 5)).map { "Artist $it" }
         val r = Records.find(env, many, "EUR")
-        assertEquals(Records.MAX_ANON + 5, r.total)
-        assertEquals(Records.MAX_ANON, r.artists.size)
+        assertEquals(LookupCaps.RECORDS_ANON + 5, r.total)
+        assertEquals(LookupCaps.RECORDS_ANON, r.artists.size)
     }
 }

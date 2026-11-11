@@ -29,8 +29,8 @@ import java.time.temporal.ChronoUnit
  * [ServiceKeys]), or on Docker and Desktop the one the server was given ([BUILD_KEY], the
  * environment's SETLISTFM_API_KEY). The app's builds carry none: setlist.fm's API terms forbid
  * sharing a key. A key has 2 calls a second and 1440 a day: so calls are spaced ([pace]), counted
- * per day on this device ([DAILY]), sent only when the user asks (never in the background), fewer
- * artists are looked up with the server's key ([MAX_SHARED]), each artist's answer is kept a week
+ * per day on this device ([DAILY]), sent only when the user asks (never in the background), at most
+ * [LookupCaps.SETLISTS] artists of a whole playlist are looked up, each artist's answer is kept a week
  * ([TTL_MS]), and when the day's calls are gone it stops and says so ([Result.quotaHit]) until the
  * next day (UTC).
  *
@@ -43,8 +43,6 @@ object Setlists {
     /** The server's key, through BuildDefaults (the environment on a server; the app's builds have none). */
     const val BUILD_KEY = "SETLISTFM_API_KEY"
     /** How many artists one search looks up: fewer on the shared key, to spare everyone's daily calls. */
-    const val MAX_SHARED = 25
-    const val MAX_OWN = 100
     /** The latest setlists kept per artist (with songs: the announced, empty ones are left out). */
     const val PER_ARTIST = 5
     const val TTL_MS = 7L * 24 * 3_600_000
@@ -78,7 +76,7 @@ object Setlists {
     data class Result(
         /** Artists with setlists first (the latest concert first), then those without. */
         val artists: List<ArtistSetlists>,
-        /** The artists of the playlist, before [MAX_SHARED]/[MAX_OWN]. */
+        /** The artists asked for, before [LookupCaps.SETLISTS]. */
         val total: Int,
         /** A key is there: without one nothing is asked. */
         val hasKey: Boolean,
@@ -133,12 +131,12 @@ object Setlists {
      * The latest setlists of [artists] ([PER_ARTIST] each). [progress] gets (done, total). Never
      * throws for one artist's failure: that artist just has none. Without a key nothing is asked.
      */
-    suspend fun find(env: Env, artists: List<String>, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(env: Env, artists: List<String>, whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val key = key(env)
         val own = ownKey(env) != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { norm(it) }
         if (key == null) return Result(emptyList(), asked.size, hasKey = false, ownKey = false, quotaHit = false, keyRefused = false)
-        val list = asked.take(if (own) MAX_OWN else MAX_SHARED)
+        val list = LookupCaps.cut(asked, LookupCaps.SETLISTS, whole)
         var quotaHit = false
         var refused = false
         var unanswered = 0

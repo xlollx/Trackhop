@@ -1923,6 +1923,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">Single</string>
     <string name="releases_make">Çalma listesi oluştur</string>
+    <string name="releases_add_existing">Bir çalma listesine ekle</string>
+    <string name="releases_add_existing_desc">Çalma listelerinden birini seç: işaretli yayınları ekleyen, zaten olan şarkıları atlayan bir eşitleme açılır.</string>
+    <string name="releases_add_existing_target">Eklenecek çalma listesi</string>
+    <string name="releases_add_existing_go">Yayınları ekle</string>
     <string name="releases_playlist_name">%1$s yeni çıkanları</string>
     <string name="releases_weekly">Her hafta</string>
     <string name="releases_weekly_desc">Ya da bir senkronizasyon her hafta herhangi bir serviste bir çalma listesini bu sanatçıların yenileriyle doldursun.</string>
@@ -1993,7 +1997,6 @@
     <string name="concerts_quota">Ticketmaster\'ın bugünkü sınırına ulaşıldı: yarın tekrar dene. Aşağıdaki bazı tarihler yalnızca MusicBrainz\'den.</string>
     <string name="concerts_key_refused">Ticketmaster anahtarı reddetti: kontrol et.</string>
     <string name="concerts_no_key">Ticketmaster için kendi ücretsiz anahtarın gerekiyor: tarihlerini görmek için ekle.</string>
-    <string name="concerts_limited">Yalnızca en çok dinlediğin %1$d sanatçı arandı (%2$d sanatçıdan).</string>
     <string name="concerts_key_title">Ticketmaster anahtarı</string>
     <string name="concerts_key_body">Ticketmaster tarihleri için kendi ücretsiz anahtarın gerekir. Ticketmaster\'ın geliştirici sitesinde bir uygulama oluştur ve Consumer Key\'ini buraya yapıştır (asla Consumer Secret\'ı değil). Anahtar olmadan yalnızca MusicBrainz tarihleri.</string>
     <string name="concerts_key_get">Anahtar al</string>
@@ -2015,6 +2018,7 @@
     <string name="artists_chosen">Sanatçılar: %1$d / %2$d</string>
     <string name="artists_whole_playlist">Sanatçılar: tüm çalma listesi</string>
     <string name="artists_typed">Başka bir sanatçı, adıyla</string>
+    <string name="artists_capped">En çok dinlediğin %1$d sanatçı arandı (%2$d sanatçıdan): başkalarını aramak için sanatçı seç.</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
         <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
@@ -2028,7 +2032,6 @@
     <string name="setlists_quota">setlist.fm\'nin bugünkü sınırına ulaşıldı: yarın tekrar dene.</string>
     <string name="setlists_key_refused">setlist.fm anahtarı reddetti: kontrol et.</string>
     <string name="setlists_no_key">Setlistler için bir setlist.fm anahtarı gerekir: kendi anahtarını ekle, ücretsiz.</string>
-    <string name="setlists_limited">%2$d sanatçıdan yalnızca en çok dinlediğin %1$d tanesi arandı.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
         <item quantity="other">setlist.fm %d sanatçı için yanıt vermedi: sonra tekrar dene.</item>
@@ -2062,7 +2065,6 @@
     <string name="records_slowed">Discogs yavaşlamamızı istedi: bazı sanatçıların plakları bu kez yok. Bir dakika sonra tekrar dene.</string>
     <string name="records_token_refused">Discogs token\'ını reddetti: Ayarlar › Gelişmiş › Servis anahtarları\'ndan kontrol et.</string>
     <string name="records_no_token">Kaç kopyanın satışta olduğunu görmek ve daha çok sanatçı aramak için kendi Discogs token\'ını ekle.</string>
-    <string name="records_limited">%2$d sanatçıdan yalnızca en çok dinlediğin %1$d tanesi arandı.</string>
     <string name="records_links">Resmi sayfalar</string>
     <string name="records_shop">Resmi mağaza</string>
     <string name="records_search">Mağazalarda ara</string>

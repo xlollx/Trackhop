@@ -225,13 +225,13 @@ class ConcertsTest {
         assertTrue(hits.any { it.startsWith("/ws/2/event") && it.contains("begin:[2026-11-10 TO") })
     }
 
-    @Test fun ownKeyIsUsedAndWithoutAnyKeyFewerArtistsAreLookedUp() = runBlocking {
+    @Test fun ownKeyIsUsedAndTheCapIsOnlyTheWholePlaylists() = runBlocking {
         tm = { Triple(200, tmPage(), emptyMap()) }
         val many = (1..60).map { "Artist $it" }
         BuildDefaults.values = emptyMap()
-        assertEquals(Concerts.MAX_NO_KEY, Concerts.find(env, many, "IT").artists.size)
+        assertEquals(LookupCaps.CONCERTS, Concerts.find(env, many, "IT").artists.size)
         Concerts.saveKey(env, "  MINE ")
-        val r = Concerts.find(env, many, "IT")
+        val r = Concerts.find(env, many, "IT", whole = false)
         assertTrue(r.ownKey)
         assertEquals(60, r.artists.size)
         assertTrue(hits.any { it.contains("apikey=MINE") })
@@ -239,7 +239,7 @@ class ConcertsTest {
         assertEquals(null, Concerts.ownKey(env))
         // A server's own key (its environment) looks them all up too.
         BuildDefaults.values = mapOf(Concerts.BUILD_KEY to "SERVER")
-        assertEquals(60, Concerts.find(env, many, "IT").artists.size)
+        assertEquals(LookupCaps.CONCERTS, Concerts.find(env, many, "IT").artists.size)
     }
 
     @Test fun withoutAnyKeyOnlyMusicBrainzIsAsked() = runBlocking {

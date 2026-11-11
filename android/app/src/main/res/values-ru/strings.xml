@@ -1991,6 +1991,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">Сингл</string>
     <string name="releases_make">Создать плейлист</string>
+    <string name="releases_add_existing">Добавить в плейлист</string>
+    <string name="releases_add_existing_desc">Выберите свой плейлист: откроется синхронизация, которая добавит отмеченные релизы, пропуская уже имеющиеся треки.</string>
+    <string name="releases_add_existing_target">Плейлист для добавления</string>
+    <string name="releases_add_existing_go">Добавить релизы</string>
     <string name="releases_playlist_name">Новинки из %1$s</string>
     <string name="releases_weekly">Каждую неделю</string>
     <string name="releases_weekly_desc">Или пусть синхронизация каждую неделю наполняет плейлист в любом сервисе новинками этих артистов.</string>
@@ -2063,7 +2067,6 @@
     <string name="concerts_quota">Дневной лимит Ticketmaster исчерпан: попробуйте завтра. Некоторые даты ниже взяты только из MusicBrainz.</string>
     <string name="concerts_key_refused">Ticketmaster отклонил ключ: проверьте его.</string>
     <string name="concerts_no_key">Для Ticketmaster нужен ваш собственный бесплатный ключ: добавьте его, чтобы видеть его даты.</string>
-    <string name="concerts_limited">Найдены только %1$d исполнителей, которых вы слушаете чаще всего, из %2$d.</string>
     <string name="concerts_key_title">Ключ Ticketmaster</string>
     <string name="concerts_key_body">Для дат Ticketmaster нужен ваш собственный бесплатный ключ. Создайте приложение на сайте для разработчиков Ticketmaster и вставьте сюда его Consumer Key (никогда не Consumer Secret). Без ключа — только даты из MusicBrainz.</string>
     <string name="concerts_key_get">Получить ключ</string>
@@ -2085,6 +2088,7 @@
     <string name="artists_chosen">Исполнители: %1$d из %2$d</string>
     <string name="artists_whole_playlist">Исполнители: весь плейлист</string>
     <string name="artists_typed">Другой исполнитель, по имени</string>
+    <string name="artists_capped">Найдены %1$d исполнителей, которых вы слушаете чаще всего, из %2$d: выберите исполнителей, чтобы искать других.</string>
     <plurals name="backup_config_channels">
         <item quantity="one">А также %d канал уведомлений: он останется выключенным, пока ты его не включишь и не введёшь ключи.</item>
         <item quantity="few">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
@@ -2100,7 +2104,6 @@
     <string name="setlists_quota">Дневной лимит setlist.fm исчерпан: попробуйте завтра.</string>
     <string name="setlists_key_refused">setlist.fm отклонил ключ: проверьте его.</string>
     <string name="setlists_no_key">Для сет-листов нужен ключ setlist.fm: добавьте свой, это бесплатно.</string>
-    <string name="setlists_limited">Искали только %1$d самых слушаемых артистов из %2$d.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm не ответил для %d артиста: попробуйте позже.</item>
         <item quantity="few">setlist.fm не ответил для %d артистов: попробуйте позже.</item>
@@ -2140,7 +2143,6 @@
     <string name="records_slowed">Discogs попросил замедлиться: у некоторых артистов в этот раз нет пластинок. Попробуйте через минуту.</string>
     <string name="records_token_refused">Discogs отклонил ваш токен: проверьте его в Настройки › Дополнительно › Ключи сервисов.</string>
     <string name="records_no_token">Добавьте свой токен Discogs, чтобы видеть, сколько экземпляров в продаже, и искать больше артистов.</string>
-    <string name="records_limited">Искали только %1$d самых слушаемых артистов из %2$d.</string>
     <string name="records_links">Официальные страницы</string>
     <string name="records_shop">Официальный магазин</string>
     <string name="records_search">Искать в магазинах</string>

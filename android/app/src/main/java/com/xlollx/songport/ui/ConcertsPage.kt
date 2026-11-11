@@ -110,7 +110,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         scope.launch {
             try {
                 val all = artists ?: Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)).also { artists = it }
-                val r = Concerts.find(ctx.env, ArtistPick.chosen(all, ticked, typed), country, range) { done, total -> progress = done to total }
+                val r = Concerts.find(ctx.env, ArtistPick.chosen(all, ticked, typed), country, range, ArtistPick.isWhole(all, ticked, typed)) { done, total -> progress = done to total }
                 result = r; ConcertsKept.result = r; ConcertsKept.playlistId = p.playlist.id
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
@@ -141,7 +141,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
             if (r.quotaHit) add(stringResource(R.string.concerts_quota))
             if (r.keyRefused) add(stringResource(R.string.concerts_key_refused))
             if (!r.ticketmaster) add(stringResource(R.string.concerts_no_key))
-            if (r.total > r.artists.size) add(stringResource(R.string.concerts_limited, r.artists.size, r.total))
+            if (r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
             add(stringResource(if (Concerts.ticketOneGap(r.country)) R.string.concerts_coverage_it else R.string.concerts_coverage))
         }
         Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {

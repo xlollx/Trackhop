@@ -1892,6 +1892,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">シングル</string>
     <string name="releases_make">プレイリストを作成</string>
+    <string name="releases_add_existing">プレイリストに追加</string>
+    <string name="releases_add_existing_desc">プレイリストを選ぶと、チェックしたリリースを追加する同期が開きます。すでにある曲はスキップされます。</string>
+    <string name="releases_add_existing_target">追加先のプレイリスト</string>
+    <string name="releases_add_existing_go">リリースを追加</string>
     <string name="releases_playlist_name">%1$s の新作</string>
     <string name="releases_weekly">毎週</string>
     <string name="releases_weekly_desc">または、同期で毎週、どのサービスのプレイリストにもこれらのアーティストの新作を追加できます。</string>
@@ -1961,7 +1965,6 @@
     <string name="concerts_quota">本日の Ticketmaster の上限に達しました。明日もう一度お試しください。下の一部の日程は MusicBrainz のみのものです。</string>
     <string name="concerts_key_refused">Ticketmaster がキーを拒否しました。確認してください。</string>
     <string name="concerts_no_key">Ticketmaster には自分の無料キーが必要です。日程を見るにはキーを追加してください。</string>
-    <string name="concerts_limited">よく聴く %1$d 組のアーティストだけを検索しました（全 %2$d 組中）。</string>
     <string name="concerts_key_title">Ticketmaster キー</string>
     <string name="concerts_key_body">Ticketmaster の日程には自分の無料キーが必要です。Ticketmaster の開発者サイトでアプリを作成し、その Consumer Key をここに貼り付けてください（Consumer Secret は絶対に貼らないこと）。キーがなければ MusicBrainz の日程のみです。</string>
     <string name="concerts_key_get">キーを取得</string>
@@ -1983,6 +1986,7 @@
     <string name="artists_chosen">アーティスト：%2$d 組中 %1$d 組</string>
     <string name="artists_whole_playlist">アーティスト：プレイリスト全体</string>
     <string name="artists_typed">ほかのアーティスト（名前で）</string>
+    <string name="artists_capped">よく聴く %1$d 組を検索しました（全 %2$d 組中）。ほかを検索するにはアーティストを選んでください。</string>
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
@@ -1995,7 +1999,6 @@
     <string name="setlists_quota">setlist.fm の今日の上限に達しました。明日もう一度試してください。</string>
     <string name="setlists_key_refused">setlist.fm がキーを拒否しました。確認してください。</string>
     <string name="setlists_no_key">セットリストには setlist.fm のキーが必要です。無料なので自分のキーを追加してください。</string>
-    <string name="setlists_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <plurals name="setlists_unanswered">
         <item quantity="other">setlist.fm から %d 組のアーティストの応答がありませんでした。後でもう一度試してください。</item>
     </plurals>
@@ -2026,7 +2029,6 @@
     <string name="records_slowed">Discogs からペースを落とすよう求められました。今回は一部のアーティストのレコードがありません。1 分後にもう一度お試しください。</string>
     <string name="records_token_refused">Discogs にトークンが拒否されました。設定 › 詳細設定 › サービスのキーで確認してください。</string>
     <string name="records_no_token">自分の Discogs トークンを追加すると、販売中の点数がわかり、より多くのアーティストを検索できます。</string>
-    <string name="records_limited">%2$d 組のうち、よく聴く %1$d 組だけを検索しました。</string>
     <string name="records_links">公式ページ</string>
     <string name="records_shop">公式ショップ</string>
     <string name="records_search">ショップで検索</string>

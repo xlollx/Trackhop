@@ -96,7 +96,7 @@ class ConcertsWebTest {
         assertEquals(listOf("TicketOne", "Vivaticket", "Official site"), sites)
         val notes = o["notes"]!!.jsonArray.map { it.jsonPrimitive.content }
         assertEquals(ConcertTexts.QUOTA, notes.first())
-        assertTrue(notes.toString(), notes.any { it.contains("all 90") })
+        assertTrue(notes.toString(), notes.any { it.contains("of 90") })
         assertEquals("Concert data from Ticketmaster and MusicBrainz.", o.s("attribution"))
     }
 

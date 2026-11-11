@@ -1925,6 +1925,10 @@
     <string name="releases_type_ep">EP</string>
     <string name="releases_type_single">Single</string>
     <string name="releases_make">Playlist erstellen</string>
+    <string name="releases_add_existing">Zu einer Playlist hinzufügen</string>
+    <string name="releases_add_existing_desc">Wähle eine deiner Playlists: Es öffnet sich eine Synchronisierung, die die angehakten Veröffentlichungen hinzufügt und Songs überspringt, die schon drin sind.</string>
+    <string name="releases_add_existing_target">Playlist zum Hinzufügen</string>
+    <string name="releases_add_existing_go">Veröffentlichungen hinzufügen</string>
     <string name="releases_playlist_name">Neu von %1$s</string>
     <string name="releases_weekly">Jede Woche</string>
     <string name="releases_weekly_desc">Oder lass eine Synchronisierung jede Woche eine Playlist auf einem beliebigen Dienst mit den Neuerscheinungen dieser Künstler füllen.</string>
@@ -1995,7 +1999,6 @@
     <string name="concerts_quota">Das heutige Ticketmaster-Limit ist erreicht: Versuch es morgen wieder. Einige Termine unten stammen nur von MusicBrainz.</string>
     <string name="concerts_key_refused">Ticketmaster hat den Schlüssel abgelehnt: Prüfe ihn.</string>
     <string name="concerts_no_key">Ticketmaster braucht deinen eigenen kostenlosen Schlüssel: Füge ihn hinzu, um seine Termine zu sehen.</string>
-    <string name="concerts_limited">Nur die %1$d Künstler, die du am meisten hörst, wurden gesucht (von %2$d).</string>
     <string name="concerts_key_title">Ticketmaster-Schlüssel</string>
     <string name="concerts_key_body">Für die Termine von Ticketmaster brauchst du deinen eigenen kostenlosen Schlüssel. Lege auf der Entwicklerseite von Ticketmaster eine App an und füge hier ihren Consumer Key ein (nie das Consumer Secret). Ohne Schlüssel nur Termine von MusicBrainz.</string>
     <string name="concerts_key_get">Schlüssel holen</string>
@@ -2017,6 +2020,7 @@
     <string name="artists_chosen">Künstler: %1$d von %2$d</string>
     <string name="artists_whole_playlist">Künstler: die ganze Playlist</string>
     <string name="artists_typed">Ein anderer Künstler, nach Name</string>
+    <string name="artists_capped">Gesucht wurden die %1$d Künstler, die du am meisten hörst (von %2$d): Wähle Künstler aus, um andere zu suchen.</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Dazu %d Benachrichtigungskanal: Er bleibt aus, bis du ihn einschaltest und seine Schlüssel eingibst.</item>
         <item quantity="other">Dazu %d Benachrichtigungskanäle: Sie bleiben aus, bis du sie einschaltest und ihre Schlüssel eingibst.</item>
@@ -2030,7 +2034,6 @@
     <string name="setlists_quota">Das heutige Limit von setlist.fm ist erreicht: versuch es morgen wieder.</string>
     <string name="setlists_key_refused">setlist.fm hat den Schlüssel abgelehnt: prüfe ihn.</string>
     <string name="setlists_no_key">Setlists brauchen einen setlist.fm-Schlüssel: füge deinen eigenen hinzu, er ist kostenlos.</string>
-    <string name="setlists_limited">Nur die %1$d meistgehörten von %2$d Künstlern wurden gesucht.</string>
     <plurals name="setlists_unanswered">
         <item quantity="one">setlist.fm hat für %d Künstler nicht geantwortet: versuch es später.</item>
         <item quantity="other">setlist.fm hat für %d Künstler nicht geantwortet: versuch es später.</item>
@@ -2064,7 +2067,6 @@
     <string name="records_slowed">Discogs bittet um langsamere Anfragen: einigen Künstlern fehlen diesmal die Platten. Versuche es in einer Minute erneut.</string>
     <string name="records_token_refused">Discogs hat deinen Token abgelehnt: prüfe ihn unter Einstellungen › Erweitert › Dienst-Schlüssel.</string>
     <string name="records_no_token">Füge deinen eigenen Discogs-Token hinzu, um zu sehen, wie viele Exemplare im Verkauf sind, und mehr Künstler zu suchen.</string>
-    <string name="records_limited">Nur die %1$d meistgehörten von %2$d Künstlern wurden gesucht.</string>
     <string name="records_links">Offizielle Seiten</string>
     <string name="records_shop">Offizieller Shop</string>
     <string name="records_search">In Shops suchen</string>

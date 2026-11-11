@@ -47,8 +47,6 @@ object Records {
     const val TOKEN_ID = "__discogs__"
     /** Where a personal access token is made: Discogs › Settings › Developers. */
     const val TOKEN_URL = "https://www.discogs.com/settings/developers"
-    const val MAX_ANON = 30
-    const val MAX_TOKEN = 60
     /** Records shown per artist, the most owned first. */
     const val PER_ARTIST = 8
     /** With a token, how many of an artist's records get the marketplace's copies and lowest price. */
@@ -105,7 +103,7 @@ object Records {
 
     data class Result(
         val artists: List<ArtistRecords>,
-        /** The artists of the playlist, before [MAX_ANON]/[MAX_TOKEN]. */
+        /** The artists asked for, before [LookupCaps.RECORDS_TOKEN]/[LookupCaps.RECORDS_ANON]. */
         val total: Int,
         val token: Boolean,
         /** Discogs refused the token (401): the rest was asked without it. */
@@ -155,12 +153,12 @@ object Records {
      * Records, links and searches for [artists] (the playlist's, most held first). [progress] gets
      * (done, total). One artist's failure never stops the rest: that artist has fewer things.
      */
-    suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), progress: (Int, Int) -> Unit = { _, _ -> }): Result {
+    suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
         var token = token(env)
         val hadToken = token != null
         val asked = artists.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { Matcher.normalizeArtist(it).ifEmpty { it.lowercase() } }
-        val list = asked.take(if (hadToken) MAX_TOKEN else MAX_ANON)
+        val list = LookupCaps.cut(asked, if (hadToken) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON, whole)
         var refused = false
         var slowed = false
         val out = ArrayList<ArtistRecords>()
@@ -183,7 +181,7 @@ object Records {
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")
-        return Result(out, asked.size, hadToken, refused, slowed, cur)
+        return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur)
     }
 
     class TokenRefused : Exception("Discogs refused the token")

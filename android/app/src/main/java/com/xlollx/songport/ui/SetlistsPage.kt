@@ -122,7 +122,7 @@ internal fun SetlistsPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
         if (!r.hasKey) add(stringResource(R.string.setlists_no_key))
         if (r.quotaHit) add(stringResource(R.string.setlists_quota))
         if (r.keyRefused) add(stringResource(R.string.setlists_key_refused))
-        if (r.hasKey && r.total > r.artists.size) add(stringResource(R.string.setlists_limited, r.artists.size, r.total))
+        if (r.hasKey && r.total > r.artists.size) add(stringResource(R.string.artists_capped, r.artists.size, r.total))
         if (r.unanswered > 0) add(pluralStringResource(R.plurals.setlists_unanswered, r.unanswered, r.unanswered))
     }
     if (notes.isNotEmpty()) {
@@ -214,7 +214,8 @@ private fun find(ctx: Context) {
         try {
             val all = k.artists ?: Setlists.artistsOf(p.provider.tracks(app.env, p.playlist.id)).also { k.artists = it }
             val artists = ArtistPick.chosen(all, k.ticked, k.typed)
-            k.result = withContext(Dispatchers.IO) { Setlists.find(app.env, artists) { done, total -> k.progress = done to total } }
+            val whole = ArtistPick.isWhole(all, k.ticked, k.typed)
+            k.result = withContext(Dispatchers.IO) { Setlists.find(app.env, artists, whole) { done, total -> k.progress = done to total } }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             k.error = e.message ?: app.getString(R.string.error_generic)
         }

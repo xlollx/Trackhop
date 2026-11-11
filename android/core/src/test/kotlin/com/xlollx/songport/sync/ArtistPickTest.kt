@@ -1,6 +1,8 @@
 package com.xlollx.songport.sync
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ArtistPickTest {
@@ -28,5 +30,21 @@ class ArtistPickTest {
         assertEquals(listOf("Björk"), ArtistPick.chosen(all, setOf("Björk"), "bjork"))
         // A ticked name the playlist no longer has is ignored.
         assertEquals(all, ArtistPick.chosen(all, setOf("Gone"), ""))
+    }
+
+    @Test fun theCapsFitEachServicesLimitsAndOnlyCutTheWholePlaylist() {
+        // setlist.fm: 1440 calls a day, one per artist: a whole playlist many times a day.
+        assertTrue(1440 / LookupCaps.SETLISTS >= 20)
+        // Discogs: 25 calls a minute without a token, 60 with one; about a minute a search.
+        assertTrue(LookupCaps.RECORDS_ANON <= 25 && LookupCaps.RECORDS_TOKEN <= 60)
+        // MusicBrainz, one a second: a search of about a minute.
+        assertTrue(LookupCaps.CONCERTS <= 60)
+        val all = (1..80).map { "A$it" }
+        assertEquals(LookupCaps.CONCERTS, LookupCaps.cut(all, LookupCaps.CONCERTS, whole = true).size)
+        assertEquals(80, LookupCaps.cut(all, LookupCaps.CONCERTS, whole = false).size)
+        assertTrue(ArtistPick.isWhole(all, emptySet(), " "))
+        assertTrue(ArtistPick.isWhole(all, setOf("gone"), ""))
+        assertFalse(ArtistPick.isWhole(all, setOf("A3"), ""))
+        assertFalse(ArtistPick.isWhole(all, emptySet(), "Muse"))
     }
 }
