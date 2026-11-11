@@ -1625,6 +1625,11 @@
     <string name="card_cover_covers_note">플레이리스트 자체 이미지 또는 가장 많이 나오는 아티스트들의 커버.</string>
     <string name="card_cover_drawn_note">제목, 주요 아티스트, 커버 색상으로 휴대폰에서 직접 그립니다. 아무것도 전송되지 않습니다.</string>
     <string name="card_cover_another">다른 버전</string>
+    <string name="card_layout_title">레이아웃</string>
+    <string name="card_layout_classic">클래식</string>
+    <string name="card_layout_minimal">미니멀</string>
+    <string name="card_layout_bold">볼드</string>
+    <string name="card_poster_show_name">내 이름 표시</string>
     <string name="card_ai_cover_failed_drawn">AI가 커버를 그리지 못했습니다(%1$s). 포스터에는 휴대폰에서 그린 커버를 사용합니다.</string>
     <string name="error_same_playlist">소스와 대상이 같은 플레이리스트입니다. 대상으로 다른 플레이리스트를 선택하세요.</string>
     <string name="job_archive_badge">모든 곡 보관</string>

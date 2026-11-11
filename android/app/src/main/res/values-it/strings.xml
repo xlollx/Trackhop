@@ -1652,6 +1652,11 @@
     <string name="card_cover_covers_note">L\'immagine della playlist, oppure le copertine degli artisti più presenti.</string>
     <string name="card_cover_drawn_note">Disegnata sul telefono dal titolo, dagli artisti principali e dai colori delle copertine: non viene inviato nulla.</string>
     <string name="card_cover_another">Un\'altra versione</string>
+    <string name="card_layout_title">Impaginazione</string>
+    <string name="card_layout_classic">Classico</string>
+    <string name="card_layout_minimal">Minimale</string>
+    <string name="card_layout_bold">Audace</string>
+    <string name="card_poster_show_name">Mostra il mio nome</string>
     <string name="card_ai_cover_failed_drawn">La tua IA non è riuscita a disegnare la copertina (%1$s). Il poster usa una copertina disegnata sul telefono.</string>
     <string name="error_same_playlist">L\'origine e la destinazione sono la stessa playlist: scegli un\'altra playlist come destinazione.</string>
     <string name="job_archive_badge">tiene ogni brano</string>

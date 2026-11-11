@@ -1704,6 +1704,11 @@
     <string name="card_cover_covers_note">Картинка плейлиста или обложки исполнителей, которых в нём больше всего.</string>
     <string name="card_cover_drawn_note">Рисуется на телефоне по названию, главным исполнителям и цветам обложек: ничего никуда не отправляется.</string>
     <string name="card_cover_another">Другой вариант</string>
+    <string name="card_layout_title">Макет</string>
+    <string name="card_layout_classic">Классика</string>
+    <string name="card_layout_minimal">Минимализм</string>
+    <string name="card_layout_bold">Яркий</string>
+    <string name="card_poster_show_name">Показывать моё имя</string>
     <string name="card_ai_cover_failed_drawn">Ваш ИИ не смог нарисовать обложку (%1$s). На постере будет обложка, нарисованная на телефоне.</string>
     <string name="error_same_playlist">Источник и цель — один и тот же плейлист: выберите другой плейлист в качестве цели.</string>
     <string name="job_archive_badge">хранит все треки</string>

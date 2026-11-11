@@ -1650,6 +1650,11 @@
     <string name="card_cover_covers_note">Çalma listesinin kendi resmi ya da listede en çok yer alan sanatçıların kapakları.</string>
     <string name="card_cover_drawn_note">Başlıktan, öne çıkan sanatçılardan ve kapakların renklerinden telefonunda çizilir: hiçbir şey gönderilmez.</string>
     <string name="card_cover_another">Başka bir sürüm</string>
+    <string name="card_layout_title">Düzen</string>
+    <string name="card_layout_classic">Klasik</string>
+    <string name="card_layout_minimal">Minimal</string>
+    <string name="card_layout_bold">Çarpıcı</string>
+    <string name="card_poster_show_name">Adımı göster</string>
     <string name="card_ai_cover_failed_drawn">Yapay zekân kapağı çizemedi (%1$s). Poster bunun yerine telefonunda çizilen bir kapak kullanıyor.</string>
     <string name="error_same_playlist">Kaynak ve hedef aynı çalma listesi: hedef için başka bir çalma listesi seç.</string>
     <string name="job_archive_badge">her şarkıyı saklar</string>

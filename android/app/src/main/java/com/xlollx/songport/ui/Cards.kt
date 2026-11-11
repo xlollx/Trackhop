@@ -28,6 +28,7 @@ import com.xlollx.songport.net.Http
 import com.xlollx.songport.sync.Compatibility
 import com.xlollx.songport.sync.CoverArt
 import com.xlollx.songport.sync.DeezerCatalog
+import com.xlollx.songport.sync.PosterPalette
 import com.xlollx.songport.sync.QrCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -38,7 +39,7 @@ import java.io.FileOutputStream
 
 /**
  * The shareable cards: the compatibility card and the playlist poster, drawn with Canvas into a
- * PNG in the app's own palette, as a story (1080×1920) or a square (1080×1080). One renderer for
+ * PNG in the app's own palette (the poster in its art's), as a story (1080×1920) or a square (1080×1080). One renderer for
  * both, so they look like they belong together. Covers come from the services or from Deezer's
  * public catalogue ([DeezerCatalog]) and are fetched here, best effort: a missing one is a tile in
  * a brand colour, never an error.
@@ -57,8 +58,20 @@ object Cards {
     /** What the compatibility card shows: names, score, the common tracks with covers. */
     class CompatibilityCard(val nameA: String, val nameB: String, val result: Compatibility.Result, val covers: Map<String, Bitmap?>)
 
-    /** What the poster shows. [qr] is the playlist's web address, null when the service has none. */
-    class PosterCard(val title: String, val owner: String, val service: String, val trackCount: Int, val durationMs: Long, val covers: List<Bitmap?>, val qr: String?)
+    /**
+     * What the poster shows. [qr] is the playlist's web address, null when the service has none;
+     * [artists] the ones that appear most, [tracks] its first songs (title, artist). [titledArt]:
+     * the art already carries the title (a cover drawn on the phone), so the sheet does not print
+     * it twice. [owner] is blank unless the user chose to sign the poster.
+     */
+    class PosterCard(
+        val title: String, val owner: String, val service: String, val trackCount: Int, val durationMs: Long, val covers: List<Bitmap?>, val qr: String?,
+        val artists: List<String> = emptyList(), val tracks: List<Pair<String, String>> = emptyList(),
+        val layout: PosterPalette.Layout = PosterPalette.Layout.CLASSIC, val titledArt: Boolean = false,
+    ) {
+        /** The same poster laid out as [layout], signed [owner]. */
+        fun with(layout: PosterPalette.Layout, owner: String) = PosterCard(title, owner, service, trackCount, durationMs, covers, qr, artists, tracks, layout, titledArt)
+    }
 
     /** A service on the stats card: its name, its colour (ARGB) and the id that picks its glyph. */
     class Mark(val name: String, val color: Int, val serviceId: String?)
@@ -277,60 +290,302 @@ object Cards {
         return bmp
     }
 
+    /**
+     * The playlist poster, printed in the colours of its own art ([PosterPalette]): the cover
+     * sharp and large, the title (unless the art carries it), the artists that appear most, the
+     * numbers in small capitals, the first songs, and the QR on a white tile when there is one.
+     */
     fun poster(ctx: Context, card: PosterCard, format: Format): Bitmap {
-        val w = format.width; val h = format.height
-        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val bmp = Bitmap.createBitmap(format.width, format.height, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
-        background(c, w, h)
-        val margin = 72f
-        val story = format == Format.STORY
-        // The art: one cover, or a 2×2 mosaic of the first four tracks'.
-        val artSide = if (story) w - 2 * margin else 520f
-        val artLeft = if (story) margin else margin
-        val artTop = if (story) 150f else 100f
-        val art = RectF(artLeft, artTop, artLeft + artSide, artTop + artSide)
-        val covers = card.covers.take(4)
-        if (covers.size >= 4) {
-            val half = artSide / 2
-            val path = Path().apply { addRoundRect(art, 40f, 40f, Path.Direction.CW) }
-            c.save(); c.clipPath(path)
-            for (i in 0 until 4) {
-                val r = RectF(art.left + (i % 2) * half, art.top + (i / 2) * half, art.left + (i % 2 + 1) * half, art.top + (i / 2 + 1) * half)
-                cover(c, covers[i], r, 0f, i)
-            }
-            c.restore()
-        } else cover(c, covers.firstOrNull(), art, 40f, card.title.length)
+        val tones = PosterPalette.tones(GeneratedCovers.sampled(card.covers.filterNotNull()), card.title, card.layout)
+        val s = Sheet(ctx, c, format.width.toFloat(), format.height.toFloat(), tones, card)
+        posterGround(s)
+        when (card.layout) {
+            PosterPalette.Layout.CLASSIC -> posterClassic(s)
+            PosterPalette.Layout.MINIMAL -> posterMinimal(s)
+            PosterPalette.Layout.BOLD -> posterBold(s)
+        }
+        // The app's name and the site, small and quiet along the bottom edge.
+        val name = ctx.getString(R.string.app_name)
+        val brand = paint(s.t.ink, 24f, bold = true, alpha = 150)
+        val site = paint(s.t.ink, 24f, alpha = 120)
+        val rest = "  ·  $SITE"
+        val x = (s.w - brand.measureText(name) - site.measureText(rest)) / 2
+        val base = s.h - (if (s.story) 58f else 42f)
+        c.drawText(name, x, base, brand)
+        c.drawText(rest, x + brand.measureText(name), base, site)
+        return bmp
+    }
 
-        val textLeft = if (story) margin else art.right + 40f
-        val textWidth = if (story) (w - 2 * margin).toInt() else (w - margin - textLeft).toInt()
-        var y = if (story) art.bottom + 70f else art.top + 10f
-        y += block(c, card.title, textLeft, y, paint(Color.WHITE, if (story) 68f else 54f, bold = true), textWidth, 2) + 18f
-        val owner = listOf(card.owner, card.service).filter { it.isNotBlank() }.joinToString("  ·  ")
-        y += block(c, owner, textLeft, y, paint(Color.WHITE, 34f, alpha = 210), textWidth, 1) + 14f
-        val counts = buildString {
+    /** What every layout of the poster draws with: the sheet, its colours, and the card's words ready to print. */
+    private class Sheet(val ctx: Context, val c: Canvas, val w: Float, val h: Float, val t: PosterPalette.Tones, val card: PosterCard) {
+        val story = h > w
+        val symbol: QrCode.Symbol? = card.qr?.let { runCatching { QrCode.encode(it) }.getOrNull() }
+        val kind: String = ctx.getString(R.string.editor_playlist).uppercase()
+        val service: String = card.service.uppercase()
+        val counts: String = buildString {
             append(ctx.resources.getQuantityString(R.plurals.card_tracks, card.trackCount, card.trackCount))
             if (card.durationMs > 0) append("  ·  ").append(duration(card.durationMs))
-        }
-        block(c, counts, textLeft, y, paint(Color.WHITE, 32f, alpha = 190), textWidth, 1)
+        }.uppercase()
+        val owner: String = card.owner.trim().uppercase()
+        val lineup: String = card.artists.take(3).joinToString("  ·  ")
+        /** Where the content ends: the footer has the rest. */
+        val bottom = h - (if (story) 130f else 96f)
+    }
 
-        // The QR, bottom right, on a white tile so any reader gets it.
-        card.qr?.let { url ->
-            val symbol = runCatching { QrCode.encode(url) }.getOrNull() ?: return@let
-            val tile = if (story) 360f else 300f
-            val quiet = 28f
-            val tr = RectF(w - margin - tile, h - 120f - tile, w - margin, h - 120f)
-            c.drawRoundRect(tr, 28f, 28f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE })
-            val module = (tile - 2 * quiet) / symbol.size
-            val dark = Paint().apply { color = INK }
-            for (yy in 0 until symbol.size) for (xx in 0 until symbol.size) if (symbol[xx, yy]) {
-                c.drawRect(tr.left + quiet + xx * module, tr.top + quiet + yy * module, tr.left + quiet + (xx + 1) * module + 0.5f, tr.top + quiet + (yy + 1) * module + 0.5f, dark)
-            }
-            val hint = paint(Color.WHITE, 30f, alpha = 210)
-            val hintW = (tr.left - margin - 30f).toInt()
-            if (hintW > 200) block(c, ctx.getString(R.string.card_poster_scan, card.service), margin, tr.bottom - 80f, hint, hintW, 2)
+    /** Small capitals, spaced: the poster's captions. */
+    private fun caps(color: Int, size: Float, alpha: Int = 255, bold: Boolean = true) = paint(color, size, bold, alpha).apply { letterSpacing = 0.14f }
+
+    private fun condensed(color: Int, size: Float, alpha: Int = 255) = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        this.color = color; textSize = size; this.alpha = alpha
+        typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    }
+
+    /** The sheet: the ground's colour deepening to the bottom, and a light grain, as ink on paper. */
+    private fun posterGround(s: Sheet) {
+        s.c.drawRect(0f, 0f, s.w, s.h, Paint().apply { shader = LinearGradient(0f, 0f, 0f, s.h, s.t.ground, s.t.groundEnd, Shader.TileMode.CLAMP) })
+        val rnd = java.util.Random(CoverArt.seed(s.card.title))
+        val light = Paint().apply { color = 0x0CFFFFFF }
+        val dark = Paint().apply { color = 0x0C000000 }
+        repeat(if (s.story) 30_000 else 17_000) {
+            val x = rnd.nextFloat() * s.w; val y = rnd.nextFloat() * s.h
+            s.c.drawRect(x, y, x + 2f, y + 2f, if (it % 2 == 0) light else dark)
         }
-        footer(ctx, c, w, h)
-        return bmp
+    }
+
+    /**
+     * The art in [r], sharp: one cover, or four as a 2×2. Under it a soft shadow of [shadow]
+     * (ARGB), or with [block] a flat offset block of that colour, as a second ink.
+     */
+    private fun posterArt(s: Sheet, r: RectF, radius: Float, shadow: Int = 0x73000000, block: Int? = null) {
+        val c = s.c
+        if (block != null) c.drawRect(r.left + 16f, r.top + 16f, r.right + 16f, r.bottom + 16f, Paint().apply { color = block })
+        else c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = s.t.groundEnd; setShadowLayer(r.width() * 0.045f, 0f, r.width() * 0.02f, shadow) })
+        val covers = s.card.covers.take(4)
+        if (covers.size >= 4) {
+            val half = r.width() / 2
+            c.save(); c.clipPath(Path().apply { addRoundRect(r, radius, radius, Path.Direction.CW) })
+            for (i in 0 until 4) cover(c, covers[i], RectF(r.left + (i % 2) * half, r.top + (i / 2) * half, r.left + (i % 2 + 1) * half, r.top + (i / 2 + 1) * half), 0f, i)
+            c.restore()
+        } else cover(c, covers.firstOrNull(), r, radius, s.card.title.length)
+    }
+
+    /**
+     * [text] fitted into [box] (the largest size up to [maxSize], at most [maxLines] lines) and
+     * drawn with its capitals' top on the box's; returns where the last line ends.
+     */
+    private fun posterTitle(c: Canvas, text: String, box: RectF, p: TextPaint, maxLines: Int, maxSize: Float, minSize: Float, lineHeight: Float = 1.08f, align: Paint.Align = Paint.Align.LEFT): Float {
+        val fit = CoverArt.fitTitle(text, box.width(), box.height(), maxLines, maxSize, minSize, lineHeight) { str, size -> p.textSize = size; p.measureText(str) }
+        p.textSize = fit.size
+        p.textAlign = align
+        val x = when (align) { Paint.Align.LEFT -> box.left; Paint.Align.CENTER -> box.centerX(); else -> box.right }
+        val first = box.top + fit.size * 0.73f
+        fit.lines.forEachIndexed { i, l -> c.drawText(l, x, first + i * fit.size * lineHeight, p) }
+        p.textAlign = Paint.Align.LEFT
+        return first + (fit.lines.size - 1) * fit.size * lineHeight + fit.size * 0.2f
+    }
+
+    /** The first songs, numbered, one a line from [top], as many (at most [max]) as fit above [bottom]; returns where they end. */
+    private fun posterTracks(s: Sheet, x: Float, top: Float, bottom: Float, width: Float, size: Float, max: Int = 8): Float {
+        val rowH = size * 1.9f
+        val n = minOf(s.card.tracks.size, max, ((bottom - top) / rowH).toInt())
+        if (n < 2) return top
+        val num = caps(s.t.accent, size * 0.74f)
+        val title = paint(s.t.ink, size, bold = true)
+        val artist = paint(s.t.ink, size, alpha = 165)
+        val numW = num.measureText("00") + size * 0.8f
+        val gap = size * 0.55f
+        for (i in 0 until n) {
+            val (name, by) = s.card.tracks[i]
+            val base = top + i * rowH + size * 1.15f
+            s.c.drawText(String.format(java.util.Locale.ROOT, "%02d", i + 1), x, base, num)
+            val room = width - numW
+            val nameW = minOf(title.measureText(name), if (by.isBlank()) room else room * 0.64f)
+            line(s.c, name, x + numW, base, title, nameW + 1f)
+            val left = room - nameW - gap
+            if (by.isNotBlank() && left > size * 3) line(s.c, by, x + numW + nameW + gap, base, artist, left)
+        }
+        return top + n * rowH
+    }
+
+    /** The artists that appear most, one a line in capitals, the first one larger; as many as fit above [bottom]. Returns where they end. */
+    private fun posterLineup(s: Sheet, x: Float, top: Float, bottom: Float, width: Float, big: Float, small: Float, max: Int = 5): Float {
+        var y = top
+        s.card.artists.take(max).forEachIndexed { i, a ->
+            val p = condensed(s.t.ink, if (i == 0) big else small, if (i == 0) 255 else 225)
+            val step = p.textSize * 1.12f
+            if (y + step > bottom) return y
+            // A long name is set smaller rather than cut, down to three quarters.
+            val full = p.textSize
+            while (p.textSize > full * 0.75f && p.measureText(a.uppercase()) > width) p.textSize *= 0.96f
+            line(s.c, a.uppercase(), x, y + full * 0.86f, p, width)
+            y += step
+        }
+        return y
+    }
+
+    /** The QR on a white tile, with its quiet margin, so any reader gets it. */
+    private fun posterQr(c: Canvas, symbol: QrCode.Symbol, tr: RectF) {
+        c.drawRoundRect(tr, 18f, 18f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE })
+        val quiet = tr.width() * 0.093f
+        val module = (tr.width() - 2 * quiet) / symbol.size
+        val dark = Paint().apply { color = INK }
+        for (yy in 0 until symbol.size) for (xx in 0 until symbol.size) if (symbol[xx, yy]) {
+            c.drawRect(tr.left + quiet + xx * module, tr.top + quiet + yy * module, tr.left + quiet + (xx + 1) * module + 0.5f, tr.top + quiet + (yy + 1) * module + 0.5f, dark)
+        }
+    }
+
+    /** "Scan to open on …" in small capitals, its last line on [bottom]. */
+    private fun posterHint(s: Sheet, x: Float, bottom: Float, width: Float, center: Boolean = false) {
+        if (width < 220f) return
+        val text = s.ctx.getString(R.string.card_poster_scan, s.card.service).uppercase() + if (center) "" else "  →"
+        val l = textLayout(text, caps(s.t.accent, 22f), width.toInt(), 2, if (center) Layout.Alignment.ALIGN_CENTER else Layout.Alignment.ALIGN_NORMAL)
+        l.drawAt(s.c, x, bottom - l.height)
+    }
+
+    /** Classic: a dark print in the art's hue. The cover across the sheet, the words under it, the songs beside the QR. */
+    private fun posterClassic(s: Sheet) = with(s) {
+        val m = if (story) 96f else 72f
+        val right = w - m
+        val headBase = if (story) 126f else 100f
+        line(c, kind, m, headBase, caps(t.accent, 25f), (right - m) * 0.5f)
+        line(c, service, right, headBase, caps(t.ink, 25f, alpha = 190), (right - m) * 0.45f, Paint.Align.RIGHT)
+        val rule = headBase + 22f
+        c.drawRect(m, rule, right, rule + 2f, Paint().apply { color = t.ink; alpha = 55 })
+        val artTop = rule + (if (story) 36f else 30f)
+        val qr = symbol?.let { RectF(right - 300f, bottom - 300f, right, bottom) }
+        val listRight = qr?.let { it.left - 44f } ?: right
+        // A short bar of the accent, then the numbers and, when the poster is signed, the name: on one line across the sheet, on two in a column.
+        fun numbers(x: Float, y: Float, width: Float): Float {
+            c.drawRect(x, y, x + 88f, y + 6f, Paint().apply { color = t.accent })
+            var top = y + 30f
+            for (l in if (story) listOf(listOf(counts, owner).filter { it.isNotBlank() }.joinToString("  ·  ")) else listOf(counts, owner).filter { it.isNotBlank() }) {
+                lineTop(c, l, x, top, caps(t.ink, 24f, alpha = 200), width); top += 38f
+            }
+            return top - 8f
+        }
+        if (story) {
+            val art = RectF(m, artTop, right, artTop + (right - m))
+            posterArt(s, art, 10f)
+            var y = art.bottom + 62f
+            if (!card.titledArt) y = posterTitle(c, card.title, RectF(m, y, right, y + 200f), paint(t.ink, 88f, bold = true), 2, 88f, 52f) + 24f
+            if (lineup.isNotBlank()) { lineTop(c, lineup, m, y, paint(t.ink, 34f, alpha = 215), right - m); y += 64f }
+            y = numbers(m, y, right - m) + 30f
+            posterTracks(s, m, y, bottom - (if (qr != null) 76f else 0f), listRight - m, 30f)
+        } else {
+            val art = RectF(m, artTop, m + 470f, artTop + 470f)
+            posterArt(s, art, 8f)
+            val colX = art.right + 44f
+            var y = art.top + 2f
+            if (!card.titledArt) {
+                y = posterTitle(c, card.title, RectF(colX, y, right, y + 250f), paint(t.ink, 76f, bold = true), 4, 76f, 38f) + 22f
+                if (lineup.isNotBlank()) { val l = textLayout(lineup, paint(t.ink, 27f, alpha = 215), (right - colX).toInt(), 2); l.drawAt(c, colX, y); y += l.height + 26f }
+            } else y = posterLineup(s, colX, y, art.bottom - 80f, right - colX, 58f, 42f) + 24f
+            numbers(colX, y, right - colX)
+            posterTracks(s, m, art.bottom + 40f, bottom - (if (qr != null) 70f else 0f), listRight - m, 27f, max = 5)
+        }
+        if (qr != null) { posterQr(c, symbol!!, qr); posterHint(s, m, bottom, listRight - m) }
+    }
+
+    /** Minimal: ink on paper. The cover alone in the middle, a light title, one line of small capitals. */
+    private fun posterMinimal(s: Sheet) = with(s) {
+        val cx = w / 2
+        val shadow = 0x38000000
+        val light = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = t.ink; typeface = Typeface.create("sans-serif-light", Typeface.NORMAL) }
+        val bar = Paint().apply { color = t.accent }
+        if (story) {
+            val side = if (symbol != null) 780f else 840f
+            // Without a QR the cover and its words sit in the middle of the sheet.
+            val words = (if (card.titledArt) 0f else 150f) + 90f + (if (owner.isNotBlank()) 42f else 0f) + (if (lineup.isNotBlank()) 50f else 0f)
+            val top = if (symbol != null) 170f else ((120f + bottom - side - 86f - words) / 2).coerceAtLeast(170f)
+            val art = RectF(cx - side / 2, top, cx + side / 2, top + side)
+            posterArt(s, art, 4f, shadow)
+            val width = 840f
+            var y = art.bottom + 86f
+            if (!card.titledArt) y = posterTitle(c, card.title, RectF(cx - width / 2, y, cx + width / 2, y + 170f), light, 2, 78f, 44f, align = Paint.Align.CENTER) + 38f
+            c.drawRect(cx - 36f, y, cx + 36f, y + 5f, bar); y += 44f
+            lineTop(c, listOf(service, counts).filter { it.isNotBlank() }.joinToString("  ·  "), cx, y, caps(t.ink, 24f, alpha = 200), width, Paint.Align.CENTER); y += 46f
+            if (owner.isNotBlank()) { lineTop(c, owner, cx, y, caps(t.ink, 22f, alpha = 150, bold = false), width, Paint.Align.CENTER); y += 42f }
+            if (lineup.isNotBlank()) lineTop(c, lineup, cx, y + 8f, paint(t.ink, 30f, alpha = 170), width, Paint.Align.CENTER)
+            if (symbol != null) {
+                val q = RectF(cx - 150f, bottom - 62f - 300f, cx + 150f, bottom - 62f)
+                c.drawRoundRect(RectF(q.left - 2f, q.top - 2f, q.right + 2f, q.bottom + 2f), 20f, 20f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = t.ink; alpha = 40 })
+                posterQr(c, symbol, q)
+                posterHint(s, cx - 260f, bottom, 520f, center = true)
+            }
+        } else if (symbol == null) {
+            val side = 560f
+            val art = RectF(cx - side / 2, 104f, cx + side / 2, 104f + side)
+            posterArt(s, art, 4f, shadow)
+            val width = 860f
+            var y = art.bottom + 64f
+            if (!card.titledArt) y = posterTitle(c, card.title, RectF(cx - width / 2, y, cx + width / 2, y + 124f), light, 2, 60f, 34f, align = Paint.Align.CENTER) + 30f
+            else y += 20f
+            c.drawRect(cx - 36f, y, cx + 36f, y + 5f, bar); y += 38f
+            lineTop(c, listOf(service, counts, owner).filter { it.isNotBlank() }.joinToString("  ·  "), cx, y, caps(t.ink, 22f, alpha = 200), width, Paint.Align.CENTER)
+        } else {
+            val m = 84f
+            val right = w - m
+            val art = RectF(m, 120f, m + 480f, 600f)
+            posterArt(s, art, 4f, shadow)
+            val colX = art.right + 48f
+            var y = art.top + 4f
+            if (!card.titledArt) y = posterTitle(c, card.title, RectF(colX, y, right, y + 250f), light, 4, 64f, 34f) + 30f
+            c.drawRect(colX, y, colX + 72f, y + 5f, bar); y += 40f
+            for (l in listOf(service, counts, owner).filter { it.isNotBlank() }) { lineTop(c, l, colX, y, caps(t.ink, 22f, alpha = 200), right - colX); y += 40f }
+            val q = RectF(right - 300f, bottom - 300f, right, bottom)
+            c.drawRoundRect(RectF(q.left - 2f, q.top - 2f, q.right + 2f, q.bottom + 2f), 20f, 20f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = t.ink; alpha = 40 })
+            posterQr(c, symbol, q)
+            val leftW = q.left - 44f - m
+            if (card.artists.isNotEmpty()) textLayout(card.artists.take(4).joinToString("\n"), paint(t.ink, 30f, alpha = 185), leftW.toInt(), 4).drawAt(c, m, q.top + 4f)
+            posterHint(s, m, bottom, leftW)
+        }
+    }
+
+    /** Bold: a gig poster in two inks. The art's brightest colour as the ground, the title huge in capitals, the artists as a line-up. */
+    private fun posterBold(s: Sheet) = with(s) {
+        val m = if (story) 84f else 72f
+        val right = w - m
+        val inkPaint = Paint().apply { color = t.ink }
+        val barTop = if (story) 84f else 62f
+        c.drawRect(m, barTop, right, barTop + 14f, inkPaint)
+        val headBase = barTop + 14f + (if (story) 52f else 46f)
+        val head = condensed(t.ink, if (story) 32f else 28f).apply { letterSpacing = 0.1f }
+        // Whose it is (when signed) and where it lives on the left, the numbers on the right.
+        val whose = "${owner.ifBlank { kind }}  ·  $service"
+        val countsW = minOf(head.measureText(counts), (right - m) * 0.45f)
+        val whoseW = minOf(head.measureText(whose), right - m - countsW - 40f)
+        line(c, whose, m, headBase, head, whoseW + 1f)
+        line(c, counts, right, headBase, head, right - m - whoseW - 40f, Paint.Align.RIGHT)
+        var y = headBase + (if (story) 40f else 30f)
+        if (!card.titledArt) {
+            y = posterTitle(c, card.title.uppercase(), RectF(m, y, right, y + (if (story) 470f else 250f)), condensed(t.ink, 100f), 3, if (story) 300f else 170f, if (story) 70f else 56f, lineHeight = 0.98f)
+            // Capitals have nothing under the line: the gap is measured from it.
+            y += if (story) 10f else 2f
+        }
+        val qr = symbol?.let { RectF(right - 300f, bottom - 300f, right, bottom) }
+        if (story) {
+            val side = minOf(right - m - 16f, bottom - 350f - y)
+            val art = RectF(m, y, m + side, y + side)
+            posterArt(s, art, 0f, block = t.ink)
+            y = art.bottom + 16f + 44f
+            c.drawRect(m, y, right, y + 8f, inkPaint); y += 8f + 30f
+            val colRight = qr?.let { it.left - 44f } ?: right
+            val end = bottom - (if (qr != null) 76f else 0f)
+            y = posterLineup(s, m, y, end, colRight - m, 70f, 48f) + 22f
+            posterTracks(s, m, y, end, colRight - m, 28f, max = 6)
+            if (qr != null) posterHint(s, m, bottom, colRight - m)
+        } else {
+            val side = minOf(520f, bottom - 16f - y)
+            val art = RectF(m, y, m + side, y + side)
+            posterArt(s, art, 0f, block = t.ink)
+            val colX = art.right + 16f + 40f
+            c.drawRect(colX, art.top, right, art.top + 8f, inkPaint)
+            posterLineup(s, colX, art.top + 34f, qr?.let { it.top - 20f } ?: bottom, right - colX, 54f, 38f)
+            posterTracks(s, m, art.bottom + 16f + 34f, bottom, side, 25f, max = 5)
+        }
+        if (qr != null) posterQr(c, symbol!!, qr)
     }
 
     /** [p] at the largest size up to [size] at which [text] fits in [maxWidth]. */

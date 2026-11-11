@@ -1036,6 +1036,18 @@ class StoreScreenshots {
             waitText(s(R.string.card_share), 40_000)
         }
         pages("poster_result", 4)
+        // The other two layouts of the same poster, and the posters themselves as they are shared.
+        step("poster minimal") { tapText(s(R.string.card_layout_minimal)) }; pages("poster_minimal", 1)
+        step("poster bold") { tapText(s(R.string.card_layout_bold)) }; pages("poster_bold", 1)
+        step("poster classic") { tapText(s(R.string.card_layout_classic)) }
+        step("posters") {
+            val covers = (0 until 4).map { n -> cover(DISCOVER_PALETTES[n % DISCOVER_PALETTES.size], n) }
+            val songs = Demo.SONGS.take(9).map { it.title to it.artist }
+            for (l in com.xlollx.songport.sync.PosterPalette.Layout.entries) for (f in com.xlollx.songport.ui.Cards.Format.entries) {
+                val card = com.xlollx.songport.ui.Cards.PosterCard(road.name, "", "YouTube Music", 69, 19_560_000L, covers, linkA, listOf("Metallica", "Slipknot", "Linkin Park", "Ghost"), songs, l)
+                save(com.xlollx.songport.ui.Cards.poster(app, card, f), "poster_art_${l.name.lowercase()}_${f.name.lowercase()}")
+            }
+        }
         // Universal link: what it asks, then the link.
         tool(R.string.discover_link_title, "link setup"); pages("link_setup", 1)
         com.xlollx.songport.ui.PickMemory.set("link", com.xlollx.songport.ui.CardPick(ytm, road))

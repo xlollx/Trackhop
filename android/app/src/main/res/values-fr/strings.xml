@@ -1660,6 +1660,11 @@
     <string name="card_cover_covers_note">L\'image de la playlist, ou les pochettes des artistes les plus présents.</string>
     <string name="card_cover_drawn_note">Dessinée sur ton téléphone à partir du titre, des artistes principaux et des couleurs des pochettes : rien n\'est envoyé.</string>
     <string name="card_cover_another">Une autre version</string>
+    <string name="card_layout_title">Mise en page</string>
+    <string name="card_layout_classic">Classique</string>
+    <string name="card_layout_minimal">Minimal</string>
+    <string name="card_layout_bold">Audacieux</string>
+    <string name="card_poster_show_name">Afficher mon nom</string>
     <string name="card_ai_cover_failed_drawn">Ton IA n\'a pas pu dessiner la pochette (%1$s). L\'affiche utilise une pochette dessinée sur ton téléphone.</string>
     <string name="error_same_playlist">La source et la destination sont la même playlist : choisis une autre playlist comme destination.</string>
     <string name="job_archive_badge">garde chaque titre</string>

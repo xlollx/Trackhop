@@ -50,10 +50,13 @@ object GeneratedCovers {
     }
 
     /** The five colours of [input]'s cover: from its covers' pixels, else from its title. */
-    fun palette(input: Input, variant: Int = 0): IntArray {
-        val px = input.covers.take(6).map { sample(it) }
+    fun palette(input: Input, variant: Int = 0): IntArray = CoverArt.palette(sampled(input.covers), input.title, variant)
+
+    /** The main colours of [covers]' pixels (the first six), most present first; empty without covers. */
+    fun sampled(covers: List<Bitmap>): IntArray {
+        val px = covers.take(6).map { sample(it) }
         val all = IntArray(px.sumOf { it.size }).also { var o = 0; for (a in px) { a.copyInto(it, o); o += a.size } }
-        return CoverArt.palette(CoverArt.dominant(all, 5), input.title, variant)
+        return CoverArt.dominant(all, 5)
     }
 
     private fun sample(b: Bitmap): IntArray = runCatching {

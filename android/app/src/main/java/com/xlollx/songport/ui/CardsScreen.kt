@@ -82,6 +82,8 @@ import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Compatibility
 import com.xlollx.songport.sync.LinkResolver
 import com.xlollx.songport.sync.PlaylistLinks
+import com.xlollx.songport.sync.PosterPalette
+import androidx.compose.foundation.selection.toggleable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -477,6 +479,13 @@ internal enum class PosterArt(val label: Int, val style: GeneratedCovers.Style? 
     AI(R.string.card_cover_ai),
 }
 
+/** How the poster is laid out ([PosterPalette.Layout]), with its name. */
+private val posterLayouts = listOf(
+    PosterPalette.Layout.CLASSIC to R.string.card_layout_classic,
+    PosterPalette.Layout.MINIMAL to R.string.card_layout_minimal,
+    PosterPalette.Layout.BOLD to R.string.card_layout_bold,
+)
+
 private fun posterPrefs(ctx: android.content.Context) = ctx.applicationContext.getSharedPreferences("poster", android.content.Context.MODE_PRIVATE)
 
 /** The playlist poster: covers, title, numbers and a QR to open it. */
@@ -497,6 +506,12 @@ fun PosterCard(snackbar: SnackbarHostState) {
         val saved = runCatching { PosterArt.valueOf(posterPrefs(ctx).getString("art", null) ?: "") }.getOrNull() ?: PosterArt.COVERS
         mutableStateOf(if (saved == PosterArt.AI && !aiOk) PosterArt.COVERS else saved)
     }
+    var layout by remember { mutableStateOf(runCatching { PosterPalette.Layout.valueOf(posterPrefs(ctx).getString("layout", null) ?: "") }.getOrNull() ?: PosterPalette.Layout.CLASSIC) }
+    // The poster is signed only when asked: an account's name is often an e-mail address.
+    var showName by remember { mutableStateOf(posterPrefs(ctx).getBoolean("name", false)) }
+    // What the poster on show is made of, and the name of the account when the playlist is the user's own.
+    var printed by remember { mutableStateOf<Cards.PosterCard?>(null) }
+    var ownerName by remember { mutableStateOf("") }
     // "Make it again" and "another version" turn this: other picks, another drawing.
     var variant by remember { mutableStateOf(0) }
     var drawing by remember { mutableStateOf(false) }
@@ -507,12 +522,23 @@ fun PosterCard(snackbar: SnackbarHostState) {
         if (uri != null && b != null) Cards.save(ctx, b, uri)
     }
 
+    suspend fun draw(card: Cards.PosterCard): Map<Cards.Format, Bitmap> {
+        val shown = card.with(layout, if (showName) ownerName else "")
+        return withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.poster(ctx, shown, it) } }
+    }
+    // Another layout, the name on or off: the same poster printed again, nothing fetched.
+    fun redraw() {
+        val card = printed ?: return
+        if (busy) return
+        scope.launch { val again = draw(card); if (printed === card) bitmaps = again }
+    }
+
     fun run(nextVariant: Boolean = false, newCover: Boolean = false) {
         val p = pick ?: return
         if (nextVariant) variant++
         val v = variant
         val chosen = art
-        busy = true; bitmaps = null; error = null
+        busy = true; bitmaps = null; printed = null; error = null
         scope.launch {
             try {
                 val tracks = p.provider.tracks(ctx, p.playlist.id)
@@ -533,6 +559,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     val covers = picks(if (style == GeneratedCovers.Style.MOSAIC) 9 else 4)
                     return withContext(Dispatchers.Default) { GeneratedCovers.draw(style, GeneratedCovers.Input(title, artists, covers), v) }
                 }
+                // A cover drawn on the phone carries the title: the sheet does not print it again.
+                var titled = chosen.style != null
                 val covers: List<Bitmap?> = withContext(Dispatchers.IO) {
                     drawn = null
                     when {
@@ -551,6 +579,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                                 scope.launch { snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed_drawn, why), withDismissAction = true, duration = androidx.compose.material3.SnackbarDuration.Long) }
                                 null
                             } finally { drawing = false }
+                            titled = drawnByAi == null
                             val shown = drawnByAi ?: generated(if (picks(4).size >= 4) GeneratedCovers.Style.MOSAIC else GeneratedCovers.Style.GRADIENT)
                             drawn = shown
                             listOf(shown)
@@ -560,20 +589,22 @@ fun PosterCard(snackbar: SnackbarHostState) {
                             // The playlist's own picture, else the covers of its most present artists,
                             // else (nothing found) a cover drawn from its title.
                             info.imageUrl?.let { url -> Cards.bitmap(url, 900)?.let { return@withContext listOf(it) } }
-                            picks(4).ifEmpty { listOf(generated(GeneratedCovers.Style.GRADIENT)) }
+                            picks(4).ifEmpty { titled = true; listOf(generated(GeneratedCovers.Style.GRADIENT)) }
                         }
                     }
                 }
                 qr = qrUrl(ctx, p)
+                ownerName = if (info.ownedByMe) p.provider.accountName(ctx).orEmpty().trim() else ""
                 val card = Cards.PosterCard(
-                    title = title,
-                    owner = if (info.ownedByMe) p.provider.accountName(ctx).orEmpty() else "",
+                    title = title, owner = "",
                     // The service by its plain name: the caption goes on a wall, not the connector's label.
                     service = p.provider.brand,
                     trackCount = tracks.size, durationMs = tracks.sumOf { it.durationMs },
-                    covers = covers, qr = qr,
+                    covers = covers, qr = qr, artists = artists,
+                    tracks = tracks.take(9).map { it.title to it.artists.firstOrNull().orEmpty() }, titledArt = titled,
                 )
-                bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.poster(ctx, card, it) } }
+                bitmaps = draw(card)
+                printed = card
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 error = e.message ?: ctx.getString(R.string.error_generic)
             }
@@ -583,11 +614,17 @@ fun PosterCard(snackbar: SnackbarHostState) {
 
     ToolResultOnTop(bitmaps)
     val setup: @Composable () -> Unit = {
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", compact = true) { pick = it; bitmaps = null; drawn = null; variant = 0; error = null }
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", compact = true) { pick = it; bitmaps = null; printed = null; drawn = null; variant = 0; error = null }
         ToolSection(stringResource(R.string.card_cover_title)) {
             CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy) {
-                art = it; bitmaps = null; drawn = null
+                art = it; bitmaps = null; printed = null; drawn = null
                 runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
+            }
+        }
+        ToolSection(stringResource(R.string.card_layout_title)) {
+            LayoutChoice(layout, pick?.playlist?.name.orEmpty(), enabled = !busy) {
+                layout = it; redraw()
+                runCatching { posterPrefs(ctx).edit().putString("layout", it.name).apply() }
             }
         }
         ToolPrimaryButton(
@@ -600,7 +637,28 @@ fun PosterCard(snackbar: SnackbarHostState) {
         error?.let { ToolError(it, onRetry = if (pick != null) ({ run() }) else null) }
         // The poster on a sheet of paper, as it would hang on a wall.
         if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
-            if (qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // The user's own playlist: their account's name goes on the poster only if they say so.
+            if (ownerName.isNotBlank()) {
+                val id = LocalToolIdentity.current
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(14.dp))
+                        .toggleable(showName, role = androidx.compose.ui.semantics.Role.Switch) { on ->
+                            showName = on; redraw()
+                            runCatching { posterPrefs(ctx).edit().putBoolean("name", on).apply() }
+                        }.padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.card_poster_show_name), style = MaterialTheme.typography.bodyLarge)
+                        Text(ownerName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    androidx.compose.material3.Switch(
+                        checked = showName, onCheckedChange = null,
+                        colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = id.accent, checkedThumbColor = id.onAccent),
+                    )
+                }
+            }
+            if (qr == null) ToolNote(stringResource(R.string.card_poster_no_qr))
             if (art != PosterArt.COVERS && drawn != null) {
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
@@ -655,9 +713,56 @@ private fun CoverArtChoice(selected: PosterArt, title: String, ai: AiClient.Conf
     }
 }
 
-/** One art to choose: a small picture of it with its name under; the chosen one framed in the tool's colour, with a tick. */
+/**
+ * The poster's layout: Classic, Minimal or Bold, each as a small picture of a poster laid out that
+ * way (four plain covers, [title] for a name).
+ */
+@Composable
+private fun LayoutChoice(selected: PosterPalette.Layout, title: String, enabled: Boolean, onChange: (PosterPalette.Layout) -> Unit) {
+    val ctx = LocalContext.current
+    val name = title.ifBlank { stringResource(R.string.app_name) }
+    val thumbs by androidx.compose.runtime.produceState(emptyMap<PosterPalette.Layout, androidx.compose.ui.graphics.ImageBitmap>(), name) {
+        value = withContext(Dispatchers.Default) {
+            val covers = listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9).map { c -> Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888).apply { eraseColor(c.toInt()) } }
+            posterLayouts.associate { (l, _) ->
+                l to runCatching {
+                    val full = Cards.poster(ctx, Cards.PosterCard(name, "", "", 0, 0, covers, null, layout = l), Cards.Format.SQUARE)
+                    Bitmap.createScaledBitmap(full, 240, 240, true).also { if (it !== full) full.recycle() }.asImageBitmap()
+                }.getOrNull()
+            }.filterValues { it != null }.mapValues { it.value!! }
+        }
+    }
+    Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        posterLayouts.forEach { (l, label) ->
+            ChoiceTile(stringResource(label), l == selected, enabled, { onChange(l) }) {
+                thumbs[l]?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop) }
+            }
+        }
+    }
+}
+
+/** One art to choose: a small picture of it with its name under. */
 @Composable
 private fun ArtTile(art: PosterArt, on: Boolean, enabled: Boolean, thumb: androidx.compose.ui.graphics.ImageBitmap?, onClick: () -> Unit) {
+    ChoiceTile(stringResource(art.label), on, enabled, onClick) {
+        when {
+            thumb != null -> Image(thumb, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+            // The playlist's own covers: four squares of four colours.
+            art == PosterArt.COVERS -> Column(Modifier.fillMaxSize()) {
+                val quads = listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9)
+                for (r in 0..1) Row(Modifier.weight(1f)) { for (c in 0..1) androidx.compose.foundation.layout.Box(Modifier.weight(1f).fillMaxSize().background(androidx.compose.ui.graphics.Color(quads[r * 2 + c]))) }
+            }
+            // The AI's tile takes the tool's own colours, as its header.
+            art == PosterArt.AI -> androidx.compose.foundation.layout.Box(
+                Modifier.fillMaxSize().background(LocalToolIdentity.current.brush), contentAlignment = Alignment.Center,
+            ) { Icon(Icons.Filled.AutoAwesome, null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(30.dp)) }
+        }
+    }
+}
+
+/** One of a few looks to choose from: a small picture ([content]) with its name under; the chosen one framed in the tool's colour. */
+@Composable
+private fun ChoiceTile(label: String, on: Boolean, enabled: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) {
     val id = LocalToolIdentity.current
     val side = 76.dp
     Column(
@@ -669,22 +774,9 @@ private fun ArtTile(art: PosterArt, on: Boolean, enabled: Boolean, thumb: androi
             Modifier.size(side).then(if (on) Modifier.border(3.dp, id.tint(), RoundedCornerShape(18.dp)) else Modifier).padding(if (on) 6.dp else 0.dp)
                 .clip(RoundedCornerShape(if (on) 12.dp else 16.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center,
-        ) {
-            when {
-                thumb != null -> Image(thumb, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
-                // The playlist's own covers: four squares of four colours.
-                art == PosterArt.COVERS -> Column(Modifier.fillMaxSize()) {
-                    val quads = listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9)
-                    for (r in 0..1) Row(Modifier.weight(1f)) { for (c in 0..1) androidx.compose.foundation.layout.Box(Modifier.weight(1f).fillMaxSize().background(androidx.compose.ui.graphics.Color(quads[r * 2 + c]))) }
-                }
-                art == PosterArt.AI -> androidx.compose.foundation.layout.Box(
-                    Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color(0xFF5B3FD9), androidx.compose.ui.graphics.Color(0xFFC2185B)))),
-                    contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Filled.AutoAwesome, null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(30.dp)) }
-            }
-        }
+        ) { content() }
         Text(
-            stringResource(art.label), style = MaterialTheme.typography.labelMedium, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
+            label, style = MaterialTheme.typography.labelMedium, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
             color = if (on) id.tint() else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
         )
     }
