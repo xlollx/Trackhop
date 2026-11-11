@@ -718,13 +718,42 @@ private fun RunAllRow(
             }
             // Pinned, it floats over the cards: no band behind it (the owner's choice, again on 11/11).
             .then(if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG) else Modifier)
-            .padding(top = 4.dp, bottom = 12.dp, end = if (trailing != null) 4.dp else 0.dp),
+            .padding(end = if (trailing != null) 4.dp else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val scroll = rememberScrollState()
+        // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
+        // row's own pixels fade (no colour is drawn), and only while there is something to scroll to:
+        // pinned, the pill is alone and nothing is touched.
+        val fadeStart = scroll.canScrollBackward
+        val fadeEnd = scroll.canScrollForward
+        val rtl = LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
         // The scroller is only as wide as what it holds: pinned, a touch beside the pill reaches the card beneath.
-        Box(Modifier.weight(1f)) {
+        Box(
+            Modifier.weight(1f).then(
+                if (fadeStart || fadeEnd) Modifier
+                    .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                    .drawWithContent {
+                        drawContent()
+                        val w = CHIPS_FADE.toPx()
+                        val left = if (rtl) fadeEnd else fadeStart
+                        val right = if (rtl) fadeStart else fadeEnd
+                        if (left) drawRect(
+                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), 0f, w),
+                            size = androidx.compose.ui.geometry.Size(w, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                        )
+                        if (right) drawRect(
+                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), size.width - w, size.width),
+                            topLeft = Offset(size.width - w, 0f), size = androidx.compose.ui.geometry.Size(w, size.height),
+                            blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                        )
+                    }
+                else Modifier,
+            ),
+        ) {
             Row(
-                Modifier.horizontalScroll(rememberScrollState()).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE),
+                // The room above and below is inside the scroller, where the pill's shadow is drawn.
+                Modifier.horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -773,7 +802,7 @@ private fun RunAllRow(
         }
         if (trailing != null) androidx.compose.animation.AnimatedVisibility(
             !pinned, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(),
-        ) { trailing() }
+        ) { Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) { trailing() } }
     }
 }
 
@@ -1346,6 +1375,9 @@ val PILL_FADE = 10.dp
 
 /** The sync list's padding at each side. */
 private val LIST_SIDE = 16.dp
+
+/** How far the row of filter chips fades out at an edge with more chips past it. */
+private val CHIPS_FADE = 24.dp
 
 /** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
 internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =

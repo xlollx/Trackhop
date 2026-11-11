@@ -54,7 +54,9 @@ class ReorderFlowTest : FlowTest() {
         // Under the pinned Sync-all pill nothing of a card shows: one counts once a good part of it is below.
         val shows = (pinnedPillBottom() ?: top) + 48 * app.resources.displayMetrics.density
         return (1..n).mapNotNull { i ->
-            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull()
+            // Only a card the list has placed: one that left the screen in a single frame of a fast scroll
+            // may be kept for reuse for a while, with the place it last had.
+            compose.onAllNodes(hasText("Sync number $i")).fetchSemanticsNodes().firstOrNull { it.layoutInfo.isPlaced }
                 ?.takeIf { it.boundsInRoot.center.y > top && it.positionInRoot.y + it.size.height > shows }?.let { i to it.positionInRoot.y }
         }.sortedBy { it.second }
     }
