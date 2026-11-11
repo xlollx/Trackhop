@@ -1,0 +1,150 @@
+{
+ "infoPerformance": {
+  "hasCalendarView": false,
+  "hours": [
+   "21:00"
+  ],
+  "dates": [
+   "2026-11-27",
+   "2026-11-28",
+   "2026-11-30",
+   "2026-12-02",
+   "2026-12-04",
+   "2026-12-05",
+   "2026-12-06"
+  ],
+  "performances": [
+   {
+    "id": "10467752",
+    "code": "14240253",
+    "datetime": "2026-11-27T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "venerdì 27 novembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14240253&tcode=vt0022813"
+     }
+    ]
+   },
+   {
+    "id": "10467753",
+    "code": "14240254",
+    "datetime": "2026-11-28T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "sabato 28 novembre 2026 21:00",
+    "status": 101,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": false,
+      "url": ""
+     }
+    ]
+   },
+   {
+    "id": "10467754",
+    "code": "14240255",
+    "datetime": "2026-11-30T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "lunedì 30 novembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14240255&tcode=vt0022813"
+     }
+    ]
+   },
+   {
+    "id": "10499485",
+    "code": "14271977",
+    "datetime": "2026-12-02T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "mercoledì 02 dicembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14271977&tcode=vt0022813"
+     }
+    ]
+   },
+   {
+    "id": "10499486",
+    "code": "14271978",
+    "datetime": "2026-12-04T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "venerdì 04 dicembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14271978&tcode=vt0022813"
+     }
+    ]
+   },
+   {
+    "id": "10600234",
+    "code": "14372720",
+    "datetime": "2026-12-05T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "sabato 05 dicembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14372720&tcode=vt0022813"
+     }
+    ]
+   },
+   {
+    "id": "10649430",
+    "code": "14421914",
+    "datetime": "2026-12-06T21:00:00",
+    "title": "CESARE CREMONINI - AMATOUR",
+    "label": "domenica 06 dicembre 2026 21:00",
+    "status": 100,
+    "time": "",
+    "buttons": [
+     {
+      "type": "sell",
+      "label": "Acquista",
+      "active": true,
+      "url": "https://shop.vivaticket.com/it/sell/?cmd=prices&pcode=14421914&tcode=vt0022813"
+     }
+    ]
+   }
+  ]
+ },
+ "infoEvent": {
+  "venueDetail": {
+   "name": "Unipol Arena",
+   "city": "CASALECCHIO DI RENO",
+   "id": "524500062",
+   "slug": "unipol-arena",
+   "provinceCode": "BO"
+  },
+  "eventDetail": {
+   "title": "CESARE CREMONINI - AMATOUR"
+  }
+ }
+}

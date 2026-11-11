@@ -1,0 +1,49 @@
+{
+ "id": "66874",
+ "name": "Cesare Cremonini",
+ "totalItems": 3,
+ "events": [
+  {
+   "id": "313707",
+   "slug": "cesare-cremonini",
+   "title": "CESARE CREMONINI - AMATOUR",
+   "startDate": "2026-11-27T21:00:00",
+   "endDate": "2026-12-06T21:00:00",
+   "venueName": "Unipol Arena",
+   "cityName": "CASALECCHIO DI RENO",
+   "subtitle": "Live Indoor Tour 2026",
+   "ticketTypeId": "0",
+   "typology": "ticket"
+  },
+  {
+   "id": "313709",
+   "slug": "cesare-cremonini",
+   "title": "CESARE CREMONINI - AMATOUR",
+   "startDate": "2026-12-09T21:00:00",
+   "endDate": "2026-12-12T21:00:00",
+   "venueName": "Inalpi Arena",
+   "cityName": "TORINO",
+   "subtitle": "Live Indoor Tour 2026",
+   "ticketTypeId": "0",
+   "typology": "ticket"
+  },
+  {
+   "id": "313710",
+   "slug": "cesare-cremonini",
+   "title": "CESARE CREMONINI - AMATOUR",
+   "startDate": "2026-12-15T21:00:00",
+   "endDate": "2026-12-21T21:00:00",
+   "venueName": "Unipol Forum",
+   "cityName": "ASSAGO",
+   "subtitle": "Live Indoor Tour 2026",
+   "ticketTypeId": "0",
+   "typology": "ticket"
+  }
+ ],
+ "color": {
+  "hex": "#eacb98",
+  "value": 78.28442,
+  "property": "background",
+  "contrastColor": "black"
+ }
+}
