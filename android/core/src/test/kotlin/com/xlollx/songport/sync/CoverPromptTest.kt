@@ -17,6 +17,15 @@ class CoverPromptTest {
     }
 
     @Test
+    fun posterListsTheTopArtistsSongsTwoEachThenTheNextArtists() {
+        val tracks = listOf(t("Solo", "s1"), t("A", "a1"), t("B", "b1"), t("A", "a2"), t("A", "a3"), t("B", "b2"), t("C", "c1"), t("C", "c2"), t("D", "d1"), t("E", "e1"), t("F", "f1"), t("G", "g1"))
+        val got = CoverPrompt.posterTracks(tracks, n = 9, artists = 3, perArtist = 2).map { it.title }
+        // A (3), B (2), C (2) two each, grouped; then one each of the rest by first appearance.
+        assertEquals(listOf("a1", "a2", "b1", "b2", "c1", "c2", "s1", "d1", "e1"), got)
+        assertEquals(listOf("a1", "b1"), CoverPrompt.posterTracks(listOf(t("A", "a1"), t("B", "b1")), n = 9).map { it.title })
+    }
+
+    @Test
     fun promptCarriesTitleArtistsDescriptionAndTheRules() {
         val p = CoverPrompt.build("Metal & More", listOf("Metallica", "Avenged Sevenfold"), "  late night\n drive  ")
         assertTrue(p.contains("\"Metal & More\""))

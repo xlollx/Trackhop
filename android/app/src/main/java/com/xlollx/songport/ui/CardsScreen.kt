@@ -575,7 +575,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     service = p.provider.brand,
                     trackCount = tracks.size, durationMs = tracks.sumOf { it.durationMs },
                     covers = covers, qr = qr, artists = artists,
-                    tracks = tracks.take(9).map { it.title to it.artists.firstOrNull().orEmpty() }, titledArt = titled,
+                    // The songs of the artists that appear most, not the playlist's first page.
+                    tracks = CoverPrompt.posterTracks(tracks).map { it.title to it.artists.firstOrNull().orEmpty() }, titledArt = titled,
                 )
                 bitmaps = draw(card)
                 printed = card

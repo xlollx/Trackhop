@@ -24,6 +24,21 @@ object CoverPrompt {
             .take(n).map { it.value.first }
     }
 
+    /**
+     * The tracks a poster lists: up to [perArtist] from each of the [artists] that appear most
+     * (in playlist order, grouped by artist), then, if the list is still short, one each from the
+     * next most frequent artists, then the playlist's own order. Same playlist, same list.
+     */
+    fun posterTracks(tracks: List<Track>, n: Int = 9, artists: Int = 5, perArtist: Int = 2): List<Track> {
+        val ranked = topArtists(tracks, Int.MAX_VALUE).map { it.lowercase() }
+        val byArtist = tracks.groupBy { it.artists.firstOrNull()?.trim()?.lowercase().orEmpty() }
+        val out = LinkedHashSet<Track>()
+        ranked.take(artists).forEach { a -> byArtist[a].orEmpty().take(perArtist).forEach { if (out.size < n) out += it } }
+        ranked.drop(artists).forEach { a -> byArtist[a]?.firstOrNull()?.let { if (out.size < n) out += it } }
+        tracks.forEach { if (out.size < n) out += it }
+        return out.toList()
+    }
+
     fun build(title: String, artists: List<String>, description: String = ""): String = buildString {
         append("Square album cover art for a music playlist titled \"").append(title.trim().take(120)).append("\".")
         if (artists.isNotEmpty()) append(" The music sounds like ").append(artists.take(5).joinToString(", ") { it.take(60) }).append('.')
