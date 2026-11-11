@@ -149,8 +149,10 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         // recording, whatever its title. Another server's answer is kept only if it carries that id.
         for (mbid in track.mbids.take(MBID_QUERIES)) songs(mbid, 5).filter { mbid in it.mbids }.takeIf { it.isNotEmpty() }?.let { return it }
         // Gonic and Ampache match the query against the title alone ("metallica battery" finds nothing):
-        // then the title, with the artist's songs first.
-        return songs(q, 5).ifEmpty { if (q == title) emptyList() else Matcher.byArtist(track, songs(title, 20)).take(5) }
+        // then the title, as written and bare, while nothing close is found, with the artist's songs first.
+        val first = songs(q, 5)
+        val found = Matcher.searchByTitles(track, Matcher.titleTerms(track.title).filterNot { it.equals(q, ignoreCase = true) }, first) { songs(it, 20) }
+        return if (found.size == first.size) first else Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
     /** OpenSubsonic: an empty query lists every song, a page at a time. */

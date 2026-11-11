@@ -108,14 +108,11 @@ class MopidyProvider(override val slot: String = "") : CredentialsProvider() {
         suspend fun find(vararg query: Pair<String, String>) =
             read(ctx, "core.library.search", jsonObj("query" to JsonObject(query.associate { (k, v) -> k to JsonArray(listOf(JsonPrimitive(v))) })))
                 .arr.flatMap { it["tracks"].arr }.mapNotNull { toTrack(it) }.distinctBy { it.id }
-        // As written (the library matches text as it is), then folded, then without its numbered part.
+        // As written (the library matches text as it is), then folded, then the bare title.
         val plain = Matcher.plainTitle(track.title)
-        val folded = Matcher.searchTitle(track.title)
         val artist = track.artists.firstOrNull()?.takeIf { it.isNotBlank() }
-        val found = (artist?.let { find("track_name" to plain, "artist" to it) }.orEmpty())
-            .ifEmpty { find("track_name" to plain) }
-            .ifEmpty { if (folded.equals(plain, ignoreCase = true)) emptyList() else find("track_name" to folded) }
-            .ifEmpty { Matcher.baseTitle(track.title)?.let { find("track_name" to it) }.orEmpty() }
+        val withArtist = artist?.let { find("track_name" to plain, "artist" to it) }.orEmpty()
+        val found = Matcher.searchByTitles(track, listOf(plain) + Matcher.titleTerms(track.title), withArtist) { find("track_name" to it) }
         return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
 
