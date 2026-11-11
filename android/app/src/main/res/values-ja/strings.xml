@@ -2049,6 +2049,10 @@
         <item quantity="other">%d 組のレコードを探す</item>
     </plurals>
     <string name="records_find_top">よく聴く %d 組のレコードを探す</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="other">%d 組のグッズを探す</item>
+    </plurals>
+    <string name="records_find_merch_top">よく聴く %d 組のグッズを探す</string>
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
@@ -2078,9 +2082,14 @@
     <string name="setlists_key_field">API キー</string>
     <string name="setlists_key_none">キーなし: セットリストを見るには追加してください</string>
     <string name="discover_records_title">レコードとグッズ</string>
-    <string name="discover_records_desc">プレイリストのアーティストのCD・レコード・ショップ</string>
-    <string name="records_intro">プレイリストを選ぶと、Trackhop がそのアーティストの CD・レコード・カセットを Discogs で探し、公式サイトやショップも表示します。リンクのみで、購入は各サイトで行います。</string>
+    <string name="discover_records_desc">プレイリストのアーティストのCD・レコード・グッズ</string>
+    <string name="records_intro">プレイリストを選ぶと、Trackhop がそのアーティストの CD・レコード・カセットを Discogs で探し、公式ショップや Bandcamp のグッズと公式サイトも表示します。リンクのみで、購入は各サイトで行います。</string>
     <string name="records_find">レコードを探す</string>
+    <string name="records_kind_all">すべて</string>
+    <string name="records_kind_records">CD・レコード</string>
+    <string name="records_kind_merch">グッズ</string>
+    <string name="records_find_merch">グッズを探す</string>
+    <string name="records_merch_none">ショップにグッズは見つかりませんでした。</string>
     <string name="records_none">Discogs に CD・レコード・カセットはありません。</string>
     <string name="records_not_for_sale">現在販売中のものはありません</string>
     <plurals name="records_for_sale">

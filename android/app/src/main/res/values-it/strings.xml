@@ -2088,6 +2088,11 @@
         <item quantity="other">Cerca dischi per %d artisti</item>
     </plurals>
     <string name="records_find_top">Cerca dischi per i %d che ascolti di più</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="one">Cerca merch per %d artista</item>
+        <item quantity="other">Cerca merch per %d artisti</item>
+    </plurals>
+    <string name="records_find_merch_top">Cerca merch per i %d che ascolti di più</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Anche %d canale di notifica: resta spento finché non lo attivi e inserisci le sue chiavi.</item>
         <item quantity="other">Anche %d canali di notifica: restano spenti finché non li attivi e inserisci le loro chiavi.</item>
@@ -2120,9 +2125,14 @@
     <string name="setlists_key_field">Chiave API</string>
     <string name="setlists_key_none">Nessuna chiave: aggiungine una per vedere le scalette</string>
     <string name="discover_records_title">Dischi e merch</string>
-    <string name="discover_records_desc">CD, vinili e negozi degli artisti di una playlist</string>
-    <string name="records_intro">Scegli una playlist: Trackhop trova CD, vinili e cassette dei suoi artisti su Discogs, e i loro siti e negozi ufficiali. Solo link: compri sui loro siti.</string>
+    <string name="discover_records_desc">CD, vinili e merch degli artisti di una playlist</string>
+    <string name="records_intro">Scegli una playlist: Trackhop trova CD, vinili e cassette dei suoi artisti su Discogs, il merch nei loro negozi (negozio ufficiale, Bandcamp) e i loro siti ufficiali. Solo link: compri sui loro siti.</string>
     <string name="records_find">Cerca dischi</string>
+    <string name="records_kind_all">Tutto</string>
+    <string name="records_kind_records">CD e vinili</string>
+    <string name="records_kind_merch">Merch</string>
+    <string name="records_find_merch">Cerca merch</string>
+    <string name="records_merch_none">Nessun merch trovato nei loro negozi.</string>
     <string name="records_none">Niente su CD, vinile o cassetta su Discogs.</string>
     <string name="records_not_for_sale">Nessuna copia in vendita ora</string>
     <plurals name="records_for_sale">

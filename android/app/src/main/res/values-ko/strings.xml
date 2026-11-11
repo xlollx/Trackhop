@@ -2048,6 +2048,10 @@
         <item quantity="other">아티스트 %d명의 음반 찾기</item>
     </plurals>
     <string name="records_find_top">가장 많이 듣는 %d명의 음반 찾기</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="other">아티스트 %d명의 굿즈 찾기</item>
+    </plurals>
+    <string name="records_find_merch_top">가장 많이 듣는 %d명의 굿즈 찾기</string>
     <plurals name="backup_config_channels">
         <item quantity="other">알림 채널 %d개도 있어요. 켜고 키를 입력할 때까지 꺼져 있어요.</item>
     </plurals>
@@ -2077,9 +2081,14 @@
     <string name="setlists_key_field">API 키</string>
     <string name="setlists_key_none">키 없음: 세트리스트를 보려면 추가하세요</string>
     <string name="discover_records_title">음반과 굿즈</string>
-    <string name="discover_records_desc">플레이리스트 아티스트의 CD, LP, 쇼핑몰</string>
-    <string name="records_intro">플레이리스트를 고르면 Trackhop이 Discogs에서 아티스트의 CD, LP, 카세트를 찾고 공식 사이트와 쇼핑몰도 보여 줍니다. 링크만 제공하며 구매는 해당 사이트에서 합니다.</string>
+    <string name="discover_records_desc">플레이리스트 아티스트의 CD, LP, 굿즈</string>
+    <string name="records_intro">플레이리스트를 고르면 Trackhop이 Discogs에서 아티스트의 CD, LP, 카세트를 찾고, 공식 쇼핑몰과 Bandcamp의 굿즈, 공식 사이트도 보여 줍니다. 링크만 제공하며 구매는 해당 사이트에서 합니다.</string>
     <string name="records_find">음반 찾기</string>
+    <string name="records_kind_all">전체</string>
+    <string name="records_kind_records">CD·LP</string>
+    <string name="records_kind_merch">굿즈</string>
+    <string name="records_find_merch">굿즈 찾기</string>
+    <string name="records_merch_none">쇼핑몰에서 굿즈를 찾지 못했습니다.</string>
     <string name="records_none">Discogs에 CD, LP, 카세트가 없습니다.</string>
     <string name="records_not_for_sale">지금 판매 중인 상품이 없습니다</string>
     <plurals name="records_for_sale">

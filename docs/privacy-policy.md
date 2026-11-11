@@ -71,8 +71,14 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   of the artists of the playlist you picked are sent to the Discogs API (api.discogs.com, under Discogs'
   own privacy policy) and to MusicBrainz (musicbrainz.org). Only when you ask, never in the background;
   nothing else about you. If you add your own Discogs token it goes along to Discogs and is kept
-  encrypted on the device. Shop, Discogs and official-site links open in your browser, without any
-  affiliate tag.
+  encrypted on the device. With "Merch" on (All or Merch at the top of the page), the app also asks the
+  artist's own shops that MusicBrainz lists (an official shop on Shopify, the official site, the
+  artist's Bandcamp) for their public product list: their robots.txt, `/products.json` and
+  `/meta.json` on a Shopify shop, `/merch` on Bandcamp. Those shops see your phone's connection and
+  that a product list was asked, like any visit; no account, no cookie, nothing about you. Product
+  pictures load from the shops' image servers (cdn.shopify.com, bcbits.com), like any web picture
+  (turn them off in Settings › Images in Discover). Shop, Discogs and official-site links open in your
+  browser, without any affiliate tag.
 - **Radio syncs (optional)**: to find a station by name, the name you type is sent to the public
   radio directory radio-browser.info (anonymous, no account). While a radio sync's window is open, the
   app briefly opens the station's stream every 2 minutes to read the title of the song on air, as any
@@ -165,7 +171,14 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   artisti della playlist scelta vengono inviati all'API di Discogs (api.discogs.com, secondo
   l'informativa di Discogs) e a MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background;
   nient'altro su di te. Se aggiungi il tuo token Discogs, viene inviato a Discogs e resta cifrato sul
-  dispositivo. I link a negozi, Discogs e siti ufficiali si aprono nel browser, senza codici di affiliazione.
+  dispositivo. Con "Merch" attivo (Tutto o Merch in cima alla pagina), l'app chiede anche ai negozi
+  dell'artista elencati da MusicBrainz (un negozio ufficiale su Shopify, il sito ufficiale, il Bandcamp
+  dell'artista) il loro elenco pubblico di prodotti: robots.txt, `/products.json` e `/meta.json` su un
+  negozio Shopify, `/merch` su Bandcamp. Quei negozi vedono la connessione del telefono e che è stato
+  chiesto l'elenco, come per ogni visita; nessun account, nessun cookie, niente su di te. Le foto dei
+  prodotti arrivano dai server di immagini dei negozi (cdn.shopify.com, bcbits.com), come ogni immagine
+  web (si spengono in Opzioni › Immagini in Scopri). I link a negozi, Discogs e siti ufficiali si aprono
+  nel browser, senza codici di affiliazione.
 - **Sync da radio (facoltative)**: per cercare una stazione per nome, il nome che scrivi viene inviato
   all'elenco pubblico di radio radio-browser.info (in forma anonima, senza account). Mentre la finestra di
   una sync da radio è aperta, l'app apre per qualche secondo il flusso della stazione ogni 2 minuti per

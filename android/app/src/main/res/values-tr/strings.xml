@@ -2086,6 +2086,11 @@
         <item quantity="other">%d sanatçının plaklarını bul</item>
     </plurals>
     <string name="records_find_top">En çok dinlediğin %d sanatçının plaklarını bul</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="one">%d sanatçının ürünlerini bul</item>
+        <item quantity="other">%d sanatçının ürünlerini bul</item>
+    </plurals>
+    <string name="records_find_merch_top">En çok dinlediğin %d sanatçının ürünlerini bul</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
         <item quantity="other">Ayrıca %d bildirim kanalı: açıp anahtarlarını girene kadar kapalı kalır.</item>
@@ -2118,9 +2123,14 @@
     <string name="setlists_key_field">API anahtarı</string>
     <string name="setlists_key_none">Anahtar yok: setlistleri görmek için bir tane ekle</string>
     <string name="discover_records_title">Plaklar ve merch</string>
-    <string name="discover_records_desc">Bir çalma listesindeki sanatçıların CD, plak ve mağazaları</string>
-    <string name="records_intro">Bir çalma listesi seç: Trackhop sanatçılarının CD, plak ve kasetlerini Discogs\'ta, resmi sitelerini ve mağazalarını da bulur. Yalnızca bağlantılar: satın alma onların sitesinde.</string>
+    <string name="discover_records_desc">Bir çalma listesindeki sanatçıların CD, plak ve ürünleri</string>
+    <string name="records_intro">Bir çalma listesi seç: Trackhop sanatçılarının CD, plak ve kasetlerini Discogs\'ta, kendi mağazalarındaki ürünleri (resmi mağaza, Bandcamp) ve resmi sitelerini bulur. Yalnızca bağlantılar: satın alma onların sitesinde.</string>
     <string name="records_find">Plak bul</string>
+    <string name="records_kind_all">Tümü</string>
+    <string name="records_kind_records">CD ve plak</string>
+    <string name="records_kind_merch">Ürünler</string>
+    <string name="records_find_merch">Ürün bul</string>
+    <string name="records_merch_none">Mağazalarında ürün bulunamadı.</string>
     <string name="records_none">Discogs\'ta CD, plak veya kaset yok.</string>
     <string name="records_not_for_sale">Şu an satışta yok</string>
     <plurals name="records_for_sale">

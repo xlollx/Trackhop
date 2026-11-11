@@ -2166,6 +2166,13 @@
         <item quantity="other">Найти пластинки (исполнителей: %d)</item>
     </plurals>
     <string name="records_find_top">Найти пластинки %d самых слушаемых</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="one">Найти мерч (исполнителей: %d)</item>
+        <item quantity="few">Найти мерч (исполнителей: %d)</item>
+        <item quantity="many">Найти мерч (исполнителей: %d)</item>
+        <item quantity="other">Найти мерч (исполнителей: %d)</item>
+    </plurals>
+    <string name="records_find_merch_top">Найти мерч %d самых слушаемых</string>
     <plurals name="backup_config_channels">
         <item quantity="one">А также %d канал уведомлений: он останется выключенным, пока ты его не включишь и не введёшь ключи.</item>
         <item quantity="few">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
@@ -2204,9 +2211,14 @@
     <string name="setlists_key_field">Ключ API</string>
     <string name="setlists_key_none">Нет ключа: добавьте его, чтобы видеть сет-листы</string>
     <string name="discover_records_title">Пластинки и мерч</string>
-    <string name="discover_records_desc">CD, винил и магазины артистов плейлиста</string>
-    <string name="records_intro">Выберите плейлист: Trackhop найдёт на Discogs CD, винил и кассеты его артистов, а также их официальные сайты и магазины. Только ссылки: покупаете вы на их сайтах.</string>
+    <string name="discover_records_desc">CD, винил и мерч артистов плейлиста</string>
+    <string name="records_intro">Выберите плейлист: Trackhop найдёт на Discogs CD, винил и кассеты его артистов, мерч в их собственных магазинах (официальный магазин, Bandcamp) и их официальные сайты. Только ссылки: покупаете вы на их сайтах.</string>
     <string name="records_find">Найти пластинки</string>
+    <string name="records_kind_all">Всё</string>
+    <string name="records_kind_records">CD и винил</string>
+    <string name="records_kind_merch">Мерч</string>
+    <string name="records_find_merch">Найти мерч</string>
+    <string name="records_merch_none">В их магазинах мерча нет.</string>
     <string name="records_none">На Discogs нет CD, винила или кассет.</string>
     <string name="records_not_for_sale">Сейчас нет в продаже</string>
     <plurals name="records_for_sale">
