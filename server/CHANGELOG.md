@@ -17,6 +17,10 @@ the Docker image carried the app's version.
 - **Diagnostics**: a report with a ready GitHub issue, secrets and names left out, which first looks for the same issue on GitHub; from the API, `trackhop diagnostics` and MCP.
 - **Crowded schedules on the page**: when many syncs reach one service at once, a card proposes new times to confirm; the same through the API, CLI and MCP.
 
+## 1.9.1
+
+- **Better matching on your own media servers** (#57): Jellyfin, Emby, Plex and Navidrome/Subsonic also search the bare title (without "Pt. 4", subtitles or "- Remastered", with and without accents) when the first answers bring only other songs; dotted initials are one word ("U.S.A" is "USA"); tracks missed before an update to matching are searched again on the next run instead of staying "not found" for a week. Different parts of a piece are still never matched to each other.
+
 ## 1.9.0
 
 - **Files your way** (#49): artist and album read from file names and folders ("Artist - Album - Title", phone library paths), or from your own patterns (templates or `re:`) with a Try button; tick files to delete them or download them as a .zip; *Send to a service* on each File playlist.

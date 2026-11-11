@@ -1,0 +1,1 @@
+Better matching on your own servers (Jellyfin, Emby, Plex, Navidrome): titles like "Oxygene, Pt. 4" or with a subtitle are found even when the server first answers with other songs, "U.S.A" matches "USA", and tracks missed by older versions are searched again on the next sync. Different parts of a piece are still kept apart.

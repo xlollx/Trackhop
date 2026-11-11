@@ -1,0 +1,1 @@
+Lepsze dopasowanie na twoich serwerach (Jellyfin, Emby, Plex, Navidrome): tytuły jak „Oxygene, Pt. 4" lub z podtytułem są znajdowane, nawet gdy serwer najpierw zwraca inne utwory, „U.S.A" pasuje do „USA", a utwory nieznalezione przez starsze wersje są szukane ponownie przy następnej synchronizacji. Różne części utworu pozostają rozdzielone.

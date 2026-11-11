@@ -1,0 +1,1 @@
+Besseres Zuordnen auf deinen eigenen Servern (Jellyfin, Emby, Plex, Navidrome): Titel wie „Oxygene, Pt. 4" oder mit Untertitel werden gefunden, auch wenn der Server zuerst andere Songs liefert, „U.S.A" passt zu „USA", und von älteren Versionen nicht gefundene Titel werden beim nächsten Sync erneut gesucht. Verschiedene Teile eines Stücks bleiben getrennt.

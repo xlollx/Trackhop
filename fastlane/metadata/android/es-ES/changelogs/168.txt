@@ -1,0 +1,1 @@
+Mejor emparejamiento en tus propios servidores (Jellyfin, Emby, Plex, Navidrome): títulos como "Oxygene, Pt. 4" o con subtítulo se encuentran aunque el servidor responda primero con otras canciones, "U.S.A" coincide con "USA" y las pistas que versiones anteriores no encontraron se buscan de nuevo en la próxima sincronización. Las distintas partes de una obra siguen separadas.

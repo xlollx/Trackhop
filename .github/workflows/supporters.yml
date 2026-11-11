@@ -42,6 +42,10 @@ jobs:
       - name: GitHub Sponsors
         if: github.event_name != 'repository_dispatch' && inputs.name == ''
         continue-on-error: true
+        # The workflow's own token can't see sponsors (the answer comes back empty): the owner's
+        # SPONSORS_TOKEN (a classic token with read:user only) can.
+        env:
+          GH_TOKEN: ${{ secrets.SPONSORS_TOKEN || github.token }}
         run: |
           gh api graphql -f query='query { user(login: "${{ github.repository_owner }}") { sponsorshipsAsMaintainer(first: 100, activeOnly: false) { nodes { privacyLevel sponsorEntity { ... on User { login name } ... on Organization { login name } } } } } }' \
             | python3 scripts/supporters.py --sponsors - | tee -a added.txt
