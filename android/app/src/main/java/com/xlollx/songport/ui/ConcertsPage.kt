@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.ArtistPick
+import com.xlollx.songport.sync.LookupCaps
 import com.xlollx.songport.sync.Concerts
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -90,13 +91,13 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
     var country by rememberSaveable { mutableStateOf(defaultConcertCountry(ctx)) }
     k.error?.let { e -> LaunchedEffect(e) { snackbar.showSnackbar(e.ifBlank { ctx.getString(R.string.error_generic) }); k.error = null } }
     var range by remember { mutableStateOf(Concerts.savedRange(ctx.env)) }
-    // The playlist's artists, read when it is picked: some can be ticked to look up only those.
+    // The playlist's artists, read when it is picked: the ones played most, or some chosen.
     var artists by remember { mutableStateOf<List<String>?>(null) }
-    var ticked by remember { mutableStateOf(emptySet<String>()) }
-    var typed by rememberSaveable { mutableStateOf("") }
+    val choice = rememberArtistChoice()
     LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
-        artists = null; ticked = emptySet()
+        artists = null
         val p = pick ?: return@LaunchedEffect
+        choice.forPlaylist(p.provider.id + "|" + p.playlist.id)
         artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
     }
     var keyOpen by rememberSaveable { mutableStateOf(false) }
@@ -106,10 +107,10 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
     fun run() {
         val p = pick ?: return
         val env = ctx.env
-        val known = artists; val tick = ticked; val type = typed; val c = country; val rg = range
+        val known = artists; val picked = choice.pickedOrNull; val c = country; val rg = range
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
-            Concerts.find(env, ArtistPick.chosen(all, tick, type), c, rg, ArtistPick.isWhole(all, tick, type), progress)
+            Concerts.find(env, ArtistPick.chosen(all, picked), c, rg, picked == null, progress)
         }
     }
 
@@ -118,14 +119,14 @@ internal fun ConcertsPage(snackbar: SnackbarHostState) {
         if (it == null || it.playlist.id != k.key) k.clear()
         pick = it
     }
-    if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
+    if (pick != null) ArtistChooser(artists, choice, LookupCaps.CONCERTS)
     CountryPicker(country) { country = it; k.clear() }
     RangePicker(range) { range = it; Concerts.saveRange(ctx.env, it); k.clear() }
     val busy = k.running
     val progress = k.progress
-    Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { run() }, enabled = pick != null && !busy && choice.ready, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-        Text(stringResource(R.string.concerts_find))
+        Text(if (pick == null) stringResource(R.string.concerts_find) else artistsAction(artists, choice, LookupCaps.CONCERTS, R.string.concerts_find, R.plurals.concerts_find_for, R.string.concerts_find_top))
     }
     progress?.takeIf { it.second > 0 }?.let { (done, total) ->
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

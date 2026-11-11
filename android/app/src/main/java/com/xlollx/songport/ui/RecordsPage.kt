@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.ArtistPick
+import com.xlollx.songport.sync.LookupCaps
 import com.xlollx.songport.sync.Concerts
 import com.xlollx.songport.sync.DeezerCatalog
 import com.xlollx.songport.sync.Merch
@@ -93,27 +94,28 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     k.error?.let { e -> LaunchedEffect(e) { snackbar.showSnackbar(e.ifBlank { ctx.getString(R.string.error_generic) }); k.error = null } }
     var tokenOpen by rememberSaveable { mutableStateOf(false) }
     if (tokenOpen) DiscogsTokenDialog { tokenOpen = false }
-    // The playlist's artists, read when it is picked: some can be ticked to look up only those.
+    // The playlist's artists, read when it is picked: the ones played most, or some chosen.
     var artists by remember { mutableStateOf<List<String>?>(null) }
-    var ticked by remember { mutableStateOf(emptySet<String>()) }
-    var typed by rememberSaveable { mutableStateOf("") }
+    val choice = rememberArtistChoice()
     var look by remember { mutableStateOf(savedLook(ctx)) }
     var formats by rememberSaveable { mutableStateOf(emptyList<Records.Format>()) }
     LaunchedEffect(pick?.provider?.id, pick?.playlist?.id) {
-        artists = null; ticked = emptySet()
+        artists = null
         val p = pick ?: return@LaunchedEffect
+        choice.forPlaylist(p.provider.id + "|" + p.playlist.id)
         artists = try { Concerts.artistsOf(p.provider.tracks(ctx.env, p.playlist.id)) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
     }
 
     // Outside the page (RecordsKept): the screen turned or another tab opened, the search goes on.
     fun run(want: Records.Look = look) {
         val p = pick ?: return
+        if (!choice.ready) return
         val env = ctx.env
-        val known = artists; val tick = ticked; val type = typed
+        val known = artists; val picked = choice.pickedOrNull
         val currency = Records.currencyFor(ctx.resources.configuration.locales[0])
         k.start(p.playlist.id) { progress ->
             val all = known ?: Concerts.artistsOf(p.provider.tracks(env, p.playlist.id))
-            Records.find(env, ArtistPick.chosen(all, tick, type), currency, ArtistPick.isWhole(all, tick, type), want, progress)
+            Records.find(env, ArtistPick.chosen(all, picked), currency, picked == null, want, progress)
         }
     }
 
@@ -138,12 +140,17 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
         if (it == null || it.playlist.id != k.key) k.clear()
         pick = it
     }
-    if (pick != null) ArtistChooser(artists, ticked, typed, { ticked = it }, { typed = it })
+    val cap = remember(tokenOpen) { if (Records.token(ctx.env) != null) LookupCaps.RECORDS_TOKEN else LookupCaps.RECORDS_ANON }
+    if (pick != null) ArtistChooser(artists, choice, cap)
     val busy = k.running
     val progress = k.progress
-    Button(onClick = { run() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { run() }, enabled = pick != null && !busy && choice.ready, modifier = Modifier.fillMaxWidth()) {
         if (busy) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-        Text(stringResource(if (look == Records.Look.MERCH) R.string.records_find_merch else R.string.records_find))
+        Text(
+            if (pick == null) stringResource(if (look == Records.Look.MERCH) R.string.records_find_merch else R.string.records_find)
+            else if (look == Records.Look.MERCH) artistsAction(artists, choice, cap, R.string.records_find_merch, R.plurals.records_find_merch_for, R.string.records_find_merch_top)
+            else artistsAction(artists, choice, cap, R.string.records_find, R.plurals.records_find_for, R.string.records_find_top),
+        )
     }
     progress?.takeIf { it.second > 0 }?.let { (done, total) ->
         Text(stringResource(R.string.concerts_progress, (done + 1).coerceAtMost(total), total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -226,6 +233,14 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
                 Records.ATTRIBUTION, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { openUrl(ctx, a.discogsPage) },
             )
+            // The records on sale in their own shops (Bandcamp, their official shop): with the records, not the merch.
+            val shopRecords = a.shopRecords?.filter { formats.isEmpty() || it.format in formats }
+            if (showRecords && !shopRecords.isNullOrEmpty()) {
+                Text(stringResource(R.string.records_in_shops), style = MaterialTheme.typography.labelLarge)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(shopRecords) { MerchCard(it, images) }
+                }
+            }
             val merch = a.merch
             if (showMerch && merch != null) {
                 if (showRecords) HorizontalDivider()

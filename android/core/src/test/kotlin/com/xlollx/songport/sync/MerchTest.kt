@@ -208,7 +208,7 @@ class MerchTest {
         assertEquals(listOf("/www.arcticmonkeys.com/robots.txt"), hits)
     }
 
-    @Test fun recordsOnlyAsksNoShopAndMerchOnlyAsksNotDiscogs() = runBlocking {
+    @Test fun recordsInTheShopsGoWithTheRecordsAndMerchOnlyAsksNotDiscogs() = runBlocking {
         arcticShop()
         val id = "ada7a83c-e3e1-40f1-93f9-3e73dbc9298a"
         answers["/ws/2/artist"] = 200 to """{"artists":[{"id":"$id","name":"Arctic Monkeys","score":100}]}"""
@@ -216,14 +216,48 @@ class MerchTest {
         answers["/dg/database/search"] = 200 to """{"results":[]}"""
         val records = Records.find(env, listOf("Arctic Monkeys"), "EUR", look = Records.Look.RECORDS)
         assertNull(records.artists[0].merch)
-        assertTrue(hits.none { it.startsWith("/www.") })
+        // The shop's LP is a record: shown with the records, from the shop.
+        assertEquals(listOf("'The Car' LP"), records.artists[0].shopRecords!!.map { it.title })
+        assertEquals(Records.Format.VINYL, records.artists[0].shopRecords!![0].format)
         assertTrue(hits.any { it.startsWith("/dg/") })
         hits.clear()
         val merch = Records.find(env, listOf("Arctic Monkeys"), "EUR", look = Records.Look.MERCH)
         assertEquals(Records.Look.MERCH, merch.look)
         assertNull(merch.artists[0].records)
+        assertNull(merch.artists[0].shopRecords)
         assertTrue(hits.none { it.startsWith("/dg/") })
-        assertEquals(3, merch.artists[0].merch!!.size)
+        // Merch keeps only the goods that are not records.
+        assertEquals(listOf("Arctic Monkeys Logo Hood", "Gold Logo Black T-Shirt"), merch.artists[0].merch!!.map { it.title })
+    }
+
+    @Test fun bandcampRecordsAreRecordsAndItsShirtsMerch() {
+        val items = Merch.parseBandcamp(fixture("bandcamp-khruangbin-merch.html"), "https://khruangbin.bandcamp.com")
+        assertEquals(items.map { if (it.type == "Shirt") null else Records.Format.VINYL }, items.map { it.format })
+    }
+
+    @Test fun whatIsARecordFromTheTypeOrElseTheTitle() {
+        fun f(type: String, title: String = "Album") = Merch.recordFormat(type, title)
+        // Bandcamp's types.
+        assertEquals(Records.Format.VINYL, f("Record/Vinyl"))
+        assertEquals(Records.Format.VINYL, f("2 x Vinyl LP"))
+        assertEquals(Records.Format.CD, f("Compact Disc (CD)"))
+        assertEquals(Records.Format.CASSETTE, f("Cassette"))
+        assertNull(f("T-Shirt/Shirt", "Album LP Cover Tee"))
+        assertNull(f("Poster/Print"))
+        assertNull(f("Bag", "Vinyl Tote"))
+        // Shopify: the product type, else the title.
+        assertEquals(Records.Format.VINYL, f("LP"))
+        assertEquals(Records.Format.VINYL, f("", "The Car – Black Vinyl"))
+        assertEquals(Records.Format.VINYL, f("Music", "Single 7\" Picture Disc"))
+        assertEquals(Records.Format.VINYL, f("Bundle", "LP + T-Shirt Bundle"))
+        assertEquals(Records.Format.CD, f("", "Live in Paris (2CD)"))
+        assertEquals(Records.Format.CASSETTE, f("Other", "Demo Tape"))
+        // Things for records, and goods without one.
+        assertNull(f("", "Logo Vinyl Slipmat"))
+        assertNull(f("Accessories", "Vinyl Storage Crate"))
+        assertNull(f("Bundle", "Hoodie + Poster Bundle"))
+        assertNull(f("", "Enamel Pin"))
+        assertNull(f("Hoodie", "Logo Hood"))
     }
 
     @Test fun looksByName() {

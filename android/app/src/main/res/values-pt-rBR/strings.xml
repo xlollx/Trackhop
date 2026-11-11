@@ -2060,11 +2060,47 @@
     <string name="concerts_no_calendar">Nenhum app de agenda encontrado.</string>
     <string name="artists_search">Buscar artistas</string>
     <string name="artists_choose">Escolher artistas</string>
-    <string name="artists_choose_hint">Marque os que quer buscar: sem nenhum marcado, a playlist inteira.</string>
-    <string name="artists_chosen">Artistas: %1$d de %2$d</string>
-    <string name="artists_whole_playlist">Artistas: a playlist inteira</string>
-    <string name="artists_typed">Outro artista, pelo nome</string>
     <string name="artists_capped">Foram buscados os %1$d artistas que você mais ouve, de %2$d: escolha artistas para buscar outros.</string>
+    <string name="artists_title">Artistas para buscar</string>
+    <string name="artists_mode_top">Mais ouvidos</string>
+    <string name="artists_top_hint">Os %1$d artistas que você mais ouve, de %2$d na playlist.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">%d artista: a playlist toda.</item>
+        <item quantity="other">Todos os %d artistas da playlist.</item>
+    </plurals>
+    <string name="artists_none_chosen">Nenhum artista escolhido: adicione os que quer buscar.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">%d artista escolhido</item>
+        <item quantity="other">%d artistas escolhidos</item>
+    </plurals>
+    <string name="artists_add">Adicionar artistas</string>
+    <string name="artists_remove">Remover %s</string>
+    <string name="artists_sheet_search">Busque ou adicione um artista</string>
+    <string name="artists_search_clear">Limpar busca</string>
+    <string name="artists_add_free">Adicionar “%s”</string>
+    <string name="artists_select_shown">Marcar os mostrados</string>
+    <string name="artists_clear">Desmarcar</string>
+    <string name="artists_done">Concluir (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">Procurar shows de %d artista</item>
+        <item quantity="other">Procurar shows de %d artistas</item>
+    </plurals>
+    <string name="concerts_find_top">Procurar shows dos %d que você mais ouve</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">Buscar setlists de %d artista</item>
+        <item quantity="other">Buscar setlists de %d artistas</item>
+    </plurals>
+    <string name="setlists_find_top">Buscar setlists dos %d que você mais ouve</string>
+    <plurals name="records_find_for">
+        <item quantity="one">Buscar discos de %d artista</item>
+        <item quantity="other">Buscar discos de %d artistas</item>
+    </plurals>
+    <string name="records_find_top">Buscar discos dos %d que você mais ouve</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="one">Buscar merch de %d artista</item>
+        <item quantity="other">Buscar merch de %d artistas</item>
+    </plurals>
+    <string name="records_find_merch_top">Buscar merch dos %d que você mais ouve</string>
     <plurals name="backup_config_channels">
         <item quantity="one">Também %d canal de notificação: fica desativado até você ativá-lo e inserir as chaves.</item>
         <item quantity="other">Também %d canais de notificação: ficam desativados até você ativá-los e inserir as chaves.</item>
@@ -2105,6 +2141,7 @@
     <string name="records_kind_merch">Merch</string>
     <string name="records_find_merch">Buscar merch</string>
     <string name="records_merch_none">Nenhum merch nas lojas deles.</string>
+    <string name="records_in_shops">Nas lojas deles</string>
     <string name="records_none">Nada em CD, vinil ou fita no Discogs.</string>
     <string name="records_not_for_sale">Nenhuma cópia à venda agora</string>
     <plurals name="records_for_sale">

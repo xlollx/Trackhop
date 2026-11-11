@@ -2120,11 +2120,59 @@
     <string name="concerts_no_calendar">Приложение календаря не найдено.</string>
     <string name="artists_search">Поиск исполнителей</string>
     <string name="artists_choose">Выбрать исполнителей</string>
-    <string name="artists_choose_hint">Отметьте тех, кого искать: если никто не отмечен — весь плейлист.</string>
-    <string name="artists_chosen">Исполнители: %1$d из %2$d</string>
-    <string name="artists_whole_playlist">Исполнители: весь плейлист</string>
-    <string name="artists_typed">Другой исполнитель, по имени</string>
     <string name="artists_capped">Найдены %1$d исполнителей, которых вы слушаете чаще всего, из %2$d: выберите исполнителей, чтобы искать других.</string>
+    <string name="artists_title">Исполнители для поиска</string>
+    <string name="artists_mode_top">Самые слушаемые</string>
+    <string name="artists_top_hint">%1$d исполнителей, которых вы слушаете чаще всего, из %2$d в плейлисте.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="one">Весь плейлист (исполнителей: %d).</item>
+        <item quantity="few">Весь плейлист (исполнителей: %d).</item>
+        <item quantity="many">Весь плейлист (исполнителей: %d).</item>
+        <item quantity="other">Весь плейлист (исполнителей: %d).</item>
+    </plurals>
+    <string name="artists_none_chosen">Исполнители ещё не выбраны: добавьте тех, кого искать.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="one">Выбрано исполнителей: %d</item>
+        <item quantity="few">Выбрано исполнителей: %d</item>
+        <item quantity="many">Выбрано исполнителей: %d</item>
+        <item quantity="other">Выбрано исполнителей: %d</item>
+    </plurals>
+    <string name="artists_add">Добавить исполнителей</string>
+    <string name="artists_remove">Убрать %s</string>
+    <string name="artists_sheet_search">Найдите или добавьте исполнителя</string>
+    <string name="artists_search_clear">Очистить поиск</string>
+    <string name="artists_add_free">Добавить «%s»</string>
+    <string name="artists_select_shown">Отметить показанных</string>
+    <string name="artists_clear">Снять отметки</string>
+    <string name="artists_done">Готово (%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="one">Найти концерты (исполнителей: %d)</item>
+        <item quantity="few">Найти концерты (исполнителей: %d)</item>
+        <item quantity="many">Найти концерты (исполнителей: %d)</item>
+        <item quantity="other">Найти концерты (исполнителей: %d)</item>
+    </plurals>
+    <string name="concerts_find_top">Найти концерты %d самых слушаемых</string>
+    <plurals name="setlists_find_for">
+        <item quantity="one">Найти сет-листы (исполнителей: %d)</item>
+        <item quantity="few">Найти сет-листы (исполнителей: %d)</item>
+        <item quantity="many">Найти сет-листы (исполнителей: %d)</item>
+        <item quantity="other">Найти сет-листы (исполнителей: %d)</item>
+    </plurals>
+    <string name="setlists_find_top">Найти сет-листы %d самых слушаемых</string>
+    <plurals name="records_find_for">
+        <item quantity="one">Найти пластинки (исполнителей: %d)</item>
+        <item quantity="few">Найти пластинки (исполнителей: %d)</item>
+        <item quantity="many">Найти пластинки (исполнителей: %d)</item>
+        <item quantity="other">Найти пластинки (исполнителей: %d)</item>
+    </plurals>
+    <string name="records_find_top">Найти пластинки %d самых слушаемых</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="one">Найти мерч (исполнителей: %d)</item>
+        <item quantity="few">Найти мерч (исполнителей: %d)</item>
+        <item quantity="many">Найти мерч (исполнителей: %d)</item>
+        <item quantity="other">Найти мерч (исполнителей: %d)</item>
+    </plurals>
+    <string name="records_find_merch_top">Найти мерч %d самых слушаемых</string>
     <plurals name="backup_config_channels">
         <item quantity="one">А также %d канал уведомлений: он останется выключенным, пока ты его не включишь и не введёшь ключи.</item>
         <item quantity="few">А также %d канала уведомлений: они останутся выключенными, пока ты их не включишь и не введёшь ключи.</item>
@@ -2171,6 +2219,7 @@
     <string name="records_kind_merch">Мерч</string>
     <string name="records_find_merch">Найти мерч</string>
     <string name="records_merch_none">В их магазинах мерча нет.</string>
+    <string name="records_in_shops">В их магазинах</string>
     <string name="records_none">На Discogs нет CD, винила или кассет.</string>
     <string name="records_not_for_sale">Сейчас нет в продаже</string>
     <plurals name="records_for_sale">

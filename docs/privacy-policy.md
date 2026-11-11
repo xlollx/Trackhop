@@ -71,7 +71,7 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   of the artists of the playlist you picked are sent to the Discogs API (api.discogs.com, under Discogs'
   own privacy policy) and to MusicBrainz (musicbrainz.org). Only when you ask, never in the background;
   nothing else about you. If you add your own Discogs token it goes along to Discogs and is kept
-  encrypted on the device. With "Merch" on (All or Merch at the top of the page), the app also asks the
+  encrypted on the device. For the records and merch sold in their own shops, the app also asks the
   artist's own shops that MusicBrainz lists (an official shop on Shopify, the official site, the
   artist's Bandcamp) for their public product list: their robots.txt, `/products.json` and
   `/meta.json` on a Shopify shop, `/merch` on Bandcamp. Those shops see your phone's connection and
@@ -171,7 +171,7 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   artisti della playlist scelta vengono inviati all'API di Discogs (api.discogs.com, secondo
   l'informativa di Discogs) e a MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background;
   nient'altro su di te. Se aggiungi il tuo token Discogs, viene inviato a Discogs e resta cifrato sul
-  dispositivo. Con "Merch" attivo (Tutto o Merch in cima alla pagina), l'app chiede anche ai negozi
+  dispositivo. Per i dischi e il merch venduti nei loro negozi, l'app chiede anche ai negozi
   dell'artista elencati da MusicBrainz (un negozio ufficiale su Shopify, il sito ufficiale, il Bandcamp
   dell'artista) il loro elenco pubblico di prodotti: robots.txt, `/products.json` e `/meta.json` su un
   negozio Shopify, `/merch` su Bandcamp. Quei negozi vedono la connessione del telefono e che è stato

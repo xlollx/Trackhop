@@ -95,7 +95,8 @@ class RecordsWebTest {
                 Records.ArtistRecords("Radiohead", listOf(rec), listOf(Records.Link(Records.Kind.SHOP, "shop.radiohead.com", "https://shop.radiohead.com/")),
                     Records.searches("Radiohead"), "https://www.discogs.com/artist/3840",
                     listOf(Merch.Item(Merch.Source.SHOP, "Logo Tee", "T-Shirt", "https://cdn.shopify.com/a/tee_200x.png", 30.0, "GBP", "https://shop.radiohead.com/products/logo-tee"),
-                        Merch.Item(Merch.Source.BANDCAMP, "Kid A – Vinyl LP", "Vinyl", "", 32.28, null, "https://radiohead.bandcamp.com/album/kid-a"))),
+                        Merch.Item(Merch.Source.BANDCAMP, "Tote", "Bag", "", 12.0, null, "https://radiohead.bandcamp.com/merch/tote")),
+                    listOf(Merch.Item(Merch.Source.BANDCAMP, "Kid A – Vinyl LP", "Vinyl", "", 32.28, null, "https://radiohead.bandcamp.com/album/kid-a"))),
                 Records.ArtistRecords("Muse", null, emptyList(), Records.searches("Muse"), Records.discogsSearch("Muse")),
             ),
             total = 80, token = true, tokenRefused = false, slowedDown = true, currency = "EUR",
@@ -111,6 +112,10 @@ class RecordsWebTest {
         assertEquals("Logo Tee", tee.s("title")); assertEquals("Official shop", tee.s("source")); assertEquals("30.0", tee.s("price")); assertEquals("GBP", tee.s("currency"))
         assertEquals("https://shop.radiohead.com/products/logo-tee", tee.s("url"))
         assertEquals("Bandcamp", first["merch"]!!.jsonArray[1].jsonObject.s("source"))
+        assertEquals(kotlinx.serialization.json.JsonNull, tee["format"])
+        // A record in their shop: with the records, with its format.
+        val kidA = first["shopRecords"]!!.jsonArray.single().jsonObject
+        assertEquals("Vinyl", kidA.s("format")); assertEquals("Bandcamp", kidA.s("source"))
         assertEquals("32.28", RecordTexts.price(Merch.Item(Merch.Source.BANDCAMP, "x", price = 32.28, url = "u")))
         // Merch not looked up for Muse: null.
         assertEquals(kotlinx.serialization.json.JsonNull, o["artists"]!!.jsonArray[1].jsonObject["merch"])

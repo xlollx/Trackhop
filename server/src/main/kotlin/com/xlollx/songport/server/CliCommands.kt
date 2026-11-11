@@ -772,6 +772,10 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
                     out.println("  ${rec.s("title")}${rec["year"].str()?.let { " ($it)" }.orEmpty()}  $formats$sale  ${rec.s("url")}")
                 }
             }
+            a["shopRecords"]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonArray?.map { it.jsonObject }?.forEach { i ->
+                val price = i["price"].str()?.let { p -> "  $p${i["currency"].str()?.let { " $it" }.orEmpty()}" }.orEmpty()
+                out.println("  in their shop: ${i.s("title")}  ${i.s("format")}$price  (${i.s("source")})  ${i.s("url")}")
+            }
             a["merch"]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonArray?.map { it.jsonObject }?.let { items ->
                 if (items.isEmpty()) out.println("  no merch found in their shops")
                 items.forEach { i ->

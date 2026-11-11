@@ -1,9 +1,9 @@
 package com.xlollx.songport.sync
 
 /**
- * The artist lists of Discover's Concerts and Setlists: alphabetical order and a name filter that
- * ignore case and accents, and the artists one search is run for (some of the playlist's, or one
- * typed in, instead of all of them).
+ * The artist lists of Discover's Concerts, Setlists and Records: alphabetical order and a name
+ * filter that ignore case and accents, and the artists one search is run for (the ones played most,
+ * or the ones the user picks from the playlist and adds by name).
  */
 object ArtistPick {
     /** [items] in alphabetical order of [name], ignoring case and accents ("Ásgeir" before "Azealia Banks"). */
@@ -16,19 +16,46 @@ object ArtistPick {
         return if (q.isEmpty()) items else items.filter { Labels.fold(name(it)).contains(q) }
     }
 
-    /** Nothing ticked (among [all]) nor typed: the search runs on the whole playlist, capped ([LookupCaps]). */
-    fun isWhole(all: List<String>, ticked: Set<String>, typed: String): Boolean = typed.isBlank() && all.none { it in ticked }
+    /**
+     * The artists to look up: [picked] null means the whole playlist ([all], cut later to [LookupCaps]);
+     * else the picked ones of [all] in its order (most played first), then the ones added by name.
+     */
+    fun chosen(all: List<String>, picked: Set<String>?): List<String> {
+        if (picked == null) return all
+        val inPlaylist = all.filter { it in picked }
+        return inPlaylist + added(all, picked)
+    }
+
+    /** How many artists one search looks up: [cap] of the whole playlist at most ([picked] null), else all the chosen ones. */
+    fun count(all: List<String>, picked: Set<String>?, cap: Int): Int =
+        if (picked == null) minOf(all.size, cap) else chosen(all, picked).size
+
+    /** The [picked] artists that are not in [all] (added by name), alphabetical. */
+    fun added(all: List<String>, picked: Set<String>): List<String> {
+        val known = all.mapTo(HashSet()) { Labels.fold(it) }
+        return byName(picked.filter { Labels.fold(it) !in known }) { it }
+    }
+
+    /** The rows of the artist list for [query]: the playlist's artists and the ones added by name, alphabetical. */
+    fun rows(all: List<String>, picked: Set<String>, query: String): List<String> =
+        named(byName(all + added(all, picked)) { it }, query) { it }
 
     /**
-     * The artists to look up: the ticked ones among [all] (in [all]'s order) plus [typed] (one name
-     * written by hand, when not one of them already); [all] when nothing is ticked or typed.
+     * The name [query] would add by hand: null when blank or already there (in [all] or [picked],
+     * ignoring case and accents), so the list shows it instead.
      */
-    fun chosen(all: List<String>, ticked: Set<String>, typed: String = ""): List<String> {
-        if (isWhole(all, ticked, typed)) return all
-        val extra = typed.trim()
-        val picked = all.filter { it in ticked }
-        val same = Labels.fold(extra)
-        return if (extra.isEmpty() || picked.any { Labels.fold(it) == same }) picked else picked + extra
+    fun addable(all: List<String>, picked: Set<String>, query: String): String? {
+        val name = query.trim().replace(Regex("\\s+"), " ")
+        val q = Labels.fold(name)
+        if (q.isEmpty() || (all.asSequence() + picked.asSequence()).any { Labels.fold(it) == q }) return null
+        return name
+    }
+
+    /** [picked] with [name], spelled as in [all] when the playlist has it (ignoring case and accents). */
+    fun add(all: List<String>, picked: Set<String>, name: String): Set<String> {
+        val q = Labels.fold(name)
+        if (q.isEmpty() || picked.any { Labels.fold(it) == q }) return picked
+        return picked + (all.firstOrNull { Labels.fold(it) == q } ?: name.trim())
     }
 }
 

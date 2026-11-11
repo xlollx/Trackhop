@@ -2018,11 +2018,41 @@
     <string name="concerts_no_calendar">カレンダーアプリが見つかりません。</string>
     <string name="artists_search">アーティストを検索</string>
     <string name="artists_choose">アーティストを選ぶ</string>
-    <string name="artists_choose_hint">検索するアーティストにチェックを入れてください。チェックがなければプレイリスト全体です。</string>
-    <string name="artists_chosen">アーティスト：%2$d 組中 %1$d 組</string>
-    <string name="artists_whole_playlist">アーティスト：プレイリスト全体</string>
-    <string name="artists_typed">ほかのアーティスト（名前で）</string>
     <string name="artists_capped">よく聴く %1$d 組を検索しました（全 %2$d 組中）。ほかを検索するにはアーティストを選んでください。</string>
+    <string name="artists_title">検索するアーティスト</string>
+    <string name="artists_mode_top">よく聴く順</string>
+    <string name="artists_top_hint">プレイリストの %2$d 組のうち、よく聴く %1$d 組です。</string>
+    <plurals name="artists_all_hint">
+        <item quantity="other">プレイリストの全 %d 組です。</item>
+    </plurals>
+    <string name="artists_none_chosen">まだ選ばれていません。検索するアーティストを追加してください。</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="other">%d 組を選択中</item>
+    </plurals>
+    <string name="artists_add">アーティストを追加</string>
+    <string name="artists_remove">%s を外す</string>
+    <string name="artists_sheet_search">アーティストを検索または追加</string>
+    <string name="artists_search_clear">検索をクリア</string>
+    <string name="artists_add_free">「%s」を追加</string>
+    <string name="artists_select_shown">表示中をすべて選択</string>
+    <string name="artists_clear">選択を解除</string>
+    <string name="artists_done">完了（%d）</string>
+    <plurals name="concerts_find_for">
+        <item quantity="other">%d 組のコンサートを探す</item>
+    </plurals>
+    <string name="concerts_find_top">よく聴く %d 組のコンサートを探す</string>
+    <plurals name="setlists_find_for">
+        <item quantity="other">%d 組のセットリストを探す</item>
+    </plurals>
+    <string name="setlists_find_top">よく聴く %d 組のセットリストを探す</string>
+    <plurals name="records_find_for">
+        <item quantity="other">%d 組のレコードを探す</item>
+    </plurals>
+    <string name="records_find_top">よく聴く %d 組のレコードを探す</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="other">%d 組のグッズを探す</item>
+    </plurals>
+    <string name="records_find_merch_top">よく聴く %d 組のグッズを探す</string>
     <plurals name="backup_config_channels">
         <item quantity="other">通知チャンネル %d 件も含まれます。オンにしてキーを入力するまでオフのままです。</item>
     </plurals>
@@ -2060,6 +2090,7 @@
     <string name="records_kind_merch">グッズ</string>
     <string name="records_find_merch">グッズを探す</string>
     <string name="records_merch_none">ショップにグッズは見つかりませんでした。</string>
+    <string name="records_in_shops">アーティストのショップ</string>
     <string name="records_none">Discogs に CD・レコード・カセットはありません。</string>
     <string name="records_not_for_sale">現在販売中のものはありません</string>
     <plurals name="records_for_sale">

@@ -31,7 +31,8 @@ import java.util.Locale
  * "Records and merch of the artists of this playlist" (Discover): for each artist, their records
  * on CD, vinyl and cassette from the Discogs database, the official shop and pages MusicBrainz
  * links to the artist (official site, Bandcamp, mail-order shop, downloads, social), the merch on
- * sale in those shops ([Merch]: their public storefront data) and searches on Bandcamp, Discogs
+ * sale in those shops ([Merch]: their public storefront data; the records sold there go with the
+ * records) and searches on Bandcamp, Discogs
  * and general shops. No link carries an affiliate tag. [Look] says which part is looked up.
  *
  * Discogs needs no key: anonymous calls are allowed 25 a minute ([anonPace]). With the user's own
@@ -115,8 +116,10 @@ object Records {
         val searches: List<Search>,
         /** The artist on Discogs: MusicBrainz's link when it has one, else a search. The attribution links here. */
         val discogsPage: String,
-        /** The merch in the artist's shops ([Merch]); null when not looked up ([Look.RECORDS]). */
+        /** The merch in the artist's shops ([Merch]), records left out; null when not shown ([Look.RECORDS]). */
         val merch: List<Merch.Item>? = null,
+        /** The records (vinyl, CD, cassette) on sale in the artist's own shops ([Merch.Item.format]); null when not shown ([Look.MERCH]). */
+        val shopRecords: List<Merch.Item>? = null,
     )
 
     data class Result(
@@ -171,7 +174,8 @@ object Records {
     /**
      * Records, links and searches for [artists] (the playlist's, most held first). [progress] gets
      * (done, total). One artist's failure never stops the rest: that artist has fewer things.
-     * [look] says what is asked: Discogs is not called for [Look.MERCH], the shops not for [Look.RECORDS].
+     * [look] says what is asked and shown: Discogs is not called for [Look.MERCH]; the artists' shops
+     * are read for every look (their records are shown with the records, the rest as merch).
      */
     suspend fun find(env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL, progress: (Int, Int) -> Unit = { _, _ -> }): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
@@ -196,9 +200,13 @@ object Records {
                 }
                 records to links.await()
             }
-            val merch = if (look.merch) Merch.find(env, artist, links) else null
+            // The shops are read for every look: their records go with the records, the rest is the merch.
+            val (shopRecords, merch) = Merch.find(env, artist, links).partition { it.format != null }
             val page = links.firstOrNull { it.kind == Kind.DISCOGS }?.url ?: discogsSearch(artist)
-            out += ArtistRecords(artist, records, links.filter { it.kind != Kind.DISCOGS }, searches(artist), page, merch)
+            out += ArtistRecords(
+                artist, records, links.filter { it.kind != Kind.DISCOGS }, searches(artist), page,
+                merch.takeIf { look.merch }, shopRecords.takeIf { look.records },
+            )
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")

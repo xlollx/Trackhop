@@ -2017,11 +2017,41 @@
     <string name="concerts_no_calendar">캘린더 앱을 찾을 수 없어요.</string>
     <string name="artists_search">아티스트 검색</string>
     <string name="artists_choose">아티스트 선택</string>
-    <string name="artists_choose_hint">찾을 아티스트를 선택하세요. 선택하지 않으면 플레이리스트 전체를 찾아요.</string>
-    <string name="artists_chosen">아티스트: %2$d명 중 %1$d명</string>
-    <string name="artists_whole_playlist">아티스트: 플레이리스트 전체</string>
-    <string name="artists_typed">다른 아티스트(이름으로)</string>
     <string name="artists_capped">가장 많이 듣는 아티스트 %1$d명을 찾아봤어요(전체 %2$d명). 다른 아티스트는 직접 선택하세요.</string>
+    <string name="artists_title">찾아볼 아티스트</string>
+    <string name="artists_mode_top">많이 듣는 순</string>
+    <string name="artists_top_hint">플레이리스트의 %2$d명 중 가장 많이 듣는 %1$d명이에요.</string>
+    <plurals name="artists_all_hint">
+        <item quantity="other">플레이리스트의 아티스트 %d명 전체예요.</item>
+    </plurals>
+    <string name="artists_none_chosen">아직 선택한 아티스트가 없어요. 찾아볼 아티스트를 추가하세요.</string>
+    <plurals name="artists_chosen_n">
+        <item quantity="other">%d명 선택됨</item>
+    </plurals>
+    <string name="artists_add">아티스트 추가</string>
+    <string name="artists_remove">%s 빼기</string>
+    <string name="artists_sheet_search">아티스트 검색 또는 추가</string>
+    <string name="artists_search_clear">검색어 지우기</string>
+    <string name="artists_add_free">‘%s’ 추가</string>
+    <string name="artists_select_shown">표시된 아티스트 모두 선택</string>
+    <string name="artists_clear">선택 해제</string>
+    <string name="artists_done">완료(%d)</string>
+    <plurals name="concerts_find_for">
+        <item quantity="other">아티스트 %d명의 콘서트 찾기</item>
+    </plurals>
+    <string name="concerts_find_top">가장 많이 듣는 %d명의 콘서트 찾기</string>
+    <plurals name="setlists_find_for">
+        <item quantity="other">아티스트 %d명의 세트리스트 찾기</item>
+    </plurals>
+    <string name="setlists_find_top">가장 많이 듣는 %d명의 세트리스트 찾기</string>
+    <plurals name="records_find_for">
+        <item quantity="other">아티스트 %d명의 음반 찾기</item>
+    </plurals>
+    <string name="records_find_top">가장 많이 듣는 %d명의 음반 찾기</string>
+    <plurals name="records_find_merch_for">
+        <item quantity="other">아티스트 %d명의 굿즈 찾기</item>
+    </plurals>
+    <string name="records_find_merch_top">가장 많이 듣는 %d명의 굿즈 찾기</string>
     <plurals name="backup_config_channels">
         <item quantity="other">알림 채널 %d개도 있어요. 켜고 키를 입력할 때까지 꺼져 있어요.</item>
     </plurals>
@@ -2059,6 +2089,7 @@
     <string name="records_kind_merch">굿즈</string>
     <string name="records_find_merch">굿즈 찾기</string>
     <string name="records_merch_none">쇼핑몰에서 굿즈를 찾지 못했습니다.</string>
+    <string name="records_in_shops">아티스트의 상점</string>
     <string name="records_none">Discogs에 CD, LP, 카세트가 없습니다.</string>
     <string name="records_not_for_sale">지금 판매 중인 상품이 없습니다</string>
     <plurals name="records_for_sale">

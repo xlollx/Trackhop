@@ -58,7 +58,10 @@ object Merch {
         val price: Double? = null,
         val currency: String? = null,
         val url: String,
-    )
+    ) {
+        /** The record this is (vinyl, CD, cassette: shown with the records, not the merch); null for other goods. */
+        val format: Records.Format? get() = recordFormat(type, title)
+    }
 
     // Tests send every host to a local server ("http://127.0.0.1:port/<host>") and set the gap to 0.
     @Volatile internal var hostBase: (String) -> String = { "https://$it" }
@@ -78,14 +81,44 @@ object Merch {
      * empty when none answers. Never throws: a shop that fails is skipped.
      */
     suspend fun find(env: Env, artist: String, links: List<Records.Link>): List<Item> {
-        val ck = "merch|${Records.norm(artist)}"
+        // "merch2": kept before records and goods were counted apart.
+        val ck = "merch2|${Records.norm(artist)}"
         Records.cached(env, ck, TTL_MS) { json.decodeFromString(serializer, it) }?.let { return it }
         val shop = runCatching { shopify(artist, shopHosts(links)) }.getOrElse { if (it is CancellationException) throw it; emptyList() }
         val bc = links.firstOrNull { it.kind == Records.Kind.BANDCAMP }?.let { host(it.url) }
         val band = if (bc == null) emptyList() else runCatching { bandcamp(bc) }.getOrElse { if (it is CancellationException) throw it; emptyList() }
-        val items = mix(shop, band, PER_ARTIST)
+        // Records and other goods counted apart: a shop full of records still shows its t-shirts.
+        val items = mix(shop.filter { it.format == null }, band.filter { it.format == null }, PER_ARTIST) +
+            mix(shop.filter { it.format != null }, band.filter { it.format != null }, PER_ARTIST)
         Records.remember(env, ck, json.encodeToString(serializer, items))
         return items
+    }
+
+    /** A type naming other goods: it decides even when the title names a record ("LP Cover T-Shirt"). */
+    private val GOODS = Regex("""\b(shirts?|t-shirts?|tees?|hoodies?|sweat\w*|apparel|clothing|posters?|prints?|bags?|totes?|stickers?|pins?|patch(es)?|hats?|beanies?|caps?|mugs?|socks?|scarf|jackets?|jewelry|jewellery|accessor(y|ies)|books?)\b""")
+    /** Things for records, not records: the title names vinyl but it is not one. */
+    private val ACCESSORY = Regex("""\b(slipmats?|slip mats?|crates?|cleaner|cleaning|brush|sleeves?|turntables?|wallets?|frames?|stand|holder|storage|tote)\b""")
+    private val VINYL = Regex("""\b(vinyl|lp|2lp|3lp|2xlp|lps)\b|\b(7|10|12) ?("|”|''|-inch|inch)""")
+    private val CD = Regex("""\b(cd|cds|2cd|compact disc)\b""")
+    private val CASSETTE = Regex("""\b(cassettes?|tapes?)\b""")
+
+    /**
+     * The record an item is, from the shop's [type] ("Vinyl LP", "Record/Vinyl", "Compact Disc (CD)",
+     * "Cassette") or, when the type is empty or vague ("Other", "Bundle"), its [title] ("Album – Black
+     * Vinyl", "LP + T-Shirt Bundle"); null for other goods (a t-shirt, a poster, a slipmat).
+     */
+    fun recordFormat(type: String, title: String): Records.Format? {
+        fun of(s: String) = when {
+            CASSETTE.containsMatchIn(s) -> Records.Format.CASSETTE
+            VINYL.containsMatchIn(s) -> Records.Format.VINYL
+            CD.containsMatchIn(s) -> Records.Format.CD
+            else -> null
+        }
+        val t = type.lowercase()
+        if (!ACCESSORY.containsMatchIn(t)) of(t)?.let { return it }
+        if (GOODS.containsMatchIn(t) || ACCESSORY.containsMatchIn(t)) return null
+        val name = title.lowercase()
+        return if (ACCESSORY.containsMatchIn(name)) null else of(name)
     }
 
     /** Both sources together, [n] at most: each keeps at least half when the other has enough. */
