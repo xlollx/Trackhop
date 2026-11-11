@@ -189,7 +189,7 @@ private fun KindChips(kinds: ArtistAlerts.Kinds, enabled: Boolean = true, onChan
  * arrives, and when there is none, the name's first letter.
  */
 @Composable
-private fun ArtistAvatar(name: String, size: Dp) {
+internal fun ArtistAvatar(name: String, size: Dp) {
     val ctx = LocalContext.current
     var bmp by remember(name) { mutableStateOf<android.graphics.Bitmap?>(null) }
     LaunchedEffect(name) {

@@ -15,6 +15,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -95,11 +105,12 @@ internal object PickMemory {
  * Where a card's playlist comes from: a pasted public link, or one of the user's own playlists on
  * a connected service. [initialLink] pre-fills and resolves a link handed in from the share sheet.
  * [memory]: the page's key in [PickMemory], so the choice is still there when the page comes back.
- * [step]: its number among the page's steps, when the page counts them.
+ * [compact]: once a playlist is chosen the picker folds into one row (its picture, its name, where
+ * it lives, "Change"), so the page goes on to what it makes of it.
  */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, memory: String? = null, step: Int? = null, onPick: (CardPick?) -> Unit) {
+internal fun PlaylistSource(label: String, initialLink: String?, snackbar: SnackbarHostState, memory: String? = null, compact: Boolean = false, onPick: (CardPick?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val connected = remember { Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" } }
@@ -112,7 +123,9 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
-    fun choose(p: CardPick?) { picked = p; PickMemory.set(memory, p); onPick(p) }
+    // Folded on the playlist chosen ([compact]) until "Change" opens the picker again.
+    var editing by remember { mutableStateOf(false) }
+    fun choose(p: CardPick?) { picked = p; if (p != null) editing = false; PickMemory.set(memory, p); onPick(p) }
     LaunchedEffect(Unit) { picked?.let(onPick) }
 
     suspend fun resolve(text: String) {
@@ -146,7 +159,9 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
         }
     }
 
-    ToolSection(label, step = step) {
+    val chosen = picked
+    if (compact && chosen != null && !editing && !busy) { PickedPlaylist(label, chosen) { editing = true }; return }
+    ToolSection(label) {
         run {
             val linkLabel = stringResource(R.string.card_source_link)
             ServiceTiles(
@@ -183,12 +198,47 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
                     }
                 }
             }
-            picked?.let { p ->
+            if (!compact) picked?.let { p ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ProviderDot(p.provider); Spacer(Modifier.width(6.dp))
                     Text(p.playlist.name.ifBlank { stringResource(R.string.card_unnamed_playlist) } + (if (p.playlist.trackCount >= 0) "  ·  ${p.playlist.trackCount}" else ""), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+        }
+    }
+}
+
+/** A playlist's picture: its own where the service lists one, else a tile in its name's colours with the service's mark. */
+@Composable
+internal fun PlaylistArt(pick: CardPick, size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    val url = pick.playlist.imageUrl?.takeIf { it.isNotBlank() && !MusicProvider.isLibrary(pick.playlist.id) }
+    var bmp by remember(url) { mutableStateOf<Bitmap?>(null) }
+    LaunchedEffect(url) { if (url != null && discoverImagesOn(ctx)) bmp = Cards.bitmap(url, 300) }
+    val h = ((pick.playlist.name.hashCode() % 360) + 360) % 360
+    val brush = androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color.hsv(h.toFloat(), 0.5f, 0.6f), androidx.compose.ui.graphics.Color.hsv(((h + 50) % 360).toFloat(), 0.65f, 0.3f)))
+    androidx.compose.foundation.layout.Box(modifier.size(size).clip(RoundedCornerShape(size / 5)).background(brush).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
+        val b = bmp
+        if (b != null) Image(b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+        else ServiceLogo(pick.provider, size = size * 0.5f)
+    }
+}
+
+/** The playlist chosen, on one row: its picture, what it is for, its name, where it lives and how long it is, and "Change". */
+@Composable
+private fun PickedPlaylist(label: String, pick: CardPick, onChange: () -> Unit) {
+    val ctx = LocalContext.current
+    Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+        Row(Modifier.padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            PlaylistArt(pick, 52.dp)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(pick.playlist.name.ifBlank { stringResource(R.string.card_unnamed_playlist) }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                val count = pick.playlist.trackCount.takeIf { it >= 0 }?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.card_tracks, it, it) }
+                Text(listOfNotNull(pick.provider.label(ctx), count).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            TextButton(onClick = onChange, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.share_sheet_change)) }
         }
     }
 }
@@ -261,6 +311,9 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
     var bitmaps by remember { mutableStateOf<Map<Cards.Format, Bitmap>?>(null) }
     // What went wrong, said on the page with a way to try again.
     var error by remember { mutableStateOf<String?>(null) }
+    // The songs of each, for the two pictures of the result.
+    var tracksA by remember { mutableStateOf<List<Track>>(emptyList()) }
+    var tracksB by remember { mutableStateOf<List<Track>>(emptyList()) }
 
     fun run() {
         val pa = a ?: return; val pb = b ?: return
@@ -273,6 +326,7 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                     da.await() to db.await()
                 }
                 val r = withContext(Dispatchers.Default) { Compatibility.compare(ta, tb) }
+                tracksA = ta; tracksB = tb
                 result = r
                 val covers = withContext(Dispatchers.IO) {
                     coroutineScope { r.common.take(5).map { c -> async { c.a.id to Cards.trackCover(c.a, pa.provider.serviceId) } }.map { it.await() } }.toMap()
@@ -290,62 +344,115 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
     var autoRan by remember { mutableStateOf(false) }
     LaunchedEffect(a, b) { if (initialLinks != null && !autoRan && a != null && b != null) { autoRan = true; run() } }
 
+    val r = result
+    ToolResultOnTop(r)
     // The two playlists side by side in a wide window, as the pair they are.
-    ToolSplit(
-        start = { PlaylistSource(stringResource(R.string.card_compat_first), initialLinks?.first, snackbar, step = 1) { a = it } },
-        end = { PlaylistSource(stringResource(R.string.card_compat_second), initialLinks?.second, snackbar, step = 2) { b = it } },
-    )
-    ToolPrimaryButton(
-        stringResource(if (result == null) R.string.card_compat_run else R.string.card_again), onClick = { run() },
-        icon = Icons.Filled.JoinInner, enabled = a != null && b != null, busy = busy,
-    )
-    if (busy && result == null) ToolLoading(stringResource(R.string.loading))
-    error?.let { ToolError(it, onRetry = if (a != null && b != null) ({ run() }) else null) }
-    val r = result ?: return
-    val id = LocalToolIdentity.current
+    val pair: @Composable () -> Unit = {
+        ToolSplit(
+            start = { PlaylistSource(stringResource(R.string.card_compat_first), initialLinks?.first, snackbar, compact = true) { a = it } },
+            end = { PlaylistSource(stringResource(R.string.card_compat_second), initialLinks?.second, snackbar, compact = true) { b = it } },
+        )
+        ToolPrimaryButton(
+            stringResource(if (r == null) R.string.card_compat_run else R.string.card_again), onClick = { run() },
+            icon = Icons.Filled.JoinInner, enabled = a != null && b != null, busy = busy,
+        )
+        if (busy && r == null) ToolLoading(stringResource(R.string.loading))
+        error?.let { ToolError(it, onRetry = if (a != null && b != null) ({ run() }) else null) }
+    }
+    if (r == null) { pair(); return }
     val nameA = a?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
     val nameB = b?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }
+    val serviceA = a?.provider?.serviceId.orEmpty()
+    val serviceB = b?.provider?.serviceId.orEmpty()
     val subtitle = stringResource(R.string.card_compat_subtitle, r.common.size, r.sharedArtists.size)
-    ToolSectionTitle(stringResource(R.string.discover_result), step = 3)
+    // The answer first: the two playlists facing each other with the score between them.
+    CompatHero(nameA, nameB, tracksA, tracksB, serviceA, serviceB, r.score, subtitle, stringResource(R.string.card_compat_common_pct, r.commonPercent))
     ToolSplit(
         start = {
-            // The pair as two circles: the first playlist's with a whole line, the second's dashed.
-            ToolResultCard {
-                val venn = remember(r) { com.xlollx.songport.sync.LibraryOverlap.venn(r.sizeA, r.sizeB, r.common.size) }
-                VennDrawing(venn, id.tint(), id.second(), Modifier.fillMaxWidth().height(140.dp).clearAndSetSemantics {})
-                VennKey(nameA, nameB, id.tint(), id.second())
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("${r.score}%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold, color = id.tint())
-                    Text(subtitle, style = MaterialTheme.typography.bodyLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                    Text(stringResource(R.string.card_compat_common_pct, r.commonPercent), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            if (r.sharedArtists.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_artists), trailing = { CountPill(r.sharedArtists.size) }) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    r.sharedArtists.take(12).forEach { ArtistChip(it) }
                 }
             }
             if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-compatibility", "${r.score}%. $subtitle")
         },
         end = {
-            if (r.common.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_in_common), trailing = { Text("${r.common.size}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }) {
-                ToolTrackList(r.common.map { it.a }, first = 8)
+            if (r.common.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_in_common), trailing = { CountPill(r.common.size) }) {
+                ToolTrackList(r.common.map { it.a }, first = 5, serviceId = serviceA)
                 // The songs in common as a playlist of their own, synced wherever the user chooses.
                 if (onMakeShared != null) {
                     Text(stringResource(R.string.discover_compat_shared_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    OutlinedButton(onClick = {
+                    androidx.compose.material3.FilledTonalButton(onClick = {
                         onMakeShared(ctx.getString(R.string.discover_compat_shared_name, a?.playlist?.name.orEmpty(), b?.playlist?.name.orEmpty()), r.common.map { it.a })
-                    }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_compat_shared)) }
+                    }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_compat_shared), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
                 }
             }
-            if (r.sharedArtists.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_artists)) {
-                Text(r.sharedArtists.take(12).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
-            }
-            Suggestions(stringResource(R.string.card_compat_for, nameA), r.forA)
-            Suggestions(stringResource(R.string.card_compat_for, nameB), r.forB)
+            // What each could take from the other: the songs come from the other's playlist.
+            Suggestions(stringResource(R.string.card_compat_for, nameA), r.forA, serviceB)
+            Suggestions(stringResource(R.string.card_compat_for, nameB), r.forB, serviceA)
         },
     )
+    pair()
+}
+
+/** The two playlists facing each other, each as four of its covers, with the score between them. */
+@Composable
+private fun CompatHero(nameA: String, nameB: String, tracksA: List<Track>, tracksB: List<Track>, serviceA: String, serviceB: String, score: Int, subtitle: String, detail: String) {
+    val id = LocalToolIdentity.current
+    val glow = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(id.accent.copy(alpha = 0.38f), id.second().copy(alpha = 0.10f)))
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        Modifier.fillMaxWidth().clip(ToolHeroShape).background(MaterialTheme.colorScheme.surfaceContainerHigh).background(glow)
+            .semantics(mergeDescendants = true) {}.padding(horizontal = 18.dp, vertical = 22.dp),
+    ) {
+        val cover = ((maxWidth - 124.dp) / 2).coerceIn(56.dp, 132.dp)
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CoverMosaic(tracksA, serviceA, cover, Modifier.graphicsLayer { rotationZ = -5f })
+                    Text(nameA, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                }
+                Text(
+                    "$score%", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black, color = id.tint(), maxLines = 1, softWrap = false,
+                    modifier = Modifier.padding(horizontal = 6.dp).padding(bottom = 28.dp),
+                )
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CoverMosaic(tracksB, serviceB, cover, Modifier.graphicsLayer { rotationZ = 5f })
+                    Text(nameB, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                }
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(subtitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            }
+        }
+    }
+}
+
+/** How many there are, at the end of a section's title. */
+@Composable
+internal fun CountPill(count: Int) {
+    val id = LocalToolIdentity.current
+    Surface(shape = androidx.compose.foundation.shape.CircleShape, color = id.container()) {
+        Text("$count", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = id.tint(), modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
+    }
+}
+
+/** An artist on a pill: the round picture and the name. */
+@Composable
+internal fun ArtistChip(name: String) {
+    Surface(shape = androidx.compose.foundation.shape.CircleShape, color = MaterialTheme.colorScheme.surfaceContainerHighest) {
+        Row(Modifier.padding(end = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            ArtistAvatar(name, 36.dp)
+            Spacer(Modifier.width(8.dp))
+            Text(name, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
 }
 
 @Composable
-private fun Suggestions(title: String, tracks: List<Track>) {
+private fun Suggestions(title: String, tracks: List<Track>, serviceId: String) {
     if (tracks.isEmpty()) return
-    ToolSection(title) { ToolTrackList(tracks.take(5), first = 5) }
+    ToolSection(title) { ToolTrackList(tracks.take(5), first = 5, serviceId = serviceId) }
 }
 
 /** Covers the user's AI drew in this session, by playlist: "make the card again" does not pay twice. */
@@ -472,45 +579,47 @@ fun PosterCard(snackbar: SnackbarHostState) {
         }
     }
 
-    ToolSplit(
-        start = {
-            PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", step = 1) { pick = it; bitmaps = null; drawn = null; variant = 0; error = null }
-            ToolSection(stringResource(R.string.card_cover_title), step = 2) {
-                CoverArtChoice(art, ai, aiSupport, enabled = !busy) {
-                    art = it; bitmaps = null; drawn = null
-                    runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
+    ToolResultOnTop(bitmaps)
+    val setup: @Composable () -> Unit = {
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", compact = true) { pick = it; bitmaps = null; drawn = null; variant = 0; error = null }
+        ToolSection(stringResource(R.string.card_cover_title)) {
+            CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy) {
+                art = it; bitmaps = null; drawn = null
+                runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
+            }
+        }
+        ToolPrimaryButton(
+            stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again), onClick = { run(nextVariant = bitmaps != null) },
+            icon = Icons.Filled.Brush, enabled = pick != null, busy = busy,
+        )
+    }
+    val made: @Composable () -> Unit = {
+        if (busy) ToolLoading(stringResource(if (drawing) R.string.card_ai_drawing else R.string.loading))
+        error?.let { ToolError(it, onRetry = if (pick != null) ({ run() }) else null) }
+        // The poster on a sheet of paper, as it would hang on a wall.
+        if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
+            if (qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (art != PosterArt.COVERS && drawn != null) {
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
+                    else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
+                    TextButton(onClick = { saveCover.launch("trackhop-cover.png") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_save)) }
                 }
             }
-            ToolPrimaryButton(
-                stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again), onClick = { run(nextVariant = bitmaps != null) },
-                icon = Icons.Filled.Brush, enabled = pick != null, busy = busy,
-            )
-        },
-        end = {
-            if (busy) ToolLoading(stringResource(if (drawing) R.string.card_ai_drawing else R.string.loading))
-            error?.let { ToolError(it, onRetry = if (pick != null) ({ run() }) else null) }
-            // The poster on a sheet of paper, as it would hang on a wall.
-            if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
-                if (qr == null) Text(stringResource(R.string.card_poster_no_qr), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (art != PosterArt.COVERS && drawn != null) {
-                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
-                        else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
-                        TextButton(onClick = { saveCover.launch("trackhop-cover.png") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_save)) }
-                    }
-                }
-            }
-        },
-    )
+        }
+    }
+    // The poster first once there is one (or one on its way), what it is made from under it.
+    if (busy || error != null || bitmaps != null) ToolSplit(start = { made() }, end = { setup() }) else setup()
 }
 
 /**
  * The poster's art: the playlist's covers, a cover drawn on the phone (five styles), or the
- * user's AI, as chips. "Your AI" is on only when the configured AI can make images; the line under
- * the chips says what the choice does, and why the AI is off when it is.
+ * user's AI, each as a small picture of what it looks like (the drawn ones made from [title], as
+ * the poster's will be). "Your AI" is on only when the configured AI can make images; the line
+ * under them says what the choice does, and why the AI is off when it is.
  */
 @Composable
-private fun CoverArtChoice(selected: PosterArt, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean, onChange: (PosterArt) -> Unit) {
+private fun CoverArtChoice(selected: PosterArt, title: String, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean, onChange: (PosterArt) -> Unit) {
     val aiOk = ai != null && support == AiClient.ImageSupport.YES
     val aiNote = when {
         ai == null -> stringResource(R.string.card_ai_cover_none)
@@ -519,13 +628,17 @@ private fun CoverArtChoice(selected: PosterArt, ai: AiClient.Config?, support: A
         ai.vendor == AiClient.Vendor.ANTHROPIC -> stringResource(R.string.card_ai_cover_claude)
         else -> stringResource(R.string.card_ai_cover_no_images, ai.vendor.label)
     }
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    val name = title.ifBlank { stringResource(R.string.app_name) }
+    val thumbs by androidx.compose.runtime.produceState(emptyMap<GeneratedCovers.Style, androidx.compose.ui.graphics.ImageBitmap>(), name) {
+        value = withContext(Dispatchers.Default) {
+            GeneratedCovers.Style.entries.associateWith { runCatching { GeneratedCovers.draw(it, GeneratedCovers.Input(name, emptyList(), emptyList()), 0, 240).asImageBitmap() }.getOrNull() }
+                .filterValues { it != null }.mapValues { it.value!! }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             PosterArt.entries.forEach { a ->
-                FilterChip(
-                    selected = a == selected, enabled = enabled && (a != PosterArt.AI || aiOk),
-                    onClick = { onChange(a) }, label = { Text(stringResource(a.label)) },
-                )
+                ArtTile(a, a == selected, enabled && (a != PosterArt.AI || aiOk), a.style?.let { thumbs[it] }) { onChange(a) }
             }
         }
         val note = when {
@@ -534,7 +647,42 @@ private fun CoverArtChoice(selected: PosterArt, ai: AiClient.Config?, support: A
             else -> stringResource(R.string.card_cover_drawn_note)
         }
         Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (!aiOk) Text(aiNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!aiOk && selected != PosterArt.AI) Text(aiNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** One art to choose: a small picture of it with its name under; the chosen one framed in the tool's colour, with a tick. */
+@Composable
+private fun ArtTile(art: PosterArt, on: Boolean, enabled: Boolean, thumb: androidx.compose.ui.graphics.ImageBitmap?, onClick: () -> Unit) {
+    val id = LocalToolIdentity.current
+    val side = 76.dp
+    Column(
+        Modifier.width(side + 8.dp).clip(RoundedCornerShape(20.dp)).alpha(if (enabled) 1f else 0.4f)
+            .selectable(selected = on, enabled = enabled, role = androidx.compose.ui.semantics.Role.RadioButton, onClick = onClick).padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        androidx.compose.foundation.layout.Box(
+            Modifier.size(side).then(if (on) Modifier.border(3.dp, id.tint(), RoundedCornerShape(18.dp)) else Modifier).padding(if (on) 6.dp else 0.dp)
+                .clip(RoundedCornerShape(if (on) 12.dp else 16.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            contentAlignment = Alignment.Center,
+        ) {
+            when {
+                thumb != null -> Image(thumb, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+                // The playlist's own covers: four squares of four colours.
+                art == PosterArt.COVERS -> Column(Modifier.fillMaxSize()) {
+                    val quads = listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9)
+                    for (r in 0..1) Row(Modifier.weight(1f)) { for (c in 0..1) androidx.compose.foundation.layout.Box(Modifier.weight(1f).fillMaxSize().background(androidx.compose.ui.graphics.Color(quads[r * 2 + c]))) }
+                }
+                art == PosterArt.AI -> androidx.compose.foundation.layout.Box(
+                    Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color(0xFF5B3FD9), androidx.compose.ui.graphics.Color(0xFFC2185B)))),
+                    contentAlignment = Alignment.Center,
+                ) { Icon(Icons.Filled.AutoAwesome, null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(30.dp)) }
+            }
+        }
+        Text(
+            stringResource(art.label), style = MaterialTheme.typography.labelMedium, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (on) id.tint() else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

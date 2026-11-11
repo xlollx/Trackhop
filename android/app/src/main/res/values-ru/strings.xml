@@ -1574,6 +1574,7 @@
     <string name="discover_wrapped_empty">В ваших плейлистах не найдено треков.</string>
     <string name="discover_wrapped_eyebrow">Мой %1$d на сегодня</string>
     <string name="discover_wrapped_age">Музыкальный возраст: %1$d</string>
+    <string name="discover_wrapped_age_label">Музыкальный возраст</string>
     <string name="discover_wrapped_born">вы слушаете как человек %1$d года рождения</string>
     <string name="discover_wrapped_tracks">Треков в плейлистах</string>
     <string name="discover_wrapped_services">Сервисы</string>
@@ -1627,6 +1628,8 @@
     <string name="discover_subs_keep_only">Только %1$s</string>
     <string name="discover_subs_left_behind">Песен останется в другом: %1$s</string>
     <string name="discover_subs_save">Экономия: %1$s в месяц, %2$s в год.</string>
+    <string name="discover_subs_saved_month">экономии в месяц</string>
+    <string name="discover_subs_saved_year">экономии в год</string>
     <string name="discover_subs_together">Сейчас оба стоят вам %1$s в месяц, %2$s в год.</string>
     <string name="lb_mode_keyless">Без ключа</string>
     <string name="lb_mode_ai">С вашим ИИ</string>

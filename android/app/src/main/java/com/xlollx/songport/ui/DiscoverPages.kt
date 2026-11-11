@@ -5,6 +5,18 @@ package com.xlollx.songport.ui
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.FiberNew
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.selectable
@@ -272,14 +284,17 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     if (services.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
 
-    // The Wrapped on show (or the one being made): its figures, the card's art, the card to share.
+    // The Wrapped on show (or the one being made): its story, card after card, then the card to share with its art.
     val result: @Composable () -> Unit = {
         if (busy) WrappedLoading(readingFrom, reading, current, WrappedRun.coverSearch)
         else if (shown != null && card != null) {
-            ToolSectionTitle(stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))))
-            WrappedSummary(card, shown)
-            // The card's art, as the poster's drawn covers.
-            ToolSection(stringResource(R.string.card_cover_title)) {
+            WrappedStory(card, shown, covers.orEmpty(), stringResource(R.string.discover_wrapped_made_on, df.format(Date(shown.madeAt))))
+            ToolShare(
+                bitmaps, "trackhop-wrapped", listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
+                busy = bitmaps == null || rendering, formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
+            ) {
+                // The card's art, as the poster's drawn covers.
+                Text(stringResource(R.string.card_cover_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PosterArt.entries.forEach { a ->
                         val st = a.style ?: return@forEach
@@ -290,10 +305,6 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
                 // under a finger already on its way.
                 OutlinedButton(enabled = bitmaps != null && !rendering, onClick = { variant++ }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
             }
-            ToolShare(
-                bitmaps, "trackhop-wrapped", listOf(card.headline, card.subline.orEmpty()).joinToString(". "),
-                busy = bitmaps == null || rendering, formats = listOf(Cards.Format.STORY, Cards.Format.SQUARE),
-            )
         }
     }
 
@@ -370,67 +381,121 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     if (busy || (shown != null && card != null)) ToolSplit(start = { result() }, end = { make() }) else make()
 }
 
-/** The Wrapped on the page: the same figures as the card, laid out for reading. */
+/** The three colours a Wrapped is told in: the ends and the middle of the tool's gradient. */
+private val WRAPPED_HUES = listOf(androidx.compose.ui.graphics.Color(0xFF7C5CFF), androidx.compose.ui.graphics.Color(0xFFE0447F), androidx.compose.ui.graphics.Color(0xFFFF7A45))
+
+/**
+ * The Wrapped on the page, told as a story of cards one under the other: the musical age said
+ * big on the tool's colours with a fan of covers, the top artists with their faces, the decades
+ * as bars, the three figures, the oldest song and the latest addition.
+ */
 @Composable
-private fun WrappedSummary(card: Cards.WrappedCard, w: Wrapped.Saved) {
+private fun WrappedStory(card: Cards.WrappedCard, w: Wrapped.Saved, covers: List<Bitmap>, madeOn: String) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val id = LocalToolIdentity.current
-    ToolResultCard {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(card.eyebrow.uppercase(), style = MaterialTheme.typography.labelMedium, color = muted)
-                Text(card.headline, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = id.tint())
-                card.subline?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-                if (w.age == null) Text(stringResource(R.string.discover_wrapped_no_age), style = MaterialTheme.typography.bodySmall, color = muted)
+    val white = androidx.compose.ui.graphics.Color.White
+    // 1. The headline.
+    Box(Modifier.fillMaxWidth().clip(ToolHeroShape).background(id.brush).background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.14f)).semantics(mergeDescendants = true) {}) {
+        Column(Modifier.padding(start = 22.dp, end = 22.dp, top = 20.dp, bottom = 20.dp)) {
+            Text(card.eyebrow, style = MaterialTheme.typography.titleSmall, color = white.copy(alpha = 0.85f))
+            val age = w.age
+            if (age != null) {
+                Spacer(Modifier.height(10.dp))
+                Text(stringResource(R.string.discover_wrapped_age_label), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, color = white)
+                Text(
+                    "$age", color = white, fontWeight = FontWeight.Black, maxLines = 1,
+                    style = MaterialTheme.typography.displayLarge.copy(fontSize = 112.sp, lineHeight = 112.sp, letterSpacing = (-4).sp),
+                )
+            } else {
+                Spacer(Modifier.height(6.dp))
+                Text(card.headline, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = white)
             }
-            if (card.artists.isNotEmpty()) Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(card.artistsTitle, style = MaterialTheme.typography.titleSmall)
-                card.artists.forEachIndexed { i, (name, count) ->
-                    val style = if (i == 0) MaterialTheme.typography.titleLarge else MaterialTheme.typography.bodyLarge
+            card.subline?.let { Text(it, style = MaterialTheme.typography.titleMedium, color = white.copy(alpha = 0.95f)) }
+            if (age == null) Text(stringResource(R.string.discover_wrapped_no_age), style = MaterialTheme.typography.bodySmall, color = white.copy(alpha = 0.8f), modifier = Modifier.padding(top = 4.dp))
+            if (covers.isNotEmpty()) {
+                Spacer(Modifier.height(18.dp))
+                // A fan of the covers the card is drawn from.
+                Row(Modifier.clearAndSetSemantics {}, horizontalArrangement = Arrangement.spacedBy((-16).dp)) {
+                    covers.take(6).forEachIndexed { i, b ->
+                        androidx.compose.foundation.Image(
+                            b.asImageBitmap(), null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.size(60.dp).graphicsLayer { rotationZ = (i % 3 - 1) * 6f }
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                                .border(1.5.dp, white.copy(alpha = 0.55f), androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            Text(madeOn, style = MaterialTheme.typography.labelMedium, color = white.copy(alpha = 0.72f))
+        }
+    }
+    // 2. The three figures.
+    if (card.tiles.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(IntrinsicSize.Min)) {
+        card.tiles.forEachIndexed { i, (value, label) ->
+            val hue = WRAPPED_HUES[i % WRAPPED_HUES.size]
+            ToolStat(value, label, Modifier.weight(1f).fillMaxHeight(), color = hue.copy(alpha = 0.22f))
+        }
+    }
+    // 3. The top artists, with their faces: the first one said bigger.
+    if (card.artists.isNotEmpty()) ToolSection(card.artistsTitle) {
+        card.artists.forEachIndexed { i, (name, count) ->
+            Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+                if (i == 0) {
+                    ArtistAvatar(name, 76.dp)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(count, style = MaterialTheme.typography.bodyMedium, color = id.tint(), fontWeight = FontWeight.SemiBold)
+                    }
+                    Text("1", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = id.tint().copy(alpha = 0.45f))
+                } else {
+                    Text("${i + 1}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = muted, textAlign = TextAlign.Center, modifier = Modifier.widthIn(min = 28.dp))
+                    Spacer(Modifier.width(8.dp))
+                    ArtistAvatar(name, 40.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Text(name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    Text(count, style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1)
+                }
+            }
+        }
+    }
+    // 4. The decades, as bars in the story's colours.
+    if (card.decades.isNotEmpty()) ToolSection(card.decadesTitle) {
+        card.decades.forEachIndexed { i, (label, share) ->
+            val hue = WRAPPED_HUES[i % WRAPPED_HUES.size]
+            Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+                Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.widthIn(min = 64.dp))
+                Spacer(Modifier.width(8.dp))
+                Box(Modifier.weight(1f).height(16.dp).clip(androidx.compose.foundation.shape.CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
+                    Box(Modifier.fillMaxWidth((share / 100f).coerceIn(0.04f, 1f)).fillMaxHeight().clip(androidx.compose.foundation.shape.CircleShape).background(hue))
+                }
+                Spacer(Modifier.width(10.dp))
+                Text("$share%", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.End, modifier = Modifier.widthIn(min = 44.dp))
+            }
+        }
+    }
+    // 5. The oldest song and the latest addition, and where it was all read from.
+    if (card.facts.isNotEmpty() || w.services.isNotEmpty()) Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            card.facts.forEachIndexed { i, (label, value) ->
+                Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(40.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)).background(WRAPPED_HUES[(i + 1) % WRAPPED_HUES.size].copy(alpha = 0.22f)), contentAlignment = Alignment.Center) {
+                        Icon(if (i == 0) Icons.Filled.History else Icons.Filled.FiberNew, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(22.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(label, style = MaterialTheme.typography.labelMedium, color = muted)
+                        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
+            if (w.services.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                w.services.forEach { sv ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${i + 1}", style = style, color = muted, modifier = Modifier.widthIn(min = 28.dp))
-                        Text(name, style = style, fontWeight = if (i == 0) FontWeight.Bold else FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                        Spacer(Modifier.width(8.dp))
-                        Text(count, style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1)
-                    }
-                }
-            }
-            if (card.decades.isNotEmpty()) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(card.decadesTitle, style = MaterialTheme.typography.titleSmall)
-                card.decades.forEach { (label, share) ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 72.dp))
-                        Spacer(Modifier.width(8.dp))
-                        LinearProgressIndicator(progress = { share / 100f }, color = id.tint(), trackColor = id.container(), modifier = Modifier.weight(1f).height(8.dp), drawStopIndicator = {})
-                        Spacer(Modifier.width(8.dp))
-                        Text("$share%", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.End, modifier = Modifier.widthIn(min = 44.dp))
-                    }
-                }
-            }
-            if (card.tiles.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(IntrinsicSize.Min)) {
-                card.tiles.forEach { (value, label) ->
-                    Surface(color = id.container(), shape = MaterialTheme.shapes.medium, modifier = Modifier.weight(1f).fillMaxHeight()) {
-                        Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)
-                            Text(label, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
-                        }
-                    }
-                }
-            }
-            card.facts.forEach { (label, value) ->
-                Column {
-                    Text(label, style = MaterialTheme.typography.labelMedium, color = muted)
-                    Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                }
-            }
-            if (w.services.isNotEmpty()) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(card.servicesTitle, style = MaterialTheme.typography.labelMedium, color = muted)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    w.services.forEach { sv ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            ServiceLogo(sv.serviceId, sv.color, sv.name, 24.dp); Spacer(Modifier.width(6.dp))
-                            Text(sv.name, style = MaterialTheme.typography.bodyMedium)
-                        }
+                        ServiceLogo(sv.serviceId, sv.color, sv.name, 22.dp); Spacer(Modifier.width(6.dp))
+                        Text(sv.name, style = MaterialTheme.typography.bodyMedium, color = muted)
                     }
                 }
             }
@@ -473,54 +538,67 @@ internal fun UniversalLinkPage(snackbar: SnackbarHostState) {
     val parts = built
     val name = pick?.playlist?.name.orEmpty()
     val list = tracks.orEmpty().filter { it.kind.isEmpty() }
-    val tall = Modifier.heightIn(min = 48.dp)
+    val white = androidx.compose.ui.graphics.Color.White
     val link: @Composable () -> Unit = {
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link", step = 1) { pick = it }
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "link", compact = true) { pick = it }
         if (busy) ToolLoading(stringResource(R.string.loading))
         error?.let { ToolError(it, onRetry = { reads++ }) }
-        if (parts.isNotEmpty()) {
-            ToolSectionTitle(stringResource(R.string.discover_link_share), step = 2)
-            ToolResultCard {
+        // The link, ready to go: on the tool's colours, with its address and the two things to do with it.
+        if (parts.isNotEmpty()) Box(Modifier.fillMaxWidth().clip(ToolHeroShape).background(id.brush).background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.2f))) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(id.icon, null, tint = id.tint()); Spacer(Modifier.width(12.dp))
+                    Box(Modifier.size(48.dp).clip(androidx.compose.foundation.shape.CircleShape).background(white.copy(alpha = 0.18f)), contentAlignment = Alignment.Center) {
+                        Icon(id.icon, null, tint = white, modifier = Modifier.size(26.dp))
+                    }
+                    Spacer(Modifier.width(14.dp))
                     Text(
                         if (parts.size > 1) stringResource(R.string.discover_link_parts, parts.size)
                         else stringResource(R.string.discover_link_ready, parts[0].included),
-                        style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f),
+                        style = if (parts.size > 1) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.titleLarge,
+                        fontWeight = if (parts.size > 1) FontWeight.Normal else FontWeight.Bold, color = white, modifier = Modifier.weight(1f),
                     )
                 }
                 parts.forEach { b ->
                     if (parts.size > 1) Text(
                         stringResource(R.string.discover_link_part, b.part, b.parts, b.first, b.last),
-                        style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 4.dp),
+                        style = MaterialTheme.typography.titleSmall, color = white,
                     )
                     val label = if (parts.size > 1) stringResource(R.string.discover_link_part_name, name, b.part, b.parts) else name
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    // The address itself, as it will arrive: without its "https://", cut at the end.
+                    Surface(Modifier.fillMaxWidth().clearAndSetSemantics {}, shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp), color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.28f)) {
+                        Text(b.url.removePrefix("https://"), style = MaterialTheme.typography.bodyMedium, color = white.copy(alpha = 0.92f), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
-                            onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, label, b.url)) }, modifier = tall,
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = id.accent, contentColor = id.onAccent),
+                            onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, label, b.url)) }, modifier = Modifier.weight(1.6f).heightIn(min = 52.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = white, contentColor = androidx.compose.ui.graphics.Color(0xFF0D3C7A)),
                         ) {
                             Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.discover_link_share))
+                            Text(stringResource(R.string.discover_link_share), textAlign = TextAlign.Center)
                         }
-                        OutlinedButton(onClick = {
-                            clipboard.setText(AnnotatedString(b.url))
-                            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_link_copied)) }
-                        }, modifier = tall) { Text(stringResource(R.string.discover_link_copy)) }
+                        OutlinedButton(
+                            onClick = {
+                                clipboard.setText(AnnotatedString(b.url))
+                                scope.launch { snackbar.showSnackbar(ctx.getString(R.string.discover_link_copied)) }
+                            },
+                            modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = white),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, white.copy(alpha = 0.7f)),
+                        ) {
+                            Icon(Icons.Filled.ContentCopy, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.discover_link_copy), maxLines = 1)
+                        }
                     }
                 }
             }
         }
     }
     val songs: @Composable () -> Unit = {
+        val service = pick?.provider?.serviceId.orEmpty()
         ToolSection(stringResource(R.string.discover_link_one_song)) {
             Column {
-                list.take(50).forEach { t ->
-                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
-                            Text(t.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(t.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
+                list.take(50).forEachIndexed { i, t ->
+                    ToolTrackRow(t, service, load = i < 24) {
                         IconButton(onClick = { shareText(ctx, ctx.getString(R.string.discover_link_message, t.toString(), UniversalLink.buildTrack(t).url)) }) {
                             Icon(Icons.Filled.Share, stringResource(R.string.discover_link_share_song, t.title), tint = id.tint())
                         }
@@ -641,11 +719,12 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
 
     val id = LocalToolIdentity.current
     ToolIntro(stringResource(R.string.discover_roast_intro, ai.label))
+    ToolResultOnTop(roast)
     val ready = !ai.local || NanoStatus(onUseKey = onSetUpAi)
     if (ai.local) Text(stringResource(R.string.ai_nano_private), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (ai.local) NanoSmallNote()
     val ask: @Composable () -> Unit = {
-        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast", step = 1) {
+        PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "roast", compact = true) {
             // The same playlist coming back (from the memory) keeps its roast; another one clears it.
             if (it == null || it.playlist.id != RoastKept.playlistId) forget()
             pick = it
@@ -660,17 +739,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
     }
     val verdict: @Composable () -> Unit = {
         roast?.let { text ->
-            ToolResultCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(id.icon, null, tint = id.tint()); Spacer(Modifier.width(10.dp))
-                    Text(pick?.playlist?.name.orEmpty(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                    if (reportable) IconButton(onClick = { askReport = true }) {
-                        Icon(Icons.Outlined.Flag, stringResource(R.string.discover_roast_report), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                Text(text, style = MaterialTheme.typography.bodyLarge)
-                TextButton(onClick = { shareText(ctx, text + "\n\ntrackhop.org") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_roast_share_text)) }
-            }
+            RoastQuote(pick, text, onShare = { shareText(ctx, text + "\n\ntrackhop.org") }, onReport = if (reportable) ({ askReport = true }) else null)
             if (askReport) FitDialog(
                 onDismissRequest = { askReport = false },
                 title = { Text(stringResource(R.string.discover_roast_report_title)) },
@@ -687,7 +756,57 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
             if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-roast", text)
         }
     }
-    if (roast != null) ToolSplit(start = { ask() }, end = { verdict() }) else ask()
+    // The roast first once there is one, the playlist and "another roast" under it.
+    if (roast != null) ToolSplit(start = { verdict() }, end = { ask() }) else ask()
+}
+
+/**
+ * The roast as a quote: the words said big, in a serif, on embers (dark red to orange, in a light
+ * theme too: it is a card of its own), the playlist it is about above them and three flames under.
+ */
+@Composable
+private fun RoastQuote(pick: CardPick?, text: String, onShare: () -> Unit, onReport: (() -> Unit)?) {
+    val white = androidx.compose.ui.graphics.Color.White
+    val ember = androidx.compose.ui.graphics.Color(0xFFFF8A3D)
+    val embers = androidx.compose.ui.graphics.Brush.linearGradient(listOf(
+        androidx.compose.ui.graphics.Color(0xFF2B0B08), androidx.compose.ui.graphics.Color(0xFF6E160C), androidx.compose.ui.graphics.Color(0xFFC2410C)))
+    Box(Modifier.fillMaxWidth().clip(ToolHeroShape).background(embers)) {
+        // The opening quote mark, huge and faint, behind the first lines.
+        Text(
+            "“", color = ember.copy(alpha = 0.32f), fontFamily = androidx.compose.ui.text.font.FontFamily.Serif, fontWeight = FontWeight.Black,
+            fontSize = 220.sp, lineHeight = 220.sp, modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp).offset(y = (-18).dp).clearAndSetSemantics {},
+        )
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (pick != null) { PlaylistArt(pick, 44.dp); Spacer(Modifier.width(12.dp)) }
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.discover_roast_title), style = MaterialTheme.typography.labelLarge, color = ember)
+                    Text(
+                        pick?.playlist?.name.orEmpty().ifBlank { stringResource(R.string.card_unnamed_playlist) }, color = white,
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (onReport != null) IconButton(onClick = onReport) { Icon(Icons.Outlined.Flag, stringResource(R.string.discover_roast_report), tint = white.copy(alpha = 0.8f)) }
+            }
+            Spacer(Modifier.height(18.dp))
+            // Short roasts are said bigger; a long one still fits a phone without a wall of small type.
+            val size = when { text.length < 180 -> 26; text.length < 340 -> 23; text.length < 560 -> 20; else -> 18 }
+            Text(
+                text, color = white, fontFamily = androidx.compose.ui.text.font.FontFamily.Serif, fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = size.sp, lineHeight = (size * 1.36f).sp),
+            )
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f).clearAndSetSemantics {}, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    listOf(1f, 0.7f, 0.45f).forEach { a -> Icon(Icons.Filled.LocalFireDepartment, null, tint = ember.copy(alpha = a), modifier = Modifier.size(26.dp)) }
+                }
+                TextButton(onClick = onShare, modifier = Modifier.heightIn(min = 48.dp), colors = androidx.compose.material3.ButtonDefaults.textButtonColors(contentColor = white)) {
+                    Icon(Icons.Filled.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.discover_roast_share_text))
+                }
+            }
+        }
+    }
 }
 
 // --------------------------------------------------------------------------------- Vanished songs
@@ -739,18 +858,37 @@ internal fun VanishedPage(onBackup: () -> Unit) {
             ) { Text(stringResource(R.string.discover_vanished_backup)) }
         }
         else -> {
-            ToolSectionTitle(ctx.resources.getQuantityString(R.plurals.card_tracks, list.size, list.size))
+            // Where they were, as chips: all of them, or one playlist's.
+            val places = remember(list) { list.map { it.where }.distinct() }
+            var place by rememberSaveable { mutableStateOf<String?>(null) }
+            val shownRows = list.filter { place == null || it.where == place }
+            val nf = remember { NumberFormat.getIntegerInstance(locale(ctx)) }
+            // How many are gone, said big, with the ghost they left.
+            Surface(Modifier.fillMaxWidth(), shape = ToolHeroShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+                Row(Modifier.padding(start = 22.dp, end = 18.dp, top = 10.dp, bottom = 14.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(nf.format(shownRows.size), style = MaterialTheme.typography.displayLarge.copy(fontSize = 72.sp, lineHeight = 80.sp), fontWeight = FontWeight.Black, color = id.tint(), maxLines = 1)
+                        Text(stringResource(R.string.discover_vanished_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("👻", fontSize = 64.sp, modifier = Modifier.graphicsLayer { rotationZ = 8f; alpha = 0.9f }.clearAndSetSemantics {})
+                }
+            }
+            if (places.size > 1) Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = place == null, onClick = { place = null }, label = { Text(stringResource(R.string.records_kind_all)) })
+                places.take(12).forEach { w -> FilterChip(selected = place == w, onClick = { place = if (place == w) null else w }, label = { Text(w, maxLines = 1) }) }
+            }
             val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }
-            // Two columns of them in a wide window; each song struck through and faded: it is gone.
+            // Two columns of them in a wide window; each song with its cover gone grey, struck through: it is gone.
             val columns = if (LocalWindowLayout.current.width == WidthClass.COMPACT) 1 else 2
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
-                val per = (list.size + columns - 1) / columns
-                list.chunked(per.coerceAtLeast(1)).forEach { chunk ->
+                val per = (shownRows.size + columns - 1) / columns
+                shownRows.chunked(per.coerceAtLeast(1)).forEachIndexed { c, chunk ->
                     Surface(Modifier.weight(1f), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
-                        Column {
+                        Column(Modifier.padding(vertical = 6.dp)) {
                             chunk.forEachIndexed { i, g ->
-                                if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                                GoneSong(g, df.format(Date(g.at)))
+                                if (i > 0) HorizontalDivider(Modifier.padding(start = 84.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                                // Covers for the first few dozen only: a long list does not look up hundreds of them.
+                                GoneSong(g, df.format(Date(g.at)), loadCover = c * per + i < 30)
                             }
                         }
                     }
@@ -760,22 +898,21 @@ internal fun VanishedPage(onBackup: () -> Unit) {
     }
 }
 
-/** A song that left: its title struck through, faded, with where it was last seen and where to look for it. */
+/** A song that left: its cover gone grey, its title struck through, where it was last seen and where to look for it. */
 @Composable
-private fun GoneSong(g: GoneRow, date: String) {
-    val id = LocalToolIdentity.current
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(id.icon, null, tint = id.tint().copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
+private fun GoneSong(g: GoneRow, date: String, loadCover: Boolean) {
+    Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        TrackCover(g.track, "", 56.dp, corner = 10.dp, gone = true, load = loadCover)
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Text(
-                g.track.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                g.track.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.78f),
             )
-            Text(g.track.artistLine, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f))
+            Text(g.track.artistLine, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
                 if (g.bySync) stringResource(R.string.discover_vanished_by_sync, g.where, date) else stringResource(R.string.discover_vanished_from, g.where, date),
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             )
         }
         SearchOnMenu(g.track)
@@ -788,7 +925,7 @@ private fun SearchOnMenu(t: Track) {
     val ctx = LocalContext.current
     var open by remember { mutableStateOf(false) }
     Box {
-        TextButton(onClick = { open = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.discover_search_on)) }
+        IconButton(onClick = { open = true }) { Icon(Icons.Filled.Search, stringResource(R.string.discover_search_on), tint = LocalToolIdentity.current.tint()) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             val q = ServiceSearch.query(t.title, t.artistLine)
             ServiceSearch.SITES.forEach { s ->

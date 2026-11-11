@@ -1496,6 +1496,7 @@
     <string name="discover_wrapped_empty">你的歌单中没有找到歌曲。</string>
     <string name="discover_wrapped_eyebrow">我的 %1$d · 截至今天</string>
     <string name="discover_wrapped_age">音乐年龄：%1$d 岁</string>
+    <string name="discover_wrapped_age_label">音乐年龄</string>
     <string name="discover_wrapped_born">你听歌像 %1$d 年出生的人</string>
     <string name="discover_wrapped_tracks">歌单中的歌曲</string>
     <string name="discover_wrapped_services">服务</string>
@@ -1549,6 +1550,8 @@
     <string name="discover_subs_keep_only">只保留 %1$s</string>
     <string name="discover_subs_left_behind">留在另一个上的歌曲：%1$s</string>
     <string name="discover_subs_save">每月可省 %1$s，每年 %2$s。</string>
+    <string name="discover_subs_saved_month">每月节省</string>
+    <string name="discover_subs_saved_year">每年节省</string>
     <string name="discover_subs_together">目前两个合计每月 %1$s，每年 %2$s。</string>
     <string name="lb_mode_keyless">无需密钥</string>
     <string name="lb_mode_ai">使用你的 AI</string>

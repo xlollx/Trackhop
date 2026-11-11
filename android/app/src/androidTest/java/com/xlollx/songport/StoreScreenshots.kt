@@ -1077,6 +1077,15 @@ class StoreScreenshots {
             synchronized(cache) { cache[url] = discoverArtists.getOrPut(url) { cover(DISCOVER_PALETTES[(i * 2 + 3) % DISCOVER_PALETTES.size], i + 2) } }
             byName[com.xlollx.songport.sync.Matcher.normalizeArtist(name)] = url
         }
+        // The songs' small covers in the lists: one per album, whichever service the song is read from.
+        val albums = (Demo.SONGS + Demo.EXTRA).map { it.album }.distinct()
+        for (song in Demo.SONGS + Demo.EXTRA) {
+            val i = albums.indexOf(song.album)
+            val art = discoverArtists.getOrPut("album:${song.album}") { cover(DISCOVER_PALETTES[i % DISCOVER_PALETTES.size], i) }
+            for (isrc in listOf(song.isrc, null)) com.xlollx.songport.ui.ToolCovers.put(
+                com.xlollx.songport.model.Track(id = "demo", title = song.title, artists = listOf(song.artist), album = song.album, isrc = isrc), art,
+            )
+        }
     }
     private val discoverArtists = HashMap<String, Bitmap>()
 
