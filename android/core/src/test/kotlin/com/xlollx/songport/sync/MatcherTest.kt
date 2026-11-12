@@ -366,3 +366,34 @@ class VersionPenaltyTest {
         assertTrue(Matcher.score(four, jarre("c", "Oxygene (Part IV)", "Oxygene", 254)) >= Matcher.REVIEW_THRESHOLD)
     }
 }
+
+/** Review of 1.16.3: the #57 rules stay narrow (length floor bounded, album halves whole and long enough). */
+class Part57BoundsTest {
+    private fun tr(id: String, title: String, sec: Int, album: String = "") =
+        Track(id = id, title = title, artists = listOf("Mike Oldfield"), album = album, durationMs = sec * 1000L)
+
+    @Test
+    fun theSamePartFarTooShortIsNotLiftedByTheFloor() {
+        val src = tr("s", "Tubular Bells, Pt. 1", 1560)
+        val short = tr("c", "Tubular Bells (Part 1)", 240)
+        assertTrue(Matcher.score(src, short) < Matcher.DEFAULT_THRESHOLD)
+        val near = tr("n", "Tubular Bells (Part 1)", 1500)
+        assertTrue(Matcher.score(src, near) >= Matcher.DEFAULT_THRESHOLD)
+    }
+
+    @Test
+    fun albumHalvesMustBeWholeNamesOfTwoWordsOrMore() {
+        assertEquals(0.97, Matcher.albumFactor("A / B", "Banana"), 0.0)
+        assertEquals(0.97, Matcher.albumFactor("Live / Dead", "Alive"), 0.0)
+        assertEquals(0.97, Matcher.albumFactor("Blue / Green", "Red / Green"), 0.0)
+        assertEquals(1.0, Matcher.albumFactor("Les Chants Magnétiques / Magnetic Fields", "Magnetic Fields"), 0.0)
+    }
+
+    @Test
+    fun numberEndingTitlesAreUnchanged() {
+        fun b(title: String) = Track(id = title, title = title, artists = listOf("Blur"), durationMs = 120_000)
+        assertTrue(Matcher.score(b("Song 2"), b("Song 2")) >= Matcher.DEFAULT_THRESHOLD)
+        assertTrue(Matcher.score(b("Symphony No. 5"), b("Symphony No. 6")) < Matcher.DEFAULT_THRESHOLD)
+        assertTrue(Matcher.score(b("Vol. 3"), b("Vol. 2")) < Matcher.DEFAULT_THRESHOLD)
+    }
+}
