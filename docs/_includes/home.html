@@ -3,7 +3,7 @@ The home page, in the page's language: its text comes from _data/home/<lang>.yml
 a language lacks). index.html and the translated homes (it/index.html…) only include this.
 The Desktop version is set here, once, for every language.
 {%- endcomment -%}
-{%- assign dv = "1.8.0" -%}
+{%- assign dv = "1.9.2" -%}
 {%- assign dl = "https://github.com/xlollx/Trackhop/releases/download/server-v" | append: dv -%}
 {%- assign hl = page.lang | default: "en" | slice: 0, 2 -%}
 {%- assign en = site.data.home.en -%}
