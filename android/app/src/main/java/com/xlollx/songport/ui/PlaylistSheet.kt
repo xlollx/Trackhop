@@ -223,8 +223,6 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
             ) {
                 Column(
                     Modifier.fillMaxWidth().fillMaxHeight(if (short) 1f else 0.92f)
-                        .nestedScroll(hold)
-                        .draggable(rememberDraggableState { }, Orientation.Vertical)
                         .padding(top = 12.dp, bottom = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
                 )
