@@ -357,6 +357,24 @@ class SpotifyWebClientContractTest {
         assertEquals("true", page["variables"]["authenticated"].toString())
     }
 
+    /** An artist's own site: the artist page's `queryArtistOverview`, its About links and its merch shelf. */
+    @Test fun anArtistsSitesAreAskedAsTheArtistPageAsksThem() {
+        answer("""{"data":{"artistUnion":{"__typename":"Artist","uri":"spotify:artist:a1","profile":{"name":"Neon Harbour",
+            "externalLinks":{"items":[{"name":"INSTAGRAM","url":"https://instagram.com/neonharbour"},{"name":"WEBSITE","url":"https://neonharbour.example/"},{"name":"BAD","url":"javascript:alert(1)"}]}},
+            "goods":{"merch":{"items":[{"name":"Tee","url":"https://shop.neonharbour.example/products/tee"},{"name":"Tee again","url":"https://shop.neonharbour.example/products/tee"}]}}}}}""")
+        val sites = web.artistSites("spotify:artist:a1")
+        assertEquals("spotify:artist:a1", sites.uri)
+        assertEquals(listOf("https://instagram.com/neonharbour", "https://neonharbour.example/"), sites.links)
+        assertEquals(listOf("https://shop.neonharbour.example/products/tee"), sites.merch)
+        val sent = BridgeMock.calls.last { it.host() == "api-partner.spotify.com" }.json()
+        assertEquals("queryArtistOverview", sent["operationName"].str)
+        assertEquals(SpotifyWebClient.SHIPPED_HASHES["queryArtistOverview"], sent["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals("spotify:artist:a1", sent["variables"]["uri"].str)
+        // An answer without the artist is an error, not "no site".
+        answer("""{"data":{"somethingElse":{}}}""")
+        try { web.artistSites("spotify:artist:a1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("queryArtistOverview")) }
+    }
+
     @Test fun anArtistTheSearchDoesNotKnowHasNoUri() {
         answer("""{"data":{"searchV2":{"artists":{"items":[{"data":{"__typename":"Artist","uri":"spotify:artist:x0","profile":{"name":"Someone Else"}}}]}}}}""")
         assertNull(web.artistUri("Neon Harbour"))

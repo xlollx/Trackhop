@@ -31,7 +31,14 @@ import java.util.concurrent.ConcurrentHashMap
  *   shop.band.com, a link named "Store", a label's collection of the artist, a link page like
  *   lnk.to/store followed once; a splash page's "/home" read first), else store. and shop. of the
  *   site's domain: its public catalogue, `/products.json` (first page), and its currency from `/meta.json`;
- * - the artist's Bandcamp: the merch page, `/merch`.
+ * - the artist's Bandcamp: the merch page, `/merch`;
+ * - a shop on another platform, told from the page's own marks ([ShopPlatforms.detect]) before anything is
+ *   asked of it: WooCommerce's public Store API, Big Cartel's `/products.json` (the same address as Shopify's,
+ *   told apart by its answer), a Squarespace shop page as JSON where its robots.txt allows it, else the
+ *   schema.org products of the site's shop page and of at most [MAX_PRODUCT_PAGES] product pages it links to.
+ *   On the official site's own shop page, and on the first shop the site links to that is not Shopify.
+ *
+ * When MusicBrainz names neither an official site nor a shop, Wikidata's and Spotify's ([ArtistSites]) are used.
  *
  * Each shop's robots.txt is read first and honoured (a shop that closes those pages is skipped; a
  * link page whose robots.txt does not answer only has the one link the site gives opened, as a click would),
@@ -61,8 +68,21 @@ object Merch {
     const val MAX_SHOPS = 6
     /** Of those, the ones found on the official site's home page. */
     const val MAX_LINKED = 4
+    /** Product pages read for their schema.org data when a shop page lists too few products itself. */
+    const val MAX_PRODUCT_PAGES = 4
+    /** Products asked of WooCommerce's Store API: its first page. */
+    const val WOO_PAGE = 30
 
-    enum class Source { SHOP, BANDCAMP }
+    /**
+     * Where an item is from. The names are kept with the items ([TTL_MS]): never renamed. [SHOP] a
+     * Shopify shop; the others than [BANDCAMP] are read from the artist's own site or one it links to,
+     * and shown with that shop's domain ([Item.shopName]).
+     */
+    enum class Source {
+        SHOP, BANDCAMP, WOOCOMMERCE, BIGCARTEL, SQUARESPACE, SITE;
+
+        val ownSite: Boolean get() = this != SHOP && this != BANDCAMP
+    }
 
     /**
      * One thing for sale: [type] as the shop names it ("T-Shirt", "Vinyl"; "" when none),
@@ -81,6 +101,9 @@ object Merch {
     ) {
         /** The record this is (vinyl, CD, cassette: shown with the records, not the merch); null for other goods. */
         val format: Records.Format? get() = recordFormat(type, title)
+
+        /** The shop's domain ("band.com"), shown as where it is sold, for a shop on the artist's own site; null for Shopify's and Bandcamp's. */
+        val shopName: String? get() = if (source.ownSite) host(url)?.removePrefix("www.") else null
     }
 
     /**
@@ -130,11 +153,15 @@ object Merch {
      * links to, at most [PER_ARTIST] of other goods and as many records. Never throws: a shop that
      * fails is skipped, and only when none gave anything is the result [Found.unread].
      */
-    suspend fun find(env: Env, artist: String, links: List<Records.Link>): Found {
-        // "merch3": the results of builds that kept a failure as "nothing" and knew no shop beyond MusicBrainz's are not reused.
-        val ck = "merch3|${Records.norm(artist)}"
+    suspend fun find(env: Env, artist: String, links: List<Records.Link>, ids: ArtistSites.Ids = ArtistSites.Ids(), background: Boolean = false): Found {
+        // "merch4": the results of builds that knew no shop beyond MusicBrainz's and Shopify are not reused.
+        val ck = "merch4|${Records.norm(artist)}"
         cachedItems(env, ck)?.let { return Found(it) }
         val t = Trace()
+        // No site nor shop on MusicBrainz: Wikidata's and Spotify's.
+        val beyond = ArtistSites.extend(env, artist, links, ids, background)
+        val links = beyond.links
+        if (beyond.unread) t.unread = true
         val shop = guarded(t) { shopify(artist, links, t) }
         val bc = links.firstOrNull { it.kind == Records.Kind.BANDCAMP }?.let { host(it.url) }
         val band = if (bc == null) emptyList() else guarded(t) { bandcamp(bc, t) }
@@ -157,8 +184,8 @@ object Merch {
         return items.takeIf { it.isNotEmpty() || Records.cached(env, key, EMPTY_TTL_MS) { true } != null }
     }
 
-    /** One artist's look-up: what was asked and how it went (for the log), whether a shop did not answer, the robots.txt read. */
-    private class Trace {
+    /** One artist's look-up: what was asked and how it went (for the log), whether a shop did not answer, the robots.txt read; at most [max] requests. */
+    internal class Trace(val max: Int = MAX_REQUESTS) {
         val steps = ArrayList<String>()
         var unread = false
         val robots = HashMap<String, String?>()
@@ -168,6 +195,10 @@ object Merch {
         /** A Shopify shop answered (or was busy): the store./shop. guesses are not needed. */
         var shopSeen = false
         var requests = 0
+        /** The status of the last answer (0 when none). */
+        var lastCode = 0
+        /** Shops linked to (MusicBrainz's, the official site's) whose catalogue is not Shopify's: their own page says what they are. */
+        val notShopify = ArrayList<String>()
     }
 
     private suspend fun guarded(t: Trace, block: suspend () -> List<Item>): List<Item> = try {
@@ -218,9 +249,12 @@ object Merch {
 
     private fun isShopHost(h: String) = NOT_SHOPS.none { n -> if (n.endsWith(".")) h.contains(n) else h == n || h.endsWith(".$n") }
 
+    /** A shop platform's own host for its shops: band.bigcartel.com, band.myshopify.com. */
+    private fun isPlatformHost(h: String) = h.endsWith(".bigcartel.com") || h.endsWith(".myshopify.com")
+
     private fun isRedirector(h: String) = REDIRECTORS.any { h == it || h.endsWith(".$it") }
 
-    private fun host(url: String) = runCatching { URI(url).host?.lowercase() }.getOrNull()?.takeIf { it.isNotEmpty() }
+    internal fun host(url: String) = runCatching { URI(url).host?.lowercase() }.getOrNull()?.takeIf { it.isNotEmpty() }
 
     private val COLLECTION = Regex("""^/collections/([A-Za-z0-9_-]+)/?$""")
 
@@ -236,6 +270,8 @@ object Merch {
     private val HREF_ATTR = Regex("""\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))""", RegexOption.IGNORE_CASE)
 
     /** A page's links: the address and what names it (its text, title and other attributes), in page order. */
+    internal fun links(html: String): Sequence<Pair<String, String>> = anchors(html)
+
     private fun anchors(html: String): Sequence<Pair<String, String>> = ANCHOR.findAll(html).mapNotNull { m ->
         val attrs = m.groupValues[1]
         val h = HREF_ATTR.find(attrs) ?: return@mapNotNull null
@@ -262,7 +298,7 @@ object Merch {
             val h = host(url) ?: return@mapNotNull null
             if (h.removePrefix("www.") == domain || !isShopHost(h)) return@mapNotNull null
             val path = runCatching { URI(url).rawPath }.getOrNull().orEmpty().lowercase()
-            if (!STORE.containsMatchIn(h) && !(isRedirector(h) && STORE.containsMatchIn(path)) && !STORE_WORD.containsMatchIn(label)) return@mapNotNull null
+            if (!STORE.containsMatchIn(h) && !(isRedirector(h) && STORE.containsMatchIn(path)) && !STORE_WORD.containsMatchIn(label) && !isPlatformHost(h)) return@mapNotNull null
             url
         }.distinctBy { u -> if (isRedirector(host(u)!!)) u.substringBefore('?') else shopOf(u) }
             .sortedBy { if (host(it)!!.endsWith(".$domain")) 0 else 1 }.toList()
@@ -286,25 +322,38 @@ object Merch {
 
     private suspend fun shopify(artist: String, links: List<Records.Link>, t: Trace): List<Item> {
         val tried = HashSet<Shop>()
-        suspend fun read(s: Shop?): List<Item>? {
+        suspend fun read(s: Shop?, follow: Boolean = false): List<Item>? {
             // Shopify busy: its other shops would be refused too, and asking them makes it last longer.
             if (s == null || t.busy || tried.size >= MAX_SHOPS || !tried.add(s)) return null
-            return readShopify(artist, s, t).takeIf { it.isNotEmpty() }
+            return readShopify(artist, s, t, follow).takeIf { it.isNotEmpty() }
         }
-        for (h in shopHosts(links)) read(Shop(h))?.let { return it }
+        // The mail-order shops that are not Shopify's are looked at again by their own page; the official sites are read below.
+        val shopKind = links.filter { it.kind == Records.Kind.SHOP }.mapNotNull { host(it.url) }.toSet()
+        for (h in shopHosts(links)) read(Shop(h), follow = h in shopKind)?.let { return it }
+        // A shop linked to that is not Shopify (Big Cartel was read with Shopify's address): its home page says what it is. The first only.
+        suspend fun other(site: String): List<Item> =
+            if (t.busy) emptyList() else t.notShopify.firstOrNull()?.let { h -> otherShop(artist, h, site, t) }.orEmpty()
         // Many official sites are not the shop but link to it: a store subdomain, a label's shop, a link page.
-        val official = links.firstOrNull { it.kind == Records.Kind.OFFICIAL }?.url ?: return emptyList()
-        val site = host(official)?.takeIf { isShopHost(it) } ?: return emptyList()
+        val official = links.firstOrNull { it.kind == Records.Kind.OFFICIAL }?.url ?: return other("")
+        val site = host(official)?.takeIf { isShopHost(it) } ?: return other("")
         val home = allowedGet(site, "/", "text/html", t)
         val at = home?.url?.let { host(unbase(it)) } ?: site
         var linked = home?.let { storeLinks(it.body, at) }.orEmpty()
         // A splash page that only leads to the real home page ("/home"): that page is read once.
         val entry = if (home != null && linked.isEmpty()) entryPath(home.body, at) else null
-        if (entry != null) linked = allowedGet(at, entry, "text/html", t)?.let { storeLinks(it.body, at) }.orEmpty()
+        var linkedFrom: String? = null
+        if (entry != null) linked = allowedGet(at, entry, "text/html", t)?.also { linkedFrom = it.body }?.let { storeLinks(it.body, at) }.orEmpty()
         if (home != null && linked.isEmpty()) t.steps += "$site: no shop linked"
-        for (url in linked.take(MAX_LINKED)) read(resolve(url, t))?.let { return it }
+        for (url in linked.take(MAX_LINKED)) read(resolve(url, t), follow = true)?.let { return it }
+        val bare = runCatching { URI(official).rawPath.orEmpty().trim('/') }.getOrDefault("x").isEmpty()
+        // The site's own shop on another platform (WooCommerce, Squarespace, a page of schema.org products): the site itself, not a page on a host.
+        if (bare && home != null && !t.busy) {
+            val page = if (entry != null) linkedFrom ?: home.body else home.body
+            ownSite(artist, at, page, home, t).takeIf { it.isNotEmpty() }?.let { return it }
+        }
+        other(at).takeIf { it.isNotEmpty() }?.let { return it }
         // A home page drawn by a script names no shop: store. and shop. of the site's own domain (the site itself, not a page on a host).
-        if (runCatching { URI(official).rawPath.orEmpty().trim('/') }.getOrDefault("x").isNotEmpty()) return emptyList()
+        if (!bare) return emptyList()
         // A shop was found (with nothing of theirs) or is busy: no guessing beside it.
         if (t.shopSeen || t.busy) return emptyList()
         // A guessed host that does not exist is not a shop that did not answer.
@@ -328,12 +377,25 @@ object Merch {
         return target?.let { shopOf(it) }
     }
 
-    private suspend fun readShopify(artist: String, s: Shop, t: Trace): List<Item> {
+    /**
+     * A Shopify shop's catalogue (or Big Cartel's, at the same address). [follow]: a shop linked to,
+     * which when it is neither is looked at again by its home page ([Trace.notShopify]).
+     */
+    private suspend fun readShopify(artist: String, s: Shop, t: Trace, follow: Boolean = false): List<Item> {
         val path = (if (s.collection.isEmpty()) "" else "/collections/${s.collection}") + "/products.json"
-        val products = allowedGet(s.host, "$path?limit=$SHOPIFY_PAGE", "application/json", t) ?: return emptyList()
+        t.lastCode = 0
+        val products = allowedGet(s.host, "$path?limit=$SHOPIFY_PAGE", "application/json", t)
+        if (products == null) {
+            if (follow && t.lastCode == 404 && s.collection.isEmpty()) t.notShopify += s.host
+            return emptyList()
+        }
+        val parsed = runCatching { parseJson(products.body) }.getOrNull()
         // Not a Shopify shop: no catalogue there.
-        if (runCatching { parseJson(products.body)["products"] as? JsonArray }.getOrNull() == null) {
-            t.steps += "${s.host}: not a Shopify shop"; return emptyList()
+        if (parsed["products"] as? JsonArray == null) {
+            if (s.collection.isEmpty() && ShopPlatforms.isBigCartel(parsed)) return readBigCartel(artist, s.host, products.body, t)
+            t.steps += "${s.host}: not a Shopify shop"
+            if (follow && s.collection.isEmpty()) t.notShopify += s.host
+            return emptyList()
         }
         t.shopSeen = true
         val meta = allowedGet(s.host, "/meta.json", "application/json", t)?.body
@@ -394,6 +456,100 @@ object Merch {
         return path.substring(0, dot) + "_200x" + path.substring(dot) + url.substring(q)
     }
 
+    // ---------------------------------------------------------------- other platforms
+
+    /** A Big Cartel shop ([body] its `/products.json`): its currency and name from `/store.json`. */
+    private suspend fun readBigCartel(artist: String, h: String, body: String, t: Trace): List<Item> {
+        t.shopSeen = true
+        val store = allowedGet(h, "/store.json", "application/json", t)?.body
+        val items = ShopPlatforms.parseBigCartel(body, store, "https://$h", artist, whole = false)
+        t.steps += "$h/products.json (Big Cartel): ${items.size} items"
+        return items
+    }
+
+    /**
+     * The official site's own shop ([site], [page] the home page that was read): WooCommerce's Store
+     * API, a Squarespace shop page, else the schema.org products of the shop page it links to. The
+     * artist's own site: everything on sale there is theirs. Empty when it has none.
+     */
+    private suspend fun ownSite(artist: String, site: String, page: String, home: HttpResponse, t: Trace): List<Item> {
+        val platform = ShopPlatforms.detect(page) { home.header(it) }
+        val shopPath = ShopPlatforms.ownShopPath(page, site)
+        t.steps += "$site: ${platform.name.lowercase()}" + (shopPath?.let { ", shop page $it" } ?: "")
+        return when (platform) {
+            // Their catalogues were asked at the site's own address already.
+            ShopPlatforms.Platform.SHOPIFY, ShopPlatforms.Platform.BIGCARTEL -> emptyList()
+            ShopPlatforms.Platform.WOOCOMMERCE, ShopPlatforms.Platform.WORDPRESS ->
+                readWoo(artist, site, t, whole = true) ?: shopPath?.let { readPages(artist, site, it, null, t, whole = true) }.orEmpty()
+            ShopPlatforms.Platform.SQUARESPACE -> shopPath?.let { readSquarespace(artist, site, it, t, whole = true) }.orEmpty()
+            ShopPlatforms.Platform.OTHER -> shopPath?.let { readPages(artist, site, it, null, t, whole = true) }.orEmpty()
+        }
+    }
+
+    /**
+     * A shop the artist's site or MusicBrainz links to that is not Shopify ([h]): its home page says what
+     * it runs on. Theirs entirely when it is on the official site's domain ([site]) or named after the artist.
+     */
+    private suspend fun otherShop(artist: String, h: String, site: String, t: Trace): List<Item> {
+        val home = allowedGet(h, "/", "text/html", t) ?: return emptyList()
+        val domain = site.removePrefix("www.")
+        val whole = h.removePrefix("www.") == domain || h.endsWith(".$domain") || ShopPlatforms.Names(artist).named(ShopPlatforms.siteName(home.body))
+        val platform = ShopPlatforms.detect(home.body) { home.header(it) }
+        t.steps += "$h: ${platform.name.lowercase()}"
+        val shopPath = ShopPlatforms.ownShopPath(home.body, h)
+        return when (platform) {
+            ShopPlatforms.Platform.SHOPIFY, ShopPlatforms.Platform.BIGCARTEL -> emptyList()
+            ShopPlatforms.Platform.WOOCOMMERCE, ShopPlatforms.Platform.WORDPRESS ->
+                readWoo(artist, h, t, whole) ?: readPages(artist, h, shopPath ?: "/", home.body.takeIf { shopPath == null }, t, whole)
+            ShopPlatforms.Platform.SQUARESPACE -> readSquarespace(artist, h, shopPath ?: "/", t, whole)
+            // A shop's home page is its shop page: its own products, then its product pages.
+            ShopPlatforms.Platform.OTHER -> readPages(artist, h, "/", home.body, t, whole)
+        }
+    }
+
+    /** WooCommerce's public Store API on [h]: null when it has none (or it is closed), so the shop page is read instead. */
+    private suspend fun readWoo(artist: String, h: String, t: Trace, whole: Boolean): List<Item>? {
+        val r = allowedGet(h, "${ShopPlatforms.WOO_PATH}?per_page=$WOO_PAGE", "application/json", t) ?: return null
+        val items = runCatching { parseJson(r.body) as? JsonArray }.getOrNull()?.let { runCatching { ShopPlatforms.parseWoo(r.body, artist, whole) }.getOrNull() } ?: run {
+            t.steps += "$h: no WooCommerce catalogue"; return null
+        }
+        t.shopSeen = true
+        t.steps += "$h${ShopPlatforms.WOO_PATH}: ${items.size} items"
+        return items
+    }
+
+    /** A Squarespace shop page as JSON where robots.txt allows it (Squarespace's own does not), else its schema.org products. */
+    private suspend fun readSquarespace(artist: String, h: String, path: String, t: Trace, whole: Boolean): List<Item> {
+        val r = allowedGet(h, "$path?format=json", "application/json", t)
+        val items = r?.let { runCatching { ShopPlatforms.parseSquarespace(it.body, "https://$h", artist, whole) }.getOrNull() }
+        if (items != null) {
+            t.shopSeen = true
+            t.steps += "$h$path?format=json: ${items.size} items"
+            return items
+        }
+        return readPages(artist, h, path, null, t, whole, Source.SQUARESPACE)
+    }
+
+    /**
+     * The schema.org products of a shop page ([path] on [h]; [body] when it was read already) and, when it
+     * lists fewer than three itself, of at most [MAX_PRODUCT_PAGES] product pages it links to.
+     */
+    private suspend fun readPages(artist: String, h: String, path: String, body: String?, t: Trace, whole: Boolean, source: Source = Source.SITE): List<Item> {
+        val page = body ?: allowedGet(h, path, "text/html", t)?.body ?: return emptyList()
+        val base = "https://$h$path"
+        val items = ArrayList(ShopPlatforms.parseJsonLd(page, base, artist, whole, source))
+        if (items.size < 3) {
+            for (p in ShopPlatforms.productPaths(page, h, path, MAX_PRODUCT_PAGES)) {
+                if (t.requests >= t.max) break
+                val r = allowedGet(h, p, "text/html", t) ?: continue
+                items += ShopPlatforms.parseJsonLd(r.body, "https://$h$p", artist, whole, source).filter { n -> items.none { it.url == n.url } }
+            }
+        }
+        if (items.isNotEmpty()) t.shopSeen = true
+        t.steps += "$h$path (schema.org): ${items.size} items"
+        return items.take(PER_ARTIST * 2)
+    }
+
     // ---------------------------------------------------------------- Bandcamp
 
     private suspend fun bandcamp(h: String, t: Trace): List<Item> {
@@ -426,7 +582,7 @@ object Merch {
         )
     }.toList()
 
-    private fun text(html: String): String = SPACE.replace(TAG.replace(html, " "), " ").trim()
+    internal fun text(html: String): String = SPACE.replace(TAG.replace(html, " "), " ").trim()
         .replace("&ndash;", "–").replace("&mdash;", "—").replace("&amp;", "&").replace("&#39;", "'").replace("&apos;", "'")
         .replace("&quot;", "\"").replace("&lt;", "<").replace("&gt;", ">").replace("&#x27;", "'").replace("&nbsp;", " ")
         .removeSuffix("–").trim()
@@ -505,6 +661,9 @@ object Merch {
         return request(h, path, accept, t)?.takeIf { it.ok }
     }
 
+    /** A page of a site ([SiteConcerts]): robots.txt honoured, paced per host, counted in [t]. */
+    internal suspend fun fetch(h: String, path: String, accept: String, t: Trace): HttpResponse? = allowedGet(h, path, accept, t)
+
     /** A Shopify catalogue call: paced with every other Shopify shop's ([shopify]). */
     private fun isShopify(path: String) = path.substringBefore('?').let { it.endsWith("/products.json") || it == "/meta.json" }
 
@@ -519,7 +678,7 @@ object Merch {
         val shop = isShopify(path)
         var retried = false
         while (true) {
-            if (t.requests >= MAX_REQUESTS) { if (t.requests++ == MAX_REQUESTS) t.steps += "request cap reached"; return null }
+            if (t.requests >= t.max) { if (t.requests++ == t.max) t.steps += "request cap reached"; return null }
             t.requests++
             val send: suspend () -> HttpResponse = {
                 Http.send("GET", hostBase(h) + path, mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to accept), maxRateLimitRetries = 0, retryServerErrors = false)
@@ -545,6 +704,7 @@ object Merch {
                 return r
             }
             if (shop) shopify.answered()
+            t.lastCode = r.code
             if (!r.ok) t.steps += "$p: ${r.code}"
             if (r.code == 429 || r.code >= 500) t.unread = true
             return r

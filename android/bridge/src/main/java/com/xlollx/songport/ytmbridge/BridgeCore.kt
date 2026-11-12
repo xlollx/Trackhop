@@ -282,6 +282,12 @@ object BridgeCore {
                     val c = SpotifyWebClient(ctx, slot)
                     ok(json.encodeToString(c.artistUri(arg ?: return err("missing artist"))?.let { c.concerts(it) } ?: emptyList()))
                 }
+                // What the artist's page says of their own site (arg: the artist's name; null when the search finds no
+                // artist of that name): its links and its merch shelf. Merch's and Concerts' look for the official site.
+                "spotify.artist" -> {
+                    val c = SpotifyWebClient(ctx, slot)
+                    ok(json.encodeToString(c.artistUri(arg ?: return err("missing artist"))?.let { c.artistSites(it) }))
+                }
                 "spotify.concert" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).concert(arg ?: return err("missing concert"))))
                 "spotify.create" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "spotify.add" -> {

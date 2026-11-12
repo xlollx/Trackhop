@@ -30,6 +30,10 @@ class SongportApp : Application() {
         // Concerts: the tour dates on Spotify's artist pages, where the Spotify (web) connector is connected (unofficial);
         // a date is placed in a country by the UTC offsets that country uses (Android's time zone data).
         com.xlollx.songport.sync.SpotifyConcerts.reader = com.xlollx.songport.providers.SpotifyBridgeProvider.concertsReader(this)
+        // Merch and Concerts: the artists' own sites, found beyond MusicBrainz (Wikidata; their Spotify page where
+        // the Spotify (web) connector is connected) and read for their shop and their dates.
+        com.xlollx.songport.sync.ArtistSites.enabled = true
+        com.xlollx.songport.sync.ArtistSites.spotify = com.xlollx.songport.providers.SpotifySites.reader(this)
         com.xlollx.songport.sync.SpotifyConcerts.zones = { country ->
             android.icu.util.TimeZone.getAvailableIDs(country).mapNotNull { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
         }

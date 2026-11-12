@@ -10,7 +10,7 @@ import json, re, sys, time, urllib.request
 
 NEEDED = ["libraryV3", "fetchPlaylist", "fetchLibraryTracks", "searchTracks", "searchDesktop", "getTrack",
           "profileAttributes", "addToPlaylist", "removeFromPlaylist", "addToLibrary", "removeFromLibrary", "userTopContent",
-          "ArtistConcerts", "concert"]
+          "ArtistConcerts", "concert", "queryArtistOverview"]
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 HASH = re.compile(r'"([A-Za-z][A-Za-z0-9_]*)"\s*,\s*"(query|mutation)"\s*,\s*"([0-9a-f]{64})"')
 PACK = re.compile(r'https://open\.spotifycdn\.com/cdn/build/web-player/web-player\.[^"\']+\.js')

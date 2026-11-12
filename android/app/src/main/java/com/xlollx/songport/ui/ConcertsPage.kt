@@ -236,7 +236,7 @@ private fun ArtistDatesCard(a: Concerts.ArtistDates, snackbar: SnackbarHostState
                     FlowRow(verticalArrangement = Arrangement.Center) {
                         // Each site's own event page, as it comes: the tickets are there.
                         if (e.url.isNotBlank()) TextButton(onClick = { openUrl(ctx, e.url) }) {
-                            Text(ticketsLabel(e.source), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false)
+                            Text(ticketsLabel(e.source, e.url), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false)
                         }
                         AlsoOnLinks(e)
                         TextButton(onClick = {

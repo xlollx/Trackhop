@@ -31,8 +31,9 @@ internal object ConcertTexts {
     const val UNOFFICIAL = "Vivaticket's dates are read from its website (unofficial): this may stop working at any time."
 
     /** Where a date's tickets are, as its link says. */
-    fun tickets(s: Concerts.Source): String = when (s) {
+    fun tickets(s: Concerts.Source, url: String = ""): String = when (s) {
         Concerts.Source.TICKETMASTER -> "Tickets on Ticketmaster"
+        Concerts.Source.SITE -> Concerts.siteName(url).ifEmpty { s.label }
         Concerts.Source.VIVATICKET -> "Tickets on Vivaticket (unofficial)"
         else -> s.label
     }
@@ -186,8 +187,8 @@ private fun concertsHtml(playlist: String, r: Concerts.Result): String = buildSt
         a.events.forEach { e ->
             val where = listOf(e.city, e.venue).filter { it.isNotBlank() }.joinToString(" · ")
             // A date without a web link (none given, or not http/https) says its source as plain text.
-            val source = (if (e.url.isBlank()) h(e.source.label) else """<a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(e.source))}</a>""") +
-                e.alsoOn.joinToString("") { l -> """ · <a href="${h(l.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(l.source))}</a>""" }
+            val source = (if (e.url.isBlank()) h(e.source.label) else """<a href="${h(e.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(e.source, e.url))}</a>""") +
+                e.alsoOn.joinToString("") { l -> """ · <a href="${h(l.url)}" rel="noopener noreferrer" target="_blank">${h(ConcertTexts.tickets(l.source, l.url))}</a>""" }
             append("""<li><strong>${h(e.date)}${e.time?.let { " " + h(it) } ?: ""}</strong> ${h(where)} · $source</li>""")
         }
         append("</ul></div>")
