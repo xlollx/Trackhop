@@ -1,6 +1,16 @@
 package com.xlollx.songport.ui
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -63,8 +73,22 @@ const val TAG_VALUE_FIELD = "tag-value"
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TagsEditor(draft: TagDraft, jobs: List<SyncJob>, onChange: (TagDraft) -> Unit) {
+    // Folded until asked for; folding keeps what is typed, since the draft lives with the editor.
+    var open by rememberSaveable { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(stringResource(R.string.tags_title), style = MaterialTheme.typography.labelLarge)
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { open = !open },
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.tags_title), style = MaterialTheme.typography.labelLarge)
+                // Folded: the sync's tags in one line, so they are not hidden away.
+                val summary = draft.all.entries.joinToString(" · ") { tagText(it.key, it.value) }
+                if (!open && summary.isNotEmpty()) Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (!open) return@Column
         Text(stringResource(R.string.tags_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (draft.tags.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             draft.tags.forEach { (k, v) ->
