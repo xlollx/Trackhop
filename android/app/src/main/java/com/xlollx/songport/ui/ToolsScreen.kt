@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -352,7 +353,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     }
     val export = rememberPlaylistExporter { uri, _ -> write(uri) }
 
-    Card(Modifier.fillMaxWidth()) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.tools_export_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -399,7 +400,7 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
         lists = try { provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { emptyList() }
     }
 
-    Card(Modifier.fillMaxWidth()) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.tools_dedupe_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -481,7 +482,7 @@ private fun MbTagsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     var busy by remember { mutableStateOf(false) }
     var read by remember { mutableStateOf(0) }
 
-    Card(Modifier.fillMaxWidth()) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.tools_mbtags_title), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(6.dp))
@@ -544,7 +545,7 @@ private fun RecentTransfersPage(onReview: (String) -> Unit) {
     if (list.isEmpty()) Text(stringResource(R.string.recent_transfers_none), style = MaterialTheme.typography.bodyMedium)
     list.forEach { job ->
         val report = job.lastReportId?.let { r -> data.reports.firstOrNull { it.id == r } }
-        Card(Modifier.fillMaxWidth()) {
+        PageCard(shape = MaterialTheme.shapes.large) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(job.name, style = MaterialTheme.typography.titleSmall)
                 val where = Providers.byId(job.target.provider)?.label(ctx) ?: job.target.provider
@@ -558,8 +559,8 @@ private fun RecentTransfersPage(onReview: (String) -> Unit) {
                 }
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                     val toFix = report?.let { com.xlollx.songport.sync.OneOffs.toReview(it) } ?: 0
-                    TextButton(onClick = { store.deleteJob(job.id) }) { Text(stringResource(R.string.delete)) }
-                    if (toFix > 0) TextButton(onClick = { onReview(report!!.id) }) { Text(stringResource(R.string.review_now, toFix)) }
+                    TextButton(onClick = { store.deleteJob(job.id) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.delete)) }
+                    if (toFix > 0) FilledTonalButton(onClick = { onReview(report!!.id) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.review_now, toFix)) }
                 }
             }
         }

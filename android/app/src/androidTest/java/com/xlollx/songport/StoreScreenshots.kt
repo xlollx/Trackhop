@@ -875,6 +875,14 @@ class StoreScreenshots {
             snap("old_${t}_tools_2")
             step("old tools 3") { swipe(1300) }
             snap("old_${t}_tools_3")
+            // Two of Tools' own pages.
+            for ((n, title) in listOf("4_export" to R.string.tools_export_title, "5_dedupe" to R.string.tools_dedupe_title)) {
+                open(tab(MainActivity.TAB_TOOLS), "old tools $n") {
+                    compose.onAllNodesWithText(s(title)).onFirst().performScrollTo()
+                    click(s(title)); Thread.sleep(1500)
+                }
+                snap("old_${t}_tools_$n")
+            }
             // The first run, page by page.
             store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
             open(tab(MainActivity.TAB_SYNCS), "old welcome") {
