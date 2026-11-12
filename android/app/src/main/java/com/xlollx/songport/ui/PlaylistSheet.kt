@@ -60,6 +60,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -192,7 +193,7 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
             Modifier.fillMaxWidth().padding(start = 24.dp, end = 8.dp, top = if (tall && !short) 12.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(title, style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).semantics { heading() })
+            Text(title, style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).testTag(PICKER_TITLE_TAG).semantics { heading() })
             if (tall) androidx.compose.material3.IconButton(onClick = onDismiss) {
                 androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Close, stringResource(R.string.ai_done_close))
             }
@@ -229,6 +230,10 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
         )
     }
 }
+
+/** For the UI tests: the sheet's title and its list. */
+internal const val PICKER_TITLE_TAG = "picker-title"
+internal const val PICKER_LIST_TAG = "picker-list"
 
 /** The sheet's side margin: what is put in it by a page keeps to it. */
 internal val PickerSheetMargin = 16.dp
@@ -314,7 +319,7 @@ internal fun ColumnScope.PlaylistRows(
         if (hasTools) Box(Modifier.padding(horizontal = PickerSheetMargin)) { tools() }
     }
     LazyColumn(
-        Modifier.fillMaxWidth().weight(1f, fill = fill), state = listState,
+        Modifier.fillMaxWidth().weight(1f, fill = fill).testTag(PICKER_LIST_TAG), state = listState,
         contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
     ) {
         if (short) {
