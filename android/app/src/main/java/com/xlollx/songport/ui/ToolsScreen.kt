@@ -269,8 +269,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         }
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
-            ToolRow(Tool.AI, provider, beta = true) { open = Tool.AI }
-            ToolRow(Tool.SHARED, provider) { SharedUi.request.value = SharedUi.Request.List }
+            ToolRow(Tool.AI, provider) { open = Tool.AI }
+            ToolRow(Tool.SHARED, provider, beta = true) { SharedUi.request.value = SharedUi.Request.List }
         }
 
         PrefSection(stringResource(R.string.tools_section_safety), accent = JobColor.GREEN, description = stringResource(R.string.tools_section_safety_desc)) {

@@ -240,8 +240,6 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.ai_title), style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.width(8.dp))
-                StatusPill(stringResource(R.string.beta), Tone.Neutral)
             }
             Spacer(Modifier.height(6.dp))
             // Two ways in: no key at all (open music data), or the user's own AI. Without an AI set up,

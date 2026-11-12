@@ -193,7 +193,14 @@ fun SharedScreen(onClose: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(group?.name ?: stringResource(R.string.shared_title)) },
+                title = {
+                    if (group != null) Text(group.name)
+                    else androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Text(stringResource(R.string.shared_title))
+                        androidx.compose.foundation.layout.Spacer(androidx.compose.ui.Modifier.width(8.dp))
+                        StatusPill(stringResource(R.string.beta), Tone.Neutral)
+                    }
+                },
                 navigationIcon = { IconButton(onClick = { if (group != null) openId = null else onClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
             )
         },
