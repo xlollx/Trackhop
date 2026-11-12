@@ -1,5 +1,11 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.ui.text.font.FontWeight
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -140,11 +146,17 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
             }
         },
     ) { padding ->
-        Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // A readable column, centred in a wide window (a tablet, a phone on its side).
+        Box(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.widthIn(max = WindowLayout.READABLE_CONTENT).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             RouteCard(job, newTarget = job.target.playlistId == null)
             when {
-                error != null -> Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
-                    Text(error!!, color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.padding(16.dp))
+                error != null -> Surface(Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }, shape = ToolCardShape, color = MaterialTheme.colorScheme.errorContainer) {
+                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.onErrorContainer)
+                        Spacer(Modifier.width(12.dp))
+                        Text(error!!, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.weight(1f))
+                    }
                 }
                 p == null -> PlanSteps(progress, waitingFor)
                 else -> {
@@ -158,11 +170,11 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                         Stat("${p.alreadyPresent}", stringResource(R.string.preview_tile_present), Modifier.weight(1f))
                         Stat("${p.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), tint = if (p.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null)
                     }
-                    if (!hasWork) Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                    if (!hasWork) PageCard {
                         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+                            StatusMark(Icons.Filled.Check, Tone.Ok)
                             Spacer(Modifier.width(12.dp))
-                            Text(stringResource(R.string.preview_nothing), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text(stringResource(R.string.preview_nothing), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                         }
                     }
                     // What else is worth knowing before running: each on its own line, the warnings first.
@@ -172,33 +184,31 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                         if (p.ignored > 0) add(stringResource(R.string.preview_ignored, p.ignored) to false)
                         p.notes.forEach { add(it to false) }
                     }
-                    infos.forEach { (text, warn) ->
-                        Row(verticalAlignment = Alignment.Top) {
-                            Icon(
-                                if (warn) Icons.Filled.Warning else Icons.Outlined.Info, null, Modifier.size(18.dp).padding(top = 2.dp),
-                                tint = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(text, style = MaterialTheme.typography.bodySmall, color = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                    if (infos.isNotEmpty()) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        infos.forEach { (text, warn) -> PageNote(text, tone = if (warn) Tone.Error else Tone.Neutral, icon = if (warn) Icons.Filled.Warning else null) }
                     }
                     if (dst?.serviceId == YouTubeProvider.SERVICE) {
-                        QuotaCard(
-                            used = QuotaMeter.used(data, YouTubeProvider.SERVICE),
-                            sharedCredentials = !dst.usesOwnCredentials(ctx),
-                            estimate = QuotaMeter.estimateAdd(p.toAdd.size),
-                        )
+                        PageCard {
+                            Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 12.dp)) {
+                                QuotaCard(
+                                    used = QuotaMeter.used(data, YouTubeProvider.SERVICE),
+                                    sharedCredentials = !dst.usesOwnCredentials(ctx),
+                                    estimate = QuotaMeter.estimateAdd(p.toAdd.size),
+                                )
+                            }
+                        }
                     }
-                    if (hasWork) {
+                    if (hasWork && (p.removalsNeedConfirmation || p.targetShrunkFrom > 0)) PageCard(edge = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) {
+                        Column(Modifier.padding(vertical = 4.dp)) {
                         // The one place large removals are confirmed: a deliberate tick, then Run now.
                         // Unticked, the run adds as usual and holds the removals back again.
                         if (p.removalsNeedConfirmation) {
                             Row(
-                                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = confirmRemovals, role = Role.Checkbox, onValueChange = { confirmRemovals = it }),
+                                Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = confirmRemovals, role = Role.Checkbox, onValueChange = { confirmRemovals = it }).padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Checkbox(checked = confirmRemovals, onCheckedChange = null)
-                                Spacer(Modifier.width(8.dp))
+                                Spacer(Modifier.width(12.dp))
                                 Text(stringResource(if (unlikes) R.string.preview_unlike_confirm else R.string.preview_remove_confirm, p.toRemove.size), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                                 HelpButton(Helps.removals)
                             }
@@ -207,20 +217,18 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                         // run stops unless this is ticked, as a listing read in part would add everything again.
                         if (p.targetShrunkFrom > 0) {
                             Row(
-                                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = confirmShrink, role = Role.Checkbox, onValueChange = { confirmShrink = it }),
+                                Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = confirmShrink, role = Role.Checkbox, onValueChange = { confirmShrink = it }).padding(horizontal = 16.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Checkbox(checked = confirmShrink, onCheckedChange = null)
-                                Spacer(Modifier.width(8.dp))
+                                Spacer(Modifier.width(12.dp))
                                 Text(stringResource(R.string.preview_shrunk_confirm, p.targetCount, p.targetShrunkFrom), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                             }
                         }
                     }
+                    }
                     if (p.uncertain.isNotEmpty()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.review_section_uncertain, p.uncertain.size), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                            HelpButton(Helps.uncertain)
-                        }
+                        PageSectionTitle(stringResource(R.string.review_section_uncertain, p.uncertain.size), accent = JobColor.PURPLE) { HelpButton(Helps.uncertain) }
                         var openReview by remember { mutableStateOf<String?>(null) }
                         val webSearch = remember(dst) { dst?.webSearch(ctx) }
                         p.uncertain.forEach { review ->
@@ -251,7 +259,8 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                     TrackList(stringResource(R.string.preview_unmatched, p.unmatched.size), p.unmatched, MaterialTheme.colorScheme.tertiary)
                 }
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(8.dp))
+        }
         }
     }
 }
@@ -260,21 +269,21 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
 @Composable
 private fun RouteCard(job: SyncJob, newTarget: Boolean) {
     val ctx = LocalContext.current
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf(job.source, job.target).forEachIndexed { i, ref ->
                 val provider = Providers.byId(ref.provider)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ProviderBadge(provider, 36.dp)
+                    ProviderBadge(provider, 40.dp)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(ref.playlistName.ifBlank { job.name }, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(provider?.label(ctx) ?: ref.provider, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                if (i == 0) Icon(Icons.Filled.ArrowDownward, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp).size(20.dp))
+                if (i == 0) Icon(Icons.Filled.ArrowDownward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 10.dp).size(20.dp))
             }
-            if (newTarget) Text(stringResource(R.string.preview_target_new), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+            if (newTarget) PageNote(stringResource(R.string.preview_target_new), tone = Tone.Accent)
         }
     }
 }
@@ -294,7 +303,7 @@ private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = nu
     // A pause asked by the service keeps the step it came in.
     var last by remember { mutableStateOf(0) }
     val current = if (step < 0) last else step.also { last = it }
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    PageCard {
         Column(Modifier.fillMaxWidth().padding(16.dp).semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }, verticalArrangement = Arrangement.spacedBy(14.dp)) {
             listOf(
                 stringResource(R.string.progress_fetch_source),
@@ -319,14 +328,7 @@ private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = nu
                     LinearProgressIndicator(progress = { pc / 100f }, modifier = Modifier.fillMaxWidth().padding(start = 36.dp))
                 }
             }
-            if (waitingFor != null) Row(verticalAlignment = Alignment.Top) {
-                Icon(Icons.Outlined.Info, null, Modifier.size(18.dp).padding(top = 2.dp), tint = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    stringResource(R.string.preview_waiting_read, waitingFor.jobName, waitingFor.service),
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+            if (waitingFor != null) PageNote(stringResource(R.string.preview_waiting_read, waitingFor.jobName, waitingFor.service), tone = Tone.Accent)
             if (progress?.step == Progress.Step.WAITING) Text(
                 stringResource(R.string.progress_waiting, (progress.total - progress.done).coerceAtLeast(0)),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -347,12 +349,12 @@ private fun progressLabel(p: Progress): String = when (p.step) {
 private fun TrackList(title: String, tracks: List<Track>, accent: Color, first: Int = 8) {
     if (tracks.isEmpty()) return
     var all by remember(tracks) { mutableStateOf(false) }
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    PageCard {
         Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
             Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
-                Spacer(Modifier.width(10.dp))
-                Text(title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.semantics { heading() })
+                Box(Modifier.size(width = 4.dp, height = 18.dp).clip(RoundedCornerShape(2.dp)).background(accent))
+                Spacer(Modifier.width(8.dp))
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.semantics { heading() })
             }
             Spacer(Modifier.height(6.dp))
             (if (all) tracks.take(500) else tracks.take(first)).forEach { t ->
@@ -362,7 +364,7 @@ private fun TrackList(title: String, tracks: List<Track>, accent: Color, first: 
                     if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-            if (!all && tracks.size > first) TextButton(onClick = { all = true }, modifier = Modifier.padding(start = 8.dp)) {
+            if (!all && tracks.size > first) TextButton(onClick = { all = true }, modifier = Modifier.padding(start = 4.dp).heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.preview_more, tracks.size - first))
             }
         }
