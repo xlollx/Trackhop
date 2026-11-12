@@ -217,6 +217,12 @@ interface MusicProvider {
     suspend fun tracks(ctx: Env, playlistId: String): List<Track>
     /** Candidati per un brano di un altro servizio: prima per ISRC (se supportato), poi per testo. */
     suspend fun search(ctx: Env, track: Track): List<Track>
+    /**
+     * [search] for [track] on its way to [playlistId] here (null: a playlist still to be made). The
+     * same as [search] unless the service searches another catalogue for another target: on Amazon
+     * Music an album is looked for among albums only for the saved albums, as a playlist takes songs.
+     */
+    suspend fun searchFor(ctx: Env, track: Track, playlistId: String?): List<Track> = search(ctx, track)
     suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist
     suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>)
 

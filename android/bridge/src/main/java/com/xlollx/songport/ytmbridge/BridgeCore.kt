@@ -20,6 +20,8 @@ object BridgeCore {
     const val ALBUMS = "__albums__"
     const val ARTISTS = "__artists__"
     const val RECENT = "__recent__"
+    /** Saved albums on the older skill API: none mapped. */
+    private const val AMAZON_NO_ALBUMS = "Amazon Music: saved albums are not available for this account's player (the older skill API)"
 
     /** The services whose extra accounts ([Slots]) this answers; the others serve one account. */
     private val SLOT_SERVICES = setOf("", "spotify", "apple", "deezer", "anghami", "qobuz", "liveone")
@@ -153,6 +155,8 @@ object BridgeCore {
                 ))
                 "amazon.tracks" -> {
                     val id = arg ?: return err("missing playlist id")
+                    // ALBUMS: the saved albums (GraphQL only; Trackhop asks from Bridge 1.11.0 on).
+                    if (id == ALBUMS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.savedAlbums() }, { throw BridgeException(AMAZON_NO_ALBUMS) })))
                     ok(json.encodeToString(AmazonRoute.run(ctx, { it.playlistTracks(id) }, { it.playlistTracks(id) })))
                 }
                 "amazon.playlists" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.libraryPlaylists() }, { it.libraryPlaylists() })))
@@ -164,6 +168,12 @@ object BridgeCore {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
                     val titles = extras?.getStringArray("titles") ?: emptyArray()
+                    // ALBUMS: each album saved ("liked"); one Amazon does not confirm fails the call, so it is never counted as added.
+                    if (pid == ALBUMS) {
+                        val refused = AmazonRoute.run(ctx, { c -> ids.filterNot { c.setAlbumSaved(it, saved = true).also { Thread.sleep(150) } } }, { throw BridgeException(AMAZON_NO_ALBUMS) })
+                        if (refused.isNotEmpty()) return err("Amazon Music did not save ${refused.size} of ${ids.size} albums (${refused.take(5).joinToString()})")
+                        return Bundle().apply { putStringArray("duplicates", emptyArray()) }
+                    }
                     // Tracks Amazon refused as already in the playlist: Trackhop counts them as present, not added.
                     val duplicates = AmazonRoute.run(ctx,
                         { c -> ids.filterNot { id -> c.addTrack(pid, id).also { Thread.sleep(150) } } },
@@ -189,6 +199,11 @@ object BridgeCore {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
                     val entries = extras?.getStringArray("entryIds") ?: emptyArray()
+                    // ALBUMS: each album un-liked; the ones Amazon did not confirm go back as "kept".
+                    if (pid == ALBUMS) {
+                        val kept = AmazonRoute.run(ctx, { c -> ids.filterNot { c.setAlbumSaved(it, saved = false).also { Thread.sleep(150) } } }, { throw BridgeException(AMAZON_NO_ALBUMS) })
+                        return Bundle().apply { putStringArray("kept", kept.toTypedArray()) }
+                    }
                     // Checked against the playlist afterwards: the entries Amazon still lists go back
                     // as "kept", and Trackhop counts them as not removed. GraphQL removes by cursor,
                     // highest index first; the skill API by trackEntryId.

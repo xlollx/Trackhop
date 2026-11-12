@@ -37,7 +37,11 @@ blanked anywhere in the file.
 - Operations used: `AddToPlaylistModalUserPlaylists` (the user's playlists), `playlistDetail`
   (tracks, 100 per page, `afterCursor`), `searchTracksResult` (search, songs only; until 11/2026
   `SpecSearchPage`), `searchAlbumsResult` (search for a saved album, albums only), `CreatePlaylist`, `addTrackToPlaylist` (`DUPLICATE_TRACK` is not a failure),
-  `removeTrackFromPlaylist` (by entry cursor `index:uuid`, highest index first), `deletePlaylist`.
+  `removeTrackFromPlaylist` (by entry cursor `index:uuid`, highest index first), `deletePlaylist`;
+  saved albums: `LikedAlbumsPage` (`firstLimit`, `isAuthenticated`; the next page by `afterCursor`,
+  an assumption until a library of more than a page is captured) and `setAlbumLikeState` (`albumId`,
+  `likeState` `POSITIVE` or `NEUTRAL`, `isAuthenticated`). Their text is not in the player's public
+  code, so a changed hash of theirs needs a capture: open *Library → Albums*, like and un-like an album.
 - The player uses Apollo's automatic persisted queries: when Amazon answers
   `PERSISTED_QUERY_NOT_FOUND`, the same request goes again with the query's text, which registers it.
   The client does the same for the operations whose text is in `AmazonQueries.kt` (so far the two searches).

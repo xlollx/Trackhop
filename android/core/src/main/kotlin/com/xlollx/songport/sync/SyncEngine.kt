@@ -524,7 +524,7 @@ class SyncEngine(
         val unmatched = ArrayList<Track>()
         val uncertain = ArrayList<MatchReview>()
         var searched = 0
-        val interrupted = searchMissing(src, dst, toSearch, job.policy, onProgress, direct) { s, found, score ->
+        val interrupted = searchMissing(src, dst, targetId, toSearch, job.policy, onProgress, direct) { s, found, score ->
             searched++
             SyncState.item(
                 job.id,
@@ -772,7 +772,7 @@ class SyncEngine(
         val unmatched = ArrayList<Track>()
         val uncertain = ArrayList<MatchReview>()
         val newCache = HashMap<String, String>()
-        searchMissing(src, dst, srcTracks, job.policy, onProgress, sameAccount(job, src, dst)) { s, found, score ->
+        searchMissing(src, dst, null, srcTracks, job.policy, onProgress, sameAccount(job, src, dst)) { s, found, score ->
             if (found != null) {
                 toAdd[found.id] = found
                 // Unsure matches stay out of the cache: the run reviews them unless the preview settles them.
@@ -807,7 +807,10 @@ class SyncEngine(
     }
 
     private suspend fun searchMissing(
-        src: MusicProvider, dst: MusicProvider, toSearch: List<Track>, policy: MatchPolicy,
+        src: MusicProvider, dst: MusicProvider,
+        /** Where the tracks go ([MusicProvider.searchFor]); null for a playlist still to be made. */
+        targetId: String?,
+        toSearch: List<Track>, policy: MatchPolicy,
         onProgress: (Progress) -> Unit,
         /** Source and target on the same account ([sameAccount]): each track is its own match. */
         direct: Boolean = false,
@@ -858,7 +861,7 @@ class SyncEngine(
                             // non raddoppiano la pressione, se la dividono.
                             val slots = searchSlots.getOrPut(dst.id) { kotlinx.coroutines.sync.Semaphore(parallel) }
                             slots.withPermit {
-                                runCatching { searchScored(dst, s, policy) }.map { it?.track to it?.score }
+                                runCatching { searchScored(dst, targetId, s, policy) }.map { it?.track to it?.score }
                                     .also { val gap = spacing.get(); if (gap > 0) kotlinx.coroutines.delay(gap) }
                             }
                         }
@@ -1020,7 +1023,7 @@ class SyncEngine(
         return if (ids.isEmpty()) s else s.copy(mbids = ids)
     }
 
-    private suspend fun searchScored(dst: MusicProvider, source: Track, policy: MatchPolicy): Matcher.Scored? {
+    private suspend fun searchScored(dst: MusicProvider, targetId: String?, source: Track, policy: MatchPolicy): Matcher.Scored? {
         val s = withMbids(dst, source)
         var runnerUp: Matcher.Scored? = null
         var sawCandidates = false
@@ -1038,7 +1041,7 @@ class SyncEngine(
             // catalogue oracle once, and the first search asks for the exact recording.
             val withIsrc = if (s.isrc == null && s.kind.isEmpty() && dst.searchesByIsrc && dst.serviceId != "deezer" && store.data.settings.isrcLookup)
                 IsrcOracle.find(env, s)?.let { s.copy(isrc = it) } ?: s else s
-            consider(dst.search(env, withIsrc))?.let { return it }
+            consider(dst.searchFor(env, withIsrc, targetId))?.let { return it }
             // A server that searches by title alone asked every form of the title already: another
             // artist would only repeat those requests.
             fun key(t: Track) = if (dst.searchesTitleOnly) t.kind + "|" + Matcher.searchTitle(t.title) else query(t)
@@ -1055,7 +1058,7 @@ class SyncEngine(
             ).map { it.copy(mbids = emptyList()) }
             for (v in variants) {
                 if (!tried.add(key(v))) continue
-                consider(dst.search(env, v))?.let { return it }
+                consider(dst.searchFor(env, v, targetId))?.let { return it }
             }
             // Last resort, where the service has one: a wider catalogue (YouTube videos for YouTube Music).
             if (s.kind.isEmpty()) consider(dst.searchWide(env, s))?.let { return it }
@@ -1564,7 +1567,7 @@ class SyncEngine(
                 val wanted = if (kind == Track.KIND_ARTIST) Track(id = "", title = song.artists.firstOrNull().orEmpty(), kind = kind)
                     else Track(id = "", title = song.album.ifBlank { song.title }, artists = song.artists.take(1), kind = kind)
                 if (wanted.title.isBlank()) throw ProviderException(str("link_song_not_album", dst.label(env)))
-                val found = runCatching { dst.search(env, wanted) }.getOrDefault(emptyList())
+                val found = runCatching { dst.searchFor(env, wanted, playlistId) }.getOrDefault(emptyList())
                 if (found.isEmpty()) throw ProviderException(str("link_song_not_album", dst.label(env)))
                 return TargetSearch(dedupe(found).map { hit(it, TargetSearch.Kind.SONG) })
             }
@@ -1577,11 +1580,11 @@ class SyncEngine(
         }
         // An artist is searched by name alone: "Artist - Title" splitting would cut a name with a dash.
         val (artists, title) = if (kind == Track.KIND_ARTIST) emptyList<String>() to query.trim() else PlaylistFiles.splitArtistTitle(query)
-        var songs = dst.search(env, Track(id = "", title = title, artists = artists, kind = kind))
+        var songs = dst.searchFor(env, Track(id = "", title = title, artists = artists, kind = kind), playlistId)
         // "Artista - Titolo" senza un candidato convincente: il solo titolo a volte lo trova.
         fun convincing() = source == null || Matcher.bestScored(source, songs, policy = policy) != null
         if (artists.isNotEmpty() && (songs.isEmpty() || !convincing())) {
-            songs = (songs + dst.search(env, Track(id = "", title = title, kind = kind))).distinctBy { it.id }
+            songs = (songs + dst.searchFor(env, Track(id = "", title = title, kind = kind), playlistId)).distinctBy { it.id }
         }
         val hits = ArrayList<TargetSearch.Hit>()
         val seen = HashSet<String>()
@@ -1590,7 +1593,7 @@ class SyncEngine(
         var albumFound: Boolean? = null
         if (source != null && kind.isEmpty()) {
             source.album.trim().takeIf { it.isNotEmpty() }?.let { name ->
-                val byAlbum = runCatching { dst.search(env, Track(id = "", title = name, artists = source.artists.take(1))) }.getOrDefault(emptyList())
+                val byAlbum = runCatching { dst.searchFor(env, Track(id = "", title = name, artists = source.artists.take(1)), playlistId) }.getOrDefault(emptyList())
                 // Un servizio che non riporta l'album nei risultati non permette di dire se il disco c'e'.
                 if ((byAlbum + songs).any { it.album.isNotBlank() }) {
                     val wanted = Matcher.normalizeTitle(name)
