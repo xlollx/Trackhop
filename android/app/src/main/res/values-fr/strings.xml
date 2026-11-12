@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Connecte d\'abord au moins un service dans l\'onglet Comptes.</string>
     <string name="liked_songs">Titres likés</string>
     <string name="saved_albums">Albums enregistrés</string>
+    <string name="amazon_purchased">Musique achetée</string>
     <string name="followed_artists">Artistes suivis</string>
     <string name="followed_podcasts">Podcasts</string>
     <string name="recently_played">Écoutés récemment</string>

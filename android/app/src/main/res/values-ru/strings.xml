@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Сначала подключите хотя бы один сервис на вкладке «Аккаунты».</string>
     <string name="liked_songs">Любимые треки</string>
     <string name="saved_albums">Сохранённые альбомы</string>
+    <string name="amazon_purchased">Купленная музыка</string>
     <string name="followed_artists">Отслеживаемые исполнители</string>
     <string name="followed_podcasts">Подкасты</string>
     <string name="recently_played">Недавно прослушанное</string>

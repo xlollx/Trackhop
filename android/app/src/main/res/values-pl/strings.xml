@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Najpierw połącz co najmniej jeden serwis w zakładce Konta.</string>
     <string name="liked_songs">Polubione utwory</string>
     <string name="saved_albums">Zapisane albumy</string>
+    <string name="amazon_purchased">Kupiona muzyka</string>
     <string name="followed_artists">Obserwowani wykonawcy</string>
     <string name="followed_podcasts">Podcasty</string>
     <string name="recently_played">Ostatnio odtwarzane</string>

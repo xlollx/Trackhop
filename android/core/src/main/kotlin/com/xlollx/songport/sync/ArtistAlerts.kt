@@ -92,6 +92,26 @@ object ArtistAlerts {
         suspend fun look(env: Env, artist: Followed): Found
     }
 
+    /**
+     * A release in a service's own feed of what is new from the artists the user follows there (the
+     * Spotify web player's "What's new"): [artists] as the service names them, [date] "2026-11-07".
+     */
+    data class FeedRelease(val artists: List<String>, val title: String, val type: NewReleases.Type, val date: String, val url: String = "")
+
+    /**
+     * Such a feed, read once per [check]: null when there is no one to ask (no connector connected,
+     * or one too old to know it). Throws when it failed; the look then goes on without it.
+     */
+    fun interface Feed {
+        suspend fun releases(): List<FeedRelease>?
+    }
+
+    /** Set by the app where a connector has a feed (Spotify (web)); null elsewhere, and then nothing is asked. */
+    @Volatile var feed: Feed? = null
+
+    /** A feed's releases older than this are not news: the per-artist sources look back further and would have said them. */
+    const val FEED_DAYS = 30L
+
     /** [notify]: the news to say now (empty while artists are left, or when nothing is new). */
     data class Outcome(val notify: List<News>, val checked: Int, val remaining: Int)
 
@@ -209,6 +229,7 @@ object ArtistAlerts {
     suspend fun check(
         env: Env, followed: List<Followed>, periodDays: Long, lookup: Lookup,
         budgetMs: Long = BUDGET_MS, gapMs: Long = ARTIST_GAP_MS, now: () -> Long = { System.currentTimeMillis() },
+        feed: Feed? = this.feed,
     ): Outcome {
         val start = now()
         val wanted = followed.filter { it.active }.distinctBy { key(it.name) }
@@ -218,6 +239,8 @@ object ArtistAlerts {
         if (seen.keys.any { it !in keys }) { seen = seen.filterKeys { it in keys }; saveSeen(env, seen) }
         val due = wanted.filter { start - (seen[key(it.name)]?.checkedAt ?: 0) >= dueAfter(periodDays) }
             .sortedBy { seen[key(it.name)]?.checkedAt ?: 0 }
+        // The service's own feed, once for the whole look: an extra source of releases next to each artist's own.
+        val fromFeed = if (feed != null && due.any { it.kinds.releases }) readFeed(env, feed, due, now()) else emptyMap()
         var checked = 0
         for (f in due) {
             if (checked > 0) {
@@ -231,7 +254,9 @@ object ArtistAlerts {
             } catch (e: Exception) {
                 env.log("alerts", "${f.name}: ${e.message ?: e.javaClass.simpleName}"); Found()
             }
-            val (s, news) = compare(seen[key(f.name)] ?: Seen(), found, f.kinds, now())
+            val before = seen[key(f.name)] ?: Seen()
+            val merged = withFeed(found, before.releases, fromFeed[key(f.name)], f.kinds)
+            val (s, news) = compare(before, merged, f.kinds, now()).let { (s0, n) -> (if (merged === found) s0 else withAliases(s0, merged, found)) to n }
             seen = seen + (key(f.name) to s)
             saveSeen(env, seen)
             if (news.isNotEmpty()) savePending(env, pending(env) + news)
@@ -247,6 +272,71 @@ object ArtistAlerts {
             kv["latest"] = json.encodeToString(newsList, (out + latest(env)).distinctBy { it.artist + it.kind + it.id }.take(MAX_LATEST))
         }
         return Outcome(out, checked, 0)
+    }
+
+    /**
+     * The feed's releases of [due]'s artists, by [key]: out in the last [FEED_DAYS] days or announced.
+     * Empty when the feed had nothing to say or failed (the per-artist sources answer as before).
+     */
+    private suspend fun readFeed(env: Env, feed: Feed, due: List<Followed>, at: Long): Map<String, List<News>> {
+        val list = try {
+            feed.releases() ?: return emptyMap()
+        } catch (e: CancellationException) { throw e } catch (e: Exception) {
+            env.log("alerts", "the service's feed of new releases: ${e.message ?: e.javaClass.simpleName}; the artists' own sources only"); return emptyMap()
+        }
+        val from = java.time.Instant.ofEpochMilli(at).atZone(java.time.ZoneId.systemDefault()).toLocalDate().minusDays(FEED_DAYS)
+        val wanted = due.filter { it.kinds.releases }.associateBy { key(it.name) }
+        val out = HashMap<String, MutableList<News>>()
+        for (r in list) {
+            val day = NewReleases.dayOf(r.date)
+            if (day == null || day.isBefore(from) || r.title.isBlank()) continue
+            for (k in r.artists.map { key(it) }.distinct()) {
+                val f = wanted[k] ?: continue
+                out.getOrPut(k) { ArrayList() } += News(f.name, Kind.RELEASE, "r|${r.type}|${Matcher.normalizeTitle(r.title)}", r.title, r.type.name, r.url)
+            }
+        }
+        env.log("alerts", "the service's feed of new releases: ${list.size} listed, ${out.values.sumOf { it.size }} by the artists followed here")
+        return out
+    }
+
+    /**
+     * [found] with the feed's releases ([extra]) added: one the artist's own sources list, or
+     * remembered ([seen]), under the same title and kind is left out, so the same release is never
+     * said twice (a single and an EP are one kind: the sources do not agree on which is which; a
+     * single and the album of the same name stay two releases, as the sources alone have them). The
+     * sources' answer stays as it was when the feed adds nothing; when they did not answer, the
+     * feed's releases are the answer (only what was never seen is news).
+     */
+    internal fun withFeed(found: Found, seen: List<String>?, extra: List<News>?, kinds: Kinds): Found {
+        if (!kinds.releases || extra.isNullOrEmpty()) return found
+        val known = (found.releases.orEmpty().map { it.id } + seen.orEmpty()).mapNotNullTo(HashSet()) { releaseKey(it) }
+        val add = extra.filter { releaseKey(it.id) !in known }.distinctBy { releaseKey(it.id) }
+        if (add.isEmpty()) return found
+        return found.copy(releases = found.releases.orEmpty() + add)
+    }
+
+    /**
+     * [s] remembering, next to a single or EP that came from the feed only (in [merged], not in
+     * [found]), the same release as the other of the two: the artist's own sources may list it
+     * tomorrow as the other, and it is not news again.
+     */
+    private fun withAliases(s: Seen, merged: Found, found: Found): Seen {
+        val own = found.releases.orEmpty().mapTo(HashSet()) { it.id }
+        val ids = s.releases ?: return s
+        val aliases = merged.releases.orEmpty().filter { it.id !in own }.mapNotNull { n ->
+            val type = n.id.split('|').getOrNull(1)
+            val other = when (type) { NewReleases.Type.SINGLE.name -> NewReleases.Type.EP.name; NewReleases.Type.EP.name -> NewReleases.Type.SINGLE.name; else -> null }
+            other?.let { "r|$it|" + n.id.substringAfter('|').substringAfter('|') }
+        }.filter { it !in ids }
+        return if (aliases.isEmpty()) s else s.copy(releases = (ids + aliases).takeLast(MAX_SEEN))
+    }
+
+    /** A release id's title and kind (a single and an EP alike); null for anything else. */
+    private fun releaseKey(id: String): String? {
+        val parts = id.split('|', limit = 3)
+        if (parts.size < 3 || parts[0] != "r") return null
+        val kind = if (parts[1] == NewReleases.Type.SINGLE.name || parts[1] == NewReleases.Type.EP.name) "S" else parts[1]
+        return kind + "|" + parts[2]
     }
 
     /** The last news said, newest first, for Discover › Followed artists. */

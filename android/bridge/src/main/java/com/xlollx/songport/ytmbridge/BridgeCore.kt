@@ -21,10 +21,12 @@ object BridgeCore {
     /** Trackhop's ids for the library objects, the same on every connector. */
     const val ALBUMS = "__albums__"
     const val ARTISTS = "__artists__"
+    const val PURCHASED = "__purchased__"
     const val RECENT = "__recent__"
     /** Followed podcasts: read only on YouTube Music. */
     const val PODCASTS = "__podcasts__"
     /** Saved albums and followed artists on the older skill API: none mapped. */
+    private const val AMAZON_NO_PURCHASED = "Amazon Music: purchased music is not available for this account's player (the older skill API)"
     private const val AMAZON_NO_LIBRARY = "Amazon Music: saved albums and followed artists are not available for this account's player (the older skill API)"
 
     /**
@@ -192,6 +194,8 @@ object BridgeCore {
                     // ALBUMS, ARTISTS: the saved albums, the followed artists (GraphQL only; Trackhop asks from Bridge 1.11.0 on).
                     if (id == ALBUMS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.savedAlbums() }, { throw BridgeException(AMAZON_NO_LIBRARY) })))
                     if (id == ARTISTS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.followedArtists() }, { throw BridgeException(AMAZON_NO_LIBRARY) })))
+                    // PURCHASED: the purchased music, read only (GraphQL only; Trackhop lists it where "amazon.purchased" answers).
+                    if (id == PURCHASED) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.purchasedTracks() }, { throw BridgeException(AMAZON_NO_PURCHASED) })))
                     ok(json.encodeToString(AmazonRoute.run(ctx, { it.playlistTracks(id) }, { it.playlistTracks(id) })))
                 }
                 "amazon.playlists" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.libraryPlaylists() }, { it.libraryPlaylists() })))
@@ -218,10 +222,16 @@ object BridgeCore {
                     )
                     Bundle().apply { putStringArray("duplicates", duplicates.toTypedArray()) }
                 }
+                // Whether the purchased music can be read here: "count", the tracks on its first page (0: nothing bought).
+                "amazon.purchased" -> Bundle().apply {
+                    putInt("count", AmazonRoute.run(ctx, { it.purchasedFirstPage() }, { throw BridgeException(AMAZON_NO_PURCHASED) }))
+                }
+                // The skill API's rename where the account is on it, as before; on GraphQL (and where the skill API
+                // fails and GraphQL was seen) the GraphQL player's updatePlaylistDetails.
                 "amazon.rename" -> {
                     val id = arg ?: return err("missing playlist id")
-                    if (AmazonSession.api(ctx) != AmazonRoute.SKILL) return err("Amazon Music: renaming is not available in the current web player")
-                    AmazonSkillClient(ctx).renamePlaylist(id, extras?.getString("name") ?: ""); Bundle()
+                    val name = extras?.getString("name") ?: ""
+                    AmazonRoute.run(ctx, { it.renamePlaylist(id, name) }, { it.renamePlaylist(id, name) }); Bundle()
                 }
                 "amazon.delete" -> {
                     val id = arg ?: return err("missing playlist id")
@@ -294,6 +304,9 @@ object BridgeCore {
                     val c = SpotifyWebClient(ctx, slot)
                     ok(json.encodeToString(c.artistUri(arg ?: return err("missing artist"))?.let { c.artistSites(it) }))
                 }
+                // The player's "What's new": the latest releases of the artists followed on Spotify (read only;
+                // never marked as seen). Followed artists' alerts take them as one more source.
+                "spotify.whatsNew" -> ok(kotlinx.serialization.json.JsonArray(SpotifyWebClient(ctx, slot).whatsNew().map { it.toJson() }).toString())
                 "spotify.concert" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).concert(arg ?: return err("missing concert"))))
                 "spotify.create" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "spotify.add" -> {

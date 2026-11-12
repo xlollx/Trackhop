@@ -81,6 +81,7 @@
     <string name="no_connected_providers">请先在“账号”标签页中连接至少一个服务。</string>
     <string name="liked_songs">喜欢的歌曲</string>
     <string name="saved_albums">已保存的专辑</string>
+    <string name="amazon_purchased">已购音乐</string>
     <string name="followed_artists">关注的艺人</string>
     <string name="followed_podcasts">播客</string>
     <string name="recently_played">最近播放</string>

@@ -813,6 +813,59 @@ class AmazonClient(private val ctx: Context) {
         }
     }
 
+    /**
+     * Renames a playlist the way the GraphQL player's details dialog does: updatePlaylistDetails, one
+     * editTitle update (11/2026 capture). Amazon answers with the playlist as it now is: another
+     * title there, or no playlist, is an error.
+     */
+    fun renamePlaylist(playlistId: String, name: String) {
+        val a = gql(UPDATE_DETAILS, jsonObj("input" to jsonObj("id" to playlistId, "updates" to listOf(jsonObj("editTitle" to jsonObj("title" to name))))))
+        val title = a.data["batchUpdatePlaylist"]["playlist"]["title"].str
+        if (title?.trim() != name.trim()) throw BridgeException("Amazon Music did not rename the playlist: " +
+            (a.codes + a.messages).joinToString("; ").take(160).ifBlank { if (title == null) "no playlist in the answer" else "it is still called something else" })
+    }
+
+    // ------------------------------------------------------------------ purchased music
+
+    /**
+     * One page of the purchased music, as the player's Library › Purchased lists it
+     * (LibraryPurchasedPageQuery, 11/2026 capture: 50 tracks a page, `pageInfo.token`, hasNextPage).
+     * The capture has the first page only; the token goes back as afterCursor, the name the player's
+     * other pages of that generation give their continuation. A track the answer says is not
+     * purchased is left out.
+     */
+    private fun purchasedPage(after: String?): Triple<List<TrackDto>, String?, Int> {
+        val p = gql(PURCHASED, jsonObj("firstLimit" to PURCHASED_PAGE, "isAuthenticated" to true, "afterCursor" to after)).orThrow("purchased music")["user"]["purchased"]
+        if (p !is JsonObject) throw BridgeException("Amazon Music: no purchased music in the answer")
+        val edges = p["edges"].arr
+        val tracks = edges.mapNotNull { e -> e["node"].takeIf { it["purchaseContext"]["isPurchased"].bool != false }?.let { trackOf(it, null) } }
+        val info = p["pageInfo"]
+        val more = info["hasNextPage"].bool ?: (edges.size >= PURCHASED_PAGE)
+        return Triple(tracks, (info["endCursor"].str ?: info["token"].str)?.takeIf { more && edges.isNotEmpty() }, edges.size)
+    }
+
+    /** Whether the purchased music can be read, and how many tracks its first page has (0: none bought). */
+    fun purchasedFirstPage(): Int = purchasedPage(null).third
+
+    /** Every purchased track (read only), page by page; a page that repeats the last one ends the listing, said in the log. */
+    fun purchasedTracks(): List<TrackDto> {
+        val out = LinkedHashMap<String, TrackDto>()
+        var after: String? = null
+        var pages = 0
+        while (true) {
+            val (tracks, next, _) = purchasedPage(after)
+            var fresh = 0
+            for (t in tracks) if (out.put(t.id, t) == null) fresh++
+            if (next == null || next == after || ++pages > 400) break
+            if (after != null && fresh == 0) {
+                BridgeNet.log("amazon", "purchased music: the page after ${out.size} tracks repeated the ones listed; Amazon may not take afterCursor, the listing stops there")
+                break
+            }
+            after = next
+        }
+        return out.values.toList()
+    }
+
     fun removePlaylist(playlistId: String) {
         val a = gql("deletePlaylist", jsonObj("id" to playlistId))
         if (a.data["deletePlaylist"]["isDeleted"].bool != true) throw BridgeException("Amazon Music did not delete the playlist")
@@ -909,6 +962,10 @@ class AmazonClient(private val ctx: Context) {
         private const val FOLLOWED_ARTISTS = "LibraryArtistsPage"
         private const val TOGGLE_FOLLOW = "toggleFollowArtist"
         private const val SEARCH_ARTISTS = "searchArtistsResult"
+        /** Purchased music and renaming, from the player's traffic (11/2026), by hash only. */
+        private const val PURCHASED = "LibraryPurchasedPageQuery"
+        private const val PURCHASED_PAGE = 50
+        private const val UPDATE_DETAILS = "updatePlaylistDetails"
         /** Saved albums and followed artists per page: the player asks for 30; playlistDetail takes 100. */
         private const val ALBUMS_PAGE = 100
         /** Texts of the persisted queries Amazon may have to be sent again (see [gql]). */
@@ -938,6 +995,8 @@ class AmazonClient(private val ctx: Context) {
             FOLLOWED_ARTISTS to "23525956998ec205f891c5949bd118f9833dd33500c9f82f2566b7b38a89b012",
             TOGGLE_FOLLOW to "9df6e7bd24fccf6f7a626ab512f43d696b8ee8b6221050f5c4374b374c20d237",
             SEARCH_ARTISTS to AmazonQueries.SEARCH_ARTISTS_RESULT_HASH,
+            PURCHASED to "5d7705c2ee5fc52f598f745f00b2698b77fd50d7e65b7ccc3584ff04cfd96b56",
+            UPDATE_DETAILS to "8629205629c61ef70ed4a28876506bf90369a5d9a2cf1684319a1d33fb5304ac",
         )
 
         @Volatile private var cachedConfig: Pair<Long, Config>? = null

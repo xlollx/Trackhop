@@ -326,15 +326,17 @@ class SyncEngine(
             if (takesName) updated = updated.copy(name = now)
             env.log("engine", "${job.name}: the source playlist is now called \"$now\"" +
                 when { takesName -> ", the sync takes its name"; selfNaming -> ", it renames itself often: the sync keeps its name"; else -> "" })
+            var followed = false
             if (dst.canRenamePlaylists) {
                 val current = runCatching { dst.playlistInfo(env, targetId).name.trim() }.getOrNull()
                     ?.takeIf { it.isNotEmpty() && it != targetId } ?: latest.target.playlistName.trim()
                 if (current == old) {
                     runCatching { dst.renamePlaylist(env, targetId, now) }
-                        .onSuccess { updated = updated.copy(target = updated.target.copy(playlistName = now)); env.log("engine", "${job.name}: the source is now \"$now\", the target follows") }
+                        .onSuccess { followed = true; updated = updated.copy(target = updated.target.copy(playlistName = now)); env.log("engine", "${job.name}: the source is now \"$now\", the target follows") }
                         .onFailure { env.log("engine", "${job.name}: target not renamed: ${it.message?.take(120)}") }
                 }
             }
+            renamedForPartner(latest, targetId, old, now, followed, if (takesName) now else null)
         }
         val cover = info.imageUrl?.takeIf { it.isNotBlank() }
         if (cover != null && cover != latest.sourceCover) {
@@ -344,6 +346,27 @@ class SyncEngine(
                 .onFailure { env.log("engine", "${job.name}: cover not copied: ${it.message?.take(120)}") }
         }
         if (updated != latest) store.upsertJob(updated)
+    }
+
+    /**
+     * The other half of a two-way pair, after [job]'s source was renamed from [old] to [now]: that half
+     * writes to this source and reads this target ([followed]: renamed to [now] too). Its stored names
+     * are brought up to date at once, so its next run sees nothing renamed: it neither renames anything
+     * back nor counts the change as its source renaming itself. Its name follows where it carried the
+     * old one; the twin named after this sync ("Name ↔") follows [syncName], this sync's new name.
+     * Only the half that is this sync's exact reverse; nothing else is touched.
+     */
+    private fun renamedForPartner(job: SyncJob, targetId: String, old: String, now: String, followed: Boolean, syncName: String?) {
+        val p = job.linkedJobId?.let { store.job(it) } ?: return
+        if (p.source.provider != job.target.provider || p.source.playlistId != targetId ||
+            p.target.provider != job.source.provider || p.target.playlistId != job.source.playlistId) return
+        var q = p.copy(target = p.target.copy(playlistName = now))
+        if (followed && p.source.playlistName.trim() == old) q = q.copy(source = q.source.copy(playlistName = now))
+        when {
+            followed && p.name.trim() == old -> q = q.copy(name = now)
+            syncName != null && p.twin && p.name == "${job.name} ↔" -> q = q.copy(name = "$syncName ↔")
+        }
+        if (q != p) store.upsertJob(q)
     }
 
     /** [onWait]: the sync whose read this one waits behind, on a connector that reads one playlist at a time; null once it is this one's turn. */

@@ -305,20 +305,24 @@ class SpotifyWebClient(private val host: Host) {
             .header("User-Agent", host.userAgent)
     }
 
-    /** One persisted query. GraphQL errors and a refused write (HTTP 200, a failure typename) both throw. */
-    fun gql(operation: String, variables: JsonObject, retry: Boolean = true): JsonElement {
+    /**
+     * One persisted query. GraphQL errors and a refused write (HTTP 200, a failure typename) both throw.
+     * [url]: the gateway, [PATHFINDER] but for an operation that may want the player's newer one.
+     * [harvest] false: a hash Spotify does not know is an error, without reading the player's bundle.
+     */
+    fun gql(operation: String, variables: JsonObject, retry: Boolean = true, url: String = PATHFINDER, harvest: Boolean = true): JsonElement {
         if (operation.startsWith("search")) paceSearch()
         val body = jsonObj(
             "variables" to variables,
             "operationName" to operation,
             "extensions" to jsonObj("persistedQuery" to jsonObj("version" to 1, "sha256Hash" to hashFor(operation))),
         )
-        val req = headers(Request.Builder().url(PATHFINDER).post(body.toString().toRequestBody(JSON))).header("Content-Type", "application/json").build()
+        val req = headers(Request.Builder().url(url).post(body.toString().toRequestBody(JSON))).header("Content-Type", "application/json").build()
         val (code, text, wait) = send(req)
         val j = runCatching { parseJson(text) }.getOrNull() ?: JsonNull
         val errors = j["errors"].arr.mapNotNull { it["message"].str }
-        if (code == 401 && retry) { host.bearerRefused(); return gql(operation, variables, retry = false) }
-        if (errors.any { it.contains("PersistedQueryNotFound", true) } && retry) {
+        if (code == 401 && retry) { host.bearerRefused(); return gql(operation, variables, retry = false, url = url, harvest = harvest) }
+        if (errors.any { it.contains("PersistedQueryNotFound", true) } && retry && harvest) {
             hashFor(operation, forceHarvest = true)
             return gql(operation, variables, retry = false)
         }
@@ -335,7 +339,7 @@ class SpotifyWebClient(private val host: Host) {
         if (code >= 500 && retry) {
             BridgeNet.log("spotify", "$operation: HTTP $code, trying once more" + (lastClientTokenError?.let { " (no client token: $it)" } ?: ""))
             Thread.sleep(2_000)
-            return gql(operation, variables, retry = false)
+            return gql(operation, variables, retry = false, url = url, harvest = harvest)
         }
         if (code !in 200..299 && errors.isEmpty()) throw BridgeException("Spotify $operation: HTTP $code ${text.take(200)}" + (lastClientTokenError?.let { " (no client token: $it)" } ?: ""))
         if (errors.isNotEmpty()) throw BridgeException("Spotify $operation: ${errors.joinToString("; ").take(300)}")
@@ -596,6 +600,51 @@ class SpotifyWebClient(private val host: Host) {
             "includeTopTracks" to true, "topTracksInput" to input(limit),
         ))
         return parseTop(j)
+    }
+
+    // ---- what's new
+
+    /** A release of the player's "What's new" feed: the album's uri, name, type (ALBUM, SINGLE, EP…), day and artists. */
+    data class FeedRelease(val uri: String, val name: String, val type: String, val date: String, val artists: List<String>) {
+        fun toJson(): JsonObject = jsonObj("uri" to uri, "name" to name, "type" to type, "date" to date, "artists" to JsonArray(artists.map { JsonPrimitive(it) }))
+    }
+
+    /**
+     * The player's "What's new" (the bell): the latest releases of the artists the user follows on
+     * Spotify, one page of 50, newest first, with the variables the player sends (11/2026 capture).
+     * Only read: its other operation, SetItemsStateInWhatsNewFeed, marks items as seen and is never
+     * sent. The player asks it of `pathfinder/v2`; the same body and headers go to v1 first, as
+     * every other call here, and to v2 only when v1 refuses it. Never reads the player's bundle for
+     * its hash: it is a helper, not worth tens of megabytes.
+     */
+    fun whatsNew(): List<FeedRelease> {
+        val vars = jsonObj(
+            "offset" to 0, "limit" to 50, "onlyUnPlayedItems" to false,
+            "includedContentTypes" to JsonArray(emptyList()), "includeEpisodeContentRatingsV2" to true,
+        )
+        val j = try {
+            gql(WHATS_NEW, vars, harvest = false)
+        } catch (e: BridgeException) {
+            if (e.message?.contains("slow down") == true) throw e
+            gql(WHATS_NEW, vars, url = PATHFINDER_V2, harvest = false)
+        }
+        return parseWhatsNew(j)
+    }
+
+    /** `data.whatsNewFeedItems.items[].content.data`: albums only (an episode or anything else is left out). */
+    internal fun parseWhatsNew(j: JsonElement?): List<FeedRelease> {
+        val feed = j["data"]["whatsNewFeedItems"]
+        if (feed !is JsonObject) unexpected(WHATS_NEW, j ?: JsonNull, emptyList(), j["data"])
+        return feed["items"].arr.mapNotNull { item ->
+            val d = item["content"]["data"]
+            val uri = d["uri"].str?.takeIf { it.startsWith("spotify:album:") } ?: return@mapNotNull null
+            val name = d["name"].str?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            FeedRelease(
+                uri = uri, name = name, type = d["albumType"].str ?: "ALBUM",
+                date = d["date"]["isoString"].str?.take(10).orEmpty(),
+                artists = d["artists"]["items"].arr.mapNotNull { it["profile"]["name"].str?.takeIf { n -> n.isNotBlank() } },
+            )
+        }.distinctBy { it.uri }
     }
 
     // ---- concerts
@@ -932,6 +981,9 @@ class SpotifyWebClient(private val host: Host) {
         }
 
         const val PATHFINDER = "https://api-partner.spotify.com/pathfinder/v1/query"
+        /** The gateway the player itself asks since 11/2026: tried for [WHATS_NEW] only, when v1 refuses it. */
+        const val PATHFINDER_V2 = "https://api-partner.spotify.com/pathfinder/v2/query"
+        const val WHATS_NEW = "queryWhatsNewFeed"
         /** open.spotify.com's own client id, unchanged for years; the page is read first all the same. */
         const val WEB_PLAYER_CLIENT_ID = "d8a5ed958d274c2e8ee717e6a4b0971d"
         const val DEFAULT_APP_VERSION = "1.2.70.0"
@@ -976,6 +1028,8 @@ class SpotifyWebClient(private val host: Host) {
             "concert" to "9b582a69061f6648858515c2aa6d4a2273ac49b74eb5dbc612bc1299a9f2f13e",
             // The artist page itself (web-player.78b0eb3c): its About links and merch shelf, for the artist's own site.
             "queryArtistOverview" to "eafb1620d783ece118e72fbfede2b0064483e029d3c1aafafa1c2de0e25a89e7",
+            // The bell's "What's new" (11/2026 capture, pathfinder v2). Its document also holds SetItemsStateInWhatsNewFeed, never sent.
+            "queryWhatsNewFeed" to "d889c8c936ab192af8ced595427f5ba2acdf63478fdc0a181c8d477f8322630e",
             "profileAttributes" to "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0",
             "addToPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
             "removeFromPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
