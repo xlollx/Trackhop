@@ -76,7 +76,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "diagnostics" -> diagnostics(o)
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
-        else -> throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }
@@ -231,7 +231,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
 
     private fun allServices() = api.get("services").jsonArray.map { it.jsonObject }
 
-    private fun service(ask: String): JsonObject {
+    internal fun service(ask: String): JsonObject {
         val list = allServices()
         return list.firstOrNull { it.s("id") == ask }
             ?: list.firstOrNull { it.s("name").equals(ask, ignoreCase = true) }
@@ -251,7 +251,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
 
     private fun allPlaylists(serviceId: String) = api.get("services/${enc(serviceId)}/playlists").jsonArray.map { it.jsonObject }
 
-    private fun playlist(serviceId: String, ask: String): JsonObject {
+    internal fun playlist(serviceId: String, ask: String): JsonObject {
         val list = allPlaylists(serviceId)
         return list.firstOrNull { it.s("id") == ask }
             ?: list.filter { it.s("name").equals(ask, ignoreCase = true) }.let { if (it.size > 1) throw Cli.Failure(1, "more than one playlist is called \"$ask\": use its id (trackhop playlists $serviceId)") else it.firstOrNull() }
@@ -966,7 +966,7 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
     }
 
     /** Follows a background task to its end with --wait, or says it started. */
-    private fun followTask(task: String, wait: Boolean, what: String): Int {
+    internal fun followTask(task: String, wait: Boolean, what: String): Int {
         if (!wait) {
             if (asJson) print(buildJsonObject { put("task", task) }) else out.println("$what: started (trackhop task $task).")
             return 0

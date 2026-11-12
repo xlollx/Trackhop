@@ -15,7 +15,10 @@ import kotlinx.serialization.json.putJsonObject
 internal object ApiDocs {
     class Call(val method: String, val path: String, val tag: String, val summary: String, val query: List<String> = emptyList(), val body: String? = null)
 
-    val CALLS = listOf(
+    /** Every call: these, and the next release's (Features.v2, DiscoverV2.kt). */
+    val CALLS: List<Call> get() = BASE_CALLS + V2_CALLS
+
+    private val BASE_CALLS = listOf(
         Call("GET", "/status", "General", "Version, how many syncs, which are running, the last run."),
         Call("GET", "/metrics", "General", "The syncs as Prometheus metrics (text)."),
         Call("GET", "/stats", "General", "Your numbers: tracks moved, time saved, busiest route, top artists."),

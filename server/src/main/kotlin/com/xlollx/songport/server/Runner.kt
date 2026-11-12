@@ -113,6 +113,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                 if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
                 // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
                 if (env.may(Permissions.ADMIN) && Lyrics.isDue(env, edition, now)) Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, Lyrics.Options()) { t.progress = it }) }
+                // The followed artists' look (Tools › Followed artists), once a day or a week.
+                if (Features.v2) env.alertsTick(now)
                 // "A new version is out" (Settings › Updates): twice a day at most, where this engine may check.
                 runCatching { Updates.checkIfDue(now) }
                 delay(TICK_MS)
