@@ -35,8 +35,8 @@ blanked anywhere in the file.
 
 - `HASHES` maps each operation name to its persisted-query hash: a changed hash is a one-line fix.
 - Operations used: `AddToPlaylistModalUserPlaylists` (the user's playlists), `playlistDetail`
-  (tracks, 100 per page, `afterCursor`), `searchTracksResult` (search, songs only; until 11/2026
-  `SpecSearchPage`), `searchAlbumsResult` (search for a saved album, albums only), `CreatePlaylist`, `addTrackToPlaylist` (`DUPLICATE_TRACK` is not a failure),
+  (tracks, 100 per page, `afterCursor`), `searchTracksResult` (search, songs only; when Amazon does not take it,
+  `SpecSearchPage`, the player's other route, by hash only), `searchAlbumsResult` (search for a saved album, albums only), `CreatePlaylist`, `addTrackToPlaylist` (`DUPLICATE_TRACK` is not a failure),
   `removeTrackFromPlaylist` (by entry cursor `index:uuid`, highest index first), `deletePlaylist`;
   saved albums: `LikedAlbumsPage` (`firstLimit`, `isAuthenticated`; the next page by `afterCursor`,
   an assumption until a library of more than a page is captured) and `setAlbumLikeState` (`albumId`,

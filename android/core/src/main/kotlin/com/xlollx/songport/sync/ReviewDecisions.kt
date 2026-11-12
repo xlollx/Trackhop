@@ -67,7 +67,7 @@ object ReviewDecisions {
     /** [job]'s choices, by source track id: those between its two services, whichever sync made them. */
     fun ofSync(data: StoreData, job: SyncJob): Map<String, ReviewDecision> {
         val prefix = FileStore.family(job.source.provider) + ":"
-        val suffix = ">" + FileStore.family(job.target.provider)
+        val suffix = ">" + FileStore.family(FileStore.matchTarget(job.target.provider, job.target.playlistId))
         return data.reviewDecisions.entries
             .filter { (k, _) -> k.length > prefix.length + suffix.length && k.startsWith(prefix) && k.endsWith(suffix) }
             .associate { (k, v) -> k.substring(prefix.length, k.length - suffix.length) to v }
@@ -82,7 +82,7 @@ object ReviewDecisions {
         var taken = 0
         store.update { d ->
             val job = d.jobs.firstOrNull { it.id == jobId } ?: return@update d
-            val key = { id: String -> FileStore.cacheKey(job.source.provider, id, job.target.provider) }
+            val key = { id: String -> FileStore.cacheKey(job.source.provider, id, FileStore.matchTarget(job.target.provider, job.target.playlistId)) }
             val won = incoming.filter { (id, dec) -> wins(dec, d.reviewDecisions[key(id)]) }
             taken = won.size
             if (won.isEmpty()) return@update d

@@ -372,7 +372,9 @@ class SyncEngine(
         val ignoredIds = job.ignoredSourceIds.toHashSet()
         // Verso "album salvati" o "artisti seguiti" (anche da un file) si cercano album o artisti, non brani.
         val kind = MusicProvider.libraryKind(job.target.playlistId)
-        val srcTracks = allSource.filter { it.id !in ignoredIds && !store.isIgnored(src.id, it.id, dst.id) }
+        // Matches, misses and ignored rows are kept per target kind: a song for a playlist, an album for the saved albums.
+        val dstKey = side(dst.id, job)
+        val srcTracks = allSource.filter { it.id !in ignoredIds && !store.isIgnored(src.id, it.id, dstKey) }
             .map { if (kind != null && it.kind.isEmpty()) it.copy(kind = kind) else it }
         val ignored = allSource.size - srcTracks.size
 
@@ -487,8 +489,8 @@ class SyncEngine(
         val direct = sameAccount(job, src, dst)
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
-            val key = FileStore.cacheKey(src.id, s.id, dst.id)
-            val cachedId = store.cachedMatch(src.id, s.id, dst.id)
+            val key = FileStore.cacheKey(src.id, s.id, dstKey)
+            val cachedId = store.cachedMatch(src.id, s.id, dstKey)
             if (cachedId != null && cachedId !in dstById && unlistedPresent(cachedId)) {
                 matchedDstIds += cachedId
                 newCache[key] = cachedId
@@ -548,10 +550,10 @@ class SyncEngine(
                 if (present == null) { if (last != null && found.id in last.added) unlistedAfterAdd[found.id] = found else toAdd[found.id] = found }
                 if (found.id in toAdd) addingLinks[s.id] = found.id else presentLinks[s.id] = target.id
                 matchedDstIds += target.id
-                newCache[FileStore.cacheKey(src.id, s.id, dst.id)] = target.id
+                newCache[FileStore.cacheKey(src.id, s.id, dstKey)] = target.id
                 if (score != null && score < job.policy.reviewThreshold) {
                     uncertain += MatchReview(s, found, score)
-                    if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dst.id)
+                    if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dstKey)
                 }
                 // Salvataggio progressivo: un errore a meta' strada non butta via le ricerche fatte.
                 if (newCache.size % 100 == 0) store.putMatches(newCache - unsure)
@@ -589,7 +591,7 @@ class SyncEngine(
                 // Nor one the review matched since to a source track still listed (a match replaced by hand).
                 .filter { d ->
                     !pairOn || (linkedFromDst[d.id]?.none { it in allSourceIds } == true && !addedSince(d) &&
-                        store.cachedMatch(dst.id, d.id, src.id)?.let { it in allSourceIds } != true)
+                        store.cachedMatch(dst.id, d.id, FileStore.matchTarget(src.id, job.source.playlistId))?.let { it in allSourceIds } != true)
                 }
             // Removed by the last run and listed again now: the service answered the removal without
             // taking the entry away (or it came back). Removing it again would only repeat that on every
@@ -817,6 +819,7 @@ class SyncEngine(
         onResult: (Track, Track?, Double?) -> Unit,
     ): String? {
         val parallel = dst.searchParallelism.coerceIn(1, 8)
+        val dstKey = FileStore.matchTarget(dst.id, targetId)
         var consecutiveErrors = 0
         var errors = 0
         var searchedHere = 0
@@ -846,14 +849,14 @@ class SyncEngine(
             val results: List<Result<Pair<Track?, Double?>>> = coroutineScope {
                 chunk.map { s ->
                     async {
-                        val cached = store.cachedMatch(src.id, s.id, dst.id)
+                        val cached = store.cachedMatch(src.id, s.id, dstKey)
                         if (direct && s.id.isNotBlank()) {
                             // Source and target on the same account: the track is the source's own, nothing to search.
                             Result.success<Pair<Track?, Double?>>(s.copy(itemId = null) to null)
                         } else if (cached != null) {
                             // Abbinato in passato (o confermato a mano): lo aggiungiamo senza ripetere la ricerca.
                             Result.success<Pair<Track?, Double?>>(dst.rehydrate(s.copy(id = cached, uri = null, itemId = null)) to null)
-                        } else if (store.cachedMiss(src.id, s.id, dst.id)) {
+                        } else if (store.cachedMiss(src.id, s.id, dstKey)) {
                             // Cercato da poco senza esito: resta "non trovato" senza interrogare il servizio.
                             Result.success<Pair<Track?, Double?>>(null to MISS_SCORE)
                         } else {
@@ -958,8 +961,8 @@ class SyncEngine(
                     if (!remembered) { consecutiveErrors = 0; searchedHere++ }
                     // Same account or same catalogue: taken as it is, not a search (the log said "1328 searches in 0s").
                     if (direct && s.id.isNotBlank()) takenAsIs++
-                    else if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dst.id) == null) searched++
-                    if (found == null && score != MISS_SCORE) misses += FileStore.cacheKey(src.id, s.id, dst.id)
+                    else if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dstKey) == null) searched++
+                    if (found == null && score != MISS_SCORE) misses += FileStore.cacheKey(src.id, s.id, dstKey)
                     if (misses.size >= 50) saveMisses()
                     onResult(s, found, if (score == MISS_SCORE) null else score)
                 }
@@ -996,7 +999,7 @@ class SyncEngine(
             val seen = HashSet<String>()
             val wanted = ArrayList<Track>()
             for (sid in sourceOrder) {
-                val tid = store.cachedMatch(src.id, sid, dst.id) ?: continue
+                val tid = store.cachedMatch(src.id, sid, FileStore.matchTarget(dst.id, targetId)) ?: continue
                 if (!seen.add(tid)) continue
                 byId[tid]?.firstOrNull()?.let { wanted += it }
             }
@@ -1355,7 +1358,7 @@ class SyncEngine(
     fun confirmMatches(reportId: String, reviews: Collection<MatchReview>) {
         if (reviews.isEmpty()) return
         store.report(reportId)?.let { store.job(it.jobId) }?.let { job ->
-            decided(job.source.provider, job.target.provider, reviews.associate { it.source.id to ReviewDecision(DecisionKind.KEEP, it.chosen.id, System.currentTimeMillis()) })
+            decided(job.source.provider, side(job.target.provider, job), reviews.associate { it.source.id to ReviewDecision(DecisionKind.KEEP, it.chosen.id, System.currentTimeMillis()) })
         }
         dropReviews(reportId, reviews)
     }
@@ -1366,6 +1369,9 @@ class SyncEngine(
         if (ids.isEmpty()) return
         store.updateReport(reportId) { r -> r.copy(reviewTracks = r.reviewTracks.filter { it.source.id !in ids }) }
     }
+
+    /** The target side of [job]'s cache keys ([FileStore.matchTarget]): the service, with the kind of a library target. */
+    private fun side(dstId: String, job: SyncJob) = FileStore.matchTarget(dstId, job.target.playlistId)
 
     /** The review's choices, by source track id, kept with their time for the user's own server (ReviewDecisions). */
     private fun decided(srcProvider: String, dstProvider: String, choices: Map<String, ReviewDecision>) =
@@ -1385,7 +1391,7 @@ class SyncEngine(
         var removed = 0
         if (dst.canRemoveTracks) {
             val wrong = reviews.map { it.chosen.id }.filter { id ->
-                store.sourcesMatchedTo(src.id, dst.id, id).all { it in leaving }
+                store.sourcesMatchedTo(src.id, side(dst.id, job), id).all { it in leaving }
             }.toHashSet()
             if (wrong.isNotEmpty()) removed = removeEntries(dst, targetId, reviews.map { it.chosen }.filter { it.id in wrong }.distinctBy { it.id }).size
         }
@@ -1404,8 +1410,8 @@ class SyncEngine(
         if (dst.canRemoveTracks) removeEntries(dst, targetId, listOf(review.chosen))
         dst.addTracks(env, targetId, listOf(chosen))
         wroteTo(dst, targetId)
-        store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, dst.id) to chosen.id))
-        decided(src.id, dst.id, mapOf(review.source.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
+        store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, side(dst.id, job)) to chosen.id))
+        decided(src.id, side(dst.id, job), mapOf(review.source.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
         if (reportId != null) dropReviews(reportId, listOf(review))
     }
 
@@ -1508,7 +1514,7 @@ class SyncEngine(
     /** In anteprima non e' stato ancora scritto nulla: basta correggere la cache. */
     fun rematchInPlan(job: SyncJob, review: MatchReview, chosen: Track) {
         val (src, dst) = providers(job)
-        store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, dst.id) to chosen.id))
+        store.putMatches(mapOf(FileStore.cacheKey(src.id, review.source.id, side(dst.id, job)) to chosen.id))
     }
 
     /** Rimette nella destinazione i brani tolti da una sync a specchio. */
@@ -1643,8 +1649,8 @@ class SyncEngine(
         val (src, dst) = providers(job)
         val targetId = job.target.playlistId ?: throw ProviderException("No target playlist")
         dst.addTracks(env, targetId, listOf(chosen))
-        store.putMatches(mapOf(FileStore.cacheKey(src.id, sourceTrack.id, dst.id) to chosen.id))
-        decided(src.id, dst.id, mapOf(sourceTrack.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
+        store.putMatches(mapOf(FileStore.cacheKey(src.id, sourceTrack.id, side(dst.id, job)) to chosen.id))
+        decided(src.id, side(dst.id, job), mapOf(sourceTrack.id to ReviewDecision(DecisionKind.MATCH, chosen.id, System.currentTimeMillis())))
         dropUnmatched(reportId, sourceTrack)
     }
 
@@ -1668,9 +1674,9 @@ class SyncEngine(
         // The job as stored now: the caller's copy may be older than another change.
         val current = store.job(job.id) ?: job
         store.upsertJob(current.copy(ignoredSourceIds = (current.ignoredSourceIds + ids).distinct()))
-        if (srcId != null && dstId != null) store.putIgnored(srcId, ids, dstId)
+        if (srcId != null && dstId != null) store.putIgnored(srcId, ids, side(dstId, job))
         val now = System.currentTimeMillis()
-        decided(srcId ?: job.source.provider, dstId ?: job.target.provider, ids.associateWith { ReviewDecision(DecisionKind.IGNORE, null, now) })
+        decided(srcId ?: job.source.provider, side(dstId ?: job.target.provider, job), ids.associateWith { ReviewDecision(DecisionKind.IGNORE, null, now) })
     }
 
     private fun dropUnmatched(reportId: String, tracks: Collection<Track>) {

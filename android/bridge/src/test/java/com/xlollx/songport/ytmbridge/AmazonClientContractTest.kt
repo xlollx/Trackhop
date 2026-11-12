@@ -169,8 +169,54 @@ class AmazonClientContractTest {
         val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
         answer(notFound)
         answer(notFound)
-        try { amazon.searchTracks("x"); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("needs an update")) }
-        assertEquals(2, BridgeMock.calls.size)
+        // The other route does not know its hash either: the first route's error is said.
+        answer(notFound)
+        try { amazon.searchTracks("x"); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("searchTracksResult is no longer known")) }
+        assertEquals("SpecSearchPage", call(2).json()["operationName"].str)
+        assertEquals(3, BridgeMock.calls.size)
+    }
+
+    /** SpecSearchPage as the player's search page answers it: sections, each with its edges (made-up songs). */
+    private fun specPage(vararg nodes: String) = """{"data":{"specificationSearch":{"id":"S1","searchText":"q","__typename":"SpecificationSearchResults",
+        "result":[{"label":"dmusic_find_song_results_label","__typename":"SpecificationSearchResult",
+        "edges":[${nodes.joinToString(",") { """{"playParams":{"id":"p","selections":["PLAY"]},"node":$it,"metricId":"m","__typename":"EntityEdge"}""" }}]}]}}}"""
+
+    @Test fun whenSearchTracksResultIsNotTakenSpecSearchPageFindsTheSongs() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer(notFound)
+        answer(specPage(node(1), node(1), node(2, "Ñandú")))
+        val r = amazon.searchTracks("Main 1 Song 1")
+        assertEquals(listOf("B0ASIN0001", "B0ASIN0002"), r.map { it.id })
+        assertEquals(listOf("Main 1", "Guest"), r[0].artists)
+        assertEquals("Song 1", r[0].title)
+        assertEquals("Album", r[0].album)
+        assertEquals(201_000L, r[0].durationMs)
+        val spec = call(2).json()
+        assertEquals("SpecSearchPage", spec["operationName"].str)
+        assertEquals("19e7571fa4ccb97a7e70bacbf8877ad9f63ba23359131807300ac6eb8616b083", spec["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(null, spec["query"].str)
+        val v = spec["variables"]
+        assertEquals("Main 1 Song 1", v["searchText"].str)
+        assertEquals("track", v["specifications"].arr[0]["types"].arr[0].str)
+        assertEquals("dmusic_find_song_results_label", v["specifications"].arr[0]["label"].str)
+        assertEquals("true", v["isAuthenticated"].toString())
+        // The next search goes there at once.
+        answer(specPage(node(3)))
+        assertEquals(listOf("B0ASIN0003"), amazon.searchTracks("Main 3").map { it.id })
+        assertEquals("SpecSearchPage", call(3).json()["operationName"].str)
+        assertEquals(4, BridgeMock.calls.size)
+    }
+
+    @Test fun aRefusedSearchTracksResultFallsBackAndAWorkingOneNeverDoes() {
+        answer("""{"data":{"searchTracks":{"edges":[{"node":${node(4)}}]}}}""")
+        assertEquals(listOf("B0ASIN0004"), amazon.searchTracks("Main 4").map { it.id })
+        assertEquals(1, BridgeMock.calls.size)
+        // Refused with an error of its own, the session working: the other route answers.
+        answer("""{"data":null,"errors":[{"message":"Validation error","extensions":{"code":"GRAPHQL_VALIDATION_FAILED"}}]}""", 400)
+        answer(specPage(node(5)))
+        assertEquals(listOf("B0ASIN0005"), amazon.searchTracks("Main 5").map { it.id })
+        assertEquals("SpecSearchPage", call(2).json()["operationName"].str)
     }
 
     /** The hash Amazon is sent is the SHA-256 of the text, or Amazon refuses the pair. */
