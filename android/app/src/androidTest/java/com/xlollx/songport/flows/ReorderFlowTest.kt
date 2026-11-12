@@ -43,7 +43,7 @@ class ReorderFlowTest : FlowTest() {
     private fun order() = store.data.jobs.map { it.id }
 
     /** Where the list shows its first card: below the app's header (its title). */
-    private fun listTop(): Float = compose.onAllNodes(hasText("Trackhop")).fetchSemanticsNodes().minOf { it.boundsInRoot.bottom }
+    private fun listTop(): Float = compose.onAllNodes(androidx.compose.ui.test.hasContentDescription("Trackhop")).fetchSemanticsNodes().minOf { it.boundsInRoot.bottom }
 
     /**
      * The cards on screen (below the header), top to bottom, with their tops where they really are:

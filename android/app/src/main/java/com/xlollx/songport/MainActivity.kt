@@ -817,7 +817,8 @@ private fun MainScreen(
             // An open tool shows its own bar with the way back: no tab header above it.
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
-                AppTopBar(stringResource(if (tab == MainActivity.TAB_SYNCS) R.string.app_name else label), scrollBehavior = if (barSlides) barScroll else null) {
+                // Syncs: the mark alone, so the update, support and "?" pills have room (owner, 12/11).
+                AppTopBar(if (tab == MainActivity.TAB_SYNCS) "" else stringResource(label), scrollBehavior = if (barSlides) barScroll else null) {
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {

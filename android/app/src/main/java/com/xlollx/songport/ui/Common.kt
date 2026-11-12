@@ -389,7 +389,11 @@ fun AppTopBar(
 ) {
     TopAppBar(
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // A blank title (the Syncs tab): the mark alone, a little larger, named for TalkBack.
+            if (title.isBlank()) {
+                val name = androidx.compose.ui.res.stringResource(R.string.app_name)
+                Box(Modifier.semantics { contentDescription = name; heading() }) { BrandMark(30.dp) }
+            } else Row(verticalAlignment = Alignment.CenterVertically) {
                 if (showBrand) {
                     BrandMark(26.dp)
                     Spacer(Modifier.width(10.dp))
