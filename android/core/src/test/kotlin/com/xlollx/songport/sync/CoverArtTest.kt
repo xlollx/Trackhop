@@ -237,18 +237,18 @@ class CoverArtTest {
     private fun head(name: String, width: Float) = CoverArt.fitHead(name, "SPOTIFY", "2220 TRACKS", "140 H 12 MIN", width, 40f, measure = tenEach)
 
     @Test fun theHeaderKeepsEveryPartWholeOnOneLineWhenAllFit() {
-        assertEquals(listOf(CoverArt.HeadLine("LORENZO CANNILLO  ·  SPOTIFY", "2220 TRACKS  ·  140 H 12 MIN")), head("LORENZO CANNILLO", 600f))
+        assertEquals(listOf(CoverArt.HeadLine("GIULIA MARCHETTI  ·  SPOTIFY", "2220 TRACKS  ·  140 H 12 MIN")), head("GIULIA MARCHETTI", 600f))
     }
 
     @Test fun theDurationGivesWayFirstNeverCutWithAnEllipsis() {
-        // The owner's poster, 12/11: "LORENZO CANNILLO · SPO… 2220 TRACKS · 140 H 1…".
-        assertEquals(listOf(CoverArt.HeadLine("LORENZO CANNILLO  ·  SPOTIFY", "2220 TRACKS")), head("LORENZO CANNILLO", 590f))
+        // A real poster, 12/11: "GIULIA MARCHETTI · SPO… 2220 TRACKS · 140 H 1…".
+        assertEquals(listOf(CoverArt.HeadLine("GIULIA MARCHETTI  ·  SPOTIFY", "2220 TRACKS")), head("GIULIA MARCHETTI", 590f))
     }
 
     @Test fun aNameThatLeavesNoRoomTakesALineOfItsOwn() {
         assertEquals(
-            listOf(CoverArt.HeadLine("LORENZO CANNILLO", ""), CoverArt.HeadLine("SPOTIFY", "2220 TRACKS")),
-            head("LORENZO CANNILLO", 300f),
+            listOf(CoverArt.HeadLine("GIULIA MARCHETTI", ""), CoverArt.HeadLine("SPOTIFY", "2220 TRACKS")),
+            head("GIULIA MARCHETTI", 300f),
         )
     }
 
