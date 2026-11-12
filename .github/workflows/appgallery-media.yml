@@ -1,0 +1,73 @@
+# AppGallery listing pictures. "inspect" (default) only reads the listing and prints its shape (keys,
+# languages, how many screenshots and their sizes), never a URL or a secret. "screenshots" replaces the
+# phone screenshots of each language with the store screenshots (docs/store/play/<lang>/, 1080x1920,
+# the store build without the Bridge), at most 5 per language, on the app's draft version.
+name: AppGallery pictures
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'inspect (read only) or screenshots (replace them)'
+        type: choice
+        options: [inspect, screenshots]
+        default: inspect
+
+permissions:
+  contents: read
+
+jobs:
+  media:
+    runs-on: ubuntu-latest
+    env:
+      MODE: ${{ inputs.mode }}
+      API: https://connect-api.cloud.huawei.com/api
+      PACKAGE: com.xlollx.songport
+      CLIENT_ID: ${{ secrets.AGC_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.AGC_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: AppGallery listing
+        run: |
+          set -euo pipefail
+          ok() { [ "$(jq -r '.ret.code // .code // 0' <<<"$1")" = "0" ]; }
+          token=$(jq -n --arg id "$CLIENT_ID" --arg s "$CLIENT_SECRET" '{grant_type:"client_credentials",client_id:$id,client_secret:$s}' \
+            | curl -sS -X POST "$API/oauth2/v1/token" -H 'Content-Type: application/json' -d @- | jq -r '.access_token // empty')
+          [ -n "$token" ] || { echo "::error::No access token"; exit 1; }
+          echo "::add-mask::$token"
+          H=(-H "client_id: $CLIENT_ID" -H "Authorization: Bearer $token")
+          app=$(curl -sS "${H[@]}" "$API/publish/v2/appid-list?packageName=$PACKAGE" | jq -r '.appids[0].value // empty')
+          [ -n "$app" ] || { echo "::error::No app id"; exit 1; }
+          info=$(curl -sS "${H[@]}" "$API/publish/v2/app-info?appId=$app&lang=en-US")
+          echo "ret: $(jq -c .ret <<<"$info")"
+          # Shape only: every string value is replaced by its length, so no URL or name is printed.
+          jq -c 'walk(if type=="string" then ("s" + (length|tostring)) else . end) | {appInfo: (.appInfo|keys?), languages: [.languages[]? | {lang: .lang, keys: keys}] }' <<<"$info" || true
+          jq -r '.languages[]? | .lang as $l | (.deviceMaterials // [])[] | "\($l) device=\(.deviceType) screenshots=\((.screenShots // [])|length) shotRes=\(.screenShotsResolution // .imageResolution // "?")"' <<<"$info" || true
+          jq -c '.languages[]? | {showType, videoShowType, materials: [(.deviceMaterials // [])[] | (to_entries | map({key, value: (if (.value|type)=="string" then ("s"+(.value|length|tostring)) elif (.value|type)=="array" then ("array" + (.value|length|tostring)) else .value end)}) | from_entries)]}' <<<"$info" || true
+          [ "$MODE" = "screenshots" ] || exit 0
+
+          # Only the languages the listing has; their screenshots shown upright (showType 1, as the live listing has:
+          # portrait boxes; the old 20:9 pictures were squeezed into them and looked stretched).
+          for lang in $(jq -r '.languages[]?.lang' <<<"$info"); do
+            dir="docs/store/play/$lang/"
+            [ -d "$dir" ] || { echo "::warning::$lang: no store screenshots in $dir"; continue; }
+            files=$(ls "$dir"*.jpg | sort -V | head -8)
+            items='[]'
+            for f in $files; do
+              name="$lang-$(basename "$f")"; size=$(stat -c %s "$f")
+              res=$(curl -sS "${H[@]}" "$API/publish/v2/upload-url/for-obs?appId=$app&fileName=$name&contentLength=$size")
+              ok "$res" || { echo "::warning::$lang: no upload address: $(jq -c .ret <<<"$res")"; continue 2; }
+              url=$(jq -r '.urlInfo.url' <<<"$res"); object=$(jq -r '.urlInfo.objectId' <<<"$res")
+              mapfile -t uh < <(jq -r '.urlInfo.headers | to_entries[] | "\(.key): \(.value)"' <<<"$res")
+              hargs=(); for h in "${uh[@]}"; do hargs+=(-H "$h"); done
+              curl -sS --fail -X PUT "${hargs[@]}" --data-binary @"$f" "$url" -o /dev/null
+              items=$(jq -c --arg n "$name" --arg o "$object" '. + [{fileName:$n, fileDestUrl:$o, imageResolution:"1080*1920"}]' <<<"$items")
+            done
+            body=$(jq -n --arg l "$lang" --argjson f "$items" '{lang:$l, fileType:2, imageResolution:"1080*1920", showType:1, files:$f}')
+            res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$body" "$API/publish/v2/app-file-info?appId=$app")
+            ok "$res" && echo "$lang: screenshots replaced ($(jq length <<<"$items"))" || echo "::warning::$lang: $(jq -c .ret <<<"$res")"
+            res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$(jq -n --arg l "$lang" '{lang:$l, showType:1}')" "$API/publish/v2/app-language-info?appId=$app")
+            ok "$res" && echo "$lang: screenshots shown upright" || echo "::warning::$lang showType: $(jq -c .ret <<<"$res")"
+          done
+          after=$(curl -sS "${H[@]}" "$API/publish/v2/app-info?appId=$app&lang=en-US")
+          jq -r '.languages[]? | "\(.lang) showType=\(.showType) screenshots=\([(.deviceMaterials // [])[] | (.screenShots // [])|length] | add)"' <<<"$after" || true
