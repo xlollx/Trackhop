@@ -50,7 +50,7 @@ class BulkReviewFlowTest : FlowTest() {
     fun pickSeveralThenRemoveKeepAndIgnore() {
         val jobId = seed()
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.review_now, 5))
+        click(s(R.string.review_summary, 2, 3))
         waitText(s(R.string.review_section_uncertain, 3))
         waitText(s(R.string.review_select_hint))
         snapshot("bulk-1-review")

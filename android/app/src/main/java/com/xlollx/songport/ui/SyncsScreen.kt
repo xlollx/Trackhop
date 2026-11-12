@@ -1122,7 +1122,8 @@ private fun JobCard(
             // Brani da sistemare a mano: raggiungibili appena la ricerca e' finita, anche mentre la
             // sync sta ancora aggiungendo, e dopo, finche' ne restano. A small card leads there from
             // its "not found" mark and its status instead.
-            val toFix = report?.takeIf { it.jobId == job.id }?.let { it.unmatchedTracks.size + it.reviewTracks.size } ?: 0
+            val mine = report?.takeIf { it.jobId == job.id }
+            val toFix = mine?.let { it.unmatchedTracks.size + it.reviewTracks.size } ?: 0
             if (toFix > 0 && report != null && !small) {
                 Spacer(Modifier.height(6.dp))
                 FilledTonalButton(
@@ -1133,7 +1134,7 @@ private fun JobCard(
                 ) {
                     Icon(Icons.Filled.Build, null, Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.review_now, toFix))
+                    Text(reviewLabel(mine?.unmatchedTracks?.size ?: 0, mine?.reviewTracks?.size ?: 0))
                 }
             }
             if (handed != null && run == null) ServerCardStatus(handed.serverId, small)
@@ -1223,10 +1224,16 @@ private fun ServerCardStatus(serverId: String, small: Boolean) {
         FilledTonalButton(onClick = { reviewing = last.id }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.Build, null, Modifier.size(16.dp))
             Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.review_now, toFix))
+            Text(reviewLabel(last.notFound, last.toCheck))
         }
     }
 }
+
+/** The review button: both counts when there are both, so it adds up with the card's "not found". */
+@Composable
+internal fun reviewLabel(notFound: Int, toCheck: Int): String =
+    if (notFound > 0 && toCheck > 0) stringResource(R.string.review_summary, notFound, toCheck)
+    else stringResource(R.string.review_now, notFound + toCheck)
 
 /** The small marks before a sync's name: written by an AI, every Shazam, a radio, starred. */
 @Composable

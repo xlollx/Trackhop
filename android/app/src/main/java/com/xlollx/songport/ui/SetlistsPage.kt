@@ -366,7 +366,7 @@ private fun SentSummary(onReview: (String) -> Unit) {
                 Text(stringResource(R.string.setlists_summary, sum.added, sum.alreadyThere, sum.notFound), style = MaterialTheme.typography.bodySmall)
                 val toFix = report.unmatchedTracks.size + report.reviewTracks.size
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    if (toFix > 0) TextButton(onClick = { onReview(report.id) }) { Text(stringResource(R.string.review_now, toFix)) }
+                    if (toFix > 0) TextButton(onClick = { onReview(report.id) }) { Text(reviewLabel(report.unmatchedTracks.size, report.reviewTracks.size)) }
                     TextButton(onClick = { SetlistsKept.sent = null }) { Text(stringResource(R.string.ok)) }
                 }
             }
