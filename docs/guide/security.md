@@ -48,7 +48,7 @@ limit of those scanners, not something found inside the file. When it happens, t
 name the engine and the verdict, the file is reported to that engine as a false positive, and the
 table updates itself once it is corrected. So far it has always been the same engine (Microsoft,
 `Trojan:Script/Wacatac!ml`): on the Intel Mac file of Desktop 1.0.0 (cleared the same day), on the Mac
-files of Desktop 1.9 and on the Google Play bundle of the app 1.16.2 (all reported).
+files of Desktop 1.9 and on the Google Play bundle of the app 1.16.2 (all reported to Microsoft, and all cleared by it since).
 
 [All guide pages](./)
 
