@@ -10,6 +10,7 @@ android/local.properties
 server/build/
 server/.gradle/
 server/.kotlin/
+android/.kotlin/
 
 # Chiavi di firma: la debug.keystore e' volutamente committata (firma stabile),
 # la chiave di upload del Play Store non deve MAI entrare nel repo.
