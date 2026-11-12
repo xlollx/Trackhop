@@ -21,6 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -87,12 +91,16 @@ fun SyncStatusStrip(
         ) {
             Icon(icon, null, Modifier.size(18.dp), tint = tint)
             Spacer(Modifier.width(8.dp))
+            // When the last sync ran is said while the line has room for it: where it does not (a narrow
+            // window, a large font, a language with longer words) the status alone is whole, not both cut short.
+            var roomForLast by remember(main, last, lines, androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp) { mutableStateOf(true) }
             Text(
                 buildAnnotatedString {
                     withStyle(SpanStyle(color = scheme.onSurface, fontWeight = FontWeight.SemiBold)) { append(main) }
-                    if (last != null) withStyle(SpanStyle(color = scheme.onSurfaceVariant)) { append(" · "); append(last) }
+                    if (last != null && roomForLast) withStyle(SpanStyle(color = scheme.onSurfaceVariant)) { append(" · "); append(last) }
                 },
                 style = MaterialTheme.typography.bodyMedium, maxLines = lines, overflow = TextOverflow.Ellipsis,
+                onTextLayout = { if (it.hasVisualOverflow && last != null && roomForLast) roomForLast = false },
                 modifier = Modifier.weight(1f, fill = false),
             )
             if (canShow) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, Modifier.size(18.dp), tint = scheme.onSurfaceVariant)

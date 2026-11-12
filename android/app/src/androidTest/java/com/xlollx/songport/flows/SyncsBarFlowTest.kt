@@ -73,6 +73,12 @@ class SyncsBarFlowTest : FlowTest() {
      * The bar's parts, each whole and in the window, in their order with nothing over anything else:
      * the mark, the search field, the update's arrow, the cup; and the status line under them all.
      */
+    @org.junit.After
+    fun noUpdateLeftBehind() {
+        app.getSharedPreferences("app_updates", 0).edit().remove("name").remove("url").remove("checked").commit()
+        UpdateState.set(null)
+    }
+
     private fun assertBarInOrder(what: String) {
         waitFor("$what: the update's arrow, the cup and the search field") { tagged(BAR_UPDATE_TAG).size == 1 && tagged(BAR_SUPPORT_TAG).size == 1 && tagged(SYNC_SEARCH_TAG).size == 1 }
         compose.waitForIdle()
@@ -96,6 +102,8 @@ class SyncsBarFlowTest : FlowTest() {
         assertTrue("$what: the search field is a whole 48dp target", search.height >= 48 * density - 1)
         val barBottom = maxOf(search.bottom, update.bottom, cup.bottom)
         assertTrue("$what: the status line under the bar, under none of its parts ($status, bar to $barBottom)", status.top >= barBottom)
+        // Drawn and still before a picture is taken of it.
+        Thread.sleep(700); compose.waitForIdle()
     }
 
     /** The owner's rule: with an update to offer, its control is always in the bar, beside the cup, and nothing is cramped out. */
