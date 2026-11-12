@@ -229,4 +229,39 @@ class CoverArtTest {
         assertEquals(listOf("Muse  ·  Placebo"), CoverArt.fitNameLines(listOf("Muse", "Placebo"), 2, 25f, measure = chars).map { it.text })
         assertTrue(CoverArt.fitNameLines(emptyList(), 2, 25f, measure = chars).isEmpty())
     }
+
+    // ------------------------------------------------------------ the poster's header
+
+    /** Ten units a character, times the scale. */
+    private val tenEach = { str: String, k: Float -> str.length * 10f * k }
+    private fun head(name: String, width: Float) = CoverArt.fitHead(name, "SPOTIFY", "2220 TRACKS", "140 H 12 MIN", width, 40f, measure = tenEach)
+
+    @Test fun theHeaderKeepsEveryPartWholeOnOneLineWhenAllFit() {
+        assertEquals(listOf(CoverArt.HeadLine("LORENZO CANNILLO  ·  SPOTIFY", "2220 TRACKS  ·  140 H 12 MIN")), head("LORENZO CANNILLO", 600f))
+    }
+
+    @Test fun theDurationGivesWayFirstNeverCutWithAnEllipsis() {
+        // The owner's poster, 12/11: "LORENZO CANNILLO · SPO… 2220 TRACKS · 140 H 1…".
+        assertEquals(listOf(CoverArt.HeadLine("LORENZO CANNILLO  ·  SPOTIFY", "2220 TRACKS")), head("LORENZO CANNILLO", 590f))
+    }
+
+    @Test fun aNameThatLeavesNoRoomTakesALineOfItsOwn() {
+        assertEquals(
+            listOf(CoverArt.HeadLine("LORENZO CANNILLO", ""), CoverArt.HeadLine("SPOTIFY", "2220 TRACKS")),
+            head("LORENZO CANNILLO", 300f),
+        )
+    }
+
+    @Test fun aNameTooLongForALineIsSetSmallerOrBrokenBetweenWords() {
+        val name = "A VERY LONG NAME FOR A POSTER"
+        val lines = head(name, 200f)
+        val nameLines = lines.dropLast(1)
+        assertEquals(name, nameLines.joinToString(" ") { it.left })
+        for (l in lines) {
+            assertFalse(l.left + l.right, (l.left + l.right).contains('…'))
+            val w = tenEach(l.left, l.scale) + (if (l.right.isBlank() || l.left.isBlank()) 0f else 40f) + tenEach(l.right, l.scale)
+            assertTrue("$l is $w wide", w <= 200f)
+        }
+        assertEquals("2220 TRACKS", lines.last().right)
+    }
 }

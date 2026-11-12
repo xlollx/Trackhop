@@ -42,13 +42,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.providers.BridgePlugin
+import com.xlollx.songport.providers.DeezerProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.ListenBrainzProvider
 import com.xlollx.songport.providers.MusicProvider
+import com.xlollx.songport.providers.PlayCounts
+import com.xlollx.songport.providers.SpotifyBridgeProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.providers.SpotifyProvider
 import com.xlollx.songport.providers.brand
 import com.xlollx.songport.providers.isConnected
+import com.xlollx.songport.providers.tracks
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Wrapped
 
@@ -69,10 +75,34 @@ internal fun listeningSources(ctx: Context): List<Pair<Listening.Source, MusicPr
                 Listening.Source.LASTFM -> p is LastFmProvider
                 Listening.Source.LISTENBRAINZ -> p is ListenBrainzProvider
                 Listening.Source.SPOTIFY -> p is SpotifyProvider
+                // The web player's top songs: only where the connectors are the full ones (GitHub, F-Droid).
+                Listening.Source.SPOTIFY_WEB -> p is SpotifyBridgeProvider && BridgePlugin.full
+                Listening.Source.DEEZER -> p is DeezerProvider
+                // A personal server's own play counts.
+                Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
+                Listening.Source.PLEX, Listening.Source.LYRION -> p is PlayCounts
                 // The recent plays: only where the connector reads them (the full build's).
                 Listening.Source.YTM -> p.supportsRecent
             }
         }?.let { s to it }
+    }
+}
+
+/**
+ * What [p] ([s]'s connector) says the user listened to in [period]: the one place each source is
+ * read, for the Wrapped and the poster alike. Blocking calls: run it off the main thread.
+ */
+internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicProvider, period: Listening.Period): Listening.Report {
+    val env = ctx.env
+    return when (s) {
+        Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period)
+        Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period)
+        Listening.Source.SPOTIFY -> (p as SpotifyProvider).listening(env, period)
+        Listening.Source.SPOTIFY_WEB -> (p as SpotifyBridgeProvider).listening(env, period)
+        Listening.Source.DEEZER -> (p as DeezerProvider).listening(env)
+        Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
+        Listening.Source.PLEX, Listening.Source.LYRION -> Listening.fromCounts((p as PlayCounts).topPlays(env))
+        Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID))
     }
 }
 
@@ -81,6 +111,7 @@ internal fun periodLabel(ctx: Context, p: Listening.Period): String = ctx.getStr
     Listening.Period.HALF_YEAR -> R.string.discover_wrapped_period_half
     Listening.Period.YEAR -> R.string.discover_wrapped_period_year
     Listening.Period.RECENT -> R.string.discover_wrapped_eyebrow_recent
+    Listening.Period.ALL -> R.string.discover_wrapped_period_all
 })
 
 /** The card's eyebrow: the period ("My last 6 months"), or the year for a Wrapped of the playlists ("My 2026 so far"). */
@@ -89,6 +120,7 @@ internal fun wrappedEyebrow(ctx: Context, w: Wrapped.Saved): String = when (List
     Listening.Period.HALF_YEAR -> ctx.getString(R.string.discover_wrapped_eyebrow_half)
     Listening.Period.YEAR -> ctx.getString(R.string.discover_wrapped_eyebrow_year)
     Listening.Period.RECENT -> ctx.getString(R.string.discover_wrapped_eyebrow_recent)
+    Listening.Period.ALL -> ctx.getString(R.string.discover_wrapped_eyebrow_all)
     null -> ctx.getString(R.string.discover_wrapped_eyebrow, w.year)
 }
 
@@ -136,7 +168,13 @@ internal fun WrappedSourcePicker(
             ToolSegmented(chosen.periods.map { periodLabel(ctx, it) }, chosen.periods.indexOf(period).coerceAtLeast(0), Modifier.fillMaxWidth(), enabled = enabled) { onPeriod(chosen.periods[it]) }
         } else if (chosen != null) {
             val name = sources.firstOrNull { it.first == chosen }?.second?.brand.orEmpty()
-            Text(stringResource(R.string.discover_wrapped_recent_hint, name), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // A single span: the latest plays, every play a server counted, or a ranking with no span said.
+            val hint = when {
+                Listening.Period.RECENT in chosen.periods -> R.string.discover_wrapped_recent_hint
+                chosen.counts -> R.string.discover_wrapped_all_hint_counts
+                else -> R.string.discover_wrapped_all_hint_rank
+            }
+            Text(stringResource(hint, name), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

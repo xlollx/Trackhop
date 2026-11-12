@@ -1677,8 +1677,8 @@
     <string name="card_layout_bold">Çarpıcı</string>
     <string name="card_poster_show_name">Adımı göster</string>
     <string name="card_poster_plays_from">En çok dinlediğin şarkılar, %1$s üzerinden</string>
-    <string name="card_poster_plays_connect">En çok dinlediğin şarkıları listelemek için Spotify, Last.fm veya ListenBrainz bağla</string>
-    <string name="card_poster_plays_none">%1$s üzerinde en çok dinlediğin şarkıların hiçbiri bu çalma listesinde yok: bunlar ana sanatçılarının şarkıları</string>
+    <string name="card_poster_plays_connect">Bu şarkılar çalma listesinde en çok yer alan sanatçılardan. En çok dinlediğin şarkıları listelemek için Last.fm, ListenBrainz, Spotify, Deezer veya kendi sunucunu (Navidrome, Jellyfin, Emby, Plex, Lyrion) bağla</string>
+    <string name="card_poster_plays_none">%1$s üzerinde en çok dinlediğin şarkıların hiçbiri bu çalma listesinde yok: bu şarkılar listede en çok yer alan sanatçılardan</string>
     <string name="card_poster_start_over">Baştan başla</string>
     <string name="card_poster_start_over_hint">Çalma listesini yeniden okur ve sıfırdan yeni bir poster yapar</string>
     <string name="card_poster_qr">QR kodu ekle</string>
@@ -1734,6 +1734,10 @@
     <string name="discover_wrapped_eyebrow_half">Son 6 ayım</string>
     <string name="discover_wrapped_eyebrow_year">Son 12 ayım</string>
     <string name="discover_wrapped_eyebrow_recent">Son dinlediklerim</string>
+    <string name="discover_wrapped_period_all">Tüm zamanlar</string>
+    <string name="discover_wrapped_eyebrow_all">En iyi şarkılarım</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s çaldığı her dinlenmeyi sayar: kart oradaki tüm dinlenmelerini kapsar.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s en iyi şarkılarını hangi dönem olduğunu söylemeden sıralar: kart bu sıralamayı izler.</string>
     <string name="discover_wrapped_top_tracks">En çok dinlenen şarkılar</string>
     <string name="discover_wrapped_plays_label">Dinlenme</string>
     <string name="discover_wrapped_songs_played">Dinlenen şarkılar</string>
@@ -2498,4 +2502,5 @@
     <string name="card_poster_name_field">Posterdeki ad</string>
     <string name="account_last_sync_failed">Son eşitleme başarısız</string>
     <string name="card_poster_plays_failed">%1$s üzerinden en çok dinlediğin şarkılar okunamadı (%2$s): şarkılar çalma listesinde en çok geçen sanatçılardan.</string>
+    <string name="card_poster_plays_empty">Dinleme servislerin hiç dinlenme vermedi: bu şarkılar çalma listesinde en çok yer alan sanatçılardan</string>
 </resources>

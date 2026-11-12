@@ -677,4 +677,79 @@ class FakeServerProvidersTest {
         val e = runCatching { JellyfinProvider().quickConnectStart(ctx, url) }.exceptionOrNull()
         assertTrue(e?.message, e?.message?.contains("jellyfin_qc_off") == true)
     }
+
+    // ------------------------------------------------------------------ play counts (poster, Wrapped)
+
+    @Test fun subsonicReadsThePlaysOfAPlaylistAndOfTheStarredSongs() = runBlocking {
+        answer = { r ->
+            when {
+                r.path.endsWith("/getPlaylist") -> 200 to subsonic("1.16.1", ""","playlist":{"id":"p1","entry":[
+                    {"id":"s1","title":"Battery","artist":"Metallica","playCount":12},{"id":"s2","title":"One","artist":"Metallica"}]}""")
+                r.path.endsWith("/getStarred2") -> 200 to subsonic("1.16.1", ""","starred2":{"song":[{"id":"s3","title":"Home","artist":"Beyoncé","playCount":3}]}""")
+                else -> 200 to subsonic("1.16.1")
+            }
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("s1" to 12, "s2" to 0), p.playlistPlays(ctx, "p1").map { it.track.id to it.plays })
+        assertEquals(listOf("s3" to 3), p.playlistPlays(ctx, MusicProvider.LIKED_ID).map { it.track.id to it.plays })
+        assertTrue(p.playlistPlays(ctx, MusicProvider.ALBUMS_ID).isEmpty())
+    }
+
+    @Test fun subsonicTopSongsComeFromTheMostPlayedAlbumsByTheirOwnCounts() = runBlocking {
+        answer = { r ->
+            when {
+                r.path.endsWith("/getAlbumList2") -> 200 to subsonic("1.16.1", ""","albumList2":{"album":[{"id":"a1"},{"id":"a2"}]}""")
+                r.path.endsWith("/getAlbum") && r.query["id"] == listOf("a1") -> 200 to subsonic("1.16.1", ""","album":{"id":"a1","song":[
+                    {"id":"s1","title":"Battery","artist":"Metallica","playCount":5},{"id":"s2","title":"Orion","artist":"Metallica","playCount":0}]}""")
+                r.path.endsWith("/getAlbum") -> 200 to subsonic("1.16.1", ""","album":{"id":"a2","song":[{"id":"s3","title":"One","artist":"Metallica","playCount":40}]}""")
+                else -> 200 to subsonic("1.16.1")
+            }
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("s3" to 40, "s1" to 5), p.topPlays(ctx, 50).map { it.track.id to it.plays })
+        val list = requests.first { it.path.endsWith("/getAlbumList2") }
+        assertEquals(listOf("frequent"), list.query["type"])
+        assertEquals(listOf("${SubsonicProvider.TOP_ALBUMS}"), list.query["size"])
+    }
+
+    @Test fun jellyfinReadsThePlaysOfAPlaylistAndAsksTheServerForTheTopSongs() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path == "/Playlists/p1/Items" -> 200 to """{"Items":[{"Id":"a","Name":"Battery","Artists":["Metallica"],"UserData":{"PlayCount":9}},{"Id":"b","Name":"One","Artists":["Metallica"],"UserData":{"PlayCount":0}}]}"""
+                r.path == "/Users/u1/Items" && r.query["SortBy"] == listOf("PlayCount") -> 200 to """{"Items":[{"Id":"c","Name":"Home","Artists":["Beyoncé"],"UserData":{"PlayCount":21}},{"Id":"a","Name":"Battery","Artists":["Metallica"],"UserData":{"PlayCount":9}}]}"""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("a" to 9, "b" to 0), p.playlistPlays(ctx, "p1").map { it.track.id to it.plays })
+        assertEquals(listOf("u1"), requests.last().query["UserId"])
+        assertEquals(listOf("c" to 21, "a" to 9), p.topPlays(ctx, 50).map { it.track.id to it.plays })
+        val top = requests.last()
+        assertEquals(listOf("Descending"), top.query["SortOrder"])
+        assertEquals(listOf("Audio"), top.query["IncludeItemTypes"])
+        assertEquals(listOf("50"), top.query["Limit"])
+    }
+
+    @Test fun plexReadsTheViewCountsAndTheMostPlayedOfEachMusicLibrary() = runBlocking {
+        answer = { r ->
+            when (r.path) {
+                "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                "/playlists/9/items" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"1","title":"Battery","grandparentTitle":"Metallica","viewCount":4},{"ratingKey":"2","title":"One","grandparentTitle":"Metallica"}]}}"""
+                "/library/sections" -> 200 to """{"MediaContainer":{"Directory":[{"key":"3","type":"artist"},{"key":"4","type":"movie"},{"key":"5","type":"artist"}]}}"""
+                "/library/sections/3/all" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"1","title":"Battery","grandparentTitle":"Metallica","viewCount":4},{"ratingKey":"2","title":"One","grandparentTitle":"Metallica"}]}}"""
+                "/library/sections/5/all" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"8","title":"Home","grandparentTitle":"Beyoncé","viewCount":11}]}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        assertEquals(listOf("1" to 4, "2" to 0), p.playlistPlays(ctx, "9").map { it.track.id to it.plays })
+        assertEquals(listOf("8" to 11, "1" to 4), p.topPlays(ctx, 50).map { it.track.id to it.plays })
+        assertEquals(listOf("/library/sections/3/all", "/library/sections/5/all"), requests.filter { it.path.endsWith("/all") }.map { it.path })
+        assertTrue(requests.filter { it.path.endsWith("/all") }.all { it.query["sort"] == listOf("viewCount:desc") && it.query["type"] == listOf("10") })
+    }
 }

@@ -17,15 +17,19 @@ import org.junit.runner.RunWith
 /**
  * The poster drawn for the cases that strain its words (one, three and twelve artists, a name of
  * forty characters and more, short, long and Italian titles, with and without the QR code, with
- * the playlist's covers and with a cover drawn on the phone), in the three layouts and both
- * formats. Each picture is kept with the reports (ui-out/failures/poster-renders) for review.
+ * the playlist's covers and with a cover drawn on the phone, a signed poster of a big playlist),
+ * in the three layouts and both formats. Each picture is kept with the reports
+ * (ui-out/failures/poster-renders) for review.
  */
 @RunWith(AndroidJUnit4::class)
 class PosterRendersTest {
     private val instr = InstrumentationRegistry.getInstrumentation()
     private val app get() = instr.targetContext
 
-    private class Case(val name: String, val title: String, val artists: List<String>, val qr: Boolean = true, val drawn: Boolean = false)
+    private class Case(
+        val name: String, val title: String, val artists: List<String>, val qr: Boolean = true, val drawn: Boolean = false,
+        val owner: String = "", val trackCount: Int = 128, val durationMs: Long = 27_000_000L,
+    )
 
     private val twelve = listOf(
         "A Day To Remember", "Bring Me The Horizon", "Nothing But Thieves", "Avenged Sevenfold", "Parkway Drive", "Architects",
@@ -39,6 +43,9 @@ class PosterRendersTest {
         Case("long_name_italian", "Canzoni da ascoltare in macchina d'estate", listOf("Godspeed You! Black Emperor and the Silver Mt. Zion", "Muse", "Placebo")),
         Case("twelve_artists_no_qr", "Songs for a very long night drive", twelve, qr = false),
         Case("drawn_art_three_artists", "Dark Trap/Phonk/Aesthetic rap", twelve.take(3), drawn = true),
+        // The owner's poster, 12/11: the Bold header read "LORENZO CANNILLO · SPO… 2220 TRACKS · 140 H 1…".
+        Case("signed_big_playlist", "Liked songs", twelve, owner = "Lorenzo Cannillo", trackCount = 2220, durationMs = 505_000_000L),
+        Case("signed_long_name", "Liked songs", twelve, owner = "Maria Fernanda Albuquerque de Souza Lima", trackCount = 12_345, durationMs = 2_950_000_000L),
     )
 
     private fun tile(color: Int): Bitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888).apply {
@@ -60,9 +67,19 @@ class PosterRendersTest {
             val art: List<Bitmap?> = if (c.drawn) listOf(GeneratedCovers.draw(GeneratedCovers.Style.MOSAIC, GeneratedCovers.Input(c.title, emptyList(), covers), 0)) else covers
             for (l in PosterPalette.Layout.entries) for (f in Cards.Format.entries) {
                 val card = Cards.PosterCard(
-                    c.title, "", "Spotify", 128, 27_000_000L, art, LINK,
+                    c.title, "", "Spotify", c.trackCount, c.durationMs, art, LINK,
                     c.artists, songs, l, titledArt = c.drawn,
-                ).with(l, "", withQr = c.qr)
+                ).with(l, c.owner, withQr = c.qr)
+                // The Bold header: the name and the track count always there and whole, nothing cut.
+                if (l == PosterPalette.Layout.BOLD) {
+                    val head = Cards.boldHeadLines(app, card, f)
+                    val printed = head.joinToString(" | ") { it.left + " / " + it.right }
+                    assertTrue(printed, head.none { (it.left + it.right).contains('…') })
+                    val name = (c.owner.ifBlank { app.getString(com.xlollx.songport.R.string.editor_playlist) }).uppercase()
+                    val shownName = if (head.size == 1) head[0].left.substringBefore("  ·  ") else head.dropLast(1).joinToString(" ") { it.left }
+                    assertEquals(printed, name, shownName)
+                    assertTrue(printed, head.last().right.filter(Char::isDigit).startsWith(c.trackCount.toString()))
+                }
                 val bmp = Cards.poster(app, card, f)
                 assertTrue(bmp.width == f.width && bmp.height == f.height)
                 // The QR code is there, and readable, only when asked for.

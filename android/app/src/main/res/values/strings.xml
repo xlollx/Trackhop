@@ -1680,8 +1680,8 @@
     <string name="card_layout_bold">Bold</string>
     <string name="card_poster_show_name">Show my name</string>
     <string name="card_poster_plays_from">Your most played songs, from %1$s</string>
-    <string name="card_poster_plays_connect">Connect Spotify, Last.fm or ListenBrainz to list your most played songs</string>
-    <string name="card_poster_plays_none">None of your most played songs on %1$s is in this playlist: these are the songs of its main artists</string>
+    <string name="card_poster_plays_connect">These songs are from the playlist\'s most present artists. To list your most played songs, connect Last.fm, ListenBrainz, Spotify, Deezer or your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">None of your most played songs on %1$s is in this playlist: these songs are from the playlist\'s most present artists</string>
     <string name="card_poster_start_over">Start over</string>
     <string name="card_poster_start_over_hint">Reads the playlist again and makes a new poster from scratch</string>
     <string name="card_poster_qr">Include QR code</string>
@@ -1737,6 +1737,10 @@
     <string name="discover_wrapped_eyebrow_half">My last 6 months</string>
     <string name="discover_wrapped_eyebrow_year">My last 12 months</string>
     <string name="discover_wrapped_eyebrow_recent">My latest plays</string>
+    <string name="discover_wrapped_period_all">All time</string>
+    <string name="discover_wrapped_eyebrow_all">My top songs</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s counts every play it served: the card covers all your plays there.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s ranks your top songs without saying over which period: the card follows its ranking.</string>
     <string name="discover_wrapped_top_tracks">Top songs</string>
     <string name="discover_wrapped_plays_label">Plays</string>
     <string name="discover_wrapped_songs_played">Songs played</string>
@@ -2501,4 +2505,5 @@
     <string name="card_poster_name_field">Name on the poster</string>
     <string name="account_last_sync_failed">Last sync failed</string>
     <string name="card_poster_plays_failed">Your most played songs could not be read from %1$s (%2$s): the songs are the playlist\'s most frequent artists\'.</string>
+    <string name="card_poster_plays_empty">Your listening services gave no plays: these songs are from the playlist\'s most present artists</string>
 </resources>

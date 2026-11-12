@@ -1687,8 +1687,8 @@
     <string name="card_layout_bold">Marcante</string>
     <string name="card_poster_show_name">Mostrar meu nome</string>
     <string name="card_poster_plays_from">Suas músicas mais ouvidas, do %1$s</string>
-    <string name="card_poster_plays_connect">Conecte Spotify, Last.fm ou ListenBrainz para listar suas músicas mais ouvidas</string>
-    <string name="card_poster_plays_none">Nenhuma das suas músicas mais ouvidas no %1$s está nesta playlist: estas são as músicas dos artistas principais dela</string>
+    <string name="card_poster_plays_connect">Estas músicas são dos artistas mais presentes na playlist. Para listar suas músicas mais ouvidas, conecte Last.fm, ListenBrainz, Spotify, Deezer ou seu próprio servidor (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">Nenhuma das suas músicas mais ouvidas no %1$s está nesta playlist: estas músicas são dos artistas mais presentes na playlist</string>
     <string name="card_poster_start_over">Começar do zero</string>
     <string name="card_poster_start_over_hint">Lê a playlist de novo e cria um pôster novo do zero</string>
     <string name="card_poster_qr">Incluir código QR</string>
@@ -1744,6 +1744,10 @@
     <string name="discover_wrapped_eyebrow_half">Meus últimos 6 meses</string>
     <string name="discover_wrapped_eyebrow_year">Meus últimos 12 meses</string>
     <string name="discover_wrapped_eyebrow_recent">O que ouvi por último</string>
+    <string name="discover_wrapped_period_all">Todo o período</string>
+    <string name="discover_wrapped_eyebrow_all">Minhas músicas top</string>
+    <string name="discover_wrapped_all_hint_counts">O %1$s conta cada reprodução que serviu: o cartão cobre todas as suas reproduções lá.</string>
+    <string name="discover_wrapped_all_hint_rank">O %1$s classifica suas músicas top sem dizer de qual período: o cartão segue essa classificação.</string>
     <string name="discover_wrapped_top_tracks">Músicas mais ouvidas</string>
     <string name="discover_wrapped_plays_label">Reproduções</string>
     <string name="discover_wrapped_songs_played">Músicas ouvidas</string>
@@ -2508,4 +2512,5 @@
     <string name="card_poster_name_field">Nome no pôster</string>
     <string name="account_last_sync_failed">A última sincronização falhou</string>
     <string name="card_poster_plays_failed">Não foi possível ler suas músicas mais ouvidas de %1$s (%2$s): as músicas são dos artistas mais presentes na playlist.</string>
+    <string name="card_poster_plays_empty">Seus serviços de música não deram reproduções: estas músicas são dos artistas mais presentes na playlist</string>
 </resources>

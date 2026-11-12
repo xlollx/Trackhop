@@ -40,5 +40,9 @@ data class TrackDto(
     val isrc: String? = null,
 )
 
+/** What a service ranks highest for the user: the songs and the artists' names, the first ones first. No counts. */
+@Serializable
+data class TopDto(val tracks: List<TrackDto> = emptyList(), val artists: List<String> = emptyList())
+
 @Serializable
 data class RemoveItem(val videoId: String, val setVideoId: String? = null)

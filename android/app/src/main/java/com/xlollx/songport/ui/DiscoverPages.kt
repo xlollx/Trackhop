@@ -1131,15 +1131,10 @@ internal object WrappedRun {
         busy = true; reading = emptyMap(); current = p.id; coverSearch = false; readingFrom = listOf(p); missingScope = null
         scope.launch {
             try {
-                val env = ctx.env
-                val report = when (source) {
-                    Listening.Source.LASTFM -> (p as com.xlollx.songport.providers.LastFmProvider).listening(env, period)
-                    Listening.Source.LISTENBRAINZ -> (p as com.xlollx.songport.providers.ListenBrainzProvider).listening(env, period)
-                    Listening.Source.SPOTIFY -> (p as com.xlollx.songport.providers.SpotifyProvider).listening(env, period)
+                val report = readListening(ctx, source, p, period).let { r ->
                     // The recent plays: their videos' own pictures as covers.
-                    Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID)).let { r ->
-                        r.copy(tracks = r.tracks.map { it.copy(cover = com.xlollx.songport.sync.DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
-                    }
+                    if (source != Listening.Source.YTM) r
+                    else r.copy(tracks = r.tracks.map { it.copy(cover = com.xlollx.songport.sync.DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
                 }
                 val songs = report.tracks.size
                 if (songs == 0) error = ctx.getString(R.string.discover_wrapped_no_plays, p.brand)

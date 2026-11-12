@@ -34,10 +34,16 @@ Yes, when a connected service knows what you played. Trackhop picks the best one
 
 1. **Last.fm** or **ListenBrainz**: every play counted (scrobbles), for the **last month**, **6
    months** or **12 months**.
-2. **Spotify**: your top songs and artists for the same three periods, ranked by Spotify (no play
+2. **Your own server** (Navidrome and the other Subsonic servers, Jellyfin, Emby, Plex, Lyrion):
+   every play it served, counted song by song, over all time. A poster of one of its own playlists
+   ranks that playlist's songs by their own counts.
+3. **Spotify**: your top songs and artists for the same three periods, ranked by Spotify (no play
    counts). Spotify asks for one more permission for this: if you connected Spotify before, the page
-   offers **Sign in to Spotify again**; nothing changes until you do.
-3. **YouTube Music** (GitHub and F-Droid version): your recent plays, a weaker guide, since it keeps
+   offers **Sign in to Spotify again**; nothing changes until you do. **Spotify (web)** (GitHub and
+   F-Droid version) reads the same ranking the way your Spotify profile page shows it.
+4. **Deezer**: your top songs and artists as Deezer ranks them (no counts; Deezer does not say over
+   which period).
+5. **YouTube Music** (GitHub and F-Droid version): your recent plays, a weaker guide, since it keeps
    no counts.
 
 With none of them, or if you pick **Playlists**, the card is made from **what you keep**: your liked

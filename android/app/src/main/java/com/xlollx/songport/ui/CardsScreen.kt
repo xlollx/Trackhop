@@ -470,25 +470,39 @@ internal object PosterPlays {
     class Heard(val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null, val failed: Pair<MusicProvider, String>? = null)
 
     /**
-     * The songs played most, from the first of [sources] (the best first) that answers with some.
+     * The songs played most. First, when the playlist ([own]: its connector and id) is on a personal
+     * server, its own songs by the plays the server counted for each ([PlayCounts]): exact, for any
+     * playlist of the server. Else the first of [sources] (the best first) that answers with some.
      * [fresh]: asked again, not from what is kept. Never throws: a poster is never lost to the listening data.
      */
-    suspend fun read(ctx: android.content.Context, sources: List<Pair<Listening.Source, MusicProvider>>, fresh: Boolean): Heard {
+    suspend fun read(ctx: android.content.Context, sources: List<Pair<Listening.Source, MusicProvider>>, fresh: Boolean, own: Pair<MusicProvider, String>? = null): Heard {
         var signIn: MusicProvider? = null
         var failed: Pair<MusicProvider, String>? = null
+        val server = own?.first?.takeIf { it is PlayCounts && sources.any { (_, p) -> p.id == it.id } }
+        val ownId = own?.second.orEmpty()
+        if (server != null) {
+            val k = "OWN|${server.id}|$ownId"
+            if (fresh) forget(k)
+            val plays = get(k) ?: try {
+                withContext(Dispatchers.IO) { (server as PlayCounts).playlistPlays(ctx.env, ownId) }
+                    .filter { it.plays > 0 }.sortedByDescending { it.plays }.also { put(k, it) }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                ctx.env.log("poster", "${server.displayName}: the playlist's play counts not read: ${e.message ?: e.javaClass.simpleName}")
+                failed = server to (e.message ?: e.javaClass.simpleName); null
+            }
+            if (!plays.isNullOrEmpty()) {
+                ctx.env.log("poster", "most played songs from ${server.displayName}'s own counts for the playlist: ${plays.size}")
+                return Heard(server, plays)
+            }
+            if (plays != null) ctx.env.log("poster", "${server.displayName}: no song of the playlist was played")
+        }
         for ((s, p) in sources) {
+            // The playlist's own server was asked already, song by song: its top list would add nothing.
+            if (p.id == server?.id) continue
             val k = key(s, p)
             if (fresh) forget(k)
             val plays = get(k) ?: try {
-                withContext(Dispatchers.IO) {
-                    val env = ctx.env
-                    when (s) {
-                        Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period(s)).tracks
-                        Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period(s)).tracks
-                        Listening.Source.SPOTIFY -> (p as SpotifyProvider).listening(env, period(s)).tracks
-                        Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID)).tracks
-                    }
-                }.also { put(k, it) }
+                withContext(Dispatchers.IO) { readListening(ctx, s, p, period(s)).tracks }.also { put(k, it) }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.MissingScope) {
                 ctx.env.log("poster", "${p.displayName}: the sign-in predates reading the top songs; sign in again")
                 signIn = p; null
@@ -594,23 +608,26 @@ fun PosterCard(snackbar: SnackbarHostState) {
         scope.launch {
             try {
                 val tracks = if (fresh) withContext(MusicProvider.FreshRead) { p.provider.tracks(ctx, p.playlist.id) } else p.provider.tracks(ctx, p.playlist.id)
-                val info = if (!fresh && p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank()) p.playlist else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
+                // Liked songs and the other library lists are no playlist the service can describe (Spotify: "Invalid base62 id").
+                val info = if (MusicProvider.isLibrary(p.playlist.id) || (!fresh && p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank())) p.playlist
+                    else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
                 val key = p.provider.id + "|" + p.playlist.id
                 val title = info.name.ifBlank { p.playlist.name }.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
                 val artists = CoverPrompt.topArtists(tracks)
                 if (newCover) aiCovers.remove(key)
                 // The songs the user plays most that are in the playlist, from the best listening service connected.
                 val sources = withContext(Dispatchers.IO) { listeningSources(ctx) }
-                val heard = PosterPlays.read(ctx, sources, fresh)
+                val heard = PosterPlays.read(ctx, sources, fresh, own = p.provider to p.playlist.id)
                 val listed = CoverPrompt.mostPlayed(tracks, heard.plays)
                 val from = heard.from
+                // Without plays the list is the playlist's most present artists' songs: every note says so, none says "most played".
                 playsNote = when {
                     from != null && listed.fromPlays > 0 -> ctx.getString(R.string.card_poster_plays_from, from.brand)
                     from != null -> ctx.getString(R.string.card_poster_plays_none, from.brand)
                     sources.isEmpty() -> ctx.getString(R.string.card_poster_plays_connect)
                     // Read but refused: say so, instead of a list that looks like the most played and is not.
                     heard.failed != null -> ctx.getString(R.string.card_poster_plays_failed, heard.failed.first.brand, heard.failed.second)
-                    else -> null
+                    else -> ctx.getString(R.string.card_poster_plays_empty)
                 }
                 // Shown even when another service filled in: a better source is one sign-in away (owner, 12/11: YouTube Music's recent plays stood in for Spotify's top songs).
                 playsSignIn = heard.needsSignIn

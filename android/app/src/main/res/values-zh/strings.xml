@@ -1648,8 +1648,8 @@
     <string name="card_layout_bold">醒目</string>
     <string name="card_poster_show_name">显示我的名字</string>
     <string name="card_poster_plays_from">你最常听的歌曲，来自 %1$s</string>
-    <string name="card_poster_plays_connect">连接 Spotify、Last.fm 或 ListenBrainz，即可列出你最常听的歌曲</string>
-    <string name="card_poster_plays_none">你在 %1$s 最常听的歌曲都不在这个歌单里：这里是其主要艺人的歌曲</string>
+    <string name="card_poster_plays_connect">这些歌曲来自歌单中出现最多的艺人。要列出你最常听的歌曲，请连接 Last.fm、ListenBrainz、Spotify、Deezer 或你自己的服务器（Navidrome、Jellyfin、Emby、Plex、Lyrion）</string>
+    <string name="card_poster_plays_none">你在 %1$s 最常听的歌曲都不在这个歌单里：这些歌曲来自歌单中出现最多的艺人</string>
     <string name="card_poster_start_over">从头再来</string>
     <string name="card_poster_start_over_hint">重新读取歌单，从零开始制作新海报</string>
     <string name="card_poster_qr">包含二维码</string>
@@ -1705,6 +1705,10 @@
     <string name="discover_wrapped_eyebrow_half">我的近半年</string>
     <string name="discover_wrapped_eyebrow_year">我的近一年</string>
     <string name="discover_wrapped_eyebrow_recent">我最近的播放</string>
+    <string name="discover_wrapped_period_all">全部时间</string>
+    <string name="discover_wrapped_eyebrow_all">我的热门歌曲</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s 统计它播放的每一次：卡片涵盖你在那里的全部播放。</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s 对你的热门歌曲排名，但未说明时间范围：卡片按其排名生成。</string>
     <string name="discover_wrapped_top_tracks">最常听的歌曲</string>
     <string name="discover_wrapped_plays_label">播放次数</string>
     <string name="discover_wrapped_songs_played">听过的歌曲</string>
@@ -2447,4 +2451,5 @@
     <string name="card_poster_name_field">海报上的名字</string>
     <string name="account_last_sync_failed">上次同步失败</string>
     <string name="card_poster_plays_failed">无法从 %1$s 读取你最常听的歌曲（%2$s）：显示的是歌单中最常出现的艺人的歌曲。</string>
+    <string name="card_poster_plays_empty">你的收听服务没有提供播放数据：这些歌曲来自歌单中出现最多的艺人</string>
 </resources>

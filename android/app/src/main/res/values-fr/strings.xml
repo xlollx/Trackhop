@@ -1687,8 +1687,8 @@
     <string name="card_layout_bold">Audacieux</string>
     <string name="card_poster_show_name">Afficher mon nom</string>
     <string name="card_poster_plays_from">Tes titres les plus écoutés, depuis %1$s</string>
-    <string name="card_poster_plays_connect">Connecte Spotify, Last.fm ou ListenBrainz pour lister tes titres les plus écoutés</string>
-    <string name="card_poster_plays_none">Aucun de tes titres les plus écoutés sur %1$s n’est dans cette playlist : voici les titres de ses principaux artistes</string>
+    <string name="card_poster_plays_connect">Ces titres viennent des artistes les plus présents dans la playlist. Pour lister tes titres les plus écoutés, connecte Last.fm, ListenBrainz, Spotify, Deezer ou ton propre serveur (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">Aucun de tes titres les plus écoutés sur %1$s n’est dans cette playlist : ces titres viennent des artistes les plus présents dans la playlist</string>
     <string name="card_poster_start_over">Tout recommencer</string>
     <string name="card_poster_start_over_hint">Relit la playlist et refait une nouvelle affiche de zéro</string>
     <string name="card_poster_qr">Inclure le code QR</string>
@@ -1744,6 +1744,10 @@
     <string name="discover_wrapped_eyebrow_half">Mes 6 derniers mois</string>
     <string name="discover_wrapped_eyebrow_year">Mes 12 derniers mois</string>
     <string name="discover_wrapped_eyebrow_recent">Mes dernières écoutes</string>
+    <string name="discover_wrapped_period_all">Depuis toujours</string>
+    <string name="discover_wrapped_eyebrow_all">Mon top</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s compte chaque écoute qu’il a servie : la carte couvre toutes tes écoutes là-bas.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s classe tes titres préférés sans dire sur quelle période : la carte suit son classement.</string>
     <string name="discover_wrapped_top_tracks">Top titres</string>
     <string name="discover_wrapped_plays_label">Écoutes</string>
     <string name="discover_wrapped_songs_played">Titres écoutés</string>
@@ -2508,4 +2512,5 @@
     <string name="card_poster_name_field">Nom sur le poster</string>
     <string name="account_last_sync_failed">La dernière synchro a échoué</string>
     <string name="card_poster_plays_failed">Impossible de lire tes titres les plus écoutés sur %1$s (%2$s) : les titres sont ceux des artistes les plus présents dans la playlist.</string>
+    <string name="card_poster_plays_empty">Tes services d’écoute n’ont donné aucune écoute : ces titres viennent des artistes les plus présents dans la playlist</string>
 </resources>
