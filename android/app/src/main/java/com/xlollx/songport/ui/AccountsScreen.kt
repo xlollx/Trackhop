@@ -197,6 +197,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                     // Read here, where the connector names are observed: the card itself is skipped
                     // when only the name changes (same provider), and a rename would not show.
                     label = p.label(ctx),
+                    trouble = remember(data.reports, p.id) { lastRunTrouble(data, p) },
                     quotaUsed = if (p.serviceId == YouTubeProvider.SERVICE) QuotaMeter.used(data, YouTubeProvider.SERVICE) else null,
                     onSetup = onSetup,
                     onConnect = { connectFor = p },
@@ -377,6 +378,8 @@ private fun ProviderCard(
     onRemove: () -> Unit,
     onChanged: () -> Unit,
     onMessage: (String) -> Unit = {},
+    /** The newest run through this connector failed because of it (its name in the error), lately. */
+    trouble: Boolean = false,
 ) {
     val ctx = LocalContext.current
     // Letture dal token cifrato: una volta per scheda, non a ogni ridisegno (key(refresh) le rinnova).
@@ -388,8 +391,10 @@ private fun ProviderCard(
     // A card of the page, as a section of Tools or Settings: the pill says the state, a session gone wears the error's line.
     // The edge tells the state at a glance (owner, 12/11: keep the outline round connector cards):
     // the error tone when the session is gone, the success tone when connected, a hairline otherwise.
+    // In between, amber: connected, but the newest sync through it failed on its side.
     val edge = when {
         expired -> MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+        connected && trouble -> toneContent(Tone.Warning).copy(alpha = 0.7f)
         connected -> Tones.onSuccessContainer().copy(alpha = 0.45f)
         else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
     }
@@ -399,6 +404,7 @@ private fun ProviderCard(
         val tight = LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale < 300f
         val state: @Composable () -> Unit = {
             if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
+            else if (connected && trouble) StatusPill(stringResource(R.string.account_last_sync_failed), Tone.Warning)
             else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
             else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
         }
@@ -783,4 +789,17 @@ internal fun ServiceGridTile(p: MusicProvider, name: String, enabled: Boolean, o
             Text(name, style = MaterialTheme.typography.labelMedium, minLines = 2, maxLines = 2, textAlign = TextAlign.Center, overflow = TextOverflow.Ellipsis)
         }
     }
+}
+
+/**
+ * Whether the newest run of a sync through [p] (as source or target), in the last three days,
+ * failed with [p] named in its error: the connector, not the other side, was the problem.
+ */
+internal fun lastRunTrouble(data: com.xlollx.songport.data.StoreData, p: MusicProvider): Boolean {
+    val jobs = data.syncs.filter { it.source.provider == p.id || it.target.provider == p.id }.map { it.id }.toSet()
+    if (jobs.isEmpty()) return false
+    val last = data.reports.filter { it.jobId in jobs }.maxByOrNull { it.startedEpoch } ?: return false
+    if (System.currentTimeMillis() - last.startedEpoch > 3 * 24 * 3600_000L) return false
+    val err = last.error ?: return false
+    return err.contains(p.displayName, ignoreCase = true)
 }

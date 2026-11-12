@@ -2604,4 +2604,5 @@
     <string name="picker_all">Все плейлисты · %1$d</string>
     <string name="card_view_full">Открыть на весь экран</string>
     <string name="card_poster_name_field">Имя на постере</string>
+    <string name="account_last_sync_failed">Последняя синхронизация не удалась</string>
 </resources>
