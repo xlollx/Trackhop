@@ -95,14 +95,29 @@ object GeneratedCovers {
         return top to top + total
     }
 
-    /** One line, cut with "…" to [width]; [baseline] is the text's baseline. */
+    /** One line of a title: smaller first, then cut with "…" after a whole word ([CoverArt.fitTitle]); [baseline] is the text's baseline. */
     private fun oneLine(c: Canvas, text: String, x: Float, baseline: Float, width: Float, p: TextPaint) {
         if (text.isBlank()) return
-        val lines = CoverArt.fitTitle(text, width, p.textSize * LINE, 1, p.textSize, p.textSize, LINE) { str, size -> p.textSize = size; p.measureText(str) }.lines
-        c.drawText(lines.first(), x, baseline, p)
+        val full = p.textSize
+        val fit = CoverArt.fitTitle(text, width, full * LINE, 1, full, full, LINE) { str, size -> p.textSize = size; p.measureText(str) }
+        p.textSize = fit.size
+        c.drawText(fit.lines.first(), x, baseline, p)
+        p.textSize = full
     }
 
-    private fun artistsLine(input: Input, n: Int = 3) = input.artists.take(n).joinToString("  ·  ")
+    /**
+     * The artists on one line: whole names, as many as fit in [width], then "+N" for the rest
+     * ([CoverArt.fitNames]); never a name cut. [baseline] is the text's baseline.
+     */
+    private fun names(c: Canvas, names: List<String>, x: Float, baseline: Float, width: Float, p: TextPaint) {
+        val full = p.textSize
+        val fit = CoverArt.fitNames(names, width) { str, k -> p.textSize = full * k; p.measureText(str) }
+        p.textSize = full * fit.scale
+        if (fit.text.isNotEmpty()) c.drawText(fit.text, x, baseline, p)
+        p.textSize = full
+    }
+
+    private fun artistNames(input: Input, upper: Boolean = false) = input.artists.map { if (upper) it.uppercase() else it }
 
     // ------------------------------------------------------------------ styles
 
@@ -134,7 +149,7 @@ object GeneratedCovers {
         val m = 72f * s
         val (top, _) = title(c, input.title, RectF(m, w * 0.50f, w - m, w - m), 3, 190f * s, 52f * s, CoverArt.WHITE, fromBottom = true)
         val small = textPaint(CoverArt.WHITE, bold = true).apply { textSize = 34f * s; alpha = 225; letterSpacing = 0.06f }
-        oneLine(c, artistsLine(input).uppercase(), m, top - 22f * s, w - 2 * m, small)
+        names(c, artistNames(input, upper = true), m, top - 22f * s, w - 2 * m, small)
     }
 
     private fun grid(w: Float, n: Int, gap: Float): List<RectF> {
@@ -178,7 +193,7 @@ object GeneratedCovers {
         val top = (w - h) / 2 - 20f * s
         title(c, input.title, RectF(m, top, w - m, top + h + 1f), 3, fit.size, fit.size, CoverArt.WHITE, Paint.Align.CENTER)
         val small = textPaint(CoverArt.WHITE, bold = false).apply { textSize = 34f * s; alpha = 230; textAlign = Paint.Align.CENTER; setShadowLayer(6f * s, 0f, 2f * s, 0x66000000) }
-        oneLine(c, artistsLine(input), w / 2, top + h + 64f * s, w - 2 * m, small)
+        names(c, artistNames(input), w / 2, top + h + 64f * s, w - 2 * m, small)
     }
 
     private fun grain(c: Canvas, w: Float, rnd: Random) {
@@ -254,14 +269,14 @@ object GeneratedCovers {
         val p = textPaint(CoverArt.WHITE)
         val fit = CoverArt.fitTitle(input.title, w - 2 * m, w * 0.30f, 3, 130f * s, 50f * s, LINE) { str, size -> p.textSize = size; p.measureText(str) }
         val small = textPaint(CoverArt.WHITE, bold = false).apply { textSize = 32f * s; alpha = 220 }
-        val artists = artistsLine(input)
+        val artists = artistNames(input)
         val titleH = fit.lines.size * fit.size * LINE
         val bandH = titleH + 2 * m * 0.75f + (if (artists.isNotEmpty()) small.fontSpacing + 6f * s else 0f)
         c.drawRect(0f, w - bandH, w, w, Paint().apply { color = pal[4]; alpha = 238 })
         c.drawRect(0f, w - bandH, w, w - bandH + 8f * s, Paint().apply { color = pal[3] })
         val top = w - bandH + m * 0.75f
         title(c, input.title, RectF(m, top, w - m, top + titleH + 1f), 3, fit.size, fit.size, CoverArt.WHITE, shadow = false)
-        oneLine(c, artists, m, top + titleH + 6f * s - small.ascent(), w - 2 * m, small)
+        names(c, artists, m, top + titleH + 6f * s - small.ascent(), w - 2 * m, small)
     }
 
     /** A gig poster: one flat colour, the title huge in capitals, a rule, the top artists in a column. */
@@ -278,16 +293,24 @@ object GeneratedCovers {
         val center = rnd.nextInt(3) == 0
         val align = if (center) Paint.Align.CENTER else Paint.Align.LEFT
         c.drawRect(if (center) w / 2 - 70f * s else m, m, if (center) w / 2 + 70f * s else m + 140f * s, m + 16f * s, Paint().apply { color = accent })
-        val (_, bottom) = title(c, input.title.uppercase(), RectF(m, m + 56f * s, w - m, w * 0.68f), 3, 320f * s, 60f * s, ink, align, condensed = true, shadow = false)
+        // Without artists under it, the title has the cover's height.
+        val (_, bottom) = title(c, input.title.uppercase(), RectF(m, m + 56f * s, w - m, if (input.artists.isEmpty()) w - m - 60f * s else w * 0.68f), 3, 320f * s, 60f * s, ink, align, condensed = true, shadow = false)
         var y = bottom + 30f * s
         c.drawRect(m, y, w - m, y + 8f * s, Paint().apply { color = accent })
         y += 8f * s + 26f * s
         val x = if (center) w / 2 else m
-        input.artists.take(5).forEachIndexed { i, a ->
-            val p = textPaint(if (i == 0) accent else ink, condensed = true).apply { textSize = (if (i == 0) 66f else 46f) * s; textAlign = align; if (i > 0) alpha = 225 }
-            if (y - p.ascent() + p.descent() > w - m) return@forEachIndexed
-            oneLine(c, a.uppercase(), x, y - p.ascent(), w - 2 * m, p)
-            y += p.fontSpacing * 1.02f
+        // The artists in a column, each whole (smaller rather than cut), "+N" for the ones left out.
+        fun row(i: Int) = textPaint(if (i == 0) accent else ink, condensed = true).apply { textSize = (if (i == 0) 66f else 46f) * s; textAlign = align; if (i > 0) alpha = 225 }
+        var rows = 0
+        var h = y
+        while (rows < 5) { val p = row(rows); if (h - p.ascent() + p.descent() > w - m) break; h += p.fontSpacing * 1.02f; rows++ }
+        CoverArt.stackNames(artistNames(input, upper = true), rows, w - 2 * m) { str, i, k -> val p = row(i); p.textSize *= k; p.measureText(str) }.forEachIndexed { i, r ->
+            val p = row(i)
+            val step = p.fontSpacing * 1.02f
+            val base = y - p.ascent()
+            p.textSize *= r.scale
+            c.drawText(r.text, x, base, p)
+            y += step
         }
     }
 
@@ -319,7 +342,7 @@ object GeneratedCovers {
         val lp = textPaint(onLabel).apply { textSize = lr * 0.17f; textAlign = Paint.Align.CENTER }
         oneLine(c, input.title, cx, cy - lr * 0.32f, lr * 1.3f, lp)
         val lp2 = textPaint(onLabel, bold = false).apply { textSize = lr * 0.12f; textAlign = Paint.Align.CENTER; alpha = 210 }
-        oneLine(c, input.artists.firstOrNull().orEmpty(), cx, cy + lr * 0.48f, lr * 1.2f, lp2)
+        names(c, input.artists.take(1), cx, cy + lr * 0.48f, lr * 1.2f, lp2)
         c.drawCircle(cx, cy, 9f * s, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = pal[4] })
         // The words over a shade at the bottom.
         c.drawRect(0f, w * 0.55f, w, w, Paint().apply {
@@ -328,6 +351,6 @@ object GeneratedCovers {
         val m = 72f * s
         val (top, _) = title(c, input.title, RectF(m, w * 0.68f, w - m, w - m), 3, 130f * s, 48f * s, CoverArt.WHITE, fromBottom = true)
         val small = textPaint(CoverArt.WHITE, bold = true).apply { textSize = 32f * s; alpha = 220; letterSpacing = 0.06f }
-        oneLine(c, artistsLine(input).uppercase(), m, top - 20f * s, w - 2 * m, small)
+        names(c, artistNames(input, upper = true), m, top - 20f * s, w - 2 * m, small)
     }
 }

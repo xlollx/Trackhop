@@ -166,45 +166,91 @@ object CoverArt {
     /** A title laid out: the text size and its lines. [cut] when it did not fit whole even at the smallest size. */
     class Fit(val size: Float, val lines: List<String>, val cut: Boolean)
 
+    /** How far under [fitTitle]'s smallest size a title still shrinks so that its longest word fits whole. */
+    const val WORD_FLOOR = 0.7f
+
     /**
      * [text] at the largest size from [maxSize] down to [minSize] at which it wraps into at most
      * [maxLines] lines no wider than [maxWidth], whose height (lines × size × [lineHeight]) fits in
-     * [maxHeight]. Words break at spaces; a single word wider than the box is split. When nothing
-     * fits even at [minSize], the last line ends in "…". [measure] gives a string's width at a size.
+     * [maxHeight]. Lines break only where [atoms] allows (spaces, after "/", "-", "&", "+", between
+     * CJK characters), and are balanced: as even as the same number of lines allows. A word wider
+     * than the box shrinks the title further (to [WORD_FLOOR] of [minSize]) before it is ever split.
+     * When the words do not fit even then, the last line ends in "…" after a whole word.
+     * [measure] gives a string's width at a size.
      */
     fun fitTitle(
         text: String, maxWidth: Float, maxHeight: Float, maxLines: Int, maxSize: Float, minSize: Float,
         lineHeight: Float = 1.08f, measure: (String, Float) -> Float,
     ): Fit {
         val clean = text.trim().replace(Regex("\\s+"), " ").ifEmpty { "♪" }
+        val parts = atoms(clean)
+        fun widest(size: Float) = parts.maxOf { measure(it.text, size) }
         var size = maxSize
         while (true) {
             val lines = wrap(clean, maxWidth) { measure(it, size) }
-            if (lines.size <= maxLines && lines.size * size * lineHeight <= maxHeight) return Fit(size, lines, false)
+            if (lines.size <= maxLines && lines.size * size * lineHeight <= maxHeight && widest(size) <= maxWidth) {
+                return Fit(size, balance(clean, lines.size, maxWidth) { measure(it, size) }, false)
+            }
             if (size <= minSize) break
             size = max(minSize, size * 0.93f)
         }
-        // At the smallest size: as many lines as the box takes, the last one cut with "…".
-        val room = max(1, min(maxLines, (maxHeight / (size * lineHeight)).toInt()))
+        // A word wider than the line: smaller still, down to the floor, rather than split.
+        val floor = minSize * WORD_FLOOR
+        while (size > floor && widest(size) > maxWidth) size = max(floor, size * 0.95f)
         val lines = wrap(clean, maxWidth) { measure(it, size) }
+        if (lines.size <= maxLines && lines.size * size * lineHeight <= maxHeight) return Fit(size, balance(clean, lines.size, maxWidth) { measure(it, size) }, false)
+        // As many lines as the box takes, the last one cut with "…" after a whole word.
+        val room = max(1, min(maxLines, (maxHeight / (size * lineHeight)).toInt()))
         val kept = lines.take(room).toMutableList()
-        var last = (kept.last() + " " + lines.drop(room).joinToString(" ")).trim()
-        while (last.length > 1 && measure("$last…", size) > maxWidth) last = last.dropLast(1).trimEnd()
-        kept[kept.size - 1] = "$last…"
+        val rest = lines.drop(room - 1).reduce { a, b -> if (a.isEmpty() || a.last() in "/-&+" || cjk(a.last()) || cjk(b.first())) a + b else "$a $b" }
+        kept[kept.size - 1] = cutAtWord(rest, maxWidth, force = true) { measure(it, size) }
         return Fit(size, kept, true)
     }
 
-    /** Greedy wrap of [text] into lines no wider than [width]; a word wider than the line is split by characters. */
+    /**
+     * A piece of text that is never broken inside: a word, a word with the separator it ends with
+     * ("Trap/"), or one CJK character. [space]: a space comes before it (dropped at a line's start).
+     */
+    class Atom(val text: String, val space: Boolean)
+
+    private fun cjk(ch: Char): Boolean = when (Character.UnicodeScript.of(ch.code)) {
+        Character.UnicodeScript.HAN, Character.UnicodeScript.HIRAGANA, Character.UnicodeScript.KATAKANA -> true
+        else -> ch.code in 0x3000..0x303F || ch.code in 0xFF00..0xFFEF
+    }
+
+    /** Where [text] may break: at spaces, after "/", "-", "&" and "+", and around every CJK character. */
+    fun atoms(text: String): List<Atom> {
+        val out = ArrayList<Atom>()
+        val cur = StringBuilder()
+        var space = false
+        fun flush() { if (cur.isNotEmpty()) { out += Atom(cur.toString(), space && out.isNotEmpty()); cur.clear(); space = false } }
+        for (ch in text) {
+            when {
+                ch.isWhitespace() -> { flush(); space = true }
+                cjk(ch) -> { flush(); cur.append(ch); flush() }
+                else -> { cur.append(ch); if (ch == '/' || ch == '-' || ch == '&' || ch == '+') flush() }
+            }
+        }
+        flush()
+        return out
+    }
+
+    private fun join(line: String, a: Atom): String = if (line.isEmpty()) a.text else if (a.space) "$line ${a.text}" else line + a.text
+
+    /**
+     * Greedy wrap of [text] into lines no wider than [width], breaking only where [atoms] allows;
+     * a piece wider than the whole line is split by characters (the last resort: [fitTitle] shrinks first).
+     */
     fun wrap(text: String, width: Float, measure: (String) -> Float): List<String> {
         val lines = ArrayList<String>()
         var cur = ""
-        for (word in text.split(' ').filter { it.isNotEmpty() }) {
-            val candidate = if (cur.isEmpty()) word else "$cur $word"
+        for (a in atoms(text)) {
+            val candidate = join(cur, a)
             if (measure(candidate) <= width) { cur = candidate; continue }
             if (cur.isNotEmpty()) { lines += cur; cur = "" }
-            if (measure(word) <= width) { cur = word; continue }
+            if (measure(a.text) <= width) { cur = a.text; continue }
             // Longer than a whole line: split it where it fills the line.
-            var rest = word
+            var rest = a.text
             while (rest.isNotEmpty()) {
                 var cut = rest.length
                 while (cut > 1 && measure(rest.substring(0, cut)) > width) cut--
@@ -215,5 +261,113 @@ object CoverArt {
         }
         if (cur.isNotEmpty()) lines += cur
         return lines
+    }
+
+    /**
+     * [text] wrapped into [count] lines as even as they come: the narrowest measure (down to half
+     * of [width]) that still gives [count] lines, so a title does not leave one word alone on its
+     * last line. One line, or no narrower measure that keeps the count: the plain wrap at [width].
+     */
+    fun balance(text: String, count: Int, width: Float, measure: (String) -> Float): List<String> {
+        val plain = wrap(text, width, measure)
+        if (count <= 1 || plain.size != count) return plain
+        val widest = atoms(text).maxOf { measure(it.text) }
+        if (widest > width) return plain
+        var lo = max(width * 0.5f, widest); var hi = width
+        var best = plain
+        repeat(12) {
+            val mid = (lo + hi) / 2
+            val l = wrap(text, mid, measure)
+            if (l.size == count) { best = l; hi = mid } else lo = mid
+        }
+        return best
+    }
+
+    /**
+     * [text] whole when it fits [width], else cut after its last whole word that fits, with "…"
+     * (a trailing separator or space is dropped first). When even the first word does not fit:
+     * cut inside it only with [force], else nothing ("").
+     */
+    fun cutAtWord(text: String, width: Float, force: Boolean = false, measure: (String) -> Float): String {
+        val t = text.trim()
+        if (t.isEmpty() || measure(t) <= width) return t
+        var line = ""
+        var best = ""
+        for (a in atoms(t)) {
+            line = join(line, a)
+            val shown = line.trimEnd(' ', '/', '-', '&', '+', ',', '·', ':', ';', '(') + "…"
+            if (measure(shown) <= width) best = shown else break
+        }
+        if (best.isNotEmpty() || !force) return best
+        var cut = t
+        while (cut.length > 1 && measure("$cut…") > width) cut = cut.dropLast(1)
+        return "$cut…"
+    }
+
+    // ------------------------------------------------------------------ names
+
+    /** One line of names: [text] as drawn, the names shown, the ones left out (said as "+N"), the size scale it needs. */
+    class Names(val text: String, val shown: List<String>, val more: Int, val scale: Float)
+
+    /** Down to how small a line of names is set before a name that alone does not fit is left out. */
+    const val NAMES_FLOOR = 0.85f
+
+    /** The mark of names left out. */
+    fun more(n: Int): String = "+$n"
+
+    private val SCALES = floatArrayOf(1f, 0.95f, 0.9f, NAMES_FLOOR)
+
+    /**
+     * As many whole [names] as fit on one line of [width], in order, joined by [sep], then "+N" for
+     * the ones left out ([more]); never a name cut. When not even the first fits, the line is set
+     * smaller (to [NAMES_FLOOR]); a name too long even then is left out (counted in "+N") and the
+     * next ones tried. [measure] gives a string's width at a scale of the line's size. No names, or
+     * none that fits: an empty line.
+     */
+    fun fitNames(names: List<String>, width: Float, sep: String = "  ·  ", measure: (String, Float) -> Float): Names {
+        val all = names.map { it.trim() }.filter { it.isNotEmpty() }
+        var dropped = 0
+        while (dropped < all.size) {
+            val rest = all.drop(dropped)
+            for (scale in SCALES) {
+                // The longest run of whole names that fits with its "+N".
+                var k = 0
+                while (k < rest.size && measure(rest.take(k + 1).joinToString(sep), scale) <= width) k++
+                while (k > 0) {
+                    val left = all.size - k
+                    val text = rest.take(k).joinToString(sep) + if (left > 0) sep + more(left) else ""
+                    if (measure(text, scale) <= width) return Names(text, rest.take(k), left, scale)
+                    k--
+                }
+            }
+            dropped++
+        }
+        return Names("", emptyList(), all.size, 1f)
+    }
+
+    /** A row of a stack of names: the text, the scale of the row's size it is set at, and whether it is the "+N". */
+    class Row(val text: String, val scale: Float, val isMore: Boolean = false)
+
+    /**
+     * [names] one a row, at most [rows] rows, each whole: set smaller (to [NAMES_FLOOR]) when it
+     * does not fit [width], left out when even that is too wide. When names are left out the last
+     * row says how many ("+N"). [measure] gives a string's width in a row at a scale.
+     */
+    fun stackNames(names: List<String>, rows: Int, width: Float, measure: (String, Int, Float) -> Float): List<Row> {
+        val all = names.map { it.trim() }.filter { it.isNotEmpty() }
+        if (rows <= 0 || all.isEmpty()) return emptyList()
+        val out = ArrayList<Row>()
+        for (n in all) {
+            if (out.size >= rows) break
+            val scale = SCALES.firstOrNull { measure(n, out.size, it) <= width } ?: continue
+            out += Row(n, scale)
+        }
+        val left = all.size - out.size
+        if (left > 0 && out.isNotEmpty()) {
+            if (out.size >= rows) out.removeAt(out.size - 1)
+            if (out.isEmpty()) return emptyList()
+            out += Row(more(all.size - out.size), 1f, isMore = true)
+        }
+        return out
     }
 }
