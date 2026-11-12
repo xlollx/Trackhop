@@ -115,6 +115,19 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
         exportOpen = false
         exportScope.launch { exportLog(ctx, span) }
     })
+    // The technical details as text, of the time chosen: the basics (versions, connectors, syncs,
+    // last runs) always, then the log lines of that span, the newest ones when there are many.
+    var shareOpen by remember { mutableStateOf(false) }
+    if (shareOpen) ExportLogDialog(title = R.string.diag_share, body = null, onDismiss = { shareOpen = false }, onPick = { span ->
+        shareOpen = false
+        exportScope.launch {
+            val text = withContext(Dispatchers.IO) {
+                Diagnostics.report(ctx, logLines = SHARE_LINES, sinceMs = span?.let { System.currentTimeMillis() - it })
+            }
+            val share = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text); putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name) + " diagnostics") }
+            runCatching { ctx.startActivity(Intent.createChooser(share, ctx.getString(R.string.diag_share))) }
+        }
+    })
     LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item(key = "diag") {
             // What to do with the log, each a button with its sign: side by side where they fit, wrapped where they do not.
@@ -139,11 +152,7 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
                 }
                 // The whole log, or the part of it a time span holds, as a text file: nothing cut.
                 LogAction(Icons.Filled.SaveAlt, stringResource(R.string.diag_export)) { exportOpen = true }
-                if (data.settings.developerOptions) LogAction(Icons.Filled.Share, stringResource(R.string.diag_share)) {
-                    val text = Diagnostics.report(ctx)
-                    val share = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text); putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name) + " diagnostics") }
-                    ctx.startActivity(Intent.createChooser(share, ctx.getString(R.string.diag_share)))
-                }
+                if (data.settings.developerOptions) LogAction(Icons.Filled.Share, stringResource(R.string.diag_share)) { shareOpen = true }
             }
         }
         items(data.reports, key = { it.id }) { r -> ReportRow(r, data.jobs.firstOrNull { it.id == r.jobId }, snackbar, onResolve) }
@@ -269,9 +278,12 @@ private suspend fun exportLog(ctx: android.content.Context, span: Long?) {
     runCatching { ctx.startActivity(chooser) }.onFailure { Diagnostics.log(ctx, "log", "export not shared: ${it.message}") }
 }
 
+/** Shared as text, a span keeps at most this many log lines: a share's text must stay small. */
+private const val SHARE_LINES = 1500
+
 /** Which part of the log goes into the exported file: the last hour, day, week, or all of it. */
 @Composable
-private fun ExportLogDialog(onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
+private fun ExportLogDialog(title: Int = R.string.diag_export_title, body: Int? = R.string.diag_export_body, onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
     val hour = 3_600_000L
     val ranges = listOf(
         R.string.diag_range_hour to hour,
@@ -281,12 +293,14 @@ private fun ExportLogDialog(onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
     )
     FitDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.diag_export_title)) },
+        title = { Text(stringResource(title)) },
         text = {
             // Scrolls where the dialog is lower than its content (a phone on its side).
             Column {
-                Text(stringResource(R.string.diag_export_body), style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(8.dp))
+                body?.let {
+                    Text(stringResource(it), style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(8.dp))
+                }
                 ranges.forEach { (label, span) ->
                     TextButton(onClick = { onPick(span) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(label), modifier = Modifier.fillMaxWidth()) }
                 }
