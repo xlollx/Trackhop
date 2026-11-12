@@ -726,8 +726,10 @@ private fun RunAllRow(
         var boxW by remember { mutableIntStateOf(0) }
         var pillW by remember { mutableIntStateOf(0) }
         val sidePx = with(androidx.compose.ui.platform.LocalDensity.current) { LIST_SIDE.roundToPx() }
-        val shift by androidx.compose.animation.core.animateIntAsState(
-            if (pinned && boxW > 0 && pillW > 0) ((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) else 0, label = "runall-center",
+        // Read only where the row is placed (below), so the slide moves pixels without recomposing the row.
+        val shift = androidx.compose.animation.core.animateIntAsState(
+            if (pinned && boxW > 0 && pillW > 0) ((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) else 0,
+            androidx.compose.animation.core.tween(260, easing = androidx.compose.animation.core.FastOutSlowInEasing), label = "runall-center",
         )
         LaunchedEffect(pinned) { if (pinned) scroll.animateScrollTo(0) }
         // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
@@ -761,7 +763,7 @@ private fun RunAllRow(
         ) {
             Row(
                 // The room above and below is inside the scroller, where the pill's shadow is drawn.
-                Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift else shift, 0) }
+                Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift.value else shift.value, 0) }
                     .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -803,14 +805,14 @@ private fun RunAllRow(
                     ) { HelpButton(Helps.syncAll) }
                 }
                 if (chips != null) androidx.compose.animation.AnimatedVisibility(
-                    !pinned, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(),
+                    !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
                 }
             }
         }
         if (trailing != null) androidx.compose.animation.AnimatedVisibility(
-            !pinned, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(),
+            !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
         ) { Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) { trailing() } }
     }
 }
