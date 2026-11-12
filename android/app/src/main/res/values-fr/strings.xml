@@ -1148,7 +1148,7 @@
     <string name="help_library_title">Playlists et Bibliothèque</string>
     <string name="help_library_body">Playlists contient tes playlists et tes Titres likés. Bibliothèque contient les albums enregistrés, les artistes suivis, les podcasts et, comme source uniquement, les écoutes récentes. Comme cible, seules tes propres playlists sont proposées.</string>
     <string name="help_link_body">Colle le lien de partage d\'une playlist publique : les liens courts sont suivis et le nom est lu. La playlist est seulement lue, jamais modifiée, elle ne peut donc pas être bidirectionnelle. Certains services doivent être connectés même pour lire un lien public.</string>
-    <string name="help_target_body">Là où vont les titres. Trackhop présélectionne un service : vérifie-le avant d\'enregistrer. Choisir un autre service efface la playlist choisie.</string>
+    <string name="help_target_body">Là où vont les titres. Choisis un service, puis une playlist ou une nouvelle ; avec un seul service connecté, File est déjà choisi. Choisir un autre service efface la playlist choisie.</string>
     <string name="help_liked_body">Quand la source est Titres likés et que le service cible gère les « j\'aime », la cible devient les titres likés de ce service, et chaque titre synchronisé y reçoit un « j\'aime ». Avec Refléter les retraits, les titres non likés dans la source perdent leur « j\'aime » sur la cible.</string>
     <string name="help_liked_example">Titres likés de Spotify → Deezer : chaque titre rejoint tes favoris Deezer.</string>
     <string name="help_new_playlist_body">La playlist est créée à la première exécution, pas à l\'enregistrement, et porte le nom de la source si tu n\'en saisis pas. Si tu la supprimes ensuite sur le service, la sync s\'arrête et te demande de la recréer ou d\'en choisir une autre.</string>
@@ -1279,7 +1279,7 @@
     <string name="tour_new_sync">Une sync copie une playlist vers un autre service et la garde à jour : tout commence par Nouvelle sync.</string>
     <string name="tour_accounts">Connecte tes services dans Comptes : tu te connectes sur la page de chaque service, et seul un jeton chiffré reste sur ce téléphone.</string>
     <string name="tour_source">Choisis quoi copier : une playlist, les Titres likés, ou des albums et artistes dans Bibliothèque.</string>
-    <string name="tour_target">Choisis où ça va, et vérifie le service présélectionné : File est une liste conservée sur ce téléphone.</string>
+    <string name="tour_target">Choisis où ça va : un service, puis une playlist ou une nouvelle. File est une liste conservée sur ce téléphone.</string>
     <string name="tour_schedule">Garde Manuel uniquement pour ta première sync ; une planification ajoutée plus tard démarre quelques minutes après l\'enregistrement.</string>
     <string name="tour_mirror">Refléter les retraits désactivé, Trackhop ne fait qu\'ajouter : le choix prudent pour une première sync.</string>
     <string name="tour_save">Enregistrer ouvre l\'aperçu, qui montre ce qui changerait et pose la question des correspondances incertaines avant que rien ne se passe.</string>

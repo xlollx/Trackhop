@@ -1141,7 +1141,7 @@
     <string name="help_library_title">Playlists and Library</string>
     <string name="help_library_body">Playlists holds your playlists and Liked songs. Library holds saved albums, followed artists, podcasts and, as a source only, recently played. As a target, only playlists you own are listed.</string>
     <string name="help_link_body">Paste the share link of a public playlist: short links are followed and the name is read. The playlist is only read, never written, so it can\'t be two-way. Some services must be connected even to read a public link.</string>
-    <string name="help_target_body">Where the tracks go. Trackhop preselects a service: check it before saving. Choosing another service clears the chosen playlist.</string>
+    <string name="help_target_body">Where the tracks go. Choose a service, then a playlist or a new one; with a single service connected, File is chosen for you. Choosing another service clears the chosen playlist.</string>
     <string name="help_liked_body">When the source is Liked songs and the target service supports likes, the target becomes that service\'s Liked songs, and every synced track is liked there. With Mirror removals on, tracks not liked in the source are unliked on the target.</string>
     <string name="help_liked_example">Spotify Liked songs → Deezer: every track is added to your Deezer favourites.</string>
     <string name="help_new_playlist_body">The playlist is created at the first run, not on Save, and named after the source unless you type a name. If you later delete it on the service, the sync stops and asks you to create it again or pick another.</string>
@@ -1272,7 +1272,7 @@
     <string name="tour_new_sync">A sync copies a playlist to another service and keeps it up to date: it all starts from New sync.</string>
     <string name="tour_accounts">Connect your services in Accounts: you sign in on each service’s own page, and only an encrypted token stays on this phone.</string>
     <string name="tour_source">Pick what to copy: a playlist, Liked songs, or albums and artists under Library.</string>
-    <string name="tour_target">Choose where it goes, and check the preselected service: File means a list kept on this phone.</string>
+    <string name="tour_target">Choose where it goes: a service, then a playlist or a new one. File means a list kept on this phone.</string>
     <string name="tour_schedule">Keep Manual only for your first sync; a schedule you add later starts within minutes of saving.</string>
     <string name="tour_mirror">With Mirror removals off, Trackhop only adds, which is the safe choice for a first sync.</string>
     <string name="tour_save">Save opens the preview, which shows what would change and asks about uncertain matches before anything happens.</string>

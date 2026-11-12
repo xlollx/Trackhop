@@ -1558,11 +1558,20 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     val editorScope = rememberCoroutineScope()
     // With a single service there is nowhere else to write to: a file on the phone always is, so a
     // first sync is possible before a second service is connected.
-    val writable = available.filter { it.canWrite }.let { w ->
+    val writers = available.filter { it.canWrite }
+    val writable = writers.let { w ->
         if (w.size < 2 && w.none { it.id == com.xlollx.songport.providers.LocalFilesProvider.id }) w + com.xlollx.songport.providers.LocalFilesProvider else w
     }
     val loginServices = remember(available) { available.count { it.requiresAuth && it.isConnected(ctx) } }
-    var dstProvider by rememberSaveable { mutableStateOf(job.target.provider.ifEmpty { writable.getOrNull(1)?.id ?: writable.firstOrNull()?.id ?: "" }) }
+    // A new sync with no target given starts with none: the user chooses where it writes (owner
+    // 12/11, "the target is always already filled in"). Filled in only where there is no choice to
+    // make: a single place to write to, or the File kept inside Trackhop beside a single service.
+    val onlyTarget = when {
+        writable.size == 1 -> writable[0].id
+        writable.size > writers.size -> com.xlollx.songport.providers.LocalFilesProvider.id
+        else -> ""
+    }
+    var dstProvider by rememberSaveable { mutableStateOf(job.target.provider.ifEmpty { onlyTarget }) }
     var createNew by rememberSaveable { mutableStateOf(job.target.playlistId == null) }
     var dstPlaylist by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(job.target.playlistId?.let { Playlist(it, job.target.playlistName) }) }
     var newName by rememberSaveable { mutableStateOf(if (job.target.playlistId == null) job.target.playlistName else "") }
@@ -1954,14 +1963,17 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                 if (!canCreate && createNew) createNew = false
                 // One field: where the sync writes. A new playlist shows the name it will get.
                 val newTitle = newName.ifBlank { radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) }.orEmpty() }.ifBlank { stringResource(R.string.editor_new_playlist) }
+                // No service chosen yet: the field is empty, as the Source's is ("+" and "Choose…").
+                val noTarget = dstProvider.isEmpty()
                 PlaylistField(
-                    stringResource(R.string.editor_playlist), if (createNew) newTitle else dstPlaylist?.let { playlistDisplayName(it.id, it.name) },
+                    stringResource(R.string.editor_playlist), if (noTarget) null else if (createNew) newTitle else dstPlaylist?.let { playlistDisplayName(it.id, it.name) },
                     stringResource(R.string.editor_choose_playlist), onClick = { dstSheet = true },
-                    subtitle = if (createNew) dstObj?.label(ctx) ?: dstProvider else playlistWhere(dstObj, dstPlaylist).ifEmpty { dstProvider },
+                    subtitle = if (noTarget) null else if (createNew) dstObj?.label(ctx) ?: dstProvider else playlistWhere(dstObj, dstPlaylist).ifEmpty { dstProvider },
                     provider = dstObj,
-                    thumb = { if (createNew) NewPlaylistThumb(48.dp) else PlaylistThumb(dstPlaylist?.let { it.name.ifBlank { it.id } }, dstPlaylist?.id, 48.dp, imageUrl = dstPlaylist?.imageUrl) },
+                    thumb = { if (createNew && !noTarget) NewPlaylistThumb(48.dp) else PlaylistThumb(dstPlaylist?.let { it.name.ifBlank { it.id } }, dstPlaylist?.id, 48.dp, imageUrl = dstPlaylist?.imageUrl) },
                 )
                 if (dstSheet) PickerSheet(stringResource(R.string.editor_target), onDismiss = { dstSheet = false }) {
+                    // Until a service is tapped in the strip, the strip alone: no list, no "new playlist".
                     PlaylistRows(
                         (dstLists as? Loaded.Ok)?.items?.filter { it.ownedByMe }, (dstLists as? Loaded.Failed)?.message, dstObj,
                         dstPlaylist?.id.takeIf { !createNew },
@@ -1974,13 +1986,17 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             }
                         }) else null,
                         header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null } },
+                        other = if (noTarget) ({}) else null,
                     )
                 }
-                SwitchRow(stringResource(R.string.editor_new_playlist), null, createNew, enabled = canCreate, help = { HelpButton(Helps.newPlaylist) }) { createNew = it }
+                // The switch, the new playlist's name and its hint wait for a service: they belong to one.
+                if (!noTarget) SwitchRow(stringResource(R.string.editor_new_playlist), null, createNew, enabled = canCreate, help = { HelpButton(Helps.newPlaylist) }) { createNew = it }
                 if (!canCreate && dstObj != null) {
                     Text(stringResource(R.string.error_create_unsupported, dstObj.displayName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (createNew) {
+                if (noTarget) {
+                    // Nothing below the field until a service is chosen.
+                } else if (createNew) {
                     OutlinedTextField(value = newName, onValueChange = { newName = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(R.string.editor_new_playlist_name)) },
                         placeholder = { Text(radioName ?: srcPlaylist?.let { playlistDisplayName(it.id, it.name) } ?: "") },

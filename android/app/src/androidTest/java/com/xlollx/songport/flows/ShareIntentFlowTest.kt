@@ -51,20 +51,23 @@ class ShareIntentFlowTest : FlowTest() {
     fun spotifyPlaylistLinkBecomesANewSyncToMyService() {
         launch(shareIntent("Listen to this! https://open.spotify.com/playlist/${FakeWorld.PUBLIC_SPOTIFY}?si=a1b2c3"))
         expectEditorFrom("Friday Night Rock")
+        // The link fills the source in; where it goes is the user's choice.
+        chooseTarget("Deezer")
         click(s(R.string.save))
         waitText(s(R.string.preview_add, 8), ms = 30_000) // 10 songs, 2 not on Deezer
         val job = store.data.jobs.single()
         assertEquals("spotify", job.source.provider)
         assertEquals(FakeWorld.PUBLIC_SPOTIFY, job.source.playlistId)
         assertEquals("Friday Night Rock", job.name)
-        // Towards one of my own services, not back to the link's.
-        assertTrue(job.target.provider != "spotify")
+        // Towards the service chosen, not back to the link's.
+        assertEquals("deezer", job.target.provider)
     }
 
     @Test
     fun youtubePlaylistLinkOpensOnTheConnectedYouTubeMusicRoute() {
         launch(shareIntent("https://music.youtube.com/playlist?list=${FakeWorld.PUBLIC_YOUTUBE}&si=xyz"))
         expectEditorFrom("YouTube Rock")
+        chooseTarget("Deezer")
         click(s(R.string.save))
         waitText(s(R.string.preview_add, 4), ms = 30_000) // 6 songs, 2 not on Deezer
         assertEquals("ytm", store.data.jobs.single().source.provider)

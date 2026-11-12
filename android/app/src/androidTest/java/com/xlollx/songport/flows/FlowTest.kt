@@ -29,6 +29,7 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
@@ -212,6 +213,36 @@ abstract class FlowTest {
         click(s(com.xlollx.songport.R.string.editor_playlist))
         // The sheet is titled as the step is: two "Source" on screen.
         waitFor("the source picker's sheet") { compose.onAllNodesWithText(s(com.xlollx.songport.R.string.editor_source)).fetchSemanticsNodes().size >= 2 }
+    }
+
+    /**
+     * The sync editor's target picker: the Target card's playlist field (the last "Playlist" field on
+     * the page) opens its sheet, with the services that can be written to.
+     */
+    protected fun openTargetPicker() {
+        val field = hasClickAction() and hasText(s(com.xlollx.songport.R.string.editor_playlist))
+        waitFor("the target's field") { compose.onAllNodes(field).fetchSemanticsNodes().isNotEmpty() }
+        tap(compose.onAllNodes(field).onLast(), "the target's field")
+        // The sheet is titled as the step is: two "Target" on screen.
+        waitFor("the target picker's sheet") { compose.onAllNodesWithText(s(com.xlollx.songport.R.string.editor_target)).fetchSemanticsNodes().size >= 2 }
+    }
+
+    /** The sheet's "Create a new playlist" row (the page's switch says the same, but is not a row to select). */
+    protected val newPlaylistRow: SemanticsMatcher
+        get() = hasClickAction() and hasText(s(com.xlollx.songport.R.string.editor_new_playlist)) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)
+
+    /** The target chosen through its picker: [service]'s mark, then [playlist] there, or a new playlist when null. */
+    protected fun chooseTarget(service: String, playlist: String? = null) {
+        openTargetPicker()
+        clickTile(service)
+        if (playlist == null) {
+            waitFor("the new playlist row") { compose.onAllNodes(newPlaylistRow).fetchSemanticsNodes().isNotEmpty() }
+            tap(compose.onAllNodes(newPlaylistRow).onFirst(), "Create a new playlist")
+        } else {
+            waitText(playlist)
+            click(playlist)
+        }
+        waitFor("the target picker closed") { compose.onAllNodesWithText(s(com.xlollx.songport.R.string.editor_target)).fetchSemanticsNodes().size < 2 }
     }
 
     protected fun clickTile(label: String) {

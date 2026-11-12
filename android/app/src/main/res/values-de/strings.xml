@@ -1141,7 +1141,7 @@
     <string name="help_library_title">Playlists und Mediathek</string>
     <string name="help_library_body">Unter Playlists stehen deine Playlists und die Lieblingssongs. Die Mediathek enthält gespeicherte Alben, gefolgte Künstler, Podcasts und, nur als Quelle, zuletzt Gehörtes. Als Ziel werden nur Playlists angezeigt, die dir gehören.</string>
     <string name="help_link_body">Füge den Teilen-Link einer öffentlichen Playlist ein: Kurzlinks werden aufgelöst und der Name wird gelesen. Die Playlist wird nur gelesen, nie geschrieben, daher kann sie nicht beidseitig sein. Manche Dienste müssen verbunden sein, selbst um einen öffentlichen Link zu lesen.</string>
-    <string name="help_target_body">Wohin die Titel gehen. Trackhop wählt einen Dienst vor: Prüfe ihn vor dem Speichern. Wählst du einen anderen Dienst, wird die gewählte Playlist zurückgesetzt.</string>
+    <string name="help_target_body">Wohin die Titel gehen. Wähle einen Dienst, dann eine Playlist oder eine neue; mit nur einem verbundenen Dienst ist „File“ schon gewählt. Wählst du einen anderen Dienst, wird die gewählte Playlist zurückgesetzt.</string>
     <string name="help_liked_body">Sind die Lieblingssongs die Quelle und kennt der Zieldienst „Gefällt mir“, werden die Lieblingssongs dieses Dienstes zum Ziel, und jeder synchronisierte Titel wird dort mit „Gefällt mir“ markiert. Mit „Entfernungen spiegeln“ verlieren Titel, die in der Quelle nicht markiert sind, im Ziel ihr „Gefällt mir“.</string>
     <string name="help_liked_example">Spotify-Lieblingssongs → Deezer: Jeder Titel landet in deinen Deezer-Favoriten.</string>
     <string name="help_new_playlist_body">Die Playlist wird beim ersten Lauf erstellt, nicht beim Speichern, und heißt wie die Quelle, wenn du keinen Namen eingibst. Löschst du sie später beim Dienst, hält der Sync an und bittet dich, sie neu zu erstellen oder eine andere zu wählen.</string>
@@ -1272,7 +1272,7 @@
     <string name="tour_new_sync">Ein Sync kopiert eine Playlist zu einem anderen Dienst und hält sie aktuell – alles beginnt mit „Neuer Sync“.</string>
     <string name="tour_accounts">Verbinde deine Dienste unter Konten: Du meldest dich auf der Seite jedes Dienstes an, und auf diesem Handy bleibt nur ein verschlüsseltes Token.</string>
     <string name="tour_source">Wähle, was kopiert wird: eine Playlist, die Lieblingssongs oder Alben und Künstler unter Mediathek.</string>
-    <string name="tour_target">Wähle, wohin es geht, und prüfe den vorausgewählten Dienst: „File“ ist eine Liste auf diesem Handy.</string>
+    <string name="tour_target">Wähle, wohin es geht: einen Dienst, dann eine Playlist oder eine neue. „File“ ist eine Liste auf diesem Handy.</string>
     <string name="tour_schedule">Lass beim ersten Sync „Nur manuell“ stehen; ein später hinzugefügter Zeitplan startet wenige Minuten nach dem Speichern.</string>
     <string name="tour_mirror">Mit ausgeschaltetem „Entfernungen spiegeln“ fügt Trackhop nur hinzu – die sichere Wahl für den ersten Sync.</string>
     <string name="tour_save">Speichern öffnet die Vorschau, die zeigt, was sich ändern würde, und nach unsicheren Zuordnungen fragt, bevor etwas passiert.</string>

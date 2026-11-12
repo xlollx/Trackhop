@@ -1148,7 +1148,7 @@
     <string name="help_library_title">Playlists e Biblioteca</string>
     <string name="help_library_body">Em Playlists estão suas playlists e as Músicas curtidas. A Biblioteca tem álbuns salvos, artistas seguidos, podcasts e, só como origem, as tocadas recentemente. Como destino, aparecem só as playlists que são suas.</string>
     <string name="help_link_body">Cole o link de compartilhamento de uma playlist pública: links curtos são seguidos e o nome é lido. A playlist é só lida, nunca alterada, então não pode ser bidirecional. Alguns serviços precisam estar conectados até para ler um link público.</string>
-    <string name="help_target_body">Para onde vão as faixas. O Trackhop pré-seleciona um serviço: confira antes de salvar. Escolher outro serviço limpa a playlist escolhida.</string>
+    <string name="help_target_body">Para onde vão as faixas. Escolha um serviço e depois uma playlist ou uma nova; com um único serviço conectado, File já vem escolhido. Escolher outro serviço limpa a playlist escolhida.</string>
     <string name="help_liked_body">Quando a origem são as Músicas curtidas e o serviço de destino aceita curtidas, o destino passa a ser as músicas curtidas desse serviço, e cada faixa sincronizada é curtida lá. Com Espelhar remoções ativado, faixas não curtidas na origem são descurtidas no destino.</string>
     <string name="help_liked_example">Músicas curtidas do Spotify → Deezer: cada faixa vai para os seus favoritos do Deezer.</string>
     <string name="help_new_playlist_body">A playlist é criada na primeira execução, não ao salvar, com o nome da origem se você não digitar outro. Se depois você apagar a playlist no serviço, a sincronização para e pede para criá-la de novo ou escolher outra.</string>
@@ -1279,7 +1279,7 @@
     <string name="tour_new_sync">Uma sincronização copia uma playlist para outro serviço e a mantém atualizada: tudo começa em Nova sincronização.</string>
     <string name="tour_accounts">Conecte seus serviços em Contas: você entra pela página de cada serviço, e neste celular fica só um token criptografado.</string>
     <string name="tour_source">Escolha o que copiar: uma playlist, as Músicas curtidas, ou álbuns e artistas em Biblioteca.</string>
-    <string name="tour_target">Escolha para onde vai e confira o serviço pré-selecionado: File é uma lista guardada neste celular.</string>
+    <string name="tour_target">Escolha para onde vai: um serviço e depois uma playlist ou uma nova. File é uma lista guardada neste celular.</string>
     <string name="tour_schedule">Deixe Só manual na primeira sincronização; um agendamento adicionado depois começa poucos minutos após salvar.</string>
     <string name="tour_mirror">Com Espelhar remoções desligado, o Trackhop só adiciona: a escolha segura para uma primeira sincronização.</string>
     <string name="tour_save">Salvar abre a prévia, que mostra o que mudaria e pergunta sobre as correspondências incertas antes que algo aconteça.</string>

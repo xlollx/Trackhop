@@ -1113,7 +1113,7 @@
     <string name="help_library_title">歌单与媒体库</string>
     <string name="help_library_body">“歌单”里有你的歌单和喜欢的歌曲。“媒体库”里有收藏的专辑、关注的艺人、播客，以及只能作为来源的最近播放。作为目标时，只会列出属于你的歌单。</string>
     <string name="help_link_body">粘贴公开歌单的分享链接：短链接会被展开，并读取歌单名称。歌单只会被读取、不会被写入，所以不能设为双向。有些服务即使只读取公开链接也需要先连接。</string>
-    <string name="help_target_body">歌曲要去的地方。Trackhop 会预选一个服务：保存前请确认。改选其他服务会清空已选的歌单。</string>
+    <string name="help_target_body">歌曲要去的地方。先选择服务，再选择歌单或新建歌单；只连接了一个服务时，已为你选好 File。改选其他服务会清空已选的歌单。</string>
     <string name="help_liked_body">当来源是喜欢的歌曲、且目标服务支持“喜欢”时，目标会变成该服务的喜欢的歌曲，每首同步的歌曲都会在那里被标为喜欢。开启“同步删除”后，来源中未被喜欢的歌曲会在目标中取消喜欢。</string>
     <string name="help_liked_example">Spotify 喜欢的歌曲 → Deezer：每首歌都会加入你的 Deezer 收藏。</string>
     <string name="help_new_playlist_body">歌单在第一次运行时创建，而不是在保存时；如果你不填名称，会沿用来源的名称。之后如果你在服务上删除了它，同步会停下来，并请你重新创建或选择另一个歌单。</string>
@@ -1244,7 +1244,7 @@
     <string name="tour_new_sync">同步会把歌单复制到另一个服务并保持更新，一切都从“新建同步”开始。</string>
     <string name="tour_accounts">在“账号”中连接你的服务：你在每个服务自己的页面登录，这部手机上只保存加密的令牌。</string>
     <string name="tour_source">选择要复制的内容：一个歌单、喜欢的歌曲，或者媒体库中的专辑和艺人。</string>
-    <string name="tour_target">选择要复制到哪里，并确认预选的服务：File 是保存在这部手机上的列表。</string>
+    <string name="tour_target">选择要复制到哪里：先选服务，再选歌单或新建歌单。File 是保存在这部手机上的列表。</string>
     <string name="tour_schedule">第一个同步请保持“仅手动”；之后添加的计划会在保存后几分钟内开始。</string>
     <string name="tour_mirror">关闭“同步删除”时，Trackhop 只会添加歌曲，这是第一个同步最稳妥的选择。</string>
     <string name="tour_save">点按“保存”会打开预览：在任何改动发生之前，它会显示将要变化的内容，并询问不确定的匹配。</string>
