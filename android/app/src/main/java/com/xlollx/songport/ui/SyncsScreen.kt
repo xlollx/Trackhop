@@ -391,7 +391,7 @@ fun SyncsScreen(
     // Cards or tiles: its button is at the end of the row of the pill.
     val viewToggle = data.syncs.size >= 2 || minimal
     // The row under the header: the pill (two syncs or more), the filter chips, the cards-or-tiles button.
-    val runAllRow = data.syncs.size >= 2 || finder || viewToggle
+    val runAllRow = data.syncs.isNotEmpty() || finder || viewToggle
     val filterLine = finder && effective.isActive
     // The pill's place in the list: right after the hero (the search field is part of the hero's item).
     val runAllIndex = 1
@@ -700,6 +700,9 @@ private class PullGuard : NestedScrollConnection {
  * over any card. The chips and the button have nothing of the kind: pinned, they fade away and come
  * back with the top of the list, where they are part of the page.
  */
+/** The "?" beside Sync all: the pill, then what a sync card shows (moved here from the top bar, 12/11). */
+private val CARD_HELP = arrayOf(Helps.syncAll, Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow)
+
 @Composable
 private fun RunAllRow(
     tally: SyncState.Tally?, pinned: Boolean, modifier: Modifier = Modifier,
@@ -802,8 +805,10 @@ private fun RunAllRow(
                         shape = CircleShape,
                         color = if (pinned) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
                         shadowElevation = helpShadow,
-                    ) { HelpButton(Helps.syncAll) }
+                    ) { HelpButton(*CARD_HELP, label = stringResource(R.string.help_cards_title)) }
                 }
+                // One sync, no pill: the "?" alone leads the row, so what a card shows is still explained.
+                else HelpButton(*CARD_HELP, label = stringResource(R.string.help_cards_title))
                 if (chips != null) androidx.compose.animation.AnimatedVisibility(
                     !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
                 ) {

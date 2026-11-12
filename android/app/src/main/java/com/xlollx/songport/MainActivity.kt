@@ -824,9 +824,7 @@ private fun MainScreen(
                         MainActivity.TAB_SYNCS -> {
                             com.xlollx.songport.ui.UpdatePill()
                             com.xlollx.songport.ui.CoffeePill()
-                            if (data.syncs.isNotEmpty()) com.xlollx.songport.ui.HelpButton(
-                                Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow, label = stringResource(R.string.help_cards_title),
-                            )
+                            // The cards' "?" lives beside Sync all, in the list (owner, 12/11): the bar keeps the mark and two pills.
                         }
                         MainActivity.TAB_ACCOUNTS -> {
                             val topics = listOfNotNull(
