@@ -317,9 +317,11 @@ class WebLoginActivity : ComponentActivity() {
         val changed = if (google) BridgeUa.native(view) else BridgeUa.desktopAgain(this, view)
         if (!changed) return false
         BridgeNet.log(service, if (google) "sign-in: Google's page, with the phone's own browser identity" else "sign-in: back from Google, desktop identity again")
-        // Back from Google the page goes on as it is (the identity counts from the next load): a
-        // second load of Google's answer would only add a step to Back, and Google refuses it (400).
-        if (!google || !request.method.equals("GET", ignoreCase = true)) return false
+        // Both ways, a GET is stopped before it leaves and loaded again with the new identity. Back
+        // from Google that matters: the answer (Spotify's /login/google/redirect?code=…) went out with
+        // the phone's "wv" identity, Spotify refused it and showed its sign-in page again, so
+        // "Continue with Google" never finished. A form's POST goes on as it is.
+        if (!request.method.equals("GET", ignoreCase = true)) return false
         view.loadUrl(url.toString())
         return true
     }
