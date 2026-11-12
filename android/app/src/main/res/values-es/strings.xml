@@ -972,6 +972,14 @@
     </plurals>
     <string name="status_all_ok">Todo al día</string>
     <string name="status_last">última sinc. %1$s</string>
+    <plurals name="status_running">
+        <item quantity="one">%d en curso</item>
+        <item quantity="other">%d en curso</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="one">%d en pausa</item>
+        <item quantity="other">%d en pausa</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="one">%d con error</item>
         <item quantity="other">%d con error</item>

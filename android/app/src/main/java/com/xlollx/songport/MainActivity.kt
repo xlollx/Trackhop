@@ -909,7 +909,9 @@ private fun MainScreen(
             // as they do under the glass bar (the list pads its own end to clear it).
             // The tab's glow, behind the bar and the page; not under an open tool, which has a bar of its own.
             val backdrop = if ((tab == MainActivity.TAB_TOOLS && toolSubpage) || (tab == MainActivity.TAB_DISCOVER && discoverSubpage)) null else com.xlollx.songport.ui.PageBackdrop.of(tab)
-            Box(Modifier.fillMaxSize().pageBackdrop(backdrop).hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
+            // One modifier per glow: recomposing this page does not paint it again.
+            val glow = remember(backdrop) { Modifier.pageBackdrop(backdrop) }
+            Box(Modifier.fillMaxSize().then(glow).hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
             // A readable column in the middle of a wide window; the sync cards get room for two columns.
             TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(

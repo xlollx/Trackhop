@@ -969,6 +969,14 @@
     </plurals>
     <string name="status_all_ok">Hepsi güncel</string>
     <string name="status_last">son %1$s</string>
+    <plurals name="status_running">
+        <item quantity="one">%d sürüyor</item>
+        <item quantity="other">%d sürüyor</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="one">%d duraklatıldı</item>
+        <item quantity="other">%d duraklatıldı</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="one">%d başarısız</item>
         <item quantity="other">%d başarısız</item>

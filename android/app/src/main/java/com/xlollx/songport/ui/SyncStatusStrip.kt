@@ -61,9 +61,10 @@ fun SyncStatusStrip(
         SyncSummary.Kind.IDLE -> Icons.Filled.Schedule to scheme.onSurfaceVariant
     }
     val main = when (summary.kind) {
-        SyncSummary.Kind.RUNNING -> pluralStringResource(R.plurals.syncs_running, summary.first, summary.first)
-        SyncSummary.Kind.RUNNING_PAUSED -> stringResource(R.string.syncs_running_paused, summary.first, summary.second)
-        SyncSummary.Kind.PAUSED -> pluralStringResource(R.plurals.syncs_paused, summary.first, summary.first)
+        // Shorter than the Sync-all pill's own words just under it ("3 syncs running"): the same count, said once each way.
+        SyncSummary.Kind.RUNNING -> pluralStringResource(R.plurals.status_running, summary.first, summary.first)
+        SyncSummary.Kind.RUNNING_PAUSED -> pluralStringResource(R.plurals.status_running, summary.first, summary.first) + " · " + pluralStringResource(R.plurals.status_paused, summary.second, summary.second)
+        SyncSummary.Kind.PAUSED -> pluralStringResource(R.plurals.status_paused, summary.first, summary.first)
         SyncSummary.Kind.ATTENTION -> listOfNotNull(
             summary.first.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.status_failed, it, it) },
             summary.second.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.status_to_fix, it, it) },

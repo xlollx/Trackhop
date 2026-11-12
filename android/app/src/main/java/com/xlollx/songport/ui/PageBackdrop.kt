@@ -6,8 +6,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.MainActivity
@@ -33,6 +34,9 @@ data class PageBackdrop(val accent: Color, val peak: Float) {
         const val DARK_PEAK = 0.08f
         const val LIGHT_PEAK = 0.035f
         const val QUIET = 0.5f
+
+        /** How many times a glow has been painted (once per size and colour): the UI tests check a scroll adds none. */
+        @Volatile var paints = 0
 
         /**
          * The glow of [tab]: Syncs in the theme's primary (the brand's, or the wallpaper's with dynamic
@@ -79,24 +83,50 @@ data class PageBackdrop(val accent: Color, val peak: Float) {
     }
 }
 
-private const val STOPS = 13
+/** The glow is one soft gradient: at half resolution it is the same picture, and a quarter of the memory. */
+private const val GLOW_SCALE = 0.5f
 
 /**
  * Paints [backdrop] behind the content: one wide ellipse of light centred a little left of the
- * middle of the top edge, falling off smoothly ([PageBackdrop.falloff]) and dithered, so there is
- * no banding. The shader is built once per size and colour and only drawn after that: nothing here
- * reads state, so a list scrolling over it neither recomposes nor rebuilds anything.
+ * middle of the top edge, falling off smoothly ([PageBackdrop.falloff]).
+ *
+ * Painted once per size and colour on the CPU ([glowPixels]), then drawn as a plain image, as the
+ * brand's beam is (a dithered gradient shader through the GPU took the API 34 test emulators down).
+ * Nothing here reads state: a list scrolling over it neither recomposes nor repaints it
+ * ([PageBackdrop.paints] counts, for the tests). Keep the modifier in a `remember`, so a
+ * recomposition of the caller does not make a new one.
  */
 fun Modifier.pageBackdrop(backdrop: PageBackdrop?): Modifier = if (backdrop == null) this else drawWithCache {
     val reach = minOf(PageBackdrop.REACH.toPx(), size.height * PageBackdrop.REACH_OF_HEIGHT)
-    val argb = backdrop.accent.toArgb() and 0xFFFFFF
-    val colors = IntArray(STOPS) { i -> (((backdrop.peak * PageBackdrop.falloff(i / (STOPS - 1f))) * 255f + 0.5f).toInt() shl 24) or argb }
-    val positions = FloatArray(STOPS) { i -> i / (STOPS - 1f) }
-    // A circle of radius [reach], stretched sideways to reach past both sides of the page.
-    val stretch = (size.width * 0.9f / reach).coerceAtLeast(1f)
-    val shader = android.graphics.RadialGradient(0f, 0f, reach, colors, positions, android.graphics.Shader.TileMode.CLAMP).apply {
-        setLocalMatrix(android.graphics.Matrix().apply { setScale(stretch, 1f); postTranslate(size.width * 0.35f, 0f) })
+    val w = (size.width * GLOW_SCALE).toInt().coerceAtLeast(1)
+    val h = (reach * GLOW_SCALE).toInt().coerceAtLeast(1)
+    val image = android.graphics.Bitmap.createBitmap(glowPixels(w, h, backdrop), w, h, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap()
+    PageBackdrop.paints++
+    val dst = IntSize(size.width.toInt().coerceAtLeast(1), reach.toInt().coerceAtLeast(1))
+    onDrawBehind { drawImage(image, dstSize = dst, filterQuality = FilterQuality.Low) }
+}
+
+/**
+ * The glow as [w]×[h] pixels (ARGB, not premultiplied): the accent at an alpha that is
+ * [PageBackdrop.peak] at the centre (35% of the width, on the top edge) and nothing at the rim of
+ * an ellipse [h] tall and 0.9 of the width (at least [h]) across. The alpha has 8 bits and the glow
+ * a few dozen of its levels: each pixel is rounded up or down by a fixed noise, so the levels mix
+ * instead of showing as bands.
+ */
+internal fun glowPixels(w: Int, h: Int, backdrop: PageBackdrop): IntArray {
+    val rgb = backdrop.accent.toArgb() and 0xFFFFFF
+    val cx = w * 0.35f
+    val rx = maxOf(w * 0.9f, h.toFloat())
+    val out = IntArray(w * h)
+    for (y in 0 until h) {
+        val dy = y / h.toFloat()
+        for (x in 0 until w) {
+            val dx = (x - cx) / rx
+            val level = backdrop.peak * PageBackdrop.falloff(kotlin.math.sqrt(dx * dx + dy * dy)) * 255f
+            // Interleaved gradient noise: even, without a pattern the eye picks up.
+            val n = 52.982918f * ((0.06711056f * x + 0.00583715f * y) % 1f)
+            out[y * w + x] = ((level + (n - kotlin.math.floor(n))).toInt().coerceIn(0, 255) shl 24) or rgb
+        }
     }
-    val paint = android.graphics.Paint().apply { isDither = true; this.shader = shader }
-    onDrawBehind { drawIntoCanvas { it.nativeCanvas.drawRect(0f, 0f, size.width, reach, paint) } }
+    return out
 }

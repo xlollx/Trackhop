@@ -952,6 +952,12 @@
     </plurals>
     <string name="status_all_ok">모두 최신 상태</string>
     <string name="status_last">마지막 %1$s</string>
+    <plurals name="status_running">
+        <item quantity="other">%d개 실행 중</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="other">%d개 일시정지됨</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="other">실패 %d개</item>
     </plurals>

@@ -70,4 +70,18 @@ class PageBackdropTest {
         val steps = (0..300).map { (PageBackdrop.DARK_PEAK * PageBackdrop.falloff(it / 300f) * 255f).toInt() }
         assertTrue(steps.zipWithNext().all { (a, b) -> a - b in 0..1 })
     }
+
+    /** The picture itself: the accent alone, brightest at the top, nothing along the bottom, and no step between neighbours. */
+    @Test fun thePaintedGlowIsTheAccentFadingToNothing() {
+        val glow = PageBackdrop.all(true, DarkScheme.primary, DarkScheme.outline).getValue(MainActivity.TAB_SYNCS)
+        val w = 180; val h = 130
+        val px = glowPixels(w, h, glow)
+        val top = Math.round(glow.peak * 255f)
+        assertTrue("only the accent", px.all { it and 0xFFFFFF == 0xC8BFFF })
+        assertTrue("never above the peak", px.all { (it ushr 24) <= top + 1 })
+        assertTrue("the peak at the top", (px[(w * 0.35f).toInt()] ushr 24) >= top - 1)
+        assertTrue("nothing left along the bottom", (0 until w).all { px[(h - 1) * w + it] ushr 24 <= 1 })
+        // Neighbours differ by the noise alone (one level), never by a band's step.
+        for (y in 0 until h) for (x in 1 until w) assertTrue(kotlin.math.abs((px[y * w + x] ushr 24) - (px[y * w + x - 1] ushr 24)) <= 1)
+    }
 }

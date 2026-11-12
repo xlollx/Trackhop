@@ -1009,6 +1009,18 @@
     </plurals>
     <string name="status_all_ok">Wszystko aktualne</string>
     <string name="status_last">ostatnia %1$s</string>
+    <plurals name="status_running">
+        <item quantity="one">%d w toku</item>
+        <item quantity="few">%d w toku</item>
+        <item quantity="many">%d w toku</item>
+        <item quantity="other">%d w toku</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="one">%d wstrzymana</item>
+        <item quantity="few">%d wstrzymane</item>
+        <item quantity="many">%d wstrzymanych</item>
+        <item quantity="other">%d wstrzymanych</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="one">%d nieudana</item>
         <item quantity="few">%d nieudane</item>

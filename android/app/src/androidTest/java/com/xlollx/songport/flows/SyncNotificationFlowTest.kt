@@ -79,6 +79,8 @@ class SyncNotificationFlowTest : FlowTest() {
 
             val title = plural(R.plurals.syncs_running, 3, 3)
             waitFor("one notification for the three syncs", 20_000) { ongoing().singleOrNull()?.title() == title }
+            // The status line at the head of the list says it too, in its shorter words.
+            waitText(plural(R.plurals.status_running, 3, 3))
             // It stays one: no late placeholder from another worker turns up beside it.
             val end = System.currentTimeMillis() + 3_000
             while (System.currentTimeMillis() < end) {
@@ -115,6 +117,7 @@ class SyncNotificationFlowTest : FlowTest() {
             waitFor("all three parked", 20_000) { SyncState.parked.value == ids && jobs.all { SyncState.run(it.id) == SyncState.Run.PAUSED } }
             val pausedTitle = plural(R.plurals.syncs_paused, 3, 3)
             waitText(pausedTitle)
+            waitText(plural(R.plurals.status_paused, 3, 3))
             waitText(s(R.string.sync_paused))
             waitGone(s(R.string.pill_pausing))
             assertEquals("no card says Syncing while paused", 0, count(s(R.string.pill_running)))

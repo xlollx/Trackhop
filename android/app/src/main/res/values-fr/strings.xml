@@ -972,6 +972,14 @@
     </plurals>
     <string name="status_all_ok">Tout est à jour</string>
     <string name="status_last">dernière sync %1$s</string>
+    <plurals name="status_running">
+        <item quantity="one">%d en cours</item>
+        <item quantity="other">%d en cours</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="one">%d en pause</item>
+        <item quantity="other">%d en pause</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="one">%d en échec</item>
         <item quantity="other">%d en échec</item>

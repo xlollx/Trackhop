@@ -8,6 +8,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.MainActivity
@@ -212,5 +213,22 @@ class SyncsBarFlowTest : FlowTest() {
         assertEquals(0, tagged(SYNC_SEARCH_TAG).size)
         waitText(s(R.string.status_all_ok), substring = true)
         assertTrue(mark().width > 0)
+    }
+
+    /** The page's glow is painted once, behind the list: scrolling the cards over it paints nothing again. */
+    @Test
+    fun scrollingTheListDoesNotRepaintTheGlow() {
+        seed(6)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Road Trip")
+        compose.waitForIdle()
+        val painted = com.xlollx.songport.ui.PageBackdrop.paints
+        assertTrue("the glow painted behind the page", painted > 0)
+        for (dy in listOf(700f, 700f, 700f, -900f, -1200f)) {
+            compose.onAllNodes(androidx.compose.ui.test.hasScrollAction()).onFirst().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.ScrollBy) { it(0f, dy) }
+            compose.waitForIdle()
+        }
+        waitText("Road Trip")
+        assertEquals("no glow painted while the list scrolled", painted, com.xlollx.songport.ui.PageBackdrop.paints)
     }
 }

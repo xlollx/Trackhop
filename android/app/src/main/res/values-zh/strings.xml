@@ -953,6 +953,12 @@
     </plurals>
     <string name="status_all_ok">全部已是最新</string>
     <string name="status_last">上次 %1$s</string>
+    <plurals name="status_running">
+        <item quantity="other">%d 个运行中</item>
+    </plurals>
+    <plurals name="status_paused">
+        <item quantity="other">%d 个已暂停</item>
+    </plurals>
     <plurals name="status_failed">
         <item quantity="other">%d 个失败</item>
     </plurals>
