@@ -644,6 +644,22 @@ class SpotifyWebClient(private val host: Host) {
         )
     }
 
+    /**
+     * What the artist's page says of their own site: `queryArtistOverview`, as the artist route asks it
+     * (xpui-routes-artist, 11/2026), its About section's links (`profile.externalLinks`) and the
+     * addresses of the merch on its shelf (`goods.merch`). An answer without the artist is an error.
+     */
+    fun artistSites(artistUri: String): ArtistSitesDto =
+        parseArtistSites(artistUri, gql("queryArtistOverview", jsonObj("uri" to artistUri, "locale" to "", "includePrerelease" to true)))
+
+    internal fun parseArtistSites(artistUri: String, j: JsonElement?): ArtistSitesDto {
+        val a = j["data"]["artistUnion"]
+        if (a["profile"] == null) unexpected("queryArtistOverview", j ?: JsonNull, emptyList(), a)
+        val links = a["profile"]["externalLinks"]["items"].arr.mapNotNull { it["url"].str?.takeIf { u -> u.startsWith("https://") || u.startsWith("http://") } }
+        val merch = a["goods"]["merch"]["items"].arr.mapNotNull { it["url"].str?.takeIf { u -> u.startsWith("https://") || u.startsWith("http://") } }
+        return ArtistSitesDto(a["uri"].str ?: artistUri, links.distinct(), merch.distinct())
+    }
+
     /** Catalogue search, the player's: tracks, or albums or artists for [kind]. */
     fun search(query: String, kind: String?): List<TrackDto> {
         if (kind == null) {
@@ -927,6 +943,8 @@ class SpotifyWebClient(private val host: Host) {
             // The artist page's tour section and a concert's page (xpui-routes-artist, xpui-routes-concert).
             "ArtistConcerts" to "ef53c43b865496b9890b7167eab1dc614a8949ef9451b3c41184ea888de8bd2b",
             "concert" to "9b582a69061f6648858515c2aa6d4a2273ac49b74eb5dbc612bc1299a9f2f13e",
+            // The artist page itself (web-player.78b0eb3c): its About links and merch shelf, for the artist's own site.
+            "queryArtistOverview" to "eafb1620d783ece118e72fbfede2b0064483e029d3c1aafafa1c2de0e25a89e7",
             "profileAttributes" to "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0",
             "addToPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
             "removeFromPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",

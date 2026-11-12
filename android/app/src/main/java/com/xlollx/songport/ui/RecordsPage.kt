@@ -97,12 +97,12 @@ private object ShopsKept {
     val found = mutableStateMapOf<String, Merch.Found>()
 
     /** Reads [artist]'s shops once, after the artist before; leaving the screen while waiting gives up the turn. */
-    suspend fun load(env: Env, artist: String, links: List<Records.Link>) {
+    suspend fun load(env: Env, artist: String, links: List<Records.Link>, ids: com.xlollx.songport.sync.ArtistSites.Ids) {
         if (artist in found) return
         turn.withLock {
             if (artist in found) return
             // Once started it ends, even if the card scrolls away: its requests are not wasted.
-            found[artist] = withContext(NonCancellable) { Merch.find(env, artist, links) }
+            found[artist] = withContext(NonCancellable) { Merch.find(env, artist, links, ids) }
         }
     }
 
@@ -242,7 +242,7 @@ internal fun RecordsPage(snackbar: SnackbarHostState) {
     // A result shown again from what was kept leaves the shops out: for a few artists they are all read
     // now, one after the other, as a search would; for more, as their cards show.
     if (r != null && !busy && LookupCaps.eagerShops(r.artists.size)) LaunchedEffect(r) {
-        r.artists.filter(::readsShops).forEach { ShopsKept.load(ctx.env, it.artist, it.links) }
+        r.artists.filter(::readsShops).forEach { ShopsKept.load(ctx.env, it.artist, it.links, it.ids) }
     }
     if (r != null) {
         if (!busy) SearchStopped(k.stopped)
@@ -322,7 +322,7 @@ private fun ArtistRecordsCard(a: Records.ArtistRecords, slowed: Boolean, showRec
     var onScreen by remember { mutableStateOf(false) }
     val reads = readsShops(a)
     val shops = shopsOf(a, look)
-    if (reads) LaunchedEffect(a.artist, onScreen, shops == null) { if (onScreen && shops == null) ShopsKept.load(ctx.env, a.artist, a.links) }
+    if (reads) LaunchedEffect(a.artist, onScreen, shops == null) { if (onScreen && shops == null) ShopsKept.load(ctx.env, a.artist, a.links, a.ids) }
     // "Try again" while the shop still asks to wait: said so, not asked again.
     var tooSoon by remember(shops?.retryAt) { mutableStateOf(false) }
     Card(Modifier.fillMaxWidth().then(if (reads) Modifier.onGloballyPositioned { onScreen = it.boundsInWindow().height > 0f } else Modifier)) {
@@ -436,7 +436,7 @@ private fun MerchCard(item: Merch.Item, images: Boolean) {
                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         }
         Text(
-            listOf(item.type, if (item.source == Merch.Source.BANDCAMP) "Bandcamp" else stringResource(R.string.records_shop)).filter { it.isNotBlank() }.joinToString(" · "),
+            listOf(item.type, if (item.source == Merch.Source.BANDCAMP) "Bandcamp" else item.shopName ?: stringResource(R.string.records_shop)).filter { it.isNotBlank() }.joinToString(" · "),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
         )
     }

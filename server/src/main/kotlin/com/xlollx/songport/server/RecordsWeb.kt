@@ -57,6 +57,9 @@ internal object RecordTexts {
 
     fun sourceName(s: Merch.Source) = if (s == Merch.Source.BANDCAMP) "Bandcamp" else "Official shop"
 
+    /** Where an item is sold: Bandcamp, the official shop, or the domain of the artist's own site's shop. */
+    fun sourceName(i: Merch.Item) = i.shopName ?: sourceName(i.source)
+
     /** "35.00 GBP", or the bare amount when the shop does not say its currency. */
     fun price(i: Merch.Item): String? = i.price?.let { "${String.format(Locale.ROOT, "%.2f", it)} ${i.currency.orEmpty()}".trim() }
 
@@ -83,7 +86,7 @@ private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency
 /** One thing on sale in an artist's shop; "format" (Vinyl, CD, Cassette) for a record, null for other goods. */
 private fun shopItemJson(i: Merch.Item): JsonObject = buildJsonObject {
     put("title", i.title); put("type", i.type); put("format", i.format?.let { JsonPrimitive(it.label) } ?: JsonNull)
-    put("source", RecordTexts.sourceName(i.source))
+    put("source", RecordTexts.sourceName(i))
     put("image", i.image); put("price", i.price?.let { JsonPrimitive(it) } ?: JsonNull)
     put("currency", i.currency?.let { JsonPrimitive(it) } ?: JsonNull); put("url", i.url)
 }
@@ -222,7 +225,7 @@ private fun recordsHtml(playlist: String, r: Records.Result): String = buildStri
         fun shopItems(items: List<Merch.Item>) {
             append("<ul>")
             items.forEach { i ->
-                val what = listOfNotNull(i.type.takeIf { it.isNotBlank() }, RecordTexts.price(i), RecordTexts.sourceName(i.source)).joinToString(" · ")
+                val what = listOfNotNull(i.type.takeIf { it.isNotBlank() }, RecordTexts.price(i), RecordTexts.sourceName(i)).joinToString(" · ")
                 append("""<li>${a(i.url, i.title)} <span class="muted">${h(what)}</span></li>""")
             }
             append("</ul>")

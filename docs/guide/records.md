@@ -40,6 +40,17 @@ vinyl, the **Vinyl / CD / Cassette** chips narrow the records to those formats, 
     their lowest price. A label's shop shows only the products that name the artist. Big retailers
     (Amazon, eBay, Target…) are never asked.
   - the artist's **Bandcamp**: the items of its merch page (`/merch`), sold-out ones left out.
+  - a shop on **another platform**, on the official site or one it links to: Trackhop first tells the
+    platform from the page itself, then reads only that platform's public catalogue (WooCommerce's
+    Store API, Big Cartel's product list, a Squarespace shop page where its robots.txt allows it),
+    else the product data the shop page and a few of its product pages carry for search engines.
+    These are labelled with the shop's domain.
+
+  When MusicBrainz lists no official site or shop for an artist (many artists who sell only on their
+  own site), Trackhop asks **Wikidata** for the artist's official site and Bandcamp, taking the entry
+  only when it is surely that artist (their MusicBrainz or Spotify id, else the only musician or band
+  of exactly that name); with the Spotify (web) connector connected, the artist's page on Spotify adds
+  its links and merch shelf. Then the shops are found on that site as above.
 
   The records among them (a vinyl, LP, 7", CD or cassette, by the shop's product type or else its
   name) are shown with the records, under **In their shops**, and the rest as merch: up to 12 of
@@ -91,8 +102,10 @@ their official pages and searches; try again in a minute.
 The artist names of the playlist you pick go to Discogs (api.discogs.com) and MusicBrainz
 (musicbrainz.org), only when you tap **Find records**; with your token, the token goes to Discogs
 too. For their records and merch, the artist's own shops that MusicBrainz lists (their Shopify shop or official
-site, their `name.bandcamp.com`) are asked for their public product list; nothing of yours is sent
-to them, and pictures load from cdn.shopify.com and bcbits.com. Nothing else: no account, no
+site, their `name.bandcamp.com`, a shop on another platform their site links to) are asked for their
+public product list; nothing of yours is sent to them, and pictures load from cdn.shopify.com,
+bcbits.com and the shops' own servers. For an artist MusicBrainz lists no site for, the artist's
+name goes to Wikidata (www.wikidata.org). Nothing else: no account, no
 location, no playlist. See the [privacy policy](../privacy-policy).
 
 This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs.

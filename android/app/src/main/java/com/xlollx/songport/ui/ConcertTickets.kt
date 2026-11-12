@@ -12,14 +12,16 @@ import com.xlollx.songport.sync.Concerts
 /**
  * Concerts: where a date's tickets are. Vivaticket's and TicketOne's dates come from their sites,
  * unofficially (only where unofficial sources are allowed), and Spotify's from its artist pages with
- * the user's Spotify (web) sign-in, unofficially too: they say so.
+ * the user's Spotify (web) sign-in, unofficially too: they say so. The artist's own site's are shown by its domain.
  */
 @Composable
-internal fun ticketsLabel(source: Concerts.Source): String = when (source) {
+internal fun ticketsLabel(source: Concerts.Source, url: String = ""): String = when (source) {
     Concerts.Source.TICKETMASTER -> stringResource(R.string.concerts_on_ticketmaster)
     Concerts.Source.VIVATICKET -> stringResource(R.string.concerts_on_vivaticket)
     Concerts.Source.TICKETONE -> stringResource(R.string.concerts_on_ticketone)
     Concerts.Source.SPOTIFY -> stringResource(R.string.concerts_on_spotify)
+    // The artist's own site: its domain.
+    Concerts.Source.SITE -> Concerts.siteName(url).ifEmpty { stringResource(R.string.concerts_official_site) }
     else -> source.label
 }
 
@@ -28,7 +30,7 @@ internal fun ticketsLabel(source: Concerts.Source): String = when (source) {
 internal fun AlsoOnLinks(e: Concerts.Event) {
     val ctx = LocalContext.current
     e.alsoOn.forEach { l ->
-        TextButton(onClick = { openUrl(ctx, l.url) }) { Text(ticketsLabel(l.source), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) }
+        TextButton(onClick = { openUrl(ctx, l.url) }) { Text(ticketsLabel(l.source, l.url), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) }
     }
 }
 

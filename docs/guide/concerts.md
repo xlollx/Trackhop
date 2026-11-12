@@ -38,6 +38,12 @@ In the app: **Discover › Concerts**. On Docker and Desktop: **Tools › Concer
   the search buttons stay. They are marked "Tickets on TicketOne (unofficial)". It reads web pages,
   not an API offered to apps: **it may stop working at any time** when the site changes. Not on
   Docker and Desktop, which have no web view: there TicketOne stays a search button.
+- **The artist's own site**: the official site MusicBrainz lists, else the one Wikidata lists for the
+  artist. Trackhop reads its home page and its tour page (a link named Tour, Live, Concerts, Dates,
+  Tickets… in several languages) for the dates the site publishes for search engines, and the dates of
+  the tour widget it embeds (Bandsintown, asked with the site's own widget id; Seated). Each site's
+  robots.txt is honoured, a few pages per artist at most, the dates kept a day. Dates whose country the
+  site does not say are left out. Marked with the domain of the ticket link the site gives. Only when you tap **Find concerts**.
 
 The same date (same day, same city) from several sources is shown once, with a link for each ticket
 site that sells it: "Tickets on Ticketmaster", "Tickets on Vivaticket (unofficial)", "Tickets on
@@ -109,5 +115,6 @@ The artist names of the playlist you pick and the country go to Ticketmaster
 the artist names to Vivaticket (apigatewayb2cstore.vivaticket.com); in the Android app, in Italy, the
 artist names are searched on TicketOne (www.ticketone.it) from your phone, as your browser would, so
 TicketOne sees your phone's connection and keeps its own cookies in the app's web view. Only when you
-tap **Find concerts**.
+tap **Find concerts**. The artists' own sites are read for their dates (and, for an artist MusicBrainz
+lists no site for, the artist's name goes to Wikidata, www.wikidata.org, to find it).
 Nothing else: no account, no location, no playlist. See the [privacy policy](../privacy-policy).

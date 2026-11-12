@@ -135,6 +135,8 @@ object Records {
         val shopsBusy: Boolean = false,
         /** Others share the artist's name and nothing told which is the playlist's: what is shown may be another's. */
         val sameName: Boolean = false,
+        /** The artist's MusicBrainz id and Wikidata item, when MusicBrainz knows them: they tell the artist apart beyond it ([ArtistSites]). */
+        val ids: ArtistSites.Ids = ArtistSites.Ids(),
     )
 
     /**
@@ -224,6 +226,8 @@ object Records {
         env: Env, artists: List<String>, currency: String = currencyFor(), whole: Boolean = true, look: Look = Look.ALL,
         progress: (Int, Int) -> Unit = { _, _ -> }, shops: Boolean? = true,
         evidence: Map<String, Evidence> = emptyMap(), partial: (Result) -> Unit = {},
+        /** The check of the artists followed, with no one looking: no source read with a web sign-in ([ArtistSites.spotify]). */
+        background: Boolean = false,
     ): Result {
         val cur = currency.uppercase().takeIf { it in CURRENCIES } ?: "EUR"
         var token = token(env)
@@ -258,7 +262,7 @@ object Records {
             if (links == null) env.log("records", "$artist: MusicBrainz did not answer")
             out += artistRecords(artist, records, mb, look, when {
                 links == null -> Merch.Found(emptyList(), unread = true)
-                readShops -> Merch.find(env, artist, links)
+                readShops -> Merch.find(env, artist, links, idsOf(mb), background)
                 else -> null
             })
             // What is found so far: kept when the user stops the search.
@@ -283,8 +287,12 @@ object Records {
             found?.let { merch.takeIf { look.merch } }, found?.let { shopRecords.takeIf { look.records } },
             found?.unread == true, found?.busy == true,
             sameName = (look.records && discogs?.sameName == true) || mb?.sameName == true,
+            ids = idsOf(mb),
         )
     }
+
+    /** The artist's ids MusicBrainz gave, unless it was a guess among artists of the same name. */
+    private fun idsOf(mb: MbKept?) = if (mb == null || mb.sameName) ArtistSites.Ids() else ArtistSites.Ids(mb.id, mb.wikidata)
 
     /**
      * What [find] would show, from what is kept alone, with no request at all: null unless every artist's
@@ -315,9 +323,12 @@ object Records {
     @Serializable
     internal data class DiscogsKept(val records: List<Record>, val sameName: Boolean = false)
 
-    /** An artist's MusicBrainz pages as kept: [sameName] when several artists have the name and nothing told them apart. */
+    /**
+     * An artist's MusicBrainz pages as kept: [sameName] when several artists have the name and nothing
+     * told them apart; [id] the artist's MusicBrainz id and [wikidata] its Wikidata item (MusicBrainz's link), when known.
+     */
     @Serializable
-    internal data class MbKept(val links: List<Link>, val sameName: Boolean = false)
+    internal data class MbKept(val links: List<Link>, val sameName: Boolean = false, val id: String? = null, val wikidata: String? = null)
 
     internal fun <T> cached(env: Env, k: String, ttl: Long, read: (String) -> T): T? {
         val saved = env.keyValues(CACHE)[k] ?: return null
@@ -336,6 +347,9 @@ object Records {
     // "dg3"/"mb2": answers kept before artists of the same name were told apart are not shown again.
     private fun discogsKey(token: String?, artist: String, currency: String) = if (token != null) "dg3|$currency|${norm(artist)}" else "dg3|${norm(artist)}"
     private fun linksKey(artist: String) = "mb2|${norm(artist)}"
+
+    /** The artist's MusicBrainz links when kept (the Records page asked them lately), with no request. */
+    internal fun keptLinks(env: Env, artist: String): MbKept? = cachedLinks(env, artist)
 
     /** The artist's links kept a week, or a day when MusicBrainz knew none. */
     private fun cachedLinks(env: Env, artist: String): MbKept? {
@@ -541,8 +555,9 @@ object Records {
         val found = mbGet("artist?query=${enc("artist:" + phrase(artist))}&limit=5&fmt=json") ?: return null
         val ids = pickArtists(found, artist)
         val (id, sameName) = if (ids.size <= 1) ids.firstOrNull() to false else chooseArtist(ids, ev?.let { mbHits(ids, it) })
-        val links = if (id == null) emptyList() else parseLinks(mbGet("artist/$id?inc=url-rels&fmt=json") ?: return null)
-        val kept = MbKept(links, sameName)
+        val rels = if (id == null) null else mbGet("artist/$id?inc=url-rels&fmt=json") ?: return null
+        val links = rels?.let { parseLinks(it) }.orEmpty()
+        val kept = MbKept(links, sameName, id, rels?.let { wikidataItem(it) })
         // A guess made with no titles to go by is not kept: the page, which has them, asks again.
         if (!sameName || ev != null) remember(env, ck, json.encodeToString(MbKept.serializer(), kept))
         return kept
@@ -617,6 +632,14 @@ object Records {
             if (!seen.add(host + URI(url).rawPath.orEmpty().trimEnd('/').lowercase())) return@mapNotNull null
             Link(kind, siteName(host), url.replaceFirst("http://", "https://"))
         }.sortedBy { ORDER.indexOf(it.kind) }
+    }
+
+    private val WIKIDATA_ITEM = Regex("""^https?://(?:www\.)?wikidata\.org/(?:wiki|entity)/(Q\d+)$""")
+
+    /** The Wikidata item MusicBrainz links the artist to (its "wikidata" relation), or null. */
+    fun wikidataItem(body: String): String? = parseJson(body)["relations"].arr.firstNotNullOfOrNull { r ->
+        if (r["type"].str?.lowercase() != "wikidata" || r["ended"].bool == true) return@firstNotNullOfOrNull null
+        r["url"]["resource"].str?.trim()?.let { WIKIDATA_ITEM.find(it)?.groupValues?.get(1) }
     }
 
     private val SITES = listOf(

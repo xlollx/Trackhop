@@ -60,5 +60,13 @@ data class ConcertDto(
     val festival: Boolean = false,
 )
 
+/**
+ * What an artist's page on Spotify says of their own site ([SpotifyWebClient.artistSites]): the links of
+ * its About section and the addresses of the merch on its shelf (the artist's shop). Trackhop looks there
+ * for the official site when MusicBrainz names none.
+ */
+@Serializable
+data class ArtistSitesDto(val uri: String, val links: List<String> = emptyList(), val merch: List<String> = emptyList())
+
 @Serializable
 data class RemoveItem(val videoId: String, val setVideoId: String? = null)

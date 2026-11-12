@@ -71,6 +71,12 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   policy. No account, no sign-in, nothing typed but the artist's name. Ticket and search links open in your browser.
   The concerts' pictures and the records' covers are loaded from Ticketmaster's, Vivaticket's,
   TicketOne's and Discogs' image servers, like any web picture (turn them off in Settings › Images in Discover).
+  The artists' own official sites are read too, for the dates they publish: their robots.txt, home page
+  and tour page, and the public event list of the tour widget the site embeds (Bandsintown,
+  rest.bandsintown.com, with the site's own widget id; Seated, cdn.seated.com). The site is the one
+  MusicBrainz lists, else the one Wikidata (www.wikidata.org) lists for the artist: the artist's name is
+  sent to Wikidata's public API. Those sites see your phone's connection and that a page was asked, like
+  any visit; no account, no cookie, nothing about you.
 - **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
   of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
   privacy policy) when a setlist.fm key is set, otherwise to MusicBrainz (musicbrainz.org); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
@@ -84,9 +90,14 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   encrypted on the device. For the records and merch sold in their own shops, the app also asks the
   artist's own shops that MusicBrainz lists (an official shop on Shopify, the official site, the
   artist's Bandcamp) for their public product list: their robots.txt, `/products.json` and
-  `/meta.json` on a Shopify shop, `/merch` on Bandcamp. Those shops see your phone's connection and
+  `/meta.json` on a Shopify shop, `/merch` on Bandcamp; on other shops, the public catalogue their
+  platform gives every shopper (WooCommerce's Store API, Big Cartel's `/products.json`, a Squarespace
+  shop page) or the product data their shop page carries for search engines. When MusicBrainz lists no
+  site or shop for an artist, the artist's name is sent to Wikidata's public API (www.wikidata.org) for
+  their official site; with the Spotify (web) connector connected, the artist's page on Spotify is read
+  with your sign-in for its links and merch, never in the background. Those shops see your phone's connection and
   that a product list was asked, like any visit; no account, no cookie, nothing about you. Product
-  pictures load from the shops' image servers (cdn.shopify.com, bcbits.com), like any web picture
+  pictures load from the shops' image servers (cdn.shopify.com, bcbits.com and the shops' own), like any web picture
   (turn them off in Settings › Images in Discover). Shop, Discogs and official-site links open in your
   browser, without any affiliate tag.
 - **Artist alerts (optional)**: for the artists you follow in Discover (Followed artists), the app asks
@@ -186,7 +197,13 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   TicketOne. Nessun account, nessun accesso, nient'altro che il nome dell'artista. I link ai biglietti
   e alle ricerche si aprono nel browser. Le foto dei concerti e le copertine dei dischi arrivano dai
   server di immagini di Ticketmaster, TicketOne e Discogs, come
-  ogni immagine web (si spengono in Opzioni › Immagini in Scopri).
+  ogni immagine web (si spengono in Opzioni › Immagini in Scopri). Vengono letti anche i siti ufficiali
+  degli artisti, per le date che pubblicano: robots.txt, pagina iniziale e pagina del tour, e l'elenco
+  pubblico di date del widget che il sito incorpora (Bandsintown, rest.bandsintown.com, con l'id del widget
+  del sito stesso; Seated, cdn.seated.com). Il sito è quello elencato da MusicBrainz, altrimenti quello che
+  Wikidata (www.wikidata.org) indica per l'artista: il nome dell'artista viene inviato all'API pubblica di
+  Wikidata. Quei siti vedono la connessione del telefono e che è stata chiesta una pagina, come per ogni
+  visita; nessun account, nessun cookie, niente su di te.
 - **Scalette (facoltativo)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
   della playlist scelta vengono inviati all'API di setlist.fm (api.setlist.fm, secondo l'informativa di
   setlist.fm) se c'è una chiave setlist.fm, altrimenti a MusicBrainz (musicbrainz.org); un link di setlist.fm che condividi o incolli invia l'id della sua scaletta (o, senza
@@ -200,9 +217,15 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   dispositivo. Per i dischi e il merch venduti nei loro negozi, l'app chiede anche ai negozi
   dell'artista elencati da MusicBrainz (un negozio ufficiale su Shopify, il sito ufficiale, il Bandcamp
   dell'artista) il loro elenco pubblico di prodotti: robots.txt, `/products.json` e `/meta.json` su un
-  negozio Shopify, `/merch` su Bandcamp. Quei negozi vedono la connessione del telefono e che è stato
+  negozio Shopify, `/merch` su Bandcamp; sugli altri negozi, il catalogo pubblico che la loro piattaforma
+  dà a ogni cliente (la Store API di WooCommerce, `/products.json` di Big Cartel, una pagina negozio di
+  Squarespace) o i dati dei prodotti che la pagina del negozio porta per i motori di ricerca. Quando
+  MusicBrainz non elenca né un sito né un negozio dell'artista, il nome dell'artista viene inviato all'API
+  pubblica di Wikidata (www.wikidata.org) per il sito ufficiale; con il connettore Spotify (web) collegato,
+  la pagina dell'artista su Spotify viene letta con il tuo accesso per i suoi link e il suo merch, mai in
+  background. Quei negozi vedono la connessione del telefono e che è stato
   chiesto l'elenco, come per ogni visita; nessun account, nessun cookie, niente su di te. Le foto dei
-  prodotti arrivano dai server di immagini dei negozi (cdn.shopify.com, bcbits.com), come ogni immagine
+  prodotti arrivano dai server di immagini dei negozi (cdn.shopify.com, bcbits.com e quelli dei negozi), come ogni immagine
   web (si spengono in Opzioni › Immagini in Scopri). I link a negozi, Discogs e siti ufficiali si aprono
   nel browser, senza codici di affiliazione.
 - **Avvisi per artista (facoltativi)**: per gli artisti che segui in Scopri (Artisti seguiti), l'app

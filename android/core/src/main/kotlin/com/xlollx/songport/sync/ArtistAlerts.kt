@@ -304,7 +304,7 @@ object ArtistAlerts {
         var records: List<News>? = null
         if (k.merch || k.records) {
             val look = if (k.merch && k.records) Records.Look.ALL else if (k.records) Records.Look.RECORDS else Records.Look.MERCH
-            val a = Records.find(env, listOf(name), whole = false, look = look).artists.firstOrNull()
+            val a = Records.find(env, listOf(name), whole = false, look = look, background = true).artists.firstOrNull()
             if (a != null && !a.shopsUnread) {
                 if (k.merch) merch = a.merch?.map { News(name, Kind.MERCH, "m|${it.url}", it.title, it.type, it.url) }
                 // Discogs and the shop both needed: half an answer would make the other half new tomorrow.

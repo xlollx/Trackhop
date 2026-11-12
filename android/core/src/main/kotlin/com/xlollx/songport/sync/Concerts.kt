@@ -48,7 +48,7 @@ import java.util.Locale
  * Vivaticket's dates too ([Vivaticket], unofficial), and on Android TicketOne's, read from its web
  * pages in a browser engine on the phone ([TicketOne], unofficial). Where the user has the Spotify (web)
  * connector, the tour dates of the artists' pages on Spotify ([SpotifyConcerts], unofficial), in any
- * country. A date several know is shown once: a ticket
+ * country. The dates the artists' own sites give ([SiteConcerts]), in any country. A date several know is shown once: a ticket
  * site's own (Ticketmaster's first), with the other ticket sites' links ([Event.alsoOn]). The artists
  * with no date found get search links to ticket sites ([searches]): links only, opened in the
  * user's browser.
@@ -66,7 +66,12 @@ object Concerts {
     enum class Source(val label: String, val unofficial: Boolean = false) {
         TICKETMASTER("Ticketmaster"), MUSICBRAINZ("MusicBrainz"), VIVATICKET("Vivaticket", unofficial = true),
         TICKETONE("TicketOne", unofficial = true), SPOTIFY("Spotify", unofficial = true),
+        /** The artist's own site ([SiteConcerts]): shown with its domain ([siteName]). */
+        SITE("Official site"),
     }
+
+    /** The domain of a date's link ("band.com"), shown as where its tickets are for the artist's own site; "" when none. */
+    fun siteName(url: String): String = runCatching { java.net.URI(url).host?.lowercase()?.removePrefix("www.") }.getOrNull().orEmpty()
 
     /** Another ticket site selling the same date. */
     @Serializable
@@ -269,6 +274,7 @@ object Concerts {
                 val vt = async { Vivaticket.dates(env, artist, c, end) }
                 val t1 = async { if (background) emptyList() else TicketOne.dates(env, artist, c).also { if (it == null) ticketOneRead = false } }
                 val sp = async { if (background) emptyList() else SpotifyConcerts.dates(env, artist, c, today, end) }
+                val site = async { SiteConcerts.dates(env, artist, c, today, end, background) }
                 val tm = if (key == null || quotaHit || refused) null else try {
                     ticketmaster(env, key, artist, c, end)
                 } catch (e: QuotaGone) {
@@ -276,7 +282,7 @@ object Concerts {
                 } catch (e: KeyRefused) {
                     refused = true; null
                 }
-                Triple(tm, mb.await(), vt.await().orEmpty() + t1.await().orEmpty() + sp.await().orEmpty())
+                Triple(tm, mb.await(), vt.await().orEmpty() + t1.await().orEmpty() + sp.await().orEmpty() + site.await().orEmpty())
             }
             val events = merge(tm.orEmpty(), mb.orEmpty(), sites).filter { inRange(it, today, end) }
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
@@ -301,7 +307,7 @@ object Concerts {
 
     /**
      * One list for an artist: each source's own repeats gone; the same day in the same city (or a
-     * city one of them does not say) shown once. A ticket site's date ([sites]: Vivaticket's, TicketOne's, Spotify's) joins
+     * city one of them does not say) shown once. A ticket site's date ([sites]: Vivaticket's, TicketOne's, Spotify's, the artist's own site's) joins
      * Ticketmaster's as one more link ([Event.alsoOn]); a MusicBrainz date is dropped when a ticket
      * site has it.
      */
