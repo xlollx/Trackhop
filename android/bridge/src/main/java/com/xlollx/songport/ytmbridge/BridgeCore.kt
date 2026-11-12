@@ -288,6 +288,9 @@ object BridgeCore {
                     val c = SpotifyWebClient(ctx, slot)
                     ok(json.encodeToString(c.artistUri(arg ?: return err("missing artist"))?.let { c.artistSites(it) }))
                 }
+                // The player's "What's new": the latest releases of the artists followed on Spotify (read only;
+                // never marked as seen). Followed artists' alerts take them as one more source.
+                "spotify.whatsNew" -> ok(kotlinx.serialization.json.JsonArray(SpotifyWebClient(ctx, slot).whatsNew().map { it.toJson() }).toString())
                 "spotify.concert" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).concert(arg ?: return err("missing concert"))))
                 "spotify.create" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "spotify.add" -> {

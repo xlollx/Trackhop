@@ -309,6 +309,38 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
             }
         }
 
+        /**
+         * Followed artists' alerts' extra source ([com.xlollx.songport.sync.ArtistAlerts.Feed]): the web
+         * player's "What's new", the latest releases of the artists followed on Spotify, read with the
+         * first Spotify (web) account connected, once per look. No such account, or connectors too old
+         * to know it: null, and the alerts ask each artist's own sources only, as before.
+         */
+        fun whatsNewFeed(app: Context): com.xlollx.songport.sync.ArtistAlerts.Feed = com.xlollx.songport.sync.ArtistAlerts.Feed {
+            withContext(Dispatchers.IO) {
+                val p = Providers.connectors().filterIsInstance<SpotifyBridgeProvider>().firstOrNull { it.isConnected(app.env) }?.takeIf { BridgePlugin.full }
+                    ?: return@withContext null
+                val b = BridgePlugin.call(app, "spotify.whatsNew", null, null, p.slot) ?: return@withContext null
+                b.getString("error")?.let { if (it.startsWith("unknown method")) return@withContext null; throw ProviderException("Spotify (web): $it") }
+                parseJson(b.getString("json") ?: return@withContext null).arr.mapNotNull { feedRelease(it) }
+            }
+        }
+
+        /** One release of the connectors' "What's new" answer; null for one without an album, a name or a day. */
+        internal fun feedRelease(j: JsonElement): com.xlollx.songport.sync.ArtistAlerts.FeedRelease? {
+            val uri = j["uri"].str?.takeIf { it.startsWith("spotify:album:") } ?: return null
+            val name = j["name"].str?.takeIf { it.isNotBlank() } ?: return null
+            val date = j["date"].str?.takeIf { it.length >= 7 } ?: return null
+            val type = when (j["type"].str?.uppercase()) {
+                "SINGLE" -> com.xlollx.songport.sync.NewReleases.Type.SINGLE
+                "EP" -> com.xlollx.songport.sync.NewReleases.Type.EP
+                else -> com.xlollx.songport.sync.NewReleases.Type.ALBUM
+            }
+            return com.xlollx.songport.sync.ArtistAlerts.FeedRelease(
+                artists = j["artists"].arr.mapNotNull { it.str }, title = name, type = type, date = date,
+                url = "https://open.spotify.com/album/" + uri.substringAfterLast(':'),
+            )
+        }
+
         /** The connectors' ConcertDto. */
         internal fun concertDate(j: JsonElement): com.xlollx.songport.sync.SpotifyConcerts.Date? {
             val uri = j["uri"].str ?: return null
