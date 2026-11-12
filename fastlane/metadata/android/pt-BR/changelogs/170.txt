@@ -1,1 +1,1 @@
-TIDAL: álbuns salvos e artistas seguidos voltam a sincronizar, depois de uma mudança na API do TIDAL. Amazon Music: a busca volta a funcionar. Correspondência melhor para partes numeradas e títulos remasterizados.
+TIDAL: álbuns salvos e artistas seguidos voltam a sincronizar, depois de uma mudança na API do TIDAL. Amazon Music: a busca volta a funcionar. Correspondência melhor para partes numeradas e títulos remasterizados; Jellyfin e Emby também procuram nas músicas do artista quando nenhum título chega perto.

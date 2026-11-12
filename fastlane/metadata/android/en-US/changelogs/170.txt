@@ -1,1 +1,1 @@
-TIDAL: saved albums and followed artists sync again, after TIDAL changed its API. Amazon Music: search works again. Better matching of numbered parts and remastered titles.
+TIDAL: saved albums and followed artists sync again, after TIDAL changed its API. Amazon Music: search works again. Better matching of numbered parts and remastered titles; Jellyfin and Emby also search the artist's own songs when no title is close.

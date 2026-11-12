@@ -1,1 +1,1 @@
-TIDAL：TIDAL 更改 API 后，已保存的专辑和关注的艺人可以重新同步。Amazon Music：搜索恢复正常。改进了编号分段和重制版标题的匹配。
+TIDAL：TIDAL 更改 API 后，已保存的专辑和关注的艺人可以重新同步。Amazon Music：搜索恢复正常。改进了编号分段和重制版标题的匹配；在 Jellyfin 和 Emby 上，没有相近标题时也会在该艺人的歌曲中查找。

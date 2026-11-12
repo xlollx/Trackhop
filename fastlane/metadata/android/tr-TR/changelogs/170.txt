@@ -1,1 +1,1 @@
-TIDAL: kaydedilen albümler ve takip edilen sanatçılar, TIDAL'ın API değişikliğinden sonra yeniden eşitleniyor. Amazon Music: arama yeniden çalışıyor. Numaralı bölümler ve remaster başlıklar için daha iyi eşleştirme.
+TIDAL: kaydedilen albümler ve takip edilen sanatçılar, TIDAL'ın API değişikliğinden sonra yeniden eşitleniyor. Amazon Music: arama yeniden çalışıyor. Numaralı bölümler ve remaster başlıklar için daha iyi eşleştirme; Jellyfin ve Emby, hiçbir başlık yakın değilse sanatçının kendi şarkılarında da arıyor.

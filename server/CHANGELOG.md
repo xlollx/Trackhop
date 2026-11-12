@@ -8,7 +8,7 @@ the Docker image carried the app's version.
 ## 1.9.2
 
 - **TIDAL saved albums and followed artists sync again**: TIDAL's API no longer has the collection paths Trackhop used (reads and writes answered "Resource not found"); they now go through its new saved-albums and followed-artists resources.
-- **Better matching of numbered parts and remastered titles** (#57).
+- **Better matching of numbered parts and remastered titles** (#57): a bare number after a title is its part when the other title names one ("Magnetic Fields III" is Part 3, never Part 2), another part is never matched nor proposed; more remaster forms leave the search ("Digital Remaster", "24-bit", "Remasterizado"); an album named "A / B" matches either name; Jellyfin and Emby also search the artist's own songs when no title is close.
 
 ## 1.9.1
 
