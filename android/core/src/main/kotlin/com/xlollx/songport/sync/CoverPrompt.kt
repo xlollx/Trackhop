@@ -39,6 +39,47 @@ object CoverPrompt {
         return out.toList()
     }
 
+    /** What a poster lists: the songs, and how many of them (the first ones) come from the user's plays. */
+    class PosterPicks(val tracks: List<Track>, val fromPlays: Int)
+
+    /**
+     * The poster's songs ranked by what the user really plays: first the playlist's songs that are
+     * among [played] (a listening service's top songs), the most played first (by plays when the
+     * service counts them, else in the service's own rank), then [posterTracks] fills up to [n]
+     * with the ones not chosen yet. A song is matched by ISRC when both sides carry one, else by
+     * its normalized title and first artist. Without plays the list is [posterTracks]'s, unchanged.
+     */
+    fun mostPlayed(tracks: List<Track>, played: List<Listening.Play>, n: Int = 9): PosterPicks {
+        if (played.isEmpty() || tracks.isEmpty()) return PosterPicks(posterTracks(tracks, n), 0)
+        val byIsrc = HashMap<String, Track>()
+        val byName = HashMap<String, Track>()
+        for (t in tracks) {
+            t.isrc?.trim()?.uppercase()?.takeIf { it.isNotEmpty() }?.let { byIsrc.putIfAbsent(it, t) }
+            nameKey(t)?.let { byName.putIfAbsent(it, t) }
+        }
+        val chosen = LinkedHashSet<Track>()
+        // Stable: a service that only ranks (every count 0) keeps its own order.
+        for (p in played.sortedByDescending { it.plays }) {
+            if (chosen.size >= n) break
+            val hit = p.track.isrc?.trim()?.uppercase()?.takeIf { it.isNotEmpty() }?.let { byIsrc[it] }
+                ?: nameKey(p.track)?.let { byName[it] }
+            if (hit != null) chosen += hit
+        }
+        val fromPlays = chosen.size
+        if (chosen.size < n) {
+            val rest = tracks.filter { it !in chosen }
+            posterTracks(rest, n - chosen.size).forEach { chosen += it }
+        }
+        return PosterPicks(chosen.toList(), fromPlays)
+    }
+
+    /** A song's title and first artist, normalized; null when either is missing. */
+    private fun nameKey(t: Track): String? {
+        val title = Matcher.normalizeTitle(t.title).takeIf { it.isNotEmpty() } ?: return null
+        val artist = Matcher.normalizeArtist(t.artists.firstOrNull().orEmpty()).takeIf { it.isNotEmpty() } ?: return null
+        return "$title|$artist"
+    }
+
     fun build(title: String, artists: List<String>, description: String = ""): String = buildString {
         append("Square album cover art for a music playlist titled \"").append(title.trim().take(120)).append("\".")
         if (artists.isNotEmpty()) append(" The music sounds like ").append(artists.take(5).joinToString(", ") { it.take(60) }).append('.')
