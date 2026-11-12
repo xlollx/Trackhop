@@ -246,7 +246,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     val skipped = data.settings.wrappedSkipped
     val chosenIds = Wrapped.chosen(services.map { it.id }, skipped).toSet()
     // What it is made from: the best listening service connected (or the one chosen), else the playlists.
-    val listeners = remember { listeningSources(ctx) }
+    val listeners = remember { wrappedChoices(listeningSources(ctx)) }
     val source = if (data.settings.wrappedSource == WRAPPED_FROM_PLAYLISTS) null
         else Listening.choose(listeners.map { it.first }, Listening.Source.of(data.settings.wrappedSource))
     val period = source?.let { Listening.period(it, Listening.Period.of(data.settings.wrappedPeriod)) }

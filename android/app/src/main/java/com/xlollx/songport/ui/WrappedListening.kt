@@ -58,6 +58,7 @@ import com.xlollx.songport.providers.tracks
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Wrapped
+import kotlinx.coroutines.CancellationException
 
 /*
  * The Wrapped of what was listened to: where it is read from (a listening service, or the
@@ -100,7 +101,14 @@ internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicPr
     return when (s) {
         Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period)
         Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period)
-        Listening.Source.SPOTIFY -> (p as SpotifyProvider).listening(env, period)
+        // One Spotify for the user: the official sign-in first; when it gives nothing (no permission
+        // for the top songs yet, a refusal), the web player's sign-in, where there is one, answers.
+        Listening.Source.SPOTIFY -> {
+            val official = try { Result.success((p as SpotifyProvider).listening(env, period)) } catch (e: CancellationException) { throw e } catch (e: Exception) { Result.failure(e) }
+            official.getOrNull()?.takeIf { it.tracks.isNotEmpty() || it.artists.isNotEmpty() }
+                ?: spotifyWeb(ctx)?.let { w -> try { w.listening(env, period).takeIf { it.tracks.isNotEmpty() || it.artists.isNotEmpty() } } catch (e: CancellationException) { throw e } catch (e: Exception) { null } }
+                ?: official.getOrThrow()
+        }
         Listening.Source.SPOTIFY_WEB -> (p as SpotifyBridgeProvider).listening(env, period)
         Listening.Source.DEEZER -> (p as DeezerProvider).listening(env)
         Listening.Source.TIDAL -> (p as TidalProvider).listening(env, period)
@@ -109,6 +117,14 @@ internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicPr
         Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID))
     }
 }
+
+/** The web player's Spotify connector, signed in, where the connectors are the full ones. */
+private fun spotifyWeb(ctx: Context): SpotifyBridgeProvider? =
+    if (!BridgePlugin.full) null else Providers.connectors().firstOrNull { it is SpotifyBridgeProvider && it.isConnected(ctx) } as SpotifyBridgeProvider?
+
+/** The choices on the Wrapped page: one Spotify, the official one standing for both when both are connected. */
+internal fun wrappedChoices(all: List<Pair<Listening.Source, MusicProvider>>): List<Pair<Listening.Source, MusicProvider>> =
+    if (all.any { it.first == Listening.Source.SPOTIFY }) all.filterNot { it.first == Listening.Source.SPOTIFY_WEB } else all
 
 internal fun periodLabel(ctx: Context, p: Listening.Period): String = ctx.getString(when (p) {
     Listening.Period.MONTH -> R.string.discover_wrapped_period_month
