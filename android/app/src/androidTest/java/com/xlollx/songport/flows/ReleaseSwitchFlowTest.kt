@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.MainActivity
@@ -136,25 +137,43 @@ open class ReleaseSwitchFlowTest : FlowTest() {
 class ReleaseSwitchPreviewFlowTest : ReleaseSwitchFlowTest() {
     override val preview2: Boolean = true
 
-    /** The toggle itself: off it hides them again, on (from Settings) it shows them, on this phone only. */
-    @Test fun theDeveloperToggleTurnsThePreviewOffAndOn() {
-        store.updateSettings { it.copy(preview2 = false) }
-        launch(tabIntent(MainActivity.TAB_SETTINGS))
-        waitText(s(R.string.settings_theme))
-        // Developer options first; the preview's switch is under them.
-        assertFalse(exists(s(R.string.settings_preview2)))
-        click(s(R.string.settings_developer_switch))
-        waitFor("developer options on") { store.data.settings.developerOptions }
-        waitText(s(R.string.settings_preview2))
-        click(s(R.string.settings_preview2))
-        waitFor("the preview on") { store.data.settings.preview2 }
-        assertTrue(com.xlollx.songport.Features.v2)
-        launch(tabIntent(MainActivity.TAB_TOOLS))
-        waitText(s(R.string.shared_title))
-        store.updateSettings { it.copy(preview2 = false) }
-        assertFalse(com.xlollx.songport.Features.v2)
-        launch(tabIntent(MainActivity.TAB_TOOLS))
-        waitText(s(R.string.tools_transfer_title))
-        assertFalse(exists(s(R.string.shared_title)))
+    /**
+     * The way in: no switch in Developer options while the preview is off; the code typed into the
+     * search of the syncs turns it on (and is not kept as a search); then the switch is there to turn it off.
+     */
+    @Test fun theCodeTurnsThePreviewOnAndTheSwitchOff() {
+        val code = "preview-for-tests"
+        val keep = com.xlollx.songport.PreviewCode.hash
+        com.xlollx.songport.PreviewCode.hash = java.security.MessageDigest.getInstance("SHA-256")
+            .digest("trackhop-preview:$code".toByteArray()).joinToString("") { "%02x".format(it) }
+        try {
+            val now = System.currentTimeMillis()
+            val jobs = (0 until com.xlollx.songport.ui.FIND_MIN_SYNCS).map { i ->
+                com.xlollx.songport.model.SyncJob("job-$i", "Mix $i", com.xlollx.songport.model.PlaylistRef("spotify", "pl$i", "Mix $i"),
+                    com.xlollx.songport.model.PlaylistRef("deezer", "d$i", "Mix $i"), lastRunEpoch = now - (i + 1) * 60_000L)
+            }
+            store.update { it.copy(jobs = jobs) }
+            store.updateSettings { it.copy(preview2 = false, developerOptions = true) }
+            launch(tabIntent(MainActivity.TAB_SETTINGS))
+            waitText(s(R.string.settings_theme))
+            assertFalse(exists(s(R.string.settings_preview2)))
+            // A wrong code is just a search.
+            launch(tabIntent(MainActivity.TAB_SYNCS))
+            waitFor("the search of the syncs") { compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SYNC_SEARCH_TAG)).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty() }
+            val field = compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SYNC_SEARCH_TAG))
+            field.performTextInput("preview-for-test")
+            compose.waitForIdle()
+            assertFalse(store.data.settings.preview2)
+            field.performTextInput("s")
+            waitFor("the preview on") { store.data.settings.preview2 }
+            assertTrue(com.xlollx.songport.Features.v2)
+            launch(tabIntent(MainActivity.TAB_SETTINGS))
+            waitText(s(R.string.settings_preview2))
+            click(s(R.string.settings_preview2))
+            waitFor("the preview off") { !store.data.settings.preview2 }
+            assertFalse(com.xlollx.songport.Features.v2)
+        } finally {
+            com.xlollx.songport.PreviewCode.hash = keep
+        }
     }
 }

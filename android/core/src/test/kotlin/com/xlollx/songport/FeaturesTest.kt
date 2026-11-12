@@ -91,4 +91,16 @@ class FeaturesTest {
         com.xlollx.songport.data.ConfigBackup.import(other, com.xlollx.songport.data.ConfigBackup.read(file))
         assertFalse(other.store.data.settings.preview2)
     }
+
+    /** Only the code's hash is kept; case and spaces around it do not count, a near miss does not open. */
+    @Test fun thePreviewCodeIsCheckedByItsHash() {
+        val keep = PreviewCode.hash
+        try {
+            PreviewCode.hash = java.security.MessageDigest.getInstance("SHA-256").digest("trackhop-preview:code-for-tests".toByteArray()).joinToString("") { "%02x".format(it) }
+            assertTrue(PreviewCode.matches("code-for-tests"))
+            assertTrue(PreviewCode.matches("  Code-For-Tests "))
+            assertFalse(PreviewCode.matches("code-for-test"))
+            assertFalse(PreviewCode.matches(""))
+        } finally { PreviewCode.hash = keep }
+    }
 }

@@ -837,7 +837,14 @@ private fun MainScreen(
                     beside = if (finder) ({
                         // No wider than reads well in a wide window; in a narrow one it is what gives way.
                         Box(Modifier.weight(1f).padding(end = 4.dp)) {
-                            com.xlollx.songport.ui.SyncSearchField(syncFilter.value, data.syncs.size, Modifier.widthIn(max = 520.dp).fillMaxWidth()) { syncFilter.value = it }
+                            com.xlollx.songport.ui.SyncSearchField(syncFilter.value, data.syncs.size, Modifier.widthIn(max = 520.dp).fillMaxWidth()) { f ->
+                                // The preview code (see PreviewCode) turns the 1.18 preview on and is not kept as a search.
+                                if (!BuildConfig.V2 && com.xlollx.songport.PreviewCode.matches(f.query)) {
+                                    store.updateSettings { it.copy(preview2 = true) }
+                                    android.widget.Toast.makeText(ctx, ctx.getString(R.string.settings_preview2) + " ✓", android.widget.Toast.LENGTH_SHORT).show()
+                                    syncFilter.value = f.copy(query = "")
+                                } else syncFilter.value = f
+                            }
                         }
                     }) else null,
                 ) {

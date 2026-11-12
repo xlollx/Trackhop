@@ -466,7 +466,8 @@ fun SettingsScreen(
             }
             // The release switch's other half: this device shows 1.18's features in a build that hides them
             // (a test APK). A 1.18 build has them on anyway.
-            if (settings.developerOptions && !BuildConfig.V2) {
+            // Only to turn the preview off: it is turned on by the code typed into the search of the syncs (PreviewCode).
+            if (settings.developerOptions && settings.preview2 && !BuildConfig.V2) {
                 PrefSwitch(Icons.Filled.NewReleases, stringResource(R.string.settings_preview2), stringResource(R.string.settings_preview2_summary), settings.preview2) { v ->
                     store.updateSettings { it.copy(preview2 = v) }
                 }
