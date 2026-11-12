@@ -44,5 +44,21 @@ data class TrackDto(
 @Serializable
 data class TopDto(val tracks: List<TrackDto> = emptyList(), val artists: List<String> = emptyList())
 
+/**
+ * A concert as Spotify's player lists it ([SpotifyWebClient.concerts], [SpotifyWebClient.concert]):
+ * [start] as Spotify gives it (ISO 8601, with the venue's UTC offset). The artist's list says the
+ * city only: [venue] and [country] (ISO 3166, two letters) come from the concert's own page.
+ */
+@Serializable
+data class ConcertDto(
+    val uri: String,
+    val title: String = "",
+    val start: String,
+    val city: String = "",
+    val venue: String = "",
+    val country: String = "",
+    val festival: Boolean = false,
+)
+
 @Serializable
 data class RemoveItem(val videoId: String, val setVideoId: String? = null)

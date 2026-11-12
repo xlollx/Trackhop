@@ -2076,6 +2076,8 @@
     <string name="concerts_sources_unofficial">Vivaticket の公演情報はサイトから読み取っています（非公式）。いつでも使えなくなる可能性があります。</string>
     <string name="concerts_on_ticketone">TicketOne でチケット（非公式）</string>
     <string name="concerts_sources_ticketone">TicketOne の公演情報は、この端末で裏側で開いたサイトから読み取っています（非公式）。いつでも使えなくなる可能性があります。</string>
+    <string name="concerts_on_spotify">Spotify 経由でチケット（非公式）</string>
+    <string name="concerts_sources_spotify">Spotify の公演情報は、Trackhop での Spotify のログインを使ってアーティストページから読み取っています（非公式）。いつでも使えなくなる可能性があります。</string>
     <string name="concerts_coverage_it">イタリアでは TicketOne のみで販売される公演は含まれません。検索ボタンをお使いください。</string>
     <string name="concerts_coverage">すべての公演が載っているわけではありません。アーティストの公式サイトも確認してください。</string>
     <string name="concerts_quota">本日の Ticketmaster の上限に達しました。明日もう一度お試しください。下の一部の日程は MusicBrainz のみのものです。</string>

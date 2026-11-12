@@ -2198,6 +2198,8 @@
     <string name="concerts_sources_unofficial">Daty z Vivaticket są odczytywane z jego strony (nieoficjalnie): w każdej chwili może to przestać działać.</string>
     <string name="concerts_on_ticketone">Bilety w TicketOne (nieoficjalnie)</string>
     <string name="concerts_sources_ticketone">Daty z TicketOne są odczytywane z jego strony, otwieranej w tle na tym telefonie (nieoficjalnie): w każdej chwili może to przestać działać.</string>
+    <string name="concerts_on_spotify">Bilety przez Spotify (nieoficjalnie)</string>
+    <string name="concerts_sources_spotify">Daty ze Spotify są odczytywane z jego stron wykonawców przy użyciu twojego logowania do Spotify w Trackhop (nieoficjalnie): w każdej chwili może to przestać działać.</string>
     <string name="concerts_coverage_it">We Włoszech brakuje koncertów sprzedawanych tylko w TicketOne: dla nich użyj przycisków wyszukiwania.</string>
     <string name="concerts_coverage">Nie każdy koncert jest na liście: sprawdź też oficjalną stronę artysty.</string>
     <string name="concerts_quota">Dzisiejszy limit Ticketmaster został wyczerpany: spróbuj jutro. Niektóre daty poniżej pochodzą tylko z MusicBrainz.</string>

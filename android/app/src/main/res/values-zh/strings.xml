@@ -2076,6 +2076,8 @@
     <string name="concerts_sources_unofficial">Vivaticket 的演出信息读取自其网站（非官方），随时可能失效。</string>
     <string name="concerts_on_ticketone">在 TicketOne 购票（非官方）</string>
     <string name="concerts_sources_ticketone">TicketOne 的演出信息读取自在本机后台打开的其网站（非官方），随时可能失效。</string>
+    <string name="concerts_on_spotify">通过 Spotify 购票（非官方）</string>
+    <string name="concerts_sources_spotify">Spotify 的演出信息是用你在 Trackhop 中的 Spotify 登录从其艺人页面读取的（非官方），随时可能失效。</string>
     <string name="concerts_coverage_it">在意大利，只在 TicketOne 售票的演出不在其中：请使用搜索按钮。</string>
     <string name="concerts_coverage">并非所有演出都会列出：也请看看艺人的官方网站。</string>
     <string name="concerts_quota">今天的 Ticketmaster 额度已用完：请明天再试。下面的部分日期仅来自 MusicBrainz。</string>

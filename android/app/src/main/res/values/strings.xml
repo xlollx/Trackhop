@@ -2117,6 +2117,8 @@
     <string name="concerts_sources_unofficial">Vivaticket\'s dates are read from its website (unofficial): this may stop working at any time.</string>
     <string name="concerts_on_ticketone">Tickets on TicketOne (unofficial)</string>
     <string name="concerts_sources_ticketone">TicketOne\'s dates are read from its website, opened out of sight on this phone (unofficial): this may stop working at any time.</string>
+    <string name="concerts_on_spotify">Tickets via Spotify (unofficial)</string>
+    <string name="concerts_sources_spotify">Spotify\'s dates are read from its artist pages with your Spotify sign-in in Trackhop (unofficial): this may stop working at any time.</string>
     <string name="concerts_coverage_it">In Italy, concerts sold only on TicketOne are missing: use the search buttons for those.</string>
     <string name="concerts_coverage">Not every concert is listed: check the artist\'s official site too.</string>
     <string name="concerts_quota">Today\'s Ticketmaster limit is reached: try again tomorrow. Some dates below come from MusicBrainz only.</string>
