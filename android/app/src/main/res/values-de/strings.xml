@@ -2113,6 +2113,8 @@
     <string name="concerts_sources_unofficial">Die Vivaticket-Termine werden von der Website gelesen (inoffiziell): Das kann jederzeit aufhören zu funktionieren.</string>
     <string name="concerts_on_ticketone">Tickets bei TicketOne (inoffiziell)</string>
     <string name="concerts_sources_ticketone">Die TicketOne-Termine werden von der Website gelesen, unsichtbar auf diesem Handy geöffnet (inoffiziell): Das kann jederzeit aufhören zu funktionieren.</string>
+    <string name="concerts_on_spotify">Tickets über Spotify (inoffiziell)</string>
+    <string name="concerts_sources_spotify">Die Spotify-Termine werden mit deiner Spotify-Anmeldung in Trackhop von den Künstlerseiten gelesen (inoffiziell): Das kann jederzeit aufhören zu funktionieren.</string>
     <string name="concerts_coverage_it">In Italien fehlen Konzerte, die nur bei TicketOne verkauft werden: Nutze dafür die Suchknöpfe.</string>
     <string name="concerts_coverage">Nicht jedes Konzert ist aufgeführt: Schau auch auf der offiziellen Seite des Künstlers nach.</string>
     <string name="concerts_quota">Das heutige Ticketmaster-Limit ist erreicht: Versuch es morgen wieder. Einige Termine unten stammen nur von MusicBrainz.</string>

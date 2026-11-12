@@ -2121,6 +2121,8 @@
     <string name="concerts_sources_unofficial">Las fechas de Vivaticket se leen de su web (no oficial): puede dejar de funcionar en cualquier momento.</string>
     <string name="concerts_on_ticketone">Entradas en TicketOne (no oficial)</string>
     <string name="concerts_sources_ticketone">Las fechas de TicketOne se leen de su web, abierta en segundo plano en este móvil (no oficial): puede dejar de funcionar en cualquier momento.</string>
+    <string name="concerts_on_spotify">Entradas vía Spotify (no oficial)</string>
+    <string name="concerts_sources_spotify">Las fechas de Spotify se leen de sus páginas de artista con tu sesión de Spotify en Trackhop (no oficial): puede dejar de funcionar en cualquier momento.</string>
     <string name="concerts_coverage_it">En Italia faltan los conciertos que solo vende TicketOne: para esos usa los botones de búsqueda.</string>
     <string name="concerts_coverage">No aparecen todos los conciertos: mira también la web oficial del artista.</string>
     <string name="concerts_quota">Se alcanzó el límite de hoy de Ticketmaster: vuelve a intentarlo mañana. Algunas fechas de abajo vienen solo de MusicBrainz.</string>

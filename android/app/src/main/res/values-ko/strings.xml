@@ -2072,6 +2072,8 @@
     <string name="concerts_sources_unofficial">Vivaticket 공연 정보는 웹사이트에서 읽어 와요(비공식). 언제든 작동하지 않을 수 있어요.</string>
     <string name="concerts_on_ticketone">TicketOne에서 티켓 (비공식)</string>
     <string name="concerts_sources_ticketone">TicketOne 공연 정보는 이 휴대폰에서 보이지 않게 연 웹사이트에서 읽어 와요(비공식). 언제든 작동하지 않을 수 있어요.</string>
+    <string name="concerts_on_spotify">Spotify를 통해 티켓 (비공식)</string>
+    <string name="concerts_sources_spotify">Spotify 공연 정보는 Trackhop의 Spotify 로그인으로 아티스트 페이지에서 읽어 와요(비공식). 언제든 작동하지 않을 수 있어요.</string>
     <string name="concerts_coverage_it">이탈리아에서는 TicketOne에서만 판매하는 공연이 빠져 있어요. 검색 버튼을 이용하세요.</string>
     <string name="concerts_coverage">모든 공연이 나오지는 않아요. 아티스트의 공식 사이트도 확인하세요.</string>
     <string name="concerts_quota">오늘의 Ticketmaster 한도에 도달했어요. 내일 다시 시도하세요. 아래 일부 일정은 MusicBrainz에서만 가져왔어요.</string>

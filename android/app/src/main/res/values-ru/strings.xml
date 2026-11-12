@@ -2193,6 +2193,8 @@
     <string name="concerts_sources_unofficial">Даты Vivaticket берутся с его сайта (неофициально): это может перестать работать в любой момент.</string>
     <string name="concerts_on_ticketone">Билеты на TicketOne (неофициально)</string>
     <string name="concerts_sources_ticketone">Даты TicketOne берутся с его сайта, который открывается в фоне на этом телефоне (неофициально): это может перестать работать в любой момент.</string>
+    <string name="concerts_on_spotify">Билеты через Spotify (неофициально)</string>
+    <string name="concerts_sources_spotify">Даты Spotify берутся со страниц исполнителей с помощью вашего входа в Spotify в Trackhop (неофициально): это может перестать работать в любой момент.</string>
     <string name="concerts_coverage_it">В Италии нет концертов, которые продаются только на TicketOne: для них используйте кнопки поиска.</string>
     <string name="concerts_coverage">Здесь есть не все концерты: загляните и на официальный сайт артиста.</string>
     <string name="concerts_quota">Дневной лимит Ticketmaster исчерпан: попробуйте завтра. Некоторые даты ниже взяты только из MusicBrainz.</string>

@@ -27,6 +27,12 @@ class SongportApp : Application() {
         // The web connectors' extra accounts ask the connectors whether they can be added: from anywhere, with the app.
         com.xlollx.songport.providers.WebAccounts.app = this
         com.xlollx.songport.providers.BuiltIn.onAppStart(this, com.xlollx.songport.net.HostLog.interceptor)
+        // Concerts: the tour dates on Spotify's artist pages, where the Spotify (web) connector is connected (unofficial);
+        // a date is placed in a country by the UTC offsets that country uses (Android's time zone data).
+        com.xlollx.songport.sync.SpotifyConcerts.reader = com.xlollx.songport.providers.SpotifyBridgeProvider.concertsReader(this)
+        com.xlollx.songport.sync.SpotifyConcerts.zones = { country ->
+            android.icu.util.TimeZone.getAvailableIDs(country).mapNotNull { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+        }
         // The sync cards' last "up to date" checks, so a card opens with them (FreshnessChecks).
         com.xlollx.songport.ui.FreshnessChecks.init(this)
         Notifications.ensureChannel(this)

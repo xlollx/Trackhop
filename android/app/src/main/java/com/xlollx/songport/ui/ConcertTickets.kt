@@ -11,13 +11,15 @@ import com.xlollx.songport.sync.Concerts
 
 /**
  * Concerts: where a date's tickets are. Vivaticket's and TicketOne's dates come from their sites,
- * unofficially (only where unofficial sources are allowed), and say so.
+ * unofficially (only where unofficial sources are allowed), and Spotify's from its artist pages with
+ * the user's Spotify (web) sign-in, unofficially too: they say so.
  */
 @Composable
 internal fun ticketsLabel(source: Concerts.Source): String = when (source) {
     Concerts.Source.TICKETMASTER -> stringResource(R.string.concerts_on_ticketmaster)
     Concerts.Source.VIVATICKET -> stringResource(R.string.concerts_on_vivaticket)
     Concerts.Source.TICKETONE -> stringResource(R.string.concerts_on_ticketone)
+    Concerts.Source.SPOTIFY -> stringResource(R.string.concerts_on_spotify)
     else -> source.label
 }
 
@@ -34,7 +36,10 @@ internal fun AlsoOnLinks(e: Concerts.Event) {
 @Composable
 internal fun UnofficialSourcesNote(r: Concerts.Result) {
     val used = r.artists.flatMap { a -> a.events.flatMap { e -> listOf(e.source) + e.alsoOn.map { it.source } } }.toSet()
-    listOf(Concerts.Source.VIVATICKET to R.string.concerts_sources_unofficial, Concerts.Source.TICKETONE to R.string.concerts_sources_ticketone).forEach { (source, note) ->
+    listOf(
+        Concerts.Source.VIVATICKET to R.string.concerts_sources_unofficial, Concerts.Source.TICKETONE to R.string.concerts_sources_ticketone,
+        Concerts.Source.SPOTIFY to R.string.concerts_sources_spotify,
+    ).forEach { (source, note) ->
         if (source in used) Text(stringResource(note), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

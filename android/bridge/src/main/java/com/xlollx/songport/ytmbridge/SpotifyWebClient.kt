@@ -585,15 +585,63 @@ class SpotifyWebClient(private val host: Host) {
      * MID_TERM six months, LONG_TERM a year), as the player's own profile page asks for them
      * ("Top tracks this month", visible only to the user): the persisted query `userTopContent`,
      * with the variables the player's profile route sends, read off its bundle
-     * (xpui-routes-profile, 11/2026). A ranking (sortBy AFFINITY), no counts.
+     * (xpui-routes-profile, 11/2026) and seen in a capture of the player: the profile asks 10 artists
+     * and 4 songs, its "Show all" pages 100 of one kind (the other with `include…` false and a limit
+     * of 0); here both at once, 100 each. A ranking (sortBy AFFINITY), no counts.
      */
-    fun top(timeRange: String, limit: Int = 50): TopDto {
+    fun top(timeRange: String, limit: Int = 100): TopDto {
         val input = { n: Int -> jsonObj("offset" to 0, "limit" to n, "sortBy" to "AFFINITY", "timeRange" to timeRange) }
         val j = gql("userTopContent", jsonObj(
             "includeTopArtists" to true, "topArtistsInput" to input(limit),
             "includeTopTracks" to true, "topTracksInput" to input(limit),
         ))
         return parseTop(j)
+    }
+
+    // ---- concerts
+
+    /**
+     * The uri of the artist the player's search finds under [name] (case and accents aside), the
+     * first such; null when it finds none of that name.
+     */
+    fun artistUri(name: String): String? {
+        val want = sameName(name)
+        if (want.isEmpty()) return null
+        return search(name, "artist").firstOrNull { sameName(it.title) == want }?.uri
+    }
+
+    /**
+     * The artist's upcoming concerts, as their page's tour section lists them: `ArtistConcerts`,
+     * with the variables the artist route sends (xpui-routes-artist, 11/2026) less the "near you"
+     * part (`includeNearby` false, as for a visitor). Date and city only: [concert] has the rest.
+     */
+    fun concerts(artistUri: String): List<ConcertDto> =
+        parseConcerts(gql("ArtistConcerts", jsonObj("artistUri" to artistUri, "geoHash" to JsonNull, "includeNearby" to false)))
+
+    /** `data.concerts.concerts.items[].data`: each a concert with its uri, title, start and city. */
+    internal fun parseConcerts(j: JsonElement?): List<ConcertDto> {
+        val items = j["data"]["concerts"]["concerts"]["items"].arr
+        val out = items.mapNotNull { concertDto(it["data"]) }
+        if (out.isEmpty() && items.isNotEmpty()) unexpected("ArtistConcerts", j ?: JsonNull, items)
+        return out
+    }
+
+    /**
+     * One concert's page (`concert`, as the concert route asks it for a signed-in user): its venue,
+     * city and country. Null when the answer holds no concert.
+     */
+    fun concert(uri: String): ConcertDto? = concertDto(gql("concert", jsonObj("uri" to uri, "authenticated" to true))["data"]["concert"])
+
+    private fun concertDto(d: JsonElement?): ConcertDto? {
+        val uri = d["uri"].str?.takeIf { it.startsWith("spotify:concert:") } ?: return null
+        val start = d["startDateIsoString"].str?.takeIf { it.length >= 10 } ?: return null
+        val at = d["location"]
+        return ConcertDto(
+            uri = uri, title = d["title"].str.orEmpty(), start = start,
+            city = at["city"].str.orEmpty(), venue = at["name"].str.orEmpty(),
+            country = at["country"].str?.trim()?.uppercase()?.takeIf { it.length == 2 }.orEmpty(),
+            festival = (d["festival"] as? JsonPrimitive)?.content == "true",
+        )
     }
 
     /** Catalogue search, the player's: tracks, or albums or artists for [kind]. */
@@ -791,6 +839,10 @@ class SpotifyWebClient(private val host: Host) {
         return TopDto(tracks, artists)
     }
 
+    /** A name compared as the search's results are: case, accents and spacing aside. */
+    private fun sameName(s: String): String =
+        java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replace(MARKS, "").lowercase().replace(SPACES, " ").trim()
+
     private fun albumDto(d: JsonElement?, addedAt: String?): TrackDto? {
         val uri = d["uri"].str ?: return null
         if (!uri.startsWith("spotify:album:")) return null
@@ -816,6 +868,8 @@ class SpotifyWebClient(private val host: Host) {
         /** Writes that add: never sent a second time after an answer that leaves their outcome unknown (#42). */
         private val NOT_REPEATED = setOf("addToPlaylist")
         private const val OUTCOME_UNKNOWN = "outcome unknown"
+        private val MARKS = Regex("\\p{M}+")
+        private val SPACES = Regex("\\s+")
         /**
          * Searches spaced out, about three a second across every client of the process: a burst of
          * them makes Spotify block for half an hour (issue #30), a steady pace does not.
@@ -870,6 +924,9 @@ class SpotifyWebClient(private val host: Host) {
             "getTrack" to "e7b1bf4e95cb3d733d48b442f93006e9712fd504e8b88d7a82e6e3bac9306a6b",
             // The profile route's top songs and artists (xpui-routes-profile, web-player.d8d10126).
             "userTopContent" to "61b7353d3625780022dbc63d459eb64cd609e7e5e2a820f9160d65030efe2e15",
+            // The artist page's tour section and a concert's page (xpui-routes-artist, xpui-routes-concert).
+            "ArtistConcerts" to "ef53c43b865496b9890b7167eab1dc614a8949ef9451b3c41184ea888de8bd2b",
+            "concert" to "9b582a69061f6648858515c2aa6d4a2273ac49b74eb5dbc612bc1299a9f2f13e",
             "profileAttributes" to "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0",
             "addToPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
             "removeFromPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",

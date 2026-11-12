@@ -3,6 +3,7 @@ package com.xlollx.songport.providers
 import android.content.Context
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.android
+import com.xlollx.songport.platform.env
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -275,5 +276,45 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.SPOTIFY_LOGIN"
         /** The status call of this service, which says whether the connectors take extra accounts. */
         const val STATUS = "spotify.status"
+
+        /**
+         * Concerts' Spotify source ([com.xlollx.songport.sync.SpotifyConcerts]): the tour dates of the
+         * player's artist pages, read with the session of the first Spotify (web) account connected,
+         * where the connectors are the full ones. No such account, or connectors too old to know the
+         * methods: nothing is asked and nothing is said.
+         */
+        fun concertsReader(app: Context): com.xlollx.songport.sync.SpotifyConcerts.Reader = object : com.xlollx.songport.sync.SpotifyConcerts.Reader {
+            private fun connected(): SpotifyBridgeProvider? {
+                val env = app.env
+                return Providers.connectors().filterIsInstance<SpotifyBridgeProvider>().firstOrNull { it.isConnected(env) }?.takeIf { BridgePlugin.full }
+            }
+
+            /** The connectors' answer; null when they do not know [method]. Their other errors throw. */
+            private fun ask(p: SpotifyBridgeProvider, method: String, arg: String): JsonElement? {
+                val b = BridgePlugin.call(app, method, arg, null, p.slot) ?: return null
+                b.getString("error")?.let { if (it.startsWith("unknown method")) return null; throw ProviderException("Spotify (web): $it") }
+                return parseJson(b.getString("json") ?: return null)
+            }
+
+            override suspend fun dates(artist: String) = withContext(Dispatchers.IO) {
+                val p = connected() ?: return@withContext null
+                ask(p, "spotify.concerts", artist)?.arr?.mapNotNull { concertDate(it) }
+            }
+
+            override suspend fun details(uri: String) = withContext(Dispatchers.IO) {
+                val p = connected() ?: return@withContext null
+                ask(p, "spotify.concert", uri)?.let { concertDate(it) }
+            }
+        }
+
+        /** The connectors' ConcertDto. */
+        internal fun concertDate(j: JsonElement): com.xlollx.songport.sync.SpotifyConcerts.Date? {
+            val uri = j["uri"].str ?: return null
+            val start = j["start"].str ?: return null
+            return com.xlollx.songport.sync.SpotifyConcerts.Date(
+                uri = uri, title = j["title"].str.orEmpty(), start = start,
+                city = j["city"].str.orEmpty(), venue = j["venue"].str.orEmpty(), country = j["country"].str.orEmpty(),
+            )
+        }
     }
 }
