@@ -105,7 +105,7 @@ object YtmWeb {
                         val w = WebView(app)
                         // An extra account's engine lives in that account's profile: set before anything loads.
                         Slots.apply(w, Session.PROFILE, slot)
-                        seedCookies(app)
+                        seedCookies(app, session)
                         w.settings.apply { javaScriptEnabled = true; domStorageEnabled = true }
                         w.addJavascriptInterface(sink, "YtmWeb")
                         w.webViewClient = object : SafeWebViewClient() {
@@ -126,26 +126,26 @@ object YtmWeb {
             }
         }
 
-        /**
-         * The session was captured by a WebView, so the cookie jar normally still has it; after a jar
-         * reset (or a session restored from storage) it is put back from the stored cookie string.
-         */
-        private fun seedCookies(app: Context) {
-            val stored = session.cookies(app) ?: return
-            val cm = session.jar()
-            val present = cm.getCookie(Session.ORIGIN) ?: ""
-            if (present.contains("SAPISID=") || present.contains("__Secure-3PAPISID=")) return
-            stored.split(';').map { it.trim() }.filter { it.contains('=') }.forEach { c ->
-                val name = c.substringBefore('=')
-                val value = c.substringAfter('=')
-                cm.setCookie("https://music.youtube.com", "$name=$value; Domain=.youtube.com; Path=/; Secure")
-            }
-            cm.flush()
-        }
-
         fun reset() {
             main.post { runCatching { web?.destroy() }; web = null; ready = null; broken = false }
         }
+    }
+
+    /**
+     * The session was captured by a WebView, so the cookie jar normally still has it; after a jar
+     * reset (or a session restored from storage) it is put back from the stored cookie string.
+     */
+    fun seedCookies(app: Context, session: YtmSessionStore) {
+        val stored = session.cookies(app) ?: return
+        val cm = session.jar()
+        val present = cm.getCookie(Session.ORIGIN) ?: ""
+        if (present.contains("SAPISID=") || present.contains("__Secure-3PAPISID=")) return
+        stored.split(';').map { it.trim() }.filter { it.contains('=') }.forEach { c ->
+            val name = c.substringBefore('=')
+            val value = c.substringAfter('=')
+            cm.setCookie("https://music.youtube.com", "$name=$value; Domain=.youtube.com; Path=/; Secure")
+        }
+        cm.flush()
     }
 
     private const val PAGE = "${Session.ORIGIN}/robots.txt"

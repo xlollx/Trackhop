@@ -108,6 +108,8 @@ class LoginActivity : ComponentActivity() {
     private fun finishWith(cookies: String) {
         val session = Session.forSlot(slot)
         session.save(this, cookies, null)
+        // A new session: the renewals start afresh.
+        YtmRenewal.forget(slot)
         thread {
             val name = runCatching { YtmClient(applicationContext, slot).accountName() }.getOrNull()
             session.save(applicationContext, cookies, name)

@@ -6,7 +6,9 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import android.app.NotificationManager
 import com.xlollx.songport.MainActivity
+import com.xlollx.songport.Notifications
 import com.xlollx.songport.R
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
@@ -99,5 +101,27 @@ class AccountsFlowTest : FlowTest() {
         click(s(R.string.connect))
         click(s(R.string.connect_continue_browser))
         waitText(s(R.string.connected_as, "alex"))
+    }
+
+    @Test
+    fun theSignInAgainNotificationOpensAccountsOnItsConnector() {
+        val nm = app.getSystemService(NotificationManager::class.java)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitFor("the Syncs tab, not Accounts") { !exists(s(R.string.connected_as, "alex")) }
+
+        // A web session found gone: one notification for that connector, tagged with its id.
+        assertTrue(Notifications.signInAgain(app, "Spotify", "spotify"))
+        val title = s(R.string.notif_signin_again_title, "Spotify")
+        waitFor("the notification posted") { nm.activeNotifications.any { it.tag == "spotify" } }
+        val posted = nm.activeNotifications.first { it.tag == "spotify" }
+        assertEquals(title, posted.notification.extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString())
+
+        // A tap opens Accounts, where that connector is.
+        posted.notification.contentIntent.send()
+        waitText(s(R.string.connected_as, "alex"))
+
+        // Signed in again: it is taken back.
+        Notifications.cancelSignInAgain(app, "spotify")
+        waitFor("the notification taken back") { nm.activeNotifications.none { it.tag == "spotify" } }
     }
 }

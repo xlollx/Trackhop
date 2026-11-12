@@ -34,6 +34,13 @@ class YtmClientContractTest {
         override fun clear() {}
     }
     private lateinit var client: YtmClient
+    /** The session the host holds, what it renews to, and whether it can (the server cannot: the default). */
+    private var jar = "SAPISID=sapi-123; SID=sid; __Secure-3PAPISID=sapi-123"
+    private var renewable = false
+    private var renewTo: String? = null
+    private var pageId: String? = null
+    private val renewals = Collections.synchronizedList(ArrayList<String>())
+    private val logs = Collections.synchronizedList(ArrayList<String>())
 
     @Before fun start() {
         server = MockWebServer()
@@ -49,7 +56,7 @@ class YtmClientContractTest {
         server.start()
         val base = server.url("/")
         val host = object : YtmHost {
-            override fun cookies() = "SAPISID=sapi-123; SID=sid; __Secure-3PAPISID=sapi-123"
+            override fun cookies() = jar
             override val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140.0.0.0"
             override val interceptor = Interceptor { chain ->
                 val u = chain.request().url
@@ -60,6 +67,13 @@ class YtmClientContractTest {
             override val verification = this@YtmClientContractTest.verification
             override val signInAgain = "sign in again"
             override val blockedHint: String? = null
+            override val channel: String? get() = pageId
+            override fun log(message: String) { logs += message }
+            override val canRenew: Boolean get() = renewable
+            override fun renewSession(refused: String): String? {
+                renewals += refused
+                return renewTo?.also { jar = it }
+            }
         }
         client = YtmClient(host)
     }
@@ -190,6 +204,70 @@ class YtmClientContractTest {
         answer("""{"error":{"code":401,"message":"Request had invalid authentication credentials.","status":"UNAUTHENTICATED"}}""", 401)
         try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }
         assertEquals(1, calls.size)
+    }
+
+    private val unauthenticated = """{"error":{"code":401,"message":"Request had invalid authentication credentials.","status":"UNAUTHENTICATED"}}"""
+    private fun shelf(vararg rows: String) = """{"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"PL1",
+            "contents":[${rows.joinToString(",")}]}}]}}}}}"""
+
+    @Test fun aRefusedSessionIsRenewedOnceAndTheCallMadeAgainWithItsCookies() {
+        renewable = true
+        pageId = "112233445566778899"
+        val old = jar
+        renewTo = "SAPISID=sapi-456; SID=sid2; __Secure-3PAPISID=sapi-456; __Secure-3PSIDTS=ts2"
+        answer(unauthenticated, 401)
+        answer(shelf(row("v1", "S1")))
+        assertEquals(listOf("v1"), client.tracks("PL1").map { it.id })
+        assertEquals(listOf(old), renewals)
+        assertEquals(2, calls.size)
+        // The same call again: the renewed cookies, a SAPISIDHASH made of them, the same channel.
+        val retry = take(1)
+        assertEquals(renewTo, retry.getHeader("Cookie"))
+        val auth = retry.getHeader("Authorization")!!
+        val ts = auth.removePrefix("SAPISIDHASH ").substringBefore('_').toLong()
+        assertEquals(YtmAuth.authorization(renewTo!!, ts), auth)
+        assertTrue(auth != take(0).getHeader("Authorization"))
+        assertEquals(take(0).body.clone().readUtf8(), retry.body.clone().readUtf8())
+        assertEquals("112233445566778899", retry.getHeader("X-Goog-PageId"))
+        assertEquals("112233445566778899", retry.json()["context"]["user"]["onBehalfOfUser"].str)
+        assertEquals(listOf("session refused (401); renewed and retried: ok"), logs)
+        assertTrue(logs.none { it.contains("sapi-") || it.contains("sid") })
+    }
+
+    @Test fun aRenewedSessionRefusedAgainFailsAsBeforeWithoutALoop() {
+        renewable = true
+        renewTo = "SAPISID=sapi-456; SID=sid2"
+        answer(unauthenticated, 401)
+        answer(unauthenticated, 401)
+        answer(unauthenticated, 401)
+        try { client.tracks("PL1"); fail() } catch (e: BridgeException) {
+            assertEquals("YouTube Music rejected the session (401): sign in again", e.message)
+        }
+        assertEquals(1, renewals.size)
+        assertEquals(2, calls.size)
+        assertEquals(listOf("session refused (401); renewed and retried: failed"), logs)
+    }
+
+    @Test fun aSessionThatCouldNotBeRenewedFailsAtOnce() {
+        renewable = true
+        renewTo = null
+        answer(unauthenticated, 401)
+        try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }
+        assertEquals(1, renewals.size)
+        assertEquals(1, calls.size)
+        // Renewed cookies without the signing cookie are no session: not retried with.
+        renewTo = "SID=only"
+        answer(unauthenticated, 401)
+        try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }
+        assertEquals(2, calls.size)
+    }
+
+    @Test fun eachCallIsRenewedAtMostOnceAndOnlyWhereTheHostCan() {
+        // The server's pasted cookies: never renewed (deadSessionIsNotRetried), the call fails at once.
+        answer(unauthenticated, 401)
+        try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }
+        assertTrue(renewals.isEmpty())
+        assertTrue(logs.isEmpty())
     }
 
     @Test fun throttledSignedInCallIsRetriedOnceThenReported() {
