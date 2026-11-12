@@ -179,7 +179,12 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
             StatusMark(if (r.ok) Icons.Filled.Check else Icons.Filled.PriorityHigh, if (r.ok) Tone.Ok else Tone.Error)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                // The name and when, side by side; one over the other where the date would leave the name a word a line
+                // (a narrow phone, a large font).
+                if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp / androidx.compose.ui.platform.LocalDensity.current.fontScale < 300f) {
+                    Text(r.jobName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(r.jobName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     Spacer(Modifier.width(8.dp))
                     Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
