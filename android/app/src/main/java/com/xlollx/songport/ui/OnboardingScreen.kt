@@ -1,5 +1,8 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.semantics.heading
 import com.xlollx.songport.providers.*
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -179,7 +182,7 @@ private fun WelcomePage() {
             }
         }
         Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.onboarding_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.onboarding_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.onboarding_intro), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
@@ -198,10 +201,11 @@ private fun StepsPage() {
                 HeroIcon(Icons.Filled.Sync)
             }
         }
-        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            StepRow(Icons.Filled.AccountCircle, stringResource(R.string.onboarding_step1_title), stringResource(R.string.onboarding_step1_desc))
+        Column(readable().padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            // Each step in the colour of where it happens: Accounts' teal, the syncs' own, then the schedule.
+            StepRow(Icons.Filled.AccountCircle, stringResource(R.string.onboarding_step1_title), stringResource(R.string.onboarding_step1_desc), JobColor.TEAL)
             StepRow(Icons.Filled.PlaylistAdd, stringResource(R.string.onboarding_step2_title), stringResource(R.string.onboarding_step2_desc))
-            StepRow(Icons.Filled.Schedule, stringResource(R.string.onboarding_step3_title), stringResource(R.string.onboarding_step3_desc))
+            StepRow(Icons.Filled.Schedule, stringResource(R.string.onboarding_step3_title), stringResource(R.string.onboarding_step3_desc), JobColor.BLUE)
         }
     }
 }
@@ -211,11 +215,12 @@ private fun StepsPage() {
 private fun DiscoverIntroPage() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.AutoAwesome, 72.dp) }
-        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Text(stringResource(R.string.onboarding_discover_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            StepRow(Icons.Filled.AutoAwesome, stringResource(R.string.onboarding_discover_wrapped_title), stringResource(R.string.onboarding_discover_wrapped_desc))
-            StepRow(Icons.Filled.Link, stringResource(R.string.onboarding_discover_link_title), stringResource(R.string.onboarding_discover_link_desc))
-            StepRow(Icons.Filled.QueueMusic, stringResource(R.string.onboarding_discover_mix_title), stringResource(R.string.onboarding_discover_mix_desc))
+        Column(readable().padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(stringResource(R.string.onboarding_discover_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp).padding(bottom = 6.dp).semantics { heading() })
+            // Discover's pink, Tools' orange for the generator that lives there.
+            StepRow(Icons.Filled.AutoAwesome, stringResource(R.string.onboarding_discover_wrapped_title), stringResource(R.string.onboarding_discover_wrapped_desc), JobColor.PINK)
+            StepRow(Icons.Filled.Link, stringResource(R.string.onboarding_discover_link_title), stringResource(R.string.onboarding_discover_link_desc), JobColor.PINK)
+            StepRow(Icons.Filled.QueueMusic, stringResource(R.string.onboarding_discover_mix_title), stringResource(R.string.onboarding_discover_mix_desc), JobColor.ORANGE)
         }
     }
 }
@@ -227,18 +232,23 @@ private fun TrustPage() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.Lock, 72.dp) }
         Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.security_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.security_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.onboarding_security), style = MaterialTheme.typography.bodyLarge)
-            Text(stringResource(R.string.onboarding_credentials), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            PageNote(stringResource(R.string.onboarding_credentials), icon = Icons.Filled.Key)
             Spacer(Modifier.height(4.dp))
-            Text(stringResource(R.string.free_why_title), style = MaterialTheme.typography.titleMedium)
-            // The Play build never points to payments outside Google Play: no coffee there.
-            Text(stringResource(if (com.xlollx.songport.BuildConfig.STORE_BUILD) R.string.settings_free_note else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (!BuildConfig.STORE_BUILD && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())) {
-                TextButton(onClick = { openSupport(ctx) }, modifier = Modifier.heightIn(min = 48.dp)) {
-                    Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.support_row))
+            // Why it is free, on a card of its own with the way to support it.
+            PageCard {
+                Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.free_why_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.semantics { heading() })
+                    // The Play build never points to payments outside Google Play: no coffee there.
+                    Text(stringResource(if (com.xlollx.songport.BuildConfig.STORE_BUILD) R.string.settings_free_note else R.string.free_why_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (!BuildConfig.STORE_BUILD && (BuildConfig.KOFI_URL.isNotBlank() || BuildConfig.SPONSORS_URL.isNotBlank())) {
+                        TextButton(onClick = { openSupport(ctx) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                            Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.support_row))
+                        }
+                    } else Spacer(Modifier.height(4.dp))
                 }
             }
         }
@@ -253,7 +263,7 @@ private fun DocsPage() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero { HeroIcon(Icons.Filled.Code, 72.dp) }
         Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.onboarding_docs_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.onboarding_docs_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.onboarding_docs_body), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(4.dp))
             LinkCard(
@@ -282,8 +292,9 @@ private fun DocsPage() {
 private fun LinkCard(mark: @Composable () -> Unit, markColor: Color, title: String, desc: String, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = ToolCardShape,
+        color = pageCardColor(),
+        shadowElevation = if (LocalAppDark.current) 0.dp else 1.dp,
         modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
     ) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -315,19 +326,27 @@ private fun HeroIcon(icon: ImageVector, size: Dp = 56.dp) {
     }
 }
 
+/**
+ * One thing the app does, on a card of its own as the rows of Tools and Settings are: the sign on a
+ * tile in [accent] (the colour its tab wears), a title and a line under it.
+ */
 @Composable
-private fun StepRow(icon: ImageVector, title: String, desc: String) {
-    Row(verticalAlignment = Alignment.Top) {
-        Box(
-            Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(24.dp))
-        }
-        Spacer(Modifier.width(14.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(desc, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun StepRow(icon: ImageVector, title: String, desc: String, accent: JobColor? = null) {
+    val dark = LocalAppDark.current
+    val color = accent?.let { if (dark) it.dark else it.light } ?: MaterialTheme.colorScheme.primary
+    PageCard {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(lerp(MaterialTheme.colorScheme.surfaceContainerHighest, color, if (dark) 0.28f else 0.16f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, null, tint = if (dark) color else lerp(color, MaterialTheme.colorScheme.onSurface, 0.25f), modifier = Modifier.size(24.dp))
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(desc, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }
