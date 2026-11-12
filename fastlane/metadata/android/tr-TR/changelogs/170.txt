@@ -1,0 +1,1 @@
+TIDAL: kaydedilen albümler ve takip edilen sanatçılar, TIDAL'ın API değişikliğinden sonra yeniden eşitleniyor. Amazon Music: arama yeniden çalışıyor ve kaydedilen bir albüm artık aynı adlı bir şarkıyla değil, bir albümle eşleştiriliyor. Numaralı bölümler ve remaster başlıklar için daha iyi eşleştirme.

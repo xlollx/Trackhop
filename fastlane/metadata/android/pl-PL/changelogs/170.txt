@@ -1,0 +1,1 @@
+TIDAL: zapisane albumy i obserwowani wykonawcy znów się synchronizują po zmianie API TIDAL. Amazon Music: wyszukiwanie znów działa, a zapisany album jest teraz dopasowywany do albumu, a nie do utworu o tej samej nazwie. Lepsze dopasowanie numerowanych części i zremasterowanych tytułów.

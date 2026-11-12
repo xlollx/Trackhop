@@ -1,0 +1,1 @@
+TIDAL: saved albums and followed artists sync again, after TIDAL changed its API. Amazon Music: search works again, and a saved album is now matched to an album, not to a song with the same name. Better matching of numbered parts and remastered titles.

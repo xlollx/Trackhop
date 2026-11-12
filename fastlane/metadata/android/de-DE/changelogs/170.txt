@@ -1,0 +1,1 @@
+TIDAL: Gespeicherte Alben und gefolgte Künstler werden wieder synchronisiert, nachdem TIDAL seine API geändert hat. Amazon Music: Die Suche funktioniert wieder, und ein gespeichertes Album wird jetzt einem Album zugeordnet, nicht einem Song mit demselben Namen. Bessere Zuordnung nummerierter Teile und remasterter Titel.
