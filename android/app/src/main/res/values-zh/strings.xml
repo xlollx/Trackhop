@@ -2444,4 +2444,5 @@
     <string name="picker_recent">最近</string>
     <string name="picker_all">所有歌单 · %1$d</string>
     <string name="card_view_full">全屏查看</string>
+    <string name="card_poster_name_field">海报上的名字</string>
 </resources>

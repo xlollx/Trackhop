@@ -2505,4 +2505,5 @@
     <string name="picker_recent">Récentes</string>
     <string name="picker_all">Toutes les playlists · %1$d</string>
     <string name="card_view_full">Voir en plein écran</string>
+    <string name="card_poster_name_field">Nom sur le poster</string>
 </resources>

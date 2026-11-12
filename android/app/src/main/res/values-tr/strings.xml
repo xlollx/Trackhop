@@ -2495,4 +2495,5 @@
     <string name="picker_recent">Son kullanılanlar</string>
     <string name="picker_all">Tüm çalma listeleri · %1$d</string>
     <string name="card_view_full">Tam ekran görüntüle</string>
+    <string name="card_poster_name_field">Posterdeki ad</string>
 </resources>

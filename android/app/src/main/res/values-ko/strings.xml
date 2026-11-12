@@ -2443,4 +2443,5 @@
     <string name="picker_recent">최근</string>
     <string name="picker_all">모든 플레이리스트 · %1$d</string>
     <string name="card_view_full">전체 화면으로 보기</string>
+    <string name="card_poster_name_field">포스터에 넣을 이름</string>
 </resources>

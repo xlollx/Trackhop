@@ -548,6 +548,10 @@ fun PosterCard(snackbar: SnackbarHostState) {
     // What the poster on show is made of, and the name of the account when the playlist is the user's own.
     var printed by remember { mutableStateOf<Cards.PosterCard?>(null) }
     var ownerName by remember { mutableStateOf("") }
+    // The user's own playlist (so a name may go on it), and the name they typed, if any: it wins over the account's.
+    var mine by remember { mutableStateOf(false) }
+    var typedName by remember { mutableStateOf(posterPrefs(ctx).getString("nameText", null).orEmpty()) }
+    val signature = typedName.trim().ifBlank { ownerName }
     // "Make it again" and "another version" turn this: other picks, another drawing.
     var variant by remember { mutableStateOf(0) }
     var drawing by remember { mutableStateOf(false) }
@@ -559,7 +563,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
     }
 
     suspend fun draw(card: Cards.PosterCard): Map<Cards.Format, Bitmap> {
-        val shown = card.with(layout, if (showName) ownerName else "", withQr)
+        val shown = card.with(layout, if (showName) signature else "", withQr)
         return withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.poster(ctx, shown, it) } }
     }
     // Another layout, the name on or off: the same poster printed again, nothing fetched.
@@ -647,6 +651,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 qr = qrUrl(ctx, p)
                 // A name only: an account's number or code (made through Facebook or Google) never goes on the poster.
                 ownerName = if (info.ownedByMe) com.xlollx.songport.sync.PersonName.of(p.provider.accountName(ctx)).orEmpty() else ""
+                mine = info.ownedByMe
                 val card = Cards.PosterCard(
                     title = title, owner = "",
                     // The service by its plain name: the caption goes on a wall, not the connector's label.
@@ -713,9 +718,22 @@ fun PosterCard(snackbar: SnackbarHostState) {
         // The poster on a sheet of paper, as it would hang on a wall.
         if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
             // The user's own playlist: their account's name goes on the poster only if they say so.
-            if (ownerName.isNotBlank()) PosterSwitch(stringResource(R.string.card_poster_show_name), ownerName, showName) { on ->
-                showName = on; redraw()
-                runCatching { posterPrefs(ctx).edit().putBoolean("name", on).apply() }
+            if (mine) {
+                PosterSwitch(stringResource(R.string.card_poster_show_name), signature, showName) { on ->
+                    showName = on; redraw()
+                    runCatching { posterPrefs(ctx).edit().putBoolean("name", on).apply() }
+                }
+                // The name can be written by hand: the account's may be a number, a code, or not the one wanted.
+                if (showName) {
+                    androidx.compose.material3.OutlinedTextField(
+                        typedName, { v -> typedName = v.take(40); runCatching { posterPrefs(ctx).edit().putString("nameText", typedName).apply() } },
+                        label = { Text(stringResource(R.string.card_poster_name_field)) },
+                        placeholder = { if (ownerName.isNotBlank()) Text(ownerName) },
+                        singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    )
+                    // Redrawn once typing pauses, not at every letter.
+                    androidx.compose.runtime.LaunchedEffect(typedName) { kotlinx.coroutines.delay(500); redraw() }
+                }
             }
             // The QR code and its caption, on unless turned off; the sheet closes the gap without them.
             if (qr != null) PosterSwitch(stringResource(R.string.card_poster_qr), stringResource(R.string.card_poster_qr_hint, pick?.provider?.brand.orEmpty()), withQr) { on ->

@@ -386,7 +386,14 @@ private fun ProviderCard(
     // A web session gone for good (SoundCloud): connected on paper, but only a new sign-in brings it back.
     val expired = remember(p.id) { connected && p is SoundCloudBridgeProvider && p.sessionExpired(ctx.env) }
     // A card of the page, as a section of Tools or Settings: the pill says the state, a session gone wears the error's line.
-    PageCard(shape = MaterialTheme.shapes.large, edge = if (expired) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else null) {
+    // The edge tells the state at a glance (owner, 12/11: keep the outline round connector cards):
+    // the error tone when the session is gone, the success tone when connected, a hairline otherwise.
+    val edge = when {
+        expired -> MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+        connected -> Tones.onSuccessContainer().copy(alpha = 0.45f)
+        else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+    }
+    PageCard(shape = MaterialTheme.shapes.large, edge = edge) {
         // Little room for the words (a narrow phone, a large font): the state goes under the name and the
         // line on encryption above the buttons, instead of each squeezing the other.
         val tight = LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale < 300f
@@ -619,7 +626,7 @@ internal fun FilesCard(
         },
     )
 
-    PageCard(shape = MaterialTheme.shapes.large) {
+    PageCard(shape = MaterialTheme.shapes.large, edge = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ProviderBadge(LocalFilesProvider, 48.dp)
@@ -673,7 +680,7 @@ internal fun FilesCard(
 @Composable
 private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
     val ctx = LocalContext.current
-    PageCard(shape = MaterialTheme.shapes.large) {
+    PageCard(shape = MaterialTheme.shapes.large, edge = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ProviderBadge(p, 48.dp)
