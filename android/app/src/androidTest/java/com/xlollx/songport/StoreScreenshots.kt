@@ -811,7 +811,8 @@ class StoreScreenshots {
         }
         // The screens under the tabs and the first run, for a design pass: carousel/old_<theme>_<what>.png.
         fun click(text: String) {
-            val can = compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasText(text))
+            // By its words, or by its name where the words are kept out of the semantics (the extended button of a tab).
+            val can = compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and (hasText(text) or androidx.compose.ui.test.hasContentDescription(text)))
             (if (can.fetchSemanticsNodes().isNotEmpty()) can else compose.onAllNodesWithText(text)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
             compose.waitForIdle()
         }
