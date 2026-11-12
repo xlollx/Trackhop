@@ -327,7 +327,10 @@ object Matcher {
         // The same part of the same title by the same artist: another edition of the piece, whose
         // length often differs (a remaster, another fade). Checked, not refused (#57).
         val duration = durationFactor(s.track.durationMs, c.track.durationMs).let { d ->
-            if (pa != null && pa == pb && st == ct && artist >= 0.9) max(d, 0.8) else d
+            // Only within a third of the longer length: a 4-minute "Pt. 1" is not the 26-minute one.
+            val near = s.track.durationMs > 0 && c.track.durationMs > 0 &&
+                abs(s.track.durationMs - c.track.durationMs) * 3 <= max(s.track.durationMs, c.track.durationMs)
+            if (pa != null && pa == pb && st == ct && artist >= 0.9 && near) max(d, 0.8) else d
         }
         return base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
@@ -364,7 +367,14 @@ object Matcher {
         val b = normalizeTitle(candAlbum)
         if (a.isEmpty() || b.isEmpty()) return 1.0
         // "Les Chants Magnétiques / Magnetic Fields": one album under either of its names.
-        val sameAlbum = albumNames(srcAlbum, a).any { x -> albumNames(candAlbum, b).any { y -> x == y || x.contains(y) || y.contains(x) } }
+        // The whole names as before (one containing the other). The halves of an "A / B" name: whole words
+        // only and at least two of them, so "A / B" is not "Banana" and "Blue / Green" is not "Red / Green".
+        fun halves(x: String, y: String): Boolean {
+            val (short, long) = if (x.length <= y.length) x to y else y to x
+            return short.split(' ').size >= 2 && " $long ".contains(" $short ")
+        }
+        val sameAlbum = a == b || a.contains(b) || b.contains(a) ||
+            albumNames(srcAlbum, a).any { x -> albumNames(candAlbum, b).any { y -> halves(x, y) } }
         return if (sameAlbum) 1.0 else if (policy.sameAlbum) 0.8 else 0.97
     }
 
