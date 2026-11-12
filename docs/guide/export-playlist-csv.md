@@ -17,10 +17,10 @@ them.
 2. *Tools → Export a playlist*, pick the playlist and the format, and save the file wherever you
    like (phone storage, Drive, Nextcloud…).
 
-Followed podcasts export as **OPML**, the file AntennaPod, Pocket Casts and Podcast Addict import;
-the feed of a show the service does not give is looked up in Apple's public podcast directory. An
-OPML file from those apps imports the same way, and a sync to *Followed podcasts* on Spotify or
-Deezer follows its shows there.
+An **OPML** file of podcasts from AntennaPod, Pocket Casts or Podcast Addict imports like a
+playlist file, and a sync to *Followed podcasts* on Spotify or Deezer follows its shows there.
+*Coming in the next update:* your followed podcasts exported as OPML too; when a service does not
+give a show's feed, it is looked up in Apple's public podcast directory.
 
 ## Back up everything
 

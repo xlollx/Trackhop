@@ -42,7 +42,7 @@ demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, 
 what_title: Ne yapar
 what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.
 card1_title: Her servisten her servise
-card1: "Çalma listeleri, beğenilen şarkılar, kaydedilen albümler ve takip edilen sanatçılar. Ya da herhangi bir herkese açık çalma listesinin bağlantısı, ya da her biri kendi servisini kullanan arkadaşlarla ortak bir çalma listesi."
+card1: "Çalma listeleri, beğenilen şarkılar, kaydedilen albümler ve takip edilen sanatçılar. Ya da herhangi bir herkese açık çalma listesinin bağlantısı. Sonraki güncellemede: her biri kendi servisini kullanan arkadaşlarla ortak bir çalma listesi."
 card2_title: Programa göre
 card2: "Saatte bir, 6 saatte bir, günlük veya haftalık. Yalnızca eklemeler ya da silmeler de yansıtılsın, kaynağın sırası korunarak. Çift yönlü de, kaldırmalar dahil."
 card3_title: Tahmin yok
@@ -52,7 +52,7 @@ card4: Her servise kendi sayfasında giriş yaparsın. Erişim jetonları telefo
 card5_title: Kendi müzik sunucun
 card5: "Navidrome ve diğer Subsonic sunucuları, Jellyfin, Emby, Plex, Lyrion ve Mopidy, akış servislerinin yanında; sunucunda henüz olmayan şarkıların listesiyle. Dosyalar da: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Navidrome uygulama kataloğunda.</a>"
 card6_title: Çalma listesi araçları
-card6: "Yedekler, kopyaları kaldırma, birleştirme, bölme ve sıralama, kendi yapay zekâ anahtarınla çalışan bir çalma listesi oluşturucu, ve çalma listelerindeki sanatçıların yeni çıkanları, konserleri, setlistleri ve plakları."
+card6: "Yedekler, kopyaları kaldırma, birleştirme, bölme ve sıralama, ve kendi yapay zekâ anahtarınla çalışan bir çalma listesi oluşturucu. Sonraki güncellemede: çalma listelerindeki sanatçıların yeni çıkanları, konserleri, setlistleri ve plakları."
 one_title: "Tek bir servisle bile"
 one_intro: "İkinci bir servise gerek yok. Yalnızca Spotify, Apple Music, YouTube Music ya da başka birini kullansan da Trackhop çalma listelerine göz kulak olur."
 one1_title: "Discover Weekly’yi sakla"
@@ -138,4 +138,4 @@ say_title: 'Ne diyorlar'
 say_intro: 'Trackhop hakkındaki video ve gönderilerin altındaki yorumlar ve destekçilerin mesajları. İsimler ve fotoğraflar gizlendi.'
 say_alt: 'Trackhop kullananların yorumları ve otomatik senkronizasyonu ve güvenliği öven iki destekçi mesajı, ve X''te onu "a game changer for music lovers who use multiple platforms" diye anlatan gönderiler'
 gallery_title: "Bir göz at"
-gallery_note: "Upcoming yazan görseller sonraki güncellemelerde gelecekleri gösterir."
+gallery_note: "Upcoming yazan görseller sonraki güncellemede gelecekleri gösterir; kart boyutları ve stilleri zaten burada."

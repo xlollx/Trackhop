@@ -136,7 +136,7 @@ or `__artists__` as a playlist id.
 
 ### TicketOne pages for Concerts (`ticketone.read`)
 
-For Discover › Concerts in Italy: `arg` is the address of a search or artist page of
+For Discover › Concerts in Italy (Concerts arrives in the next update of Trackhop): `arg` is the address of a search or artist page of
 www.ticketone.it (nothing else is opened). The plugin opens it in a WebView out of sight, at least
 1.5 seconds after the previous one, and answers in `json` what the page shows: `state` (`ready`,
 `empty`, `challenge`, `consent`, `waiting` or `error`), `ld` (the texts of its JSON-LD scripts),
@@ -146,7 +146,7 @@ Trackhop then shows the TicketOne search button only.
 
 ### Vivaticket for Concerts (`vivaticket.read`, Trackhop Bridge 1.11.0)
 
-For Discover › Concerts in Italy, in the store builds (the GitHub and F-Droid builds ask Vivaticket
+For Discover › Concerts in Italy (in the next update of Trackhop), in the store builds (the GitHub and F-Droid builds ask Vivaticket
 themselves): `arg` is an address of Vivaticket's gateway, `https://apigatewayb2cstore.vivaticket.com/api/`
 followed by `Home/Search/`, `Artist/` or `Event/` (nothing else is asked); `extras` may carry
 `userAgent`, Trackhop's own (a browser's is never used: the plugin then names itself as Trackhop).
@@ -158,7 +158,7 @@ status reports `version` 57 or more.
 
 ### setlist.fm browsed without a key (`com.xlollx.songport.ytmbridge.SETLIST_BROWSE`, Trackhop Bridge 1.11.0)
 
-For Discover › Setlists in the store builds (the GitHub and F-Droid builds have their own screen):
+For Discover › Setlists (in the next update of Trackhop) in the store builds (the GitHub and F-Droid builds have their own screen):
 an activity Trackhop starts for a result with this action, with the extra `artist` (its search on
 setlist.fm opens) or `link` (a setlist.fm concert page). It shows www.setlist.fm in a plain WebView
 with its normal user agent; the person browses it and opens a concert. While a concert's page is

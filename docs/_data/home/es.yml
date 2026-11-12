@@ -44,7 +44,7 @@ demo_alt: "Un recorrido por Trackhop: sincros, una nueva sincro, cuentas, herram
 what_title: Qué hace
 what_intro: Elige un origen y un destino, y cada cuánto sincronizar. Trackhop encuentra cada canción en el otro lado, te muestra qué va a cambiar y mantiene ambas al día.
 card1_title: De cualquier servicio a cualquier servicio
-card1: "Playlists, canciones que te gustan, álbumes guardados y artistas que sigues. O pega el enlace de cualquier playlist pública, o comparte una playlist con amigos que usan cada uno su propio servicio."
+card1: "Playlists, canciones que te gustan, álbumes guardados y artistas que sigues. O pega el enlace de cualquier playlist pública. Llega en la próxima actualización: una playlist compartida con amigos que usan cada uno su propio servicio."
 card2_title: De forma programada
 card2: "Cada hora, cada 6 horas, a diario o semanalmente. Solo añadidos, o también las eliminaciones, y conservando el orden del origen. También bidireccional, eliminaciones incluidas."
 card3_title: Nada al azar
@@ -54,7 +54,7 @@ card4: Inicias sesión en la página de cada servicio. Los tokens de acceso se c
 card5_title: Tu propio servidor de música
 card5: "Navidrome y otros servidores Subsonic, Jellyfin, Emby, Plex, Lyrion y Mopidy, junto a los servicios de streaming, con la lista de las canciones que aún le faltan a tu servidor. También archivos: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Incluida en el catálogo de apps de Navidrome.</a>"
 card6_title: Herramientas para playlists
-card6: "Copias de seguridad, eliminación de duplicados, unir, dividir y ordenar, un generador de playlists con tu propia clave de IA, y las novedades, conciertos, setlists y discos de los artistas de tus playlists."
+card6: "Copias de seguridad, eliminación de duplicados, unir, dividir y ordenar, y un generador de playlists con tu propia clave de IA. Llega en la próxima actualización: las novedades, conciertos, setlists y discos de los artistas de tus playlists."
 one_title: "Aunque uses un solo servicio"
 one_intro: "No hace falta un segundo servicio. Si solo usas Spotify, Apple Music, YouTube Music u otro, Trackhop también cuida de tus playlists."
 one1_title: "Guarda Discover Weekly"
@@ -140,4 +140,4 @@ say_title: 'Lo que dice la gente'
 say_intro: 'Comentarios en vídeos y publicaciones sobre Trackhop y mensajes de quienes lo apoyan. Nombres y fotos ocultos.'
 say_alt: 'Comentarios de quienes usan Trackhop y dos mensajes de personas que lo apoyan, que elogian la sincronización automática y la seguridad, y publicaciones en X que lo llaman "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Échale un vistazo"
-gallery_note: "Las imágenes con Upcoming muestran lo que llega en las próximas actualizaciones."
+gallery_note: "Las imágenes con Upcoming muestran lo que llega en la próxima actualización; los tamaños y estilos de tarjeta ya están aquí."

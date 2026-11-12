@@ -1,6 +1,6 @@
 ---
 title: Playlist sync notifications on Telegram, ntfy, Discord, Slack, Matrix, Gotify or Pushover
-description: Get a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a playlist sync adds or removes songs, fails, has songs to review or finds new releases. In the Trackhop app, on Desktop and on Docker, with your keys kept encrypted.
+description: Get a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a playlist sync adds or removes songs, fails or has songs to review. In the Trackhop app, on Desktop and on Docker, with your keys kept encrypted.
 ---
 
 # Notifications on Telegram, ntfy, Discord and more
@@ -22,7 +22,8 @@ In the app: **Settings › Notifications › Notification channels › Add a cha
    - a sync failed;
    - tracks to review;
    - removals waiting for your confirmation;
-   - new releases of your artists (a weekly [New releases](new-releases) sync found new music).
+   - new releases of your artists (a weekly [New releases](new-releases) sync found new music;
+     New releases arrives in the next update).
 4. Tap **Send test**: a test message arrives, or the channel's line says why it didn't.
 
 Add as many channels as you like, each with its own events: failures to your phone through ntfy,

@@ -42,7 +42,7 @@ demo_alt: "Prezentacja Trackhop: synchronizacje, nowa synchronizacja, konta, nar
 what_title: Co robi
 what_intro: Wybierz źródło i cel oraz częstotliwość. Trackhop znajdzie każdy utwór po drugiej stronie, pokaże, co się zmieni, i utrzyma obie playlisty w zgodzie.
 card1_title: Z dowolnego serwisu do dowolnego
-card1: "Playlisty, polubione utwory, zapisane albumy i obserwowani wykonawcy. Albo wklej link do dowolnej publicznej playlisty, albo dziel jedną playlistę ze znajomymi, z których każdy ma swój serwis."
+card1: "Playlisty, polubione utwory, zapisane albumy i obserwowani wykonawcy. Albo wklej link do dowolnej publicznej playlisty. W następnej aktualizacji: jedna playlista dzielona ze znajomymi, z których każdy ma swój serwis."
 card2_title: Według harmonogramu
 card2: "Co godzinę, co 6 godzin, codziennie lub co tydzień. Tylko dodawanie albo także odzwierciedlanie usunięć, z zachowaniem kolejności ze źródła. Także dwukierunkowo, razem z usunięciami."
 card3_title: Nic na ślepo
@@ -52,7 +52,7 @@ card4: Logujesz się na stronie każdego serwisu. Tokeny dostępu są szyfrowane
 card5_title: Twój własny serwer muzyczny
 card5: "Navidrome i inne serwery Subsonic, Jellyfin, Emby, Plex, Lyrion i Mopidy, obok serwisów streamingowych, z listą utworów, których Twojemu serwerowi jeszcze brakuje. Także pliki: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Na liście aplikacji Navidrome.</a>"
 card6_title: Narzędzia do playlist
-card6: "Kopie zapasowe, usuwanie duplikatów, łączenie, dzielenie i sortowanie, generator playlist działający na Twoim własnym kluczu AI oraz nowości, koncerty, setlisty i płyty wykonawców z Twoich playlist."
+card6: "Kopie zapasowe, usuwanie duplikatów, łączenie, dzielenie i sortowanie oraz generator playlist działający na Twoim własnym kluczu AI. W następnej aktualizacji: nowości, koncerty, setlisty i płyty wykonawców z Twoich playlist."
 one_title: "Nawet z jednym serwisem"
 one_intro: "Drugi serwis nie jest potrzebny. Jeśli korzystasz tylko ze Spotify, Apple Music, YouTube Music albo innego, Trackhop i tak zadba o Twoje playlisty."
 one1_title: "Zachowaj Discover Weekly"
@@ -138,4 +138,4 @@ say_title: 'Co mówią inni'
 say_intro: 'Komentarze pod filmami i postami o Trackhop oraz wiadomości od wspierających. Nazwy i zdjęcia ukryte.'
 say_alt: 'Komentarze osób korzystających z Trackhop i dwie wiadomości od wspierających, chwalące automatyczną synchronizację i bezpieczeństwo, oraz posty na X, które nazywają go "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Zobacz"
-gallery_note: "Obrazy z napisem Upcoming pokazują, co przyjdzie w kolejnych aktualizacjach."
+gallery_note: "Obrazy z napisem Upcoming pokazują, co przyjdzie w następnej aktualizacji; rozmiary i style kart już są."

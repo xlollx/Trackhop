@@ -5,6 +5,8 @@ description: 'Pick a playlist and a country: Trackhop lists the upcoming concert
 
 # Concerts of the artists in your playlist
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Pick one of your playlists and a country: **Trackhop** looks up the upcoming concerts of the
 artists in it and lists them by artist, with the **date, city and venue** and a link to the
 event. It works from any service you use (Spotify, Apple Music, YouTube Music, Deezer, TIDAL,

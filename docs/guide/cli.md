@@ -99,7 +99,7 @@ the command lists them and asks you to say which.
 | `trackhop review <sync> restore` | Puts back what the run removed. |
 
 The choices made here (ignored, picked, kept) reach the phone too, for a sync the app handed over to
-this server or the same sync on both, and the app's reach here: see
+this server or the same sync on both (coming in the next update of the app), and the app's reach here: see
 [Coordinate with my server](docker.md#coordinate-with-my-server).
 
 **Services and playlists**
@@ -116,17 +116,19 @@ this server or the same sync on both, and the app's reach here: see
 | `trackhop convert <service> <track>…` | The same tracks on another service: their ids there, and how sure each match is. |
 | `trackhop duplicates <service> <playlist>` | The tracks a playlist has more than once; `--remove` takes the extra copies out (`--wait` to wait for the end). |
 | `trackhop mbtags [<service>]` | The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (with them a sync finds the exact recording). Nothing is changed; `<service>` can be left out when only one such server is connected. |
-| `trackhop releases <service> <playlist> [--days 7\|30\|90] [--upcoming]` | The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account), with the date and a link: released in the last 30 days, or `--days 7` / `90`; `--upcoming` adds what is announced. A first search takes about a second per artist. |
+| `trackhop releases <service> <playlist> [--days 7\|30\|90] [--upcoming]` | *Coming in the next update.* The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account), with the date and a link: released in the last 30 days, or `--days 7` / `90`; `--upcoming` adds what is announced. A first search takes about a second per artist. |
 | `trackhop wanted [--format json\|csv\|m3u\|text\|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]` | The tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once, with the syncs that miss them. `--format` prints it as a file (`> list.csv`), `lidarr` as Lidarr's Custom List; `--albums` groups by album, `--all` shows the ticked ones too; `--sync`, `--service` and `--since` (`24h`, `7d`, `2026-11-01`) narrow it. |
-| `trackhop setlists <service> <playlist>` | The latest setlist.fm setlists of a playlist's artists (date, venue, city, number of songs, link); `--json` adds the songs (encores, tapes, covers) and each setlist's tracks, ready to add to a playlist. Asked only now, cached a week. Needs a setlist.fm key: Settings › setlist.fm key, or `SETLISTFM_API_KEY`. |
-| `trackhop concerts <service> <playlist> [--country IT]` | The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
-| `trackhop records <service> <playlist> [--currency EUR]` | The records (CD, vinyl, cassette) of a playlist's artists from Discogs, and their official site, shop and Bandcamp from MusicBrainz (`--json` for the shop searches too). With the server's Discogs token (Settings › Discogs token), the copies for sale and the lowest price. Plain links; Discogs kept six hours, the links a week. |
+| `trackhop setlists <service> <playlist>` | *Coming in the next update.* The latest setlist.fm setlists of a playlist's artists (date, venue, city, number of songs, link); `--json` adds the songs (encores, tapes, covers) and each setlist's tracks, ready to add to a playlist. Asked only now, cached a week. Needs a setlist.fm key: Settings › setlist.fm key, or `SETLISTFM_API_KEY`. |
+| `trackhop concerts <service> <playlist> [--country IT]` | *Coming in the next update.* The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
+| `trackhop records <service> <playlist> [--currency EUR]` | *Coming in the next update.* The records (CD, vinyl, cassette) of a playlist's artists from Discogs, and their official site, shop and Bandcamp from MusicBrainz (`--json` for the shop searches too). With the server's Discogs token (Settings › Discogs token), the copies for sale and the lowest price. Plain links; Discogs kept six hours, the links a week. |
 | `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf` or `txt` (or from the file's extension); to the screen without `<file>`. |
 
 A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
 shows); a `<playlist>` its name or id.
 
 **Discover**
+
+*Coming in the next update:* these commands arrive with the next version of Desktop and Docker.
 
 | Command | What it does |
 |---|---|
@@ -240,14 +242,14 @@ tools allow:
 | `search_tracks`, `convert_tracks` | Look for a track on a service; find tracks on another service |
 | `create_playlist`, `add_tracks` | A new playlist; tracks found and added ("Artist - Title", a link, an id) |
 | `find_duplicates`, `find_untagged_songs`, `export_playlist` | A playlist's duplicates; the songs on your own server without MusicBrainz tags; a playlist as a file's text |
-| `find_new_releases` | The new albums, EPs and singles of a playlist's artists (7, 30 or 90 days, and what is announced) |
+| `find_new_releases` | *Coming in the next update.* The new albums, EPs and singles of a playlist's artists (7, 30 or 90 days, and what is announced) |
 | `list_missing_on_server` | The tracks of your playlists missing on your own server, each once ("what should I buy for my Navidrome?"); also as CSV, M3U, text or a Lidarr list |
-| `find_setlists` | The latest setlists of a playlist's artists from setlist.fm, with the songs ready to make one a playlist ("make me a playlist of what Muse played last week") |
-| `find_records` | The records and official shops of a playlist's artists, with shop searches ("where can I buy vinyl of the bands in my running playlist?") |
-| `find_concerts` | The upcoming concerts of a playlist's artists in a country, with ticket links ("is anyone from my road-trip playlist playing in Italy?") |
-| `get_wrapped`, `make_wrapped` | Your Wrapped from what you really played ("what did I listen to most this year?"), and a new one from a listening service and a period |
-| `get_playlist_poster` | What a poster of a playlist shows: the songs you play most first, its artists and its colours |
-| `list_followed_artists`, `follow_artist`, `check_followed_artists` | The artists you follow and their latest news; follow one ("tell me when Muse announces a concert"); look for news now |
+| `find_setlists` | *Coming in the next update.* The latest setlists of a playlist's artists from setlist.fm, with the songs ready to make one a playlist ("make me a playlist of what Muse played last week") |
+| `find_records` | *Coming in the next update.* The records and official shops of a playlist's artists, with shop searches ("where can I buy vinyl of the bands in my running playlist?") |
+| `find_concerts` | *Coming in the next update.* The upcoming concerts of a playlist's artists in a country, with ticket links ("is anyone from my road-trip playlist playing in Italy?") |
+| `get_wrapped`, `make_wrapped` | *Coming in the next update.* Your Wrapped from what you really played ("what did I listen to most this year?"), and a new one from a listening service and a period |
+| `get_playlist_poster` | *Coming in the next update.* What a poster of a playlist shows: the songs you play most first, its artists and its colours |
+| `list_followed_artists`, `follow_artist`, `check_followed_artists` | *Coming in the next update.* The artists you follow and their latest news; follow one ("tell me when Muse announces a concert"); look for news now |
 | `list_files`, `get_file_patterns`, `set_file_patterns`, `try_file_patterns` | The File playlists, and how names in imported files are read |
 | `get_settings`, `change_setting` | The settings |
 | `list_notification_channels`, `test_notification` | The notification channels, and a test message |
@@ -255,7 +257,7 @@ tools allow:
 | `get_crowded_syncs`, `spread_syncs` | Many syncs reaching one service at once, and new times for them (saved only with `apply`, after asking you) |
 | `get_diagnostics`, `prepare_issue` | The report for asking for help, so the assistant can read the log and explain an error; a GitHub issue made ready for you to send (never sent by Trackhop; an assistant with its own GitHub tool creates it only after you confirm) |
 | `backup_playlists` | Back up every playlist now |
-| `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files`, `unfollow_artist` | Changes that remove something (marked as destructive: assistants ask before) |
+| `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files`, `unfollow_artist` | Changes that remove something (marked as destructive: assistants ask before; `unfollow_artist` comes in the next update) |
 
 **On the same computer** (Trackhop Desktop, or Docker on this machine), the assistant starts the
 command itself, `trackhop mcp`. In Claude Desktop, *Settings › Developer › Edit config*, add:

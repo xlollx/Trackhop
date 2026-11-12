@@ -5,6 +5,8 @@ description: Share one playlist with friends or family who use different music s
 
 # A playlist shared by a group, each on their own service
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 A **shared playlist** is one playlist for a group of people who don't all use the same service:
 one listens on TIDAL, another on Spotify, a third on YouTube Music. Each of you keeps your own copy
 on your own service, and Trackhop keeps the copies in step: a song added by one of you shows up

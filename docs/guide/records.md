@@ -5,6 +5,8 @@ description: 'Pick a playlist: Trackhop lists the CDs, vinyl and cassettes of it
 
 # Records and merch of the artists in your playlist
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Pick one of your playlists: **Trackhop** lists, for each of its artists, their records on **CD,
 vinyl and cassette** (from Discogs, and the ones on sale in their own shops), the **merch** on sale
 in their own shops (t-shirts, hoodies, posters, bundles…) with a picture and the price, their **official site and shop**, and buttons that search for them on

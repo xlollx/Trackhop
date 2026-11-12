@@ -85,8 +85,8 @@ version running, and the app version whose engine it uses.
 | `SONGPORT_PORT` | `8080` | Port inside the container. |
 | `SONGPORT_DATA` | `/data` | Where everything is kept (the volume). |
 | `SPOTIFY_CLIENT_ID`, `TIDAL_CLIENT_ID`, `DEEZER_APP_ID`, `GOOGLE_CLIENT_ID`, `LASTFM_API_KEY` | none | Your keys, if you'd rather pass them here than type them in the page. |
-| `TICKETMASTER_API_KEY` | none | A Ticketmaster Consumer Key (never its secret) for Tools › Concerts, for everyone on this server; each person can also save their own in Settings. Without one, MusicBrainz's dates only. |
-| `SETLISTFM_API_KEY` | none | A setlist.fm API key for Tools › Setlists and setlist.fm links, for everyone on this server; each person can also save their own in Settings. |
+| `TICKETMASTER_API_KEY` | none | *Coming in the next update.* A Ticketmaster Consumer Key (never its secret) for Tools › Concerts, for everyone on this server; each person can also save their own in Settings. Without one, MusicBrainz's dates only. |
+| `SETLISTFM_API_KEY` | none | A setlist.fm API key for setlist.fm links and, from the next update, Tools › Setlists, for everyone on this server; from the next update each person can also save their own in Settings. |
 | `LASTFM_SHARED_SECRET` | none | The "Shared secret" of your Last.fm API key: needed only to love tracks on Last.fm. |
 | `DEEZER_REDIRECT_URL` | `<SONGPORT_URL>/callback` | Deezer's redirect, which must be `https`. |
 
@@ -548,7 +548,7 @@ found.
 A short message on your phone or in a chat when a sync ends with something to know: in
 **Settings › Notifications**, add as many channels as you like, each with its own events (a sync
 added or removed tracks, a sync failed or a sign-in expired, tracks to review, removals waiting for
-your confirmation, a weekly [New releases](new-releases) sync found new music of your artists), and
+your confirmation, and, from the next update, a weekly [New releases](new-releases) sync found new music of your artists), and
 try it with **Send test**. The Android app has the same channels, in *Settings › Notification
 channels*: there their keys are kept encrypted on the phone and never exported either. The message says the sync's name, `+added
 −removed` and the error's first line: never your tokens or your server's address. Sending happens
@@ -653,14 +653,16 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
-| `GET /api/v1/releases` | New releases: the albums, EPs and singles the artists of a playlist released lately (Deezer and MusicBrainz, no account). `?service=spotify&playlist=<id>` (or `playlist=spotify:<id>`), `days=30` (1 to 365), `upcoming=true` adds what is announced, `artists=50` (up to 100), `tracks=true` adds the songs. Each artist is cached a day; a first search takes about a second per artist. The answer's `source` is the source of a weekly "New releases" sync: `POST /api/v1/syncs` with it, `"schedule": "weekly"`, `"changes": "archive"`. |
+| `GET /api/v1/releases` | *Coming in the next update.* New releases: the albums, EPs and singles the artists of a playlist released lately (Deezer and MusicBrainz, no account). `?service=spotify&playlist=<id>` (or `playlist=spotify:<id>`), `days=30` (1 to 365), `upcoming=true` adds what is announced, `artists=50` (up to 100), `tracks=true` adds the songs. Each artist is cached a day; a first search takes about a second per artist. The answer's `source` is the source of a weekly "New releases" sync: `POST /api/v1/syncs` with it, `"schedule": "weekly"`, `"changes": "archive"`. |
 | `POST /api/v1/wanted/got` | Tick entries as got (`{"ids": ["…"]}`; `"got": false` puts them back). |
-| `GET /api/v1/concerts` | Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. |
-| `GET /api/v1/setlists` | Setlists of a playlist's artists: `?service=spotify&playlist=<id or name>`. The latest setlist.fm setlists (up to 5 each) of the artists the playlist holds most: date, venue, city, country, tour, `url` (its setlist.fm page), `songs` (title, `coverOf`, `tape`, `encore`) and `tracks` ("Artist - Title", tapes left out, ready for a playlist). Needs a setlist.fm key (Settings, or `SETLISTFM_API_KEY`); `notes` (the day's limit reached…) and `attribution` to show with them. Asked only on this call; answers kept a week per artist. |
-| `GET /api/v1/records` | Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. |
+| `GET /api/v1/concerts` | *Coming in the next update.* Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. |
+| `GET /api/v1/setlists` | *Coming in the next update.* Setlists of a playlist's artists: `?service=spotify&playlist=<id or name>`. The latest setlist.fm setlists (up to 5 each) of the artists the playlist holds most: date, venue, city, country, tour, `url` (its setlist.fm page), `songs` (title, `coverOf`, `tape`, `encore`) and `tracks` ("Artist - Title", tapes left out, ready for a playlist). Needs a setlist.fm key (Settings, or `SETLISTFM_API_KEY`); `notes` (the day's limit reached…) and `attribution` to show with them. Asked only on this call; answers kept a week per artist. |
+| `GET /api/v1/records` | *Coming in the next update.* Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
 **Discover**
+
+*Coming in the next update:* these calls, and Tools › Wrapped, Playlist poster and Followed artists on the page, arrive with the next version of Desktop and Docker.
 
 | Call | What it does |
 |---|---|
@@ -756,6 +758,7 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 A [shared playlist](shared-playlists) can meet on this server: the app makes the group's mailbox
 with your token and puts the group's key (`thg_…`) in the invite. That key opens the two `items`
 calls of its own group and nothing else here. [More](#shared-playlists-on-this-server)
+*Coming in the next update* of the app and of this server: a new mailbox is made from then on.
 
 | Call | What it does |
 |---|---|
@@ -888,6 +891,8 @@ curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @trackhop.trackhop 
 
 ## Coordinate with my server
 
+> **This arrives in the next update** of the app. This server's side, the [Locks](#api) calls, is already here.
+
 The same sync on a phone and on this server would add what is missing twice when both run at
 once. In the app, **Settings › Advanced › Coordinate with my server** takes this server's address
 (`http://192.168.1.10:8080`, or the address of your reverse proxy) and an API token made in
@@ -942,6 +947,8 @@ server; Desktop's own syncs still respect reservations made through its API by s
 computer. Any tool can use the same calls ([Locks](#api)): reserve, renew while writing, give back.
 
 ### Shared playlists on this server
+
+> **This arrives in the next update** of the app and of this server.
 
 With the address and token set, the app offers a third way for a [shared playlist](shared-playlists)'s
 members to meet: **My Trackhop server**. Creating the group makes a mailbox for it here

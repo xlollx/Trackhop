@@ -5,6 +5,8 @@ description: See the new albums, EPs and singles of the artists in any playlist 
 
 # New releases from your playlist's artists
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Pick a playlist you like and **Trackhop** shows what its artists put out lately: the albums, EPs
 and singles of the last **7, 30 or 90 days**, and, if you want, the ones **coming soon**. Then put
 them in a playlist on any service Trackhop connects to, once or **every week**.
