@@ -1682,6 +1682,8 @@
     <string name="card_poster_plays_from">Your most played songs, from %1$s</string>
     <string name="card_poster_plays_connect">These songs are from the playlist\'s most present artists. To list your most played songs, connect Last.fm, ListenBrainz, Spotify, Deezer or your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">None of your most played songs on %1$s is in this playlist: these songs are from the playlist\'s most present artists</string>
+    <string name="card_poster_plays_artists_from">Songs from your most played artists on %1$s</string>
+    <string name="card_poster_plays_artists_none">None of your most played artists on %1$s is in this playlist: these songs are from the playlist\'s most present artists</string>
     <string name="card_poster_start_over">Start over</string>
     <string name="card_poster_start_over_hint">Reads the playlist again and makes a new poster from scratch</string>
     <string name="card_poster_qr">Include QR code</string>

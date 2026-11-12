@@ -450,24 +450,35 @@ private val pickedCovers = LinkedHashMap<String, List<Bitmap>>()
  */
 internal object PosterPlays {
     private const val TTL_MS = 10 * 60_000L
-    private class Kept(val at: Long, val plays: List<Listening.Play>)
+    private class Kept(val at: Long, val report: Listening.Report)
     private val kept = HashMap<String, Kept>()
 
-    /** The period read: a year where the service can tell it, else the longest it can. */
-    fun period(s: Listening.Source): Listening.Period = if (Listening.Period.YEAR in s.periods) Listening.Period.YEAR else s.periods.last()
+    /**
+     * The period read: a year where the service can tell it, else the longest it can. TIDAL: its
+     * first, the latest month with data (one request, where the year adds up twelve).
+     */
+    fun period(s: Listening.Source): Listening.Period = when {
+        s.artistsOnly -> s.periods.first()
+        Listening.Period.YEAR in s.periods -> Listening.Period.YEAR
+        else -> s.periods.last()
+    }
 
     private fun key(s: Listening.Source, p: MusicProvider) = "${s.name}|${p.id}|${period(s).key}"
 
-    @Synchronized private fun get(k: String): List<Listening.Play>? = kept[k]?.takeIf { System.currentTimeMillis() - it.at < TTL_MS }?.plays
-    @Synchronized private fun put(k: String, plays: List<Listening.Play>) { kept[k] = Kept(System.currentTimeMillis(), plays) }
+    @Synchronized private fun get(k: String): Listening.Report? = kept[k]?.takeIf { System.currentTimeMillis() - it.at < TTL_MS }?.report
+    @Synchronized private fun put(k: String, r: Listening.Report) { kept[k] = Kept(System.currentTimeMillis(), r) }
     @Synchronized private fun forget(k: String) { kept.remove(k) }
 
     /**
      * What was read: the songs played most and the connector they came from ([from] null: none
      * answered with some), and Spotify's connector when it refused for want of a permission only a
-     * new sign-in grants ([Listening.MissingScope]).
+     * new sign-in grants ([Listening.MissingScope]). [artists]: the artists played most, from a
+     * service that tells artists and no songs (TIDAL); the poster then lists the playlist's songs by them.
      */
-    class Heard(val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null, val failed: Pair<MusicProvider, String>? = null)
+    class Heard(
+        val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null,
+        val failed: Pair<MusicProvider, String>? = null, val artists: List<Listening.ArtistPlays> = emptyList(),
+    )
 
     /**
      * The songs played most. First, when the playlist ([own]: its connector and id) is on a personal
@@ -483,9 +494,9 @@ internal object PosterPlays {
         if (server != null) {
             val k = "OWN|${server.id}|$ownId"
             if (fresh) forget(k)
-            val plays = get(k) ?: try {
+            val plays = get(k)?.tracks ?: try {
                 withContext(Dispatchers.IO) { (server as PlayCounts).playlistPlays(ctx.env, ownId) }
-                    .filter { it.plays > 0 }.sortedByDescending { it.plays }.also { put(k, it) }
+                    .filter { it.plays > 0 }.sortedByDescending { it.plays }.also { put(k, Listening.Report(it)) }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 ctx.env.log("poster", "${server.displayName}: the playlist's play counts not read: ${e.message ?: e.javaClass.simpleName}")
                 failed = server to (e.message ?: e.javaClass.simpleName); null
@@ -501,20 +512,30 @@ internal object PosterPlays {
             if (p.id == server?.id) continue
             val k = key(s, p)
             if (fresh) forget(k)
-            val plays = get(k) ?: try {
-                withContext(Dispatchers.IO) { readListening(ctx, s, p, period(s)).tracks }.also { put(k, it) }
-            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.MissingScope) {
+            val report = get(k) ?: try {
+                withContext(Dispatchers.IO) { readListening(ctx, s, p, period(s)) }.also { put(k, it) }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.Unavailable) {
+                // Logged where it was asked (TIDAL's activity): the poster goes on as without it.
+                null
+            } catch (_: Listening.MissingScope) {
                 ctx.env.log("poster", "${p.displayName}: the sign-in predates reading the top songs; sign in again")
                 signIn = p; null
             } catch (e: Exception) {
                 ctx.env.log("poster", "${p.displayName}: most played songs not read: ${e.message ?: e.javaClass.simpleName}")
                 failed = failed ?: (p to (e.message ?: e.javaClass.simpleName)); null
             }
+            val plays = report?.tracks
             if (!plays.isNullOrEmpty()) {
                 ctx.env.log("poster", "most played songs from ${p.displayName} (${s.name.lowercase()}, ${period(s).key}): ${plays.size}")
                 return Heard(p, plays)
             }
-            if (plays != null) ctx.env.log("poster", "${p.displayName}: no most played songs answered for ${period(s).key}")
+            // TIDAL tells artists only: the playlist's songs by them, the most streamed first.
+            val artists = report?.artists.orEmpty()
+            if (s.artistsOnly && artists.isNotEmpty()) {
+                ctx.env.log("poster", "most played artists from ${p.displayName} (${s.name.lowercase()}, ${period(s).key}): ${artists.size}")
+                return Heard(p, emptyList(), artists = artists)
+            }
+            if (report != null) ctx.env.log("poster", "${p.displayName}: no most played songs answered for ${period(s).key}")
         }
         return Heard(null, emptyList(), signIn, failed)
     }
@@ -618,12 +639,14 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 // The songs the user plays most that are in the playlist, from the best listening service connected.
                 val sources = withContext(Dispatchers.IO) { listeningSources(ctx) }
                 val heard = PosterPlays.read(ctx, sources, fresh, own = p.provider to p.playlist.id)
-                val listed = CoverPrompt.mostPlayed(tracks, heard.plays)
+                val byArtists = heard.artists.isNotEmpty()
+                val listed = if (byArtists) CoverPrompt.byArtists(tracks, heard.artists) else CoverPrompt.mostPlayed(tracks, heard.plays)
                 val from = heard.from
                 // Without plays the list is the playlist's most present artists' songs: every note says so, none says "most played".
+                // From artists (TIDAL): the songs are by the artists played most, not the songs played most, and the note says that.
                 playsNote = when {
-                    from != null && listed.fromPlays > 0 -> ctx.getString(R.string.card_poster_plays_from, from.brand)
-                    from != null -> ctx.getString(R.string.card_poster_plays_none, from.brand)
+                    from != null && listed.fromPlays > 0 -> ctx.getString(if (byArtists) R.string.card_poster_plays_artists_from else R.string.card_poster_plays_from, from.brand)
+                    from != null -> ctx.getString(if (byArtists) R.string.card_poster_plays_artists_none else R.string.card_poster_plays_none, from.brand)
                     sources.isEmpty() -> ctx.getString(R.string.card_poster_plays_connect)
                     // Read but refused: say so, instead of a list that looks like the most played and is not.
                     heard.failed != null -> ctx.getString(R.string.card_poster_plays_failed, heard.failed.first.brand, heard.failed.second)

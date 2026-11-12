@@ -1679,6 +1679,8 @@
     <string name="card_poster_plays_from">En çok dinlediğin şarkılar, %1$s üzerinden</string>
     <string name="card_poster_plays_connect">Bu şarkılar çalma listesinde en çok yer alan sanatçılardan. En çok dinlediğin şarkıları listelemek için Last.fm, ListenBrainz, Spotify, Deezer veya kendi sunucunu (Navidrome, Jellyfin, Emby, Plex, Lyrion) bağla</string>
     <string name="card_poster_plays_none">%1$s üzerinde en çok dinlediğin şarkıların hiçbiri bu çalma listesinde yok: bu şarkılar listede en çok yer alan sanatçılardan</string>
+    <string name="card_poster_plays_artists_from">%1$s üzerinde en çok dinlediğin sanatçıların şarkıları</string>
+    <string name="card_poster_plays_artists_none">%1$s üzerinde en çok dinlediğin sanatçıların hiçbiri bu çalma listesinde yok: bu şarkılar listede en çok yer alan sanatçılardan</string>
     <string name="card_poster_start_over">Baştan başla</string>
     <string name="card_poster_start_over_hint">Çalma listesini yeniden okur ve sıfırdan yeni bir poster yapar</string>
     <string name="card_poster_qr">QR kodu ekle</string>

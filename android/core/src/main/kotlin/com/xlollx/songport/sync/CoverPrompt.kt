@@ -73,6 +73,26 @@ object CoverPrompt {
         return PosterPicks(chosen.toList(), fromPlays)
     }
 
+    /**
+     * The poster's songs ranked by the artists the user really plays, for a service that tells
+     * artists and no songs (TIDAL): the playlist's songs by [played] (the most streamed first), up
+     * to [perArtist] each in playlist order, then [posterTracks] fills up to [n]. An artist is
+     * matched by normalized name against any of a song's artists. Without plays, [posterTracks]'s list.
+     */
+    fun byArtists(tracks: List<Track>, played: List<Listening.ArtistPlays>, n: Int = 9, perArtist: Int = 2): PosterPicks {
+        if (played.isEmpty() || tracks.isEmpty()) return PosterPicks(posterTracks(tracks, n), 0)
+        val chosen = LinkedHashSet<Track>()
+        for (a in played.sortedByDescending { it.plays }) {
+            if (chosen.size >= n) break
+            val k = Matcher.normalizeArtist(a.name).takeIf { it.isNotEmpty() } ?: continue
+            tracks.filter { t -> t !in chosen && t.artists.any { Matcher.normalizeArtist(it) == k } }
+                .take(minOf(perArtist, n - chosen.size)).forEach { chosen += it }
+        }
+        val fromPlays = chosen.size
+        if (chosen.size < n) posterTracks(tracks.filter { it !in chosen }, n - chosen.size).forEach { chosen += it }
+        return PosterPicks(chosen.toList(), fromPlays)
+    }
+
     /** A song's title and first artist, normalized; null when either is missing. */
     private fun nameKey(t: Track): String? {
         val title = Matcher.normalizeTitle(t.title).takeIf { it.isNotEmpty() } ?: return null

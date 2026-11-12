@@ -19,6 +19,7 @@ import com.xlollx.songport.net.jsonObj
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Durations
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import kotlinx.serialization.json.JsonElement
 
@@ -340,8 +341,72 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         }
     }
 
+    // ---- listening: "My activity", the top artists of a month with their streams
+
+    /**
+     * The artists the user streamed most in [period], with TIDAL's own stream counts: the latest
+     * month with data ([Listening.Period.MONTH]), or the months of the last twelve added up
+     * ([Listening.Period.YEAR]). No songs: TIDAL's activity tells artists only.
+     *
+     * Not in the Open API: TIDAL's apps read it from api.tidal.com/v2/my-activity (timeline, then
+     * top-artists?year&month), as the open-source tidlers crate (0.1.1) calls it. The web player has
+     * no such page. It is asked with this sign-in's own token (the user's developer client); TIDAL
+     * may refuse it. Any refusal or answer of another shape is logged once ("[poster] TIDAL
+     * activity: HTTP <code> …", never the token) and thrown as [Listening.Unavailable].
+     */
+    suspend fun listening(ctx: Env, period: Listening.Period, now: Listening.Month = thisMonth()): Listening.Report {
+        val timeline = Listening.tidalTimeline(activity(ctx, "timeline", emptyMap())) ?: unavailable(ctx, "GET /my-activity/timeline: an answer without a timeline")
+        val months = Listening.tidalMonths(timeline, period, now)
+        if (months.isEmpty()) {
+            ctx.log(LOG, "TIDAL activity: no month with data (${period.key})")
+            return Listening.Report(emptyList())
+        }
+        val lists = months.map { m ->
+            Listening.tidalArtists(activity(ctx, "top-artists", mapOf("year" to "${m.year}", "month" to "${m.month}")))
+                ?: unavailable(ctx, "GET /my-activity/top-artists ${m.year}-${m.month}: an answer without artists")
+        }
+        val artists = Listening.sumArtists(lists).take(Listening.TOP)
+        ctx.log(LOG, "TIDAL activity: ${artists.size} artists over ${months.size} month(s) (${period.key}, latest ${months.first().year}-${months.first().month})")
+        return Listening.Report(emptyList(), artists)
+    }
+
+    /** GET [ACTIVITY]/my-activity/[path] with the sign-in's token, the country and the locale; refused: [unavailable]. */
+    private suspend fun activity(ctx: Env, path: String, params: Map<String, String>): JsonElement? {
+        val t = tokens(ctx)
+        val query = (params + mapOf("countryCode" to cc(ctx), "locale" to locale())).entries.joinToString("&") { "${it.key}=${Http.enc(it.value)}" }
+        val resp = try {
+            Http.send("GET", "$ACTIVITY/my-activity/$path?$query", mapOf("Authorization" to "Bearer ${t.accessToken}", "Accept" to "application/json"))
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            unavailable(ctx, "GET /my-activity/$path: ${e.javaClass.simpleName}")
+        }
+        if (!resp.ok) unavailable(ctx, "HTTP ${resp.code} GET /my-activity/$path${activityError(resp)}")
+        return try { parseJson(resp.body) } catch (_: Exception) { unavailable(ctx, "GET /my-activity/$path: an answer that is not JSON") }
+    }
+
+    /** TIDAL's own words for a refusal (subStatus, userMessage), never the body as it is. */
+    private fun activityError(resp: HttpResponse): String {
+        val j = runCatching { parseJson(resp.body) }.getOrNull()
+        val sub = j["subStatus"].str
+        val msg = (j["userMessage"].str ?: j["errors"][0]["detail"].str)?.take(120)
+        return listOfNotNull(sub?.let { "subStatus $it" }, msg).joinToString(", ").let { if (it.isEmpty()) "" else ": $it" }
+    }
+
+    private fun unavailable(ctx: Env, why: String): Nothing {
+        ctx.log(LOG, "TIDAL activity: $why")
+        throw Listening.Unavailable(why)
+    }
+
+    private fun locale(): String = java.util.Locale.getDefault().let { l ->
+        if (l.language.isNotEmpty() && l.country.isNotEmpty()) "${l.language}_${l.country}" else "en_US"
+    }
+
+    private fun thisMonth(): Listening.Month = java.util.Calendar.getInstance().let { Listening.Month(it.get(java.util.Calendar.YEAR), it.get(java.util.Calendar.MONTH) + 1) }
+
     companion object {
         const val SERVICE = "tidal"
         private const val API = "https://openapi.tidal.com/v2"
+        /** TIDAL's own API, where its apps read the listening activity (not part of the Open API). */
+        private const val ACTIVITY = "https://api.tidal.com/v2"
+        private const val LOG = "poster"
     }
 }

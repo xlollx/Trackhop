@@ -1681,6 +1681,8 @@
     <string name="card_poster_plays_from">I brani che ascolti di più, da %1$s</string>
     <string name="card_poster_plays_connect">Questi brani vengono dagli artisti più presenti nella playlist. Per elencare i brani che ascolti di più, collega Last.fm, ListenBrainz, Spotify, Deezer o il tuo server (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Nessuno dei brani che ascolti di più su %1$s è in questa playlist: questi brani vengono dagli artisti più presenti nella playlist</string>
+    <string name="card_poster_plays_artists_from">Brani degli artisti che ascolti di più su %1$s</string>
+    <string name="card_poster_plays_artists_none">Nessuno degli artisti che ascolti di più su %1$s è in questa playlist: questi brani vengono dagli artisti più presenti nella playlist</string>
     <string name="card_poster_start_over">Ricomincia da capo</string>
     <string name="card_poster_start_over_hint">Rilegge la playlist e crea un nuovo poster da zero</string>
     <string name="card_poster_qr">Includi il codice QR</string>

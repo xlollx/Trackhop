@@ -1650,6 +1650,8 @@
     <string name="card_poster_plays_from">よく聴く曲（%1$s から）</string>
     <string name="card_poster_plays_connect">この曲はプレイリストに多く登場するアーティストのものです。よく聴く曲を表示するには、Last.fm、ListenBrainz、Spotify、Deezer、または自分のサーバー（Navidrome、Jellyfin、Emby、Plex、Lyrion）を接続してください</string>
     <string name="card_poster_plays_none">%1$s でよく聴く曲はこのプレイリストにありません。プレイリストに多く登場するアーティストの曲を表示しています</string>
+    <string name="card_poster_plays_artists_from">%1$s でよく聴くアーティストの曲</string>
+    <string name="card_poster_plays_artists_none">%1$s でよく聴くアーティストはこのプレイリストにいません。プレイリストに多く登場するアーティストの曲を表示しています</string>
     <string name="card_poster_start_over">最初からやり直す</string>
     <string name="card_poster_start_over_hint">プレイリストを読み直し、新しいポスターを一から作ります</string>
     <string name="card_poster_qr">QR コードを入れる</string>
