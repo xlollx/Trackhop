@@ -906,6 +906,9 @@
     <string name="card_ai_drawing">Ton IA dessine la pochette…</string>
     <string name="card_ai_again">Une autre pochette</string>
     <string name="card_ai_save">Enregistrer la pochette</string>
+    <string name="card_use_as_cover">Utiliser comme pochette de la playlist</string>
+    <string name="card_cover_set">Pochette mise sur %1$s</string>
+    <string name="card_cover_not_set">%1$s n’a pas pris la pochette</string>
     <string name="ai_image_model">Modèle d\'images (facultatif)</string>
     <string name="ai_image_model_hint">ex. dall-e-3, pour la pochette IA de l\'affiche</string>
 

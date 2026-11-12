@@ -904,6 +904,9 @@
     <string name="card_ai_drawing">Yapay zekân kapağı çiziyor…</string>
     <string name="card_ai_again">Başka bir kapak</string>
     <string name="card_ai_save">Kapağı kaydet</string>
+    <string name="card_use_as_cover">Çalma listesi kapağı yap</string>
+    <string name="card_cover_set">Kapak %1$s üzerinde ayarlandı</string>
+    <string name="card_cover_not_set">%1$s kapağı kabul etmedi</string>
     <string name="ai_image_model">Görsel modeli (isteğe bağlı)</string>
     <string name="ai_image_model_hint">ör. dall-e-3, posterin yapay zekâ kapağı için</string>
 

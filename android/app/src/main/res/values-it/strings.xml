@@ -906,6 +906,9 @@
     <string name="card_ai_drawing">La tua IA sta disegnando la copertina…</string>
     <string name="card_ai_again">Un\'altra copertina</string>
     <string name="card_ai_save">Salva copertina</string>
+    <string name="card_use_as_cover">Usa come copertina della playlist</string>
+    <string name="card_cover_set">Copertina impostata su %1$s</string>
+    <string name="card_cover_not_set">%1$s non ha preso la copertina</string>
     <string name="ai_image_model">Modello per le immagini (facoltativo)</string>
     <string name="ai_image_model_hint">es. dall-e-3, per la copertina IA del poster</string>
 

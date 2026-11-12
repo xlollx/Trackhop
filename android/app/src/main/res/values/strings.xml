@@ -906,6 +906,9 @@
     <string name="card_ai_drawing">Your AI is drawing the cover…</string>
     <string name="card_ai_again">Another cover</string>
     <string name="card_ai_save">Save cover</string>
+    <string name="card_use_as_cover">Use as playlist cover</string>
+    <string name="card_cover_set">Cover set on %1$s</string>
+    <string name="card_cover_not_set">%1$s did not take the cover</string>
     <string name="ai_image_model">Image model (optional)</string>
     <string name="ai_image_model_hint">e.g. dall-e-3, for the poster\'s AI cover</string>
 

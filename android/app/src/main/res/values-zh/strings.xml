@@ -893,6 +893,9 @@
     <string name="card_ai_drawing">你的 AI 正在绘制封面…</string>
     <string name="card_ai_again">换一张封面</string>
     <string name="card_ai_save">保存封面</string>
+    <string name="card_use_as_cover">设为歌单封面</string>
+    <string name="card_cover_set">已在 %1$s 设置封面</string>
+    <string name="card_cover_not_set">%1$s 未接受封面</string>
     <string name="ai_image_model">图片模型（可选）</string>
     <string name="ai_image_model_hint">例如 dall-e-3，用于海报的 AI 封面</string>
 

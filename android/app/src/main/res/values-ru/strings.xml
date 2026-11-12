@@ -932,6 +932,9 @@
     <string name="card_ai_drawing">Ваш ИИ рисует обложку…</string>
     <string name="card_ai_again">Другая обложка</string>
     <string name="card_ai_save">Сохранить обложку</string>
+    <string name="card_use_as_cover">Сделать обложкой плейлиста</string>
+    <string name="card_cover_set">Обложка установлена в %1$s</string>
+    <string name="card_cover_not_set">%1$s не принял обложку</string>
     <string name="ai_image_model">Модель изображений (необязательно)</string>
     <string name="ai_image_model_hint">напр. dall-e-3, для обложки постера</string>
 

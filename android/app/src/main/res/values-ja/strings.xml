@@ -893,6 +893,9 @@
     <string name="card_ai_drawing">AI がジャケットを描いています…</string>
     <string name="card_ai_again">別のジャケット</string>
     <string name="card_ai_save">ジャケットを保存</string>
+    <string name="card_use_as_cover">プレイリストのカバーに使う</string>
+    <string name="card_cover_set">%1$s にカバーを設定しました</string>
+    <string name="card_cover_not_set">%1$s はカバーを受け付けませんでした</string>
     <string name="ai_image_model">画像モデル（任意）</string>
     <string name="ai_image_model_hint">例：dall-e-3（ポスターの AI ジャケット用）</string>
 

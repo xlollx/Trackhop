@@ -906,6 +906,9 @@
     <string name="card_ai_drawing">Sua IA está desenhando a capa…</string>
     <string name="card_ai_again">Outra capa</string>
     <string name="card_ai_save">Salvar capa</string>
+    <string name="card_use_as_cover">Usar como capa da playlist</string>
+    <string name="card_cover_set">Capa definida no %1$s</string>
+    <string name="card_cover_not_set">O %1$s não aceitou a capa</string>
     <string name="ai_image_model">Modelo de imagens (opcional)</string>
     <string name="ai_image_model_hint">ex. dall-e-3, para a capa por IA do pôster</string>
 

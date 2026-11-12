@@ -934,6 +934,9 @@
     <string name="card_ai_drawing">Twoja AI rysuje okładkę…</string>
     <string name="card_ai_again">Inna okładka</string>
     <string name="card_ai_save">Zapisz okładkę</string>
+    <string name="card_use_as_cover">Użyj jako okładki playlisty</string>
+    <string name="card_cover_set">Okładka ustawiona w %1$s</string>
+    <string name="card_cover_not_set">%1$s nie przyjął okładki</string>
     <string name="ai_image_model">Model obrazów (opcjonalnie)</string>
     <string name="ai_image_model_hint">np. dall-e-3, do okładki AI na plakacie</string>
 
