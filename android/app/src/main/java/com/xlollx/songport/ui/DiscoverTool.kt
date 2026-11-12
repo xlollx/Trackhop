@@ -2,6 +2,7 @@ package com.xlollx.songport.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.MusicNote
@@ -358,8 +360,14 @@ internal fun ToolShare(bitmaps: Map<Cards.Format, android.graphics.Bitmap>?, nam
             val ratio = format.width.toFloat() / format.height
             val shape = RoundedCornerShape(if (matte != null) 2.dp else 18.dp)
             val picture = Modifier.heightIn(max = if (matte != null) 372.dp else 400.dp).aspectRatio(ratio).clip(shape)
+            // A tap shows the card at full screen, to see it as it will look; a tap, ✕ or Back closes it.
+            var full by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+            if (full && bmp != null) FullScreenPicture(bmp, description) { full = false }
             val framed: @Composable () -> Unit = {
-                if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), contentDescription = description, modifier = picture)
+                if (bmp != null) androidx.compose.foundation.Image(
+                    bmp.asImageBitmap(), contentDescription = description,
+                    modifier = picture.clickable(onClickLabel = stringResource(R.string.card_view_full)) { full = true },
+                )
                 else Box(picture.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp, color = id.tint()) }
             }
             if (matte != null) Surface(shape = RoundedCornerShape(4.dp), color = matte, shadowElevation = 8.dp) {
@@ -495,6 +503,25 @@ internal fun ToolStat(value: String, label: String, modifier: Modifier = Modifie
             top?.invoke()
             Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = valueColor, maxLines = 1)
             Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** [bmp] on a black screen, fitted whole; a tap anywhere, the ✕ or Back closes it. */
+@Composable
+private fun FullScreenPicture(bmp: android.graphics.Bitmap, description: String?, onClose: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onClose, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(Modifier.fillMaxSize().background(Color.Black).clickable(onClickLabel = stringResource(R.string.ai_done_close), onClick = onClose)) {
+            androidx.compose.foundation.Image(
+                bmp.asImageBitmap(), contentDescription = description,
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+            )
+            androidx.compose.material3.IconButton(
+                onClick = onClose,
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(48.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), androidx.compose.foundation.shape.CircleShape),
+            ) { androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Close, stringResource(R.string.ai_done_close), tint = Color.White) }
         }
     }
 }

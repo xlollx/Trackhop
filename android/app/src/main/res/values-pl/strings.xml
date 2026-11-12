@@ -2594,4 +2594,5 @@
     <string name="recent_transfers_none">Brak ostatnich przeniesień.</string>
     <string name="picker_recent">Ostatnie</string>
     <string name="picker_all">Wszystkie playlisty · %1$d</string>
+    <string name="card_view_full">Zobacz na pełnym ekranie</string>
 </resources>

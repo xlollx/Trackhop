@@ -2486,4 +2486,5 @@
     <string name="recent_transfers_none">Keine letzten Übertragungen.</string>
     <string name="picker_recent">Zuletzt</string>
     <string name="picker_all">Alle Playlists · %1$d</string>
+    <string name="card_view_full">Im Vollbild ansehen</string>
 </resources>

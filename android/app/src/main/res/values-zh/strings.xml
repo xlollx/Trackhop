@@ -2433,4 +2433,5 @@
     <string name="recent_transfers_none">没有最近的传输。</string>
     <string name="picker_recent">最近</string>
     <string name="picker_all">所有歌单 · %1$d</string>
+    <string name="card_view_full">全屏查看</string>
 </resources>

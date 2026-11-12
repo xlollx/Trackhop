@@ -2592,4 +2592,5 @@
     <string name="recent_transfers_none">Недавних переносов нет.</string>
     <string name="picker_recent">Недавние</string>
     <string name="picker_all">Все плейлисты · %1$d</string>
+    <string name="card_view_full">Открыть на весь экран</string>
 </resources>

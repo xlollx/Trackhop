@@ -2487,4 +2487,5 @@
     <string name="recent_transfers_none">No recent transfers.</string>
     <string name="picker_recent">Recent</string>
     <string name="picker_all">All playlists · %1$d</string>
+    <string name="card_view_full">View full screen</string>
 </resources>

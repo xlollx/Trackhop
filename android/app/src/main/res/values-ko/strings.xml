@@ -2432,4 +2432,5 @@
     <string name="recent_transfers_none">최근 전송이 없습니다.</string>
     <string name="picker_recent">최근</string>
     <string name="picker_all">모든 플레이리스트 · %1$d</string>
+    <string name="card_view_full">전체 화면으로 보기</string>
 </resources>

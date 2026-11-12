@@ -568,7 +568,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     }
                 }
                 qr = qrUrl(ctx, p)
-                ownerName = if (info.ownedByMe) p.provider.accountName(ctx).orEmpty().trim() else ""
+                // A name only: an account's number or code (made through Facebook or Google) never goes on the poster.
+                ownerName = if (info.ownedByMe) com.xlollx.songport.sync.PersonName.of(p.provider.accountName(ctx)).orEmpty() else ""
                 val card = Cards.PosterCard(
                     title = title, owner = "",
                     // The service by its plain name: the caption goes on a wall, not the connector's label.
