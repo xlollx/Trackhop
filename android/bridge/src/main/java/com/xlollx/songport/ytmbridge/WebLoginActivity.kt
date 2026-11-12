@@ -322,8 +322,19 @@ class WebLoginActivity : ComponentActivity() {
         // the phone's "wv" identity, Spotify refused it and showed its sign-in page again, so
         // "Continue with Google" never finished. A form's POST goes on as it is.
         if (!request.method.equals("GET", ignoreCase = true)) return false
-        view.loadUrl(url.toString())
+        view.loadUrl(withAccountChoice(url).toString())
         return true
+    }
+
+    /**
+     * Google's sign-in for a service asks which Google account, every time: the phone's WebView may
+     * already hold one (the YouTube Music sign-in, another service), and Google would take it without
+     * asking, even when the service's account is on another one ("No Spotify account found").
+     */
+    private fun withAccountChoice(url: Uri): Uri {
+        val oauth = url.host == "accounts.google.com" && url.path.orEmpty().startsWith("/o/oauth2/")
+        if (!oauth || url.getQueryParameter("prompt") != null) return url
+        return url.buildUpon().appendQueryParameter("prompt", "select_account").build()
     }
 
     private fun identity(w: WebView) {
