@@ -58,7 +58,7 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 
 <p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements"></p>
 
-<p align="center"><img src="docs/assets/gallery/01.jpg" width="150" alt="Trackhop: keep your playlists identical across music services"> <img src="docs/assets/gallery/02.jpg" width="150" alt="Your playlists, in sync everywhere"> <img src="docs/assets/gallery/03.jpg" width="150" alt="See every change before it happens"> <img src="docs/assets/gallery/04.jpg" width="150" alt="Nothing goes missing quietly: the review"> <img src="docs/assets/gallery/05.jpg" width="150" alt="Discover, from your own music"> <img src="docs/assets/gallery/06.jpg" width="150" alt="Your Wrapped, whenever you want"> <img src="docs/assets/gallery/07.jpg" width="150" alt="Upcoming: concerts of your artists"> <img src="docs/assets/gallery/08.jpg" width="150" alt="Upcoming: vinyl, CDs and merch"> <img src="docs/assets/gallery/09.jpg" width="150" alt="Upcoming: follow your favourite artists"> <img src="docs/assets/gallery/10.jpg" width="150" alt="How compatible are we?"> <img src="docs/assets/gallery/11.jpg" width="150" alt="Upcoming: card sizes and styles"> <img src="docs/assets/gallery/12.jpg" width="150" alt="Get Trackhop"> <img src="docs/assets/gallery/13.jpg" width="150" alt="Desktop and Docker: the web page"> <img src="docs/assets/gallery/14.jpg" width="150" alt="Desktop and Docker: the trackhop command"> <img src="docs/assets/gallery/15.jpg" width="150" alt="Desktop and Docker: the HTTP API"> <img src="docs/assets/gallery/16.jpg" width="150" alt="Desktop and Docker: MCP for AI assistants"> <img src="docs/assets/gallery/17.jpg" width="150" alt="Desktop and Docker: webhooks"> <img src="docs/assets/gallery/18.jpg" width="150" alt="Desktop and Docker: what your server is missing"><br><sub>Pictures marked <i>Upcoming</i> show what arrives in the next updates.</sub></p>
+<p align="center"><sub>More pictures, upcoming features included: <a href="#gallery">Gallery</a>.</sub></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby and Plex, with Last.fm, ListenBrainz and public NetEase
@@ -244,6 +244,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
+- [Gallery](#gallery)
 - [Supported services and their limits](#supported-services-and-their-limits)
 - [Connector plugins](#connector-plugins)
 - [Automation: REST API and webhook](#automation-rest-api-and-webhook) (Desktop and Docker)
@@ -311,6 +312,10 @@ reports are what make it better: if something does not work as it should, say so
 | Appearance | Theme and Material You | Settings › Appearance: system, light or dark; "Dynamic colours" takes the phone's wallpaper palette (Android 12+) instead of the brand's, off by default. |
 | Security | Connections log | Settings › Developer options lists every host the app has contacted and how often, so "no Trackhop server" is something to check, not to believe. |
 | | Info sheet before every login, encrypted tokens, fingerprint or PIN lock | See [How logins are protected](#how-logins-are-protected). |
+
+## Gallery
+
+<p align="center"><img src="docs/assets/gallery/01.jpg" width="150" alt="Trackhop: keep your playlists identical across music services"> <img src="docs/assets/gallery/02.jpg" width="150" alt="Your playlists, in sync everywhere"> <img src="docs/assets/gallery/03.jpg" width="150" alt="See every change before it happens"> <img src="docs/assets/gallery/04.jpg" width="150" alt="Nothing goes missing quietly: the review"> <img src="docs/assets/gallery/05.jpg" width="150" alt="Discover, from your own music"> <img src="docs/assets/gallery/06.jpg" width="150" alt="Your Wrapped, whenever you want"> <img src="docs/assets/gallery/07.jpg" width="150" alt="Upcoming: concerts of your artists"> <img src="docs/assets/gallery/08.jpg" width="150" alt="Upcoming: vinyl, CDs and merch"> <img src="docs/assets/gallery/09.jpg" width="150" alt="Upcoming: follow your favourite artists"> <img src="docs/assets/gallery/10.jpg" width="150" alt="How compatible are we?"> <img src="docs/assets/gallery/11.jpg" width="150" alt="Upcoming: card sizes and styles"> <img src="docs/assets/gallery/12.jpg" width="150" alt="Get Trackhop"> <img src="docs/assets/gallery/13.jpg" width="150" alt="Desktop and Docker: the web page"> <img src="docs/assets/gallery/14.jpg" width="150" alt="Desktop and Docker: the trackhop command"> <img src="docs/assets/gallery/15.jpg" width="150" alt="Desktop and Docker: the HTTP API"> <img src="docs/assets/gallery/16.jpg" width="150" alt="Desktop and Docker: MCP for AI assistants"> <img src="docs/assets/gallery/17.jpg" width="150" alt="Desktop and Docker: webhooks"> <img src="docs/assets/gallery/18.jpg" width="150" alt="Desktop and Docker: what your server is missing"><br><sub>Pictures marked <i>Upcoming</i> show what arrives in the next updates.</sub></p>
 
 ## Supported services and their limits
 
