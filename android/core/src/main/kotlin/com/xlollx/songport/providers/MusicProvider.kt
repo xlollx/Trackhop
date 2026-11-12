@@ -354,9 +354,21 @@ interface MusicProvider {
         override val key: kotlin.coroutines.CoroutineContext.Key<*> get() = Key
     }
 
+    /**
+     * A read that wants the playlist as it is now: a connector that keeps listings for a while (the
+     * Bridge's, two minutes) reads it again instead. Run [tracks] inside it ("Start over" on the poster).
+     */
+    object FreshRead : kotlin.coroutines.CoroutineContext.Element {
+        object Key : kotlin.coroutines.CoroutineContext.Key<FreshRead>
+        override val key: kotlin.coroutines.CoroutineContext.Key<*> get() = Key
+    }
+
     companion object {
         /** True inside [OrderedAdds]. */
         suspend fun addsInOrder(): Boolean = kotlin.coroutines.coroutineContext[OrderedAdds.Key] != null
+
+        /** True inside [FreshRead]. */
+        suspend fun readsFresh(): Boolean = kotlin.coroutines.coroutineContext[FreshRead.Key] != null
 
         /**
          * [findEntries] for a playlist read by offset, [size] entries a page ([page] answers one page

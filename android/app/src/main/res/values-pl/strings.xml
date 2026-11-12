@@ -1742,6 +1742,16 @@
     <string name="card_layout_minimal">Minimalny</string>
     <string name="card_layout_bold">Wyrazisty</string>
     <string name="card_poster_show_name">Pokaż moją nazwę</string>
+    <string name="card_poster_plays_from">Twoje najczęściej słuchane utwory, z %1$s</string>
+    <string name="card_poster_plays_connect">Połącz Spotify, Last.fm lub ListenBrainz, aby wypisać najczęściej słuchane utwory</string>
+    <string name="card_poster_plays_none">Żaden z twoich najczęściej słuchanych utworów w %1$s nie jest na tej playliście: to utwory jej głównych wykonawców</string>
+    <string name="card_poster_start_over">Zacznij od nowa</string>
+    <string name="card_poster_start_over_hint">Czyta playlistę ponownie i tworzy nowy plakat od zera</string>
+    <string name="card_poster_qr">Dołącz kod QR</string>
+    <string name="card_poster_qr_hint">Z wierszem „Zeskanuj, aby otworzyć w %1$s”</string>
+    <string name="card_poster_all_artists">Wszyscy wykonawcy (%1$d)</string>
+    <string name="card_poster_artists_show">Pokaż</string>
+    <string name="card_poster_artists_hide">Ukryj</string>
     <string name="card_ai_cover_failed_drawn">Twoja AI nie mogła narysować okładki (%1$s). Plakat używa okładki narysowanej na telefonie.</string>
     <string name="error_same_playlist">Źródło i cel to ta sama playlista: wybierz inną playlistę jako cel.</string>
     <string name="job_archive_badge">zachowuje każdy utwór</string>

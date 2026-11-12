@@ -42,4 +42,56 @@ class CoverPromptTest {
         assertFalse(p.contains("sounds like"))
         assertFalse(p.contains("Mood and theme"))
     }
+
+    // ------------------------------------------------------------------ most played
+
+    private fun song(id: String, title: String, artist: String, isrc: String? = null) = Track(id = id, title = title, artists = listOf(artist), isrc = isrc)
+    private fun play(title: String, artist: String, plays: Int = 0, isrc: String? = null) = Listening.Play(Track(id = "p$title", title = title, artists = listOf(artist), isrc = isrc), plays)
+
+    private val playlist = listOf(
+        song("1", "Intro", "A", "ISRC1"), song("2", "Second", "A", "ISRC2"), song("3", "Third", "B", "ISRC3"),
+        song("4", "Fourth", "B"), song("5", "Fifth", "C"), song("6", "Sixth", "D"),
+    )
+
+    @Test
+    fun mostPlayedMatchesByIsrc() {
+        // Another title on the service, same recording: the ISRC says so.
+        val got = CoverPrompt.mostPlayed(playlist, listOf(play("Third (Remastered 2011)", "Someone else", 40, isrc = "isrc3")), n = 3)
+        assertEquals(1, got.fromPlays)
+        assertEquals("3", got.tracks.first().id)
+    }
+
+    @Test
+    fun mostPlayedMatchesByTitleAndFirstArtist() {
+        val got = CoverPrompt.mostPlayed(playlist, listOf(play("FIFTH", "c", 12), play("Fifth", "Not C", 50)), n = 3)
+        assertEquals(1, got.fromPlays)
+        assertEquals("5", got.tracks.first().id)
+    }
+
+    @Test
+    fun mostPlayedFollowsPlaysThenTheServicesRank() {
+        val counted = CoverPrompt.mostPlayed(playlist, listOf(play("Sixth", "D", 3), play("Fourth", "B", 30), play("Missing", "Z", 99)), n = 9)
+        assertEquals(listOf("4", "6"), counted.tracks.take(2).map { it.id })
+        // Spotify ranks without counts: its order is kept.
+        val ranked = CoverPrompt.mostPlayed(playlist, listOf(play("Sixth", "D"), play("Fourth", "B")), n = 9)
+        assertEquals(listOf("6", "4"), ranked.tracks.take(2).map { it.id })
+    }
+
+    @Test
+    fun mostPlayedFillsUpWithTheUsualPicksWithoutRepeats() {
+        val got = CoverPrompt.mostPlayed(playlist, listOf(play("Sixth", "D", 5)), n = 4)
+        assertEquals(4, got.tracks.size)
+        assertEquals("6", got.tracks.first().id)
+        assertEquals(got.tracks.size, got.tracks.toSet().size)
+        assertEquals(CoverPrompt.posterTracks(playlist.filter { it.id != "6" }, 3), got.tracks.drop(1))
+    }
+
+    @Test
+    fun withoutPlaysTheListIsUnchanged() {
+        val got = CoverPrompt.mostPlayed(playlist, emptyList())
+        assertEquals(0, got.fromPlays)
+        assertEquals(CoverPrompt.posterTracks(playlist), got.tracks)
+        // Plays that match nothing: the usual list too.
+        assertEquals(CoverPrompt.posterTracks(playlist), CoverPrompt.mostPlayed(playlist, listOf(play("Nope", "Z", 9))).tracks)
+    }
 }

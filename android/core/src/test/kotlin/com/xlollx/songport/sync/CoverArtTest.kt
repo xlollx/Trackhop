@@ -105,4 +105,128 @@ class CoverArtTest {
         assertTrue(lines.all { it.length <= 10 })
         assertEquals("Supercalifragilisticexpialidociousyes", lines.joinToString("").replace(" ", ""))
     }
+
+    // ------------------------------------------------------------------ line breaks
+
+    @Test
+    fun titlesBreakAtSpacesOrAfterSeparatorsNeverInsideAWord() {
+        val title = "Dark Trap/Phonk/Aesthetic rap"
+        // Narrow: "AESTHETIC" must never be split across lines.
+        val f = CoverArt.fitTitle(title, 12 * 0.6f * 100f, 1000f, 3, 100f, 60f, measure = mono)
+        assertFalse(f.cut)
+        assertTrue(f.lines.toString(), f.lines.any { "Aesthetic" in it })
+        assertTrue(f.lines.all { mono(it, f.size) <= 12 * 0.6f * 100f + 0.01f })
+        // Joined back (a break after "/" drops no space), the title is whole.
+        assertEquals(title, f.lines.reduce { a, b -> if (a.endsWith("/")) a + b else "$a $b" })
+        assertEquals(listOf("Dark", "Trap/", "Phonk/", "Aesthetic", "rap"), CoverArt.atoms(title).map { it.text })
+        assertEquals(listOf(false, true, false, false, true), CoverArt.atoms(title).map { it.space })
+        assertEquals(listOf("Rock", "&", "Roll", "Hip-", "Hop", "+", "Jazz"), CoverArt.atoms("Rock & Roll Hip-Hop + Jazz").map { it.text })
+    }
+
+    @Test
+    fun aVeryLongSingleWordShrinksTheTitleBeforeItIsSplit() {
+        val word = "Supercalifragilistic" // 20 characters
+        // At the smallest size (40) it is 480 wide; the box is 400: the title goes under 40, whole.
+        val f = CoverArt.fitTitle(word, 400f, 400f, 3, 100f, 40f, measure = mono)
+        assertEquals(listOf(word), f.lines)
+        assertTrue(f.size < 40f && f.size >= 40f * CoverArt.WORD_FLOOR)
+        assertFalse(f.cut)
+        // Too long even at the floor: only then split, inside the box.
+        val g = CoverArt.fitTitle(word.repeat(3), 400f, 400f, 3, 100f, 40f, measure = mono)
+        assertTrue(g.lines.all { mono(it, g.size) <= 400.01f })
+    }
+
+    @Test
+    fun cjkBreaksBetweenCharacters() {
+        val title = "夜のドライブのための音楽"
+        assertEquals(title.length, CoverArt.atoms(title).size)
+        val lines = CoverArt.wrap(title, 5f) { it.length.toFloat() }
+        assertEquals(listOf("夜のドライ", "ブのための", "音楽"), lines)
+        assertEquals(title, lines.joinToString(""))
+    }
+
+    @Test
+    fun aTwoLineTitleIsBalanced() {
+        // Greedy would leave "sempre" alone on the second line; balanced, the lines are even.
+        val lines = CoverArt.balance("Brani preferiti di sempre", 2, 20f) { it.length.toFloat() }
+        assertEquals(listOf("Brani preferiti", "di sempre"), lines)
+    }
+
+    @Test
+    fun aCutTitleEndsAfterAWholeWord() {
+        assertEquals("Songs to…", CoverArt.cutAtWord("Songs to listen to", 9f) { it.length.toFloat() })
+        assertEquals("Songs to listen to", CoverArt.cutAtWord("Songs to listen to", 40f) { it.length.toFloat() })
+        assertEquals("", CoverArt.cutAtWord("Supercalifragilistic", 5f) { it.length.toFloat() })
+        assertEquals("Supe…", CoverArt.cutAtWord("Supercalifragilistic", 5f, force = true) { it.length.toFloat() })
+        assertEquals("Trap…", CoverArt.cutAtWord("Trap/Phonk", 7f) { it.length.toFloat() })
+    }
+
+    // ------------------------------------------------------------------ names
+
+    private val chars: (String, Float) -> Float = { s, scale -> s.length * scale }
+
+    @Test
+    fun namesAreWholeThenPlusN() {
+        val names = listOf("A Day To Remember", "Bring Me The Horizon", "Nothing But Thieves", "Muse", "Placebo")
+        // 17 + 5 + 20 = 42; with "  ·  +3" it is 49.
+        val fit = CoverArt.fitNames(names, 50f, measure = chars)
+        assertEquals("A Day To Remember  ·  Bring Me The Horizon  ·  +3", fit.text)
+        assertEquals(3, fit.more)
+        assertEquals(1f, fit.scale)
+        // All fit: no "+N".
+        assertEquals("Muse  ·  Placebo", CoverArt.fitNames(listOf("Muse", "Placebo"), 50f, measure = chars).text)
+        // Never a name cut: room for one and a half names gives one and "+4".
+        assertEquals("A Day To Remember  ·  +4", CoverArt.fitNames(names, 30f, measure = chars).text)
+    }
+
+    @Test
+    fun aTooLongSingleNameIsSetSmallerThenLeftOut() {
+        val long = "X".repeat(44)
+        // 44 wide in 40: fits at 0.9 (39.6).
+        val smaller = CoverArt.fitNames(listOf(long), 40f, measure = chars)
+        assertEquals(long, smaller.text)
+        assertEquals(0.9f, smaller.scale, 0.001f)
+        // 60 wide in 40: not even at 0.85: left out, the next name shown with "+1".
+        val dropped = CoverArt.fitNames(listOf("Y".repeat(60), "Muse"), 40f, measure = chars)
+        assertEquals("Muse  ·  +1", dropped.text)
+        assertEquals("", CoverArt.fitNames(listOf("Y".repeat(60)), 40f, measure = chars).text)
+    }
+
+    @Test
+    fun noNamesNoLine() {
+        val fit = CoverArt.fitNames(emptyList(), 100f, measure = chars)
+        assertEquals("", fit.text)
+        assertTrue(fit.shown.isEmpty())
+        assertTrue(CoverArt.stackNames(emptyList(), 5, 100f, 10f, { 1f }) { s, _, k -> s.length * k }.isEmpty())
+    }
+
+    @Test
+    fun aStackOfNamesEndsWithPlusN() {
+        val names = listOf("Metallica", "Ghost", "Muse", "Tool", "Korn", "Slayer")
+        // Four rows of room: three names and how many are not shown.
+        val rows = CoverArt.stackNames(names, 5, 20f, 4f, { 1f }) { s, _, k -> s.length * k }
+        assertEquals(listOf("Metallica", "Ghost", "Muse", "+3"), rows.map { it.text })
+        assertTrue(rows.last().isMore)
+        assertEquals(listOf("Ghost", "Muse"), CoverArt.stackNames(listOf("Ghost", "Muse"), 5, 20f, 4f, { 1f }) { s, _, k -> s.length * k }.map { it.text })
+    }
+
+    @Test
+    fun aLongNameInAStackGoesOnTwoRowsNeverCut() {
+        // "A Day To Remember" (17) in 12: not even at 0.85; on two rows, between words.
+        val rows = CoverArt.stackNames(listOf("A Day To Remember", "Muse", "Tool"), 5, 12f, 10f, { 1f }) { s, _, k -> s.length * k }
+        assertEquals(listOf("A Day To", "Remember", "Muse", "Tool"), rows.map { it.text })
+        assertEquals(listOf(0, 0, 1, 2), rows.map { it.name })
+        // A single word wider than the column even so: left out, and said.
+        val skipped = CoverArt.stackNames(listOf("Supercalifragilistic", "Muse"), 5, 12f, 10f, { 1f }) { s, _, k -> s.length * k }
+        assertEquals(listOf("Muse", "+1"), skipped.map { it.text })
+    }
+
+    @Test
+    fun namesOverTwoLinesThenPlusN() {
+        val names = listOf("A Day To Remember", "Bring Me The Horizon", "Nothing But Thieves", "Muse", "Placebo")
+        val lines = CoverArt.fitNameLines(names, 2, 25f, measure = chars)
+        assertEquals(listOf("A Day To Remember", "Bring Me The Horizon  ·  +3"), lines.map { it.text })
+        assertEquals(listOf("Muse  ·  Placebo"), CoverArt.fitNameLines(listOf("Muse", "Placebo"), 2, 25f, measure = chars).map { it.text })
+        assertTrue(CoverArt.fitNameLines(emptyList(), 2, 25f, measure = chars).isEmpty())
+    }
 }

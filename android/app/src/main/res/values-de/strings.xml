@@ -1678,6 +1678,16 @@
     <string name="card_layout_minimal">Minimal</string>
     <string name="card_layout_bold">Plakativ</string>
     <string name="card_poster_show_name">Meinen Namen zeigen</string>
+    <string name="card_poster_plays_from">Deine meistgehörten Songs, von %1$s</string>
+    <string name="card_poster_plays_connect">Verbinde Spotify, Last.fm oder ListenBrainz, um deine meistgehörten Songs aufzulisten</string>
+    <string name="card_poster_plays_none">Keiner deiner meistgehörten Songs auf %1$s ist in dieser Playlist: Das sind die Songs ihrer wichtigsten Künstler</string>
+    <string name="card_poster_start_over">Neu beginnen</string>
+    <string name="card_poster_start_over_hint">Liest die Playlist erneut und erstellt ein neues Poster von Grund auf</string>
+    <string name="card_poster_qr">QR-Code einfügen</string>
+    <string name="card_poster_qr_hint">Mit der Zeile „Scannen, um auf %1$s zu öffnen“</string>
+    <string name="card_poster_all_artists">Alle Künstler (%1$d)</string>
+    <string name="card_poster_artists_show">Anzeigen</string>
+    <string name="card_poster_artists_hide">Ausblenden</string>
     <string name="card_ai_cover_failed_drawn">Deine KI konnte das Cover nicht zeichnen (%1$s). Das Poster nutzt stattdessen ein auf deinem Handy gezeichnetes Cover.</string>
     <string name="error_same_playlist">Quelle und Ziel sind dieselbe Playlist: Wähle eine andere Playlist als Ziel.</string>
     <string name="job_archive_badge">behält jeden Song</string>

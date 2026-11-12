@@ -1647,6 +1647,16 @@
     <string name="card_layout_minimal">极简</string>
     <string name="card_layout_bold">醒目</string>
     <string name="card_poster_show_name">显示我的名字</string>
+    <string name="card_poster_plays_from">你最常听的歌曲，来自 %1$s</string>
+    <string name="card_poster_plays_connect">连接 Spotify、Last.fm 或 ListenBrainz，即可列出你最常听的歌曲</string>
+    <string name="card_poster_plays_none">你在 %1$s 最常听的歌曲都不在这个歌单里：这里是其主要艺人的歌曲</string>
+    <string name="card_poster_start_over">从头再来</string>
+    <string name="card_poster_start_over_hint">重新读取歌单，从零开始制作新海报</string>
+    <string name="card_poster_qr">包含二维码</string>
+    <string name="card_poster_qr_hint">以及“扫码在 %1$s 打开”这一行</string>
+    <string name="card_poster_all_artists">全部艺人（%1$d）</string>
+    <string name="card_poster_artists_show">显示</string>
+    <string name="card_poster_artists_hide">隐藏</string>
     <string name="card_ai_cover_failed_drawn">你的 AI 无法绘制封面（%1$s）。海报将使用在手机上绘制的封面。</string>
     <string name="error_same_playlist">来源和目标是同一个歌单：请为目标选择另一个歌单。</string>
     <string name="job_archive_badge">保留每首歌</string>

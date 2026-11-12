@@ -1676,6 +1676,16 @@
     <string name="card_layout_minimal">Minimal</string>
     <string name="card_layout_bold">Çarpıcı</string>
     <string name="card_poster_show_name">Adımı göster</string>
+    <string name="card_poster_plays_from">En çok dinlediğin şarkılar, %1$s üzerinden</string>
+    <string name="card_poster_plays_connect">En çok dinlediğin şarkıları listelemek için Spotify, Last.fm veya ListenBrainz bağla</string>
+    <string name="card_poster_plays_none">%1$s üzerinde en çok dinlediğin şarkıların hiçbiri bu çalma listesinde yok: bunlar ana sanatçılarının şarkıları</string>
+    <string name="card_poster_start_over">Baştan başla</string>
+    <string name="card_poster_start_over_hint">Çalma listesini yeniden okur ve sıfırdan yeni bir poster yapar</string>
+    <string name="card_poster_qr">QR kodu ekle</string>
+    <string name="card_poster_qr_hint">“%1$s üzerinde açmak için tara” satırıyla</string>
+    <string name="card_poster_all_artists">Tüm sanatçılar (%1$d)</string>
+    <string name="card_poster_artists_show">Göster</string>
+    <string name="card_poster_artists_hide">Gizle</string>
     <string name="card_ai_cover_failed_drawn">Yapay zekân kapağı çizemedi (%1$s). Poster bunun yerine telefonunda çizilen bir kapak kullanıyor.</string>
     <string name="error_same_playlist">Kaynak ve hedef aynı çalma listesi: hedef için başka bir çalma listesi seç.</string>
     <string name="job_archive_badge">her şarkıyı saklar</string>

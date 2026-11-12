@@ -24,6 +24,10 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -83,6 +87,7 @@ import com.xlollx.songport.sync.Compatibility
 import com.xlollx.songport.sync.LinkResolver
 import com.xlollx.songport.sync.PlaylistLinks
 import com.xlollx.songport.sync.PosterPalette
+import com.xlollx.songport.sync.Listening
 import androidx.compose.foundation.selection.toggleable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -440,6 +445,57 @@ private val aiCovers = HashMap<String, Bitmap>()
 private val pickedCovers = LinkedHashMap<String, List<Bitmap>>()
 
 /**
+ * What the user played most, read from a listening service for the poster, kept per service and
+ * period for a few minutes: making the poster again, or another one, does not ask again.
+ */
+internal object PosterPlays {
+    private const val TTL_MS = 10 * 60_000L
+    private class Kept(val at: Long, val plays: List<Listening.Play>)
+    private val kept = HashMap<String, Kept>()
+
+    /** The period read: a year where the service can tell it, else the longest it can. */
+    fun period(s: Listening.Source): Listening.Period = if (Listening.Period.YEAR in s.periods) Listening.Period.YEAR else s.periods.last()
+
+    private fun key(s: Listening.Source, p: MusicProvider) = "${s.name}|${p.id}|${period(s).key}"
+
+    @Synchronized private fun get(k: String): List<Listening.Play>? = kept[k]?.takeIf { System.currentTimeMillis() - it.at < TTL_MS }?.plays
+    @Synchronized private fun put(k: String, plays: List<Listening.Play>) { kept[k] = Kept(System.currentTimeMillis(), plays) }
+    @Synchronized private fun forget(k: String) { kept.remove(k) }
+
+    /**
+     * What was read: the songs played most and the connector they came from ([from] null: none
+     * answered with some), and Spotify's connector when it refused for want of a permission only a
+     * new sign-in grants ([Listening.MissingScope]).
+     */
+    class Heard(val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null)
+
+    /**
+     * The songs played most, from the first of [sources] (the best first) that answers with some.
+     * [fresh]: asked again, not from what is kept. Never throws: a poster is never lost to the listening data.
+     */
+    suspend fun read(ctx: android.content.Context, sources: List<Pair<Listening.Source, MusicProvider>>, fresh: Boolean): Heard {
+        var signIn: MusicProvider? = null
+        for ((s, p) in sources) {
+            val k = key(s, p)
+            if (fresh) forget(k)
+            val plays = get(k) ?: try {
+                withContext(Dispatchers.IO) {
+                    val env = ctx.env
+                    when (s) {
+                        Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period(s)).tracks
+                        Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period(s)).tracks
+                        Listening.Source.SPOTIFY -> (p as SpotifyProvider).listening(env, period(s)).tracks
+                        Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID)).tracks
+                    }
+                }.also { put(k, it) }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.MissingScope) { signIn = p; null } catch (_: Exception) { null }
+            if (!plays.isNullOrEmpty()) return Heard(p, plays)
+        }
+        return Heard(null, emptyList(), signIn)
+    }
+}
+
+/**
  * What the poster's art is made of: the playlist's own covers, a cover drawn on the phone in one
  * of [GeneratedCovers.Style], or the user's AI.
  */
@@ -483,6 +539,12 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var layout by remember { mutableStateOf(runCatching { PosterPalette.Layout.valueOf(posterPrefs(ctx).getString("layout", null) ?: "") }.getOrNull() ?: PosterPalette.Layout.CLASSIC) }
     // The poster is signed only when asked: an account's name is often an e-mail address.
     var showName by remember { mutableStateOf(posterPrefs(ctx).getBoolean("name", false)) }
+    // The QR code and its caption: on unless the user turned them off.
+    var withQr by remember { mutableStateOf(posterPrefs(ctx).getBoolean("qr", true)) }
+    // Where the songs listed come from: the user's plays on a service, or why not.
+    var playsNote by remember { mutableStateOf<String?>(null) }
+    // Spotify's connector, when it needs a new sign-in to say what the user plays most.
+    var playsSignIn by remember { mutableStateOf<MusicProvider?>(null) }
     // What the poster on show is made of, and the name of the account when the playlist is the user's own.
     var printed by remember { mutableStateOf<Cards.PosterCard?>(null) }
     var ownerName by remember { mutableStateOf("") }
@@ -497,7 +559,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
     }
 
     suspend fun draw(card: Cards.PosterCard): Map<Cards.Format, Bitmap> {
-        val shown = card.with(layout, if (showName) ownerName else "")
+        val shown = card.with(layout, if (showName) ownerName else "", withQr)
         return withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.poster(ctx, shown, it) } }
     }
     // Another layout, the name on or off: the same poster printed again, nothing fetched.
@@ -507,7 +569,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
         scope.launch { val again = draw(card); if (printed === card) bitmaps = again }
     }
 
-    fun run(nextVariant: Boolean = false, newCover: Boolean = false) {
+    /** [fresh]: "Start over": the playlist read again (not the listing a connector keeps) and the plays asked again. */
+    fun run(nextVariant: Boolean = false, newCover: Boolean = false, fresh: Boolean = false) {
         val p = pick ?: return
         if (nextVariant) variant++
         val v = variant
@@ -515,23 +578,37 @@ fun PosterCard(snackbar: SnackbarHostState) {
         busy = true; bitmaps = null; printed = null; error = null
         scope.launch {
             try {
-                val tracks = p.provider.tracks(ctx, p.playlist.id)
-                val info = if (p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank()) p.playlist else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
+                val tracks = if (fresh) withContext(MusicProvider.FreshRead) { p.provider.tracks(ctx, p.playlist.id) } else p.provider.tracks(ctx, p.playlist.id)
+                val info = if (!fresh && p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank()) p.playlist else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
                 val key = p.provider.id + "|" + p.playlist.id
                 val title = info.name.ifBlank { p.playlist.name }.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
                 val artists = CoverPrompt.topArtists(tracks)
                 if (newCover) aiCovers.remove(key)
-                // The covers of the artists that appear most, looked up once per playlist and variant.
+                // The songs the user plays most that are in the playlist, from the best listening service connected.
+                val sources = withContext(Dispatchers.IO) { listeningSources(ctx) }
+                val heard = PosterPlays.read(ctx, sources, fresh)
+                val listed = CoverPrompt.mostPlayed(tracks, heard.plays)
+                val from = heard.from
+                playsNote = when {
+                    from != null && listed.fromPlays > 0 -> ctx.getString(R.string.card_poster_plays_from, from.brand)
+                    from != null -> ctx.getString(R.string.card_poster_plays_none, from.brand)
+                    sources.isEmpty() -> ctx.getString(R.string.card_poster_plays_connect)
+                    else -> null
+                }
+                playsSignIn = heard.needsSignIn.takeIf { from == null }
+                val played = listed.tracks.take(listed.fromPlays)
+                // The covers of the artists that appear most (the most played songs' first), looked up once per playlist and variant.
                 suspend fun picks(want: Int): List<Bitmap> {
                     val k = "$key|$v|$want"
                     synchronized(pickedCovers) { pickedCovers[k] }?.let { return it }
-                    val got = Cards.distinctCovers(tracks, p.provider.serviceId, want, maxLookups = if (want > 4) 24 else 16, variant = v)
+                    val got = Cards.distinctCovers(tracks, p.provider.serviceId, want, maxLookups = if (want > 4) 24 else 16, variant = v, preferred = played)
                     synchronized(pickedCovers) { if (pickedCovers.size >= 8) pickedCovers.remove(pickedCovers.keys.first()); pickedCovers[k] = got }
                     return got
                 }
                 suspend fun generated(style: GeneratedCovers.Style): Bitmap {
                     val covers = picks(if (style == GeneratedCovers.Style.MOSAIC) 9 else 4)
-                    return withContext(Dispatchers.Default) { GeneratedCovers.draw(style, GeneratedCovers.Input(title, artists, covers), v) }
+                    // No artists on the art: the poster prints them once, in its own line.
+                    return withContext(Dispatchers.Default) { GeneratedCovers.draw(style, GeneratedCovers.Input(title, emptyList(), covers), v) }
                 }
                 // A cover drawn on the phone carries the title: the sheet does not print it again.
                 var titled = chosen.style != null
@@ -575,9 +652,10 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     // The service by its plain name: the caption goes on a wall, not the connector's label.
                     service = p.provider.brand,
                     trackCount = tracks.size, durationMs = tracks.sumOf { it.durationMs },
-                    covers = covers, qr = qr, artists = artists,
-                    // The songs of the artists that appear most, not the playlist's first page.
-                    tracks = CoverPrompt.posterTracks(tracks).map { it.title to it.artists.firstOrNull().orEmpty() }, titledArt = titled,
+                    // Every artist, the ones that appear most first: the poster prints those that fit, then "+N".
+                    covers = covers, qr = qr, artists = CoverPrompt.topArtists(tracks, Int.MAX_VALUE),
+                    // The songs the user plays most, then those of the artists that appear most, not the playlist's first page.
+                    tracks = listed.tracks.map { it.title to it.artists.firstOrNull().orEmpty() }, titledArt = titled,
                 )
                 bitmaps = draw(card)
                 printed = card
@@ -586,6 +664,19 @@ fun PosterCard(snackbar: SnackbarHostState) {
             }
             busy = false
         }
+    }
+
+    // "Start over": every cover and play kept for this playlist forgotten, the playlist read again, a new variant.
+    // The layout, the art's style and whether the name and the QR show stay as the user set them.
+    fun startOver() {
+        val p = pick ?: return
+        if (busy) return
+        val key = p.provider.id + "|" + p.playlist.id
+        synchronized(pickedCovers) { pickedCovers.keys.removeAll { it.startsWith("$key|") } }
+        aiCovers.remove(key)
+        drawn = null
+        variant = kotlin.random.Random.nextInt(1, 100_000)
+        run(fresh = true)
     }
 
     ToolResultOnTop(bitmaps)
@@ -607,6 +698,14 @@ fun PosterCard(snackbar: SnackbarHostState) {
             stringResource(if (bitmaps == null) R.string.card_poster_run else R.string.card_again), onClick = { run(nextVariant = bitmaps != null) },
             icon = Icons.Filled.Brush, enabled = pick != null, busy = busy,
         )
+        if (bitmaps != null) {
+            OutlinedButton(onClick = { startOver() }, enabled = pick != null && !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Icon(Icons.Filled.Refresh, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.card_poster_start_over))
+            }
+            Text(stringResource(R.string.card_poster_start_over_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
     val made: @Composable () -> Unit = {
         if (busy) ToolLoading(stringResource(if (drawing) R.string.card_ai_drawing else R.string.loading))
@@ -614,27 +713,20 @@ fun PosterCard(snackbar: SnackbarHostState) {
         // The poster on a sheet of paper, as it would hang on a wall.
         if (bitmaps != null) ToolShare(bitmaps, "trackhop-poster", pick?.playlist?.name, matte = androidx.compose.ui.graphics.Color(0xFFF4EFE6)) {
             // The user's own playlist: their account's name goes on the poster only if they say so.
-            if (ownerName.isNotBlank()) {
-                val id = LocalToolIdentity.current
-                Row(
-                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(14.dp))
-                        .toggleable(showName, role = androidx.compose.ui.semantics.Role.Switch) { on ->
-                            showName = on; redraw()
-                            runCatching { posterPrefs(ctx).edit().putBoolean("name", on).apply() }
-                        }.padding(horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.card_poster_show_name), style = MaterialTheme.typography.bodyMedium)
-                        Text(ownerName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    androidx.compose.material3.Switch(
-                        checked = showName, onCheckedChange = null,
-                        colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = id.accent, checkedThumbColor = id.onAccent),
-                    )
-                }
+            if (ownerName.isNotBlank()) PosterSwitch(stringResource(R.string.card_poster_show_name), ownerName, showName) { on ->
+                showName = on; redraw()
+                runCatching { posterPrefs(ctx).edit().putBoolean("name", on).apply() }
+            }
+            // The QR code and its caption, on unless turned off; the sheet closes the gap without them.
+            if (qr != null) PosterSwitch(stringResource(R.string.card_poster_qr), stringResource(R.string.card_poster_qr_hint, pick?.provider?.brand.orEmpty()), withQr) { on ->
+                withQr = on; redraw()
+                runCatching { posterPrefs(ctx).edit().putBoolean("qr", on).apply() }
             }
             if (qr == null) ToolNote(stringResource(R.string.card_poster_no_qr))
+            playsNote?.let { ToolNote(it) }
+            playsSignIn?.let { p -> SpotifyScopeNote { com.xlollx.songport.auth.AuthFlow.start(ctx, p) } }
+            // Every artist, in full: the poster prints only those that fit ("+N").
+            printed?.artists?.takeIf { it.isNotEmpty() }?.let { AllArtists(it) }
             if (art != PosterArt.COVERS && drawn != null) {
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
@@ -648,6 +740,53 @@ fun PosterCard(snackbar: SnackbarHostState) {
     // (The picker keeps its playlist when it moves under the poster.)
     val setupSlot = rememberToolSlot()
     if (busy || error != null || bitmaps != null) ToolSplit(start = { made() }, end = { setupSlot(setup) }) else setupSlot(setup)
+}
+
+/** A setting of the poster as a row with a switch in the tool's accent: [title], [detail] under it. */
+@Composable
+private fun PosterSwitch(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    val id = LocalToolIdentity.current
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(14.dp))
+            .toggleable(checked, role = androidx.compose.ui.semantics.Role.Switch, onValueChange = onChange).padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyMedium)
+            if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        androidx.compose.material3.Switch(
+            checked = checked, onCheckedChange = null,
+            colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = id.accent, checkedThumbColor = id.onAccent),
+        )
+    }
+}
+
+/**
+ * Every artist of the playlist, the ones that appear most first: a row that says how many, and
+ * opens to list them all. The poster prints only the names that fit whole, then "+N": here they all are.
+ */
+@Composable
+private fun AllArtists(names: List<String>) {
+    var open by remember(names) { mutableStateOf(false) }
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(14.dp))
+                .clickable(role = androidx.compose.ui.semantics.Role.Button) { open = !open }.padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(stringResource(R.string.card_poster_all_artists, names.size), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+            Text(
+                stringResource(if (open) R.string.card_poster_artists_hide else R.string.card_poster_artists_show),
+                style = MaterialTheme.typography.labelLarge, color = LocalToolIdentity.current.accent,
+            )
+            Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (open) Text(
+            names.joinToString("  ·  "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+        )
+    }
 }
 
 /**

@@ -1679,6 +1679,16 @@
     <string name="card_layout_minimal">Minimal</string>
     <string name="card_layout_bold">Bold</string>
     <string name="card_poster_show_name">Show my name</string>
+    <string name="card_poster_plays_from">Your most played songs, from %1$s</string>
+    <string name="card_poster_plays_connect">Connect Spotify, Last.fm or ListenBrainz to list your most played songs</string>
+    <string name="card_poster_plays_none">None of your most played songs on %1$s is in this playlist: these are the songs of its main artists</string>
+    <string name="card_poster_start_over">Start over</string>
+    <string name="card_poster_start_over_hint">Reads the playlist again and makes a new poster from scratch</string>
+    <string name="card_poster_qr">Include QR code</string>
+    <string name="card_poster_qr_hint">With its “Scan to open on %1$s” line</string>
+    <string name="card_poster_all_artists">All artists (%1$d)</string>
+    <string name="card_poster_artists_show">Show</string>
+    <string name="card_poster_artists_hide">Hide</string>
     <string name="card_ai_cover_failed_drawn">Your AI could not draw the cover (%1$s). The poster uses a cover drawn on your phone instead.</string>
     <string name="error_same_playlist">The source and the target are the same playlist: pick another playlist for the target.</string>
     <string name="job_archive_badge">keeps every track</string>

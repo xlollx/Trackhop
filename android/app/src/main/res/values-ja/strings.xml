@@ -1647,6 +1647,16 @@
     <string name="card_layout_minimal">ミニマル</string>
     <string name="card_layout_bold">ボールド</string>
     <string name="card_poster_show_name">自分の名前を表示</string>
+    <string name="card_poster_plays_from">よく聴く曲（%1$s から）</string>
+    <string name="card_poster_plays_connect">Spotify、Last.fm、ListenBrainz を接続すると、よく聴く曲を表示できます</string>
+    <string name="card_poster_plays_none">%1$s でよく聴く曲はこのプレイリストにありません。主なアーティストの曲を表示しています</string>
+    <string name="card_poster_start_over">最初からやり直す</string>
+    <string name="card_poster_start_over_hint">プレイリストを読み直し、新しいポスターを一から作ります</string>
+    <string name="card_poster_qr">QR コードを入れる</string>
+    <string name="card_poster_qr_hint">「スキャンして %1$s で開く」の行も</string>
+    <string name="card_poster_all_artists">すべてのアーティスト（%1$d）</string>
+    <string name="card_poster_artists_show">表示</string>
+    <string name="card_poster_artists_hide">隠す</string>
     <string name="card_ai_cover_failed_drawn">AIがカバーを描けませんでした（%1$s）。ポスターにはスマホで描いたジャケットを使います。</string>
     <string name="error_same_playlist">ソースとターゲットが同じプレイリストです。ターゲットには別のプレイリストを選んでください。</string>
     <string name="job_archive_badge">すべての曲を保存</string>

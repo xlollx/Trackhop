@@ -51,6 +51,8 @@ object BridgeCore {
         if (slot.isNotEmpty() && serviceOf(method) !in SLOT_SERVICES) return err(ONE_ACCOUNT)
         // "Start over": the disconnect, then the sites' stored data too (see [WebReset]).
         if (method.endsWith(".reset")) return runCatching { reset(ctx, method, arg, extras, slot) }.getOrElse { err(it.message ?: it.javaClass.simpleName) }
+        // A listing asked for fresh (the poster made again from scratch): the one kept for it goes first.
+        if (arg != null && extras?.getBoolean("fresh") == true && extras.getInt("offset") == 0) dropListing(method, arg, slot)
         return try {
             val client = YtmClient(ctx, slot)
             val ytm = Session.forSlot(slot)
@@ -537,6 +539,18 @@ object BridgeCore {
     private fun invalidateSpotify(id: String, slot: String) { spotifyCache.invalidate(ck(slot, id)) }
 
     private const val LIKED = "__liked__"
+
+    /** Drops the listing kept for [id] by [method]'s connector (a `tracks` read), so the next page 0 reads it again. */
+    private fun dropListing(method: String, id: String, slot: String) {
+        when (method) {
+            "tracks" -> invalidate(id, slot)
+            "spotify.tracks" -> invalidateSpotify(id, slot)
+            "deezer.tracks" -> deezerCache.invalidate(ck(slot, id))
+            "anghami.tracks" -> anghamiCache.invalidate(ck(slot, id))
+            "qobuz.tracks" -> qobuzCache.invalidate(ck(slot, id))
+            "soundcloud.tracks" -> soundCloudCache.invalidate(id)
+        }
+    }
 
     private val deezerCache = ListCache<TrackDto>()
     private val anghamiCache = ListCache<TrackDto>()

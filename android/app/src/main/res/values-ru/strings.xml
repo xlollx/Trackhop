@@ -1740,6 +1740,16 @@
     <string name="card_layout_minimal">Минимализм</string>
     <string name="card_layout_bold">Яркий</string>
     <string name="card_poster_show_name">Показывать моё имя</string>
+    <string name="card_poster_plays_from">Ваши самые прослушиваемые треки, из %1$s</string>
+    <string name="card_poster_plays_connect">Подключите Spotify, Last.fm или ListenBrainz, чтобы показать самые прослушиваемые треки</string>
+    <string name="card_poster_plays_none">Ни одного из ваших самых прослушиваемых треков в %1$s нет в этом плейлисте: это треки его главных исполнителей</string>
+    <string name="card_poster_start_over">Начать заново</string>
+    <string name="card_poster_start_over_hint">Заново читает плейлист и делает новый постер с нуля</string>
+    <string name="card_poster_qr">Добавить QR-код</string>
+    <string name="card_poster_qr_hint">Со строкой «Отсканируйте, чтобы открыть в %1$s»</string>
+    <string name="card_poster_all_artists">Все исполнители (%1$d)</string>
+    <string name="card_poster_artists_show">Показать</string>
+    <string name="card_poster_artists_hide">Скрыть</string>
     <string name="card_ai_cover_failed_drawn">Ваш ИИ не смог нарисовать обложку (%1$s). На постере будет обложка, нарисованная на телефоне.</string>
     <string name="error_same_playlist">Источник и цель — один и тот же плейлист: выберите другой плейлист в качестве цели.</string>
     <string name="job_archive_badge">хранит все треки</string>

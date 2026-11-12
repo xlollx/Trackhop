@@ -1686,6 +1686,16 @@
     <string name="card_layout_minimal">Minimalista</string>
     <string name="card_layout_bold">Marcante</string>
     <string name="card_poster_show_name">Mostrar meu nome</string>
+    <string name="card_poster_plays_from">Suas músicas mais ouvidas, do %1$s</string>
+    <string name="card_poster_plays_connect">Conecte Spotify, Last.fm ou ListenBrainz para listar suas músicas mais ouvidas</string>
+    <string name="card_poster_plays_none">Nenhuma das suas músicas mais ouvidas no %1$s está nesta playlist: estas são as músicas dos artistas principais dela</string>
+    <string name="card_poster_start_over">Começar do zero</string>
+    <string name="card_poster_start_over_hint">Lê a playlist de novo e cria um pôster novo do zero</string>
+    <string name="card_poster_qr">Incluir código QR</string>
+    <string name="card_poster_qr_hint">Com a linha “Escaneie para abrir no %1$s”</string>
+    <string name="card_poster_all_artists">Todos os artistas (%1$d)</string>
+    <string name="card_poster_artists_show">Mostrar</string>
+    <string name="card_poster_artists_hide">Ocultar</string>
     <string name="card_ai_cover_failed_drawn">Sua IA não conseguiu desenhar a capa (%1$s). O pôster usa uma capa desenhada no seu celular.</string>
     <string name="error_same_playlist">A origem e o destino são a mesma playlist: escolha outra playlist como destino.</string>
     <string name="job_archive_badge">guarda todas as faixas</string>
