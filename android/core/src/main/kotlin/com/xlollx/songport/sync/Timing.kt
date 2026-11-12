@@ -129,7 +129,9 @@ object Timing {
                 val end = first.second + windowMin * 60_000L
                 val ids = LinkedHashSet<String>()
                 for (k in i until mine.size) { if (mine[k].second > end) break; ids += mine[k].first.id }
-                if (ids.size >= min && ids.size > (best?.jobIds?.size ?: 0)) {
+                // The two halves of a two-way pair run as one: they count once.
+                val units = ids.count { id -> jobs.firstOrNull { it.id == id }?.linkedJobId.let { p -> p == null || p !in ids || id < p } }
+                if (units >= min && ids.size > (best?.jobIds?.size ?: 0)) {
                     val t = Instant.ofEpochMilli(first.second).atZone(zone).toLocalTime()
                     best = Crowd(service, String.format(java.util.Locale.ROOT, "%02d:%02d", t.hour, t.minute), ids.toList())
                 }

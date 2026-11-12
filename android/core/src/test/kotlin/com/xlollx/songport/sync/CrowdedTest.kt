@@ -30,6 +30,14 @@ class CrowdedTest {
         assertNull(Timing.crowded((1..4).map { job("f$it", "csv", "09:00", dst = "csv") }))
     }
 
+    @Test fun aTwoWayPairCountsOnce() {
+        // The halves of a two-way pair run together by design: three units, no crowd.
+        val pair = listOf(job("p1", "x", "09:00").copy(linkedJobId = "p2"), job("p2", "y", "09:00", dst = "x").copy(linkedJobId = "p1"))
+        assertNull(Timing.crowded(pair + listOf(job("a", "x", "09:05"), job("b", "x", "09:10"))))
+        // One more sync makes four units: a crowd, and both halves are listed.
+        assertEquals(5, Timing.crowded(pair + listOf(job("a", "x", "09:05"), job("b", "x", "09:10"), job("c", "x", "09:20")))!!.jobIds.size)
+    }
+
     @Test fun theLargestGroupIsTheOneShown() {
         val jobs = (1..4).map { job("x$it", "deezer", "08:00", dst = "tidal") } + (1..6).map { job("y$it", "qobuz_web", "21:00", dst = "plex") }
         val crowd = Timing.crowded(jobs)!!

@@ -423,7 +423,7 @@ fun SyncsScreen(
         }
         val crowdPrefs = remember { ctx.getSharedPreferences("hints", android.content.Context.MODE_PRIVATE) }
         var crowdSeen by remember { mutableStateOf(crowdPrefs.getString("seen", null)) }
-        val crowd = remember(data.syncs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.syncs, sensitive = ::spreads)?.takeIf { crowdKey(it) != crowdSeen } }
+        val crowd = remember(data.syncs, crowdSeen) { com.xlollx.songport.sync.Timing.crowded(data.syncs, sensitive = ::spreads)?.takeIf { !crowdDismissed(it, crowdSeen) } }
         var spreading by remember { mutableStateOf<com.xlollx.songport.sync.Timing.Crowd?>(null) }
         spreading?.let { c -> SpreadDialog(data.syncs, c) { spreading = null } }
         androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -2449,6 +2449,12 @@ private fun CoffeeCard() {
 
 /** La richiesta di contributo: cosa ha appena fatto l'app, perche' e' gratis, un tocco per offrire un caffe'. */
 private fun crowdKey(c: com.xlollx.songport.sync.Timing.Crowd) = c.service + ":" + c.jobIds.sorted().joinToString(",")
+
+/** "Got it" holds for that service while its crowd is no larger: run times of syncs every few hours drift, and the group with them. */
+private fun crowdDismissed(c: com.xlollx.songport.sync.Timing.Crowd, seen: String?): Boolean {
+    val service = seen?.substringBefore(':', "") ?: return false
+    return service == c.service && c.jobIds.size <= seen.substringAfter(':').split(',').count { it.isNotEmpty() }
+}
 
 /** The services where many syncs at once can be turned away (MusicProvider.spreadSchedules). */
 private fun spreads(id: String): Boolean = Providers.byId(id)?.spreadSchedules == true
