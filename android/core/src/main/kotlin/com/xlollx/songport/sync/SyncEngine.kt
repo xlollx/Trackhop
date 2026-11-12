@@ -1006,9 +1006,13 @@ class SyncEngine(
             wanted += current.filter { it.id !in seen }
             if (wanted.size != current.size) return
             if (wanted.map { it.id } == current.map { it.id }) return
-            dst.reorderTracks(env, targetId, current, wanted)
+            // Inside OrderedAdds: the user asked for the source's order (TIDAL and YouTube move only then).
+            kotlinx.coroutines.withContext(MusicProvider.OrderedAdds) { dst.reorderTracks(env, targetId, current, wanted) }
             notes += str("note_order_aligned")
-        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Reorder.Skipped) {
+            // The service left the order as it was (not enough quota, a refusal): as without the option.
+            env.log("engine", "${dst.displayName}: order not kept: ${e.message}")
+        } catch (e: Exception) {
             notes += str("note_order_failed", e.message ?: e.javaClass.simpleName)
         }
     }

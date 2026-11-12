@@ -2073,6 +2073,12 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             style = MaterialTheme.typography.bodySmall,
                             color = if (keepOrder) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        // YouTube's moves cost quota: when the day's is short, the order is left as it is.
+                        if (keepOrder && Providers.byId(dstProvider)?.serviceId == com.xlollx.songport.providers.YouTubeProvider.SERVICE) Text(
+                            stringResource(R.string.editor_keep_order_quota),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                     val dstProviderObj = Providers.byId(dstProvider)
                     if (mirror && !archive && dstProviderObj != null && !dstProviderObj.canRemoveTracks) {

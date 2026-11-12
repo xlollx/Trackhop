@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.providers.AppleMusicProvider
 import com.xlollx.songport.providers.BridgePlugin
 import com.xlollx.songport.providers.DeezerProvider
 import com.xlollx.songport.providers.LastFmProvider
@@ -87,6 +88,8 @@ internal fun listeningSources(ctx: Context): List<Pair<Listening.Source, MusicPr
                 Listening.Source.PLEX, Listening.Source.LYRION -> p is PlayCounts
                 // The recent plays: only where the connector reads them (the full build's).
                 Listening.Source.YTM -> p.supportsRecent
+                // The official Apple Music sign-in: its recent plays and Replay.
+                Listening.Source.APPLE -> p is AppleMusicProvider && p.supportsRecent
             }
         }?.let { s to it }
     }
@@ -115,6 +118,7 @@ internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicPr
         Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
         Listening.Source.PLEX, Listening.Source.LYRION -> Listening.fromCounts((p as PlayCounts).topPlays(env))
         Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID))
+        Listening.Source.APPLE -> (p as AppleMusicProvider).listening(env, period)
     }
 }
 

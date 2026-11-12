@@ -19,6 +19,7 @@ import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Durations
 import com.xlollx.songport.sync.QuotaMeter
+import com.xlollx.songport.sync.Reorder
 import com.xlollx.songport.sync.TitleParser
 import kotlinx.serialization.json.JsonElement
 
@@ -356,6 +357,62 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         for (t in tracks) {
             val itemId = t.itemId ?: continue
             counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "DELETE", "$API/playlistItems?id=$itemId") }
+        }
+    }
+
+    /**
+     * Puts the entries in [ordered]'s order with playlistItems.update (`snippet.position`), the
+     * fewest moves ([Reorder.moves]); only where a sync keeps the source's order. Each move costs a
+     * write (50 units), so the moves are counted first: when the day's quota as [QuotaMeter] counts
+     * it would not cover them all, none is made and the order stays as it is ([Reorder.Skipped],
+     * logged). Positions count every entry, the private and deleted videos [tracks] leaves out
+     * included, so the whole playlist is read for them (one unit a page).
+     */
+    override val canReorder: Boolean get() = true
+    override suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {
+        if (MusicProvider.isLibrary(playlistId)) return
+        if (!MusicProvider.addsInOrder()) throw Reorder.Skipped("YouTube: moves cost quota, made only for a sync that keeps the order")
+        if (current.any { it.itemId.isNullOrEmpty() } || ordered.any { it.itemId.isNullOrEmpty() }) throw Reorder.Skipped("YouTube: an entry without its item id")
+        val listed = current.map { it.itemId!! }
+        val wanted = ordered.map { it.itemId!! }
+        if (wanted.toSet() != listed.toSet() || wanted.size != listed.size) throw Reorder.Skipped("YouTube: the order asked for is not the playlist's entries")
+        if (Reorder.moves(listed, wanted).isEmpty()) return
+        val all = ArrayList<Pair<String, String>>() // entry id to video id, every entry in playlist order
+        var page: String? = null
+        do {
+            val j = itemsPage(ctx, playlistId, page) ?: break
+            for (item in j["items"].arr) {
+                val itemId = item["id"].str ?: continue
+                all += itemId to (item["contentDetails"]["videoId"].str ?: item["snippet"]["resourceId"]["videoId"].str ?: "")
+            }
+            page = j["nextPageToken"].str
+        } while (page != null)
+        val ids = all.map { it.first }
+        val shown = listed.toHashSet()
+        if (ids.filter { it in shown } != listed) throw Reorder.Skipped("YouTube: the playlist changed while it was being reordered")
+        // The wanted order in the places of the entries listed; the others stay where they are.
+        val queue = ArrayDeque(wanted)
+        val desired = ids.map { if (it in shown) queue.removeFirst() else it }
+        val moves = Reorder.moves(ids, desired)
+        if (moves.isEmpty()) return
+        val cost = moves.size * QuotaMeter.COST_WRITE
+        val used = QuotaMeter.used(ctx.store.data, serviceId)
+        if (used + cost > QuotaMeter.YOUTUBE_DAILY) throw Reorder.Skipped("YouTube: ${moves.size} moves need $cost quota units, $used of ${QuotaMeter.YOUTUBE_DAILY} counted today")
+        val video = all.toMap()
+        val cur = ids.toMutableList()
+        for ((from, to) in moves) {
+            val item = cur.removeAt(from)
+            cur.add(to, item)
+            val videoId = video[item].orEmpty().ifEmpty { throw Reorder.Skipped("YouTube: entry $item has no video id") }
+            try {
+                counted(ctx, QuotaMeter.COST_WRITE) {
+                    api(ctx, "PUT", "$API/playlistItems?part=snippet", jsonObj("id" to item, "snippet" to mapOf(
+                        "playlistId" to playlistId, "resourceId" to mapOf("kind" to "youtube#video", "videoId" to videoId), "position" to to,
+                    )))
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                throw Reorder.Skipped("YouTube: ${e.message?.take(160) ?: e.javaClass.simpleName}")
+            }
         }
     }
 

@@ -29,6 +29,25 @@ object Reorder {
         return out
     }
 
+    /**
+     * [moves] said as "put this key before that one" (null: at the end), the form TIDAL's PATCH takes
+     * (`meta.positionBefore`, or no meta for the end): the same fewest moves, each named by keys.
+     */
+    fun movesBefore(current: List<String>, desired: List<String>): List<Pair<String, String?>> {
+        val cur = current.toMutableList()
+        return moves(current, desired).map { (from, to) ->
+            val key = cur.removeAt(from)
+            cur.add(to, key)
+            key to cur.getOrNull(to + 1)
+        }
+    }
+
+    /**
+     * The order a service could not put a playlist in, or chose not to (not enough quota left for
+     * the moves): the playlist keeps the order it has and the sync says nothing; the reason is logged.
+     */
+    class Skipped(message: String) : Exception(message)
+
     /** Spotify's call wants the insertion point in the list before the removal: one more when moving forward. */
     fun insertBefore(from: Int, to: Int): Int = if (from < to) to + 1 else to
 

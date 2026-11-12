@@ -55,7 +55,7 @@
     <string name="editor_mirror">Replicar eliminaciones</string>
     <string name="editor_mirror_desc">Quita del destino cada pista que no esté en el origen, también las añadidas allí a mano. Desactivado = solo añadir.</string>
     <string name="editor_keep_order">Mantener el orden del origen</string>
-    <string name="editor_keep_order_desc">Tras añadir, el destino se pone en el orden del origen. Lo permiten Spotify, YouTube Music y Deezer.</string>
+    <string name="editor_keep_order_desc">Tras añadir, el destino se pone en el orden del origen. Lo permiten Spotify, TIDAL, YouTube Music y Deezer.</string>
     <string name="note_order_aligned">Orden alineado con el origen.</string>
     <string name="note_order_failed">Orden no alineado: %1$s</string>
     <string name="policy_title">Reglas de coincidencia</string>
@@ -1864,6 +1864,7 @@
     <string name="ai_nano_retry">Reintentar</string>
     <string name="editor_keep_order_liked_slow">Las canciones que te gustan se guardan una por segundo para mantener el orden: una primera sincronización grande es lenta (unos 10 minutos cada 600 canciones).</string>
     <string name="editor_keep_order_liked_fast">Desactivado: se guardan en bloques a toda velocidad, pero Spotify puede mezclar el orden.</string>
+    <string name="editor_keep_order_quota">En YouTube cada movimiento usa parte de la cuota diaria: si no queda suficiente, el orden se queda como está.</string>
     <string name="login_qc_button">Iniciar sesión con Quick Connect</string>
     <string name="login_qc_hint">Sin contraseña, por ejemplo con inicio de sesión único: Jellyfin te da un código para aprobar desde un dispositivo donde ya has iniciado sesión.</string>
     <string name="login_qc_title">Quick Connect</string>

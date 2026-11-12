@@ -104,11 +104,12 @@ object NewReleases {
      * MusicBrainz's release-group search: those credited to [artist] by that very name (the search
      * matches words, so "Muse" also finds "Muse & Friends"), albums, EPs and singles only.
      */
-    fun parseMusicBrainz(body: String, artist: String): List<Release> {
+    fun parseMusicBrainz(body: String, artist: String, byId: Boolean = false): List<Release> {
         val want = Matcher.normalizeArtist(artist)
         return parseJson(body)["release-groups"].arr.mapNotNull { g ->
+            // Browsed by the artist's id: every group is theirs, whatever name it is credited under.
             val credited = g["artist-credit"].arr.flatMap { listOfNotNull(it["name"].str, it["artist"]["name"].str) }
-            if (credited.none { Matcher.normalizeArtist(it) == want }) return@mapNotNull null
+            if (!byId && credited.none { Matcher.normalizeArtist(it) == want }) return@mapNotNull null
             val type = when (g["primary-type"].str?.lowercase()) {
                 "album" -> Type.ALBUM
                 "ep" -> Type.EP
@@ -179,7 +180,7 @@ object NewReleases {
         }
         val from = today().minusDays(KEEP_DAYS)
         val dz = ask { fromDeezer(artist) }
-        val mb = ask { fromMusicBrainz(artist, from) }
+        val mb = ask { fromMusicBrainz(env, artist, from) }
         if (dz == null && mb == null) return null
         val merged = merge(dz.orEmpty(), mb.orEmpty()).filter { r -> r.day?.isBefore(from) == false }
         // Half an answer is used but not remembered: the next search asks the silent source again.
@@ -210,8 +211,46 @@ object NewReleases {
         return parseDeezerAlbums(r.body, artist)
     }
 
-    /** Null when MusicBrainz did not answer (busy: 503). */
-    private suspend fun fromMusicBrainz(artist: String, from: LocalDate): List<Release>? {
+    /**
+     * The artist's release groups from [from] on: browsed by the artist's MusicBrainz id when the app
+     * knows it ([ArtistIds], no namesakes), else (or when the browse does not answer) the search by
+     * name. Null when MusicBrainz did not answer (busy: 503).
+     */
+    private suspend fun fromMusicBrainz(env: Env, artist: String, from: LocalDate): List<Release>? {
+        ArtistIds.mbid(env, artist)?.let { id ->
+            browseMusicBrainz(id, artist, from)?.let { return it }
+            env.log("releases", "MusicBrainz browse by id not used for $id: searching the name")
+        }
+        return searchMusicBrainz(artist, from)
+    }
+
+    /** Pages of the browse read at most (100 groups each, albums, EPs and singles): enough for any artist but a few. */
+    private const val BROWSE_PAGES = 3
+
+    /**
+     * /ws/2/release-group?artist=<id>&type=album|ep|single, page after page; the groups first out from
+     * [from] on. Null when a page did not answer, or the artist has more groups than [BROWSE_PAGES]
+     * hold (the search by name, which filters by date, is asked then).
+     */
+    private suspend fun browseMusicBrainz(id: String, artist: String, from: LocalDate): List<Release>? {
+        val out = ArrayList<Release>()
+        for (page in 0 until BROWSE_PAGES) {
+            val r = MusicBrainz.pace.paced {
+                Http.send(
+                    "GET", "$musicBrainz/release-group?" + Http.query(mapOf("artist" to id, "type" to "album|ep|single", "fmt" to "json", "limit" to "100", "offset" to "${page * 100}")),
+                    mapOf("User-Agent" to ArtistMixSource.userAgent, "Accept" to "application/json"),
+                    maxRateLimitRetries = 0, retryServerErrors = false,
+                )
+            }
+            if (!r.ok) return null
+            out += parseMusicBrainz(r.body, artist, byId = true).filter { rel -> rel.day?.isBefore(from) == false }
+            val count = (parseJson(r.body)["release-group-count"] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toIntOrNull() ?: 0
+            if (count <= (page + 1) * 100) return out
+        }
+        return null
+    }
+
+    private suspend fun searchMusicBrainz(artist: String, from: LocalDate): List<Release>? {
         val q = "artistname:\"${ArtistMixSource.escape(artist)}\" AND firstreleasedate:[$from TO *]"
         val r = MusicBrainz.pace.paced {
             Http.send(

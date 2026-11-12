@@ -55,7 +55,7 @@
     <string name="editor_mirror">Odzwierciedlaj usunięcia</string>
     <string name="editor_mirror_desc">Usuwa z celu każdy utwór, którego nie ma w źródle, także dodane tam ręcznie. Wyłączone = tylko dodawanie.</string>
     <string name="editor_keep_order">Zachowaj kolejność źródła</string>
-    <string name="editor_keep_order_desc">Po dodaniu cel jest układany w kolejności źródła. Potrafią to Spotify, YouTube Music i Deezer.</string>
+    <string name="editor_keep_order_desc">Po dodaniu cel jest układany w kolejności źródła. Potrafią to Spotify, TIDAL, YouTube Music i Deezer.</string>
     <string name="note_order_aligned">Kolejność dopasowana do źródła.</string>
     <string name="note_order_failed">Nie udało się ułożyć kolejności: %1$s</string>
     <string name="policy_title">Reguły dopasowania</string>
@@ -1922,6 +1922,7 @@
     <string name="ai_nano_retry">Spróbuj ponownie</string>
     <string name="editor_keep_order_liked_slow">Polubione utwory są zapisywane po jednym na sekundę, aby zachować kolejność: pierwsza duża synchronizacja jest wolna (ok. 10 minut na 600 utworów).</string>
     <string name="editor_keep_order_liked_fast">Wyłączone: polubione są zapisywane partiami z pełną prędkością, ale Spotify może pomieszać kolejność.</string>
+    <string name="editor_keep_order_quota">W YouTube każde przesunięcie zużywa część dziennego limitu: gdy zostało go za mało, kolejność pozostaje bez zmian.</string>
     <string name="login_qc_button">Zaloguj przez Quick Connect</string>
     <string name="login_qc_hint">Bez hasła, np. przy logowaniu jednokrotnym (SSO): Jellyfin poda kod do zatwierdzenia na urządzeniu, na którym już jesteś zalogowany.</string>
     <string name="login_qc_title">Quick Connect</string>

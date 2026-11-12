@@ -55,7 +55,7 @@
     <string name="editor_mirror">Mirror removals</string>
     <string name="editor_mirror_desc">Remove from the target every track that is not in the source, including tracks added there by hand. Off = only add.</string>
     <string name="editor_keep_order">Keep the source order</string>
-    <string name="editor_keep_order_desc">After adding, the target is put in the source’s order. Spotify, YouTube Music and Deezer can do it.</string>
+    <string name="editor_keep_order_desc">After adding, the target is put in the source’s order. Spotify, TIDAL, YouTube Music and Deezer can do it.</string>
     <string name="note_order_aligned">Order aligned to the source.</string>
     <string name="note_order_failed">Order not aligned: %1$s</string>
     <string name="policy_title">Matching rules</string>
@@ -1857,6 +1857,7 @@
     <string name="ai_nano_retry">Try again</string>
     <string name="editor_keep_order_liked_slow">Liked songs are saved one per second to keep the order: a big first sync is slow (about 10 minutes per 600 songs).</string>
     <string name="editor_keep_order_liked_fast">Off: liked songs are saved in batches at full speed, but Spotify may mix up their order.</string>
+    <string name="editor_keep_order_quota">On YouTube each move uses part of the daily quota: when not enough is left, the order stays as it is.</string>
     <string name="login_qc_button">Sign in with Quick Connect</string>
     <string name="login_qc_hint">No password, for example with single sign-on: Jellyfin gives you a code to approve from a device where you\'re already signed in.</string>
     <string name="login_qc_title">Quick Connect</string>

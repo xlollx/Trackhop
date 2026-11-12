@@ -55,7 +55,7 @@
     <string name="editor_mirror">同步删除</string>
     <string name="editor_mirror_desc">从目标中移除来源里没有的每一首歌，包括手动添加到目标的歌曲。关闭则只添加。</string>
     <string name="editor_keep_order">保持来源的顺序</string>
-    <string name="editor_keep_order_desc">添加完成后，目标会按来源的顺序排列。Spotify、YouTube Music 和 Deezer 支持。</string>
+    <string name="editor_keep_order_desc">添加完成后，目标会按来源的顺序排列。Spotify、TIDAL、YouTube Music 和 Deezer 支持。</string>
     <string name="note_order_aligned">顺序已与来源对齐。</string>
     <string name="note_order_failed">顺序未对齐：%1$s</string>
     <string name="policy_title">匹配规则</string>
@@ -1824,6 +1824,7 @@
     <string name="ai_nano_retry">重试</string>
     <string name="editor_keep_order_liked_slow">为保持顺序，喜欢的歌曲每秒保存一首：首次大规模同步较慢（每 600 首约 10 分钟）。</string>
     <string name="editor_keep_order_liked_fast">关闭：喜欢的歌曲会批量全速保存，但 Spotify 可能会打乱顺序。</string>
+    <string name="editor_keep_order_quota">在 YouTube 上，每次移动都会消耗部分每日配额：剩余不足时，顺序保持不变。</string>
     <string name="login_qc_button">使用 Quick Connect 登录</string>
     <string name="login_qc_hint">无需密码（例如单点登录）：Jellyfin 会给你一个代码，在已登录的设备上批准即可。</string>
     <string name="login_qc_title">Quick Connect</string>

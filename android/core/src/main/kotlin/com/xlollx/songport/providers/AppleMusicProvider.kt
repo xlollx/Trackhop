@@ -53,6 +53,14 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     override val canDeletePlaylists: Boolean get() = false
     /** Library albums can be listed and added; the API has no "followed artists". */
     override val supportsAlbums = true
+    /**
+     * Favorites as a Liked songs target: POST /v1/me/favorites puts a song in the user's "Favorite
+     * Songs" playlist. The API lists no favorites and removes none, so it is a target only (the
+     * official route; the web route keeps what it had).
+     */
+    override val supportsLikedTarget: Boolean get() = serviceId == SERVICE
+    /** Recently played (/v1/me/recent/played/tracks) as a source, and for the poster and the Wrapped. */
+    override val supportsRecent: Boolean get() = serviceId == SERVICE
 
 
     override val setupGuide: SetupGuide? = SetupGuide(
@@ -236,6 +244,8 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
             ?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
+        if (playlistId == MusicProvider.LIKED_ID) return favorited(ctx)
+        if (playlistId == MusicProvider.RECENT_ID) return recent(ctx)
         if (playlistId == MusicProvider.ALBUMS_ID) {
             val out = ArrayList<Track>()
             var url: String? = "$API/v1/me/library/albums?limit=100"
@@ -303,6 +313,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId == MusicProvider.LIKED_ID) return favorite(ctx, tracks)
         if (playlistId == MusicProvider.ALBUMS_ID) {
             tracks.chunked(25).forEach { chunk -> api(ctx, "POST", "$API/v1/me/library?ids[albums]=${chunk.joinToString(",") { it.id }}") }
             return
@@ -345,6 +356,102 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         return m.contains("404") && m.contains("No related resources", true)
     }
 
+    // ---- favorites, recently played, Replay
+
+    /**
+     * Adds [tracks] (catalogue ids) to the favorites: POST /v1/me/favorites?ids[songs]=…, 25 a
+     * request; Apple answers 202 and ignores an id it cannot add. The songs sent are kept on this
+     * device ([favorited]), as Apple lists no favorites: the next sync knows them as there.
+     */
+    private suspend fun favorite(ctx: Env, tracks: List<Track>) {
+        tracks.chunked(25).forEach { chunk ->
+            api(ctx, "POST", "$API/v1/me/favorites?ids[songs]=${chunk.joinToString(",") { Http.enc(it.id) }}")
+            val kv = ctx.keyValues(FAVORITES)
+            val had = kv[id].orEmpty()
+            val known = had.lineSequence().map { it.substringBefore('\t') }.toHashSet()
+            val added = chunk.filter { known.add(it.id) }.joinToString("\n") { t ->
+                listOf(t.id, t.title, t.artists.joinToString(", ")).joinToString("\t") { it.replace('\t', ' ').replace('\n', ' ') }
+            }
+            if (added.isNotEmpty()) kv[id] = if (had.isEmpty()) added else "$had\n$added"
+        }
+    }
+
+    /** The songs this device put in the favorites, the latest first: Apple's API has no list of them. */
+    private fun favorited(ctx: Env): List<Track> =
+        ctx.keyValues(FAVORITES)[id].orEmpty().lineSequence().filter { it.isNotBlank() }.map { line ->
+            val p = line.split('\t')
+            Track(id = p[0], title = p.getOrElse(1) { "" }, artists = p.getOrNull(2)?.split(", ")?.filter { it.isNotBlank() }.orEmpty())
+        }.toList().asReversed()
+
+    /** Nothing to report for the favorites: only what this device sent is known. */
+    override suspend fun unplayable(ctx: Env, playlistId: String): List<com.xlollx.songport.model.UnplayableEntry> =
+        if (playlistId == MusicProvider.LIKED_ID) emptyList() else super.unplayable(ctx, playlistId)
+
+    /**
+     * The songs played lately, the latest first, each once: GET /v1/me/recent/played/tracks, thirty a
+     * page (Apple's most), for catalogue and library songs, up to [RECENT_PAGES] pages.
+     */
+    private suspend fun recent(ctx: Env): List<Track> = recentPlays(ctx).map { it.track }
+
+    private suspend fun recentPlays(ctx: Env): List<com.xlollx.songport.sync.Listening.Play> {
+        val out = ArrayList<com.xlollx.songport.sync.Listening.Play>()
+        var url: String? = "$API/v1/me/recent/played/tracks?types=songs,library-songs&limit=30"
+        var pages = 0
+        while (url != null && pages++ < RECENT_PAGES) {
+            val j = api(ctx, "GET", url)
+            for (d in j["data"].arr) {
+                val t = (if (d["type"].str == "library-songs") libraryTrack(d) else catalogTrack(d)) ?: continue
+                if (t.title.isNotBlank()) out += com.xlollx.songport.sync.Listening.Play(t, cover = com.xlollx.songport.sync.Listening.appleArtwork(d["attributes"]["artwork"]["url"].str))
+            }
+            url = nextUrl(j)
+        }
+        return out.distinctBy { it.track.id }
+    }
+
+    /**
+     * What the user listened to, for the Wrapped and the poster. [Listening.Period.YEAR]: Replay's
+     * top songs and artists of the latest year Apple has (GET /v1/me/music-summaries, ranked, no
+     * counts); when Replay has nothing or refuses, the recent plays, said in the log. Else the
+     * recent plays. Any refusal is logged once and thrown as [com.xlollx.songport.sync.Listening.Unavailable].
+     */
+    suspend fun listening(ctx: Env, period: com.xlollx.songport.sync.Listening.Period): com.xlollx.songport.sync.Listening.Report {
+        if (period == com.xlollx.songport.sync.Listening.Period.YEAR) {
+            val replay = try {
+                replay(ctx)
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                ctx.log(LISTENING, "Apple Music Replay not read (${e.message?.take(120) ?: e.javaClass.simpleName}): the recent plays instead"); null
+            }
+            if (replay != null && replay.tracks.isNotEmpty()) return replay
+            if (replay != null) ctx.log(LISTENING, "Apple Music Replay has no songs yet: the recent plays instead")
+        }
+        val plays = try {
+            recentPlays(ctx)
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            val why = "Apple Music recent plays: ${e.message?.take(120) ?: e.javaClass.simpleName}"
+            ctx.log(LISTENING, why)
+            throw com.xlollx.songport.sync.Listening.Unavailable(why)
+        }
+        val r = com.xlollx.songport.sync.Listening.fromHistory(plays.map { it.track })
+        val covers = plays.associate { it.track.id to it.cover }
+        return r.copy(tracks = r.tracks.map { p -> p.copy(cover = covers[p.track.id]) })
+    }
+
+    /**
+     * Replay: GET /v1/me/music-summaries?filter[year]=latest&views=top-songs,top-artists. A song the
+     * view names without its attributes is read from the catalogue, by id.
+     */
+    private suspend fun replay(ctx: Env): com.xlollx.songport.sync.Listening.Report {
+        val j = api(ctx, "GET", "$API/v1/me/music-summaries?filter[year]=latest&views=top-songs,top-artists")
+        val r = com.xlollx.songport.sync.Listening.appleReplay(j)
+        if (r.missing.isEmpty()) return r.report
+        val found = HashMap<String, Pair<Track, String?>>()
+        r.missing.chunked(100).forEach { chunk ->
+            val c = api(ctx, "GET", "$API/v1/catalog/${storefront(ctx)}/songs?ids=${chunk.joinToString(",")}")
+            for (d in c["data"].arr) catalogTrack(d)?.let { found[it.id] = it to com.xlollx.songport.sync.Listening.appleArtwork(d["attributes"]["artwork"]["url"].str) }
+        }
+        return r.report.copy(tracks = r.order.mapNotNull { sid -> r.report.tracks.firstOrNull { it.track.id == sid } ?: found[sid]?.let { (t, cover) -> com.xlollx.songport.sync.Listening.Play(t, cover = cover) } })
+    }
+
     /** L'API Apple Music non espone la rimozione di brani da una playlist (vedi canRemoveTracks). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         throw ProviderException(ctx.text("error_no_removals", displayName))
@@ -357,5 +464,10 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         private const val CATALOG_PREFIX = "pl."
         /** How many times a write waits for a playlist the library has not seen yet. */
         private const val LIBRARY_LAG_RETRIES = 4
+        /** The songs each Apple Music account had put in its favorites from this device, one a line (id, title, artists). */
+        private const val FAVORITES = "apple_favorites"
+        /** Recently played: thirty songs a page. */
+        private const val RECENT_PAGES = 5
+        private const val LISTENING = "poster"
     }
 }

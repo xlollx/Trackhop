@@ -55,7 +55,7 @@
     <string name="editor_mirror">削除も反映</string>
     <string name="editor_mirror_desc">同期元にない曲は、手動で追加したものも含めて同期先からすべて削除します。オフの場合は追加のみ行います。</string>
     <string name="editor_keep_order">元の順序を保つ</string>
-    <string name="editor_keep_order_desc">追加後、同期先を元の順序に並べ替えます。Spotify、YouTube Music、Deezer で使えます。</string>
+    <string name="editor_keep_order_desc">追加後、同期先を元の順序に並べ替えます。Spotify、YouTube Music、TIDAL、Deezer で使えます。</string>
     <string name="note_order_aligned">順序を元に合わせました。</string>
     <string name="note_order_failed">順序を合わせられませんでした: %1$s</string>
     <string name="policy_title">マッチングのルール</string>
@@ -1824,6 +1824,7 @@
     <string name="ai_nano_retry">再試行</string>
     <string name="editor_keep_order_liked_slow">順番を保つため、お気に入りの曲は1秒に1曲ずつ保存されます。最初の大きな同期は時間がかかります（600曲で約10分）。</string>
     <string name="editor_keep_order_liked_fast">オフ：お気に入りの曲はまとめて高速に保存されますが、Spotify が順番を入れ替えることがあります。</string>
+    <string name="editor_keep_order_quota">YouTube では並べ替えのたびに毎日の割り当て量を消費します。残りが足りないときは順序はそのままです。</string>
     <string name="login_qc_button">Quick Connect でサインイン</string>
     <string name="login_qc_hint">パスワード不要（シングルサインオンなど）：Jellyfin が表示するコードを、すでにサインインしている端末で承認します。</string>
     <string name="login_qc_title">Quick Connect</string>

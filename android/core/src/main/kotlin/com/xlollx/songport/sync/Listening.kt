@@ -44,7 +44,9 @@ object Listening {
      * The services that know what the user listened to, the best first: those counting every play
      * (the scrobblers, then the personal servers), then Spotify's ranking (the developer sign-in,
      * then the web player's), then Deezer's, then TIDAL's monthly top artists (real stream counts,
-     * but artists only: no songs), then YouTube Music's recent plays. The periods each can tell.
+     * but artists only: no songs), then YouTube Music's recent plays, then Apple Music's (its recent
+     * plays, or Replay's ranking of the latest year: added last, so it is never chosen over a source
+     * that was there before it). The periods each can tell.
      */
     enum class Source(val serviceId: String, val periods: List<Period>, val counts: Boolean) {
         LASTFM("lastfm", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), true),
@@ -59,7 +61,9 @@ object Listening {
         DEEZER("deezer", listOf(Period.ALL), false),
         // MONTH: the latest month TIDAL has data for; YEAR: the months of the last twelve, summed.
         TIDAL("tidal", listOf(Period.MONTH, Period.YEAR), true),
-        YTM("ytm", listOf(Period.RECENT), false);
+        YTM("ytm", listOf(Period.RECENT), false),
+        // RECENT: the recent plays; YEAR: Replay's top songs of the latest year (the recent plays when Replay has none).
+        APPLE("apple", listOf(Period.RECENT, Period.YEAR), false);
 
         /** A personal server: it counts the plays of every song it holds, so a playlist of its own is ranked by them. */
         val server: Boolean get() = counts && periods == listOf(Period.ALL)
@@ -98,9 +102,12 @@ object Listening {
     /** The service did not answer (refused, not found, an answer of another shape); already logged: the caller goes on without it. */
     class Unavailable(message: String) : Exception(message)
 
-    /** The source to read: [wanted] when it is there, else the best one there; null = the playlists. */
+    /**
+     * The source to read: [wanted] when it is there, else the best one there; null = the playlists.
+     * Apple Music only when chosen: a Wrapped made from the playlists stays the default it was.
+     */
     fun choose(available: Collection<Source>, wanted: Source?): Source? =
-        wanted?.takeIf { it in available } ?: available.minByOrNull { it.ordinal }
+        wanted?.takeIf { it in available } ?: available.filter { it != Source.APPLE }.minByOrNull { it.ordinal }
 
     /** The period to read from [source]: [wanted] when the source can tell it, else its first. */
     fun period(source: Source, wanted: Period?): Period = wanted?.takeIf { it in source.periods } ?: source.periods.first()
@@ -341,6 +348,51 @@ object Listening {
         }
         val artists = counts.values.sortedByDescending { it.second }.map { ArtistPlays(it.first) }
         return Report(songs.map { Play(it) }, artists, totalTracks = songs.size, totalArtists = counts.size)
+    }
+
+    // ------------------------------------------------------------------ Apple Music
+
+    /** An Apple Music artwork template ("…/{w}x{h}bb.jpg") at [side] pixels; null without one. */
+    fun appleArtwork(template: String?, side: Int = 300): String? =
+        template?.takeIf { it.isNotBlank() }?.replace("{w}", "$side")?.replace("{h}", "$side")
+
+    /**
+     * Replay ([report]: its top songs and artists, ranked, no counts), the songs' ids in Replay's
+     * order ([order]), and the ids of the songs it named without their attributes ([missing]), to be
+     * read from the catalogue.
+     */
+    class AppleReplay(val report: Report, val order: List<String>, val missing: List<String>)
+
+    /**
+     * /v1/me/music-summaries: the first summary's views, `top-songs` (each a song-period-summary whose
+     * `song` relationship holds the song) and `top-artists` (the same with `artist`).
+     */
+    fun appleReplay(j: JsonElement?): AppleReplay {
+        val views = j["data"][0]["views"]
+        val order = ArrayList<String>()
+        val missing = ArrayList<String>()
+        val plays = ArrayList<Play>()
+        for (s in views["top-songs"]["data"].arr) {
+            val song = s["relationships"]["song"]["data"][0]
+            val id = song["id"].str ?: continue
+            order += id
+            val a = song["attributes"]
+            val title = a["name"].str?.takeIf { it.isNotBlank() }
+            if (title == null) { missing += id; continue }
+            plays += Play(
+                Track(
+                    id = id, title = title,
+                    artists = listOfNotNull(a["artistName"].str?.takeIf { it.isNotBlank() }),
+                    album = a["albumName"].str.orEmpty(), durationMs = a["durationInMillis"].long ?: 0,
+                    isrc = a["isrc"].str, year = Durations.year(a["releaseDate"].str),
+                ),
+                cover = appleArtwork(a["artwork"]["url"].str),
+            )
+        }
+        val artists = views["top-artists"]["data"].arr.mapNotNull { s ->
+            s["relationships"]["artist"]["data"][0]["attributes"]["name"].str?.takeIf { it.isNotBlank() }?.let { ArtistPlays(it) }
+        }.ifEmpty { fromHistory(plays.map { it.track }).artists }
+        return AppleReplay(Report(plays, artists, totalTracks = order.size, totalArtists = artists.size), order, missing)
     }
 
     // ------------------------------------------------------------------ years and covers

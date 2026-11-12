@@ -21,6 +21,7 @@ import com.xlollx.songport.net.str
 import com.xlollx.songport.sync.Durations
 import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
+import com.xlollx.songport.sync.Reorder
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -41,6 +42,9 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val searchesByIsrc: Boolean get() = true
     override val supportsAlbums = true
     override val supportsArtists = true
+    // My Collection › Tracks (userCollectionTracks), with the scopes the albums already need (collection.read, collection.write).
+    override val supportsLikedSongs = true
+    override val supportsLikedTarget = true
 
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://developer.tidal.com/dashboard",
@@ -133,6 +137,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     }
 
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? {
+        if (playlistId == MusicProvider.LIKED_ID) return likedVersion(ctx)
         if (MusicProvider.isLibrary(playlistId)) return null
         return api(ctx, "GET", "$API/playlists/$playlistId?countryCode=${cc(ctx)}")["data"]["attributes"]["lastModifiedAt"].str
     }
@@ -204,6 +209,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
         if (playlistId == MusicProvider.ALBUMS_ID) return collection(ctx, "albums")
         if (playlistId == MusicProvider.ARTISTS_ID) return collection(ctx, "artists")
+        if (playlistId == MusicProvider.LIKED_ID) return likedTracks(ctx)
         val order = ArrayList<Pair<String, String?>>() // (trackId, itemId) nell'ordine della playlist
         val included = LinkedHashMap<String, JsonElement>()
         var url: String? = "$API/playlists/$playlistId/relationships/items?countryCode=${cc(ctx)}&include=items"
@@ -216,15 +222,78 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             for (inc in j["included"].arr) if (inc["type"].str == "tracks") included[inc["id"].str ?: continue] = inc
             url = nextUrl(j)
         }
-        // An included track may come without its artists' ids (only a link to them): those tracks
-        // are asked for again with their artists, twenty at a time, so every track has its names.
+        val names = withArtists(ctx, included)
+        return order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
+    }
+
+    /**
+     * The names of the artists of [included] (tracks by id). An included track may come without its
+     * artists' ids (only a link to them): those tracks are asked for again with their artists, twenty
+     * at a time, and replaced in [included], so every track has its names.
+     */
+    private suspend fun withArtists(ctx: Env, included: MutableMap<String, JsonElement>): Map<String, String> {
         val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
         bare.chunked(20).forEach { chunk ->
             val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
             for (t in j["data"].arr) { val id = t["id"].str ?: continue; if (t["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = t }
         }
-        val names = artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
-        return order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
+        return artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
+    }
+
+    // ---- liked tracks: My Collection › Tracks (userCollectionTracks, spec 1.10.251)
+
+    private val likedItems = "$API/userCollectionTracks/me/relationships/items"
+
+    /**
+     * The liked tracks, the latest liked first (the API's default order, `-addedAt`), each with the
+     * moment it was liked (`meta.addedAt`). Like the other collection paths, no countryCode.
+     */
+    private suspend fun likedTracks(ctx: Env): List<Track> {
+        val order = ArrayList<Pair<String, Long>>()
+        val included = LinkedHashMap<String, JsonElement>()
+        var url: String? = "$likedItems?include=items"
+        while (url != null) {
+            val j = api(ctx, "GET", url)
+            for (d in j["data"].arr) if (d["type"].str == "tracks") order += (d["id"].str ?: continue) to Durations.parseInstant(d["meta"]["addedAt"].str)
+            for (inc in j["included"].arr) if (inc["type"].str == "tracks") included[inc["id"].str ?: continue] = inc
+            url = nextUrl(j)
+        }
+        val names = withArtists(ctx, included)
+        return order.mapNotNull { (tid, at) -> included[tid]?.let { trackFrom(it, names) }?.copy(addedAt = at) }
+    }
+
+    /** How many tracks are liked and when the list last changed: GET /userCollectionTracks/me. Null when it cannot be told. */
+    private suspend fun likedVersion(ctx: Env): String? = try {
+        val a = api(ctx, "GET", "$API/userCollectionTracks/me")["data"]["attributes"]
+        a["lastModifiedAt"].str?.let { "${a["numberOfItems"].int ?: -1}|$it" }
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { null }
+
+    /**
+     * Likes [tracks], twenty a request, each with the moment it was liked on the source
+     * ([Track.addedAt], `meta.addedAt`) so TIDAL lists them in the same order and with the same
+     * dates. Should TIDAL refuse a request with dates (400), that request goes again without them,
+     * once logged: liked today, as any other add. Answers the ids TIDAL skipped as already liked.
+     */
+    private suspend fun like(ctx: Env, tracks: List<Track>): Set<String> {
+        val present = HashSet<String>()
+        var dated = true
+        for (chunk in tracks.chunked(20)) {
+            fun body(withDates: Boolean) = jsonObj("data" to jsonArr(chunk.map { t ->
+                val at = t.addedAt.takeIf { withDates && it > 0 }?.let { java.time.Instant.ofEpochMilli(it).truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString() }
+                if (at == null) mapOf("type" to "tracks", "id" to t.id) else mapOf("type" to "tracks", "id" to t.id, "meta" to mapOf("addedAt" to at))
+            }))
+            val withDates = dated && chunk.any { it.addedAt > 0 }
+            val j = try {
+                api(ctx, "POST", likedItems, body(withDates))
+            } catch (e: ProviderException) {
+                if (!withDates || e.code != 400) throw e
+                dated = false
+                ctx.log(id, "TIDAL refused the like dates (${e.message?.take(120)}): liking without them")
+                api(ctx, "POST", likedItems, body(false))
+            }
+            j["meta"]["skipped"].arr.filter { it["reason"].str == "ALREADY_PRESENT" }.mapNotNullTo(present) { it["id"].str }
+        }
+        return present
     }
 
     /**
@@ -232,7 +301,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
      * for, and no page read past the last wanted track.
      */
     override suspend fun findEntries(ctx: Env, playlistId: String, tracks: List<Track>, seen: (List<Track>) -> Unit): List<Track> {
-        if (playlistId == MusicProvider.ALBUMS_ID || playlistId == MusicProvider.ARTISTS_ID) return super.findEntries(ctx, playlistId, tracks, seen)
+        if (MusicProvider.isLibrary(playlistId)) return super.findEntries(ctx, playlistId, tracks, seen)
         return MusicProvider.entriesInPages(tracks, seen) { url ->
             val j = api(ctx, "GET", url ?: "$API/playlists/$playlistId/relationships/items?countryCode=${cc(ctx)}&include=items")
             j["data"].arr.mapNotNull { d ->
@@ -310,9 +379,40 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.ALBUMS_ID) return editCollection(ctx, "albums", "POST", tracks.map { it.id })
         if (playlistId == MusicProvider.ARTISTS_ID) return editCollection(ctx, "artists", "POST", tracks.map { it.id })
+        if (playlistId == MusicProvider.LIKED_ID) { like(ctx, tracks); return }
         tracks.chunked(20).forEach { chunk ->
             api(ctx, "POST", "$API/playlists/$playlistId/relationships/items?countryCode=${cc(ctx)}",
                 jsonObj("data" to jsonArr(chunk.map { mapOf("type" to "tracks", "id" to it.id) })))
+        }
+    }
+
+    /** The liked tracks TIDAL skipped as liked already (`meta.skipped`, ALREADY_PRESENT): present, not added. */
+    override suspend fun addTracksReportingPresent(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> =
+        if (playlistId == MusicProvider.LIKED_ID) like(ctx, tracks) else super.addTracksReportingPresent(ctx, playlistId, tracks)
+
+    /**
+     * Moves the entries into [ordered]'s order by item id: PATCH /playlists/{id}/relationships/items
+     * puts the entries it names before `meta.positionBefore` (an item id), or at the end without a
+     * meta; one move a request, the fewest moves ([Reorder.movesBefore]). Only where the sync keeps the
+     * source's order. A refusal is logged and leaves the order as it is ([Reorder.Skipped]).
+     */
+    override val canReorder: Boolean get() = true
+    override suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {
+        if (MusicProvider.isLibrary(playlistId)) return
+        if (!MusicProvider.addsInOrder()) throw Reorder.Skipped("TIDAL: moves only for a sync that keeps the order")
+        if (current.any { it.itemId.isNullOrEmpty() } || ordered.any { it.itemId.isNullOrEmpty() }) throw Reorder.Skipped("TIDAL: an entry without its item id")
+        val byItem = current.associateBy { it.itemId!! }
+        val steps = Reorder.movesBefore(current.map { it.itemId!! }, ordered.map { it.itemId!! })
+        for ((item, before) in steps) {
+            val body = jsonObj(
+                "data" to jsonArr(listOf(mapOf("type" to "tracks", "id" to byItem.getValue(item).id, "meta" to mapOf("itemId" to item)))),
+                "meta" to before?.let { mapOf("positionBefore" to it) },
+            )
+            try {
+                api(ctx, "PATCH", "$API/playlists/$playlistId/relationships/items", body)
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                throw Reorder.Skipped("TIDAL: ${e.message?.take(160) ?: e.javaClass.simpleName}")
+            }
         }
     }
 
@@ -335,6 +435,10 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.ALBUMS_ID) return editCollection(ctx, "albums", "DELETE", tracks.map { it.id })
         if (playlistId == MusicProvider.ARTISTS_ID) return editCollection(ctx, "artists", "DELETE", tracks.map { it.id })
+        if (playlistId == MusicProvider.LIKED_ID) {
+            tracks.chunked(20).forEach { chunk -> api(ctx, "DELETE", likedItems, jsonObj("data" to jsonArr(chunk.map { mapOf("type" to "tracks", "id" to it.id) }))) }
+            return
+        }
         tracks.filter { it.itemId != null }.chunked(20).forEach { chunk ->
             api(ctx, "DELETE", "$API/playlists/$playlistId/relationships/items",
                 jsonObj("data" to jsonArr(chunk.map { mapOf("type" to "tracks", "id" to it.id, "meta" to mapOf("itemId" to it.itemId)) })))

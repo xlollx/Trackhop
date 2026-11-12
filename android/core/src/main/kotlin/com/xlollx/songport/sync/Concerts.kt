@@ -361,8 +361,26 @@ object Concerts {
         val start = Instant.ofEpochMilli(now()).truncatedTo(ChronoUnit.SECONDS).toString()
         // The end's whole day, in UTC: a few hours past it are filtered out by date afterwards.
         val until = end?.let { "&endDateTime=" + enc(it.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toString()) }.orEmpty()
-        val url = "$tmBase/events.json?apikey=${enc(key)}&keyword=${enc(artist)}&classificationName=music" +
-            "&countryCode=$country&size=50&sort=date,asc&startDateTime=${enc(start)}$until"
+        val rest = "&classificationName=music&countryCode=$country&size=50&sort=date,asc&startDateTime=${enc(start)}$until"
+        // The artist's attraction id when an earlier answer told it ([ArtistIds]): their events only, no
+        // tribute act or namesake. Not answering: the search by name, as before.
+        ArtistIds.attraction(env, artist)?.let { id ->
+            ticketmasterCall(env, key, "$tmBase/events.json?apikey=${enc(key)}&attractionId=${enc(id)}$rest")?.let { body ->
+                val events = parseTicketmaster(body, artist, country, attractionId = id)
+                remember(env, ck, events)
+                return events
+            }
+            env.log("concerts", "Ticketmaster did not answer for the attraction $id: searching the name")
+        }
+        val body = ticketmasterCall(env, key, "$tmBase/events.json?apikey=${enc(key)}&keyword=${enc(artist)}$rest") ?: return null
+        val events = parseTicketmaster(body, artist, country)
+        remember(env, ck, events)
+        ArtistIds.rememberAttraction(env, artist, ArtistIds.ticketmasterAttraction(body, artist, ArtistIds.mbid(env, artist)))
+        return events
+    }
+
+    /** One Discovery API call: the body; null when it did not answer. Throws [QuotaGone] or [KeyRefused]. */
+    private suspend fun ticketmasterCall(env: Env, key: String, url: String): String? {
         for (attempt in 0..1) {
             val r = try {
                 tmPace.paced { Http.send("GET", url, mapOf("Accept" to "application/json"), maxRateLimitRetries = 0) }
@@ -381,11 +399,9 @@ object Concerts {
             }
             if (r.code == 401 || r.code == 403) throw KeyRefused()
             if (!r.ok) { env.log("concerts", "Ticketmaster answered ${r.code}"); return null }
-            val events = parseTicketmaster(r.body, artist, country)
-            remember(env, ck, events)
             // The last call of the day: the next one would be refused.
             if (r.header("Rate-Limit-Available")?.trim() == "0") markExhausted(env, key, r.header("Rate-Limit-Reset"))
-            return events
+            return r.body
         }
         return null
     }
@@ -393,13 +409,14 @@ object Concerts {
     /**
      * The events of a Discovery API answer that are [artist]'s (one of the event's attractions is
      * the artist; a keyword search also finds tributes and festivals naming them), in [country],
-     * not cancelled.
+     * not cancelled. Asked by [attractionId]: the events that list that attraction, whatever the name.
      */
-    fun parseTicketmaster(body: String, artist: String, country: String): List<Event> {
+    fun parseTicketmaster(body: String, artist: String, country: String, attractionId: String? = null): List<Event> {
         val want = Matcher.normalizeArtist(artist)
         return parseJson(body)["_embedded"]["events"].arr.mapNotNull { e ->
             val attractions = e["_embedded"]["attractions"].arr.mapNotNull { it["name"].str }
-            val theirs = if (attractions.isNotEmpty()) attractions.any { Matcher.normalizeArtist(it) == want }
+            val theirs = if (attractionId != null) e["_embedded"]["attractions"].arr.any { it["id"].str == attractionId }
+                else if (attractions.isNotEmpty()) attractions.any { Matcher.normalizeArtist(it) == want }
                 else Matcher.normalizeArtist(e["name"].str.orEmpty()).startsWith(want)
             if (!theirs || want.isEmpty()) return@mapNotNull null
             if (e["dates"]["status"]["code"].str.equals("cancelled", ignoreCase = true)) return@mapNotNull null

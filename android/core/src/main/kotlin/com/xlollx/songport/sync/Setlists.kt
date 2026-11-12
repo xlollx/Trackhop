@@ -210,10 +210,11 @@ object Setlists {
      * The setlists of a search answer that are [artist]'s (the name search also finds others with
      * a similar name), with songs (an announced concert has none yet), the latest [PER_ARTIST].
      */
-    fun parseSearch(body: String, artist: String): List<Setlist> {
+    fun parseSearch(body: String, artist: String, byId: Boolean = false): List<Setlist> {
         val want = norm(artist)
+        // Asked by the artist's MusicBrainz id: every setlist is theirs, whatever name setlist.fm writes.
         return parseJson(body)["setlist"].arr.mapNotNull { parseSetlist(it) }
-            .filter { norm(it.artist) == want && it.songs.any { s -> !s.tape } }
+            .filter { (byId || norm(it.artist) == want) && it.songs.any { s -> !s.tape } }
             .sortedByDescending { it.date }
             .take(PER_ARTIST)
     }
@@ -272,7 +273,22 @@ object Setlists {
 
     // ---------------------------------------------------------------- the API
 
+    /**
+     * The artist's latest setlists: by the artist's MusicBrainz id when the app knows it
+     * (GET /artist/{mbid}/setlists, no namesakes, [ArtistIds]), else, or when setlist.fm does not
+     * know that id, by name as before.
+     */
     private suspend fun searchArtist(env: Env, key: String, artist: String): List<Setlist>? {
+        ArtistIds.mbid(env, artist)?.let { mbid ->
+            val byId = try {
+                get(env, key, "artist/$mbid/setlists?p=1")?.let { parseSearch(it, artist, byId = true) }
+            } catch (e: NotFound) { null }
+            if (byId != null) {
+                rememberArtist(env, artist, byId)
+                return byId
+            }
+            env.log("setlists", "setlist.fm has nothing for the id $mbid: searching the name")
+        }
         val found = try {
             parseSearch(get(env, key, "search/setlists?artistName=${enc(artist)}&p=1") ?: return null, artist)
         } catch (e: NotFound) { emptyList() }
@@ -356,7 +372,12 @@ object Setlists {
     /** The artist on MusicBrainz (the same name), then the setlists of their events; null when MusicBrainz did not answer. */
     private suspend fun musicBrainzArtist(env: Env, artist: String): List<Setlist>? {
         val q = "artist:\"" + artist.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
-        val id = parseMbArtist(MusicBrainz.get("artist?query=${enc(q)}&fmt=json&limit=5") ?: return null, artist)
+        // The id when the app knows it (no search, no namesake); else the search by name, as before.
+        val id = ArtistIds.mbid(env, artist) ?: run {
+            val body = MusicBrainz.get("artist?query=${enc(q)}&fmt=json&limit=5") ?: return null
+            ArtistIds.rememberMbid(env, artist, ArtistIds.singleMbArtist(body, artist))
+            parseMbArtist(body, artist)
+        }
         val found = ArrayList<Setlist>()
         if (id != null) for (page in 0 until MB_PAGES) {
             val body = MusicBrainz.get("event?artist=$id&inc=place-rels+area-rels&fmt=json&limit=100&offset=${page * 100}") ?: return null

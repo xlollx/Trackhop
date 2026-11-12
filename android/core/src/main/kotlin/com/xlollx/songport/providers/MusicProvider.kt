@@ -347,7 +347,9 @@ interface MusicProvider {
     /**
      * In the coroutine context while a sync job that keeps the source order adds tracks: a service
      * that lists by the second of saving (Spotify's liked songs) then saves one track a second, in
-     * order. Without it, the same tracks go in batches at full speed, in no guaranteed order.
+     * order. Without it, the same tracks go in batches at full speed, in no guaranteed order. The
+     * engine also moves a target into the source's order inside it ([reorderTracks]): the services
+     * whose moves cost (TIDAL, YouTube) move only then, never for another tool.
      */
     object OrderedAdds : kotlin.coroutines.CoroutineContext.Element {
         object Key : kotlin.coroutines.CoroutineContext.Key<OrderedAdds>

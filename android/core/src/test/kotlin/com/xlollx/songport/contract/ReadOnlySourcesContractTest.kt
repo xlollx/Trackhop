@@ -244,12 +244,71 @@ class ListenBrainzContractTest : ContractTest() {
         signIn()
         json("""{"count":50,"offset":0,"playlist_count":50,"playlists":[${(0 until 50).joinToString(",") { plEntry(it) }}]}""")
         json("""{"count":0,"offset":50,"playlist_count":50,"playlists":[]}""")
+        json("""{"count":0,"offset":0,"playlist_count":0,"playlists":[]}""")
         assertEquals(50, lb.playlists(env).size)
         val r = next()
         assertCall(r, "GET", host, "/1/user/rj%20%C3%BC/playlists")
         assertEquals("50", r.query("count")); assertEquals("0", r.query("offset"))
         assertEquals("50", next().query("offset"))
+        assertCall(next(), "GET", host, "/1/user/rj%20%C3%BC/playlists/createdfor")
         noMoreRequests()
+    }
+
+    /** A playlist made for rj: [patch] its kind, [date] when it was made, [expires] when it goes. */
+    private fun madeFor(i: Int, title: String, patch: String?, date: String, expires: String = "2099-01-01T00:00:00.000000"): String {
+        val algorithm = patch?.let { ",\"algorithm_metadata\":{\"source_patch\":\"$it\"}" } ?: ""
+        return "{\"playlist\":{\"identifier\":\"https://listenbrainz.org/playlist/${mbid(i)}\",\"title\":${q(title)},\"creator\":\"listenbrainz\",\"date\":\"$date\"," +
+            "\"annotation\":\"<p>Fresh <b>music</b> for you</p>\",\"extension\":{\"https://musicbrainz.org/doc/jspf#playlist\":{\"additional_metadata\":{\"expires_at\":\"$expires\"$algorithm}," +
+            "\"created_for\":\"rj\",\"public\":true}},\"track\":[]}}"
+    }
+
+    @Test fun playlistsMadeForTheUserAreListedOncePerKindTheLatest() = runBlocking {
+        signIn()
+        json("""{"count":1,"offset":0,"playlist_count":1,"playlists":[${plEntry(0)}]}""")
+        json("""{"count":5,"offset":0,"playlist_count":5,"playlists":[
+            ${madeFor(1, "Weekly Jams for rj, week of 2026-11-03 Mon", "weekly-jams", "2026-11-03T05:00:00+00:00")},
+            ${madeFor(2, "Weekly Jams for rj, week of 2026-11-10 Mon", "weekly-jams", "2026-11-10T05:00:00+00:00")},
+            ${madeFor(3, "Weekly Exploration for rj, week of 2026-11-10 Mon", "weekly-exploration", "2026-11-10T04:00:00+00:00")},
+            ${madeFor(4, "Top Discoveries of 2019 for rj", "top-discoveries", "2020-01-01T00:00:00+00:00", expires = "2020-02-01T00:00:00.000000")},
+            ${madeFor(5, "Daily Jams for rj, 2026-11-12 Thu", null, "2026-11-12T05:00:00+00:00")}]}""")
+        val ps = lb.playlists(env)
+        assertEquals(listOf(mbid(0), "createdfor:daily-jams", "createdfor:weekly-jams", "createdfor:weekly-exploration"), ps.map { it.id })
+        assertEquals(listOf("List 0", "Daily Jams", "Weekly Jams", "Weekly Exploration"), ps.map { it.name })
+        assertEquals(false, ps[2].ownedByMe)
+        assertEquals("Fresh music for you", ps[2].description)
+        next()
+        val r = next()
+        assertCall(r, "GET", host, "/1/user/rj%20%C3%BC/playlists/createdfor")
+        assertEquals(null, r.getHeader("Authorization"))
+        noMoreRequests()
+    }
+
+    @Test fun aKindMadeForTheUserReadsItsLatestPlaylist() = runBlocking {
+        signIn()
+        json("""{"count":2,"offset":0,"playlist_count":2,"playlists":[
+            ${madeFor(1, "Weekly Jams for rj, week of 2026-11-03 Mon", "weekly-jams", "2026-11-03T05:00:00+00:00")},
+            ${madeFor(2, "Weekly Jams for rj, week of 2026-11-10 Mon", "weekly-jams", "2026-11-10T05:00:00+00:00")}]}""")
+        json("""{"playlist":{"identifier":"https://listenbrainz.org/playlist/${mbid(2)}","title":"Weekly Jams","track":[
+            {"identifier":["https://musicbrainz.org/recording/${mbid(10)}"],"title":"One","creator":"A"}]}}""")
+        val ts = lb.tracks(env, "createdfor:weekly-jams")
+        assertEquals(listOf(mbid(10)), ts.map { it.id })
+        assertCall(next(), "GET", host, "/1/user/rj%20%C3%BC/playlists/createdfor")
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(2)}")
+        noMoreRequests()
+    }
+
+    @Test fun aKindNoLongerMadeIsAnErrorNotAnEmptySource() = runBlocking {
+        signIn()
+        json("""{"count":0,"offset":0,"playlist_count":0,"playlists":[]}""")
+        try { lb.tracks(env, "createdfor:weekly-jams"); fail() } catch (e: ProviderException) { assertTrue(e.message, e.message!!.contains("weekly-jams")) }
+    }
+
+    @Test fun playlistsMadeForTheUserNotAnsweringLeaveTheListAsItWas() = runBlocking {
+        signIn()
+        json("""{"count":1,"offset":0,"playlist_count":1,"playlists":[${plEntry(0)}]}""")
+        json("""{"error":"down"}""", 503)
+        assertEquals(listOf(mbid(0)), lb.playlists(env).map { it.id })
+        assertEquals(1, env.logs.count { "made for the user not read" in it || "created for the user not read" in it })
     }
 
     @Test fun jspfTracksWithBothIdentifierShapes() = runBlocking {

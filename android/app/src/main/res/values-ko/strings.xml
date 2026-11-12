@@ -55,7 +55,7 @@
     <string name="editor_mirror">삭제도 반영</string>
     <string name="editor_mirror_desc">원본에 없는 곡은 직접 추가한 곡까지 모두 대상에서 삭제해요. 끄면 추가만 합니다.</string>
     <string name="editor_keep_order">원본 순서 유지</string>
-    <string name="editor_keep_order_desc">추가한 뒤 대상을 원본과 같은 순서로 정렬해요. Spotify, YouTube Music, Deezer에서 가능합니다.</string>
+    <string name="editor_keep_order_desc">추가한 뒤 대상을 원본과 같은 순서로 정렬해요. Spotify, YouTube Music, TIDAL, Deezer에서 가능합니다.</string>
     <string name="note_order_aligned">순서를 원본에 맞췄어요.</string>
     <string name="note_order_failed">순서를 맞추지 못했어요: %1$s</string>
     <string name="policy_title">매칭 규칙</string>
@@ -1823,6 +1823,7 @@
     <string name="ai_nano_retry">다시 시도</string>
     <string name="editor_keep_order_liked_slow">순서를 유지하기 위해 좋아요 곡을 1초에 한 곡씩 저장합니다. 첫 대규모 동기화는 느립니다(600곡에 약 10분).</string>
     <string name="editor_keep_order_liked_fast">끄면: 좋아요 곡을 묶음으로 최대 속도로 저장하지만 Spotify가 순서를 섞을 수 있습니다.</string>
+    <string name="editor_keep_order_quota">YouTube에서는 이동할 때마다 일일 할당량을 사용해요. 남은 양이 부족하면 순서를 그대로 둡니다.</string>
     <string name="login_qc_button">Quick Connect로 로그인</string>
     <string name="login_qc_hint">비밀번호 없이(예: 통합 로그인): Jellyfin이 주는 코드를 이미 로그인된 기기에서 승인합니다.</string>
     <string name="login_qc_title">Quick Connect</string>

@@ -55,7 +55,7 @@
     <string name="editor_mirror">Rispecchia le rimozioni</string>
     <string name="editor_mirror_desc">Togli dalla destinazione ogni brano che non è nell\'origine, anche quelli aggiunti lì a mano. Spento = aggiunge soltanto.</string>
     <string name="editor_keep_order">Mantieni l\'ordine dell\'origine</string>
-    <string name="editor_keep_order_desc">Dopo le aggiunte, la destinazione viene messa nell\'ordine dell\'origine. Lo permettono Spotify, YouTube Music e Deezer.</string>
+    <string name="editor_keep_order_desc">Dopo le aggiunte, la destinazione viene messa nell\'ordine dell\'origine. Lo permettono Spotify, TIDAL, YouTube Music e Deezer.</string>
     <string name="note_order_aligned">Ordine allineato all\'origine.</string>
     <string name="note_order_failed">Ordine non allineato: %1$s</string>
     <string name="policy_title">Regole di abbinamento</string>
@@ -1856,6 +1856,7 @@
     <string name="ai_nano_retry">Riprova</string>
     <string name="editor_keep_order_liked_slow">I brani preferiti vengono salvati uno al secondo per mantenere l\'ordine: una prima sincronizzazione grande è lenta (circa 10 minuti ogni 600 brani).</string>
     <string name="editor_keep_order_liked_fast">Disattivato: i preferiti vengono salvati a blocchi alla massima velocità, ma Spotify può mescolarne l\'ordine.</string>
+    <string name="editor_keep_order_quota">Su YouTube ogni spostamento usa parte della quota giornaliera: se non ne resta abbastanza, l\'ordine resta com\'è.</string>
     <string name="login_qc_button">Accedi con Quick Connect</string>
     <string name="login_qc_hint">Senza password, per esempio con l\'accesso unico (SSO): Jellyfin ti dà un codice da approvare da un dispositivo dove hai già fatto l\'accesso.</string>
     <string name="login_qc_title">Quick Connect</string>

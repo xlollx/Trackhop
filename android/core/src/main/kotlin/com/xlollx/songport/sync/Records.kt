@@ -552,6 +552,16 @@ object Records {
     private suspend fun musicBrainz(env: Env, artist: String, ev: Evidence?): MbKept? {
         val ck = linksKey(artist)
         cachedLinks(env, artist)?.let { return it }
+        // The artist's id when the app already knows it (a followed artist, [ArtistIds]): its pages
+        // straight away, no search and no namesake. Not answering: the search by name, as before.
+        ArtistIds.mbid(env, artist)?.let { known ->
+            mbGet("artist/$known?inc=url-rels&fmt=json")?.let { rels ->
+                val kept = MbKept(parseLinks(rels), false, known, wikidataItem(rels))
+                remember(env, ck, json.encodeToString(MbKept.serializer(), kept))
+                return kept
+            }
+            env.log("records", "MusicBrainz did not answer for the id $known: searching the name")
+        }
         val found = mbGet("artist?query=${enc("artist:" + phrase(artist))}&limit=5&fmt=json") ?: return null
         val ids = pickArtists(found, artist)
         val (id, sameName) = if (ids.size <= 1) ids.firstOrNull() to false else chooseArtist(ids, ev?.let { mbHits(ids, it) })

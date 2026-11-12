@@ -106,7 +106,57 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
             }
             offset += items.size
         } while (items.size == 50 && offset < 1000)
+        // The playlists ListenBrainz makes for the user (Weekly Jams, Weekly Exploration…): one entry
+        // each, always the latest. Not answering leaves the list as it was, with a line in the log.
+        try {
+            out += createdFor(ctx).map { (key, p) -> Playlist(CREATED_FOR + key, createdForName(p), -1, ownedByMe = false, description = MusicProvider.plainDescription(p["annotation"].str)) }
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            ctx.log(id, "playlists created for the user not read: ${e.message?.take(160) ?: e.javaClass.simpleName}")
+        }
         return out
+    }
+
+    /**
+     * The playlists created for the user (GET /1/user/{user}/playlists/createdfor, public, no token),
+     * the latest of each kind (`algorithm_metadata.source_patch`, else the title before " for "),
+     * those not expired yet, the latest first. Each kind is a source that renews itself: its id
+     * ([CREATED_FOR] + kind) always reads the latest playlist of the kind.
+     */
+    private suspend fun createdFor(ctx: Env, expired: Boolean = false): List<Pair<String, JsonElement>> {
+        val user = Http.enc(creds(ctx).userName)
+        val all = ArrayList<JsonElement>()
+        var offset = 0
+        do {
+            val items = api(ctx, "/1/user/$user/playlists/createdfor?count=100&offset=$offset")["playlists"].arr
+            items.mapNotNullTo(all) { it["playlist"].takeIf { p -> mbidOf(p["identifier"].str) != null } }
+            offset += items.size
+        } while (items.size == 100 && offset < 300)
+        val now = java.time.Instant.ofEpochMilli(System.currentTimeMillis())
+        return all.groupBy { createdForKind(it) }.mapNotNull { (kind, list) ->
+            val latest = list.maxByOrNull { it["date"].str.orEmpty() } ?: return@mapNotNull null
+            val ends = com.xlollx.songport.sync.Durations.parseInstant(latest["extension"][JSPF_PLAYLIST]["additional_metadata"]["expires_at"].str)
+            if (!expired && ends > 0 && ends < now.toEpochMilli()) null else kind to latest
+        }.sortedByDescending { it.second["date"].str.orEmpty() }
+    }
+
+    private fun createdForKind(p: JsonElement?): String =
+        p["extension"][JSPF_PLAYLIST]["additional_metadata"]["algorithm_metadata"]["source_patch"].str?.takeIf { it.isNotBlank() }
+            ?: createdForName(p).lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+
+    /** "Weekly Jams for rob, week of 2026-11-10 Mon" is "Weekly Jams": the kind's name, the same every week. */
+    private fun createdForName(p: JsonElement?): String {
+        val title = p["title"].str.orEmpty().trim()
+        return title.substringBefore(" for ").trim().ifEmpty { title }
+    }
+
+    /** The latest playlist of [kind] made for the user; null when there is none. */
+    private suspend fun latestCreatedFor(ctx: Env, kind: String): JsonElement? =
+        createdFor(ctx, expired = true).firstOrNull { it.first == kind }?.second
+
+    override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist {
+        if (!playlistId.startsWith(CREATED_FOR)) return super.playlistInfo(ctx, playlistId)
+        val p = latestCreatedFor(ctx, playlistId.removePrefix(CREATED_FOR)) ?: return super.playlistInfo(ctx, playlistId)
+        return Playlist(playlistId, createdForName(p), ownedByMe = false, description = MusicProvider.plainDescription(p["annotation"].str))
     }
 
     /** A track's id here is its MusicBrainz recording id, when ListenBrainz knows it: a personal server then matches the tagged file. */
@@ -150,7 +200,12 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
             } while (items.size == 100 && offset < 5000)
             return out
         }
-        val pl = api(ctx, "/1/playlist/$playlistId")["playlist"]
+        val mbid = if (!playlistId.startsWith(CREATED_FOR)) playlistId else {
+            val kind = playlistId.removePrefix(CREATED_FOR)
+            mbidOf(latestCreatedFor(ctx, kind)?.get("identifier").str)
+                ?: throw ProviderException("$displayName: no playlist \"$kind\" made for ${creds(ctx).userName} now")
+        }
+        val pl = api(ctx, "/1/playlist/$mbid")["playlist"]
         return pl["track"].arr.mapNotNull { t ->
             val title = t["title"].str ?: return@mapNotNull null
             val artists = t["extension"]["https://musicbrainz.org/doc/jspf#track"]["additional_metadata"]["artists"].arr
@@ -209,6 +264,9 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     companion object {
         const val SERVICE = "listenbrainz"
         private const val API = "https://api.listenbrainz.org"
+        /** The id of a kind of playlist made for the user ("createdfor:weekly-jams"): it reads the latest of that kind. */
+        const val CREATED_FOR = "createdfor:"
+        private const val JSPF_PLAYLIST = "https://musicbrainz.org/doc/jspf#playlist"
         private val MBID = Regex("""[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}""")
     }
 }

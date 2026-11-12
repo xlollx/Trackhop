@@ -17,6 +17,19 @@ class ReorderTest {
         return cur
     }
 
+    @Test fun movesBeforeReachTheDesiredOrderWithTheSameFewestMoves() {
+        val current = listOf("a", "b", "c", "d", "e")
+        for (desired in listOf(listOf("e", "c", "a", "d", "b"), listOf("b", "c", "d", "e", "a"), listOf("e", "d", "c", "b", "a"), current)) {
+            val steps = Reorder.movesBefore(current, desired)
+            assertEquals(Reorder.moves(current, desired).size, steps.size)
+            val cur = current.toMutableList()
+            for ((key, before) in steps) { cur.remove(key); if (before == null) cur.add(key) else cur.add(cur.indexOf(before), key) }
+            assertEquals(desired, cur)
+        }
+        // The first item to the end: one move, with no item to go before.
+        assertEquals(listOf("a" to null), Reorder.movesBefore(current, listOf("b", "c", "d", "e", "a")))
+    }
+
     @Test fun movesReachTheDesiredOrder() {
         val current = listOf("a", "b", "c", "d", "e")
         val desired = listOf("e", "c", "a", "d", "b")

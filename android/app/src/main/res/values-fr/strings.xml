@@ -55,7 +55,7 @@
     <string name="editor_mirror">Refléter les retraits</string>
     <string name="editor_mirror_desc">Retire de la cible chaque titre absent de la source, y compris ceux ajoutés à la main. Désactivé = ajout uniquement.</string>
     <string name="editor_keep_order">Garder l\'ordre de la source</string>
-    <string name="editor_keep_order_desc">Après les ajouts, la destination est remise dans l\'ordre de la source. Possible avec Spotify, YouTube Music et Deezer.</string>
+    <string name="editor_keep_order_desc">Après les ajouts, la destination est remise dans l\'ordre de la source. Possible avec Spotify, TIDAL, YouTube Music et Deezer.</string>
     <string name="note_order_aligned">Ordre aligné sur la source.</string>
     <string name="note_order_failed">Ordre non aligné : %1$s</string>
     <string name="policy_title">Règles d\'appariement</string>
@@ -1864,6 +1864,7 @@
     <string name="ai_nano_retry">Réessayer</string>
     <string name="editor_keep_order_liked_slow">Les titres likés sont enregistrés un par seconde pour garder l\'ordre : une première grosse synchronisation est lente (environ 10 minutes pour 600 titres).</string>
     <string name="editor_keep_order_liked_fast">Désactivé : ils sont enregistrés par lots à pleine vitesse, mais Spotify peut mélanger l\'ordre.</string>
+    <string name="editor_keep_order_quota">Sur YouTube, chaque déplacement consomme une partie du quota quotidien : s\'il n\'en reste pas assez, l\'ordre reste tel quel.</string>
     <string name="login_qc_button">Se connecter avec Quick Connect</string>
     <string name="login_qc_hint">Sans mot de passe, par exemple avec l\'authentification unique : Jellyfin te donne un code à approuver depuis un appareil déjà connecté.</string>
     <string name="login_qc_title">Quick Connect</string>
