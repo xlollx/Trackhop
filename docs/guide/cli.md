@@ -126,6 +126,18 @@ this server or the same sync on both, and the app's reach here: see
 A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
 shows); a `<playlist>` its name or id.
 
+**Discover**
+
+| Command | What it does |
+|---|---|
+| `trackhop wrapped` | The listening services connected and your latest Wrapped: top artists and songs, musical age, decades. `wrapped list` lists the ones made before, `wrapped show <id>` reads one. |
+| `trackhop wrapped new [--source lastfm] [--period month\|half_year\|year]` | Makes a Wrapped from what you played on Last.fm, ListenBrainz, your own server's play counts, Spotify, Deezer, TIDAL or YouTube Music (the best one connected without `--source`); kept in your history. |
+| `trackhop wrapped card <file.png> [<wrapped>]` | Saves a Wrapped's card (the latest without `<wrapped>`) as a PNG image. |
+| `trackhop poster <service> <playlist> [--layout classic\|minimal\|bold]` | What a poster of the playlist shows: the songs you play most first (marked `*`), its lineup and its colours; `--json` for everything needed to draw it. The page draws it: **Tools › Playlist poster**. |
+| `trackhop followed` | The artists you follow, what each is checked for, the schedule and the latest news. `followed check [--wait]` looks them up now; `followed mute <artist>`, `unmute`; `followed on`, `off`, `daily`, `weekly` set the scheduled look. |
+| `trackhop follow <artist> [--kinds releases,concerts,merch,records]` | Follows an artist: their news goes to your notification channels that take New releases. |
+| `trackhop unfollow <artist>` | Stops following an artist. |
+
 **Files and backups**
 
 | Command | What it does |
@@ -233,6 +245,9 @@ tools allow:
 | `find_setlists` | The latest setlists of a playlist's artists from setlist.fm, with the songs ready to make one a playlist ("make me a playlist of what Muse played last week") |
 | `find_records` | The records and official shops of a playlist's artists, with shop searches ("where can I buy vinyl of the bands in my running playlist?") |
 | `find_concerts` | The upcoming concerts of a playlist's artists in a country, with ticket links ("is anyone from my road-trip playlist playing in Italy?") |
+| `get_wrapped`, `make_wrapped` | Your Wrapped from what you really played ("what did I listen to most this year?"), and a new one from a listening service and a period |
+| `get_playlist_poster` | What a poster of a playlist shows: the songs you play most first, its artists and its colours |
+| `list_followed_artists`, `follow_artist`, `check_followed_artists` | The artists you follow and their latest news; follow one ("tell me when Muse announces a concert"); look for news now |
 | `list_files`, `get_file_patterns`, `set_file_patterns`, `try_file_patterns` | The File playlists, and how names in imported files are read |
 | `get_settings`, `change_setting` | The settings |
 | `list_notification_channels`, `test_notification` | The notification channels, and a test message |
@@ -240,7 +255,7 @@ tools allow:
 | `get_crowded_syncs`, `spread_syncs` | Many syncs reaching one service at once, and new times for them (saved only with `apply`, after asking you) |
 | `get_diagnostics`, `prepare_issue` | The report for asking for help, so the assistant can read the log and explain an error; a GitHub issue made ready for you to send (never sent by Trackhop; an assistant with its own GitHub tool creates it only after you confirm) |
 | `backup_playlists` | Back up every playlist now |
-| `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files` | Changes that remove something (marked as destructive: assistants ask before) |
+| `remove_tracks`, `review_tracks`, `remove_duplicates`, `delete_sync`, `delete_files`, `unfollow_artist` | Changes that remove something (marked as destructive: assistants ask before) |
 
 **On the same computer** (Trackhop Desktop, or Docker on this machine), the assistant starts the
 command itself, `trackhop mcp`. In Claude Desktop, *Settings › Developer › Edit config*, add:

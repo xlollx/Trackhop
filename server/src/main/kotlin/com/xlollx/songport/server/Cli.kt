@@ -46,7 +46,10 @@ object Cli {
     /** One command, for `help`, `help <command>` and the shell completions: its words and what it does. */
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
-    val COMMANDS = listOf(
+    /** Every command: these, and the next release's (Features.v2, CliV2.kt). */
+    val COMMANDS: List<Cmd> get() = BASE_COMMANDS + CliV2.commands
+
+    private val BASE_COMMANDS = listOf(
         Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",
             "Also as: trackhop list. --tag genre=metal lists the syncs with that tag (--tag genre: with that key, whatever its value; given twice, both are wanted),\n--label NAME those wearing that label (its name, its id or a colour), --favorite the starred ones."),
         Cmd("show", "Syncs", listOf("show <sync>"), "a sync's details and its last runs"),
@@ -160,7 +163,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency")
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

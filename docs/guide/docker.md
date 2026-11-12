@@ -660,6 +660,29 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/records` | Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
+**Discover**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/wrapped` | Wrapped from real listening: the listening services connected (`source`, `service`, the `periods` each can tell, `countsPlays`) and every Wrapped made, newest first: top artists and songs (with their plays where the service counts them), musical age, decades, covers, period, `from` and `card`. |
+| `POST /api/v1/wrapped` | Make a Wrapped from what you played on Last.fm, ListenBrainz, your own server's play counts, Spotify (official or web), Deezer, TIDAL or YouTube Music: `{"source": "lastfm", "period": "month"}` (`half_year`, `year`; the nearest one the service can tell). Without `source`, the best service connected. Kept in your history, as in the app; it can take a minute (the songs' years and covers are looked up). |
+| `GET /api/v1/wrapped/{wrapped}` | One Wrapped, by its id or `latest`. |
+| `GET /api/v1/wrapped/{wrapped}/card` | Its card as a PNG image: a plainer card than the app's, with the same figures. |
+| `GET /api/v1/poster` | A playlist poster's contents: `?service=spotify&playlist=<id or name>&layout=classic` (`minimal`, `bold`). The songs it lists, those you play most first (from the playlist's own server, else the first listening service connected; `fromPlays` marks them), the `lineup` of its most present artists, the `palette` from its cover (`ground`, `groundEnd`, `ink`, `accent`), its header, a `note` on where the plays came from and `coverPrompt`, the words for an image AI. The page draws the poster: **Tools › Playlist poster**. |
+| `GET /api/v1/followed` | The artists you follow, what each is checked for (`releases`, `concerts`, `merch`, `records`) and whether `muted`; whether the look runs on a schedule (`enabled`, `every` day or week), the concerts' `country`, how many notification `channels` take the news, and the `latest` news. |
+| `PATCH /api/v1/followed` | Turn the scheduled look on or off, every day or week: `{"enabled": true, "every": "week"}`. |
+| `POST /api/v1/followed` | Follow an artist: `{"name": "Muse", "merch": false}` (your defaults for what is left out). |
+| `PATCH /api/v1/followed/{artist}` | Mute an artist (still followed, nothing said) or turn it on again, or change what it is checked for: `{"muted": true}`, `{"records": false}`. |
+| `DELETE /api/v1/followed/{artist}` | Stop following an artist. |
+| `POST /api/v1/followed/check` | Look every artist followed up now, a background task (`{"task": "…"}`). |
+
+The followed artists are looked up on the schedule, as in the app: their new releases, their concerts in
+the country picked last in Concerts, their new merch and records. The first look only takes note of what
+is there; what is new later goes to your [notification channels](notification-channels) that take the
+**New releases** event. Each person on a shared server has their own list, news and channels. Concerts
+also reads the tour dates on Spotify's artist pages when you have **Spotify (web)** connected
+(unofficial): only when you search, a few concert pages per artist, kept like the other dates.
+
 **Playlists**
 
 | Call | What it does |

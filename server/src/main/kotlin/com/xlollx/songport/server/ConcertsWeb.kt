@@ -35,11 +35,19 @@ internal object ConcertTexts {
         Concerts.Source.TICKETMASTER -> "Tickets on Ticketmaster"
         Concerts.Source.SITE -> Concerts.siteName(url).ifEmpty { s.label }
         Concerts.Source.VIVATICKET -> "Tickets on Vivaticket (unofficial)"
+        Concerts.Source.SPOTIFY -> "On Spotify (unofficial)"
         else -> s.label
     }
 
-    /** Some dates come from an unofficial source. */
-    fun unofficial(r: Concerts.Result) = r.artists.any { a -> a.events.any { e -> e.source.unofficial || e.alsoOn.any { it.source.unofficial } } }
+    /** Some dates come from an unofficial ticket site (Spotify's are told by [spotify]). */
+    fun unofficial(r: Concerts.Result) = r.artists.any { a -> a.events.any { e -> e.source.unofficialSite || e.alsoOn.any { it.source.unofficialSite } } }
+
+    /** Spotify (web)'s dates, read with the user's own sign-in (Features.v2). */
+    const val SPOTIFY = "Spotify's dates are read with your Spotify (web) sign-in (unofficial): this may stop working at any time."
+
+    fun spotify(r: Concerts.Result) = r.artists.any { a -> a.events.any { e -> e.source == Concerts.Source.SPOTIFY || e.alsoOn.any { it.source == Concerts.Source.SPOTIFY } } }
+
+    private val Concerts.Source.unofficialSite: Boolean get() = unofficial && this != Concerts.Source.SPOTIFY
 
     fun limited(shown: Int, total: Int) = "Only the $shown artists the playlist holds most were looked up, of $total."
 
@@ -69,7 +77,8 @@ private suspend fun Web.playlistsOf(p: MusicProvider): List<Playlist> = p.librar
 /** Looks the playlist's artists up: what the page's task and the API both run. */
 private suspend fun Web.concertsOf(p: MusicProvider, playlistId: String, country: String, progress: (Int, Int) -> Unit = { _, _ -> }): Concerts.Result {
     val artists = Concerts.artistsOf(p.tracks(env, playlistId))
-    val r = Concerts.find(env, artists, country, progress = progress)
+    // Spotify (web) is asked too where this person has it connected (Features.v2): foreground only.
+    val r = SpotifyConcertsServer.asking(env) { Concerts.find(env, artists, country, progress = progress) }
     env.log("concerts", "${p.label(env)} / $playlistId in ${r.country}: ${r.artists.count { it.events.isNotEmpty() }} of ${r.artists.size} artists with dates")
     return r
 }
@@ -100,7 +109,7 @@ internal fun concertsJson(r: Concerts.Result): JsonObject = buildJsonObject {
         }
     }))
     put("attribution", (if (r.ticketmaster) "Concert data from Ticketmaster and MusicBrainz." else "Concert data from MusicBrainz.") +
-        (if (ConcertTexts.unofficial(r)) " " + ConcertTexts.UNOFFICIAL else ""))
+        (if (ConcertTexts.unofficial(r)) " " + ConcertTexts.UNOFFICIAL else "") + (if (ConcertTexts.spotify(r)) " " + ConcertTexts.SPOTIFY else ""))
 }
 
 /** GET /api/v1/concerts?service=&playlist=&country= */
@@ -204,6 +213,7 @@ private fun concertsHtml(playlist: String, r: Concerts.Result): String = buildSt
     }
     append("""<p class="muted">${if (r.ticketmaster) "Concert data from Ticketmaster and MusicBrainz." else "Concert data from MusicBrainz."}</p>""")
     if (ConcertTexts.unofficial(r)) append("""<p class="muted">${h(ConcertTexts.UNOFFICIAL)}</p>""")
+    if (ConcertTexts.spotify(r)) append("""<p class="muted">${h(ConcertTexts.SPOTIFY)}</p>""")
 }
 
 /** Settings › Ticketmaster key: the card, and its form's handling. */

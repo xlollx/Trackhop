@@ -41,7 +41,7 @@ object Mcp {
     /** Tool output beyond this is cut, with a note: an assistant's context is not a file. */
     private const val MAX_TEXT = 200_000
 
-    private class Tool(
+    internal class Tool(
         val name: String,
         val title: String,
         val description: String,
@@ -52,7 +52,7 @@ object Mcp {
         val command: (JsonObject) -> Call,
     )
 
-    private data class Param(val name: String, val type: String, val description: String, val required: Boolean = true)
+    internal data class Param(val name: String, val type: String, val description: String, val required: Boolean = true)
 
     /** A command of the command line: its name, its words, its switches (--wait, --all…) and its options (--name…). */
     class Call(
@@ -129,7 +129,10 @@ object Mcp {
         return Call(command, wait = wait, flags = setOfNotNull("favorite".takeIf { flag("favorite") }), values = values("label"), multi = if (tags.isEmpty()) emptyMap() else mapOf("tag" to tags))
     }
 
-    private val TOOLS = listOf(
+    /** Every tool: these, and the next release's (Features.v2, McpV2.kt). */
+    private val TOOLS: List<Tool> get() = BASE_TOOLS + McpV2.tools
+
+    private val BASE_TOOLS = listOf(
         Tool("status", "Trackhop status", "Trackhop's version, how many syncs it has, which are running now and when the last one ran.",
             emptyList(), readOnly = true) { Call("status") },
         Tool("list_syncs", "List syncs", "Every sync with its source and target playlists, its schedule, whether it is on, its label, tags and star, and its last result (added, removed, not found, to check). With tag, label or favorite: only those syncs.",

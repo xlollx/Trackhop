@@ -194,7 +194,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "concerts" -> concertsPage(r)
         "setlists" -> setlistsPage(r)
         "records" -> recordsPage(r)
-        else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
+        else -> if (!v2Tool(r, rest)) send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
     }
 }
 
@@ -211,6 +211,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")
     tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
+    body.append(v2ToolCards())
     body.append("<h2>Make</h2>")
     tool("/tools/releases", "New releases", "The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account): as a playlist on any service, now or every week.")
     tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")
