@@ -310,6 +310,9 @@ object Matcher {
     fun score(src: Track, cand: Track, policy: MatchPolicy = MatchPolicy()): Double = scoreN(norm(src), norm(cand), policy)
 
     fun scoreN(s: Norm, c: Norm, policy: MatchPolicy = MatchPolicy()): Double {
+        // A show with a known feed or Apple id (an OPML file, Apple's directory) is told by them, then by
+        // title and publisher (see Podcasts). Shows with neither are scored as they always were.
+        if ((s.track.kind == Track.KIND_PODCAST || c.track.kind == Track.KIND_PODCAST) && Podcasts.knowsMore(s.track, c.track)) return Podcasts.score(s.track, c.track)
         if (s.isrc != null && c.isrc != null && s.isrc == c.isrc) return 1.0 * policyFactor(s.track, c.track, policy)
         // The same MusicBrainz recording (a tagged file on a personal server): exact, whatever the title says.
         if (s.track.mbids.isNotEmpty() && c.track.mbids.any { it in s.track.mbids }) return 1.0 * policyFactor(s.track, c.track, policy)
@@ -405,18 +408,26 @@ object Matcher {
         private val items = tracks.map { norm(it) }
         private val byToken = HashMap<String, MutableList<Int>>()
         private val byIsrc = HashMap<String, Int>()
+        /** Shows by feed and by Apple id: a renamed show shares no word of its title with itself. */
+        private val byShow = HashMap<String, Int>()
 
         init {
             items.forEachIndexed { i, n ->
                 n.title.split(' ').filter { it.isNotEmpty() }.toSet().forEach { byToken.getOrPut(it) { ArrayList() }.add(i) }
                 n.isrc?.let { byIsrc.putIfAbsent(it, i) }
+                showKeys(n.track).forEach { byShow.putIfAbsent(it, i) }
             }
         }
+
+        private fun showKeys(t: Track): List<String> = listOfNotNull(
+            Podcasts.feedKey(t.feedUrl)?.let { "feed:$it" }, Podcasts.itunesId(t.itunesId)?.let { "itunes:$it" },
+        )
 
         fun best(src: Track, threshold: Double = EXISTING_THRESHOLD, policy: MatchPolicy = MatchPolicy()): Track? {
             val s = norm(src)
             // An identical ISRC already in the target is the same recording, whatever the policy says.
             s.isrc?.let { isrc -> byIsrc[isrc]?.let { return items[it].track } }
+            showKeys(src).firstNotNullOfOrNull { byShow[it] }?.let { return items[it].track }
             val candIdx = LinkedHashSet<Int>()
             s.title.split(' ').filter { it.isNotEmpty() }.forEach { tok -> byToken[tok]?.let { candIdx.addAll(it) } }
             var bestScore = 0.0

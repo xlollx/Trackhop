@@ -46,6 +46,13 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override val supportsAlbums: Boolean get() = BridgePlugin.full
     override val supportsArtists: Boolean get() = BridgePlugin.full
     override val supportsRecent: Boolean get() = BridgePlugin.full
+    /**
+     * Followed podcasts, read only: the library's podcast tab is documented (ytmusicapi), following a
+     * show is not, so they are a source and never a target.
+     */
+    override val supportsPodcasts: Boolean get() = BridgePlugin.full
+    override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
+        if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
     /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
     override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)
     override val statusMethod: String get() = STATUS
@@ -251,7 +258,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
             durationMs = j["durationMs"].long ?: 0,
             itemId = j["setVideoId"].str,
             uri = j["uri"].str,
-            kind = when (j["kind"].str) { "album" -> Track.KIND_ALBUM; "artist" -> Track.KIND_ARTIST; else -> "" },
+            kind = when (j["kind"].str) { "album" -> Track.KIND_ALBUM; "artist" -> Track.KIND_ARTIST; "podcast" -> Track.KIND_PODCAST; else -> "" },
             year = j["year"].long?.toInt() ?: 0,
             available = j["available"].bool,
         )

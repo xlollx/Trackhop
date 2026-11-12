@@ -328,6 +328,9 @@
     <string name="tools_progress_dedupe">Temizleniyor %1$d/%2$d…</string>
     <string name="export_format">%1$s olarak dışa aktar</string>
     <string name="format_text">Metin</string>
+    <string name="format_opml">OPML (podcast\'ler)</string>
+    <string name="opml_finding_feeds">Akış adresleri aranıyor: %1$d / %2$d</string>
+    <string name="opml_feeds_missing">Tamam. Apple\'ın podcast dizininde akış adresi olmayan podcast\'ler: %1$d. Yalnızca adlarıyla listelendi.</string>
     <string name="tools_export_save">Farklı kaydet…</string>
     <string name="tools_make_title">Yeni çalma listesi oluştur…</string>
     <string name="tools_make_desc">Çalma listelerini kopyalayın, birleştirin, bölün, sıralayın veya karıştırın. Sonuç her zaman bu serviste yeni bir çalma listesidir; orijinallere dokunulmaz.</string>

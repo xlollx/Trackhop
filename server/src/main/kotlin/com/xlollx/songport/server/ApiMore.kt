@@ -211,7 +211,7 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
             val file = name.replace(Regex("""[\\/:*?"<>|]"""), "_") + "." + format.ext
             ex.responseHeaders.set("Content-Disposition", "attachment; filename=\"${file.replace(Regex("[^A-Za-z0-9._ ()-]"), "_")}\"")
-            send(ex, 200, format.encode(name, tracks), format.mime)
+            send(ex, 200, format.render(env, name, tracks), format.mime)
         }
         rest == listOf("convert") && (method == "GET" || method == "POST") -> {
             val b = if (method == "POST") body() ?: return true.also { badJson() } else JsonObject(emptyMap())

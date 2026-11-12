@@ -15,12 +15,18 @@ object CsvCodec {
     private val ALBUM_KEYS = setOf("album", "albumname", "albumtitle")
     private val DURATION_KEYS = setOf("durationms", "duration", "length", "time", "durata")
     private val ISRC_KEYS = setOf("isrc")
+    /** A followed podcast's feed and Apple id: written only when a row has one, so a file of songs stays as it was. */
+    private val PODCAST_HEADER = listOf("feed_url", "itunes_id")
+    // Only these exact columns (Trackhop's own): a file of songs from elsewhere is read as it always was.
+    private val FEED_KEYS = setOf("feedurl")
+    private val ITUNES_KEYS = setOf("itunesid")
 
     fun encode(tracks: List<Track>): String = buildString {
-        append(HEADER.joinToString(",")).append("\r\n")
+        val shows = tracks.any { !it.feedUrl.isNullOrBlank() || !it.itunesId.isNullOrBlank() }
+        append((if (shows) HEADER + PODCAST_HEADER else HEADER).joinToString(",")).append("\r\n")
         for (t in tracks) {
-            append(listOf(t.title, t.artistLine, t.album, if (t.durationMs > 0) t.durationMs.toString() else "", t.isrc ?: "")
-                .joinToString(",") { quote(it) }).append("\r\n")
+            val cells = listOf(t.title, t.artistLine, t.album, if (t.durationMs > 0) t.durationMs.toString() else "", t.isrc ?: "")
+            append((if (shows) cells + listOf(t.feedUrl.orEmpty(), t.itunesId.orEmpty()) else cells).joinToString(",") { quote(it) }).append("\r\n")
         }
     }
 
@@ -36,6 +42,8 @@ object CsvCodec {
         val iAlbum = col(ALBUM_KEYS)
         val iDur = col(DURATION_KEYS)
         val iIsrc = col(ISRC_KEYS)
+        val iFeed = col(FEED_KEYS)
+        val iItunes = col(ITUNES_KEYS)
         // "duration_ms" (ours, Exportify's "Duration (ms)") is milliseconds whatever the size: an 8-second
         // interlude is 8000 ms, not 8000 seconds.
         val inMs = iDur != null && header[iDur].endsWith("ms")
@@ -52,7 +60,9 @@ object CsvCodec {
             val rawDur = if (hasHeader) at(iDur) else r.getOrNull(3)?.trim() ?: ""
             val dur = if (inMs) rawDur.toDoubleOrNull()?.toLong() ?: parseDuration(rawDur) else parseDuration(rawDur)
             val isrc = (if (hasHeader) at(iIsrc) else r.getOrNull(4)?.trim() ?: "").ifEmpty { null }
-            out += withStableId(Track(id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc))
+            val feed = if (hasHeader) at(iFeed).ifEmpty { null } else null
+            val itunes = if (hasHeader) at(iItunes).ifEmpty { null } else null
+            out += withStableId(Track(id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes))
         }
         return out
     }
@@ -77,7 +87,9 @@ object CsvCodec {
 
     /** Id stabile derivato da titolo+artista, cosi' le sync ripetute riconoscono lo stesso brano. */
     fun withStableId(t: Track): Track {
-        val key = Matcher.normalizeTitle(t.title) + "|" + t.artists.map { Matcher.normalizeArtist(it) }.sorted().joinToString(",")
+        // A show with a feed is that feed, whatever its name: two shows of one name stay two.
+        val key = Podcasts.feedKey(t.feedUrl)?.let { "feed|$it" }
+            ?: (Matcher.normalizeTitle(t.title) + "|" + t.artists.map { Matcher.normalizeArtist(it) }.sorted().joinToString(","))
         val digest = MessageDigest.getInstance("SHA-1").digest(key.toByteArray(Charsets.UTF_8))
         val id = digest.take(8).joinToString("") { "%02x".format(it) }
         return t.copy(id = id, uri = null, itemId = null)

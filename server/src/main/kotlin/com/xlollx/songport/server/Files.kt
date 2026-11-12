@@ -21,6 +21,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
     XSPF("XSPF", "xspf", "application/xspf+xml"),
     JSPF("JSPF (ListenBrainz)", "jspf", "application/json"),
     TEXT("Text", "txt", "text/plain"),
+    OPML("OPML (podcasts)", "opml", "text/x-opml"),
     ;
 
     fun encode(name: String, tracks: List<Track>): String = when (this) {
@@ -29,7 +30,12 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         XSPF -> PlaylistFiles.toXspf(name, tracks)
         JSPF -> PlaylistFiles.toJspf(name, tracks)
         TEXT -> PlaylistFiles.toText(tracks)
+        OPML -> PlaylistFiles.toOpml(name, tracks)
     }
+
+    /** [tracks] in this format; for OPML the feeds the shows lack are looked up first (Apple's directory, paced). */
+    fun render(env: com.xlollx.songport.platform.Env, name: String, tracks: List<Track>): String =
+        if (this == OPML) runBlocking { encode(name, com.xlollx.songport.sync.Podcasts.withFeeds(env, tracks)) } else encode(name, tracks)
 
     companion object {
         fun of(s: String?) = entries.firstOrNull { it.ext == s?.lowercase() } ?: CSV
@@ -84,7 +90,7 @@ Or a regular expression after <code>re:</code> with named groups, such as <code>
 internal fun Web.download(r: Web.Req, name: String) {
     val f = csvFiles().firstOrNull { it.name == name } ?: return send(r.ex, 404, page("Not found", """<p><a href="/connectors/csv">Back</a></p>"""))
     val format = ExportFormat.of(r.query["format"])
-    val text = if (format == ExportFormat.CSV) f.readText() else format.encode(f.nameWithoutExtension, CsvCodec.parse(f.readText()))
+    val text = if (format == ExportFormat.CSV) f.readText() else format.render(env, f.nameWithoutExtension, CsvCodec.parse(f.readText()))
     attachment(r, "${f.nameWithoutExtension}.${format.ext}", text, format.mime)
 }
 
@@ -198,7 +204,7 @@ private fun Web.toolsIndex(r: Web.Req) {
         body.append("""<div class="card"><h3><a href="$href">$title</a></h3><p class="muted">$text</p></div>""")
     body.append("<h2>Move</h2>")
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
-    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text, or saved into File.")
+    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text, followed podcasts as OPML, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
     tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")
@@ -251,7 +257,7 @@ private fun Web.exportTool(r: Web.Req) {
             return redirect(r.ex, "/connectors/csv?ok=${q("Saved ${playlist.name} into File as $id (${tracks.size} tracks).")}")
         }
         val format = ExportFormat.of(params["format"])
-        return attachment(r, "${playlist.name}.${format.ext}", format.encode(playlist.name, tracks), format.mime)
+        return attachment(r, "${playlist.name}.${format.ext}", format.render(env, playlist.name, tracks), format.mime)
     }
     val opts = lists.getOrDefault(emptyList()).joinToString("") { p -> """<option value="${h(p.id)}">${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>""" }
     val formats = ExportFormat.entries.joinToString("") { """<option value="${it.ext}">${h(it.label)}</option>""" }

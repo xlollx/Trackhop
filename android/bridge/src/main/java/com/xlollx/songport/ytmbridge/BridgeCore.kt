@@ -20,6 +20,8 @@ object BridgeCore {
     const val ALBUMS = "__albums__"
     const val ARTISTS = "__artists__"
     const val RECENT = "__recent__"
+    /** Followed podcasts: read only on YouTube Music. */
+    const val PODCASTS = "__podcasts__"
     /** Saved albums and followed artists on the older skill API: none mapped. */
     private const val AMAZON_NO_LIBRARY = "Amazon Music: saved albums and followed artists are not available for this account's player (the older skill API)"
 
@@ -533,7 +535,7 @@ object BridgeCore {
     @Synchronized
     private fun cachedTracks(client: YtmClient, id: String, slot: String): List<TrackDto> {
         return ytmCache.get(ck(slot, id)) {
-            when (id) { ALBUMS -> client.libraryAlbums(); ARTISTS -> client.librarySubscriptions(); RECENT -> client.history(); else -> client.tracks(id) }
+            when (id) { ALBUMS -> client.libraryAlbums(); ARTISTS -> client.librarySubscriptions(); PODCASTS -> client.libraryPodcasts(); RECENT -> client.history(); else -> client.tracks(id) }
         }
     }
 

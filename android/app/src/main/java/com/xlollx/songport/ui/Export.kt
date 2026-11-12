@@ -19,6 +19,7 @@ import com.xlollx.songport.providers.LocalFilesProvider
 @Composable
 fun formatLabel(format: LocalFilesProvider.Export): String = when (format) {
     LocalFilesProvider.Export.TXT -> stringResource(R.string.format_text)
+    LocalFilesProvider.Export.OPML -> stringResource(R.string.format_opml)
     else -> format.name
 }
 
@@ -37,8 +38,8 @@ fun rememberPlaylistExporter(onPicked: (Uri?, LocalFilesProvider.Export) -> Unit
 
 /** Le voci "Esporta come …" di un menu, una per formato. */
 @Composable
-fun ExportMenuItems(onExport: (LocalFilesProvider.Export) -> Unit) {
-    LocalFilesProvider.Export.entries.forEach { fmt ->
+fun ExportMenuItems(formats: List<LocalFilesProvider.Export> = LocalFilesProvider.Export.forShows(false), onExport: (LocalFilesProvider.Export) -> Unit) {
+    formats.forEach { fmt ->
         DropdownMenuItem(text = { Text(stringResource(R.string.export_format, formatLabel(fmt))) }, onClick = { onExport(fmt) })
     }
 }
@@ -51,14 +52,14 @@ fun ExportMenuItem(onClick: () -> Unit) {
 
 /** The format chooser: one row per format, tapping one exports. */
 @Composable
-fun ExportFormatDialog(onDismiss: () -> Unit, onPick: (LocalFilesProvider.Export) -> Unit) {
+fun ExportFormatDialog(onDismiss: () -> Unit, formats: List<LocalFilesProvider.Export> = LocalFilesProvider.Export.forShows(false), onPick: (LocalFilesProvider.Export) -> Unit) {
     FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.export_choose)) },
         text = {
             // Scrolls where the dialog is lower than the list (a phone on its side).
             androidx.compose.foundation.layout.Column {
-                LocalFilesProvider.Export.entries.forEach { fmt ->
+                formats.forEach { fmt ->
                     Text(
                         formatLabel(fmt),
                         style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,

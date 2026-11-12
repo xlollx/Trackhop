@@ -17,6 +17,11 @@ them.
 2. *Tools → Export a playlist*, pick the playlist and the format, and save the file wherever you
    like (phone storage, Drive, Nextcloud…).
 
+Followed podcasts export as **OPML**, the file AntennaPod, Pocket Casts and Podcast Addict import;
+the feed of a show the service does not give is looked up in Apple's public podcast directory. An
+OPML file from those apps imports the same way, and a sync to *Followed podcasts* on Spotify or
+Deezer follows its shows there.
+
 ## Back up everything
 
 *Tools → Backup & restore → Back up all playlists now* saves every playlist and your liked songs of

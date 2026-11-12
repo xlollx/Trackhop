@@ -1027,7 +1027,8 @@ class SyncEngine(
     }
 
     private suspend fun searchScored(dst: MusicProvider, targetId: String?, source: Track, policy: MatchPolicy): Matcher.Scored? {
-        val s = withMbids(dst, source)
+        // A show known by its feed (an OPML file) gets its publisher from Apple's directory: the target's shows of one name tell apart by it.
+        val s = withMbids(dst, if (source.kind == Track.KIND_PODCAST && dst.serviceId != LocalFilesProvider.serviceId) Podcasts.enrich(env, source) else source)
         var runnerUp: Matcher.Scored? = null
         var sawCandidates = false
         var sawTags = false

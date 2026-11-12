@@ -326,6 +326,9 @@
     <string name="tools_progress_dedupe">正在清理 %1$d/%2$d…</string>
     <string name="export_format">导出为 %1$s</string>
     <string name="format_text">文本</string>
+    <string name="format_opml">OPML（播客）</string>
+    <string name="opml_finding_feeds">正在查找订阅源地址：%1$d / %2$d</string>
+    <string name="opml_feeds_missing">完成。在 Apple 播客目录中没有订阅源地址的播客：%1$d 个，仅按名称列出。</string>
     <string name="tools_export_save">保存为…</string>
     <string name="tools_make_title">从…新建歌单</string>
     <string name="tools_make_desc">复制、合并、拆分、排序或打乱歌单。结果始终是此服务上的一个新歌单，原歌单不会被改动。</string>

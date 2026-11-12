@@ -289,5 +289,32 @@ class YtmClientContractTest {
         assertEquals("video2", take(1).json()["target"]["videoId"].str)
     }
 
+    private fun tile(browseId: String, title: String, channel: String?) = """{"musicTwoRowItemRenderer":{
+        "title":{"runs":[{"text":${q(title)},"navigationEndpoint":{"browseEndpoint":{"browseId":"$browseId"}}}]},
+        "subtitle":{"runs":[${channel?.let { """{"text":${q(it)},"navigationEndpoint":{"browseEndpoint":{"browseId":"UCch"}}}""" } ?: ""}]},
+        "navigationEndpoint":{"browseEndpoint":{"browseId":"$browseId"}}}}"""
+
+    /** ytmusicapi's get_library_podcasts: the library's podcast grid, the "Add podcast" tile and "New episodes" left out. */
+    @Test fun followedPodcastsFromTheLibraryGridAcrossAContinuation() {
+        answer("""{"contents":{"singleColumnBrowseResultsRenderer":{"tabs":[{"tabRenderer":{"content":{"sectionListRenderer":{"contents":[{"gridRenderer":{"items":[
+            {"musicTwoRowItemRenderer":{"title":{"runs":[{"text":"Add podcast"}]},"navigationEndpoint":{"browseEndpoint":{"browseId":"FEmusic_add_podcast"}}}},
+            ${tile("VLRDPN", "New Episodes", "Auto playlist")},
+            ${tile("MPSPPLDvBqWb1UAGeEt9n6vFH_zdGw65Obf3sH", "5 Minuten Harry Podcast", "coldmirror")},
+            ${tile("MPSPPLx2", "Ñandú 👩🏽‍🎤", null)},
+            ${more("G1")}]}}]}}}}]}}}""")
+        answer("""{"onResponseReceivedActions":[{"appendContinuationItemsAction":{"continuationItems":[
+            ${tile("MPSPPLx2", "Ñandú 👩🏽‍🎤", null)},${tile("MPSPPLx3", "Third", "Pub")}]}}]}""")
+        val shows = client.libraryPodcasts()
+        assertEquals(listOf("PLDvBqWb1UAGeEt9n6vFH_zdGw65Obf3sH", "PLx2", "PLx3"), shows.map { it.id })
+        assertEquals(listOf("coldmirror"), shows[0].artists)
+        assertEquals(emptyList<String>(), shows[1].artists)
+        assertEquals("Ñandú 👩🏽‍🎤", shows[1].title)
+        assertEquals("MPSPPLx3", shows[2].uri)
+        assertTrue(shows.all { it.kind == "podcast" })
+        assertEquals("FEmusic_library_non_music_audio_list", take(0).json()["browseId"].str)
+        assertEquals("G1", take(1).json()["continuation"].str)
+        assertEquals(2, calls.size)
+    }
+
     private fun q(s: String) = kotlinx.serialization.json.JsonPrimitive(s).toString()
 }
