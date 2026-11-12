@@ -241,10 +241,15 @@ class CardDensityFlowTest : FlowTest() {
         // The pill itself still answers.
         assertTrue(compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).fetchSemanticsNodes().isNotEmpty())
         // Its row holds nothing else, and is no wider than the pill and its "?": no strip across the list.
-        val floating = compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).onFirst().fetchSemanticsNode()
         val inBand = compose.onAllNodes(androidx.compose.ui.test.hasAnyAncestor(hasTestTag(RUN_ALL_BAND_TAG)) and hasClickAction(), useUnmergedTree = true).fetchSemanticsNodes()
         assertEquals("the pill and its help, nothing else, in the pinned row", 2, inBand.size)
-        assertTrue("the pill at the row's start", floating.boundsInRoot.left < list().boundsInRoot.left + 40 * density())
+        // Pinned, the pill and its "?" slide to the middle of the list (owner, 12/11); give the slide time to end.
+        val listBox = list().boundsInRoot
+        waitFor("the pinned pill centred") {
+            val p = compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).onFirst().fetchSemanticsNode().boundsInRoot
+            val centre = (p.left + p.right) / 2
+            centre > listBox.left + listBox.width * 0.3f && centre < listBox.right - listBox.width * 0.2f
+        }
 
         // Back at the top: the chips and the button again.
         scrollList(-100_000f)
