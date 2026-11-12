@@ -593,14 +593,19 @@ object Cards {
         val barTop = if (story) 84f else 62f
         c.drawRect(m, barTop, right, barTop + 14f, inkPaint)
         val headBase = barTop + 14f + (if (story) 52f else 46f)
-        val head = condensed(t.ink, if (story) 32f else 28f).apply { letterSpacing = 0.1f }
-        // Whose it is (when signed) and where it lives on the left, the numbers on the right.
-        val whose = "${owner.ifBlank { kind }}  ·  $service"
-        val countsW = minOf(head.measureText(counts), (right - m) * 0.45f)
-        val whoseW = minOf(head.measureText(whose), right - m - countsW - 40f)
-        line(c, whose, m, headBase, head, whoseW + 1f)
-        line(c, counts, right, headBase, head, right - m - whoseW - 40f, Paint.Align.RIGHT)
-        var y = headBase + (if (story) 40f else 30f)
+        val head = boldHeadPaint(t.ink, story)
+        // Whose it is (when signed) and where it lives on the left, the numbers on the right: every
+        // part whole; the duration, then the service, give way, or the name takes a line of its own.
+        val lines = boldHead(s, right - m)
+        val full = head.textSize
+        lines.forEachIndexed { i, l ->
+            val base = headBase + i * full * 1.3f
+            head.textSize = full * l.scale
+            if (l.left.isNotBlank()) c.drawText(l.left, m, base, head)
+            if (l.right.isNotBlank()) { head.textAlign = Paint.Align.RIGHT; c.drawText(l.right, right, base, head); head.textAlign = Paint.Align.LEFT }
+        }
+        head.textSize = full
+        var y = headBase + (lines.size - 1).coerceAtLeast(0) * full * 1.3f + (if (story) 40f else 30f)
         if (!card.titledArt) {
             y = posterTitle(c, card.title.uppercase(), RectF(m, y, right, y + (if (story) 470f else 250f)), condensed(t.ink, 100f), 3, if (story) 300f else 170f, if (story) 70f else 56f, lineHeight = 0.98f)
             // Capitals have nothing under the line: the gap is measured from it.
@@ -628,6 +633,26 @@ object Cards {
             posterTracks(s, m, art.bottom + 16f + 34f, bottom, side, 25f, max = 5)
         }
         if (qr != null) posterQr(c, symbol!!, qr)
+    }
+
+    private fun boldHeadPaint(ink: Int, story: Boolean) = condensed(ink, if (story) 32f else 28f).apply { letterSpacing = 0.1f }
+
+    /** The Bold layout's header in [width]: the name (or the kind), the service, the track count and the duration, each whole ([CoverArt.fitHead]). */
+    private fun boldHead(s: Sheet, width: Float): List<CoverArt.HeadLine> {
+        val head = boldHeadPaint(s.t.ink, s.story)
+        val full = head.textSize
+        val count = s.ctx.resources.getQuantityString(R.plurals.card_tracks, s.card.trackCount, s.card.trackCount).uppercase()
+        val duration = if (s.card.durationMs > 0) duration(s.card.durationMs).uppercase() else ""
+        return CoverArt.fitHead(s.owner.ifBlank { s.kind }, s.service, count, duration, width, 40f) { str, k ->
+            head.textSize = full * k; head.measureText(str)
+        }
+    }
+
+    /** The Bold layout's header as [card] prints it in [format]: for tests (every part whole, nothing cut). */
+    internal fun boldHeadLines(ctx: Context, card: PosterCard, format: Format): List<CoverArt.HeadLine> {
+        val s = Sheet(ctx, Canvas(), format.width.toFloat(), format.height.toFloat(), PosterPalette.tones(IntArray(0), card.title, PosterPalette.Layout.BOLD), card)
+        val m = if (s.story) 84f else 72f
+        return boldHead(s, s.w - 2 * m)
     }
 
     /** [p] at the largest size up to [size] at which [text] fits in [maxWidth]. */

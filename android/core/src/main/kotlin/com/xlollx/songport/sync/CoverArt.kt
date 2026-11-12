@@ -368,6 +368,37 @@ object CoverArt {
         return out
     }
 
+    /** A line of a poster's header: [left] from the left edge, [right] (blank: none) against the right one, set at [scale]. */
+    data class HeadLine(val left: String, val right: String, val scale: Float = 1f)
+
+    /**
+     * A poster's header line across [width]: [name] (the signature, or the kind) and [service] on
+     * the left, [count] and [duration] on the right, [gap] at least between the two sides. Every
+     * part whole, never cut: on one line when all fit; else the duration gives way, then the
+     * service. When the name and the count still do not fit together, two lines: the name alone
+     * (set smaller, to [NAMES_FLOOR], or broken between words onto two lines), then the service
+     * and the numbers (the duration, then the service, giving way again). [measure] gives a text's
+     * width at a scale of the header's size. Blank parts are left out.
+     */
+    fun fitHead(name: String, service: String, count: String, duration: String, width: Float, gap: Float, sep: String = "  ·  ", measure: (String, Float) -> Float): List<HeadLine> {
+        fun join(vararg parts: String) = parts.filter { it.isNotBlank() }.joinToString(sep)
+        fun fits(l: HeadLine) = measure(l.left, l.scale) + (if (l.right.isBlank()) 0f else (if (l.left.isBlank()) 0f else gap) + measure(l.right, l.scale)) <= width
+        val oneLine = listOf(
+            HeadLine(join(name, service), join(count, duration)),
+            HeadLine(join(name, service), count),
+            HeadLine(name, count),
+        )
+        oneLine.firstOrNull(::fits)?.let { return listOf(it) }
+        // Two lines: the name alone first, whole.
+        val nameLines = SCALES.map { HeadLine(name, "", it) }.firstOrNull(::fits)?.let { listOf(it) }
+            ?: wrap(name, width) { measure(it, NAMES_FLOOR) }.map { HeadLine(it, "", NAMES_FLOOR) }
+        val second = listOf(
+            HeadLine(service, join(count, duration)), HeadLine(service, count),
+            HeadLine("", join(count, duration)), HeadLine("", count),
+        ).firstOrNull(::fits) ?: HeadLine("", "")
+        return nameLines + listOf(second).filter { it.left.isNotBlank() || it.right.isNotBlank() }
+    }
+
     /** A row of a stack of names: the text, the scale it is set at, the name it belongs to (its place among those shown), and whether it is the "+N". */
     class Row(val text: String, val scale: Float, val name: Int, val isMore: Boolean = false)
 
