@@ -12,10 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -205,30 +204,76 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
         // A tall sheet has no handle: it closes with ✕, a tap above it or Back.
         dragHandle = if (short || tall) null else ({ androidx.compose.material3.BottomSheetDefaults.DragHandle() }),
     ) {
-        // A tall sheet with a long list never moves under a finger (it slid down and snapped back, or
-        // closed, owner 12/11): the list keeps the scroll it does not use, and a drag anywhere else on
-        // the sheet is taken here, before the sheet sees it.
-        val keepScroll = remember {
-            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
-                override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource) = available
-                override suspend fun onPostFling(consumed: androidx.compose.ui.unit.Velocity, available: androidx.compose.ui.unit.Velocity) = available
+        if (!tall) Column(
+            Modifier.fillMaxWidth().padding(top = if (short) 12.dp else 0.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
+        ) else {
+            // A tall sheet with a long list never moves under a finger (it slid down and snapped back, or
+            // closed, owner 12/11). Two ways lead to the sheet, and both end here:
+            // - what a list does not use of a scroll or a fling goes up to the sheet, which moves by it:
+            //   [SheetHold] keeps it, and hands it to the list's own stretch at its edge instead;
+            // - a drag no list took (on the title, the search) reaches the sheet's own drag: a drag of the
+            //   column's that moves nothing takes it first. It waits for the touch slop as a list does and
+            //   after the lists, so it takes nothing from them (eating every move here froze the list: a
+            //   scroll is given up when a move before its slop comes back consumed).
+            val hold = remember { SheetHold() }
+            val stretch = androidx.compose.foundation.LocalOverscrollFactory.current
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.foundation.LocalOverscrollFactory provides remember(stretch) { stretch?.let { HeldOverscrollFactory(it, hold) } },
+            ) {
+                Column(
+                    Modifier.fillMaxWidth().fillMaxHeight(if (short) 1f else 0.92f)
+                        .nestedScroll(hold)
+                        .draggable(rememberDraggableState { }, Orientation.Vertical)
+                        .padding(top = 12.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
+                )
             }
         }
-        Column(
-            Modifier.fillMaxWidth()
-                .then(if (tall) Modifier.fillMaxHeight(if (short) 1f else 0.92f).nestedScroll(keepScroll).pointerInput(Unit) {
-                    awaitEachGesture {
-                        awaitFirstDown(requireUnconsumed = false)
-                        do {
-                            val e = awaitPointerEvent()
-                            e.changes.forEach { if (it.positionChange() != androidx.compose.ui.geometry.Offset.Zero) it.consume() }
-                        } while (e.changes.any { it.pressed })
-                    }
-                } else Modifier)
-                .padding(top = if (short || tall) 12.dp else 0.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
-        )
     }
+}
+
+/**
+ * Between a tall [PickerSheet] and what scrolls in it: the up-and-down scroll and fling a list has
+ * left over at its edge stop here, so the sheet (which would slide by them, and close on a fling)
+ * never sees them. What was kept is read by [HeldOverscroll], for the list's stretch.
+ */
+private class SheetHold : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+    var scroll = androidx.compose.ui.geometry.Offset.Zero
+    var fling = androidx.compose.ui.unit.Velocity.Zero
+
+    override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset =
+        androidx.compose.ui.geometry.Offset(0f, available.y).also { scroll += it }
+
+    override suspend fun onPostFling(consumed: androidx.compose.ui.unit.Velocity, available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity =
+        androidx.compose.ui.unit.Velocity(0f, available.y).also { fling = it }
+}
+
+/**
+ * The stretch (or glow) of a list in a tall [PickerSheet]: the phone's own, told that what
+ * [SheetHold] kept from the sheet was not used by anyone, so the list still stretches at its edge
+ * under a pull and takes a fling's last speed.
+ */
+private class HeldOverscroll(private val inner: androidx.compose.foundation.OverscrollEffect, private val hold: SheetHold) : androidx.compose.foundation.OverscrollEffect {
+    override fun applyToScroll(delta: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource, performScroll: (androidx.compose.ui.geometry.Offset) -> androidx.compose.ui.geometry.Offset): androidx.compose.ui.geometry.Offset =
+        inner.applyToScroll(delta, source) { d ->
+            hold.scroll = androidx.compose.ui.geometry.Offset.Zero
+            val used = performScroll(d)
+            (used - hold.scroll).also { hold.scroll = androidx.compose.ui.geometry.Offset.Zero }
+        }
+
+    override suspend fun applyToFling(velocity: androidx.compose.ui.unit.Velocity, performFling: suspend (androidx.compose.ui.unit.Velocity) -> androidx.compose.ui.unit.Velocity) =
+        inner.applyToFling(velocity) { v ->
+            val used = performFling(v)
+            (used - hold.fling).also { hold.fling = androidx.compose.ui.unit.Velocity.Zero }
+        }
+
+    override val isInProgress: Boolean get() = inner.isInProgress
+    override val node: androidx.compose.ui.node.DelegatableNode get() = inner.node
+}
+
+private data class HeldOverscrollFactory(val inner: androidx.compose.foundation.OverscrollFactory, val hold: SheetHold) : androidx.compose.foundation.OverscrollFactory {
+    override fun createOverscrollEffect(): androidx.compose.foundation.OverscrollEffect = HeldOverscroll(inner.createOverscrollEffect(), hold)
 }
 
 /** For the UI tests: the sheet's title and its list. */
