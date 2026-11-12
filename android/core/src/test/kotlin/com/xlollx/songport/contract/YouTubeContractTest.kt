@@ -185,4 +185,48 @@ class YouTubeContractTest : ContractTest() {
         try { yt.playlists(env); fail() } catch (e: ProviderException) { assertTrue(e.message!!.contains("session expired, please reconnect (400)")) }
         assertNull(env.tokens.get("youtube"))
     }
+
+    // ------------------------------------------------------------------ a playlist's picture
+
+    private val jpeg = byteArrayOf(-1, -40, -1, -32, 1, 2, 3)
+
+    @Test fun aCoverIsThePlaylistsHeroImageInAMultipartUpload() = runBlocking {
+        json("""{"kind":"youtube#playlistImageListResponse","items":[]}""")
+        json("""{"kind":"youtube#playlistImage","id":"made-up-image","snippet":{"playlistId":"PL1","type":"hero"}}""")
+        yt.setPlaylistCover(env, "PL1", jpeg)
+
+        val list = next()
+        assertCall(list, "GET", api, "/youtube/v3/playlistImages")
+        assertEquals("PL1", list.query("parent"))
+        val up = next()
+        assertCall(up, "POST", api, "/upload/youtube/v3/playlistImages")
+        assertEquals("multipart", up.query("uploadType"))
+        assertEquals("snippet", up.query("part"))
+        assertEquals("Bearer YA1", up.getHeader("Authorization"))
+        assertTrue(up.getHeader("Content-Type")!!.startsWith("multipart/related; boundary="))
+        val body = up.body.clone().readByteArray()
+        val text = String(body, Charsets.ISO_8859_1)
+        assertTrue(text.contains("\"playlistId\":\"PL1\""))
+        assertTrue(text.contains("\"type\":\"hero\""))
+        assertTrue(text.contains("Content-Type: image/jpeg"))
+        assertTrue(text.contains(String(jpeg, Charsets.ISO_8859_1)))
+        noMoreRequests()
+        assertEquals(QuotaMeter.COST_LIST + QuotaMeter.COST_WRITE, QuotaMeter.used(env.store.data, "youtube"))
+    }
+
+    @Test fun aPlaylistWithAnImageHasItReplaced() = runBlocking {
+        json("""{"items":[{"kind":"youtube#playlistImage","id":"made-up-image","snippet":{"playlistId":"PL1","type":"hero"}}]}""")
+        json("""{"kind":"youtube#playlistImage","id":"made-up-image"}""")
+        yt.setPlaylistCover(env, "PL1", jpeg)
+        next()
+        val up = next()
+        assertCall(up, "PUT", api, "/upload/youtube/v3/playlistImages")
+        assertTrue(String(up.body.clone().readByteArray(), Charsets.ISO_8859_1).contains("\"id\":\"made-up-image\""))
+    }
+
+    @Test fun noCoverWhenTheDaysQuotaIsMostlyUsed() = runBlocking {
+        QuotaMeter.add(env, "youtube", QuotaMeter.YOUTUBE_DAILY - 100)
+        try { yt.setPlaylistCover(env, "PL1", jpeg); fail() } catch (e: ProviderException) { assertTrue(e.message!!.contains("quota")) }
+        noMoreRequests()
+    }
 }

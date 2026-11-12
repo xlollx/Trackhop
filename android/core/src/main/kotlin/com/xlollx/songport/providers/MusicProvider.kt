@@ -129,8 +129,8 @@ interface MusicProvider {
 
     /**
      * Putting a picture on a playlist of one's own, where the service lets a client do it: Spotify
-     * (both routes), YouTube Music, SoundCloud, Jellyfin, Emby, Plex. Not TIDAL: its Open API keeps
-     * artwork uploads to TIDAL's own apps.
+     * (both routes), YouTube (Data API), YouTube Music, SoundCloud, TIDAL (likely refused: see
+     * [TidalProvider.setPlaylistCover]), Jellyfin, Emby, Plex.
      */
     val canSetCover: Boolean get() = false
     /**

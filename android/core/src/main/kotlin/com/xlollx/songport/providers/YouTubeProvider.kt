@@ -21,6 +21,8 @@ import com.xlollx.songport.sync.Durations
 import com.xlollx.songport.sync.QuotaMeter
 import com.xlollx.songport.sync.TitleParser
 import kotlinx.serialization.json.JsonElement
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * YouTube Music non ha un'API pubblica: usiamo YouTube Data API v3, le playlist sono le stesse.
@@ -326,6 +328,34 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         }
     }
 
+    /**
+     * A playlist's picture: its "hero" image through playlistImages, the image itself in a
+     * multipart upload (the scope the sign-in already has). The playlist's current one is looked
+     * up first (a unit of quota), then replaced or added (fifty units, as any write). A cover is a
+     * nicety: it is not set once the day's estimated quota leaves too little for the tracks.
+     */
+    override val canSetCover: Boolean get() = true
+
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {
+        val used = QuotaMeter.used(ctx.store.data, serviceId)
+        if (used + QuotaMeter.COST_LIST + QuotaMeter.COST_WRITE > QuotaMeter.YOUTUBE_DAILY * COVER_QUOTA_SHARE / 100) {
+            throw ProviderException("$displayName: cover not set, the day's quota is kept for the tracks")
+        }
+        val listed = authorized(ctx, "GET", "$API/playlistImages?part=id&parent=${Http.enc(playlistId)}", null)
+        QuotaMeter.add(ctx, serviceId, QuotaMeter.COST_LIST)
+        if (!listed.ok) throw ProviderException("$displayName: cover not set (HTTP ${listed.code}: ${errorMessage(listed).take(120)})")
+        val current = parseJson(listed.body)["items"][0]["id"].str
+        val meta = jsonObj(*listOfNotNull(current?.let { "id" to it }).toTypedArray(),
+            "snippet" to mapOf("playlistId" to playlistId, "type" to "hero"))
+        val body = okhttp3.MultipartBody.Builder().setType("multipart/related".toMediaType())
+            .addPart(meta.toString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
+            .addPart(jpeg.toRequestBody("image/jpeg".toMediaType()))
+            .build()
+        val resp = authorized(ctx, if (current != null) "PUT" else "POST", "$UPLOAD/playlistImages?part=snippet&uploadType=multipart", body)
+        QuotaMeter.add(ctx, serviceId, QuotaMeter.COST_WRITE)
+        if (!resp.ok) throw ProviderException("$displayName: cover not set (HTTP ${resp.code}: ${errorMessage(resp).take(120)})")
+    }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         counted(ctx, QuotaMeter.COST_WRITE) { api(ctx, "DELETE", "$API/playlists?id=$playlistId") }
     }
@@ -362,6 +392,9 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     companion object {
         const val SERVICE = "youtube"
         private const val API = "https://www.googleapis.com/youtube/v3"
+        private const val UPLOAD = "https://www.googleapis.com/upload/youtube/v3"
+        /** A cover is set only while the day's estimated quota stays under this share (percent) of the limit. */
+        private const val COVER_QUOTA_SHARE = 80
 
         /** The music videos of a page of videos.list (category 10, "Music"), as tracks. */
         internal fun likedFrom(page: JsonElement): List<Track> = page["items"].arr.mapNotNull { v ->

@@ -11,6 +11,7 @@ import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.TidalProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -270,5 +271,55 @@ class TidalContractTest : ContractTest() {
         assertEquals(listOf("101"), r.map { it.id })
         next()
         assertCall(next(), "GET", api, "/v2/searchResults/sr-1/relationships/tracks")
+    }
+
+    // ------------------------------------------------------------------ a playlist's picture
+
+    private val jpeg = byteArrayOf(-1, -40, -1, -32, 1, 2, 3)
+
+    @Test fun aCoverIsAnArtworkUploadedThenThePlaylistsCoverArt() = runBlocking {
+        TidalProvider.coverRefused = false
+        json("""{"data":{"id":"made-up-artwork","type":"artworks","attributes":{"mediaType":"IMAGE","sourceFile":{"md5Hash":"x","size":7,
+            "uploadLink":{"href":"https://artwork-source-files.s3.amazonaws.com/made/up?X-Amz-Signature=made-up","meta":{"method":"PUT","headers":{"content-length":"7","content-md5":"made-up-md5"}}},
+            "status":{"technicalFileStatus":"UPLOAD_REQUESTED"}},"files":[]}}}""", 201)
+        text("", 200)
+        json("""{"links":{"self":"/playlists/P/relationships/coverArt"},"meta":{}}""")
+        td.setPlaylistCover(env, "P", jpeg)
+
+        val create = next()
+        assertCall(create, "POST", api, "/v2/artworks")
+        assertEquals(vnd, create.getHeader("Content-Type")!!.substringBefore(';'))
+        assertEquals("Bearer TT1", create.getHeader("Authorization"))
+        assertTrue(create.getHeader("Idempotency-Key")!!.isNotBlank())
+        val a = create.jsonBody()["data"]
+        assertEquals("artworks", a["type"].str)
+        assertEquals("IMAGE", a["attributes"]["mediaType"].str)
+        val md5 = java.security.MessageDigest.getInstance("MD5").digest(jpeg).joinToString("") { "%02x".format(it) }
+        assertEquals(md5, a["attributes"]["sourceFile"]["md5Hash"].str)
+        assertEquals("7", a["attributes"]["sourceFile"]["size"].toString())
+
+        val put = next()
+        assertCall(put, "PUT", "artwork-source-files.s3.amazonaws.com", "/made/up")
+        assertEquals("made-up", put.query("X-Amz-Signature"))
+        assertEquals("made-up-md5", put.getHeader("content-md5"))
+        assertEquals("image/jpeg", put.getHeader("Content-Type"))
+        assertEquals(null, put.getHeader("Authorization"))
+        assertEquals(jpeg.toList(), put.body.clone().readByteArray().toList())
+
+        val link = next()
+        assertCall(link, "PATCH", api, "/v2/playlists/P/relationships/coverArt")
+        assertEquals("made-up-artwork", link.jsonBody()["data"][0]["id"].str)
+        assertEquals("artworks", link.jsonBody()["data"][0]["type"].str)
+        noMoreRequests()
+    }
+
+    @Test fun aRefusedArtworkIsNotAskedAgain() = runBlocking {
+        TidalProvider.coverRefused = false
+        json("""{"errors":[{"status":"403","code":"FORBIDDEN","detail":"missing scope"}]}""", 403)
+        assertTrue(td.canSetCover)
+        try { td.setPlaylistCover(env, "P", jpeg); fail() } catch (e: ProviderException) { assertTrue(e.message!!.contains("403")) }
+        assertFalse(td.canSetCover)
+        next(); noMoreRequests()
+        TidalProvider.coverRefused = false
     }
 }
