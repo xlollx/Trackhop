@@ -239,6 +239,55 @@ class SpotifyWebClientContractTest {
         assertNull(w.json()["baseRevision"]) // a playlist's own changes need no revision
     }
 
+    // ------------------------------------------------------------------ a playlist's picture
+
+    @Test fun aCoverIsUploadedRegisteredThenMadeThePlaylistsPicture() {
+        val jpeg = byteArrayOf(-1, -40, -1, -32, 1, 2, 3)
+        answer("""{"uploadToken":"made-up-upload-token"}""", 200, "Content-Type" to "application/vnd.spotify.http-image-upload+json;charset=iso-8859-1")
+        answer("""{"picture":"made-up-picture"}""")
+        answer("""{"revision":"AAAAEgAAAAA="}""")
+        web.setCover("P1", jpeg)
+
+        val up = call(0)
+        assertEquals("POST", up.method)
+        assertEquals("image-upload.spotify.com", up.host())
+        assertEquals("/v4/playlist", up.requestUrl!!.encodedPath)
+        assertEquals("image/jpeg", up.getHeader("Content-Type")!!.substringBefore(';'))
+        assertEquals("Bearer BQ-web-token", up.getHeader("Authorization"))
+        assertEquals("CT-1", up.getHeader("client-token"))
+        assertEquals(jpeg.toList(), up.body.clone().readByteArray().toList())
+
+        val reg = call(1)
+        assertEquals("POST", reg.method)
+        assertEquals("spclient.wg.spotify.com", reg.host())
+        assertEquals("/playlist/v2/playlist/P1/register-image", reg.requestUrl!!.encodedPath)
+        assertEquals("Bearer BQ-web-token", reg.getHeader("Authorization"))
+        assertEquals("CT-1", reg.getHeader("client-token"))
+        assertEquals("WebPlayer", reg.getHeader("app-platform"))
+        assertEquals("made-up-upload-token", reg.json()["uploadToken"].str)
+
+        val change = call(2)
+        assertEquals("/playlist/v2/playlist/P1/changes", change.requestUrl!!.encodedPath)
+        val o = op(change)
+        assertEquals(6L, o["kind"].long)
+        assertEquals("made-up-picture", o["updateListAttributes"]["newAttributes"]["values"]["picture"].str)
+        assertEquals(3, BridgeMock.calls.size)
+    }
+
+    @Test fun aRefusedUploadRegistersNothing() {
+        answer("", 413)
+        try { web.setCover("P1", byteArrayOf(1, 2, 3)); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("413")) }
+        assertEquals(1, BridgeMock.calls.size)
+    }
+
+    @Test fun aRefusedBearerOnTheUploadIsRecapturedOnce() {
+        answer("", 401)
+        answer("""{"uploadToken":"t2"}"""); answer("""{"picture":"p2"}"""); answer("{}")
+        web.setCover("P1", byteArrayOf(1, 2, 3))
+        assertEquals(4, BridgeMock.calls.size)
+        assertEquals("image-upload.spotify.com", call(1).host())
+    }
+
     @Test fun moveAndRenameGoToThePlaylistStore() {
         answer("{}"); answer("{}")
         web.moveItems("A", listOf(3 to 0, 0 to 5))

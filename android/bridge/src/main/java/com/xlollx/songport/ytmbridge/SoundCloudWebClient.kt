@@ -374,6 +374,11 @@ class SoundCloudWebClient(private val ctx: Context) {
         api("DELETE", "/playlists/${numeric(id)}")
     }
 
+    /** A set's artwork, as the web app's "Edit" sends it: the JPEG base64-encoded in `image_data`, on the set's own artwork path. */
+    fun setArtwork(id: String, jpeg: ByteArray) {
+        api("PUT", "/playlists/${numeric(id)}/artwork", jsonObj("image_data" to java.util.Base64.getEncoder().encodeToString(jpeg)))
+    }
+
     /** Liking and unliking, one track at a time as the web app does, a little apart. */
     fun like(tracks: List<String>, on: Boolean) {
         val me = meId()

@@ -74,10 +74,11 @@ class AndroidEnv private constructor(val context: Context) : Env {
         }
     }
 
-    override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? {
+    override fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray? {
         val src = BitmapFactory.decodeByteArray(raw, 0, raw.size) ?: return null
-        val scale = minOf(1f, maxSide.toFloat() / maxOf(src.width, src.height))
-        val bmp = if (scale < 1f) Bitmap.createScaledBitmap(src, (src.width * scale).toInt(), (src.height * scale).toInt(), true) else src
+        val sq = com.xlollx.songport.sync.Covers.square(src.width, src.height, minSide, maxSide)
+        val cut = if (sq.size != src.width || sq.size != src.height) Bitmap.createBitmap(src, sq.x, sq.y, sq.size, sq.size) else src
+        val bmp = if (sq.side != sq.size) Bitmap.createScaledBitmap(cut, sq.side, sq.side, true) else cut
         // Quality steps down until the bytes fit; a cover that never fits is not sent.
         for (q in intArrayOf(85, 70, 55, 40)) {
             val out = ByteArrayOutputStream()

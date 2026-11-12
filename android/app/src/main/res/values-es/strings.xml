@@ -909,6 +909,9 @@
     <string name="card_ai_drawing">Tu IA está dibujando la portada…</string>
     <string name="card_ai_again">Otra portada</string>
     <string name="card_ai_save">Guardar portada</string>
+    <string name="card_use_as_cover">Usar como portada de la playlist</string>
+    <string name="card_cover_set">Portada puesta en %1$s</string>
+    <string name="card_cover_not_set">%1$s no aceptó la portada</string>
     <string name="ai_image_model">Modelo de imágenes (opcional)</string>
     <string name="ai_image_model_hint">p. ej. dall-e-3, para la portada IA del póster</string>
 

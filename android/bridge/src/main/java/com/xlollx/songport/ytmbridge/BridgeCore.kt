@@ -16,6 +16,8 @@ object BridgeCore {
     /** Reported as "version" by the status calls: the built-in connectors have every feature. */
     const val VERSION = 1000
     const val PAGE = 400
+    /** The extra of the `setCover` methods: the playlist's picture, a JPEG. */
+    const val COVER = "jpeg"
     /** Trackhop's ids for the library objects, the same on every connector. */
     const val ALBUMS = "__albums__"
     const val ARTISTS = "__artists__"
@@ -145,6 +147,8 @@ object BridgeCore {
                 "rename" -> { client.renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "delete" -> { client.deletePlaylist(arg ?: return err("missing playlist id")); invalidate(arg, slot); Bundle() }
                 "visibility" -> { client.setPrivacy(arg ?: return err("missing playlist id"), extras?.getBoolean("public") ?: false); Bundle() }
+                // A playlist's picture (extra `jpeg`: square, at least 360 px). An older connector answers "unknown method": no cover.
+                "setCover" -> { client.setCover(arg ?: return err("missing playlist id"), extras?.getByteArray(COVER) ?: return err("missing image")); Bundle() }
                 "reorder" -> {
                     val pid = arg ?: return err("missing playlist id")
                     val items = extras?.getStringArray("items") ?: emptyArray()
@@ -315,6 +319,7 @@ object BridgeCore {
                 }
                 "spotify.rename" -> { SpotifyWebClient(ctx, slot).renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "spotify.delete" -> { SpotifyWebClient(ctx, slot).deletePlaylist(arg ?: return err("missing playlist id")); invalidateSpotify(arg, slot); Bundle() }
+                "spotify.setCover" -> { SpotifyWebClient(ctx, slot).setCover(arg ?: return err("missing playlist id"), extras?.getByteArray(COVER) ?: return err("missing image")); Bundle() }
                 "spotify.visibility" -> { SpotifyWebClient(ctx, slot).setPublic(arg ?: return err("missing playlist id"), extras?.getBoolean("public") ?: false); Bundle() }
                 "spotify.reorder" -> {
                     val pid = arg ?: return err("missing playlist id")
@@ -515,6 +520,7 @@ object BridgeCore {
                 }
                 "soundcloud.rename" -> { SoundCloudWebClient(ctx).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "soundcloud.visibility" -> { SoundCloudWebClient(ctx).setPublic(arg ?: return err("missing playlist id"), extras?.getBoolean("public") ?: false); Bundle() }
+                "soundcloud.setCover" -> { SoundCloudWebClient(ctx).setArtwork(arg ?: return err("missing playlist id"), extras?.getByteArray(COVER) ?: return err("missing image")); Bundle() }
                 "soundcloud.delete" -> { SoundCloudWebClient(ctx).delete(arg ?: return err("missing playlist id")); soundCloudCache.invalidate(arg); Bundle() }
                 else -> err("unknown method $method")
             }

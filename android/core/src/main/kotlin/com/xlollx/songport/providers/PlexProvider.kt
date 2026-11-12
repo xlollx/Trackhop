@@ -16,6 +16,8 @@ import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Plex Media Server. Si accede con l'indirizzo del server e il proprio X-Plex-Token (Plex
@@ -140,6 +142,22 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         api(ctx, "DELETE", "/playlists/$playlistId")
+    }
+
+    override val canSetCover: Boolean get() = true
+
+    /**
+     * The playlist's poster: the JPEG as the body of `POST /library/metadata/{ratingKey}/posters`, the
+     * upload Plex's web app makes (a playlist is a metadata item like any other); Plex then selects it.
+     */
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {
+        val t = creds(ctx)
+        val resp = Http.send(
+            "POST", "${t.extra["url"]}/library/metadata/$playlistId/posters",
+            mapOf("X-Plex-Token" to t.accessToken, "Accept" to "application/json"),
+            jpeg.toRequestBody("image/jpeg".toMediaType()),
+        )
+        if (!resp.ok) throw ProviderException("$displayName: cover not set (HTTP ${resp.code})")
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {

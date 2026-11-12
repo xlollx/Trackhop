@@ -604,6 +604,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var variant by remember { mutableStateOf(0) }
     var drawing by remember { mutableStateOf(false) }
     var drawn by remember { mutableStateOf<Bitmap?>(null) }
+    var settingCover by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val saveCover = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
         val b = drawn
@@ -807,6 +808,23 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     if (art == PosterArt.AI) OutlinedButton(enabled = !busy, onClick = { run(newCover = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_again)) }
                     else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
                     TextButton(onClick = { saveCover.launch("trackhop-cover.png") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_save)) }
+                    // The drawn cover onto the user's own playlist, where the service takes covers.
+                    val target = pick?.takeIf { mine && it.provider.canSetCover && !com.xlollx.songport.providers.MusicProvider.isLibrary(it.playlist.id) }
+                    if (target != null) TextButton(enabled = !settingCover, onClick = {
+                        val bmp = drawn ?: return@TextButton
+                        settingCover = true
+                        scope.launch {
+                            val done = withContext(Dispatchers.IO) {
+                                runCatching {
+                                    val raw = java.io.ByteArrayOutputStream().also { bmp.compress(Bitmap.CompressFormat.JPEG, 92, it) }.toByteArray()
+                                    val jpeg = ctx.env.squareJpeg(raw, com.xlollx.songport.sync.Covers.MIN_SIDE, com.xlollx.songport.sync.Covers.MAX_SIDE, com.xlollx.songport.sync.Covers.MAX_BYTES) ?: raw
+                                    target.provider.setPlaylistCover(ctx.env, target.playlist.id, jpeg)
+                                }.onFailure { com.xlollx.songport.data.Diagnostics.log(ctx, "poster", "cover not set on ${target.provider.id}: ${it.message?.take(120)}") }.isSuccess
+                            }
+                            settingCover = false
+                            snackbar.showSnackbar(ctx.getString(if (done) R.string.card_cover_set else R.string.card_cover_not_set, target.provider.brand))
+                        }
+                    }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_use_as_cover)) }
                 }
             }
         }

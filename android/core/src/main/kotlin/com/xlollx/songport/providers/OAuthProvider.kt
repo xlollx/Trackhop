@@ -166,6 +166,23 @@ abstract class OAuthProvider : MusicProvider {
         return parseJson(resp.body)
     }
 
+    /**
+     * One signed-in call whose answer comes back as it is, neither thrown nor logged: for a nicety
+     * (a playlist's picture) whose failure is one line of the caller's. An expired token is
+     * refreshed once, as [api] does.
+     */
+    protected suspend fun authorized(ctx: Env, method: String, url: String, body: okhttp3.RequestBody?, extraHeaders: Map<String, String> = emptyMap()): HttpResponse {
+        var t = tokens(ctx)
+        suspend fun send(t: Tokens) = Http.send(method, url, mapOf("Authorization" to "Bearer ${t.accessToken}", "Accept" to apiAccept) + extraHeaders, body)
+        var resp = send(t)
+        if (resp.code == 401 && t.refreshToken != null) {
+            t = refresh(ctx, t)
+            ctx.tokens.set(id, t)
+            resp = send(t)
+        }
+        return resp
+    }
+
     /** Un servizio puo' spiegare un errore ricorrente con parole sue (es. i 403 di Spotify). */
     protected open fun friendlyApiError(ctx: Env, resp: HttpResponse): String? = null
 

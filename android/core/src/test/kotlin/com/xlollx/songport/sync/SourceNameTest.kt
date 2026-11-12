@@ -106,4 +106,48 @@ class SourceNameTest {
             assertEquals(web.url("/b.jpg").toString(), env.store.job(j.id)!!.sourceCover)
         } finally { web.shutdown() }
     }
+
+    @Test fun aCoverTheTargetRefusesIsOneLineInTheLogAndTheSyncGoesOn() = runBlocking {
+        val web = okhttp3.mockwebserver.MockWebServer()
+        web.start()
+        try {
+            repeat(2) { web.enqueue(okhttp3.mockwebserver.MockResponse().setBody("jpeg-bytes")) }
+            env.shrink = { it }
+            dst.takesCovers = true
+            dst.coverFailure = com.xlollx.songport.model.ProviderException("cover not set (HTTP 403)")
+            dst.names["t"] = "Daylist"
+            val j = job("Daylist", name = "My daylist")
+            src.coverUrls["p"] = web.url("/a.jpg").toString()
+            engine.run(j)
+            src.coverUrls["p"] = web.url("/b.jpg").toString()
+            src.lists["p"]!! += Track(id = "b", title = "Beta", artists = listOf("Band"), durationMs = 180_000)
+            dst.catalogue += Track(id = "db", title = "Beta", artists = listOf("Band"), durationMs = 180_000)
+            engine.run(env.store.job(j.id)!!)
+            assertTrue(dst.covers.isEmpty())
+            assertEquals(listOf("da", "db"), dst.lists["t"]!!.map { it.id })
+            assertEquals(1, env.logs.count { it.contains("cover not copied") })
+            // Not copied: the next run tries again.
+            assertEquals(web.url("/a.jpg").toString(), env.store.job(j.id)!!.sourceCover)
+        } finally { web.shutdown() }
+    }
+
+    @Test fun aNewTargetIsMadeAndFilledEvenWhenItsCoverIsRefused() = runBlocking {
+        val web = okhttp3.mockwebserver.MockWebServer()
+        web.start()
+        try {
+            web.enqueue(okhttp3.mockwebserver.MockResponse().setBody("jpeg-bytes"))
+            env.shrink = { it }
+            dst.takesCovers = true
+            dst.coverFailure = com.xlollx.songport.model.ProviderException("unknown method setCover")
+            dst.catalogue += Track(id = "da", title = "Alpha", artists = listOf("Band"), durationMs = 200_000)
+            src.coverUrls["p"] = web.url("/a.jpg").toString()
+            val j = SyncJob(id = "job-new", name = "New", source = PlaylistRef("msrc", "p", "daylist"), target = PlaylistRef("mdst", null, ""))
+                .also { env.store.upsertJob(it) }
+            engine.run(j)
+            val made = env.store.job(j.id)!!.target.playlistId!!
+            assertEquals(listOf("da"), dst.lists[made]!!.map { it.id })
+            assertTrue(dst.covers.isEmpty())
+            assertEquals(1, env.logs.count { it.contains("cover not set") })
+        } finally { web.shutdown() }
+    }
 }

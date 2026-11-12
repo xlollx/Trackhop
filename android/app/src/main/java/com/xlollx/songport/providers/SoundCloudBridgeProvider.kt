@@ -145,6 +145,11 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
         withContext(Dispatchers.IO) { call(ctx, "soundcloud.visibility", playlistId, Bundle().apply { putBoolean("public", public) }) }
     }
 
+    /** A set's artwork, as the web app's "Edit" sends it. An older plugin does not know the method: no cover ([BridgePlugin.setCover]). */
+    override val canSetCover: Boolean get() = BridgePlugin.knows("soundcloud.setCover")
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) =
+        BridgePlugin.setCover("soundcloud.setCover", playlistId, jpeg) { m, id, extras -> call(ctx, m, id, extras) }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         withContext(Dispatchers.IO) { call(ctx, "soundcloud.delete", playlistId) }
     }

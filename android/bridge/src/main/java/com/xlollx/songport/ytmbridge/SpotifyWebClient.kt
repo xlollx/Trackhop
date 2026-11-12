@@ -759,6 +759,34 @@ class SpotifyWebClient(private val host: Host) {
     }
 
     /**
+     * A playlist's picture, set the way the player's "Edit details" sets it: the JPEG goes to
+     * image-upload.spotify.com as it is (bearer and client token), which answers an upload token;
+     * the playlist store registers that token for the playlist and answers the picture's id; a
+     * change of the playlist's attributes then makes it the picture.
+     */
+    fun setCover(id: String, jpeg: ByteArray, retry: Boolean = true) {
+        val ct = clientToken()
+        val req = Request.Builder().url(IMAGE_UPLOAD).post(jpeg.toRequestBody(JPEG))
+            .header("Authorization", "Bearer ${host.bearer()}")
+            .apply { if (ct != null) header("client-token", ct) }
+            .header("Accept", "application/json")
+            .header("Origin", "https://open.spotify.com").header("Referer", "https://open.spotify.com/")
+            .header("User-Agent", host.userAgent)
+            .build()
+        val (code, text, wait) = send(req)
+        if (code == 401 && retry) { host.bearerRefused(); return setCover(id, jpeg, retry = false) }
+        if (code == 429) throw BridgeException("Spotify asks to slow down (429, retry in $wait s)")
+        if (code !in 200..299) throw BridgeException("Spotify image upload: HTTP $code" + text.take(200).let { if (it.isBlank()) "" else " $it" })
+        val token = runCatching { parseJson(text) }.getOrNull()["uploadToken"].str
+            ?: throw BridgeException("Spotify image upload: no upload token in the answer")
+        val picture = spclient("/playlist/v2/playlist/$id/register-image", jsonObj("uploadToken" to token))["picture"].str
+            ?: throw BridgeException("Spotify: the playlist store did not register the picture")
+        spclient("/playlist/v2/playlist/$id/changes", deltas(jsonObj(
+            "kind" to 6, "updateListAttributes" to jsonObj("newAttributes" to jsonObj("values" to jsonObj("picture" to picture), "noValue" to emptyList<String>())),
+        )))
+    }
+
+    /**
      * Public means shown on the profile: the `public` attribute of the playlist's entry in the
      * rootlist, which is what the Web API's `public` flag sets too. The entry's position is needed
      * for the change, so the rootlist is read first.
@@ -922,7 +950,10 @@ class SpotifyWebClient(private val host: Host) {
             else "Spotify did not hand out a token: $error" + if (error.contains("sign in", true)) "" else " (trying again shortly)"
         @Volatile private var lastClientTokenError: String? = null
         const val SPCLIENT = "https://spclient.wg.spotify.com"
+        /** Where the player sends a playlist's picture before the playlist store registers it. */
+        const val IMAGE_UPLOAD = "https://image-upload.spotify.com/v4/playlist"
         private val JSON = "application/json".toMediaType()
+        private val JPEG = "image/jpeg".toMediaType()
         val SESSION_SCRIPT = Regex("""<script[^>]*id="session"[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
         val SERVER_CONFIG = Regex("""<script[^>]*id="appServerConfig"[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
         /** `"fetchPlaylist","query","<sha256>"`: how the player's bundles name their persisted queries. */

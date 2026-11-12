@@ -68,15 +68,13 @@ class ServerEnv(
     override fun keyValues(name: String): KeyValues =
         kv.getOrPut(name) { JsonKeyValues(File(File(dataDir, "kv"), "${name.replace(Regex("[^A-Za-z0-9_.-]"), "_")}.json")) }
 
-    override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? {
+    override fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray? {
         val src = runCatching { ImageIO.read(ByteArrayInputStream(raw)) }.getOrNull() ?: return null
-        val scale = minOf(1.0, maxSide.toDouble() / maxOf(src.width, src.height))
-        val w = maxOf(1, (src.width * scale).toInt())
-        val h = maxOf(1, (src.height * scale).toInt())
-        val img = BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
+        val sq = com.xlollx.songport.sync.Covers.square(src.width, src.height, minSide, maxSide)
+        val img = BufferedImage(sq.side, sq.side, BufferedImage.TYPE_INT_RGB)
         img.createGraphics().apply {
             setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-            drawImage(src, 0, 0, w, h, null)
+            drawImage(src, 0, 0, sq.side, sq.side, sq.x, sq.y, sq.x + sq.size, sq.y + sq.size, null)
             dispose()
         }
         val writer = ImageIO.getImageWritersByFormatName("jpeg").asSequence().firstOrNull() ?: return null

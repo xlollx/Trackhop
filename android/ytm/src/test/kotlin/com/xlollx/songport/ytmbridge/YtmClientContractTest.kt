@@ -39,6 +39,8 @@ class YtmClientContractTest {
     private var renewable = false
     private var renewTo: String? = null
     private var pageId: String? = null
+    /** The browser engine the host offers; none by default (the server's case). */
+    private var transport: YtmWebTransport? = null
     private val renewals = Collections.synchronizedList(ArrayList<String>())
     private val logs = Collections.synchronizedList(ArrayList<String>())
 
@@ -63,7 +65,7 @@ class YtmClientContractTest {
                 chain.proceed(chain.request().newBuilder().url(u.newBuilder().scheme("http").host(base.host).port(base.port).build())
                     .header("X-Test-Original-Host", u.host).build())
             }
-            override val web: YtmWebTransport? = null
+            override val web: YtmWebTransport? get() = transport
             override val verification = this@YtmClientContractTest.verification
             override val signInAgain = "sign in again"
             override val blockedHint: String? = null
@@ -317,4 +319,79 @@ class YtmClientContractTest {
     }
 
     private fun q(s: String) = kotlinx.serialization.json.JsonPrimitive(s).toString()
+
+    // ------------------------------------------------------------------ a playlist's picture
+
+    private val jpeg = byteArrayOf(-1, -40, -1, -32, 1, 2, 3)
+    private val uploadAt = "https://music.youtube.com/playlist_image_upload/playlist_custom_thumbnail?upload_id=made-up-upload&upload_protocol=resumable"
+
+    @Test fun aCoverGoesUpByGooglesResumableUploadThenBecomesTheCustomThumbnail() {
+        synchronized(queue) {
+            queue.add(MockResponse().setHeader("X-Goog-Upload-URL", uploadAt).setHeader("X-Goog-Upload-Status", "active"))
+            queue.add(MockResponse().setHeader("X-Goog-Upload-Status", "final").setBody("""{"encryptedBlobId":"made-up-blob"}"""))
+        }
+        answer("""{"status":"STATUS_SUCCEEDED"}""")
+        client.setCover("VLPLmadeup", jpeg)
+
+        val start = take(0)
+        assertEquals("POST", start.method)
+        assertEquals("music.youtube.com", start.getHeader("X-Test-Original-Host"))
+        assertEquals("/playlist_image_upload/playlist_custom_thumbnail", start.requestUrl!!.encodedPath)
+        assertEquals("start", start.getHeader("X-Goog-Upload-Command"))
+        assertEquals("resumable", start.getHeader("X-Goog-Upload-Protocol"))
+        assertEquals("7", start.getHeader("X-Goog-Upload-Header-Content-Length"))
+        assertEquals(0L, start.bodySize)
+        assertTrue(start.getHeader("Authorization")!!.startsWith("SAPISIDHASH "))
+        assertTrue(start.getHeader("Cookie")!!.contains("SAPISID="))
+
+        val up = take(1)
+        assertEquals("POST", up.method)
+        assertEquals("/playlist_image_upload/playlist_custom_thumbnail", up.requestUrl!!.encodedPath)
+        assertEquals("made-up-upload", up.requestUrl!!.queryParameter("upload_id"))
+        assertEquals("upload, finalize", up.getHeader("X-Goog-Upload-Command"))
+        assertEquals("0", up.getHeader("X-Goog-Upload-Offset"))
+        assertEquals(jpeg.toList(), up.body.clone().readByteArray().toList())
+
+        val edit = take(2)
+        assertEquals("/youtubei/v1/browse/edit_playlist", edit.requestUrl!!.encodedPath)
+        val b = edit.json()
+        assertEquals("PLmadeup", b["playlistId"].str)
+        val a = b["actions"][0]
+        assertEquals("ACTION_SET_CUSTOM_THUMBNAIL", a["action"].str)
+        assertEquals("PLAYLIST_IMAGE_TYPE_CUSTOM_THUMBNAIL", a["addedCustomThumbnail"]["imageKey"]["type"].str)
+        assertEquals("studio_square_thumbnail", a["addedCustomThumbnail"]["imageKey"]["name"].str)
+        assertEquals("made-up-blob", a["addedCustomThumbnail"]["playlistScottyEncryptedBlobId"].str)
+        assertEquals(3, calls.size)
+    }
+
+    @Test fun anUploadAddressOutsideTheSiteIsNotFollowed() {
+        synchronized(queue) { queue.add(MockResponse().setHeader("X-Goog-Upload-URL", "https://elsewhere.example.com/up?upload_id=x")) }
+        try { client.setCover("PLmadeup", jpeg); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("outside the site")) }
+        assertEquals(1, calls.size)
+    }
+
+    @Test fun aRefusedUploadSetsNothing() {
+        answer("", 401)
+        try { client.setCover("PLmadeup", jpeg); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("401")) }
+        assertEquals(1, calls.size)
+    }
+
+    @Test fun theBrowserEngineUploadsWhereThereIsOne() {
+        val uploads = ArrayList<Pair<String, Int>>()
+        transport = object : YtmWebTransport {
+            override fun usable() = true
+            // The innertube calls fall back to plain HTTP (the mock server) here.
+            override fun post(path: String, body: String, headers: Map<String, String>, credentials: Boolean): YtmWebTransport.Answer = throw IllegalStateException("not in this test")
+            override fun upload(path: String, bytes: ByteArray, headers: Map<String, String>, contentType: String): YtmWebTransport.Answer {
+                uploads += path to bytes.size
+                assertTrue(headers.getValue("Authorization").startsWith("SAPISIDHASH "))
+                return YtmWebTransport.Answer(200, """{"encryptedBlobId":"made-up-blob"}""")
+            }
+        }
+        answer("""{"status":"STATUS_SUCCEEDED"}""")
+        client.setCover("PLmadeup", jpeg)
+        assertEquals(listOf("/playlist_image_upload/playlist_custom_thumbnail" to 7), uploads)
+        assertEquals(1, calls.size)
+        assertEquals("made-up-blob", take(0).json()["actions"][0]["addedCustomThumbnail"]["playlistScottyEncryptedBlobId"].str)
+    }
 }

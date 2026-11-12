@@ -636,6 +636,21 @@ class SoundCloudWebClientContractTest {
         assertEquals("[1,2]", call(3).json()["playlist"]["tracks"].toString())
     }
 
+    @Test fun artworkIsTheBase64OfTheJpegOnTheSetsArtworkPath() {
+        answer("""{"artwork_url":"https://i1.sndcdn.com/artworks-made-up-large.jpg"}""")
+        sc.setArtwork("1001", byteArrayOf(-1, -40, -1, -32, 1, 2, 3))
+        val r = call(0)
+        assertApi(r, "PUT", "/playlists/1001/artwork")
+        assertEquals("application/json", r.getHeader("Content-Type")!!.substringBefore(';'))
+        assertEquals("/9j/4AECAw==", r.json()["image_data"].str)
+        assertEquals(1, BridgeMock.calls.size)
+    }
+
+    @Test fun noArtworkOnAPublicPage() {
+        try { sc.setArtwork("someone/sets/x", byteArrayOf(1)); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("read-only")) }
+        assertEquals(0, BridgeMock.calls.size)
+    }
+
     @Test fun deleteIsADelete() {
         answer("")
         sc.delete("1001")

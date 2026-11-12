@@ -181,6 +181,41 @@ object BridgePlugin {
         if (fresh && offset == 0) putBoolean(EXTRA_FRESH, true)
     }
 
+    /** The extra carrying a playlist's picture (a JPEG) to the connectors' `setCover` methods. */
+    const val EXTRA_COVER = "jpeg"
+
+    // Methods the installed plugin answered "unknown method" to, with the version it reported then.
+    private val unknownMethods = java.util.concurrent.ConcurrentHashMap<String, Int>()
+
+    /**
+     * Whether [method] may be asked: always when built in; of a plugin, unless it answered that it
+     * does not know it, until it reports another version (an update).
+     */
+    fun knows(method: String): Boolean = builtIn || unknownMethods[method]?.let { it != pluginVersion } ?: true
+
+    /** True when [error] is the connectors' "unknown method" for [method], which is then not asked again ([knows]). */
+    fun refusedAsUnknown(method: String, error: String?): Boolean {
+        if (error?.contains("unknown method") != true) return false
+        unknownMethods[method] = pluginVersion
+        return true
+    }
+
+    /**
+     * A playlist's picture through the connectors' [method] (`setCover`, `spotify.setCover`,
+     * `soundcloud.setCover`), with [call] the connector's own call. A plugin from before the
+     * method answers "unknown method": no cover, and the method is not asked again ([knows]).
+     */
+    suspend fun setCover(method: String, playlistId: String, jpeg: ByteArray, call: (String, String, Bundle) -> Bundle) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                call(method, playlistId, Bundle().apply { putByteArray(EXTRA_COVER, jpeg) })
+            } catch (e: com.xlollx.songport.model.ProviderException) {
+                if (refusedAsUnknown(method, e.message)) throw com.xlollx.songport.model.ProviderException("the connector plugin does not set covers yet")
+                throw e
+            }
+        }
+    }
+
     /** Opens a connector's sign-in: the built-in screen, or the plugin's through its action; for an extra account, with its slot. */
     fun startLogin(ctx: Context, action: String, slot: String = "") {
         val intent = BuiltIn.loginIntent(ctx, action, slot) ?: Intent(action).setPackage(packageName(ctx) ?: return)

@@ -23,6 +23,8 @@ import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.Reorder
 import kotlinx.serialization.json.JsonElement
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * TIDAL Open API v2 (https://developer.tidal.com), formato JSON:API.
@@ -427,6 +429,43 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             jsonObj("data" to mapOf("type" to "playlists", "id" to playlistId, "attributes" to mapOf("accessType" to if (public) "PUBLIC" else "UNLISTED"))))
     }
 
+    /**
+     * A playlist's picture, as tidal.com sets one: an artwork is created (its file's MD5 and size),
+     * the JPEG goes to the upload link it answers (with the headers it names), and the playlist's
+     * coverArt points to it. TIDAL's published API lets only its own apps create artworks (the
+     * internal w_usr scope), so a third-party sign-in is likely refused: then no cover is tried
+     * again until the app restarts, and nothing is asked of the user.
+     */
+    override val canSetCover: Boolean get() = !coverRefused
+
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {
+        val md5 = java.security.MessageDigest.getInstance("MD5").digest(jpeg)
+        val created = authorized(ctx, "POST", "$API/artworks", Http.jsonBody(jsonObj("data" to mapOf(
+            "type" to "artworks",
+            "attributes" to mapOf("mediaType" to "IMAGE", "sourceFile" to mapOf("md5Hash" to md5.joinToString("") { "%02x".format(it) }, "size" to jpeg.size)),
+        )).toString(), apiContentType), mapOf("Idempotency-Key" to java.util.UUID.randomUUID().toString()))
+        if (created.code == 403) {
+            coverRefused = true
+            throw ProviderException("$displayName: covers refused for this sign-in (HTTP 403), not asked again")
+        }
+        if (!created.ok) throw ProviderException("$displayName: cover not set (HTTP ${created.code})")
+        val d = parseJson(created.body)["data"]
+        val artwork = d["id"].str ?: throw ProviderException("$displayName: cover not set (no artwork)")
+        val link = d["attributes"]["sourceFile"]["uploadLink"]
+        val href = link["href"].str?.takeIf { it.startsWith("https://") } ?: throw ProviderException("$displayName: cover not set (no upload link)")
+        // The headers the link was signed with; the length is the body's own.
+        val named = (link["meta"]["headers"] as? kotlinx.serialization.json.JsonObject).orEmpty()
+            .mapNotNull { (k, v) -> v.str?.let { k to it } }.filter { !it.first.equals("content-length", true) }.toMap()
+        val md5Header = "Content-MD5" to java.util.Base64.getEncoder().encodeToString(md5)
+        val put = Http.send("PUT", href, named + (if (named.keys.any { it.equals("content-md5", true) }) emptyMap() else mapOf(md5Header)),
+            jpeg.toRequestBody("image/jpeg".toMediaType()))
+        if (!put.ok) throw ProviderException("$displayName: cover not uploaded (HTTP ${put.code})")
+        val linked = authorized(ctx, "PATCH", "$API/playlists/$playlistId/relationships/coverArt",
+            Http.jsonBody(jsonObj("data" to listOf(mapOf("id" to artwork, "type" to "artworks"))).toString(), apiContentType),
+            mapOf("Idempotency-Key" to java.util.UUID.randomUUID().toString()))
+        if (!linked.ok) throw ProviderException("$displayName: cover not set (HTTP ${linked.code})")
+    }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         api(ctx, "DELETE", "$API/playlists/$playlistId")
     }
@@ -509,6 +548,8 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     companion object {
         const val SERVICE = "tidal"
         private const val API = "https://openapi.tidal.com/v2"
+        /** TIDAL refused to create an artwork for this sign-in: no cover is tried again in this process. */
+        @Volatile internal var coverRefused = false
         /** TIDAL's own API, where its apps read the listening activity (not part of the Open API). */
         private const val ACTIVITY = "https://api.tidal.com/v2"
         private const val LOG = "poster"

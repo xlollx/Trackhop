@@ -17,6 +17,8 @@ class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.
         override fun usable(): Boolean = YtmWeb.usable(slot)
         override fun post(path: String, body: String, headers: Map<String, String>, credentials: Boolean): YtmWebTransport.Answer =
             YtmWeb.post(ctx, path, body, headers, credentials, slot = slot).let { YtmWebTransport.Answer(it.code, it.body) }
+        override fun upload(path: String, bytes: ByteArray, headers: Map<String, String>, contentType: String): YtmWebTransport.Answer =
+            YtmWeb.upload(ctx, path, bytes, headers, contentType, slot = slot).let { YtmWebTransport.Answer(it.code, it.body) }
     }
     override val verification: YtmVerificationStore get() = verificationStore(ctx)
     override val cacheScope: String get() = slot

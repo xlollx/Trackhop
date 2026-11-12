@@ -200,6 +200,11 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
         withContext(Dispatchers.IO) { call(ctx, "visibility", playlistId, Bundle().apply { putBoolean("public", public) }) }
     }
 
+    /** A playlist's own picture, uploaded and set the way the player's "Edit" does. An older plugin does not know the method: no cover ([BridgePlugin.setCover]). */
+    override val canSetCover: Boolean get() = BridgePlugin.knows("setCover")
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) =
+        BridgePlugin.setCover("setCover", playlistId, jpeg) { m, id, extras -> call(ctx, m, id, extras) }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         withContext(Dispatchers.IO) { call(ctx, "delete", playlistId) }
     }
