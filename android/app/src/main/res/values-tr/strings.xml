@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Önce Hesaplar sekmesinden en az bir servis bağlayın.</string>
     <string name="liked_songs">Beğenilen şarkılar</string>
     <string name="saved_albums">Kaydedilen albümler</string>
+    <string name="amazon_purchased">Satın alınan müzikler</string>
     <string name="followed_artists">Takip edilen sanatçılar</string>
     <string name="followed_podcasts">Podcast\'ler</string>
     <string name="recently_played">Son çalınanlar</string>

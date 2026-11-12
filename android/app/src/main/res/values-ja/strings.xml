@@ -81,6 +81,7 @@
     <string name="no_connected_providers">まず「アカウント」タブでサービスを1つ以上接続してください。</string>
     <string name="liked_songs">お気に入りの曲</string>
     <string name="saved_albums">保存したアルバム</string>
+    <string name="amazon_purchased">購入した音楽</string>
     <string name="followed_artists">フォロー中のアーティスト</string>
     <string name="followed_podcasts">ポッドキャスト</string>
     <string name="recently_played">最近再生した曲</string>

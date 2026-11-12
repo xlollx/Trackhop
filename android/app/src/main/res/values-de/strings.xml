@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Verbinde zuerst mindestens einen Dienst im Tab Konten.</string>
     <string name="liked_songs">Lieblingssongs</string>
     <string name="saved_albums">Gespeicherte Alben</string>
+    <string name="amazon_purchased">Gekaufte Musik</string>
     <string name="followed_artists">Gefolgte Künstler</string>
     <string name="followed_podcasts">Podcasts</string>
     <string name="recently_played">Zuletzt gehört</string>

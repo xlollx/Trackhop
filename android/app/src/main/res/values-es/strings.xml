@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Primero conecta al menos un servicio en la pestaña Cuentas.</string>
     <string name="liked_songs">Canciones que te gustan</string>
     <string name="saved_albums">Álbumes guardados</string>
+    <string name="amazon_purchased">Música comprada</string>
     <string name="followed_artists">Artistas seguidos</string>
     <string name="followed_podcasts">Pódcasts</string>
     <string name="recently_played">Escuchados recientemente</string>

@@ -81,6 +81,7 @@
     <string name="no_connected_providers">먼저 계정 탭에서 서비스를 하나 이상 연결하세요.</string>
     <string name="liked_songs">좋아요 표시한 곡</string>
     <string name="saved_albums">저장한 앨범</string>
+    <string name="amazon_purchased">구매한 음악</string>
     <string name="followed_artists">팔로우한 아티스트</string>
     <string name="followed_podcasts">팟캐스트</string>
     <string name="recently_played">최근 재생</string>

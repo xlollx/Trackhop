@@ -172,10 +172,22 @@ class AmazonSkillContractTest {
         assertEquals("P1", lists[0]["id"].str)
         assertEquals("gql.music.amazon.com", call(0).getHeader(BridgeMock.ORIGINAL_HOST))
         assertNull(AmazonSession.api(app))
-        // Its player's GraphQL calls write nothing either; rename stays unavailable.
+        // Its player's GraphQL calls move nothing either; a rename goes through the GraphQL player's updatePlaylistDetails.
         assertNull(AmazonRoute.afterPlayerCall(AmazonSession.api(app), skill = false, method = "", pageSawGql = true))
-        assertTrue(BridgeCore.call(app, "amazon.rename", "P1", Bundle().apply { putString("name", "x") }).getString("error")!!.contains("renaming"))
+        BridgeMock.answer("""{"data":{"batchUpdatePlaylist":{"playlist":{"id":"P1","__typename":"Playlist","title":"x","visibility":"PRIVATE"},"__typename":"BatchUpdatePlaylistResponse"}}}""")
+        assertNull(BridgeCore.call(app, "amazon.rename", "P1", Bundle().apply { putString("name", "x") }).getString("error"))
+        assertEquals("updatePlaylistDetails", call(1).json()["operationName"].str)
+        assertEquals("gql.music.amazon.com", call(1).getHeader(BridgeMock.ORIGINAL_HOST))
         assertTrue(logs.none { it.contains("skill API") })
+    }
+
+    @Test fun aSkillAccountStillRenamesOnTheSkillApi() {
+        playerSeenOnSkill()
+        BridgeMock.answer("""{"methods":[]}""")
+        assertNull(BridgeCore.call(app, "amazon.rename", test, Bundle().apply { putString("name", "Renamed") }).getString("error"))
+        assertEquals(1, BridgeMock.calls.size)
+        assertEquals(eu, call(0).getHeader(BridgeMock.ORIGINAL_HOST))
+        assertEquals("/api/renamePlaylist", call(0).requestUrl!!.encodedPath)
     }
 
     @Test fun aSkillFailureOfAPlayerAlsoSeenOnGraphQlTriesGraphQlAndKeepsIt() {

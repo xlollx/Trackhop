@@ -81,6 +81,7 @@
     <string name="no_connected_providers">Conecte pelo menos um serviço na aba Contas primeiro.</string>
     <string name="liked_songs">Músicas curtidas</string>
     <string name="saved_albums">Álbuns salvos</string>
+    <string name="amazon_purchased">Músicas compradas</string>
     <string name="followed_artists">Artistas seguidos</string>
     <string name="followed_podcasts">Podcasts</string>
     <string name="recently_played">Tocadas recentemente</string>

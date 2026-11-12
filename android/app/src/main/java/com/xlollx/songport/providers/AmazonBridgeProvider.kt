@@ -29,8 +29,9 @@ import kotlinx.serialization.json.JsonElement
  */
 class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     // Renaming and deleting were mapped from the desktop player's own calls; an older plugin lacks them.
-    // The GraphQL player (October 2026) has no rename or visibility call we have seen yet.
-    override val canRenamePlaylists: Boolean get() = false
+    // Renaming on the GraphQL player (updatePlaylistDetails, 11/2026) comes with the Bridge app of the
+    // saved albums ([libraryKinds]); an older one renames on the skill API only, so none is asked of it.
+    override val canRenamePlaylists: Boolean get() = libraryKinds(BridgePlugin.builtIn, BridgePlugin.reportedVersion)
     override val canDeletePlaylists: Boolean get() = BridgePlugin.full
     override val serviceId = SERVICE
     override val displayName = "Amazon Music"
@@ -76,6 +77,20 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "amazon.playlists") { j ->
         j.arr.mapNotNull { p -> Playlist(p["id"].str ?: return@mapNotNull null, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) }
+    } + listOfNotNull(purchased(ctx))
+
+    /**
+     * The purchased music, after the playlists: read only (not the user's own to write to), and only
+     * where the Bridge app reads it for this account and something was bought ([purchasedOffered]).
+     */
+    private suspend fun purchased(ctx: Env): Playlist? {
+        if (!libraryKinds(BridgePlugin.builtIn, BridgePlugin.reportedVersion)) return null
+        val count = withContext(Dispatchers.IO) {
+            purchasedOffered(purchasedCheck) {
+                runCatching { call(ctx, "amazon.purchased").takeIf { it.containsKey("count") }?.getInt("count") }.getOrNull()
+            }
+        }
+        return if (count > 0) Playlist(PURCHASED_ID, ctx.text("amazon_purchased"), ownedByMe = false) else null
     }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
@@ -237,6 +252,24 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
          * (1.11.0) or more. An older one would read `__albums__` or `__artists__` as a playlist id.
          */
         fun libraryKinds(builtIn: Boolean, version: Int): Boolean = builtIn || version >= BridgePlugin.AMAZON_LIBRARY_VERSION
+
+        /** The purchased music (the Bridge's own id for it): listed like a playlist, read only. */
+        const val PURCHASED_ID = "__purchased__"
+
+        /** The last look at the purchased music: when, and the tracks on its first page (-1: not readable). */
+        @Volatile private var purchasedCheck: Pair<Long, Int>? = null
+
+        /**
+         * The tracks on the purchased music's first page, from [last] while it is fresh (six hours, one
+         * when it could not be read), else from [ask] (null: not readable, an older Bridge app or the
+         * skill API). Above 0: offered.
+         */
+        internal fun purchasedOffered(last: Pair<Long, Int>?, now: Long = System.currentTimeMillis(), ask: () -> Int?): Int {
+            if (last != null && now - last.first < if (last.second >= 0) 6 * 3_600_000L else 3_600_000L) return last.second
+            val count = ask() ?: -1
+            purchasedCheck = now to count
+            return count
+        }
 
         const val SERVICE = "amazon"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.AMAZON_LOGIN"
