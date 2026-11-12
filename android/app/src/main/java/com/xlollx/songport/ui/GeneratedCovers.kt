@@ -301,11 +301,8 @@ object GeneratedCovers {
         val x = if (center) w / 2 else m
         // The artists in a column, each whole (smaller rather than cut), "+N" for the ones left out.
         fun row(i: Int) = textPaint(if (i == 0) accent else ink, condensed = true).apply { textSize = (if (i == 0) 66f else 46f) * s; textAlign = align; if (i > 0) alpha = 225 }
-        var rows = 0
-        var h = y
-        while (rows < 5) { val p = row(rows); if (h - p.ascent() + p.descent() > w - m) break; h += p.fontSpacing * 1.02f; rows++ }
-        CoverArt.stackNames(artistNames(input, upper = true), rows, w - 2 * m) { str, i, k -> val p = row(i); p.textSize *= k; p.measureText(str) }.forEachIndexed { i, r ->
-            val p = row(i)
+        CoverArt.stackNames(artistNames(input, upper = true), 5, w - 2 * m, w - m - y, { row(it).fontSpacing * 1.02f }) { str, i, k -> val p = row(i); p.textSize *= k; p.measureText(str) }.forEach { r ->
+            val p = row(r.name)
             val step = p.fontSpacing * 1.02f
             val base = y - p.ascent()
             p.textSize *= r.scale

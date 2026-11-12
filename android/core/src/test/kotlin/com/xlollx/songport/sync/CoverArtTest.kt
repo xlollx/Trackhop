@@ -197,16 +197,36 @@ class CoverArtTest {
         val fit = CoverArt.fitNames(emptyList(), 100f, measure = chars)
         assertEquals("", fit.text)
         assertTrue(fit.shown.isEmpty())
-        assertTrue(CoverArt.stackNames(emptyList(), 5, 100f) { s, _, k -> s.length * k }.isEmpty())
+        assertTrue(CoverArt.stackNames(emptyList(), 5, 100f, 10f, { 1f }) { s, _, k -> s.length * k }.isEmpty())
     }
 
     @Test
     fun aStackOfNamesEndsWithPlusN() {
-        val names = listOf("Metallica", "A very long band name indeed", "Ghost", "Muse", "Tool", "Korn")
-        val rows = CoverArt.stackNames(names, 4, 20f) { s, _, k -> s.length * k }
-        // The long one is left out, never cut; the fourth row says how many are not shown.
+        val names = listOf("Metallica", "Ghost", "Muse", "Tool", "Korn", "Slayer")
+        // Four rows of room: three names and how many are not shown.
+        val rows = CoverArt.stackNames(names, 5, 20f, 4f, { 1f }) { s, _, k -> s.length * k }
         assertEquals(listOf("Metallica", "Ghost", "Muse", "+3"), rows.map { it.text })
         assertTrue(rows.last().isMore)
-        assertEquals(listOf("Ghost", "Muse"), CoverArt.stackNames(listOf("Ghost", "Muse"), 4, 20f) { s, _, k -> s.length * k }.map { it.text })
+        assertEquals(listOf("Ghost", "Muse"), CoverArt.stackNames(listOf("Ghost", "Muse"), 5, 20f, 4f, { 1f }) { s, _, k -> s.length * k }.map { it.text })
+    }
+
+    @Test
+    fun aLongNameInAStackGoesOnTwoRowsNeverCut() {
+        // "A Day To Remember" (17) in 12: not even at 0.85; on two rows, between words.
+        val rows = CoverArt.stackNames(listOf("A Day To Remember", "Muse", "Tool"), 5, 12f, 10f, { 1f }) { s, _, k -> s.length * k }
+        assertEquals(listOf("A Day To", "Remember", "Muse", "Tool"), rows.map { it.text })
+        assertEquals(listOf(0, 0, 1, 2), rows.map { it.name })
+        // A single word wider than the column even so: left out, and said.
+        val skipped = CoverArt.stackNames(listOf("Supercalifragilistic", "Muse"), 5, 12f, 10f, { 1f }) { s, _, k -> s.length * k }
+        assertEquals(listOf("Muse", "+1"), skipped.map { it.text })
+    }
+
+    @Test
+    fun namesOverTwoLinesThenPlusN() {
+        val names = listOf("A Day To Remember", "Bring Me The Horizon", "Nothing But Thieves", "Muse", "Placebo")
+        val lines = CoverArt.fitNameLines(names, 2, 25f, measure = chars)
+        assertEquals(listOf("A Day To Remember", "Bring Me The Horizon  ·  +3"), lines.map { it.text })
+        assertEquals(listOf("Muse  ·  Placebo"), CoverArt.fitNameLines(listOf("Muse", "Placebo"), 2, 25f, measure = chars).map { it.text })
+        assertTrue(CoverArt.fitNameLines(emptyList(), 2, 25f, measure = chars).isEmpty())
     }
 }

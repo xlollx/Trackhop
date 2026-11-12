@@ -410,9 +410,9 @@ object Cards {
             val base = top + i * rowH + size * 1.15f
             s.c.drawText(String.format(java.util.Locale.ROOT, "%02d", i + 1), x, base, num)
             val room = width - numW
-            // The title keeps at least about half the row; the artist has the rest, whole or not at all.
+            // The title keeps at least two fifths of the row; the artist has the rest, whole or not at all.
             val titleW = title.measureText(name)
-            val artistRoom = room - gap - minOf(titleW, room * 0.52f)
+            val artistRoom = room - gap - minOf(titleW, room * 0.4f)
             val fit = if (by.isBlank()) null else CoverArt.fitNames(listOf(by), artistRoom) { str, k -> artist.textSize = size * k; artist.measureText(str) }
                 .takeIf { it.more == 0 }
             artist.textSize = size * (fit?.scale ?: 1f)
@@ -431,38 +431,40 @@ object Cards {
      * above [bottom] (at most [max]), the last line saying how many are not shown ("+N").
      * Returns where they end.
      */
-    private fun posterLineup(s: Sheet, x: Float, top: Float, bottom: Float, width: Float, big: Float, small: Float, max: Int = 5, upper: Boolean = true, condensedType: Boolean = true, alpha: Int = 225, align: Paint.Align = Paint.Align.LEFT): Float {
-        fun p(i: Int) = (if (condensedType) condensed(s.t.ink, if (i == 0) big else small, if (i == 0) 255 else alpha) else paint(s.t.ink, if (i == 0) big else small, alpha = alpha))
-        var rows = 0
-        var h = 0f
-        while (rows < max && top + h + (if (rows == 0) big else small) * 1.12f <= bottom) { h += (if (rows == 0) big else small) * 1.12f; rows++ }
+    private fun posterLineup(s: Sheet, x: Float, top: Float, bottom: Float, width: Float, big: Float, small: Float, max: Int = 5, upper: Boolean = true, condensedType: Boolean = true, alpha: Int = 225): Float {
+        fun size(i: Int) = if (i == 0) big else small
+        fun p(i: Int) = if (condensedType) condensed(s.t.ink, size(i), if (i == 0) 255 else alpha) else paint(s.t.ink, size(i), alpha = alpha)
         val names = s.card.artists.map { if (upper) it.uppercase() else it }
-        val stack = CoverArt.stackNames(names, rows, width) { str, i, k -> val q = p(i); q.textSize *= k; q.measureText(str) }
+        val stack = CoverArt.stackNames(names, max, width, bottom - top, { size(it) * 1.12f }) { str, i, k -> val q = p(i); q.textSize *= k; q.measureText(str) }
         var y = top
-        stack.forEachIndexed { i, row ->
-            val q = p(i)
+        for (row in stack) {
+            val q = p(row.name)
             val full = q.textSize
             q.textSize = full * row.scale
-            q.textAlign = align
             s.c.drawText(row.text, x, y + full * 0.86f, q)
             y += full * 1.12f
         }
         return y
     }
 
-    /** The artists on one line from its top at [top]: whole names, as many as fit, then "+N". Returns whether it drew anything. */
-    private fun posterNames(s: Sheet, x: Float, top: Float, width: Float, p: TextPaint, align: Paint.Align = Paint.Align.LEFT): Boolean {
+    /**
+     * The artists from [top], on up to [lines] lines: whole names, as many as fit, the last line
+     * ending with "+N" for the rest ([CoverArt.fitNameLines]). Returns the height used (0: nothing drawn).
+     */
+    private fun posterNames(s: Sheet, x: Float, top: Float, width: Float, p: TextPaint, align: Paint.Align = Paint.Align.LEFT, lines: Int = 1): Float {
         val full = p.textSize
-        val fit = CoverArt.fitNames(s.card.artists, width) { str, k -> p.textSize = full * k; p.measureText(str) }
+        val fit = CoverArt.fitNameLines(s.card.artists, lines, width) { str, k -> p.textSize = full * k; p.measureText(str) }
         p.textSize = full
-        if (fit.text.isEmpty()) return false
         val ascent = -p.ascent()
-        p.textSize = full * fit.scale
+        val step = full * 1.25f
         p.textAlign = align
-        s.c.drawText(fit.text, x, top + ascent, p)
+        fit.forEachIndexed { i, l ->
+            p.textSize = full * l.scale
+            s.c.drawText(l.text, x, top + ascent + i * step, p)
+        }
         p.textAlign = Paint.Align.LEFT
         p.textSize = full
-        return true
+        return if (fit.isEmpty()) 0f else (fit.size - 1) * step + full * 1.2f
     }
 
     /** The QR on a white tile, with its quiet margin, so any reader gets it. */
@@ -510,7 +512,7 @@ object Cards {
             posterArt(s, art, 10f)
             var y = art.bottom + 62f
             if (!card.titledArt) y = posterTitle(c, card.title, RectF(m, y, right, y + 200f), paint(t.ink, 88f, bold = true), 2, 88f, 52f) + 24f
-            if (posterNames(s, m, y, right - m, paint(t.ink, 34f, alpha = 215))) y += 64f
+            if (posterNames(s, m, y, right - m, paint(t.ink, 34f, alpha = 215)) > 0f) y += 64f
             y = numbers(m, y, right - m) + 30f
             posterTracks(s, m, y, bottom - (if (qr != null) 76f else 0f), listRight - m, 30f)
         } else {
@@ -520,7 +522,7 @@ object Cards {
             var y = art.top + 2f
             if (!card.titledArt) {
                 y = posterTitle(c, card.title, RectF(colX, y, right, y + 250f), paint(t.ink, 76f, bold = true), 4, 76f, 38f) + 22f
-                if (posterNames(s, colX, y, right - colX, paint(t.ink, 27f, alpha = 215))) y += 27f * 1.2f + 26f
+                posterNames(s, colX, y, right - colX, paint(t.ink, 27f, alpha = 215), lines = 2).takeIf { it > 0f }?.let { y += it + 26f }
             } else y = posterLineup(s, colX, y, art.bottom - 80f, right - colX, 58f, 42f) + 24f
             numbers(colX, y, right - colX)
             posterTracks(s, m, art.bottom + 40f, bottom - (if (qr != null) 70f else 0f), listRight - m, 27f, max = 5)

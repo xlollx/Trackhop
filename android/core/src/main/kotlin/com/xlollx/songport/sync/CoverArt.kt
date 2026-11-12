@@ -345,28 +345,70 @@ object CoverArt {
         return Names("", emptyList(), all.size, 1f)
     }
 
-    /** A row of a stack of names: the text, the scale of the row's size it is set at, and whether it is the "+N". */
-    class Row(val text: String, val scale: Float, val isMore: Boolean = false)
+    /**
+     * As [fitNames] over up to [maxLines] lines: whole names packed line after line, the last line
+     * ending with "+N" for the ones left out. One line is [fitNames] itself. No names: no lines.
+     */
+    fun fitNameLines(names: List<String>, maxLines: Int, width: Float, sep: String = "  ·  ", measure: (String, Float) -> Float): List<Names> {
+        val all = names.map { it.trim() }.filter { it.isNotEmpty() }
+        val out = ArrayList<Names>()
+        var i = 0
+        while (i < all.size && out.size < maxLines - 1) {
+            var k = 0
+            while (i + k < all.size && measure(all.subList(i, i + k + 1).joinToString(sep), 1f) <= width) k++
+            // A name too long for a line alone: the last line deals with it (smaller, else left out).
+            if (k == 0) break
+            out += Names(all.subList(i, i + k).joinToString(sep), all.subList(i, i + k), 0, 1f)
+            i += k
+        }
+        if (i >= all.size) return out
+        val last = fitNames(all.drop(i), width, sep, measure)
+        val left = all.size - i - last.shown.size
+        out += if (last.text.isNotEmpty()) Names(last.text, last.shown, left, last.scale) else Names(more(left), emptyList(), left, 1f)
+        return out
+    }
+
+    /** A row of a stack of names: the text, the scale it is set at, the name it belongs to (its place among those shown), and whether it is the "+N". */
+    class Row(val text: String, val scale: Float, val name: Int, val isMore: Boolean = false)
 
     /**
-     * [names] one a row, at most [rows] rows, each whole: set smaller (to [NAMES_FLOOR]) when it
-     * does not fit [width], left out when even that is too wide. When names are left out the last
-     * row says how many ("+N"). [measure] gives a string's width in a row at a scale.
+     * [names] stacked one under the other, in order, at most [maxNames] of them, in a column of
+     * [width] and [room] high: each whole, set smaller (to [NAMES_FLOOR]) when it does not fit a
+     * row, else on two rows broken between words; a name that cannot be set whole even so is
+     * left out. When names are left out, a last row says how many ("+N"). [height] gives the
+     * height of a row of the name at a place (the first may be larger), [measure] the width of a
+     * text in such a row at a scale.
      */
-    fun stackNames(names: List<String>, rows: Int, width: Float, measure: (String, Int, Float) -> Float): List<Row> {
+    fun stackNames(
+        names: List<String>, maxNames: Int, width: Float, room: Float,
+        height: (Int) -> Float, measure: (String, Int, Float) -> Float,
+    ): List<Row> {
         val all = names.map { it.trim() }.filter { it.isNotEmpty() }
-        if (rows <= 0 || all.isEmpty()) return emptyList()
         val out = ArrayList<Row>()
+        var used = 0f
+        var shown = 0
         for (n in all) {
-            if (out.size >= rows) break
-            val scale = SCALES.firstOrNull { measure(n, out.size, it) <= width } ?: continue
-            out += Row(n, scale)
+            if (shown >= maxNames) break
+            val at = shown
+            val one = SCALES.firstOrNull { measure(n, at, it) <= width }
+            val rows = if (one != null) listOf(Row(n, one, at)) else {
+                val lines = wrap(n, width) { measure(it, at, NAMES_FLOOR) }
+                if (lines.size <= 2 && lines.all { measure(it, at, NAMES_FLOOR) <= width } && lines.joinToString(" ") == n) lines.map { Row(it, NAMES_FLOOR, at) } else null
+            } ?: continue
+            val h = rows.size * height(at)
+            if (used + h > room) break
+            out += rows; used += h; shown++
         }
-        val left = all.size - out.size
-        if (left > 0 && out.isNotEmpty()) {
-            if (out.size >= rows) out.removeAt(out.size - 1)
-            if (out.isEmpty()) return emptyList()
-            out += Row(more(all.size - out.size), 1f, isMore = true)
+        if (shown < all.size) {
+            // Room for the "+N": the last names give way to it.
+            while (shown > 0 && used + height(shown) > room) {
+                val last = shown - 1
+                val gone = out.count { it.name == last }
+                repeat(gone) { out.removeAt(out.size - 1) }
+                used -= gone * height(last); shown--
+            }
+            if (shown == 0) return emptyList()
+            out += Row(more(all.size - shown), 1f, shown, isMore = true)
         }
         return out
     }
