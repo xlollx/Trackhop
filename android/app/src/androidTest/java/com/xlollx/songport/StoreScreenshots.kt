@@ -802,6 +802,35 @@ class StoreScreenshots {
         }
         val firstJob = Demo.PLAYLISTS[0].second
 
+        // 0 The five tabs from their top, dark and light, upright and on the phone's side: the header of
+        // Syncs and each page's background. carousel/00_tab_<theme>[_land]_<tab>.png.
+        val tabNames = listOf(MainActivity.TAB_SYNCS to "syncs", MainActivity.TAB_ACCOUNTS to "accounts", MainActivity.TAB_DISCOVER to "discover", MainActivity.TAB_TOOLS to "tools", MainActivity.TAB_SETTINGS to "settings")
+        fun tabsFromTop(prefix: String) = tabNames.forEach { (t, name) ->
+            open(tab(t), "tab $name") { if (t == MainActivity.TAB_SYNCS) waitText(firstJob) else Thread.sleep(1000) }
+            snap("00_tab_${prefix}_$name")
+        }
+        for (theme in listOf("DARK", "LIGHT")) {
+            step("theme $theme") { shell("cmd uimode night " + if (theme == "DARK") "yes" else "no"); store.updateSettings { it.copy(themeMode = theme) }; store.flush(); Thread.sleep(1500) }
+            val t = theme.lowercase()
+            tabsFromTop(t)
+            // Syncs with a newer version to offer (the update pill in the bar), then with the wallpaper's colours.
+            app.getSharedPreferences("app_updates", 0).edit().putString("name", "9.9.9")
+                .putString("url", "https://github.com/xlollx/Trackhop/releases/latest").putLong("checked", System.currentTimeMillis()).commit()
+            open(tab(MainActivity.TAB_SYNCS), "tab syncs update") { waitText(firstJob) }
+            snap("00_tab_${t}_syncs_update")
+            app.getSharedPreferences("app_updates", 0).edit().clear().commit()
+            store.updateSettings { it.copy(dynamicColor = true) }; store.flush()
+            open(tab(MainActivity.TAB_SYNCS), "tab syncs dynamic") { waitText(firstJob) }
+            snap("00_tab_${t}_syncs_dynamic")
+            open(tab(MainActivity.TAB_TOOLS), "tab tools dynamic") { Thread.sleep(1000) }
+            snap("00_tab_${t}_tools_dynamic")
+            store.updateSettings { it.copy(dynamicColor = false) }; store.flush()
+            step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
+            tabsFromTop("${t}_land")
+            step("upright") { shell("settings put system user_rotation 0"); Thread.sleep(2000) }
+        }
+        step("theme back") { shell("cmd uimode night yes"); store.updateSettings { it.copy(themeMode = "DARK") }; store.flush(); Thread.sleep(1500) }
+
         // 1 Syncs: the cards, scrolled a little so "Sync all" floats over them.
         open(tab(MainActivity.TAB_SYNCS), "syncs") {
             waitText(firstJob)
