@@ -18,6 +18,7 @@ import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.click as touchClick
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.assertIsSelected
@@ -151,6 +152,26 @@ class CardDensityFlowTest : FlowTest() {
         clickDesc(s(R.string.syncs_view_cards))
         waitFor("cards again") { cards().isNotEmpty() && tiles().isEmpty() }
         assertFalse(store.data.settings.minimalSyncs)
+    }
+
+    /** A running tile opened, then its card tapped: the live view takes the card's place, never a second sheet on top. */
+    @Test
+    fun aRunningTilesLiveViewReplacesItsSheet() {
+        seed(5)
+        store.updateSettings { it.copy(minimalSyncs = true) }
+        com.xlollx.songport.sync.SyncState.start("job-1")
+        try {
+            launch(tabIntent(MainActivity.TAB_SYNCS))
+            waitFor("tiles on screen") { tiles().size >= 2 }
+            click("Sync number 1")
+            waitFor("the card opened") { cards().isNotEmpty() }
+            compose.onAllNodes(hasTestTag(JOB_CARD_TAG)).onFirst().performTouchInput { this.click(percentOffset(0.6f, 0.25f)) }
+            waitText(s(R.string.live_title))
+            waitFor("the card's sheet closed under it") { cards().isEmpty() }
+        } finally {
+            com.xlollx.songport.sync.SyncState.finish("job-1")
+        }
+        waitFor("the live view closed with the run") { !exists(s(R.string.live_title)) }
     }
 
     @Test

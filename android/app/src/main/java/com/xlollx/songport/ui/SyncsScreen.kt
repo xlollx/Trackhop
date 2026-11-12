@@ -328,6 +328,7 @@ fun SyncsScreen(
     // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
     var tileMenu by remember { mutableStateOf<String?>(null) }
     var tileOpen by rememberSaveable { mutableStateOf<String?>(null) }
+    var tileLive by rememberSaveable { mutableStateOf<String?>(null) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
     // made in, and an order captured then is stale once a card has moved since (a drop back to that
@@ -641,10 +642,15 @@ fun SyncsScreen(
                     onEdit = { close(); onEdit(it) }, onPreview = { close(); onPreview(it) }, onRun = onRun,
                     onDelete = { close(); onDelete(it) }, onReview = { close(); onReview(it) }, onOpenTarget = { close(); onOpenTarget(it) },
                     onOpenLog = { close(); onOpenLog() }, onToggleEnabled = onToggleEnabled, onMove = onMove, size = cardSize,
+                    onLive = { close(); tileLive = job.id },
                 )
             }
         }
     }
+    // The live view of a tile's run, in place of the tile's sheet (one sheet at a time).
+    data.syncs.firstOrNull { it.id == tileLive }?.takeIf { running.containsKey(it.id) }?.let { job -> LiveSheet(job) { tileLive = null } }
+    // The run over: nothing left to watch, and a later run of the same sync does not reopen it.
+    LaunchedEffect(tileLive, running.keys) { if (tileLive != null && !running.containsKey(tileLive)) tileLive = null }
 }
 
 /** What a sync card's pill says. */
@@ -980,6 +986,8 @@ private fun JobCard(
     size: CardSize = CardSize.LARGE,
     /** A small card with room to spare (a phone on its side, one column): its figures beside its name, two lines in all. */
     wide: Boolean = false,
+    /** Set where the card is itself in a sheet: a tap on the running card hands the live view over, rather than stacking a second sheet. */
+    onLive: (() -> Unit)? = null,
 ) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove) { menu ->
     val ctx = LocalContext.current
     val isRunning = run != null
@@ -1009,7 +1017,7 @@ private fun JobCard(
     val marksBeside = small && wide && statsShown
     Card(
         // While running, a tap opens the live list of tracks processed so far.
-        Modifier.fillMaxWidth().testTag(JOB_CARD_TAG).animateContentSize().clickable(enabled = isRunning) { liveOpen = true },
+        Modifier.fillMaxWidth().testTag(JOB_CARD_TAG).animateContentSize().clickable(enabled = isRunning) { if (onLive != null) onLive() else liveOpen = true },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
     ) {
