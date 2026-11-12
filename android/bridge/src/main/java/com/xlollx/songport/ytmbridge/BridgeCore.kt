@@ -67,6 +67,17 @@ object BridgeCore {
                     ytm.channel(ctx)?.let { putString("channel", it); putString("channelName", ytm.channelName(ctx)) }
                 }
                 "disconnect" -> { ytm.clear(ctx); Bundle() }
+                // Trackhop's background keep-alive: the player's page run once so Google rotates the
+                // session's cookies (see [YtmRenewal]), and whether the session is gone. An older
+                // connector answers "unknown method", which Trackhop ignores.
+                "keepAlive" -> {
+                    val outcome = YtmRenewal.keepAlive(ctx, slot)
+                    Bundle().apply {
+                        putBoolean("renewed", outcome == YtmRenewal.Outcome.RENEWED)
+                        putBoolean("connected", ytm.isConnected(ctx))
+                        putBoolean("expired", outcome == YtmRenewal.Outcome.SIGNED_OUT)
+                    }
+                }
                 // The channels the account can act as; the chosen one is marked by the stored choice, not by Google's switcher.
                 "channels" -> {
                     val chosen = ytm.channel(ctx).orEmpty()

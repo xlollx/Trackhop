@@ -169,6 +169,8 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
         } catch (e: Exception) {
             throw ProviderException("$displayName: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("$displayName: no answer")
+        // A session gone for good is told once ("sign in again"); a signed-in listing that answers ends that.
+        com.xlollx.songport.sync.SessionKeepAlive.noticeAnswer(ctx, id, familyName, method, b)
         b.getString("error")?.let { throw ProviderException("$displayName: $it") }
         return b
     }

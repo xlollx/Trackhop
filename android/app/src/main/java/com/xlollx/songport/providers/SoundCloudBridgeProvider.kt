@@ -191,11 +191,9 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
         } catch (e: Exception) {
             throw ProviderException("Connector plugin: ${e.message ?: e.javaClass.simpleName}")
         } ?: throw ProviderException("Connector plugin: no answer")
-        b.getString("error")?.let {
-            // The session found gone for good (by a sync or any call): one notification per expiry.
-            b.getString("expiredAt")?.let { at -> runCatching { com.xlollx.songport.sync.SessionKeepAlive.noticeExpiry(ctx.android, at) } }
-            throw ProviderException("$displayName: $it")
-        }
+        // The session found gone for good (by a sync or any call): one notification per expiry.
+        com.xlollx.songport.sync.SessionKeepAlive.noticeAnswer(ctx, id, familyName, method, b)
+        b.getString("error")?.let { throw ProviderException("$displayName: $it") }
         return b
     }
 

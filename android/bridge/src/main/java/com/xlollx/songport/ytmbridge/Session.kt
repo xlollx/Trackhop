@@ -64,6 +64,7 @@ open class YtmSessionStore(val slot: String) {
     /** Forgets the session here and in the WebView, so the next login can pick another account. */
     fun clear(ctx: Context) {
         YtmWeb.reset(slot)
+        YtmRenewal.forget(slot)
         prefs(ctx).edit().clear().apply()
         // Only Google's and YouTube's cookies: inside Trackhop the WebView also holds the other web
         // sessions (Amazon, Spotify, Apple), which signing out of YouTube Music must not touch.

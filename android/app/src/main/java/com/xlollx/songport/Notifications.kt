@@ -313,7 +313,8 @@ object Notifications {
 
     /**
      * "SoundCloud: sign in again to keep your syncs running": a web session gone for good. A tap
-     * opens Accounts on that connector. False when it could not be posted.
+     * opens Accounts on that connector. One per connector (tagged with its id), so two sessions gone
+     * are two notifications. False when it could not be posted.
      */
     fun signInAgain(context: Context, service: String, connectorId: String): Boolean {
         if (!canPost(context)) return false
@@ -322,7 +323,8 @@ object Notifications {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra(MainActivity.EXTRA_FOCUS_CONNECTOR, connectorId)
         }
-        val pi = PendingIntent.getActivity(context, SIGN_IN_ID, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        // Its own request code per connector: another connector's notification keeps its own target.
+        val pi = PendingIntent.getActivity(context, SIGN_IN_ID xor connectorId.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val text = context.getString(R.string.notif_signin_again_text)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
@@ -332,8 +334,13 @@ object Notifications {
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
-        ContextCompat.getSystemService(context, NotificationManager::class.java)?.notify(SIGN_IN_ID, n)
+        ContextCompat.getSystemService(context, NotificationManager::class.java)?.notify(connectorId, SIGN_IN_ID, n)
         return true
+    }
+
+    /** Takes back [connectorId]'s "sign in again" ([signInAgain]): the person signed in, or out. */
+    fun cancelSignInAgain(context: Context, connectorId: String) {
+        ContextCompat.getSystemService(context, NotificationManager::class.java)?.cancel(connectorId, SIGN_IN_ID)
     }
 
     /** "N tracks can no longer be played": opens the Unplayable tracks tool. */

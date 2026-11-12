@@ -43,7 +43,8 @@ class YtmClient(private val host: YtmHost) {
      * account, whose quota is what triggers the frequent 403s during a long sync.
      */
     private fun call(endpoint: String, body: Map<String, Any?> = emptyMap(), query: String = "", auth: Boolean = true): JsonElement {
-        val ck = if (auth) cookies() else null
+        // The session's cookies: replaced once by a renewed session when a 401 refuses them (see [YtmHost.renewSession]).
+        var ck = if (auth) cookies() else null
         val v = visitor(ck)
         val payload = jsonObj(
             "context" to mapOf(
@@ -74,24 +75,29 @@ class YtmClient(private val host: YtmHost) {
             "Accept-Language" to "en-US,en;q=0.9",
         ).apply {
             v.visitorData?.let { put("X-Goog-Visitor-Id", it) }
-            if (ck != null) { put("Authorization", YtmAuth.authorization(ck)); put("X-Goog-AuthUser", "0") }
+            ck?.let { put("Authorization", YtmAuth.authorization(it)); put("X-Goog-AuthUser", "0") }
             if (ck != null) channel?.let { put("X-Goog-PageId", it) }
         }
         val body = payload.toString()
-        val req = Request.Builder()
+        fun request(cookies: String?) = Request.Builder()
             .url(YtmAuth.ORIGIN + path)
             .post(body.toRequestBody(JSON_TYPE))
             .apply { apiHeaders.forEach { (k, v2) -> header(k, v2) } }
             // Consent cookie only, as a visitor who dismissed the cookie banner.
-            .header("Cookie", ck ?: ANON_COOKIES)
+            .header("Cookie", cookies ?: ANON_COOKIES)
             .header("Origin", YtmAuth.ORIGIN)
             .header("Referer", "${YtmAuth.ORIGIN}/")
             .header("User-Agent", host.userAgent)
             .build()
         // The web interface throttles bursts (403/429): pace the calls, slow down further after each
         // refusal, and retry once after a short pause. Longer waits are Trackhop's job, which shows
-        // them to the user as a countdown. A 401 is a dead session, no point retrying.
+        // them to the user as a countdown. A 401 is a session Google no longer takes: renewed once
+        // where the host can (the player's page, as a browser left open does), the call made once
+        // more, and only then the session is said to be gone.
         var attempt = 0
+        var renewed = false
+        // The retry after a renewal: its outcome goes to the log once.
+        var retrying = false
         val lane = if (auth) SESSION_LANE else ANON_LANE
         while (true) {
             // Google's block lifts only when the requests stop: while it lasts nothing goes out, and
@@ -108,37 +114,54 @@ class YtmClient(private val host: YtmHost) {
             val web = host.web
             val viaWeb = web?.usable() == true
             val r = if (viaWeb) runCatching { web!!.post(path, body, apiHeaders, credentials = ck != null) }.getOrNull() else null
-            val (code, text) = if (r != null) r.code to r.body else http.newCall(req).execute().use { resp -> resp.code to (resp.body?.string() ?: "") }
-            run {
-                Stats.record(auth, code, System.currentTimeMillis() - t0, text, viaWeb && r != null)
-                // Google's abuse page: the browser was redirected to it. That address, opened by the user
-                // in a visible WebView, lets them pass the verification that lifts the block.
-                if ((code == 403 || code == 429) && text.contains("<title>Sorry", true)) Verification.noticed(host.verification, text)
-                when {
-                    code == 401 -> throw BridgeException("YouTube Music rejected the session (401): ${host.signInAgain}")
-                    code == 403 || code == 429 -> {
-                        lane.slowDown()
-                        // A refusal can also mean a stale visitor id: refresh it before the retry.
-                        invalidateVisitor(auth)
-                        // A signed-in call is retried once after a pause; an anonymous one is not, its
-                        // caller falls back to the session at once instead of paying the pause per search.
-                        if (auth && attempt < 1) { Thread.sleep(3_000); attempt++ }
-                        else {
-                            val reason = Regex(""""message"\s*:\s*"([^"]{1,160})"""").find(text)?.groupValues?.get(1)
-                                ?: if (text.contains("<title>Sorry", true)) "Google's abuse detection page" else text.replace(Regex("\\s+"), " ").trim().take(120).ifBlank { null }
-                            val who = if (auth) "signed-in" else "anonymous"
-                            val advice = if (Verification.pending(host.verification)) "Google blocked this network address; it lifts only if requests stop. Retry in ${Verification.remainingSeconds(host.verification)} s" +
-                                    (host.blockedHint?.let { ". $it" } ?: "")
-                                else "Trackhop will wait and retry; if it persists, ${host.signInAgain}"
-                            throw Throttled(
-                                "YouTube Music refused the $who request ($code): too many requests" +
-                                    (reason?.let { " [$it]" } ?: "") + ". " + advice,
-                            )
+            val (code, text) = if (r != null) r.code to r.body else http.newCall(request(ck)).execute().use { resp -> resp.code to (resp.body?.string() ?: "") }
+            Stats.record(auth, code, System.currentTimeMillis() - t0, text, viaWeb && r != null)
+            // Google's abuse page: the browser was redirected to it. That address, opened by the user
+            // in a visible WebView, lets them pass the verification that lifts the block.
+            if ((code == 403 || code == 429) && text.contains("<title>Sorry", true)) Verification.noticed(host.verification, text)
+            if (retrying && code != 401) {
+                retrying = false
+                host.log("session refused (401); renewed and retried: ${if (code in 200..299) "ok" else "HTTP $code"}")
+            }
+            when {
+                code == 401 -> {
+                    val refused = ck
+                    if (refused != null && !renewed && host.canRenew) {
+                        renewed = true
+                        val fresh = runCatching { host.renewSession(refused) }.getOrNull()
+                        if (fresh != null && YtmAuth.sapisid(fresh) != null) {
+                            // The same call with the renewed cookies and a SAPISIDHASH made of them.
+                            ck = fresh
+                            apiHeaders["Authorization"] = YtmAuth.authorization(fresh)
+                            retrying = true
+                            continue
                         }
-                    }
-                    code !in 200..299 -> throw BridgeException("YouTube Music $code: ${text.take(200)}")
-                    else -> { lane.speedUp(); return parseJson(text) }
+                        // Why it was not renewed is the host's to say (one line), then the call fails as it always has.
+                    } else if (retrying) host.log("session refused (401); renewed and retried: failed")
+                    throw BridgeException("YouTube Music rejected the session (401): ${host.signInAgain}")
                 }
+                code == 403 || code == 429 -> {
+                    lane.slowDown()
+                    // A refusal can also mean a stale visitor id: refresh it before the retry.
+                    invalidateVisitor(auth)
+                    // A signed-in call is retried once after a pause; an anonymous one is not, its
+                    // caller falls back to the session at once instead of paying the pause per search.
+                    if (auth && attempt < 1) { Thread.sleep(3_000); attempt++ }
+                    else {
+                        val reason = Regex(""""message"\s*:\s*"([^"]{1,160})"""").find(text)?.groupValues?.get(1)
+                            ?: if (text.contains("<title>Sorry", true)) "Google's abuse detection page" else text.replace(Regex("\\s+"), " ").trim().take(120).ifBlank { null }
+                        val who = if (auth) "signed-in" else "anonymous"
+                        val advice = if (Verification.pending(host.verification)) "Google blocked this network address; it lifts only if requests stop. Retry in ${Verification.remainingSeconds(host.verification)} s" +
+                                (host.blockedHint?.let { ". $it" } ?: "")
+                            else "Trackhop will wait and retry; if it persists, ${host.signInAgain}"
+                        throw Throttled(
+                            "YouTube Music refused the $who request ($code): too many requests" +
+                                (reason?.let { " [$it]" } ?: "") + ". " + advice,
+                        )
+                    }
+                }
+                code !in 200..299 -> throw BridgeException("YouTube Music $code: ${text.take(200)}")
+                else -> { lane.speedUp(); return parseJson(text) }
             }
         }
     }

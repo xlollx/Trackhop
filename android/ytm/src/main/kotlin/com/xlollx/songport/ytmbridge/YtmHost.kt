@@ -36,6 +36,18 @@ interface YtmHost {
      * before this existed) is the account's own channel, with nothing added to the calls.
      */
     val channel: String? get() = null
+    /**
+     * Whether this place can renew the session without the person ([renewSession]): the app can,
+     * by running the player's page in its browser engine; the server, with pasted cookies, cannot.
+     */
+    val canRenew: Boolean get() = false
+    /**
+     * A signed-in call was refused (401) with [refused] (the cookies it carried): the session is
+     * renewed the way the player's own page renews it, and the cookies to make the call once more
+     * with come back; null when it could not be (the call then fails as it always has). Asked at
+     * most once per call.
+     */
+    fun renewSession(refused: String): String? = null
 }
 
 /** Calls made by a browser engine: Chrome's fingerprint, the browser's own cookies and headers. */

@@ -5,7 +5,8 @@ import android.content.Context
 /**
  * The app's side of [YtmClient] (the client itself lives in :ytm, shared with the server): the
  * session from the Keystore, the hidden WebView as the first route, Google's block in the app's
- * preferences, and the connections log on the HTTP client.
+ * preferences, the connections log on the HTTP client, and the session renewed in the player's
+ * page when Google refuses it ([YtmRenewal]).
  */
 class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.PRIMARY) : YtmHost {
     private val session = Session.forSlot(slot)
@@ -23,7 +24,10 @@ class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.
     override val signInAgain: String = "sign out of YouTube Music and sign in again"
     // In the app the way out is the "Verify with Google" screen, which the connector's menu offers.
     override val blockedHint: String? = null
-    override fun log(message: String) = BridgeNet.log("ytm", message)
+    override fun log(message: String) = BridgeNet.log("ytm", if (slot.isEmpty()) message else "$message (account $slot)")
+    // A 401: the player's page is loaded once in a hidden WebView, as a browser left open would, and the call made again.
+    override val canRenew: Boolean get() = true
+    override fun renewSession(refused: String): String? = YtmRenewal.afterRefusal(ctx, slot, refused)
 }
 
 /** The client as the app has always built it, from a Context; [slot] names an extra account (see [Slots]). */
