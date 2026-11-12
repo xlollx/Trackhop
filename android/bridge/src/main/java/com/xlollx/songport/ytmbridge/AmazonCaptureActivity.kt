@@ -30,6 +30,13 @@ import java.io.File
  * anywhere are blanked before writing.
  */
 class AmazonCaptureActivity : ComponentActivity() {
+    // "Change the picture" on a site opens the phone's file picker: without it the upload never happens.
+    private var fileCallback: android.webkit.ValueCallback<Array<android.net.Uri>>? = null
+    private val pickFile = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
+        fileCallback?.onReceiveValue(android.webkit.WebChromeClient.FileChooserParams.parseResult(r.resultCode, r.data))
+        fileCallback = null
+    }
+
     private lateinit var web: WebView
     private lateinit var frame: android.widget.FrameLayout
     private val popups = ArrayList<WebView>()
@@ -126,6 +133,11 @@ class AmazonCaptureActivity : ComponentActivity() {
         // page that opened it: a real second view, sharing the cookies, keeps that working.
         web.settings.apply { setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true }
         web.webChromeClient = object : android.webkit.WebChromeClient() {
+            override fun onShowFileChooser(view: WebView, callback: android.webkit.ValueCallback<Array<android.net.Uri>>, params: FileChooserParams): Boolean {
+                fileCallback?.onReceiveValue(null)
+                fileCallback = callback
+                return runCatching { pickFile.launch(params.createIntent()); true }.getOrElse { fileCallback = null; false }
+            }
             override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: android.os.Message): Boolean {
                 val popup = WebView(this@AmazonCaptureActivity).apply {
                     settings.apply { javaScriptEnabled = true; domStorageEnabled = true; setSupportMultipleWindows(true); javaScriptCanOpenWindowsAutomatically = true }
