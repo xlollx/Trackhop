@@ -36,11 +36,11 @@ blanked anywhere in the file.
 - `HASHES` maps each operation name to its persisted-query hash: a changed hash is a one-line fix.
 - Operations used: `AddToPlaylistModalUserPlaylists` (the user's playlists), `playlistDetail`
   (tracks, 100 per page, `afterCursor`), `searchTracksResult` (search, songs only; until 11/2026
-  `SpecSearchPage`), `CreatePlaylist`, `addTrackToPlaylist` (`DUPLICATE_TRACK` is not a failure),
+  `SpecSearchPage`), `searchAlbumsResult` (search for a saved album, albums only), `CreatePlaylist`, `addTrackToPlaylist` (`DUPLICATE_TRACK` is not a failure),
   `removeTrackFromPlaylist` (by entry cursor `index:uuid`, highest index first), `deletePlaylist`.
 - The player uses Apollo's automatic persisted queries: when Amazon answers
   `PERSISTED_QUERY_NOT_FOUND`, the same request goes again with the query's text, which registers it.
-  The client does the same for the operations whose text is in `AmazonQueries.kt` (so far the search).
+  The client does the same for the operations whose text is in `AmazonQueries.kt` (so far the two searches).
 - Headers are rebuilt from the page configuration (`amznMusic.appConfig`: CSRF triple, device id and
   type, session id from the cookie) plus the player's application key; when Amazon refuses them, the
   headers mirrored from the real player (`AmazonBridge.HOOK`) are used.
@@ -55,6 +55,7 @@ public, so an operation that is still in the player can be read from it, no acco
 
 The text goes in `AmazonQueries.kt`, the hash in `HASHES`. A capture is still needed to learn which
 operation the player uses for a step and with which variables, and for anything the script refuses
-(client-side directives such as `@client`).
+(client-side directives other than `@client`, `@connection`, `@nonreactive` and `@unmask`, which it
+treats as Apollo does before sending).
 
 [All guide pages](./)

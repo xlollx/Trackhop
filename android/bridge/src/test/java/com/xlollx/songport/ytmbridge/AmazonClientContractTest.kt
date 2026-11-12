@@ -181,6 +181,72 @@ class AmazonClientContractTest {
         assertTrue("@localOnly" !in AmazonQueries.SEARCH_TRACKS_RESULT)
     }
 
+    // ---- Saved albums (11/2026): "Lo-files – Bring Me The Horizon" was proposed as the song "Lo Files"
+    // by another artist, because an album was searched among songs.
+
+    private fun album(id: String, title: String, artist: String, date: String) = """{"__typename":"Album","id":"$id","uri":"amzn:album:$id","title":${q(title)},
+        "releaseDate":$date,"format":"ALBUM","parentalSettings":{"hasExplicitLanguage":false},
+        "contributingArtists":{"concatenatedName":${q(artist)},"edges":[{"role":"PRIMARY","node":{"id":"A1","name":${q(artist)}}}]}}"""
+
+    @Test fun albumsAreSearchedAmongAlbumsByHashThenWithTheText() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer("""{"data":{"searchAlbums":{"edgeCount":4,"edges":[
+            {"node":${album("B0ALB00001", "Lo-files", "Bring Me The Horizon", q("2025-05-23"))}},
+            {"node":${album("B0ALB00001", "Lo-files", "Bring Me The Horizon", q("2025-05-23"))}},
+            {"node":${node(9, "Lo Files")}},
+            {"node":${album("B0ALB00002", "Vessels", "STARSET", "1484870400000")}}],
+            "pageInfo":{"hasNextPage":false,"token":null}}}}""")
+        val r = amazon.searchAlbums("Bring Me The Horizon Lo-files")
+        // Albums only, each once: the song that shares the name is not one.
+        assertEquals(listOf("B0ALB00001", "B0ALB00002"), r.map { it.id })
+        assertEquals(listOf("album", "album"), r.map { it.kind })
+        assertEquals(listOf("Bring Me The Horizon"), r[0].artists)
+        assertEquals(2025, r[0].year)
+        assertEquals(2017, r[1].year)
+        val first = call(0).json()
+        assertEquals("searchAlbumsResult", first["operationName"].str)
+        assertEquals("Bring Me The Horizon Lo-files", first["variables"]["query"].str)
+        assertEquals(AmazonQueries.SEARCH_ALBUMS_RESULT_HASH, first["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(null, first["query"].str)
+        assertEquals(AmazonQueries.SEARCH_ALBUMS_RESULT, call(1).json()["query"].str)
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    @Test fun theBridgeSearchesAlbumsForAnAlbumAndSongsOtherwise() {
+        answer("""{"data":{"searchAlbums":{"edges":[{"node":${album("B0ALB00002", "Vessels", "STARSET", q("2017"))}}]}}}""")
+        val albums = BridgeCore.call(app, "amazon.search", "STARSET Vessels", android.os.Bundle().apply { putString("kind", "album") })
+        assertEquals(null, albums.getString("error"))
+        val j = parseJson(albums.getString("json")!!)
+        assertEquals("B0ALB00002", j.arr[0]["id"].str)
+        assertEquals("album", j.arr[0]["kind"].str)
+        assertEquals(2017L, j.arr[0]["year"].long)
+        assertEquals("searchAlbumsResult", call(0).json()["operationName"].str)
+        answer("""{"data":{"searchTracks":{"edges":[{"node":${node(1)}}]}}}""")
+        BridgeCore.call(app, "amazon.search", "STARSET Vessels", null)
+        assertEquals("searchTracksResult", call(1).json()["operationName"].str)
+    }
+
+    @Test fun releaseYearFromADateOrEpochTime() {
+        fun y(s: String) = yearOf(parseJson(s))
+        assertEquals(2025, y("\"2025-05-23\""))
+        assertEquals(2017, y("1484870400000"))
+        assertEquals(2017, y("1484870400"))
+        assertEquals(2017, y("2017"))
+        assertEquals(null, y("\"soon\""))
+        assertEquals(null, y("null"))
+    }
+
+    /** The hash is the SHA-256 of the text; the @client fields are not in it, as Apollo does not send them. */
+    @Test fun albumSearchHashIsTheTextsSha256() {
+        val sha = java.security.MessageDigest.getInstance("SHA-256").digest(AmazonQueries.SEARCH_ALBUMS_RESULT.toByteArray())
+        assertEquals(AmazonQueries.SEARCH_ALBUMS_RESULT_HASH, sha.joinToString("") { "%02x".format(it) })
+        assertTrue(AmazonQueries.SEARCH_ALBUMS_RESULT.startsWith("query searchAlbumsResult(\$query: String!, \$nextPageToken: String) {\n"))
+        listOf("@client", "downloadStatus", "isInLibrary", "likeState", "itemAlbumDownload ", "itemConverterAlbumLibraryState").forEach {
+            assertTrue(it, it !in AmazonQueries.SEARCH_ALBUMS_RESULT)
+        }
+    }
+
     @Test fun serverErrorIsAClearErrorWithoutRetrying() {
         answer("<html>Internal Server Error</html>", 500)
         try { amazon.libraryPlaylists(); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.startsWith("Amazon Music 500 on AddToPlaylistModalUserPlaylists")) }
