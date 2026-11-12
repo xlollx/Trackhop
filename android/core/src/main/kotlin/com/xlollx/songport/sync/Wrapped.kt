@@ -217,6 +217,20 @@ object Wrapped {
         )
     }
 
+    /**
+     * [w] with its top artists from [artists] (a service that counts artists and tells no songs:
+     * TIDAL, [from]), the most played first with their plays; [from] goes first among the services.
+     * The discovery, made from the other service's artists, is dropped.
+     */
+    fun withArtists(w: Saved, artists: List<Listening.ArtistPlays>, from: Service): Saved {
+        if (artists.isEmpty()) return w
+        return w.copy(
+            topArtists = artists.sortedByDescending { it.plays }.take(TOP_ARTISTS).map { Artist(it.name, 0, it.plays) },
+            services = (listOf(from) + w.services).distinctBy { it.serviceId },
+            discovery = null,
+        )
+    }
+
     /** The middle year when each year counts as often as its weight (the lower one for an even total); null for none. */
     fun weightedMedian(years: List<Pair<Int, Int>>): Int? {
         val s = years.filter { it.second > 0 }.sortedBy { it.first }

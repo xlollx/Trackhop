@@ -51,6 +51,7 @@ import com.xlollx.songport.providers.PlayCounts
 import com.xlollx.songport.providers.SpotifyBridgeProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.providers.SpotifyProvider
+import com.xlollx.songport.providers.TidalProvider
 import com.xlollx.songport.providers.brand
 import com.xlollx.songport.providers.isConnected
 import com.xlollx.songport.providers.tracks
@@ -78,6 +79,8 @@ internal fun listeningSources(ctx: Context): List<Pair<Listening.Source, MusicPr
                 // The web player's top songs: only where the connectors are the full ones (GitHub, F-Droid).
                 Listening.Source.SPOTIFY_WEB -> p is SpotifyBridgeProvider && BridgePlugin.full
                 Listening.Source.DEEZER -> p is DeezerProvider
+                // The top artists of TIDAL's "My activity", asked with the Open API sign-in's token.
+                Listening.Source.TIDAL -> p is TidalProvider
                 // A personal server's own play counts.
                 Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
                 Listening.Source.PLEX, Listening.Source.LYRION -> p is PlayCounts
@@ -100,6 +103,7 @@ internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicPr
         Listening.Source.SPOTIFY -> (p as SpotifyProvider).listening(env, period)
         Listening.Source.SPOTIFY_WEB -> (p as SpotifyBridgeProvider).listening(env, period)
         Listening.Source.DEEZER -> (p as DeezerProvider).listening(env)
+        Listening.Source.TIDAL -> (p as TidalProvider).listening(env, period)
         Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
         Listening.Source.PLEX, Listening.Source.LYRION -> Listening.fromCounts((p as PlayCounts).topPlays(env))
         Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID))

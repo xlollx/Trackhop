@@ -1649,6 +1649,8 @@
     <string name="card_poster_plays_from">가장 많이 들은 곡, %1$s 기준</string>
     <string name="card_poster_plays_connect">이 곡들은 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다. 가장 많이 들은 곡을 보려면 Last.fm, ListenBrainz, Spotify, Deezer 또는 내 서버(Navidrome, Jellyfin, Emby, Plex, Lyrion)를 연결하세요</string>
     <string name="card_poster_plays_none">%1$s에서 가장 많이 들은 곡 중 이 플레이리스트에 있는 곡이 없습니다. 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다</string>
+    <string name="card_poster_plays_artists_from">%1$s에서 가장 많이 들은 아티스트의 곡</string>
+    <string name="card_poster_plays_artists_none">%1$s에서 가장 많이 들은 아티스트의 곡이 이 플레이리스트에 없습니다. 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다</string>
     <string name="card_poster_start_over">처음부터 다시</string>
     <string name="card_poster_start_over_hint">플레이리스트를 다시 읽고 새 포스터를 처음부터 만듭니다</string>
     <string name="card_poster_qr">QR 코드 넣기</string>

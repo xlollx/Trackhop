@@ -1689,6 +1689,8 @@
     <string name="card_poster_plays_from">Tus canciones más escuchadas, de %1$s</string>
     <string name="card_poster_plays_connect">Estas canciones son de los artistas más presentes en la playlist. Para mostrar tus canciones más escuchadas, conecta Last.fm, ListenBrainz, Spotify, Deezer o tu propio servidor (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Ninguna de tus canciones más escuchadas en %1$s está en esta playlist: estas canciones son de los artistas más presentes en la playlist</string>
+    <string name="card_poster_plays_artists_from">Canciones de tus artistas más escuchados en %1$s</string>
+    <string name="card_poster_plays_artists_none">Ninguno de tus artistas más escuchados en %1$s está en esta playlist: estas canciones son de los artistas más presentes en la playlist</string>
     <string name="card_poster_start_over">Empezar de cero</string>
     <string name="card_poster_start_over_hint">Vuelve a leer la playlist y crea un póster nuevo desde cero</string>
     <string name="card_poster_qr">Incluir código QR</string>

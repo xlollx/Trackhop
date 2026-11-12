@@ -1743,6 +1743,8 @@
     <string name="card_poster_plays_from">Ваши самые прослушиваемые треки, из %1$s</string>
     <string name="card_poster_plays_connect">Эти треки — от исполнителей, которых в плейлисте больше всего. Чтобы показать самые прослушиваемые треки, подключите Last.fm, ListenBrainz, Spotify, Deezer или свой сервер (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Ни одного из ваших самых прослушиваемых треков в %1$s нет в этом плейлисте: эти треки — от исполнителей, которых в плейлисте больше всего</string>
+    <string name="card_poster_plays_artists_from">Треки ваших самых прослушиваемых исполнителей в %1$s</string>
+    <string name="card_poster_plays_artists_none">Ни одного из ваших самых прослушиваемых исполнителей в %1$s нет в этом плейлисте: эти треки — от исполнителей, которых в плейлисте больше всего</string>
     <string name="card_poster_start_over">Начать заново</string>
     <string name="card_poster_start_over_hint">Заново читает плейлист и делает новый постер с нуля</string>
     <string name="card_poster_qr">Добавить QR-код</string>

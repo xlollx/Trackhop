@@ -1745,6 +1745,8 @@
     <string name="card_poster_plays_from">Twoje najczęściej słuchane utwory, z %1$s</string>
     <string name="card_poster_plays_connect">Te utwory pochodzą od wykonawców najczęściej obecnych na playliście. Aby wypisać najczęściej słuchane utwory, połącz Last.fm, ListenBrainz, Spotify, Deezer lub własny serwer (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Żaden z twoich najczęściej słuchanych utworów w %1$s nie jest na tej playliście: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
+    <string name="card_poster_plays_artists_from">Utwory twoich najczęściej słuchanych wykonawców w %1$s</string>
+    <string name="card_poster_plays_artists_none">Żadnego z twoich najczęściej słuchanych wykonawców w %1$s nie ma na tej playliście: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
     <string name="card_poster_start_over">Zacznij od nowa</string>
     <string name="card_poster_start_over_hint">Czyta playlistę ponownie i tworzy nowy plakat od zera</string>
     <string name="card_poster_qr">Dołącz kod QR</string>

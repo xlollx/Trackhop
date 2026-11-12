@@ -296,7 +296,11 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
             shownId = saved.id
         }
         val reader = listeners.firstOrNull { it.first == source }?.second
-        if (source != null && period != null && reader != null) WrappedRun.startListening(ctx.applicationContext, source, reader, period, onDone)
+        if (source != null && period != null && reader != null) WrappedRun.startListening(
+            ctx.applicationContext, source, reader, period, onDone,
+            // TIDAL tells artists only: the songs come from another listening service, else from the playlists.
+            others = listeners.filter { it.first != source }, playlists = services.filter { it.id in chosenIds },
+        )
         else WrappedRun.start(ctx.applicationContext, services.filter { it.id in chosenIds }, onDone)
     }
 
@@ -1080,44 +1084,57 @@ internal object WrappedRun {
 
     fun start(ctx: Context, read: List<MusicProvider>, onDone: (Wrapped.Saved) -> Unit) {
         if (busy) return
-        busy = true; reading = emptyMap(); current = null; coverSearch = false; readingFrom = read
+        busy = true
         scope.launch {
-            try {
-                val all = ArrayList<Track>()
-                val used = ArrayList<MusicProvider>()
-                // Which service each song was read from: its covers are looked up there first (YouTube's own pictures).
-                val origin = HashMap<Track, String>()
-                for (p in read) {
-                    current = p.id
-                    val got = LibraryReader.read(ctx, p) { done, total ->
-                        reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
-                    }
-                    reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
-                    if (got.isNotEmpty()) { all += got; used += p; for (t in got) origin.putIfAbsent(t, p.serviceId) }
-                }
-                current = null
-                val year = Calendar.getInstance().get(Calendar.YEAR)
-                val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
-                if (s.trackCount == 0) empty = true
-                else {
-                    // A few covers of the top artists, for the card's art and colours: best effort and
-                    // short, a Wrapped without them is drawn from its title's colours.
-                    val covers = ArrayList<String>()
-                    coverSearch = true
-                    try {
-                        kotlinx.coroutines.withTimeoutOrNull(COVER_WAIT_MS) {
-                            Cards.distinctCoverUrls(Wrapped.coverCandidates(all).map { it to (origin[it] ?: "") }, Wrapped.MAX_COVERS, covers)
-                        }
-                    } catch (e: CancellationException) { throw e } catch (_: Exception) { } finally { coverSearch = false }
-                    val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis(), covers = synchronized(covers) { covers.toList() })
-                    // Kept even if the page is gone: the store is the app's, not the page's.
-                    Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
-                    runCatching { onDone(saved) }
-                }
-            } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                error = errorText(ctx, e)
-            }
+            fromPlaylists(ctx, read, onDone)
             busy = false
+        }
+    }
+
+    /**
+     * The Wrapped of the playlists of [read]. [artists]: the artists played most, as a service
+     * that tells no songs counted them (TIDAL, [from]): they replace the playlists' top artists.
+     */
+    private suspend fun fromPlaylists(
+        ctx: Context, read: List<MusicProvider>, onDone: (Wrapped.Saved) -> Unit,
+        artists: List<Listening.ArtistPlays> = emptyList(), from: MusicProvider? = null,
+    ) {
+        reading = emptyMap(); current = null; coverSearch = false; readingFrom = read
+        try {
+            val all = ArrayList<Track>()
+            val used = ArrayList<MusicProvider>()
+            // Which service each song was read from: its covers are looked up there first (YouTube's own pictures).
+            val origin = HashMap<Track, String>()
+            for (p in read) {
+                current = p.id
+                val got = LibraryReader.read(ctx, p) { done, total ->
+                    reading = reading + (p.id to Triple(done, total, reading[p.id]?.third ?: 0))
+                }
+                reading = reading + (p.id to Triple(reading[p.id]?.second ?: 1, reading[p.id]?.second ?: 1, got.size))
+                if (got.isNotEmpty()) { all += got; used += p; for (t in got) origin.putIfAbsent(t, p.serviceId) }
+            }
+            current = null
+            val year = Calendar.getInstance().get(Calendar.YEAR)
+            val s = withContext(Dispatchers.Default) { Wrapped.compute(all, year) }
+            if (s.trackCount == 0) empty = true
+            else {
+                // A few covers of the top artists, for the card's art and colours: best effort and
+                // short, a Wrapped without them is drawn from its title's colours.
+                val covers = ArrayList<String>()
+                coverSearch = true
+                try {
+                    kotlinx.coroutines.withTimeoutOrNull(COVER_WAIT_MS) {
+                        Cards.distinctCoverUrls(Wrapped.coverCandidates(all).map { it to (origin[it] ?: "") }, Wrapped.MAX_COVERS, covers)
+                    }
+                } catch (e: CancellationException) { throw e } catch (_: Exception) { } finally { coverSearch = false }
+                val saved = Wrapped.save(s, Wrapped.services(used.map(::connector)), year, System.currentTimeMillis(), covers = synchronized(covers) { covers.toList() })
+                    .let { w -> if (from != null && artists.isNotEmpty()) Wrapped.withArtists(w, artists, Wrapped.services(listOf(connector(from))).first()) else w }
+                // Kept even if the page is gone: the store is the app's, not the page's.
+                Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
+                runCatching { onDone(saved) }
+            }
+        } catch (e: CancellationException) { throw e } catch (e: Exception) {
+            error = errorText(ctx, e)
         }
     }
 
@@ -1126,30 +1143,16 @@ internal object WrappedRun {
      * top songs and artists, then the years and covers it did not give, looked up one song at a
      * time ([Listening.fill]), shown as [p]'s progress.
      */
-    fun startListening(ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period, onDone: (Wrapped.Saved) -> Unit) {
+    fun startListening(
+        ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period, onDone: (Wrapped.Saved) -> Unit,
+        others: List<Pair<Listening.Source, MusicProvider>> = emptyList(), playlists: List<MusicProvider> = emptyList(),
+    ) {
         if (busy) return
         busy = true; reading = emptyMap(); current = p.id; coverSearch = false; readingFrom = listOf(p); missingScope = null
         scope.launch {
             try {
-                val report = readListening(ctx, source, p, period).let { r ->
-                    // The recent plays: their videos' own pictures as covers.
-                    if (source != Listening.Source.YTM) r
-                    else r.copy(tracks = r.tracks.map { it.copy(cover = com.xlollx.songport.sync.DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
-                }
-                val songs = report.tracks.size
-                if (songs == 0) error = ctx.getString(R.string.discover_wrapped_no_plays, p.brand)
-                else {
-                    val filled = Listening.fill(report, onProgress = { done, total -> reading = mapOf(p.id to Triple(done, total, songs)) }) {
-                        com.xlollx.songport.sync.DeezerCatalog.details(it)
-                    }
-                    current = null
-                    val saved = Wrapped.fromListening(
-                        filled, Wrapped.services(listOf(connector(p))).first(), period,
-                        Calendar.getInstance().get(Calendar.YEAR), System.currentTimeMillis(),
-                    )
-                    Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
-                    runCatching { onDone(saved) }
-                }
+                if (source.artistsOnly) fromArtists(ctx, source, p, period, onDone, others, playlists)
+                else listened(ctx, source, p, period, onDone)
             } catch (e: CancellationException) { throw e } catch (_: Listening.MissingScope) {
                 missingScope = p.id
             } catch (e: Exception) {
@@ -1158,5 +1161,60 @@ internal object WrappedRun {
             current = null
             busy = false
         }
+    }
+
+    /** [p]'s report for [period], with YouTube Music's recent plays carrying their videos' own pictures as covers. */
+    private suspend fun report(ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period): Listening.Report =
+        readListening(ctx, source, p, period).let { r ->
+            if (source != Listening.Source.YTM) r
+            else r.copy(tracks = r.tracks.map { it.copy(cover = com.xlollx.songport.sync.DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
+        }
+
+    /**
+     * The Wrapped of [report] (read from [p]), its years and covers looked up; [artists]: the top
+     * artists of a service that tells no songs ([artistsFrom], TIDAL), in place of [p]'s.
+     */
+    private suspend fun listened(
+        ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period, onDone: (Wrapped.Saved) -> Unit,
+        got: Listening.Report? = null, artists: List<Listening.ArtistPlays> = emptyList(), artistsFrom: MusicProvider? = null,
+    ) {
+        current = p.id; readingFrom = listOf(p)
+        val report = got ?: report(ctx, source, p, period)
+        val songs = report.tracks.size
+        if (songs == 0) { error = ctx.getString(R.string.discover_wrapped_no_plays, p.brand); return }
+        val filled = Listening.fill(report, onProgress = { done, total -> reading = mapOf(p.id to Triple(done, total, songs)) }) {
+            com.xlollx.songport.sync.DeezerCatalog.details(it)
+        }
+        current = null
+        val saved = Wrapped.fromListening(
+            filled, Wrapped.services(listOf(connector(p))).first(), period,
+            Calendar.getInstance().get(Calendar.YEAR), System.currentTimeMillis(),
+        ).let { w -> if (artistsFrom != null && artists.isNotEmpty()) Wrapped.withArtists(w, artists, Wrapped.services(listOf(connector(artistsFrom))).first()) else w }
+        Store.get(ctx).update { d -> d.copy(wrapped = Wrapped.remember(d.wrapped, saved)) }
+        runCatching { onDone(saved) }
+    }
+
+    /**
+     * A Wrapped whose top artists come from [p] (TIDAL: artists and their streams, no songs). The
+     * songs come from the first of [others] (the other listening services, the best first) that
+     * gives some, read for [period] where it can tell it; else from the [playlists]. TIDAL not
+     * answering (logged where it was asked) changes nothing: the Wrapped is made as without it.
+     */
+    private suspend fun fromArtists(
+        ctx: Context, source: Listening.Source, p: MusicProvider, period: Listening.Period, onDone: (Wrapped.Saved) -> Unit,
+        others: List<Pair<Listening.Source, MusicProvider>>, playlists: List<MusicProvider>,
+    ) {
+        val artists = try { readListening(ctx, source, p, period).artists } catch (e: CancellationException) { throw e } catch (_: Listening.Unavailable) { emptyList() }
+        val by = p.takeIf { artists.isNotEmpty() }
+        for ((s, o) in others) {
+            if (s.artistsOnly) continue
+            val wanted = Listening.period(s, period)
+            val r = try { report(ctx, s, o, wanted) } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                ctx.env.log("wrapped", "${o.displayName}: songs not read: ${e.message ?: e.javaClass.simpleName}"); null
+            }
+            if (r != null && r.tracks.isNotEmpty()) return listened(ctx, s, o, if (by != null) period else wanted, onDone, r, artists, by)
+        }
+        if (playlists.isNotEmpty()) return fromPlaylists(ctx, playlists, onDone, artists, by)
+        error = ctx.getString(R.string.discover_wrapped_no_plays, p.brand)
     }
 }

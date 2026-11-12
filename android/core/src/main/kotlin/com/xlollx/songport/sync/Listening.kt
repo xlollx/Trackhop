@@ -6,6 +6,7 @@ import com.xlollx.songport.net.get
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.str
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
@@ -42,7 +43,8 @@ object Listening {
     /**
      * The services that know what the user listened to, the best first: those counting every play
      * (the scrobblers, then the personal servers), then Spotify's ranking (the developer sign-in,
-     * then the web player's), then Deezer's, then YouTube Music's recent plays. The periods each can tell.
+     * then the web player's), then Deezer's, then TIDAL's monthly top artists (real stream counts,
+     * but artists only: no songs), then YouTube Music's recent plays. The periods each can tell.
      */
     enum class Source(val serviceId: String, val periods: List<Period>, val counts: Boolean) {
         LASTFM("lastfm", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), true),
@@ -55,10 +57,15 @@ object Listening {
         SPOTIFY("spotify", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), false),
         SPOTIFY_WEB("spotify_bridge", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), false),
         DEEZER("deezer", listOf(Period.ALL), false),
+        // MONTH: the latest month TIDAL has data for; YEAR: the months of the last twelve, summed.
+        TIDAL("tidal", listOf(Period.MONTH, Period.YEAR), true),
         YTM("ytm", listOf(Period.RECENT), false);
 
         /** A personal server: it counts the plays of every song it holds, so a playlist of its own is ranked by them. */
         val server: Boolean get() = counts && periods == listOf(Period.ALL)
+
+        /** It tells the artists played most and no song (TIDAL): the songs come from elsewhere. */
+        val artistsOnly: Boolean get() = this == TIDAL
 
         companion object {
             fun of(serviceId: String?): Source? = entries.firstOrNull { it.serviceId == serviceId }
@@ -87,6 +94,9 @@ object Listening {
 
     /** Spotify refused the top items: the sign-in predates the permission (user-top-read). Only a new sign-in grants it. */
     class MissingScope : Exception("user-top-read")
+
+    /** The service did not answer (refused, not found, an answer of another shape); already logged: the caller goes on without it. */
+    class Unavailable(message: String) : Exception(message)
 
     /** The source to read: [wanted] when it is there, else the best one there; null = the playlists. */
     fun choose(available: Collection<Source>, wanted: Source?): Source? =
@@ -224,6 +234,63 @@ object Listening {
 
     /** /user/me/charts/artists: the artists Deezer ranks highest for the user (no counts). */
     fun deezerArtists(j: JsonElement?): List<ArtistPlays> = j["data"].arr.mapNotNull { a -> a["name"].str?.takeIf { it.isNotBlank() }?.let { ArtistPlays(it) } }
+
+    // ------------------------------------------------------------------ TIDAL
+
+    /** A month of TIDAL's activity: its year and month (1-12). */
+    data class Month(val year: Int, val month: Int) {
+        val index: Int get() = year * 12 + month - 1
+    }
+
+    /**
+     * /my-activity/timeline (or a top-artists answer's `metadata.timeline`): the months TIDAL has
+     * data for, the latest first. Null when the answer has no timeline at all (another shape).
+     */
+    fun tidalTimeline(j: JsonElement?): List<Month>? {
+        val list = j["timeline"].takeIf { it is JsonArray }
+            ?: j["metadata"]["timeline"].takeIf { it is JsonArray } ?: return null
+        return list.arr.mapNotNull { m ->
+            val y = m["year"].long?.toInt() ?: return@mapNotNull null
+            val mo = m["month"].long?.toInt()?.takeIf { it in 1..12 } ?: return@mapNotNull null
+            Month(y, mo)
+        }.distinct().sortedByDescending { it.index }
+    }
+
+    /**
+     * The months to read for [period]: the latest one with data ([Period.MONTH]), or every month
+     * with data among the twelve ending with [now] ([Period.YEAR]).
+     */
+    fun tidalMonths(timeline: List<Month>, period: Period, now: Month): List<Month> = when (period) {
+        Period.YEAR -> timeline.filter { it.index in (now.index - 11)..now.index }
+        else -> timeline.take(1)
+    }
+
+    /**
+     * /my-activity/top-artists: the artists with their streams (`nrOfStreams`), the most streamed
+     * first. The top-level `artists` (with the full artist) first, else `activity.artists`. Null
+     * when neither list is there (another shape).
+     */
+    fun tidalArtists(j: JsonElement?): List<ArtistPlays>? {
+        val top = j["artists"].takeIf { it is JsonArray }
+        val list = top?.arr?.map { it["artist"]["name"] to streams(it) }
+            ?: j["activity"]["artists"].takeIf { it is JsonArray }?.arr?.map { it["name"] to streams(it) }
+            ?: return null
+        return list.mapNotNull { (name, streams) -> name.str?.trim()?.takeIf { it.isNotEmpty() }?.let { ArtistPlays(it, count(streams)) } }
+            .sortedByDescending { it.plays }
+    }
+
+    /** An artist's streams: `nrOfStreams` (the crate's serde renames to camelCase), or the snake-case spelling should TIDAL use it. */
+    private fun streams(e: JsonElement?): JsonElement? = e["nrOfStreams"] ?: e["nr_of_streams"]
+
+    /** The artists of several months as one list: an artist's streams added up (by normalized name), the most streamed first. */
+    fun sumArtists(months: List<List<ArtistPlays>>): List<ArtistPlays> {
+        val sum = LinkedHashMap<String, ArtistPlays>()
+        for (a in months.flatten()) {
+            val k = Matcher.normalizeArtist(a.name).ifEmpty { a.name.lowercase() }
+            sum[k] = sum[k]?.let { it.copy(plays = it.plays + a.plays) } ?: a
+        }
+        return sum.values.sortedByDescending { it.plays }
+    }
 
     // ------------------------------------------------------------------ personal servers
 

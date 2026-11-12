@@ -1689,6 +1689,8 @@
     <string name="card_poster_plays_from">Tes titres les plus écoutés, depuis %1$s</string>
     <string name="card_poster_plays_connect">Ces titres viennent des artistes les plus présents dans la playlist. Pour lister tes titres les plus écoutés, connecte Last.fm, ListenBrainz, Spotify, Deezer ou ton propre serveur (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Aucun de tes titres les plus écoutés sur %1$s n’est dans cette playlist : ces titres viennent des artistes les plus présents dans la playlist</string>
+    <string name="card_poster_plays_artists_from">Des titres de tes artistes les plus écoutés sur %1$s</string>
+    <string name="card_poster_plays_artists_none">Aucun de tes artistes les plus écoutés sur %1$s n’est dans cette playlist : ces titres viennent des artistes les plus présents dans la playlist</string>
     <string name="card_poster_start_over">Tout recommencer</string>
     <string name="card_poster_start_over_hint">Relit la playlist et refait une nouvelle affiche de zéro</string>
     <string name="card_poster_qr">Inclure le code QR</string>

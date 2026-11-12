@@ -1681,6 +1681,8 @@
     <string name="card_poster_plays_from">Deine meistgehörten Songs, von %1$s</string>
     <string name="card_poster_plays_connect">Diese Songs stammen von den häufigsten Künstlern der Playlist. Um deine meistgehörten Songs aufzulisten, verbinde Last.fm, ListenBrainz, Spotify, Deezer oder deinen eigenen Server (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
     <string name="card_poster_plays_none">Keiner deiner meistgehörten Songs auf %1$s ist in dieser Playlist: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
+    <string name="card_poster_plays_artists_from">Songs deiner meistgehörten Künstler auf %1$s</string>
+    <string name="card_poster_plays_artists_none">Keiner deiner meistgehörten Künstler auf %1$s ist in dieser Playlist: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
     <string name="card_poster_start_over">Neu beginnen</string>
     <string name="card_poster_start_over_hint">Liest die Playlist erneut und erstellt ein neues Poster von Grund auf</string>
     <string name="card_poster_qr">QR-Code einfügen</string>
