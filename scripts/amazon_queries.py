@@ -5,10 +5,8 @@ hash, from the player's public JavaScript (no account, no cookies).
 The player (the "dragonfly" bundle) uses Apollo's automatic persisted queries: the hash is the
 SHA-256 of graphql-js print() of the operation's document after Apollo added __typename to every
 selection set but the operation's, and after the player stripped the fields marked @localOnly.
-(Checked against deletePlaylist, whose hash the connector already had.) Fields marked @client are
-left out, and @connection, @nonreactive and @unmask dropped, as Apollo does before sending
-(QueryManager's serverQuery: removeDirectivesFromDocument, a fragment left with only __typename
-going too). Other client directives are not handled: the script stops on them.
+(Checked against deletePlaylist, whose hash the connector already had.) Documents with @client,
+@connection or other client directives are not handled: the script stops on them.
 
     python3 scripts/amazon_queries.py searchTracksResult            # downloads the current bundle
     python3 scripts/amazon_queries.py searchTracksResult dragonfly.js
@@ -131,110 +129,6 @@ def definition(d):
 
 # ---- the player's transforms
 
-DROPPED = ("connection", "nonreactive", "unmask")
-
-
-def dirs(n): return [d["name"]["value"] for d in n.get("directives") or []]
-
-
-def server_query(doc):
-    """Apollo's serverQuery: removeDirectivesFromDocument([{name: "client", remove: true}, {name:
-    "connection"}, {name: "nonreactive"}, {name: "unmask"}]), run after __typename was added. Fields,
-    inline fragments and spreads marked @client go; a fragment that loses something and keeps only
-    __typename goes with its spreads; fragments no operation reaches and unused variables go."""
-    changed = [False]
-    used = {}  # definition name -> {"vars": set, "spreads": set}
-    removed = set()
-
-    def info(name): return used.setdefault(name, {"vars": set(), "spreads": set()})
-
-    def walk(node, owner):
-        """A copy of node without the removed parts; owner's use is recorded on the way."""
-        if isinstance(node, list):
-            out = []
-            for x in node:
-                y = walk(x, owner)
-                if y is not None:
-                    out.append(y)
-            return out
-        if not isinstance(node, dict):
-            return node
-        k = node.get("kind")
-        if k in ("Field", "InlineFragment", "FragmentSpread") and "client" in dirs(node):
-            changed[0] = True
-            return None
-        if k == "Directive" and node["name"]["value"] in ("client",) + DROPPED:
-            changed[0] = True
-            return None
-        if k == "VariableDefinition":
-            return node
-        if k == "Variable":
-            info(owner)["vars"].add(node["name"]["value"])
-        if k == "FragmentSpread":
-            info(owner)["spreads"].add(node["name"]["value"])
-        return {key: walk(v, owner) for key, v in node.items()}
-
-    operations = sum(1 for d in doc["definitions"] if d["kind"] == "OperationDefinition")
-    defs = []
-    for d in doc["definitions"]:
-        name = d["name"]["value"] if d.get("name") else ""
-        before = changed[0]
-        changed[0] = False
-        nd = walk(d, name)
-        mine = changed[0]
-        changed[0] = before or mine
-        if (d["kind"] == "FragmentDefinition" and mine and operations > 0
-                and all(s["kind"] == "Field" and s["name"]["value"] == "__typename" for s in nd["selectionSet"]["selections"])):
-            removed.add(name)
-            changed[0] = True
-            continue
-        defs.append(nd)
-    if not changed[0]:
-        return doc
-
-    def transitive(name, seen=None):
-        seen = seen if seen is not None else set()
-        if name in seen:
-            return set()
-        seen.add(name)
-        u = info(name)
-        out = set(u["vars"])
-        if name not in removed:
-            for f in u["spreads"]:
-                out |= transitive(f, seen)
-        return out
-
-    reached = set()
-    for d in defs:
-        if d["kind"] == "OperationDefinition":
-            reached |= info(d["name"]["value"] if d.get("name") else "")["spreads"]
-        elif operations == 0 and d["name"]["value"] not in removed:
-            reached.add(d["name"]["value"])
-    todo = list(reached)
-    while todo:
-        f = todo.pop()
-        if f in removed:
-            continue
-        for g in info(f)["spreads"]:
-            if g not in reached:
-                reached.add(g)
-                todo.append(g)
-    gone = lambda f: f not in reached or f in removed
-
-    def prune(node):
-        if isinstance(node, list):
-            return [prune(x) for x in node if not (isinstance(x, dict) and x.get("kind") in ("FragmentSpread", "FragmentDefinition") and gone(x["name"]["value"]))]
-        return {k: prune(v) for k, v in node.items()} if isinstance(node, dict) else node
-
-    out = []
-    for d in prune(defs):
-        if d["kind"] == "OperationDefinition" and d.get("variableDefinitions"):
-            vs = transitive(d["name"]["value"] if d.get("name") else "")
-            d = dict(d, variableDefinitions=[v for v in d["variableDefinitions"] if v["variable"]["name"]["value"] in vs])
-        out.append(d)
-    return dict(doc, definitions=out)
-
-
 def local_only(node):
     """Fields marked @localOnly are left out (the player's stripLocalOnlyFieldsTransformer)."""
     if isinstance(node, list):
@@ -264,7 +158,7 @@ def main():
         print("\n".join(sorted({f"{o} {n}" for o, n in names})))
         return
     src = open(args[1]).read() if len(args) > 1 else bundle()
-    text = join([definition(d) for d in server_query(typename(local_only(document(src, args[0]))))["definitions"]], "\n\n")
+    text = join([definition(d) for d in typename(local_only(document(src, args[0])))["definitions"]], "\n\n")
     print(text)
     print("\n# sha256:", hashlib.sha256(text.encode()).hexdigest())
 

@@ -15,7 +15,6 @@ import com.xlollx.songport.net.get
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
-import com.xlollx.songport.sync.Matcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
@@ -89,18 +88,7 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
         return "https://$domain/search/" + android.net.Uri.encode(q)
     }
 
-    /**
-     * A saved album is looked for among albums (the player's albums search), never among songs: a song
-     * that shares the album's name is not the album. A Bridge app older than the albums search
-     * answers with songs, which are left out: nothing found rather than a wrong proposal.
-     */
     override suspend fun search(ctx: Env, track: Track): List<Track> {
-        if (track.kind == Track.KIND_ALBUM) {
-            val q = (track.artists.take(1).map { Matcher.searchArtist(it) } + Matcher.searchTitle(track.title)).joinToString(" ")
-            return io(ctx, "amazon.search", q, Bundle().apply { putString("kind", "album") }) { j ->
-                j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ALBUM }
-            }
-        }
         val q = (track.artists.take(2) + track.title).joinToString(" ")
         return io(ctx, "amazon.search", q) { j -> j.arr.mapNotNull { toTrack(it) } }
     }
@@ -178,8 +166,6 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
             album = j["album"].str ?: "",
             durationMs = j["durationMs"].long ?: 0,
             itemId = j["setVideoId"].str,
-            kind = if (j["kind"].str == "album") Track.KIND_ALBUM else "",
-            year = j["year"].long?.toInt() ?: 0,
         )
     }
 

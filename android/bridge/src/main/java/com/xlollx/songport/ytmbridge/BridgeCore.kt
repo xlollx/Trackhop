@@ -133,12 +133,7 @@ object BridgeCore {
                 }
                 "amazon.disconnect" -> { AmazonSession.clear(ctx); Bundle() }
                 // GraphQL for most accounts; the older skill API for the players still on it (issue #35).
-                // Albums (kind "album", for saved albums) from the albums search; the skill API has none mapped:
-                // nothing rather than songs that share an album's name.
-                "amazon.search" -> ok(json.encodeToString(
-                    if (extras?.getString("kind") == "album") AmazonRoute.run(ctx, { it.searchAlbums(arg ?: "") }, { emptyList() })
-                    else AmazonRoute.run(ctx, { it.searchTracks(arg ?: "") }, { it.searchTracks(arg ?: "") }),
-                ))
+                "amazon.search" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.searchTracks(arg ?: "") }, { it.searchTracks(arg ?: "") })))
                 "amazon.tracks" -> {
                     val id = arg ?: return err("missing playlist id")
                     ok(json.encodeToString(AmazonRoute.run(ctx, { it.playlistTracks(id) }, { it.playlistTracks(id) })))

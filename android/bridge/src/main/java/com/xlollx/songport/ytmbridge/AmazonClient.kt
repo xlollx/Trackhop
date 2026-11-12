@@ -550,20 +550,6 @@ class AmazonClient(private val ctx: Context) {
             .take(25)
     }
 
-    /**
-     * Catalogue search, albums only, as the player's search page lists them (searchAlbumsResult: its
-     * first page), for a saved album: an album is matched to an album, never to a song that shares
-     * its name. Ids are the albums' ASINs; Amazon's search gives no track count.
-     */
-    fun searchAlbums(query: String): List<TrackDto> {
-        val d = gql(SEARCH_ALBUMS, jsonObj("query" to query)).orThrow("album search")
-        return d["searchAlbums"]["edges"].arr.map { it["node"] }
-            .filter { it["__typename"].str.let { t -> t == null || t == "Album" } }
-            .mapNotNull { albumOf(it) }
-            .distinctBy { it.id }
-            .take(25)
-    }
-
     /** New playlists are private, as on every other service. */
     fun createPlaylist(name: String): PlaylistDto {
         val d = gql("CreatePlaylist", jsonObj("title" to name, "visibility" to "PRIVATE")).orThrow("create playlist")
@@ -687,22 +673,6 @@ class AmazonClient(private val ctx: Context) {
         )
     }
 
-    /** An Album node of searchAlbumsResult. */
-    private fun albumOf(n: JsonElement?): TrackDto? {
-        if (n !is JsonObject) return null
-        val id = idOf(n) ?: return null
-        val title = n["title"].str ?: return null
-        val edges = n["contributingArtists"]["edges"].arr
-        val artists = (edges.filter { it["role"].str == "PRIMARY" } + edges.filter { it["role"].str != "PRIMARY" })
-            .mapNotNull { it["node"]["name"].str }.distinct()
-            .ifEmpty { listOfNotNull(n["contributingArtists"]["concatenatedName"].str?.takeIf { it.isNotBlank() }) }
-        return TrackDto(
-            id = id, title = title, artists = artists,
-            explicit = n["parentalSettings"]["hasExplicitLanguage"].bool,
-            kind = "album", year = yearOf(n["releaseDate"]),
-        )
-    }
-
     class Region(val region: String, val language: String)
 
     companion object {
@@ -728,17 +698,15 @@ class AmazonClient(private val ctx: Context) {
         private val SKIPPED_HEADERS = setOf("cookie", "content-length", "host", "origin", "referer", "user-agent", "accept", "content-type")
 
         private const val SEARCH = "searchTracksResult"
-        private const val SEARCH_ALBUMS = "searchAlbumsResult"
         /** Texts of the persisted queries Amazon may have to be sent again (see [gql]). */
-        private val QUERIES = mapOf(SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT, SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT)
+        private val QUERIES = mapOf(SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT)
         /** Operations Amazon did not know by hash: sent with their text from then on. */
         private val WITH_TEXT: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
-        /** Persisted queries of the web player (October 2026; the searches November 2026), by operation name. */
+        /** Persisted queries of the web player (October 2026; the search November 2026), by operation name. */
         private val HASHES = mapOf(
             "AddToPlaylistModalUserPlaylists" to "8a2d8eb88470373f0191fdac28083d74233a31c769cefb4c2da22ae8e9706cd9",
             "playlistDetail" to "797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109",
             SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT_HASH,
-            SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT_HASH,
             "CreatePlaylist" to "5d91097d90465b2ca7b9ba52a96449ff1993750b76373a470663ce210ee1f829",
             "addTrackToPlaylist" to "b812f642b8a343680492dca706aefa5bf9e4c82bb800bf7031e09c55495aef8e",
             "removeTrackFromPlaylist" to "3c7d125e1c584c70c80d97367054aebff7f2866944297d54cc3dc9d4822e0d26",
@@ -809,20 +777,6 @@ class AmazonClient(private val ctx: Context) {
 }
 
 private val JsonElement?.bool: Boolean? get() = (this as? JsonPrimitive)?.content?.toBooleanStrictOrNull()
-
-/**
- * The year of a release date as Amazon gives it: a date ("2023-10-20…", "2023") or a time in epoch
- * milliseconds (seconds when too small for milliseconds); null when it is neither.
- */
-internal fun yearOf(e: JsonElement?): Int? {
-    val s = (e as? JsonPrimitive)?.content?.trim() ?: return null
-    if (s.length > 4) s.toLongOrNull()?.let { t ->
-        if (t <= 0) return null
-        val ms = if (t < 100_000_000_000L) t * 1000 else t
-        return java.time.Instant.ofEpochMilli(ms).atZone(java.time.ZoneOffset.UTC).year
-    }
-    return s.take(4).toIntOrNull()?.takeIf { it in 1000..2999 && (s.length == 4 || !s[4].isDigit()) }
-}
 
 private fun JsonElement?.asText(): String = when (this) {
     is JsonPrimitive -> content
