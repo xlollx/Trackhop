@@ -148,9 +148,16 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
 
     private suspend fun artistNames(ctx: Env, ids: Collection<String>): Map<String, String> {
         val out = HashMap<String, String>()
-        ids.distinct().chunked(20).forEach { chunk ->
+        // Names read before in this process are not asked for again: a second read of a big playlist is quicker.
+        val missing = ids.distinct().filter { id -> artistNameCache[id]?.let { out[id] = it; false } ?: true }
+        missing.chunked(20).forEach { chunk ->
             val j = api(ctx, "GET", "$API/artists?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}")
-            for (a in j["data"].arr) out[a["id"].str ?: continue] = a["attributes"]["name"].str ?: ""
+            for (a in j["data"].arr) {
+                val id = a["id"].str ?: continue
+                val name = a["attributes"]["name"].str ?: ""
+                out[id] = name
+                if (name.isNotEmpty() && artistNameCache.size < CACHE_MAX) artistNameCache[id] = name
+            }
         }
         return out
     }
@@ -257,10 +264,17 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
      * at a time, and replaced in [included], so every track has its names.
      */
     private suspend fun withArtists(ctx: Env, included: MutableMap<String, JsonElement>): Map<String, String> {
-        val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
-        bare.chunked(20).forEach { chunk ->
+        val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys.toList()
+        // A track already asked for again in this process is taken as it came then.
+        val left = bare.filter { id -> trackCache[id]?.let { included[id] = it; false } ?: true }
+        left.chunked(20).forEach { chunk ->
             val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
-            for (t in j["data"].arr) { val id = t["id"].str ?: continue; if (t["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = t }
+            for (t in j["data"].arr) {
+                val id = t["id"].str ?: continue
+                if (t["relationships"]["artists"]["data"].arr.isEmpty()) continue
+                included[id] = t
+                if (trackCache.size < CACHE_MAX) trackCache[id] = t
+            }
         }
         return artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
     }
@@ -573,6 +587,15 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         private const val API = "https://openapi.tidal.com/v2"
         /** TIDAL refused to create an artwork for this sign-in: no cover is tried again in this process. */
         @Volatile internal var coverRefused = false
+        /**
+         * Artist names, and tracks asked for again with their artists, as read in this process: a
+         * playlist of thousands is read with a fraction of the calls the second time (each name and
+         * track is the same for every account). Capped; empty in a new process.
+         */
+        internal val artistNameCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+        internal val trackCache = java.util.concurrent.ConcurrentHashMap<String, JsonElement>()
+        private const val CACHE_MAX = 50_000
+        internal fun clearCaches() { artistNameCache.clear(); trackCache.clear() }
         /** TIDAL's own API, where its apps read the listening activity (not part of the Open API). */
         private const val ACTIVITY = "https://api.tidal.com/v2"
         private const val LOG = "poster"

@@ -28,6 +28,7 @@ class TidalContractTest : ContractTest() {
     private val vnd = "application/vnd.api+json"
 
     @Before fun signIn() {
+        TidalProvider.clearCaches()
         BuildDefaults.values = mapOf("TIDAL_CLIENT_ID" to "tcid")
         env.tokens.set("tidal", Tokens("TT1", "TR1", userId = "u1", userName = "me", extra = mapOf("country" to "IT")))
     }
@@ -81,6 +82,20 @@ class TidalContractTest : ContractTest() {
         val a = next()
         assertCall(a, "GET", api, "/v2/artists")
         assertEquals("7,8,9", a.query("filter[id]"))
+        noMoreRequests()
+    }
+
+    @Test fun aSecondReadAsksOnlyForThePlaylistItself() = runBlocking {
+        // The tracks asked for again and the artists' names are kept: read again, only the pages come.
+        val bare = """{"id":"100","type":"tracks","attributes":{"title":"Song 0","isrc":"GBAAA0000000","duration":"PT3M0S"},"relationships":{"artists":{"links":{"self":"/tracks/100/relationships/artists"}}}}"""
+        json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
+        json("""{"data":[${inc(0)}],"included":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}}]}""")
+        json(artists)
+        assertEquals(listOf("Måneskin"), td.tracks(env, "P").single().artists)
+        repeat(3) { next() }
+        json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
+        assertEquals(listOf("Måneskin"), td.tracks(env, "P").single().artists)
+        assertCall(next(), "GET", api, "/v2/playlists/P/relationships/items")
         noMoreRequests()
     }
 

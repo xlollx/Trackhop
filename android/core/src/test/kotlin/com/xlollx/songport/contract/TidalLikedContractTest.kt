@@ -32,6 +32,7 @@ class TidalLikedContractTest : ContractTest() {
     @org.junit.After fun v2Off() { com.xlollx.songport.Features.build = false }
 
     @Before fun signIn() {
+        TidalProvider.clearCaches()
         BuildDefaults.values = mapOf("TIDAL_CLIENT_ID" to "tcid")
         env.tokens.set("tidal", Tokens("TT1", "TR1", userId = "u1", userName = "me", extra = mapOf("country" to "IT")))
     }
