@@ -87,6 +87,15 @@ class CoverPromptTest {
     }
 
     @Test
+    fun mostPlayedTakesAtMostTwoSongsOfOneArtist() {
+        val band = playlist + song("7", "Seventh", "A") + song("8", "Eighth", "A")
+        val got = CoverPrompt.mostPlayed(band, listOf(play("Seventh", "A", 90), play("Intro", "A", 80), play("Eighth", "A", 70), play("Fifth", "C", 10)), n = 4)
+        // The third song of A is left for later: C's song comes before it.
+        assertEquals(listOf("7", "1", "5"), got.tracks.take(3).map { it.id })
+        assertEquals(3, got.fromPlays)
+    }
+
+    @Test
     fun withoutPlaysTheListIsUnchanged() {
         val got = CoverPrompt.mostPlayed(playlist, emptyList())
         assertEquals(0, got.fromPlays)

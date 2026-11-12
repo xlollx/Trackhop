@@ -46,10 +46,10 @@ object CoverPrompt {
      * The poster's songs ranked by what the user really plays: first the playlist's songs that are
      * among [played] (a listening service's top songs), the most played first (by plays when the
      * service counts them, else in the service's own rank), then [posterTracks] fills up to [n]
-     * with the ones not chosen yet. A song is matched by ISRC when both sides carry one, else by
+     * with the ones not chosen yet; at most [perArtist] songs of one artist come from the plays. A song is matched by ISRC when both sides carry one, else by
      * its normalized title and first artist. Without plays the list is [posterTracks]'s, unchanged.
      */
-    fun mostPlayed(tracks: List<Track>, played: List<Listening.Play>, n: Int = 9): PosterPicks {
+    fun mostPlayed(tracks: List<Track>, played: List<Listening.Play>, n: Int = 9, perArtist: Int = 2): PosterPicks {
         if (played.isEmpty() || tracks.isEmpty()) return PosterPicks(posterTracks(tracks, n), 0)
         val byIsrc = HashMap<String, Track>()
         val byName = HashMap<String, Track>()
@@ -58,12 +58,19 @@ object CoverPrompt {
             nameKey(t)?.let { byName.putIfAbsent(it, t) }
         }
         val chosen = LinkedHashSet<Track>()
+        // At most [perArtist] songs of one artist, so one favourite band doesn't fill the poster alone.
+        val perArtistCount = HashMap<String, Int>()
         // Stable: a service that only ranks (every count 0) keeps its own order.
         for (p in played.sortedByDescending { it.plays }) {
             if (chosen.size >= n) break
             val hit = p.track.isrc?.trim()?.uppercase()?.takeIf { it.isNotEmpty() }?.let { byIsrc[it] }
                 ?: nameKey(p.track)?.let { byName[it] }
-            if (hit != null) chosen += hit
+                ?: continue
+            if (hit in chosen) continue
+            val artist = Matcher.normalizeArtist(hit.artists.firstOrNull().orEmpty())
+            if ((perArtistCount[artist] ?: 0) >= perArtist) continue
+            perArtistCount[artist] = (perArtistCount[artist] ?: 0) + 1
+            chosen += hit
         }
         val fromPlays = chosen.size
         if (chosen.size < n) {
