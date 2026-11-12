@@ -2446,4 +2446,5 @@
     <string name="card_view_full">全画面で表示</string>
     <string name="card_poster_name_field">ポスターに載せる名前</string>
     <string name="account_last_sync_failed">前回の同期に失敗</string>
+    <string name="card_poster_plays_failed">%1$s から再生回数の多い曲を読み込めませんでした（%2$s）。プレイリストで多いアーティストの曲を表示しています。</string>
 </resources>

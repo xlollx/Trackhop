@@ -2507,4 +2507,5 @@
     <string name="card_view_full">Ver em tela cheia</string>
     <string name="card_poster_name_field">Nome no pôster</string>
     <string name="account_last_sync_failed">A última sincronização falhou</string>
+    <string name="card_poster_plays_failed">Não foi possível ler suas músicas mais ouvidas de %1$s (%2$s): as músicas são dos artistas mais presentes na playlist.</string>
 </resources>

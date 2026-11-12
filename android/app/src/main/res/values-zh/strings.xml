@@ -2446,4 +2446,5 @@
     <string name="card_view_full">全屏查看</string>
     <string name="card_poster_name_field">海报上的名字</string>
     <string name="account_last_sync_failed">上次同步失败</string>
+    <string name="card_poster_plays_failed">无法从 %1$s 读取你最常听的歌曲（%2$s）：显示的是歌单中最常出现的艺人的歌曲。</string>
 </resources>

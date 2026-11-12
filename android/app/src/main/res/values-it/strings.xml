@@ -2499,4 +2499,5 @@
     <string name="card_view_full">Vedi a schermo intero</string>
     <string name="card_poster_name_field">Nome sul poster</string>
     <string name="account_last_sync_failed">Ultima sync non riuscita</string>
+    <string name="card_poster_plays_failed">Non è stato possibile leggere i tuoi brani più ascoltati da %1$s (%2$s): i brani sono quelli degli artisti più presenti nella playlist.</string>
 </resources>

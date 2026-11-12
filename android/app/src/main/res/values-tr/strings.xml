@@ -2497,4 +2497,5 @@
     <string name="card_view_full">Tam ekran görüntüle</string>
     <string name="card_poster_name_field">Posterdeki ad</string>
     <string name="account_last_sync_failed">Son eşitleme başarısız</string>
+    <string name="card_poster_plays_failed">%1$s üzerinden en çok dinlediğin şarkılar okunamadı (%2$s): şarkılar çalma listesinde en çok geçen sanatçılardan.</string>
 </resources>

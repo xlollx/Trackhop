@@ -2499,4 +2499,5 @@
     <string name="card_view_full">Im Vollbild ansehen</string>
     <string name="card_poster_name_field">Name auf dem Poster</string>
     <string name="account_last_sync_failed">Letzte Synchronisierung fehlgeschlagen</string>
+    <string name="card_poster_plays_failed">Deine meistgehörten Songs konnten nicht von %1$s gelesen werden (%2$s): Die Songs stammen von den häufigsten Artists der Playlist.</string>
 </resources>

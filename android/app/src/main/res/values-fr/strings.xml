@@ -2507,4 +2507,5 @@
     <string name="card_view_full">Voir en plein écran</string>
     <string name="card_poster_name_field">Nom sur le poster</string>
     <string name="account_last_sync_failed">La dernière synchro a échoué</string>
+    <string name="card_poster_plays_failed">Impossible de lire tes titres les plus écoutés sur %1$s (%2$s) : les titres sont ceux des artistes les plus présents dans la playlist.</string>
 </resources>

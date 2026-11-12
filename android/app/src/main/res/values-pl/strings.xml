@@ -2607,4 +2607,5 @@
     <string name="card_view_full">Zobacz na pełnym ekranie</string>
     <string name="card_poster_name_field">Imię na plakacie</string>
     <string name="account_last_sync_failed">Ostatnia synchronizacja nieudana</string>
+    <string name="card_poster_plays_failed">Nie udało się odczytać najczęściej słuchanych utworów z %1$s (%2$s): utwory pochodzą od najczęstszych wykonawców playlisty.</string>
 </resources>

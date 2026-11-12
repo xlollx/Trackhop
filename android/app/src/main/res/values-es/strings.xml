@@ -2507,4 +2507,5 @@
     <string name="card_view_full">Ver a pantalla completa</string>
     <string name="card_poster_name_field">Nombre en el póster</string>
     <string name="account_last_sync_failed">Falló la última sincronización</string>
+    <string name="card_poster_plays_failed">No se pudieron leer tus canciones más escuchadas de %1$s (%2$s): las canciones son de los artistas más presentes en la playlist.</string>
 </resources>

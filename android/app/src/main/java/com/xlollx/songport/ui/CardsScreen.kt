@@ -467,7 +467,7 @@ internal object PosterPlays {
      * answered with some), and Spotify's connector when it refused for want of a permission only a
      * new sign-in grants ([Listening.MissingScope]).
      */
-    class Heard(val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null)
+    class Heard(val from: MusicProvider?, val plays: List<Listening.Play>, val needsSignIn: MusicProvider? = null, val failed: Pair<MusicProvider, String>? = null)
 
     /**
      * The songs played most, from the first of [sources] (the best first) that answers with some.
@@ -475,6 +475,7 @@ internal object PosterPlays {
      */
     suspend fun read(ctx: android.content.Context, sources: List<Pair<Listening.Source, MusicProvider>>, fresh: Boolean): Heard {
         var signIn: MusicProvider? = null
+        var failed: Pair<MusicProvider, String>? = null
         for ((s, p) in sources) {
             val k = key(s, p)
             if (fresh) forget(k)
@@ -488,10 +489,20 @@ internal object PosterPlays {
                         Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID)).tracks
                     }
                 }.also { put(k, it) }
-            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.MissingScope) { signIn = p; null } catch (_: Exception) { null }
-            if (!plays.isNullOrEmpty()) return Heard(p, plays)
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Listening.MissingScope) {
+                ctx.env.log("poster", "${p.displayName}: the sign-in predates reading the top songs; sign in again")
+                signIn = p; null
+            } catch (e: Exception) {
+                ctx.env.log("poster", "${p.displayName}: most played songs not read: ${e.message ?: e.javaClass.simpleName}")
+                failed = failed ?: (p to (e.message ?: e.javaClass.simpleName)); null
+            }
+            if (!plays.isNullOrEmpty()) {
+                ctx.env.log("poster", "most played songs from ${p.displayName} (${s.name.lowercase()}, ${period(s).key}): ${plays.size}")
+                return Heard(p, plays)
+            }
+            if (plays != null) ctx.env.log("poster", "${p.displayName}: no most played songs answered for ${period(s).key}")
         }
-        return Heard(null, emptyList(), signIn)
+        return Heard(null, emptyList(), signIn, failed)
     }
 }
 
@@ -597,6 +608,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     from != null && listed.fromPlays > 0 -> ctx.getString(R.string.card_poster_plays_from, from.brand)
                     from != null -> ctx.getString(R.string.card_poster_plays_none, from.brand)
                     sources.isEmpty() -> ctx.getString(R.string.card_poster_plays_connect)
+                    // Read but refused: say so, instead of a list that looks like the most played and is not.
+                    heard.failed != null -> ctx.getString(R.string.card_poster_plays_failed, heard.failed.first.brand, heard.failed.second)
                     else -> null
                 }
                 playsSignIn = heard.needsSignIn.takeIf { from == null }

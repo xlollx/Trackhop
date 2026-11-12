@@ -2605,4 +2605,5 @@
     <string name="card_view_full">Открыть на весь экран</string>
     <string name="card_poster_name_field">Имя на постере</string>
     <string name="account_last_sync_failed">Последняя синхронизация не удалась</string>
+    <string name="card_poster_plays_failed">Не удалось прочитать самые прослушиваемые треки из %1$s (%2$s): показаны треки самых частых исполнителей плейлиста.</string>
 </resources>
