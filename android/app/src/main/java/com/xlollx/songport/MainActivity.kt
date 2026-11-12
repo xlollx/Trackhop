@@ -813,6 +813,8 @@ private fun MainScreen(
         VerticalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
     }
     // A phone on its side: on Syncs the bar slides away as the cards scroll, so two of them fit one above the other.
+    // On a tab's own page too (the Syncs search field, a tool's field): Back first closes the keyboard.
+    com.xlollx.songport.ui.ImeBackHandler()
     val barScroll = androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior()
     val barSlides = layout.short && tab == MainActivity.TAB_SYNCS
     androidx.compose.runtime.LaunchedEffect(barSlides) { if (!barSlides) barScroll.state.heightOffset = 0f }

@@ -2,6 +2,7 @@ package com.xlollx.songport.ui
 
 import com.xlollx.songport.providers.*
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -61,6 +62,24 @@ fun ScreenBackHandler(onClose: () -> Unit) {
         } catch (_: CancellationException) {
             progress?.value = 0f
         }
+    }
+    // Composed after the screen's own, so it is asked first: with the keyboard up, Back closes it.
+    ImeBackHandler()
+}
+
+/**
+ * Back with the keyboard up closes the keyboard (and leaves the field) instead of leaving the
+ * screen: some keyboards hand Back to the app first (owner, 12/11). Inactive with no keyboard.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+fun ImeBackHandler() {
+    val ime = androidx.compose.foundation.layout.WindowInsets.Companion.isImeVisible
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    val focus = androidx.compose.ui.platform.LocalFocusManager.current
+    androidx.activity.compose.BackHandler(enabled = ime) {
+        keyboard?.hide()
+        focus.clearFocus()
     }
 }
 
