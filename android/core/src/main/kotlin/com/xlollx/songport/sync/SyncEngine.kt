@@ -428,7 +428,7 @@ class SyncEngine(
                 target = stored.target.copy(playlistId = created.id, playlistName = created.name),
                 sourceCover = info?.imageUrl,
             ))
-            // Covers on the services added in 2.0 wait for it (Features).
+            // Covers on the services added in 1.18 wait for it (Features).
             val covers = com.xlollx.songport.Features.coversOn(dst)
             val cover = info?.imageUrl ?: (if (covers) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
             if (covers && cover != null) runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, created.id, it) } }

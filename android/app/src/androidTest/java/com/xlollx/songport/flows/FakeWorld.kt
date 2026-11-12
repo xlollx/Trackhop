@@ -102,7 +102,7 @@ object FakeWorld {
 
     // ---- the services
 
-    // Spotify takes playlist covers (as since 1.16); YouTube Music lists followed podcasts, a 2.0 offer (ReleaseSwitchFlowTest).
+    // Spotify takes playlist covers (as since 1.16); YouTube Music lists followed podcasts, a 1.18 offer (ReleaseSwitchFlowTest).
     val spotify = FakeProvider("spotify", "Spotify", 0xFF1DB954, "provider_note_spotify", detectsUnplayable = true, canReorder = true, covers = true)
     val deezer = FakeProvider("deezer", "Deezer", 0xFFA238FF, "provider_note_deezer", detectsUnplayable = true, canReorder = true)
     val ytm = FakeProvider("ytm", "YouTube Music", 0xFFFF0000, "provider_note_ytm", route = MusicProvider.Route.EASY, podcasts = true)
@@ -135,7 +135,7 @@ class FakeProvider(
     override val route: MusicProvider.Route? = null,
     override val linkOnly: Boolean = false,
     override val slot: String = "",
-    /** Followed podcasts as a source, offered from 2.0 (as YouTube Music's). */
+    /** Followed podcasts as a source, offered from 1.18 (as YouTube Music's). */
     private val podcasts: Boolean = false,
     /** Takes playlist covers (as Spotify's official API since 1.16). */
     private val covers: Boolean = false,
@@ -147,7 +147,7 @@ class FakeProvider(
     override val canSetCover: Boolean get() = covers
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) { FakeWorld.coversSet += id to playlistId }
 
-    /** A personal server's play counts (Jellyfin's, for the Wrapped and the poster from 2.0): none counted yet. */
+    /** A personal server's play counts (Jellyfin's, for the Wrapped and the poster from 1.18): none counted yet. */
     override suspend fun playlistPlays(ctx: Env, playlistId: String): List<com.xlollx.songport.sync.Listening.Play> = emptyList()
     override suspend fun topPlays(ctx: Env, n: Int): List<com.xlollx.songport.sync.Listening.Play> = emptyList()
 

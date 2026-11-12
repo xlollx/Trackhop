@@ -2632,8 +2632,8 @@
     <string name="card_poster_plays_failed">Не удалось прочитать самые прослушиваемые треки из %1$s (%2$s): показаны треки самых частых исполнителей плейлиста.</string>
     <string name="card_poster_plays_empty">Сервисы прослушивания не дали данных о прослушиваниях: эти треки — от исполнителей, которых в плейлисте больше всего</string>
     <string name="discover_wrapped_intro_playlists">Trackhop читает ваши любимые треки и плейлисты в подключённых сервисах прямо на телефоне и делает из них карточку. Ничего не загружается.</string>
-    <string name="settings_preview2">Предпросмотр функций 2.0</string>
-    <string name="settings_preview2_summary">Для тестирования: показывает на этом телефоне функции следующего большого выпуска. Они не доделаны и могут измениться.</string>
+    <string name="settings_preview2">Предпросмотр будущих функций</string>
+    <string name="settings_preview2_summary">Для тестирования: показывает на этом телефоне будущие функции. Они не доделаны и могут измениться.</string>
     <string name="whats_new_117_look_title">Новый облик</string>
     <string name="whats_new_117_look_body">Новая шапка, фоны за страницами и старые экраны, переделанные в одном стиле с остальными.</string>
     <string name="whats_new_117_sessions_title">Дольше без повторного входа</string>

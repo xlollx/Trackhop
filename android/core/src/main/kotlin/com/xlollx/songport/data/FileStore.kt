@@ -99,8 +99,8 @@ data class Settings(
      */
     val whatsNewSeen: String = "",
     /**
-     * Settings › Developer options › Preview 2.0 features: this device shows the features of Trackhop
-     * 2.0 in a build where they are still hidden ([com.xlollx.songport.Features]). Per device: a
+     * Settings › Developer options › Preview upcoming features: this device shows the features of Trackhop
+     * 1.18 in a build where they are still hidden ([com.xlollx.songport.Features]). Per device: a
      * configuration file leaves it out.
      */
     val preview2: Boolean = false,

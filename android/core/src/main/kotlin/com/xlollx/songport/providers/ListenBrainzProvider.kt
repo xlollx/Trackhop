@@ -108,7 +108,7 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         } while (items.size == 50 && offset < 1000)
         // The playlists ListenBrainz makes for the user (Weekly Jams, Weekly Exploration…): one entry
         // each, always the latest. Not answering leaves the list as it was, with a line in the log.
-        // Offered from Trackhop 2.0 ([com.xlollx.songport.Features]); a sync that reads one goes on reading it.
+        // Offered from Trackhop 1.18 ([com.xlollx.songport.Features]); a sync that reads one goes on reading it.
         if (com.xlollx.songport.Features.v2) try {
             out += createdFor(ctx).map { (key, p) -> Playlist(CREATED_FOR + key, createdForName(p), -1, ownedByMe = false, description = MusicProvider.plainDescription(p["annotation"].str)) }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {

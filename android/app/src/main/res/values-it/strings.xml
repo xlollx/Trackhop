@@ -2526,8 +2526,8 @@
     <string name="card_poster_plays_failed">Non è stato possibile leggere i tuoi brani più ascoltati da %1$s (%2$s): i brani sono quelli degli artisti più presenti nella playlist.</string>
     <string name="card_poster_plays_empty">I tuoi servizi di ascolto non hanno dato ascolti: questi brani vengono dagli artisti più presenti nella playlist</string>
     <string name="discover_wrapped_intro_playlists">Trackhop legge i brani che ti piacciono e le tue playlist sui servizi collegati, qui sul telefono, e ne fa una scheda. Non viene caricato niente.</string>
-    <string name="settings_preview2">Anteprima delle funzioni 2.0</string>
-    <string name="settings_preview2_summary">Per i test: mostra su questo telefono le funzioni della prossima grande versione. Non ancora finite, possono cambiare.</string>
+    <string name="settings_preview2">Anteprima delle prossime funzioni</string>
+    <string name="settings_preview2_summary">Per i test: mostra su questo telefono le prossime funzioni. Non ancora finite, possono cambiare.</string>
     <string name="whats_new_117_look_title">Un aspetto nuovo</string>
     <string name="whats_new_117_look_body">Una nuova intestazione, sfondi dietro le pagine e le schermate più vecchie rifatte in tono con il resto.</string>
     <string name="whats_new_117_sessions_title">Accesso che dura di più</string>

@@ -107,8 +107,8 @@ class SourceNameTest {
         } finally { web.shutdown() }
     }
 
-    /** The release switch: covers on a service that takes them from 2.0 wait for it (Features). */
-    @Test fun aCoverOnAServiceOf2_0IsCopiedOnlyWithTheSwitch() = runBlocking {
+    /** The release switch: covers on a service that takes them from 1.18 wait for it (Features). */
+    @Test fun aCoverOnAServiceOf1_18IsCopiedOnlyWithTheSwitch() = runBlocking {
         val web = okhttp3.mockwebserver.MockWebServer()
         web.start()
         try {

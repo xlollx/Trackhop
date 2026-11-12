@@ -150,7 +150,7 @@ object ConfigBackup {
         supportPromptReport = null, appOpens = 0, supportNudgeSeen = 0, deviceId = "",
         // Which "What's new" this phone has shown: the phone that imports the file keeps its own.
         whatsNewSeen = "",
-        // The 2.0 preview is a developer's choice on one device.
+        // The 1.18 preview is a developer's choice on one device.
         preview2 = false,
     )
 

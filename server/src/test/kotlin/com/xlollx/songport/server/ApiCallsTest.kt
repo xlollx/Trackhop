@@ -69,7 +69,7 @@ class ApiCallsTest {
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
 
     @Test fun newReleasesAreListedAndMakeAWeeklySync() {
-        // A 2.0 feature: behind the release switch, on for this test.
+        // A 1.18 feature: behind the release switch, on for this test.
         Features.v2 = true
         // The day's answers already kept for the playlist's two artists: nothing is asked of Deezer or MusicBrainz.
         val today = java.time.LocalDate.now()

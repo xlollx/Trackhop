@@ -58,7 +58,7 @@ class DiscoverV2Test {
     private val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
 
     @Before fun start() {
-        // Off by default until 2.0 (Features.DEFAULT): these tests turn it on, withTheSwitchOff… turns it off again.
+        // Off by default until 1.18 (Features.DEFAULT): these tests turn it on, withTheSwitchOff… turns it off again.
         Features.v2 = true
         data = tmp.newFolder("data")
         installServerConnectors()
@@ -326,7 +326,7 @@ class DiscoverV2Test {
 
     // ------------------------------------------------------------------ the switch
 
-    /** 2.0's pages, calls, commands and tools: there with the switch on, gone with it off. */
+    /** 1.18's pages, calls, commands and tools: there with the switch on, gone with it off. */
     private val v2Pages = listOf("/tools/wrapped", "/tools/poster", "/tools/alerts", "/tools/releases", "/tools/concerts", "/tools/setlists", "/tools/records")
     private val v2Docs = listOf("/wrapped", "/followed", "/releases", "/concerts", "/setlists", "/records", "/groups")
     private val v2Mcp = listOf("get_wrapped", "find_new_releases", "find_concerts", "find_setlists", "find_records")
@@ -365,7 +365,7 @@ class DiscoverV2Test {
         // Podcasts: OPML is not offered, and asked for, the file comes as CSV.
         assertFalse(page("/connectors/csv").body().contains("format=opml"))
         assertEquals(ExportFormat.CSV, ExportFormat.of("opml"))
-        // The keys of 2.0's Discover pages are not asked for.
+        // The keys of 1.18's Discover pages are not asked for.
         assertFalse(page("/settings").body().contains("id=\"ticketmaster\""))
         // What was there before still answers.
         assertEquals(200, api("GET", "status").code)

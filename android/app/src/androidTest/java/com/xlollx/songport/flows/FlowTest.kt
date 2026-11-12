@@ -74,7 +74,7 @@ abstract class FlowTest {
     protected open val connectedAtStart: List<String> = listOf("spotify", "deezer")
 
     /**
-     * Settings › Developer options › Preview 2.0 features at the start: the tests of 2.0's features
+     * Settings › Developer options › Preview upcoming features at the start: the tests of 1.18's features
      * turn it on (they are hidden in the build otherwise, see com.xlollx.songport.Features).
      */
     protected open val preview2: Boolean = false

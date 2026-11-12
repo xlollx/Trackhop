@@ -71,7 +71,7 @@ internal const val WRAPPED_FROM_PLAYLISTS = "playlists"
 
 /** The listening services connected, the best first, each with the connector that reads it (the first connected one). */
 internal fun listeningSources(ctx: Context): List<Pair<Listening.Source, MusicProvider>> {
-    // The Wrapped and the poster from real listening are 2.0's (Features): before it, both read the playlists, as in 1.16.
+    // The Wrapped and the poster from real listening are 1.18's (Features): before it, both read the playlists, as in 1.16.
     if (!com.xlollx.songport.Features.v2) return emptyList()
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     return Listening.Source.entries.mapNotNull { s ->

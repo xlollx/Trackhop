@@ -2473,8 +2473,8 @@
     <string name="card_poster_plays_failed">无法从 %1$s 读取你最常听的歌曲（%2$s）：显示的是歌单中最常出现的艺人的歌曲。</string>
     <string name="card_poster_plays_empty">你的收听服务没有提供播放数据：这些歌曲来自歌单中出现最多的艺人</string>
     <string name="discover_wrapped_intro_playlists">Trackhop 会在手机上读取你已连接服务中的喜欢的歌曲和歌单，并生成一张卡片。不会上传任何内容。</string>
-    <string name="settings_preview2">预览 2.0 功能</string>
-    <string name="settings_preview2_summary">用于测试：在这部手机上显示下一个大版本的功能。尚未完成，可能会变。</string>
+    <string name="settings_preview2">预览即将推出的功能</string>
+    <string name="settings_preview2_summary">用于测试：在这部手机上显示即将推出的功能。尚未完成，可能会变。</string>
     <string name="whats_new_117_look_title">全新外观</string>
     <string name="whats_new_117_look_body">新的页头、页面背后的背景，旧界面也重新做过，与其他部分保持一致。</string>
     <string name="whats_new_117_sessions_title">登录保持更久</string>

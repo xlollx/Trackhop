@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class RotationBackFlowTest : FlowTest() {
-    /** 2.0's features, hidden in the build: shown here with the developer's preview. */
+    /** 1.18's features, hidden in the build: shown here with the developer's preview. */
     override val preview2: Boolean = true
 
 

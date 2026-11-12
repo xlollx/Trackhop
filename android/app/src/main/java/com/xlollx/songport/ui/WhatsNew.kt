@@ -122,7 +122,7 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
-            // 1.17. The features of 2.0 are in the code but hidden (com.xlollx.songport.Features): their
+            // 1.17. The features of 1.18 are in the code but hidden (com.xlollx.songport.Features): their
             // highlights come with it, in a release of their own.
             Release(
                 "1.17",

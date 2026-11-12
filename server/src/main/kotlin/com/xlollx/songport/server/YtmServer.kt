@@ -54,7 +54,7 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
     override val supportsPodcasts = true
     override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
         if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
-    /** The followed podcasts came with Trackhop 2.0: offered then (Features). */
+    /** The followed podcasts came with Trackhop 1.18: offered then (Features). */
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.PODCASTS_ID
     /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
     override val supportsMultipleAccounts = true

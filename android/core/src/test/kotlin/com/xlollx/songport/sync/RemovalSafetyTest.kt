@@ -269,7 +269,7 @@ open class MemoryService(override val serviceId: String) : MusicProvider {
     val covers = ArrayList<Pair<String, ByteArray>>()
     var takesCovers = false
     override val canSetCover: Boolean get() = takesCovers
-    /** Covers here came with 2.0 (a sync sets them only with Features.v2). */
+    /** Covers here came with 1.18 (a sync sets them only with Features.v2). */
     var coversAreV2 = false
     override val coverIsV2: Boolean get() = coversAreV2
     /** Thrown by [setPlaylistCover] when set: a service that refuses the picture. */

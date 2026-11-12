@@ -1,25 +1,26 @@
-# Trackhop 2.0: draft release notes (not shipped)
+# Trackhop 1.18: draft release notes (not shipped)
 
-A draft for the day 2.0 is released: it is not linked from anywhere and not published on the site
+A draft for the day 1.18 is released: it is not linked from anywhere and not published on the site
 (`_config.yml` leaves it out). English only; the translations come when the notes are final. These
 features are in the code already, hidden in 1.17 behind the release switch (`Features.v2` in the
-app's core and on the server): a 2.0 build is made with `-PV2=true`, the server turns them on with
-`TRACKHOP_PREVIEW_2=1` (and `Features.DEFAULT = true` from 2.0).
+app's core and on the server): a 1.18 build is made with `-PV2=true`, the server turns them on with
+`TRACKHOP_PREVIEW_2=1` (and `Features.DEFAULT = true` from 1.18).
 
 ## Store notes (F-Droid changelog and Google Play, at most 500 characters each)
 
 **F-Droid / GitHub:**
 
-> Trackhop 2.0. Discover from your music: your Wrapped from what you really play, a poster of the songs you play most, new releases, concerts, setlists, records and merch of your artists, alerts for the artists you follow. Shared playlists, one playlist for a group, each on their own service. Hand a sync to your Trackhop server. Podcasts with OPML. Playlist covers on more services. TIDAL liked tracks, Apple Music favorites and Replay, ListenBrainz playlists made for you, Amazon Music purchases.
+> Trackhop 1.18. Discover from your music: your Wrapped from what you really play, a poster of the songs you play most, new releases, concerts, setlists, records and merch of your artists, alerts for the artists you follow. Shared playlists, one playlist for a group, each on their own service. Hand a sync to your Trackhop server. Podcasts with OPML. Playlist covers on more services. TIDAL liked tracks, Apple Music favorites and Replay, ListenBrainz playlists made for you, Amazon Music purchases.
 
 **Google Play** (never the Bridge, nothing only the web connectors do):
 
-> Trackhop 2.0. Discover from your music: your Wrapped from what you really play, a poster of the songs you play most, new releases, concerts, setlists, records and merch of your artists, and alerts for the artists you follow. Shared playlists: one playlist for a group, each on their own service. Hand a sync to your Trackhop server. Podcasts with OPML. Playlist covers on more services. TIDAL liked tracks, Apple Music favorites and Replay, ListenBrainz playlists made for you.
+> Trackhop 1.18. Discover from your music: your Wrapped from what you really play, a poster of the songs you play most, new releases, concerts, setlists, records and merch of your artists, and alerts for the artists you follow. Shared playlists: one playlist for a group, each on their own service. Hand a sync to your Trackhop server. Podcasts with OPML. Playlist covers on more services. TIDAL liked tracks, Apple Music favorites and Replay, ListenBrainz playlists made for you.
 
 ## In-app What's new (highlights)
 
-The texts of the old 1.18 and 1.19 entries are still in the app's strings in twelve languages
-(`whats_new_118_*`, `whats_new_119_*`) and can be reused.
+Texts written earlier for these features are still in the app's strings in twelve languages
+(`whats_new_118_*`, and `whats_new_119_*` for shared playlists and the server) and can be reused
+for the 1.18 entry.
 
 - **Your Wrapped, from what you really play**: Last.fm, ListenBrainz, Spotify, Deezer, TIDAL, YouTube Music, Apple Music's recent plays and Replay, or your own server's play counts, for the month, the half year or the year.
 - **A poster of the songs you play most**: the poster lists the songs of the playlist you play most, and puts its drawn cover on your playlist where the service takes covers.
@@ -35,7 +36,7 @@ The texts of the old 1.18 and 1.19 entries are still in the app's strings in twe
 
 ## Desktop and Docker (server CHANGELOG)
 
-The lines taken out of the 1.17 (server 1.10) section, to put back with the server's 2.0:
+The lines taken out of the 1.17 (server 1.10) section, to put back with the server's 1.18:
 
 - **New releases**: Tools › New releases lists the new albums, EPs and singles of a playlist's artists from Deezer and MusicBrainz, and what is announced; make them a playlist on any service, or a weekly *New releases* sync that keeps every track. `GET /api/v1/releases`, `trackhop releases` and the MCP tool `find_new_releases`; a new notification event tells when a weekly New releases sync found new music.
 - **Concerts**: Tools › Concerts lists the upcoming dates of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with ticket-site searches for artists without dates; your own Ticketmaster key in Settings or `TICKETMASTER_API_KEY`. `GET /api/v1/concerts`, `trackhop concerts` and the MCP tool `find_concerts`.
@@ -52,5 +53,5 @@ The lines taken out of the 1.17 (server 1.10) section, to put back with the serv
 ## On the day
 
 - Build with `-PV2=true` (the app) and set `Features.DEFAULT = true` (server/src/main/kotlin/com/xlollx/songport/server/Features.kt).
-- Notes for the new versionCode in `fastlane/metadata/android/*/changelogs/` and `play/whatsnew/<code>/`, a "2.0" entry in the app's What's new, the server CHANGELOG.
-- The README gallery: take "Upcoming" off the 2.0 slides.
+- Notes for the new versionCode in `fastlane/metadata/android/*/changelogs/` and `play/whatsnew/<code>/`, a "1.18" entry in the app's What's new, the server CHANGELOG.
+- The README gallery: take "Upcoming" off the 1.18 slides.

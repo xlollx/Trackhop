@@ -233,7 +233,7 @@ class LastFmContractTest : ContractTest() {
 class ListenBrainzContractTest : ContractTest() {
     private val lb = ListenBrainzProvider()
 
-    // The playlists made for the user are 2.0's (Features): on here, off in withoutTheSwitch….
+    // The playlists made for the user are 1.18's (Features): on here, off in withoutTheSwitch….
     @org.junit.Before fun v2On() { com.xlollx.songport.Features.build = true }
     @org.junit.After fun v2Off() { com.xlollx.songport.Features.build = false }
     private val host = "api.listenbrainz.org"

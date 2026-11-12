@@ -262,7 +262,7 @@ class MainActivity : ComponentActivity() {
         if (i?.action == Intent.ACTION_SEND) {
             // A shared playlist's invite, sent to Trackhop from a chat: the join form, not a music link.
             i.getStringExtra(Intent.EXTRA_TEXT)?.let { text ->
-                // Shared playlists are 2.0's (Features): before it, an invite is plain text.
+                // Shared playlists are 1.18's (Features): before it, an invite is plain text.
                 if (com.xlollx.songport.Features.v2 && com.xlollx.songport.shared.Invite.parse(text) != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Join(text)
                 else sharedText.value = text
             }
@@ -274,7 +274,7 @@ class MainActivity : ComponentActivity() {
             val url = i.dataString
             // An invite opened from trackhop.org/join (or its QR code): the join form.
             if (url != null && com.xlollx.songport.shared.Invite.parse(url) != null) {
-                // Shared playlists are 2.0's (Features): before it, the invite only opens the app.
+                // Shared playlists are 1.18's (Features): before it, the invite only opens the app.
                 if (com.xlollx.songport.Features.v2) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Join(url)
                 i.action = null
                 return

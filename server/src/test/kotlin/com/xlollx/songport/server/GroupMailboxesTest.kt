@@ -46,7 +46,7 @@ class GroupMailboxesTest {
     private val groupId = "0123456789abcdef"
 
     @Before fun start() {
-        // A 2.0 feature: behind the release switch, on for these tests.
+        // A 1.18 feature: behind the release switch, on for these tests.
         Features.v2 = true
         val data = tmp.newFolder("data")
         installServerConnectors()

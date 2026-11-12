@@ -2526,8 +2526,8 @@
     <string name="card_poster_plays_failed">Deine meistgehörten Songs konnten nicht von %1$s gelesen werden (%2$s): Die Songs stammen von den häufigsten Artists der Playlist.</string>
     <string name="card_poster_plays_empty">Deine Hördienste haben keine Wiedergaben geliefert: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
     <string name="discover_wrapped_intro_playlists">Trackhop liest deine Lieblingssongs und Playlists bei den verbundenen Diensten, hier auf dem Handy, und macht daraus eine Karte. Nichts wird hochgeladen.</string>
-    <string name="settings_preview2">Funktionen von 2.0 vorab</string>
-    <string name="settings_preview2_summary">Zum Testen: zeigt auf diesem Handy die Funktionen der nächsten großen Version. Noch nicht fertig, kann sich ändern.</string>
+    <string name="settings_preview2">Kommende Funktionen vorab ansehen</string>
+    <string name="settings_preview2_summary">Zum Testen: zeigt kommende Funktionen auf diesem Handy. Noch nicht fertig, kann sich ändern.</string>
     <string name="whats_new_117_look_title">Ein frischer Look</string>
     <string name="whats_new_117_look_body">Eine neue Kopfzeile, Hintergründe hinter den Seiten und die älteren Bildschirme passend zum Rest überarbeitet.</string>
     <string name="whats_new_117_sessions_title">Länger angemeldet</string>

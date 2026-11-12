@@ -331,7 +331,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     val running = SyncState.running.value
     val jobs = env.store.data.jobs
     val rest = path.drop(2)
-    // The release switch: 2.0's calls are unknown until it is on (Features).
+    // The release switch: 1.18's calls are unknown until it is on (Features).
     if (Features.hidesCall(method, rest)) return error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
     if (apiDiag(ex, method, rest, query, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return

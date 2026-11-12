@@ -2527,8 +2527,8 @@
     <string name="card_poster_plays_failed">Your most played songs could not be read from %1$s (%2$s): the songs are the playlist\'s most frequent artists\'.</string>
     <string name="card_poster_plays_empty">Your listening services gave no plays: these songs are from the playlist\'s most present artists</string>
     <string name="discover_wrapped_intro_playlists">Trackhop reads your liked songs and your playlists on the services you connected, here on the phone, and makes a card of them. Nothing is uploaded.</string>
-    <string name="settings_preview2">Preview 2.0 features</string>
-    <string name="settings_preview2_summary">For testing: shows the features of the next big release on this phone. Not finished, and may change.</string>
+    <string name="settings_preview2">Preview upcoming features</string>
+    <string name="settings_preview2_summary">For testing: shows upcoming features on this phone. Not finished, and may change.</string>
     <string name="whats_new_117_look_title">A fresh look</string>
     <string name="whats_new_117_look_body">A new header, backgrounds behind the pages, and the older screens redone to match the rest.</string>
     <string name="whats_new_117_sessions_title">Signed in for longer</string>

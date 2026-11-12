@@ -37,7 +37,7 @@ class AppleMusicListeningContractTest : ContractTest() {
         """{"id":"i.lib$i","type":"library-songs","attributes":{"name":"Lib $i","artistName":"Artist L","playParams":{"id":"i.lib$i","kind":"song","catalogId":"${700 + i}"}}}"""
 
     @Test fun favoritesAreALikedTargetOnly() {
-        // Favorites and recent plays are 2.0's (Features): not offered without it, still served to a sync that has them.
+        // Favorites and recent plays are 1.18's (Features): not offered without it, still served to a sync that has them.
         com.xlollx.songport.Features.build = false
         assertFalse(am.libraryEntries(env, asTarget = true).any { it.id == MusicProvider.LIKED_ID })
         assertFalse(am.libraryEntries(env, asTarget = false).any { it.id == MusicProvider.RECENT_ID })

@@ -9,7 +9,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The release switch: the build's half, the device's half, and what each 2.0 offer asks of it. */
+/** The release switch: the build's half, the device's half, and what each 1.18 offer asks of it. */
 class FeaturesTest {
     @After fun reset() {
         Features.build = false
@@ -38,7 +38,7 @@ class FeaturesTest {
         assertTrue(Features.v2(Settings()))
     }
 
-    /** A service with one list, covers and moves of 2.0, as TIDAL. */
+    /** A service with one list, covers and moves of 1.18, as TIDAL. */
     private class Tidalish : MemoryService("tidalish") {
         override val supportsLikedSongs = true
         override val supportsLikedTarget = true
@@ -49,14 +49,14 @@ class FeaturesTest {
         override fun libraryIsV2(playlistId: String, asTarget: Boolean) = playlistId == MusicProvider.LIKED_ID
     }
 
-    /** A service whose offers are all older than 2.0. */
+    /** A service whose offers are all older than 1.18. */
     private class Older : MemoryService("older") {
         override val supportsLikedSongs = true
         override val canReorder = true
         override val canSetCover = true
     }
 
-    @Test fun theOffersOf2_0WaitForItAndTheOlderOnesDoNot() {
+    @Test fun theOffersOf1_18WaitForItAndTheOlderOnesDoNot() {
         val env = com.xlollx.songport.contract.ContractEnv()
         val t = Tidalish(); val o = Older()
         assertTrue(t.libraryEntries(env, asTarget = false).none { it.id == MusicProvider.LIKED_ID })

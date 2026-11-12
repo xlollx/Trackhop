@@ -38,7 +38,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         if (this == OPML) runBlocking { encode(name, com.xlollx.songport.sync.Podcasts.withFeeds(env, tracks)) } else encode(name, tracks)
 
     companion object {
-        /** The formats offered: OPML (podcasts) is 2.0's (Features). */
+        /** The formats offered: OPML (podcasts) is 1.18's (Features). */
         fun offered() = entries.filter { it != OPML || Features.v2 }
         fun of(s: String?) = offered().firstOrNull { it.ext == s?.lowercase() } ?: CSV
     }
@@ -191,7 +191,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "api" -> apiPage(r)
         "config" -> configPage(r)
         "lyrics" -> lyricsPage(r)
-        // Discover's pages of 2.0: not found until the release switch is on (Features).
+        // Discover's pages of 1.18: not found until the release switch is on (Features).
         "releases" -> if (Features.v2) releasesTool(r) else notFound(r)
         "wanted" -> wantedPage(r)
         "concerts" -> if (Features.v2) concertsPage(r) else notFound(r)

@@ -2634,8 +2634,8 @@
     <string name="card_poster_plays_failed">Nie udało się odczytać najczęściej słuchanych utworów z %1$s (%2$s): utwory pochodzą od najczęstszych wykonawców playlisty.</string>
     <string name="card_poster_plays_empty">Twoje serwisy nie podały żadnych odtworzeń: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
     <string name="discover_wrapped_intro_playlists">Trackhop czyta Twoje polubione utwory i playlisty w połączonych serwisach, tu na telefonie, i robi z nich kartę. Nic nie jest wysyłane.</string>
-    <string name="settings_preview2">Podgląd funkcji 2.0</string>
-    <string name="settings_preview2_summary">Do testów: pokazuje na tym telefonie funkcje następnej dużej wersji. Niegotowe, mogą się zmienić.</string>
+    <string name="settings_preview2">Podgląd nadchodzących funkcji</string>
+    <string name="settings_preview2_summary">Do testów: pokazuje na tym telefonie nadchodzące funkcje. Niegotowe, mogą się zmienić.</string>
     <string name="whats_new_117_look_title">Nowy wygląd</string>
     <string name="whats_new_117_look_body">Nowy nagłówek, tła za stronami i starsze ekrany przerobione tak, by pasowały do reszty.</string>
     <string name="whats_new_117_sessions_title">Dłużej zalogowany</string>

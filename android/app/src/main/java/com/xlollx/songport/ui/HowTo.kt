@@ -93,13 +93,13 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
             MODES -> listOf(R.string.howto_modes_body)
             // The battery note is the long text Settings already has for its row.
             // Coordinate with my server: the same syncs on this phone and on a Trackhop server.
-            // (2.0's, with the release switch: com.xlollx.songport.Features.)
+            // (1.18's, with the release switch: com.xlollx.songport.Features.)
             SCHEDULES -> listOf(R.string.howto_schedules_body, R.string.settings_battery_desc, R.string.howto_schedules_body2, R.string.howto_schedules_channels) +
                 (if (com.xlollx.songport.Features.v2) listOf(R.string.server_locks_title, R.string.help_server_locks_body) else emptyList())
             PREVIEW -> listOf(R.string.howto_preview_body)
             REVIEW -> listOf(R.string.howto_review_body)
             BACKUPS -> listOf(R.string.howto_backups_body)
-            // Shared playlists and My server are 2.0's (Features).
+            // Shared playlists and My server are 1.18's (Features).
             TOOLS -> listOfNotNull(R.string.howto_tools_body, R.string.howto_tools_more, R.string.howto_tools_more_v2.takeIf { com.xlollx.songport.Features.v2 })
             ORGANISE -> listOf(R.string.howto_organise_body)
             DISCOVER -> listOf(R.string.howto_discover_body)
@@ -114,7 +114,7 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
         }
 
     companion object {
-        /** The guides of 2.0's features: listed with them ([com.xlollx.songport.Features.v2]). */
+        /** The guides of 1.18's features: listed with them ([com.xlollx.songport.Features.v2]). */
         val V2: Set<HowTo> = setOf(DISCOVER, SHARED, SERVER)
 
         /** The guides this build offers now. */

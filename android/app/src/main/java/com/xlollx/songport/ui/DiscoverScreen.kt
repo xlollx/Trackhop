@@ -134,7 +134,7 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
 
     companion object {
         /**
-         * The cards of Trackhop 2.0, in the grid only with [com.xlollx.songport.Features.v2]. Followed
+         * The cards of Trackhop 1.18, in the grid only with [com.xlollx.songport.Features.v2]. Followed
          * artists still opens from its alerts' notification for who follows artists already.
          */
         val V2: Set<DiscoverCard> = setOf(RELEASES, CONCERTS, SETLISTS, RECORDS, FOLLOWED)

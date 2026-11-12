@@ -44,7 +44,7 @@ interface MusicProvider {
     }
 
     /**
-     * A library list of this service that came with Trackhop 2.0 (TIDAL's liked tracks, Apple Music's
+     * A library list of this service that came with Trackhop 1.18 (TIDAL's liked tracks, Apple Music's
      * favorites and recent plays, YouTube Music's podcasts): [libraryEntries] offers it only with
      * [com.xlollx.songport.Features.v2]. A sync that already uses it reads and writes it as ever.
      */
@@ -131,7 +131,7 @@ interface MusicProvider {
 
     /** Putting a playlist's tracks in a given order, where the API has a move: Spotify, YouTube Music, Deezer. */
     val canReorder: Boolean get() = false
-    /** The moves came with Trackhop 2.0 (TIDAL, YouTube): offered only with [com.xlollx.songport.Features.v2]. */
+    /** The moves came with Trackhop 1.18 (TIDAL, YouTube): offered only with [com.xlollx.songport.Features.v2]. */
     val reorderIsV2: Boolean get() = false
     /** [current] as the playlist lists it now, [ordered] the same tracks in the wanted order (ids and item ids as listed). */
     suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {}
@@ -142,7 +142,7 @@ interface MusicProvider {
      * [TidalProvider.setPlaylistCover]), Jellyfin, Emby, Plex.
      */
     val canSetCover: Boolean get() = false
-    /** Covers here came with Trackhop 2.0: a sync sets them only with [com.xlollx.songport.Features.v2]. */
+    /** Covers here came with Trackhop 1.18: a sync sets them only with [com.xlollx.songport.Features.v2]. */
     val coverIsV2: Boolean get() = false
     /**
      * [jpeg]: square, 360 to 640 px, at most 190 KB ([com.xlollx.songport.sync.Covers]), which every

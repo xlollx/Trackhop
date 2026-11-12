@@ -200,7 +200,7 @@ class PodcastsTest {
     @Test fun exportOffersOpmlOnlyForShows() {
         val E = com.xlollx.songport.providers.LocalFilesProvider.Export
         val opml = com.xlollx.songport.providers.LocalFilesProvider.Export.OPML
-        // OPML is 2.0's (Features): offered for nothing without it.
+        // OPML is 1.18's (Features): offered for nothing without it.
         com.xlollx.songport.Features.build = false
         try {
             assertFalse(opml in E.forShows(true))

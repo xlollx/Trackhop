@@ -53,7 +53,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override val supportsPodcasts: Boolean get() = BridgePlugin.full
     override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
         if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
-    /** The followed podcasts came with Trackhop 2.0: offered then ([com.xlollx.songport.Features]). */
+    /** The followed podcasts came with Trackhop 1.18: offered then ([com.xlollx.songport.Features]). */
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.PODCASTS_ID
     /** Another account: where the WebView keeps profiles apart and the connectors take a slot (see [WebAccounts]). */
     override val supportsMultipleAccounts: Boolean get() = WebAccounts.allowed(STATUS)

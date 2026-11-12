@@ -2524,8 +2524,8 @@
     <string name="card_poster_plays_failed">%1$s üzerinden en çok dinlediğin şarkılar okunamadı (%2$s): şarkılar çalma listesinde en çok geçen sanatçılardan.</string>
     <string name="card_poster_plays_empty">Dinleme servislerin hiç dinlenme vermedi: bu şarkılar çalma listesinde en çok yer alan sanatçılardan</string>
     <string name="discover_wrapped_intro_playlists">Trackhop bağlı servislerdeki beğenilen şarkılarını ve çalma listelerini burada, telefonda okur ve onlardan bir kart yapar. Hiçbir şey yüklenmez.</string>
-    <string name="settings_preview2">2.0 özelliklerini önizle</string>
-    <string name="settings_preview2_summary">Test için: bir sonraki büyük sürümün özelliklerini bu telefonda gösterir. Bitmedi, değişebilir.</string>
+    <string name="settings_preview2">Yakında gelecek özellikleri önizle</string>
+    <string name="settings_preview2_summary">Test için: yakında gelecek özellikleri bu telefonda gösterir. Bitmedi, değişebilir.</string>
     <string name="whats_new_117_look_title">Yeni bir görünüm</string>
     <string name="whats_new_117_look_body">Yeni bir üst bölüm, sayfaların arkasında arka planlar ve geri kalanla uyumlu hâle getirilen eski ekranlar.</string>
     <string name="whats_new_117_sessions_title">Daha uzun süre oturum açık</string>

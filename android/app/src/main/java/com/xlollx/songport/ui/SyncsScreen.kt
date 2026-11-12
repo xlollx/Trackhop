@@ -879,7 +879,7 @@ private fun JobMenuHost(
     // Handed over to the user's server (Coordinate with my server): it runs there; taken back here to change it.
     val onServer = data.handedOver[job.id] != null
     val serverOn = remember(data.handedOver) { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
-    // Sharing a sync and handing one over are 2.0's (Features): a sync already shared or on the server keeps its way back.
+    // Sharing a sync and handing one over are 1.18's (Features): a sync already shared or on the server keeps its way back.
     val v2 = com.xlollx.songport.Features.v2(data.settings)
     var handOverOpen by rememberSaveable { mutableStateOf(false) }
     if (handOverOpen) HandOverDialog(job, back = onServer) { handOverOpen = false }
@@ -2068,7 +2068,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     // Liked songs on a service that orders them by the second of saving (Spotify): the
                     // switch decides between one a second, in order, and batches at full speed.
                     val likedSpacing = if (!createNew && dstPlaylist?.id == MusicProvider.LIKED_ID) Providers.byId(dstProvider)?.addSpacingMs(MusicProvider.LIKED_ID) ?: 0 else 0
-                    // TIDAL's and YouTube's moves are 2.0's (Features.reorderOn).
+                    // TIDAL's and YouTube's moves are 1.18's (Features.reorderOn).
                     if ((Providers.byId(dstProvider)?.let { com.xlollx.songport.Features.reorderOn(it) } == true || likedSpacing > 0) && !archive) {
                         SwitchRow(stringResource(R.string.editor_keep_order), stringResource(R.string.editor_keep_order_desc), keepOrder, help = { HelpButton(Helps.keepOrder) }) { keepOrder = it }
                         if (likedSpacing > 0) Text(

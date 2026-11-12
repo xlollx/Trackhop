@@ -314,7 +314,7 @@ internal fun WrappedPage(snackbar: SnackbarHostState, onGoToAccounts: () -> Unit
     }
 
     val id = LocalToolIdentity.current
-    // Before 2.0 (Features) the Wrapped reads the playlists only, as the intro then says.
+    // Before 1.18 (Features) the Wrapped reads the playlists only, as the intro then says.
     ToolIntro(stringResource(if (listeners.isEmpty() && !com.xlollx.songport.Features.v2) R.string.discover_wrapped_intro_playlists else R.string.discover_wrapped_intro))
     if (services.isEmpty() && listeners.isEmpty() && history.isEmpty()) { NoServices(stringResource(R.string.discover_no_services), onGoToAccounts); return }
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM, locale(ctx)) }

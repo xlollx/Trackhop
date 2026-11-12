@@ -650,7 +650,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 playsNote = when {
                     from != null && listed.fromPlays > 0 -> ctx.getString(if (byArtists) R.string.card_poster_plays_artists_from else R.string.card_poster_plays_from, from.brand)
                     from != null -> ctx.getString(if (byArtists) R.string.card_poster_plays_artists_none else R.string.card_poster_plays_none, from.brand)
-                    // The most played songs are 2.0's (Features): before it, the poster says nothing of plays.
+                    // The most played songs are 1.18's (Features): before it, the poster says nothing of plays.
                     !com.xlollx.songport.Features.v2 -> null
                     sources.isEmpty() -> ctx.getString(R.string.card_poster_plays_connect)
                     // Read but refused: say so, instead of a list that looks like the most played and is not.
@@ -811,7 +811,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     else OutlinedButton(enabled = !busy, onClick = { run(nextVariant = true) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_cover_another)) }
                     TextButton(onClick = { saveCover.launch("trackhop-cover.png") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.card_ai_save)) }
                     // The drawn cover onto the user's own playlist, where the service takes covers.
-                    // 2.0's (Features), on the services that take covers then.
+                    // 1.18's (Features), on the services that take covers then.
                     val target = pick?.takeIf { mine && com.xlollx.songport.Features.v2 && it.provider.canSetCover && !com.xlollx.songport.providers.MusicProvider.isLibrary(it.playlist.id) }
                     if (target != null) TextButton(enabled = !settingCover, onClick = {
                         val bmp = drawn ?: return@TextButton

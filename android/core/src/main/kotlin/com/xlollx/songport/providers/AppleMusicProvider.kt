@@ -61,7 +61,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     override val supportsLikedTarget: Boolean get() = serviceId == SERVICE
     /** Recently played (/v1/me/recent/played/tracks) as a source, and for the poster and the Wrapped. */
     override val supportsRecent: Boolean get() = serviceId == SERVICE
-    /** Favorites and recent plays came with Trackhop 2.0: offered then ([com.xlollx.songport.Features]). */
+    /** Favorites and recent plays came with Trackhop 1.18: offered then ([com.xlollx.songport.Features]). */
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean =
         serviceId == SERVICE && ((playlistId == MusicProvider.LIKED_ID && asTarget) || playlistId == MusicProvider.RECENT_ID)
 

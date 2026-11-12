@@ -20,22 +20,22 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The release switch (com.xlollx.songport.Features): in a 1.17 build the ways into 2.0's features
+ * The release switch (com.xlollx.songport.Features): in a 1.17 build the ways into 1.18's features
  * are not offered (Shared playlists in Tools, Discover's new cards with Followed artists, the
  * Wrapped and the poster from real listening, the poster's "Use as playlist cover", YouTube Music's
- * followed podcasts in the picker), and Settings › Developer options › Preview 2.0 features brings
+ * followed podcasts in the picker), and Settings › Developer options › Preview upcoming features brings
  * them back on this phone. [ReleaseSwitchPreviewFlowTest] has them with the preview on.
  */
 @RunWith(AndroidJUnit4::class)
 open class ReleaseSwitchFlowTest : FlowTest() {
-    /** Spotify, YouTube Music (followed podcasts, a 2.0 list) and Jellyfin (play counts, a 2.0 listening source). */
+    /** Spotify, YouTube Music (followed podcasts, a 1.18 list) and Jellyfin (play counts, a 1.18 listening source). */
     override val connectedAtStart: List<String> = listOf("spotify", "ytm", "jellyfin")
 
     /** On: what the test expects to see. */
     protected open val shown: Boolean get() = preview2
 
     @Before fun aBuildWithoutThem() {
-        // A 2.0 build (-PV2=true) has them on anyway: nothing to check here then.
+        // A 1.18 build (-PV2=true) has them on anyway: nothing to check here then.
         assumeFalse(BuildConfig.V2)
         app.getSharedPreferences("poster", android.content.Context.MODE_PRIVATE).edit().clear().commit()
     }
@@ -114,7 +114,7 @@ open class ReleaseSwitchFlowTest : FlowTest() {
         openSourcePicker()
         clickTile("YouTube Music")
         waitText("Metal Mix")
-        // YouTube Music's library here is its followed podcasts alone: no Library choice without 2.0.
+        // YouTube Music's library here is its followed podcasts alone: no Library choice without 1.18.
         assertTrue("the Library choice", exists(s(R.string.editor_section_library)) == shown)
         if (shown) {
             click(s(R.string.editor_section_library))
@@ -131,7 +131,7 @@ open class ReleaseSwitchFlowTest : FlowTest() {
     @Test fun podcastsInThePicker() = checkPodcasts()
 }
 
-/** The same ways in, with Settings › Developer options › Preview 2.0 features on: all there. */
+/** The same ways in, with Settings › Developer options › Preview upcoming features on: all there. */
 @RunWith(AndroidJUnit4::class)
 class ReleaseSwitchPreviewFlowTest : ReleaseSwitchFlowTest() {
     override val preview2: Boolean = true

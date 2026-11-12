@@ -204,7 +204,7 @@ class StoreScreenshots {
                 onboardingDone = true, tourDone = true, themeMode = "DARK", dynamicColor = false, newLook = true,
                 supportPromptDone = true, appOpens = 1, supportNudgeSeen = 0, shareTarget = yt,
                 whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion, tipsPillDismissed = true,
-                // The pictures show 2.0's features too (the carousel's Discover pages): the preview is on.
+                // The pictures show 1.18's features too (the carousel's Discover pages): the preview is on.
                 preview2 = true,
             )
         }

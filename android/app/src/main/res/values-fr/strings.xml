@@ -2534,8 +2534,8 @@
     <string name="card_poster_plays_failed">Impossible de lire tes titres les plus écoutés sur %1$s (%2$s) : les titres sont ceux des artistes les plus présents dans la playlist.</string>
     <string name="card_poster_plays_empty">Tes services d’écoute n’ont donné aucune écoute : ces titres viennent des artistes les plus présents dans la playlist</string>
     <string name="discover_wrapped_intro_playlists">Trackhop lit tes titres likés et tes playlists sur les services connectés, ici sur le téléphone, et en fait une carte. Rien n\'est envoyé.</string>
-    <string name="settings_preview2">Aperçu des fonctions 2.0</string>
-    <string name="settings_preview2_summary">Pour tester : affiche sur ce téléphone les fonctions de la prochaine grande version. Pas encore finies, elles peuvent changer.</string>
+    <string name="settings_preview2">Aperçu des prochaines fonctions</string>
+    <string name="settings_preview2_summary">Pour tester : affiche sur ton téléphone les prochaines fonctions. Pas encore finies, elles peuvent changer.</string>
     <string name="whats_new_117_look_title">Un nouveau look</string>
     <string name="whats_new_117_look_body">Un nouvel en-tête, des fonds derrière les pages et les écrans plus anciens refaits pour aller avec le reste.</string>
     <string name="whats_new_117_sessions_title">Connecté plus longtemps</string>

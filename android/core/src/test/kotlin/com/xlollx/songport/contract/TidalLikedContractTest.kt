@@ -41,7 +41,7 @@ class TidalLikedContractTest : ContractTest() {
            "relationships":{"artists":{"data":[{"id":"7","type":"artists"}]}}}"""
 
     @Test fun likedIsASourceAndATarget() {
-        // TIDAL's liked tracks are 2.0's (Features): not offered without it, still read and written for a sync that has them.
+        // TIDAL's liked tracks are 1.18's (Features): not offered without it, still read and written for a sync that has them.
         com.xlollx.songport.Features.build = false
         assertTrue(td.libraryEntries(env, asTarget = false).none { it.id == MusicProvider.LIKED_ID })
         assertTrue(td.libraryEntries(env, asTarget = true).none { it.id == MusicProvider.LIKED_ID })

@@ -164,7 +164,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
     val hasOneOffs = storeData.jobs.any { it.oneOff }
     val hasServerSync = storeData.syncs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
     val serverOn = remember { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
-    // The release switch: Shared playlists and My server are 2.0's (Features). Groups and syncs on the
+    // The release switch: Shared playlists and My server are 1.18's (Features). Groups and syncs on the
     // server that a test build made stay reachable.
     val v2 = com.xlollx.songport.Features.v2(storeData.settings)
     val hasGroups = storeData.groups.isNotEmpty()
