@@ -43,8 +43,8 @@ class PosterRendersTest {
         Case("long_name_italian", "Canzoni da ascoltare in macchina d'estate", listOf("Godspeed You! Black Emperor and the Silver Mt. Zion", "Muse", "Placebo")),
         Case("twelve_artists_no_qr", "Songs for a very long night drive", twelve, qr = false),
         Case("drawn_art_three_artists", "Dark Trap/Phonk/Aesthetic rap", twelve.take(3), drawn = true),
-        // The owner's poster, 12/11: the Bold header read "LORENZO CANNILLO · SPO… 2220 TRACKS · 140 H 1…".
-        Case("signed_big_playlist", "Liked songs", twelve, owner = "Lorenzo Cannillo", trackCount = 2220, durationMs = 505_000_000L),
+        // A real poster, 12/11: the Bold header read "GIULIA MARCHETTI · SPO… 2220 TRACKS · 140 H 1…".
+        Case("signed_big_playlist", "Liked songs", twelve, owner = "Giulia Marchetti", trackCount = 2220, durationMs = 505_000_000L),
         Case("signed_long_name", "Liked songs", twelve, owner = "Maria Fernanda Albuquerque de Souza Lima", trackCount = 12_345, durationMs = 2_950_000_000L),
     )
 
