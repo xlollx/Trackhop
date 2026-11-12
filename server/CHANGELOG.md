@@ -25,6 +25,11 @@ the Docker image carried the app's version.
 - **Hand-over from the app**: a phone can hand a sync over to your server and bring it back. `POST /api/v1/syncs` takes an `id` of your own, which makes the call safe to repeat: sent again, it answers the sync made the first time.
 - **Review choices shared with the app**: `GET`/`POST /api/v1/syncs/{sync}/decisions` give and take in the review's choices (ignored, matched by hand, kept), each with its time; for each track the newest choice wins on both sides.
 
+## 1.9.2
+
+- **TIDAL saved albums and followed artists sync again**: TIDAL's API no longer has the collection paths Trackhop used (reads and writes answered "Resource not found"); they now go through its new saved-albums and followed-artists resources.
+- **Better matching of numbered parts and remastered titles** (#57): a bare number after a title is its part when the other title names one ("Magnetic Fields III" is Part 3, never Part 2), another part is never matched nor proposed; more remaster forms leave the search ("Digital Remaster", "24-bit", "Remasterizado"); an album named "A / B" matches either name; Jellyfin and Emby also search the artist's own songs when no title is close.
+
 ## 1.9.1
 
 - **Better matching on your own media servers** (#57): Jellyfin, Emby, Plex and Navidrome/Subsonic also search the bare title (without "Pt. 4", subtitles or "- Remastered", with and without accents) when the first answers bring only other songs; dotted initials are one word ("U.S.A" is "USA"); tracks missed before an update to matching are searched again on the next run instead of staying "not found" for a week. Different parts of a piece are still never matched to each other.

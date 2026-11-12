@@ -1,0 +1,1 @@
+TIDAL: Gespeicherte Alben und gefolgte Künstler werden wieder synchronisiert, nachdem TIDAL seine API geändert hat. Amazon Music: Die Suche funktioniert wieder. Bessere Zuordnung nummerierter Teile und remasterter Titel; Jellyfin und Emby durchsuchen auch die Songs des Künstlers, wenn kein Titel nah genug ist.
