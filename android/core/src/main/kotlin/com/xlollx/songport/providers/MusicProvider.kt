@@ -48,7 +48,7 @@ interface MusicProvider {
         Playlist(LIKED_ID, ctx.text("liked_songs")).takeIf { supportsLibrary(LIKED_ID, asTarget) },
         Playlist(ALBUMS_ID, ctx.text("saved_albums")).takeIf { supportsAlbums },
         Playlist(ARTISTS_ID, ctx.text("followed_artists")).takeIf { supportsArtists },
-        Playlist(PODCASTS_ID, ctx.text("followed_podcasts")).takeIf { supportsPodcasts },
+        Playlist(PODCASTS_ID, ctx.text("followed_podcasts")).takeIf { supportsLibrary(PODCASTS_ID, asTarget) },
         Playlist(RECENT_ID, ctx.text("recently_played")).takeIf { !asTarget && supportsRecent },
     )
     /** False per sorgenti locali (file) che non richiedono login. */

@@ -93,6 +93,7 @@ import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.LibraryTools
 import com.xlollx.songport.sync.Tools
 import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.platform.env
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -320,6 +321,8 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     var selected by remember(provider.id) { mutableStateOf<Playlist?>(null) }
     var busy by remember { mutableStateOf(false) }
     var pendingFormat by remember { mutableStateOf<LocalFilesProvider.Export?>(null) }
+    // OPML: the feeds looked up so far, of how many (Apple's directory is asked a show at a time).
+    var lookups by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     LaunchedEffect(provider.id) {
         lists = try {
@@ -340,14 +343,15 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
         scope.launch {
             try {
                 val tracks = provider.tracks(ctx, pl.id)
-                val text = fmt.encode(pl.name, tracks)
+                val (text, noFeed) = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks) { done, total -> lookups = done to total }
                 withContext(Dispatchers.IO) {
                     ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
                 }
-                snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, tracks.size))
+                snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
             }
+            lookups = null
             busy = false
         }
     }
@@ -371,12 +375,16 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 if (busy) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)) }
+                lookups?.let { (done, total) ->
+                    Text(stringResource(R.string.opml_finding_feeds, done, total), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                }
                 val pl = selected
                 var formats by remember { mutableStateOf(false) }
                 Box {
                     Button(enabled = !busy && pl != null, onClick = { formats = true }) { Text(stringResource(R.string.tools_export_save)) }
                     DropdownMenu(expanded = formats, onDismissRequest = { formats = false }) {
-                        ExportMenuItems { fmt -> formats = false; pendingFormat = fmt; export(fmt, pl!!.name) }
+                        ExportMenuItems(LocalFilesProvider.Export.forShows(LocalFilesProvider.Export.isShows(pl?.id))) { fmt -> formats = false; pendingFormat = fmt; export(fmt, pl!!.name) }
                     }
                 }
             }

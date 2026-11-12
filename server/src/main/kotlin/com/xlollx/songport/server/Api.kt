@@ -484,7 +484,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest.size == 2 && rest[0] == "files" && method == "GET" -> {
             val f = csvFiles().firstOrNull { it.name == rest[1] } ?: return error(404, "No such file.")
             val format = ExportFormat.of(query["format"])
-            val text = if (format == ExportFormat.CSV) f.readText() else format.encode(f.nameWithoutExtension, com.xlollx.songport.sync.CsvCodec.parse(f.readText()))
+            val text = if (format == ExportFormat.CSV) f.readText() else format.render(env, f.nameWithoutExtension, com.xlollx.songport.sync.CsvCodec.parse(f.readText()))
             send(ex, 200, text, format.mime)
         }
         rest == listOf("lyrics") && (method == "GET" || method == "POST") -> {

@@ -54,6 +54,7 @@ import com.xlollx.songport.R
 import com.xlollx.songport.data.Store
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.MusicProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -116,14 +117,15 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         scope.launch {
             try {
                 val tracks = provider.tracks(ctx, pl.id)
-                withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(fmt.encode(pl.name, tracks)) } }
+                val text = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks).first
+                withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) } }
                 snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }
         }
     }
 
     choosingFormat?.let { pl ->
-        ExportFormatDialog(onDismiss = { choosingFormat = null }) { fmt -> choosingFormat = null; exporting = pl; export(fmt, pl.name) }
+        ExportFormatDialog(onDismiss = { choosingFormat = null }, formats = LocalFilesProvider.Export.forShows(LocalFilesProvider.Export.isShows(pl.id))) { fmt -> choosingFormat = null; exporting = pl; export(fmt, pl.name) }
     }
 
     renaming?.let { pl ->

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -126,7 +127,7 @@ internal fun PlaylistThumb(name: String?, id: String?, size: Dp, modifier: Modif
         val b = bmp
         if (b != null) Image(b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         else Icon(
-            icon ?: when { id == MusicProvider.LIKED_ID -> Icons.Filled.Favorite; MusicProvider.isLibrary(id) -> Icons.Filled.LibraryMusic; else -> Icons.Filled.MusicNote },
+            icon ?: when { id == MusicProvider.LIKED_ID -> Icons.Filled.Favorite; id == MusicProvider.PODCASTS_ID -> Icons.Filled.Podcasts; MusicProvider.isLibrary(id) -> Icons.Filled.LibraryMusic; else -> Icons.Filled.MusicNote },
             null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(size * 0.45f),
         )
     }

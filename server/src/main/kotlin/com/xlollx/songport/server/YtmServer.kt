@@ -50,6 +50,10 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
     override val supportsAlbums = true
     override val supportsArtists = true
     override val supportsRecent = true
+    /** Followed podcasts, read only: following a show from here is not documented (see YtmClient.libraryPodcasts). */
+    override val supportsPodcasts = true
+    override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
+        if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
     /** Another account: its own cookies, kv file and caches (see [ServerWebHost]). */
     override val supportsMultipleAccounts = true
     override val canRenamePlaylists = true
@@ -129,6 +133,7 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         when (playlistId) {
             MusicProvider.ALBUMS_ID -> c.libraryAlbums()
             MusicProvider.ARTISTS_ID -> c.librarySubscriptions()
+            MusicProvider.PODCASTS_ID -> c.libraryPodcasts()
             MusicProvider.RECENT_ID -> c.history()
             else -> c.tracks(playlistId)
         }.map { toTrack(it) }
@@ -222,7 +227,7 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         durationMs = t.durationMs,
         itemId = t.setVideoId,
         uri = t.uri,
-        kind = when (t.kind) { "album" -> Track.KIND_ALBUM; "artist" -> Track.KIND_ARTIST; else -> "" },
+        kind = when (t.kind) { "album" -> Track.KIND_ALBUM; "artist" -> Track.KIND_ARTIST; "podcast" -> Track.KIND_PODCAST; else -> "" },
         year = t.year ?: 0,
     )
 

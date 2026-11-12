@@ -259,8 +259,8 @@ object Mcp {
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))
         },
-        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf or txt.",
-            listOf(SERVICE, PLAYLIST, Param("format", "string", "csv (default), m3u, xspf, jspf or txt.", required = false)), readOnly = true) { a ->
+        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf or txt (opml for followed podcasts).",
+            listOf(SERVICE, PLAYLIST, Param("format", "string", "csv (default), m3u, xspf, jspf, txt, or opml for followed podcasts.", required = false)), readOnly = true) { a ->
             Call("export", listOf(a.text("service"), a.text("playlist")), values = a.values("format"))
         },
         Tool("list_files", "List playlist files", "The File playlists kept in Trackhop (imported files and backups).", emptyList(), readOnly = true) { Call("files") },

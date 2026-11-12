@@ -494,6 +494,39 @@ class YtmClient(private val host: YtmHost) {
         return out.values.toList()
     }
 
+    /**
+     * Followed podcasts: the "Podcasts" tab of the library, as ytmusicapi's get_library_podcasts reads
+     * it (browse FEmusic_library_non_music_audio_list, a grid of two-row items). Only the shows, whose
+     * page is MPSP + the show's playlist id: the grid's "Add podcast" tile and the "New episodes" auto
+     * playlist (VLRDPN) are left out. Read only: following a show from here is not documented.
+     */
+    fun libraryPodcasts(): List<TrackDto> {
+        val out = LinkedHashMap<String, TrackDto>()
+        var resp = call("browse", mapOf("browseId" to "FEmusic_library_non_music_audio_list"))
+        var pages = 0
+        while (true) {
+            var added = 0
+            for (item in resp.findAll("musicTwoRowItemRenderer")) {
+                val t = podcastRow(item) ?: continue
+                if (out.putIfAbsent(t.id, t) == null) added++
+            }
+            val scope = resp.findFirst("gridRenderer") ?: resp.findFirst("gridContinuation") ?: resp.findFirst("onResponseReceivedActions")
+            val next = continuationOf(scope) ?: break
+            if (added == 0 || ++pages > 50) break
+            resp = continueBrowse(next)
+        }
+        return out.values.toList()
+    }
+
+    private fun podcastRow(item: JsonElement): TrackDto? {
+        val browseId = item["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].str
+            ?: item["navigationEndpoint"]["browseEndpoint"]["browseId"].str ?: return null
+        if (!browseId.startsWith("MPSP") || browseId.length <= 4) return null
+        val title = item["title"].runsText() ?: return null
+        val publisher = item["subtitle"]["runs"][0]["text"].str?.trim()?.takeIf { it.isNotEmpty() }
+        return TrackDto(browseId.removePrefix("MPSP"), title, listOfNotNull(publisher), uri = browseId, kind = "podcast")
+    }
+
     /** Subscribed artists: the "Artists" tab of the library, subscriptions only. */
     fun librarySubscriptions(): List<TrackDto> {
         val out = LinkedHashMap<String, TrackDto>()

@@ -328,6 +328,9 @@
     <string name="tools_progress_dedupe">Pulizia %1$d/%2$d…</string>
     <string name="export_format">Esporta come %1$s</string>
     <string name="format_text">Testo</string>
+    <string name="format_opml">OPML (podcast)</string>
+    <string name="opml_finding_feeds">Cerco gli indirizzi dei feed: %1$d di %2$d</string>
+    <string name="opml_feeds_missing">Fatto. Podcast senza indirizzo del feed nella directory di Apple: %1$d. Sono elencati solo per nome.</string>
     <string name="tools_export_save">Salva come…</string>
     <string name="tools_make_title">Nuova playlist da…</string>
     <string name="tools_make_desc">Copia, unisci, dividi, ordina o mescola le playlist. Il risultato è sempre una playlist nuova su questo servizio; le originali non vengono toccate.</string>

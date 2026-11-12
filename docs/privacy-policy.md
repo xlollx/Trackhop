@@ -28,6 +28,10 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   Jellyfin, Emby or Plex, the app asks the public music database MusicBrainz (musicbrainz.org) which
   recordings a track's ISRC stands for, to find the file tagged with that recording. An anonymous request
   carrying the ISRC only: no account, token or playlist. Answers are kept on the device.
+- **Podcast directory lookups (only for followed podcasts)**: to match a show across services and to write
+  an OPML file, the app asks Apple's public podcast directory (itunes.apple.com) for a show by its name or
+  its Apple id. An anonymous request with the show's name or id only: no account, token or other data.
+  Answers are kept on the device.
 - **Spotify web connector (GitHub and F-Droid version)**: to talk to Spotify's web player backend the app
   reads the player's public JavaScript and, at most every six hours, a public list of the player's
   query identifiers hosted on GitHub (raw.githubusercontent.com). Both are anonymous downloads: no
@@ -160,6 +164,10 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   Navidrome/Subsonic, Jellyfin, Emby o Plex, l'app chiede al database musicale pubblico MusicBrainz
   (musicbrainz.org) a quali registrazioni corrisponde l'ISRC di un brano, per trovare il file con quel tag.
   È una richiesta anonima con il solo ISRC: niente account, token o playlist. Le risposte restano sul dispositivo.
+- **Ricerche nella directory dei podcast (solo per i podcast seguiti)**: per abbinare uno show fra i servizi e
+  per scrivere un file OPML, l'app chiede alla directory pubblica dei podcast di Apple (itunes.apple.com) uno
+  show per nome o per id Apple. È una richiesta anonima con il solo nome o id dello show: niente account,
+  token o altri dati. Le risposte restano sul dispositivo.
 - **Controllo aggiornamenti**: la versione scaricata da GitHub chiede all'API pubblica di GitHub
   (api.github.com), al massimo due volte al giorno, qual è l'ultima versione di Trackhop, per mostrare una
   freccia in alto quando ne esiste una più recente. È una richiesta anonima: non vengono inviati account,

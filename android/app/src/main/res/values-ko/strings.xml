@@ -326,6 +326,9 @@
     <string name="tools_progress_dedupe">정리 중 %1$d/%2$d…</string>
     <string name="export_format">%1$s 형식으로 내보내기</string>
     <string name="format_text">텍스트</string>
+    <string name="format_opml">OPML(팟캐스트)</string>
+    <string name="opml_finding_feeds">피드 주소를 찾는 중: %1$d / %2$d</string>
+    <string name="opml_feeds_missing">완료. Apple 팟캐스트 디렉터리에 피드 주소가 없는 팟캐스트: %1$d개. 이름만 적어 두었습니다.</string>
     <string name="tools_export_save">다른 이름으로 저장…</string>
     <string name="tools_make_title">새 플레이리스트 만들기…</string>
     <string name="tools_make_desc">플레이리스트를 복사, 병합, 분할, 정렬하거나 섞어요. 결과는 항상 이 서비스의 새 플레이리스트이고 원본은 건드리지 않아요.</string>

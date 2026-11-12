@@ -39,6 +39,13 @@ data class Track(
      * tracks sharing one are the same recording. Only lives during a run: never saved.
      */
     @kotlinx.serialization.Transient val mbids: List<String> = emptyList(),
+    /**
+     * A followed podcast's RSS feed address, where it is known (an OPML file, Apple's podcast
+     * directory): the surest way to tell one show from another (see sync/Podcasts). Null for songs.
+     */
+    val feedUrl: String? = null,
+    /** A followed podcast's id in Apple's podcast directory (iTunes), where it is known. */
+    val itunesId: String? = null,
 ) {
     val artistLine: String get() = artists.joinToString(", ")
     val isrcNorm: String? get() = isrc?.trim()?.uppercase()?.takeIf { it.length >= 10 }

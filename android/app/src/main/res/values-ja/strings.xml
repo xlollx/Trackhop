@@ -326,6 +326,9 @@
     <string name="tools_progress_dedupe">整理中 %1$d/%2$d…</string>
     <string name="export_format">%1$s としてエクスポート</string>
     <string name="format_text">テキスト</string>
+    <string name="format_opml">OPML（ポッドキャスト）</string>
+    <string name="opml_finding_feeds">フィードのアドレスを検索中：%1$d / %2$d</string>
+    <string name="opml_feeds_missing">完了。Apple のポッドキャストディレクトリにフィードのアドレスがない番組：%1$d 件。名前だけで書き出しました。</string>
     <string name="tools_export_save">形式を選んで保存…</string>
     <string name="tools_make_title">新しいプレイリストを作成…</string>
     <string name="tools_make_desc">プレイリストをコピー、結合、分割、並べ替え、シャッフルします。結果は常にこのサービス上の新しいプレイリストになり、元のプレイリストは変更されません。</string>

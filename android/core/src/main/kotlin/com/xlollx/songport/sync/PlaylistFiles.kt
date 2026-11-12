@@ -297,17 +297,70 @@ object PlaylistFiles {
         append("  </trackList>\n</playlist>\n")
     }
 
-    private val OPML_OUTLINE = Regex("""<outline\b([^>]*)>""", RegexOption.IGNORE_CASE)
-    private val OPML_ATTR = Regex("""(\w+)\s*=\s*"([^"]*)"""")
+    private val OPML_OUTLINE = Regex("""<outline\b((?:[^>"']|"[^"]*"|'[^']*')*)>""", RegexOption.IGNORE_CASE)
+    private val OPML_ATTR = Regex("""([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+    private val XML_COMMENT = Regex("""<!--[\s\S]*?-->""")
+    private val NUMERIC_ENTITY = Regex("""&#(x[0-9a-fA-F]+|\d+);""")
 
-    /** OPML delle iscrizioni ai podcast (Pocket Casts, AntennaPod, Apple Podcasts…): un show per outline con feed. */
-    fun parseOpml(text: String): List<Track> = OPML_OUTLINE.findAll(text).mapNotNull { m ->
-        val attrs = OPML_ATTR.findAll(m.groupValues[1]).associate { it.groupValues[1].lowercase() to unescapeXml(it.groupValues[2]) }
-        // Group headers are outlines too; only the ones pointing at a feed are shows.
-        if (attrs["xmlurl"].isNullOrBlank()) return@mapNotNull null
-        val title = (attrs["text"] ?: attrs["title"])?.trim()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
-        CsvCodec.withStableId(Track(id = "", title = title, kind = Track.KIND_PODCAST))
-    }.toList()
+    /** An attribute's value as written in XML: entities read, line breaks and runs of spaces as one space. */
+    private fun xmlText(s: String): String = NUMERIC_ENTITY.replace(s) { m ->
+        val v = m.groupValues[1]
+        val code = if (v.startsWith("x") || v.startsWith("X")) v.substring(1).toIntOrNull(16) else v.toIntOrNull()
+        code?.takeIf { Character.isValidCodePoint(it) }?.let { String(Character.toChars(it)) } ?: m.value
+    }.let(::unescapeXml).replace(Regex("""\s+"""), " ").trim()
+
+    /**
+     * OPML delle iscrizioni ai podcast (AntennaPod, Pocket Casts, Podcast Addict, Apple Podcasts…): un
+     * show per outline con feed (`xmlUrl`, o `url` per un outline di tipo rss), con il suo indirizzo e,
+     * dove l'outline ne porta uno, l'id di Apple (`htmlUrl` verso podcasts.apple.com, `itunes:id`).
+     * Gruppi, commenti e outline senza nome si saltano.
+     */
+    fun parseOpml(text: String): List<Track> {
+        return OPML_OUTLINE.findAll(XML_COMMENT.replace(text, "")).mapNotNull { m ->
+            val attrs = OPML_ATTR.findAll(m.groupValues[1]).associate { a ->
+                a.groupValues[1].lowercase() to xmlText(a.groups[2]?.value ?: a.groupValues[3])
+            }
+            // Group headers are outlines too; only the ones pointing at a feed are shows.
+            val feed = attrs["xmlurl"]?.takeIf { it.isNotBlank() }
+                ?: attrs["url"]?.takeIf { it.isNotBlank() && attrs["type"].equals("rss", ignoreCase = true) }
+                ?: return@mapNotNull null
+            val title = listOf(attrs["text"], attrs["title"]).firstOrNull { !it.isNullOrBlank() } ?: return@mapNotNull null
+            val itunes = Podcasts.itunesId(attrs["itunes:id"]) ?: Podcasts.itunesId(attrs["htmlurl"])
+            val publisher = listOf(attrs["itunes:author"], attrs["author"]).firstOrNull { !it.isNullOrBlank() }
+            CsvCodec.withStableId(Track(id = "", title = title, artists = listOfNotNull(publisher), kind = Track.KIND_PODCAST, feedUrl = feed, itunesId = itunes))
+        }.toList()
+    }
+
+    /** Characters XML 1.0 does not allow, even escaped (control characters but tab and line breaks). */
+    private val XML_INVALID = Regex("""[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]""")
+
+    private fun xmlAttr(s: String): String =
+        escapeXml(XML_INVALID.replace(s, "").replace(Regex("""\s+"""), " ").trim())
+
+    /**
+     * OPML 2.0 subscriptions, as podcast apps import them: one `rss` outline per show with its feed.
+     * A show with no known feed (see [Podcasts.withFeeds]) is written as a plain outline with its name,
+     * which apps pass over, rather than left out without a word.
+     */
+    fun toOpml(name: String, shows: List<Track>): String = buildString {
+        append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+        append("<opml version=\"2.0\">\n")
+        append("  <head><title>").append(xmlAttr(name)).append("</title></head>\n")
+        append("  <body>\n")
+        for (s in shows) {
+            val title = xmlAttr(s.title)
+            append("    <outline")
+            if (s.feedUrl.isNullOrBlank()) {
+                append(" text=\"").append(title).append("\" title=\"").append(title).append('"')
+            } else {
+                append(" type=\"rss\" text=\"").append(title).append("\" title=\"").append(title).append('"')
+                append(" xmlUrl=\"").append(xmlAttr(s.feedUrl!!)).append('"')
+            }
+            Podcasts.itunesId(s.itunesId)?.let { append(" htmlUrl=\"https://podcasts.apple.com/podcast/id").append(it).append('"') }
+            append("/>\n")
+        }
+        append("  </body>\n</opml>\n")
+    }
 
     private val XSPF_TRACK = Regex("""<track>([\s\S]*?)</track>""")
     private fun xspfField(body: String, tag: String): String? =

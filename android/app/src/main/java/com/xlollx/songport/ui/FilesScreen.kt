@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.xlollx.songport.R
 import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.platform.env
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -107,7 +108,9 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
                     ids.count { id ->
                         val name = id.replace(Regex("[\\\\/:*?\"<>|]"), "_") + "." + format.extension
                         val doc = DocumentsContract.createDocument(resolver, dirUri, format.mime, name) ?: return@count false
-                        resolver.openOutputStream(doc)?.bufferedWriter()?.use { it.write(LocalFilesProvider.exportText(ctx, id, format)) } != null
+                        val text = if (format != LocalFilesProvider.Export.OPML) LocalFilesProvider.exportText(ctx, id, format)
+                            else LocalFilesProvider.encodeLooked(ctx.env, format, id, LocalFilesProvider.tracks(ctx.env, id)).first
+                        resolver.openOutputStream(doc)?.bufferedWriter()?.use { it.write(text) } != null
                     }
                 }
             }
@@ -115,7 +118,7 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
                 .onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
         }
     }
-    if (choosingFolderFormat) ExportFormatDialog(onDismiss = { choosingFolderFormat = false }) { fmt ->
+    if (choosingFolderFormat) ExportFormatDialog(onDismiss = { choosingFolderFormat = false }, formats = LocalFilesProvider.Export.entries) { fmt ->
         choosingFolderFormat = false
         folderFormat = fmt
         pickFolder.launch(null)
@@ -148,10 +151,15 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
         exporting = null
         if (uri == null || id == null) return
         scope.launch {
-            withContext(Dispatchers.IO) {
-                ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(LocalFilesProvider.exportText(ctx, id, format)) }
+            // OPML: the feeds a file of shows lacks are looked up first (Apple's directory, paced).
+            val (text, noFeed) = withContext(Dispatchers.IO) {
+                if (format != LocalFilesProvider.Export.OPML) LocalFilesProvider.exportText(ctx, id, format) to 0
+                else LocalFilesProvider.encodeLooked(ctx.env, format, id, LocalFilesProvider.tracks(ctx.env, id))
             }
-            snackbar.showSnackbar(ctx.getString(R.string.csv_exported))
+            withContext(Dispatchers.IO) {
+                ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
+            }
+            snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.csv_exported))
         }
     }
     val export = rememberPlaylistExporter { uri, format -> writeExport(uri, format) }
@@ -300,7 +308,7 @@ private fun FileRow(
         if (selecting) return@Row
         var menu by remember { mutableStateOf(false) }
         var choosing by remember { mutableStateOf(false) }
-        if (choosing) ExportFormatDialog(onDismiss = { choosing = false }) { choosing = false; onExport(it) }
+        if (choosing) ExportFormatDialog(onDismiss = { choosing = false }, formats = LocalFilesProvider.Export.entries) { choosing = false; onExport(it) }
         Box {
             IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.csv_export)) }
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

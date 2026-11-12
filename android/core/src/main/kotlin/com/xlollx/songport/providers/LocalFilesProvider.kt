@@ -167,6 +167,8 @@ object LocalFilesProvider : MusicProvider {
         JSPF("application/json", "jspf"),
         XSPF("application/xspf+xml", "xspf"),
         TXT("text/plain", "txt"),
+        /** Podcast subscriptions, for AntennaPod, Pocket Casts, Podcast Addict: only for followed podcasts (see [forShows]). */
+        OPML("text/x-opml", "opml"),
         ;
 
         /** Il testo del file in questo formato; [name] serve ai formati che hanno un titolo. */
@@ -176,7 +178,28 @@ object LocalFilesProvider : MusicProvider {
             JSPF -> PlaylistFiles.toJspf(name, tracks)
             XSPF -> PlaylistFiles.toXspf(name, tracks)
             TXT -> PlaylistFiles.toText(tracks)
+            OPML -> PlaylistFiles.toOpml(name, tracks)
         }
+
+        companion object {
+            /** The formats offered for a list: every format as before, and OPML first where it holds shows ([shows]). */
+            fun forShows(shows: Boolean): List<Export> = entries.filter { it != OPML }.let { if (shows) listOf(OPML) + it else it }
+
+            /** Whether [playlistId] or the [tracks] read from it are followed podcasts. */
+            fun isShows(playlistId: String?, tracks: List<Track> = emptyList()): Boolean =
+                playlistId == MusicProvider.PODCASTS_ID || (tracks.isNotEmpty() && tracks.all { it.kind == Track.KIND_PODCAST || !it.feedUrl.isNullOrBlank() })
+        }
+    }
+
+    /**
+     * The text of [tracks] as [format], with the feeds an OPML file needs looked up first (see
+     * [com.xlollx.songport.sync.Podcasts.withFeeds]); [onProgress] gets the lookups done and to do.
+     * Answers the text and how many shows are written without a feed.
+     */
+    suspend fun encodeLooked(ctx: Env, format: Export, name: String, tracks: List<Track>, onProgress: (Int, Int) -> Unit = { _, _ -> }): Pair<String, Int> {
+        if (format != Export.OPML) return format.encode(name, tracks) to 0
+        val shows = com.xlollx.songport.sync.Podcasts.withFeeds(ctx, tracks, onProgress)
+        return format.encode(name, shows) to shows.count { it.feedUrl.isNullOrBlank() }
     }
 
     fun exportText(ctx: Env, playlistId: String, format: Export): String {

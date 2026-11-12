@@ -332,6 +332,9 @@
     <string name="tools_progress_dedupe">Очистка %1$d/%2$d…</string>
     <string name="export_format">Экспортировать как %1$s</string>
     <string name="format_text">Текст</string>
+    <string name="format_opml">OPML (подкасты)</string>
+    <string name="opml_finding_feeds">Поиск адресов лент: %1$d из %2$d</string>
+    <string name="opml_feeds_missing">Готово. Подкастов без адреса ленты в каталоге Apple: %1$d. Они записаны только по названию.</string>
     <string name="tools_export_save">Сохранить как…</string>
     <string name="tools_make_title">Новый плейлист из…</string>
     <string name="tools_make_desc">Копируйте, объединяйте, разделяйте, сортируйте или перемешивайте плейлисты. Результат — всегда новый плейлист на этом сервисе; оригиналы не затрагиваются.</string>
