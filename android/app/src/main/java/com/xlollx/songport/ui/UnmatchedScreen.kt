@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.content.Intent
@@ -270,15 +272,20 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                 PageCard(shape = MaterialTheme.shapes.large) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         // From where to where, then what is left to do.
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        val route: @Composable () -> Unit = {
                             Row(Modifier.clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically) {
                                 ServiceLogo(Providers.byId(job.source.provider), 36.dp)
                                 Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.padding(horizontal = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 ServiceLogo(dst, 36.dp)
                             }
-                            Spacer(Modifier.width(12.dp))
-                            Text(stringResource(R.string.review_summary, tracks.size, reviews.size), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f).semantics { heading() })
                         }
+                        val summary: @Composable (Modifier) -> Unit = { m ->
+                            Text(stringResource(R.string.review_summary, tracks.size, reviews.size), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = m.semantics { heading() })
+                        }
+                        // Side by side, or the marks over the words where those would be left a column of three lines
+                        // (a narrow phone, a large font).
+                        if (LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale < 300f) { route(); summary(Modifier) }
+                        else Row(verticalAlignment = Alignment.CenterVertically) { route(); Spacer(Modifier.width(12.dp)); summary(Modifier.weight(1f)) }
                         Text(stringResource(R.string.review_tap_hint, dstName), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (reviews.size + tracks.size > 1) PageNote(stringResource(R.string.review_select_hint), icon = Icons.Filled.TouchApp)
                         if (report.partial) PageNote(stringResource(R.string.review_partial_banner), tone = Tone.Accent, icon = Icons.Filled.Sync)

@@ -1,5 +1,8 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -384,6 +387,21 @@ private fun ProviderCard(
     val expired = remember(p.id) { connected && p is SoundCloudBridgeProvider && p.sessionExpired(ctx.env) }
     // A card of the page, as a section of Tools or Settings: the pill says the state, a session gone wears the error's line.
     PageCard(shape = MaterialTheme.shapes.large, edge = if (expired) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else null) {
+        // Little room for the words (a narrow phone, a large font): the state goes under the name and the
+        // line on encryption above the buttons, instead of each squeezing the other.
+        val tight = LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale < 300f
+        val state: @Composable () -> Unit = {
+            if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
+            else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
+            else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
+        }
+        val encrypted: @Composable (Modifier) -> Unit = { m ->
+            Row(m, verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.account_encrypted), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ServiceLogo(p, 48.dp)
@@ -404,11 +422,9 @@ private fun ProviderCard(
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2, overflow = TextOverflow.Ellipsis,
                     )
+                    if (tight) { Spacer(Modifier.height(4.dp)); state() }
                 }
-                Spacer(Modifier.width(8.dp))
-                if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
-                else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
-                else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
+                if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx))
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
@@ -424,15 +440,9 @@ private fun ProviderCard(
                 PageNote(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), tone = Tone.Error)
             }
             Spacer(Modifier.height(8.dp))
+            if (connected && tight) encrypted(Modifier.fillMaxWidth())
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                if (connected) {
-                    Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        stringResource(R.string.account_encrypted), style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
-                    )
-                } else Spacer(Modifier.weight(1f))
+                if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
                 // YouTube Music: the channel the account acts as (its own, or a brand account), where the connectors offer it.
@@ -735,7 +745,7 @@ private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: St
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(84.dp).heightIn(min = 96.dp).alpha(0.45f),
+        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(0.45f),
     ) {
         Column(Modifier.padding(horizontal = 6.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
             ServiceLogo(serviceId, brandColor, name, 40.dp)
@@ -745,6 +755,10 @@ private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: St
     }
 }
 
+/** How wide a tile of the grid is: wider with a larger font, so a name of one word is not broken in two. */
+@Composable
+private fun serviceTileWidth(): Dp = 84.dp * LocalDensity.current.fontScale.coerceIn(1f, 1.5f)
+
 /** A service in the "add a service" grid: its mark, large, and its name. */
 @Composable
 internal fun ServiceGridTile(p: MusicProvider, name: String, enabled: Boolean, onClick: () -> Unit) {
@@ -752,7 +766,7 @@ internal fun ServiceGridTile(p: MusicProvider, name: String, enabled: Boolean, o
         onClick = onClick, enabled = enabled,
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(84.dp).heightIn(min = 96.dp).alpha(if (enabled) 1f else 0.45f),
+        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(if (enabled) 1f else 0.45f),
     ) {
         // Logo at the top and every label two lines tall: with names on one line and on two
         // ("YouTube Music", "Subsonic / Navidrome"), centring moved the logos up and down.
