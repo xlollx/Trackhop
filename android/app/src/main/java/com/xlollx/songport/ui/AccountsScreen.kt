@@ -1,5 +1,12 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextAlign
@@ -252,7 +259,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                 if (chosen == null) {
                     serviceGroups(families.keys.toList(), families).forEach { (groupRes, names) ->
                         if (names.isEmpty()) return@forEach
-                        Text(stringResource(groupRes), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp, bottom = 6.dp))
+                        Text(stringResource(groupRes), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp, bottom = 8.dp).semantics { heading() })
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                             names.forEach { name ->
                                 val members = families.getValue(name)
@@ -275,7 +282,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                     }
                     if (unavailable.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                            Text(stringResource(R.string.services_group_unavailable), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.services_group_unavailable), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).semantics { heading() })
                             HelpButton(Helps.unavailable)
                         }
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -287,7 +294,7 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                         IconButton(onClick = { family = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) }
                         ServiceLogo(chosen.first(), 32.dp)
                         Spacer(Modifier.width(12.dp))
-                        Text(family!!, style = MaterialTheme.typography.titleMedium)
+                        Text(family!!, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.connector_pick_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).padding(vertical = 6.dp))
@@ -296,8 +303,10 @@ private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, o
                     // The easiest route first, so a first-timer's eye lands on it.
                     chosen.sortedBy { if (it.route == MusicProvider.Route.EASY) 0 else 1 }.forEach { s ->
                         val taken = !s.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == s.serviceId }
+                        // Each way in on its own card, a full target: what it asks and what it is.
                         Row(
-                            Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).clickable(enabled = !taken) { onPick(s) }.padding(horizontal = 8.dp, vertical = 10.dp),
+                            Modifier.padding(top = 8.dp).fillMaxWidth().heightIn(min = 56.dp).clip(ToolCardShape).background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                                .clickable(enabled = !taken) { onPick(s) }.padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
@@ -376,14 +385,23 @@ private fun ProviderCard(
     val account = remember(p.id) { p.accountName(ctx) }
     // A web session gone for good (SoundCloud): connected on paper, but only a new sign-in brings it back.
     val expired = remember(p.id) { connected && p is SoundCloudBridgeProvider && p.sessionExpired(ctx.env) }
-    // The edge tells the state at a glance: the success tone when connected, a hairline otherwise.
-    val edge = if (connected) Tones.onSuccessContainer().copy(alpha = 0.45f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
-    Card(
-        Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        border = androidx.compose.foundation.BorderStroke(1.dp, edge),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-    ) {
+    // A card of the page, as a section of Tools or Settings: the pill says the state, a session gone wears the error's line.
+    PageCard(shape = MaterialTheme.shapes.large, edge = if (expired) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else null) {
+        // Little room for the words (a narrow phone, a large font): the state goes under the name and the
+        // line on encryption above the buttons, instead of each squeezing the other.
+        val tight = LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale < 300f
+        val state: @Composable () -> Unit = {
+            if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
+            else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
+            else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
+        }
+        val encrypted: @Composable (Modifier) -> Unit = { m ->
+            Row(m, verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.account_encrypted), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ServiceLogo(p, 48.dp)
@@ -392,7 +410,7 @@ private fun ProviderCard(
                     Text(
                         label + (if (!p.canWrite) " · " + stringResource(R.string.read_only) else "") +
                             (if (p.alpha) " · " + stringResource(R.string.alpha) else if (p.beta) " · " + stringResource(R.string.beta) else ""),
-                        style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         when {
@@ -404,35 +422,27 @@ private fun ProviderCard(
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2, overflow = TextOverflow.Ellipsis,
                     )
+                    if (tight) { Spacer(Modifier.height(4.dp)); state() }
                 }
-                Spacer(Modifier.width(8.dp))
-                if (expired) StatusPill(stringResource(R.string.session_expired), Tone.Error)
-                else if (connected) StatusPill(stringResource(R.string.connected), Tone.Ok, Icons.Filled.CheckCircle)
-                else if (!configured) StatusPill(stringResource(R.string.not_configured), Tone.Neutral)
+                if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx))
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
             if (p.alpha || p.beta) {
-                Spacer(Modifier.height(6.dp))
-                Text(stringResource(if (p.alpha) R.string.alpha_note else R.string.beta_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
+                Spacer(Modifier.height(8.dp))
+                PageNote(stringResource(if (p.alpha) R.string.alpha_note else R.string.beta_note))
             }
             if (p.usesOwnCredentials(ctx)) {
-                Spacer(Modifier.height(6.dp))
-                Text(stringResource(R.string.setup_using_own), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(8.dp))
+                PageNote(stringResource(R.string.setup_using_own), icon = Icons.Filled.Key)
             } else if (!configured && !connected) {
-                Spacer(Modifier.height(6.dp))
-                Text(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                Spacer(Modifier.height(8.dp))
+                PageNote(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), tone = Tone.Error)
             }
             Spacer(Modifier.height(8.dp))
+            if (connected && tight) encrypted(Modifier.fillMaxWidth())
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                if (connected) {
-                    Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        stringResource(R.string.account_encrypted), style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
-                    )
-                } else Spacer(Modifier.weight(1f))
+                if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
                 // YouTube Music: the channel the account acts as (its own, or a brand account), where the connectors offer it.
@@ -609,12 +619,12 @@ internal fun FilesCard(
         },
     )
 
-    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(LocalFilesProvider, 40.dp)
+                ProviderBadge(LocalFilesProvider, 48.dp)
                 Spacer(Modifier.width(12.dp))
-                Text(LocalFilesProvider.label(ctx), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text(LocalFilesProvider.label(ctx), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 OverflowMenu(listOfNotNull(
                     MenuAction(stringResource(R.string.files_names), { namesOpen = true }),
                     onRemove?.let { MenuAction(stringResource(R.string.account_remove), it, destructive = true) },
@@ -625,7 +635,7 @@ internal fun FilesCard(
             // The how-to only while there is nothing yet: once files exist, the list speaks for itself.
             if (lists.isEmpty()) {
                 Spacer(Modifier.height(6.dp))
-                Text(stringResource(R.string.csv_playlists_hint), style = MaterialTheme.typography.bodySmall)
+                PageNote(stringResource(R.string.csv_playlists_hint))
             }
             Spacer(Modifier.height(10.dp))
             if (lists.isEmpty()) Text(stringResource(R.string.csv_empty), style = MaterialTheme.typography.bodyMedium)
@@ -640,9 +650,9 @@ internal fun FilesCard(
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            // Wraps where the two do not fit side by side (a narrow phone, a large font).
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
                 TextButton(onClick = { pasteOpen = true }) { Text(stringResource(R.string.paste_list)) }
-                Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     importLauncher.launch(
                         arrayOf(
@@ -663,12 +673,12 @@ internal fun FilesCard(
 @Composable
 private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
     val ctx = LocalContext.current
-    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(p, 40.dp)
+                ProviderBadge(p, 48.dp)
                 Spacer(Modifier.width(12.dp))
-                Text(p.label(ctx), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text(p.label(ctx), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 OverflowMenu(listOf(MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true)))
             }
             Spacer(Modifier.height(6.dp))
@@ -735,7 +745,7 @@ private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: St
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(84.dp).heightIn(min = 96.dp).alpha(0.45f),
+        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(0.45f),
     ) {
         Column(Modifier.padding(horizontal = 6.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
             ServiceLogo(serviceId, brandColor, name, 40.dp)
@@ -745,6 +755,10 @@ private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: St
     }
 }
 
+/** How wide a tile of the grid is: wider with a larger font, so a name of one word is not broken in two. */
+@Composable
+private fun serviceTileWidth(): Dp = 84.dp * LocalDensity.current.fontScale.coerceIn(1f, 1.5f)
+
 /** A service in the "add a service" grid: its mark, large, and its name. */
 @Composable
 internal fun ServiceGridTile(p: MusicProvider, name: String, enabled: Boolean, onClick: () -> Unit) {
@@ -752,7 +766,7 @@ internal fun ServiceGridTile(p: MusicProvider, name: String, enabled: Boolean, o
         onClick = onClick, enabled = enabled,
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(84.dp).heightIn(min = 96.dp).alpha(if (enabled) 1f else 0.45f),
+        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(if (enabled) 1f else 0.45f),
     ) {
         // Logo at the top and every label two lines tall: with names on one line and on two
         // ("YouTube Music", "Subsonic / Navidrome"), centring moved the logos up and down.

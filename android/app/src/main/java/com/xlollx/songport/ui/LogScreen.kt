@@ -1,5 +1,15 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.text.font.FontWeight
 import com.xlollx.songport.providers.*
 import android.content.Intent
 import android.net.Uri
@@ -83,10 +93,14 @@ fun LogScreen(data: StoreData, onClose: () -> Unit, onResolve: (String) -> Unit)
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) { LogList(data, snackbar, onResolve) }
+        // A readable column, centred in a wide window (a tablet, a phone on its side).
+        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.widthIn(max = WindowLayout.READABLE_CONTENT).fillMaxSize()) { LogList(data, snackbar, onResolve) }
+        }
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (String) -> Unit) {
     if (data.reports.isEmpty()) {
@@ -103,10 +117,11 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
     })
     LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item(key = "diag") {
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            // What to do with the log, each a button with its sign: side by side where they fit, wrapped where they do not.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
                 // Apre una nuova issue su GitHub gia' compilata con il rapporto: l'utente la legge,
                 // toglie quel che vuole e la invia con il proprio account. Nulla parte da solo.
-                TextButton(onClick = {
+                LogAction(Icons.Filled.BugReport, stringResource(R.string.report_issue)) {
                     val full = Diagnostics.report(ctx)
                     // A link carries only so much: the summary and the newest log lines go in it,
                     // the whole report to the clipboard, to paste when it doesn't fit.
@@ -121,20 +136,21 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
                     val url = "https://github.com/xlollx/Trackhop/issues/new?title=" + Uri.encode("[Sync error] ") +
                         "&body=" + Uri.encode("<!-- Describe what you were doing. Remove anything you prefer not to share. -->\n\n```\n$fits\n```$note")
                     runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                }) { Text(stringResource(R.string.report_issue)) }
+                }
                 // The whole log, or the part of it a time span holds, as a text file: nothing cut.
-                TextButton(onClick = { exportOpen = true }) { Text(stringResource(R.string.diag_export)) }
-                if (data.settings.developerOptions) TextButton(onClick = {
+                LogAction(Icons.Filled.SaveAlt, stringResource(R.string.diag_export)) { exportOpen = true }
+                if (data.settings.developerOptions) LogAction(Icons.Filled.Share, stringResource(R.string.diag_share)) {
                     val text = Diagnostics.report(ctx)
                     val share = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text); putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name) + " diagnostics") }
                     ctx.startActivity(Intent.createChooser(share, ctx.getString(R.string.diag_share)))
-                }) { Text(stringResource(R.string.diag_share)) }
+                }
             }
         }
         items(data.reports, key = { it.id }) { r -> ReportRow(r, data.jobs.firstOrNull { it.id == r.jobId }, snackbar, onResolve) }
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState, onResolve: (String) -> Unit) {
     val ctx = LocalContext.current
@@ -156,55 +172,53 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
             }
         }
     }
-    Card(
-        Modifier.fillMaxWidth().clickable(enabled = hasDetails) { expanded = !expanded },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-    ) {
-        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
-            val okBg = Tones.successContainer()
-            val okFg = Tones.onSuccessContainer()
-            Box(
-                Modifier.size(32.dp).clip(CircleShape).background(if (r.ok) okBg else MaterialTheme.colorScheme.errorContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    if (r.ok) Icons.Filled.Check else Icons.Filled.PriorityHigh, null,
-                    tint = if (r.ok) okFg else MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.size(18.dp),
-                )
-            }
+    val hasButtons = hasDetails || canSave || (job != null && (r.removedTracks.isNotEmpty() || r.unmatchedTracks.isNotEmpty() || r.reviewTracks.isNotEmpty()))
+    PageCard(edge = if (r.ok) null else MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) {
+        Row(Modifier.clickable(enabled = hasDetails, onClickLabel = stringResource(if (expanded) R.string.hide_details else R.string.show_details)) { expanded = !expanded }.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = if (hasButtons) 6.dp else 14.dp), verticalAlignment = Alignment.Top) {
+            // The outcome before the words: a tick on green, or an exclamation mark on red (the summary says which).
+            StatusMark(if (r.ok) Icons.Filled.Check else Icons.Filled.PriorityHigh, if (r.ok) Tone.Ok else Tone.Error)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(r.jobName, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                    Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // The name and when, side by side; one over the other where the date would leave the name a word a line
+                // (a narrow phone, a large font).
+                if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp / androidx.compose.ui.platform.LocalDensity.current.fontScale < 300f) {
+                    Text(r.jobName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(r.jobName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.height(2.dp))
                 Text(
                     Notifications.summary(ctx, r) + " · " + stringResource(R.string.log_duration, r.durationMs / 1000),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = if (r.ok) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                 )
                 if (r.notes.isNotEmpty()) {
-                    Spacer(Modifier.height(4.dp))
-                    r.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary) }
+                    Spacer(Modifier.height(8.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { r.notes.forEach { PageNote(it) } }
                 }
                 if (expanded && hasDetails) {
                     Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.log_unmatched_title), style = MaterialTheme.typography.labelMedium)
-                    r.unmatched.take(5).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                    if (r.unmatched.size > 5) Text(stringResource(R.string.preview_more, r.unmatched.size - 5), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest).padding(horizontal = 12.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(stringResource(R.string.log_unmatched_title), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(bottom = 2.dp))
+                        r.unmatched.take(5).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                        if (r.unmatched.size > 5) Text(stringResource(R.string.preview_more, r.unmatched.size - 5), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
                 val canRestore = job != null && r.removedTracks.isNotEmpty()
                 val canReview = job != null && (r.unmatchedTracks.isNotEmpty() || r.reviewTracks.isNotEmpty())
                 if (hasDetails || canRestore || canReview || canSave) {
-                    Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    // Wraps where the buttons do not fit on one line (a narrow phone, a large font, long words).
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
                         if (hasDetails) {
-                            TextButton(onClick = { expanded = !expanded }) {
+                            TextButton(onClick = { expanded = !expanded }, modifier = Modifier.heightIn(min = 48.dp)) {
                                 Text(stringResource(if (expanded) R.string.hide_details else R.string.show_details))
                             }
                         }
                         if (canRestore && job != null) {
-                            TextButton(enabled = !restoring, onClick = {
+                            TextButton(enabled = !restoring, modifier = Modifier.heightIn(min = 48.dp), onClick = {
                                 restoring = true
                                 scope.launch {
                                     try {
@@ -217,16 +231,26 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
                                 }
                             }) { Text(stringResource(R.string.restore_removed, r.removedTracks.size)) }
                         }
-                        if (canReview) {
-                            TextButton(onClick = { onResolve(r.id) }) { Text(stringResource(R.string.review_open)) }
-                        }
                         if (canSave) {
-                            TextButton(onClick = { saveLauncher.launch("$fileTarget.csv") }) { Text(stringResource(R.string.log_save_file)) }
+                            TextButton(onClick = { saveLauncher.launch("$fileTarget.csv") }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.log_save_file)) }
+                        }
+                        if (canReview) {
+                            FilledTonalButton(onClick = { onResolve(r.id) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.review_open)) }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/** One thing to do with the whole log: its sign and its name on an outlined button, a full touch target. */
+@Composable
+private fun LogAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, modifier = Modifier.heightIn(min = 48.dp), contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)) {
+        Icon(icon, null, Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(label)
     }
 }
 
@@ -264,7 +288,7 @@ private fun ExportLogDialog(onDismiss: () -> Unit, onPick: (Long?) -> Unit) {
                 Text(stringResource(R.string.diag_export_body), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
                 ranges.forEach { (label, span) ->
-                    TextButton(onClick = { onPick(span) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(label), modifier = Modifier.fillMaxWidth()) }
+                    TextButton(onClick = { onPick(span) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(label), modifier = Modifier.fillMaxWidth()) }
                 }
             }
         },

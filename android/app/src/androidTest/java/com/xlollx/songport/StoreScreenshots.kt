@@ -809,10 +809,98 @@ class StoreScreenshots {
             open(tab(t), "tab $name") { if (t == MainActivity.TAB_SYNCS) waitText(firstJob) else Thread.sleep(1000) }
             snap("00_tab_${prefix}_$name")
         }
+        // The screens under the tabs and the first run, for a design pass: carousel/old_<theme>_<what>.png.
+        fun click(text: String) {
+            // By its words, or by its name where the words are kept out of the semantics (the extended button of a tab).
+            val can = compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and (hasText(text) or androidx.compose.ui.test.hasContentDescription(text)))
+            (if (can.fetchSemanticsNodes().isNotEmpty()) can else compose.onAllNodesWithText(text)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
+        }
+        fun toReview() {
+            waitText(firstJob)
+            tapText(s(R.string.pill_not_found, 3))
+            waitText(s(R.string.review_section_unmatched, 3))
+        }
+        fun toPreview() {
+            waitText(firstJob)
+            bringIn(Demo.CAROUSEL_NAME)
+            val more = compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.more_actions)) and androidx.compose.ui.test.hasClickAction())
+            more[more.fetchSemanticsNodes().size - 1].performSemanticsAction(SemanticsActions.OnClick)
+            waitText(s(R.string.preview))
+            tapText(s(R.string.preview))
+            waitText(s(R.string.run_now), 30_000)
+        }
+        fun toLog() {
+            waitText(s(R.string.settings_theme))
+            compose.onAllNodesWithText(s(R.string.settings_log)).onFirst().performScrollTo()
+            click(s(R.string.settings_log))
+            waitText(s(R.string.report_issue))
+        }
+        fun olderScreens(t: String, full: Boolean = true) {
+            // To review: as it opens, a row open on its search, rows picked to act on together.
+            open(tab(MainActivity.TAB_SYNCS), "old review") { toReview() }
+            snap("old_${t}_review_1")
+            step("old review open") { click("Master of Puppets (Remastered)"); Thread.sleep(2500) }
+            snap("old_${t}_review_2_open")
+            step("old review uncertain") { click("Master of Puppets (Remastered)"); click("Duality (Live)"); Thread.sleep(800) }
+            snap("old_${t}_review_3_uncertain")
+            step("old review select") {
+                click("Duality (Live)")
+                compose.onAllNodes(hasText("Duality (Live)") and androidx.compose.ui.test.SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick)).onFirst().performSemanticsAction(SemanticsActions.OnLongClick)
+                compose.waitForIdle()
+                click("Chop Suey! - Live at Big Day Out")
+            }
+            snap("old_${t}_review_4_select")
+            // The log, from Settings.
+            open(tab(MainActivity.TAB_SETTINGS), "old log") { toLog() }
+            snap("old_${t}_log_1")
+            step("old log export") { click(s(R.string.diag_export)) }
+            snap("old_${t}_log_2_export")
+            // The preview of a run.
+            open(tab(MainActivity.TAB_SYNCS), "old preview") { toPreview() }
+            snap("old_${t}_preview_1", 2500)
+            step("old preview down") { swipe(1100) }
+            snap("old_${t}_preview_2")
+            // Accounts: further down, and the services to add.
+            open(tab(MainActivity.TAB_ACCOUNTS), "old accounts") { Thread.sleep(1000); swipe(1300) }
+            snap("old_${t}_accounts_2")
+            step("old add connector") { click(s(R.string.connector_add)); Thread.sleep(800) }
+            snap("old_${t}_accounts_3_add")
+            if (!full) return
+            // Settings and Tools further down.
+            open(tab(MainActivity.TAB_SETTINGS), "old settings") { Thread.sleep(1000); swipe(1300) }
+            snap("old_${t}_settings_2")
+            step("old settings 3") { swipe(1300) }
+            snap("old_${t}_settings_3")
+            open(tab(MainActivity.TAB_TOOLS), "old tools") { Thread.sleep(1000); swipe(1300) }
+            snap("old_${t}_tools_2")
+            step("old tools 3") { swipe(1300) }
+            snap("old_${t}_tools_3")
+            // Two of Tools' own pages.
+            for ((n, title) in listOf("4_export" to R.string.tools_export_title, "5_dedupe" to R.string.tools_dedupe_title)) {
+                open(tab(MainActivity.TAB_TOOLS), "old tools $n") {
+                    compose.onAllNodesWithText(s(title)).onFirst().performScrollTo()
+                    click(s(title)); Thread.sleep(1500)
+                }
+                snap("old_${t}_tools_$n")
+            }
+            // The first run, page by page.
+            store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
+            open(tab(MainActivity.TAB_SYNCS), "old welcome") {
+                waitText(s(R.string.onboarding_next))
+                snap("old_${t}_welcome_1")
+                for (n in 2..5) {
+                    step("old welcome $n") { click(s(R.string.onboarding_next)); Thread.sleep(700) }
+                    snap("old_${t}_welcome_$n")
+                }
+            }
+            store.updateSettings { it.copy(onboardingDone = true) }; store.flush()
+        }
         for (theme in listOf("DARK", "LIGHT")) {
             step("theme $theme") { shell("cmd uimode night " + if (theme == "DARK") "yes" else "no"); store.updateSettings { it.copy(themeMode = theme) }; store.flush(); Thread.sleep(1500) }
             val t = theme.lowercase()
             tabsFromTop(t)
+            olderScreens(t)
             // Syncs with a newer version to offer (the update pill in the bar), then with the wallpaper's colours.
             app.getSharedPreferences("app_updates", 0).edit().putString("name", "9.9.9")
                 .putString("url", "https://github.com/xlollx/Trackhop/releases/latest").putLong("checked", System.currentTimeMillis()).commit()
@@ -830,6 +918,26 @@ class StoreScreenshots {
             step("upright") { shell("settings put system user_rotation 0"); Thread.sleep(2000) }
         }
         step("theme back") { shell("cmd uimode night yes"); store.updateSettings { it.copy(themeMode = "DARK") }; store.flush(); Thread.sleep(1500) }
+        // The same screens with a large font, and on the phone's side.
+        step("font") { shell("settings put system font_scale 1.5"); Thread.sleep(1500) }
+        olderScreens("bigfont", full = false)
+        step("font back") { shell("settings put system font_scale 1.0"); Thread.sleep(1500) }
+        // And on a narrow phone: 320 dp across, the font a little larger than usual.
+        step("narrow") { shell("wm density 540"); shell("settings put system font_scale 1.3"); Thread.sleep(3000) }
+        olderScreens("narrow", full = false)
+        step("narrow back") { shell("wm density reset"); shell("settings put system font_scale 1.0"); Thread.sleep(3000) }
+        step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
+        open(tab(MainActivity.TAB_SYNCS), "old review land") { toReview() }
+        snap("old_land_review")
+        open(tab(MainActivity.TAB_SETTINGS), "old log land") { toLog() }
+        snap("old_land_log")
+        open(tab(MainActivity.TAB_SYNCS), "old preview land") { toPreview() }
+        snap("old_land_preview", 2500)
+        store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
+        open(tab(MainActivity.TAB_SYNCS), "old welcome land") { waitText(s(R.string.onboarding_next)) }
+        snap("old_land_welcome")
+        store.updateSettings { it.copy(onboardingDone = true) }; store.flush()
+        step("upright") { shell("settings put system user_rotation 0"); Thread.sleep(2000) }
 
         // 1 Syncs: the cards, scrolled a little so "Sync all" floats over them.
         open(tab(MainActivity.TAB_SYNCS), "syncs") {
