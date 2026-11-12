@@ -14,4 +14,5 @@
     <string name="provider_note_soundcloud_account">通过保存 SoundCloud 登录的连接器插件使用 SoundCloud：你的歌单和喜欢的曲目可作为来源和目标。</string>
     <string name="setlists_browse">浏览 setlist.fm</string>
     <string name="setlists_browse_need_plugin">浏览 setlist.fm 需要较新版本的连接插件：请更新后重试。</string>
+    <string name="setup_why_deezer">Deezer 已不再允许创建新的开发者应用。如果你已有一个，请在此使用它的 Application ID：它仍然可用。如果没有，Deezer (plugin) 选项可通过你已有的连接器插件使用，无需应用。https 重定向页面由本项目提供。</string>
 </resources>

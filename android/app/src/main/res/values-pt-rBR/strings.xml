@@ -131,7 +131,7 @@
     <string name="report_issue">Reportar no GitHub</string>
     <string name="provider_note_youtube">API oficial YouTube Data com um projeto Google Cloud seu. A cota diária é limitada: sincronizações grandes podem levar vários dias.</string>
     <string name="provider_note_tidal">Playlists do TIDAL.</string>
-    <string name="provider_note_deezer">Playlists e favoritos do Deezer (beta).</string>
+    <string name="provider_note_deezer">Playlists e favoritos do Deezer (beta), com um app de desenvolvedor do Deezer que você já tenha: o Deezer não aceita mais novos.</string>
 
     <string name="log_empty">Nenhuma sincronização foi executada ainda.</string>
     <string name="log_unmatched_title">Faixas não encontradas no destino</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">O Spotify exige um app registrado em seu nome. É gratuito; um app em Development Mode atende até 5 contas, o bastante para uso pessoal.</string>
     <string name="setup_why_youtube">O Google exige um projeto Cloud em seu nome para usar a API do YouTube. É gratuito e a cota diária é só sua.</string>
     <string name="setup_why_tidal">O TIDAL exige um app registrado em seu nome. É gratuito.</string>
-    <string name="setup_why_deezer">O Deezer precisa de um app registrado em seu nome. A página de redirecionamento https é fornecida pelo projeto.</string>
+    <string name="setup_why_deezer">O Deezer não permite mais criar novos apps de desenvolvedor. Se você já tem um, use aqui o Application ID dele: ele continua funcionando. Se não tem, adicione o conector Deezer (web): ele não precisa de app. A página de redirecionamento https é fornecida pelo projeto.</string>
     <string name="setup_why_apple">O token de desenvolvedor pertence à sua conta Apple Developer e expira em no máximo seis meses.</string>
     <string name="error_dev_mode_limit">%1$s só permite poucos usuários por app. Configure suas próprias credenciais: é gratuito e leva uns dois minutos.</string>
     <string name="error_network">o celular não conseguiu alcançar o serviço (falha de DNS). Verifique a conexão, qualquer VPN ou DNS privado, e se o Trackhop pode usar dados em segundo plano, depois tente de novo.</string>
@@ -534,6 +534,11 @@
     <string name="login_url">Endereço do servidor</string>
     <string name="login_user">Nome de usuário</string>
     <string name="login_password">Senha</string>
+    <string name="login_apikey">Chave de API</string>
+    <string name="login_apikey_hint">Uma chave de API criada no seu servidor (servidores OpenSubsonic que a oferecem), no lugar do usuário e da senha.</string>
+    <string name="subsonic_apikey_unsupported">Este servidor não oferece login com chave de API. Use seu usuário e senha.</string>
+    <string name="subsonic_apikey_invalid">O servidor não aceita esta chave de API. Confira a chave ou crie uma nova no servidor.</string>
+    <string name="subsonic_apikey_needed">Este servidor não aceita senhas de apps. Escolha Chave de API e use uma chave criada no servidor.</string>
     <string name="login_token">Token</string>
     <string name="login_submit">Verificar e salvar</string>
     <string name="login_checking">Verificando…</string>
@@ -654,7 +659,8 @@
     <string name="restored_done">%1$d faixas restauradas</string>
     <string name="restored_note">%1$d faixas removidas foram restauradas manualmente.</string>
     <string name="quota_used">%1$s / %2$s unidades do YouTube usadas hoje</string>
-    <string name="quota_note">Limite diário definido pelo YouTube (Google), não pelo Trackhop. Zera à meia-noite no horário do Pacífico. Uma pesquisa custa 100 unidades, adicionar uma faixa, 50.</string>
+    <string name="quota_searches_used">%1$s / %2$s buscas do YouTube usadas hoje</string>
+    <string name="quota_note">Limites diários definidos pelo YouTube (Google), não pelo Trackhop. Zeram à meia-noite no horário do Pacífico. As buscas têm um limite próprio de 100 por dia; adicionar uma faixa custa 50 unidades.</string>
     <string name="quota_note_shared">Limite diário definido pelo YouTube (Google), não pelo Trackhop, compartilhado por todos que usam a chave embutida: o que outros usuários consomem não é contado aqui. Suas próprias credenciais te dão uma cota só sua.</string>
     <string name="quota_estimate">Esta sincronização vai usar cerca de %1$s unidades.</string>
     <string name="quota_estimate_over">Esta sincronização precisa de cerca de %1$s unidades, mas só restam %2$s hoje: vai terminar ao longo dos próximos dias.</string>
@@ -719,8 +725,8 @@
         <item>Copie o Client ID aqui. O Client secret não é necessário.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Entre em developers.deezer.com com sua conta Deezer e abra \"My Apps\".</item>
-        <item>Toque em \"Create a new Application\". Nome e descrição ficam a seu critério.</item>
+        <item>Só com um app do Deezer que você já tenha: entre em developers.deezer.com com sua conta Deezer e abra \"My Apps\".</item>
+        <item>Abra o seu aplicativo. O Deezer não permite mais criar novos.</item>
         <item>O Deezer só aceita redirecionamentos https. Uma página de redirecionamento pronta já está preenchida abaixo: cole esse endereço tanto em \"Application domain\" (sem https://) quanto em \"Redirect URL after authentication\".</item>
         <item>Salve, depois copie o \"Application ID\" aqui.</item>
     </string-array>
@@ -1178,7 +1184,7 @@
     <string name="help_uncertain_title">Correspondências incertas</string>
     <string name="help_uncertain_body">Correspondências de que o Trackhop não tem certeza. Toque em Parece certo para manter uma, ou em Alterar para escolher outra faixa: nos dois casos fica lembrado. As que você deixar aqui são perguntadas de novo na revisão depois da execução.</string>
     <string name="help_quota_title">Unidades do YouTube</string>
-    <string name="help_quota_body">O YouTube permite um número fixo de unidades por dia: uma busca custa 100 e adicionar uma faixa, 50. A contagem zera à meia-noite no horário do Pacífico. Uma primeira sincronização grande pode levar vários dias, e continua sozinha.</string>
+    <string name="help_quota_body">O YouTube permite 100 buscas por dia, contadas à parte, e um número fixo de unidades para todo o resto: adicionar uma faixa custa 50. Os dois zeram à meia-noite no horário do Pacífico. Uma primeira sincronização grande pode levar vários dias, e continua sozinha.</string>
     <string name="help_review_title">Corrigir faixas</string>
     <string name="help_change_body">Troca a faixa que o Trackhop escolheu pela que você indicar: a errada é removida do destino quando o serviço permite, e sua escolha fica lembrada nas próximas execuções.</string>
     <string name="help_proposal_body">A faixa mais parecida encontrada, mas não o bastante para ser adicionada sozinha: toque em Adicionar se estiver certa. Faixas não encontradas são buscadas de novo depois de uma semana; abra uma para buscar agora.</string>

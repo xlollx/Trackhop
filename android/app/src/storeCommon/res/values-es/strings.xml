@@ -14,4 +14,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud a través de un plugin conector que guarda el inicio de sesión de SoundCloud: tus listas y canciones que te gustan como orígenes y destinos.</string>
     <string name="setlists_browse">Explorar setlist.fm</string>
     <string name="setlists_browse_need_plugin">Explorar setlist.fm necesita una versión más reciente del plugin de conexiones: actualízalo y vuelve a intentarlo.</string>
+    <string name="setup_why_deezer">Deezer ya no permite crear nuevas apps de desarrollador. Si ya tienes una, usa aquí su Application ID: sigue funcionando. Si no, la opción Deezer (plugin) funciona sin ella, mediante un plugin de conexión que ya tengas. La página de redirección https la proporciona el proyecto.</string>
 </resources>

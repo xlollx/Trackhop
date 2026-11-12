@@ -12,6 +12,7 @@ import com.xlollx.songport.providers.TidalProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -107,8 +108,38 @@ class TidalContractTest : ContractTest() {
         assertEquals(UNICODE, ls[0].name)
         val r = next()
         assertCall(r, "GET", api, "/v2/playlists")
-        assertEquals("u1", r.query("filter[r.owners.id]"))
+        // The documented filter (spec 1.10.251), with "me" for the signed-in user.
+        assertEquals("me", r.query("filter[owners.id]"))
+        assertNull(r.query("filter[r.owners.id]"))
         assertEquals("n", next().query("page[cursor]"))
+        noMoreRequests()
+    }
+
+    @Test fun playlistsFallBackToTheOlderOwnerFilterOn400() = runBlocking {
+        json("""{"errors":[{"status":"400","code":"INVALID_FILTER","detail":"Unknown filter owners.id"}]}""", 400)
+        json("""{"data":[{"id":"p1","type":"playlists","attributes":{"name":"A","numberOfItems":1,"accessType":"PUBLIC"}}],"links":{}}""")
+        assertEquals(listOf("p1"), td.playlists(env).map { it.id })
+        assertEquals("me", next().query("filter[owners.id]"))
+        val old = next()
+        assertCall(old, "GET", api, "/v2/playlists")
+        assertEquals("u1", old.query("filter[r.owners.id]"))
+        assertNull(old.query("filter[owners.id]"))
+        noMoreRequests()
+    }
+
+    @Test fun playlistsTryTheOlderOwnerFilterWhenTheNewOneListsNothing() = runBlocking {
+        json("""{"data":[],"links":{}}""")
+        json("""{"data":[{"id":"p9","type":"playlists","attributes":{"name":"Z","numberOfItems":2,"accessType":"UNLISTED"}}],"links":{}}""")
+        assertEquals(listOf("p9"), td.playlists(env).map { it.id })
+        next()
+        assertEquals("u1", next().query("filter[r.owners.id]"))
+    }
+
+    @Test fun noPlaylistsStaysEmptyWhenTheOlderFilterIsRefused() = runBlocking {
+        json("""{"data":[],"links":{}}""")
+        json("""{"errors":[{"status":"400","detail":"Unknown filter"}]}""", 400)
+        assertEquals(emptyList<String>(), td.playlists(env).map { it.id })
+        next(); next(); noMoreRequests()
     }
 
     @Test fun addInTwentiesAsJsonApi() = runBlocking {

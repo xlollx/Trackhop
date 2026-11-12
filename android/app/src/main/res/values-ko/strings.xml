@@ -131,7 +131,7 @@
     <string name="report_issue">GitHub에 신고</string>
     <string name="provider_note_youtube">직접 만든 Google Cloud 프로젝트로 쓰는 공식 YouTube Data API예요. 하루 할당량이 제한되어 큰 동기화는 며칠 걸릴 수 있어요.</string>
     <string name="provider_note_tidal">TIDAL 플레이리스트.</string>
-    <string name="provider_note_deezer">Deezer 플레이리스트와 즐겨찾기(베타).</string>
+    <string name="provider_note_deezer">Deezer 플레이리스트와 즐겨찾기(베타). 이미 가지고 있는 Deezer 개발자 앱이 필요해요. Deezer는 새 앱을 더 이상 받지 않아요.</string>
 
     <string name="log_empty">아직 실행된 동기화가 없어요.</string>
     <string name="log_unmatched_title">대상에서 찾지 못한 곡</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify는 내 이름으로 등록한 앱을 요구해요. 무료이고, Development Mode 앱은 계정 5개까지 쓸 수 있어 개인 용도로는 충분합니다.</string>
     <string name="setup_why_youtube">YouTube API를 쓰려면 Google은 내 이름의 Cloud 프로젝트를 요구해요. 무료이고 하루 할당량은 온전히 내 것입니다.</string>
     <string name="setup_why_tidal">TIDAL은 내 이름으로 등록한 앱을 요구해요. 무료입니다.</string>
-    <string name="setup_why_deezer">Deezer는 내 이름으로 등록한 앱이 필요해요. https 리디렉션 페이지는 프로젝트에서 제공합니다.</string>
+    <string name="setup_why_deezer">Deezer에서 더 이상 새 개발자 앱을 만들 수 없어요. 이미 있다면 여기에 그 Application ID를 쓰세요. 계속 작동해요. 없다면 대신 Deezer (web) 커넥터를 추가하세요. 앱이 필요 없어요. https 리디렉션 페이지는 프로젝트에서 제공해요.</string>
     <string name="setup_why_apple">개발자 토큰은 내 Apple Developer 계정에 속하며 최대 6개월 뒤 만료돼요.</string>
     <string name="error_dev_mode_limit">%1$s 앱 하나에 쓸 수 있는 사용자는 몇 명뿐이에요. 내 자격 증명을 설정하세요. 무료이고 2분 정도 걸립니다.</string>
     <string name="error_network">휴대폰이 서비스에 연결하지 못했어요(DNS 실패). 네트워크 연결, VPN이나 비공개 DNS, 그리고 Trackhop의 백그라운드 데이터 사용이 허용되어 있는지 확인한 뒤 다시 시도하세요.</string>
@@ -525,6 +525,11 @@
     <string name="login_url">서버 주소</string>
     <string name="login_user">사용자 이름</string>
     <string name="login_password">비밀번호</string>
+    <string name="login_apikey">API 키</string>
+    <string name="login_apikey_hint">사용자 이름과 비밀번호 대신 서버에서 만든 API 키를 써요(이를 지원하는 OpenSubsonic 서버).</string>
+    <string name="subsonic_apikey_unsupported">이 서버는 API 키 로그인을 지원하지 않아요. 사용자 이름과 비밀번호를 쓰세요.</string>
+    <string name="subsonic_apikey_invalid">서버가 이 API 키를 받지 않아요. 키를 확인하거나 서버에서 새 키를 만드세요.</string>
+    <string name="subsonic_apikey_needed">이 서버는 앱에서 보내는 비밀번호를 받지 않아요. API 키를 선택하고 서버에서 만든 키를 쓰세요.</string>
     <string name="login_token">토큰</string>
     <string name="login_submit">확인 후 저장</string>
     <string name="login_checking">확인 중…</string>
@@ -645,7 +650,8 @@
     <string name="restored_done">%1$d곡 복원됨</string>
     <string name="restored_note">삭제됐던 %1$d곡을 수동으로 복원했어요.</string>
     <string name="quota_used">오늘 YouTube 단위 %1$s / %2$s 사용</string>
-    <string name="quota_note">Trackhop이 아닌 YouTube(Google)가 정한 하루 한도예요. 태평양 시간 자정에 초기화돼요. 검색 한 번에 100단위, 곡 추가에 50단위가 들어요.</string>
+    <string name="quota_searches_used">오늘 YouTube 검색 %1$s / %2$s 사용</string>
+    <string name="quota_note">Trackhop이 아닌 YouTube(Google)가 정한 하루 한도예요. 태평양 시간 자정에 초기화돼요. 검색은 따로 하루 100번까지이고, 곡 추가에는 50단위가 들어요.</string>
     <string name="quota_note_shared">Trackhop이 아닌 YouTube(Google)가 정한 하루 한도이며, 내장 키를 쓰는 모든 사용자가 공유해요. 다른 사용자가 쓴 양은 여기에 집계되지 않아요. 내 자격 증명을 쓰면 나만의 할당량을 받아요.</string>
     <string name="quota_estimate">이 동기화는 약 %1$s단위를 써요.</string>
     <string name="quota_estimate_over">이 동기화에는 약 %1$s단위가 필요한데 오늘 남은 건 %2$s단위뿐이에요. 며칠에 걸쳐 완료됩니다.</string>
@@ -708,8 +714,8 @@
         <item>Client ID를 여기에 복사하세요. Client secret은 필요 없어요.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Deezer 계정으로 developers.deezer.com에 로그인하고 “My Apps”를 여세요.</item>
-        <item>“Create a new Application”을 누르세요. 이름과 설명은 자유예요.</item>
+        <item>이미 가지고 있는 Deezer 앱이 있을 때만: Deezer 계정으로 developers.deezer.com에 로그인하고 “My Apps”를 여세요.</item>
+        <item>내 애플리케이션을 여세요. Deezer에서는 더 이상 새 앱을 만들 수 없어요.</item>
         <item>Deezer는 https 리디렉션만 받아요. 아래에 미리 만들어 둔 리디렉션 페이지가 채워져 있어요. 그 주소를 “Application domain”(https:// 제외)과 “Redirect URL after authentication” 양쪽에 붙여넣으세요.</item>
         <item>저장한 뒤 “Application ID”를 여기에 복사하세요.</item>
     </string-array>
@@ -1142,7 +1148,7 @@
     <string name="help_uncertain_title">불확실한 매칭</string>
     <string name="help_uncertain_body">Trackhop이 확신하지 못한 매칭이에요. 그대로 두려면 맞아요를, 다른 곡을 고르려면 변경을 누르세요. 어느 쪽이든 기억돼요. 여기서 남겨 둔 매칭은 실행 후 검토 화면에서 다시 물어봐요.</string>
     <string name="help_quota_title">YouTube 단위</string>
-    <string name="help_quota_body">YouTube는 하루에 쓸 수 있는 단위가 정해져 있어요. 검색은 100, 곡 추가는 50단위예요. 태평양 시간 자정에 초기화돼요. 큰 첫 동기화는 며칠 걸릴 수 있지만 알아서 이어서 진행돼요.</string>
+    <string name="help_quota_body">YouTube는 검색을 따로 하루 100번까지 허용하고, 나머지에는 하루에 쓸 수 있는 단위가 정해져 있어요. 곡 추가는 50단위예요. 둘 다 태평양 시간 자정에 초기화돼요. 큰 첫 동기화는 며칠 걸릴 수 있지만 알아서 이어서 진행돼요.</string>
     <string name="help_review_title">곡 해결하기</string>
     <string name="help_change_body">Trackhop이 고른 곡을 내가 고른 곡으로 바꿔요. 서비스가 허용하면 잘못된 곡은 대상에서 삭제되고, 고른 내용은 다음 실행에도 기억돼요.</string>
     <string name="help_proposal_body">찾은 곡 중 가장 가깝지만, 자동으로 추가할 만큼 가깝지는 않은 곡이에요. 맞으면 추가를 누르세요. 찾지 못한 곡은 일주일 뒤에 다시 검색해요. 지금 찾으려면 곡을 여세요.</string>

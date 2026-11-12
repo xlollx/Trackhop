@@ -14,4 +14,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud через плагин-коннектор, который хранит вход в SoundCloud: ваши плейлисты и понравившиеся треки как источники и получатели.</string>
     <string name="setlists_browse">Открыть setlist.fm</string>
     <string name="setlists_browse_need_plugin">Для просмотра setlist.fm нужна более новая версия плагина подключений: обновите его и попробуйте снова.</string>
+    <string name="setup_why_deezer">Deezer больше не позволяет создавать новые приложения разработчика. Если у вас уже есть такое, укажите здесь его Application ID: оно продолжает работать. Если нет, вариант Deezer (plugin) работает без него, через уже установленный у вас плагин-коннектор. Страницу перенаправления https предоставляет проект.</string>
 </resources>

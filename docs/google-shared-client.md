@@ -64,19 +64,25 @@ Until verification completes the app stays usable through the test-user list.
 
 ## 5. Quota
 
-YouTube Data API v3 gives **10,000 units per day per project**. Trackhop's costs:
+Since 2026-06-01 YouTube Data API v3 counts two daily quotas per project
+([quota costs](https://developers.google.com/youtube/v3/determine_quota_cost),
+[revision history](https://developers.google.com/youtube/v3/revision_history)): `search.list` has a
+bucket of its own, **100 calls per day**, and **10,000 units per day** cover every other method.
+A search no longer takes units from the 10,000. Trackhop's costs:
 
-| Call | Units | When |
-|------|-------|------|
-| `search.list` | 100 | one per track that is not in the match cache |
-| `playlistItems.insert` | 50 | one per added track |
-| `playlistItems.delete` | 50 | one per removed track |
-| `playlists.insert` | 50 | new target playlist |
-| `playlists.list`, `playlistItems.list` | 1 | per page of 50 items |
+| Call | Cost | When |
+|------|------|------|
+| `search.list` | 1 search (own bucket of 100 a day) | one per track that is not in the match cache |
+| `videos.list` | 1 unit | per search, and per page of 50 ids |
+| `playlistItems.insert` | 50 units | one per added track |
+| `playlistItems.delete` | 50 units | one per removed track |
+| `playlists.insert` | 50 units | new target playlist |
+| `playlists.list`, `playlistItems.list` | 1 unit | per page of 50 items |
 
-So a new track costs about 150 units: roughly 65 new tracks per day for all users of the shared
-client, while re-syncs of unchanged playlists cost almost nothing. The app shows the daily usage as
-a ring and estimates the cost of each sync before running it.
+So a new track costs one search and about 51 units: searches cap it at roughly 100 new tracks per
+day for all users of the shared client (the units alone would allow about 190), while re-syncs of
+unchanged playlists cost almost nothing. The app shows the units used as a ring, the searches used
+next to it, and estimates the units of each sync before running it.
 
 **Requesting more**: Cloud Console → APIs & Services → YouTube Data API v3 → **Quotas** → edit
 *Queries per day* → *Request quota increase*. Google redirects to the *YouTube API Services –
@@ -84,11 +90,11 @@ Audit and Quota Extension Form*. A justification that fits this app:
 
 > Trackhop is a free, open-source Android app (https://github.com/xlollx/Trackhop) that syncs a
 > user's playlists between music services on the user's own device. It uses search.list to find
-> the YouTube video for a track (about 100 units per new track), playlistItems.insert/delete to
+> the YouTube video for a track (one search.list call per new track), playlistItems.insert/delete to
 > mirror the user's playlist and playlists.list/playlistItems.list to read state. Every match is
 > cached on the device so a track is searched at most once. Requests are made only on explicit
 > user action or on a schedule the user chose (at most hourly). Expected volume: N daily active
-> users × ~M new tracks per day ≈ K units. The app complies with the YouTube API Services Terms
+> users × ~M new tracks per day ≈ K search.list calls and 50·K units. The app complies with the YouTube API Services Terms
 > of Service and Developer Policies, links to the YouTube ToS and the Google Privacy Policy in
 > its privacy policy, shows users their daily quota usage, and does not store YouTube data on any
 > server.

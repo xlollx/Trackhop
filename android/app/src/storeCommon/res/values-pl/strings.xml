@@ -12,4 +12,5 @@
     <string name="bridge_needed_hint">This service needs a connector plugin app that is not installed. Trackhop does not include or download plugins.</string>
     <string name="setlists_browse">Przeglądaj setlist.fm</string>
     <string name="setlists_browse_need_plugin">Przeglądanie setlist.fm wymaga nowszej wersji wtyczki połączeń: zaktualizuj ją i spróbuj ponownie.</string>
+    <string name="setup_why_deezer">Deezer nie pozwala już tworzyć nowych aplikacji deweloperskich. Jeśli już ją masz, użyj tu jej Application ID: nadal działa. Jeśli nie, opcja Deezer (plugin) działa bez niej, przez wtyczkę łącznika, którą już masz. Stronę przekierowania https zapewnia projekt.</string>
 </resources>

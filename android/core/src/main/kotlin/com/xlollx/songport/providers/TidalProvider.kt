@@ -85,10 +85,29 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     /** Segue `links.next` (percorso relativo alla radice API). */
     private fun nextUrl(j: JsonElement?): String? = j["links"]["next"].str?.let { if (it.startsWith("http")) it else API + it }
 
+    /**
+     * The user's own playlists. The documented filter is `filter[owners.id]=me` (spec 1.10.251); the
+     * `filter[r.owners.id]={userId}` Trackhop sent before is no longer in the spec but stays as the
+     * fallback, for a service that refuses the new name (400, 404) or answers it with nothing.
+     */
     override suspend fun playlists(ctx: Env): List<Playlist> {
         val t = tokens(ctx)
+        val documented = "$API/playlists?countryCode=${cc(ctx)}&filter[owners.id]=me"
+        val legacy = "$API/playlists?countryCode=${cc(ctx)}&filter[r.owners.id]=${Http.enc(t.userId)}"
+        val out = try {
+            playlistPages(ctx, documented)
+        } catch (e: ProviderException) {
+            if (e.code != 400 && e.code != 404) throw e
+            ctx.log(serviceId, "filter[owners.id] refused (${e.code}): the older filter")
+            return playlistPages(ctx, legacy)
+        }
+        if (out.isNotEmpty()) return out
+        return runCatching { playlistPages(ctx, legacy) }.getOrDefault(out)
+    }
+
+    private suspend fun playlistPages(ctx: Env, first: String): List<Playlist> {
         val out = ArrayList<Playlist>()
-        var url: String? = "$API/playlists?countryCode=${cc(ctx)}&filter[r.owners.id]=${Http.enc(t.userId)}"
+        var url: String? = first
         while (url != null) {
             val j = api(ctx, "GET", url)
             for (p in j["data"].arr) {

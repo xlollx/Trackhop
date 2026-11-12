@@ -14,4 +14,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud oturumunu tutan bir bağlayıcı eklentisi üzerinden SoundCloud: setleriniz ve beğendiğiniz parçalar kaynak ve hedef olarak.</string>
     <string name="setlists_browse">setlist.fm’e göz at</string>
     <string name="setlists_browse_need_plugin">setlist.fm’e göz atmak için bağlantı eklentisinin daha yeni bir sürümü gerekir: güncelleyip yeniden deneyin.</string>
+    <string name="setup_why_deezer">Deezer artık yeni geliştirici uygulaması oluşturmaya izin vermiyor. Zaten bir uygulamanız varsa Application ID\'sini burada kullanın: çalışmaya devam eder. Yoksa Deezer (plugin) seçeneği, zaten sahip olduğunuz bir bağlayıcı eklentisi üzerinden uygulama olmadan çalışır. https yönlendirme sayfasını proje sağlar.</string>
 </resources>

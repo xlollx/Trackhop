@@ -206,12 +206,36 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
             Http.enc("next,total,items(item(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name))," +
                 "track(id,name,uri,duration_ms,is_local,external_ids(isrc),artists(name),album(name)))")
 
-    private suspend fun itemsPage(ctx: Env, url: String): JsonElement = try {
-        api(ctx, "GET", url)
-    } catch (e: ProviderException) {
-        // Which of the two paths an app may read has changed twice: try the other before giving up.
-        if (e.code != 403 || !url.contains("/items?")) throw e
-        api(ctx, "GET", url.replace("/items?", "/tracks?"))
+    /**
+     * One page from /items, the documented path. Which of the two paths an app may read has changed
+     * twice: on a 403 the older /tracks is tried, which only Extended Quota apps are still served
+     * (February 2026 changelog). When that is refused too, the /items refusal is the one reported.
+     */
+    private suspend fun itemsPage(ctx: Env, url: String): JsonElement =
+        if (!url.contains("/items?")) api(ctx, "GET", url)
+        else orLegacy(ctx, { api(ctx, "GET", url) }, { it.code == 403 }) { api(ctx, "GET", url.replace("/items?", "/tracks?")) }
+
+    /**
+     * [primary], and when it is refused in a way [fallsBack] accepts, [legacy]: a path Spotify took
+     * away from Development Mode apps in February 2026 but still serves to Extended Quota apps. A
+     * Development Mode app is refused that one too (403, 404, 410...): the first, documented path's
+     * error is then the one reported, not the old path's. Any other failure of [legacy] (a 429, a
+     * 5xx) is reported as it is.
+     */
+    private suspend fun <T> orLegacy(ctx: Env, primary: suspend () -> T, fallsBack: (ProviderException) -> Boolean, legacy: suspend () -> T): T {
+        val first = try {
+            return primary()
+        } catch (e: ProviderException) {
+            if (!fallsBack(e)) throw e
+            e
+        }
+        return try {
+            legacy()
+        } catch (e: ProviderException) {
+            if (e.code !in LEGACY_GONE) throw e
+            ctx.log("spotify", "the older path is refused too (${e.code}): reporting the documented path's ${first.code}")
+            throw first
+        }
     }
 
     private fun entriesOf(j: JsonElement): List<Track> = j["items"].arr.mapNotNull { item ->
@@ -236,29 +260,36 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
 
     /**
      * Read with the user's market: Spotify then says of each entry whether it plays (`is_playable`,
-     * with the restriction's reason) and, for a track it relinks, hands the playable edition over
-     * with the listed one in `linked_from`. The plain [tracks] never asks for a market, because a
-     * relinked listing would show other ids to a mirror sync and make it rewrite the playlist.
+     * with the restriction's reason) and, for a track it relinks, hands the playable edition over in
+     * its place. The plain [tracks] never asks for a market, because a relinked listing would show
+     * other ids to a mirror sync and make it rewrite the playlist.
+     *
+     * Which entry was relinked: `linked_from` names the listed track, and stays the primary signal.
+     * Spotify took that field away from Development Mode apps in February 2026, so when no entry of
+     * the market read carries it, the read is compared with the plain one, position by position: an
+     * entry whose id changed once the market applied is a relinked one. That costs one more read of
+     * the playlist, and only then.
      */
     override suspend fun unplayable(ctx: Env, playlistId: String): List<UnplayableEntry> {
         if (MusicProvider.isLibrary(playlistId) && playlistId != MusicProvider.LIKED_ID) return emptyList()
         val fieldsOf = "id,name,uri,duration_ms,is_local,is_playable,restrictions(reason),linked_from(id,uri),external_ids(isrc),artists(name),album(name,release_date)"
         val out = ArrayList<UnplayableEntry>()
+        // The playable entries of the market read, by position, for the comparison without linked_from.
+        val marketIds = ArrayList<String?>()
+        val playable = HashMap<Int, JsonElement?>()
+        var sawLinkedFrom = false
         var index = 0
         var url: String? = if (playlistId == MusicProvider.LIKED_ID) "$API/me/tracks?limit=50&market=from_token"
         else "$API/playlists/$playlistId/items?limit=100&market=from_token&fields=" + Http.enc("next,items(item($fieldsOf),track($fieldsOf))")
         while (url != null) {
-            val j = try {
-                api(ctx, "GET", url)
-            } catch (e: ProviderException) {
-                if (e.code != 403 || !url.contains("/items?")) throw e
-                api(ctx, "GET", url.replace("/items?", "/tracks?"))
-            }
+            val j = itemsPage(ctx, url)
             for (item in j["items"].arr) {
                 val t = item["item"].takeUnless { it.isNullish } ?: item["track"]
                 // The same entries [tracks] skips, so the positions agree with its listing.
                 if (t.isNullish || t["is_local"].bool == true || t["id"].str == null) continue
                 val linked = t["linked_from"]
+                if (!linked.isNullish) sawLinkedFrom = true
+                marketIds += t["id"].str
                 if (t["is_playable"].bool == false) {
                     out += UnplayableEntry(toTrack(t).copy(available = false), index, reason = t["restrictions"]["reason"].str.orEmpty())
                 } else if (linked["id"].str != null) {
@@ -266,11 +297,26 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
                     val deadId = linked["id"].str!!
                     val dead = toTrack(t).copy(id = deadId, uri = linked["uri"].str ?: "spotify:track:$deadId", available = false)
                     out += UnplayableEntry(dead, index, reason = Unplayable.REASON_MARKET, relinked = toTrack(t).copy(available = true))
+                } else {
+                    playable[index] = t
                 }
                 index++
             }
             url = j["next"].str
         }
+        if (sawLinkedFrom || playable.isEmpty()) return out
+        val listed = tracks(ctx, playlistId)
+        if (listed.size != marketIds.size) {
+            // The playlist changed between the two reads: positions no longer line up.
+            ctx.log("spotify", "relinks not checked: the playlist changed between the reads (${listed.size} vs ${marketIds.size})")
+            return out
+        }
+        for ((i, t) in playable) {
+            val was = listed[i]
+            if (was.id == marketIds[i]) continue
+            out += UnplayableEntry(was.copy(available = false), i, reason = Unplayable.REASON_MARKET, relinked = toTrack(t).copy(available = true))
+        }
+        out.sortBy { it.index }
         return out
     }
 
@@ -420,12 +466,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
         val out = ArrayList<String?>()
         var url: String? = "$API/playlists/$playlistId/items?limit=100&fields=" + Http.enc("next,items(item(id,is_local),track(id,is_local))")
         while (url != null) {
-            val j = try {
-                api(ctx, "GET", url)
-            } catch (e: ProviderException) {
-                if (e.code != 403 || !url.contains("/items?")) throw e
-                api(ctx, "GET", url.replace("/items?", "/tracks?"))
-            }
+            val j = itemsPage(ctx, url)
             for (item in j["items"].arr) {
                 val t = item["item"].takeUnless { it.isNullish } ?: item["track"]
                 out += if (t.isNullish || t["is_local"].bool == true) null else t["id"].str
@@ -443,7 +484,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
         // once a local file sits before them: the moves are worked out on the whole playlist.
         val all = positions(ctx, playlistId)
         if (all.filterNotNull() != current.map { it.id }) throw ProviderException("$displayName: the playlist changed while it was being reordered")
-        var path = "items"
+        var legacyPath = false
         for ((listedFrom, listedTo) in moves) {
             val from = all.indices.filter { all[it] != null }[listedFrom]
             val moved = all.removeAt(from)
@@ -451,12 +492,10 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
             val to = if (listedTo < listed.size) listed[listedTo] else (listed.lastOrNull()?.plus(1) ?: 0)
             all.add(to, moved)
             val body = jsonObj("range_start" to from, "insert_before" to com.xlollx.songport.sync.Reorder.insertBefore(from, to), "range_length" to 1)
-            try {
-                api(ctx, "PUT", "$API/playlists/$playlistId/$path", body)
-            } catch (e: ProviderException) {
-                if (e.code != 403 || path != "items") throw e
-                path = "tracks"
-                api(ctx, "PUT", "$API/playlists/$playlistId/$path", body)
+            // /items is the documented path; /tracks is still served to Extended Quota apps only.
+            if (legacyPath) api(ctx, "PUT", "$API/playlists/$playlistId/tracks", body)
+            else orLegacy(ctx, { api(ctx, "PUT", "$API/playlists/$playlistId/items", body) }, { it.code == 403 }) {
+                api(ctx, "PUT", "$API/playlists/$playlistId/tracks", body).also { legacyPath = true }
             }
         }
     }
@@ -476,33 +515,37 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
      * February 2026 the per-type paths (/me/tracks, /me/albums, /me/following, /me/shows, the
      * playlist followers) answer Development Mode apps with a 403 (issue #34). An app still served by
      * them (Extended Quota) gets a 404 or 405 from the new path for a type it does not take: the old
-     * path, [legacy], is called then, once for all the ids.
+     * path, [legacy], is called then, once for all the ids. A Development Mode app is refused that
+     * one too: the /me/library error is the one reported.
      */
     @Volatile private var lastLibrarySave = 0L
     override fun addSpacingMs(playlistId: String): Long = if (playlistId == MusicProvider.LIKED_ID) librarySpacingMs else 0
     /** The gap between two saved tracks: a little over a second, so each gets its own second. */
     @Volatile var librarySpacingMs = 1_050L
 
-    private suspend fun library(ctx: Env, method: String, type: String, ids: List<String>, legacy: suspend () -> Unit) {
-        try {
-            // Saved tracks are listed by the second they were saved, and Spotify orders the ones saved
-            // in the same second as it likes (issue #34: liked songs came out shuffled). Tracks are
-            // saved one per request, a second apart, in the order given (the engine sends the oldest
-            // first): slower, but the order comes out as in the source.
-            // Only when the job keeps the order: otherwise 40 a request, at full speed.
-            val perRequest = if (method == "PUT" && type == "track" && MusicProvider.addsInOrder()) 1 else 40
-            ids.chunked(perRequest).forEach { chunk ->
-                if (perRequest == 1) {
-                    val wait = lastLibrarySave + librarySpacingMs - System.currentTimeMillis()
-                    if (wait > 0) kotlinx.coroutines.delay(wait)
-                }
-                api(ctx, method, "$API/me/library?uris=" + chunk.joinToString(",") { java.net.URLEncoder.encode("spotify:$type:$it", "UTF-8") })
-                lastLibrarySave = System.currentTimeMillis()
+    private suspend fun library(ctx: Env, method: String, type: String, ids: List<String>, legacy: suspend () -> Unit) =
+        orLegacy(ctx, { librarySaves(ctx, method, type, ids) }, { e ->
+            // The reference lists no spotify:artist among the URIs /me/library takes (though the
+            // migration guide's examples use it): a 400 for artists goes to /me/following as well.
+            (e.code == 404 || e.code == 405 || (e.code == 400 && type == "artist")).also {
+                if (it) ctx.log("spotify", "/me/library refused $type (${e.code}): the older path")
             }
-        } catch (e: ProviderException) {
-            if (e.code != 404 && e.code != 405 && !(e.code == 400 && type == "artist")) throw e
-            ctx.log("spotify", "/me/library refused $type (${e.code}): the older path")
-            legacy()
+        }, legacy)
+
+    private suspend fun librarySaves(ctx: Env, method: String, type: String, ids: List<String>) {
+        // Saved tracks are listed by the second they were saved, and Spotify orders the ones saved
+        // in the same second as it likes (issue #34: liked songs came out shuffled). Tracks are
+        // saved one per request, a second apart, in the order given (the engine sends the oldest
+        // first): slower, but the order comes out as in the source.
+        // Only when the job keeps the order: otherwise 40 a request, at full speed.
+        val perRequest = if (method == "PUT" && type == "track" && MusicProvider.addsInOrder()) 1 else 40
+        ids.chunked(perRequest).forEach { chunk ->
+            if (perRequest == 1) {
+                val wait = lastLibrarySave + librarySpacingMs - System.currentTimeMillis()
+                if (wait > 0) kotlinx.coroutines.delay(wait)
+            }
+            api(ctx, method, "$API/me/library?uris=" + chunk.joinToString(",") { java.net.URLEncoder.encode("spotify:$type:$it", "UTF-8") })
+            lastLibrarySave = System.currentTimeMillis()
         }
     }
 
@@ -541,6 +584,8 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
          */
         val searchPace = com.xlollx.songport.net.Pacer(350)
         const val SERVICE = "spotify"
+        /** How a path Spotify no longer serves to the app answers (Development Mode since 2026). */
+        private val LEGACY_GONE = setOf(400, 403, 404, 405, 410)
         private const val API = "https://api.spotify.com/v1"
     }
 }

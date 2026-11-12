@@ -1,5 +1,8 @@
 package com.xlollx.songport.auth
 
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import com.xlollx.songport.providers.*
 import android.content.Intent
 import com.xlollx.songport.ui.FitDialog
@@ -105,6 +108,9 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     var lfKey by rememberSaveable { mutableStateOf(if (lastfm) com.xlollx.songport.ui.LastFmKey.savedKey(ctx) else "") }
     var lfSecret by com.xlollx.songport.ui.rememberUnsavedSecret("login-lastfm:" + provider.id) { if (lastfm) com.xlollx.songport.ui.LastFmKey.savedSecret(ctx) else "" }
     val askKey = keyMissing && secret.isNotBlank()
+    // OpenSubsonic: an API key in place of the user and password, when the user picks it.
+    var apiKeyMode by rememberSaveable { mutableStateOf(false) }
+    val byKey = form.offersApiKey && apiKeyMode
 
     Scaffold(
         // The form ends above the keyboard, so the field being typed in scrolls into view (a phone on its side above all).
@@ -123,32 +129,46 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.login_trust_server), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            if (form.offersApiKey) {
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = !apiKeyMode, enabled = !busy, onClick = { apiKeyMode = false; error = null },
+                        shape = SegmentedButtonDefaults.itemShape(0, 2),
+                    ) { Text(stringResource(R.string.login_password), maxLines = 1) }
+                    SegmentedButton(
+                        selected = apiKeyMode, enabled = !busy, onClick = { apiKeyMode = true; error = null },
+                        shape = SegmentedButtonDefaults.itemShape(1, 2),
+                    ) { Text(stringResource(R.string.login_apikey), maxLines = 1) }
+                }
+                if (apiKeyMode) Text(stringResource(R.string.login_apikey_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             if (form.needsUrl) OutlinedTextField(
                 value = url, onValueChange = { url = it; error = null }, singleLine = true, enabled = !busy,
                 label = { Text(stringResource(R.string.login_url)) }, placeholder = { Text("https://…") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri), modifier = Modifier.fillMaxWidth(),
             )
-            if (form.needsUser) OutlinedTextField(
+            if (form.needsUser && !byKey) OutlinedTextField(
                 value = user, onValueChange = { user = it; error = null }, singleLine = true, enabled = !busy,
                 label = { Text(stringResource(R.string.login_user)) }, modifier = Modifier.fillMaxWidth(),
             )
             if (form.needsSecret) OutlinedTextField(
                 value = secret, onValueChange = { secret = it; error = null }, singleLine = true, enabled = !busy,
-                label = { Text(stringResource(form.secretLabelRes)) },
+                label = { Text(if (byKey) stringResource(R.string.login_apikey) else stringResource(form.secretLabelRes)) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth(),
             )
             if (askKey) com.xlollx.songport.ui.LastFmKeyCard(lfKey, { lfKey = it; error = null }, lfSecret, { lfSecret = it; error = null }, enabled = !busy)
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             Button(
-                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (!form.needsUser || form.userOptional || user.isNotBlank()) && (!form.needsSecret || form.secretOptional || secret.isNotBlank()) &&
+                enabled = !busy && (!form.needsUrl || url.isNotBlank()) && (byKey || !form.needsUser || form.userOptional || user.isNotBlank()) && (!form.needsSecret || (form.secretOptional && !byKey) || secret.isNotBlank()) &&
                     (!askKey || (lfKey.isNotBlank() && lfSecret.isNotBlank())),
                 onClick = {
                     busy = true
                     scope.launch {
                         try {
                             if (askKey) com.xlollx.songport.ui.LastFmKey.save(ctx, lfKey, lfSecret)
-                            provider.login(ctx, url, user, secret)
+                            if (byKey) provider.loginWithApiKey(com.xlollx.songport.platform.AndroidEnv.of(ctx), url, secret)
+                            else provider.login(ctx, url, user, secret)
                             onDone(ctx.getString(R.string.auth_done, provider.displayName))
                         } catch (e: Exception) {
                             error = e.message ?: ctx.getString(R.string.error_generic)

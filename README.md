@@ -190,7 +190,7 @@ common errors.
   it on a test playlist first and report what goes wrong. SoundCloud with your account is **beta**.
 - The app ships without service credentials of its own: on the services that require one (Spotify,
   YouTube Music, TIDAL, Deezer, Last.fm) each user creates a free developer key, and the app walks
-  them through it in about two minutes. Or use the quick route: sign in on the service's own page.
+  them through it in about two minutes (Deezer no longer registers new apps: only an existing one). Or use the quick route: sign in on the service's own page.
   Personal servers and files need nothing.
 - License: AGPL-3.0-only, see [LICENSE](LICENSE). Security reports: [SECURITY.md](SECURITY.md).
 
@@ -296,7 +296,7 @@ reports are what make it better: if something does not work as it should, say so
 | Review | Uncertain matches to confirm | Below 86% similarity a match is accepted but flagged; confirm or replace it. |
 | Not found | Manual fix | Free search on the target, pick the result, or "ignore". Tracks the service has no trace of are marked so and listed last. |
 | Restore | Put back tracks removed by a mirror sync | From the log. |
-| YouTube quota | Ring with the units used today | Search 100, write 50 out of 10,000 per day; the app shows what is left and what a sync will cost. |
+| YouTube quota | Ring with the units used today, and the searches | Since June 2026 searches have their own limit of 100 a day; writes cost 50 of the 10,000 units a day. The app shows what is left and what a sync will cost. |
 | Multiple accounts | Several accounts of the same service | Also for migrating between two accounts. |
 | Tools | Playlist generator (beta) | No key needed: start from artists you like (or a playlist of yours), pick a length and familiar or discovery; Trackhop takes similar artists and their most played songs from MusicBrainz and ListenBrainz (Deezer's public catalogue fills gaps), mixes them a few per artist and creates the playlist on the chosen service. Or describe a playlist; your own AI (OpenAI, Anthropic, Gemini or any OpenAI-compatible server, even local) proposes the tracks, Trackhop finds them on the chosen service through a normal sync. The proposal is reviewed before anything is created, the sync is marked with a spark and can be extended later with more AI picks. No AI of Trackhop's: your key, stored encrypted; only the text you type is sent. |
 | | Manage playlists | Your playlists on a service in one list: rename, delete, make public or private (where the API allows it), search the tracks and remove them by track, artist or album, extend with AI, export. |
@@ -342,7 +342,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Spotify | complete | OAuth PKCE on Spotify's sign-in page, shown inside the app (a browser tab handed "Continue with Facebook" to the Facebook app, which then failed) | `SPOTIFY_CLIENT_ID`, redirect `songport://callback` | An app in *Development Mode* accepts 5 users and its owner needs Spotify Premium (February 2026 rules). *Extended Quota Mode* requires a registered company and 250,000 monthly active users. Since July 2026 the quota is counted per developer account, not per client ID. That is why the app walks each user through creating their own client ID: on Spotify this is the normal path. |
 | Apple Music | read and add, beta | MusicKit JS in an in-app WebView | `APPLE_DEVELOPER_TOKEN` (ES256 JWT, Apple Developer Program) | The API cannot remove tracks from a playlist: mirror syncs towards Apple Music only add and say so in the report. The developer token expires after at most 6 months. An Apple Music subscription is required. Library tracks do not expose an ISRC. |
 | YouTube Music | built into the GitHub/F-Droid build; in the store builds (Play, AppGallery) via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Google sign-in on Google's page | nothing: the Bridge is installed separately, outside Google Play | Uses the web player's internal interface: not an official API, against the YouTube Terms of Service, may break without notice. No quota. The Bridge shows the notice before sign-in. |
-| YouTube Music (Google API) | via YouTube Data API v3 | Google OAuth | `GOOGLE_CLIENT_ID` (Android OAuth client: package + SHA-1), YouTube Data API enabled, OAuth verification for the `youtube` scope | 10,000 units per day per project (search 100, insert 50), shared by every user of the same build. With own credentials the quota is the user's. No ISRC. |
+| YouTube Music (Google API) | via YouTube Data API v3 | Google OAuth | `GOOGLE_CLIENT_ID` (Android OAuth client: package + SHA-1), YouTube Data API enabled, OAuth verification for the `youtube` scope | 100 searches a day (their own bucket since June 2026) and 10,000 units a day for the rest (insert 50) per project, shared by every user of the same build. With own credentials the quota is the user's. No ISRC. |
 | Spotify (web) | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Spotify sign-in on Spotify's page | nothing, and no Premium | Talks to the web player's own backend (the GraphQL gateway and the playlist store open.spotify.com uses), with the player's session token and client token; the query hashes are read from the player's own code. Since December 2025 Spotify refuses first-party tokens on the public Web API, which is why this route no longer touches it. No ISRC on this route: matching is by title, artist and duration. Not an official route, against Spotify's terms, may break without notice. |
 | Apple Music (web) | read, add and remove; rename and delete playlists; built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above, with removals, renames and deletions sent to the web player's own backend (amp-api.music.apple.com), as music.apple.com does. Not an official route, against Apple's terms, may break without notice. |
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
@@ -607,8 +607,11 @@ shared key.
   Google Cloud project with YouTube Data API v3 enabled (client ID and secret); the app then uses
   the loopback flow.
 - TIDAL: a client ID from developer.tidal.com.
-- Deezer: an application ID from developers.deezer.com; the https redirect page is provided by the
-  project (`docs/deezer-redirect.html`, published on GitHub Pages) and prefilled.
+- Deezer: an application ID from developers.deezer.com, for those who already have one: Deezer
+  stopped registering new apps in 2025 ([Deezer community](https://en.deezercommunity.com/features-feedback-44/api-auth-impossible-80857)),
+  and an existing app keeps working. Without one, use the "Deezer (web)" connector, which needs no
+  app. The https redirect page is provided by the project (`docs/deezer-redirect.html`, published
+  on GitHub Pages) and prefilled.
 - Last.fm: a free API key.
 - Apple Music: a MusicKit developer token, which requires the paid Apple Developer Program.
 
@@ -622,7 +625,7 @@ the full procedure (Android client, verification, quota) is in `docs/google-shar
 | `GOOGLE_CLIENT_ID` | console.cloud.google.com → Credentials → Android OAuth client (package `com.xlollx.songport` + SHA-1 of the release signature). Enable YouTube Data API v3, configure the consent screen, request verification for the `youtube` scope. | automatic (`com.googleusercontent.apps.<id>` scheme) |
 | `APPLE_DEVELOPER_TOKEN` (secret) | Apple Developer → Keys → MusicKit → `.p8` key, Key ID and Team ID, then the JWT below | none |
 | `TIDAL_CLIENT_ID` | developer.tidal.com → Dashboard → Create app | `songport://callback` |
-| `DEEZER_APP_ID`, `DEEZER_REDIRECT_URL` | developers.deezer.com → My Apps. Publish `docs/deezer-redirect.html` on an https host and use that URL as redirect and "Application domain". | the https URL of the page |
+| `DEEZER_APP_ID`, `DEEZER_REDIRECT_URL` | developers.deezer.com → My Apps (an app you already have: Deezer no longer registers new ones). Publish `docs/deezer-redirect.html` on an https host and use that URL as redirect and "Application domain". | the https URL of the page |
 | `LASTFM_API_KEY`, `LASTFM_SHARED_SECRET` (secret) | last.fm/api/account/create (the secret is the key's "Shared secret": only for loving tracks) | none |
 | `PRIVACY_POLICY_URL`, `KOFI_URL` | public URLs of the privacy policy and the donation page; an empty `KOFI_URL` hides the button | |
 
@@ -762,7 +765,7 @@ decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) 
 - The connectors marked *beta* in the app (Apple Music, Deezer, SoundCloud with an account,
   ListenBrainz) follow each service's documented API and work, but have had limited
   real-world use: the app says so on the connector's card and asks for reports.
-- YouTube (official API): the daily quota is 10,000 units per key, about 100 searches; long syncs
+- YouTube (official API): the daily quota is 100 searches per key (their own bucket since June 2026), plus 10,000 units for the rest; long syncs
   need the Bridge or several days. Video title parsing is not perfect (doubtful tracks end up in
   "not found", never added by guesswork).
 - YouTube Music through the Bridge: Google's abuse detection can block the address for a few minutes

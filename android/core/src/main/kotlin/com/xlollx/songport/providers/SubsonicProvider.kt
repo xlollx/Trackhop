@@ -26,6 +26,8 @@ import java.security.SecureRandom
  * API Subsonic (http://www.subsonic.org/pages/api.jsp): copre Navidrome, Airsonic, Gonic, LMS,
  * Funkwhale e gli altri server compatibili. Nessuna registrazione, nessuna quota: solo il tuo server.
  * Autenticazione con token = md5(password + salt) per richiesta, mai la password in chiaro.
+ * In alternativa, sui server OpenSubsonic che la offrono, una chiave API (estensione
+ * apiKeyAuthentication: parametro `apiKey`, senza `u`, `t`, `s`).
  */
 class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
@@ -40,15 +42,53 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
     override val supportsAlbums = true
     override val supportsArtists = true
     override val matchesByMbid = true
-    override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_subsonic")
+    override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, hintName = "login_hint_subsonic", offersApiKey = true)
 
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
         val base = normalizeUrl(url)
         var t = Tokens(accessToken = secret, userName = user.trim(), extra = mapOf("url" to base))
         // The version this server speaks, when it refuses ours: every later call is made with it.
         // Its kind too ("navidrome", ...), which says whether it has a web search to open.
-        call(ctx, "ping", emptyList(), t, onType = { ty -> t = t.copy(extra = t.extra + (TYPE to ty)) }) { v -> t = t.copy(extra = t.extra + ("v" to v)) }
+        try {
+            call(ctx, "ping", emptyList(), t, onType = { ty -> t = t.copy(extra = t.extra + (TYPE to ty)) }) { v -> t = t.copy(extra = t.extra + ("v" to v)) }
+        } catch (e: ProviderException) {
+            // 41 (token sign-in not supported, LDAP users) or 42 (mechanism not supported): a server that
+            // takes no password from apps. When it offers keys, the user is pointed there.
+            if ((e.code == 41 || e.code == 42) && APIKEY_EXTENSION in extensions(base)) throw ProviderException(ctx.text("subsonic_apikey_needed"), code = e.code)
+            throw e
+        }
         save(ctx, t)
+    }
+
+    /**
+     * OpenSubsonic API key sign-in (opensubsonic.netlify.app/docs/extensions/apikeyauth): the server
+     * must list `apiKeyAuthentication` in `getOpenSubsonicExtensions` (public, no credentials). The
+     * key is then checked with `tokenInfo`, which also names the account it belongs to; each later
+     * call carries `apiKey` and no `u`, `t` or `s` (sending both is error 43). The password sign-in
+     * ([login]) is untouched: a connection made with it keeps the salted token.
+     */
+    override suspend fun loginWithApiKey(ctx: Env, url: String, apiKey: String) {
+        val base = normalizeUrl(url)
+        val key = apiKey.trim()
+        if (key.isEmpty()) throw ProviderException(ctx.text("subsonic_apikey_invalid"))
+        if (APIKEY_EXTENSION !in extensions(base)) throw ProviderException(ctx.text("subsonic_apikey_unsupported"))
+        var t = Tokens(accessToken = key, extra = mapOf("url" to base, AUTH to AUTH_APIKEY))
+        val info = try {
+            call(ctx, "tokenInfo", emptyList(), t, onType = { ty -> t = t.copy(extra = t.extra + (TYPE to ty)) }) { v -> t = t.copy(extra = t.extra + ("v" to v)) }
+        } catch (e: ProviderException) {
+            if (e.code == ERROR_INVALID_KEY) throw ProviderException(ctx.text("subsonic_apikey_invalid"), code = e.code)
+            throw e
+        }
+        save(ctx, t.copy(userName = info["tokenInfo"]["username"].str.orEmpty()))
+    }
+
+    /** The OpenSubsonic extensions [base] lists; none for a plain Subsonic server or one that refuses the call. */
+    internal suspend fun extensions(base: String): Set<String> {
+        val resp = Http.send("GET", "$base/rest/getOpenSubsonicExtensions?v=$API_VERSION&c=Songport&f=json", mapOf("Accept" to "application/json"))
+        if (!resp.ok) return emptySet()
+        val r = runCatching { parseJson(resp.body)["subsonic-response"] }.getOrNull() ?: return emptySet()
+        if (r["status"].str != "ok") return emptySet()
+        return r["openSubsonicExtensions"].arr.mapNotNull { it["name"].str }.toSet()
     }
 
     private fun md5(s: String): String =
@@ -66,10 +106,10 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
             val salt = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
             // "c" stays "Songport" after the rename to Trackhop: Navidrome and others register a player
             // per client name, with the admin's settings (transcoding, ...) attached to it.
-            val common = listOf(
-                "u" to t.userName, "t" to md5(t.accessToken + salt), "s" to salt,
-                "v" to version, "c" to "Songport", "f" to "json",
-            )
+            // An API key goes alone: with it, u, t and s are an error (43, conflicting mechanisms).
+            val auth = if (t.extra[AUTH] == AUTH_APIKEY) listOf("apiKey" to t.accessToken)
+            else listOf("u" to t.userName, "t" to md5(t.accessToken + salt), "s" to salt)
+            val common = auth + listOf("v" to version, "c" to "Songport", "f" to "json")
             val query = (common + params).joinToString("&") { (k, v) -> "${Http.enc(k)}=${Http.enc(v)}" }
             val resp = Http.send("GET", "${t.extra["url"]}/rest/$method?$query", mapOf("Accept" to "application/json"))
             if (!resp.ok) throw ProviderException("$displayName: HTTP ${resp.code}")
@@ -84,7 +124,7 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
             val older = olderVersion(r, version)
             if (older != null) { version = older; onVersion(older); continue }
             if (isAmpacheWrongPassword(r)) throw ProviderException(ctx.text("error_ampache_subsonic_password"))
-            throw ProviderException("$displayName: ${r["error"]["message"].str ?: "error ${r["error"]["code"].int}"}")
+            throw ProviderException("$displayName: ${r["error"]["message"].str ?: "error ${r["error"]["code"].int}"}", code = r["error"]["code"].int ?: 0)
         }
     }
 
@@ -116,7 +156,8 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
     override suspend fun playlists(ctx: Env): List<Playlist> {
         val me = creds(ctx).userName
         return call(ctx, "getPlaylists", emptyList())["playlists"]["playlist"].arr.mapNotNull { p ->
-            Playlist(p["id"].str ?: return@mapNotNull null, p["name"].str ?: "", p["songCount"].int ?: -1, ownedByMe = (p["owner"].str ?: me) == me, isPublic = p["public"].bool)
+            // A key whose account the server did not name: every listed playlist counts as the user's.
+            Playlist(p["id"].str ?: return@mapNotNull null, p["name"].str ?: "", p["songCount"].int ?: -1, ownedByMe = me.isBlank() || (p["owner"].str ?: me) == me, isPublic = p["public"].bool)
         }
     }
 
@@ -265,6 +306,12 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
         const val API_VERSION = "1.16.1"
         /** Where the server's kind is kept in the account's extras, as its answers give it ("navidrome"). */
         internal const val TYPE = "type"
+        /** How the connection signs its calls: absent for the salted token, [AUTH_APIKEY] for a key. */
+        internal const val AUTH = "auth"
+        internal const val AUTH_APIKEY = "apikey"
+        internal const val APIKEY_EXTENSION = "apiKeyAuthentication"
+        /** OpenSubsonic error 44: the API key is not valid. */
+        private const val ERROR_INVALID_KEY = 44
         internal const val NAVIDROME = "navidrome"
         /** An ISRC is rarely more than a couple of recordings: that many searches by id, then the title. */
         private const val MBID_QUERIES = 2

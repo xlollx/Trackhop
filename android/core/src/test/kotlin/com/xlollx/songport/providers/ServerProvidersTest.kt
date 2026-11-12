@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.it.TestEnv
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
@@ -12,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -214,6 +216,83 @@ class FakeServerProvidersTest {
         assertEquals("pw", ctx.tokens.get(p.id)!!.accessToken)
     }
 
+    // ------------------------------------------------------------------ OpenSubsonic API key (apiKeyAuthentication)
+
+    private fun openSubsonic(r: Req, extensions: String = """{"name":"apiKeyAuthentication","versions":[1]},{"name":"formPost","versions":[1]}"""): Pair<Int, String> =
+        when (r.path.substringAfterLast('/')) {
+            "getOpenSubsonicExtensions" -> 200 to subsonic("1.16.1", ""","type":"navidrome","openSubsonic":true,"openSubsonicExtensions":[$extensions]""")
+            "tokenInfo" -> if (r.query["apiKey"]?.single() == "k3y") 200 to subsonic("1.16.1", ""","type":"navidrome","openSubsonic":true,"tokenInfo":{"username":"lorenzo"}""")
+                else 200 to """{"subsonic-response":{"status":"failed","version":"1.16.1","openSubsonic":true,"error":{"code":44,"message":"Invalid API key"}}}"""
+            "getPlaylists" -> 200 to subsonic("1.16.1", ""","playlists":{"playlist":[{"id":"1","name":"Mine","owner":"lorenzo"},{"id":"2","name":"Theirs","owner":"admin"}]}""")
+            else -> 200 to subsonic("1.16.1")
+        }
+
+    @Test fun subsonicSignsInWithAnApiKeyAndSendsNoUserOrToken() = runBlocking {
+        answer = { openSubsonic(it) }
+        val p = SubsonicProvider()
+        assertTrue(p.loginForm.offersApiKey)
+        p.loginWithApiKey(ctx, url, " k3y ")
+        val ext = requests.first()
+        assertEquals("/rest/getOpenSubsonicExtensions", ext.path)
+        // Public by the spec: asked without any credential.
+        assertTrue(listOf("u", "t", "s", "p", "apiKey").none { ext.query.containsKey(it) })
+        val info = requests[1]
+        assertEquals("/rest/tokenInfo", info.path)
+        assertEquals(listOf("k3y"), info.query["apiKey"])
+        assertEquals("lorenzo", p.accountName(ctx))
+        assertEquals(listOf(true, false), p.playlists(ctx).map { it.ownedByMe })
+        val list = requests.last()
+        assertEquals(listOf("k3y"), list.query["apiKey"])
+        // apiKey goes alone: u, t or s with it is error 43.
+        assertTrue(listOf("u", "t", "s", "p").none { list.query.containsKey(it) })
+        assertEquals(listOf("json"), list.query["f"])
+    }
+
+    @Test fun subsonicSaysPlainlyWhenTheServerHasNoApiKeys() = runBlocking {
+        answer = { openSubsonic(it, extensions = """{"name":"formPost","versions":[1]}""") }
+        val e = runCatching { SubsonicProvider().loginWithApiKey(ctx, url, "k3y") }.exceptionOrNull()
+        assertEquals("subsonic_apikey_unsupported", e?.message)
+        assertEquals(listOf("/rest/getOpenSubsonicExtensions"), requests.map { it.path })
+        assertNull(ctx.tokens.get(SubsonicProvider().id))
+    }
+
+    @Test fun subsonicPlainServerWithoutExtensionsRefusesTheKey() = runBlocking {
+        // A plain Subsonic server: getOpenSubsonicExtensions does not exist (error 70, or a 404).
+        answer = { r -> if (r.path.endsWith("getOpenSubsonicExtensions")) 404 to "" else 200 to subsonic("1.16.1") }
+        val e = runCatching { SubsonicProvider().loginWithApiKey(ctx, url, "k3y") }.exceptionOrNull()
+        assertEquals("subsonic_apikey_unsupported", e?.message)
+    }
+
+    @Test fun subsonicRejectsAWrongApiKey() = runBlocking {
+        answer = { openSubsonic(it) }
+        val e = runCatching { SubsonicProvider().loginWithApiKey(ctx, url, "wrong") }.exceptionOrNull()
+        assertEquals("subsonic_apikey_invalid", e?.message)
+        assertNull(ctx.tokens.get(SubsonicProvider().id))
+    }
+
+    @Test fun subsonicPasswordRefusedByAKeyOnlyServerPointsToTheKey() = runBlocking {
+        answer = { r ->
+            if (r.path.endsWith("ping")) 200 to """{"subsonic-response":{"status":"failed","version":"1.16.1","openSubsonic":true,"error":{"code":41,"message":"Token authentication not supported for LDAP users."}}}"""
+            else openSubsonic(r)
+        }
+        val e = runCatching { SubsonicProvider().login(ctx, url, "ldap-user", "pw") }.exceptionOrNull()
+        assertEquals("subsonic_apikey_needed", e?.message)
+    }
+
+    @Test fun subsonicPasswordSignInIsUnchanged() = runBlocking {
+        answer = { openSubsonic(it) }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "lorenzo", "pw")
+        p.playlists(ctx)
+        // The salted token as before; no extension lookup, no key.
+        assertEquals(listOf("/rest/ping", "/rest/getPlaylists"), requests.map { it.path })
+        requests.forEach { r ->
+            assertEquals(listOf("lorenzo"), r.query["u"])
+            assertNotNull(r.query["t"]); assertNotNull(r.query["s"])
+            assertNull(r.query["apiKey"])
+        }
+    }
+
     @Test fun subsonicWithoutAKindOffersNoWebSearch() = runBlocking {
         answer = { 200 to subsonic("1.16.1") }
         val p = SubsonicProvider()
@@ -326,7 +405,9 @@ class FakeServerProvidersTest {
         val p = JellyfinProvider()
         p.login(ctx, url, "admin", "pw")
         p.renamePlaylist(ctx, "p1", "New")
-        val write = requests.single { it.path == "/Items/p1" }
+        // GET /Items/p1?userId= is refused before 10.9: the item comes from /Users/u1/Items/p1.
+        assertEquals(listOf("GET /Items/p1", "GET /Users/u1/Items/p1"), requests.filter { it.method == "GET" && it.path.endsWith("/p1") }.map { "${it.method} ${it.path}" })
+        val write = requests.single { it.path == "/Items/p1" && it.method == "POST" }
         val item = parseJson(write.body)
         assertEquals("New", item["Name"].str)
         assertEquals("p1", item["Id"].str) // the rest of the item goes back as read
@@ -401,7 +482,9 @@ class FakeServerProvidersTest {
         val chrono = listOf(song("c2", "$chronology, Part 2", "Chronologie", 410), song("c4", "$chronology, Part 4", "Chronologie", 200))
         when {
             r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
-            r.path == "/Artists" -> 200 to if (r.query["searchTerm"]?.single() == "Jean-Michel Jarre") """{"Items":[{"Id":"jmj","Name":"Jean-Michel Jarre"}]}""" else """{"Items":[]}"""
+            // Jellyfin 12: the artist is an item of type MusicArtist (GET /Artists is deprecated).
+            r.path == "/Items" && r.query["IncludeItemTypes"] == listOf("MusicArtist") ->
+                200 to if (r.query["searchTerm"]?.single() == "Jean-Michel Jarre") """{"Items":[{"Id":"jmj","Name":"Jean-Michel Jarre","Type":"MusicArtist"}]}""" else """{"Items":[]}"""
             r.path == "/Items" && r.query["ArtistIds"]?.single() == "jmj" -> 200 to """{"Items":[${(magnetic + chrono).joinToString(",")}]}"""
             r.path == "/Items" -> 200 to when (val term = r.query["searchTerm"]?.single().orEmpty()) {
                 "magnetic fields" -> """{"Items":[${magnetic.joinToString(",")}]}"""
@@ -434,7 +517,7 @@ class FakeServerProvidersTest {
         val asked = requests.filter { it.path == "/Items" }.mapNotNull { it.query["searchTerm"]?.single() }
         assertEquals(listOf("chronology part 4", "Chronology, Pt. 4", "chronology"), asked)
         // Found by name: the artist's songs are not read.
-        assertTrue(requests.none { it.path == "/Artists" })
+        assertTrue(requests.none { it.path == "/Artists" || it.query["IncludeItemTypes"] == listOf("MusicArtist") })
     }
 
     @Test fun jellyfinScoresTheArtistsSongsWhenNoNameIsClose() = runBlocking {
@@ -448,8 +531,187 @@ class FakeServerProvidersTest {
         assertEquals("c4", Matcher.best(src, found)?.id)
         // Part 2 of the same piece is never taken for it.
         assertNull(Matcher.best(src, found.filter { it.id != "c4" }))
+        // The artist was asked as an item, not through the deprecated /Artists.
+        assertTrue(requests.none { it.path == "/Artists" })
         // An artist the library does not have: the search ends with nothing, no error.
         assertTrue(p.search(ctx, Track(id = "x", title = "Unknown Song", artists = listOf("Nobody"))).isEmpty())
+    }
+
+    @Test fun jellyfinAsksTheOlderArtistsRouteWhenNoArtistItemIsFound() = runBlocking {
+        val documented = jellyfinJarre("Chronologie")
+        answer = { r ->
+            when {
+                // A server that lists no MusicArtist items for the name, but answers /Artists.
+                r.path == "/Items" && r.query["IncludeItemTypes"] == listOf("MusicArtist") -> 200 to """{"Items":[]}"""
+                r.path == "/Artists" -> 200 to if (r.query["searchTerm"]?.single() == "Jean-Michel Jarre") """{"Items":[{"Id":"jmj","Name":"Jean-Michel Jarre"}]}""" else """{"Items":[]}"""
+                else -> documented(r)
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Chronology, Pt. 4 - Remastered", artists = listOf("Jean-Michel Jarre"), album = "Chronology", durationMs = 200_000)
+        assertEquals("c4", p.search(ctx, src).first().id)
+        val artistCalls = requests.filter { it.path == "/Artists" || it.query["IncludeItemTypes"] == listOf("MusicArtist") }.map { it.path }
+        assertEquals(listOf("/Items", "/Artists"), artistCalls)
+    }
+
+    // ------------------------------------------------------------------ Jellyfin routes (12.x spec) and Emby
+
+    private fun jellyfin12(r: Req): Pair<Int, String> = when {
+        r.path.endsWith("/Users/AuthenticateByName") -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+        r.path == "/Items" && r.query["userId"] == listOf("u1") && r.query["IncludeItemTypes"] == listOf("Playlist") ->
+            200 to """{"Items":[{"Id":"p1","Name":"Mix","ChildCount":3}]}"""
+        r.path == "/Items" && r.query["userId"] == listOf("u1") && r.query["Filters"] == listOf("IsFavorite") ->
+            200 to """{"Items":[{"Id":"f1","Name":"Fav","Artists":["A"]}]}"""
+        r.path == "/Items/p1" && r.method == "GET" && r.query["userId"] == listOf("u1") -> 200 to """{"Id":"p1","Name":"Mix","ChildCount":3}"""
+        r.path.startsWith("/UserFavoriteItems/") && r.query["userId"] == listOf("u1") -> 200 to """{"IsFavorite":true}"""
+        // The per-user routes are gone from the spec: the fake refuses them, so a call there fails the test.
+        r.path.startsWith("/Users/u1/") -> 404 to ""
+        else -> 404 to ""
+    }
+
+    @Test fun jellyfinCallsOnlyTheDocumentedRoutes() = runBlocking {
+        answer = ::jellyfin12
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("p1" to 3), p.playlists(ctx).map { it.id to it.trackCount })
+        assertEquals("Mix", p.playlistInfo(ctx, "p1").name)
+        assertEquals(listOf("f1"), p.tracks(ctx, MusicProvider.LIKED_ID).map { it.id })
+        p.addTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S")))
+        p.removeTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s2", "S")))
+        assertTrue(requests.map { it.path }.toString(), requests.none { it.path.startsWith("/Users/u1/") })
+        val fav = requests.filter { it.path.startsWith("/UserFavoriteItems/") }
+        assertEquals(listOf("POST /UserFavoriteItems/s1", "DELETE /UserFavoriteItems/s2"), fav.map { "${it.method} ${it.path}" })
+        assertEquals(listOf("u1"), fav.first().query["userId"])
+    }
+
+    @Test fun jellyfinBeforeTheNewRoutesFallsBackToThePerUserOnesAndRemembers() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path.startsWith("/UserFavoriteItems/") -> 404 to ""
+                r.path.startsWith("/Users/u1/FavoriteItems/") -> 200 to """{"IsFavorite":true}"""
+                r.path == "/Users/u1/Items" -> 200 to """{"Items":[{"Id":"p1","Name":"Old route","ChildCount":1}]}"""
+                // A server answering /Items?userId= with nothing: the per-user route is asked too.
+                r.path == "/Items" -> 200 to """{"Items":[]}"""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        p.addTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S"), Track("s2", "S")))
+        assertEquals(
+            listOf("POST /UserFavoriteItems/s1", "POST /Users/u1/FavoriteItems/s1", "POST /Users/u1/FavoriteItems/s2"),
+            requests.filter { it.path.contains("Favorite") }.map { "${it.method} ${it.path}" },
+        )
+        assertEquals(listOf("Old route"), p.playlists(ctx).map { it.name })
+        assertEquals(listOf("/Items", "/Users/u1/Items"), requests.filter { it.query["IncludeItemTypes"] == listOf("Playlist") }.map { it.path })
+    }
+
+    @Test fun jellyfinReportsTheDocumentedRoutesErrorWhenBothRoutesFail() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path.startsWith("/UserFavoriteItems/") -> 400 to "documented refused"
+                else -> 404 to "older refused"
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val e = runCatching { p.addTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S"))) }.exceptionOrNull()
+        assertTrue(e?.message, e?.message?.contains("documented refused") == true)
+    }
+
+    @Test fun embyAsksItsOwnPerUserRoutesFirst() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/emby/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path == "/emby/Users/u1/Items" -> 200 to """{"Items":[{"Id":"p1","Name":"Emby list","ChildCount":2}]}"""
+                r.path == "/emby/Users/u1/Items/p1" -> 200 to """{"Id":"p1","Name":"Emby list","ChildCount":2}"""
+                r.path.startsWith("/emby/Users/u1/FavoriteItems/") -> 200 to """{"IsFavorite":true}"""
+                else -> 404 to ""
+            }
+        }
+        val p = EmbyProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertEquals(listOf("Emby list"), p.playlists(ctx).map { it.name })
+        assertEquals("Emby list", p.playlistInfo(ctx, "p1").name)
+        p.addTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S")))
+        p.removeTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S")))
+        assertTrue(requests.map { it.path }.toString(), requests.none { it.path.contains("/UserFavoriteItems/") || it.path == "/emby/Items/p1" })
+        assertEquals(listOf("POST", "DELETE"), requests.filter { it.path == "/emby/Users/u1/FavoriteItems/s1" }.map { it.method })
+    }
+
+    @Test fun embyTriesTheJellyfinRoutesWhenItsOwnAreRefused() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/emby/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path.startsWith("/emby/UserFavoriteItems/") -> 204 to ""
+                else -> 404 to ""
+            }
+        }
+        val p = EmbyProvider()
+        p.login(ctx, url, "admin", "pw")
+        p.addTracks(ctx, MusicProvider.LIKED_ID, listOf(Track("s1", "S")))
+        assertEquals(listOf("/emby/Users/u1/FavoriteItems/s1", "/emby/UserFavoriteItems/s1"), requests.filter { it.path.contains("Favorite") }.map { it.path })
+    }
+
+    // ------------------------------------------------------------------ Jellyfin reorder (Move)
+
+    private fun entry(id: String, entry: String = "e$id") = Track(id = id, title = id, itemId = entry)
+
+    @Test fun jellyfinReordersWithMovesByEntryId() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path.startsWith("/Playlists/p1/Items/") && r.path.contains("/Move/") && r.method == "POST" -> 204 to ""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        assertTrue(p.canReorder)
+        val cur = listOf(entry("a"), entry("b"), entry("c"), entry("d"))
+        // Wanted: d, a, b, c -> one move: d's entry to index 0.
+        p.reorderTracks(ctx, "p1", cur, listOf(cur[3], cur[0], cur[1], cur[2]))
+        assertEquals(listOf("/Playlists/p1/Items/ed/Move/0"), requests.filter { it.path.contains("/Move/") }.map { it.path })
+        requests.clear()
+        // Wanted: b, c, a, d -> a goes after c (index 2 of the list once a is out).
+        p.reorderTracks(ctx, "p1", cur, listOf(cur[1], cur[2], cur[0], cur[3]))
+        assertEquals(listOf("/Playlists/p1/Items/ea/Move/2"), requests.filter { it.path.contains("/Move/") }.map { it.path })
+    }
+
+    @Test fun jellyfinWritesTheOrderBackWholeWhenCopiesShareAnEntryId() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path == "/Playlists/p1" && r.method == "POST" -> 204 to ""
+                else -> 404 to ""
+            }
+        }
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        // Jellyfin 10.9+: both copies of b carry entry id "b".
+        val cur = listOf(entry("a", "a"), entry("b", "b"), entry("c", "c"), entry("b", "b"))
+        p.reorderTracks(ctx, "p1", cur, listOf(cur[2], cur[0], cur[1], cur[3]))
+        val write = requests.single { it.path == "/Playlists/p1" }
+        assertEquals(listOf("c", "a", "b", "b"), parseJson(write.body)["Ids"].arr.map { it.str })
+        assertTrue(requests.none { it.path.contains("/Move/") })
+    }
+
+    @Test fun embyReordersWithItsMoveUnderEmby() = runBlocking {
+        answer = { r ->
+            when {
+                r.path == "/emby/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+                r.path.contains("/Move/") -> 204 to ""
+                else -> 404 to ""
+            }
+        }
+        val p = EmbyProvider()
+        p.login(ctx, url, "admin", "pw")
+        val cur = listOf(entry("a", "11"), entry("b", "12"))
+        p.reorderTracks(ctx, "p1", cur, listOf(cur[1], cur[0]))
+        assertEquals(listOf("/emby/Playlists/p1/Items/12/Move/0"), requests.filter { it.path.contains("/Move/") }.map { it.path })
     }
 
     @Test fun jellyfinFindsInitialsWrittenWithoutDots() = runBlocking {
@@ -586,7 +848,7 @@ class FakeServerProvidersTest {
         answer = { r ->
             when {
                 r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
-                r.path == "/Users/u1/Items" && r.query["IncludeItemTypes"] == listOf("Audio") ->
+                r.path == "/Items" && r.query["userId"] == listOf("u1") && r.query["IncludeItemTypes"] == listOf("Audio") ->
                     200 to """{"Items":[{"Id":"a","Name":"Tagged","ProviderIds":{"MusicBrainzRecording":"$mbid"}},{"Id":"b","Name":"Bare","ProviderIds":{}},{"Id":"c","Name":"Bare too"}]}"""
                 else -> 404 to ""
             }
@@ -719,7 +981,7 @@ class FakeServerProvidersTest {
             when {
                 r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
                 r.path == "/Playlists/p1/Items" -> 200 to """{"Items":[{"Id":"a","Name":"Battery","Artists":["Metallica"],"UserData":{"PlayCount":9}},{"Id":"b","Name":"One","Artists":["Metallica"],"UserData":{"PlayCount":0}}]}"""
-                r.path == "/Users/u1/Items" && r.query["SortBy"] == listOf("PlayCount") -> 200 to """{"Items":[{"Id":"c","Name":"Home","Artists":["Beyoncé"],"UserData":{"PlayCount":21}},{"Id":"a","Name":"Battery","Artists":["Metallica"],"UserData":{"PlayCount":9}}]}"""
+                r.path == "/Items" && r.query["SortBy"] == listOf("PlayCount") -> 200 to """{"Items":[{"Id":"c","Name":"Home","Artists":["Beyoncé"],"UserData":{"PlayCount":21}},{"Id":"a","Name":"Battery","Artists":["Metallica"],"UserData":{"PlayCount":9}}]}"""
                 else -> 404 to ""
             }
         }

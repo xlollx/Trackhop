@@ -41,9 +41,12 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
     override val supportsArtists = true
     override val supportsPodcasts = true
 
+    // Deezer stopped registering new developer apps (its community manager, October 2025): the guide
+    // is for an app the user already has, which keeps working; the texts point the others to the
+    // web connector. No link to the creation page, which leads nowhere now.
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://developers.deezer.com/myapps",
-        stepUrls = listOf("https://developers.deezer.com/myapps", "https://developers.deezer.com/myapps/create", null, "https://developers.deezer.com/myapps"),
+        stepUrls = listOf("https://developers.deezer.com/myapps", "https://developers.deezer.com/myapps", null, "https://developers.deezer.com/myapps"),
         whyName = "setup_why_deezer",
         stepsArrayName = "setup_steps_deezer",
         fieldLabelName = "setup_field_app_id",

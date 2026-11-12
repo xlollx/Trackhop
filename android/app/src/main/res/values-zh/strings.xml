@@ -131,7 +131,7 @@
     <string name="report_issue">在 GitHub 上报告</string>
     <string name="provider_note_youtube">官方 YouTube Data API，需要你自己的 Google Cloud 项目。每日配额有限：大型同步可能需要好几天。</string>
     <string name="provider_note_tidal">TIDAL 歌单。</string>
-    <string name="provider_note_deezer">Deezer 歌单和收藏（测试版）。</string>
+    <string name="provider_note_deezer">Deezer 播放列表和收藏（测试版），需要你已有的 Deezer 开发者应用：Deezer 已不再接受新的应用。</string>
 
     <string name="log_empty">尚未运行过任何同步。</string>
     <string name="log_unmatched_title">目标中未找到的歌曲</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify 要求以你的名义注册一个应用。注册免费；处于开发模式（Development Mode）的应用最多可供 5 个账号使用，个人使用绰绰有余。</string>
     <string name="setup_why_youtube">使用 YouTube API 时，Google 要求以你的名义创建一个 Cloud 项目。项目免费，每日配额只属于你。</string>
     <string name="setup_why_tidal">TIDAL 要求以你的名义注册一个应用。注册免费。</string>
-    <string name="setup_why_deezer">Deezer 需要以你的名义注册一个应用。https 重定向页面由本项目提供。</string>
+    <string name="setup_why_deezer">Deezer 已不再允许创建新的开发者应用。如果你已有一个，请在此使用它的 Application ID：它仍然可用。如果没有，请改为添加 Deezer (web) 连接器：它不需要应用。https 重定向页面由本项目提供。</string>
     <string name="setup_why_apple">开发者令牌属于你的 Apple Developer 账号，最长六个月后过期。</string>
     <string name="error_dev_mode_limit">%1$s 每个应用只允许少数几个用户。请设置你自己的凭据：免费，大约只需两分钟。</string>
     <string name="error_network">手机无法连接到该服务（DNS 解析失败）。请检查网络连接、VPN 或私人 DNS，并确认允许 Trackhop 在后台使用数据，然后重试。</string>
@@ -526,6 +526,11 @@
     <string name="login_url">服务器地址</string>
     <string name="login_user">用户名</string>
     <string name="login_password">密码</string>
+    <string name="login_apikey">API 密钥</string>
+    <string name="login_apikey_hint">使用在你的服务器上创建的 API 密钥（支持此功能的 OpenSubsonic 服务器），代替用户名和密码。</string>
+    <string name="subsonic_apikey_unsupported">此服务器不支持使用 API 密钥登录。请使用用户名和密码。</string>
+    <string name="subsonic_apikey_invalid">服务器不接受此 API 密钥。请检查密钥，或在服务器上新建一个。</string>
+    <string name="subsonic_apikey_needed">此服务器不接受来自应用的密码。请选择“API 密钥”，并使用在服务器上创建的密钥。</string>
     <string name="login_token">令牌</string>
     <string name="login_submit">检查并保存</string>
     <string name="login_checking">正在检查…</string>
@@ -646,7 +651,8 @@
     <string name="restored_done">已恢复 %1$d 首歌曲</string>
     <string name="restored_note">已手动恢复 %1$d 首被移除的歌曲。</string>
     <string name="quota_used">今日已用 %1$s / %2$s 个 YouTube 配额单位</string>
-    <string name="quota_note">每日限额由 YouTube（Google）设定，而非 Trackhop。在太平洋时间午夜重置。一次搜索消耗 100 个单位，添加一首歌曲消耗 50 个。</string>
+    <string name="quota_searches_used">今日已用 %1$s / %2$s 次 YouTube 搜索</string>
+    <string name="quota_note">每日限额由 YouTube（Google）设定，而非 Trackhop。在太平洋时间午夜重置。搜索单独计数，每天上限 100 次；添加一首歌曲消耗 50 个单位。</string>
     <string name="quota_note_shared">每日限额由 YouTube（Google）设定，而非 Trackhop，并由所有使用内置密钥的用户共享：其他用户的消耗不会计入此处。使用你自己的凭据可获得专属配额。</string>
     <string name="quota_estimate">此同步大约将使用 %1$s 个单位。</string>
     <string name="quota_estimate_over">此同步大约需要 %1$s 个单位，但今天只剩 %2$s 个：将在接下来几天内完成。</string>
@@ -709,8 +715,8 @@
         <item>将 Client ID 复制到这里。不需要 Client secret。</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>使用你的 Deezer 账号登录 developers.deezer.com，并打开“My Apps”。</item>
-        <item>点按“Create a new Application”。名称和描述可随意填写。</item>
+        <item>仅适用于你已有的 Deezer 应用：使用你的 Deezer 账号登录 developers.deezer.com，并打开“My Apps”。</item>
+        <item>打开你的应用。Deezer 已不再允许创建新的应用。</item>
         <item>Deezer 只接受 https 重定向。下方已填好一个现成的重定向页面：请将该地址同时粘贴到“Application domain”（不含 https://）和“Redirect URL after authentication”中。</item>
         <item>保存，然后将“Application ID”复制到这里。</item>
     </string-array>
@@ -1143,7 +1149,7 @@
     <string name="help_uncertain_title">不确定的匹配</string>
     <string name="help_uncertain_body">Trackhop 没有把握的匹配。点按“看起来没问题”保留，或点按“更改”选择另一首歌：两种方式都会被记住。你在这里没有处理的，会在运行后的检查页面中再次询问。</string>
     <string name="help_quota_title">YouTube 配额单位</string>
-    <string name="help_quota_body">YouTube 每天只允许固定数量的单位：一次搜索消耗 100，添加一首歌消耗 50。计数在太平洋时间午夜重置。大型的首次同步可能需要好几天，会自动继续。</string>
+    <string name="help_quota_body">YouTube 每天允许 100 次搜索（单独计数），其他操作则有固定数量的单位：添加一首歌消耗 50。两者都在太平洋时间午夜重置。大型的首次同步可能需要好几天，会自动继续。</string>
     <string name="help_review_title">处理歌曲</string>
     <string name="help_change_body">用你选择的歌曲替换 Trackhop 选的歌曲：在服务允许时，错误的歌曲会从目标中移除，你的选择会在之后的运行中被记住。</string>
     <string name="help_proposal_body">找到的最接近的歌曲，但还不足以自动添加：如果没错，请点按“添加”。未找到的歌曲会在一周后重新搜索；打开一首可以立即搜索。</string>

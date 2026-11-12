@@ -199,6 +199,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                     label = p.label(ctx),
                     trouble = remember(data.reports, p.id) { lastRunTrouble(data, p) },
                     quotaUsed = if (p.serviceId == YouTubeProvider.SERVICE) QuotaMeter.used(data, YouTubeProvider.SERVICE) else null,
+                    searchesUsed = if (p.serviceId == YouTubeProvider.SERVICE) QuotaMeter.searchesUsed(data, YouTubeProvider.SERVICE) else null,
                     onSetup = onSetup,
                     onConnect = { connectFor = p },
                     onRename = { renaming = p },
@@ -372,6 +373,7 @@ private fun ProviderCard(
     p: MusicProvider,
     label: String,
     quotaUsed: Long?,
+    searchesUsed: Long? = null,
     onSetup: (MusicProvider) -> Unit,
     onConnect: () -> Unit,
     onRename: () -> Unit,
@@ -439,7 +441,7 @@ private fun ProviderCard(
                 }
                 if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
-            if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx))
+            if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx), searches = searchesUsed)
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
             if (p.alpha || p.beta) {
                 Spacer(Modifier.height(8.dp))

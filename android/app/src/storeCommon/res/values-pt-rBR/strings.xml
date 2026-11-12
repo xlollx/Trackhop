@@ -14,4 +14,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud por meio de um plugin conector que guarda o login do SoundCloud: suas playlists e faixas curtidas como origens e destinos.</string>
     <string name="setlists_browse">Navegar no setlist.fm</string>
     <string name="setlists_browse_need_plugin">Navegar no setlist.fm precisa de uma versão mais recente do plugin de conexões: atualize-o e tente de novo.</string>
+    <string name="setup_why_deezer">O Deezer não permite mais criar novos apps de desenvolvedor. Se você já tem um, use aqui o Application ID dele: ele continua funcionando. Se não tem, a opção Deezer (plugin) funciona sem app, por meio de um plugin de conexão que você já tenha. A página de redirecionamento https é fornecida pelo projeto.</string>
 </resources>

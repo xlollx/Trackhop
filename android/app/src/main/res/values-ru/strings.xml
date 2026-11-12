@@ -131,7 +131,7 @@
     <string name="report_issue">Сообщить на GitHub</string>
     <string name="provider_note_youtube">Официальный YouTube Data API с вашим собственным проектом Google Cloud. Дневная квота ограничена: большие синхронизации могут занять несколько дней.</string>
     <string name="provider_note_tidal">Плейлисты TIDAL.</string>
-    <string name="provider_note_deezer">Плейлисты и избранное Deezer (бета).</string>
+    <string name="provider_note_deezer">Плейлисты и избранное Deezer (бета), с приложением разработчика Deezer, которое у вас уже есть: новые Deezer больше не принимает.</string>
 
     <string name="log_empty">Ни одна синхронизация ещё не запускалась.</string>
     <string name="log_unmatched_title">Треки, не найденные в цели</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify требует приложение, зарегистрированное на ваше имя. Это бесплатно; приложение в режиме Development Mode обслуживает до 5 аккаунтов — достаточно для личного использования.</string>
     <string name="setup_why_youtube">Google требует проект Cloud на ваше имя для использования YouTube API. Это бесплатно, и дневная квота принадлежит только вам.</string>
     <string name="setup_why_tidal">TIDAL требует приложение, зарегистрированное на ваше имя. Это бесплатно.</string>
-    <string name="setup_why_deezer">Deezer требует приложение, зарегистрированное на ваше имя. Страницу https-редиректа предоставляет проект.</string>
+    <string name="setup_why_deezer">Deezer больше не позволяет создавать новые приложения разработчика. Если у вас уже есть такое, укажите здесь его Application ID: оно продолжает работать. Если нет, добавьте вместо этого коннектор Deezer (web): ему не нужно приложение. Страницу перенаправления https предоставляет проект.</string>
     <string name="setup_why_apple">Токен разработчика принадлежит вашему аккаунту Apple Developer и истекает не позднее чем через шесть месяцев.</string>
     <string name="error_dev_mode_limit">%1$s допускает лишь несколько пользователей на приложение. Настройте собственные учётные данные: это бесплатно и занимает около двух минут.</string>
     <string name="error_network">телефон не смог связаться с сервисом (ошибка DNS). Проверьте подключение, VPN или частный DNS, а также разрешена ли Trackhop передача данных в фоне, затем попробуйте снова.</string>
@@ -552,6 +552,11 @@
     <string name="login_url">Адрес сервера</string>
     <string name="login_user">Имя пользователя</string>
     <string name="login_password">Пароль</string>
+    <string name="login_apikey">Ключ API</string>
+    <string name="login_apikey_hint">Ключ API, созданный на вашем сервере (серверы OpenSubsonic, которые это поддерживают), вместо имени пользователя и пароля.</string>
+    <string name="subsonic_apikey_unsupported">Этот сервер не поддерживает вход по ключу API. Используйте имя пользователя и пароль.</string>
+    <string name="subsonic_apikey_invalid">Сервер не принимает этот ключ API. Проверьте его или создайте новый на сервере.</string>
+    <string name="subsonic_apikey_needed">Этот сервер не принимает пароли от приложений. Выберите «Ключ API» и используйте ключ, созданный на сервере.</string>
     <string name="login_token">Токен</string>
     <string name="login_submit">Проверить и сохранить</string>
     <string name="login_checking">Проверка…</string>
@@ -672,7 +677,8 @@
     <string name="restored_done">Восстановлено треков: %1$d</string>
     <string name="restored_note">Удалённых треков восстановлено вручную: %1$d.</string>
     <string name="quota_used">Использовано %1$s / %2$s единиц YouTube сегодня</string>
-    <string name="quota_note">Дневной лимит задаёт YouTube (Google), а не Trackhop. Сбрасывается в полночь по тихоокеанскому времени. Поиск стоит 100 единиц, добавление трека — 50.</string>
+    <string name="quota_searches_used">Использовано %1$s / %2$s поисков YouTube сегодня</string>
+    <string name="quota_note">Дневные лимиты задаёт YouTube (Google), а не Trackhop. Сбрасываются в полночь по тихоокеанскому времени. У поиска свой лимит — 100 запросов в день; добавление трека стоит 50 единиц.</string>
     <string name="quota_note_shared">Дневной лимит задаёт YouTube (Google), а не Trackhop; он общий для всех, кто использует встроенный ключ: расход других пользователей здесь не учитывается. Собственные учётные данные дают вам отдельную квоту.</string>
     <string name="quota_estimate">Эта синхронизация использует около %1$s единиц.</string>
     <string name="quota_estimate_over">Этой синхронизации нужно около %1$s единиц, но на сегодня осталось только %2$s: она завершится в ближайшие дни.</string>
@@ -741,8 +747,8 @@
         <item>Скопируйте сюда Client ID. Client secret не нужен.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Войдите на developers.deezer.com с аккаунтом Deezer и откройте «My Apps».</item>
-        <item>Нажмите «Create a new Application». Название и описание на ваше усмотрение.</item>
+        <item>Только если у вас уже есть приложение Deezer: войдите на developers.deezer.com с аккаунтом Deezer и откройте «My Apps».</item>
+        <item>Откройте своё приложение. Создать новое в Deezer больше нельзя.</item>
         <item>Deezer принимает только https-редиректы. Готовая страница редиректа уже подставлена ниже: вставьте этот адрес и в «Application domain» (без https://), и в «Redirect URL after authentication».</item>
         <item>Сохраните, затем скопируйте сюда «Application ID».</item>
     </string-array>
@@ -1227,7 +1233,7 @@
     <string name="help_uncertain_title">Неуверенные совпадения</string>
     <string name="help_uncertain_body">Совпадения, в которых Trackhop не уверен. Нажмите «Верно», чтобы оставить совпадение, или «Изменить», чтобы выбрать другой трек: в обоих случаях это запомнится. Оставленные здесь будут снова предложены в проверке после запуска.</string>
     <string name="help_quota_title">Единицы YouTube</string>
-    <string name="help_quota_body">YouTube выделяет фиксированное число единиц в день: поиск стоит 100, добавление трека — 50. Счётчик обнуляется в полночь по тихоокеанскому времени. Большая первая синхронизация может занять несколько дней и продолжится сама.</string>
+    <string name="help_quota_body">YouTube разрешает 100 поисков в день, они считаются отдельно, и фиксированное число единиц на всё остальное: добавление трека стоит 50. Оба счётчика обнуляются в полночь по тихоокеанскому времени. Большая первая синхронизация может занять несколько дней и продолжится сама.</string>
     <string name="help_review_title">Исправление треков</string>
     <string name="help_change_body">Заменяет трек, выбранный Trackhop, на указанный вами: неверный удаляется из цели, если сервис это позволяет, а ваш выбор запоминается для следующих запусков.</string>
     <string name="help_proposal_body">Ближайший найденный трек, но недостаточно близкий, чтобы добавить его автоматически: нажмите «Добавить», если он подходит. Ненайденные треки ищутся снова через неделю; откройте трек, чтобы поискать сейчас.</string>

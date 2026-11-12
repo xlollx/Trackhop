@@ -13,4 +13,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud tramite un plugin connettore che conserva l\'accesso a SoundCloud: le tue playlist e i brani che ti piacciono come origini e destinazioni.</string>
     <string name="setlists_browse">Sfoglia setlist.fm</string>
     <string name="setlists_browse_need_plugin">Sfogliare setlist.fm richiede una versione più recente del plugin dei collegamenti: aggiornalo e riprova.</string>
+    <string name="setup_why_deezer">Deezer non permette più di creare nuove app sviluppatore. Se ne hai già una, usa qui il suo Application ID: funziona ancora. Altrimenti l\'opzione Deezer (plugin) funziona senza, tramite un plugin connettore che hai già. La pagina di reindirizzamento https è fornita dal progetto.</string>
 </resources>
