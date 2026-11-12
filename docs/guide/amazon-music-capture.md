@@ -42,9 +42,13 @@ blanked anywhere in the file.
   an assumption until a library of more than a page is captured) and `setAlbumLikeState` (`albumId`,
   `likeState` `POSITIVE` or `NEUTRAL`, `isAuthenticated`). Their text is not in the player's public
   code, so a changed hash of theirs needs a capture: open *Library → Albums*, like and un-like an album.
+  Followed artists: `LibraryArtistsPage` (the same variables and paging) and `toggleFollowArtist`
+  (`artistId`, `isFollowing`: the state before the tap, `isAuthenticated`), by hash only too (capture:
+  *Library → Artists*, follow and unfollow an artist); `searchArtistsResult` finds artists, its text in
+  `AmazonQueries.kt`.
 - The player uses Apollo's automatic persisted queries: when Amazon answers
   `PERSISTED_QUERY_NOT_FOUND`, the same request goes again with the query's text, which registers it.
-  The client does the same for the operations whose text is in `AmazonQueries.kt` (so far the two searches).
+  The client does the same for the operations whose text is in `AmazonQueries.kt` (so far the three searches: songs, albums, artists).
 - Headers are rebuilt from the page configuration (`amznMusic.appConfig`: CSRF triple, device id and
   type, session id from the cookie) plus the player's application key; when Amazon refuses them, the
   headers mirrored from the real player (`AmazonBridge.HOOK`) are used.

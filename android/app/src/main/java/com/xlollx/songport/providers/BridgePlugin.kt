@@ -54,11 +54,12 @@ object BridgePlugin {
     const val SITES_VERSION = 57
 
     /**
-     * A plugin reporting this "version" (or more) also lists, saves and removes Amazon Music's saved
-     * albums (`amazon.tracks`, `amazon.add`, `amazon.remove` with `__albums__`). They come with the
-     * same release as [SITES_VERSION], Trackhop Bridge 1.11.0, and follow it.
+     * A plugin reporting this "version" (or more) also lists and changes Amazon Music's saved albums
+     * and followed artists (`amazon.tracks`, `amazon.add`, `amazon.remove` with `__albums__` or
+     * `__artists__`). They come with the same release as [SITES_VERSION], Trackhop Bridge 1.11.0, and
+     * follow it.
      */
-    const val AMAZON_ALBUMS_VERSION = SITES_VERSION
+    const val AMAZON_LIBRARY_VERSION = SITES_VERSION
 
     /** The "version" the plugin's last status call reported, without asking (0 until one answered). */
     val reportedVersion: Int get() = pluginVersion

@@ -42,15 +42,16 @@ class SearchTargetTest {
 
     @After fun tearDown() { Providers.testDoubles = emptyList() }
 
-    /** Like Amazon Music: an album row is an album for the saved albums, its songs for a playlist. */
+    /** Like Amazon Music: an album (artist) row is an album (artist) for its library, songs for a playlist. */
     class SongsOrAlbums : MemoryService("mdst") {
         val songs = ArrayList<Track>()
         val searches = ArrayList<String?>()
         override val supportsAlbums: Boolean get() = true
+        override val supportsArtists: Boolean get() = true
         override suspend fun searchFor(ctx: Env, track: Track, playlistId: String?): List<Track> {
             searches += playlistId
             val wanted = Matcher.normalizeTitle(track.title)
-            val pool = if (playlistId == MusicProvider.ALBUMS_ID) catalogue else songs
+            val pool = if (MusicProvider.isLibrary(playlistId)) catalogue else songs
             return pool.filter { Matcher.normalizeTitle(it.title) == wanted }
         }
     }
@@ -125,6 +126,22 @@ class SearchTargetTest {
         assertNull(env.store.cachedMatch("msrc", "s2", "mdst"))
         SyncEngine(env).run(job("playlist-after", "albums", "PL3"))
         assertEquals(listOf("song2"), amazon.lists["PL3"]!!.map { it.id })
+    }
+
+    @Test fun anArtistFollowedThereIsNotTheSongMatchedForAPlaylist() = runBlocking {
+        val amazon = SongsOrAlbums()
+        Providers.testDoubles = listOf(src, amazon)
+        src.lists["artists"] = mutableListOf(Track(id = "a1", title = "Gamma", artists = listOf("Gamma"), kind = Track.KIND_ARTIST))
+        amazon.songs += Track(id = "song3", title = "Gamma", artists = listOf("Gamma"))
+        amazon.catalogue += Track(id = "art3", title = "Gamma", artists = listOf("Gamma"), kind = Track.KIND_ARTIST)
+        amazon.lists["PL4"] = ArrayList()
+        amazon.lists[MusicProvider.ARTISTS_ID] = ArrayList()
+        SyncEngine(env).run(job("artist-to-playlist", "artists", "PL4"))
+        assertEquals(listOf("song3"), amazon.lists["PL4"]!!.map { it.id })
+        SyncEngine(env).run(job("artist-followed", "artists", MusicProvider.ARTISTS_ID))
+        assertEquals(listOf("art3"), amazon.lists[MusicProvider.ARTISTS_ID]!!.map { it.id })
+        assertEquals("art3", env.store.cachedMatch("msrc", "a1", FileStore.matchTarget("mdst", MusicProvider.ARTISTS_ID)))
+        assertEquals("song3", env.store.cachedMatch("msrc", "a1", "mdst"))
     }
 
     @Test fun theKindStaysWithTheServiceFamily() {

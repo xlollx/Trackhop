@@ -554,5 +554,100 @@ class AmazonClientContractTest {
         assertEquals(6, BridgeMock.calls.size)
     }
 
+    // ---- followed artists: LibraryArtistsPage, toggleFollowArtist, searchArtistsResult (made-up artists)
+
+    /** A followed artist as LibraryArtistsPage lists it; [followed] null: no followsContext. */
+    private fun followed(id: String, name: String, followed: Boolean? = true) = """{"node":{"id":"$id","__typename":"Artist","uri":"amzn:artist:$id",
+        "name":${q(name)},"images":[],"playParams":{"id":"p","selections":["PLAY"]},
+        "followsContext":${followed?.let { """{"isFollowed":$it,"__typename":"FollowsContext"}""" } ?: "null"}},"metricId":null,"__typename":"LikedArtistEdge"}"""
+
+    private fun artistsPage(edges: List<String>, next: Boolean, token: String? = "page-token") = """{"data":{"user":{"id":"U1","likedArtists":{
+        "edges":[${edges.joinToString(",")}],
+        "pageInfo":{"hasNextPage":$next,"endCursor":null,"token":${token?.let { q(it) } ?: "null"},"hasPreviousPage":null,"startCursor":null}}}}}"""
+
+    private fun followAnswer(id: String, isFollowed: Boolean) = """{"data":{"${if (isFollowed) "followArtist" else "unfollowArtist"}":{"artist":{"__typename":"Artist",
+        "id":"$id","uri":"amzn:artist:$id","followsContext":{"isFollowed":$isFollowed}},"__typename":"FollowArtistResponse"}}}"""
+
+    @Test fun followedArtistsAreListedPageByPage() {
+        answer(artistsPage((1..100).map { followed("B0ART1%04d".format(it), "Artist $it") }, next = true, token = "tok-1"))
+        answer(artistsPage(listOf(followed("B0ART20001", "Unfollowed", followed = false), followed("B0ART20002", "STARSET", followed = null)), next = false))
+        val r = amazon.followedArtists()
+        assertEquals(101, r.size)
+        assertEquals("B0ART20002", r.last().id)
+        assertEquals("STARSET", r.last().title)
+        assertEquals(listOf("STARSET"), r.last().artists)
+        assertEquals("artist", r.last().kind)
+        val first = call(0).json()
+        assertEquals("LibraryArtistsPage", first["operationName"].str)
+        assertEquals("23525956998ec205f891c5949bd118f9833dd33500c9f82f2566b7b38a89b012", first["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals("true", first["variables"]["isAuthenticated"].toString())
+        assertEquals(null, first["variables"]["afterCursor"])
+        assertEquals("tok-1", call(1).json()["variables"]["afterCursor"].str)
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    @Test fun anArtistIsFollowedAndUnfollowedWithToggleFollowArtist() {
+        answer(followAnswer("B0ART00001", true))
+        answer(followAnswer("B0ART00001", false))
+        assertEquals(true, amazon.setArtistFollowed("B0ART00001", follow = true))
+        assertEquals(true, amazon.setArtistFollowed("B0ART00001", follow = false))
+        val f = call(0).json()
+        assertEquals("toggleFollowArtist", f["operationName"].str)
+        assertEquals("9df6e7bd24fccf6f7a626ab512f43d696b8ee8b6221050f5c4374b374c20d237", f["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals("B0ART00001", f["variables"]["artistId"].str)
+        // The state before the tap, as the player sends it.
+        assertEquals("false", f["variables"]["isFollowing"].toString())
+        assertEquals("true", call(1).json()["variables"]["isFollowing"].toString())
+        answer(followAnswer("B0ART00002", false))
+        assertEquals(false, amazon.setArtistFollowed("B0ART00002", follow = true))
+        answer("""{"data":{"followArtist":null},"errors":[{"message":"Unknown artist","extensions":{"code":"NOT_FOUND"}}]}""", 294)
+        try { amazon.setArtistFollowed("B0ART00003", follow = true); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("NOT_FOUND")) }
+    }
+
+    @Test fun artistsAreSearchedAmongArtistsByHashThenWithTheText() {
+        val sha = java.security.MessageDigest.getInstance("SHA-256").digest(AmazonQueries.SEARCH_ARTISTS_RESULT.toByteArray())
+        assertEquals(AmazonQueries.SEARCH_ARTISTS_RESULT_HASH, sha.joinToString("") { "%02x".format(it) })
+        assertTrue(AmazonQueries.SEARCH_ARTISTS_RESULT.startsWith("query searchArtistsResult(\$query: String!, \$nextPageToken: String) {\n"))
+        answer("""{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}""")
+        answer("""{"data":{"searchArtists":{"edgeCount":3,"edges":[
+            {"node":{"__typename":"Artist","id":"B0ART00011","name":"STARSET","uri":"amzn:artist:B0ART00011"}},
+            {"node":{"__typename":"Artist","id":"B0ART00011","name":"STARSET","uri":"amzn:artist:B0ART00011"}},
+            {"node":${node(9, "Starset")}}],"pageInfo":{"hasNextPage":false,"token":null}}}}""")
+        val r = BridgeCore.call(app, "amazon.search", "STARSET", android.os.Bundle().apply { putString("kind", "artist") })
+        assertEquals(null, r.getString("error"))
+        val j = parseJson(r.getString("json")!!)
+        assertEquals(1, j.arr.size)
+        assertEquals("B0ART00011", j.arr[0]["id"].str)
+        assertEquals("artist", j.arr[0]["kind"].str)
+        assertEquals("searchArtistsResult", call(0).json()["operationName"].str)
+        assertEquals("STARSET", call(0).json()["variables"]["query"].str)
+        assertEquals(AmazonQueries.SEARCH_ARTISTS_RESULT, call(1).json()["query"].str)
+    }
+
+    @Test fun theBridgeListsFollowsAndUnfollowsArtists() {
+        val artists = BridgeCore.ARTISTS
+        answer(artistsPage(listOf(followed("B0ART00021", "STARSET")), next = false))
+        val listed = BridgeCore.call(app, "amazon.tracks", artists, null)
+        assertEquals(null, listed.getString("error"))
+        assertEquals("B0ART00021", parseJson(listed.getString("json")!!).arr[0]["id"].str)
+
+        answer(followAnswer("B0ART00022", true))
+        val added = BridgeCore.call(app, "amazon.add", artists, android.os.Bundle().apply { putStringArray("ids", arrayOf("B0ART00022")) })
+        assertEquals(null, added.getString("error"))
+        assertEquals("toggleFollowArtist", call(1).json()["operationName"].str)
+
+        answer(followAnswer("B0ART00022", false))
+        answer(followAnswer("B0ART00023", true))
+        val removed = BridgeCore.call(app, "amazon.remove", artists, android.os.Bundle().apply {
+            putStringArray("ids", arrayOf("B0ART00022", "B0ART00023")); putStringArray("entryIds", arrayOf("", ""))
+        })
+        assertEquals(listOf("B0ART00023"), removed.getStringArray("kept")!!.toList())
+
+        answer(followAnswer("B0ART00024", false))
+        val refused = BridgeCore.call(app, "amazon.add", artists, android.os.Bundle().apply { putStringArray("ids", arrayOf("B0ART00024")) })
+        assertTrue(refused.getString("error")!!.contains("did not follow 1 of 1 artists"))
+        assertEquals(5, BridgeMock.calls.size)
+    }
+
     private fun q(s: String) = kotlinx.serialization.json.JsonPrimitive(s).toString()
 }

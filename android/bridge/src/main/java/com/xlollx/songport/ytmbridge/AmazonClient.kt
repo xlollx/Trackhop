@@ -661,6 +661,76 @@ class AmazonClient(private val ctx: Context) {
         return false
     }
 
+    /**
+     * The followed artists, as the player's Library › Artists lists them (LibraryArtistsPage, captured
+     * 11/2026): `user.likedArtists`, paged like the saved albums (see [savedAlbums]: the capture had one
+     * page, the token goes back as afterCursor, a repeated page stops the listing). An artist the
+     * answer marks as no longer followed is left out.
+     */
+    fun followedArtists(): List<TrackDto> {
+        val out = LinkedHashMap<String, TrackDto>()
+        var after: String? = null
+        var pages = 0
+        var dropped = 0
+        while (true) {
+            val vars = jsonObj("firstLimit" to ALBUMS_PAGE, "isAuthenticated" to true, "afterCursor" to after)
+            val liked = gql(FOLLOWED_ARTISTS, vars).orThrow("followed artists")["user"]["likedArtists"]
+            val edges = liked["edges"].arr
+            var fresh = 0
+            for (e in edges) {
+                val n = e["node"] as? JsonObject
+                val a = n?.takeIf { it["followsContext"]["isFollowed"].bool != false }?.let { artistOf(it) }
+                if (a == null) { dropped++; continue }
+                if (out.put(a.id, a) == null) fresh++
+            }
+            val info = liked["pageInfo"]
+            val next = info["endCursor"].str ?: info["token"].str
+            val more = info["hasNextPage"].bool ?: (edges.size >= ALBUMS_PAGE)
+            if (!more || edges.isEmpty() || next == null || next == after || ++pages > 200) break
+            if (after != null && fresh == 0) {
+                BridgeNet.log("amazon", "followed artists: the page after ${out.size} artists repeated the ones listed; Amazon may not take afterCursor, the listing stops there")
+                break
+            }
+            after = next
+        }
+        if (dropped > 0) BridgeNet.log("amazon", "followed artists: ${out.size} listed; $dropped no longer followed or without an artist (left out)")
+        return out.values.toList()
+    }
+
+    /**
+     * Follows ([follow] true) or unfollows an artist: toggleFollowArtist, as the player's button does.
+     * `isFollowing` is the state before the tap (false: follow). Amazon answers under followArtist or
+     * unfollowArtist with the artist's new state; true when it is the one asked for.
+     */
+    fun setArtistFollowed(artistId: String, follow: Boolean): Boolean {
+        val a = gql(TOGGLE_FOLLOW, jsonObj("artistId" to artistId, "isFollowing" to !follow, "isAuthenticated" to true))
+        val artist = (a.data["followArtist"]["artist"].takeIf { idOf(it) != null } ?: a.data["unfollowArtist"]["artist"].takeIf { idOf(it) != null })
+            ?: throw BridgeException("Amazon Music did not ${if (follow) "follow" else "unfollow"} the artist $artistId: " +
+                (a.codes + a.messages).joinToString("; ").take(160).ifBlank { "no answer" })
+        val followed = artist["followsContext"]["isFollowed"].bool
+        if (followed == null || followed == follow) return true
+        BridgeNet.log("amazon", "artist ${artistId.takeLast(6)}: asked to ${if (follow) "follow" else "unfollow"} it, Amazon answers isFollowed $followed")
+        return false
+    }
+
+    /** Catalogue search, artists only (searchArtistsResult: its first page), for a followed artist. */
+    fun searchArtists(query: String): List<TrackDto> {
+        val d = gql(SEARCH_ARTISTS, jsonObj("query" to query)).orThrow("artist search")
+        return d["searchArtists"]["edges"].arr.map { it["node"] }
+            .filter { it["__typename"].str.let { t -> t == null || t == "Artist" } }
+            .mapNotNull { artistOf(it) }
+            .distinctBy { it.id }
+            .take(25)
+    }
+
+    /** An Artist node of LibraryArtistsPage or searchArtistsResult: the name is its title, as Trackhop keeps artists. */
+    private fun artistOf(n: JsonElement?): TrackDto? {
+        if (n !is JsonObject) return null
+        val id = idOf(n) ?: return null
+        val name = n["name"].str?.takeIf { it.isNotBlank() } ?: return null
+        return TrackDto(id = id, title = name, artists = listOf(name), kind = "artist")
+    }
+
     /** New playlists are private, as on every other service. */
     fun createPlaylist(name: String): PlaylistDto {
         val d = gql("CreatePlaylist", jsonObj("title" to name, "visibility" to "PRIVATE")).orThrow("create playlist")
@@ -835,10 +905,18 @@ class AmazonClient(private val ctx: Context) {
         /** The saved albums ("liked"), and saving or removing one: from the player's traffic, by hash only (see [savedAlbums]). */
         private const val LIKED_ALBUMS = "LikedAlbumsPage"
         private const val LIKE_ALBUM = "setAlbumLikeState"
-        /** Saved albums per page: the player asks for 30; playlistDetail takes 100. */
+        /** The followed artists, and following or unfollowing one: by hash only, like the saved albums. */
+        private const val FOLLOWED_ARTISTS = "LibraryArtistsPage"
+        private const val TOGGLE_FOLLOW = "toggleFollowArtist"
+        private const val SEARCH_ARTISTS = "searchArtistsResult"
+        /** Saved albums and followed artists per page: the player asks for 30; playlistDetail takes 100. */
         private const val ALBUMS_PAGE = 100
         /** Texts of the persisted queries Amazon may have to be sent again (see [gql]). */
-        private val QUERIES = mapOf(SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT, SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT)
+        private val QUERIES = mapOf(
+            SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT,
+            SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT,
+            SEARCH_ARTISTS to AmazonQueries.SEARCH_ARTISTS_RESULT,
+        )
         /** Operations Amazon did not know by hash: sent with their text from then on. */
         private val WITH_TEXT: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
         /** Persisted queries of the web player (October 2026; the searches and saved albums November 2026), by operation name. */
@@ -857,6 +935,9 @@ class AmazonClient(private val ctx: Context) {
             SPEC_SEARCH to "19e7571fa4ccb97a7e70bacbf8877ad9f63ba23359131807300ac6eb8616b083",
             LIKED_ALBUMS to "ac0f3868a56af3b23191e0f173701c3bf0ffa71df79001cfbc9d00dcd144cc97",
             LIKE_ALBUM to "fa2452606c04ef941d892c890d4dc9b0025071dd0801b55026a3981b13140de6",
+            FOLLOWED_ARTISTS to "23525956998ec205f891c5949bd118f9833dd33500c9f82f2566b7b38a89b012",
+            TOGGLE_FOLLOW to "9df6e7bd24fccf6f7a626ab512f43d696b8ee8b6221050f5c4374b374c20d237",
+            SEARCH_ARTISTS to AmazonQueries.SEARCH_ARTISTS_RESULT_HASH,
         )
 
         @Volatile private var cachedConfig: Pair<Long, Config>? = null

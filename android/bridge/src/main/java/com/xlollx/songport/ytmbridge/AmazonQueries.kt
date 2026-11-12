@@ -509,4 +509,108 @@ fragment bauhausItemAlbum on Album {
   ...useLikeActionOnAlbum
   __typename
 }"""
+
+    /**
+     * The search page's "Artists" results (`SearchArtistsResultDocument`). Variables: query, nextPageToken.
+     * Printed by scripts/amazon_queries.py from the player of November 2026.
+     */
+    const val SEARCH_ARTISTS_RESULT_HASH = "fcc1f3af13c13e10829a800f547972716ecb533316982a3033d15b46f1b0beca"
+    val SEARCH_ARTISTS_RESULT: String = """query searchArtistsResult(${'$'}query: String!, ${'$'}nextPageToken: String) {
+  searchArtists(
+    searchOptions: {searchFilters: [{query: ${'$'}query}], token: ${'$'}nextPageToken}
+  ) {
+    edgeCount
+    edges {
+      node {
+        uri
+        ...bauhausItemArtist
+        __typename
+      }
+      __typename
+    }
+    pageInfo {
+      hasNextPage
+      token
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment itemConverterArtistImage on Artist {
+  images {
+    url
+    imageType
+    width
+    height
+    __typename
+  }
+  __typename
+}
+
+fragment itemConverterArtistEqualizer on Artist {
+  playParams {
+    id
+    __typename
+  }
+  __typename
+}
+
+fragment itemConverterArtistImagery on Artist {
+  ...itemConverterArtistImage
+  ...itemConverterArtistEqualizer
+  __typename
+}
+
+fragment itemConverterArtistPrimaryText on Artist {
+  name
+  __typename
+}
+
+fragment itemConverterArtistSecondaryText on Artist {
+  fanContext {
+    fanRank
+    __typename
+  }
+  __typename
+}
+
+fragment itemArtistUiClickEntityContext on Artist {
+  id
+  name
+  __typename
+}
+
+fragment itemConverterArtistOnClickNavigation on Artist {
+  id
+  ...itemArtistUiClickEntityContext
+  __typename
+}
+
+fragment itemArtistPlayback on Artist {
+  id
+  playParams {
+    id
+    selections
+    __typename
+  }
+  __typename
+}
+
+fragment itemConverterArtistOnClickPlayback on Artist {
+  id
+  ...itemArtistPlayback
+  ...itemArtistUiClickEntityContext
+  __typename
+}
+
+fragment bauhausItemArtist on Artist {
+  id
+  ...itemConverterArtistImagery
+  ...itemConverterArtistPrimaryText
+  ...itemConverterArtistSecondaryText
+  ...itemConverterArtistOnClickNavigation
+  ...itemConverterArtistOnClickPlayback
+  __typename
+}"""
 }

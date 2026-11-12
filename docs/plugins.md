@@ -122,17 +122,17 @@ Sign-in activities are started with the actions `com.xlollx.songport.ytmbridge.D
 and `APPLE_LOGIN`). Before the first Deezer or SoundCloud sign-in the notice is shown again, since
 its text now names them.
 
-### Amazon Music saved albums (`amazon.*` with `__albums__`, Trackhop Bridge 1.11.0)
+### Amazon Music saved albums and followed artists (`amazon.*` with `__albums__` or `__artists__`, Trackhop Bridge 1.11.0)
 
-The albums the user "liked" in the web player (Library › Albums), through the methods that already
-take a playlist id: `amazon.tracks` with `arg` `__albums__` answers `json`, the albums (`kind`
-`album`, ids are Amazon's album ASINs); `amazon.add` with `__albums__` and `ids` saves each album and
-answers `duplicates` empty, or `error` when Amazon did not save one; `amazon.remove` with
-`__albums__` and `ids` removes each one and answers `kept`, the albums Amazon still names as liked.
-`amazon.search` with the extra `kind` `album` finds albums to save. Followed artists are not offered:
-no listing of them has been seen in the player's traffic yet. Trackhop asks for saved albums only of
-a plugin whose status reports `version` 57 or more; an older one would read `__albums__` as a
-playlist id.
+The albums the user "liked" in the web player (Library › Albums) and the artists they follow
+(Library › Artists), through the methods that already take a playlist id: `amazon.tracks` with `arg`
+`__albums__` or `__artists__` answers `json`, the albums (`kind` `album`) or artists (`kind` `artist`,
+the name as `title`), ids being Amazon's ASINs; `amazon.add` with `ids` saves each album or follows
+each artist and answers `duplicates` empty, or `error` when Amazon did not take one; `amazon.remove`
+with `ids` removes each one and answers `kept`, the ones Amazon still names as saved or followed.
+`amazon.search` with the extra `kind` `album` or `artist` finds albums or artists. Trackhop asks for
+them only of a plugin whose status reports `version` 57 or more; an older one would read `__albums__`
+or `__artists__` as a playlist id.
 
 ### TicketOne pages for Concerts (`ticketone.read`)
 

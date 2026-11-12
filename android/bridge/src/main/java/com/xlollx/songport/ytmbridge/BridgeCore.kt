@@ -20,8 +20,19 @@ object BridgeCore {
     const val ALBUMS = "__albums__"
     const val ARTISTS = "__artists__"
     const val RECENT = "__recent__"
-    /** Saved albums on the older skill API: none mapped. */
-    private const val AMAZON_NO_ALBUMS = "Amazon Music: saved albums are not available for this account's player (the older skill API)"
+    /** Saved albums and followed artists on the older skill API: none mapped. */
+    private const val AMAZON_NO_LIBRARY = "Amazon Music: saved albums and followed artists are not available for this account's player (the older skill API)"
+
+    /**
+     * Saves or removes Amazon Music albums ([ALBUMS]), follows or unfollows artists ([ARTISTS]), one at
+     * a time as the player does; returns the ids Amazon did not confirm.
+     */
+    private fun amazonLibrary(ctx: Context, kind: String, ids: Array<String>, on: Boolean): List<String> =
+        AmazonRoute.run(ctx, { c ->
+            ids.filterNot { id ->
+                (if (kind == ALBUMS) c.setAlbumSaved(id, saved = on) else c.setArtistFollowed(id, follow = on)).also { Thread.sleep(150) }
+            }
+        }, { throw BridgeException(AMAZON_NO_LIBRARY) })
 
     /** The services whose extra accounts ([Slots]) this answers; the others serve one account. */
     private val SLOT_SERVICES = setOf("", "spotify", "apple", "deezer", "anghami", "qobuz", "liveone")
@@ -147,16 +158,21 @@ object BridgeCore {
                 }
                 "amazon.disconnect" -> { AmazonSession.clear(ctx); Bundle() }
                 // GraphQL for most accounts; the older skill API for the players still on it (issue #35).
-                // Albums (kind "album", for saved albums) from the albums search; the skill API has none mapped:
-                // nothing rather than songs that share an album's name.
+                // Albums (kind "album", for saved albums) from the albums search, artists (kind "artist", for
+                // followed artists) from the artists search; the skill API has neither mapped: nothing rather
+                // than songs that share their name.
                 "amazon.search" -> ok(json.encodeToString(
-                    if (extras?.getString("kind") == "album") AmazonRoute.run(ctx, { it.searchAlbums(arg ?: "") }, { emptyList() })
-                    else AmazonRoute.run(ctx, { it.searchTracks(arg ?: "") }, { it.searchTracks(arg ?: "") }),
+                    when (extras?.getString("kind")) {
+                        "album" -> AmazonRoute.run(ctx, { it.searchAlbums(arg ?: "") }, { emptyList() })
+                        "artist" -> AmazonRoute.run(ctx, { it.searchArtists(arg ?: "") }, { emptyList() })
+                        else -> AmazonRoute.run(ctx, { it.searchTracks(arg ?: "") }, { it.searchTracks(arg ?: "") })
+                    },
                 ))
                 "amazon.tracks" -> {
                     val id = arg ?: return err("missing playlist id")
-                    // ALBUMS: the saved albums (GraphQL only; Trackhop asks from Bridge 1.11.0 on).
-                    if (id == ALBUMS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.savedAlbums() }, { throw BridgeException(AMAZON_NO_ALBUMS) })))
+                    // ALBUMS, ARTISTS: the saved albums, the followed artists (GraphQL only; Trackhop asks from Bridge 1.11.0 on).
+                    if (id == ALBUMS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.savedAlbums() }, { throw BridgeException(AMAZON_NO_LIBRARY) })))
+                    if (id == ARTISTS) return ok(json.encodeToString(AmazonRoute.run(ctx, { it.followedArtists() }, { throw BridgeException(AMAZON_NO_LIBRARY) })))
                     ok(json.encodeToString(AmazonRoute.run(ctx, { it.playlistTracks(id) }, { it.playlistTracks(id) })))
                 }
                 "amazon.playlists" -> ok(json.encodeToString(AmazonRoute.run(ctx, { it.libraryPlaylists() }, { it.libraryPlaylists() })))
@@ -168,10 +184,12 @@ object BridgeCore {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
                     val titles = extras?.getStringArray("titles") ?: emptyArray()
-                    // ALBUMS: each album saved ("liked"); one Amazon does not confirm fails the call, so it is never counted as added.
-                    if (pid == ALBUMS) {
-                        val refused = AmazonRoute.run(ctx, { c -> ids.filterNot { c.setAlbumSaved(it, saved = true).also { Thread.sleep(150) } } }, { throw BridgeException(AMAZON_NO_ALBUMS) })
-                        if (refused.isNotEmpty()) return err("Amazon Music did not save ${refused.size} of ${ids.size} albums (${refused.take(5).joinToString()})")
+                    // ALBUMS, ARTISTS: each album saved ("liked"), each artist followed; one Amazon does not
+                    // confirm fails the call, so it is never counted as added.
+                    if (pid == ALBUMS || pid == ARTISTS) {
+                        val refused = amazonLibrary(ctx, pid, ids, on = true)
+                        val what = if (pid == ALBUMS) "save ${refused.size} of ${ids.size} albums" else "follow ${refused.size} of ${ids.size} artists"
+                        if (refused.isNotEmpty()) return err("Amazon Music did not $what (${refused.take(5).joinToString()})")
                         return Bundle().apply { putStringArray("duplicates", emptyArray()) }
                     }
                     // Tracks Amazon refused as already in the playlist: Trackhop counts them as present, not added.
@@ -199,10 +217,9 @@ object BridgeCore {
                     val pid = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids") ?: emptyArray()
                     val entries = extras?.getStringArray("entryIds") ?: emptyArray()
-                    // ALBUMS: each album un-liked; the ones Amazon did not confirm go back as "kept".
-                    if (pid == ALBUMS) {
-                        val kept = AmazonRoute.run(ctx, { c -> ids.filterNot { c.setAlbumSaved(it, saved = false).also { Thread.sleep(150) } } }, { throw BridgeException(AMAZON_NO_ALBUMS) })
-                        return Bundle().apply { putStringArray("kept", kept.toTypedArray()) }
+                    // ALBUMS, ARTISTS: each album un-liked, each artist unfollowed; the ones Amazon did not confirm go back as "kept".
+                    if (pid == ALBUMS || pid == ARTISTS) {
+                        return Bundle().apply { putStringArray("kept", amazonLibrary(ctx, pid, ids, on = false).toTypedArray()) }
                     }
                     // Checked against the playlist afterwards: the entries Amazon still lists go back
                     // as "kept", and Trackhop counts them as not removed. GraphQL removes by cursor,

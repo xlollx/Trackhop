@@ -25,7 +25,7 @@ import kotlinx.serialization.json.JsonElement
  *
  * Amazon has no open API and its official one is reserved to approved partners, so the Bridge uses
  * the web player's interface, as it does for YouTube Music: the library's playlists (read, create,
- * add, remove, delete), search, and the saved albums.
+ * add, remove, delete), search, the saved albums and the followed artists.
  */
 class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     // Renaming and deleting were mapped from the desktop player's own calls; an older plugin lacks them.
@@ -44,11 +44,11 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     override val notConfiguredName: String? = "amazon_not_installed_hint"
     override val searchParallelism = 1
     /**
-     * Saved albums (the albums the user "liked" in the player), from the Bridge app that knows them
-     * ([savedAlbums]). Followed artists are not offered: the player's traffic shows following and
-     * unfollowing, but no listing of them yet.
+     * Saved albums (the albums the user "liked" in the player) and followed artists, from the Bridge
+     * app that knows them ([libraryKinds]).
      */
-    override val supportsAlbums: Boolean get() = savedAlbums(BridgePlugin.builtIn, BridgePlugin.reportedVersion)
+    override val supportsAlbums: Boolean get() = libraryKinds(BridgePlugin.builtIn, BridgePlugin.reportedVersion)
+    override val supportsArtists: Boolean get() = libraryKinds(BridgePlugin.builtIn, BridgePlugin.reportedVersion)
     override val pluginBased = true
 
     /** "Configured" means a Bridge new enough to know Amazon Music is installed. */
@@ -97,22 +97,29 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     /**
      * Songs, as the player's search lists them; an album among albums (the player's albums search).
      * The target is not known here: an album row is taken for the saved albums, where it goes when
-     * there are some ([searchesAlbums]). A sync says the target through [searchFor].
+     * there are some ([searchedKind]), an artist row for the followed artists. A sync says the target
+     * through [searchFor].
      */
     override suspend fun search(ctx: Env, track: Track): List<Track> =
-        searchFor(ctx, track, MusicProvider.ALBUMS_ID.takeIf { track.kind == Track.KIND_ALBUM })
+        searchFor(ctx, track, when (track.kind) { Track.KIND_ALBUM -> MusicProvider.ALBUMS_ID; Track.KIND_ARTIST -> MusicProvider.ARTISTS_ID; else -> null })
 
     /**
-     * An album is looked for among albums only on its way to the saved albums: a playlist takes songs
-     * only (an album id there would fail), so saved albums synced into an Amazon playlist are searched
-     * as songs, as before there were saved albums here. A Bridge app older than the albums search
-     * answers it with songs, which are left out: nothing found rather than a wrong proposal.
+     * An album is looked for among albums only on its way to the saved albums, an artist among artists
+     * only on its way to the followed artists: a playlist takes songs only (an album or artist id
+     * there would fail), so such rows synced into an Amazon playlist are searched as songs, as before
+     * there were saved albums and followed artists here. A Bridge app older than these searches
+     * answers them with songs, which are left out: nothing found rather than a wrong proposal.
      */
     override suspend fun searchFor(ctx: Env, track: Track, playlistId: String?): List<Track> {
-        if (searchesAlbums(track, supportsAlbums, playlistId)) {
-            val q = (track.artists.take(1).map { Matcher.searchArtist(it) } + Matcher.searchTitle(track.title)).joinToString(" ")
-            return io(ctx, "amazon.search", q, Bundle().apply { putString("kind", "album") }) { j ->
-                j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ALBUM }
+        when (searchedKind(track, supportsAlbums, playlistId)) {
+            Track.KIND_ALBUM -> {
+                val q = (track.artists.take(1).map { Matcher.searchArtist(it) } + Matcher.searchTitle(track.title)).joinToString(" ")
+                return io(ctx, "amazon.search", q, Bundle().apply { putString("kind", "album") }) { j ->
+                    j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ALBUM }
+                }
+            }
+            Track.KIND_ARTIST -> return io(ctx, "amazon.search", track.title.trim(), Bundle().apply { putString("kind", "artist") }) { j ->
+                j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ARTIST }
             }
         }
         val q = (track.artists.take(2) + track.title).joinToString(" ")
@@ -192,7 +199,7 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
             album = j["album"].str ?: "",
             durationMs = j["durationMs"].long ?: 0,
             itemId = j["setVideoId"].str,
-            kind = if (j["kind"].str == "album") Track.KIND_ALBUM else "",
+            kind = when (j["kind"].str) { "album" -> Track.KIND_ALBUM; "artist" -> Track.KIND_ARTIST; else -> "" },
             year = j["year"].long?.toInt() ?: 0,
         )
     }
@@ -213,17 +220,21 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
 
     companion object {
         /**
-         * Whether [track] is looked for with the albums search: an album on its way to the saved
-         * albums ([targetId]), where there are some. Into a playlist it is searched as songs.
+         * What [track] is looked for as on its way to [targetId]: an album in the saved albums, an
+         * artist in the followed artists (where there are some, [library]); null: songs.
          */
-        fun searchesAlbums(track: Track, supportsAlbums: Boolean, targetId: String?): Boolean =
-            supportsAlbums && track.kind == Track.KIND_ALBUM && targetId == MusicProvider.ALBUMS_ID
+        fun searchedKind(track: Track, library: Boolean, targetId: String?): String? = when {
+            !library -> null
+            track.kind == Track.KIND_ALBUM && targetId == MusicProvider.ALBUMS_ID -> Track.KIND_ALBUM
+            track.kind == Track.KIND_ARTIST && targetId == MusicProvider.ARTISTS_ID -> Track.KIND_ARTIST
+            else -> null
+        }
 
         /**
-         * Saved albums: built in, or a Bridge app that reports [BridgePlugin.AMAZON_ALBUMS_VERSION]
-         * (1.11.0) or more. An older one would read `__albums__` as a playlist id.
+         * Saved albums and followed artists: built in, or a Bridge app that reports [BridgePlugin.AMAZON_LIBRARY_VERSION]
+         * (1.11.0) or more. An older one would read `__albums__` or `__artists__` as a playlist id.
          */
-        fun savedAlbums(builtIn: Boolean, version: Int): Boolean = builtIn || version >= BridgePlugin.AMAZON_ALBUMS_VERSION
+        fun libraryKinds(builtIn: Boolean, version: Int): Boolean = builtIn || version >= BridgePlugin.AMAZON_LIBRARY_VERSION
 
         const val SERVICE = "amazon"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.AMAZON_LOGIN"
