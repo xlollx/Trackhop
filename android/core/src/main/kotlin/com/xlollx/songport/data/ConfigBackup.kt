@@ -150,6 +150,8 @@ object ConfigBackup {
         supportPromptReport = null, appOpens = 0, supportNudgeSeen = 0, deviceId = "",
         // Which "What's new" this phone has shown: the phone that imports the file keeps its own.
         whatsNewSeen = "",
+        // The 2.0 preview is a developer's choice on one device.
+        preview2 = false,
     )
 
     /** [incoming]'s settings over [current], keeping this device's own. */
@@ -173,6 +175,7 @@ object ConfigBackup {
         appOpens = current.appOpens,
         supportNudgeSeen = current.supportNudgeSeen,
         whatsNewSeen = current.whatsNewSeen,
+        preview2 = current.preview2,
         // The labels of both: the file's win by id, this device's others stay for the syncs that wear them.
         labels = incoming.labels + current.labels.filter { c -> incoming.labels.none { it.id == c.id } },
         deviceId = current.deviceId,

@@ -122,33 +122,21 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
-            Release(
-                "1.19",
-                listOf(
-                    Item(Icons.Filled.Groups, JobColor.PINK, R.string.whats_new_119_shared_title, R.string.whats_new_119_shared_body),
-                    Item(Icons.Filled.Lock, JobColor.PURPLE, R.string.whats_new_119_invite_title, R.string.whats_new_119_invite_body),
-                    Item(Icons.Filled.Cloud, JobColor.BLUE, R.string.whats_new_119_handover_title, R.string.whats_new_119_handover_body),
-                    Item(Icons.Filled.Dns, JobColor.ORANGE, R.string.whats_new_119_server_title, R.string.whats_new_119_server_body),
-                ),
-            ),
-            Release(
-                "1.18",
-                listOf(
-                    Item(Icons.Filled.NewReleases, JobColor.PURPLE, R.string.whats_new_118_releases_title, R.string.whats_new_118_releases_body),
-                    Item(Icons.Filled.Campaign, JobColor.ORANGE, R.string.whats_new_118_notify_title, R.string.whats_new_118_notify_body),
-                    Item(Icons.Filled.Event, JobColor.PINK, R.string.whats_new_118_concerts_title, R.string.whats_new_118_concerts_body),
-                    Item(Icons.Filled.Mic, JobColor.BLUE, R.string.whats_new_118_setlists_title, R.string.whats_new_118_setlists_body),
-                    Item(Icons.Filled.Album, JobColor.RED, R.string.whats_new_118_records_title, R.string.whats_new_118_records_body),
-                ),
-            ),
+            // 1.17. The features of 2.0 are in the code but hidden (com.xlollx.songport.Features): their
+            // highlights come with it, in a release of their own.
             Release(
                 "1.17",
                 listOf(
+                    Item(Icons.Filled.Brush, JobColor.PINK, R.string.whats_new_117_look_title, R.string.whats_new_117_look_body),
                     Item(Icons.Filled.TabletAndroid, JobColor.BLUE, R.string.whats_new_117_wide_title, R.string.whats_new_117_wide_body),
                     Item(Icons.Filled.Star, JobColor.YELLOW, R.string.whats_new_117_organise_title, R.string.whats_new_117_organise_body),
                     Item(Icons.Filled.SyncAlt, JobColor.TEAL, R.string.whats_new_117_twoway_title, R.string.whats_new_117_twoway_body),
-                    Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_117_server_title, R.string.whats_new_117_server_body),
                     Item(Icons.Filled.Devices, JobColor.PURPLE, R.string.whats_new_117_devices_title, R.string.whats_new_117_devices_body),
+                    Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_117_server_title, R.string.whats_new_117_server_body),
+                    Item(Icons.Filled.Campaign, JobColor.ORANGE, R.string.whats_new_117_notify_title, R.string.whats_new_117_notify_body),
+                    // The web sign-ins (YouTube Music, Spotify web) are built in only in the GitHub and F-Droid builds.
+                    Item(Icons.Filled.Autorenew, JobColor.RED, R.string.whats_new_117_sessions_title, R.string.whats_new_117_sessions_body,
+                        shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
                 ),
             ),
             Release(

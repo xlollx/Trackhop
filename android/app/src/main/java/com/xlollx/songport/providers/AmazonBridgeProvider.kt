@@ -84,6 +84,8 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
      * where the Bridge app reads it for this account and something was bought ([purchasedOffered]).
      */
     private suspend fun purchased(ctx: Env): Playlist? {
+        // Offered from Trackhop 2.0 ([com.xlollx.songport.Features]); a sync that reads it goes on reading it.
+        if (!com.xlollx.songport.Features.v2) return null
         if (!libraryKinds(BridgePlugin.builtIn, BridgePlugin.reportedVersion)) return null
         val count = withContext(Dispatchers.IO) {
             purchasedOffered(purchasedCheck) {

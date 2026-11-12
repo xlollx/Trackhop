@@ -145,6 +145,7 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     }
 
     override val canSetCover: Boolean get() = true
+    override val coverIsV2: Boolean get() = true
 
     /**
      * The playlist's poster: the JPEG as the body of `POST /library/metadata/{ratingKey}/posters`, the

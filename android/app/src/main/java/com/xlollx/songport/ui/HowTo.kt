@@ -93,11 +93,14 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
             MODES -> listOf(R.string.howto_modes_body)
             // The battery note is the long text Settings already has for its row.
             // Coordinate with my server: the same syncs on this phone and on a Trackhop server.
-            SCHEDULES -> listOf(R.string.howto_schedules_body, R.string.settings_battery_desc, R.string.howto_schedules_body2, R.string.howto_schedules_channels, R.string.server_locks_title, R.string.help_server_locks_body)
+            // (2.0's, with the release switch: com.xlollx.songport.Features.)
+            SCHEDULES -> listOf(R.string.howto_schedules_body, R.string.settings_battery_desc, R.string.howto_schedules_body2, R.string.howto_schedules_channels) +
+                (if (com.xlollx.songport.Features.v2) listOf(R.string.server_locks_title, R.string.help_server_locks_body) else emptyList())
             PREVIEW -> listOf(R.string.howto_preview_body)
             REVIEW -> listOf(R.string.howto_review_body)
             BACKUPS -> listOf(R.string.howto_backups_body)
-            TOOLS -> listOf(R.string.howto_tools_body, R.string.howto_tools_more)
+            // Shared playlists and My server are 2.0's (Features).
+            TOOLS -> listOfNotNull(R.string.howto_tools_body, R.string.howto_tools_more, R.string.howto_tools_more_v2.takeIf { com.xlollx.songport.Features.v2 })
             ORGANISE -> listOf(R.string.howto_organise_body)
             DISCOVER -> listOf(R.string.howto_discover_body)
             SHARED -> listOf(R.string.howto_shared_body)
@@ -109,6 +112,14 @@ enum class HowTo(@StringRes val title: Int, @StringRes val summary: Int, val ico
             )
             PLUGINS -> listOf(R.string.howto_plugins_body, if (BridgePlugin.builtIn) R.string.howto_plugins_full else R.string.howto_plugins_play)
         }
+
+    companion object {
+        /** The guides of 2.0's features: listed with them ([com.xlollx.songport.Features.v2]). */
+        val V2: Set<HowTo> = setOf(DISCOVER, SHARED, SERVER)
+
+        /** The guides this build offers now. */
+        fun shown(): List<HowTo> = entries.filter { com.xlollx.songport.Features.v2 || it !in V2 }
+    }
 }
 
 /** Parts that are a heading of their own: a setting's name, the same words as on its row. */
@@ -151,7 +162,7 @@ fun HowToScreen(onClose: () -> Unit, initial: HowTo? = null, header: (@Composabl
     val res = LocalContext.current.resources
     val config = LocalConfiguration.current
     val texts = remember(config) {
-        HowTo.entries.associateWith { h -> (listOf(h.title, h.summary) + h.parts).joinToString("\n") { res.getString(it) } }
+        HowTo.shown().associateWith { h -> (listOf(h.title, h.summary) + h.parts).joinToString("\n") { res.getString(it) } }
     }
     ScreenBackHandler { if (article != null) open = null else onClose() }
     Scaffold(
@@ -176,7 +187,7 @@ fun HowToScreen(onClose: () -> Unit, initial: HowTo? = null, header: (@Composabl
                     HowToArticle(article, Modifier.padding(horizontal = 4.dp))
                 } else {
                     HowToSearchField(query) { query = it }
-                    val shown = HowToSearch.filter(HowTo.entries, query) { texts[it].orEmpty() }
+                    val shown = HowToSearch.filter(HowTo.shown(), query) { texts[it].orEmpty() }
                     if (query.isBlank()) {
                         Text(stringResource(R.string.howto_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp))
                         header?.invoke()

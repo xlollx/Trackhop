@@ -47,6 +47,10 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     // My Collection › Tracks (userCollectionTracks), with the scopes the albums already need (collection.read, collection.write).
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
+    /** Liked tracks, moves and covers came with Trackhop 2.0: offered then ([com.xlollx.songport.Features]). */
+    override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.LIKED_ID
+    override val reorderIsV2: Boolean get() = true
+    override val coverIsV2: Boolean get() = true
 
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://developer.tidal.com/dashboard",

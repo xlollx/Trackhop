@@ -183,7 +183,10 @@ object LocalFilesProvider : MusicProvider {
 
         companion object {
             /** The formats offered for a list: every format as before, and OPML first where it holds shows ([shows]). */
-            fun forShows(shows: Boolean): List<Export> = entries.filter { it != OPML }.let { if (shows) listOf(OPML) + it else it }
+            fun forShows(shows: Boolean): List<Export> = entries.filter { it != OPML }.let { if (shows && com.xlollx.songport.Features.v2) listOf(OPML) + it else it }
+
+            /** Every format offered for File playlists: OPML is 2.0's ([com.xlollx.songport.Features]). */
+            fun offered(): List<Export> = entries.filter { it != OPML || com.xlollx.songport.Features.v2 }
 
             /** Whether [playlistId] or the [tracks] read from it are followed podcasts. */
             fun isShows(playlistId: String?, tracks: List<Track> = emptyList()): Boolean =

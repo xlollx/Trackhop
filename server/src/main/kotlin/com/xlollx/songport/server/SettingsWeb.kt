@@ -110,9 +110,12 @@ internal fun Web.settingsPage(r: Web.Req) {
         val n = Notify.channels(env).count { it.enabled }
         body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
     }
-    body.append(ticketmasterKeyCard())
-    body.append(setlistfmKeyCard())
-    body.append(discogsTokenCard())
+    // The keys of Concerts, Setlists and Records and merch, which are 2.0's (Features).
+    if (Features.v2) {
+        body.append(ticketmasterKeyCard())
+        body.append(setlistfmKeyCard())
+        body.append(discogsTokenCard())
+    }
     if (seesUpdates()) body.append(updatesCard())
     body.append(
         """<div class="card"><h3>Language</h3><p class="muted">These pages are in English for now. The texts that come from the app (services, notes) follow ${

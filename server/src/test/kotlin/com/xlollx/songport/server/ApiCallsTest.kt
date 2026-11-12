@@ -49,7 +49,7 @@ class ApiCallsTest {
         File(data, "csv/Out.csv").writeText("title,artist\n")
     }
 
-    @After fun stop() = server.stop(0)
+    @After fun stop() { server.stop(0); Features.v2 = false }
 
     private class Answer(val code: Int, val text: String) {
         val obj: JsonObject get() = Json.parseToJsonElement(text).jsonObject
@@ -69,6 +69,8 @@ class ApiCallsTest {
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
 
     @Test fun newReleasesAreListedAndMakeAWeeklySync() {
+        // A 2.0 feature: behind the release switch, on for this test.
+        Features.v2 = true
         // The day's answers already kept for the playlist's two artists: nothing is asked of Deezer or MusicBrainz.
         val today = java.time.LocalDate.now()
         fun kept(vararg r: Pair<String, java.time.LocalDate>) = "${System.currentTimeMillis()}|" +

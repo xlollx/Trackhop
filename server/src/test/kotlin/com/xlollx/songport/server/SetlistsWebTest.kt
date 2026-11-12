@@ -41,6 +41,8 @@ class SetlistsWebTest {
     private val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
 
     @Before fun start() {
+        // A 2.0 feature: behind the release switch, on for these tests.
+        Features.v2 = true
         data = tmp.newFolder("data")
         installServerConnectors()
         BuildDefaults.values = emptyMap()
@@ -55,6 +57,7 @@ class SetlistsWebTest {
     }
 
     @After fun stop() {
+        Features.v2 = false
         server.stop(0)
         LocalKey.reset()
     }

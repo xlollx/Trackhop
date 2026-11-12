@@ -23,6 +23,8 @@ class AppleMusicListeningContractTest : ContractTest() {
     private val am = AppleMusicProvider()
     private val api = "api.music.apple.com"
 
+    @org.junit.After fun v2Off() { com.xlollx.songport.Features.build = false }
+
     @Before fun signIn() {
         BuildDefaults.values = mapOf("APPLE_DEVELOPER_TOKEN" to "DEVJWT")
         env.tokens.set("apple", Tokens("MUT", userName = "Apple Music", extra = mapOf("storefront" to "it")))
@@ -35,6 +37,12 @@ class AppleMusicListeningContractTest : ContractTest() {
         """{"id":"i.lib$i","type":"library-songs","attributes":{"name":"Lib $i","artistName":"Artist L","playParams":{"id":"i.lib$i","kind":"song","catalogId":"${700 + i}"}}}"""
 
     @Test fun favoritesAreALikedTargetOnly() {
+        // Favorites and recent plays are 2.0's (Features): not offered without it, still served to a sync that has them.
+        com.xlollx.songport.Features.build = false
+        assertFalse(am.libraryEntries(env, asTarget = true).any { it.id == MusicProvider.LIKED_ID })
+        assertFalse(am.libraryEntries(env, asTarget = false).any { it.id == MusicProvider.RECENT_ID })
+        assertTrue(am.supportsLibrary(MusicProvider.LIKED_ID, asTarget = true))
+        com.xlollx.songport.Features.build = true
         assertTrue(am.libraryEntries(env, asTarget = true).any { it.id == MusicProvider.LIKED_ID })
         assertFalse(am.libraryEntries(env, asTarget = false).any { it.id == MusicProvider.LIKED_ID })
         assertTrue(am.libraryEntries(env, asTarget = false).any { it.id == MusicProvider.RECENT_ID })

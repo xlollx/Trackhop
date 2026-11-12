@@ -200,6 +200,14 @@ class PodcastsTest {
     @Test fun exportOffersOpmlOnlyForShows() {
         val E = com.xlollx.songport.providers.LocalFilesProvider.Export
         val opml = com.xlollx.songport.providers.LocalFilesProvider.Export.OPML
+        // OPML is 2.0's (Features): offered for nothing without it.
+        com.xlollx.songport.Features.build = false
+        try {
+            assertFalse(opml in E.forShows(true))
+            assertFalse(opml in E.offered())
+        } finally { com.xlollx.songport.Features.build = true }
+        try {
+        assertTrue(opml in E.offered())
         assertFalse(opml in E.forShows(false))
         assertEquals(opml, E.forShows(true).first())
         // Followed podcasts keep every format they had.
@@ -209,5 +217,6 @@ class PodcastsTest {
         assertTrue(E.isShows("file", listOf(show("A"), Track(id = "r", title = "B", feedUrl = "https://b.example/f"))))
         assertFalse(E.isShows("file", listOf(Track(id = "s", title = "Song"))))
         assertFalse(E.isShows("file"))
+        } finally { com.xlollx.songport.Features.build = false }
     }
 }

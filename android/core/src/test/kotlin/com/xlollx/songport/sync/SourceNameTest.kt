@@ -107,6 +107,31 @@ class SourceNameTest {
         } finally { web.shutdown() }
     }
 
+    /** The release switch: covers on a service that takes them from 2.0 wait for it (Features). */
+    @Test fun aCoverOnAServiceOf2_0IsCopiedOnlyWithTheSwitch() = runBlocking {
+        val web = okhttp3.mockwebserver.MockWebServer()
+        web.start()
+        try {
+            repeat(2) { web.enqueue(okhttp3.mockwebserver.MockResponse().setBody("jpeg-bytes")) }
+            env.shrink = { it }
+            dst.takesCovers = true
+            dst.coversAreV2 = true
+            dst.names["t"] = "Daylist"
+            val j = job("Daylist", name = "My daylist")
+            src.coverUrls["p"] = web.url("/a.jpg").toString()
+            engine.run(j)
+            src.coverUrls["p"] = web.url("/b.jpg").toString()
+            engine.run(env.store.job(j.id)!!)
+            // Off: the new cover is noted, not copied.
+            assertTrue(dst.covers.isEmpty())
+            assertEquals(web.url("/b.jpg").toString(), env.store.job(j.id)!!.sourceCover)
+            com.xlollx.songport.Features.build = true
+            src.coverUrls["p"] = web.url("/c.jpg").toString()
+            engine.run(env.store.job(j.id)!!)
+            assertEquals(1, dst.covers.size)
+        } finally { com.xlollx.songport.Features.build = false; web.shutdown() }
+    }
+
     @Test fun aCoverTheTargetRefusesIsOneLineInTheLogAndTheSyncGoesOn() = runBlocking {
         val web = okhttp3.mockwebserver.MockWebServer()
         web.start()

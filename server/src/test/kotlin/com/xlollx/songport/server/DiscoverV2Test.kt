@@ -58,6 +58,8 @@ class DiscoverV2Test {
     private val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
 
     @Before fun start() {
+        // Off by default until 2.0 (Features.DEFAULT): these tests turn it on, withTheSwitchOff… turns it off again.
+        Features.v2 = true
         data = tmp.newFolder("data")
         installServerConnectors()
         BuildDefaults.values = emptyMap()
@@ -75,7 +77,7 @@ class DiscoverV2Test {
         server.stop(0)
         LocalKey.reset()
         ServerWrapped.fake = null
-        Features.v2 = true
+        Features.v2 = false
     }
 
     private class Res(val code: Int, val text: String, val bytes: ByteArray = ByteArray(0)) {
@@ -324,19 +326,66 @@ class DiscoverV2Test {
 
     // ------------------------------------------------------------------ the switch
 
+    /** 2.0's pages, calls, commands and tools: there with the switch on, gone with it off. */
+    private val v2Pages = listOf("/tools/wrapped", "/tools/poster", "/tools/alerts", "/tools/releases", "/tools/concerts", "/tools/setlists", "/tools/records")
+    private val v2Docs = listOf("/wrapped", "/followed", "/releases", "/concerts", "/setlists", "/records", "/groups")
+    private val v2Mcp = listOf("get_wrapped", "find_new_releases", "find_concerts", "find_setlists", "find_records")
+
+    @Test fun withTheSwitchOnEveryWayInIsThere() {
+        val tools = page("/tools").body()
+        v2Pages.forEach { assertTrue(it, tools.contains(it)) }
+        val docs = api("GET", "openapi.json").text
+        v2Docs.forEach { assertTrue(it, docs.contains("\"$it")) }
+        v2Mcp.forEach { assertTrue(it, it in Mcp.toolNames) }
+        assertTrue(Cli.COMMANDS.any { it.name == "concerts" })
+        assertTrue(page("/connectors/csv").body().contains("format=opml"))
+        assertTrue(page("/settings").body().contains("id=\"ticketmaster\""))
+    }
+
     @Test fun withTheSwitchOffNothingOfItIsThere() {
         assertTrue(api("GET", "openapi.json").text.contains("/wrapped"))
         assertTrue(page("/tools").body().contains("/tools/wrapped"))
         Features.v2 = false
+        assertFalse(com.xlollx.songport.Features.v2)
         assertTrue(api("GET", "wrapped").text.contains("Unknown call"))
         assertTrue(api("GET", "followed").text.contains("Unknown call"))
-        assertFalse(api("GET", "openapi.json").text.contains("/wrapped"))
-        assertFalse(page("/tools").body().contains("/tools/wrapped"))
-        assertEquals(404, page("/tools/alerts").statusCode())
+        val docs = api("GET", "openapi.json").text
+        v2Docs.forEach { assertFalse(it, docs.contains("\"$it")) }
+        val tools = page("/tools").body()
+        v2Pages.forEach { assertFalse(it, tools.contains(it)); assertEquals(it, 404, page(it).statusCode()) }
         assertEquals(2, cli("wrapped").first)
-        assertFalse("get_wrapped" in Mcp.toolNames)
+        v2Mcp.forEach { assertFalse(it, it in Mcp.toolNames) }
+        assertFalse(Cli.COMMANDS.any { it.name in setOf("releases", "concerts", "setlists", "records") })
         assertFalse(ServerAlerts.isDue(env.also { ServerAlerts.follow(it, "Muse") }, Long.MAX_VALUE))
+        // Discover's calls are unknown, a new shared playlist's mailbox is not made.
+        for (call in listOf("releases?service=csv&playlist=Mix", "concerts?service=csv&playlist=Mix", "setlists?service=csv&playlist=Mix", "records?service=csv&playlist=Mix")) {
+            assertEquals(call, 404, api("GET", call).code)
+        }
+        assertEquals(404, api("POST", "groups", """{"group":"g1","creator":"k"}""").code)
+        // Podcasts: OPML is not offered, and asked for, the file comes as CSV.
+        assertFalse(page("/connectors/csv").body().contains("format=opml"))
+        assertEquals(ExportFormat.CSV, ExportFormat.of("opml"))
+        // The keys of 2.0's Discover pages are not asked for.
+        assertFalse(page("/settings").body().contains("id=\"ticketmaster\""))
         // What was there before still answers.
         assertEquals(200, api("GET", "status").code)
+        assertEquals(200, api("GET", "groups").code)
+    }
+
+    @Test fun theSwitchIsOffUnlessTheEnvironmentTurnsItOn() {
+        assertFalse(Features.DEFAULT)
+        assertFalse(Features.fromEnvironment(emptyMap()))
+        assertTrue(Features.fromEnvironment(mapOf("TRACKHOP_PREVIEW_2" to "1")))
+        assertTrue(Features.fromEnvironment(mapOf("TRACKHOP_PREVIEW_2" to "true")))
+        assertFalse(Features.fromEnvironment(mapOf("TRACKHOP_PREVIEW_2" to "0")))
+        assertFalse(Features.fromEnvironment(mapOf("TRACKHOP_PREVIEW_2" to "")))
+        // The Java property wins over the environment.
+        assertTrue(Features.fromEnvironment(emptyMap(), "yes"))
+        assertFalse(Features.fromEnvironment(mapOf("TRACKHOP_PREVIEW_2" to "1"), "off"))
+        // The engine's switch follows the server's.
+        Features.v2 = false
+        assertFalse(com.xlollx.songport.Features.v2)
+        Features.v2 = true
+        assertTrue(com.xlollx.songport.Features.v2)
     }
 }

@@ -9,6 +9,9 @@ class SongportApp : Application() {
         super.onCreate()
         // Why the app last closed, in the diagnostics log (Settings › Help): the first thing a report needs.
         com.xlollx.songport.data.CrashLog.install(this)
+        // The release switch: the 2.0 features in a 2.0 build, or on this device with Preview 2.0 features on.
+        com.xlollx.songport.Features.build = BuildConfig.V2
+        com.xlollx.songport.Features.preview = { com.xlollx.songport.data.Store.get(this).data.settings.preview2 }
         // The engine's platform: build-time credentials, resource names, and the connectors this build offers.
         com.xlollx.songport.platform.BuildDefaults.values = com.xlollx.songport.platform.AndroidEnv.buildDefaults()
         com.xlollx.songport.platform.Res.init(this)

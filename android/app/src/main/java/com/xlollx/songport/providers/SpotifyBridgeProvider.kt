@@ -178,6 +178,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
 
     /** A playlist's picture, uploaded and set the way the web player's "Edit details" does. An older plugin does not know the method: no cover ([BridgePlugin.setCover]). */
     override val canSetCover: Boolean get() = BridgePlugin.knows("spotify.setCover")
+    override val coverIsV2: Boolean get() = true
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) =
         BridgePlugin.setCover("spotify.setCover", playlistId, jpeg) { m, id, extras -> call(ctx, m, id, extras) }
 

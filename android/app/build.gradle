@@ -40,6 +40,10 @@ def kofiUrl       = cfg('KOFI_URL', 'https://ko-fi.com/xlollx')
 def sponsorsUrl   = cfg('SPONSORS_URL', 'https://github.com/sponsors/xlollx')
 def privacyUrl    = cfg('PRIVACY_POLICY_URL', 'https://trackhop.org/privacy-policy')
 
+// The release switch (core Features): a 2.0 build is made with -PV2=true. Off by default: the 2.0
+// features stay hidden (a test build can still show them with Settings › Developer options › Preview 2.0 features).
+def v2Build = (project.findProperty('V2') ?: 'false').toString().toBoolean()
+
 def hasReleaseKey = System.getenv('KEYSTORE_FILE') != null && !System.getenv('KEYSTORE_FILE').isEmpty()
 
 android {
@@ -73,6 +77,7 @@ android {
         buildConfigField "String", "PRIVACY_POLICY_URL", "\"${privacyUrl}\""
         buildConfigField "String", "KOFI_URL", "\"${kofiUrl}\""
         buildConfigField "String", "SPONSORS_URL", "\"${sponsorsUrl}\""
+        buildConfigField "boolean", "V2", "${v2Build}"
 
         manifestPlaceholders = [googleRedirectScheme: googleScheme]
     }

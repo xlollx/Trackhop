@@ -98,6 +98,12 @@ data class Settings(
      * the welcome, which marks it when it ends). Per device: a configuration file leaves it out.
      */
     val whatsNewSeen: String = "",
+    /**
+     * Settings › Developer options › Preview 2.0 features: this device shows the features of Trackhop
+     * 2.0 in a build where they are still hidden ([com.xlollx.songport.Features]). Per device: a
+     * configuration file leaves it out.
+     */
+    val preview2: Boolean = false,
     /** Connectors (provider ids) the user left out of the Wrapped: the chips start from this choice next time. */
     val wrappedSkipped: Set<String> = emptySet(),
     /** What the Wrapped reads: a listening service's id, "playlists", or "" for the best one connected. */

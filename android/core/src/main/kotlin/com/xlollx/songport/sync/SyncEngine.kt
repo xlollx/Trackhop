@@ -340,7 +340,7 @@ class SyncEngine(
         }
         val cover = info.imageUrl?.takeIf { it.isNotBlank() }
         if (cover != null && cover != latest.sourceCover) {
-            if (latest.sourceCover == null || !dst.canSetCover) updated = updated.copy(sourceCover = cover)
+            if (latest.sourceCover == null || !com.xlollx.songport.Features.coversOn(dst)) updated = updated.copy(sourceCover = cover)
             else runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, targetId, it) } ?: error("no image") }
                 .onSuccess { updated = updated.copy(sourceCover = cover); env.log("engine", "${job.name}: new cover copied") }
                 .onFailure { env.log("engine", "${job.name}: cover not copied: ${it.message?.take(120)}") }
@@ -428,8 +428,10 @@ class SyncEngine(
                 target = stored.target.copy(playlistId = created.id, playlistName = created.name),
                 sourceCover = info?.imageUrl,
             ))
-            val cover = info?.imageUrl ?: (if (dst.canSetCover) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
-            if (dst.canSetCover && cover != null) runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, created.id, it) } }
+            // Covers on the services added in 2.0 wait for it (Features).
+            val covers = com.xlollx.songport.Features.coversOn(dst)
+            val cover = info?.imageUrl ?: (if (covers) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
+            if (covers && cover != null) runCatching { Covers.fetchJpeg(env, cover)?.let { dst.setPlaylistCover(env, created.id, it) } }
                 .onFailure { env.log("engine", "cover not set: ${it.message?.take(120)}") }
         }
 
@@ -1352,7 +1354,7 @@ class SyncEngine(
             val stillOpen = provisional.unmatchedTracks.map { it.id }.toHashSet()
             unmatched.retainAll { it.id in stillOpen }
         }
-        if (job.keepOrder && !job.archive && dst.canReorder && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
+        if (job.keepOrder && !job.archive && com.xlollx.songport.Features.reorderOn(dst) && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
             alignOrder(src, dst, targetId, plan.sourceOrder, notes, onProgress)
         }
         val reviews = provisional?.reviewTracks ?: plan.uncertain

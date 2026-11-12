@@ -147,6 +147,7 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
 
     /** A set's artwork, as the web app's "Edit" sends it. An older plugin does not know the method: no cover ([BridgePlugin.setCover]). */
     override val canSetCover: Boolean get() = BridgePlugin.knows("soundcloud.setCover")
+    override val coverIsV2: Boolean get() = true
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) =
         BridgePlugin.setCover("soundcloud.setCover", playlistId, jpeg) { m, id, extras -> call(ctx, m, id, extras) }
 

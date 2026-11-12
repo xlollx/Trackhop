@@ -339,6 +339,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
      * nicety: it is not set once the day's estimated quota leaves too little for the tracks.
      */
     override val canSetCover: Boolean get() = true
+    override val coverIsV2: Boolean get() = true
 
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {
         val used = QuotaMeter.used(ctx.store.data, serviceId)
@@ -402,6 +403,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
      * included, so the whole playlist is read for them (one unit a page).
      */
     override val canReorder: Boolean get() = true
+    override val reorderIsV2: Boolean get() = true
     override suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {
         if (MusicProvider.isLibrary(playlistId)) return
         if (!MusicProvider.addsInOrder()) throw Reorder.Skipped("YouTube: moves cost quota, made only for a sync that keeps the order")

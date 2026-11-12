@@ -38,7 +38,9 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         if (this == OPML) runBlocking { encode(name, com.xlollx.songport.sync.Podcasts.withFeeds(env, tracks)) } else encode(name, tracks)
 
     companion object {
-        fun of(s: String?) = entries.firstOrNull { it.ext == s?.lowercase() } ?: CSV
+        /** The formats offered: OPML (podcasts) is 2.0's (Features). */
+        fun offered() = entries.filter { it != OPML || Features.v2 }
+        fun of(s: String?) = offered().firstOrNull { it.ext == s?.lowercase() } ?: CSV
     }
 }
 
@@ -50,7 +52,7 @@ internal fun Web.fileList(sample: String = ""): String {
     if (files.isEmpty()) sb.append("""<p class="muted">No playlist files yet.</p>""")
     for (f in files) {
         val n = CsvCodec.parse(f.readText()).size
-        val links = ExportFormat.entries.joinToString(" · ") { """<a href="/files/${q(f.name)}?format=${it.ext}" download>${it.label}</a>""" }
+        val links = ExportFormat.offered().joinToString(" · ") { """<a href="/files/${q(f.name)}?format=${it.ext}" download>${it.label}</a>""" }
         sb.append(
             // The box belongs to the "bulk" form below (a form cannot hold the row's own Delete form).
             """<div class="row"><label class="inline"><input type="checkbox" form="bulk" name="f:${h(f.name)}" aria-label="Select ${h(f.nameWithoutExtension)}"></label>""" +
@@ -62,7 +64,7 @@ internal fun Web.fileList(sample: String = ""): String {
     if (files.size > 1) sb.append(
         """<form id="bulk" method="post" action="/files/bulk" onsubmit="return event.submitter.value != 'delete' || confirm('Delete the ticked files? Syncs that use them stop finding them.')">""" +
             """<p class="muted">With the ticked files: <select name="format" aria-label="Format">""" +
-            ExportFormat.entries.joinToString("") { """<option value="${it.ext}">${it.label}</option>""" } +
+            ExportFormat.offered().joinToString("") { """<option value="${it.ext}">${it.label}</option>""" } +
             """</select> <button class="secondary" name="action" value="zip">Download as .zip</button> """ +
             """<button class="danger" name="action" value="delete">Delete</button></p></form>""",
     )
@@ -189,14 +191,17 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "api" -> apiPage(r)
         "config" -> configPage(r)
         "lyrics" -> lyricsPage(r)
-        "releases" -> releasesTool(r)
+        // Discover's pages of 2.0: not found until the release switch is on (Features).
+        "releases" -> if (Features.v2) releasesTool(r) else notFound(r)
         "wanted" -> wantedPage(r)
-        "concerts" -> concertsPage(r)
-        "setlists" -> setlistsPage(r)
-        "records" -> recordsPage(r)
-        else -> if (!v2Tool(r, rest)) send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
+        "concerts" -> if (Features.v2) concertsPage(r) else notFound(r)
+        "setlists" -> if (Features.v2) setlistsPage(r) else notFound(r)
+        "records" -> if (Features.v2) recordsPage(r) else notFound(r)
+        else -> if (!v2Tool(r, rest)) notFound(r)
     }
 }
+
+private fun Web.notFound(r: Web.Req) = send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
 
 private fun Web.toolsIndex(r: Web.Req) {
     val body = StringBuilder(notice(r))
@@ -204,16 +209,16 @@ private fun Web.toolsIndex(r: Web.Req) {
         body.append("""<div class="card"><h3><a href="$href">$title</a></h3><p class="muted">$text</p></div>""")
     body.append("<h2>Move</h2>")
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
-    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text, followed podcasts as OPML, or saved into File.")
+    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
-    tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")
-    tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")
-    tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
+    if (Features.v2) tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")
+    if (Features.v2) tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")
+    if (Features.v2) tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
     body.append(v2ToolCards())
     body.append("<h2>Make</h2>")
-    tool("/tools/releases", "New releases", "The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account): as a playlist on any service, now or every week.")
+    if (Features.v2) tool("/tools/releases", "New releases", "The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account): as a playlist on any service, now or every week.")
     tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")
     body.append("<h2>Clean up</h2>")
     tool("/tools/dedupe", "Duplicates", "The tracks a playlist has more than once, and the extra copies removed.")
@@ -261,7 +266,7 @@ private fun Web.exportTool(r: Web.Req) {
         return attachment(r, "${playlist.name}.${format.ext}", format.render(env, playlist.name, tracks), format.mime)
     }
     val opts = lists.getOrDefault(emptyList()).joinToString("") { p -> """<option value="${h(p.id)}">${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>""" }
-    val formats = ExportFormat.entries.joinToString("") { """<option value="${it.ext}">${h(it.label)}</option>""" }
+    val formats = ExportFormat.offered().joinToString("") { """<option value="${it.ext}">${h(it.label)}</option>""" }
     body.append(
         """<form method="get" action="/tools/export" class="card"><input type="hidden" name="service" value="${h(service.id)}">
 <label>Playlist on ${h(service.label(env))}</label><select name="playlist" required>$opts</select>

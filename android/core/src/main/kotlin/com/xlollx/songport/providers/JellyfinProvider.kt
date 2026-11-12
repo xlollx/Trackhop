@@ -350,6 +350,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     }
 
     override val canSetCover: Boolean get() = true
+    override val coverIsV2: Boolean get() = true
 
     /**
      * The playlist's Primary image: the JPEG base64-encoded as the body, as Jellyfin's and Emby's

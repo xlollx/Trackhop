@@ -170,6 +170,7 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
     override suspend fun setPlaylistVisibility(ctx: Env, playlistId: String, public: Boolean) { io(ctx) { it.setPublic(playlistId, public) } }
 
     override val canSetCover = true
+    override val coverIsV2 = true
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) { io(ctx) { it.setCover(playlistId, jpeg) } }
 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) { io(ctx) { it.deletePlaylist(playlistId) } }

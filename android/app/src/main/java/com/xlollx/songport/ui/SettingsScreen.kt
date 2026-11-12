@@ -157,6 +157,8 @@ fun SettingsScreen(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val settings = data.settings
+    // The release switch: what only 2.0's features use is offered with them (Features).
+    val v2 = com.xlollx.songport.Features.v2(settings)
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
@@ -237,10 +239,11 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.Dashboard, stringResource(R.string.settings_new_look), stringResource(R.string.settings_new_look_summary), settings.newLook, help = { HelpButton(Helps.newLook) }) { v ->
                 store.updateSettings { it.copy(newLook = v) }
             }
-            PrefSwitch(Icons.Filled.Image, stringResource(R.string.settings_discover_images), stringResource(R.string.settings_discover_images_summary), settings.discoverImages) { v ->
+            // The pictures of Discover's Concerts and Records & merch, which are 2.0's.
+            if (v2) PrefSwitch(Icons.Filled.Image, stringResource(R.string.settings_discover_images), stringResource(R.string.settings_discover_images_summary), settings.discoverImages) { v ->
                 store.updateSettings { it.copy(discoverImages = v) }
             }
-            PrefSwitch(Icons.Filled.Wifi, stringResource(R.string.settings_discover_images_wifi), stringResource(R.string.settings_discover_images_wifi_summary), settings.discoverImagesWifiOnly, enabled = settings.discoverImages) { v ->
+            if (v2) PrefSwitch(Icons.Filled.Wifi, stringResource(R.string.settings_discover_images_wifi), stringResource(R.string.settings_discover_images_wifi_summary), settings.discoverImagesWifiOnly, enabled = settings.discoverImages) { v ->
                 store.updateSettings { it.copy(discoverImagesWifiOnly = v) }
             }
         }
@@ -419,7 +422,8 @@ fun SettingsScreen(
             var serverLocks by remember { mutableStateOf(com.xlollx.songport.sync.ServerLocks.config(com.xlollx.songport.platform.AndroidEnv.of(ctx))) }
             var serverLocksOpen by rememberSaveable { mutableStateOf(false) }
             if (serverLocksOpen) ServerLocksDialog(serverLocks, onDismiss = { serverLocksOpen = false }) { serverLocks = it; serverLocksOpen = false }
-            PrefRow(
+            // 2.0's (Features); one already set up stays here, to change or turn off.
+            if (v2 || serverLocks != null) PrefRow(
                 Icons.Filled.Dns, stringResource(R.string.server_locks_title),
                 serverLocks?.address?.removePrefix("http://")?.removePrefix("https://") ?: stringResource(R.string.server_locks_desc),
                 trailing = { HelpButton(Helps.serverLocks) },
@@ -429,6 +433,8 @@ fun SettingsScreen(
             PrefRow(Icons.Filled.VpnKey, stringResource(R.string.settings_advanced), stringResource(R.string.settings_keys_summary), trailing = { ExpandMark(keysOpen) }) { keysOpen = !keysOpen }
             if (keysOpen) {
                 PrefBlock { Text(stringResource(R.string.settings_advanced_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                // Concerts, Setlists and Records & merch (Discover) are 2.0's: their keys come with them (Features).
+                if (v2) {
                 // Concerts (Discover): the user's own Ticketmaster key, optional.
                 var tmOpen by rememberSaveable { mutableStateOf(false) }
                 if (tmOpen) TicketmasterKeyDialog { tmOpen = false }
@@ -441,6 +447,7 @@ fun SettingsScreen(
                 var dgOpen by rememberSaveable { mutableStateOf(false) }
                 if (dgOpen) DiscogsTokenDialog { dgOpen = false }
                 PrefRow(Icons.Filled.Key, stringResource(R.string.records_token_title), stringResource(remember(dgOpen) { discogsTokenState(ctx) })) { dgOpen = true }
+                }
                 Providers.all().filter { it.setupGuide != null && it.slot.isEmpty() }.forEach { p ->
                     val configured = remember(p.id, data.settings) { p.isConfigured(ctx) }
                     PrefRow(
@@ -456,6 +463,13 @@ fun SettingsScreen(
 
             PrefSwitch(Icons.Filled.DeveloperMode, stringResource(R.string.settings_developer_switch), stringResource(R.string.settings_developer_summary), settings.developerOptions) { v ->
                 store.updateSettings { it.copy(developerOptions = v) }
+            }
+            // The release switch's other half: this device shows 2.0's features in a build that hides them
+            // (a test APK). A 2.0 build has them on anyway.
+            if (settings.developerOptions && !BuildConfig.V2) {
+                PrefSwitch(Icons.Filled.NewReleases, stringResource(R.string.settings_preview2), stringResource(R.string.settings_preview2_summary), settings.preview2) { v ->
+                    store.updateSettings { it.copy(preview2 = v) }
+                }
             }
             if (settings.developerOptions && settings.captureUnlocked && com.xlollx.songport.providers.BuiltIn.captureIntent(ctx, "https://x") != null) {
                 // A service being added (Qobuz…): its web player opens here and its calls are written

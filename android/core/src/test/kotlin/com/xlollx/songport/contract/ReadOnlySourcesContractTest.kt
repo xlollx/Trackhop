@@ -232,6 +232,10 @@ class LastFmContractTest : ContractTest() {
 /** ListenBrainz (listenbrainz.readthedocs.io), shapes per the reference. */
 class ListenBrainzContractTest : ContractTest() {
     private val lb = ListenBrainzProvider()
+
+    // The playlists made for the user are 2.0's (Features): on here, off in withoutTheSwitch….
+    @org.junit.Before fun v2On() { com.xlollx.songport.Features.build = true }
+    @org.junit.After fun v2Off() { com.xlollx.songport.Features.build = false }
     private val host = "api.listenbrainz.org"
     private fun mbid(i: Int) = "00000000-0000-4000-8000-" + i.toString().padStart(12, '0')
 
@@ -281,6 +285,19 @@ class ListenBrainzContractTest : ContractTest() {
         assertCall(r, "GET", host, "/1/user/rj%20%C3%BC/playlists/createdfor")
         assertEquals(null, r.getHeader("Authorization"))
         noMoreRequests()
+    }
+
+    @Test fun withoutTheSwitchThePlaylistsMadeForTheUserAreNotListedButStillRead() = runBlocking {
+        com.xlollx.songport.Features.build = false
+        signIn()
+        json("""{"count":1,"offset":0,"playlist_count":1,"playlists":[${plEntry(0)}]}""")
+        assertEquals(listOf(mbid(0)), lb.playlists(env).map { it.id })
+        next()
+        noMoreRequests()
+        // A sync made on a test build goes on reading its kind.
+        json("""{"count":1,"offset":0,"playlist_count":1,"playlists":[${madeFor(2, "Weekly Jams for rj, week of 2026-11-10 Mon", "weekly-jams", "2026-11-10T05:00:00+00:00")}]}""")
+        json("""{"playlist":{"identifier":"https://listenbrainz.org/playlist/${mbid(2)}","title":"Weekly Jams","track":[{"identifier":["https://musicbrainz.org/recording/${mbid(10)}"],"title":"One","creator":"A"}]}}""")
+        assertEquals(listOf(mbid(10)), lb.tracks(env, "createdfor:weekly-jams").map { it.id })
     }
 
     @Test fun aKindMadeForTheUserReadsItsLatestPlaylist() = runBlocking {

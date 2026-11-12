@@ -1249,7 +1249,8 @@
     <string name="howto_server_summary">交代で書き込み、同期を任せ、そこでレビュー。</string>
     <string name="howto_server_body">Docker でも Trackhop を動かしている場合に。設定 › 詳細設定 ›「自分のサーバーと調整」に、サーバーのアドレスと、サーバーのページのツール › API で作った API トークンを入力します。\n# 交代で書き込む\nプレイリストに書き込む前に、このスマホとサーバーがそのプレイリストを予約するので、両方で動く同期が同じ曲を二度追加することはありません。相手が書き込み中なら、その実行は飛ばされ、次の回にまた試します。\n# 同期をサーバーに任せる\nカードの ⋮ メニューの「サーバーに任せる」で、サーバーが自分のスケジュールと自分のアカウントで同期を実行します。カードはここに残り、「サーバー上」の印とサーバーでの最後の実行が表示されます。「このスマホに戻す」で再びここで実行されます。ラジオ、Shazam、ファイル、双方向の同期はスマホに残ります。\n# ツール › マイサーバー\nサーバーの同期を実行し、結果を見て、曲をレビューできます。両方にある同期では、「レビューの選択を共有」で無視した曲や確定した曲を両側でそろえます。</string>
     <string name="howto_schedules_channels">設定 › 通知 ›「通知チャンネル」を使うと、同期で何かが変わったときや失敗したとき、レビューする曲や確認待ちの削除があるとき、新作が見つかったときに、Telegram、ntfy、Gotify、Discord、Slack、Matrix、Pushover にもメッセージを送れます。チャンネルごとにイベントを選び、「テスト送信」をタップします。</string>
-    <string name="howto_tools_more"># 自分の音楽サーバー向け\n•「サーバーにない曲」：Navidrome、Jellyfin、Emby、Plex、Lyrion、Mopidy への同期で見つからなかった曲を、1 曲ずつ一覧にします。手に入れた曲にチェックを付けたり、リストを書き出したりできます（Lidarr 用リストも）。\n•「MusicBrainz タグ」：サーバー上でタグのない曲。このタグがあると、タイトルの書き方が違っても Trackhop が正確な録音を見つけます。\n# ほかの人と\n•「共有プレイリスト」：グループでひとつのプレイリスト、それぞれ自分のサービスで。\n•「マイサーバー」：自分の Trackhop サーバーの同期。</string>
+    <string name="howto_tools_more"># 自分の音楽サーバー向け\n•「サーバーにない曲」：Navidrome、Jellyfin、Emby、Plex、Lyrion、Mopidy への同期で見つからなかった曲を、1 曲ずつ一覧にします。手に入れた曲にチェックを付けたり、リストを書き出したりできます（Lidarr 用リストも）。\n•「MusicBrainz タグ」：サーバー上でタグのない曲。このタグがあると、タイトルの書き方が違っても Trackhop が正確な録音を見つけます。</string>
+    <string name="howto_tools_more_v2"># ほかの人と\n•「共有プレイリスト」：グループでひとつのプレイリスト、それぞれ自分のサービスで。\n•「マイサーバー」：自分の Trackhop サーバーの同期。</string>
     <!-- Guided first sync (coach marks) -->
     <string name="tour_offer">使い方を案内して</string>
     <string name="tour_offer_summary">実際の画面で、はじめての同期を8ステップで案内します。</string>
@@ -1796,13 +1797,13 @@
     <string name="whats_new_117_wide_title">大きな画面に対応</string>
     <string name="whats_new_117_wide_body">タブレットや横向きのスマートフォンでは、タブがサイドのレールに移り、同期カードが2列に並び、ページは読みやすい幅に保たれます。入力中の文字は画面を回転しても残ります。</string>
     <string name="whats_new_117_organise_title">お気に入り、ラベル、タグ</string>
-    <string name="whats_new_117_organise_body">よく使う同期にスターを付け、色に名前を付けてラベルにし、ジャンル = メタル のようなタグを追加できます。それらで絞り込みや検索ができます。</string>
+    <string name="whats_new_117_organise_body">よく使う同期にスターを付け、色に名前を付けてラベルにし、ジャンル = メタル のようなタグを追加できます。それらで絞り込みや検索ができます。エディターでは、タグをひとつの行にたためます。</string>
     <string name="whats_new_117_twoway_title">双方向で削除も</string>
-    <string name="whats_new_117_twoway_body">双方向の同期で「削除も同期」をオンにすると、片側で削除した曲がもう片側からも削除されます。</string>
+    <string name="whats_new_117_twoway_body">双方向の同期で「削除も同期」をオンにすると、片側で削除した曲がもう片側からも削除されます。どちらの側でプレイリストの名前を変えても、ペアが追従します。</string>
     <string name="whats_new_117_server_title">自分のサーバーをもっと便利に</string>
     <string name="whats_new_117_server_body">Lyrion と Mopidy にサーバーとして対応しました (ベータ)。MusicBrainz タグ付きのファイルは正確に照合され、ツール › サーバーにない曲 で同期が見つけられなかった曲を一覧できます。</string>
     <string name="whats_new_117_devices_title">1つの同期は1台で</string>
-    <string name="whats_new_117_devices_body">別のスマートフォンに復元した設定では、予約された同期がオフのままになり、二重に動きません。「自分のサーバーと調整」を使うと、このスマートフォンと Trackhop サーバーがプレイリストごとに順番に書き込みます。</string>
+    <string name="whats_new_117_devices_body">別のスマートフォンに復元した設定では、予約された同期がオフのままになり、二重に動きません。書き込む直前にプレイリストを読み直し、二重に追加された曲は次の実行で削除されます。</string>
     <string name="whats_new_118_releases_title">アーティストの新作</string>
     <string name="whats_new_118_releases_body">発見 › 新作で、プレイリストのアーティストの新しいアルバム・EP・シングルと、近日発売の作品がわかります。どのサービスにもプレイリストを作れるほか、同期で毎週追加することもできます。</string>
     <string name="whats_new_118_notify_title">好きな場所に通知</string>
@@ -2471,4 +2472,13 @@
     <string name="account_last_sync_failed">前回の同期に失敗</string>
     <string name="card_poster_plays_failed">%1$s から再生回数の多い曲を読み込めませんでした（%2$s）。プレイリストで多いアーティストの曲を表示しています。</string>
     <string name="card_poster_plays_empty">リスニングサービスから再生データが得られませんでした。プレイリストに多く登場するアーティストの曲を表示しています</string>
+    <string name="discover_wrapped_intro_playlists">Trackhop が接続済みサービスのお気に入りの曲とプレイリストをこのスマホ上で読み込み、カードにします。何もアップロードされません。</string>
+    <string name="settings_preview2">2.0 の機能をプレビュー</string>
+    <string name="settings_preview2_summary">テスト用：次の大型リリースの機能をこのスマホで表示します。未完成で、変わることがあります。</string>
+    <string name="whats_new_117_look_title">新しい見た目</string>
+    <string name="whats_new_117_look_body">新しいヘッダー、ページの背景、そしてほかと揃うように作り直した古い画面。</string>
+    <string name="whats_new_117_sessions_title">ログインが長持ち</string>
+    <string name="whats_new_117_sessions_body">YouTube Music のセッションはバックグラウンドで更新され、期限切れになったウェブのログインは再ログインを一度だけお願いします。Spotify（ウェブ）で「Google で続行」がまた使えます。</string>
+    <string name="whats_new_117_notify_title">好きな場所に通知</string>
+    <string name="whats_new_117_notify_body">設定 › 通知 › 通知チャンネルで、同期で変更があったとき、失敗したときに Telegram・ntfy・Gotify・Discord・Slack・Matrix・Pushover へメッセージを送れます。キーはこのスマートフォンに暗号化して保存されます。</string>
 </resources>

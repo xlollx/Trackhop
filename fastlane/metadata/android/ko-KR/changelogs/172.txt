@@ -1,1 +1,0 @@
-발견에 플레이리스트 아티스트를 위한 새 페이지: 신곡 (플레이리스트나 매주 동기화로), Ticketmaster와 MusicBrainz의 콘서트와 티켓 사이트 검색, setlist.fm 세트리스트 (내 무료 키로)를 플레이리스트로, 음반과 굿즈: Discogs의 CD, LP, 카세트와 공식 사이트·쇼핑몰 (링크만). 알림 채널: 동기화 변경·실패·신곡을 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 알려 줘요.

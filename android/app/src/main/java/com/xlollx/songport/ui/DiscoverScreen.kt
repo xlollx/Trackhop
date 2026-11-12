@@ -133,9 +133,16 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
     val id: String get() = name.lowercase()
 
     companion object {
+        /**
+         * The cards of Trackhop 2.0, in the grid only with [com.xlollx.songport.Features.v2]. Followed
+         * artists still opens from its alerts' notification for who follows artists already.
+         */
+        val V2: Set<DiscoverCard> = setOf(RELEASES, CONCERTS, SETLISTS, RECORDS, FOLLOWED)
+
         /** The cards of the grid (the Wrapped is on top, outside it) in [saved]'s order, new ones where the default puts them. */
         fun ordered(saved: List<String>): List<DiscoverCard> {
-            val byId = entries.filter { it != WRAPPED }.associateBy { it.id }
+            val v2 = com.xlollx.songport.Features.v2
+            val byId = entries.filter { it != WRAPPED && (v2 || it !in V2) }.associateBy { it.id }
             return DiscoverOrder.merge(saved, DiscoverOrder.DEFAULT.filter { it in byId } + byId.keys.filter { it !in DiscoverOrder.DEFAULT })
                 .mapNotNull { byId[it] }
         }

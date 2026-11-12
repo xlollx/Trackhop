@@ -102,6 +102,46 @@ class AmazonClientContractTest {
         assertEquals(2, BridgeMock.calls.size)
     }
 
+    /** The owner's capture of 11/2026: playlistDetail's new hash first, October's when Amazon does not know it. */
+    @Test fun playlistDetailAsksTheNewHashFirst() {
+        answer(page(0..0, null))
+        amazon.playlistTracks("PL1")
+        assertEquals("ed7a9eb147b6e58f9e1f97ceff215ed64fc19524b8133cf0e29f621d7901d7a5", call(0).json()["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(1, BridgeMock.calls.size)
+    }
+
+    @Test fun playlistDetailFallsBackToTheOlderHashAndKeepsIt() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer(page(0..1, null))
+        val ts = amazon.playlistTracks("PL1")
+        assertEquals(listOf("Song 0", "Song 1"), ts.map { it.title })
+        assertEquals("ed7a9eb147b6e58f9e1f97ceff215ed64fc19524b8133cf0e29f621d7901d7a5", call(0).json()["extensions"]["persistedQuery"]["sha256Hash"].str)
+        val second = call(1).json()
+        assertEquals("playlistDetail", second["operationName"].str)
+        assertEquals("797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109", second["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals("PL1", second["variables"]["id"].str)
+        // From then on the older hash goes at once: no call wasted on the new one.
+        answer(page(0..0, null))
+        amazon.playlistTracks("PL2")
+        assertEquals(3, BridgeMock.calls.size)
+        assertEquals("797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109", call(2).json()["extensions"]["persistedQuery"]["sha256Hash"].str)
+        // A new session (the configuration forgotten) tries the new path again.
+        AmazonClient.forgetConfig()
+        assertEquals("ed7a9eb147b6e58f9e1f97ceff215ed64fc19524b8133cf0e29f621d7901d7a5", AmazonClient.hashOf("playlistDetail"))
+    }
+
+    @Test fun playlistDetailUnknownByBothHashesAsksForAnUpdate() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer(notFound)
+        try { amazon.playlistTracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("needs an update")) }
+        assertEquals(2, BridgeMock.calls.size)
+        assertEquals("797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109", call(1).json()["extensions"]["persistedQuery"]["sha256Hash"].str)
+        // Both refused: the next read starts from the new one again.
+        assertEquals("ed7a9eb147b6e58f9e1f97ceff215ed64fc19524b8133cf0e29f621d7901d7a5", AmazonClient.hashOf("playlistDetail"))
+    }
+
     @Test fun duplicateIsNotAFailureButAnotherRefusalIs() {
         answer("""{"data":{"appendTracks":null},"errors":[{"message":"Track already in playlist","extensions":{"code":"DUPLICATE_TRACK"}}]}""", 294)
         // Not a failure, and not an addition either: the caller is told.

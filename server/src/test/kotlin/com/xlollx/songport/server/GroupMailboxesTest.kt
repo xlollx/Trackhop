@@ -46,6 +46,8 @@ class GroupMailboxesTest {
     private val groupId = "0123456789abcdef"
 
     @Before fun start() {
+        // A 2.0 feature: behind the release switch, on for these tests.
+        Features.v2 = true
         val data = tmp.newFolder("data")
         installServerConnectors()
         env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
@@ -56,6 +58,7 @@ class GroupMailboxesTest {
     }
 
     @After fun stop() {
+        Features.v2 = false
         server.stop(0)
         GroupMailboxes.maxItems = GroupMailboxes.MAX_ITEMS
         GroupMailboxes.maxTotalBytes = GroupMailboxes.MAX_TOTAL_BYTES

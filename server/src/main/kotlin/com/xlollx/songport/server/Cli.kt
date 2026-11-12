@@ -47,7 +47,7 @@ object Cli {
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
     /** Every command: these, and the next release's (Features.v2, CliV2.kt). */
-    val COMMANDS: List<Cmd> get() = BASE_COMMANDS + CliV2.commands
+    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliV2.commands
 
     private val BASE_COMMANDS = listOf(
         Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",

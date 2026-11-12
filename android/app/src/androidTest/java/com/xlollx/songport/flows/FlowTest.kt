@@ -73,6 +73,12 @@ abstract class FlowTest {
     /** Who is signed in when the test starts; a test can change it before [launch]. */
     protected open val connectedAtStart: List<String> = listOf("spotify", "deezer")
 
+    /**
+     * Settings › Developer options › Preview 2.0 features at the start: the tests of 2.0's features
+     * turn it on (they are hidden in the build otherwise, see com.xlollx.songport.Features).
+     */
+    protected open val preview2: Boolean = false
+
     @Before
     fun baseSetUp() {
         com.xlollx.songport.auth.AuthEvents.consume()
@@ -105,6 +111,7 @@ abstract class FlowTest {
         whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion,
         // The "Did you know?" pill only where TipsFlowTest asks for it.
         tipsPillDismissed = true,
+        preview2 = preview2,
     )
 
     // ------------------------------------------------------------------ the activity

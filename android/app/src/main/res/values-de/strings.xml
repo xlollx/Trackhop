@@ -1277,7 +1277,8 @@
     <string name="howto_server_summary">Abwechseln, Syncs übergeben, dort prüfen.</string>
     <string name="howto_server_body">Wenn du Trackhop auch auf Docker betreibst. Unter Einstellungen › Erweitert › Mit meinem Server abstimmen trägst du seine Adresse und ein API-Token ein, das du auf seiner Seite unter Werkzeuge › API erstellst.\n# Abwechseln\nBevor sie in eine Playlist schreiben, reservieren dieses Handy und der Server sie, sodass ein Sync, der auf beiden läuft, nie einen Song doppelt hinzufügt. Schreibt gerade die andere Seite, wird der Lauf übersprungen und beim nächsten Mal wiederholt.\n# Einen Sync übergeben\nIm ⋮-Menü einer Karte: An den Server übergeben. Der Server führt den Sync nach seinem Zeitplan mit seinen eigenen Konten aus. Die Karte bleibt hier, markiert mit Auf dem Server, und zeigt den letzten Lauf des Servers. Zurück auf dieses Handy lässt ihn wieder hier laufen. Radio-, Shazam-, Datei- und beidseitige Syncs bleiben auf dem Handy.\n# Werkzeuge › Mein Server\nDie Syncs auf deinem Server: Starte sie, sieh, wie sie gelaufen sind, und prüfe ihre Songs. Für einen Sync, den es auf beiden gibt, hält Prüfentscheidungen teilen gleich, was du ignorierst oder behältst.</string>
     <string name="howto_schedules_channels">Einstellungen › Benachrichtigungen › Benachrichtigungskanäle schickt außerdem eine Nachricht an Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert oder fehlschlägt, wenn Titel zu prüfen oder Entfernungen zu bestätigen sind und wenn Neuerscheinungen gefunden werden. Wähl die Ereignisse für jeden Kanal und tipp auf Test senden.</string>
-    <string name="howto_tools_more"># Für deinen eigenen Musikserver\n• Fehlt auf meinem Server: die Songs, die deine Syncs zu Navidrome, Jellyfin, Emby, Plex, Lyrion oder Mopidy nicht gefunden haben, jeder einmal. Hak ab, was du besorgt hast, oder exportier die Liste, auch als Liste für Lidarr.\n• MusicBrainz-Tags: die Songs auf deinem Server ohne diese Tags. Mit ihnen findet Trackhop genau die Aufnahme, auch wenn der Titel anders geschrieben ist.\n# Mit anderen\n• Geteilte Playlists: eine Playlist für eine Gruppe, jede Person bei ihrem Dienst.\n• Mein Server: die Syncs auf deinem Trackhop-Server.</string>
+    <string name="howto_tools_more"># Für deinen eigenen Musikserver\n• Fehlt auf meinem Server: die Songs, die deine Syncs zu Navidrome, Jellyfin, Emby, Plex, Lyrion oder Mopidy nicht gefunden haben, jeder einmal. Hak ab, was du besorgt hast, oder exportier die Liste, auch als Liste für Lidarr.\n• MusicBrainz-Tags: die Songs auf deinem Server ohne diese Tags. Mit ihnen findet Trackhop genau die Aufnahme, auch wenn der Titel anders geschrieben ist.</string>
+    <string name="howto_tools_more_v2"># Mit anderen\n• Geteilte Playlists: eine Playlist für eine Gruppe, jede Person bei ihrem Dienst.\n• Mein Server: die Syncs auf deinem Trackhop-Server.</string>
     <!-- Guided first sync (coach marks) -->
     <string name="tour_offer">Kurzer Rundgang</string>
     <string name="tour_offer_summary">Ein geführter erster Sync auf den echten Bildschirmen, in 8 Schritten.</string>
@@ -1828,13 +1829,13 @@
     <string name="whats_new_117_wide_title">Für große Bildschirme</string>
     <string name="whats_new_117_wide_body">Auf einem Tablet oder einem gedrehten Handy wandern die Tabs in eine Leiste, Sync-Karten stehen in zwei Spalten und Seiten bleiben gut lesbar breit. Was du tippst, bleibt beim Drehen erhalten.</string>
     <string name="whats_new_117_organise_title">Favoriten, Labels und Tags</string>
-    <string name="whats_new_117_organise_body">Markiere deine wichtigsten Syncs mit einem Stern, gib einer Farbe einen Namen als Label und füge Tags wie Genre = Metal hinzu. Dann filtere und suche danach.</string>
+    <string name="whats_new_117_organise_body">Markiere deine wichtigsten Syncs mit einem Stern, gib einer Farbe einen Namen als Label und füge Tags wie Genre = Metal hinzu. Dann filtere und suche danach. Im Editor klappen die Tags unter einer Zeile zusammen.</string>
     <string name="whats_new_117_twoway_title">Beidseitig, auch Entfernungen</string>
-    <string name="whats_new_117_twoway_body">Schalte bei einem beidseitigen Sync „Auch Entfernungen“ ein: Ein Titel, den du auf einer Seite entfernst, verschwindet auch auf der anderen.</string>
+    <string name="whats_new_117_twoway_body">Schalte bei einem beidseitigen Sync „Auch Entfernungen“ ein: Ein Titel, den du auf einer Seite entfernst, verschwindet auch auf der anderen. Benennst du eine Playlist auf einer Seite um, zieht das Paar mit.</string>
     <string name="whats_new_117_server_title">Mehr für deinen eigenen Server</string>
     <string name="whats_new_117_server_body">Lyrion und Mopidy kommen als Server dazu (Beta). Dateien mit MusicBrainz-Tags werden genau zugeordnet, und Werkzeuge › Fehlt auf meinem Server zeigt die Titel, die deine Syncs dort nicht gefunden haben.</string>
     <string name="whats_new_117_devices_title">Ein Sync, ein Gerät</string>
-    <string name="whats_new_117_devices_body">Eine auf einem anderen Handy wiederhergestellte Einrichtung lässt dort geplante Syncs ausgeschaltet, damit sie nicht doppelt laufen. Mit „Mit meinem Server abstimmen“ wechseln sich dieses Handy und dein Trackhop-Server bei jeder Playlist ab.</string>
+    <string name="whats_new_117_devices_body">Eine auf einem anderen Handy wiederhergestellte Einrichtung lässt dort geplante Syncs ausgeschaltet, damit sie nicht doppelt laufen. Eine Playlist wird kurz vor dem Schreiben neu gelesen, und ein doppelt hinzugefügter Titel wird beim nächsten Lauf entfernt.</string>
     <string name="whats_new_118_releases_title">Neues von deinen Künstlern</string>
     <string name="whats_new_118_releases_body">Entdecken › Neuerscheinungen zeigt neue Alben, EPs und Singles der Künstler einer Playlist und was bald erscheint. Mach daraus eine Playlist auf einem beliebigen Dienst oder lass einen Sync sie jede Woche hinzufügen.</string>
     <string name="whats_new_118_notify_title">Nachrichten, wo du willst</string>
@@ -2524,4 +2525,13 @@
     <string name="account_last_sync_failed">Letzte Synchronisierung fehlgeschlagen</string>
     <string name="card_poster_plays_failed">Deine meistgehörten Songs konnten nicht von %1$s gelesen werden (%2$s): Die Songs stammen von den häufigsten Artists der Playlist.</string>
     <string name="card_poster_plays_empty">Deine Hördienste haben keine Wiedergaben geliefert: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
+    <string name="discover_wrapped_intro_playlists">Trackhop liest deine Lieblingssongs und Playlists bei den verbundenen Diensten, hier auf dem Handy, und macht daraus eine Karte. Nichts wird hochgeladen.</string>
+    <string name="settings_preview2">Funktionen von 2.0 vorab</string>
+    <string name="settings_preview2_summary">Zum Testen: zeigt auf diesem Handy die Funktionen der nächsten großen Version. Noch nicht fertig, kann sich ändern.</string>
+    <string name="whats_new_117_look_title">Ein frischer Look</string>
+    <string name="whats_new_117_look_body">Eine neue Kopfzeile, Hintergründe hinter den Seiten und die älteren Bildschirme passend zum Rest überarbeitet.</string>
+    <string name="whats_new_117_sessions_title">Länger angemeldet</string>
+    <string name="whats_new_117_sessions_body">Die Sitzung von YouTube Music wird im Hintergrund erneuert, und eine abgelaufene Web-Anmeldung bittet dich nur einmal, dich neu anzumelden. „Weiter mit Google“ funktioniert wieder bei Spotify (Web).</string>
+    <string name="whats_new_117_notify_title">Nachrichten, wo du willst</string>
+    <string name="whats_new_117_notify_body">Einstellungen › Benachrichtigungen › Benachrichtigungskanäle schickt dir eine Nachricht über Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert oder fehlschlägt. Die Schlüssel bleiben verschlüsselt auf diesem Handy.</string>
 </resources>

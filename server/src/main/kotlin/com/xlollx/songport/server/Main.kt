@@ -145,6 +145,8 @@ fun launch(
     config: Config, edition: Html.Edition, onQuit: (() -> Unit)? = null, onShow: (() -> Unit)? = null, officialOnly: Boolean = false,
     account: Html.Account? = null, sharedRoot: File? = null, permissions: Set<String>? = null,
 ): Launched {
+    // The release switch (TRACKHOP_PREVIEW_2), before the engine asks it.
+    Features.init()
     config.dataDir.mkdirs()
     Log.init(config.dataDir)
     fun resource(name: String) = Config::class.java.getResourceAsStream(name)?.use { String(it.readBytes()).trim() }

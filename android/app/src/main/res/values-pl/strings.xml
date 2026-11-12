@@ -1335,7 +1335,8 @@
     <string name="howto_server_summary">Na zmianę, synchronizacje przekazane, przegląd tam.</string>
     <string name="howto_server_body">Gdy używasz też Trackhop na Dockerze. W Ustawienia › Zaawansowane › Uzgadniaj z moim serwerem wpisz jego adres i token API utworzony na jego stronie, w Narzędzia › API.\n# Na zmianę\nPrzed zapisem do playlisty ten telefon i serwer ją rezerwują, więc synchronizacja działająca na obu nigdy nie doda utworu dwa razy. Gdy druga strona właśnie zapisuje, uruchomienie jest pomijane i ponawiane następnym razem.\n# Przekazanie synchronizacji\nW menu ⋮ karty: Przekaż serwerowi. Serwer uruchamia synchronizację według swojego harmonogramu, ze swoimi kontami. Karta zostaje tutaj, oznaczona Na serwerze, z ostatnim uruchomieniem na serwerze. Przywróć na ten telefon znów uruchamia ją tutaj. Synchronizacje radia, Shazam, plików i dwukierunkowe zostają na telefonie.\n# Narzędzia › Mój serwer\nSynchronizacje na Twoim serwerze: uruchamiaj je, sprawdzaj, jak poszły, i przeglądaj ich utwory. Dla synchronizacji obecnej na obu Udostępniaj decyzje z przeglądu utrzymuje po obu stronach to samo, co ignorujesz lub zatwierdzasz.</string>
     <string name="howto_schedules_channels">Ustawienia › Powiadomienia › Kanały powiadomień wysyłają też wiadomość na Telegram, ntfy, Gotify, Discord, Slack, Matrix lub Pushover, gdy synchronizacja coś zmieni albo się nie powiedzie, gdy są utwory do przejrzenia lub usunięcia do potwierdzenia, i gdy znajdzie nowości. Wybierz zdarzenia dla każdego kanału i dotknij Wyślij test.</string>
-    <string name="howto_tools_more"># Dla Twojego serwera muzyki\n• Brakuje na moim serwerze: utwory, których Twoje synchronizacje do Navidrome, Jellyfin, Emby, Plex, Lyrion lub Mopidy nie znalazły, każdy raz. Zaznacz te, które już masz, albo wyeksportuj listę, także jako Lista dla Lidarra.\n• Tagi MusicBrainz: utwory na Twoim serwerze bez tych tagów. Dzięki nim Trackhop znajduje dokładne nagranie, nawet gdy tytuł jest zapisany inaczej.\n# Z innymi\n• Wspólne playlisty: jedna playlista dla grupy, każdy w swoim serwisie.\n• Mój serwer: synchronizacje na Twoim serwerze Trackhop.</string>
+    <string name="howto_tools_more"># Dla Twojego serwera muzyki\n• Brakuje na moim serwerze: utwory, których Twoje synchronizacje do Navidrome, Jellyfin, Emby, Plex, Lyrion lub Mopidy nie znalazły, każdy raz. Zaznacz te, które już masz, albo wyeksportuj listę, także jako Lista dla Lidarra.\n• Tagi MusicBrainz: utwory na Twoim serwerze bez tych tagów. Dzięki nim Trackhop znajduje dokładne nagranie, nawet gdy tytuł jest zapisany inaczej.</string>
+    <string name="howto_tools_more_v2"># Z innymi\n• Wspólne playlisty: jedna playlista dla grupy, każdy w swoim serwisie.\n• Mój serwer: synchronizacje na Twoim serwerze Trackhop.</string>
     <!-- Guided first sync (coach marks) -->
     <string name="tour_offer">Oprowadź mnie</string>
     <string name="tour_offer_summary">Pierwsza synchronizacja z przewodnikiem, na prawdziwych ekranach, w 8 krokach.</string>
@@ -1894,13 +1895,13 @@
     <string name="whats_new_117_wide_title">Dla dużych ekranów</string>
     <string name="whats_new_117_wide_body">Na tablecie lub obróconym telefonie karty przechodzą na pasek boczny, karty synchronizacji układają się w dwie kolumny, a strony mają wygodną szerokość. To, co wpisujesz, zostaje po obróceniu ekranu.</string>
     <string name="whats_new_117_organise_title">Ulubione, etykiety i tagi</string>
-    <string name="whats_new_117_organise_body">Oznacz gwiazdką najczęściej używane synchronizacje, nazwij kolor, by stał się etykietą, i dodaj tagi, np. gatunek = metal. Potem filtruj i szukaj według nich.</string>
+    <string name="whats_new_117_organise_body">Oznacz gwiazdką najczęściej używane synchronizacje, nazwij kolor, by stał się etykietą, i dodaj tagi, np. gatunek = metal. Potem filtruj i szukaj według nich. W edytorze tagi zwijają się pod jednym wierszem.</string>
     <string name="whats_new_117_twoway_title">Dwukierunkowa, także usunięcia</string>
-    <string name="whats_new_117_twoway_body">W synchronizacji dwukierunkowej włącz Także usunięcia: utwór usunięty po jednej stronie znika też po drugiej.</string>
+    <string name="whats_new_117_twoway_body">W synchronizacji dwukierunkowej włącz Także usunięcia: utwór usunięty po jednej stronie znika też po drugiej. Zmień nazwę playlisty po dowolnej stronie, a para za tym nadąży.</string>
     <string name="whats_new_117_server_title">Więcej dla twojego serwera</string>
     <string name="whats_new_117_server_body">Lyrion i Mopidy dołączają jako serwery (beta). Pliki z tagami MusicBrainz są dopasowywane dokładnie, a Narzędzia › Brakuje na moim serwerze pokazuje utwory, których twoje synchronizacje tam nie znalazły.</string>
     <string name="whats_new_117_devices_title">Jedna synchronizacja, jedno urządzenie</string>
-    <string name="whats_new_117_devices_body">Konfiguracja przywrócona na innym telefonie zostawia tam zaplanowane synchronizacje wyłączone, żeby nie działały podwójnie. Z opcją Uzgadniaj z moim serwerem ten telefon i twój serwer Trackhop zmieniają się przy każdej playliście.</string>
+    <string name="whats_new_117_devices_body">Konfiguracja przywrócona na innym telefonie zostawia tam zaplanowane synchronizacje wyłączone, żeby nie działały podwójnie. Playlista jest czytana ponownie tuż przed zapisem, a utwór dodany dwa razy znika przy następnym przebiegu.</string>
     <string name="whats_new_118_releases_title">Nowości twoich artystów</string>
     <string name="whats_new_118_releases_body">Odkrywaj › Nowości pokazuje nowe albumy, EP-ki i single artystów z playlisty oraz to, co niedługo wyjdzie. Zrób z nich playlistę w dowolnym serwisie albo pozwól synchronizacji dodawać je co tydzień.</string>
     <string name="whats_new_118_notify_title">Wiadomości tam, gdzie chcesz</string>
@@ -2632,4 +2633,13 @@
     <string name="account_last_sync_failed">Ostatnia synchronizacja nieudana</string>
     <string name="card_poster_plays_failed">Nie udało się odczytać najczęściej słuchanych utworów z %1$s (%2$s): utwory pochodzą od najczęstszych wykonawców playlisty.</string>
     <string name="card_poster_plays_empty">Twoje serwisy nie podały żadnych odtworzeń: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
+    <string name="discover_wrapped_intro_playlists">Trackhop czyta Twoje polubione utwory i playlisty w połączonych serwisach, tu na telefonie, i robi z nich kartę. Nic nie jest wysyłane.</string>
+    <string name="settings_preview2">Podgląd funkcji 2.0</string>
+    <string name="settings_preview2_summary">Do testów: pokazuje na tym telefonie funkcje następnej dużej wersji. Niegotowe, mogą się zmienić.</string>
+    <string name="whats_new_117_look_title">Nowy wygląd</string>
+    <string name="whats_new_117_look_body">Nowy nagłówek, tła za stronami i starsze ekrany przerobione tak, by pasowały do reszty.</string>
+    <string name="whats_new_117_sessions_title">Dłużej zalogowany</string>
+    <string name="whats_new_117_sessions_body">Sesja YouTube Music odnawia się w tle, a wygasłe logowanie w sieci prosi o ponowne zalogowanie tylko raz. Kontynuuj z Google znów działa w Spotify (web).</string>
+    <string name="whats_new_117_notify_title">Wiadomości tam, gdzie chcesz</string>
+    <string name="whats_new_117_notify_body">Ustawienia › Powiadomienia › Kanały powiadomień wyślą ci wiadomość na Telegram, ntfy, Gotify, Discord, Slack, Matrix lub Pushover, gdy synchronizacja coś zmieni albo się nie uda. Klucze zostają zaszyfrowane na tym telefonie.</string>
 </resources>

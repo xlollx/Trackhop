@@ -1248,7 +1248,8 @@
     <string name="howto_server_summary">번갈아 쓰기, 동기화 맡기기, 서버에서 검토.</string>
     <string name="howto_server_body">Docker에서도 Trackhop을 쓰는 경우예요. 설정 › 고급 › 내 서버와 조율하기에 서버 주소와, 서버 페이지의 도구 › API에서 만든 API 토큰을 넣어요.\n# 번갈아 쓰기\n플레이리스트에 쓰기 전에 이 휴대폰과 서버가 그 플레이리스트를 예약해서, 양쪽에서 도는 동기화가 같은 곡을 두 번 추가하지 않아요. 다른 쪽이 쓰는 중이면 이번 실행은 건너뛰고 다음에 다시 시도해요.\n# 동기화를 서버에 맡기기\n카드의 ⋮ 메뉴에서 서버에 맡기기를 누르면 서버가 자기 일정과 자기 계정으로 동기화를 실행해요. 카드는 여기 남아 서버에서 표시와 서버의 마지막 실행을 보여 줘요. 이 휴대폰으로 되돌리기를 누르면 다시 여기서 실행돼요. 라디오, Shazam, 파일, 양방향 동기화는 휴대폰에 남아요.\n# 도구 › 내 서버\n서버의 동기화를 실행하고, 결과를 보고, 곡을 검토해요. 양쪽에 있는 동기화는 검토 선택 공유로 무시하거나 확정한 곡을 양쪽에서 똑같이 유지해요.</string>
     <string name="howto_schedules_channels">설정 › 알림 › 알림 채널을 쓰면 동기화가 무언가를 바꾸거나 실패했을 때, 검토할 곡이나 확인할 삭제가 있을 때, 신곡을 찾았을 때 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로도 메시지를 보내요. 채널마다 이벤트를 고르고 테스트 보내기를 눌러 보세요.</string>
-    <string name="howto_tools_more"># 내 음악 서버를 위해\n• 내 서버에 없는 곡: Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy로 가는 동기화가 찾지 못한 곡을 한 번씩 보여 줘요. 구한 곡에 체크하거나 목록을 내보낼 수 있어요(Lidarr용 목록도).\n• MusicBrainz 태그: 서버에서 이 태그가 없는 곡. 태그가 있으면 제목이 다르게 적혀 있어도 Trackhop이 정확한 녹음을 찾아요.\n# 다른 사람과 함께\n• 공유 플레이리스트: 그룹을 위한 하나의 플레이리스트, 각자 자기 서비스에서.\n• 내 서버: 내 Trackhop 서버의 동기화.</string>
+    <string name="howto_tools_more"># 내 음악 서버를 위해\n• 내 서버에 없는 곡: Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy로 가는 동기화가 찾지 못한 곡을 한 번씩 보여 줘요. 구한 곡에 체크하거나 목록을 내보낼 수 있어요(Lidarr용 목록도).\n• MusicBrainz 태그: 서버에서 이 태그가 없는 곡. 태그가 있으면 제목이 다르게 적혀 있어도 Trackhop이 정확한 녹음을 찾아요.</string>
+    <string name="howto_tools_more_v2"># 다른 사람과 함께\n• 공유 플레이리스트: 그룹을 위한 하나의 플레이리스트, 각자 자기 서비스에서.\n• 내 서버: 내 Trackhop 서버의 동기화.</string>
     <!-- Guided first sync (coach marks) -->
     <string name="tour_offer">둘러보기</string>
     <string name="tour_offer_summary">실제 화면에서 첫 동기화를 8단계로 안내해요.</string>
@@ -1795,13 +1796,13 @@
     <string name="whats_new_117_wide_title">큰 화면에 맞게</string>
     <string name="whats_new_117_wide_body">태블릿이나 가로로 돌린 휴대폰에서는 탭이 옆 레일로 옮겨지고, 동기화 카드가 두 열로 놓이며, 페이지는 읽기 좋은 폭을 유지해요. 입력한 내용은 화면을 돌려도 남아 있어요.</string>
     <string name="whats_new_117_organise_title">즐겨찾기, 라벨, 태그</string>
-    <string name="whats_new_117_organise_body">자주 쓰는 동기화에 별표를 하고, 색에 이름을 붙여 라벨로 만들고, 장르 = 메탈 같은 태그를 추가하세요. 그다음 이것으로 필터링하고 검색할 수 있어요.</string>
+    <string name="whats_new_117_organise_body">자주 쓰는 동기화에 별표를 하고, 색에 이름을 붙여 라벨로 만들고, 장르 = 메탈 같은 태그를 추가하세요. 그다음 이것으로 필터링하고 검색할 수 있어요. 편집기에서는 태그를 한 줄 아래로 접을 수 있어요.</string>
     <string name="whats_new_117_twoway_title">양방향, 삭제도 함께</string>
-    <string name="whats_new_117_twoway_body">양방향 동기화에서 삭제도 동기화를 켜면 한쪽에서 지운 곡이 다른 쪽에서도 지워져요.</string>
+    <string name="whats_new_117_twoway_body">양방향 동기화에서 삭제도 동기화를 켜면 한쪽에서 지운 곡이 다른 쪽에서도 지워져요. 어느 쪽에서든 재생목록 이름을 바꾸면 짝도 따라가요.</string>
     <string name="whats_new_117_server_title">내 서버를 위한 더 많은 기능</string>
     <string name="whats_new_117_server_body">Lyrion과 Mopidy를 서버로 추가할 수 있어요 (베타). MusicBrainz 태그가 있는 파일은 정확히 매칭되고, 도구 › 내 서버에 없는 곡에서 동기화가 찾지 못한 곡을 볼 수 있어요.</string>
     <string name="whats_new_117_devices_title">동기화 하나, 기기 하나</string>
-    <string name="whats_new_117_devices_body">다른 휴대폰에 복원한 설정은 그곳의 예약 동기화를 꺼 두어 두 번 실행되지 않아요. 내 서버와 조율하기를 켜면 이 휴대폰과 Trackhop 서버가 재생목록마다 차례로 작업해요.</string>
+    <string name="whats_new_117_devices_body">다른 휴대폰에 복원한 설정은 그곳의 예약 동기화를 꺼 두어 두 번 실행되지 않아요. 쓰기 직전에 재생목록을 다시 읽고, 두 번 추가된 곡은 다음 실행에서 지워져요.</string>
     <string name="whats_new_118_releases_title">아티스트의 신곡</string>
     <string name="whats_new_118_releases_body">발견 › 신곡에서 플레이리스트 아티스트의 새 앨범, EP, 싱글과 곧 나올 작품을 볼 수 있어요. 어떤 서비스에든 플레이리스트로 만들거나, 동기화가 매주 추가하게 할 수 있어요.</string>
     <string name="whats_new_118_notify_title">원하는 곳으로 알림</string>
@@ -2470,4 +2471,13 @@
     <string name="account_last_sync_failed">마지막 동기화 실패</string>
     <string name="card_poster_plays_failed">%1$s에서 가장 많이 들은 곡을 읽지 못했습니다(%2$s). 플레이리스트에 많이 나오는 아티스트의 곡입니다.</string>
     <string name="card_poster_plays_empty">청취 서비스에서 재생 기록을 받지 못했습니다. 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다</string>
+    <string name="discover_wrapped_intro_playlists">Trackhop이 연결된 서비스의 좋아요 표시한 곡과 플레이리스트를 이 휴대폰에서 읽어 카드로 만듭니다. 아무것도 업로드되지 않습니다.</string>
+    <string name="settings_preview2">2.0 기능 미리 보기</string>
+    <string name="settings_preview2_summary">테스트용: 다음 대규모 업데이트의 기능을 이 휴대폰에 표시합니다. 아직 완성되지 않았고 바뀔 수 있습니다.</string>
+    <string name="whats_new_117_look_title">새로운 모습</string>
+    <string name="whats_new_117_look_body">새 헤더, 페이지 뒤의 배경, 그리고 나머지와 어울리게 다시 만든 예전 화면들.</string>
+    <string name="whats_new_117_sessions_title">더 오래 유지되는 로그인</string>
+    <string name="whats_new_117_sessions_body">YouTube Music 세션은 백그라운드에서 갱신되고, 만료된 웹 로그인은 다시 로그인하라고 한 번만 알려요. Spotify(웹)에서 Google로 계속하기가 다시 작동해요.</string>
+    <string name="whats_new_117_notify_title">원하는 곳으로 알림</string>
+    <string name="whats_new_117_notify_body">설정 › 알림 › 알림 채널에서 동기화가 무언가를 바꾸거나 실패하면 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 메시지를 받아요. 키는 이 휴대폰에 암호화되어 저장돼요.</string>
 </resources>

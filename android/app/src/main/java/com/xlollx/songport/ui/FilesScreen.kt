@@ -118,7 +118,7 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
                 .onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
         }
     }
-    if (choosingFolderFormat) ExportFormatDialog(onDismiss = { choosingFolderFormat = false }, formats = LocalFilesProvider.Export.entries) { fmt ->
+    if (choosingFolderFormat) ExportFormatDialog(onDismiss = { choosingFolderFormat = false }, formats = LocalFilesProvider.Export.offered()) { fmt ->
         choosingFolderFormat = false
         folderFormat = fmt
         pickFolder.launch(null)
@@ -308,7 +308,7 @@ private fun FileRow(
         if (selecting) return@Row
         var menu by remember { mutableStateOf(false) }
         var choosing by remember { mutableStateOf(false) }
-        if (choosing) ExportFormatDialog(onDismiss = { choosing = false }, formats = LocalFilesProvider.Export.entries) { choosing = false; onExport(it) }
+        if (choosing) ExportFormatDialog(onDismiss = { choosing = false }, formats = LocalFilesProvider.Export.offered()) { choosing = false; onExport(it) }
         Box {
             IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.csv_export)) }
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

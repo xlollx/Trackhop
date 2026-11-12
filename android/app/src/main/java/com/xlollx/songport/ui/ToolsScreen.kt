@@ -164,6 +164,11 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
     val hasOneOffs = storeData.jobs.any { it.oneOff }
     val hasServerSync = storeData.syncs.any { com.xlollx.songport.sync.Wanted.isServer(it.target.provider) }
     val serverOn = remember { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
+    // The release switch: Shared playlists and My server are 2.0's (Features). Groups and syncs on the
+    // server that a test build made stay reachable.
+    val v2 = com.xlollx.songport.Features.v2(storeData.settings)
+    val hasGroups = storeData.groups.isNotEmpty()
+    val hasHandedOver = storeData.handedOver.isNotEmpty()
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()
 
@@ -251,7 +256,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             // Only for who syncs to a server of their own: the songs it still lacks.
             if (hasServerSync) ToolRow(Tool.WANTED, provider) { open = Tool.WANTED }
             // Only with "Coordinate with my server" set: the server's syncs, run and reviewed from here.
-            if (serverOn) ToolRow(Tool.SERVER, provider) { open = Tool.SERVER }
+            if (serverOn && (v2 || hasHandedOver)) ToolRow(Tool.SERVER, provider) { open = Tool.SERVER }
         }
 
         PrefSection(stringResource(R.string.tools_section_move), accent = JobColor.TEAL, description = stringResource(R.string.tools_section_move_desc)) {
@@ -272,7 +277,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
             ToolRow(Tool.AI, provider) { open = Tool.AI }
-            ToolRow(Tool.SHARED, provider, beta = true) { SharedUi.request.value = SharedUi.Request.List }
+            if (v2 || hasGroups) ToolRow(Tool.SHARED, provider, beta = true) { SharedUi.request.value = SharedUi.Request.List }
         }
 
         PrefSection(stringResource(R.string.tools_section_safety), accent = JobColor.GREEN, description = stringResource(R.string.tools_section_safety_desc)) {

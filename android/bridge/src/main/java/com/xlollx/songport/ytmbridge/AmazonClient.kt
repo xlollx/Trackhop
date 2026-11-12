@@ -294,9 +294,20 @@ class AmazonClient(private val ctx: Context) {
     private fun gql(operation: String, variables: JsonObject): Answer = try {
         gqlOnce(operation, variables)
     } catch (e: UnknownQuery) {
+        // The new path first, the old one as a fallback: an operation with an older hash (the player's
+        // previous one) is sent again with it, and keeps it while Amazon knows it.
+        val older = if (operation in FALLBACK_HASHES && ON_FALLBACK.add(operation)) {
+            BridgeNet.log("amazon", "$operation: Amazon does not know its current persisted query; sent again with the older one")
+            try { gqlOnce(operation, variables) } catch (again: UnknownQuery) { ON_FALLBACK.remove(operation); null }
+        } else null
+        older ?: gqlWithText(operation, variables, e)
+    }
+
+    /** [operation] sent once more with its text, where [AmazonQueries] has it, as the player's Apollo client does. */
+    private fun gqlWithText(operation: String, variables: JsonObject, e: UnknownQuery): Answer {
         if (operation !in QUERIES || !WITH_TEXT.add(operation)) throw BridgeException(e.message.orEmpty())
         BridgeNet.log("amazon", "$operation: Amazon does not know its persisted query; sent again with the query's text, as the player does")
-        try { gqlOnce(operation, variables) } catch (again: UnknownQuery) { throw BridgeException(again.message.orEmpty()) }
+        return try { gqlOnce(operation, variables) } catch (again: UnknownQuery) { throw BridgeException(again.message.orEmpty()) }
     }
 
     /** A persisted query Amazon answered PERSISTED_QUERY_NOT_FOUND to. */
@@ -403,7 +414,8 @@ class AmazonClient(private val ctx: Context) {
     private fun refused(e: Throwable) = e.message?.let { it.contains(" 401 ") || it.contains(" 403 ") } == true
 
     private fun body(operation: String, variables: JsonObject): String {
-        val hash = HASHES[operation] ?: throw BridgeException("Amazon Music: unknown operation $operation")
+        val hash = FALLBACK_HASHES[operation]?.takeIf { operation in ON_FALLBACK } ?: HASHES[operation]
+            ?: throw BridgeException("Amazon Music: unknown operation $operation")
         return jsonObj(
             "operationName" to operation,
             "variables" to variables,
@@ -979,7 +991,8 @@ class AmazonClient(private val ctx: Context) {
         /** Persisted queries of the web player (October 2026; the searches and saved albums November 2026), by operation name. */
         private val HASHES = mapOf(
             "AddToPlaylistModalUserPlaylists" to "8a2d8eb88470373f0191fdac28083d74233a31c769cefb4c2da22ae8e9706cd9",
-            "playlistDetail" to "797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109",
+            // The player's playlistDetail of 11/2026; October's is the fallback ([FALLBACK_HASHES]).
+            PLAYLIST_DETAIL to "ed7a9eb147b6e58f9e1f97ceff215ed64fc19524b8133cf0e29f621d7901d7a5",
             SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT_HASH,
             SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT_HASH,
             "CreatePlaylist" to "5d91097d90465b2ca7b9ba52a96449ff1993750b76373a470663ce210ee1f829",
@@ -999,12 +1012,29 @@ class AmazonClient(private val ctx: Context) {
             UPDATE_DETAILS to "8629205629c61ef70ed4a28876506bf90369a5d9a2cf1684319a1d33fb5304ac",
         )
 
+        private const val PLAYLIST_DETAIL = "playlistDetail"
+
+        /**
+         * Older hashes of an operation, tried when Amazon does not know the one in [HASHES] (the new
+         * path first, the old one as a fallback): playlistDetail's of October 2026, which accounts
+         * not yet on the November player may still be served.
+         */
+        internal val FALLBACK_HASHES = mapOf(
+            PLAYLIST_DETAIL to "797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109",
+        )
+
+        /** Operations whose hash in [HASHES] Amazon did not know: sent with their [FALLBACK_HASHES] one from then on. */
+        private val ON_FALLBACK: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+        /** The hash [operation] is sent with now (for the tests). */
+        internal fun hashOf(operation: String): String? = FALLBACK_HASHES[operation]?.takeIf { operation in ON_FALLBACK } ?: HASHES[operation]
+
         @Volatile private var cachedConfig: Pair<Long, Config>? = null
         /** Until when calls go straight through the player page, after it was the only way in. */
         @Volatile private var pageModeUntil = 0L
         private val logged = java.util.concurrent.ConcurrentHashMap<String, Long>()
         private const val PAGE_MODE_MS = 30 * 60_000L
-        fun forgetConfig() { cachedConfig = null; libraryCounts = null; specSearchUntil = 0; WITH_TEXT.clear() }
+        fun forgetConfig() { cachedConfig = null; libraryCounts = null; specSearchUntil = 0; WITH_TEXT.clear(); ON_FALLBACK.clear() }
 
         /** When Amazon last refused a call as AUTH_INVALID_CUSTOMER_ID: [AmazonRoute] may then try the skill API. */
         @Volatile private var invalidCustomerAt = 0L

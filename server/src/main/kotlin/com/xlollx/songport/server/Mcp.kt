@@ -130,7 +130,7 @@ object Mcp {
     }
 
     /** Every tool: these, and the next release's (Features.v2, McpV2.kt). */
-    private val TOOLS: List<Tool> get() = BASE_TOOLS + McpV2.tools
+    private val TOOLS: List<Tool> get() = BASE_TOOLS.filter { Features.v2 || it.name !in Features.V2_MCP_TOOLS } + McpV2.tools
 
     private val BASE_TOOLS = listOf(
         Tool("status", "Trackhop status", "Trackhop's version, how many syncs it has, which are running now and when the last one ran.",

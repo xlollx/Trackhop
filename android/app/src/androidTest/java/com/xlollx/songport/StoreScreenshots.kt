@@ -204,6 +204,8 @@ class StoreScreenshots {
                 onboardingDone = true, tourDone = true, themeMode = "DARK", dynamicColor = false, newLook = true,
                 supportPromptDone = true, appOpens = 1, supportNudgeSeen = 0, shareTarget = yt,
                 whatsNewSeen = com.xlollx.songport.ui.WhatsNew.newestVersion, tipsPillDismissed = true,
+                // The pictures show 2.0's features too (the carousel's Discover pages): the preview is on.
+                preview2 = true,
             )
         }
         store.flush()
@@ -635,7 +637,7 @@ class StoreScreenshots {
                     com.xlollx.songport.model.Label("teal", "teal", "Chill"), com.xlollx.songport.model.Label("purple", "purple", "Gym"),
                     com.xlollx.songport.model.Label("green", "green", "Summer"),
                 ),
-                discoverImages = true, discoverImagesWifiOnly = false, artistAlerts = true, favoritesOnTop = false,
+                discoverImages = true, discoverImagesWifiOnly = false, artistAlerts = true, favoritesOnTop = false, preview2 = true,
                 followedArtists = CAROUSEL_FOLLOWED.mapIndexed { i, name ->
                     com.xlollx.songport.sync.ArtistAlerts.Followed(
                         name, kinds = if (i == 2) kinds.copy(merch = false) else kinds, muted = i == 0, mbid = "carousel-artist-$i",

@@ -36,3 +36,5 @@ exclude:
   - google-shared-client.md
   - play-testers.md
   - guide/getting-the-word-out.md
+  # The 2.0 notes, a draft kept for the day it is released: not part of the site.
+  - notes-2.0-draft.md

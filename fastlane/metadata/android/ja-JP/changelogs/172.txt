@@ -1,1 +1,0 @@
-「発見」にプレイリストのアーティスト向けの新ページ: 新作 (プレイリストや毎週の同期に)、Ticketmaster と MusicBrainz のコンサート情報とチケットサイト検索、setlist.fm のセットリスト (自分の無料キーで) をプレイリストに、レコードとグッズ: Discogs の CD・レコード・カセットと公式サイトやショップ (リンクのみ)。通知チャンネル: 同期の変更・失敗・新作を Telegram、ntfy、Gotify、Discord、Slack、Matrix、Pushover でお知らせ。

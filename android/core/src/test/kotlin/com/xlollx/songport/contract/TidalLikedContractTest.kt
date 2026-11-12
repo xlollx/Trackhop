@@ -29,6 +29,8 @@ class TidalLikedContractTest : ContractTest() {
     private val vnd = "application/vnd.api+json"
     private val liked = "/v2/userCollectionTracks/me/relationships/items"
 
+    @org.junit.After fun v2Off() { com.xlollx.songport.Features.build = false }
+
     @Before fun signIn() {
         BuildDefaults.values = mapOf("TIDAL_CLIENT_ID" to "tcid")
         env.tokens.set("tidal", Tokens("TT1", "TR1", userId = "u1", userName = "me", extra = mapOf("country" to "IT")))
@@ -39,6 +41,12 @@ class TidalLikedContractTest : ContractTest() {
            "relationships":{"artists":{"data":[{"id":"7","type":"artists"}]}}}"""
 
     @Test fun likedIsASourceAndATarget() {
+        // TIDAL's liked tracks are 2.0's (Features): not offered without it, still read and written for a sync that has them.
+        com.xlollx.songport.Features.build = false
+        assertTrue(td.libraryEntries(env, asTarget = false).none { it.id == MusicProvider.LIKED_ID })
+        assertTrue(td.libraryEntries(env, asTarget = true).none { it.id == MusicProvider.LIKED_ID })
+        assertTrue(td.supportsLibrary(MusicProvider.LIKED_ID, asTarget = true))
+        com.xlollx.songport.Features.build = true
         assertTrue(td.libraryEntries(env, asTarget = false).any { it.id == MusicProvider.LIKED_ID })
         assertTrue(td.libraryEntries(env, asTarget = true).any { it.id == MusicProvider.LIKED_ID })
     }

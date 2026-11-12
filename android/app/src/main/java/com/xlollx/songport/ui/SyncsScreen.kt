@@ -879,6 +879,8 @@ private fun JobMenuHost(
     // Handed over to the user's server (Coordinate with my server): it runs there; taken back here to change it.
     val onServer = data.handedOver[job.id] != null
     val serverOn = remember(data.handedOver) { com.xlollx.songport.sync.ServerLink.isOn(ctx) }
+    // Sharing a sync and handing one over are 2.0's (Features): a sync already shared or on the server keeps its way back.
+    val v2 = com.xlollx.songport.Features.v2(data.settings)
     var handOverOpen by rememberSaveable { mutableStateOf(false) }
     if (handOverOpen) HandOverDialog(job, back = onServer) { handOverOpen = false }
     content(
@@ -889,14 +891,14 @@ private fun JobMenuHost(
             if (onServer) null
             else sharedGroup?.let { gid -> MenuAction(stringResource(R.string.shared_open_group), { SharedUi.request.value = SharedUi.Request.Open(gid) }, icon = Icons.Outlined.Groups) }
                 ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
-            if (!onServer && sharedGroup == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
+            if (v2 && !onServer && sharedGroup == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
                 SharedUi.request.value = SharedUi.Request.Create(job.target, job.target.playlistName.ifBlank { job.name })
             }, icon = Icons.Outlined.GroupAdd) else null,
             if (onServer) null
             else if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
             else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
             if (onServer) MenuAction(stringResource(R.string.server_bring_back), { handOverOpen = true }, icon = Icons.Outlined.CloudDownload)
-            else if (serverOn && sharedGroup == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
+            else if (v2 && serverOn && sharedGroup == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
             else null,
             MenuAction(
                 stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
@@ -2066,7 +2068,8 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     // Liked songs on a service that orders them by the second of saving (Spotify): the
                     // switch decides between one a second, in order, and batches at full speed.
                     val likedSpacing = if (!createNew && dstPlaylist?.id == MusicProvider.LIKED_ID) Providers.byId(dstProvider)?.addSpacingMs(MusicProvider.LIKED_ID) ?: 0 else 0
-                    if ((Providers.byId(dstProvider)?.canReorder == true || likedSpacing > 0) && !archive) {
+                    // TIDAL's and YouTube's moves are 2.0's (Features.reorderOn).
+                    if ((Providers.byId(dstProvider)?.let { com.xlollx.songport.Features.reorderOn(it) } == true || likedSpacing > 0) && !archive) {
                         SwitchRow(stringResource(R.string.editor_keep_order), stringResource(R.string.editor_keep_order_desc), keepOrder, help = { HelpButton(Helps.keepOrder) }) { keepOrder = it }
                         if (likedSpacing > 0) Text(
                             stringResource(if (keepOrder) R.string.editor_keep_order_liked_slow else R.string.editor_keep_order_liked_fast),
@@ -2074,7 +2077,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             color = if (keepOrder) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         // YouTube's moves cost quota: when the day's is short, the order is left as it is.
-                        if (keepOrder && Providers.byId(dstProvider)?.serviceId == com.xlollx.songport.providers.YouTubeProvider.SERVICE) Text(
+                        if (keepOrder && Providers.byId(dstProvider)?.let { it.serviceId == com.xlollx.songport.providers.YouTubeProvider.SERVICE && com.xlollx.songport.Features.reorderOn(it) } == true) Text(
                             stringResource(R.string.editor_keep_order_quota),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
