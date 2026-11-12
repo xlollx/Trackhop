@@ -1646,6 +1646,16 @@
     <string name="card_layout_minimal">미니멀</string>
     <string name="card_layout_bold">볼드</string>
     <string name="card_poster_show_name">내 이름 표시</string>
+    <string name="card_poster_plays_from">가장 많이 들은 곡, %1$s 기준</string>
+    <string name="card_poster_plays_connect">Spotify, Last.fm 또는 ListenBrainz를 연결하면 가장 많이 들은 곡을 보여 줍니다</string>
+    <string name="card_poster_plays_none">%1$s에서 가장 많이 들은 곡 중 이 플레이리스트에 있는 곡이 없습니다. 주요 아티스트의 곡을 보여 줍니다</string>
+    <string name="card_poster_start_over">처음부터 다시</string>
+    <string name="card_poster_start_over_hint">플레이리스트를 다시 읽고 새 포스터를 처음부터 만듭니다</string>
+    <string name="card_poster_qr">QR 코드 넣기</string>
+    <string name="card_poster_qr_hint">“스캔하여 %1$s에서 열기” 줄 포함</string>
+    <string name="card_poster_all_artists">모든 아티스트 (%1$d)</string>
+    <string name="card_poster_artists_show">보기</string>
+    <string name="card_poster_artists_hide">숨기기</string>
     <string name="card_ai_cover_failed_drawn">AI가 커버를 그리지 못했습니다(%1$s). 포스터에는 휴대폰에서 그린 커버를 사용합니다.</string>
     <string name="error_same_playlist">소스와 대상이 같은 플레이리스트입니다. 대상으로 다른 플레이리스트를 선택하세요.</string>
     <string name="job_archive_badge">모든 곡 보관</string>

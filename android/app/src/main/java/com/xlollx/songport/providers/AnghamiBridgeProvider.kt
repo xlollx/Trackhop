@@ -70,7 +70,7 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, Web
         val out = ArrayList<Track>()
         var offset: Int? = 0
         while (offset != null) {
-            val b = call(ctx, "anghami.tracks", id, Bundle().apply { putInt("offset", offset!!) })
+            val b = call(ctx, "anghami.tracks", id, BridgePlugin.page(offset!!, MusicProvider.readsFresh()))
             out += parseJson(b.getString("json") ?: "[]").arr.mapNotNull { toTrack(it) }
             offset = if (b.containsKey("next")) b.getInt("next") else null
         }

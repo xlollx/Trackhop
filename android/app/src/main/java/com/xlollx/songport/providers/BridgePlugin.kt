@@ -172,6 +172,15 @@ object BridgePlugin {
     /** The extra naming the account in the connectors' calls and sign-ins, as the Bridge reads it. */
     const val EXTRA_SLOT = "slot"
 
+    /** Asks the connectors to read a listing again rather than serve the one they keep (from the first page only). An older Bridge ignores it. */
+    const val EXTRA_FRESH = "fresh"
+
+    /** The extras of a `tracks` page from [offset]; [fresh]: the first page drops the listing kept for it ([MusicProvider.FreshRead]). */
+    fun page(offset: Int, fresh: Boolean = false): Bundle = Bundle().apply {
+        putInt("offset", offset)
+        if (fresh && offset == 0) putBoolean(EXTRA_FRESH, true)
+    }
+
     /** Opens a connector's sign-in: the built-in screen, or the plugin's through its action; for an extra account, with its slot. */
     fun startLogin(ctx: Context, action: String, slot: String = "") {
         val intent = BuiltIn.loginIntent(ctx, action, slot) ?: Intent(action).setPackage(packageName(ctx) ?: return)

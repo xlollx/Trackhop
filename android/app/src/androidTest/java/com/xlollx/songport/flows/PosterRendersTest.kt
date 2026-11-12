@@ -9,6 +9,7 @@ import com.xlollx.songport.sync.PosterPalette
 import com.xlollx.songport.ui.Cards
 import com.xlollx.songport.ui.GeneratedCovers
 import java.io.File
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,14 +56,17 @@ class PosterRendersTest {
         val dir = File(app.getExternalFilesDir(null), "poster-renders").apply { deleteRecursively(); mkdirs() }
         val covers = listOf(0xFF7A1F3D, 0xFF1F4E7A, 0xFF2E7A1F, 0xFF7A5A1F).map { tile(it.toInt()) }
         for (c in cases) {
-            val art: List<Bitmap?> = if (c.drawn) listOf(GeneratedCovers.draw(GeneratedCovers.Style.MOSAIC, GeneratedCovers.Input(c.title, c.artists.take(5), covers), 0)) else covers
+            // As the poster tool draws it: no artists on a drawn cover (the poster prints them once), all of them on the card.
+            val art: List<Bitmap?> = if (c.drawn) listOf(GeneratedCovers.draw(GeneratedCovers.Style.MOSAIC, GeneratedCovers.Input(c.title, emptyList(), covers), 0)) else covers
             for (l in PosterPalette.Layout.entries) for (f in Cards.Format.entries) {
                 val card = Cards.PosterCard(
-                    c.title, "", "Spotify", 128, 27_000_000L, art, if (c.qr) "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" else null,
-                    c.artists.take(5), songs, l, titledArt = c.drawn,
-                )
+                    c.title, "", "Spotify", 128, 27_000_000L, art, LINK,
+                    c.artists, songs, l, titledArt = c.drawn,
+                ).with(l, "", withQr = c.qr)
                 val bmp = Cards.poster(app, card, f)
                 assertTrue(bmp.width == f.width && bmp.height == f.height)
+                // The QR code is there, and readable, only when asked for.
+                assertEquals("${c.name} ${l.name} ${f.name}", if (c.qr) LINK else null, qr(bmp))
                 File(dir, "${c.name}_${l.name.lowercase()}_${f.name.lowercase()}.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
             }
         }
@@ -72,6 +76,20 @@ class PosterRendersTest {
             shell("cp -r ${dir.absolutePath}/. /sdcard/ui-test-failures/poster-renders/")
         }
     }
+
+    /** The QR code on [bmp], read as a phone's camera would; null when there is none. */
+    private fun qr(bmp: Bitmap): String? {
+        val px = IntArray(bmp.width * bmp.height).also { bmp.getPixels(it, 0, bmp.width, 0, 0, bmp.width, bmp.height) }
+        val source = com.google.zxing.RGBLuminanceSource(bmp.width, bmp.height, px)
+        return runCatching {
+            com.google.zxing.MultiFormatReader().decode(
+                com.google.zxing.BinaryBitmap(com.google.zxing.common.HybridBinarizer(source)),
+                mapOf(com.google.zxing.DecodeHintType.POSSIBLE_FORMATS to listOf(com.google.zxing.BarcodeFormat.QR_CODE), com.google.zxing.DecodeHintType.TRY_HARDER to true),
+            ).text
+        }.getOrNull()
+    }
+
+    private companion object { const val LINK = "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" }
 
     private fun shell(cmd: String): String =
         instr.uiAutomation.executeShellCommand(cmd).let { pfd -> android.os.ParcelFileDescriptor.AutoCloseInputStream(pfd).use { it.readBytes().decodeToString() } }
