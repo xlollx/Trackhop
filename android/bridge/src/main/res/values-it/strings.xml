@@ -28,6 +28,7 @@
     <string name="bridge_capture_delete_body">Il file resta su questo telefono per un giorno, a meno che tu non lo cancelli ora.</string>
     <string name="bridge_capture_delete">Cancella</string>
     <string name="bridge_capture_keep">Tieni</string>
+    <string name="bridge_capture_close">Chiudi</string>
     <string name="bridge_page_crashed">La pagina ha smesso di funzionare ed è stata chiusa. Riprova.</string>
     <string name="bridge_setlist_hint">Il sito di setlist.fm. Apri un concerto, poi fanne una playlist.</string>
     <string name="bridge_setlist_unread">Ancora nessun brano in questa pagina. Aspetta che si carichi, o apri un concerto con la sua scaletta.</string>

@@ -28,6 +28,7 @@
     <string name="bridge_capture_delete_body">Файл останется на телефоне на сутки, если не удалить его сейчас.</string>
     <string name="bridge_capture_delete">Удалить</string>
     <string name="bridge_capture_keep">Оставить</string>
+    <string name="bridge_capture_close">Закрыть</string>
     <string name="bridge_page_crashed">Страница перестала работать и была закрыта. Попробуйте ещё раз.</string>
     <string name="bridge_setlist_hint">Сайт setlist.fm. Откройте концерт и сделайте из него плейлист.</string>
     <string name="bridge_setlist_unread">На этой странице пока нет песен. Дождитесь загрузки или откройте концерт с сет-листом.</string>

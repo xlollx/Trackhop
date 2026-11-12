@@ -28,6 +28,7 @@
     <string name="bridge_capture_delete_body">The file stays on this phone until a day has passed, unless you delete it now.</string>
     <string name="bridge_capture_delete">Delete</string>
     <string name="bridge_capture_keep">Keep</string>
+    <string name="bridge_capture_close">Close</string>
     <string name="bridge_page_crashed">The page stopped working and was closed. Please try again.</string>
     <!-- setlist.fm browsed for Trackhop's store builds (SetlistBrowseActivity). -->
     <string name="bridge_setlist_hint">setlist.fm’s own site. Open a concert, then make a playlist of it.</string>

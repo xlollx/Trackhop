@@ -28,6 +28,7 @@
     <string name="bridge_capture_delete_body">지금 삭제하지 않으면 파일은 하루 동안 이 휴대폰에 남습니다.</string>
     <string name="bridge_capture_delete">삭제</string>
     <string name="bridge_capture_keep">보관</string>
+    <string name="bridge_capture_close">닫기</string>
     <string name="bridge_page_crashed">페이지가 작동을 멈춰 닫혔습니다. 다시 시도해 주세요.</string>
     <string name="bridge_setlist_hint">setlist.fm 사이트입니다. 공연을 열고 플레이리스트로 만드세요.</string>
     <string name="bridge_setlist_unread">이 페이지에 아직 곡이 없습니다. 로딩을 기다리거나 세트리스트가 있는 공연을 여세요.</string>

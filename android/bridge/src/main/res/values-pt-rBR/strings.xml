@@ -28,6 +28,7 @@
     <string name="bridge_capture_delete_body">O arquivo fica neste celular por um dia, a menos que você o apague agora.</string>
     <string name="bridge_capture_delete">Apagar</string>
     <string name="bridge_capture_keep">Manter</string>
+    <string name="bridge_capture_close">Fechar</string>
     <string name="bridge_page_crashed">A página parou de funcionar e foi fechada. Tente de novo.</string>
     <string name="bridge_setlist_hint">O site do setlist.fm. Abra um show e faça uma playlist dele.</string>
     <string name="bridge_setlist_unread">Ainda não há músicas nesta página. Espere carregar ou abra um show com o setlist.</string>

@@ -55,11 +55,20 @@ class AmazonCaptureActivity : ComponentActivity() {
         count = if (file.exists()) file.readLines().size else 0
 
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        val bar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(16, 8, 16, 8) }
+        val bar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL; setPadding(16, 8, 16, 8) }
         counter = TextView(this).apply { layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f) }
         val share = Button(this).apply { text = getString(R.string.bridge_amazon_capture_share); setOnClickListener { share() } }
         val clear = Button(this).apply { text = getString(R.string.bridge_amazon_capture_clear); setOnClickListener { file.delete(); count = 0; refresh() } }
-        bar.addView(counter); bar.addView(clear); bar.addView(share)
+        // A way out that doesn't depend on Back, which the site may take for itself.
+        val close = android.widget.ImageButton(this).apply {
+            setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+            contentDescription = getString(R.string.bridge_capture_close)
+            background = null
+            val size = (48 * resources.displayMetrics.density).toInt()
+            layoutParams = LinearLayout.LayoutParams(size, size)
+            setOnClickListener { leave() }
+        }
+        bar.addView(close); bar.addView(counter); bar.addView(clear); bar.addView(share)
         val hint = TextView(this).apply { text = if (site != null) getString(R.string.bridge_capture_site_intro, site) else getString(R.string.bridge_amazon_capture_intro); setPadding(16, 0, 16, 8); textSize = 12f }
         web = WebView(this)
         // The page and, above it, the popups a sign-in opens ("Continue with Google").
