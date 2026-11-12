@@ -46,8 +46,8 @@ jobs:
           jq -c '.languages[]? | {showType, videoShowType, materials: [(.deviceMaterials // [])[] | (to_entries | map({key, value: (if (.value|type)=="string" then ("s"+(.value|length|tostring)) elif (.value|type)=="array" then ("array" + (.value|length|tostring)) else .value end)}) | from_entries)]}' <<<"$info" || true
           [ "$MODE" = "screenshots" ] || exit 0
 
-          # Only the languages the listing has; their screenshots shown upright (showType 0: portrait, 1: landscape,
-          # which stretched the 9:16 pictures sideways).
+          # Only the languages the listing has; their screenshots shown upright (showType 1, as the live listing has:
+          # portrait boxes; the old 20:9 pictures were squeezed into them and looked stretched).
           for lang in $(jq -r '.languages[]?.lang' <<<"$info"); do
             dir="docs/store/play/$lang/"
             [ -d "$dir" ] || { echo "::warning::$lang: no store screenshots in $dir"; continue; }
@@ -63,10 +63,10 @@ jobs:
               curl -sS --fail -X PUT "${hargs[@]}" --data-binary @"$f" "$url" -o /dev/null
               items=$(jq -c --arg n "$name" --arg o "$object" '. + [{fileName:$n, fileDestUrl:$o, imageResolution:"1080*1920"}]' <<<"$items")
             done
-            body=$(jq -n --arg l "$lang" --argjson f "$items" '{lang:$l, fileType:2, imageResolution:"1080*1920", showType:0, files:$f}')
+            body=$(jq -n --arg l "$lang" --argjson f "$items" '{lang:$l, fileType:2, imageResolution:"1080*1920", showType:1, files:$f}')
             res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$body" "$API/publish/v2/app-file-info?appId=$app")
             ok "$res" && echo "$lang: screenshots replaced ($(jq length <<<"$items"))" || echo "::warning::$lang: $(jq -c .ret <<<"$res")"
-            res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$(jq -n --arg l "$lang" '{lang:$l, showType:0}')" "$API/publish/v2/app-language-info?appId=$app")
+            res=$(curl -sS -X PUT "${H[@]}" -H 'Content-Type: application/json' -d "$(jq -n --arg l "$lang" '{lang:$l, showType:1}')" "$API/publish/v2/app-language-info?appId=$app")
             ok "$res" && echo "$lang: screenshots shown upright" || echo "::warning::$lang showType: $(jq -c .ret <<<"$res")"
           done
           after=$(curl -sS "${H[@]}" "$API/publish/v2/app-info?appId=$app&lang=en-US")
