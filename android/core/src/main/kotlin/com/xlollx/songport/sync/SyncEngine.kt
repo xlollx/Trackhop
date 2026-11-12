@@ -303,7 +303,7 @@ class SyncEngine(
      * the target takes the new name when it still carries the source's old one, i.e. the user has
      * not given it a name of their own; so does the sync, when it is named after the source. A
      * target renamed by the user keeps its name. A new cover is copied too, where the target takes
-     * covers (Spotify); a sync made before covers were followed only notes the current one, so a
+     * covers ([MusicProvider.canSetCover]); a sync made before covers were followed only notes the current one, so a
      * cover the user chose is not replaced until the source changes its own. Never fails the run.
      */
     private val SYSTEMIC_ADD_FAILURES = 5

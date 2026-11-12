@@ -127,9 +127,16 @@ interface MusicProvider {
     /** [current] as the playlist lists it now, [ordered] the same tracks in the wanted order (ids and item ids as listed). */
     suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {}
 
-    /** Mettere una copertina a una playlist propria: solo dove l'API lo permette (Spotify). */
+    /**
+     * Putting a picture on a playlist of one's own, where the service lets a client do it: Spotify
+     * (both routes), YouTube Music, SoundCloud, Jellyfin, Emby, Plex. Not TIDAL: its Open API keeps
+     * artwork uploads to TIDAL's own apps.
+     */
     val canSetCover: Boolean get() = false
-    /** [jpeg]: at most 256 KB, as Spotify wants it. */
+    /**
+     * [jpeg]: square, 360 to 640 px, at most 190 KB ([com.xlollx.songport.sync.Covers]), which every
+     * service above takes. A failure throws: the caller logs it and goes on, a cover never fails a sync.
+     */
     suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {}
 
     /** Rinominare ed eliminare le proprie playlist: dove l'API lo permette (Apple Music e Amazon no). */

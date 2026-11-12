@@ -55,7 +55,8 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     override val authorizeEndpoint = "https://login.tidal.com/authorize"
     override val tokenEndpoint = "https://auth.tidal.com/v1/oauth2/token"
     // collection.* for saved albums and followed artists (userCollectionAlbums, userCollectionArtists). TIDAL's dashboard leaves every
-    // scope off on a new app: the setup steps say which to tick.
+    // scope off on a new app: the setup steps say which to tick. No playlist covers: creating an artwork
+    // (POST /artworks, as tidal.com uploads one) takes w_usr, a scope TIDAL grants only to its own apps.
     override val scopes = "user.read playlists.read playlists.write search.read collection.read collection.write"
     override val apiAccept = "application/vnd.api+json"
     override val apiContentType = "application/vnd.api+json"

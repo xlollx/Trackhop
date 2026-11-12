@@ -420,5 +420,5 @@ class TestEnv : Env {
             override fun clear() = m.clear()
         }
     }
-    override fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray? = null
+    override fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray? = null
 }

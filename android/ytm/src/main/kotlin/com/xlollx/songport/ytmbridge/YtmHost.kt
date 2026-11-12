@@ -59,6 +59,13 @@ interface YtmWebTransport {
 
     /** POSTs [body] to [path] (relative to the origin); with [credentials] the browser sends the session's cookies. */
     fun post(path: String, body: String, headers: Map<String, String>, credentials: Boolean): Answer
+
+    /**
+     * Google's resumable upload of [bytes] to [path] with the session's cookies (start, then the bytes
+     * with "upload, finalize" at the address the start answered): the final answer. Null where this
+     * engine does not upload: plain HTTP is used instead.
+     */
+    fun upload(path: String, bytes: ByteArray, headers: Map<String, String>, contentType: String): Answer? = null
 }
 
 /** Google's "Sorry..." block: when it ends, how often it was seen, and Google's page (nothing secret). */

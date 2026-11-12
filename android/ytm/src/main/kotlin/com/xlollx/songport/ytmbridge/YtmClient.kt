@@ -625,6 +625,67 @@ class YtmClient(private val host: YtmHost) {
     }
 
     /**
+     * A playlist's own picture, set as the player's "Edit" sets it: the image goes up by Google's
+     * resumable upload to [THUMBNAIL_UPLOAD] (the page's address for it), which answers an encrypted
+     * blob id; `edit_playlist` then makes it the playlist's custom thumbnail, under the image key the
+     * playlist page names ([THUMBNAIL_KEY]). YouTube Music wants it square, at least 360 px.
+     */
+    fun setCover(playlistId: String, jpeg: ByteArray) {
+        val blob = uploadThumbnail(jpeg)
+        val resp = call(
+            "browse/edit_playlist",
+            mapOf("playlistId" to playlistId.removePrefix("VL"), "actions" to listOf(mapOf(
+                "action" to "ACTION_SET_CUSTOM_THUMBNAIL",
+                "addedCustomThumbnail" to mapOf(
+                    "imageKey" to mapOf("type" to "PLAYLIST_IMAGE_TYPE_CUSTOM_THUMBNAIL", "name" to THUMBNAIL_KEY),
+                    "playlistScottyEncryptedBlobId" to blob,
+                ),
+            ))),
+        )
+        checkStatus(resp)
+    }
+
+    /** The upload of [setCover]: through the browser engine where there is one, else plain HTTP; the blob id it answers. */
+    private fun uploadThumbnail(jpeg: ByteArray): String {
+        val ck = cookies()
+        val auth = linkedMapOf("Authorization" to YtmAuth.authorization(ck), "X-Goog-AuthUser" to "0")
+        channel?.let { auth["X-Goog-PageId"] = it }
+        SESSION_LANE.pace()
+        val web = host.web
+        val viaWeb = if (web?.usable() == true) runCatching { web.upload(THUMBNAIL_UPLOAD, jpeg, auth, UPLOAD_TYPE) }.getOrNull() else null
+        val (code, text) = viaWeb?.let { it.code to it.body } ?: uploadOverHttp(ck, jpeg, auth)
+        if (code !in 200..299) throw BridgeException("YouTube Music image upload: HTTP $code ${text.take(160)}".trim())
+        return runCatching { parseJson(text) }.getOrNull()["encryptedBlobId"].str
+            ?: throw BridgeException("YouTube Music image upload: no blob id in the answer")
+    }
+
+    private fun uploadOverHttp(ck: String, jpeg: ByteArray, auth: Map<String, String>): Pair<Int, String> {
+        val type = UPLOAD_TYPE.toMediaType()
+        fun request(url: String) = Request.Builder().url(url)
+            .apply { auth.forEach { (k, v) -> header(k, v) } }
+            .header("Cookie", ck)
+            .header("Origin", YtmAuth.ORIGIN)
+            .header("Referer", "${YtmAuth.ORIGIN}/")
+            .header("User-Agent", host.userAgent)
+        val start = request(YtmAuth.ORIGIN + THUMBNAIL_UPLOAD).post(ByteArray(0).toRequestBody(type))
+            .header("X-Goog-Upload-Command", "start")
+            .header("X-Goog-Upload-Protocol", "resumable")
+            .header("X-Goog-Upload-Header-Content-Length", jpeg.size.toString())
+            .build()
+        val at = http.newCall(start).execute().use { r ->
+            if (!r.isSuccessful) return r.code to (r.body?.string() ?: "")
+            r.header("X-Goog-Upload-URL")
+        } ?: throw BridgeException("YouTube Music image upload: no upload address")
+        // Only to the site itself: the address carries the session's cookies.
+        if (!at.startsWith(YtmAuth.ORIGIN + "/")) throw BridgeException("YouTube Music image upload: an upload address outside the site")
+        val upload = request(at).post(jpeg.toRequestBody(type))
+            .header("X-Goog-Upload-Command", "upload, finalize")
+            .header("X-Goog-Upload-Offset", "0")
+            .build()
+        return http.newCall(upload).execute().use { r -> r.code to (r.body?.string() ?: "") }
+    }
+
+    /**
      * Adds to a playlist, or likes for [LIKED]. Returns the liked ids whose answer says they went
      * somewhere other than Liked music (see [likeGoesElsewhere]): liked, but never listed there.
      */
@@ -776,6 +837,12 @@ class YtmClient(private val host: YtmHost) {
         // Same parameters as the songs filter with the type nibble set to videos (ytmusicapi: I -> Q).
         private const val VIDEOS_FILTER = "EgWKAQIQAWoMEA4QChADEAQQCRAF"
         private val JSON_TYPE = "application/json; charset=utf-8".toMediaType()
+        /** Where the playlist page uploads a playlist's picture (its image editor's `scottyUploadUrl`). */
+        const val THUMBNAIL_UPLOAD = "/playlist_image_upload/playlist_custom_thumbnail"
+        /** The image key the playlist page's editor names for a playlist's own picture. */
+        const val THUMBNAIL_KEY = "studio_square_thumbnail"
+        /** The type the player's upload requests carry, the image's bytes included. */
+        private const val UPLOAD_TYPE = "application/x-www-form-urlencoded;charset=utf-8"
         private val DURATION = Regex("^\\d{1,2}(:\\d{2}){1,2}$")
     }
 }

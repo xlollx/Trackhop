@@ -269,7 +269,9 @@ open class MemoryService(override val serviceId: String) : MusicProvider {
     val covers = ArrayList<Pair<String, ByteArray>>()
     var takesCovers = false
     override val canSetCover: Boolean get() = takesCovers
-    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) { covers += playlistId to jpeg }
+    /** Thrown by [setPlaylistCover] when set: a service that refuses the picture. */
+    var coverFailure: Exception? = null
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) { coverFailure?.let { throw it }; covers += playlistId to jpeg }
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = Playlist(playlistId, names[playlistId] ?: playlistId, imageUrl = coverUrls[playlistId])
     override val canCreatePlaylists: Boolean get() = true
     override suspend fun renamePlaylist(ctx: Env, playlistId: String, name: String) { names[playlistId] = name; renames += playlistId to name }

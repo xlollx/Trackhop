@@ -275,6 +275,23 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         api(ctx, "DELETE", "/Items/$playlistId")
     }
 
+    override val canSetCover: Boolean get() = true
+
+    /**
+     * The playlist's Primary image: the JPEG base64-encoded as the body, as Jellyfin's and Emby's
+     * image upload take it (`POST /Items/{id}/Images/Primary`). Both servers keep it to
+     * administrators: another account is refused, and the sync goes on without the cover.
+     */
+    override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) {
+        val t = creds(ctx)
+        val resp = Http.send(
+            "POST", "${apiRoot(t.extra["url"] ?: "")}/Items/$playlistId/Images/Primary",
+            headers(t.accessToken),
+            Http.jsonBody(java.util.Base64.getEncoder().encodeToString(jpeg), "image/jpeg"),
+        )
+        if (!resp.ok) throw ProviderException("$displayName: cover not set (HTTP ${resp.code}${if (resp.code == 403) ", an administrator account is needed" else ""})")
+    }
+
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (MusicProvider.isLibrary(playlistId)) {
             // Favourites work the same for songs, albums and artists.

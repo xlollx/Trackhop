@@ -48,8 +48,35 @@ object YtmWeb {
     fun post(ctx: Context, path: String, body: String, headers: Map<String, String>, credentials: Boolean, timeoutMs: Long = 40_000, slot: String = Slots.PRIMARY): Response =
         engine(slot).post(ctx, path, body, headers, credentials, timeoutMs)
 
+    /**
+     * Google's resumable upload of [bytes] to [path], as the player uploads a playlist's picture: a
+     * start that answers the upload's address (`X-Goog-Upload-URL`), then the bytes there with
+     * "upload, finalize". The final answer comes back. [headers] go with both requests.
+     */
+    fun upload(ctx: Context, path: String, bytes: ByteArray, headers: Map<String, String>, contentType: String, timeoutMs: Long = 60_000, slot: String = Slots.PRIMARY): Response =
+        engine(slot).run(ctx, timeoutMs) { id -> uploadScript(id, path, java.util.Base64.getEncoder().encodeToString(bytes), headers, contentType) }
+
     /** Drops the engine, for instance after a sign-out: the next call starts a fresh one. */
     fun reset(slot: String = Slots.PRIMARY) = engine(slot).reset()
+
+    /** The two requests of [upload], in the page; the address comes from the same origin, so the page may read its header. */
+    internal fun uploadScript(id: String, path: String, base64: String, headers: Map<String, String>, contentType: String): String = """
+        (function(){
+          var b = atob(${js(base64)}); var a = new Uint8Array(b.length);
+          for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+          var h = ${headersJs(headers)};
+          function hdr(extra){ var o = {}; for (var k in h) o[k] = h[k]; for (var k2 in extra) o[k2] = extra[k2]; o['Content-Type'] = ${js(contentType)}; return o; }
+          fetch(${js(path)}, {method: 'POST', credentials: 'include', body: '',
+              headers: hdr({'X-Goog-Upload-Command': 'start', 'X-Goog-Upload-Protocol': 'resumable', 'X-Goog-Upload-Header-Content-Length': String(a.length)})})
+            .then(function(r){
+              var u = r.headers.get('X-Goog-Upload-URL');
+              if (!u) { YtmWeb.fail(${js(id)}, 'no upload address (HTTP ' + r.status + ')'); return; }
+              return fetch(u, {method: 'POST', credentials: 'include', body: a, headers: hdr({'X-Goog-Upload-Command': 'upload, finalize', 'X-Goog-Upload-Offset': '0'})})
+                .then(function(r2){ return r2.text().then(function(t){ YtmWeb.done(${js(id)}, r2.status, t, String(r2.url || '')); }); });
+            })
+            .catch(function(e){ YtmWeb.fail(${js(id)}, String(e)); });
+        })();
+    """.trimIndent()
 
     private class Engine(private val slot: String) {
         private val session = Session.forSlot(slot)
@@ -62,18 +89,24 @@ object YtmWeb {
 
         fun usable(): Boolean = !broken
 
-        fun post(ctx: Context, path: String, body: String, headers: Map<String, String>, credentials: Boolean, timeoutMs: Long): Response {
+        fun post(ctx: Context, path: String, body: String, headers: Map<String, String>, credentials: Boolean, timeoutMs: Long): Response =
+            run(ctx, timeoutMs) { id ->
+                """
+                    (function(){
+                      fetch(${js(path)}, {method: 'POST', credentials: ${if (credentials) "'include'" else "'omit'"}, headers: ${headersJs(headers)}, body: ${js(body)}})
+                        .then(function(r){ return r.text().then(function(t){ YtmWeb.done(${js(id)}, r.status, t, String(r.url || '')); }); })
+                        .catch(function(e){ YtmWeb.fail(${js(id)}, String(e)); });
+                    })();
+                """.trimIndent()
+            }
+
+        /** Runs the script [make] writes for a request id in the page, and waits for its answer. */
+        fun run(ctx: Context, timeoutMs: Long, make: (String) -> String): Response {
             ensureStarted(ctx.applicationContext)
             val id = ids.getAndIncrement().toString()
             val future = CompletableFuture<Response>()
             pending[id] = future
-            val script = """
-                (function(){
-                  fetch(${js(path)}, {method: 'POST', credentials: ${if (credentials) "'include'" else "'omit'"}, headers: ${headersJs(headers)}, body: ${js(body)}})
-                    .then(function(r){ return r.text().then(function(t){ YtmWeb.done(${js(id)}, r.status, t, String(r.url || '')); }); })
-                    .catch(function(e){ YtmWeb.fail(${js(id)}, String(e)); });
-                })();
-            """.trimIndent()
+            val script = make(id)
             main.post { web?.evaluateJavascript(script, null) ?: future.completeExceptionally(IllegalStateException("no engine")) }
             try {
                 return future.get(timeoutMs, TimeUnit.MILLISECONDS)

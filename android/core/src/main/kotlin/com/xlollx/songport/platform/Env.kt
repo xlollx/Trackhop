@@ -36,10 +36,11 @@ interface Env {
     fun keyValues(name: String): KeyValues
 
     /**
-     * [raw] image bytes as a JPEG of at most [maxSide] px and [maxBytes] bytes, or null when the
-     * image can't be decoded or never fits.
+     * [raw] image bytes as a square JPEG (the centre of the image, as [com.xlollx.songport.sync.Covers.square]
+     * cuts it) of [minSide] to [maxSide] px and at most [maxBytes] bytes, or null when the image
+     * can't be decoded or never fits.
      */
-    fun shrinkJpeg(raw: ByteArray, maxSide: Int, maxBytes: Int): ByteArray?
+    fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray?
 
     /**
      * Who else to agree with before writing to a playlist: the user's own Trackhop server when the
