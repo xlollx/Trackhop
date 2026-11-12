@@ -205,10 +205,27 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         }
         // Jellyfin 10.8 does not fold accents: "energie" misses "Énergie". The title as written, then.
         // "Oxygene, Pt. 4" against "Oxygène (Part IV)" (#57): the bare title, the scoring picks the part.
-        val found = Matcher.searchByTitles(track) { find(it) }
+        var found = Matcher.searchByTitles(track) { find(it) }
+        // Nothing close by name: the library may name the piece another way than the source does (a
+        // title in another language, other punctuation), so the artist's own songs are scored too (#57).
+        if (track.artists.isNotEmpty() && found.none { Matcher.score(track, it) >= Matcher.DEFAULT_THRESHOLD }) {
+            val ids = found.mapTo(HashSet()) { it.id }
+            found = found + artistSongs(ctx, track.artists).filter { ids.add(it.id) }
+        }
         // The closest first: a search by the bare title brings every part of the piece, the right one may be the sixth.
         return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
     }
+
+    /** The songs of the library's artist named like the first of [artists]; none when there is no such artist or the server refuses. */
+    private suspend fun artistSongs(ctx: Env, artists: List<String>): List<Track> = try {
+        val name = artists.first().let { Matcher.primaryArtist(it) ?: it }.trim()
+        val want = Matcher.normalizeArtist(name)
+        val ids = api(ctx, "GET", "/Artists?UserId=${uid(ctx)}&searchTerm=${Http.enc(name)}&Limit=10")["Items"].arr
+            .filter { want.isNotEmpty() && Matcher.normalizeArtist(it["Name"].str ?: "") == want }.mapNotNull { it["Id"].str }
+        if (ids.isEmpty()) emptyList()
+        else api(ctx, "GET", "/Items?UserId=${uid(ctx)}&ArtistIds=${ids.joinToString(",")}&IncludeItemTypes=Audio&Recursive=true&Limit=$ARTIST_SONGS&Fields=ProviderIds")["Items"].arr
+            .mapNotNull { toTrack(it) }
+    } catch (e: ProviderException) { emptyList() }
 
     private fun toAlbum(i: JsonElement?): Track? {
         val id = i["Id"].str ?: return null
@@ -272,6 +289,8 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
 
     companion object {
         const val SERVICE = "jellyfin"
+        /** The most songs of one artist read when a title search found nothing close. */
+        private const val ARTIST_SONGS = 2000
         private const val LIBRARY_PAGE = 500
 
         /**

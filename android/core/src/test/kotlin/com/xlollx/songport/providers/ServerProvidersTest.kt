@@ -392,6 +392,66 @@ class FakeServerProvidersTest {
         assertNull(Matcher.best(src, found.filter { it.id != "oIV" }))
     }
 
+    /** #57, third round: a library with the parts of Magnetic Fields and Chronology, names-only search. */
+    private fun jellyfinJarre(chronology: String): (Req) -> Pair<Int, String> = { r ->
+        fun song(id: String, name: String, album: String, sec: Int) =
+            """{"Id":"$id","Name":"$name","Album":"$album","Artists":["Jean-Michel Jarre"],"RunTimeTicks":${sec * 10_000_000L}}"""
+        val magnetic = listOf(song("mf1", "Magnetic Fields, Part 1", "Magnetic Fields", 1079), song("mf2", "Magnetic Fields, Part 2", "Magnetic Fields", 325),
+            song("mf3", "Magnetic Fields III", "Essentials", 357), song("mf4", "Magnetic Fields, Part 4", "Magnetic Fields", 373))
+        val chrono = listOf(song("c2", "$chronology, Part 2", "Chronologie", 410), song("c4", "$chronology, Part 4", "Chronologie", 200))
+        when {
+            r.path == "/Users/AuthenticateByName" -> 200 to """{"AccessToken":"tok","User":{"Id":"u1"}}"""
+            r.path == "/Artists" -> 200 to if (r.query["searchTerm"]?.single() == "Jean-Michel Jarre") """{"Items":[{"Id":"jmj","Name":"Jean-Michel Jarre"}]}""" else """{"Items":[]}"""
+            r.path == "/Items" && r.query["ArtistIds"]?.single() == "jmj" -> 200 to """{"Items":[${(magnetic + chrono).joinToString(",")}]}"""
+            r.path == "/Items" -> 200 to when (val term = r.query["searchTerm"]?.single().orEmpty()) {
+                "magnetic fields" -> """{"Items":[${magnetic.joinToString(",")}]}"""
+                else -> """{"Items":[${chrono.filter { term.isNotEmpty() && term.lowercase() in it.lowercase() }.joinToString(",")}]}"""
+            }
+            else -> 404 to ""
+        }
+    }
+
+    @Test fun jellyfinTakesTheSamePartOverAnotherPartWrittenWithABareNumber() = runBlocking {
+        answer = jellyfinJarre("Chronology")
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Magnetic Fields, Pt. 2", artists = listOf("Jean-Michel Jarre"), album = "Les Chants Magnétiques / Magnetic Fields", durationMs = 357_000)
+        val found = p.search(ctx, src)
+        assertEquals("mf2", found.first().id)
+        assertEquals("mf2", Matcher.best(src, found)?.id)
+        // "Magnetic Fields III" is another part: not even the closest proposal.
+        assertTrue(Matcher.score(src, found.single { it.id == "mf3" }) < 0.45)
+    }
+
+    @Test fun jellyfinIsNeverAskedForTheRemaster() = runBlocking {
+        answer = jellyfinJarre("Chronology")
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Chronology, Pt. 4 - Remastered", artists = listOf("Jean-Michel Jarre"), album = "Chronology", durationMs = 200_000)
+        val found = p.search(ctx, src)
+        assertEquals("c4", found.first().id)
+        assertTrue(Matcher.score(src, found.first()) >= Matcher.REVIEW_THRESHOLD)
+        val asked = requests.filter { it.path == "/Items" }.mapNotNull { it.query["searchTerm"]?.single() }
+        assertEquals(listOf("chronology part 4", "Chronology, Pt. 4", "chronology"), asked)
+        // Found by name: the artist's songs are not read.
+        assertTrue(requests.none { it.path == "/Artists" })
+    }
+
+    @Test fun jellyfinScoresTheArtistsSongsWhenNoNameIsClose() = runBlocking {
+        // The library names the piece another way ("Chronologie"): no name search finds it.
+        answer = jellyfinJarre("Chronologie")
+        val p = JellyfinProvider()
+        p.login(ctx, url, "admin", "pw")
+        val src = Track(id = "s", title = "Chronology, Pt. 4 - Remastered", artists = listOf("Jean-Michel Jarre"), album = "Chronology", durationMs = 200_000)
+        val found = p.search(ctx, src)
+        assertEquals("c4", found.first().id)
+        assertEquals("c4", Matcher.best(src, found)?.id)
+        // Part 2 of the same piece is never taken for it.
+        assertNull(Matcher.best(src, found.filter { it.id != "c4" }))
+        // An artist the library does not have: the search ends with nothing, no error.
+        assertTrue(p.search(ctx, Track(id = "x", title = "Unknown Song", artists = listOf("Nobody"))).isEmpty())
+    }
+
     @Test fun jellyfinFindsInitialsWrittenWithoutDots() = runBlocking {
         answer = ::jellyfinNamesOnly
         val p = JellyfinProvider()

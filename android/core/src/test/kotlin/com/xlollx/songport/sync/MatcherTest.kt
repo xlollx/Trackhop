@@ -270,4 +270,99 @@ class VersionPenaltyTest {
         assertTrue(Matcher.score(t("Echoes, Part 4", "Pink Floyd"), t("Echoes, Part 5", "Pink Floyd")) < 0.7)
         assertTrue(Matcher.score(t("BWV 1048: 1. Allegro", "Bach"), t("BWV 1049: 1. Allegro", "Bach")) < 0.7)
     }
+
+    // #57, the reporter's third round (12/11).
+
+    private fun jarre(id: String, title: String, album: String, sec: Int) =
+        Track(id = id, title = title, artists = listOf("Jean-Michel Jarre"), album = album, durationMs = sec * 1000L)
+
+    /** The review offers a near miss as "Closest" from this score up (SyncEngine.HINT_THRESHOLD). */
+    private val hint = 0.45
+
+    @Test fun aBareTrailingNumberIsThePartWhenTheOtherTitleNamesOne() {
+        assertEquals("magnetic fields part 3", Matcher.asPart("magnetic fields iii", "magnetic fields part 2"))
+        assertEquals("oxygene part 4", Matcher.asPart("oxygene 4", "oxygene part 4"))
+        // Only against an explicit part of the same title, and never a word that is no numeral.
+        assertEquals("magnetic fields iii", Matcher.asPart("magnetic fields iii", "magnetic fields"))
+        assertEquals("rocky iii", Matcher.asPart("rocky iii", "oxygene part 2"))
+        assertEquals("song civil", Matcher.asPart("song civil", "song part 2"))
+        assertEquals("oxygene part 4", Matcher.asPart("oxygene part 4", "oxygene part 5"))
+        // Another part of the piece: never matched, never even the closest proposal.
+        val src = jarre("s", "Magnetic Fields, Pt. 2", "Les Chants Magnétiques / Magnetic Fields", 357)
+        val three = jarre("iii", "Magnetic Fields III", "Magnetic Fields", 357)
+        assertTrue(Matcher.score(src, three).toString(), Matcher.score(src, three) < hint)
+        assertTrue(Matcher.score(three, src) < hint)
+        assertNull(Matcher.bestScored(src, listOf(three), threshold = hint))
+        // Either way round, the same part written as a bare number is the same title.
+        assertTrue(Matcher.score(jarre("s", "Oxygene 4", "Oxygène", 254), jarre("c", "Oxygene (Part IV)", "Oxygene", 254)) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(jarre("s", "Oxygene, Pt. 4", "Oxygène", 254), jarre("c", "Oxygene 4", "Oxygene", 254)) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(jarre("s", "Oxygene, Pt. 4", "Oxygène", 254), jarre("c", "Oxygene V", "Oxygene", 254)) < hint)
+    }
+
+    @Test fun theSamePartIsTakenOverAnotherPartEvenWithAnotherLength() {
+        // Spotify's Part 2 lasts 5:57, the library's edition 5:25: the same piece, picked and checked.
+        val src = jarre("s", "Magnetic Fields, Pt. 2", "Les Chants Magnétiques / Magnetic Fields", 357)
+        val two = jarre("ii", "Magnetic Fields, Part 2", "Magnetic Fields", 325)
+        val three = jarre("iii", "Magnetic Fields III", "Magnetic Fields", 357)
+        val best = Matcher.bestScored(src, listOf(three, two), threshold = 0.0)!!
+        assertEquals("ii", best.track.id)
+        assertTrue(best.score.toString(), best.score >= MatchPolicy().acceptThreshold)
+        assertEquals("ii", Matcher.best(src, listOf(three, two))?.id)
+        // With the same length it is a sure match.
+        assertTrue(Matcher.score(src, two.copy(durationMs = 357_000)) >= Matcher.REVIEW_THRESHOLD)
+        // Another length still counts for titles without a part, and for another artist's piece.
+        assertTrue(Matcher.score(t("Song", "A", dur = 240_000), t("Song", "A", dur = 200_000)) < MatchPolicy().acceptThreshold)
+        assertTrue(Matcher.score(src, two.copy(artists = listOf("Someone Else"))) < MatchPolicy().acceptThreshold)
+    }
+
+    @Test fun anAlbumWithTwoNamesIsEitherOfThem() {
+        val both = "Les Chants Magnétiques / Magnetic Fields"
+        assertEquals(1.0, Matcher.albumFactor(both, "Magnetic Fields"), 0.0)
+        assertEquals(1.0, Matcher.albumFactor(both, "Les Chants Magnetiques"), 0.0)
+        assertEquals(1.0, Matcher.albumFactor("The Magnetic Fields", both), 0.0)
+        assertEquals(1.0, Matcher.albumFactor(both, "Magnetic Fields (Remastered)"), 0.0)
+        assertTrue(Matcher.albumFactor(both, "Oxygène") < 1.0)
+        // Only " / " with spaces splits: "AC/DC" is one name.
+        assertTrue(Matcher.albumFactor("AC/DC Live", "DC Talk") < 1.0)
+    }
+
+    @Test fun everyRemasterIsDroppedFromTheSearchAndEqualInTheScore() {
+        for (title in listOf(
+            "Chronology - Remastered", "Chronology - Remastered 2015", "Chronology (2014 Remaster)", "Chronology - 2015 Remaster",
+            "Chronology - Remaster", "Chronology - Digital Remaster", "Chronology - 2015 Digital Remaster", "Chronology - Digitally Remastered",
+            "Chronology - 24-Bit Remaster", "Chronology - Single Remaster", "Chronology - Remasterizado", "Chronology - Remasterizado 2015",
+            "Chronology - Versión Remasterizada", "Chronology - Remastérisé", "Chronology [Remastered 2009]", "Chronology (Remasterizado)",
+        )) {
+            assertEquals(title, "chronology", Matcher.searchTitle(title))
+            assertEquals(title, "Chronology", Matcher.plainTitle(title))
+            assertEquals(title, "Chronology", Matcher.bareTitle(title))
+            assertTrue(title, Matcher.score(t(title, "Jean-Michel Jarre", dur = 200_000), t("Chronology", "Jean-Michel Jarre", dur = 200_000)) >= Matcher.REVIEW_THRESHOLD)
+        }
+        // The reported title: no remaster and no part number in the bare search, the part kept in the score.
+        assertEquals(listOf("chronology part 4", "Chronology, Pt. 4", "chronology", "Chronology"), Matcher.titleTerms("Chronology, Pt. 4 - Remastered"))
+        assertTrue(Matcher.score(jarre("s", "Chronology, Pt. 4 - Remastered", "Chronology", 200), jarre("c", "Chronology, Part 4", "Chronology", 200)) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(jarre("s", "Chronology, Pt. 4 - Remastered", "Chronology", 200), jarre("c", "Chronology Part 4 (2015 Remaster)", "Chronology", 200)) >= Matcher.REVIEW_THRESHOLD)
+        assertTrue(Matcher.score(jarre("s", "Chronology, Pt. 4 - Remastered", "Chronology", 200), jarre("c", "Chronology, Part 5", "Chronology", 200)) < hint)
+    }
+
+    @Test fun aRemasterNeverMakesALiveDemoOrRemixTheStudioOne() {
+        val src = t("Wonderwall - Remastered", "Oasis", dur = 258_000)
+        for (other in listOf("Wonderwall - Live", "Wonderwall (Live at Knebworth) - Remastered", "Wonderwall - Demo", "Wonderwall - Demo / Remastered",
+            "Wonderwall (Remix)", "Wonderwall - Club Remix", "Wonderwall - Acoustic", "Wonderwall (Acoustic) - 2014 Remaster")) {
+            assertTrue(other, Matcher.score(src, t(other, "Oasis", dur = 258_000)) < MatchPolicy().acceptThreshold)
+        }
+        assertEquals("s", Matcher.best(src, listOf(Track(id = "l", title = "Wonderwall - Live", artists = listOf("Oasis"), durationMs = 258_000), Track(id = "s", title = "Wonderwall", artists = listOf("Oasis"), durationMs = 258_000)))?.id)
+        // A remix keeps its name in the search; only the remaster goes.
+        assertEquals("wonderwall club remix", Matcher.searchTitle("Wonderwall (Club Remix) - Remastered"))
+    }
+
+    @Test fun differentPartsStayApartEvenAsTheClosestProposal() {
+        // Part 4 is never Part 5, nor the near miss offered in the review.
+        val four = jarre("s", "Oxygene, Pt. 4", "Oxygène", 254)
+        assertTrue(Matcher.score(four, jarre("c", "Oxygene (Part V)", "Oxygene", 254)) < hint)
+        assertTrue(Matcher.score(four, jarre("c", "Oxygene, Part 5", "Oxygene", 254)) < hint)
+        assertNull(Matcher.best(four, listOf(jarre("c", "Oxygene (Part V)", "Oxygene", 254))))
+        // And the same part however written is the same title.
+        assertTrue(Matcher.score(four, jarre("c", "Oxygene (Part IV)", "Oxygene", 254)) >= Matcher.REVIEW_THRESHOLD)
+    }
 }

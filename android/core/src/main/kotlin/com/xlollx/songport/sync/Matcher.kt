@@ -23,7 +23,7 @@ object Matcher {
      * Raised whenever matching or searching changes so that a track missed before may be found now:
      * the misses remembered under another revision are searched again on the next run (#57).
      */
-    const val REVISION = 1
+    const val REVISION = 2
 
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
@@ -40,7 +40,7 @@ object Matcher {
     )
     private val FEAT_TAIL = Regex("""\s+([-–—]\s+)?(feat\.?|ft\.?|featuring|w/|prod\.?\s+by|prod\.)\s+.*$""", RegexOption.IGNORE_CASE)
     private val DASH_TAIL = Regex(
-        """\s*[-–—]\s*((\d{4}\s+)?remaster(ed)?.*|radio edit.*|single version.*|album version.*|live.*|mono.*|stereo.*|deluxe.*|bonus track.*|extended.*|original mix.*|rimasterizzat.*|versione\s.*|[^-–—]*\bversion|(from|de|dal)\s.*|\d{4}\s.*)$""",
+        """\s*[-–—]\s*(((\d{4}|digital(ly)?|single|new(ly)?|\d+[- ]?bit|versi[oó]n)\s+)*remast[eé]r.*|radio edit.*|single version.*|album version.*|live.*|mono.*|stereo.*|deluxe.*|bonus track.*|extended.*|original mix.*|rimasterizzat.*|versione\s.*|[^-–—]*\bversion|(from|de|dal)\s.*|\d{4}\s.*)$""",
         RegexOption.IGNORE_CASE,
     )
     private val ARTIST_TAIL = Regex("""\s+(feat\.?|ft\.?|featuring|vs\.?)\s+.*$""", RegexOption.IGNORE_CASE)
@@ -180,6 +180,28 @@ object Matcher {
         return all.values.toList()
     }
 
+    /** A numbered part in a normalised title ("part 4"), its stem before it. */
+    private val PART_N = Regex("""\bpart (\d+)\b""")
+    /** A title ending in a bare number, Arabic or Roman: "magnetic fields iii", "oxygene 4". */
+    private val TRAILING_N = Regex("""^(.+) (\d+|[ivxlc]+)$""")
+
+    /**
+     * [t] with its bare trailing number written as a part ("magnetic fields iii" → "magnetic fields
+     * part 3") when [other] names a part of the same title ("magnetic fields part 2"): the number
+     * then counts as the part, so another part stays another piece and the same part is the same
+     * title (#57). [t] as it is otherwise.
+     */
+    internal fun asPart(t: String, other: String): String {
+        if (PART_N.containsMatchIn(t)) return t
+        val p = PART_N.find(other) ?: return t
+        val m = TRAILING_N.matchEntire(t) ?: return t
+        if (m.groupValues[1] != other.substring(0, p.range.first).trim()) return t
+        val n = m.groupValues[2].toIntOrNull() ?: roman(m.groupValues[2]) ?: return t
+        return m.groupValues[1] + " part " + n
+    }
+
+    private fun partOf(t: String): String? = PART_N.find(t)?.groupValues?.get(1)
+
     /** The numbers in a normalised title, as words: two titles with different ones are different pieces. */
     private fun numbers(t: String): Set<String> = t.split(' ').filter { w -> w.isNotEmpty() && w.all { it.isDigit() } }.toSet()
 
@@ -291,15 +313,25 @@ object Matcher {
         if (s.isrc != null && c.isrc != null && s.isrc == c.isrc) return 1.0 * policyFactor(s.track, c.track, policy)
         // The same MusicBrainz recording (a tagged file on a personal server): exact, whatever the title says.
         if (s.track.mbids.isNotEmpty() && c.track.mbids.any { it in s.track.mbids }) return 1.0 * policyFactor(s.track, c.track, policy)
-        val title = similarity(s.title, c.title)
+        // "Magnetic Fields III" against "Magnetic Fields, Pt. 2": the bare number is the part (#57).
+        val st = asPart(s.title, c.title); val ct = asPart(c.title, s.title)
+        val title = similarity(st, ct)
         val artist = artistScoreN(s.artists, c.artists)
         val artistKnown = s.artists.isNotEmpty() && c.artists.isNotEmpty()
         val base = if (artistKnown) 0.6 * title + 0.4 * artist else 0.85 * title + 0.15 * artist
         // "Part 4" against "Part 5", "No. 1" against "No. 2": close titles, different pieces.
-        val na = numbers(s.title); val nb = numbers(c.title)
+        val na = numbers(st); val nb = numbers(ct)
         // A real conflict only: "1 5" against "1" (a range written two ways) is the same piece.
         val numberFactor = if (na.isNotEmpty() && nb.isNotEmpty() && !na.containsAll(nb) && !nb.containsAll(na)) 0.6 else 1.0
-        return base * numberFactor * durationFactor(s.track.durationMs, c.track.durationMs) * versionFactor(s.track.title, c.track.title) *
+        // Another part of the same piece is never the track, nor even proposed as the closest one.
+        val pa = partOf(st); val pb = partOf(ct)
+        val partFactor = if (pa != null && pb != null && pa != pb) 0.3 else 1.0
+        // The same part of the same title by the same artist: another edition of the piece, whose
+        // length often differs (a remaster, another fade). Checked, not refused (#57).
+        val duration = durationFactor(s.track.durationMs, c.track.durationMs).let { d ->
+            if (pa != null && pa == pb && st == ct && artist >= 0.9) max(d, 0.8) else d
+        }
+        return base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
     }
 
@@ -332,9 +364,15 @@ object Matcher {
         if (srcAlbum.isBlank() || candAlbum.isBlank()) return 1.0
         val a = normalizeTitle(srcAlbum)
         val b = normalizeTitle(candAlbum)
-        if (a.isEmpty() || b.isEmpty() || a == b || a.contains(b) || b.contains(a)) return 1.0
-        return if (policy.sameAlbum) 0.8 else 0.97
+        if (a.isEmpty() || b.isEmpty()) return 1.0
+        // "Les Chants Magnétiques / Magnetic Fields": one album under either of its names.
+        val sameAlbum = albumNames(srcAlbum, a).any { x -> albumNames(candAlbum, b).any { y -> x == y || x.contains(y) || y.contains(x) } }
+        return if (sameAlbum) 1.0 else if (policy.sameAlbum) 0.8 else 0.97
     }
+
+    /** An album's normalised name [n] and, for one written "A / B", each of its names. */
+    private fun albumNames(album: String, n: String): List<String> =
+        listOf(n) + album.split(" / ").takeIf { it.size > 1 }.orEmpty().map { normalizeTitle(it) }.filter { it.isNotEmpty() }
 
     fun best(src: Track, candidates: List<Track>, threshold: Double = DEFAULT_THRESHOLD, policy: MatchPolicy = MatchPolicy()): Track? =
         bestScored(src, candidates, threshold, policy)?.track
