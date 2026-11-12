@@ -722,6 +722,14 @@ private fun RunAllRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val scroll = rememberScrollState()
+        // Pinned, the pill (with its "?") slides to the middle of the window; back in the list it leads the row.
+        var boxW by remember { mutableIntStateOf(0) }
+        var pillW by remember { mutableIntStateOf(0) }
+        val sidePx = with(androidx.compose.ui.platform.LocalDensity.current) { LIST_SIDE.roundToPx() }
+        val shift by androidx.compose.animation.core.animateIntAsState(
+            if (pinned && boxW > 0 && pillW > 0) ((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) else 0, label = "runall-center",
+        )
+        LaunchedEffect(pinned) { if (pinned) scroll.animateScrollTo(0) }
         // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
         // row's own pixels fade (no colour is drawn), and only while there is something to scroll to:
         // pinned, the pill is alone and nothing is touched.
@@ -730,7 +738,7 @@ private fun RunAllRow(
         val rtl = LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
         // The scroller is only as wide as what it holds: pinned, a touch beside the pill reaches the card beneath.
         Box(
-            Modifier.weight(1f).then(
+            Modifier.weight(1f).onSizeChanged { boxW = it.width }.then(
                 if (fadeStart || fadeEnd) Modifier
                     .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
                     .drawWithContent {
@@ -753,11 +761,12 @@ private fun RunAllRow(
         ) {
             Row(
                 // The room above and below is inside the scroller, where the pill's shadow is drawn.
-                Modifier.horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
+                Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift else shift, 0) }
+                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (tally != null) Row(verticalAlignment = Alignment.CenterVertically) {
+                if (tally != null) Row(Modifier.onSizeChanged { pillW = it.width }, verticalAlignment = Alignment.CenterVertically) {
                     val runningCount = tally.total
                     val busy = runningCount > 0
                     androidx.compose.material3.Surface(
