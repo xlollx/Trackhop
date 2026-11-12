@@ -811,7 +811,8 @@ class StoreScreenshots {
         }
         // The screens under the tabs and the first run, for a design pass: carousel/old_<theme>_<what>.png.
         fun click(text: String) {
-            val can = compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasText(text))
+            // By its words, or by its name where the words are kept out of the semantics (the extended button of a tab).
+            val can = compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and (hasText(text) or androidx.compose.ui.test.hasContentDescription(text)))
             (if (can.fetchSemanticsNodes().isNotEmpty()) can else compose.onAllNodesWithText(text)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
             compose.waitForIdle()
         }
@@ -875,6 +876,14 @@ class StoreScreenshots {
             snap("old_${t}_tools_2")
             step("old tools 3") { swipe(1300) }
             snap("old_${t}_tools_3")
+            // Two of Tools' own pages.
+            for ((n, title) in listOf("4_export" to R.string.tools_export_title, "5_dedupe" to R.string.tools_dedupe_title)) {
+                open(tab(MainActivity.TAB_TOOLS), "old tools $n") {
+                    compose.onAllNodesWithText(s(title)).onFirst().performScrollTo()
+                    click(s(title)); Thread.sleep(1500)
+                }
+                snap("old_${t}_tools_$n")
+            }
             // The first run, page by page.
             store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
             open(tab(MainActivity.TAB_SYNCS), "old welcome") {
@@ -913,6 +922,10 @@ class StoreScreenshots {
         step("font") { shell("settings put system font_scale 1.5"); Thread.sleep(1500) }
         olderScreens("bigfont", full = false)
         step("font back") { shell("settings put system font_scale 1.0"); Thread.sleep(1500) }
+        // And on a narrow phone: 320 dp across, the font a little larger than usual.
+        step("narrow") { shell("wm density 540"); shell("settings put system font_scale 1.3"); Thread.sleep(3000) }
+        olderScreens("narrow", full = false)
+        step("narrow back") { shell("wm density reset"); shell("settings put system font_scale 1.0"); Thread.sleep(3000) }
         step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
         open(tab(MainActivity.TAB_SYNCS), "old review land") { toReview() }
         snap("old_land_review")
