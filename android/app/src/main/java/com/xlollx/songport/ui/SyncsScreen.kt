@@ -196,6 +196,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.xlollx.songport.sync.SyncFilter
+import com.xlollx.songport.sync.SyncSummary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
@@ -223,6 +224,11 @@ fun SyncsScreen(
     onIdea: (Idea) -> Unit = {},
     /** The "Did you know?" pill tapped: the widgets, shortcuts and automation page. */
     onTips: () -> Unit = {},
+    /**
+     * Find and filter, held by the caller: the search field is in the top bar (MainActivity), the chips
+     * and the status line here. Kept across rotation there; only in use from FIND_MIN_SYNCS syncs on.
+     */
+    filterState: androidx.compose.runtime.MutableState<SyncFilter> = rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) },
 ) {
     val ctx = LocalContext.current
     val running by SyncState.running.collectAsState()
@@ -230,8 +236,7 @@ fun SyncsScreen(
     val pausedSet by SyncState.paused.collectAsState()
     val parkedSet by SyncState.parked.collectAsState()
     val stoppingSet by SyncState.stopping.collectAsState()
-    // Find and filter: kept across rotation; only in use from FIND_MIN_SYNCS syncs on.
-    var filter by rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) }
+    var filter by filterState
     if (data.syncs.isEmpty()) {
         val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
         // With a service connected: what one service alone can do, a tap away, under the usual words.
@@ -382,20 +387,14 @@ fun SyncsScreen(
         starting = false
     }
     val pullOff = running.isNotEmpty() && !starting
-    // The search field: closed until the header's magnifier is tapped, open (with what was typed, kept in
-    // the filter) across a turn of the phone. Words typed are never hidden: the field shows while there are any.
-    var searchOpen by rememberSaveable { mutableStateOf(false) }
-    val searchShown = finder && (searchOpen || effective.query.isNotEmpty())
-    // The cursor goes in the field at a tap on the magnifier, not when the page is built again.
-    var searchFocus by remember { mutableStateOf(false) }
     // Cards or tiles: its button is at the end of the row of the pill.
     val viewToggle = data.syncs.size >= 2 || minimal
     // The row under the header: the pill (two syncs or more), the filter chips, the cards-or-tiles button.
     val runAllRow = data.syncs.isNotEmpty() || finder || viewToggle
     val filterLine = finder && effective.isActive
-    // The pill's place in the list: right after the hero (the search field is part of the hero's item).
+    // The pill's place in the list: right after the status line (the first item, still keyed "hero").
     val runAllIndex = 1
-    // Index of the first card: hero, the pill's row, the filter's line, then the support card and the
+    // Index of the first card: the status line, the pill's row, the filter's line, then the support card and the
     // crowded-schedule card when there are any. With the filter cleared, its line is not there.
     val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0)
     var pillHeight by remember { mutableIntStateOf(0) }
@@ -440,41 +439,35 @@ fun SyncsScreen(
             modifier = Modifier.fillMaxSize().nestedScroll(pullGuard),
             // The last card clears the bar and the floating button, and the keyboard while a search is typed.
             contentPadding = PaddingValues(
-                start = 16.dp, end = 16.dp, top = 8.dp,
+                start = 16.dp, end = 16.dp, top = 0.dp,
                 bottom = maxOf(100.dp + LocalBottomBarInset.current, WindowInsets.ime.asPaddingValues().calculateBottomPadding() + 16.dp),
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // The status line, where the tagline's card was; the list's first item still, under the same
+            // key, so every position after it (the pill's row, the first card) is what it was.
             item(key = "hero", span = wholeRow) {
                 val n = data.syncs.size
-                val last = if (lastRun > 0) " · " + stringResource(R.string.hero_last, formatDate(lastRun)) else ""
                 // "Your numbers" once a sync has completed: before that there is nothing to count.
                 val anyRun = data.reports.any { it.ok && !it.partial }
                 // A few syncs and one service: the ideas for it, small, under the header (in the same
                 // item, so the list's positions stay as they are), until closed.
                 val single = remember(n) { ServiceIdeas.connected(ctx).singleOrNull() }
                 var stripHidden by remember { mutableStateOf(ServiceIdeas.stripDismissed(ctx)) }
+                // How the syncs stand, by the tally of the running ones and the chips' own counts. A source
+                // seen changed since its sync's last run (the cards' "Changes to sync") is not "all up to date".
+                val tally = SyncState.tally(running.keys, pausedSet, parkedSet, stoppingSet)
+                val changed = data.syncs.any { it.enabled && FreshnessChecks.stateOf(it) == Freshness.State.CHANGED }
+                val summary = remember(data.syncs, data.reports, runningIds, tally, changed) { SyncSummary.of(data.syncs, data.reports, tally, runningIds, changed) }
+                // On already (alone): a second tap takes it off again.
+                val summaryShown = summary.filter.isNotEmpty() && filter == SyncFilter(statuses = summary.filter)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    HeroHeader(
-                        stringResource(R.string.hero_title), ctx.resources.getQuantityString(R.plurals.hero_jobs, n, n) + last,
-                        link = if (anyRun) stringResource(R.string.stats_hero_link) else null, onLink = onStats,
-                        // The search, at a tap on its magnifier: the field opens under the header, and closes
-                        // (its words dropped, so nothing stays hidden by them) at a second tap.
-                        action = if (finder) ({
-                            IconButton(
-                                onClick = {
-                                    if (searchShown) { searchOpen = false; filter = filter.copy(query = "") }
-                                    else { searchFocus = true; searchOpen = true }
-                                },
-                                colors = IconButtonDefaults.iconButtonColors(containerColor = if (searchShown) Color.White.copy(alpha = 0.22f) else Color.Transparent),
-                            ) {
-                                Icon(Icons.Filled.Search, stringResource(if (searchShown) R.string.syncs_find_close else R.string.syncs_find_hint), tint = Color.White)
-                            }
-                        }) else null,
+                    SyncStatusStrip(
+                        summary, n, lastRun, shown = summaryShown,
+                        onShow = { filter = if (summaryShown) SyncFilter() else SyncFilter(statuses = summary.filter) },
+                        onStats = if (anyRun) onStats else null,
                     )
-                    // In the same item as the header, so the list's positions stay as they are.
-                    if (searchShown) SyncFinderField(effective, focus = searchFocus, onFocused = { searchFocus = false }) { filter = it }
                     if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
                         ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
                     }

@@ -59,6 +59,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -115,38 +116,50 @@ val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
 )
 
 /**
- * The search field of the sync list: closed until the header's magnifier is tapped, then shown
- * under the header. [focus] puts the cursor in it (a tap on the magnifier; not a turn of the phone).
+ * The search of the sync list, a pill in the Syncs bar beside the mark: always there from
+ * [FIND_MIN_SYNCS] syncs on, saying how many it looks through ([total]). What is typed is the
+ * filter's query, so it survives a turn of the phone with the rest of the filter. It takes the width
+ * the bar's buttons leave, and its placeholder is cut short before anything else gives way.
  */
 @Composable
-fun SyncFinderField(filter: SyncFilter, focus: Boolean, onFocused: () -> Unit, onChange: (SyncFilter) -> Unit) {
+fun SyncSearchField(filter: SyncFilter, total: Int, modifier: Modifier = Modifier, onChange: (SyncFilter) -> Unit) {
     val keyboard = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
-    // Once: the field coming back into view as the list scrolls does not bring the keyboard up again.
-    LaunchedEffect(Unit) { if (focus) { runCatching { focusRequester.requestFocus() }; onFocused() } }
-    OutlinedTextField(
+    val name = stringResource(R.string.syncs_find_hint)
+    val style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
+    androidx.compose.foundation.text.BasicTextField(
         value = filter.query,
         onValueChange = { onChange(filter.copy(query = it)) },
-        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).focusRequester(focusRequester),
+        modifier = modifier.testTag(SYNC_SEARCH_TAG).semantics { contentDescription = name },
         singleLine = true,
-        shape = RoundedCornerShape(50),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        placeholder = { Text(stringResource(R.string.syncs_find_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        leadingIcon = { Icon(Icons.Filled.Search, null) },
-        trailingIcon = if (filter.query.isNotEmpty()) ({
-            IconButton(onClick = { onChange(filter.copy(query = "")) }) {
-                Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear))
-            }
-        }) else null,
+        textStyle = style,
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-        ),
+        decorationBox = { inner ->
+            Row(
+                Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .padding(start = 14.dp, end = if (filter.query.isNotEmpty()) 0.dp else 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Filled.Search, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.width(10.dp))
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                    if (filter.query.isEmpty()) Text(
+                        pluralStringResource(R.plurals.syncs_find_n, total, total), style = style,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                    inner()
+                }
+                if (filter.query.isNotEmpty()) IconButton(onClick = { onChange(filter.copy(query = "")) }) {
+                    Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        },
     )
 }
+
+/** The search field in the Syncs bar (for the UI tests). */
+const val SYNC_SEARCH_TAG = "sync-search"
 
 /**
  * The filter chips (starred, status, the services in use, the colours and tags in use), one after

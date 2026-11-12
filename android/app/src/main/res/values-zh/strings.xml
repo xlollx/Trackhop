@@ -729,7 +729,6 @@
     <string name="pill_changed">有待同步的更改</string>
     <string name="pill_last_run">%1$s运行</string>
     <string name="pill_just_ran">刚刚运行</string>
-    <string name="update_pill">更新</string>
     <string name="update_pill_desc">Trackhop 有新版本：点按即可更新</string>
     <string name="settings_update_check">检查更新</string>
     <string name="settings_update_check_summary">每天两次向 GitHub 查询是否有更新的 Trackhop，在顶部显示箭头，并为每个新版本发送一次通知；点按即可下载。如果应用由 F-Droid 或 Obtainium 安装则不检查：它们会自行更新。</string>
@@ -738,7 +737,6 @@
     <string name="pill_never">尚未运行</string>
     <string name="pill_running">正在同步</string>
     <string name="connected">已连接</string>
-    <string name="hero_title">你的歌单，随处可听</string>
     <plurals name="hero_jobs">
         <item quantity="other">已配置 %d 个同步</item>
     </plurals>
@@ -950,8 +948,18 @@
     <string name="shazam_share_hint_button">同步我的 Shazam</string>
     <string name="shazam_editor_suggest">你的 Shazam：%1$s</string>
     <string name="syncs_find_hint">查找同步</string>
+    <plurals name="syncs_find_n">
+        <item quantity="other">搜索 %d 个同步</item>
+    </plurals>
+    <string name="status_all_ok">全部已是最新</string>
+    <string name="status_last">上次 %1$s</string>
+    <plurals name="status_failed">
+        <item quantity="other">%d 个失败</item>
+    </plurals>
+    <plurals name="status_to_fix">
+        <item quantity="other">%d 个待处理</item>
+    </plurals>
     <string name="syncs_find_clear">清除搜索</string>
-    <string name="syncs_find_close">关闭搜索</string>
     <string name="filter_up_to_date">已同步</string>
     <string name="filter_needs_fix">待处理</string>
     <string name="filter_never_run">从未运行</string>
@@ -1851,7 +1859,6 @@
     <string name="settings_share_app_text">Trackhop 可在各音乐服务之间同步你的歌单：%1$s</string>
     <string name="settings_website">网站</string>
     <string name="support_row">支持 Trackhop</string>
-    <string name="support_pill">支持</string>
     <string name="support_choose_body">完全自愿：不会解锁任何内容，应用对所有人都是完整的。谢谢！</string>
     <string name="support_kofi_desc">一次性 · 银行卡或 PayPal · 无需账号</string>
     <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>

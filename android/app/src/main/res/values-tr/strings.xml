@@ -738,7 +738,6 @@
     <string name="pill_changed">Eşitlenecek değişiklik var</string>
     <string name="pill_last_run">%1$s çalıştı</string>
     <string name="pill_just_ran">Az önce çalıştı</string>
-    <string name="update_pill">Güncelle</string>
     <string name="update_pill_desc">Trackhop\'un yeni sürümü var: güncellemek için dokunun</string>
     <string name="settings_update_check">Güncellemeleri denetle</string>
     <string name="settings_update_check_summary">Günde iki kez GitHub\'a daha yeni bir Trackhop olup olmadığını sorar ve üstte bir ok gösterir, her yeni sürüm için bir kez de bildirim gönderir; dokunmak onu indirir. Uygulamayı F-Droid veya Obtainium yüklediyse yapılmaz: onlar kendileri günceller.</string>
@@ -747,7 +746,6 @@
     <string name="pill_never">Henüz çalışmadı</string>
     <string name="pill_running">Senkronize ediliyor</string>
     <string name="connected">Bağlı</string>
-    <string name="hero_title">Çalma listeleriniz, her yerde</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d senkronizasyon yapılandırıldı</item>
         <item quantity="other">%d senkronizasyon yapılandırıldı</item>
@@ -965,8 +963,21 @@
     <string name="shazam_share_hint_button">Shazam\'larımı eşitle</string>
     <string name="shazam_editor_suggest">Shazam\'larınız: %1$s</string>
     <string name="syncs_find_hint">Senkronizasyon bul</string>
+    <plurals name="syncs_find_n">
+        <item quantity="one">%d senkronizasyonda ara</item>
+        <item quantity="other">%d senkronizasyonda ara</item>
+    </plurals>
+    <string name="status_all_ok">Hepsi güncel</string>
+    <string name="status_last">son %1$s</string>
+    <plurals name="status_failed">
+        <item quantity="one">%d başarısız</item>
+        <item quantity="other">%d başarısız</item>
+    </plurals>
+    <plurals name="status_to_fix">
+        <item quantity="one">%d düzeltilecek</item>
+        <item quantity="other">%d düzeltilecek</item>
+    </plurals>
     <string name="syncs_find_clear">Aramayı temizle</string>
-    <string name="syncs_find_close">Aramayı kapat</string>
     <string name="filter_up_to_date">Güncel</string>
     <string name="filter_needs_fix">Düzeltilecek</string>
     <string name="filter_never_run">Hiç çalışmadı</string>
@@ -1880,7 +1891,6 @@
     <string name="settings_share_app_text">Trackhop çalma listelerini müzik servisleri arasında eşitler: %1$s</string>
     <string name="settings_website">Web sitesi</string>
     <string name="support_row">Trackhop\'u destekle</string>
-    <string name="support_pill">Destekle</string>
     <string name="support_choose_body">Tamamen isteğe bağlı: hiçbir şey açılmaz, uygulama herkes için eksiksiz kalır. Teşekkürler!</string>
     <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>

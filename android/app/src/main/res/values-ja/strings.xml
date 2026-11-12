@@ -729,7 +729,6 @@
     <string name="pill_changed">同期する変更あり</string>
     <string name="pill_last_run">%1$sに実行</string>
     <string name="pill_just_ran">たった今実行</string>
-    <string name="update_pill">更新</string>
     <string name="update_pill_desc">Trackhop の新しいバージョンがあります。タップして更新</string>
     <string name="settings_update_check">アップデートを確認</string>
     <string name="settings_update_check_summary">1 日 2 回、GitHub に新しい Trackhop があるかを確認し、上部に矢印を表示し、新しいバージョンごとに 1 回通知します。タップでダウンロードします。F-Droid や Obtainium でインストールした場合は確認しません（それらが更新します）。</string>
@@ -738,7 +737,6 @@
     <string name="pill_never">未実行</string>
     <string name="pill_running">同期中</string>
     <string name="connected">接続済み</string>
-    <string name="hero_title">あなたのプレイリストを、どこでも</string>
     <plurals name="hero_jobs">
         <item quantity="other">%d 件の同期を設定済み</item>
     </plurals>
@@ -950,8 +948,18 @@
     <string name="shazam_share_hint_button">Shazamの曲を同期</string>
     <string name="shazam_editor_suggest">あなたのShazam：%1$s</string>
     <string name="syncs_find_hint">同期を検索</string>
+    <plurals name="syncs_find_n">
+        <item quantity="other">%d 件の同期を検索</item>
+    </plurals>
+    <string name="status_all_ok">すべて最新の状態</string>
+    <string name="status_last">前回 %1$s</string>
+    <plurals name="status_failed">
+        <item quantity="other">失敗 %d 件</item>
+    </plurals>
+    <plurals name="status_to_fix">
+        <item quantity="other">要確認 %d 件</item>
+    </plurals>
     <string name="syncs_find_clear">検索をクリア</string>
-    <string name="syncs_find_close">検索を閉じる</string>
     <string name="filter_up_to_date">最新</string>
     <string name="filter_needs_fix">要確認</string>
     <string name="filter_never_run">未実行</string>
@@ -1851,7 +1859,6 @@
     <string name="settings_share_app_text">Trackhop は音楽サービス間でプレイリストを同期します: %1$s</string>
     <string name="settings_website">ウェブサイト</string>
     <string name="support_row">Trackhop を応援</string>
-    <string name="support_pill">応援する</string>
     <string name="support_choose_body">まったくの任意です。何かが解放されるわけではなく、アプリは誰でもすべての機能を使えます。ありがとうございます!</string>
     <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>

@@ -358,7 +358,7 @@ fun WhatsNewSheet(releases: List<WhatsNew.Release>, onClose: () -> Unit) {
     }
 }
 
-/** A compact [HeroHeader]: the mark's tile, the title (a heading for TalkBack) and one line under it. */
+/** A compact header on the beam: the mark's tile, the title (a heading for TalkBack) and one line under it. */
 @Composable
 private fun WhatsNewHeader(version: String) {
     Box(

@@ -105,6 +105,9 @@ import com.xlollx.songport.ui.Helps
 import com.xlollx.songport.ui.tourTarget
 import com.xlollx.songport.ui.AddTrackDialog
 import com.xlollx.songport.ui.AppTopBar
+import com.xlollx.songport.ui.pageBackdrop
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import com.xlollx.songport.ui.AppTheme
 import com.xlollx.songport.ui.BackAwareScreen
 import com.xlollx.songport.ui.TabContent
@@ -347,6 +350,8 @@ private fun MainScreen(
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    // The sync list's find and filter: its search field is in the top bar, the chips in the list. Kept across rotation.
+    val syncFilter = rememberSaveable(stateSaver = com.xlollx.songport.ui.SyncFilterSaver) { mutableStateOf(com.xlollx.songport.sync.SyncFilter()) }
     val snackbar = remember { SnackbarHostState() }
     val snackScope = rememberCoroutineScope()
     // What saving a sync does, from the editor or from a card's menu: stored, and its scheduled work
@@ -817,14 +822,28 @@ private fun MainScreen(
             // An open tool shows its own bar with the way back: no tab header above it.
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
-                // Syncs: the mark alone, so the update, support and "?" pills have room (owner, 12/11).
-                AppTopBar(if (tab == MainActivity.TAB_SYNCS) "" else stringResource(label), scrollBehavior = if (barSlides) barScroll else null) {
+                val onSyncs = tab == MainActivity.TAB_SYNCS
+                // Syncs: the mark, then the search of the list from FIND_MIN_SYNCS syncs on (also with fewer while
+                // the crowded-schedule card's "Show them" is on, as the chips), in the width the buttons leave.
+                val finder = onSyncs && data.syncs.isNotEmpty() && (data.syncs.size >= com.xlollx.songport.ui.FIND_MIN_SYNCS || syncFilter.value.ids.isNotEmpty())
+                AppTopBar(
+                    if (onSyncs) "" else stringResource(label), scrollBehavior = if (barSlides) barScroll else null,
+                    // Clear: the page's glow goes on behind the bar, with no edge under it.
+                    containerColor = Color.Transparent,
+                    beside = if (finder) ({
+                        // No wider than reads well in a wide window; in a narrow one it is what gives way.
+                        Box(Modifier.weight(1f).padding(end = 4.dp)) {
+                            com.xlollx.songport.ui.SyncSearchField(syncFilter.value, data.syncs.size, Modifier.widthIn(max = 520.dp).fillMaxWidth()) { syncFilter.value = it }
+                        }
+                    }) else null,
+                ) {
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {
-                            com.xlollx.songport.ui.UpdatePill()
-                            com.xlollx.songport.ui.CoffeePill()
-                            // The cards' "?" lives beside Sync all, in the list (owner, 12/11): the bar keeps the mark and two pills.
+                            // Round buttons, 48dp each at any width and font size: the update's arrow whenever there
+                            // is one, then the cup. The cards' "?" lives beside Sync all, in the list (owner, 12/11).
+                            com.xlollx.songport.ui.UpdateButton()
+                            com.xlollx.songport.ui.SupportButton()
                         }
                         MainActivity.TAB_ACCOUNTS -> {
                             val topics = listOfNotNull(
@@ -888,7 +907,9 @@ private fun MainScreen(
             // With the keyboard open the tab ends above it, so the field being typed in scrolls into view.
             // Not the sync list: its search field is at the top, and the cards go on under the keyboard
             // as they do under the glass bar (the list pads its own end to clear it).
-            Box(Modifier.fillMaxSize().hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
+            // The tab's glow, behind the bar and the page; not under an open tool, which has a bar of its own.
+            val backdrop = if ((tab == MainActivity.TAB_TOOLS && toolSubpage) || (tab == MainActivity.TAB_DISCOVER && discoverSubpage)) null else com.xlollx.songport.ui.PageBackdrop.of(tab)
+            Box(Modifier.fillMaxSize().pageBackdrop(backdrop).hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
             // A readable column in the middle of a wide window; the sync cards get room for two columns.
             TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(
@@ -930,6 +951,7 @@ private fun MainScreen(
                     onIdea = { openIdea(it) },
                     // Opening the page counts as seen: the pill does not come back.
                     onTips = { store.updateSettings { it.copy(tipsPillDismissed = true) }; tipsOpen = true },
+                    filterState = syncFilter,
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService)
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(

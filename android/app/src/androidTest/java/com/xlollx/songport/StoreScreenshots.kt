@@ -431,7 +431,7 @@ class StoreScreenshots {
             app.getSharedPreferences("app_updates", 0).edit().putString("name", "9.9.9")
                 .putString("url", "https://github.com/xlollx/Trackhop/releases/latest").putLong("checked", System.currentTimeMillis()).commit()
             tab(MainActivity.TAB_SYNCS) {
-                compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.update_pill)).fetchSemanticsNodes().isNotEmpty() }
+                compose.waitUntil(15_000) { compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.update_pill_desc))).fetchSemanticsNodes().isNotEmpty() }
                 snap("syncs_${theme}_update", 3000)
             }
         }

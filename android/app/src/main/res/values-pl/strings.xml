@@ -761,7 +761,6 @@
     <string name="pill_changed">Zmiany do synchronizacji</string>
     <string name="pill_last_run">Uruchomiona %1$s</string>
     <string name="pill_just_ran">Właśnie uruchomiona</string>
-    <string name="update_pill">Aktualizuj</string>
     <string name="update_pill_desc">Dostępna jest nowa wersja Trackhop: dotknij, aby zaktualizować</string>
     <string name="settings_update_check">Sprawdzaj aktualizacje</string>
     <string name="settings_update_check_summary">Dwa razy dziennie pyta GitHub, czy jest nowszy Trackhop, i pokazuje strzałkę u góry oraz powiadomienie raz na każdą nową wersję; dotknięcie go pobiera. Nie dzieje się, gdy aplikację zainstalował F-Droid lub Obtainium: one same ją aktualizują.</string>
@@ -770,7 +769,6 @@
     <string name="pill_never">Jeszcze nie uruchomiona</string>
     <string name="pill_running">Synchronizowanie</string>
     <string name="connected">Połączono</string>
-    <string name="hero_title">Twoje playlisty, wszędzie</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d skonfigurowana synchronizacja</item>
         <item quantity="few">%d skonfigurowane synchronizacje</item>
@@ -1003,8 +1001,27 @@
     <string name="shazam_share_hint_button">Synchronizuj moje Shazamy</string>
     <string name="shazam_editor_suggest">Twoje Shazamy: %1$s</string>
     <string name="syncs_find_hint">Znajdź synchronizację</string>
+    <plurals name="syncs_find_n">
+        <item quantity="one">Szukaj w %d synchronizacji</item>
+        <item quantity="few">Szukaj w %d synchronizacjach</item>
+        <item quantity="many">Szukaj w %d synchronizacjach</item>
+        <item quantity="other">Szukaj w %d synchronizacji</item>
+    </plurals>
+    <string name="status_all_ok">Wszystko aktualne</string>
+    <string name="status_last">ostatnia %1$s</string>
+    <plurals name="status_failed">
+        <item quantity="one">%d nieudana</item>
+        <item quantity="few">%d nieudane</item>
+        <item quantity="many">%d nieudanych</item>
+        <item quantity="other">%d nieudanej</item>
+    </plurals>
+    <plurals name="status_to_fix">
+        <item quantity="one">%d do poprawy</item>
+        <item quantity="few">%d do poprawy</item>
+        <item quantity="many">%d do poprawy</item>
+        <item quantity="other">%d do poprawy</item>
+    </plurals>
     <string name="syncs_find_clear">Wyczyść wyszukiwanie</string>
-    <string name="syncs_find_close">Zamknij wyszukiwanie</string>
     <string name="filter_up_to_date">Aktualne</string>
     <string name="filter_needs_fix">Do poprawy</string>
     <string name="filter_never_run">Nieuruchomione</string>
@@ -1946,7 +1963,6 @@
     <string name="settings_share_app_text">Trackhop synchronizuje Twoje playlisty między serwisami muzycznymi: %1$s</string>
     <string name="settings_website">Strona internetowa</string>
     <string name="support_row">Wesprzyj Trackhop</string>
-    <string name="support_pill">Wesprzyj</string>
     <string name="support_choose_body">Całkowicie dobrowolnie: nic się nie odblokowuje, aplikacja pozostaje kompletna dla wszystkich. Dziękuję!</string>
     <string name="support_kofi_desc">Jednorazowo · karta lub PayPal · bez konta</string>
     <string name="support_sponsors_desc">Co miesiąc lub jednorazowo · z kontem GitHub</string>

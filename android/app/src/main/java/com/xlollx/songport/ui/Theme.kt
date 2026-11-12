@@ -108,7 +108,7 @@ fun paintBeam(c: android.graphics.Canvas, w: Int, h: Int, edgeY: Float) {
     c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), sweep)
 }
 
-private val LightScheme = lightColorScheme(
+internal val LightScheme = lightColorScheme(
     primary = Color(0xFF5B3FD9),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFE6DEFF),
@@ -136,7 +136,7 @@ private val LightScheme = lightColorScheme(
     outlineVariant = Color(0xFFCBC4D1),
 )
 
-private val DarkScheme = darkColorScheme(
+internal val DarkScheme = darkColorScheme(
     primary = Color(0xFFC8BFFF),
     onPrimary = Color(0xFF2B0A9A),
     primaryContainer = Color(0xFF4327C0),

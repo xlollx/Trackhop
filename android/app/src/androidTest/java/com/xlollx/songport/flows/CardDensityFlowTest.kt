@@ -200,8 +200,8 @@ class CardDensityFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Sync number 1")
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitText(s(R.string.hero_title))
-        // The header is one slim row and the pill shares its row with the filter chips: on its side too,
+        waitNode("the status line on its side", androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SYNC_STATUS_TAG))
+        // The header is one line and the pill shares its row with the filter chips: on its side too,
         // a card shows whole under them before anything is scrolled.
         val teal = androidx.compose.ui.test.hasContentDescription(s(R.string.filter_color, s(R.string.color_teal)))
         val chips = { compose.onAllNodes(teal).fetchSemanticsNodes(atLeastOneRootRequired = false) }

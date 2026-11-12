@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.Upgrade
+import androidx.compose.material.icons.filled.LocalCafe
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +36,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -366,7 +369,7 @@ fun BrandMark(size: Dp = 28.dp, tint: Color = MaterialTheme.colorScheme.primary)
 /**
  * The mark in white on the glass tile of the icon and the store graphics: white at 18 % with a
  * faint lighter edge, corners at 0.24 of the side, the mark filling two thirds of it. For the
- * brand surfaces ([HeroHeader], onboarding, the stats card), on the beam.
+ * brand surfaces (onboarding, the stats card), on the beam.
  */
 @Composable
 fun BrandTile(size: Dp = 40.dp) {
@@ -385,6 +388,13 @@ fun AppTopBar(
     title: String, showBrand: Boolean = true,
     /** Set: the bar slides away as the page scrolls on and comes back as it scrolls back. */
     scrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior? = null,
+    /** The bar's own colour; clear on the main tabs, whose page's glow ([pageBackdrop]) goes on behind it. */
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    /**
+     * With a blank [title] (the Syncs tab): what follows the mark in the title's place, in the width the
+     * actions leave. The bar measures its actions first, so this is what gives way in a narrow window.
+     */
+    beside: (@Composable RowScope.() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
@@ -392,7 +402,13 @@ fun AppTopBar(
             // A blank title (the Syncs tab): the mark alone, a little larger, named for TalkBack.
             if (title.isBlank()) {
                 val name = androidx.compose.ui.res.stringResource(R.string.app_name)
-                Box(Modifier.semantics { contentDescription = name; heading() }) { BrandMark(30.dp) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.semantics { contentDescription = name; heading() }) { BrandMark(30.dp) }
+                    if (beside != null) {
+                        Spacer(Modifier.width(12.dp))
+                        beside()
+                    }
+                }
             } else Row(verticalAlignment = Alignment.CenterVertically) {
                 if (showBrand) {
                     BrandMark(26.dp)
@@ -402,68 +418,9 @@ fun AppTopBar(
             }
         },
         actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface, scrolledContainerColor = MaterialTheme.colorScheme.surface),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = containerColor, scrolledContainerColor = containerColor),
         scrollBehavior = scrollBehavior,
     )
-}
-
-/**
- * Intestazione sul fascio del brand: titolo, sottotitolo e una riga di azioni. The beam
- * ([brandBeam]) is the brand's whatever the colour scheme (Material You too): it is the one place
- * the identity lives. The band crosses the top-right corner; the text, white at full alpha, sits
- * on the dark side, where it reads above 7:1.
- */
-@Composable
-fun HeroHeader(
-    title: String, subtitle: String, link: String? = null, onLink: (() -> Unit)? = null,
-    /** Small buttons at the end of the row (white on the beam). */
-    action: (@Composable () -> Unit)? = null,
-) {
-    // Kept slim, so the syncs start high on the screen: one row with the title at the left, the link
-    // and the buttons at the right. Where the row is wide (a tablet, a phone on its side) the logo
-    // leads it and the subtitle sits under the title, inside the row's own height; on a phone upright
-    // the title may take the row's two lines, and the subtitle is one small line under it.
-    val wide = LocalWindowLayout.current.let { it.rail || it.short }
-    val hasLink = link != null && onLink != null
-    val subtitleText: @Composable (Modifier) -> Unit = { m ->
-        Text(
-            subtitle, color = Color.White.copy(alpha = 0.92f), style = MaterialTheme.typography.bodySmall,
-            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = m,
-        )
-    }
-    Box(
-        Modifier.fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .brandBeam()
-            .padding(start = 16.dp, end = if (action != null) 4.dp else if (hasLink) 8.dp else 12.dp, top = 4.dp, bottom = 4.dp),
-    ) {
-        Column {
-            Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                // The logo where there is room for it beside the title: not next to the link on a phone upright.
-                if (wide || !hasLink) {
-                    BrandTile(28.dp)
-                    Spacer(Modifier.width(10.dp))
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
-                        maxLines = if (wide) 1 else 2, overflow = TextOverflow.Ellipsis,
-                    )
-                    if (wide) subtitleText(Modifier)
-                }
-                if (hasLink) Row(
-                    Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(50))
-                        .clickable(role = Role.Button, onClick = onLink!!).padding(start = 8.dp, end = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(link!!, color = Color.White, style = MaterialTheme.typography.labelLarge, maxLines = 1)
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(18.dp))
-                }
-                action?.invoke()
-            }
-            if (!wide) subtitleText(Modifier.padding(end = 8.dp, bottom = 6.dp))
-        }
-    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -610,9 +567,12 @@ fun playlistDisplayName(playlistId: String?, name: String, provider: String? = n
  * latest release for the GitHub build, Google Play's for the Play build. A tap gets it from where
  * this build came from: the APK from GitHub, or Trackhop's page in the Play Store. Checked when the
  * bar shows and each time the app comes back (the GitHub check itself goes out at most twice a day).
+ *
+ * A round button, never wider than its 48dp: it is always in the bar while there is an update, at any
+ * width and font size, beside the cup; the search field is what gives way. The dot says "new" at a glance.
  */
 @Composable
-fun UpdatePill() {
+fun UpdateButton() {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val available by com.xlollx.songport.update.UpdateState.available.collectAsState()
     val scope = androidx.compose.runtime.rememberCoroutineScope()
@@ -621,47 +581,54 @@ fun UpdatePill() {
         onPauseOrDispose { check.cancel() }
     }
     if (available == null) return
-    val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.update_pill)
     val desc = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.update_pill_desc)
-    Box(
-        Modifier.padding(end = 4.dp).heightIn(min = 48.dp).clip(RoundedCornerShape(999.dp))
-            .clickable(onClickLabel = desc) { com.xlollx.songport.update.AppUpdates.open(ctx) }
-            .semantics { contentDescription = desc },
-        contentAlignment = Alignment.Center,
+    BarRoundButton(
+        desc, MaterialTheme.colorScheme.primaryContainer, Modifier.testTag(BAR_UPDATE_TAG),
+        onClick = { com.xlollx.songport.update.AppUpdates.open(ctx) },
     ) {
-        Row(
-            Modifier.clip(RoundedCornerShape(999.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(androidx.compose.material.icons.Icons.Filled.Upgrade, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            Spacer(Modifier.width(4.dp))
-            Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-        }
+        Icon(androidx.compose.material.icons.Icons.Filled.Upgrade, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+        // The dot, ringed in the bar's colour so it reads on the button's edge.
+        Box(
+            Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp).size(12.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface)
+                .padding(2.dp).clip(CircleShape).background(MaterialTheme.colorScheme.error),
+        )
     }
 }
 
 /**
- * A small warm "☕ Support" pill for the Syncs header (Ko-fi or GitHub Sponsors, in a sheet), as on the site: visible without shouting. Only
- * in the GitHub/F-Droid build: the Play build never points to payments outside Google Play.
+ * The warm cup in the Syncs bar: "Support Trackhop" (Ko-fi or GitHub Sponsors, in a sheet), as on the
+ * site: visible without shouting. The cup alone, named for TalkBack. Only in the GitHub/F-Droid
+ * build: the Play build never points to payments outside Google Play.
  */
 @Composable
-fun CoffeePill() {
+fun SupportButton() {
     if (com.xlollx.songport.BuildConfig.STORE_BUILD || (com.xlollx.songport.BuildConfig.KOFI_URL.isBlank() && com.xlollx.songport.BuildConfig.SPONSORS_URL.isBlank())) return
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val dark = LocalAppDark.current
-    val label = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_row)
+    BarRoundButton(
+        androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_row),
+        if (dark) Color(0xFF4A3410) else Color(0xFFFFE2A8), Modifier.testTag(BAR_SUPPORT_TAG), onClick = { openSupport(ctx) },
+    ) {
+        Icon(androidx.compose.material.icons.Icons.Filled.LocalCafe, null, Modifier.size(20.dp), tint = if (dark) Color(0xFFFFDF9E) else Color(0xFF4A2C00))
+    }
+}
+
+/** The update button and the cup in the Syncs bar (for the UI tests). */
+const val BAR_UPDATE_TAG = "bar-update"
+const val BAR_SUPPORT_TAG = "bar-support"
+
+/** A round button of the Syncs bar: a 40dp disc of [container] in a 48dp target, named [label] for TalkBack. */
+@Composable
+private fun BarRoundButton(label: String, container: Color, modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
     Box(
-        Modifier.padding(end = 4.dp).heightIn(min = 48.dp).clip(RoundedCornerShape(999.dp))
-            .clickable(onClickLabel = label) { openSupport(ctx) }
+        modifier.size(48.dp).clip(CircleShape)
+            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            "☕ " + androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.support_pill),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = if (dark) Color(0xFFFFDF9E) else Color(0xFF4A2C00),
-            modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (dark) Color(0xFF4A3410) else Color(0xFFFFE2A8)).padding(horizontal = 12.dp, vertical = 6.dp),
-        )
+        Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.matchParentSize().clip(CircleShape).background(container))
+            content()
+        }
     }
 }

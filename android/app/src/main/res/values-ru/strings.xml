@@ -760,7 +760,6 @@
     <string name="pill_changed">Есть изменения</string>
     <string name="pill_last_run">Запуск: %1$s</string>
     <string name="pill_just_ran">Только что</string>
-    <string name="update_pill">Обновить</string>
     <string name="update_pill_desc">Доступна новая версия Trackhop: нажмите, чтобы обновить</string>
     <string name="settings_update_check">Проверять обновления</string>
     <string name="settings_update_check_summary">Дважды в день спрашивает GitHub, есть ли новый Trackhop, и показывает стрелку вверху и уведомление один раз на каждую новую версию; нажатие скачивает его. Не выполняется, если приложение установлено через F-Droid или Obtainium: они обновляют его сами.</string>
@@ -769,7 +768,6 @@
     <string name="pill_never">Ещё не запускалась</string>
     <string name="pill_running">Синхронизация</string>
     <string name="connected">Подключено</string>
-    <string name="hero_title">Ваши плейлисты — везде</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d синхронизация настроена</item>
         <item quantity="few">%d синхронизации настроены</item>
@@ -1001,8 +999,27 @@
     <string name="shazam_share_hint_button">Синхронизировать мои Shazam</string>
     <string name="shazam_editor_suggest">Ваши Shazam: %1$s</string>
     <string name="syncs_find_hint">Найти синхронизацию</string>
+    <plurals name="syncs_find_n">
+        <item quantity="one">Поиск по %d синхронизации</item>
+        <item quantity="few">Поиск по %d синхронизациям</item>
+        <item quantity="many">Поиск по %d синхронизациям</item>
+        <item quantity="other">Поиск по %d синхронизации</item>
+    </plurals>
+    <string name="status_all_ok">Всё актуально</string>
+    <string name="status_last">последняя %1$s</string>
+    <plurals name="status_failed">
+        <item quantity="one">%d с ошибкой</item>
+        <item quantity="few">%d с ошибкой</item>
+        <item quantity="many">%d с ошибкой</item>
+        <item quantity="other">%d с ошибкой</item>
+    </plurals>
+    <plurals name="status_to_fix">
+        <item quantity="one">%d требует внимания</item>
+        <item quantity="few">%d требуют внимания</item>
+        <item quantity="many">%d требуют внимания</item>
+        <item quantity="other">%d требует внимания</item>
+    </plurals>
     <string name="syncs_find_clear">Очистить поиск</string>
-    <string name="syncs_find_close">Закрыть поиск</string>
     <string name="filter_up_to_date">Актуальные</string>
     <string name="filter_needs_fix">Требуют внимания</string>
     <string name="filter_never_run">Не запускались</string>
@@ -1944,7 +1961,6 @@
     <string name="settings_share_app_text">Trackhop синхронизирует ваши плейлисты между музыкальными сервисами: %1$s</string>
     <string name="settings_website">Сайт</string>
     <string name="support_row">Поддержать Trackhop</string>
-    <string name="support_pill">Поддержать</string>
     <string name="support_choose_body">Совершенно необязательно: ничего не открывается, приложение остаётся полным для всех. Спасибо!</string>
     <string name="support_kofi_desc">Разово · карта или PayPal · без аккаунта</string>
     <string name="support_sponsors_desc">Ежемесячно или разово · нужен аккаунт GitHub</string>
