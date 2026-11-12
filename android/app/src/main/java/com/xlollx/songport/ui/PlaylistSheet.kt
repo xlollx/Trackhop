@@ -52,6 +52,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -183,8 +184,16 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
         onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         dragHandle = if (short) null else ({ androidx.compose.material3.BottomSheetDefaults.DragHandle() }),
     ) {
+        // A long list ending its scroll at the top must not go on to drag the sheet down (it jumped and
+        // snapped back, owner 12/11): the list keeps what it does not use. The handle still drags it.
+        val keepScroll = remember {
+            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+                override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource) = available
+                override suspend fun onPostFling(consumed: androidx.compose.ui.unit.Velocity, available: androidx.compose.ui.unit.Velocity) = available
+            }
+        }
         Column(
-            Modifier.fillMaxWidth().then(if (tall) Modifier.fillMaxHeight(if (short) 1f else 0.92f) else Modifier).padding(top = if (short) 12.dp else 0.dp, bottom = 8.dp),
+            Modifier.fillMaxWidth().then(if (tall) Modifier.fillMaxHeight(if (short) 1f else 0.92f).nestedScroll(keepScroll) else Modifier).padding(top = if (short) 12.dp else 0.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp),
         ) {
             Text(title, style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp).semantics { heading() })
