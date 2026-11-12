@@ -37,6 +37,7 @@ internal object ServerListening {
                     Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
                     Listening.Source.PLEX, Listening.Source.LYRION -> p is PlayCounts
                     Listening.Source.YTM -> p.supportsRecent
+                    Listening.Source.APPLE -> p is com.xlollx.songport.providers.AppleMusicProvider && p.supportsRecent
                 }
             }?.let { s to it }
         }
@@ -75,6 +76,7 @@ internal object ServerListening {
         }
         Listening.Source.SPOTIFY_WEB -> (p as SpotifyWebServerProvider).listening(env, period)
         Listening.Source.DEEZER -> (p as DeezerProvider).listening(env)
+        Listening.Source.APPLE -> (p as com.xlollx.songport.providers.AppleMusicProvider).listening(env, period)
         Listening.Source.TIDAL -> (p as TidalProvider).listening(env, period)
         Listening.Source.SUBSONIC, Listening.Source.JELLYFIN, Listening.Source.EMBY,
         Listening.Source.PLEX, Listening.Source.LYRION -> Listening.fromCounts((p as PlayCounts).topPlays(env))
