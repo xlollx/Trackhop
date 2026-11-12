@@ -13,4 +13,5 @@
     <string name="provider_note_soundcloud_account">SoundCloud über ein Connector-Plugin, das die SoundCloud-Anmeldung verwaltet: deine Sets und gelikten Titel als Quellen und Ziele.</string>
     <string name="setlists_browse">setlist.fm durchsuchen</string>
     <string name="setlists_browse_need_plugin">Zum Durchsuchen von setlist.fm braucht es eine neuere Version des Verbindungs-Plugins: aktualisiere es und versuche es erneut.</string>
+    <string name="setup_why_deezer">Deezer lässt keine neuen Entwickler-Apps mehr anlegen. Hast du schon eine, nutze hier ihre Application ID: Sie funktioniert weiter. Sonst funktioniert die Option Deezer (plugin) ohne App, über ein Connector-Plugin, das du bereits hast. Die https-Weiterleitungsseite stellt das Projekt bereit.</string>
 </resources>

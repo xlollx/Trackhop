@@ -131,7 +131,7 @@
     <string name="report_issue">Report on GitHub</string>
     <string name="provider_note_youtube">Official YouTube Data API with a Google Cloud project of your own. Daily quota is limited: large syncs may take several days.</string>
     <string name="provider_note_tidal">TIDAL playlists.</string>
-    <string name="provider_note_deezer">Deezer playlists and favourites (beta).</string>
+    <string name="provider_note_deezer">Deezer playlists and favourites (beta), with a Deezer developer app you already have: Deezer no longer accepts new ones.</string>
 
     <string name="log_empty">No sync has run yet.</string>
     <string name="log_unmatched_title">Tracks not found on the target</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify requires an app registered in your name. It is free; an app in Development Mode serves up to 5 accounts, plenty for personal use.</string>
     <string name="setup_why_youtube">Google requires a Cloud project in your name to use the YouTube API. It is free and the daily quota is yours alone.</string>
     <string name="setup_why_tidal">TIDAL requires an app registered in your name. It is free.</string>
-    <string name="setup_why_deezer">Deezer needs an app registered in your name. The https redirect page is provided by the project.</string>
+    <string name="setup_why_deezer">Deezer no longer lets anyone create a new developer app. If you already have one, use its application ID here: it still works. If you don\'t, add the Deezer (web) connector instead: it needs no app. The https redirect page is provided by the project.</string>
     <string name="setup_why_apple">The developer token belongs to your Apple Developer account and expires after six months at most.</string>
     <string name="error_dev_mode_limit">%1$s only allows a handful of users per app. Set up your own credentials: it is free and takes about two minutes.</string>
     <string name="error_network">the phone could not reach the service (DNS failed). Check the connection, any VPN or private DNS, and that Trackhop is allowed to use data in the background, then try again.</string>
@@ -531,6 +531,11 @@
     <string name="login_url">Server address</string>
     <string name="login_user">Username</string>
     <string name="login_password">Password</string>
+    <string name="login_apikey">API key</string>
+    <string name="login_apikey_hint">An API key made on your server (OpenSubsonic servers that offer it), in place of your username and password.</string>
+    <string name="subsonic_apikey_unsupported">This server does not offer sign-in with an API key. Use your username and password.</string>
+    <string name="subsonic_apikey_invalid">The server does not accept this API key. Check it, or make a new one on the server.</string>
+    <string name="subsonic_apikey_needed">This server does not accept passwords from apps. Choose API key and use a key made on the server.</string>
     <string name="login_token">Token</string>
     <string name="login_submit">Check and save</string>
     <string name="login_checking">Checking…</string>
@@ -651,7 +656,8 @@
     <string name="restored_done">%1$d tracks restored</string>
     <string name="restored_note">%1$d removed tracks were restored by hand.</string>
     <string name="quota_used">%1$s / %2$s YouTube units used today</string>
-    <string name="quota_note">Daily limit set by YouTube (Google), not by Trackhop. Resets at midnight Pacific time. A search costs 100 units, adding a track 50.</string>
+    <string name="quota_searches_used">%1$s / %2$s YouTube searches used today</string>
+    <string name="quota_note">Daily limits set by YouTube (Google), not by Trackhop. Reset at midnight Pacific time. Searches have their own limit of 100 a day; adding a track costs 50 units.</string>
     <string name="quota_note_shared">Daily limit set by YouTube (Google), not by Trackhop, shared by everyone using the built-in key: what other users consume is not counted here. Your own credentials give you a quota of your own.</string>
     <string name="quota_estimate">This sync will use about %1$s units.</string>
     <string name="quota_estimate_over">This sync needs about %1$s units, but only %2$s remain today: it will finish over the next days.</string>
@@ -716,8 +722,8 @@
         <item>Copy the Client ID here. The Client secret is not needed.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Sign in at developers.deezer.com with your Deezer account and open "My Apps".</item>
-        <item>Press "Create a new Application". Name and description are up to you.</item>
+        <item>Only with a Deezer app you already have: sign in at developers.deezer.com with your Deezer account and open \"My Apps\".</item>
+        <item>Open your application. Deezer no longer lets anyone create a new one.</item>
         <item>Deezer only accepts https redirects. A ready-made redirect page is already filled in below: paste that address both in "Application domain" (without https://) and in "Redirect URL after authentication".</item>
         <item>Save, then copy the "Application ID" here.</item>
     </string-array>
@@ -1165,7 +1171,7 @@
     <string name="help_uncertain_title">Uncertain matches</string>
     <string name="help_uncertain_body">Matches Trackhop is not sure about. Tap Looks right to keep one, or Change to pick another track: either way it is remembered. The ones you leave here are asked about again in the review after the run.</string>
     <string name="help_quota_title">YouTube units</string>
-    <string name="help_quota_body">YouTube allows a fixed number of units per day: a search costs 100 and adding a track 50. The count resets at midnight Pacific time. A large first sync can take several days, and it carries on by itself.</string>
+    <string name="help_quota_body">YouTube allows 100 searches a day, counted on their own, and a fixed number of units for everything else: adding a track costs 50. Both reset at midnight Pacific time. A large first sync can take several days, and it carries on by itself.</string>
     <string name="help_review_title">Fixing tracks</string>
     <string name="help_change_body">Replaces the track Trackhop chose with the one you pick: the wrong one is removed from the target where the service allows it, and your choice is remembered for later runs.</string>
     <string name="help_proposal_body">The closest track found, but not close enough to add by itself: tap Add if it is right. Tracks not found are searched again after a week; open one to search now.</string>

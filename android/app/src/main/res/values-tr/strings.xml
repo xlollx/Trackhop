@@ -131,7 +131,7 @@
     <string name="report_issue">GitHub\'da bildir</string>
     <string name="provider_note_youtube">Kendi Google Cloud projenizle resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
     <string name="provider_note_tidal">TIDAL çalma listeleri.</string>
-    <string name="provider_note_deezer">Deezer çalma listeleri ve favoriler (beta).</string>
+    <string name="provider_note_deezer">Deezer çalma listeleri ve favorileri (beta), zaten sahip olduğunuz bir Deezer geliştirici uygulamasıyla: Deezer artık yenilerini kabul etmiyor.</string>
 
     <string name="log_empty">Henüz hiçbir senkronizasyon çalışmadı.</string>
     <string name="log_unmatched_title">Hedefte bulunamayan parçalar</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify, sizin adınıza kayıtlı bir uygulama gerektirir. Ücretsizdir; Development Mode\'daki bir uygulama 5 hesaba kadar hizmet verir, kişisel kullanım için fazlasıyla yeterli.</string>
     <string name="setup_why_youtube">Google, YouTube API\'sini kullanmak için sizin adınıza bir Cloud projesi gerektirir. Ücretsizdir ve günlük kota yalnızca size aittir.</string>
     <string name="setup_why_tidal">TIDAL, sizin adınıza kayıtlı bir uygulama gerektirir. Ücretsizdir.</string>
-    <string name="setup_why_deezer">Deezer, sizin adınıza kayıtlı bir uygulama gerektirir. https yönlendirme sayfası proje tarafından sağlanır.</string>
+    <string name="setup_why_deezer">Deezer artık yeni geliştirici uygulaması oluşturmaya izin vermiyor. Zaten bir uygulamanız varsa Application ID\'sini burada kullanın: çalışmaya devam eder. Yoksa bunun yerine Deezer (web) bağlayıcısını ekleyin: uygulama gerektirmez. https yönlendirme sayfasını proje sağlar.</string>
     <string name="setup_why_apple">Geliştirici jetonu Apple Developer hesabınıza aittir ve en fazla altı ay sonra süresi dolar.</string>
     <string name="error_dev_mode_limit">%1$s uygulama başına yalnızca birkaç kullanıcıya izin veriyor. Kendi kimlik bilgilerinizi ayarlayın: ücretsizdir ve yaklaşık iki dakika sürer.</string>
     <string name="error_network">telefon servise ulaşamadı (DNS başarısız). Bağlantıyı, varsa VPN veya özel DNS\'i ve Trackhop\'un arka planda veri kullanmasına izin verildiğini kontrol edip tekrar deneyin.</string>
@@ -531,6 +531,11 @@
     <string name="login_url">Sunucu adresi</string>
     <string name="login_user">Kullanıcı adı</string>
     <string name="login_password">Şifre</string>
+    <string name="login_apikey">API anahtarı</string>
+    <string name="login_apikey_hint">Kullanıcı adı ve parola yerine sunucunuzda oluşturulan bir API anahtarı (bunu sunan OpenSubsonic sunucuları).</string>
+    <string name="subsonic_apikey_unsupported">Bu sunucu API anahtarıyla oturum açmayı sunmuyor. Kullanıcı adınızı ve parolanızı kullanın.</string>
+    <string name="subsonic_apikey_invalid">Sunucu bu API anahtarını kabul etmiyor. Anahtarı kontrol edin veya sunucuda yeni bir tane oluşturun.</string>
+    <string name="subsonic_apikey_needed">Bu sunucu uygulamalardan gelen parolaları kabul etmiyor. API anahtarı seçeneğini seçin ve sunucuda oluşturulan bir anahtar kullanın.</string>
     <string name="login_token">Jeton</string>
     <string name="login_submit">Kontrol et ve kaydet</string>
     <string name="login_checking">Kontrol ediliyor…</string>
@@ -651,7 +656,8 @@
     <string name="restored_done">%1$d parça geri yüklendi</string>
     <string name="restored_note">Kaldırılan %1$d parça elle geri yüklendi.</string>
     <string name="quota_used">Bugün %1$s / %2$s YouTube birimi kullanıldı</string>
-    <string name="quota_note">Günlük sınırı YouTube (Google) belirler, Trackhop değil. Pasifik saatiyle gece yarısı sıfırlanır. Bir arama 100 birim, bir parça ekleme 50 birim harcar.</string>
+    <string name="quota_searches_used">Bugün %1$s / %2$s YouTube araması kullanıldı</string>
+    <string name="quota_note">Günlük sınırları YouTube (Google) belirler, Trackhop değil. Pasifik saatiyle gece yarısı sıfırlanır. Aramaların günde 100 olan ayrı bir sınırı var; bir parça eklemek 50 birim harcar.</string>
     <string name="quota_note_shared">Günlük sınırı YouTube (Google) belirler, Trackhop değil; yerleşik anahtarı kullanan herkesle paylaşılır: diğer kullanıcıların harcadığı burada sayılmaz. Kendi kimlik bilgileriniz size ait bir kota sağlar.</string>
     <string name="quota_estimate">Bu senkronizasyon yaklaşık %1$s birim kullanacak.</string>
     <string name="quota_estimate_over">Bu senkronizasyon yaklaşık %1$s birim gerektiriyor ama bugün yalnızca %2$s kaldı: önümüzdeki günlerde tamamlanacak.</string>
@@ -716,8 +722,8 @@
         <item>Client ID değerini buraya kopyalayın. Client secret gerekmez.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>developers.deezer.com adresinde Deezer hesabınızla oturum açın ve \"My Apps\" bölümünü açın.</item>
-        <item>\"Create a new Application\" düğmesine basın. Ad ve açıklama size kalmış.</item>
+        <item>Yalnızca zaten sahip olduğunuz bir Deezer uygulamasıyla: developers.deezer.com adresinde Deezer hesabınızla oturum açın ve \"My Apps\" bölümünü açın.</item>
+        <item>Uygulamanızı açın. Deezer artık yeni uygulama oluşturmaya izin vermiyor.</item>
         <item>Deezer yalnızca https yönlendirmelerini kabul eder. Hazır bir yönlendirme sayfası aşağıda zaten dolu: o adresi hem \"Application domain\" (https:// olmadan) hem de \"Redirect URL after authentication\" alanına yapıştırın.</item>
         <item>Kaydedin, sonra \"Application ID\" değerini buraya kopyalayın.</item>
     </string-array>
@@ -1163,7 +1169,7 @@
     <string name="help_uncertain_title">Belirsiz eşleşmeler</string>
     <string name="help_uncertain_body">Trackhop\'un emin olmadığı eşleşmeler. Birini tutmak için Doğru görünüyor\'a, başka bir parça seçmek için Değiştir\'e dokunun: her iki durumda da hatırlanır. Burada bıraktıklarınız çalıştırmadan sonra incelemede yeniden sorulur.</string>
     <string name="help_quota_title">YouTube birimleri</string>
-    <string name="help_quota_body">YouTube günde sabit sayıda birim verir: bir arama 100, bir parça eklemek 50 birim tutar. Sayaç Pasifik saatiyle gece yarısı sıfırlanır. Büyük bir ilk senkronizasyon birkaç gün sürebilir ve kendi kendine devam eder.</string>
+    <string name="help_quota_body">YouTube günde ayrı sayılan 100 aramaya ve geri kalan her şey için sabit sayıda birime izin verir: bir parça eklemek 50 birim tutar. İkisi de Pasifik saatiyle gece yarısı sıfırlanır. Büyük bir ilk senkronizasyon birkaç gün sürebilir ve kendi kendine devam eder.</string>
     <string name="help_review_title">Parçaları düzeltme</string>
     <string name="help_change_body">Trackhop\'un seçtiği parçayı sizin seçtiğinizle değiştirir: servis izin veriyorsa yanlış olan hedeften kaldırılır ve seçiminiz sonraki çalıştırmalar için hatırlanır.</string>
     <string name="help_proposal_body">Bulunan en yakın parça, ama kendiliğinden eklenecek kadar yakın değil: doğruysa Ekle\'ye dokunun. Bulunamayan parçalar bir hafta sonra yeniden aranır; hemen aramak için birini açın.</string>

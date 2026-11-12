@@ -91,6 +91,36 @@ class YouTubeContractTest : ContractTest() {
         assertEquals(150L, QuotaMeter.used(env.store.data, "youtube"))
     }
 
+    /**
+     * Since 2026-06-01 search.list has its own bucket of 100 calls a day and takes no units from the
+     * 10,000 (developers.google.com/youtube/v3/determine_quota_cost): a search counts one search and
+     * no units; the videos.list that follows it costs its one unit as before.
+     */
+    @Test fun aSearchCountsInItsOwnBucketNotInTheUnits() = runBlocking {
+        json("""{"items":[{"id":{"kind":"youtube#video","videoId":"${vid(1)}"}}]}""")
+        json("""{"items":[{"id":"${vid(1)}","snippet":{"title":"Artist - Song","channelTitle":"Artist"},"contentDetails":{"duration":"PT3M"}}]}""")
+        json("""{"items":[]}""")
+        yt.search(env, Track("x", "Song", listOf("Artist")))
+        yt.search(env, Track("y", "Other", listOf("Artist")))
+        val s = next()
+        assertCall(s, "GET", api, "/youtube/v3/search")
+        assertCall(next(), "GET", api, "/youtube/v3/videos")
+        assertCall(next(), "GET", api, "/youtube/v3/search")
+        noMoreRequests()
+        assertEquals(2L, QuotaMeter.searchesUsed(env.store.data, "youtube"))
+        assertEquals(1L, QuotaMeter.used(env.store.data, "youtube"))
+        assertEquals(100L, QuotaMeter.YOUTUBE_SEARCH_DAILY)
+        assertEquals(10_000L, QuotaMeter.YOUTUBE_DAILY)
+    }
+
+    @Test fun aFailedSearchIsNotCounted() = runBlocking {
+        json("""{"error":{"code":403,"message":"quota","errors":[{"reason":"quotaExceeded"}]}}""", 403)
+        try { yt.search(env, Track("x", "Song", listOf("Artist"))); fail() } catch (e: ProviderException) {
+            assertTrue(e.message, e.message!!.contains("quota"))
+        }
+        assertEquals(0L, QuotaMeter.searchesUsed(env.store.data, "youtube"))
+    }
+
     @Test fun removeByPlaylistItemId() = runBlocking {
         server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(204))
         yt.removeTracks(env, "PL1", listOf(Track(vid(0), "a", itemId = "PLI0dup"), Track(vid(1), "b")))

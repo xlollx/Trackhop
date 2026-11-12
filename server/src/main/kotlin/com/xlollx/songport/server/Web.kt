@@ -533,7 +533,14 @@ $removals"""
                     return redirect(r.ex, "$back?ok=${q("Connected.")}")
                 }
                 if (provider is CredentialsProvider) {
-                    val result = runCatching { runBlocking { provider.login(env, r.form["url"].orEmpty(), r.form["user"].orEmpty(), r.form["secret"].orEmpty()) } }
+                    // The API key form (OpenSubsonic) posts mode=apikey: the key, no user or password.
+                    val byKey = r.form["mode"] == "apikey" && provider.loginForm.offersApiKey
+                    val result = runCatching {
+                        runBlocking {
+                            if (byKey) provider.loginWithApiKey(env, r.form["url"].orEmpty(), r.form["apiKey"].orEmpty())
+                            else provider.login(env, r.form["url"].orEmpty(), r.form["user"].orEmpty(), r.form["secret"].orEmpty())
+                        }
+                    }
                     result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                     env.log("auth", "${provider.id} connected")
                     return redirect(r.ex, "$back?ok=${q("Connected.")}")
@@ -626,6 +633,8 @@ $removals"""
                 body.append("""<p><button>${h(env.text("login_submit"))}</button></p></form>""")
                 // Jellyfin without a password (single sign-on): a code approved from a device already signed in.
                 if (p is JellyfinProvider && p.supportsQuickConnect) body.append(quickConnectForm(p))
+                // OpenSubsonic: an API key in place of the user and password.
+                if (f.offersApiKey) body.append(apiKeyForm(p))
             }
             p is OAuthProvider -> body.append(oauthSetup(p))
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")

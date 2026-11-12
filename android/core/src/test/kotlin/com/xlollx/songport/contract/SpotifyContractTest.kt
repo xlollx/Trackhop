@@ -158,6 +158,63 @@ class SpotifyContractTest : ContractTest() {
         assertEquals("market", u[0].reason)
         assertEquals("new", u[1].relinked!!.id)
         assertEquals("from_token", next().query("market"))
+        // linked_from was served (Extended Quota apps): no second read.
+        noMoreRequests()
+    }
+
+    /**
+     * Development Mode since February 2026: Track has no linked_from any more. A relinked entry is
+     * then found by comparing the market read with the plain one, position by position.
+     */
+    @Test fun relinkedEntriesFoundWithoutLinkedFrom() = runBlocking {
+        json(page(listOf(
+            """{"item":{"id":"a","name":"Gone","uri":"spotify:track:a","is_playable":false,"restrictions":{"reason":"market"}}}""",
+            """{"item":{"id":"c","name":"Fine","uri":"spotify:track:c","is_playable":true}}""",
+            """{"item":null}""",
+            """{"item":{"id":"new","name":"Moved","uri":"spotify:track:new","is_playable":true}}""",
+        ), null, 4))
+        json(page(listOf(
+            """{"item":{"id":"a","name":"Gone","uri":"spotify:track:a"}}""",
+            """{"item":{"id":"c","name":"Fine","uri":"spotify:track:c"}}""",
+            """{"item":null}""",
+            """{"item":{"id":"old","name":"Moved","uri":"spotify:track:old"}}""",
+        ), null, 4))
+        val u = sp.unplayable(env, "PL")
+        assertEquals(listOf("a" to 0, "old" to 2), u.map { it.track.id to it.index })
+        assertEquals("spotify:track:old", u[1].track.uri)
+        assertEquals(false, u[1].track.available)
+        assertEquals("market", u[1].reason)
+        assertEquals("new", u[1].relinked!!.id)
+        val market = next()
+        assertEquals("from_token", market.query("market"))
+        val plain = next()
+        assertCall(plain, "GET", api, "/v1/playlists/PL/items")
+        assertNull(plain.query("market"))
+        noMoreRequests()
+    }
+
+    @Test fun nothingRelinkedWithoutLinkedFromReportsNothingMore() = runBlocking {
+        json(page(listOf("""{"item":{"id":"c","name":"Fine","uri":"spotify:track:c","is_playable":true}}"""), null, 1))
+        json(page(listOf("""{"item":{"id":"c","name":"Fine","uri":"spotify:track:c"}}"""), null, 1))
+        assertEquals(emptyList<Any>(), sp.unplayable(env, "PL"))
+        next(); next(); noMoreRequests()
+    }
+
+    @Test fun relinksNotGuessedWhenThePlaylistChangedBetweenTheReads() = runBlocking {
+        json(page(listOf("""{"item":{"id":"new","name":"Moved","is_playable":true}}"""), null, 1))
+        json(page(listOf("""{"item":{"id":"x","name":"X"}}""", """{"item":{"id":"old","name":"Moved"}}"""), null, 2))
+        assertEquals(emptyList<Any>(), sp.unplayable(env, "PL"))
+    }
+
+    @Test fun likedRelinksFoundWithoutLinkedFrom() = runBlocking {
+        json("""{"items":[{"added_at":"2024-01-01T00:00:00Z","track":{"id":"new","name":"Moved","is_playable":true}}],"next":null,"total":1}""")
+        json("""{"items":[{"added_at":"2024-01-01T00:00:00Z","track":{"id":"old","name":"Moved"}}],"next":null,"total":1}""")
+        val u = sp.unplayable(env, MusicProvider.LIKED_ID)
+        assertEquals(listOf("old"), u.map { it.track.id })
+        assertEquals("from_token", next().query("market"))
+        val plain = next()
+        assertCall(plain, "GET", api, "/v1/me/tracks")
+        assertNull(plain.query("market"))
     }
 
     @Test fun itemsForbiddenFallsBackToTracksPath() = runBlocking {
@@ -166,6 +223,25 @@ class SpotifyContractTest : ContractTest() {
         assertEquals(1, sp.tracks(env, "PL").size)
         assertEquals("/v1/playlists/PL/items", next().pathOnly())
         assertEquals("/v1/playlists/PL/tracks", next().pathOnly())
+    }
+
+    /** Development Mode: /tracks is gone too, so the error shown is the one of the documented /items. */
+    @Test fun itemsAndTracksForbiddenReportsTheItemsError() = runBlocking {
+        json("""{"error":{"status":403,"message":"Not your playlist"}}""", 403)
+        json("""{"error":{"status":403,"message":"Endpoint removed"}}""", 403)
+        try { sp.tracks(env, "PL"); fail() } catch (e: ProviderException) {
+            assertEquals(403, e.code)
+            assertTrue(e.message, e.message!!.contains("Not your playlist"))
+        }
+        assertEquals("/v1/playlists/PL/items", next().pathOnly())
+        assertEquals("/v1/playlists/PL/tracks", next().pathOnly())
+        noMoreRequests()
+    }
+
+    @Test fun aServerErrorOnTheOlderPathIsReportedAsItIs() = runBlocking {
+        json("""{"error":{"status":403,"message":"Forbidden"}}""", 403)
+        json("""{"error":{"status":500,"message":"Server error"}}""", 500)
+        try { sp.tracks(env, "PL"); fail() } catch (e: ProviderException) { assertEquals(500, e.code) }
     }
 
     // ------------------------------------------------------------------ writing
@@ -251,6 +327,48 @@ class SpotifyContractTest : ContractTest() {
         next()
         val a = next(); assertCall(a, "PUT", api, "/v1/me/tracks"); assertEquals(50, a.jsonBody()["ids"].arr.size)
         assertEquals(10, next().jsonBody()["ids"].arr.size)
+    }
+
+    /**
+     * Development Mode: /me/library refuses an artist URI (the reference lists none) and the older
+     * /me/following is gone too: the /me/library error is the one reported.
+     */
+    @Test fun artistFollowRefusedOnBothPathsReportsTheLibraryError() = runBlocking {
+        json("""{"error":{"status":400,"message":"Unsupported uri kind"}}""", 400)
+        json("""{"error":{"status":403,"message":"Forbidden"}}""", 403)
+        try { sp.addTracks(env, MusicProvider.ARTISTS_ID, listOf(Track("ar1", "A", kind = Track.KIND_ARTIST))); fail() } catch (e: ProviderException) {
+            assertEquals(400, e.code)
+            assertTrue(e.message, e.message!!.contains("Unsupported uri kind"))
+        }
+        val lib = next()
+        assertCall(lib, "PUT", api, "/v1/me/library")
+        assertEquals("spotify:artist:ar1", lib.query("uris"))
+        assertCall(next(), "PUT", api, "/v1/me/following")
+        noMoreRequests()
+    }
+
+    /** Extended Quota: the older /me/following still answers, and is used when /me/library refuses artists. */
+    @Test fun artistFollowFallsBackToFollowingForExtendedQuotaApps() = runBlocking {
+        json("""{"error":{"status":400,"message":"Unsupported uri kind"}}""", 400)
+        ok("")
+        sp.addTracks(env, MusicProvider.ARTISTS_ID, listOf(Track("ar1", "A", kind = Track.KIND_ARTIST)))
+        next()
+        val f = next()
+        assertCall(f, "PUT", api, "/v1/me/following")
+        assertEquals("artist", f.query("type"))
+        assertEquals("ar1", f.jsonBody()["ids"].arr[0].str)
+    }
+
+    @Test fun reorderFallsBackToTracksForExtendedQuotaAppsAndStaysThere() = runBlocking {
+        json(page(listOf("a", "b", "c").map { """{"item":{"id":"$it","is_local":false}}""" }, null, 3))
+        json("""{"error":{"status":403,"message":"Forbidden"}}""", 403)
+        ok(); ok()
+        sp.reorderTracks(env, "PL", listOf("a", "b", "c").map { Track(it, it) }, listOf("c", "b", "a").map { Track(it, it) })
+        next()
+        assertEquals("/v1/playlists/PL/items", next().pathOnly())
+        assertEquals("/v1/playlists/PL/tracks", next().pathOnly())
+        assertEquals("/v1/playlists/PL/tracks", next().pathOnly())
+        noMoreRequests()
     }
 
     @Test fun albumsAndShowsThroughTheLibrary() = runBlocking {

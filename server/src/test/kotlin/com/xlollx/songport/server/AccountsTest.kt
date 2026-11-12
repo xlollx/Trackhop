@@ -266,6 +266,73 @@ class AccountsTest {
         }
     }
 
+    // ------------------------------------------------------------------ OpenSubsonic API key
+
+    /** An OpenSubsonic server that takes API keys (apiKeyAuthentication) and records what each call carried. */
+    private class FakeOpenSubsonic {
+        val calls = mutableListOf<Pair<String, Map<String, String>>>()
+        private val http = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
+            createContext("/") { ex ->
+                val method = ex.requestURI.path.substringAfterLast('/')
+                val q = (ex.requestURI.rawQuery ?: "").split('&').filter { it.isNotEmpty() }
+                    .associate { java.net.URLDecoder.decode(it.substringBefore('='), "UTF-8") to java.net.URLDecoder.decode(it.substringAfter('=', ""), "UTF-8") }
+                synchronized(calls) { calls += method to q }
+                val ok = """"status":"ok","version":"1.16.1","type":"navidrome","openSubsonic":true"""
+                val body = when (method) {
+                    "getOpenSubsonicExtensions" -> """{"subsonic-response":{$ok,"openSubsonicExtensions":[{"name":"apiKeyAuthentication","versions":[1]}]}}"""
+                    "tokenInfo" -> if (q["apiKey"] == "k3y") """{"subsonic-response":{$ok,"tokenInfo":{"username":"lorenzo"}}}"""
+                        else """{"subsonic-response":{"status":"failed","version":"1.16.1","error":{"code":44,"message":"Invalid API key"}}}"""
+                    else -> """{"subsonic-response":{$ok}}"""
+                }
+                val bytes = body.toByteArray()
+                ex.responseHeaders.add("Content-Type", "application/json")
+                ex.sendResponseHeaders(200, bytes.size.toLong())
+                ex.responseBody.use { it.write(bytes) }
+            }
+            start()
+        }
+        val url = "http://127.0.0.1:${http.address.port}"
+        fun stop() = http.stop(0)
+    }
+
+    @Test fun subsonicOffersAnApiKeySignInBesideThePassword() {
+        val nav = FakeOpenSubsonic()
+        try {
+            post("/connectors/add", mapOf("service" to "subsonic"))
+            val page = get("/connectors/subsonic").body()
+            // The password form as before, and a second one for the key.
+            assertTrue(page.contains("""name="secret""""))
+            assertTrue(page.contains("""name="mode" value="apikey""""))
+            assertTrue(page.contains("""name="apiKey""""))
+            assertTrue(page.contains("login_apikey"))
+
+            assertTrue(post("/connectors/subsonic/connect", mapOf("mode" to "apikey", "url" to nav.url, "apiKey" to "wrong")).location().contains("err="))
+            assertNull(env.tokens.get("subsonic"))
+            val ok = post("/connectors/subsonic/connect", mapOf("mode" to "apikey", "url" to nav.url, "apiKey" to "k3y"))
+            assertTrue(ok.location(), ok.location().contains("ok="))
+            val t = env.tokens.get("subsonic")!!
+            assertEquals("lorenzo", t.userName)
+            assertEquals("apikey", t.extra["auth"])
+            val info = nav.calls.last()
+            assertEquals("tokenInfo", info.first)
+            assertEquals("k3y", info.second["apiKey"])
+            assertTrue(listOf("u", "t", "s", "p").none { it in info.second })
+        } finally { nav.stop() }
+    }
+
+    @Test fun subsonicPasswordSignInStaysAsItWas() {
+        val nav = FakeOpenSubsonic()
+        try {
+            post("/connectors/add", mapOf("service" to "subsonic"))
+            assertTrue(post("/connectors/subsonic/connect", mapOf("url" to nav.url, "user" to "lorenzo", "secret" to "pw")).location().contains("ok="))
+            val ping = nav.calls.single()
+            assertEquals("ping", ping.first)
+            assertEquals("lorenzo", ping.second["u"])
+            assertNull(ping.second["apiKey"])
+            assertNull(env.tokens.get("subsonic")!!.extra["auth"])
+        } finally { nav.stop() }
+    }
+
     // ------------------------------------------------------------------ Quick Connect
 
     private fun qcToken(location: String) = location.substringAfter("t=")

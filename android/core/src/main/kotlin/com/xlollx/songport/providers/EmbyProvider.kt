@@ -26,6 +26,9 @@ class EmbyProvider(slot: String = "") : JellyfinProvider(slot) {
 
     override fun apiRoot(base: String): String = embyRoot(base)
 
+    // Emby documents the per-user routes (/Users/{UserId}/Items, .../Items/{Id}, .../FavoriteItems/{Id}).
+    override val userRoutesFirst: Boolean get() = true
+
     override fun webSearchUrl(ctx: Env, query: String): String? =
         ctx.tokens.get(id)?.extra?.get("url")?.let { embySearchUrl(it, query) }
 

@@ -206,6 +206,7 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                             Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 12.dp)) {
                                 QuotaCard(
                                     used = QuotaMeter.used(data, YouTubeProvider.SERVICE),
+                                    searches = QuotaMeter.searchesUsed(data, YouTubeProvider.SERVICE),
                                     sharedCredentials = !dst.usesOwnCredentials(ctx),
                                     estimate = QuotaMeter.estimateAdd(p.toAdd.size),
                                 )

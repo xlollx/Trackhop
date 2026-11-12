@@ -12,4 +12,5 @@
     <string name="bridge_needed_hint">このサービスには、インストールされていないコネクタプラグインアプリが必要です。Trackhop はプラグインを同梱・ダウンロードしません。</string>
     <string name="setlists_browse">setlist.fm を見る</string>
     <string name="setlists_browse_need_plugin">setlist.fm を見るには、連携プラグインの新しいバージョンが必要です。更新してからもう一度お試しください。</string>
+    <string name="setup_why_deezer">Deezer では新しい開発者アプリを作成できなくなりました。すでにお持ちの場合は、その Application ID をここで使えます（引き続き動作します）。お持ちでない場合は、Deezer (plugin) を使えば、すでにお持ちのコネクタプラグイン経由でアプリなしで利用できます。https のリダイレクトページはプロジェクトが用意しています。</string>
 </resources>

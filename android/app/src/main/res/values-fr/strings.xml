@@ -131,7 +131,7 @@
     <string name="report_issue">Signaler sur GitHub</string>
     <string name="provider_note_youtube">API officielle YouTube Data avec ton propre projet Google Cloud. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
     <string name="provider_note_tidal">Playlists TIDAL.</string>
-    <string name="provider_note_deezer">Playlists et favoris Deezer (bêta).</string>
+    <string name="provider_note_deezer">Playlists et favoris Deezer (bêta), avec une application développeur Deezer que tu as déjà : Deezer n\'en accepte plus de nouvelles.</string>
 
     <string name="log_empty">Aucune sync n\'a encore été lancée.</string>
     <string name="log_unmatched_title">Titres introuvables sur la cible</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify exige une application enregistrée à ton nom. C\'est gratuit ; une application en mode Développement accepte jusqu\'à 5 comptes, largement assez pour un usage personnel.</string>
     <string name="setup_why_youtube">Google exige un projet Cloud à ton nom pour utiliser l\'API YouTube. C\'est gratuit et le quota quotidien n\'est qu\'à toi.</string>
     <string name="setup_why_tidal">TIDAL exige une application enregistrée à ton nom. C\'est gratuit.</string>
-    <string name="setup_why_deezer">Deezer nécessite une application enregistrée à ton nom. La page de redirection https est fournie par le projet.</string>
+    <string name="setup_why_deezer">Deezer ne permet plus de créer de nouvelles applications développeur. Si tu en as déjà une, utilise ici son Application ID : elle fonctionne toujours. Sinon, ajoute plutôt le connecteur Deezer (web) : il ne demande aucune application. La page de redirection https est fournie par le projet.</string>
     <string name="setup_why_apple">Le Developer token appartient à ton compte Apple Developer et expire au plus tard après six mois.</string>
     <string name="error_dev_mode_limit">%1$s n\'autorise qu\'une poignée d\'utilisateurs par application. Configure tes propres identifiants : c\'est gratuit et cela prend environ deux minutes.</string>
     <string name="error_network">le téléphone n\'a pas pu joindre le service (échec DNS). Vérifie la connexion, tout VPN ou DNS privé, et que Trackhop est autorisé à utiliser les données en arrière-plan, puis réessaie.</string>
@@ -531,6 +531,11 @@
     <string name="login_url">Adresse du serveur</string>
     <string name="login_user">Nom d\'utilisateur</string>
     <string name="login_password">Mot de passe</string>
+    <string name="login_apikey">Clé d\'API</string>
+    <string name="login_apikey_hint">Une clé d\'API créée sur ton serveur (les serveurs OpenSubsonic qui la proposent), à la place de ton nom d\'utilisateur et de ton mot de passe.</string>
+    <string name="subsonic_apikey_unsupported">Ce serveur ne propose pas la connexion par clé d\'API. Utilise ton nom d\'utilisateur et ton mot de passe.</string>
+    <string name="subsonic_apikey_invalid">Le serveur n\'accepte pas cette clé d\'API. Vérifie-la ou crée-en une nouvelle sur le serveur.</string>
+    <string name="subsonic_apikey_needed">Ce serveur n\'accepte pas les mots de passe venant d\'applications. Choisis Clé d\'API et utilise une clé créée sur le serveur.</string>
     <string name="login_token">Token</string>
     <string name="login_submit">Vérifier et enregistrer</string>
     <string name="login_checking">Vérification…</string>
@@ -651,7 +656,8 @@
     <string name="restored_done">%1$d titres restaurés</string>
     <string name="restored_note">%1$d titres retirés ont été restaurés manuellement.</string>
     <string name="quota_used">%1$s / %2$s unités YouTube utilisées aujourd\'hui</string>
-    <string name="quota_note">Limite quotidienne fixée par YouTube (Google), pas par Trackhop. Réinitialisée à minuit, heure du Pacifique. Une recherche coûte 100 unités, l\'ajout d\'un titre 50.</string>
+    <string name="quota_searches_used">%1$s / %2$s recherches YouTube utilisées aujourd\'hui</string>
+    <string name="quota_note">Limites quotidiennes fixées par YouTube (Google), pas par Trackhop. Réinitialisées à minuit, heure du Pacifique. Les recherches ont leur propre limite de 100 par jour ; l\'ajout d\'un titre coûte 50 unités.</string>
     <string name="quota_note_shared">Limite quotidienne fixée par YouTube (Google), pas par Trackhop, partagée entre tous ceux qui utilisent la clé intégrée : ce que consomment les autres utilisateurs n\'est pas compté ici. Tes propres identifiants te donnent un quota rien qu\'à toi.</string>
     <string name="quota_estimate">Cette sync utilisera environ %1$s unités.</string>
     <string name="quota_estimate_over">Cette sync nécessite environ %1$s unités, mais il n\'en reste que %2$s aujourd\'hui : elle se terminera au cours des prochains jours.</string>
@@ -716,8 +722,8 @@
         <item>Copie le Client ID ici. Le Client secret n\'est pas nécessaire.</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Connecte-toi sur developers.deezer.com avec ton compte Deezer et ouvre \"My Apps\".</item>
-        <item>Appuie sur \"Create a new Application\". Le nom et la description sont libres.</item>
+        <item>Uniquement avec une application Deezer que tu as déjà : connecte-toi sur developers.deezer.com avec ton compte Deezer et ouvre \"My Apps\".</item>
+        <item>Ouvre ton application. Deezer ne permet plus d\'en créer de nouvelles.</item>
         <item>Deezer n\'accepte que les redirections https. Une page de redirection prête à l\'emploi est déjà renseignée ci-dessous : colle cette adresse à la fois dans \"Application domain\" (sans https://) et dans \"Redirect URL after authentication\".</item>
         <item>Enregistre, puis copie l\'\"Application ID\" ici.</item>
     </string-array>
@@ -1172,7 +1178,7 @@
     <string name="help_uncertain_title">Correspondances incertaines</string>
     <string name="help_uncertain_body">Des correspondances dont Trackhop n\'est pas sûr. Touche C\'est bon pour en garder une, ou Changer pour choisir un autre titre : dans les deux cas, c\'est retenu. Celles que tu laisses ici te sont reproposées dans la révision après l\'exécution.</string>
     <string name="help_quota_title">Unités YouTube</string>
-    <string name="help_quota_body">YouTube accorde un nombre fixe d\'unités par jour : une recherche coûte 100 et l\'ajout d\'un titre 50. Le compteur repart à zéro à minuit, heure du Pacifique. Une grosse première sync peut prendre plusieurs jours, et elle continue toute seule.</string>
+    <string name="help_quota_body">YouTube accorde 100 recherches par jour, comptées à part, et un nombre fixe d\'unités pour tout le reste : l\'ajout d\'un titre coûte 50. Les deux repartent à zéro à minuit, heure du Pacifique. Une grosse première sync peut prendre plusieurs jours, et elle continue toute seule.</string>
     <string name="help_review_title">Régler les titres</string>
     <string name="help_change_body">Remplace le titre choisi par Trackhop par celui que tu indiques : le mauvais est retiré de la cible quand le service le permet, et ton choix est retenu pour les exécutions suivantes.</string>
     <string name="help_proposal_body">Le titre le plus proche trouvé, mais pas assez pour l\'ajouter tout seul : touche Ajouter s\'il est bon. Les titres introuvables sont recherchés à nouveau au bout d\'une semaine ; ouvres-en un pour chercher tout de suite.</string>

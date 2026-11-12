@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.providers.CredentialsProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
@@ -30,6 +31,17 @@ internal fun Web.accountCard(p: MusicProvider): String {
     }
     return sb.toString()
 }
+
+// ------------------------------------------------------------------ OpenSubsonic API key
+
+/** The second sign-in under the password form: the server's address and an API key, no user or password. */
+internal fun Web.apiKeyForm(p: CredentialsProvider): String =
+    """<form method="post" action="/connectors/${q(p.id)}/connect" class="card"><h3>${h(env.text("login_apikey"))}</h3>
+<p class="muted">${h(env.text("login_apikey_hint"))}</p>
+<input type="hidden" name="mode" value="apikey">
+<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>
+<label>${h(env.text("login_apikey"))}</label><input type="password" name="apiKey" autocomplete="off" required>
+<p><button class="secondary">${h(env.text("login_submit"))}</button></p></form>"""
 
 // ------------------------------------------------------------------ Jellyfin Quick Connect
 

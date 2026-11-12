@@ -131,7 +131,7 @@
     <string name="report_issue">GitHub で報告</string>
     <string name="provider_note_youtube">ご自身の Google Cloud プロジェクトを使う公式の YouTube Data API です。1日の割り当ては限られているため、大規模な同期には数日かかることがあります。</string>
     <string name="provider_note_tidal">TIDAL のプレイリスト。</string>
-    <string name="provider_note_deezer">Deezer のプレイリストとお気に入り（ベータ版）。</string>
+    <string name="provider_note_deezer">Deezer のプレイリストとお気に入り（ベータ）。すでにお持ちの Deezer 開発者アプリが必要です。Deezer は新しいアプリを受け付けていません。</string>
 
     <string name="log_empty">まだ同期は実行されていません。</string>
     <string name="log_unmatched_title">同期先で見つからなかった曲</string>
@@ -229,7 +229,7 @@
     <string name="setup_why_spotify">Spotify では、あなたの名前で登録したアプリが必要です。無料で、Development Mode のアプリは最大5アカウントまで利用でき、個人利用には十分です。</string>
     <string name="setup_why_youtube">YouTube API を使うには、あなたの名前の Google Cloud プロジェクトが必要です。無料で、1日の割り当てはあなた専用です。</string>
     <string name="setup_why_tidal">TIDAL では、あなたの名前で登録したアプリが必要です。無料です。</string>
-    <string name="setup_why_deezer">Deezer では、あなたの名前で登録したアプリが必要です。https のリダイレクトページはプロジェクトが提供しています。</string>
+    <string name="setup_why_deezer">Deezer では新しい開発者アプリを作成できなくなりました。すでにお持ちの場合は、その Application ID をここで使えます（引き続き動作します）。お持ちでない場合は、代わりに Deezer (web) コネクタを追加してください。アプリは不要です。https のリダイレクトページはプロジェクトが用意しています。</string>
     <string name="setup_why_apple">デベロッパートークンはあなたの Apple Developer アカウントに属し、最長6か月で期限切れになります。</string>
     <string name="error_dev_mode_limit">%1$s ではアプリごとにごく少数のユーザーしか利用できません。ご自身の認証情報を設定してください。無料で、約2分で完了します。</string>
     <string name="error_network">端末からサービスに接続できませんでした（DNS エラー）。接続状況、VPN やプライベート DNS の設定、Trackhop のバックグラウンドでのデータ使用が許可されているかを確認して、もう一度お試しください。</string>
@@ -523,6 +523,11 @@
     <string name="login_url">サーバーのアドレス</string>
     <string name="login_user">ユーザー名</string>
     <string name="login_password">パスワード</string>
+    <string name="login_apikey">API キー</string>
+    <string name="login_apikey_hint">ユーザー名とパスワードの代わりに、サーバーで作成した API キーを使います（対応している OpenSubsonic サーバーのみ）。</string>
+    <string name="subsonic_apikey_unsupported">このサーバーは API キーでのサインインに対応していません。ユーザー名とパスワードを使ってください。</string>
+    <string name="subsonic_apikey_invalid">サーバーがこの API キーを受け付けませんでした。キーを確認するか、サーバーで新しいキーを作成してください。</string>
+    <string name="subsonic_apikey_needed">このサーバーはアプリからのパスワードを受け付けません。「API キー」を選び、サーバーで作成したキーを使ってください。</string>
     <string name="login_token">トークン</string>
     <string name="login_submit">確認して保存</string>
     <string name="login_checking">確認中…</string>
@@ -643,7 +648,8 @@
     <string name="restored_done">%1$d 曲を復元しました</string>
     <string name="restored_note">削除された %1$d 曲を手動で復元しました。</string>
     <string name="quota_used">本日の YouTube ユニット使用量：%1$s / %2$s</string>
-    <string name="quota_note">1日の上限は Trackhop ではなく YouTube（Google）が設定しています。太平洋時間の午前0時にリセットされます。検索1回で100ユニット、曲の追加1回で50ユニットを消費します。</string>
+    <string name="quota_searches_used">本日の YouTube 検索回数：%1$s / %2$s</string>
+    <string name="quota_note">1日の上限は Trackhop ではなく YouTube（Google）が設定しています。太平洋時間の午前0時にリセットされます。検索には別枠で1日100回の上限があり、曲の追加は50ユニットです。</string>
     <string name="quota_note_shared">1日の上限は Trackhop ではなく YouTube（Google）が設定しており、組み込みキーを使うすべてのユーザーで共有されます。他のユーザーの消費分はここには含まれません。ご自身の認証情報を使えば、専用の割り当てが得られます。</string>
     <string name="quota_estimate">この同期では約 %1$s ユニットを使用します。</string>
     <string name="quota_estimate_over">この同期には約 %1$s ユニットが必要ですが、本日の残りは %2$s ユニットのみです。数日かけて完了します。</string>
@@ -706,8 +712,8 @@
         <item>Client ID をここにコピーします。Client secret は不要です。</item>
     </string-array>
     <string-array name="setup_steps_deezer">
-        <item>Deezer アカウントで developers.deezer.com にログインし、「My Apps」を開きます。</item>
-        <item>「Create a new Application」を押します。名前と説明は自由です。</item>
+        <item>すでにお持ちの Deezer アプリがある場合のみ：Deezer アカウントで developers.deezer.com にログインし、「My Apps」を開きます。</item>
+        <item>あなたのアプリケーションを開きます。Deezer では新しいアプリを作成できなくなりました。</item>
         <item>Deezer は https のリダイレクトのみ受け付けます。用意済みのリダイレクトページが下にすでに入力されているので、そのアドレスを「Application domain」（https:// は除く）と「Redirect URL after authentication」の両方に貼り付けます。</item>
         <item>保存してから、「Application ID」をここにコピーします。</item>
     </string-array>
@@ -1137,7 +1143,7 @@
     <string name="help_uncertain_title">不確かな一致</string>
     <string name="help_uncertain_body">Trackhop が確信を持てなかった一致です。そのままでよければ「これで正しい」、別の曲を選ぶなら「変更」をタップします。どちらも記憶されます。ここで残した一致は、実行後の確認画面でもう一度確認を求められます。</string>
     <string name="help_quota_title">YouTube のユニット</string>
-    <string name="help_quota_body">YouTube では1日に使えるユニット数が決まっていて、検索は100、曲の追加は50ユニットです。カウントは太平洋時間の午前0時にリセットされます。大きな初回同期は数日かかることがありますが、自動で続きが実行されます。</string>
+    <string name="help_quota_body">YouTube では検索は別枠で1日100回まで、それ以外は1日に使えるユニット数が決まっていて、曲の追加は50ユニットです。どちらも太平洋時間の午前0時にリセットされます。大きな初回同期は数日かかることがありますが、自動で続きが実行されます。</string>
     <string name="help_review_title">曲の修正</string>
     <string name="help_change_body">Trackhop が選んだ曲を、あなたが選んだ曲に置き換えます。サービスが許す場合は間違った曲を同期先から削除し、選んだ内容は次回以降も記憶されます。</string>
     <string name="help_proposal_body">見つかった中で最も近い曲ですが、自動で追加するほど近くはありません。正しければ「追加」をタップしてください。見つからなかった曲は1週間後に再検索されます。今すぐ探すには曲を開いてください。</string>

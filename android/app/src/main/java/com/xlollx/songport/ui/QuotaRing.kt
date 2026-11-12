@@ -52,9 +52,12 @@ fun QuotaRing(used: Long, limit: Long, modifier: Modifier = Modifier) {
     }
 }
 
-/** Scheda quota YouTube: anello, numeri, e la spiegazione che il limite e' di Google. */
+/**
+ * Scheda quota YouTube: anello, numeri, e la spiegazione che il limite e' di Google. Dal giugno
+ * 2026 le ricerche hanno un limite giornaliero a parte (100 chiamate): [searches] le mostra sotto.
+ */
 @Composable
-fun QuotaCard(used: Long, sharedCredentials: Boolean, estimate: Long? = null) {
+fun QuotaCard(used: Long, sharedCredentials: Boolean, estimate: Long? = null, searches: Long? = null) {
     val nf = NumberFormat.getIntegerInstance()
     val limit = QuotaMeter.YOUTUBE_DAILY
     val remaining = (limit - used).coerceAtLeast(0)
@@ -65,6 +68,14 @@ fun QuotaCard(used: Long, sharedCredentials: Boolean, estimate: Long? = null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.quota_used, nf.format(used), nf.format(limit)), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                 HelpButton(Helps.quota)
+            }
+            if (searches != null) {
+                val searchLimit = QuotaMeter.YOUTUBE_SEARCH_DAILY
+                Text(
+                    stringResource(R.string.quota_searches_used, nf.format(searches), nf.format(searchLimit)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (searches >= searchLimit) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                )
             }
             Text(
                 stringResource(if (sharedCredentials) R.string.quota_note_shared else R.string.quota_note),

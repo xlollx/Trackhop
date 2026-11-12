@@ -24,8 +24,10 @@ import kotlinx.serialization.json.JsonElement
 
 /**
  * YouTube Music non ha un'API pubblica: usiamo YouTube Data API v3, le playlist sono le stesse.
- * Quota: 10.000 unita'/giorno per progetto Google. Una ricerca costa 100, un inserimento 50:
- * ~60 brani nuovi al giorno per TUTTI gli utenti dell'app finche' Google non alza la quota.
+ * Quota (dal 1 giugno 2026): 100 ricerche al giorno per progetto Google, in un secchio a parte,
+ * piu' 10.000 unita' al giorno per tutto il resto (un inserimento 50, una lettura 1). Le ricerche
+ * non consumano piu' unita': ~100 brani nuovi al giorno per TUTTI gli utenti dell'app, limitati
+ * dalle ricerche, finche' Google non alza la quota. Vedi [QuotaMeter].
  * La cache degli abbinamenti (Store.matchCache) evita di ripetere le ricerche.
  */
 class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
@@ -249,7 +251,8 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         val q = (track.artists.take(2) + track.title).joinToString(" ")
-        val s = counted(ctx, QuotaMeter.COST_SEARCH) { api(ctx, "GET", "$API/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${Http.enc(q)}") }
+        // search.list has its own bucket since 2026-06-01 (100 calls a day): no units, one search.
+        val s = api(ctx, "GET", "$API/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${Http.enc(q)}").also { QuotaMeter.addSearch(ctx, serviceId) }
         val ids = s["items"].arr.mapNotNull { it["id"]["videoId"].str }
         if (ids.isEmpty()) return emptyList()
         val v = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/videos?part=snippet,contentDetails&id=${ids.joinToString(",")}") }

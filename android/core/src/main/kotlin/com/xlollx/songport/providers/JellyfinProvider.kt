@@ -116,11 +116,71 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
             headers(t.accessToken),
             body?.let { Http.jsonBody(it.toString()) },
         )
-        if (!resp.ok) throw ProviderException("$displayName API ${resp.code}: ${resp.body.take(200)}")
+        if (!resp.ok) throw ProviderException("$displayName API ${resp.code}: ${resp.body.take(200)}", code = resp.code)
         return parseJson(resp.body)
     }
 
     protected fun uid(ctx: Env) = creds(ctx).userId
+
+    // ---- routes: Jellyfin's documented ones, the per-user ones as the fallback
+
+    /**
+     * Jellyfin's OpenAPI spec dropped the per-user routes in 10.9 (`/Users/{userId}/Items`,
+     * `/Users/{userId}/Items/{itemId}`, `/Users/{userId}/FavoriteItems/{itemId}`) for `/Items?userId=`,
+     * `/Items/{itemId}?userId=` and `/UserFavoriteItems/{itemId}?userId=`, and says a route not in the
+     * spec should not be used. Those come first; the older ones stay as the fallback for a server
+     * that refuses them (Jellyfin 10.8 has no `/UserFavoriteItems`). Emby documents only the per-user
+     * routes (dev.emby.media), so it asks them first, and the Jellyfin ones second.
+     */
+    protected open val userRoutesFirst: Boolean get() = false
+
+    /** Route kinds a server refused in Jellyfin's documented form, by server: the older one is asked straight away. */
+    private val olderRoutesOnly: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /**
+     * [documented] or [older] (paths under the API root) in the order this server takes them. A
+     * refusal of the route itself (400, 404, 405) tries the other; when that fails too, the first
+     * error is the one reported. With [emptyTriesOther], an empty `Items` list asks the other route
+     * as well, and its answer is kept when it lists something.
+     */
+    private suspend fun routed(ctx: Env, kind: String, method: String, documented: String, older: String, emptyTriesOther: Boolean = false): JsonElement {
+        val key = "$kind@" + (creds(ctx).extra["url"] ?: "")
+        if (!userRoutesFirst && key in olderRoutesOnly) return api(ctx, method, older)
+        val (first, second) = if (userRoutesFirst) older to documented else documented to older
+        val answer = try {
+            api(ctx, method, first)
+        } catch (e: ProviderException) {
+            if (e.code !in ROUTE_REFUSED) throw e
+            val other = try { api(ctx, method, second) } catch (e2: ProviderException) { throw e }
+            if (!userRoutesFirst) {
+                olderRoutesOnly += key
+                ctx.log(serviceId, "$method ${first.substringBefore('?')} refused (${e.code}): the older route from now on")
+            }
+            return other
+        }
+        if (emptyTriesOther && answer["Items"].arr.isEmpty()) {
+            runCatching { api(ctx, method, second) }.getOrNull()?.takeIf { it["Items"].arr.isNotEmpty() }?.let { return it }
+        }
+        return answer
+    }
+
+    /** The user's items matching [query] (no leading '&'): `GET /Items?userId=`, or `/Users/{userId}/Items`. */
+    private suspend fun userItems(ctx: Env, query: String): JsonElement {
+        val u = uid(ctx)
+        return routed(ctx, "items", "GET", "/Items?userId=$u&$query", "/Users/$u/Items?$query", emptyTriesOther = true)
+    }
+
+    /** One item as the user sees it: `GET /Items/{itemId}?userId=`, or `/Users/{userId}/Items/{itemId}`. */
+    private suspend fun userItem(ctx: Env, itemId: String): JsonElement {
+        val u = uid(ctx)
+        return routed(ctx, "item", "GET", "/Items/$itemId?userId=$u", "/Users/$u/Items/$itemId")
+    }
+
+    /** Marks or unmarks a favourite: `/UserFavoriteItems/{itemId}?userId=`, or `/Users/{userId}/FavoriteItems/{itemId}`. */
+    private suspend fun favourite(ctx: Env, method: String, itemId: String) {
+        val u = uid(ctx)
+        routed(ctx, "favourite", method, "/UserFavoriteItems/$itemId?userId=$u", "/Users/$u/FavoriteItems/$itemId")
+    }
 
     /** The search page of the server's own web client, where the user finds the track and copies its link. */
     override fun webSearchUrl(ctx: Env, query: String): String? =
@@ -151,7 +211,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         val out = ArrayList<Track>()
         var offset = 0
         while (true) {
-            val page = api(ctx, "GET", "/Users/${uid(ctx)}/Items?IncludeItemTypes=Audio&Recursive=true&Fields=ProviderIds&StartIndex=$offset&Limit=$LIBRARY_PAGE")["Items"].arr
+            val page = userItems(ctx, "IncludeItemTypes=Audio&Recursive=true&Fields=ProviderIds&StartIndex=$offset&Limit=$LIBRARY_PAGE")["Items"].arr
             out += page.mapNotNull { toTrack(it) }
             offset += page.size
             onProgress(out.size)
@@ -160,22 +220,22 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     }
 
     override suspend fun playlists(ctx: Env): List<Playlist> =
-        api(ctx, "GET", "/Users/${uid(ctx)}/Items?IncludeItemTypes=Playlist&Recursive=true&Fields=ChildCount")["Items"].arr
+        userItems(ctx, "IncludeItemTypes=Playlist&Recursive=true&Fields=ChildCount")["Items"].arr
             .mapNotNull { p -> Playlist(p["Id"].str ?: return@mapNotNull null, p["Name"].str ?: "", p["ChildCount"].int ?: -1) }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist {
-        val p = api(ctx, "GET", "/Users/${uid(ctx)}/Items/$playlistId")
+        val p = userItem(ctx, playlistId)
         return Playlist(playlistId, p["Name"].str ?: playlistId, p["ChildCount"].int ?: -1)
     }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
-        val path = when (playlistId) {
-            MusicProvider.LIKED_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&Fields=ProviderIds"
-            MusicProvider.ALBUMS_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=MusicAlbum&Recursive=true&Limit=5000"
-            MusicProvider.ARTISTS_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=MusicArtist&Recursive=true&Limit=5000"
-            else -> "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&Fields=ProviderIds"
+        val answer = when (playlistId) {
+            MusicProvider.LIKED_ID -> userItems(ctx, "Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&Fields=ProviderIds")
+            MusicProvider.ALBUMS_ID -> userItems(ctx, "Filters=IsFavorite&IncludeItemTypes=MusicAlbum&Recursive=true&Limit=5000")
+            MusicProvider.ARTISTS_ID -> userItems(ctx, "Filters=IsFavorite&IncludeItemTypes=MusicArtist&Recursive=true&Limit=5000")
+            else -> api(ctx, "GET", "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&Fields=ProviderIds")
         }
-        val items = api(ctx, "GET", path)["Items"].arr
+        val items = answer["Items"].arr
         return when (playlistId) {
             MusicProvider.ALBUMS_ID -> items.mapNotNull { toAlbum(it) }
             MusicProvider.ARTISTS_ID -> items.mapNotNull { toArtist(it) }
@@ -185,17 +245,17 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
 
     /** Each song of the playlist (or of the favourites) with its `UserData.PlayCount` for the signed-in user. */
     override suspend fun playlistPlays(ctx: Env, playlistId: String): List<Listening.Play> {
-        val path = when {
-            playlistId == MusicProvider.LIKED_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&EnableUserData=true"
+        val answer = when {
+            playlistId == MusicProvider.LIKED_ID -> userItems(ctx, "Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&EnableUserData=true")
             MusicProvider.isLibrary(playlistId) -> return emptyList()
-            else -> "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&EnableUserData=true"
+            else -> api(ctx, "GET", "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&EnableUserData=true")
         }
-        return api(ctx, "GET", path)["Items"].arr.mapNotNull { i -> toTrack(i)?.let { Listening.jellyfinPlay(i, it) } }
+        return answer["Items"].arr.mapNotNull { i -> toTrack(i)?.let { Listening.jellyfinPlay(i, it) } }
     }
 
     /** The songs played most, sorted by the server itself (SortBy=PlayCount). */
     override suspend fun topPlays(ctx: Env, n: Int): List<Listening.Play> =
-        api(ctx, "GET", "/Users/${uid(ctx)}/Items?IncludeItemTypes=Audio&Recursive=true&Filters=IsPlayed&SortBy=PlayCount&SortOrder=Descending&EnableUserData=true&Limit=$n")["Items"].arr
+        userItems(ctx, "IncludeItemTypes=Audio&Recursive=true&Filters=IsPlayed&SortBy=PlayCount&SortOrder=Descending&EnableUserData=true&Limit=$n")["Items"].arr
             .mapNotNull { i -> toTrack(i)?.let { Listening.jellyfinPlay(i, it) } }.filter { it.plays > 0 }.sortedByDescending { it.plays }
 
     override val searchesTitleOnly: Boolean get() = true
@@ -236,12 +296,26 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     private suspend fun artistSongs(ctx: Env, artists: List<String>): List<Track> = try {
         val name = artists.first().let { Matcher.primaryArtist(it) ?: it }.trim()
         val want = Matcher.normalizeArtist(name)
-        val ids = api(ctx, "GET", "/Artists?UserId=${uid(ctx)}&searchTerm=${Http.enc(name)}&Limit=10")["Items"].arr
-            .filter { want.isNotEmpty() && Matcher.normalizeArtist(it["Name"].str ?: "") == want }.mapNotNull { it["Id"].str }
+        val ids = artistIds(ctx, name, want)
         if (ids.isEmpty()) emptyList()
         else api(ctx, "GET", "/Items?UserId=${uid(ctx)}&ArtistIds=${ids.joinToString(",")}&IncludeItemTypes=Audio&Recursive=true&Limit=$ARTIST_SONGS&Fields=ProviderIds")["Items"].arr
             .mapNotNull { toTrack(it) }
     } catch (e: ProviderException) { emptyList() }
+
+    /**
+     * The library's artists named [name]. `GET /Artists` is deprecated in Jellyfin 12.0: the artists
+     * are asked as items of type MusicArtist first, and `/Artists` stays the fallback when that
+     * finds none or is refused (an older server, Emby).
+     */
+    private suspend fun artistIds(ctx: Env, name: String, want: String): List<String> {
+        if (want.isEmpty()) return emptyList()
+        fun named(j: JsonElement?) = j["Items"].arr.filter { Matcher.normalizeArtist(it["Name"].str ?: "") == want }.mapNotNull { it["Id"].str }
+        val byItems = try {
+            named(api(ctx, "GET", "/Items?userId=${uid(ctx)}&searchTerm=${Http.enc(name)}&IncludeItemTypes=MusicArtist&Recursive=true&Limit=10"))
+        } catch (e: ProviderException) { emptyList() }
+        if (byItems.isNotEmpty()) return byItems
+        return named(api(ctx, "GET", "/Artists?UserId=${uid(ctx)}&searchTerm=${Http.enc(name)}&Limit=10"))
+    }
 
     private fun toAlbum(i: JsonElement?): Track? {
         val id = i["Id"].str ?: return null
@@ -266,7 +340,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         } catch (e: ProviderException) {
             // Before 10.9 there is no playlist update: the item itself is written back, renamed, whole.
             if (e.message?.contains(" 404") != true && e.message?.contains(" 405") != true) throw e
-            val item = api(ctx, "GET", "/Users/${uid(ctx)}/Items/$playlistId").jsonObject
+            val item = userItem(ctx, playlistId).jsonObject
             api(ctx, "POST", "/Items/$playlistId", JsonObject(item + ("Name" to JsonPrimitive(name))))
         }
     }
@@ -278,7 +352,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (MusicProvider.isLibrary(playlistId)) {
             // Favourites work the same for songs, albums and artists.
-            tracks.forEach { api(ctx, "POST", "/Users/${uid(ctx)}/FavoriteItems/${it.id}") }
+            tracks.forEach { favourite(ctx, "POST", it.id) }
             return
         }
         tracks.chunked(50).forEach { chunk ->
@@ -288,7 +362,7 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (MusicProvider.isLibrary(playlistId)) {
-            tracks.forEach { api(ctx, "DELETE", "/Users/${uid(ctx)}/FavoriteItems/${it.id}") }
+            tracks.forEach { favourite(ctx, "DELETE", it.id) }
             return
         }
         val gone = tracks.mapNotNull { it.itemId }
@@ -303,7 +377,32 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         }
     }
 
+    /**
+     * `POST /Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}` (Jellyfin and Emby): one entry,
+     * named by the entry id the playlist lists it with, taken out and put back at the new index. The
+     * moves are worked out on those entry ids. Jellyfin 10.9+ gives every copy of a song the same entry
+     * id, and the server moves the first copy: with copies in the playlist, the order is written back
+     * whole instead (`POST /Playlists/{id}` with the ordered ids, as [removeTracks] does).
+     */
+    override val canReorder: Boolean get() = true
+    override suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {
+        val keys = current.map { it.itemId ?: it.id }
+        if (keys.toSet().size != keys.size) {
+            api(ctx, "POST", "/Playlists/$playlistId", jsonObj("Ids" to ordered.map { it.id }))
+            return
+        }
+        // Each move as the server makes it: out at [from], then in at [to] of the shorter list.
+        val list = keys.toMutableList()
+        for ((from, to) in com.xlollx.songport.sync.Reorder.moves(keys, ordered.map { it.itemId ?: it.id })) {
+            val entry = list.removeAt(from)
+            list.add(to, entry)
+            api(ctx, "POST", "/Playlists/$playlistId/Items/${Http.enc(entry)}/Move/$to")
+        }
+    }
+
     companion object {
+        /** How a server says it has no such route: the other form is tried then. */
+        private val ROUTE_REFUSED = setOf(400, 404, 405)
         const val SERVICE = "jellyfin"
         /** The most songs of one artist read when a title search found nothing close. */
         private const val ARTIST_SONGS = 2000
