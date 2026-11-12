@@ -1,1 +1,1 @@
-TIDAL: album salvati e artisti seguiti si sincronizzano di nuovo, dopo un cambio delle API di TIDAL. Amazon Music: la ricerca funziona di nuovo e un album salvato ora viene abbinato a un album, non a un brano con lo stesso nome. Abbinamenti migliori per le parti numerate e i titoli rimasterizzati.
+TIDAL: album salvati e artisti seguiti si sincronizzano di nuovo, dopo un cambio delle API di TIDAL. Amazon Music: la ricerca funziona di nuovo. Abbinamenti migliori per le parti numerate e i titoli rimasterizzati.

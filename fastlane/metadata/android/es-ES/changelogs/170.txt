@@ -1,1 +1,1 @@
-TIDAL: los álbumes guardados y los artistas seguidos vuelven a sincronizarse, tras un cambio en la API de TIDAL. Amazon Music: la búsqueda vuelve a funcionar y un álbum guardado ahora se empareja con un álbum, no con una canción del mismo nombre. Mejor emparejamiento de partes numeradas y títulos remasterizados.
+TIDAL: los álbumes guardados y los artistas seguidos vuelven a sincronizarse, tras un cambio en la API de TIDAL. Amazon Music: la búsqueda vuelve a funcionar. Mejor emparejamiento de partes numeradas y títulos remasterizados.

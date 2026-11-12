@@ -5,6 +5,11 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`), and th
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 1.9.2
+
+- **TIDAL saved albums and followed artists sync again**: TIDAL's API no longer has the collection paths Trackhop used (reads and writes answered "Resource not found"); they now go through its new saved-albums and followed-artists resources.
+- **Better matching of numbered parts and remastered titles** (#57).
+
 ## 1.9.1
 
 - **Better matching on your own media servers** (#57): Jellyfin, Emby, Plex and Navidrome/Subsonic also search the bare title (without "Pt. 4", subtitles or "- Remastered", with and without accents) when the first answers bring only other songs; dotted initials are one word ("U.S.A" is "USA"); tracks missed before an update to matching are searched again on the next run instead of staying "not found" for a week. Different parts of a piece are still never matched to each other.

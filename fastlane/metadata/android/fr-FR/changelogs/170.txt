@@ -1,1 +1,1 @@
-TIDAL : tes albums enregistrés et tes artistes suivis se synchronisent à nouveau, après un changement de l'API de TIDAL. Amazon Music : la recherche fonctionne à nouveau, et un album enregistré est maintenant associé à un album, pas à un titre du même nom. Meilleure correspondance des parties numérotées et des titres remasterisés.
+TIDAL : tes albums enregistrés et tes artistes suivis se synchronisent à nouveau, après un changement de l'API de TIDAL. Amazon Music : la recherche fonctionne à nouveau. Meilleure correspondance des parties numérotées et des titres remasterisés.
