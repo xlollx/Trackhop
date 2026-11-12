@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -161,14 +162,27 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                 p == null -> PlanSteps(progress, waitingFor)
                 else -> {
                     // The plan in figures, as on the card after a run.
-                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Stat("+${p.toAdd.size}", stringResource(R.string.preview_tile_add), Modifier.weight(1f), tint = MaterialTheme.colorScheme.primary)
-                        if (job.mirrorRemovals || job.twoWayRemovals) Stat(
-                            "−${p.toRemove.size}", stringResource(if (unlikes) R.string.preview_tile_unlike else R.string.preview_tile_remove), Modifier.weight(1f),
-                            tint = if (p.removalsNeedConfirmation) MaterialTheme.colorScheme.error else null,
-                        )
-                        Stat("${p.alreadyPresent}", stringResource(R.string.preview_tile_present), Modifier.weight(1f))
-                        Stat("${p.unmatched.size}", stringResource(R.string.stat_not_found), Modifier.weight(1f), tint = if (p.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null)
+                    val figures = buildList<@Composable (Modifier) -> Unit> {
+                        add { m -> Stat("+${p.toAdd.size}", stringResource(R.string.preview_tile_add), m, tint = MaterialTheme.colorScheme.primary) }
+                        if (job.mirrorRemovals || job.twoWayRemovals) add { m ->
+                            Stat(
+                                "−${p.toRemove.size}", stringResource(if (unlikes) R.string.preview_tile_unlike else R.string.preview_tile_remove), m,
+                                tint = if (p.removalsNeedConfirmation) MaterialTheme.colorScheme.error else null,
+                            )
+                        }
+                        add { m -> Stat("${p.alreadyPresent}", stringResource(R.string.preview_tile_present), m) }
+                        add { m -> Stat("${p.unmatched.size}", stringResource(R.string.stat_not_found), m, tint = if (p.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null) }
+                    }
+                    // With a large font four tiles in a row cut their words short: two rows of two then.
+                    val perRow = if (LocalDensity.current.fontScale > 1.15f) 2 else figures.size
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        figures.chunked(perRow).forEach { row ->
+                            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                row.forEach { it(Modifier.weight(1f)) }
+                                // An odd one out keeps the width of its fellows.
+                                repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
+                            }
+                        }
                     }
                     if (!hasWork) PageCard {
                         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

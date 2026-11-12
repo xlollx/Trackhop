@@ -1,6 +1,5 @@
 package com.xlollx.songport.ui
 
-import androidx.compose.material.icons.filled.Key
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.heading
 import com.xlollx.songport.providers.*
@@ -234,7 +233,7 @@ private fun TrustPage() {
         Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.security_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.onboarding_security), style = MaterialTheme.typography.bodyLarge)
-            PageNote(stringResource(R.string.onboarding_credentials), icon = Icons.Filled.Key)
+            Text(stringResource(R.string.onboarding_credentials), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
             // Why it is free, on a card of its own with the way to support it.
             PageCard {

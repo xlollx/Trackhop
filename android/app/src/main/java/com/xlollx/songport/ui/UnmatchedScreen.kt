@@ -385,7 +385,11 @@ fun CollapsibleRow(
 @Composable
 private fun InsetTrack(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest).padding(horizontal = 12.dp, vertical = 8.dp),
+        // A step back from the card in both themes: lighter than it on a dark page, a shade under its white on a light one
+        // (where the tonal button on it must still stand out).
+        modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+            .background(if (LocalAppDark.current) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         content = content,
     )
 }

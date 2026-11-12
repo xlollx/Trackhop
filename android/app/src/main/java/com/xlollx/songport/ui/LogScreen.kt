@@ -172,8 +172,9 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
             }
         }
     }
+    val hasButtons = hasDetails || canSave || (job != null && (r.removedTracks.isNotEmpty() || r.unmatchedTracks.isNotEmpty() || r.reviewTracks.isNotEmpty()))
     PageCard(edge = if (r.ok) null else MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) {
-        Row(Modifier.clickable(enabled = hasDetails, onClickLabel = stringResource(if (expanded) R.string.hide_details else R.string.show_details)) { expanded = !expanded }.padding(14.dp), verticalAlignment = Alignment.Top) {
+        Row(Modifier.clickable(enabled = hasDetails, onClickLabel = stringResource(if (expanded) R.string.hide_details else R.string.show_details)) { expanded = !expanded }.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = if (hasButtons) 6.dp else 14.dp), verticalAlignment = Alignment.Top) {
             // The outcome before the words: a tick on green, or an exclamation mark on red (the summary says which).
             StatusMark(if (r.ok) Icons.Filled.Check else Icons.Filled.PriorityHigh, if (r.ok) Tone.Ok else Tone.Error)
             Spacer(Modifier.width(12.dp))
