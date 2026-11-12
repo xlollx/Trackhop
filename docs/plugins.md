@@ -142,7 +142,7 @@ The plugin makes that one GET, without cookies, sign-in or key, at least a secon
 one, follows no redirect, and answers `code` (the HTTP status) and `json` (the body). Trackhop paces
 the requests too, reads the dates out of the answers and, on an error status or an answer it no
 longer understands, leaves Vivaticket alone for an hour. Trackhop asks it only of a plugin whose
-status reports `version` 56 or more.
+status reports `version` 57 or more.
 
 ### setlist.fm browsed without a key (`com.xlollx.songport.ytmbridge.SETLIST_BROWSE`, Trackhop Bridge 1.11.0)
 
@@ -155,4 +155,4 @@ answers `RESULT_OK` with `html` (the page's og:title tag, date box and song labe
 them), `url` (the page's address) and `existing` (`true` for "Add to a playlist"). Nothing else is
 asked of setlist.fm, nothing in the background. Only Trackhop gets the answer: started by another
 app, the screen closes at once. Trackhop starts it only when the plugin's status reports `version`
-56 or more, and says to update the plugin otherwise.
+57 or more, and says to update the plugin otherwise.
