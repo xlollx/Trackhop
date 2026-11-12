@@ -44,7 +44,7 @@ demo_alt: "A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a 
 what_title: What it does
 what_intro: Pick a source and a target, choose how often. Trackhop finds every track on the other side, shows you what will change, and keeps both in step.
 card1_title: Any service to any service
-card1: "Playlists, liked songs, saved albums and followed artists. Or paste the link of any public playlist, or share one playlist with friends who each use their own service."
+card1: "Playlists, liked songs, saved albums and followed artists. Or paste the link of any public playlist. Coming in the next update: one playlist shared with friends who each use their own service."
 card2_title: On a schedule
 card2: "Hourly, every 6 hours, daily or weekly. Additions only, or mirror removals too, and keep the source's order. Two-way too, removals included."
 card3_title: Nothing guessed
@@ -54,7 +54,7 @@ card4: You sign in on each service's own page. Access tokens are encrypted on th
 card5_title: Your own music server
 card5: "Navidrome and other Subsonic servers, Jellyfin, Emby, Plex, Lyrion and Mopidy, next to the streaming services, with a list of the songs your server still lacks. Files too: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Listed in the Navidrome app catalog.</a>"
 card6_title: Playlist tools
-card6: "Backups, duplicate removal, merge, split and sort, a playlist generator driven by your own AI key, and the new releases, concerts, setlists and records of your playlists' artists."
+card6: "Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key. Coming in the next update: the new releases, concerts, setlists and records of your playlists' artists."
 one_title: "Even with just one service"
 one_intro: "No second service needed. If you only use Spotify, Apple Music, YouTube Music or any other, Trackhop still looks after your playlists."
 one1_title: "Save Discover Weekly"
@@ -139,4 +139,4 @@ say_title: 'What people say'
 say_intro: 'Comments under videos and posts about Trackhop, and messages from supporters. Names and pictures hidden.'
 say_alt: 'Comments from people who use Trackhop: "Track Hop is absolute gem", "the greatest thing that''s ever happened to me", "one of the best discoveries", and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is, and posts on X calling it "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Take a look"
-gallery_note: "Pictures marked Upcoming show what arrives in the next updates."
+gallery_note: "Pictures marked Upcoming show what arrives in the next update; card sizes and styles are already here."

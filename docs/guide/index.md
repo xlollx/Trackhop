@@ -34,7 +34,6 @@ description (architecture, matching, services and their limits) stays in the
 - [Self-hosted playlist sync](self-hosted-playlist-sync): your Navidrome, Jellyfin or Plex in step with your streaming service.
 - [Lyrion Music Server](lyrion) (the former Logitech Media Server) and [Mopidy](mopidy): their playlists as a source and a destination (beta).
 - [Missing on my server](missing-on-my-server): the songs your library still lacks, by album, as a list for Lidarr.
-- [Your phone and your Trackhop server](phone-and-server): take turns on each playlist, hand a sync over to the server and bring it back.
 - [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi.
 
 **Step by step**
@@ -57,7 +56,6 @@ description (architecture, matching, services and their limits) stays in the
 - [Export a playlist to CSV or M3U](export-playlist-csv), and back up all of them.
 - [Your Shazams in a playlist](shazam): every song you Shazam, on any service.
 - [Songs from a radio, in a playlist](radio): what a station plays in the hours you choose, on any service.
-- [A playlist shared by a group](shared-playlists): one playlist for friends who each use their own service.
 
 **Even with just one service**
 - [Save Discover Weekly, Release Radar and daylist](save-discover-weekly) before Spotify replaces them, every week.
@@ -65,6 +63,11 @@ description (architecture, matching, services and their limits) stays in the
 - [Remove duplicate songs](remove-duplicates-spotify) from a playlist, on any service.
 - [Fix greyed-out songs](fix-greyed-out-songs): unplayable tracks swapped for versions that play.
 - [Your Wrapped, whenever you want](wrapped-anytime), from any service, with history.
+
+**Coming in the next update**
+- [Your Wrapped from what you really play](wrapped-anytime#coming-in-the-next-update): Last.fm, ListenBrainz, your own server and more.
+- [Your phone and your Trackhop server](phone-and-server): take turns on each playlist, hand a sync over to the server and bring it back.
+- [A playlist shared by a group](shared-playlists): one playlist for friends who each use their own service.
 - [New releases from your playlist's artists](new-releases), in a playlist on any service, now or every week.
 - [Concerts of the artists in your playlist](concerts): upcoming dates by country, with the ticket links.
 - [Setlists of the artists in your playlist](setlists): what they played live, as a playlist on any service.

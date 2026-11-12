@@ -5,6 +5,8 @@ description: Follow your favourite artists in Trackhop and get one notification 
 
 # Alerts for the artists you follow
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Tap the **bell** next to an artist in **Discover** (New releases, Concerts, Setlists, Records & merch),
 or search for one in **Discover › Followed artists**: names are suggested while you type, first the
 artists of your playlists, then MusicBrainz's, with the name as it is written. Trackhop then checks them in the background

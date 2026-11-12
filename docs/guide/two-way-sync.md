@@ -33,7 +33,7 @@ run. Turn on **Removals too** and a song you remove on one side is removed on th
 
 In the app, on [Trackhop Desktop](desktop) and on a [Docker server](docker) (the web page, the
 [API](docker#api) with `twoWay` and `twoWayRemovals`, and the [command line](cli) with `--two-way`).
-A two-way pair stays where it was made: it can't be [handed over to your server](phone-and-server)
-yet.
+A two-way pair stays where it was made: [handing a sync over to your server](phone-and-server),
+coming in the next update, leaves two-way pairs out.
 
 See also [Keep playlists in sync](sync-playlists) · [All guide pages](./)

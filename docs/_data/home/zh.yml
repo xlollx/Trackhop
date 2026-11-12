@@ -42,7 +42,7 @@ demo_alt: "Trackhop 导览：同步列表、新建同步、账号、工具、分
 what_title: 它能做什么
 what_intro: 选好来源和目标，设定同步频率。Trackhop 会在另一端找到每一首歌，先告诉你会有哪些变化，再让两边始终保持一致。
 card1_title: 任意服务互通
-card1: "歌单、喜欢的歌曲、收藏的专辑和关注的艺人。也可以粘贴任何公开歌单的链接，或者和各用各的服务的朋友共享一个歌单。"
+card1: "歌单、喜欢的歌曲、收藏的专辑和关注的艺人。也可以粘贴任何公开歌单的链接。下次更新将带来：和各用各的服务的朋友共享一个歌单。"
 card2_title: 定时同步
 card2: "每小时、每 6 小时、每天或每周。可以只添加，也可以同步删除，并保持来源的歌曲顺序。也能双向同步，删除也一并同步。"
 card3_title: 绝不瞎猜
@@ -52,7 +52,7 @@ card4: 在各服务自己的页面上登录。访问令牌在手机上加密保�
 card5_title: 你自己的音乐服务器
 card5: "除了流媒体服务，还支持 Navidrome 等 Subsonic 服务器、Jellyfin、Emby、Plex、Lyrion 和 Mopidy，并列出你的服务器还缺的歌曲。也支持文件：CSV、M3U、XML、JSON。 <a href='https://www.navidrome.org/apps/'>已收录于 Navidrome 应用目录。</a>"
 card6_title: 歌单工具
-card6: "备份、去重、合并、拆分和排序，用你自己的 AI 密钥驱动的歌单生成器，以及你歌单中艺人的新发行、演唱会、演出曲目和唱片。"
+card6: "备份、去重、合并、拆分和排序，以及用你自己的 AI 密钥驱动的歌单生成器。下次更新将带来：你歌单中艺人的新发行、演唱会、演出曲目和唱片。"
 one_title: "只用一个服务也行"
 one_intro: "不需要第二个服务。即使你只用 Spotify、Apple Music、YouTube Music 或其他任何一个，Trackhop 也能照看你的歌单。"
 one1_title: "保存 Discover Weekly"
@@ -138,4 +138,4 @@ say_title: '大家怎么说'
 say_intro: '介绍 Trackhop 的视频和帖子下的评论，以及支持者的留言。已隐去名字和头像。'
 say_alt: 'Trackhop 用户的评论，以及两位支持者称赞自动同步和安全性的留言，以及 X 上称它为“a game changer for music lovers who use multiple platforms”的帖子'
 gallery_title: "看一看"
-gallery_note: "标有 Upcoming 的图片展示的是后续更新中的功能。"
+gallery_note: "标有 Upcoming 的图片展示的是下次更新中的功能；卡片尺寸和样式现在已经可以用了。"

@@ -1,6 +1,6 @@
 # Trackhop – Privacy Policy / Informativa sulla privacy
 
-_Last updated / Ultimo aggiornamento: 2026-11-05_
+_Last updated / Ultimo aggiornamento: 2026-11-12_
 
 ## English
 
@@ -50,7 +50,7 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   (musicbrainz.org) and ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org), and, for artists
   ListenBrainz has no data on, to Deezer's public catalogue (api.deezer.com): anonymous lookups, no
   account. If you connected ListenBrainz with your token, that token goes along to ListenBrainz.
-- **Wrapped from your listening (optional)**: when you make a Wrapped from what you listened to
+- **Wrapped from your listening (optional, from the next update)**: when you make a Wrapped from what you listened to
   (Discover › Your Wrapped), the app reads the songs and artists you played most in the period you
   choose from the one service you pick: Last.fm or ListenBrainz (public statistics of your user name),
   Spotify (your top tracks and artists: this needs the Spotify permission "user-top-read", asked when
@@ -59,7 +59,7 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   the service does not date, the title and artist are looked up in Deezer's public catalogue
   (api.deezer.com) for their release year and cover: anonymous searches, one at a time, no account.
   The Wrapped keeps only its figures and top five songs and artists, on the device.
-- **Concerts (optional)**: when you tap Find concerts (Discover › Concerts), the names of the artists
+- **Concerts (optional, from the next update)**: when you tap Find concerts (Discover › Concerts), the names of the artists
   of the playlist you picked and the country you chose are sent to Ticketmaster's Discovery API
   (app.ticketmaster.com, under Ticketmaster's own privacy policy) and to the public music database
   MusicBrainz (musicbrainz.org). Only when you ask, never in the background; no account, no location,
@@ -81,13 +81,13 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   MusicBrainz lists, else the one Wikidata (www.wikidata.org) lists for the artist: the artist's name is
   sent to Wikidata's public API. Those sites see your phone's connection and that a page was asked, like
   any visit; no account, no cookie, nothing about you.
-- **Setlists (optional)**: when you tap Find setlists (Discover › Setlists), the names of the artists
+- **Setlists (optional, from the next update)**: when you tap Find setlists (Discover › Setlists), the names of the artists
   of the playlist you picked are sent to the setlist.fm API (api.setlist.fm, under setlist.fm's own
   privacy policy) when a setlist.fm key is set, otherwise to MusicBrainz (musicbrainz.org); a setlist.fm link you share or paste sends its setlist's id (or, without a key,
   opens its public page). Only when you ask, never in the background; no account, no location,
   nothing else about you. If you add your own setlist.fm key it goes along to setlist.fm and is kept
   encrypted on the device.
-- **Records and merch (optional)**: when you tap Find records (Discover › Records and merch), the names
+- **Records and merch (optional, from the next update)**: when you tap Find records (Discover › Records and merch), the names
   of the artists of the playlist you picked are sent to the Discogs API (api.discogs.com, under Discogs'
   own privacy policy) and to MusicBrainz (musicbrainz.org). Only when you ask, never in the background;
   nothing else about you. If you add your own Discogs token it goes along to Discogs and is kept
@@ -104,7 +104,7 @@ TIDAL, Deezer) and local files. All processing happens **on your device**.
   pictures load from the shops' image servers (cdn.shopify.com, bcbits.com and the shops' own), like any web picture
   (turn them off in Settings › Images in Discover). Shop, Discogs and official-site links open in your
   browser, without any affiliate tag.
-- **Artist alerts (optional)**: for the artists you follow in Discover (Followed artists), the app asks
+- **Artist alerts (optional, from the next update)**: for the artists you follow in Discover (Followed artists), the app asks
   the same services as New releases, Concerts and Records and merch once a day (or a week), in the
   background: Deezer, MusicBrainz, Discogs, the artists' own shops, Ticketmaster only with your own key,
   and the country you last searched in Concerts. Only the names of the artists you follow are sent;
@@ -183,7 +183,7 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   MusicBrainz (musicbrainz.org) e ListenBrainz (api.listenbrainz.org, labs.api.listenbrainz.org) e, per gli
   artisti di cui ListenBrainz non ha dati, al catalogo pubblico di Deezer (api.deezer.com): ricerche
   anonime, senza account. Se hai collegato ListenBrainz con il tuo token, quel token viene inviato a ListenBrainz.
-- **Wrapped dai tuoi ascolti (facoltativo)**: quando crei un Wrapped da quello che hai ascoltato
+- **Wrapped dai tuoi ascolti (facoltativo, dal prossimo aggiornamento)**: quando crei un Wrapped da quello che hai ascoltato
   (Scopri › Il tuo Wrapped), l'app legge i brani e gli artisti che hai ascoltato di più nel periodo
   scelto dall'unico servizio che indichi: Last.fm o ListenBrainz (statistiche pubbliche del tuo nome
   utente), Spotify (i tuoi brani e artisti più ascoltati: serve il permesso Spotify "user-top-read",
@@ -192,7 +192,7 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   trenta di quei brani che il servizio non data, titolo e artista vengono cercati nel catalogo pubblico
   di Deezer (api.deezer.com) per l'anno di uscita e la copertina: ricerche anonime, una alla volta,
   senza account. Il Wrapped conserva solo i suoi numeri e i primi cinque brani e artisti, sul dispositivo.
-- **Concerti (facoltativo)**: quando tocchi Cerca concerti (Scopri › Concerti), i nomi degli artisti
+- **Concerti (facoltativo, dal prossimo aggiornamento)**: quando tocchi Cerca concerti (Scopri › Concerti), i nomi degli artisti
   della playlist scelta e il paese indicato vengono inviati alla Discovery API di Ticketmaster
   (app.ticketmaster.com, secondo l'informativa di Ticketmaster) e al database musicale pubblico
   MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background; nessun account, nessuna
@@ -212,13 +212,13 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   Wikidata (www.wikidata.org) indica per l'artista: il nome dell'artista viene inviato all'API pubblica di
   Wikidata. Quei siti vedono la connessione del telefono e che è stata chiesta una pagina, come per ogni
   visita; nessun account, nessun cookie, niente su di te.
-- **Scalette (facoltativo)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
+- **Scalette (facoltativo, dal prossimo aggiornamento)**: quando tocchi Cerca scalette (Scopri › Scalette), i nomi degli artisti
   della playlist scelta vengono inviati all'API di setlist.fm (api.setlist.fm, secondo l'informativa di
   setlist.fm) se c'è una chiave setlist.fm, altrimenti a MusicBrainz (musicbrainz.org); un link di setlist.fm che condividi o incolli invia l'id della sua scaletta (o, senza
   chiave, apre la sua pagina pubblica). Solo quando lo chiedi, mai in background; nessun account,
   nessuna posizione, nient'altro su di te. Se aggiungi la tua chiave setlist.fm, viene inviata a
   setlist.fm e resta cifrata sul dispositivo.
-- **Dischi e merch (facoltativo)**: quando tocchi Cerca dischi (Scopri › Dischi e merch), i nomi degli
+- **Dischi e merch (facoltativo, dal prossimo aggiornamento)**: quando tocchi Cerca dischi (Scopri › Dischi e merch), i nomi degli
   artisti della playlist scelta vengono inviati all'API di Discogs (api.discogs.com, secondo
   l'informativa di Discogs) e a MusicBrainz (musicbrainz.org). Solo quando lo chiedi, mai in background;
   nient'altro su di te. Se aggiungi il tuo token Discogs, viene inviato a Discogs e resta cifrato sul
@@ -236,7 +236,7 @@ YouTube Music, TIDAL, Deezer) e file locali. Tutta l'elaborazione avviene **sul 
   prodotti arrivano dai server di immagini dei negozi (cdn.shopify.com, bcbits.com e quelli dei negozi), come ogni immagine
   web (si spengono in Opzioni › Immagini in Scopri). I link a negozi, Discogs e siti ufficiali si aprono
   nel browser, senza codici di affiliazione.
-- **Avvisi per artista (facoltativi)**: per gli artisti che segui in Scopri (Artisti seguiti), l'app
+- **Avvisi per artista (facoltativi, dal prossimo aggiornamento)**: per gli artisti che segui in Scopri (Artisti seguiti), l'app
   chiede agli stessi servizi di Nuove uscite, Concerti e Dischi e merch una volta al giorno (o alla
   settimana), in background: Deezer, MusicBrainz, Discogs, i negozi degli artisti, Ticketmaster solo con
   la tua chiave, e il paese dell'ultima ricerca in Concerti. Vengono inviati solo i nomi degli artisti

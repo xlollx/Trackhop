@@ -5,6 +5,8 @@ description: Connect the Trackhop app to your own Trackhop server on Docker, so 
 
 # Your phone and your Trackhop server
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Many people use Trackhop on the phone and also run the [Docker server](docker) at home, on a NAS or
 a Raspberry Pi. The two can work together: they take turns on each playlist, a sync can move from the
 phone to the server and back, and the phone can run and review the server's syncs.

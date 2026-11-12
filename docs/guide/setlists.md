@@ -5,6 +5,8 @@ description: 'Pick a playlist: Trackhop shows the latest setlists of its artists
 
 # Setlists of the artists in your playlist
 
+> **This arrives in the next update** of the app, Desktop and Docker. This page describes it ahead of time.
+
 Pick one of your playlists: **Trackhop** shows the latest setlists of the artists in it, from
 [setlist.fm](https://www.setlist.fm/) with your free key, or from [MusicBrainz](https://musicbrainz.org/)
 without one: up to five recent concerts each, with the date, venue,
