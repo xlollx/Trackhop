@@ -612,7 +612,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     heard.failed != null -> ctx.getString(R.string.card_poster_plays_failed, heard.failed.first.brand, heard.failed.second)
                     else -> null
                 }
-                playsSignIn = heard.needsSignIn.takeIf { from == null }
+                // Shown even when another service filled in: a better source is one sign-in away (owner, 12/11: YouTube Music's recent plays stood in for Spotify's top songs).
+                playsSignIn = heard.needsSignIn
                 val played = listed.tracks.take(listed.fromPlays)
                 // The covers of the artists that appear most (the most played songs' first), looked up once per playlist and variant.
                 suspend fun picks(want: Int): List<Bitmap> {
