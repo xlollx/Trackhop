@@ -134,6 +134,8 @@ class CardsFlowTest : FlowTest() {
         click(s(R.string.card_poster_run))
         waitText(s(R.string.card_share), ms = 30_000)
         assertFalse("a Spotify playlist has a public page", exists(s(R.string.card_poster_no_qr)))
+        // Off until turned on: most playlists are private.
+        click(s(R.string.card_poster_qr))
         click(s(R.string.card_format_square))
         val url = "https://open.spotify.com/playlist/${FakeWorld.SPOTIFY_ROAD}"
         assertEquals(url, readQrOnScreen())
@@ -203,7 +205,8 @@ class CardsFlowTest : FlowTest() {
         click(s(R.string.card_cover_another))
         waitText(s(R.string.card_share), ms = 30_000)
         assertFalse("127.0.0.1" in attemptedHosts)
-        // The square poster still carries its QR code with the drawn art.
+        // The square poster still carries its QR code with the drawn art, once turned on.
+        click(s(R.string.card_poster_qr))
         click(s(R.string.card_format_square))
         assertEquals("https://open.spotify.com/playlist/${FakeWorld.SPOTIFY_ROAD}", readQrOnScreen())
 

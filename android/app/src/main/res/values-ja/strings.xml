@@ -808,6 +808,7 @@
     <string name="card_compat_run">比較</string>
     <string name="card_again">カードを作り直す</string>
     <string name="card_poster_no_qr">このサービスにはプレイリストの公開ページがないため、ポスターに QR コードはありません。</string>
+    <string name="card_poster_private_no_qr">このプレイリストは非公開です。QRコードを付けても他の人には見られないページが開くため、ポスターには付けません。</string>
     <string name="card_poster_run">ポスターを作る</string>
     <plurals name="card_tracks">
         <item quantity="other">%1$d 曲</item>

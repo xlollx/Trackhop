@@ -89,6 +89,8 @@ abstract class FlowTest {
         FakeWorld.install()
         File(app.filesDir, "csv").deleteRecursively()
         com.xlollx.songport.ai.AiClient.clear(app)
+        // The poster's choices (QR, layout, art) start from their defaults in every test.
+        app.getSharedPreferences("poster", Context.MODE_PRIVATE).edit().clear().commit()
         store.update { StoreData(settings = baseSettings()) }
         store.flush()
     }

@@ -808,6 +808,7 @@
     <string name="card_compat_run">比较</string>
     <string name="card_again">重新生成卡片</string>
     <string name="card_poster_no_qr">该服务没有播放列表的公开页面：海报上没有二维码。</string>
+    <string name="card_poster_private_no_qr">这个歌单是私密的：二维码会打开别人看不到的页面，所以海报上没有二维码。</string>
     <string name="card_poster_run">生成海报</string>
     <plurals name="card_tracks">
         <item quantity="other">%1$d 首歌曲</item>

@@ -841,6 +841,7 @@
     <string name="card_compat_run">Сравнить</string>
     <string name="card_again">Сделать карточку заново</string>
     <string name="card_poster_no_qr">У этого сервиса нет публичной страницы плейлиста: постер без QR-кода.</string>
+    <string name="card_poster_private_no_qr">Плейлист закрытый: QR-код открыл бы страницу, которую другие не видят, поэтому на постере его нет.</string>
     <string name="card_poster_run">Создать постер</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d трек</item>

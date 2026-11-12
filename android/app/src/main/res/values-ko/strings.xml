@@ -807,6 +807,7 @@
     <string name="card_compat_run">비교</string>
     <string name="card_again">카드 다시 만들기</string>
     <string name="card_poster_no_qr">이 서비스에는 플레이리스트 공개 페이지가 없어 포스터에 QR 코드가 없습니다.</string>
+    <string name="card_poster_private_no_qr">비공개 플레이리스트입니다. QR 코드는 다른 사람이 볼 수 없는 페이지를 열기 때문에 포스터에 넣지 않습니다.</string>
     <string name="card_poster_run">포스터 만들기</string>
     <plurals name="card_tracks">
         <item quantity="other">%1$d곡</item>

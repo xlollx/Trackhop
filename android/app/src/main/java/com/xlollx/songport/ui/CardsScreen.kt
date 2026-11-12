@@ -585,8 +585,10 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var layout by remember { mutableStateOf(runCatching { PosterPalette.Layout.valueOf(posterPrefs(ctx).getString("layout", null) ?: "") }.getOrNull() ?: PosterPalette.Layout.CLASSIC) }
     // The poster is signed only when asked: an account's name is often an e-mail address.
     var showName by remember { mutableStateOf(posterPrefs(ctx).getBoolean("name", false)) }
-    // The QR code and its caption: on unless the user turned them off.
-    var withQr by remember { mutableStateOf(posterPrefs(ctx).getBoolean("qr", true)) }
+    // The QR code and its caption: off until the user turns them on, since most playlists are private.
+    var withQr by remember { mutableStateOf(posterPrefs(ctx).getBoolean("qr", false)) }
+    // A playlist the service says is private: a QR would open a page nobody else can see.
+    var privateList by remember { mutableStateOf(false) }
     // Where the songs listed come from: the user's plays on a service, or why not.
     var playsNote by remember { mutableStateOf<String?>(null) }
     // Spotify's connector, when it needs a new sign-in to say what the user plays most.
@@ -702,7 +704,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
                         }
                     }
                 }
-                qr = qrUrl(ctx, p)
+                privateList = p.pastedLink == null && p.playlist.isPublic == false
+                qr = if (privateList) null else qrUrl(ctx, p)
                 // A name only: an account's number or code (made through Facebook or Google) never goes on the poster.
                 ownerName = if (info.ownedByMe) com.xlollx.songport.sync.PersonName.of(p.provider.accountName(ctx)).orEmpty() else ""
                 mine = info.ownedByMe
@@ -789,12 +792,12 @@ fun PosterCard(snackbar: SnackbarHostState) {
                     androidx.compose.runtime.LaunchedEffect(typedName) { kotlinx.coroutines.delay(500); redraw() }
                 }
             }
-            // The QR code and its caption, on unless turned off; the sheet closes the gap without them.
+            // The QR code and its caption, off unless turned on; the sheet closes the gap without them.
             if (qr != null) PosterSwitch(stringResource(R.string.card_poster_qr), stringResource(R.string.card_poster_qr_hint, pick?.provider?.brand.orEmpty()), withQr) { on ->
                 withQr = on; redraw()
                 runCatching { posterPrefs(ctx).edit().putBoolean("qr", on).apply() }
             }
-            if (qr == null) ToolNote(stringResource(R.string.card_poster_no_qr))
+            if (qr == null) ToolNote(stringResource(if (privateList) R.string.card_poster_private_no_qr else R.string.card_poster_no_qr))
             playsNote?.let { ToolNote(it) }
             playsSignIn?.let { p -> SpotifyScopeNote { com.xlollx.songport.auth.AuthFlow.start(ctx, p) } }
             // Every artist, in full: the poster prints only those that fit ("+N").

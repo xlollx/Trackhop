@@ -819,6 +819,7 @@
     <string name="card_compat_run">Vergleichen</string>
     <string name="card_again">Karte neu erstellen</string>
     <string name="card_poster_no_qr">Dieser Dienst hat keine öffentliche Seite für die Playlist: das Poster hat keinen QR-Code.</string>
+    <string name="card_poster_private_no_qr">Die Playlist ist privat: Ein QR-Code würde eine Seite öffnen, die andere nicht sehen können, daher hat das Poster keinen.</string>
     <string name="card_poster_run">Poster erstellen</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d Titel</item>

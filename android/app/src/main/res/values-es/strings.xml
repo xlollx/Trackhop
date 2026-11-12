@@ -819,6 +819,7 @@
     <string name="card_compat_run">Comparar</string>
     <string name="card_again">Rehacer la tarjeta</string>
     <string name="card_poster_no_qr">Este servicio no tiene página pública para la lista: el póster no lleva QR.</string>
+    <string name="card_poster_private_no_qr">La playlist es privada: un código QR abriría una página que otros no pueden ver, así que el póster no lo lleva.</string>
     <string name="card_poster_run">Crear el póster</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d canción</item>

@@ -819,6 +819,7 @@
     <string name="card_compat_run">Compare</string>
     <string name="card_again">Make the card again</string>
     <string name="card_poster_no_qr">This service has no public page for the playlist: the poster has no QR code.</string>
+    <string name="card_poster_private_no_qr">The playlist is private: a QR code would open a page others can\'t see, so the poster has none.</string>
     <string name="card_poster_run">Make the poster</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d track</item>

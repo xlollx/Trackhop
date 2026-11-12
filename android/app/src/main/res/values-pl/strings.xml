@@ -843,6 +843,7 @@
     <string name="card_compat_run">Porównaj</string>
     <string name="card_again">Zrób kartę ponownie</string>
     <string name="card_poster_no_qr">Ten serwis nie ma publicznej strony playlisty: plakat jest bez kodu QR.</string>
+    <string name="card_poster_private_no_qr">Playlista jest prywatna: kod QR otwierałby stronę, której inni nie widzą, więc plakat go nie ma.</string>
     <string name="card_poster_run">Zrób plakat</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d utwór</item>

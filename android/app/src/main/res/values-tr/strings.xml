@@ -817,6 +817,7 @@
     <string name="card_compat_run">Karşılaştır</string>
     <string name="card_again">Kartı yeniden yap</string>
     <string name="card_poster_no_qr">Bu servisin çalma listesi için herkese açık bir sayfası yok: posterde QR kod yok.</string>
+    <string name="card_poster_private_no_qr">Çalma listesi gizli: QR kodu başkalarının göremediği bir sayfayı açacağı için posterde yok.</string>
     <string name="card_poster_run">Posteri oluştur</string>
     <plurals name="card_tracks">
         <item quantity="one">%1$d parça</item>
