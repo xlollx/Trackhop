@@ -12,10 +12,11 @@ import org.junit.Test
  */
 class PluginRelaySitesTest {
     @Test fun onlyAPluginThatRelaysAndIsNewEnoughIsAsked() {
-        assertEquals(56, BridgePlugin.SITES_VERSION)
+        assertEquals(57, BridgePlugin.SITES_VERSION)
         assertTrue(PluginRelay.sitesGate(capable = true, version = BridgePlugin.SITES_VERSION))
         assertTrue(PluginRelay.sitesGate(capable = true, version = BridgePlugin.SITES_VERSION + 3))
-        // Trackhop Bridge 1.10.1 (55) and before: not asked, Vivaticket stays off.
+        // Trackhop Bridge 1.10.2 (56), the Amazon Music fix, and before: not asked, Vivaticket stays off.
+        assertFalse(PluginRelay.sitesGate(capable = true, version = 56))
         assertFalse(PluginRelay.sitesGate(capable = true, version = 55))
         // No status answered yet, or no plugin: nothing.
         assertFalse(PluginRelay.sitesGate(capable = true, version = 0))

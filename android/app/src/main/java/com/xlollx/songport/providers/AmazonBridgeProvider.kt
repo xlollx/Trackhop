@@ -90,12 +90,15 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     }
 
     /**
-     * A saved album is looked for among albums (the player's albums search), never among songs: a song
-     * that shares the album's name is not the album. A Bridge app older than the albums search
-     * answers with songs, which are left out: nothing found rather than a wrong proposal.
+     * Songs, as the player's search lists them. An album is looked for among albums (the player's
+     * albums search) only where Amazon can hold albums, a saved-albums library ([supportsAlbums]):
+     * Trackhop has none on Amazon yet, so saved albums from another service go into a playlist, and a
+     * playlist takes songs only (an album id there would fail). Until then they are searched as songs,
+     * as before. A Bridge app older than the albums search answers it with songs, which are left out:
+     * nothing found rather than a wrong proposal.
      */
     override suspend fun search(ctx: Env, track: Track): List<Track> {
-        if (track.kind == Track.KIND_ALBUM) {
+        if (searchesAlbums(track, supportsAlbums)) {
             val q = (track.artists.take(1).map { Matcher.searchArtist(it) } + Matcher.searchTitle(track.title)).joinToString(" ")
             return io(ctx, "amazon.search", q, Bundle().apply { putString("kind", "album") }) { j ->
                 j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ALBUM }
@@ -198,6 +201,13 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     }
 
     companion object {
+        /**
+         * Whether [track] is looked for with the albums search: an album, where saved albums exist.
+         * When they come, a sync into an Amazon playlist must still search songs: this gate then has to
+         * know the target, not only the service.
+         */
+        fun searchesAlbums(track: Track, supportsAlbums: Boolean): Boolean = supportsAlbums && track.kind == Track.KIND_ALBUM
+
         const val SERVICE = "amazon"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.AMAZON_LOGIN"
     }

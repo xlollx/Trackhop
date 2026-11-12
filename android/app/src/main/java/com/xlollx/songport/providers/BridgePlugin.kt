@@ -48,9 +48,10 @@ object BridgePlugin {
     /**
      * A plugin reporting this "version" (or more) also browses setlist.fm for the store builds
      * ([SETLIST_ACTION]) and reads Vivaticket's gateway for Concerts (`vivaticket.read`), the two
-     * features the GitHub and F-Droid build carries itself. Trackhop Bridge does so since 1.11.0.
+     * features the GitHub and F-Droid build carries itself. Trackhop Bridge does so since 1.11.0 (57;
+     * 56 is 1.10.2, the Amazon Music search fix, without them).
      */
-    const val SITES_VERSION = 56
+    const val SITES_VERSION = 57
 
     /** The plugin's screen for setlist.fm, started for a result (see [SITES_VERSION]). */
     const val SETLIST_ACTION = "com.xlollx.songport.ytmbridge.SETLIST_BROWSE"
