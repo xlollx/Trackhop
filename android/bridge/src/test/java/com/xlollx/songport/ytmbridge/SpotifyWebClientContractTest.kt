@@ -273,4 +273,34 @@ class SpotifyWebClientContractTest {
         answer("""{"data":{"playlistV2":{"__typename":"Playlist","content":{"totalCount":3,"items":[{"uid":"a","itemV2":{"data":{"__typename":"Mystery"}}}]}}}}""")
         try { web.playlistTracks("A"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("nothing readable")) }
     }
+
+    @Test fun topSongsAreAskedAsTheProfilePageAsksThem() {
+        answer("""{"data":{"me":{"profile":{
+            "topArtists":{"__typename":"ArtistPageV2","totalCount":2,"items":[{"data":{"__typename":"Artist","uri":"spotify:artist:a1","profile":{"name":"Kavinsky"}}},{"data":{"__typename":"Artist","uri":"spotify:artist:a2","profile":{"name":"M83"}}}]},
+            "topTracks":{"__typename":"TrackPageV2","totalCount":3,"items":[
+              {"data":{"__typename":"Track","uri":"spotify:track:t1","name":"Nightcall","duration":{"totalMilliseconds":258000},"artists":{"items":[{"uri":"spotify:artist:a1","profile":{"name":"Kavinsky"}}]},"albumOfTrack":{"name":"OutRun","date":{"year":2013}},"contentRating":{"label":"NONE"}}},
+              {"data":{"__typename":"Episode","uri":"spotify:episode:e1","name":"Talk"}},
+              {"data":{"__typename":"Track","uri":"spotify:track:t2","name":"Midnight City","duration":{"totalMilliseconds":243000},"artists":{"items":[{"profile":{"name":"M83"}}]},"albumOfTrack":{"name":"Hurry Up, We're Dreaming"}}}]}}}}}""")
+        val top = web.top("LONG_TERM")
+        assertEquals(listOf("t1", "t2"), top.tracks.map { it.id })
+        assertEquals(listOf("Kavinsky"), top.tracks[0].artists)
+        assertEquals(258_000L, top.tracks[0].durationMs)
+        assertEquals(2013, top.tracks[0].year)
+        assertEquals(listOf("Kavinsky", "M83"), top.artists)
+        val sent = BridgeMock.calls.last { it.host() == "api-partner.spotify.com" }.json()
+        assertEquals("userTopContent", sent["operationName"].str)
+        val v = sent["variables"]
+        assertEquals("true", v["includeTopTracks"].toString())
+        for (input in listOf(v["topTracksInput"], v["topArtistsInput"])) {
+            assertEquals("LONG_TERM", input["timeRange"].str)
+            assertEquals("AFFINITY", input["sortBy"].str)
+            assertEquals(50L, input["limit"].long)
+            assertEquals(0L, input["offset"].long)
+        }
+    }
+
+    @Test fun topSongsInAnAnswerOfAnotherShapeAreAnErrorNotAnEmptyList() {
+        answer("""{"data":{"me":{"profile":{"topTracks":{"__typename":"TrackPageV2","items":[{"data":{"__typename":"Track","title":"renamed field"}}]}}}}}""")
+        try { web.top("SHORT_TERM"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("userTopContent")) }
+    }
 }

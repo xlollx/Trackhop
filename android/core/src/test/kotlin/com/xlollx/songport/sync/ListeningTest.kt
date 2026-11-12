@@ -240,4 +240,65 @@ class ListeningTest {
         assertTrue(w.topTracks.isEmpty())
         assertNull(w.discovery)
     }
+
+    // ------------------------------------------------------------ Deezer, the web player, personal servers
+
+    @Test fun readsDeezerTopTracksAndArtists() {
+        val j = parseJson("""{"data":[
+            {"id":3135556,"title":"Harder, Better, Faster, Stronger","duration":224,"artist":{"name":"Daft Punk"},"album":{"title":"Discovery","cover_medium":"https://e-cdns-images.dzcdn.net/images/cover/x/250x250.jpg"}},
+            {"title":"No id"},{"id":2,"title":"","artist":{"name":"Nobody"}}],"total":3}""")
+        val plays = Listening.deezerTracks(j)
+        assertEquals(listOf("3135556"), plays.map { it.track.id })
+        assertEquals(listOf("Daft Punk"), plays[0].track.artists)
+        assertEquals(224_000L, plays[0].track.durationMs)
+        assertEquals(0, plays[0].plays)
+        assertTrue(plays[0].cover!!.endsWith("250x250.jpg"))
+        assertEquals(listOf("Daft Punk"), Listening.deezerArtists(parseJson("""{"data":[{"name":"Daft Punk"},{"name":" "}]}""")).map { it.name })
+    }
+
+    private fun counted(id: String, title: String, artist: String, plays: Int) = Listening.Play(Track(id = id, title = title, artists = listOf(artist)), plays)
+
+    @Test fun aServersCountsMakeAReportOfTheSongsPlayed() {
+        val r = Listening.fromCounts(listOf(
+            counted("1", "Battery", "Metallica", 5), counted("2", "Home", "Beyoncé", 12), counted("3", "One", "Metallica", 9),
+            counted("4", "Never", "Nobody", 0), counted("1", "Battery", "Metallica", 5),
+        ))
+        assertEquals(listOf("2", "3", "1"), r.tracks.map { it.track.id })
+        assertEquals(listOf(Listening.ArtistPlays("Metallica", 14), Listening.ArtistPlays("Beyoncé", 12)), r.artists)
+        assertEquals(26, r.totalPlays)
+        assertEquals(3, r.totalTracks)
+        assertEquals(2, r.totalArtists)
+    }
+
+    @Test fun readsEachServersOwnCountField() {
+        val t = Track(id = "x", title = "Battery", artists = listOf("Metallica"))
+        assertEquals(7, Listening.subsonicPlay(parseJson("""{"playCount":7}"""), t).plays)
+        assertEquals(3, Listening.jellyfinPlay(parseJson("""{"UserData":{"PlayCount":3}}"""), t).plays)
+        assertEquals(0, Listening.jellyfinPlay(parseJson("""{"UserData":{}}"""), t).plays)
+        assertEquals(11, Listening.plexPlay(parseJson("""{"viewCount":11}"""), t).plays)
+        assertEquals(0, Listening.plexPlay(parseJson("""{}"""), t).plays)
+        assertEquals(4, Listening.lyrionPlay(parseJson("""{"playcount":"4"}"""), t).plays)
+    }
+
+    @Test fun personalServersRankAfterTheScrobblersAndBeforeTheRankings() {
+        assertEquals(Source.SUBSONIC, Listening.choose(listOf(Source.SPOTIFY, Source.SUBSONIC, Source.YTM), null))
+        assertEquals(Source.LASTFM, Listening.choose(listOf(Source.JELLYFIN, Source.LASTFM), null))
+        assertEquals(Source.SPOTIFY_WEB, Listening.choose(listOf(Source.DEEZER, Source.SPOTIFY_WEB, Source.YTM), null))
+        assertTrue(Source.PLEX.server && Source.LYRION.server && Source.EMBY.server)
+        assertFalse(Source.LASTFM.server || Source.DEEZER.server || Source.SPOTIFY.server)
+        // A server and Deezer tell one span only, their own.
+        assertEquals(Period.ALL, Listening.period(Source.JELLYFIN, Period.YEAR))
+        assertEquals(Period.ALL, Listening.period(Source.DEEZER, null))
+        assertEquals(Source.SPOTIFY_WEB, Source.of("spotify_bridge"))
+    }
+
+    @Test fun theWebPlayerSaysItsSpansInItsOwnWords() {
+        assertEquals("SHORT_TERM", Listening.spotifyWebRange(Period.MONTH))
+        assertEquals("MID_TERM", Listening.spotifyWebRange(Period.HALF_YEAR))
+        assertEquals("LONG_TERM", Listening.spotifyWebRange(Period.YEAR))
+        assertNull(Listening.spotifyWebRange(Period.ALL))
+        assertNull(Listening.spotifyRange(Period.ALL))
+        assertNull(Listening.lastFmPeriod(Period.ALL))
+        assertEquals(Period.ALL, Period.of("all"))
+    }
 }

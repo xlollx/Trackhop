@@ -112,6 +112,17 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
         }
     }
 
+    /**
+     * The songs and artists Deezer ranks highest for the user (/user/me/charts, basic_access: the
+     * sign-in already has it). A ranking with no counts, over a span Deezer does not say.
+     */
+    suspend fun listening(ctx: Env): com.xlollx.songport.sync.Listening.Report {
+        val top = com.xlollx.songport.sync.Listening.TOP.toString()
+        val tracks = com.xlollx.songport.sync.Listening.deezerTracks(dz(ctx, "GET", "/user/me/charts/tracks", mapOf("limit" to top)))
+        val artists = com.xlollx.songport.sync.Listening.deezerArtists(dz(ctx, "GET", "/user/me/charts/artists", mapOf("limit" to top)))
+        return com.xlollx.songport.sync.Listening.Report(tracks, artists)
+    }
+
     override suspend fun playlists(ctx: Env): List<Playlist> {
         val me = tokens(ctx).userId
         val out = ArrayList<Playlist>()

@@ -263,6 +263,8 @@ object BridgeCore {
                 }
                 "spotify.search" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).search(arg ?: "", extras?.getString("kind"))))
                 "spotify.track" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).track(arg ?: return err("missing track id"))))
+                // What the user plays most, as the player's profile shows it; arg: SHORT_TERM, MID_TERM or LONG_TERM.
+                "spotify.top" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).top(arg ?: "SHORT_TERM")))
                 "spotify.create" -> ok(json.encodeToString(SpotifyWebClient(ctx, slot).createPlaylist(extras?.getString("name") ?: "Playlist", extras?.getString("description") ?: "")))
                 "spotify.add" -> {
                     val id = arg ?: return err("missing playlist id")

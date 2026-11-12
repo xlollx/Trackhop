@@ -12,6 +12,7 @@ import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
@@ -21,7 +22,7 @@ import kotlinx.serialization.json.JsonElement
  * documenta come trovarlo). A new playlist is made empty, pointed at the server's library
  * (checked on Plex 1.43): the engine then adds the tracks as on any other target.
  */
-class PlexProvider(override val slot: String = "") : CredentialsProvider() {
+class PlexProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
     override val displayName = "Plex"
     override val routeNoteName: String? get() = "route_note_server"
@@ -68,6 +69,21 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider() {
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
         api(ctx, "GET", "/playlists/$playlistId/items?includeGuids=1")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
+
+    /** Each song of the playlist with its `viewCount`: the plays of the account whose token signed in. */
+    override suspend fun playlistPlays(ctx: Env, playlistId: String): List<Listening.Play> {
+        if (MusicProvider.isLibrary(playlistId)) return emptyList()
+        return api(ctx, "GET", "/playlists/$playlistId/items")["MediaContainer"]["Metadata"].arr.mapNotNull { m -> toTrack(m)?.let { Listening.plexPlay(m, it) } }
+    }
+
+    /** The songs played most of each music library, sorted by the server itself (viewCount), then together. */
+    override suspend fun topPlays(ctx: Env, n: Int): List<Listening.Play> {
+        val sections = api(ctx, "GET", "/library/sections")["MediaContainer"]["Directory"].arr.filter { it["type"].str == "artist" }.mapNotNull { it["key"].str }
+        return sections.flatMap { s ->
+            api(ctx, "GET", "/library/sections/$s/all?type=10&sort=viewCount:desc&X-Plex-Container-Start=0&X-Plex-Container-Size=$n")["MediaContainer"]["Metadata"].arr
+                .mapNotNull { m -> toTrack(m)?.let { Listening.plexPlay(m, it) } }
+        }.filter { it.plays > 0 }.sortedByDescending { it.plays }.take(n)
+    }
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         // Plex matches the query against one name at a time ("metallica battery" finds nothing): the

@@ -13,6 +13,7 @@ import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
@@ -26,7 +27,7 @@ import java.security.SecureRandom
  * Funkwhale e gli altri server compatibili. Nessuna registrazione, nessuna quota: solo il tuo server.
  * Autenticazione con token = md5(password + salt) per richiesta, mai la password in chiaro.
  */
-class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
+class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
     override val displayName = "Subsonic / Navidrome"
     override val routeNoteName: String? get() = "route_note_server"
@@ -130,6 +131,27 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
             call(ctx, "getPlaylist", listOf("id" to playlistId))["playlist"]["entry"].arr
                 .mapIndexedNotNull { i, s -> toTrack(s, i) }
         }
+
+    /** Each song of the playlist (or of the starred ones) with its `playCount`, as the server counts it for the user. */
+    override suspend fun playlistPlays(ctx: Env, playlistId: String): List<Listening.Play> {
+        val songs = when {
+            playlistId == MusicProvider.LIKED_ID -> call(ctx, "getStarred2", emptyList())["starred2"]["song"].arr
+            MusicProvider.isLibrary(playlistId) -> return emptyList()
+            else -> call(ctx, "getPlaylist", listOf("id" to playlistId))["playlist"]["entry"].arr
+        }
+        return songs.mapNotNull { s -> toTrack(s)?.let { Listening.subsonicPlay(s, it) } }
+    }
+
+    /**
+     * The API sorts albums by plays (getAlbumList2 type=frequent), not songs: the songs of the
+     * albums played most, by their own `playCount`.
+     */
+    override suspend fun topPlays(ctx: Env, n: Int): List<Listening.Play> {
+        val albums = call(ctx, "getAlbumList2", listOf("type" to "frequent", "size" to "$TOP_ALBUMS"))["albumList2"]["album"].arr.mapNotNull { it["id"].str }
+        val out = ArrayList<Listening.Play>()
+        for (a in albums) out += call(ctx, "getAlbum", listOf("id" to a))["album"]["song"].arr.mapNotNull { s -> toTrack(s)?.let { Listening.subsonicPlay(s, it) } }
+        return out.filter { it.plays > 0 }.distinctBy { it.track.id }.sortedByDescending { it.plays }.take(n)
+    }
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {
         when (track.kind) {
@@ -247,6 +269,8 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider() {
         /** An ISRC is rarely more than a couple of recordings: that many searches by id, then the title. */
         private const val MBID_QUERIES = 2
         private const val LIBRARY_PAGE = 500
+        /** The albums played most whose songs make the top songs: each one is one call. */
+        internal const val TOP_ALBUMS = 20
 
         /**
          * Navidrome's web UI (react-admin, hash routing, served under /app) on its songs list filtered by

@@ -12,8 +12,10 @@ import kotlinx.serialization.json.JsonObject
 /**
  * What the user actually listened to, for the Wrapped: the songs and artists played most in a
  * period, as a listening service counts them. Last.fm and ListenBrainz count every play
- * (scrobbles), Spotify only ranks (its "top items"), YouTube Music only knows the recent plays.
- * The answers are read here, from the services' own JSON, so the parsing is covered by tests.
+ * (scrobbles), and so does a personal server (Navidrome and the other Subsonic servers, Jellyfin,
+ * Emby, Plex, Lyrion) for the songs it served, over all time; Spotify and Deezer only rank (their
+ * "top items"), YouTube Music only knows the recent plays. The answers are read here, from the
+ * services' own JSON, so the parsing is covered by tests.
  */
 object Listening {
     /** Songs and artists asked of a service: enough for a top five and a musical age. */
@@ -22,9 +24,13 @@ object Listening {
     /** Songs whose year (and cover) is looked up when the service did not say: the most played ones. */
     const val LOOKUPS = 30
 
-    /** The span a Wrapped speaks of. [RECENT]: the latest plays, for a service that keeps no counts. */
+    /**
+     * The span a Wrapped speaks of. [RECENT]: the latest plays, for a service that keeps no counts.
+     * [ALL]: no span chosen, the service's own: every play a personal server counted, or the ranking
+     * Deezer gives without saying over which period.
+     */
     enum class Period(val days: Int) {
-        MONTH(30), HALF_YEAR(182), YEAR(365), RECENT(0);
+        MONTH(30), HALF_YEAR(182), YEAR(365), RECENT(0), ALL(0);
 
         val key: String get() = name.lowercase()
 
@@ -34,14 +40,25 @@ object Listening {
     }
 
     /**
-     * The services that know what the user listened to, the best first: those counting every play,
-     * then Spotify's ranking, then YouTube Music's recent plays. The periods each can tell.
+     * The services that know what the user listened to, the best first: those counting every play
+     * (the scrobblers, then the personal servers), then Spotify's ranking (the developer sign-in,
+     * then the web player's), then Deezer's, then YouTube Music's recent plays. The periods each can tell.
      */
     enum class Source(val serviceId: String, val periods: List<Period>, val counts: Boolean) {
         LASTFM("lastfm", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), true),
         LISTENBRAINZ("listenbrainz", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), true),
+        SUBSONIC("subsonic", listOf(Period.ALL), true),
+        JELLYFIN("jellyfin", listOf(Period.ALL), true),
+        EMBY("emby", listOf(Period.ALL), true),
+        PLEX("plex", listOf(Period.ALL), true),
+        LYRION("lyrion", listOf(Period.ALL), true),
         SPOTIFY("spotify", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), false),
+        SPOTIFY_WEB("spotify_bridge", listOf(Period.MONTH, Period.HALF_YEAR, Period.YEAR), false),
+        DEEZER("deezer", listOf(Period.ALL), false),
         YTM("ytm", listOf(Period.RECENT), false);
+
+        /** A personal server: it counts the plays of every song it holds, so a playlist of its own is ranked by them. */
+        val server: Boolean get() = counts && periods == listOf(Period.ALL)
 
         companion object {
             fun of(serviceId: String?): Source? = entries.firstOrNull { it.serviceId == serviceId }
@@ -80,17 +97,22 @@ object Listening {
 
     /** Last.fm's period names (user.gettoptracks, user.gettopartists). */
     fun lastFmPeriod(p: Period): String? = when (p) {
-        Period.MONTH -> "1month"; Period.HALF_YEAR -> "6month"; Period.YEAR -> "12month"; Period.RECENT -> null
+        Period.MONTH -> "1month"; Period.HALF_YEAR -> "6month"; Period.YEAR -> "12month"; Period.RECENT, Period.ALL -> null
     }
 
     /** ListenBrainz's statistics ranges (/1/stats/user/…?range=). */
     fun listenBrainzRange(p: Period): String? = when (p) {
-        Period.MONTH -> "month"; Period.HALF_YEAR -> "half_yearly"; Period.YEAR -> "year"; Period.RECENT -> null
+        Period.MONTH -> "month"; Period.HALF_YEAR -> "half_yearly"; Period.YEAR -> "year"; Period.RECENT, Period.ALL -> null
     }
 
     /** Spotify's time ranges (/v1/me/top/…?time_range=): about four weeks, six months, a year. */
     fun spotifyRange(p: Period): String? = when (p) {
-        Period.MONTH -> "short_term"; Period.HALF_YEAR -> "medium_term"; Period.YEAR -> "long_term"; Period.RECENT -> null
+        Period.MONTH -> "short_term"; Period.HALF_YEAR -> "medium_term"; Period.YEAR -> "long_term"; Period.RECENT, Period.ALL -> null
+    }
+
+    /** The web player's time ranges (pathfinder userTopContent's timeRange): the same three spans in its own words. */
+    fun spotifyWebRange(p: Period): String? = when (p) {
+        Period.MONTH -> "SHORT_TERM"; Period.HALF_YEAR -> "MID_TERM"; Period.YEAR -> "LONG_TERM"; Period.RECENT, Period.ALL -> null
     }
 
     // ------------------------------------------------------------------ Last.fm
@@ -184,6 +206,57 @@ object Listening {
 
     /** /v1/me/top/artists: the artists Spotify ranks highest (no counts). */
     fun spotifyArtists(j: JsonElement?): List<ArtistPlays> = j["items"].arr.mapNotNull { a -> a["name"].str?.takeIf { it.isNotBlank() }?.let { ArtistPlays(it) } }
+
+    // ------------------------------------------------------------------ Deezer
+
+    /** /user/me/charts/tracks: the songs Deezer ranks highest for the user (no counts, no period said), with their covers. */
+    fun deezerTracks(j: JsonElement?): List<Play> = j["data"].arr.mapNotNull { t ->
+        val id = t["id"].long?.toString() ?: t["id"].str ?: return@mapNotNull null
+        val title = t["title"].str?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+        Play(
+            Track(
+                id = id, title = title, artists = listOfNotNull(t["artist"]["name"].str?.takeIf { it.isNotBlank() }),
+                album = t["album"]["title"].str.orEmpty(), durationMs = (t["duration"].long ?: 0) * 1000, isrc = t["isrc"].str,
+            ),
+            cover = t["album"]["cover_medium"].str?.takeIf { it.isNotBlank() } ?: t["album"]["cover_big"].str?.takeIf { it.isNotBlank() },
+        )
+    }
+
+    /** /user/me/charts/artists: the artists Deezer ranks highest for the user (no counts). */
+    fun deezerArtists(j: JsonElement?): List<ArtistPlays> = j["data"].arr.mapNotNull { a -> a["name"].str?.takeIf { it.isNotBlank() }?.let { ArtistPlays(it) } }
+
+    // ------------------------------------------------------------------ personal servers
+
+    /** A song a server lists, with the plays it counted for the user: Subsonic's `playCount` (getPlaylist, getAlbum, getStarred2). */
+    fun subsonicPlay(s: JsonElement?, track: Track): Play = Play(track, count(s["playCount"]))
+
+    /** Jellyfin and Emby: the plays are the item's `UserData.PlayCount`. */
+    fun jellyfinPlay(i: JsonElement?, track: Track): Play = Play(track, count(i["UserData"]["PlayCount"]))
+
+    /** Plex: the plays are the item's `viewCount` (absent: never played). */
+    fun plexPlay(m: JsonElement?, track: Track): Play = Play(track, count(m["viewCount"]))
+
+    /** Lyrion: the plays are the `playcount` its CLI returns for tag O. */
+    fun lyrionPlay(s: JsonElement?, track: Track): Play = Play(track, count(s["playcount"]))
+
+    /**
+     * What a server counted, as a report: the songs played at least once, the most played first (a
+     * song listed twice counted once), the artists ranked by the plays of their songs, and the total
+     * of the plays. Over all time: a server keeps a count, not a history.
+     */
+    fun fromCounts(plays: List<Play>): Report {
+        val songs = plays.filter { it.plays > 0 && it.track.title.isNotBlank() && it.track.kind.isEmpty() }
+            .distinctBy { it.track.id }.sortedByDescending { it.plays }
+        val counts = LinkedHashMap<String, Pair<String, Int>>()
+        for (p in songs) {
+            val a = p.track.artists.firstOrNull { it.isNotBlank() } ?: continue
+            val k = Matcher.normalizeArtist(a)
+            if (k.isEmpty() || k == "various artists") continue
+            counts[k] = (counts[k]?.first ?: a.trim()) to ((counts[k]?.second ?: 0) + p.plays)
+        }
+        val artists = counts.values.sortedByDescending { it.second }.map { ArtistPlays(it.first, it.second) }
+        return Report(songs, artists, totalTracks = songs.size, totalArtists = counts.size, totalPlays = songs.sumOf { it.plays })
+    }
 
     // ------------------------------------------------------------------ recent plays
 

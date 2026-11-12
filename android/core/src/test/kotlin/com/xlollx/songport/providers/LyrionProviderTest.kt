@@ -39,6 +39,9 @@ class LyrionProviderTest {
         Song(13, "Home", "Beyoncé", "Renaissance", 201.0, 2022),
         Song(14, "One", "Metallica", "...And Justice for All", 446.0, 1988),
     )
+    /** The plays the server counted per song (tag O, `playcount`); a song never played has none. */
+    private val plays = mapOf(11 to 7, 14 to 31)
+    private val albumIds = library.map { it.album }.distinct().withIndex().associate { (i, a) -> a to (500 + i) }
     private val names = linkedMapOf(37 to "Funky Beats", 57 to "SUPER")
     private val entries = hashMapOf(37 to mutableListOf(11, 12, 14), 57 to mutableListOf<Int>())
     private var nextId = 100
@@ -77,12 +80,16 @@ class LyrionProviderTest {
 
     private fun answer(cmd: List<String>): String {
         fun slice(all: List<String>, at: Int) = all.drop(cmd[at].toInt()).take(cmd[at + 1].toInt()).joinToString(",")
+        // The play count only when asked for with its letter, as the CLI does.
+        fun js(song: Song, index: Int? = null) = song.json(index).let { j ->
+            if (cmd.param("tags")?.contains('O') == true) "{\"playcount\":${plays[song.id] ?: 0}," + j.removePrefix("{") else j
+        }
         return when {
             cmd.take(2) == listOf("version", "?") -> """{"_version":"9.1.0"}"""
             cmd.take(2) == listOf("playlists", "tracks") -> {
                 val id = cmd.param("playlist_id")!!.toInt()
                 val list = entries[id] ?: return """{"count":0}"""
-                val songs = list.mapIndexed { i, s -> library.first { it.id == s }.json(i) }
+                val songs = list.mapIndexed { i, s -> js(library.first { it.id == s }, i) }
                 """{"__playlistTitle":"${names[id]}","count":${songs.size},"playlisttracks_loop":[${slice(songs, 2)}]}"""
             }
             cmd.take(2) == listOf("playlists", "new") -> {
@@ -119,6 +126,18 @@ class LyrionProviderTest {
                 val all = listOf("""{"id":"file:///playlists/Old","playlist":"Old"}""") + names.map { (id, n) -> """{"id":$id,"playlist":"$n"}""" }
                 """{"count":${all.size},"playlists_loop":[${slice(all, 1)}]}"""
             }
+            cmd[0] == "albums" -> {
+                // sort:playcount: the albums whose songs were played most first.
+                assertEquals("playcount", cmd.param("sort"))
+                val ranked = albumIds.entries.sortedByDescending { (a, _) -> library.filter { it.album == a }.sumOf { plays[it.id] ?: 0 } }
+                val all = ranked.map { (a, id) -> """{"id":$id,"album":"$a"}""" }
+                """{"count":${all.size},"albums_loop":[${slice(all, 1)}]}"""
+            }
+            cmd[0] == "titles" && cmd.param("album_id") != null -> {
+                val album = albumIds.entries.first { it.value == cmd.param("album_id")!!.toInt() }.key
+                val found = library.filter { it.album == album }.map { js(it) }
+                """{"count":${found.size},"titles_loop":[${slice(found, 1)}]}"""
+            }
             cmd[0] == "titles" -> {
                 val byId = cmd.param("track_id")
                 val words = cmd.param("search")?.lowercase()?.split(' ').orEmpty()
@@ -126,7 +145,7 @@ class LyrionProviderTest {
                     if (byId != null) s.id == byId.toInt()
                     // Without the full-text search every word must be in the title.
                     else words.all { w -> w in s.title.lowercase() || (fullText && w in s.artist.lowercase().replace("é", "e").replace("å", "a")) }
-                }.map { it.json() }
+                }.map { js(it) }
                 if (found.isEmpty()) """{"count":0}""" else """{"count":${found.size},"titles_loop":[${slice(found, 1)}]}"""
             }
             else -> "{}"
@@ -271,5 +290,23 @@ class LyrionProviderTest {
         assertFalse(p.supportsLikedSongs || p.supportsAlbums || p.supportsArtists)
         assertTrue(p.loginForm.userOptional && p.loginForm.secretOptional)
         assertTrue(Providers.engineFactories().any { it.service == "lyrion" })
+    }
+
+    @Test fun readsThePlaysOfEachSongOfAPlaylist() = runBlocking {
+        p.login(ctx, url, "", "")
+        val counted = p.playlistPlays(ctx, "37")
+        assertEquals(listOf("11" to 7, "12" to 0, "14" to 31), counted.map { it.track.id to it.plays })
+        assertEquals("tags:aldyuO", commands.last { it.take(2) == listOf("playlists", "tracks") }.last())
+        // A library list is not a Lyrion playlist: nothing asked.
+        val before = commands.size
+        assertTrue(p.playlistPlays(ctx, MusicProvider.LIKED_ID).isEmpty())
+        assertEquals(before, commands.size)
+    }
+
+    @Test fun theTopSongsComeFromTheAlbumsPlayedMostByTheirOwnCounts() = runBlocking {
+        p.login(ctx, url, "", "")
+        val top = p.topPlays(ctx, 10)
+        // Never played songs are left out; the most played first, whatever its album's rank.
+        assertEquals(listOf("14" to 31, "11" to 7), top.map { it.track.id to it.plays })
     }
 }

@@ -1743,8 +1743,8 @@
     <string name="card_layout_bold">Wyrazisty</string>
     <string name="card_poster_show_name">Pokaż moją nazwę</string>
     <string name="card_poster_plays_from">Twoje najczęściej słuchane utwory, z %1$s</string>
-    <string name="card_poster_plays_connect">Połącz Spotify, Last.fm lub ListenBrainz, aby wypisać najczęściej słuchane utwory</string>
-    <string name="card_poster_plays_none">Żaden z twoich najczęściej słuchanych utworów w %1$s nie jest na tej playliście: to utwory jej głównych wykonawców</string>
+    <string name="card_poster_plays_connect">Te utwory pochodzą od wykonawców najczęściej obecnych na playliście. Aby wypisać najczęściej słuchane utwory, połącz Last.fm, ListenBrainz, Spotify, Deezer lub własny serwer (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">Żaden z twoich najczęściej słuchanych utworów w %1$s nie jest na tej playliście: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
     <string name="card_poster_start_over">Zacznij od nowa</string>
     <string name="card_poster_start_over_hint">Czyta playlistę ponownie i tworzy nowy plakat od zera</string>
     <string name="card_poster_qr">Dołącz kod QR</string>
@@ -1800,6 +1800,10 @@
     <string name="discover_wrapped_eyebrow_half">Moje ostatnie 6 miesięcy</string>
     <string name="discover_wrapped_eyebrow_year">Moje ostatnie 12 miesięcy</string>
     <string name="discover_wrapped_eyebrow_recent">Ostatnio słuchane</string>
+    <string name="discover_wrapped_period_all">Od początku</string>
+    <string name="discover_wrapped_eyebrow_all">Moje topowe utwory</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s liczy każde odtworzenie, które obsłużył: karta obejmuje wszystkie Twoje odtworzenia tam.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s układa ranking Twoich utworów, nie mówiąc, z jakiego okresu: karta podąża za tym rankingiem.</string>
     <string name="discover_wrapped_top_tracks">Najczęściej słuchane utwory</string>
     <string name="discover_wrapped_plays_label">Odtworzenia</string>
     <string name="discover_wrapped_songs_played">Słuchane utwory</string>
@@ -2608,4 +2612,5 @@
     <string name="card_poster_name_field">Imię na plakacie</string>
     <string name="account_last_sync_failed">Ostatnia synchronizacja nieudana</string>
     <string name="card_poster_plays_failed">Nie udało się odczytać najczęściej słuchanych utworów z %1$s (%2$s): utwory pochodzą od najczęstszych wykonawców playlisty.</string>
+    <string name="card_poster_plays_empty">Twoje serwisy nie podały żadnych odtworzeń: te utwory pochodzą od wykonawców najczęściej obecnych na playliście</string>
 </resources>

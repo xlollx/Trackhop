@@ -11,6 +11,7 @@ import com.xlollx.songport.net.int
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
 import com.xlollx.songport.platform.Env
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -28,7 +29,7 @@ import java.util.Base64
  * HTTP Basic. Saved playlists are read with `playlists` and `playlists tracks`, and written with
  * `playlists new`, `playlists edit` (add by the track's url, delete by position), `rename` and `delete`.
  */
-class LyrionProvider(override val slot: String = "") : CredentialsProvider() {
+class LyrionProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
     override val displayName = "Lyrion Music Server"
     override val routeNoteName: String? get() = "route_note_server"
@@ -103,6 +104,26 @@ class LyrionProvider(override val slot: String = "") : CredentialsProvider() {
             rpc(ctx, "playlists", "tracks", start, PAGE, "playlist_id:$playlistId", "tags:$TAGS").let { it["count"].int to it["playlisttracks_loop"].arr }
         }.mapNotNull { toTrack(it) }
 
+    /** Each song of the playlist with its play count (tag O of the CLI: `playcount`). */
+    override suspend fun playlistPlays(ctx: Env, playlistId: String): List<Listening.Play> {
+        if (MusicProvider.isLibrary(playlistId)) return emptyList()
+        return paged { start ->
+            rpc(ctx, "playlists", "tracks", start, PAGE, "playlist_id:$playlistId", "tags:${TAGS}O").let { it["count"].int to it["playlisttracks_loop"].arr }
+        }.mapNotNull { s -> toTrack(s)?.let { Listening.lyrionPlay(s, it) } }
+    }
+
+    /**
+     * The CLI sorts albums by plays (`albums sort:playcount`, Lyrion 9.1), not songs: the songs of
+     * the albums played most, by their own count. An older server lists its albums in its own
+     * order: the counts are still right, the list may then miss some.
+     */
+    override suspend fun topPlays(ctx: Env, n: Int): List<Listening.Play> {
+        val albums = rpc(ctx, "albums", 0, TOP_ALBUMS, "sort:playcount")["albums_loop"].arr.mapNotNull { it["id"].str }
+        val out = ArrayList<Listening.Play>()
+        for (a in albums) out += rpc(ctx, "titles", 0, PAGE, "album_id:$a", "tags:${TAGS}O")["titles_loop"].arr.mapNotNull { s -> toTrack(s)?.let { Listening.lyrionPlay(s, it) } }
+        return out.filter { it.plays > 0 }.distinctBy { it.track.id }.sortedByDescending { it.plays }.take(n)
+    }
+
     /** Every page of a listing: the server says how many entries there are in all. */
     private suspend fun paged(page: suspend (start: Int) -> Pair<Int?, List<JsonElement>>): List<JsonElement> {
         val out = ArrayList<JsonElement>()
@@ -175,6 +196,8 @@ class LyrionProvider(override val slot: String = "") : CredentialsProvider() {
     companion object {
         const val SERVICE = "lyrion"
         private const val PAGE = 500
+        /** The albums played most whose songs make the top songs: each one is one call. */
+        private const val TOP_ALBUMS = 20
         /** artist, album, duration, year, url (the letters of the CLI's "songinfo"). */
         private const val TAGS = "aldyu"
     }

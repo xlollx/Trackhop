@@ -119,6 +119,22 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
 
     override fun webSearchUrl(ctx: Env, query: String): String = "https://open.spotify.com/search/" + Uri.encode(query)
 
+    /**
+     * What the user plays most in [period], as Spotify's own profile page shows it ("Top tracks
+     * this month"): the Bridge's `spotify.top`, read through the player's backend with the web
+     * session. A ranking, no counts. An older Bridge does not know the method: that is an error,
+     * and the poster or the Wrapped goes on without it.
+     */
+    suspend fun listening(ctx: Env, period: com.xlollx.songport.sync.Listening.Period): com.xlollx.songport.sync.Listening.Report {
+        val range = com.xlollx.songport.sync.Listening.spotifyWebRange(period) ?: throw ProviderException("Spotify: no top songs for ${period.key}")
+        return io(ctx, "spotify.top", range) { j ->
+            com.xlollx.songport.sync.Listening.Report(
+                tracks = j["tracks"].arr.mapNotNull { toTrack(it) }.map { com.xlollx.songport.sync.Listening.Play(it) },
+                artists = j["artists"].arr.mapNotNull { it.str?.takeIf { n -> n.isNotBlank() } }.map { com.xlollx.songport.sync.Listening.ArtistPlays(it) },
+            )
+        }
+    }
+
     override fun rehydrate(track: Track): Track = track.copy(uri = track.uri ?: uriOf(track))
 
     override suspend fun search(ctx: Env, track: Track): List<Track> {

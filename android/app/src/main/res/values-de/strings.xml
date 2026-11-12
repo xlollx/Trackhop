@@ -1679,8 +1679,8 @@
     <string name="card_layout_bold">Plakativ</string>
     <string name="card_poster_show_name">Meinen Namen zeigen</string>
     <string name="card_poster_plays_from">Deine meistgehörten Songs, von %1$s</string>
-    <string name="card_poster_plays_connect">Verbinde Spotify, Last.fm oder ListenBrainz, um deine meistgehörten Songs aufzulisten</string>
-    <string name="card_poster_plays_none">Keiner deiner meistgehörten Songs auf %1$s ist in dieser Playlist: Das sind die Songs ihrer wichtigsten Künstler</string>
+    <string name="card_poster_plays_connect">Diese Songs stammen von den häufigsten Künstlern der Playlist. Um deine meistgehörten Songs aufzulisten, verbinde Last.fm, ListenBrainz, Spotify, Deezer oder deinen eigenen Server (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">Keiner deiner meistgehörten Songs auf %1$s ist in dieser Playlist: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
     <string name="card_poster_start_over">Neu beginnen</string>
     <string name="card_poster_start_over_hint">Liest die Playlist erneut und erstellt ein neues Poster von Grund auf</string>
     <string name="card_poster_qr">QR-Code einfügen</string>
@@ -1736,6 +1736,10 @@
     <string name="discover_wrapped_eyebrow_half">Meine letzten 6 Monate</string>
     <string name="discover_wrapped_eyebrow_year">Meine letzten 12 Monate</string>
     <string name="discover_wrapped_eyebrow_recent">Zuletzt gehört</string>
+    <string name="discover_wrapped_period_all">Gesamte Zeit</string>
+    <string name="discover_wrapped_eyebrow_all">Meine Top-Songs</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s zählt jede Wiedergabe, die er abgespielt hat: Die Karte umfasst alle deine Wiedergaben dort.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s ordnet deine Top-Songs, ohne den Zeitraum zu nennen: Die Karte folgt dieser Rangfolge.</string>
     <string name="discover_wrapped_top_tracks">Top-Songs</string>
     <string name="discover_wrapped_plays_label">Wiedergaben</string>
     <string name="discover_wrapped_songs_played">Gehörte Songs</string>
@@ -2500,4 +2504,5 @@
     <string name="card_poster_name_field">Name auf dem Poster</string>
     <string name="account_last_sync_failed">Letzte Synchronisierung fehlgeschlagen</string>
     <string name="card_poster_plays_failed">Deine meistgehörten Songs konnten nicht von %1$s gelesen werden (%2$s): Die Songs stammen von den häufigsten Artists der Playlist.</string>
+    <string name="card_poster_plays_empty">Deine Hördienste haben keine Wiedergaben geliefert: Diese Songs stammen von den häufigsten Künstlern der Playlist</string>
 </resources>

@@ -1741,8 +1741,8 @@
     <string name="card_layout_bold">Яркий</string>
     <string name="card_poster_show_name">Показывать моё имя</string>
     <string name="card_poster_plays_from">Ваши самые прослушиваемые треки, из %1$s</string>
-    <string name="card_poster_plays_connect">Подключите Spotify, Last.fm или ListenBrainz, чтобы показать самые прослушиваемые треки</string>
-    <string name="card_poster_plays_none">Ни одного из ваших самых прослушиваемых треков в %1$s нет в этом плейлисте: это треки его главных исполнителей</string>
+    <string name="card_poster_plays_connect">Эти треки — от исполнителей, которых в плейлисте больше всего. Чтобы показать самые прослушиваемые треки, подключите Last.fm, ListenBrainz, Spotify, Deezer или свой сервер (Navidrome, Jellyfin, Emby, Plex, Lyrion)</string>
+    <string name="card_poster_plays_none">Ни одного из ваших самых прослушиваемых треков в %1$s нет в этом плейлисте: эти треки — от исполнителей, которых в плейлисте больше всего</string>
     <string name="card_poster_start_over">Начать заново</string>
     <string name="card_poster_start_over_hint">Заново читает плейлист и делает новый постер с нуля</string>
     <string name="card_poster_qr">Добавить QR-код</string>
@@ -1798,6 +1798,10 @@
     <string name="discover_wrapped_eyebrow_half">Мои последние 6 месяцев</string>
     <string name="discover_wrapped_eyebrow_year">Мои последние 12 месяцев</string>
     <string name="discover_wrapped_eyebrow_recent">Недавние прослушивания</string>
+    <string name="discover_wrapped_period_all">За всё время</string>
+    <string name="discover_wrapped_eyebrow_all">Мои топ-треки</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s считает каждое прослушивание через него: карточка охватывает все ваши прослушивания там.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s ранжирует ваши топ-треки, не уточняя период: карточка следует этому рейтингу.</string>
     <string name="discover_wrapped_top_tracks">Топ треков</string>
     <string name="discover_wrapped_plays_label">Прослушивания</string>
     <string name="discover_wrapped_songs_played">Прослушанные треки</string>
@@ -2606,4 +2610,5 @@
     <string name="card_poster_name_field">Имя на постере</string>
     <string name="account_last_sync_failed">Последняя синхронизация не удалась</string>
     <string name="card_poster_plays_failed">Не удалось прочитать самые прослушиваемые треки из %1$s (%2$s): показаны треки самых частых исполнителей плейлиста.</string>
+    <string name="card_poster_plays_empty">Сервисы прослушивания не дали данных о прослушиваниях: эти треки — от исполнителей, которых в плейлисте больше всего</string>
 </resources>

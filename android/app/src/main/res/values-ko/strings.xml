@@ -1647,8 +1647,8 @@
     <string name="card_layout_bold">볼드</string>
     <string name="card_poster_show_name">내 이름 표시</string>
     <string name="card_poster_plays_from">가장 많이 들은 곡, %1$s 기준</string>
-    <string name="card_poster_plays_connect">Spotify, Last.fm 또는 ListenBrainz를 연결하면 가장 많이 들은 곡을 보여 줍니다</string>
-    <string name="card_poster_plays_none">%1$s에서 가장 많이 들은 곡 중 이 플레이리스트에 있는 곡이 없습니다. 주요 아티스트의 곡을 보여 줍니다</string>
+    <string name="card_poster_plays_connect">이 곡들은 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다. 가장 많이 들은 곡을 보려면 Last.fm, ListenBrainz, Spotify, Deezer 또는 내 서버(Navidrome, Jellyfin, Emby, Plex, Lyrion)를 연결하세요</string>
+    <string name="card_poster_plays_none">%1$s에서 가장 많이 들은 곡 중 이 플레이리스트에 있는 곡이 없습니다. 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다</string>
     <string name="card_poster_start_over">처음부터 다시</string>
     <string name="card_poster_start_over_hint">플레이리스트를 다시 읽고 새 포스터를 처음부터 만듭니다</string>
     <string name="card_poster_qr">QR 코드 넣기</string>
@@ -1704,6 +1704,10 @@
     <string name="discover_wrapped_eyebrow_half">나의 지난 6개월</string>
     <string name="discover_wrapped_eyebrow_year">나의 지난 12개월</string>
     <string name="discover_wrapped_eyebrow_recent">최근 들은 곡</string>
+    <string name="discover_wrapped_period_all">전체 기간</string>
+    <string name="discover_wrapped_eyebrow_all">나의 인기곡</string>
+    <string name="discover_wrapped_all_hint_counts">%1$s은(는) 재생한 모든 횟수를 세요. 카드는 그곳의 모든 재생을 다뤄요.</string>
+    <string name="discover_wrapped_all_hint_rank">%1$s은(는) 기간을 밝히지 않고 인기곡 순위를 매겨요. 카드는 그 순위를 따라요.</string>
     <string name="discover_wrapped_top_tracks">많이 들은 곡</string>
     <string name="discover_wrapped_plays_label">재생 횟수</string>
     <string name="discover_wrapped_songs_played">들은 곡</string>
@@ -2446,4 +2450,5 @@
     <string name="card_poster_name_field">포스터에 넣을 이름</string>
     <string name="account_last_sync_failed">마지막 동기화 실패</string>
     <string name="card_poster_plays_failed">%1$s에서 가장 많이 들은 곡을 읽지 못했습니다(%2$s). 플레이리스트에 많이 나오는 아티스트의 곡입니다.</string>
+    <string name="card_poster_plays_empty">청취 서비스에서 재생 기록을 받지 못했습니다. 플레이리스트에 가장 많이 등장하는 아티스트의 곡입니다</string>
 </resources>

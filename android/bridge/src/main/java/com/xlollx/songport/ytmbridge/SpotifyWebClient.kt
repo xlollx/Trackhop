@@ -580,6 +580,22 @@ class SpotifyWebClient(private val host: Host) {
         return out
     }
 
+    /**
+     * The songs and artists the user played most in [timeRange] (SHORT_TERM about four weeks,
+     * MID_TERM six months, LONG_TERM a year), as the player's own profile page asks for them
+     * ("Top tracks this month", visible only to the user): the persisted query `userTopContent`,
+     * with the variables the player's profile route sends, read off its bundle
+     * (xpui-routes-profile, 11/2026). A ranking (sortBy AFFINITY), no counts.
+     */
+    fun top(timeRange: String, limit: Int = 50): TopDto {
+        val input = { n: Int -> jsonObj("offset" to 0, "limit" to n, "sortBy" to "AFFINITY", "timeRange" to timeRange) }
+        val j = gql("userTopContent", jsonObj(
+            "includeTopArtists" to true, "topArtistsInput" to input(limit),
+            "includeTopTracks" to true, "topTracksInput" to input(limit),
+        ))
+        return parseTop(j)
+    }
+
     /** Catalogue search, the player's: tracks, or albums or artists for [kind]. */
     fun search(query: String, kind: String?): List<TrackDto> {
         if (kind == null) {
@@ -759,6 +775,22 @@ class SpotifyWebClient(private val host: Host) {
         )
     }
 
+    /**
+     * `data.me.profile.topTracks` (TrackPageV2) and `topArtists` (ArtistPageV2): each item's `data`
+     * is a Track (or an Artist), as the profile page reads them.
+     */
+    internal fun parseTop(j: JsonElement?): TopDto {
+        val profile = j["data"]["me"]["profile"]
+        val tracks = profile["topTracks"]["items"].arr.mapNotNull { it ->
+            val d = it["data"]
+            if (d["__typename"].str?.let { t -> t != "Track" } == true) return@mapNotNull null
+            trackDto(d, null, null, it["_uri"].str ?: d["id"].str?.let { id -> "spotify:track:$id" })
+        }
+        val artists = profile["topArtists"]["items"].arr.mapNotNull { it["data"]["profile"]["name"].str?.takeIf { n -> n.isNotBlank() } }
+        if (tracks.isEmpty() && profile["topTracks"]["items"].arr.isNotEmpty()) unexpected("userTopContent", j ?: JsonNull, profile["topTracks"]["items"].arr, profile["topTracks"])
+        return TopDto(tracks, artists)
+    }
+
     private fun albumDto(d: JsonElement?, addedAt: String?): TrackDto? {
         val uri = d["uri"].str ?: return null
         if (!uri.startsWith("spotify:album:")) return null
@@ -836,6 +868,8 @@ class SpotifyWebClient(private val host: Host) {
             "searchTracks" to "b02683192a98dde7966b5e6655a79eeb62713eab703eda9902c932818dd52751",
             "searchDesktop" to "eef7cc54888d91bdd6802623477873caa3948ae173a0c34fd86827b267e94c03",
             "getTrack" to "e7b1bf4e95cb3d733d48b442f93006e9712fd504e8b88d7a82e6e3bac9306a6b",
+            // The profile route's top songs and artists (xpui-routes-profile, web-player.d8d10126).
+            "userTopContent" to "61b7353d3625780022dbc63d459eb64cd609e7e5e2a820f9160d65030efe2e15",
             "profileAttributes" to "08ffb4730af3746e04a8301396f20875dbbce10c75243803091a9274eacc8ac0",
             "addToPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",
             "removeFromPlaylist" to "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a",

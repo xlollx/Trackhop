@@ -14,6 +14,7 @@ import com.xlollx.songport.net.jsonObj
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
+import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.MusicBrainz
 import kotlinx.serialization.json.JsonElement
@@ -22,7 +23,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 /** Jellyfin (https://api.jellyfin.org): server personale, nessuna registrazione, nessuna quota. */
-open class JellyfinProvider(override val slot: String = "") : CredentialsProvider() {
+open class JellyfinProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
     override val displayName = "Jellyfin"
     override val routeNoteName: String? get() = "route_note_server"
@@ -181,6 +182,21 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
             else -> items.mapNotNull { toTrack(it) }
         }
     }
+
+    /** Each song of the playlist (or of the favourites) with its `UserData.PlayCount` for the signed-in user. */
+    override suspend fun playlistPlays(ctx: Env, playlistId: String): List<Listening.Play> {
+        val path = when {
+            playlistId == MusicProvider.LIKED_ID -> "/Users/${uid(ctx)}/Items?Filters=IsFavorite&IncludeItemTypes=Audio&Recursive=true&Limit=5000&EnableUserData=true"
+            MusicProvider.isLibrary(playlistId) -> return emptyList()
+            else -> "/Playlists/$playlistId/Items?UserId=${uid(ctx)}&EnableUserData=true"
+        }
+        return api(ctx, "GET", path)["Items"].arr.mapNotNull { i -> toTrack(i)?.let { Listening.jellyfinPlay(i, it) } }
+    }
+
+    /** The songs played most, sorted by the server itself (SortBy=PlayCount). */
+    override suspend fun topPlays(ctx: Env, n: Int): List<Listening.Play> =
+        api(ctx, "GET", "/Users/${uid(ctx)}/Items?IncludeItemTypes=Audio&Recursive=true&Filters=IsPlayed&SortBy=PlayCount&SortOrder=Descending&EnableUserData=true&Limit=$n")["Items"].arr
+            .mapNotNull { i -> toTrack(i)?.let { Listening.jellyfinPlay(i, it) } }.filter { it.plays > 0 }.sortedByDescending { it.plays }
 
     override val searchesTitleOnly: Boolean get() = true
 
