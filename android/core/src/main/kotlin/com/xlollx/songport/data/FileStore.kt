@@ -526,6 +526,17 @@ open class FileStore(dir: File) {
 
         fun cacheKey(srcProvider: String, srcTrackId: String, dstProvider: String) = "${family(srcProvider)}:$srcTrackId>${family(dstProvider)}"
 
+        /**
+         * The target side of a match, the `dstProvider` of [cacheKey]: the service for a playlist or
+         * liked songs (keys as they always were), the service and the kind for a library of albums,
+         * artists or podcasts ("amazon#album"). One source row may match a song in a playlist and an
+         * album in the saved albums (Amazon Music searches an album row as songs for a playlist): the
+         * one is never taken for the other. Entries for a library written before the kind was in the
+         * key are not read for it; the row is searched once more.
+         */
+        fun matchTarget(dstProvider: String, targetPlaylistId: String?): String =
+            com.xlollx.songport.providers.MusicProvider.libraryKind(targetPlaylistId)?.let { "$dstProvider#$it" } ?: dstProvider
+
         /** Key of [StoreData.pairStates]: the two halves' ids, the same whichever half asks. */
         fun pairKey(jobId: String, otherId: String) = listOf(jobId, otherId).sorted().joinToString("|")
 
@@ -539,12 +550,17 @@ open class FileStore(dir: File) {
          * Track ids are the service's, not the route's or the account's: a match found through the
          * official Spotify route serves the web route and a second account alike. Files keep their id.
          */
-        fun family(providerId: String): String = when (val base = providerId.substringBefore('@')) {
-            "spotify_bridge" -> "spotify"
-            "apple_bridge" -> "apple"
-            "deezer_bridge" -> "deezer"
-            "ytm" -> "youtube"
-            else -> base
+        fun family(providerId: String): String {
+            val kind = providerId.substringAfter('#', "")
+            val service = when (val base = providerId.substringBefore('#').substringBefore('@')) {
+                "spotify_bridge" -> "spotify"
+                "apple_bridge" -> "apple"
+                "deezer_bridge" -> "deezer"
+                "ytm" -> "youtube"
+                else -> base
+            }
+            // The kind of a library target ([matchTarget]) stays with the family.
+            return if (kind.isEmpty()) service else "$service#$kind"
         }
 
         @Volatile private var instance: FileStore? = null

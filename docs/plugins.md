@@ -122,6 +122,18 @@ Sign-in activities are started with the actions `com.xlollx.songport.ytmbridge.D
 and `APPLE_LOGIN`). Before the first Deezer or SoundCloud sign-in the notice is shown again, since
 its text now names them.
 
+### Amazon Music saved albums (`amazon.*` with `__albums__`, Trackhop Bridge 1.11.0)
+
+The albums the user "liked" in the web player (Library › Albums), through the methods that already
+take a playlist id: `amazon.tracks` with `arg` `__albums__` answers `json`, the albums (`kind`
+`album`, ids are Amazon's album ASINs); `amazon.add` with `__albums__` and `ids` saves each album and
+answers `duplicates` empty, or `error` when Amazon did not save one; `amazon.remove` with
+`__albums__` and `ids` removes each one and answers `kept`, the albums Amazon still names as liked.
+`amazon.search` with the extra `kind` `album` finds albums to save. Followed artists are not offered:
+no listing of them has been seen in the player's traffic yet. Trackhop asks for saved albums only of
+a plugin whose status reports `version` 57 or more; an older one would read `__albums__` as a
+playlist id.
+
 ### TicketOne pages for Concerts (`ticketone.read`)
 
 For Discover › Concerts in Italy: `arg` is the address of a search or artist page of

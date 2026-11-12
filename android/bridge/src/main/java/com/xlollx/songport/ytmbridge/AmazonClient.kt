@@ -536,18 +536,50 @@ class AmazonClient(private val ctx: Context) {
 
     /**
      * Catalogue search, songs only, as the player's search page lists them (searchTracksResult: its
-     * first page). Track ids are ASINs. SpecSearchPage, the search of October 2026, is no longer in
-     * the player and Amazon has forgotten its persisted query (11/2026).
+     * first page). Track ids are ASINs.
+     *
+     * When Amazon does not take searchTracksResult (its hash and its text unknown, or refused while
+     * the session works), the search page's other route is asked: SpecSearchPage, songs only, as the
+     * player of 11/2026 still sends it (a new hash; the one of October 2026 was forgotten). It is then
+     * used straight away for [SPEC_SEARCH_MS], and searchTracksResult is tried again after.
      */
     fun searchTracks(query: String): List<TrackDto> {
-        val d = gql(SEARCH, jsonObj("query" to query)).orThrow("search")
-        val nodes = d["searchTracks"]["edges"].arr.map { it["node"] }.filter { it["__typename"].str.let { t -> t == null || t == "Track" } }
+        val nodes = searchNodes(query).filter { it["__typename"].str.let { t -> t == null || t == "Track" } }
         // Amazon lists the same recording once per edition (album, single, deluxe): one row per
         // title and artist is enough, and a longer list lets the right artist show up further down.
         val seen = HashSet<String>()
         return nodes.mapNotNull { trackOf(it, null) }
             .filter { seen.add(it.title.lowercase() + "\u0000" + it.artists.joinToString(",").lowercase()) }
             .take(25)
+    }
+
+    private fun searchNodes(query: String): List<JsonElement?> {
+        if (System.currentTimeMillis() < specSearchUntil) {
+            runCatching { specSearch(query) }.onSuccess { return it }
+            specSearchUntil = 0
+        }
+        return try {
+            gql(SEARCH, jsonObj("query" to query)).orThrow("search")["searchTracks"]["edges"].arr.map { it["node"] }
+        } catch (e: BridgeException) {
+            // A network failure or a session that is over fails the other route alike: said as it is.
+            val msg = e.message.orEmpty()
+            if (msg.contains("unreachable") || msg.contains("connect again")) throw e
+            val other = runCatching { specSearch(query) }.getOrElse { throw e }
+            BridgeNet.log("amazon", "$SEARCH failed (${redact(msg).take(120)}); $SPEC_SEARCH answered, used for the next searches")
+            specSearchUntil = System.currentTimeMillis() + SPEC_SEARCH_MS
+            other
+        }
+    }
+
+    /** The songs of SpecSearchPage, its "songs" section only, as the player asks for it (by hash: its text is not in the public player). */
+    private fun specSearch(query: String): List<JsonElement?> {
+        val vars = jsonObj(
+            "searchText" to query,
+            "specifications" to listOf(mapOf("label" to SONGS_LABEL, "types" to listOf("track"), "limit" to 25)),
+            "isAuthenticated" to true, "audiobooksEnabled" to false, "merchEnabled" to false, "categoryInEntityUnionEnabled" to false,
+        )
+        return gql(SPEC_SEARCH, vars).orThrow("search")["specificationSearch"]["result"].arr
+            .flatMap { r -> r["edges"].arr.map { it["node"] } }
     }
 
     /**
@@ -562,6 +594,71 @@ class AmazonClient(private val ctx: Context) {
             .mapNotNull { albumOf(it) }
             .distinctBy { it.id }
             .take(25)
+    }
+
+    /**
+     * The saved albums: the ones the user "liked", as the player's Library › Albums lists them
+     * (LikedAlbumsPage, captured 11/2026). An album un-liked a moment ago may still be listed with
+     * the state NEUTRAL (seen in the capture): only LIKE, or no state at all, counts as saved. An
+     * entry without an album (one Amazon no longer offers) is left out.
+     *
+     * Paging: the capture never had a second page (seven albums, hasNextPage false). The token the
+     * answer carries goes back as afterCursor, the name playlistDetail gives its own continuation (the
+     * same generation of the player: firstLimit, isAuthenticated). Should Amazon ignore it, the next
+     * page repeats the first one: the listing then stops there and the diagnostics log says so.
+     */
+    fun savedAlbums(): List<TrackDto> {
+        val out = LinkedHashMap<String, TrackDto>()
+        var after: String? = null
+        var pages = 0
+        var neutral = 0
+        var empty = 0
+        while (true) {
+            val vars = jsonObj("firstLimit" to ALBUMS_PAGE, "isAuthenticated" to true, "afterCursor" to after)
+            val liked = gql(LIKED_ALBUMS, vars).orThrow("saved albums")["user"]["likedAlbums"]
+            val edges = liked["edges"].arr
+            var fresh = 0
+            for (e in edges) {
+                val n = e["node"] as? JsonObject
+                if (n == null) { empty++; continue }
+                val state = n["likesContext"]["state"].str
+                if (state != null && state != "LIKE") { neutral++; continue }
+                val a = albumOf(n)
+                if (a == null) { empty++; continue }
+                if (out.put(a.id, a) == null) fresh++
+            }
+            val info = liked["pageInfo"]
+            val next = info["endCursor"].str ?: info["token"].str
+            val more = info["hasNextPage"].bool ?: (edges.size >= ALBUMS_PAGE)
+            if (!more || edges.isEmpty() || next == null || next == after || ++pages > 200) break
+            if (after != null && fresh == 0) {
+                BridgeNet.log("amazon", "saved albums: the page after ${out.size} albums repeated the ones listed; Amazon may not take afterCursor, the listing stops there")
+                break
+            }
+            after = next
+        }
+        if (neutral > 0 || empty > 0) {
+            BridgeNet.log("amazon", "saved albums: ${out.size} listed" +
+                (if (neutral > 0) "; $neutral no longer liked (left out)" else "") +
+                (if (empty > 0) "; $empty without an album (left out)" else ""))
+        }
+        return out.values.toList()
+    }
+
+    /**
+     * Saves ([saved] true) or removes an album from the saved albums: setAlbumLikeState, POSITIVE or
+     * NEUTRAL, as the player's heart does. True when Amazon answers with the state asked for (LIKE or
+     * NEUTRAL), false when it names another one; no album in the answer is an error.
+     */
+    fun setAlbumSaved(albumId: String, saved: Boolean): Boolean {
+        val a = gql(LIKE_ALBUM, jsonObj("albumId" to albumId, "likeState" to if (saved) "POSITIVE" else "NEUTRAL", "isAuthenticated" to true))
+        val node = a.data["setAlbumLikeState"]["edges"].arr.map { it["node"] }.firstOrNull { idOf(it) != null }
+            ?: throw BridgeException("Amazon Music did not ${if (saved) "save" else "remove"} the album $albumId: " +
+                (a.codes + a.messages).joinToString("; ").take(160).ifBlank { "no answer" })
+        val state = node["likesContext"]["state"].str
+        if (state == null || state == if (saved) "LIKE" else "NEUTRAL") return true
+        BridgeNet.log("amazon", "album ${albumId.takeLast(6)}: asked to ${if (saved) "save" else "remove"} it, Amazon answers $state")
+        return false
     }
 
     /** New playlists are private, as on every other service. */
@@ -687,7 +784,7 @@ class AmazonClient(private val ctx: Context) {
         )
     }
 
-    /** An Album node of searchAlbumsResult. */
+    /** An Album node of searchAlbumsResult or LikedAlbumsPage. */
     private fun albumOf(n: JsonElement?): TrackDto? {
         if (n !is JsonObject) return null
         val id = idOf(n) ?: return null
@@ -729,11 +826,22 @@ class AmazonClient(private val ctx: Context) {
 
         private const val SEARCH = "searchTracksResult"
         private const val SEARCH_ALBUMS = "searchAlbumsResult"
+        /** The search page's other route, asked when searchTracksResult is not taken (see [searchTracks]). */
+        private const val SPEC_SEARCH = "SpecSearchPage"
+        private const val SONGS_LABEL = "dmusic_find_song_results_label"
+        private const val SPEC_SEARCH_MS = 30 * 60_000L
+        /** Until when searches go straight to SpecSearchPage, after searchTracksResult failed. */
+        @Volatile private var specSearchUntil = 0L
+        /** The saved albums ("liked"), and saving or removing one: from the player's traffic, by hash only (see [savedAlbums]). */
+        private const val LIKED_ALBUMS = "LikedAlbumsPage"
+        private const val LIKE_ALBUM = "setAlbumLikeState"
+        /** Saved albums per page: the player asks for 30; playlistDetail takes 100. */
+        private const val ALBUMS_PAGE = 100
         /** Texts of the persisted queries Amazon may have to be sent again (see [gql]). */
         private val QUERIES = mapOf(SEARCH to AmazonQueries.SEARCH_TRACKS_RESULT, SEARCH_ALBUMS to AmazonQueries.SEARCH_ALBUMS_RESULT)
         /** Operations Amazon did not know by hash: sent with their text from then on. */
         private val WITH_TEXT: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
-        /** Persisted queries of the web player (October 2026; the searches November 2026), by operation name. */
+        /** Persisted queries of the web player (October 2026; the searches and saved albums November 2026), by operation name. */
         private val HASHES = mapOf(
             "AddToPlaylistModalUserPlaylists" to "8a2d8eb88470373f0191fdac28083d74233a31c769cefb4c2da22ae8e9706cd9",
             "playlistDetail" to "797157fe477bc056a1ee78bd0c505ae089ee358ca163df66d4f13825744cf109",
@@ -743,6 +851,12 @@ class AmazonClient(private val ctx: Context) {
             "addTrackToPlaylist" to "b812f642b8a343680492dca706aefa5bf9e4c82bb800bf7031e09c55495aef8e",
             "removeTrackFromPlaylist" to "3c7d125e1c584c70c80d97367054aebff7f2866944297d54cc3dc9d4822e0d26",
             "deletePlaylist" to "abb52606395c74450ce2db367b2c2bf5106ff6077a50f529ba46b8aee6ff6ce3",
+            // Saved albums (November 2026). Their text is not in the player's public code (not even under
+            // these names), so a changed hash still needs a capture.
+            // The player's SpecSearchPage of 11/2026 (October's 87bf53f1… is forgotten), by hash only.
+            SPEC_SEARCH to "19e7571fa4ccb97a7e70bacbf8877ad9f63ba23359131807300ac6eb8616b083",
+            LIKED_ALBUMS to "ac0f3868a56af3b23191e0f173701c3bf0ffa71df79001cfbc9d00dcd144cc97",
+            LIKE_ALBUM to "fa2452606c04ef941d892c890d4dc9b0025071dd0801b55026a3981b13140de6",
         )
 
         @Volatile private var cachedConfig: Pair<Long, Config>? = null
@@ -750,7 +864,7 @@ class AmazonClient(private val ctx: Context) {
         @Volatile private var pageModeUntil = 0L
         private val logged = java.util.concurrent.ConcurrentHashMap<String, Long>()
         private const val PAGE_MODE_MS = 30 * 60_000L
-        fun forgetConfig() { cachedConfig = null; libraryCounts = null; WITH_TEXT.clear() }
+        fun forgetConfig() { cachedConfig = null; libraryCounts = null; specSearchUntil = 0; WITH_TEXT.clear() }
 
         /** When Amazon last refused a call as AUTH_INVALID_CUSTOMER_ID: [AmazonRoute] may then try the skill API. */
         @Volatile private var invalidCustomerAt = 0L

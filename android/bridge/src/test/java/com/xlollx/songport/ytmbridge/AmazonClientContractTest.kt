@@ -169,8 +169,54 @@ class AmazonClientContractTest {
         val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
         answer(notFound)
         answer(notFound)
-        try { amazon.searchTracks("x"); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("needs an update")) }
-        assertEquals(2, BridgeMock.calls.size)
+        // The other route does not know its hash either: the first route's error is said.
+        answer(notFound)
+        try { amazon.searchTracks("x"); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("searchTracksResult is no longer known")) }
+        assertEquals("SpecSearchPage", call(2).json()["operationName"].str)
+        assertEquals(3, BridgeMock.calls.size)
+    }
+
+    /** SpecSearchPage as the player's search page answers it: sections, each with its edges (made-up songs). */
+    private fun specPage(vararg nodes: String) = """{"data":{"specificationSearch":{"id":"S1","searchText":"q","__typename":"SpecificationSearchResults",
+        "result":[{"label":"dmusic_find_song_results_label","__typename":"SpecificationSearchResult",
+        "edges":[${nodes.joinToString(",") { """{"playParams":{"id":"p","selections":["PLAY"]},"node":$it,"metricId":"m","__typename":"EntityEdge"}""" }}]}]}}}"""
+
+    @Test fun whenSearchTracksResultIsNotTakenSpecSearchPageFindsTheSongs() {
+        val notFound = """{"errors":[{"message":"PersistedQueryNotFound","extensions":{"code":"PERSISTED_QUERY_NOT_FOUND"}}]}"""
+        answer(notFound)
+        answer(notFound)
+        answer(specPage(node(1), node(1), node(2, "Ñandú")))
+        val r = amazon.searchTracks("Main 1 Song 1")
+        assertEquals(listOf("B0ASIN0001", "B0ASIN0002"), r.map { it.id })
+        assertEquals(listOf("Main 1", "Guest"), r[0].artists)
+        assertEquals("Song 1", r[0].title)
+        assertEquals("Album", r[0].album)
+        assertEquals(201_000L, r[0].durationMs)
+        val spec = call(2).json()
+        assertEquals("SpecSearchPage", spec["operationName"].str)
+        assertEquals("19e7571fa4ccb97a7e70bacbf8877ad9f63ba23359131807300ac6eb8616b083", spec["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(null, spec["query"].str)
+        val v = spec["variables"]
+        assertEquals("Main 1 Song 1", v["searchText"].str)
+        assertEquals("track", v["specifications"].arr[0]["types"].arr[0].str)
+        assertEquals("dmusic_find_song_results_label", v["specifications"].arr[0]["label"].str)
+        assertEquals("true", v["isAuthenticated"].toString())
+        // The next search goes there at once.
+        answer(specPage(node(3)))
+        assertEquals(listOf("B0ASIN0003"), amazon.searchTracks("Main 3").map { it.id })
+        assertEquals("SpecSearchPage", call(3).json()["operationName"].str)
+        assertEquals(4, BridgeMock.calls.size)
+    }
+
+    @Test fun aRefusedSearchTracksResultFallsBackAndAWorkingOneNeverDoes() {
+        answer("""{"data":{"searchTracks":{"edges":[{"node":${node(4)}}]}}}""")
+        assertEquals(listOf("B0ASIN0004"), amazon.searchTracks("Main 4").map { it.id })
+        assertEquals(1, BridgeMock.calls.size)
+        // Refused with an error of its own, the session working: the other route answers.
+        answer("""{"data":null,"errors":[{"message":"Validation error","extensions":{"code":"GRAPHQL_VALIDATION_FAILED"}}]}""", 400)
+        answer(specPage(node(5)))
+        assertEquals(listOf("B0ASIN0005"), amazon.searchTracks("Main 5").map { it.id })
+        assertEquals("SpecSearchPage", call(2).json()["operationName"].str)
     }
 
     /** The hash Amazon is sent is the SHA-256 of the text, or Amazon refuses the pair. */
@@ -389,6 +435,123 @@ class AmazonClientContractTest {
         assertEquals(null, b.getString("error"))
         assertEquals(listOf("B0RCD00001", "B0RCD00002"), b.getStringArray("duplicates")!!.toList())
         assertEquals(3, BridgeMock.calls.size)
+    }
+
+    // ---- saved albums: LikedAlbumsPage and setAlbumLikeState, in the shapes of the player's traffic (made-up albums)
+
+    /** A saved album as LikedAlbumsPage lists it; [state] null: no likesContext at all. */
+    private fun liked(id: String, title: String, artist: String, state: String? = "LIKE") = """{"node":{"id":"$id","__typename":"Album",
+        "contributingArtists":{"edges":[{"role":"PRIMARY","node":{"name":${q(artist)},"__typename":"Artist","id":"ART$id"}}],"__typename":"ArtistConnection"},
+        "title":${q(title)},"shortTitle":${q(title)},"uri":"amzn:album:$id","parentalSettings":{"hasExplicitLanguage":true},
+        "likesContext":${state?.let { """{"state":"$it","__typename":"LikesContext"}""" } ?: "null"}},"__typename":"UserAlbumLikeEdge"}"""
+
+    private fun likedPage(edges: List<String>, next: Boolean, token: String? = "page-token") = """{"data":{"user":{"id":"U1","likedAlbums":{
+        "edges":[${edges.joinToString(",")}],
+        "pageInfo":{"hasNextPage":$next,"endCursor":null,"token":${token?.let { q(it) } ?: "null"},"hasPreviousPage":null,"startCursor":null},
+        "__typename":"UserAlbumLikeConnection"},"__typename":"User"}}}"""
+
+    private fun likeAnswer(id: String, state: String) = """{"data":{"setAlbumLikeState":{"edges":[{"node":{"id":"$id","__typename":"Album",
+        "uri":"amzn:album:$id","likesContext":{"state":"$state"}}}],"__typename":"SetAlbumLikeStateResponse"}}}"""
+
+    @Test fun savedAlbumsAreTheLikedOnesAsTheLibraryListsThem() {
+        answer(likedPage(listOf(
+            liked("B0ALB00011", "Unliked a moment ago", "Band", state = "NEUTRAL"),
+            liked("B0ALB00012", "Lo-files", "Bring Me The Horizon"),
+            """{"node":null,"__typename":"UserAlbumLikeEdge"}""",
+            liked("B0ALB00013", "Vessels", "STARSET", state = null),
+        ), next = false))
+        val r = amazon.savedAlbums()
+        assertEquals(listOf("B0ALB00012", "B0ALB00013"), r.map { it.id })
+        assertEquals(listOf("album", "album"), r.map { it.kind })
+        assertEquals("Lo-files", r[0].title)
+        assertEquals(listOf("Bring Me The Horizon"), r[0].artists)
+        assertEquals(true, r[0].explicit)
+        val b = call(0).json()
+        assertEquals("LikedAlbumsPage", b["operationName"].str)
+        assertEquals("ac0f3868a56af3b23191e0f173701c3bf0ffa71df79001cfbc9d00dcd144cc97", b["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals(null, b["query"].str)
+        val v = b["variables"]
+        assertEquals("true", v["isAuthenticated"].toString())
+        assertEquals(100L, v["firstLimit"].long)
+        // The first page as the player asks for it: no continuation.
+        assertEquals(null, v["afterCursor"])
+        assertEquals(1, BridgeMock.calls.size)
+    }
+
+    @Test fun savedAlbumsPageByPageWithTheTokenAsAfterCursor() {
+        answer(likedPage((1..100).map { liked("B0ALB1%04d".format(it), "Album $it", "Band") }, next = true, token = "tok-1"))
+        answer(likedPage((101..120).map { liked("B0ALB1%04d".format(it), "Album $it", "Band") }, next = false, token = "tok-2"))
+        val r = amazon.savedAlbums()
+        assertEquals(120, r.size)
+        assertEquals("B0ALB10120", r.last().id)
+        assertEquals("tok-1", call(1).json()["variables"]["afterCursor"].str)
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    @Test fun aContinuationAmazonIgnoresStopsTheListingInsteadOfLooping() {
+        val first = likedPage((1..100).map { liked("B0ALB2%04d".format(it), "Album $it", "Band") }, next = true, token = "tok-a")
+        answer(first)
+        answer(first.replace("tok-a", "tok-b"))
+        answer(first.replace("tok-a", "tok-c"))
+        val r = amazon.savedAlbums()
+        assertEquals(100, r.size)
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    @Test fun anAlbumIsSavedAndRemovedWithItsLikeState() {
+        answer(likeAnswer("B0ALB00021", "LIKE"))
+        answer(likeAnswer("B0ALB00021", "NEUTRAL"))
+        assertEquals(true, amazon.setAlbumSaved("B0ALB00021", saved = true))
+        assertEquals(true, amazon.setAlbumSaved("B0ALB00021", saved = false))
+        val save = call(0).json()
+        assertEquals("setAlbumLikeState", save["operationName"].str)
+        assertEquals("fa2452606c04ef941d892c890d4dc9b0025071dd0801b55026a3981b13140de6", save["extensions"]["persistedQuery"]["sha256Hash"].str)
+        assertEquals("B0ALB00021", save["variables"]["albumId"].str)
+        assertEquals("POSITIVE", save["variables"]["likeState"].str)
+        assertEquals("true", save["variables"]["isAuthenticated"].toString())
+        assertEquals("NEUTRAL", call(1).json()["variables"]["likeState"].str)
+        // Another state in the answer: not done. No album in it: an error.
+        answer(likeAnswer("B0ALB00022", "NEUTRAL"))
+        assertEquals(false, amazon.setAlbumSaved("B0ALB00022", saved = true))
+        answer("""{"data":{"setAlbumLikeState":null},"errors":[{"message":"Not an album","extensions":{"code":"INVALID_INPUT"}}]}""", 294)
+        try { amazon.setAlbumSaved("B0TRK00001", saved = true); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("INVALID_INPUT")) }
+    }
+
+    @Test fun theBridgeListsSavesAndRemovesSavedAlbums() {
+        val albums = BridgeCore.ALBUMS
+        answer(likedPage(listOf(liked("B0ALB00031", "Vessels", "STARSET")), next = false))
+        val listed = BridgeCore.call(app, "amazon.tracks", albums, null)
+        assertEquals(null, listed.getString("error"))
+        val j = parseJson(listed.getString("json")!!)
+        assertEquals("B0ALB00031", j.arr[0]["id"].str)
+        assertEquals("album", j.arr[0]["kind"].str)
+
+        answer(likeAnswer("B0ALB00032", "LIKE"))
+        answer(likeAnswer("B0ALB00033", "LIKE"))
+        val added = BridgeCore.call(app, "amazon.add", albums, android.os.Bundle().apply {
+            putStringArray("ids", arrayOf("B0ALB00032", "B0ALB00033"))
+            putStringArray("titles", arrayOf("Lo-files", "Vessels"))
+        })
+        assertEquals(null, added.getString("error"))
+        assertEquals(emptyList<String>(), added.getStringArray("duplicates")!!.toList())
+        assertEquals(listOf("POSITIVE", "POSITIVE"), (1..2).map { call(it).json()["variables"]["likeState"].str })
+
+        // One Amazon leaves liked comes back as kept: the sync counts it as not removed.
+        answer(likeAnswer("B0ALB00032", "NEUTRAL"))
+        answer(likeAnswer("B0ALB00033", "LIKE"))
+        val removed = BridgeCore.call(app, "amazon.remove", albums, android.os.Bundle().apply {
+            putStringArray("ids", arrayOf("B0ALB00032", "B0ALB00033"))
+            putStringArray("entryIds", arrayOf("", ""))
+        })
+        assertEquals(null, removed.getString("error"))
+        assertEquals(listOf("B0ALB00033"), removed.getStringArray("kept")!!.toList())
+        assertEquals(listOf("NEUTRAL", "NEUTRAL"), (3..4).map { call(it).json()["variables"]["likeState"].str })
+
+        // An album Amazon does not save fails the call: never counted as added.
+        answer(likeAnswer("B0ALB00034", "NEUTRAL"))
+        val refused = BridgeCore.call(app, "amazon.add", albums, android.os.Bundle().apply { putStringArray("ids", arrayOf("B0ALB00034")) })
+        assertTrue(refused.getString("error")!!.contains("did not save 1 of 1"))
+        assertEquals(6, BridgeMock.calls.size)
     }
 
     private fun q(s: String) = kotlinx.serialization.json.JsonPrimitive(s).toString()

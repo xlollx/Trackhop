@@ -53,6 +53,16 @@ object BridgePlugin {
      */
     const val SITES_VERSION = 57
 
+    /**
+     * A plugin reporting this "version" (or more) also lists, saves and removes Amazon Music's saved
+     * albums (`amazon.tracks`, `amazon.add`, `amazon.remove` with `__albums__`). They come with the
+     * same release as [SITES_VERSION], Trackhop Bridge 1.11.0, and follow it.
+     */
+    const val AMAZON_ALBUMS_VERSION = SITES_VERSION
+
+    /** The "version" the plugin's last status call reported, without asking (0 until one answered). */
+    val reportedVersion: Int get() = pluginVersion
+
     /** The plugin's screen for setlist.fm, started for a result (see [SITES_VERSION]). */
     const val SETLIST_ACTION = "com.xlollx.songport.ytmbridge.SETLIST_BROWSE"
 

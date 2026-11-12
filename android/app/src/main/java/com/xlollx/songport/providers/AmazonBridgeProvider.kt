@@ -24,9 +24,8 @@ import kotlinx.serialization.json.JsonElement
  * Amazon Music through the companion app "Trackhop Bridge", experimental.
  *
  * Amazon has no open API and its official one is reserved to approved partners, so the Bridge uses
- * the web player's interface, as it does for YouTube Music. Search and reading a playlist by id work;
- * listing the library and writing (create, add, remove) are still being mapped, and the Bridge
- * answers those with a clear "not available yet" until then.
+ * the web player's interface, as it does for YouTube Music: the library's playlists (read, create,
+ * add, remove, delete), search, and the saved albums.
  */
 class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     // Renaming and deleting were mapped from the desktop player's own calls; an older plugin lacks them.
@@ -44,6 +43,12 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     override val installUrl = BridgePlugin.installUrl
     override val notConfiguredName: String? = "amazon_not_installed_hint"
     override val searchParallelism = 1
+    /**
+     * Saved albums (the albums the user "liked" in the player), from the Bridge app that knows them
+     * ([savedAlbums]). Followed artists are not offered: the player's traffic shows following and
+     * unfollowing, but no listing of them yet.
+     */
+    override val supportsAlbums: Boolean get() = savedAlbums(BridgePlugin.builtIn, BridgePlugin.reportedVersion)
     override val pluginBased = true
 
     /** "Configured" means a Bridge new enough to know Amazon Music is installed. */
@@ -90,15 +95,21 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     }
 
     /**
-     * Songs, as the player's search lists them. An album is looked for among albums (the player's
-     * albums search) only where Amazon can hold albums, a saved-albums library ([supportsAlbums]):
-     * Trackhop has none on Amazon yet, so saved albums from another service go into a playlist, and a
-     * playlist takes songs only (an album id there would fail). Until then they are searched as songs,
-     * as before. A Bridge app older than the albums search answers it with songs, which are left out:
-     * nothing found rather than a wrong proposal.
+     * Songs, as the player's search lists them; an album among albums (the player's albums search).
+     * The target is not known here: an album row is taken for the saved albums, where it goes when
+     * there are some ([searchesAlbums]). A sync says the target through [searchFor].
      */
-    override suspend fun search(ctx: Env, track: Track): List<Track> {
-        if (searchesAlbums(track, supportsAlbums)) {
+    override suspend fun search(ctx: Env, track: Track): List<Track> =
+        searchFor(ctx, track, MusicProvider.ALBUMS_ID.takeIf { track.kind == Track.KIND_ALBUM })
+
+    /**
+     * An album is looked for among albums only on its way to the saved albums: a playlist takes songs
+     * only (an album id there would fail), so saved albums synced into an Amazon playlist are searched
+     * as songs, as before there were saved albums here. A Bridge app older than the albums search
+     * answers it with songs, which are left out: nothing found rather than a wrong proposal.
+     */
+    override suspend fun searchFor(ctx: Env, track: Track, playlistId: String?): List<Track> {
+        if (searchesAlbums(track, supportsAlbums, playlistId)) {
             val q = (track.artists.take(1).map { Matcher.searchArtist(it) } + Matcher.searchTitle(track.title)).joinToString(" ")
             return io(ctx, "amazon.search", q, Bundle().apply { putString("kind", "album") }) { j ->
                 j.arr.mapNotNull { toTrack(it) }.filter { it.kind == Track.KIND_ALBUM }
@@ -202,11 +213,17 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
 
     companion object {
         /**
-         * Whether [track] is looked for with the albums search: an album, where saved albums exist.
-         * When they come, a sync into an Amazon playlist must still search songs: this gate then has to
-         * know the target, not only the service.
+         * Whether [track] is looked for with the albums search: an album on its way to the saved
+         * albums ([targetId]), where there are some. Into a playlist it is searched as songs.
          */
-        fun searchesAlbums(track: Track, supportsAlbums: Boolean): Boolean = supportsAlbums && track.kind == Track.KIND_ALBUM
+        fun searchesAlbums(track: Track, supportsAlbums: Boolean, targetId: String?): Boolean =
+            supportsAlbums && track.kind == Track.KIND_ALBUM && targetId == MusicProvider.ALBUMS_ID
+
+        /**
+         * Saved albums: built in, or a Bridge app that reports [BridgePlugin.AMAZON_ALBUMS_VERSION]
+         * (1.11.0) or more. An older one would read `__albums__` as a playlist id.
+         */
+        fun savedAlbums(builtIn: Boolean, version: Int): Boolean = builtIn || version >= BridgePlugin.AMAZON_ALBUMS_VERSION
 
         const val SERVICE = "amazon"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.AMAZON_LOGIN"
