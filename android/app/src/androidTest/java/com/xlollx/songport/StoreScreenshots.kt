@@ -921,6 +921,10 @@ class StoreScreenshots {
         step("font") { shell("settings put system font_scale 1.5"); Thread.sleep(1500) }
         olderScreens("bigfont", full = false)
         step("font back") { shell("settings put system font_scale 1.0"); Thread.sleep(1500) }
+        // And on a narrow phone: 320 dp across, the font a little larger than usual.
+        step("narrow") { shell("wm density 540"); shell("settings put system font_scale 1.3"); Thread.sleep(3000) }
+        olderScreens("narrow", full = false)
+        step("narrow back") { shell("wm density reset"); shell("settings put system font_scale 1.0"); Thread.sleep(3000) }
         step("sideways") { shell("settings put system accelerometer_rotation 0"); shell("settings put system user_rotation 1"); Thread.sleep(3000) }
         open(tab(MainActivity.TAB_SYNCS), "old review land") { toReview() }
         snap("old_land_review")
