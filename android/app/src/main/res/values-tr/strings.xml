@@ -1139,7 +1139,7 @@
     <string name="help_library_title">Çalma listeleri ve Kitaplık</string>
     <string name="help_library_body">Çalma listeleri bölümünde çalma listeleriniz ve Beğenilen şarkılar bulunur. Kitaplık; kaydedilen albümleri, takip edilen sanatçıları, podcast\'leri ve yalnızca kaynak olarak son çalınanları içerir. Hedef olarak yalnızca size ait çalma listeleri gösterilir.</string>
     <string name="help_link_body">Herkese açık bir çalma listesinin paylaşım bağlantısını yapıştırın: kısa bağlantılar açılır ve adı okunur. Çalma listesi yalnızca okunur, asla değiştirilmez; bu yüzden çift yönlü olamaz. Bazı servislerin herkese açık bir bağlantıyı okumak için bile bağlı olması gerekir.</string>
-    <string name="help_target_body">Parçaların gideceği yer. Trackhop bir servisi önceden seçer: kaydetmeden önce kontrol edin. Başka bir servis seçmek, seçili çalma listesini temizler.</string>
+    <string name="help_target_body">Parçaların gideceği yer. Bir servis, sonra bir çalma listesi ya da yenisini seçin; yalnızca bir servis bağlıyken File seçili gelir. Başka bir servis seçmek, seçili çalma listesini temizler.</string>
     <string name="help_liked_body">Kaynak Beğenilen şarkılar olduğunda ve hedef servis beğenmeyi destekliyorsa, hedef o servisin beğenilen şarkıları olur ve senkronize edilen her parça orada beğenilir. Kaldırmaları yansıt açıkken kaynakta beğenilmeyen parçaların hedefteki beğenisi kaldırılır.</string>
     <string name="help_liked_example">Spotify Beğenilen şarkılar → Deezer: her parça Deezer favorilerinize eklenir.</string>
     <string name="help_new_playlist_body">Çalma listesi kaydederken değil, ilk çalıştırmada oluşturulur ve siz bir ad yazmazsanız kaynağın adını alır. Daha sonra serviste silerseniz senkronizasyon durur ve onu yeniden oluşturmanızı ya da başka birini seçmenizi ister.</string>
@@ -1270,7 +1270,7 @@
     <string name="tour_new_sync">Senkronizasyon bir çalma listesini başka bir servise kopyalar ve güncel tutar: her şey Yeni senkronizasyon ile başlar.</string>
     <string name="tour_accounts">Servislerinizi Hesaplar\'da bağlayın: her servisin kendi sayfasında oturum açarsınız ve bu telefonda yalnızca şifreli bir belirteç kalır.</string>
     <string name="tour_source">Neyin kopyalanacağını seçin: bir çalma listesi, Beğenilen şarkılar ya da Kitaplık\'taki albümler ve sanatçılar.</string>
-    <string name="tour_target">Nereye gideceğini seçin ve önceden seçilen servisi kontrol edin: File, bu telefonda tutulan bir listedir.</string>
+    <string name="tour_target">Nereye gideceğini seçin: bir servis, sonra bir çalma listesi ya da yenisi. File, bu telefonda tutulan bir listedir.</string>
     <string name="tour_schedule">İlk senkronizasyonda Yalnızca manuel\'i bırakın; sonradan eklediğiniz bir zamanlama kaydettikten birkaç dakika sonra başlar.</string>
     <string name="tour_mirror">Kaldırmaları yansıt kapalıyken Trackhop yalnızca ekler: ilk senkronizasyon için güvenli seçim budur.</string>
     <string name="tour_save">Kaydet önizlemeyi açar; önizleme neyin değişeceğini gösterir ve bir şey olmadan önce belirsiz eşleşmeleri sorar.</string>

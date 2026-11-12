@@ -1199,7 +1199,7 @@
     <string name="help_library_title">Playlisty i Biblioteka</string>
     <string name="help_library_body">W Playlistach są twoje playlisty i Polubione utwory. Biblioteka zawiera zapisane albumy, obserwowanych wykonawców, podcasty oraz, tylko jako źródło, ostatnio odtwarzane. Jako cel widać tylko twoje własne playlisty.</string>
     <string name="help_link_body">Wklej link do udostępniania publicznej playlisty: krótkie linki są rozwijane, a nazwa odczytywana. Playlista jest tylko odczytywana, nigdy zapisywana, więc nie może być dwukierunkowa. Niektóre serwisy muszą być połączone nawet do odczytania publicznego linku.</string>
-    <string name="help_target_body">Dokąd trafiają utwory. Trackhop wstępnie wybiera serwis: sprawdź go przed zapisaniem. Wybór innego serwisu czyści wybraną playlistę.</string>
+    <string name="help_target_body">Dokąd trafiają utwory. Wybierz serwis, a potem playlistę lub nową; gdy połączony jest tylko jeden serwis, File jest już wybrany. Wybór innego serwisu czyści wybraną playlistę.</string>
     <string name="help_liked_body">Gdy źródłem są Polubione utwory, a serwis docelowy obsługuje polubienia, celem stają się polubione utwory tego serwisu i każdy synchronizowany utwór zostaje tam polubiony. Z włączonym Odzwierciedlaj usunięcia utwory niepolubione w źródle tracą polubienie w celu.</string>
     <string name="help_liked_example">Polubione utwory ze Spotify → Deezer: każdy utwór trafia do twoich ulubionych w Deezer.</string>
     <string name="help_new_playlist_body">Playlista powstaje przy pierwszym uruchomieniu, a nie przy zapisie, i nosi nazwę źródła, jeśli nie wpiszesz innej. Jeśli później usuniesz ją w serwisie, synchronizacja się zatrzyma i poprosi o utworzenie jej ponownie lub wybór innej.</string>
@@ -1330,7 +1330,7 @@
     <string name="tour_new_sync">Synchronizacja kopiuje playlistę do innego serwisu i utrzymuje ją aktualną: wszystko zaczyna się od Nowa synchronizacja.</string>
     <string name="tour_accounts">Połącz swoje serwisy w Kontach: logujesz się na stronie każdego serwisu, a na tym telefonie zostaje tylko zaszyfrowany token.</string>
     <string name="tour_source">Wybierz, co skopiować: playlistę, Polubione utwory albo albumy i wykonawców w Bibliotece.</string>
-    <string name="tour_target">Wybierz, dokąd ma trafić, i sprawdź wybrany serwis: File to lista przechowywana na tym telefonie.</string>
+    <string name="tour_target">Wybierz, dokąd ma trafić: serwis, a potem playlistę lub nową. File to lista przechowywana na tym telefonie.</string>
     <string name="tour_schedule">Przy pierwszej synchronizacji zostaw Tylko ręcznie; harmonogram dodany później startuje kilka minut po zapisaniu.</string>
     <string name="tour_mirror">Gdy Odzwierciedlaj usunięcia jest wyłączone, Trackhop tylko dodaje: to bezpieczny wybór na pierwszą synchronizację.</string>
     <string name="tour_save">Zapisz otwiera podgląd, który pokazuje, co by się zmieniło, i pyta o niepewne dopasowania, zanim cokolwiek się stanie.</string>

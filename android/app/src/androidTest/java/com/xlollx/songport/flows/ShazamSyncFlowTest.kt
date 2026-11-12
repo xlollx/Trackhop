@@ -36,6 +36,7 @@ class ShazamSyncFlowTest : FlowTest() {
         openEditorOnShazam()
         waitText(s(R.string.shazam_source_title))
         waitText(FakeWorld.SHAZAM_NAME, substring = true)
+        chooseTarget("Deezer")
         click(s(R.string.save))
 
         waitFor("the Shazam sync saved") { store.data.jobs.size == 1 }
@@ -43,6 +44,7 @@ class ShazamSyncFlowTest : FlowTest() {
         assertTrue(job.shazam)
         assertEquals("spotify", job.source.provider)
         assertEquals(FakeWorld.SPOTIFY_SHAZAM, job.source.playlistId)
+        assertEquals("deezer", job.target.provider)
         assertEquals(FakeWorld.SHAZAM_NAME, job.name)
         assertEquals(Schedule.HOURLY, job.schedule)
         assertFalse(job.mirrorRemovals)
@@ -66,6 +68,8 @@ class ShazamSyncFlowTest : FlowTest() {
         waitText(s(R.string.shazam_howto_title))
         // Spotify is connected: nothing more to connect, only Shazam's setting to turn on.
         assertFalse(exists(s(R.string.shazam_howto_connect)))
+        // A target chosen: what is missing is Shazam's playlist alone.
+        chooseTarget("Deezer")
         click(s(R.string.save))
         waitText(s(R.string.editor_error_incomplete))
         assertTrue(store.data.jobs.isEmpty())

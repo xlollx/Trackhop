@@ -1141,7 +1141,7 @@
     <string name="help_library_title">Playlist e Libreria</string>
     <string name="help_library_body">Playlist contiene le tue playlist e i Brani preferiti. Libreria contiene album salvati, artisti seguiti, podcast e, solo come origine, gli ascolti recenti. Come destinazione compaiono solo le playlist di tua proprietà.</string>
     <string name="help_link_body">Incolla il link di condivisione di una playlist pubblica: i link brevi vengono seguiti e il nome viene letto. La playlist viene solo letta, mai scritta, quindi non può essere bidirezionale. Alcuni servizi vanno collegati anche solo per leggere un link pubblico.</string>
-    <string name="help_target_body">Dove vanno i brani. Trackhop propone un servizio: controllalo prima di salvare. Se scegli un altro servizio, la playlist scelta si azzera.</string>
+    <string name="help_target_body">Dove vanno i brani. Scegli un servizio, poi una playlist o una nuova; con un solo servizio collegato, File è già scelto. Se scegli un altro servizio, la playlist scelta si azzera.</string>
     <string name="help_liked_body">Quando l\'origine sono i Brani preferiti e il servizio di destinazione supporta i “mi piace”, la destinazione diventa i Brani preferiti di quel servizio, e ogni brano sincronizzato riceve un “mi piace” lì. Con Rispecchia le rimozioni attivo, i brani che non sono tra i preferiti dell\'origine perdono il “mi piace” sulla destinazione.</string>
     <string name="help_liked_example">Brani preferiti di Spotify → Deezer: ogni brano finisce tra i tuoi preferiti di Deezer.</string>
     <string name="help_new_playlist_body">La playlist viene creata alla prima esecuzione, non al salvataggio, con il nome dell\'origine se non ne scrivi uno. Se poi la elimini sul servizio, la sync si ferma e ti chiede di ricrearla o sceglierne un\'altra.</string>
@@ -1272,7 +1272,7 @@
     <string name="tour_new_sync">Una sync copia una playlist su un altro servizio e la tiene aggiornata: tutto parte da Nuova sync.</string>
     <string name="tour_accounts">Collega i tuoi servizi in Account: accedi sulla pagina di ciascun servizio, e su questo telefono resta solo un token cifrato.</string>
     <string name="tour_source">Scegli cosa copiare: una playlist, i Brani preferiti, oppure album e artisti in Libreria.</string>
-    <string name="tour_target">Scegli dove va, e controlla il servizio proposto: File è un elenco tenuto su questo telefono.</string>
+    <string name="tour_target">Scegli dove va: un servizio, poi una playlist o una nuova. File è un elenco tenuto su questo telefono.</string>
     <string name="tour_schedule">Per la prima sync tieni Solo manuale; una pianificazione aggiunta dopo parte pochi minuti dopo il salvataggio.</string>
     <string name="tour_mirror">Con Rispecchia le rimozioni spento Trackhop aggiunge soltanto: la scelta sicura per una prima sync.</string>
     <string name="tour_save">Salva apre l\'anteprima, che mostra cosa cambierebbe e chiede degli abbinamenti incerti prima che succeda qualcosa.</string>

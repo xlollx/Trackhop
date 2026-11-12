@@ -1,10 +1,12 @@
 package com.xlollx.songport.flows
 
 import android.app.UiAutomation
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performScrollTo
@@ -42,6 +44,55 @@ class SyncJobFlowTest : FlowTest() {
         waitText("Road Trip")
         click("Road Trip")
         waitFor("Road Trip chosen as source") { fieldShows(s(R.string.editor_playlist), "Road Trip") }
+        chooseTarget("Deezer")
+    }
+
+    /**
+     * A new sync opens with no target: the field empty as the source's, no "Create a new playlist"
+     * switch, and a sheet with no service selected. Saving says the target is missing.
+     */
+    @Test
+    fun aNewSyncOpensWithNoTargetAndSaveSaysItIsMissing() {
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText(s(R.string.empty_syncs_title))
+        click(s(R.string.new_sync))
+        waitText(s(R.string.editor_title_new))
+        // Source and target both say "Choose a playlist", and nothing offers to create one yet.
+        waitFor("both fields empty") { compose.onAllNodesWithText(s(R.string.editor_choose_playlist)).fetchSemanticsNodes().size == 2 }
+        assertFalse("no new-playlist switch before a target service", exists(s(R.string.editor_new_playlist)))
+        assertFalse("no new playlist's name before a target service", exists(s(R.string.editor_new_playlist_name)))
+        assertFalse("Deezer is not named on the page", exists("Deezer", substring = true))
+
+        // A source, and still no target: Save says what is missing and saves nothing.
+        click(s(R.string.editor_playlist))
+        waitText("Road Trip")
+        click("Road Trip")
+        waitFor("Road Trip chosen as source") { fieldShows(s(R.string.editor_playlist), "Road Trip") }
+        assertEquals("the target still empty", 1, compose.onAllNodesWithText(s(R.string.editor_choose_playlist)).fetchSemanticsNodes().size)
+        click(s(R.string.save))
+        waitText(s(R.string.editor_error_incomplete))
+        assertTrue(store.data.jobs.isEmpty())
+
+        // The target's sheet: the services, none selected, and no list until one is tapped.
+        openTargetPicker()
+        val tile = { name: String -> compose.onAllNodes(hasClickAction() and hasText(name)).onFirst() }
+        waitFor("Deezer's mark") { compose.onAllNodes(hasClickAction() and hasText("Deezer")).fetchSemanticsNodes().isNotEmpty() }
+        tile("Spotify").assertIsNotSelected()
+        tile("Deezer").assertIsNotSelected()
+        assertTrue("no new-playlist row before a service", compose.onAllNodes(newPlaylistRow).fetchSemanticsNodes().isEmpty())
+        clickTile("Deezer")
+        waitFor("Deezer selected") { compose.onAllNodes(hasClickAction() and hasText("Deezer") and isSelected()).fetchSemanticsNodes().isNotEmpty() }
+        waitFor("the new playlist row") { compose.onAllNodes(newPlaylistRow).fetchSemanticsNodes().isNotEmpty() }
+        tap(compose.onAllNodes(newPlaylistRow).onFirst(), "Create a new playlist")
+        waitFor("the target picker closed") { compose.onAllNodesWithText(s(R.string.editor_target)).fetchSemanticsNodes().size < 2 }
+        // Now the switch and the name are there, and Save goes through.
+        waitText(s(R.string.editor_new_playlist_name))
+        assertTrue(exists(s(R.string.editor_new_playlist)))
+        click(s(R.string.save))
+        waitText(s(R.string.preview_add, 6), ms = 30_000)
+        val job = store.data.jobs.single()
+        assertEquals("deezer", job.target.provider)
+        assertNull(job.target.playlistId)
     }
 
     @Test
