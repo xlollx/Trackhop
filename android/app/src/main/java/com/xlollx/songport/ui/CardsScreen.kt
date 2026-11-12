@@ -594,7 +594,9 @@ fun PosterCard(snackbar: SnackbarHostState) {
         scope.launch {
             try {
                 val tracks = if (fresh) withContext(MusicProvider.FreshRead) { p.provider.tracks(ctx, p.playlist.id) } else p.provider.tracks(ctx, p.playlist.id)
-                val info = if (!fresh && p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank()) p.playlist else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
+                // Liked songs and the other library lists are no playlist the service can describe (Spotify: "Invalid base62 id").
+                val info = if (MusicProvider.isLibrary(p.playlist.id) || (!fresh && p.playlist.trackCount >= 0 && p.playlist.name.isNotBlank())) p.playlist
+                    else runCatching { p.provider.playlistInfo(ctx, p.playlist.id) }.getOrDefault(p.playlist)
                 val key = p.provider.id + "|" + p.playlist.id
                 val title = info.name.ifBlank { p.playlist.name }.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
                 val artists = CoverPrompt.topArtists(tracks)
