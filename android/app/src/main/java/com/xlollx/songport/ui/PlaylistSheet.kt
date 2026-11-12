@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -195,45 +199,34 @@ internal fun PickerSheet(title: String, onDismiss: () -> Unit, tall: Boolean = t
         }
         content()
     }
-    if (!tall) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            dragHandle = if (short) null else ({ androidx.compose.material3.BottomSheetDefaults.DragHandle() }),
-        ) {
-            Column(Modifier.fillMaxWidth().padding(top = if (short) 12.dp else 0.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body)
-        }
-        return
-    }
-    // A tall picker with a long list is a panel that never moves under a scroll (as a dragged sheet it
-    // slid down and snapped back, or closed, owner 12/11): it closes with ✕, a tap above it or Back.
-    androidx.compose.ui.window.Dialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ModalBottomSheet(
+        onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        // A tall sheet has no handle: it closes with ✕, a tap above it or Back.
+        dragHandle = if (short || tall) null else ({ androidx.compose.material3.BottomSheetDefaults.DragHandle() }),
     ) {
-        val shown = remember { androidx.compose.animation.core.MutableTransitionState(false) }.apply { targetState = true }
-        androidx.compose.foundation.layout.Box(
-            Modifier.fillMaxSize().clickable(interactionSource = null, indication = null, onClick = onDismiss),
-            contentAlignment = Alignment.BottomCenter,
-        ) {
-            androidx.compose.animation.AnimatedVisibility(
-                shown,
-                enter = androidx.compose.animation.slideInVertically(androidx.compose.animation.core.tween(260)) { it / 3 } + androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)),
-            ) {
-                androidx.compose.material3.Surface(
-                    Modifier.widthIn(max = 640.dp).fillMaxWidth().fillMaxHeight(if (short) 1f else 0.92f)
-                        // Taps inside the panel stay inside it.
-                        .clickable(interactionSource = null, indication = null) {},
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                    color = androidx.compose.material3.BottomSheetDefaults.ContainerColor,
-                    tonalElevation = androidx.compose.material3.BottomSheetDefaults.Elevation,
-                ) {
-                    Column(
-                        Modifier.fillMaxSize().navigationBarsPadding().imePadding().padding(top = if (short) 8.dp else 4.dp, bottom = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
-                    )
-                }
+        // A tall sheet with a long list never moves under a finger (it slid down and snapped back, or
+        // closed, owner 12/11): the list keeps the scroll it does not use, and a drag anywhere else on
+        // the sheet is taken here, before the sheet sees it.
+        val keepScroll = remember {
+            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+                override fun onPostScroll(consumed: androidx.compose.ui.geometry.Offset, available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource) = available
+                override suspend fun onPostFling(consumed: androidx.compose.ui.unit.Velocity, available: androidx.compose.ui.unit.Velocity) = available
             }
         }
+        Column(
+            Modifier.fillMaxWidth()
+                .then(if (tall) Modifier.fillMaxHeight(if (short) 1f else 0.92f).nestedScroll(keepScroll).pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        do {
+                            val e = awaitPointerEvent()
+                            e.changes.forEach { if (it.positionChange() != androidx.compose.ui.geometry.Offset.Zero) it.consume() }
+                        } while (e.changes.any { it.pressed })
+                    }
+                } else Modifier)
+                .padding(top = if (short || tall) 12.dp else 0.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(if (short) 6.dp else 12.dp), content = body,
+        )
     }
 }
 
