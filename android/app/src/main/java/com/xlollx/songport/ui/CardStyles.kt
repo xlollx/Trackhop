@@ -394,3 +394,24 @@ fun CardSizePreview(cardSize: CardSize) {
         }
     }
 }
+
+/**
+ * The default look of a tile with no colour of its own: a soft glow of the source's brand colour in
+ * the corner of the logos and one of the target's in the opposite corner, the middle left plain, so
+ * the route reads at a glance without the two colours mixing into a muddy one. Nothing when a
+ * service has no brand colour, and none in the store screenshots (no other brand's colour there).
+ */
+fun Modifier.routeGlow(source: Long?, target: Long?, dark: Boolean): Modifier =
+    if (LogoMode.neutral || (source == null && target == null)) this else drawBehind {
+        val alpha = if (dark) 0.26f else 0.16f
+        val rtl = layoutDirection == LayoutDirection.Rtl
+        val radius = size.maxDimension * 0.75f
+        fun glow(argb: Long?, x: Float, y: Float) {
+            val c = Color(argb ?: return)
+            drawRect(Brush.radialGradient(listOf(c.copy(alpha = alpha), Color.Transparent), center = Offset(x, y), radius = radius))
+        }
+        val start = if (rtl) size.width else 0f
+        val end = if (rtl) 0f else size.width
+        glow(source, start, 0f)
+        glow(target, end, size.height)
+    }

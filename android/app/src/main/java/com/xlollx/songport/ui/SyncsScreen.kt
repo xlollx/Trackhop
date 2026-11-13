@@ -13,6 +13,7 @@ import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.filled.GridView
@@ -1310,15 +1311,24 @@ private fun JobTile(
             shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
+            val src = Providers.byId(job.source.provider)
+            val dst = Providers.byId(job.target.provider)
+            val accent = jobAccent(job.color)
             Column(
-                Modifier.cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), jobAccent(job.color), tile = true)
+                // No colour of its own: the route's two brand colours, one in each corner.
+                Modifier.then(if (accent == null) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
+                    .cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), accent, tile = true)
                     .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.width(46.dp).height(30.dp)) {
-                        ProviderBadge(Providers.byId(job.source.provider), 28.dp)
-                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(Providers.byId(job.target.provider), 28.dp) }
+                        ProviderBadge(src, 28.dp)
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 28.dp) }
                     }
+                    // The sync's marks (a shared playlist, a radio…) beside its services, so the name,
+                    // the status and the next run all start on the same edge.
+                    Spacer(Modifier.width(6.dp))
+                    JobMarks(job, ink, size = 16.dp, star = false)
                     Spacer(Modifier.weight(1f))
                     // Running: the tile says how far it is; the button would only be greyed.
                     FilledTonalIconButton(
@@ -1330,10 +1340,11 @@ private fun JobTile(
                     ) { Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now), Modifier.size(20.dp)) }
                 }
                 Spacer(Modifier.height(6.dp))
-                Row(verticalAlignment = Alignment.Top) {
-                    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) { JobMarks(job, ink, size = 14.dp, star = false) }
-                    // Two lines kept for every name, so the tiles of a row line up.
-                    Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+                // Two lines kept for every name, so the tiles of a row line up; a one-line name sits on the
+                // lower line, next to its status, rather than leaving a gap under it.
+                Box {
+                    Text(" ", style = MaterialTheme.typography.titleSmall, minLines = 2, modifier = Modifier.clearAndSetSemantics {})
+                    Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.align(Alignment.BottomStart))
                 }
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
