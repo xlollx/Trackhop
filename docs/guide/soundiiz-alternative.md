@@ -30,7 +30,7 @@ details.
 ## When Soundiiz is the better choice
 
 - A **one-off move from a browser**, with nothing to install.
-- A service Trackhop does not connect to, such as Qobuz, Beatport or Pandora.
+- A service Trackhop does not connect to, such as Beatport or Pandora.
 
 ## When Trackhop fits better
 
@@ -56,10 +56,10 @@ Step-by-step guides: [Spotify to YouTube Music](spotify-to-youtube-music) ·
 ## Questions
 
 **Is Trackhop really free?** Yes: free software under the AGPL-3.0, with no paid plan and no feature
-behind a paywall. The Google Play version shows a small ad; the GitHub and F-Droid versions have none.
+behind a paywall. No build shows ads.
 
 **Does it work on iPhone?** There is no iPhone app. On a computer, [Trackhop Desktop](desktop) does
-everything the phone app does; on a home server, [Docker](docker) runs your syncs around the clock
+what the phone app does, except Apple Music and Amazon Music; on a home server, [Docker](docker) runs your syncs around the clock
 and its page can sit on an iPhone's home screen.
 
 **Can I keep using Soundiiz too?** Of course: Trackhop works on the playlists themselves, whatever

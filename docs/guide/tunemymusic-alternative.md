@@ -28,7 +28,7 @@ details.
 ## When TuneMyMusic is the better choice
 
 - A **quick transfer from a browser**, with nothing to install.
-- A service Trackhop does not connect to, such as Yandex Music, Anghami, KKBOX or Pandora.
+- A service Trackhop does not connect to, such as Yandex Music, KKBOX or Pandora.
 
 ## When Trackhop fits better
 
@@ -55,10 +55,10 @@ Step-by-step guides: [Spotify to YouTube Music](spotify-to-youtube-music) ·
 ## Questions
 
 **Is Trackhop really free?** Yes: free software under the AGPL-3.0, with no paid plan and no track
-limit. The Google Play version shows a small ad; the GitHub and F-Droid versions have none.
+limit. No build shows ads.
 
 **Does it work on iPhone?** There is no iPhone app. On a computer, [Trackhop Desktop](desktop) does
-everything the phone app does; on a home server, [Docker](docker) runs your syncs around the clock
+what the phone app does, except Apple Music and Amazon Music; on a home server, [Docker](docker) runs your syncs around the clock
 and its page can sit on an iPhone's home screen.
 
 **Does it move liked songs and albums too?** Liked songs, saved albums and followed artists can be

@@ -34,7 +34,7 @@ Most people want the first one: a growing archive of everything Discover Weekly 
    > stopped allowing it at the end of 2024. With that connection those playlists look empty or
    > are missing; that is Spotify's rule, not a fault in Trackhop. The quick sign-in goes through
    > Spotify's own web player and sees them. It is not an official interface, so read
-   > [its notes](troubleshooting#spotify) first. On the Google Play version it comes with the free
+   > [its notes](troubleshooting#spotify) first. On the Google Play and AppGallery versions it comes with the free
    > [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin.
 3. **New sync**: *Syncs → New sync*. As the **Source**, pick *Discover Weekly* from your Spotify
    playlists.

@@ -19,9 +19,9 @@ runs on your own phone or computer, so there is no server bill to pay for and no
 - **No account.** You do not sign up for Trackhop; you only connect the music services you use.
 - **Your logins stay with you.** They are stored encrypted on your device, never on a Trackhop
   server (there is none).
-- **No ads** in the builds from [GitHub](https://github.com/xlollx/Trackhop/releases/latest),
-  [F-Droid](https://f-droid.org/packages/com.xlollx.songport/), [Trackhop Desktop](desktop) and the
-  [Docker server](docker).
+- **No ads** in any build: [GitHub](https://github.com/xlollx/Trackhop/releases/latest),
+  [F-Droid](https://f-droid.org/packages/com.xlollx.songport/), the stores, [Trackhop Desktop](desktop)
+  and the [Docker server](docker).
 - **Open source** (AGPL-3.0): anyone can read the code, build it, and check what it does.
 
 ## What you can sync
