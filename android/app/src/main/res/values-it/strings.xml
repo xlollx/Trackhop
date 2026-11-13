@@ -1769,7 +1769,8 @@
     <string name="discover_wrapped_plays_label">Ascolti</string>
     <string name="discover_wrapped_songs_played">Brani ascoltati</string>
     <string name="discover_wrapped_discovery">La scoperta del periodo</string>
-    <string name="discover_wrapped_top_song">Il brano del periodo</string>
+    <string name="discover_wrapped_top_song">La più ascoltata</string>
+    <string name="discover_wrapped_oldest_played">La più vecchia che hai ascoltato</string>
     <string name="discover_wrapped_spotify_scope">Per leggere i tuoi brani più ascoltati, Spotify chiede un permesso in più. Accedi di nuovo a Spotify per darlo.</string>
     <string name="discover_wrapped_spotify_signin">Accedi di nuovo a Spotify</string>
     <string name="discover_wrapped_no_plays">%1$s non ha ancora ascolti per questo periodo.</string>

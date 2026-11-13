@@ -1769,7 +1769,8 @@
     <string name="discover_wrapped_plays_label">Wiedergaben</string>
     <string name="discover_wrapped_songs_played">Gehörte Songs</string>
     <string name="discover_wrapped_discovery">Entdeckung des Zeitraums</string>
-    <string name="discover_wrapped_top_song">Song des Zeitraums</string>
+    <string name="discover_wrapped_top_song">Am meisten gehört</string>
+    <string name="discover_wrapped_oldest_played">Der älteste Song, den du gehört hast</string>
     <string name="discover_wrapped_spotify_scope">Um deine Top-Songs zu lesen, braucht Spotify eine weitere Erlaubnis. Melde dich erneut bei Spotify an, um sie zu erteilen.</string>
     <string name="discover_wrapped_spotify_signin">Erneut bei Spotify anmelden</string>
     <string name="discover_wrapped_no_plays">%1$s hat für diesen Zeitraum noch keine Wiedergaben.</string>

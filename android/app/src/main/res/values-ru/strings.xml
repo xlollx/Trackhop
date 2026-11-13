@@ -1831,7 +1831,8 @@
     <string name="discover_wrapped_plays_label">Прослушивания</string>
     <string name="discover_wrapped_songs_played">Прослушанные треки</string>
     <string name="discover_wrapped_discovery">Открытие периода</string>
-    <string name="discover_wrapped_top_song">Трек периода</string>
+    <string name="discover_wrapped_top_song">Чаще всего слушали</string>
+    <string name="discover_wrapped_oldest_played">Самая старая из прослушанных</string>
     <string name="discover_wrapped_spotify_scope">Чтобы прочитать ваши топ-треки, Spotify нужно ещё одно разрешение. Войдите в Spotify снова, чтобы его дать.</string>
     <string name="discover_wrapped_spotify_signin">Войти в Spotify снова</string>
     <string name="discover_wrapped_no_plays">В %1$s пока нет прослушиваний за этот период.</string>

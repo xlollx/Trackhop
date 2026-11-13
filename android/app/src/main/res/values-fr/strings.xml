@@ -1777,7 +1777,8 @@
     <string name="discover_wrapped_plays_label">Écoutes</string>
     <string name="discover_wrapped_songs_played">Titres écoutés</string>
     <string name="discover_wrapped_discovery">La découverte de la période</string>
-    <string name="discover_wrapped_top_song">Le titre de la période</string>
+    <string name="discover_wrapped_top_song">La plus écoutée</string>
+    <string name="discover_wrapped_oldest_played">La plus ancienne que tu as écoutée</string>
     <string name="discover_wrapped_spotify_scope">Pour lire tes top titres, Spotify demande une autorisation de plus. Reconnecte-toi à Spotify pour l\'accorder.</string>
     <string name="discover_wrapped_spotify_signin">Se reconnecter à Spotify</string>
     <string name="discover_wrapped_no_plays">%1$s n\'a pas encore d\'écoutes pour cette période.</string>

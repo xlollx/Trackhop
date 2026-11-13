@@ -1833,7 +1833,8 @@
     <string name="discover_wrapped_plays_label">Odtworzenia</string>
     <string name="discover_wrapped_songs_played">Słuchane utwory</string>
     <string name="discover_wrapped_discovery">Odkrycie okresu</string>
-    <string name="discover_wrapped_top_song">Utwór okresu</string>
+    <string name="discover_wrapped_top_song">Najczęściej słuchana</string>
+    <string name="discover_wrapped_oldest_played">Najstarsza, której słuchałeś</string>
     <string name="discover_wrapped_spotify_scope">Aby odczytać Twoje najczęściej słuchane utwory, Spotify potrzebuje jeszcze jednej zgody. Zaloguj się ponownie do Spotify, aby ją dać.</string>
     <string name="discover_wrapped_spotify_signin">Zaloguj się ponownie do Spotify</string>
     <string name="discover_wrapped_no_plays">%1$s nie ma jeszcze odtworzeń z tego okresu.</string>

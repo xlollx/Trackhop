@@ -1738,7 +1738,8 @@
     <string name="discover_wrapped_plays_label">再生回数</string>
     <string name="discover_wrapped_songs_played">聴いた曲</string>
     <string name="discover_wrapped_discovery">この期間の新しい出会い</string>
-    <string name="discover_wrapped_top_song">この期間の一曲</string>
+    <string name="discover_wrapped_top_song">いちばん聴いた曲</string>
+    <string name="discover_wrapped_oldest_played">聴いた中でいちばん古い曲</string>
     <string name="discover_wrapped_spotify_scope">トップソングを読み込むには、Spotify の追加の許可が必要です。Spotify にもう一度ログインして許可してください。</string>
     <string name="discover_wrapped_spotify_signin">Spotify に再ログイン</string>
     <string name="discover_wrapped_no_plays">%1$s にはこの期間の再生がまだありません。</string>

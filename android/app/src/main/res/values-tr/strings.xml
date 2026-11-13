@@ -1767,7 +1767,8 @@
     <string name="discover_wrapped_plays_label">Dinlenme</string>
     <string name="discover_wrapped_songs_played">Dinlenen şarkılar</string>
     <string name="discover_wrapped_discovery">Dönemin keşfi</string>
-    <string name="discover_wrapped_top_song">Dönemin şarkısı</string>
+    <string name="discover_wrapped_top_song">En çok dinlenen</string>
+    <string name="discover_wrapped_oldest_played">Dinlediğin en eski şarkı</string>
     <string name="discover_wrapped_spotify_scope">En çok dinlediğin şarkıları okumak için Spotify bir izin daha istiyor. Vermek için Spotify\'a yeniden giriş yap.</string>
     <string name="discover_wrapped_spotify_signin">Spotify\'a yeniden giriş yap</string>
     <string name="discover_wrapped_no_plays">%1$s içinde bu dönem için henüz dinlenme yok.</string>

@@ -1737,7 +1737,8 @@
     <string name="discover_wrapped_plays_label">재생 횟수</string>
     <string name="discover_wrapped_songs_played">들은 곡</string>
     <string name="discover_wrapped_discovery">이번 기간의 발견</string>
-    <string name="discover_wrapped_top_song">이번 기간의 노래</string>
+    <string name="discover_wrapped_top_song">가장 많이 들은 곡</string>
+    <string name="discover_wrapped_oldest_played">들은 곡 중 가장 오래된 곡</string>
     <string name="discover_wrapped_spotify_scope">많이 들은 곡을 읽으려면 Spotify 권한이 하나 더 필요해요. Spotify에 다시 로그인해서 허용해 주세요.</string>
     <string name="discover_wrapped_spotify_signin">Spotify에 다시 로그인</string>
     <string name="discover_wrapped_no_plays">%1$s에 이 기간의 재생 기록이 아직 없어요.</string>

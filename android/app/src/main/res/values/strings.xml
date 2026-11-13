@@ -1770,7 +1770,8 @@
     <string name="discover_wrapped_plays_label">Plays</string>
     <string name="discover_wrapped_songs_played">Songs played</string>
     <string name="discover_wrapped_discovery">Discovery of the period</string>
-    <string name="discover_wrapped_top_song">Song of the period</string>
+    <string name="discover_wrapped_top_song">Most played</string>
+    <string name="discover_wrapped_oldest_played">Oldest song you played</string>
     <string name="discover_wrapped_spotify_scope">To read your top songs, Spotify needs one more permission. Sign in to Spotify again to allow it.</string>
     <string name="discover_wrapped_spotify_signin">Sign in to Spotify again</string>
     <string name="discover_wrapped_no_plays">%1$s has no plays for this period yet.</string>

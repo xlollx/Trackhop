@@ -1738,7 +1738,8 @@
     <string name="discover_wrapped_plays_label">播放次数</string>
     <string name="discover_wrapped_songs_played">听过的歌曲</string>
     <string name="discover_wrapped_discovery">本期新发现</string>
-    <string name="discover_wrapped_top_song">本期之歌</string>
+    <string name="discover_wrapped_top_song">听得最多的歌</string>
+    <string name="discover_wrapped_oldest_played">你听过的最老的歌</string>
     <string name="discover_wrapped_spotify_scope">要读取你最常听的歌曲，Spotify 还需要一项权限。请重新登录 Spotify 以允许。</string>
     <string name="discover_wrapped_spotify_signin">重新登录 Spotify</string>
     <string name="discover_wrapped_no_plays">%1$s 在这段时间还没有播放记录。</string>

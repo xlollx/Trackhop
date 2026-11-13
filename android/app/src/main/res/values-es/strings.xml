@@ -1777,7 +1777,8 @@
     <string name="discover_wrapped_plays_label">Reproducciones</string>
     <string name="discover_wrapped_songs_played">Canciones escuchadas</string>
     <string name="discover_wrapped_discovery">El descubrimiento del periodo</string>
-    <string name="discover_wrapped_top_song">La canción del periodo</string>
+    <string name="discover_wrapped_top_song">La más escuchada</string>
+    <string name="discover_wrapped_oldest_played">La más antigua que escuchaste</string>
     <string name="discover_wrapped_spotify_scope">Para leer tus canciones top, Spotify necesita un permiso más. Vuelve a iniciar sesión en Spotify para darlo.</string>
     <string name="discover_wrapped_spotify_signin">Volver a iniciar sesión en Spotify</string>
     <string name="discover_wrapped_no_plays">%1$s aún no tiene reproducciones de este periodo.</string>

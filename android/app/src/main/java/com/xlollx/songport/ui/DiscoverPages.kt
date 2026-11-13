@@ -201,7 +201,8 @@ internal fun wrappedCard(ctx: Context, w: Wrapped.Saved): Cards.WrappedCard {
     val facts = if (w.listening) buildList {
         w.topTracks.firstOrNull()?.let { add(ctx.getString(R.string.discover_wrapped_top_song) to songLine(it, withYear = false)) }
         w.discovery?.let { add(ctx.getString(R.string.discover_wrapped_discovery) to it) }
-        w.oldest?.let { add(ctx.getString(R.string.discover_wrapped_oldest) to songLine(it, withYear = true)) }
+        // Among the songs played in the period (the playlists' Wrapped says "Oldest song": among the songs kept).
+        w.oldest?.let { add(ctx.getString(R.string.discover_wrapped_oldest_played) to songLine(it, withYear = true)) }
     } else buildList {
         w.oldest?.let { add(ctx.getString(R.string.discover_wrapped_oldest) to songLine(it, withYear = true)) }
         w.newest?.takeIf { n -> w.oldest?.let { it.title == n.title && it.artist == n.artist } != true }
