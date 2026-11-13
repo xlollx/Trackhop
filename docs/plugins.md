@@ -31,6 +31,9 @@ It adds:
   longer registers new ones (the official route stays available in Trackhop).
 - **SoundCloud** with your account (beta): your sets and liked tracks as sources and destinations,
   and public SoundCloud links.
+- **LiveOne**, **Anghami** and **Qobuz** sign-in (alpha), which have no official route in Trackhop.
+- The public **NetEase Cloud Music**, **QQ Music** and **Anghami** playlist links, and the songs of
+  **TikTok** videos: the store builds reach those pages only through the plugin.
 
 Read this before installing: the Bridge uses the same web interfaces the services' own web players use,
 not official APIs. That is against those services' terms of use, it can stop working whenever a service
@@ -40,8 +43,8 @@ the services' own pages and are never stored; the Bridge keeps the session cooki
 phone, and hands Trackhop only the data or short-lived tokens it needs.
 
 **The Trackhop APK from GitHub and the F-Droid version already include these connectors**: add the
-service from Accounts → + and sign in there, the notice comes first. The separate Bridge app is only
-for the Google Play version of Trackhop:
+service from Accounts › Add connector and sign in there, the notice comes first. The separate Bridge
+app is only for the Google Play and AppGallery versions of Trackhop:
 [latest release](https://github.com/xlollx/Trackhop-Bridge/releases/latest).
 
 ## Methods
@@ -67,12 +70,17 @@ plugin whose status answers carry no `slots`, since it would serve the first acc
 
 | Namespace | Methods |
 |-----------|---------|
-| (none) YouTube Music | `status`, `disconnect`, `playlists`, `playlistInfo`, `tracks`, `search`, `stats`, `create`, `add`, `remove`, `rename`, `delete`, `visibility`, `reorder` |
+| (none) YouTube Music | `status`, `disconnect`, `channels`, `channel`, `playlists`, `playlistInfo`, `tracks`, `search`, `stats`, `create`, `add`, `remove`, `rename`, `delete`, `visibility`, `reorder` |
 | `amazon.` | `status`, `disconnect`, `playlists`, `tracks`, `search`, `create`, `add`, `remove`, `rename`, `delete`, `visibility` |
 | `spotify.` | `status`, `disconnect`, `token`, `playlists`, `version`, `playlistInfo`, `tracks`, `search`, `track`, `create`, `add`, `remove`, `rename`, `delete`, `visibility`, `reorder` |
 | `apple.` | `status`, `disconnect`, `tokens` |
 | `deezer.` | `status`, `disconnect`, `playlists`, `playlistInfo`, `version`, `tracks`, `search`, `track`, `create`, `add`, `remove`, `rename`, `delete` |
 | `soundcloud.` | `status`, `disconnect`, `playlists`, `playlistInfo`, `version`, `tracks`, `search`, `create`, `add`, `remove`, `reorder`, `rename`, `visibility`, `delete` |
+| `liveone.` | `status`, `disconnect`, `presets`, `search`, `add` |
+| `anghami.` | `status`, `disconnect`, `playlists`, `tracks`, `search`, `create`, `add`, `remove`, `rename`, `delete` |
+| `qobuz.` | `status`, `disconnect`, `playlists`, `tracks`, `search`, `create`, `add`, `remove`, `rename`, `visibility`, `delete` |
+| `net.` | `status`, `fetch`, `chunk`: the public pages of the link sources and TikTok, for the store builds |
+| `audio.` | `recognize`: the song in a TikTok video's sound |
 
 ### Deezer (`deezer.*`, Trackhop Bridge 1.5.0)
 
@@ -118,6 +126,6 @@ SoundCloud links.
 | `soundcloud.delete` | set id | | empty |
 
 Sign-in activities are started with the actions `com.xlollx.songport.ytmbridge.DEEZER_LOGIN` and
-`com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN` (next to `LOGIN`, `AMAZON_LOGIN`, `SPOTIFY_LOGIN`
-and `APPLE_LOGIN`). Before the first Deezer or SoundCloud sign-in the notice is shown again, since
+`com.xlollx.songport.ytmbridge.SOUNDCLOUD_LOGIN` (next to `LOGIN`, `AMAZON_LOGIN`, `SPOTIFY_LOGIN`,
+`APPLE_LOGIN`, `LIVEONE_LOGIN`, `ANGHAMI_LOGIN` and `QOBUZ_LOGIN`). Before the first Deezer or SoundCloud sign-in the notice is shown again, since
 its text now names them.

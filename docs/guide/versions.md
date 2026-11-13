@@ -5,11 +5,11 @@ is which services they can reach, and how.
 
 | | GitHub and F-Droid | Stores: Google Play, Huawei AppGallery |
 |---|---|---|
-| Spotify, YouTube Music, Apple Music, Amazon Music through their web players | **built in**: sign in and go | through an optional connector plugin |
+| Spotify, YouTube Music, Apple Music, Amazon Music, Deezer, SoundCloud through their web players | **built in**: sign in and go | through the optional Trackhop Bridge plugin |
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
-| Navidrome/Subsonic, Jellyfin, Plex, Last.fm, ListenBrainz, files | yes | yes |
-| SoundCloud public links | yes | no |
-| LiveOne (web player), NetEase Cloud Music and QQ Music links | yes | no |
+| Navidrome/Subsonic, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, files | yes | yes |
+| SoundCloud public links | yes | through the plugin |
+| LiveOne, Anghami, Qobuz (web player), NetEase Cloud Music and QQ Music links, TikTok | yes | through the plugin |
 | Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play: yes · AppGallery: no |
 | Ads | none | none |
 | Updates | F-Droid, Obtainium or the GitHub release page | the store |
