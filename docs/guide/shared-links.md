@@ -12,7 +12,7 @@ matches, and shown to you before it is added.
 2. The **Add to…** sheet opens with the track at the top. If the link's own service is not
    connected, Trackhop reads the title from public pages, with no account involved.
 3. Pick **where** it goes: every connected service is listed, the last one used first. Navidrome,
-   Subsonic, Jellyfin and Plex are targets like the others.
+   Subsonic, Jellyfin, Emby and Plex are targets like the others.
 4. Trackhop looks for the same recording there. When the service knows the very track (its own
    link, or one song.link maps), you see it as is; otherwise the best match with its score, and
    **Change** shows the other candidates with the usual search.

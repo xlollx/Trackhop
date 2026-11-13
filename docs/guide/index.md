@@ -6,9 +6,9 @@ description (architecture, matching, services and their limits) stays in the
 
 **Using the app**
 - [Getting started](getting-started): install, connect a service, the first sync.
-- [Which Trackhop?](versions): the GitHub/F-Droid and Play builds, connector plugins, the community.
+- [Which Trackhop?](versions): the GitHub/F-Droid and store builds, connector plugins, the community.
 - [Shared links](shared-links): a friend's Spotify link into your YouTube Music, Navidrome or Jellyfin playlist.
-- [SoundCloud](soundcloud): a public SoundCloud set or likes page as the source of a sync, no account needed.
+- [SoundCloud](soundcloud): a public SoundCloud set or likes page as the source of a sync, no account needed, or your own account.
 - [NetEase Cloud Music and QQ Music](netease-qq-music): a public 网易云音乐 or QQ音乐 playlist as the source of a sync, from its link, no Chinese account needed ([中文](netease-qq-music-zh)).
 - [Troubleshooting](troubleshooting): the errors people actually meet, and what to do about each.
 - [Is it safe?](security): every download checked on VirusTotal, the files' SHA-256 and how Trackhop is built.

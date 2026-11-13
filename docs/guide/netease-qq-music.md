@@ -13,7 +13,9 @@ towards any other service, Spotify, Apple Music, YouTube Music, TIDAL, Deezer, N
 Plex or a playlist file, with no account on the Chinese side.
 
 Only in the GitHub/F-Droid build, in Docker and in Trackhop Desktop downloaded from this site. The
-Google Play and Microsoft Store builds carry official connectors only, so they do not have it.
+Google Play and AppGallery builds reach these links only through the
+[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin. The Microsoft
+Store build carries official connectors only, so it does not have them.
 
 ## Use a link
 

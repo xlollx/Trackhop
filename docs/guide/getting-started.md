@@ -14,6 +14,7 @@ i18n: start
 | [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) | Built by F-Droid from source, signed with the same key as the GitHub APK (reproducible build), so the two update each other. New versions arrive a few days after GitHub. |
 | [Obtainium](https://github.com/ImranR98/Obtainium) | Add `https://github.com/xlollx/Trackhop`: every GitHub release reaches the phone by itself. |
 | [GitHub Releases](https://github.com/xlollx/Trackhop/releases/latest) | The signed APK of every version. |
+| [Huawei AppGallery](https://appgallery.huawei.com/app/C119677919) | The store version: official APIs only. The free [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin adds the quick routes ([Which Trackhop?](versions)). |
 
 Android 8.0 or newer.
 
@@ -21,7 +22,7 @@ Android 8.0 or newer.
 
 *Accounts → Add connector.* Many services can be reached two ways:
 
-- **Quick route** (Spotify, Apple Music, YouTube Music, Amazon Music): you sign in on the service's own
+- **Quick route** (Spotify, Apple Music, YouTube Music, Amazon Music, Deezer, SoundCloud and more): you sign in on the service's own
   page inside the app, as in a browser. Nothing to create. It is not an official interface, so it can
   stop working when the site changes (the app warns before the first sign-in).
   On YouTube Music, if your playlists live on a brand account (a channel of its own), pick it under
@@ -29,14 +30,14 @@ Android 8.0 or newer.
 - **Official route** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): you create a free developer
   key in your own name; the app walks you through it in about two minutes, step by step.
 
-Personal servers (Navidrome/Subsonic, Jellyfin, Plex) need only the server address and your login.
+Personal servers (Navidrome/Subsonic, Jellyfin, Emby, Plex) need only the server address and your login.
 On **Jellyfin** you can also sign in with **Quick Connect**: enter the server address, then approve the
 code from a device where you are already signed in (no password, so it works with single sign-on).
 On **Ampache**, connected as a Subsonic server, the password is not your account password: see
 [Troubleshooting](troubleshooting#personal-servers).
 Files need nothing.
 
-After connecting, *⋮ → Test connection* on the account checks sign-in, playlists and search in one go.
+After connecting, *⋮ → Test the connection* on the account checks sign-in, playlists and search in one go.
 
 **Start over**: a web sign-in can remember an earlier account (for example one signed in with Google)
 and take you straight back into it. *⋮ → Start over* on the connector signs out and forgets what

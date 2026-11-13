@@ -1,10 +1,17 @@
 # SoundCloud: public links as a source
 
-SoundCloud has no public API for new apps, and nothing on it to sign in to from Trackhop. What does
-work is a **public link**: a set (playlist, album or EP) or a user's likes page becomes the source of
-a sync towards any other service, with no account.
+SoundCloud has no public API for new apps. What does work is a **public link**: a set (playlist,
+album or EP) or a user's likes page becomes the source of a sync towards any other service, with no
+account.
 
-Only in the GitHub/F-Droid build and on the server. The Google Play build does not have it.
+Public links work in the GitHub/F-Droid build, in Docker and in Trackhop Desktop downloaded from this
+site. The Google Play and AppGallery builds read them through the
+[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin; the Microsoft
+Store build does not have them.
+
+In the app you can also sign in with your SoundCloud account (beta, *Accounts › Add connector*):
+then your own sets and liked tracks are sources and destinations too. The rest of this page is about
+public links.
 
 ## Use a link
 
@@ -25,7 +32,8 @@ and paste the link in the next step.
 
 ## What to expect
 
-- **Read-only.** SoundCloud is never a destination: nothing is ever written there.
+- **Read-only.** A public link is never a destination: nothing is ever written there. Only a
+  signed-in account writes to SoundCloud.
 - **Matching** is by title, artist and duration. An ISRC and the album come through only when the
   uploader filled in the label's metadata, which official releases usually have and DJ mixes,
   bootlegs and reposts usually do not. Without it, a title written as "Artist - Title" is split, and

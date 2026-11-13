@@ -11,8 +11,9 @@ lang: zh
 网易云音乐和 QQ音乐都没有面向第三方应用的官方接口，不过这件事并不需要：一个**公开歌单的链接**就可以作为同步的来源，
 目标可以是 Spotify、Apple Music、YouTube Music、TIDAL、Deezer、Navidrome、Jellyfin、Plex 或一个歌单文件，全程不需要登录国内账号。
 
-仅在 GitHub/F-Droid 版本、Docker 版本和从本站下载的 Trackhop Desktop 中提供。Google Play 和 Microsoft Store
-版本只包含官方接口，因此没有这项功能。
+仅在 GitHub/F-Droid 版本、Docker 版本和从本站下载的 Trackhop Desktop 中提供。Google Play 和华为 AppGallery
+版本需要安装 [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) 插件才能读取这些链接。
+Microsoft Store 版本只包含官方接口，因此没有这项功能。
 
 ## 使用链接
 
