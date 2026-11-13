@@ -75,6 +75,14 @@ object SoundCloudRenewal {
 
     private val lastProactive = AtomicLong(0)
 
+    /**
+     * Why the last [renew] failed when it was the connection (a page that did not load, its requests
+     * unanswered), in the network's words; null otherwise. A refused call then says that, not that
+     * the session has expired.
+     */
+    @Volatile var lostConnection: String? = null
+        private set
+
     fun forget() { lastProactive.set(0) }
 
     /**
@@ -161,6 +169,7 @@ object SoundCloudRenewal {
     fun renew(ctx: Context, refused: String?, why: String, quiet: Boolean = false, ahead: Boolean = false): Boolean {
         val app = ctx.applicationContext
         val current = SoundCloudBridge.token(app)
+        lostConnection = null
         if (current != null && current != refused) return true
         if (expiredAt(app) != null) return false
         // A page renewed nothing a moment ago: not reopened on every call (the owner's log had six in two minutes).
@@ -173,6 +182,7 @@ object SoundCloudRenewal {
             val problem = page.problem ?: "the page gave no new token"
             BridgeNet.log("soundcloud", "the session could not be renewed${if (quiet) " ($why)" else ""}: $problem")
             if (problem == RENEWED_NOTHING && (!ahead || tokenOver(app))) strike(app)
+            if (NetWords.readable(problem)) lostConnection = problem
             return false
         }
         clearStrikes(app)
@@ -193,6 +203,17 @@ object SoundCloudRenewal {
         return SoundCloudBridge.pick(fresh, jars, null)
     }
 
+    /**
+     * Why a page that loaded renewed nothing: DataDome's check, the page's own requests that got no
+     * answer ([netFailed], the connection: not counted against the session, see [strike]), or the
+     * site's session gone ([RENEWED_NOTHING]).
+     */
+    internal fun settled(checked: Boolean, netFailed: String?): String = when {
+        checked -> DATADOME_CHECKED
+        netFailed != null -> "the page loaded but renewed nothing: $netFailed"
+        else -> RENEWED_NOTHING
+    }
+
     /** Why a DataDome page ends a renewal: there is nobody to solve or wait out anything in a hidden page. */
     fun dataDomeProblem(kind: DataDome.Kind): String? = when (kind) {
         DataDome.Kind.CAPTCHA -> "the bot protection (DataDome) showed a puzzle in the hidden page, which only a person can solve"
@@ -210,6 +231,7 @@ object SoundCloudRenewal {
         val loadedAt = AtomicLong(0)
         val over = AtomicBoolean(false)
         val checked = AtomicBoolean(false)
+        val netFailed = AtomicReference<String?>(null)
         var web: WebView? = null
         val cm = CookieManager.getInstance()
         fun jars() = SoundCloudBridge.COOKIE_SITES.associateWith { runCatching { cm.getCookie(it) }.getOrNull() }
@@ -258,7 +280,12 @@ object SoundCloudRenewal {
                         if (req.isForMainFrame && resp.statusCode >= 400) { problem.compareAndSet(null, "the page did not load (HTTP ${resp.statusCode})"); latch.countDown() }
                     }
                     override fun onReceivedError(view: WebView, req: WebResourceRequest, err: android.webkit.WebResourceError) {
-                        if (req.isForMainFrame) { problem.compareAndSet(null, "the page did not load (error ${err.errorCode})"); latch.countDown() }
+                        val d = err.description?.toString()
+                        if (req.isForMainFrame) { problem.compareAndSet(null, YtmRenewal.didNotLoad(err.errorCode, d, req.url.host ?: "m.soundcloud.com")); latch.countDown() }
+                        // The page's own requests to SoundCloud that got no answer: a page that then renews
+                        // nothing says the connection failed, not that the site's session is gone.
+                        else if (SoundCloudBridge.isApiHost(req.url.host) && NetWords.isNetworkPageError(err.errorCode, d))
+                            netFailed.compareAndSet(null, NetWords.pageLoad("a request of the page", req.url.host ?: "api-v2.soundcloud.com", err.errorCode, d))
                     }
                 }
                 w.loadUrl(SoundCloudBridge.MOBILE_SITE + "/")
@@ -269,7 +296,7 @@ object SoundCloudRenewal {
                         if (over.get()) return
                         if (newToken(null, jars(), old) != null) { latch.countDown(); return }
                         val at = loadedAt.get()
-                        if (at > 0 && System.currentTimeMillis() - at > SETTLE_MS) { problem.compareAndSet(null, if (checked.get()) DATADOME_CHECKED else RENEWED_NOTHING); latch.countDown(); return }
+                        if (at > 0 && System.currentTimeMillis() - at > SETTLE_MS) { problem.compareAndSet(null, settled(checked.get(), netFailed.get())); latch.countDown(); return }
                         main.postDelayed(this, 1_000)
                     }
                 }, 1_000)

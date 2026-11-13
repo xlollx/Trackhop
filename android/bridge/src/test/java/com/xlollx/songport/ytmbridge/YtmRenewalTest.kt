@@ -157,6 +157,26 @@ class YtmRenewalTest {
         assertEquals(old, Session.cookies(app))
     }
 
+    /** A renewal whose page could not load is the connection's: no "signed out", no pause, and the refused call says why. */
+    @Test fun aRenewalCutByTheConnectionIsSaidAsSuchAndTriedAgain() {
+        signedIn()
+        val net = YtmRenewal.didNotLoad(NetWords.ERROR_HOST_LOOKUP, "net::ERR_NAME_NOT_RESOLVED", "music.youtube.com")
+        assertTrue(net, NetWords.readable(net))
+        page = { YtmRenewal.Page(null, null, net) }
+        assertNull(YtmRenewal.afterRefusal(app, "", old))
+        assertEquals(net, YtmRenewal.lostConnection(""))
+        assertEquals(old, Session.cookies(app))
+        // The next refusal a minute later opens the page again (no pause after the connection's failure).
+        clock += 60_000L
+        page = { YtmRenewal.Page(fresh, true, null) }
+        assertEquals(fresh, YtmRenewal.afterRefusal(app, "", old))
+        assertEquals(2, pages.size)
+        assertNull(YtmRenewal.lostConnection(""))
+        // A page that did not load for another reason is no connection's failure.
+        assertEquals("the page did not load (error -11)", YtmRenewal.didNotLoad(-11, "net::ERR_SSL_PROTOCOL_ERROR", "music.youtube.com"))
+        noSecrets()
+    }
+
     @Test fun concurrentRefusalsOpenOnePage() {
         signedIn()
         val inPage = CountDownLatch(1)

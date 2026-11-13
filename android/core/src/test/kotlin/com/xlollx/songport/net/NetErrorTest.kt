@@ -84,4 +84,42 @@ class NetErrorTest {
         assertEquals(Kind.UNREACHABLE, NetError.messageKind(parse))
         assertEquals(Kind.UNREACHABLE, NetError.messageKind("the web player could not load (Unable to resolve host open.spotify.com: net::ERR_NAME_NOT_RESOLVED)"))
     }
+
+    /** Chromium's own net errors, as a page or a fetch of the Bridge's browser engine reports them. */
+    @Test fun chromiumNetErrorsAreTheNetwork() {
+        up(true)
+        assertEquals(Kind.TIMEOUT, NetError.messageKind("TicketOne: the page could not load (net::ERR_CONNECTION_TIMED_OUT)"))
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind("the Anghami player could not load (net::ERR_CONNECTION_RESET)"))
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind("net::ERR_CONNECTION_REFUSED"))
+        up(false)
+        assertEquals(Kind.OFFLINE, NetError.messageKind("net::ERR_CONNECTION_CLOSED"))
+        // Not the connection: a certificate or a blocked request keeps its text.
+        up(true)
+        assertEquals(Kind.NONE, NetError.messageKind("net::ERR_CERT_AUTHORITY_INVALID"))
+        assertEquals(Kind.NONE, NetError.messageKind("net::ERR_BLOCKED_BY_CLIENT"))
+    }
+
+    /** A page's fetch() that got no answer is the network only when the device knows it is offline (a blocked request fails the same way). */
+    @Test fun aFailedFetchIsOfflineOnlyWhenTheDeviceSaysSo() {
+        val failed = "Anghami: anghami request failed in the browser engine: TypeError: Failed to fetch"
+        up(false)
+        assertEquals(Kind.OFFLINE, NetError.messageKind(failed))
+        assertEquals(Kind.OFFLINE, NetError.messageKind("TypeError: NetworkError when attempting to fetch resource."))
+        up(true)
+        assertEquals(Kind.NONE, NetError.messageKind(failed))
+        up(null)
+        assertEquals(Kind.NONE, NetError.messageKind(failed))
+        // The Bridge looked at the connection and says so: read as the network's.
+        assertEquals(Kind.OFFLINE, NetError.messageKind("$failed (Unable to resolve host \"play.anghami.com\": No address associated with hostname)"))
+    }
+
+    /** The texts the connectors give a lost connection (NetWords): each one read as the network's. */
+    @Test fun theConnectorsWordsAreRead() {
+        up(true)
+        assertEquals(Kind.TIMEOUT, NetError.messageKind("Deezer unreachable: timeout (timed out)"))
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind("the browser engine for anghami could not be started: the Anghami player could not load (Failed to connect to play.anghami.com: net::ERR_CONNECTION_REFUSED)"))
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind("SoundCloud unreachable: No route to host (Failed to connect to the service: NoRouteToHostException)"))
+        up(false)
+        assertEquals(Kind.OFFLINE, NetError.messageKind("the Amazon Music player could not load (Network is unreachable: net::ERR_INTERNET_DISCONNECTED)"))
+    }
 }

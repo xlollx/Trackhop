@@ -103,7 +103,7 @@ class DeezerWebClient(private val host: WebHost) {
             try {
                 http.newCall(req).execute().use { r -> return Resp(r.code, r.body?.string() ?: "", r.headers("Set-Cookie")) }
             } catch (e: java.io.IOException) {
-                if (attempt >= 1) throw BridgeException("Deezer unreachable: ${e.message ?: e.javaClass.simpleName}")
+                if (attempt >= 1) throw BridgeException("Deezer unreachable: ${NetWords.of(e)}", e)
                 Thread.sleep(1_500)
                 attempt++
             }

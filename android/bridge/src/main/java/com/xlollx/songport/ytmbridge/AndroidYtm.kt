@@ -30,6 +30,7 @@ class AndroidYtmHost(private val ctx: Context, private val slot: String = Slots.
     // A 401: the player's page is loaded once in a hidden WebView, as a browser left open would, and the call made again.
     override val canRenew: Boolean get() = true
     override fun renewSession(refused: String): String? = YtmRenewal.afterRefusal(ctx, slot, refused)
+    override fun renewalLostConnection(): String? = YtmRenewal.lostConnection(slot)
 }
 
 /** The client as the app has always built it, from a Context; [slot] names an extra account (see [Slots]). */

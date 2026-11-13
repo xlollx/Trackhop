@@ -74,4 +74,21 @@ class TikTokShareTest {
         assertFalse(TikTokShare.isTikTok("https://vm.tiktok.com/ZMh3kLxYz/"))
         assertNull(TrackLinks.parse("https://vm.tiktok.com/ZMh3kLxYz/"))
     }
+
+    /** No internet is the connection's failure, not a page "that could not be read": a run waits for it. */
+    @Test fun noInternetIsNotAnUnreadablePage() = kotlinx.coroutines.runBlocking {
+        val link = "https://vm.tiktok.com/ZMh3kLxYz/"
+        try {
+            com.xlollx.songport.net.Relay.via = { throw java.net.UnknownHostException("Unable to resolve host \"vm.tiktok.com\": No address associated with hostname") }
+            val e = runCatching { TikTokShare.sound(link) }.exceptionOrNull()
+            assertTrue(com.xlollx.songport.net.NetError.isNetwork(e))
+            // TikTok's own answer (a page gone) is still "unreadable", as before.
+            com.xlollx.songport.net.Relay.via = { com.xlollx.songport.net.Relay.Answer(404, "", it.url) }
+            assertEquals(TikTokShare.Sound.Unknown, TikTokShare.sound(link))
+            com.xlollx.songport.net.Relay.via = { throw IllegalStateException("bad answer") }
+            assertEquals(TikTokShare.Sound.Unknown, TikTokShare.sound(link))
+        } finally {
+            com.xlollx.songport.net.Relay.via = null
+        }
+    }
 }

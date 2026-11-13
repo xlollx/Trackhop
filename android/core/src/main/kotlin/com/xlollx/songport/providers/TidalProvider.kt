@@ -107,7 +107,8 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         }
         if (out.isNotEmpty()) return out
         // A lost connection is said as such, not taken for "no playlists" (a sync would read its target as gone).
-        return runCatching { playlistPages(ctx, legacy) }.onFailure { if (com.xlollx.songport.net.NetError.isOffline(it)) throw it }.getOrDefault(out)
+        // A timeout or a service out of reach no more than no internet at all.
+        return runCatching { playlistPages(ctx, legacy) }.onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrDefault(out)
     }
 
     private suspend fun playlistPages(ctx: Env, first: String): List<Playlist> {
@@ -222,7 +223,9 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         if (kind == "albums") {
             val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
             bare.chunked(20).forEach { chunk ->
-                val j = runCatching { api(ctx, "GET", "$API/albums?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
+                // A lost connection is not an album without artists: it fails the read, which is tried again.
+                val j = runCatching { api(ctx, "GET", "$API/albums?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
+                    .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
                 for (a in j["data"].arr) { val id = a["id"].str ?: continue; if (a["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = a }
             }
         }
@@ -269,7 +272,9 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         // A track already asked for again in this process is taken as it came then.
         val left = bare.filter { id -> trackCache[id]?.let { included[id] = it; false } ?: true }
         left.chunked(20).forEach { chunk ->
-            val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }.getOrNull() ?: return@forEach
+            // A lost connection is not a song without artists (it would match nothing): it fails the read, which is tried again.
+            val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
+                .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
             for (t in j["data"].arr) {
                 val id = t["id"].str ?: continue
                 if (t["relationships"]["artists"]["data"].arr.isEmpty()) continue

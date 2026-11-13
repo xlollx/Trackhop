@@ -99,7 +99,12 @@ fun ShareTrackSheet(
             // A Shazam share names its song in the text: nothing to ask anyone.
             ShazamShare.SERVICE -> ShazamShare.track(text)
             // A TikTok video: the song its public page names.
-            TikTokShare.SERVICE -> when (val sound = withContext(Dispatchers.IO) { TikTokShare.sound(link) }) {
+            // No internet: said as the connection's, not as a page that could not be read.
+            TikTokShare.SERVICE -> when (val sound = withContext(Dispatchers.IO) { runCatching { TikTokShare.sound(link) } }.getOrElse { e ->
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                sourceNote = netWords(ctx, e) ?: ctx.getString(R.string.tiktok_unreadable); null
+            }) {
+                null -> null
                 is TikTokShare.Sound.Song -> { if (sound.recognized) sourceNote = ctx.getString(R.string.tiktok_recognized); sound.track }
                 is TikTokShare.Sound.Original -> { sourceNote = ctx.getString(R.string.tiktok_original_sound); null }
                 TikTokShare.Sound.Unknown -> { sourceNote = ctx.getString(R.string.tiktok_unreadable); null }

@@ -463,6 +463,36 @@ class SoundCloudWebClientContractTest {
         assertNull(SoundCloudRenewal.expiredAt(app))
     }
 
+    /** A renewal whose page could not reach SoundCloud (no internet, the connection just back) is the connection's, not "sign in again". */
+    @Test fun aRenewalCutByTheConnectionIsNotAnExpiredSession() {
+        signedInByMobileCookie()
+        val lost = NetWords.pageLoad("the page", "m.soundcloud.com", NetWords.ERROR_HOST_LOOKUP, "net::ERR_NAME_NOT_RESOLVED")
+        pageAnswer = { SoundCloudRenewal.Page(null, null, lost) }
+        repeat(6) { answer("", 401) }
+        try { sc.tracks("1001"); fail() } catch (e: BridgeException) {
+            assertFalse(e.message, e.message!!.contains("sign in", true))
+            assertTrue(e.message, e.message!!.contains("Unable to resolve host"))
+        }
+        assertNull(SoundCloudRenewal.expiredAt(app))
+        // The next renewal that fails for another reason says "expired" as before.
+        pageAnswer = { SoundCloudRenewal.Page(null, null, "the page did not load (HTTP 503)") }
+        try { sc.tracks("1002"); fail() } catch (e: BridgeException) { assertEquals(SoundCloudWebClient.EXPIRED, e.message) }
+    }
+
+    /** A page that loaded but whose own requests got no answer renewed nothing because of the connection: no strike against the session. */
+    @Test fun aPageWhoseRequestsGotNoAnswerIsNoStrike() {
+        assertEquals(SoundCloudRenewal.RENEWED_NOTHING, SoundCloudRenewal.settled(false, null))
+        assertEquals(SoundCloudRenewal.DATADOME_CHECKED, SoundCloudRenewal.settled(true, null))
+        val net = SoundCloudRenewal.settled(false, NetWords.pageLoad("a request of the page", "api-v2.soundcloud.com", NetWords.ERROR_CONNECT, "net::ERR_CONNECTION_RESET"))
+        assertTrue(net, net != SoundCloudRenewal.RENEWED_NOTHING && NetWords.readable(net))
+        signedInByMobileCookie()
+        pageAnswer = { SoundCloudRenewal.Page(null, null, net) }
+        repeat(6) { answer("", 401) }
+        SoundCloudRenewal.strike(app, System.currentTimeMillis() - 2 * 60 * 60_000L)
+        try { sc.tracks("1001"); fail() } catch (e: BridgeException) { assertFalse(e.message, e.message == SoundCloudWebClient.EXPIRED) }
+        assertNull("the connection is not a second strike", SoundCloudRenewal.expiredAt(app))
+    }
+
     @Test fun aTokenOfUnknownAgeIsNotTakenAsOver() {
         // A session from before the token's time was kept: the keep-alive's page renewing nothing counts for nothing.
         SoundCloudRenewal.strike(app, System.currentTimeMillis() - 2 * 60 * 60_000L)

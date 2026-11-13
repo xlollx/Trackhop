@@ -342,7 +342,12 @@ object AmazonBridge {
                         view.evaluateJavascript(CONFIG, null)
                     }
                     override fun onReceivedError(view: WebView, req: android.webkit.WebResourceRequest, err: android.webkit.WebResourceError) {
-                        if (req.isForMainFrame) problem.compareAndSet(null, "page error ${err.errorCode}")
+                        if (!req.isForMainFrame) return
+                        val d = err.description?.toString()
+                        // The connection: said in its words, and no use waiting the rest of the 50 s.
+                        if (NetWords.isNetworkPageError(err.errorCode, d) && headers.get() == null) {
+                            if (problem.compareAndSet(null, NETWORK + NetWords.pageLoad("the Amazon Music player", req.url.host ?: domain, err.errorCode, d))) latch.countDown()
+                        } else problem.compareAndSet(null, "page error ${err.errorCode}")
                     }
                 }
                 w.loadUrl("https://${AmazonSession.headersHost(app) ?: domain}/")
@@ -367,6 +372,7 @@ object AmazonBridge {
 
         val h = headers.get()
         val c = config.get()
+        if (h == null && c == null && !(skill && skillSeen.get()) && problem.get()?.startsWith(NETWORK) == true) throw BridgeException(problem.get()!!.removePrefix(NETWORK))
         if (h == null && problem.get() == SIGN_IN_AGAIN) throw BridgeException(
             "the Amazon session no longer opens the player (it asked to sign in again). Sign out of Amazon Music and sign in again.",
         )
@@ -387,6 +393,8 @@ object AmazonBridge {
     private const val VIEW_W = 1280
     private const val VIEW_H = 2000
     private const val SIGN_IN_AGAIN = "sign-in page"
+    /** The mark of a [capture] problem that is the connection's (the rest is in the network's words). */
+    private const val NETWORK = "network:"
 
     /**
      * Mirrors the HTTP headers of the player's own GraphQL calls (CSRF triple, device and session

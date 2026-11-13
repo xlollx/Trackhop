@@ -104,6 +104,9 @@ object NetError {
             // The token asked of a page that is not the player's (an error page): the page did not load.
             m.contains("Failed to parse URL from /", true) || m.contains("ERR_NAME_NOT_RESOLVED", true) || m.contains("ERR_NETWORK_CHANGED", true) ->
                 if (up() == false) Kind.OFFLINE else Kind.UNREACHABLE
+            // Chromium's names for a request that never got an answer (a page or a fetch of the Bridge's browser engine).
+            m.contains("ERR_CONNECTION_TIMED_OUT", true) || m.contains("net::ERR_TIMED_OUT", true) -> Kind.TIMEOUT
+            CHROMIUM_CONNECT.any { m.contains(it, true) } -> if (up() == false) Kind.OFFLINE else Kind.UNREACHABLE
             else -> Kind.NONE
         }
     }
@@ -116,8 +119,16 @@ object NetError {
         val s = m ?: return false
         return s.contains("timeout", true) || s.contains("timed out", true) || s.contains("Failed to connect", true) ||
             s.contains("connection abort", true) || s.contains("reset by peer", true) || s.contains("connection closed", true) ||
-            s.contains("unexpected end of stream", true) || s.contains("Unable to resolve host", true) || s.contains("unreachable", true)
+            s.contains("unexpected end of stream", true) || s.contains("Unable to resolve host", true) || s.contains("unreachable", true) ||
+            // A page's fetch() that got no answer (the Bridge's browser engine): the line, when the device is known offline.
+            s.contains("Failed to fetch", true) || s.contains("NetworkError when attempting to fetch", true)
     }
+
+    /** Chromium's net errors for a connection refused, cut or never made. */
+    private val CHROMIUM_CONNECT = listOf(
+        "ERR_CONNECTION_REFUSED", "ERR_CONNECTION_RESET", "ERR_CONNECTION_CLOSED", "ERR_CONNECTION_FAILED",
+        "ERR_CONNECTION_ABORTED", "ERR_NAME_RESOLUTION_FAILED",
+    )
 
     /**
      * The plain words for [kind], by the name of their text in strings.xml (the app's resources, also

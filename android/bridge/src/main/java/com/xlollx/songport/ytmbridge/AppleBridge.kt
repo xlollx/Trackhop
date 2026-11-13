@@ -62,6 +62,10 @@ object AppleBridge {
         if (webFirst) viaWebView(ctx, slot)?.let { return keep(ctx, it, slot) }
         val scraped = runCatching { scrape(ctx, slot) }
         scraped.getOrNull()?.let { session.put(ctx, "scrapeFailedAt", null); return it }
+        // The connection, not the player's scripts: nothing learnt about where the token is, no
+        // "sign in again" (the session is fine), and no off-screen player that could not load either.
+        val lost = scraped.exceptionOrNull()?.let { NetWords.transport(it) != null || NetWords.readable(it.message) } == true
+        if (lost) return stored ?: throw BridgeException("Apple Music: the developer token could not be fetched (${NetWords.of(scraped.exceptionOrNull()!!)})", scraped.exceptionOrNull())
         session.put(ctx, "scrapeFailedAt", System.currentTimeMillis().toString())
         // The player's own API calls carry the token: load it off screen and take it from there.
         if (!webFirst) viaWebView(ctx, slot)?.let { return keep(ctx, it, slot) }
@@ -101,6 +105,10 @@ object AppleBridge {
                         return null
                     }
                     override fun onPageFinished(view: android.webkit.WebView, url: String) { poll(view, 0) }
+                    // The page did not load (no internet, the connection just back): no token will come, no use waiting 25 s.
+                    override fun onReceivedError(view: android.webkit.WebView, request: android.webkit.WebResourceRequest, err: android.webkit.WebResourceError) {
+                        if (request.isForMainFrame && NetWords.isNetworkPageError(err.errorCode, err.description?.toString())) done.countDown()
+                    }
                     private fun poll(view: android.webkit.WebView, n: Int) {
                         if (found.get() != null || n > 20) return
                         view.evaluateJavascript(TOKEN_JS) { v -> offer(v); if (found.get() == null) main.postDelayed({ poll(view, n + 1) }, 1000) }
