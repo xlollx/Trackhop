@@ -1,0 +1,75 @@
+# The stores that publish a figure but are not in the README's count: once a day, Chocolatey's
+# downloads (its public feed) and the Snap Store's devices with Trackhop installed (snapcraft metrics,
+# with snap.yml's key) go to stores.json in the "badges" branch, read by the evening check. Never
+# public on the site: Chocolatey's installer comes from the GitHub release, already counted there.
+# Each part is skipped with a warning when it cannot be read; the other is kept.
+# Not here: F-Droid (no per-app figure), the Microsoft Store (an individual Partner Center account has
+# no API: the owner reads Analytics › Acquisitions), winget/Scoop/Homebrew (they download the GitHub
+# release's files, already counted).
+name: Store stats
+
+on:
+  schedule:
+    - cron: "53 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: store-stats
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Chocolatey
+        run: |
+          mkdir -p out
+          curl -sS -m 60 -A "trackhop-store-stats" "https://community.chocolatey.org/api/v2/FindPackagesById()?id='trackhop'" -o out/choco.xml \
+            || { echo "::warning::Chocolatey's feed did not answer."; rm -f out/choco.xml; }
+      - name: Snap Store
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          [ -n "$SNAPCRAFT_STORE_CREDENTIALS" ] || { echo "::warning::No Snap Store key."; exit 0; }
+          sudo snap install snapcraft --classic >/dev/null
+          start=$(date -u -d "-30 days" +%Y-%m-%d); end=$(date -u -d "-1 day" +%Y-%m-%d)
+          snapcraft metrics trackhop --name weekly_installed_base_by_version --start "$start" --end "$end" --format json > out/snap.json 2> out/snap.err \
+            || { echo "::warning::snapcraft metrics: $(tail -c 300 out/snap.err) (the key may lack the package_metrics permission)"; rm -f out/snap.json; }
+      - name: Into one file
+        run: |
+          python3 - <<'PY'
+          import json, re, datetime, os
+          out = {"checked": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+          if os.path.exists("out/choco.xml"):
+              x = open("out/choco.xml", encoding="utf-8").read()
+              per = [int(n) for n in re.findall(r"<d:VersionDownloadCount[^>]*>(\d+)<", x)]
+              total = max([int(n) for n in re.findall(r"<d:DownloadCount[^>]*>(\d+)<", x)] or [0])
+              out["chocolatey"] = {"versions": len(per), "downloads": max(total, sum(per)),
+                                   "note": "the installer comes from the GitHub release: mostly already in the GitHub count"}
+          if os.path.exists("out/snap.json"):
+              m = json.load(open("out/snap.json"))
+              # The latest week's devices, all versions together.
+              series = m.get("series") or []
+              latest = sum((s.get("values") or [0])[-1] or 0 for s in series)
+              out["snap"] = {"installed_devices_latest_week": latest, "buckets": m.get("buckets", [])[-1:], "versions": [s.get("name") for s in series]}
+          json.dump(out, open("out/stores.json", "w"), indent=1)
+          print(json.dumps(out, indent=1))
+          PY
+      - name: Into the badges branch
+        run: |
+          for try in 1 2 3 4; do
+            rm -rf badges; git worktree prune 2>/dev/null || true
+            git init -q badges 2>/dev/null; cd badges
+            git fetch -q --depth=1 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" badges && git checkout -q -B badges FETCH_HEAD
+            cp ../out/stores.json .
+            git add stores.json
+            git diff --cached --quiet && { echo "No change."; exit 0; }
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Store stats"
+            git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" badges && exit 0
+            cd ..; sleep $((try * 5))
+          done
+          exit 1
