@@ -1,6 +1,6 @@
 # The stores that publish a figure but are not in the README's count: once a day, Chocolatey's
 # downloads (its public feed) and the Snap Store's devices with Trackhop installed (snapcraft metrics,
-# with snap.yml's key) go to stores.json in the "badges" branch, read by the evening check. Never
+# with the read-only key SNAPCRAFT_METRICS_CREDENTIALS) go to stores.json in the "badges" branch, read by the evening check. Never
 # public on the site: Chocolatey's installer comes from the GitHub release, already counted there.
 # Each part is skipped with a warning when it cannot be read; the other is kept.
 # Not here: F-Droid (no per-app figure), the Microsoft Store (an individual Partner Center account has
@@ -32,13 +32,14 @@ jobs:
             || { echo "::warning::Chocolatey's feed did not answer."; rm -f out/choco.xml; }
       - name: Snap Store
         env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          # A key that can read the figures (export-login.py --metrics); snap.yml's own cannot.
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_METRICS_CREDENTIALS }}
         run: |
-          [ -n "$SNAPCRAFT_STORE_CREDENTIALS" ] || { echo "::warning::No Snap Store key."; exit 0; }
+          [ -n "$SNAPCRAFT_STORE_CREDENTIALS" ] || { echo "::warning::No SNAPCRAFT_METRICS_CREDENTIALS: python3 packaging/snap/export-login.py --metrics makes it."; exit 0; }
           sudo snap install snapcraft --classic >/dev/null
           start=$(date -u -d "-30 days" +%Y-%m-%d); end=$(date -u -d "-1 day" +%Y-%m-%d)
           snapcraft metrics trackhop --name weekly_installed_base_by_version --start "$start" --end "$end" --format json > out/snap.json 2> out/snap.err \
-            || { echo "::warning::snapcraft metrics: $(tail -c 300 out/snap.err) (the key may lack the package_metrics permission)"; rm -f out/snap.json; }
+            || { echo "::warning::snapcraft metrics: $(tail -c 300 out/snap.err) (SNAPCRAFT_METRICS_CREDENTIALS: made with export-login.py --metrics?)"; rm -f out/snap.json; }
       - name: Into one file
         run: |
           python3 - <<'PY'

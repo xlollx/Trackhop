@@ -7,6 +7,11 @@ with your e-mail, password and two-factor code (typed here, sent only to login.u
 writes the result to trackhop-store.txt, the value of the GitHub secret SNAPCRAFT_STORE_CREDENTIALS.
 
     python3 export-login.py
+
+With --metrics, a second key that can only read the snap's figures (devices with it installed), for
+store-stats.yml: written to trackhop-metrics.txt, the secret SNAPCRAFT_METRICS_CREDENTIALS.
+
+    python3 export-login.py --metrics
 """
 import base64
 import datetime
@@ -57,13 +62,17 @@ def caveat_id(root):
 def main():
     expires = (datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
                + datetime.timedelta(days=365)).isoformat()
-    root = post(STORE, {
-        "permissions": ["package_access", "package_push", "package_update", "package_release"],
-        "description": "trackhop-github",
+    metrics = "--metrics" in sys.argv
+    ask = {
+        "permissions": ["package_access", "package_metrics"] if metrics else ["package_access", "package_push", "package_update", "package_release"],
+        "description": "trackhop-github-metrics" if metrics else "trackhop-github",
         "expires": expires,
         "packages": [{"series": "16", "name": "trackhop"}],
-        "channels": ["stable"],
-    })["macaroon"]
+    }
+    if not metrics:
+        ask["channels"] = ["stable"]
+    root = post(STORE, ask)["macaroon"]
+    out, secret = ("trackhop-metrics.txt", "SNAPCRAFT_METRICS_CREDENTIALS") if metrics else ("trackhop-store.txt", "SNAPCRAFT_STORE_CREDENTIALS")
     cid = caveat_id(root)
     if "--check" in sys.argv:
         print("The store answered and its token has the Ubuntu One caveat: ready.")
@@ -76,9 +85,9 @@ def main():
         body["otp"] = otp
     discharge = post(SSO, body)["discharge_macaroon"]
     creds = json.dumps({"t": "u1-macaroon", "v": {"r": root, "d": discharge}})
-    with open("trackhop-store.txt", "w") as f:
+    with open(out, "w") as f:
         f.write(base64.b64encode(creds.encode()).decode())
-    print("Written to trackhop-store.txt: put its whole text in the GitHub secret SNAPCRAFT_STORE_CREDENTIALS, then delete the file.")
+    print(f"Written to {out}: put its whole text in the GitHub secret {secret}, then delete the file.")
 
 
 if __name__ == "__main__":
