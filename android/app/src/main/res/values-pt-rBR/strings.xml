@@ -1946,6 +1946,8 @@
     <string name="support_sponsors_desc">Mensal ou uma vez · com uma conta do GitHub</string>
     <string name="stat_in_playlist">na playlist</string>
     <string name="settings_card_accent">Cartões de sync coloridos</string>
+    <string name="settings_route_glow">Cores do trajeto nos cartões sem cor</string>
+    <string name="settings_route_glow_summary">Uma sincronização sem cor própria brilha com as cores dos seus dois serviços</string>
     <string name="accent_classic">Faixa clássica</string>
     <string name="accent_fade">Faixa que esmaece</string>
     <string name="accent_outline">Contorno fino</string>

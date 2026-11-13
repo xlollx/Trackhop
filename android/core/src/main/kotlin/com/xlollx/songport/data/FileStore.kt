@@ -80,6 +80,8 @@ data class Settings(
     val runHistoryStyle: String = "bars",
     /** Where a sync card shows its status: "badge" on the services' logos, or "footer" as a pill by the schedule. */
     val cardStatusPlace: String = "footer",
+    /** A card with no colour of its own glows with its two services' brand colours (off: the plain surface). */
+    val routeGlow: Boolean = true,
     /** The refreshed sync cards (big numbers, run history): on unless turned off in Appearance. */
     val newLook: Boolean = true,
     /** How big the sync cards are (CardSize key: "large", "medium", "small"); a phone on its side caps it. */

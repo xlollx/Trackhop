@@ -1939,6 +1939,8 @@
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
     <string name="stat_in_playlist">in playlist</string>
     <string name="settings_card_accent">Coloured sync cards</string>
+    <string name="settings_route_glow">Route colours on plain cards</string>
+    <string name="settings_route_glow_summary">A sync with no colour of its own glows with the colours of its two services</string>
     <string name="accent_classic">Classic band</string>
     <string name="accent_fade">Fading band</string>
     <string name="accent_outline">Thin outline</string>

@@ -191,6 +191,9 @@ fun SettingsScreen(
                 accentOpen = false
                 store.updateSettings { it.copy(cardAccent = k) }
             }
+            PrefSwitch(Icons.Filled.Palette, stringResource(R.string.settings_route_glow), stringResource(R.string.settings_route_glow_summary), settings.routeGlow) { v ->
+                store.updateSettings { it.copy(routeGlow = v) }
+            }
             val placeChoices = listOf("footer" to stringResource(R.string.status_place_footer), "badge" to stringResource(R.string.status_place_badge))
             var placeOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_status_place), placeChoices.firstOrNull { it.first == settings.cardStatusPlace }?.second ?: placeChoices.first().second) { placeOpen = true }

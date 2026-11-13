@@ -1938,6 +1938,8 @@
     <string name="support_sponsors_desc">Mensile o una tantum · con un account GitHub</string>
     <string name="stat_in_playlist">in playlist</string>
     <string name="settings_card_accent">Card delle sync colorate</string>
+    <string name="settings_route_glow">Colori del percorso sulle card senza colore</string>
+    <string name="settings_route_glow_summary">Una sync senza un colore suo si illumina con i colori dei suoi due servizi</string>
     <string name="accent_classic">Fascia classica</string>
     <string name="accent_fade">Fascia che sfuma</string>
     <string name="accent_outline">Contorno sottile</string>

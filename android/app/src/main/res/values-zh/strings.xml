@@ -1902,6 +1902,8 @@
     <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>
     <string name="stat_in_playlist">歌单内</string>
     <string name="settings_card_accent">彩色同步卡片</string>
+    <string name="settings_route_glow">无颜色卡片显示路线颜色</string>
+    <string name="settings_route_glow_summary">没有自定颜色的同步会以两个服务的颜色微微发光</string>
     <string name="accent_classic">经典色条</string>
     <string name="accent_fade">渐隐色条</string>
     <string name="accent_outline">细边框</string>

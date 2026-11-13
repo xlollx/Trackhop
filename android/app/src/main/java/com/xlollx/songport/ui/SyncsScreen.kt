@@ -1031,8 +1031,11 @@ private fun JobCard(
         // On a low window (a phone on its side) a small card keeps the tighter spacing, so two still fit one above the other.
         val low = LocalWindowLayout.current.short
         val vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> if (low) 12.dp else 14.dp }
+        val glow = accent == null && Store.get(ctx).state.collectAsState().value.settings.routeGlow
         Column(
-            Modifier.cardAccent(accentStyle, accent)
+            // No colour of its own: the route's two brand colours, one in each corner (Settings can turn it off).
+            Modifier.then(if (glow) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
+                .cardAccent(accentStyle, accent)
                 .padding(start = accentStyle.startPadding(side, accent), end = side, top = vertical, bottom = vertical),
         ) {
             // Shown as a pill by the schedule, or as a badge on the logos.
@@ -1314,11 +1317,15 @@ private fun JobTile(
             val src = Providers.byId(job.source.provider)
             val dst = Providers.byId(job.target.provider)
             val accent = jobAccent(job.color)
+            val accentStyle = CardAccent.resolve(job.accentStyle, data.settings.cardAccent)
+            // Three fixed bands, at the same height on every tile: the services and the run button on top,
+            // the name (two lines kept, so a short one leaves the space under it, never above), then the status
+            // and the next run. The text keeps clear of the edge and of the colour's band.
             Column(
-                // No colour of its own: the route's two brand colours, one in each corner.
-                Modifier.then(if (accent == null) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
-                    .cardAccent(CardAccent.resolve(job.accentStyle, data.settings.cardAccent), accent, tile = true)
-                    .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 14.dp),
+                // No colour of its own: the route's two brand colours, one in each corner (Settings can turn it off).
+                Modifier.then(if (accent == null && data.settings.routeGlow) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
+                    .cardAccent(accentStyle, accent, tile = true)
+                    .padding(start = accentStyle.startPadding(18.dp, accent), end = 12.dp, top = 12.dp, bottom = 16.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.width(46.dp).height(30.dp)) {
@@ -1339,14 +1346,9 @@ private fun JobTile(
                         ) else IconButtonDefaults.filledTonalIconButtonColors(),
                     ) { Icon(Icons.Filled.PlayArrow, stringResource(R.string.run_now), Modifier.size(20.dp)) }
                 }
-                Spacer(Modifier.height(6.dp))
-                // Two lines kept for every name, so the tiles of a row line up; a one-line name sits on the
-                // lower line, next to its status, rather than leaving a gap under it.
-                Box {
-                    Text(" ", style = MaterialTheme.typography.titleSmall, minLines = 2, modifier = Modifier.clearAndSetSemantics {})
-                    Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.align(Alignment.BottomStart))
-                }
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(10.dp))
+                Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(18.dp).clip(CircleShape).background(toneBackground(status.tone)), contentAlignment = Alignment.Center) {
                         Icon(status.icon ?: Icons.Filled.Info, null, tint = toneContent(status.tone), modifier = Modifier.size(11.dp))
@@ -1364,7 +1366,7 @@ private fun JobTile(
                 val next = remember(job, isRunning) { if (isRunning) null else System.currentTimeMillis().let { now -> com.xlollx.songport.sync.Timing.nextRun(job, now)?.takeIf { it > now } } }
                 // One line kept for every tile, so the tiles of a row are as tall as each other:
                 // the progress while it runs, else when it runs next, else nothing.
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(4.dp))
                 // A starred sync shows its star in the tile's bottom corner.
                 Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
