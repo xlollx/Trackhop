@@ -2603,4 +2603,11 @@
     <string name="pill_stopped_offline">Interrotta: niente internet</string>
     <string name="offline_empty">Serve una connessione a internet. Collegati e riprova.</string>
     <string name="net_try_again">Riprova</string>
+    <string name="web_err_404_title">Pagina non trovata</string>
+    <string name="web_err_404_text">Questa pagina non c\'è: il link potrebbe essere vecchio, o l\'indirizzo scritto male. Non si è rotto niente.</string>
+    <string name="web_err_500_title">Qualcosa è andato storto</string>
+    <string name="web_err_500_text">Trackhop ha avuto un errore imprevisto su questa pagina. Sync e impostazioni sono al sicuro: riprova, e se succede ancora il log dice di più.</string>
+    <string name="web_err_home">Home</string>
+    <string name="web_err_log">Apri il log</string>
+    <string name="web_err_details">Dettagli tecnici</string>
 </resources>

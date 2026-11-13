@@ -90,7 +90,7 @@ Or a regular expression after <code>re:</code> with named groups, such as <code>
 
 /** One of [csvFiles], by its exact name: nothing else in the data folder can be asked for. */
 internal fun Web.download(r: Web.Req, name: String) {
-    val f = csvFiles().firstOrNull { it.name == name } ?: return send(r.ex, 404, page("Not found", """<p><a href="/connectors/csv">Back</a></p>"""))
+    val f = csvFiles().firstOrNull { it.name == name } ?: return send(r.ex, 404, errorPage(404))
     val format = ExportFormat.of(r.query["format"])
     val text = if (format == ExportFormat.CSV) f.readText() else format.render(env, f.nameWithoutExtension, CsvCodec.parse(f.readText()))
     attachment(r, "${f.nameWithoutExtension}.${format.ext}", text, format.mime)
@@ -201,7 +201,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
     }
 }
 
-private fun Web.notFound(r: Web.Req) = send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
+private fun Web.notFound(r: Web.Req) = send(r.ex, 404, errorPage(404))
 
 private fun Web.toolsIndex(r: Web.Req) {
     val body = StringBuilder(notice(r))

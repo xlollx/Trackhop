@@ -2611,4 +2611,11 @@
     <string name="pill_stopped_offline">Arrêtée : pas d\'Internet</string>
     <string name="offline_empty">Il faut une connexion Internet. Connecte-toi et réessaie.</string>
     <string name="net_try_again">Réessayer</string>
+    <string name="web_err_404_title">Page introuvable</string>
+    <string name="web_err_404_text">Cette page n\'est pas ici : le lien est peut-être ancien, ou l\'adresse mal saisie. Rien n\'est cassé.</string>
+    <string name="web_err_500_title">Un problème est survenu</string>
+    <string name="web_err_500_text">Trackhop a rencontré une erreur inattendue sur cette page. Vos synchros et réglages sont intacts : réessayez, et si cela se reproduit, le journal en dit plus.</string>
+    <string name="web_err_home">Accueil</string>
+    <string name="web_err_log">Ouvrir le journal</string>
+    <string name="web_err_details">Détails techniques</string>
 </resources>

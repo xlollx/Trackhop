@@ -2601,4 +2601,11 @@
     <string name="pill_stopped_offline">Durduruldu: internet yok</string>
     <string name="offline_empty">Bunun için internet bağlantısı gerekiyor. Bağlanıp tekrar dene.</string>
     <string name="net_try_again">Tekrar dene</string>
+    <string name="web_err_404_title">Sayfa bulunamadı</string>
+    <string name="web_err_404_text">Bu sayfa burada değil: bağlantı eski olabilir ya da adres yanlış yazılmış olabilir. Hiçbir şey bozulmadı.</string>
+    <string name="web_err_500_title">Bir şeyler ters gitti</string>
+    <string name="web_err_500_text">Trackhop bu sayfada beklenmeyen bir hatayla karşılaştı. Eşitlemeleriniz ve ayarlarınız güvende: yeniden deneyin, tekrar olursa günlük daha fazlasını söyler.</string>
+    <string name="web_err_home">Ana sayfa</string>
+    <string name="web_err_log">Günlüğü aç</string>
+    <string name="web_err_details">Teknik ayrıntılar</string>
 </resources>

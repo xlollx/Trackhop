@@ -147,6 +147,17 @@ class WebTest {
         assertTrue(get("/").body().contains("Mine"))
     }
 
+    /** An address the server does not have: a friendly page in its words, with the 404 status and a way home. */
+    @Test fun anUnknownPageIsAFriendlyNotFound() {
+        val r = get("/no-such-page")
+        assertEquals(404, r.statusCode())
+        val body = r.body()
+        assertTrue(body.contains(Html.h(env.text("web_err_404_title"))))
+        assertTrue(body.contains(Html.h(env.text("web_err_home"))))
+        assertTrue(body.contains("href=\"/\""))
+        assertFalse(body.contains(env.text("web_err_500_title")))
+    }
+
     @Test fun playlistFilesDownloadAndNothingElse() {
         File(data, "csv").mkdirs()
         File(data, "csv/Road trip.csv").writeText("title,artist\nSong,Band\n")

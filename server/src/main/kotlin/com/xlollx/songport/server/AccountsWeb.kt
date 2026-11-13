@@ -57,7 +57,7 @@ private fun quickConnectOf(p: MusicProvider): JellyfinProvider? = (p as? Jellyfi
 /** Asks the Jellyfin server for a code, then shows it ([quickConnectPage]). */
 internal fun Web.quickConnectStart(r: Web.Req, p: MusicProvider) {
     val back = "/connectors/${q(p.id)}"
-    val jf = quickConnectOf(p) ?: return send(r.ex, 404, page("Not found", "<p><a href=\"$back\">Back</a></p>"))
+    val jf = quickConnectOf(p) ?: return send(r.ex, 404, errorPage(404))
     val qc = runCatching { runBlocking { jf.quickConnectStart(env, r.form["url"].orEmpty()) } }
         .getOrElse { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
     val token = quickConnects.put(p.id, qc)
@@ -67,7 +67,7 @@ internal fun Web.quickConnectStart(r: Web.Req, p: MusicProvider) {
 /** The code to approve, and a small script asking every 3 seconds whether it was ([quickConnectPoll]). */
 internal fun Web.quickConnectPage(r: Web.Req, p: MusicProvider) {
     val back = "/connectors/${q(p.id)}"
-    if (quickConnectOf(p) == null) return send(r.ex, 404, page("Not found", "<p><a href=\"$back\">Back</a></p>"))
+    if (quickConnectOf(p) == null) return send(r.ex, 404, errorPage(404))
     val token = r.query["t"].orEmpty()
     val pending = quickConnects.get(token, p.id) ?: return redirect(r.ex, "$back?err=${q(env.text("jellyfin_qc_expired"))}")
     val poll = "$back/quickconnect/poll"
@@ -89,7 +89,7 @@ function ask(){fetch(u,{method:'POST',headers:{'Content-Type':'application/x-www
  */
 internal fun Web.quickConnectPoll(r: Web.Req, p: MusicProvider) {
     val back = "/connectors/${q(p.id)}"
-    val jf = quickConnectOf(p) ?: return send(r.ex, 404, page("Not found", "<p><a href=\"$back\">Back</a></p>"))
+    val jf = quickConnectOf(p) ?: return send(r.ex, 404, errorPage(404))
     val asJson = r.ex.requestHeaders.getFirst("Accept").orEmpty().contains("application/json")
     val token = r.form["t"].orEmpty()
     fun answer(state: String, next: String, message: String? = null) {

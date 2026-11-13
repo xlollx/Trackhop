@@ -2549,4 +2549,11 @@
     <string name="pill_stopped_offline">중지됨: 인터넷 없음</string>
     <string name="offline_empty">인터넷 연결이 필요해요. 연결한 뒤 다시 시도하세요.</string>
     <string name="net_try_again">다시 시도</string>
+    <string name="web_err_404_title">페이지를 찾을 수 없습니다</string>
+    <string name="web_err_404_text">이 페이지는 없습니다. 링크가 오래되었거나 주소가 잘못 입력되었을 수 있습니다. 고장 난 것은 없습니다.</string>
+    <string name="web_err_500_title">문제가 발생했습니다</string>
+    <string name="web_err_500_text">이 페이지에서 예기치 않은 오류가 발생했습니다. 동기화와 설정은 안전합니다. 다시 시도하고, 반복되면 로그에서 자세히 볼 수 있습니다.</string>
+    <string name="web_err_home">홈</string>
+    <string name="web_err_log">로그 열기</string>
+    <string name="web_err_details">기술적 세부 정보</string>
 </resources>

@@ -2611,4 +2611,11 @@
     <string name="pill_stopped_offline">Detenida: sin internet</string>
     <string name="offline_empty">Esto necesita conexión a internet. Conéctate y vuelve a intentarlo.</string>
     <string name="net_try_again">Reintentar</string>
+    <string name="web_err_404_title">Página no encontrada</string>
+    <string name="web_err_404_text">Esta página no está aquí: puede que el enlace sea antiguo o que la dirección tenga un error. No se ha roto nada.</string>
+    <string name="web_err_500_title">Algo salió mal</string>
+    <string name="web_err_500_text">Trackhop tuvo un error inesperado en esta página. Tus sincronizaciones y ajustes están a salvo: inténtalo de nuevo y, si se repite, el registro dice más.</string>
+    <string name="web_err_home">Inicio</string>
+    <string name="web_err_log">Abrir el registro</string>
+    <string name="web_err_details">Detalles técnicos</string>
 </resources>

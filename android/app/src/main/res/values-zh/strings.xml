@@ -2550,4 +2550,11 @@
     <string name="pill_stopped_offline">已停止：无网络</string>
     <string name="offline_empty">这需要网络连接。请联网后重试。</string>
     <string name="net_try_again">重试</string>
+    <string name="web_err_404_title">找不到页面</string>
+    <string name="web_err_404_text">此页面不存在：链接可能已过期，或地址输入有误。没有任何东西坏掉。</string>
+    <string name="web_err_500_title">出了点问题</string>
+    <string name="web_err_500_text">Trackhop 在此页面遇到了意外错误。你的同步和设置都安全：请重试，如果再次发生，日志里有更多信息。</string>
+    <string name="web_err_home">首页</string>
+    <string name="web_err_log">打开日志</string>
+    <string name="web_err_details">技术详情</string>
 </resources>

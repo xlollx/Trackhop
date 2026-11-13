@@ -2605,4 +2605,11 @@
     <string name="pill_stopped_offline">Stopped: no internet</string>
     <string name="offline_empty">This needs an internet connection. Connect and try again.</string>
     <string name="net_try_again">Try again</string>
+    <string name="web_err_404_title">Page not found</string>
+    <string name="web_err_404_text">This page isn\'t here: the link may be old, or the address mistyped. Nothing is broken.</string>
+    <string name="web_err_500_title">Something went wrong</string>
+    <string name="web_err_500_text">Trackhop hit an unexpected error on this page. Your syncs and settings are safe; try again, and if it happens again the log says more.</string>
+    <string name="web_err_home">Home</string>
+    <string name="web_err_log">Open the log</string>
+    <string name="web_err_details">Technical details</string>
 </resources>

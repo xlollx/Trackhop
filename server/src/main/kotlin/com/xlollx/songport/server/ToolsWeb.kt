@@ -25,7 +25,7 @@ internal fun Web.toolPage(r: Web.Req, tool: String) {
         "dedupe" -> dedupeTool(r)
         "unplayable" -> unplayableTool(r)
         "mbtags" -> mbTagsTool(r)
-        else -> send(r.ex, 404, page("Not found", """<p><a href="/tools">Back</a></p>"""))
+        else -> send(r.ex, 404, errorPage(404))
     }
 }
 

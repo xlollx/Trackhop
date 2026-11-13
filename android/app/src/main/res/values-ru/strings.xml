@@ -2709,4 +2709,11 @@
     <string name="pill_stopped_offline">Остановлено: нет интернета</string>
     <string name="offline_empty">Для этого нужно подключение к интернету. Подключитесь и попробуйте ещё раз.</string>
     <string name="net_try_again">Повторить</string>
+    <string name="web_err_404_title">Страница не найдена</string>
+    <string name="web_err_404_text">Этой страницы здесь нет: возможно, ссылка устарела или адрес набран с ошибкой. Ничего не сломалось.</string>
+    <string name="web_err_500_title">Что-то пошло не так</string>
+    <string name="web_err_500_text">Trackhop столкнулся с неожиданной ошибкой на этой странице. Синхронизации и настройки в безопасности: попробуйте ещё раз, а если повторится, подробности в журнале.</string>
+    <string name="web_err_home">Главная</string>
+    <string name="web_err_log">Открыть журнал</string>
+    <string name="web_err_details">Технические подробности</string>
 </resources>

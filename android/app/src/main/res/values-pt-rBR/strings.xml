@@ -2611,4 +2611,11 @@
     <string name="pill_stopped_offline">Interrompida: sem internet</string>
     <string name="offline_empty">Isso precisa de conexão com a internet. Conecte-se e tente de novo.</string>
     <string name="net_try_again">Tentar de novo</string>
+    <string name="web_err_404_title">Página não encontrada</string>
+    <string name="web_err_404_text">Esta página não está aqui: o link pode ser antigo, ou o endereço foi digitado errado. Nada quebrou.</string>
+    <string name="web_err_500_title">Algo deu errado</string>
+    <string name="web_err_500_text">O Trackhop teve um erro inesperado nesta página. Suas sincronizações e configurações estão seguras: tente de novo e, se acontecer outra vez, o registro diz mais.</string>
+    <string name="web_err_home">Início</string>
+    <string name="web_err_log">Abrir o registro</string>
+    <string name="web_err_details">Detalhes técnicos</string>
 </resources>

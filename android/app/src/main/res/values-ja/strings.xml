@@ -2550,4 +2550,11 @@
     <string name="pill_stopped_offline">停止：インターネットなし</string>
     <string name="offline_empty">インターネット接続が必要です。接続してからもう一度お試しください。</string>
     <string name="net_try_again">再試行</string>
+    <string name="web_err_404_title">ページが見つかりません</string>
+    <string name="web_err_404_text">このページはありません。リンクが古いか、アドレスの入力ミスかもしれません。壊れたものはありません。</string>
+    <string name="web_err_500_title">問題が発生しました</string>
+    <string name="web_err_500_text">このページで予期しないエラーが起きました。同期と設定は無事です。もう一度お試しください。繰り返す場合はログに詳細があります。</string>
+    <string name="web_err_home">ホーム</string>
+    <string name="web_err_log">ログを開く</string>
+    <string name="web_err_details">技術的な詳細</string>
 </resources>

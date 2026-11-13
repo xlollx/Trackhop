@@ -2603,4 +2603,11 @@
     <string name="pill_stopped_offline">Angehalten: kein Internet</string>
     <string name="offline_empty">Dafür braucht es eine Internetverbindung. Verbinde dich und versuche es noch einmal.</string>
     <string name="net_try_again">Erneut versuchen</string>
+    <string name="web_err_404_title">Seite nicht gefunden</string>
+    <string name="web_err_404_text">Diese Seite gibt es hier nicht: Der Link ist vielleicht alt oder die Adresse vertippt. Nichts ist kaputt.</string>
+    <string name="web_err_500_title">Etwas ist schiefgelaufen</string>
+    <string name="web_err_500_text">Trackhop hatte auf dieser Seite einen unerwarteten Fehler. Deine Syncs und Einstellungen sind sicher: versuch es noch einmal, und wenn es wieder passiert, steht im Protokoll mehr.</string>
+    <string name="web_err_home">Startseite</string>
+    <string name="web_err_log">Protokoll öffnen</string>
+    <string name="web_err_details">Technische Details</string>
 </resources>

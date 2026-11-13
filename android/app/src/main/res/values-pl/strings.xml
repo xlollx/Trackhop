@@ -2711,4 +2711,11 @@
     <string name="pill_stopped_offline">Zatrzymano: brak internetu</string>
     <string name="offline_empty">To wymaga połączenia z internetem. Połącz się i spróbuj ponownie.</string>
     <string name="net_try_again">Spróbuj ponownie</string>
+    <string name="web_err_404_title">Nie znaleziono strony</string>
+    <string name="web_err_404_text">Tej strony tu nie ma: link może być stary albo adres wpisany z błędem. Nic się nie zepsuło.</string>
+    <string name="web_err_500_title">Coś poszło nie tak</string>
+    <string name="web_err_500_text">Trackhop napotkał nieoczekiwany błąd na tej stronie. Synchronizacje i ustawienia są bezpieczne: spróbuj ponownie, a jeśli to się powtórzy, więcej powie dziennik.</string>
+    <string name="web_err_home">Strona główna</string>
+    <string name="web_err_log">Otwórz dziennik</string>
+    <string name="web_err_details">Szczegóły techniczne</string>
 </resources>

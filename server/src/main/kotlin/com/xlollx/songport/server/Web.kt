@@ -106,7 +106,7 @@ class Web(
             handle(ex)
         } catch (e: Exception) {
             env.log("web", "${ex.requestMethod} ${ex.requestURI.path}: ${e.javaClass.simpleName}: ${e.message}")
-            runCatching { send(ex, 500, page("Something went wrong", """<div class="card err">${h(e.message ?: e.javaClass.simpleName)}</div><p><a href="/">Back</a></p>""")) }
+            runCatching { send(ex, 500, errorPage(500, "${e.javaClass.simpleName}: ${e.message.orEmpty()}")) }
         } finally {
             ex.close()
         }
@@ -182,7 +182,7 @@ class Web(
             path == listOf("settings", "notifications") -> notificationsPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
-            else -> send(ex, 404, page("Not found", "<p><a href=\"/\">Back</a></p>"))
+            else -> send(ex, 404, errorPage(404))
         }
     }
 
@@ -237,6 +237,25 @@ class Web(
 
     internal fun page(title: String, body: String, refresh: Int? = null, wide: Boolean = false) =
         Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner() + offlineBanner(), wide = wide)
+
+    /**
+     * A friendly error page, in the server's language: what happened in plain words and where to go
+     * from here (home; for an error of ours, the log too). The technical detail, if any, stays folded
+     * away for whoever wants it, and in the log.
+     */
+    internal fun errorPage(code: Int, detail: String? = null): String {
+        val missing = code == 404
+        val title = env.text(if (missing) "web_err_404_title" else "web_err_500_title")
+        val text = env.text(if (missing) "web_err_404_text" else "web_err_500_text")
+        val log = if (missing) "" else """ <a class="button secondary" href="/log">${h(env.text("web_err_log"))}</a>"""
+        val more = detail?.takeIf { it.isNotBlank() }?.let {
+            """<details style="margin-top:18px;text-align:left"><summary>${h(env.text("web_err_details"))}</summary><pre style="white-space:pre-wrap">${h(it)}</pre></details>"""
+        }.orEmpty()
+        return page(title, """<div class="card" style="text-align:center;padding:32px 20px">
+<p style="font-size:56px;font-weight:800;line-height:1;margin:0 0 8px" aria-hidden="true">$code</p>
+<p style="margin:0 0 20px">${h(text)}</p>
+<p><a class="button" href="/">${h(env.text("web_err_home"))}</a>$log</p>$more</div>""")
+    }
 
     /** The path being answered, for the header's current tab. */
     private val currentPath = ThreadLocal<String>()
@@ -556,7 +575,7 @@ $removals"""
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
             // YouTube Music: the channel the account acts as (its own, or one of its brand accounts).
             "channel" -> {
-                val ytm = provider as? YtmServerProvider ?: return send(r.ex, 404, page("Not found", ""))
+                val ytm = provider as? YtmServerProvider ?: return send(r.ex, 404, errorPage(404))
                 val result = runCatching { runBlocking { ytm.setChannel(env, r.form["channel"].orEmpty(), r.form["name"]) } }
                 result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                 redirect(r.ex, "$back?ok=${q("Saved.")}")
@@ -571,7 +590,7 @@ $removals"""
                 if (!Accounts.remove(env, provider)) return redirect(r.ex, "$back?err=${q(env.text("account_remove_blocked"))}")
                 redirect(r.ex, "/connectors")
             }
-            else -> send(r.ex, 404, page("Not found", ""))
+            else -> send(r.ex, 404, errorPage(404))
         }
     }
 
@@ -865,7 +884,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         if (wanted != null) env.store.moveJob(job.id, Labels.storeIndex(all, job.id, wanted.coerceAtLeast(0)))
                         redirect(r.ex, "/#sync-${job.id}")
                     }
-                    else -> send(r.ex, 404, page("Not found", ""))
+                    else -> send(r.ex, 404, errorPage(404))
                 }
             }
         }

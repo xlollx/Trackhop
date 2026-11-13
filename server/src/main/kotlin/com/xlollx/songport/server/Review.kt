@@ -29,7 +29,7 @@ internal fun Web.review(r: Web.Req, job: SyncJob, rest: List<String>) {
         return when (action) {
             null -> reviewPage(r, job, report)
             "search" -> searchPage(r, job, report, base)
-            else -> send(r.ex, 404, page("Not found", ""))
+            else -> send(r.ex, 404, errorPage(404))
         }
     }
     val engine = SyncEngine(env)
