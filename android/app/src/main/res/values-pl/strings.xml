@@ -2012,8 +2012,9 @@
     <string name="support_sponsors_desc">Co miesiąc lub jednorazowo · z kontem GitHub</string>
     <string name="stat_in_playlist">w playliście</string>
     <string name="settings_card_accent">Kolorowe karty synchronizacji</string>
-    <string name="settings_route_glow">Kolory trasy na kartach bez koloru</string>
-    <string name="settings_route_glow_summary">Synchronizacja bez własnego koloru świeci kolorami swoich dwóch usług</string>
+    <string name="settings_route_glow">Kolory trasy na kartach</string>
+    <string name="route_glow_plain">Karty bez koloru</string>
+    <string name="route_glow_all">Wszystkie karty</string>
     <string name="job_route_glow">Kolory trasy</string>
     <string name="route_glow_on">Wł.</string>
     <string name="route_glow_off">Wył.</string>

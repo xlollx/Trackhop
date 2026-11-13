@@ -1946,8 +1946,9 @@
     <string name="support_sponsors_desc">Mensuel ou ponctuel · avec un compte GitHub</string>
     <string name="stat_in_playlist">dans la playlist</string>
     <string name="settings_card_accent">Cartes de sync en couleur</string>
-    <string name="settings_route_glow">Couleurs du trajet sur les cartes sans couleur</string>
-    <string name="settings_route_glow_summary">Une synchro sans couleur à elle prend les couleurs de ses deux services</string>
+    <string name="settings_route_glow">Couleurs du trajet sur les cartes</string>
+    <string name="route_glow_plain">Cartes sans couleur</string>
+    <string name="route_glow_all">Toutes les cartes</string>
     <string name="job_route_glow">Couleurs du trajet</string>
     <string name="route_glow_on">Oui</string>
     <string name="route_glow_off">Non</string>

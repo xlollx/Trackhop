@@ -191,8 +191,15 @@ fun SettingsScreen(
                 accentOpen = false
                 store.updateSettings { it.copy(cardAccent = k) }
             }
-            PrefSwitch(Icons.Filled.Palette, stringResource(R.string.settings_route_glow), stringResource(R.string.settings_route_glow_summary), settings.routeGlow) { v ->
-                store.updateSettings { it.copy(routeGlow = v) }
+            // The glow of the two services' colours: which cards wear it (each card can choose otherwise in its Style).
+            val glowChoices = listOf(
+                "plain" to stringResource(R.string.route_glow_plain), "all" to stringResource(R.string.route_glow_all), "off" to stringResource(R.string.route_glow_off),
+            )
+            var glowOpen by remember { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_route_glow), glowChoices.firstOrNull { it.first == settings.routeGlowMode }?.second ?: glowChoices.first().second) { glowOpen = true }
+            if (glowOpen) ChoiceDialog(stringResource(R.string.settings_route_glow), glowChoices, settings.routeGlowMode, onDismiss = { glowOpen = false }) { k ->
+                glowOpen = false
+                store.updateSettings { it.copy(routeGlowMode = k) }
             }
             val placeChoices = listOf("footer" to stringResource(R.string.status_place_footer), "badge" to stringResource(R.string.status_place_badge))
             var placeOpen by remember { mutableStateOf(false) }

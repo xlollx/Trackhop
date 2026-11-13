@@ -249,7 +249,7 @@ fun RunHistory(history: List<SyncReport>, style: RunHistoryStyle, ink: Color, la
 fun JobStyleDialog(
     name: String, pick: String?, accentStyle: String?, settingsAccent: String, labels: List<com.xlollx.songport.model.Label>,
     onDismiss: () -> Unit,
-    routeGlow: Boolean? = null, settingsGlow: Boolean = true, sourceBrand: Long? = null, targetBrand: Long? = null,
+    routeGlow: Boolean? = null, settingsGlow: String = "plain", sourceBrand: Long? = null, targetBrand: Long? = null,
     onSave: (String?, String?, String, String?, Boolean?) -> Unit,
 ) {
     var rg by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(routeGlow) }
@@ -270,7 +270,7 @@ fun JobStyleDialog(
         ) {
             androidx.compose.foundation.layout.Column(
                 CardAccent.resolve(st, settingsAccent).let { a ->
-                    Modifier.then(if (rg ?: (c == null && settingsGlow)) Modifier.routeGlow(sourceBrand, targetBrand, LocalAppDark.current) else Modifier)
+                    Modifier.then(if (routeGlowOn(rg, c == null, settingsGlow)) Modifier.routeGlow(sourceBrand, targetBrand, LocalAppDark.current) else Modifier)
                         .cardAccent(a, jobAccent(c)).padding(start = a.startPadding(20.dp, jobAccent(c)), end = 20.dp, top = 16.dp, bottom = 16.dp)
                 },
                 verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -412,6 +412,13 @@ fun CardSizePreview(cardSize: CardSize) {
  * the route reads at a glance without the two colours mixing into a muddy one. Nothing when a
  * service has no brand colour, and none in the store screenshots (no other brand's colour there).
  */
+/** Whether a card glows: its own choice ([own]) first, else Settings' [mode] ("plain": only a card with no colour, "all", "off"). */
+fun routeGlowOn(own: Boolean?, plain: Boolean, mode: String): Boolean = own ?: when (mode) {
+    "all" -> true
+    "off" -> false
+    else -> plain
+}
+
 fun Modifier.routeGlow(source: Long?, target: Long?, dark: Boolean): Modifier =
     if (LogoMode.neutral || (source == null && target == null)) this else drawBehind {
         val alpha = if (dark) 0.26f else 0.16f

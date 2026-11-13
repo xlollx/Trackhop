@@ -1938,8 +1938,9 @@
     <string name="support_sponsors_desc">Monatlich oder einmalig · mit einem GitHub-Konto</string>
     <string name="stat_in_playlist">in der Playlist</string>
     <string name="settings_card_accent">Farbige Sync-Karten</string>
-    <string name="settings_route_glow">Dienstfarben auf einfachen Karten</string>
-    <string name="settings_route_glow_summary">Ein Sync ohne eigene Farbe leuchtet in den Farben seiner beiden Dienste</string>
+    <string name="settings_route_glow">Dienstfarben auf Karten</string>
+    <string name="route_glow_plain">Karten ohne Farbe</string>
+    <string name="route_glow_all">Alle Karten</string>
     <string name="job_route_glow">Dienstfarben</string>
     <string name="route_glow_on">An</string>
     <string name="route_glow_off">Aus</string>

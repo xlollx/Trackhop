@@ -1902,8 +1902,9 @@
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
     <string name="stat_in_playlist">プレイリスト内</string>
     <string name="settings_card_accent">色付きの同期カード</string>
-    <string name="settings_route_glow">色なしカードにサービスの色</string>
-    <string name="settings_route_glow_summary">独自の色がない同期は、2つのサービスの色でほのかに光ります</string>
+    <string name="settings_route_glow">カードにサービスの色</string>
+    <string name="route_glow_plain">色のないカード</string>
+    <string name="route_glow_all">すべてのカード</string>
     <string name="job_route_glow">サービスの色</string>
     <string name="route_glow_on">オン</string>
     <string name="route_glow_off">オフ</string>

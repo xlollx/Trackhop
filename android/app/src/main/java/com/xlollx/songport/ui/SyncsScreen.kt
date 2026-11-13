@@ -873,7 +873,7 @@ private fun JobMenuHost(
     val halves = { d: com.xlollx.songport.data.StoreData -> d.jobs.filter { it.id == job.id || it.id == job.linkedJobId || it.linkedJobId == job.id }.mapTo(HashSet()) { it.id } }
     if (colorOpen) JobStyleDialog(
         job.name.ifBlank { job.source.playlistName }, job.label ?: job.color, job.accentStyle, data.settings.cardAccent, data.settings.labels, onDismiss = { colorOpen = false },
-        routeGlow = job.routeGlow, settingsGlow = data.settings.routeGlow,
+        routeGlow = job.routeGlow, settingsGlow = data.settings.routeGlowMode,
         sourceBrand = Providers.byId(job.source.provider)?.brandColor, targetBrand = Providers.byId(job.target.provider)?.brandColor,
     ) { pick, st, labelName, recolor, glow ->
         Store.get(ctx).update { d ->
@@ -1033,7 +1033,7 @@ private fun JobCard(
         // On a low window (a phone on its side) a small card keeps the tighter spacing, so two still fit one above the other.
         val low = LocalWindowLayout.current.short
         val vertical = when (size) { CardSize.LARGE -> 20.dp; CardSize.MEDIUM -> 16.dp; CardSize.SMALL -> if (low) 12.dp else 14.dp }
-        val glow = job.routeGlow ?: (accent == null && Store.get(ctx).state.collectAsState().value.settings.routeGlow)
+        val glow = routeGlowOn(job.routeGlow, accent == null, Store.get(ctx).state.collectAsState().value.settings.routeGlowMode)
         Column(
             // No colour of its own: the route's two brand colours, one in each corner (Settings can turn it off).
             Modifier.then(if (glow) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
@@ -1325,7 +1325,7 @@ private fun JobTile(
             // and the next run. The text keeps clear of the edge and of the colour's band.
             Column(
                 // No colour of its own: the route's two brand colours, one in each corner (Settings can turn it off).
-                Modifier.then(if (job.routeGlow ?: (accent == null && data.settings.routeGlow)) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
+                Modifier.then(if (routeGlowOn(job.routeGlow, accent == null, data.settings.routeGlowMode)) Modifier.routeGlow(src?.brandColor, dst?.brandColor, LocalAppDark.current) else Modifier)
                     .cardAccent(accentStyle, accent, tile = true)
                     .padding(start = accentStyle.startPadding(18.dp, accent), end = 12.dp, top = 12.dp, bottom = 16.dp),
             ) {

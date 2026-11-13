@@ -1901,8 +1901,9 @@
     <string name="support_sponsors_desc">매월 또는 일회성 · GitHub 계정 필요</string>
     <string name="stat_in_playlist">플레이리스트</string>
     <string name="settings_card_accent">색상 동기화 카드</string>
-    <string name="settings_route_glow">색 없는 카드에 서비스 색</string>
-    <string name="settings_route_glow_summary">자체 색이 없는 동기화는 두 서비스의 색으로 은은하게 빛납니다</string>
+    <string name="settings_route_glow">카드에 서비스 색</string>
+    <string name="route_glow_plain">색 없는 카드</string>
+    <string name="route_glow_all">모든 카드</string>
     <string name="job_route_glow">서비스 색</string>
     <string name="route_glow_on">켜기</string>
     <string name="route_glow_off">끄기</string>
