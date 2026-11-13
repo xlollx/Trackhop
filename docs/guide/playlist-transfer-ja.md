@@ -12,7 +12,7 @@ Trackhop は、プレイリストとお気に入りの曲を Spotify から YouT
 ## 使い方
 
 1. Android に Trackhop をインストール（[F-Droid](https://f-droid.org/packages/com.xlollx.songport/) または [GitHub](https://github.com/xlollx/Trackhop/releases/latest)）、またはパソコンでは [Trackhop Desktop](desktop)（Windows、macOS、Linux）。
-2. *アカウント → 追加* で 2 つのサービスを接続します。Spotify のクイック接続は普段のアカウントを使い、キーも Premium も不要です（サイト版と F-Droid 版）。
+2. *アカウント → コネクタを追加* で 2 つのサービスを接続します。Spotify のクイック接続は普段のアカウントを使い、キーも Premium も不要です（サイト版と F-Droid 版）。
 3. 元のプレイリストと移行先を選び、プレビューを確認して実行します。同じ状態を保つには頻度を選びます：1 時間ごと、6 時間ごと、毎日、毎週。
 
 ## できること

@@ -12,7 +12,7 @@ Trackhop 可以把你的歌单和喜欢的歌曲从 Spotify 复制到 YouTube Mu
 ## 如何使用
 
 1. 在 Android 上安装 Trackhop（[F-Droid](https://f-droid.org/packages/com.xlollx.songport/) 或 [GitHub](https://github.com/xlollx/Trackhop/releases/latest)），或在电脑上使用 [Trackhop Desktop](desktop)（Windows、macOS、Linux）。
-2. 在 *账号 → 添加* 中连接两个服务。Spotify 的快速连接使用你的普通账号，无需密钥，也无需 Premium（网站版和 F-Droid 版）。
+2. 在 *账号 → 添加连接器* 中连接两个服务。Spotify 的快速连接使用你的普通账号，无需密钥，也无需 Premium（网站版和 F-Droid 版）。
 3. 选择源歌单和目标，查看预览后确认。若要保持一致，请选择频率：每小时、每 6 小时、每天或每周。
 
 ## 你可以做什么

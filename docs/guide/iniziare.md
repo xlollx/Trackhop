@@ -14,6 +14,7 @@ i18n: start
 | [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) | Compilata da F-Droid dal codice sorgente, firmata con la stessa chiave dell'APK di GitHub (build riproducibile): le due si aggiornano a vicenda. Le nuove versioni arrivano qualche giorno dopo GitHub. |
 | [Obtainium](https://github.com/ImranR98/Obtainium) | Aggiungi `https://github.com/xlollx/Trackhop`: ogni versione arriva sul telefono da sola. |
 | [GitHub](https://github.com/xlollx/Trackhop/releases/latest) | L'APK firmato di ogni versione. |
+| [Huawei AppGallery](https://appgallery.huawei.com/app/C119677919) | La versione dello store: solo API ufficiali. Il plugin gratuito [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) aggiunge le vie rapide. |
 
 Android 8.0 o successivo. Sul computer: [Trackhop Desktop](desktop) (Windows, macOS, Linux).
 
@@ -27,14 +28,14 @@ Android 8.0 o successivo. Sul computer: [Trackhop Desktop](desktop) (Windows, ma
 - **Via ufficiale** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): crei una chiave sviluppatore
   gratuita a tuo nome; l'app ti guida passo per passo, in circa due minuti.
 
-I server personali (Navidrome/Subsonic, Jellyfin, Plex) chiedono solo l'indirizzo e il tuo accesso.
+I server personali (Navidrome/Subsonic, Jellyfin, Emby, Plex) chiedono solo l'indirizzo e il tuo accesso.
 Su **Jellyfin** puoi entrare anche con **Quick Connect**: scrivi l'indirizzo del server e approva il codice da un
 dispositivo dove hai già fatto l'accesso (niente password, quindi va anche con il single sign-on).
 
 **Più account dello stesso servizio**: aggiungi di nuovo lo stesso servizio (*Account → Aggiungi connettore*), per
 esempio due account Spotify o due server Jellyfin, e dai a ciascuno un nome. Tra due account dello stesso servizio
 musicale i brani si copiano così come sono, senza cercarli.
-I file non chiedono nulla. Dopo il collegamento, *⋮ → Prova connessione* controlla accesso, playlist e
+I file non chiedono nulla. Dopo il collegamento, *⋮ → Prova il collegamento* controlla accesso, playlist e
 ricerca in un colpo solo.
 
 **Pulisci e ricomincia**: un accesso web può ricordare un account precedente (per esempio entrato con Google) e
@@ -54,7 +55,7 @@ vuoto per usare quello della sorgente) e la frequenza. Opzioni utili:
 
 - **Rispecchia le rimozioni**: i brani tolti dalla sorgente vengono tolti anche dalla destinazione. Se
   un'esecuzione toglierebbe gran parte della destinazione, si ferma e aspetta la tua conferma nell'anteprima.
-- **Mantieni l'ordine della sorgente**: dopo l'aggiunta, la destinazione viene riordinata come la sorgente.
+- **Mantieni l'ordine dell'origine**: dopo l'aggiunta, la destinazione viene riordinata come la sorgente.
 - **Solo Wi-Fi**, **Attiva** e le regole di abbinamento.
 
 Salvando si apre l'**anteprima**: in alto, da dove a dove vanno i brani e i passaggi mentre li calcola; poi i

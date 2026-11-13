@@ -19,10 +19,10 @@ senza limiti di brani.
 
 ## Passo per passo
 
-1. **Collega Spotify**, poi **YouTube Music** (*Accounts → Add connector*), ognuno sulla sua pagina
+1. **Collega Spotify**, poi **YouTube Music** (*Account → Aggiungi connettore*), ognuno sulla sua pagina
    di accesso.
-2. *Syncs → New sync*: sorgente *Spotify* e la playlist (o *Liked songs*), destinazione *YouTube
-   Music* e *crea una nuova playlist*. Tante insieme: *Tools → Transfer many playlists*.
+2. *Sync → Nuova sync*: sorgente *Spotify* e la playlist (o *Brani preferiti*), destinazione *YouTube
+   Music* e *crea una nuova playlist*. Tante insieme: *Strumenti → Trasferisci molte playlist*.
 3. **Controlla l'anteprima**, avvia e guarda la **revisione**.
 
 ## Buono a sapersi

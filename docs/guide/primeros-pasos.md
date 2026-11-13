@@ -14,6 +14,7 @@ i18n: start
 | [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) | Compilada por F-Droid desde el código fuente y firmada con la misma clave que el APK de GitHub (build reproducible): se actualizan entre sí. Las versiones nuevas llegan unos días después que a GitHub. |
 | [Obtainium](https://github.com/ImranR98/Obtainium) | Añade `https://github.com/xlollx/Trackhop`: cada versión llega sola al móvil. |
 | [GitHub](https://github.com/xlollx/Trackhop/releases/latest) | El APK firmado de cada versión. |
+| [Huawei AppGallery](https://appgallery.huawei.com/app/C119677919) | La versión de la tienda: solo API oficiales. El plugin gratuito [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) añade las vías rápidas. |
 
 Android 8.0 o posterior. En el ordenador: [Trackhop Desktop](desktop) (Windows, macOS, Linux).
 
@@ -27,17 +28,17 @@ Android 8.0 o posterior. En el ordenador: [Trackhop Desktop](desktop) (Windows, 
 - **Vía oficial** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): creas una clave de desarrollador
   gratuita a tu nombre; la app te guía paso a paso, en unos dos minutos.
 
-Los servidores personales (Navidrome/Subsonic, Jellyfin, Plex) solo piden la dirección y tu acceso.
-Los archivos no piden nada. Después de conectar, *⋮ → Probar conexión* comprueba acceso, playlists y
+Los servidores personales (Navidrome/Subsonic, Jellyfin, Emby, Plex) solo piden la dirección y tu acceso.
+Los archivos no piden nada. Después de conectar, *⋮ → Probar la conexión* comprueba acceso, playlists y
 búsqueda de una vez.
 
 ## La primera sincronización
 
-*Syncs → Nueva sync*: elige el origen (una playlist, tus canciones favoritas, una sección de la
+*Sincros → Nueva sincronización*: elige el origen (una playlist, tus canciones favoritas, una sección de la
 biblioteca o un enlace), el destino (una playlist existente o "crear una playlist nueva"; deja el nombre
 vacío para usar el del origen) y la frecuencia. Opciones útiles:
 
-- **Reflejar eliminaciones**: lo que quitas del origen se quita también del destino. Si una ejecución
+- **Replicar eliminaciones**: lo que quitas del origen se quita también del destino. Si una ejecución
   quitaría gran parte del destino, se detiene y espera tu confirmación en la vista previa.
 - **Mantener el orden del origen**: después de añadir, el destino se ordena como el origen.
 - **Solo Wi-Fi**, **Activada** y las reglas de coincidencia.

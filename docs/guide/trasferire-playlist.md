@@ -21,10 +21,10 @@ gira sul tuo telefono o sul tuo computer.
 
 ## Passo per passo
 
-1. **Collega i servizi** in *Accounts → Add connector*: ognuno si accede sulla pagina del servizio.
-2. **Una playlist:** *Syncs → New sync*, sorgente (per esempio *Spotify* e la playlist, o *Liked
-   songs*), destinazione (per esempio *YouTube Music*) e *crea una nuova playlist*.
-3. **Tante playlist insieme:** *Tools → Transfer many playlists*.
+1. **Collega i servizi** in *Account → Aggiungi connettore*: ognuno si accede sulla pagina del servizio.
+2. **Una playlist:** *Sync → Nuova sync*, sorgente (per esempio *Spotify* e la playlist, o *Brani
+   preferiti*), destinazione (per esempio *YouTube Music*) e *crea una nuova playlist*.
+3. **Tante playlist insieme:** *Strumenti → Trasferisci molte playlist*.
 4. **Controlla l'anteprima**, avvia, e guarda la **revisione** per i pochi brani da scegliere a mano.
 
 ## Buono a sapersi
@@ -32,8 +32,8 @@ gira sul tuo telefono o sul tuo computer.
 - I brani si abbinano con il codice ISRC dove entrambi i servizi lo hanno, poi con titolo, artista e
   durata: niente viene aggiunto a caso, e quello che non si trova resta nella revisione con dei
   suggerimenti.
-- Una sync programmata tiene aggiornata la copia quando la playlist originale cambia; *mirror
-  removals* segue anche le cancellazioni.
+- Una sync programmata tiene aggiornata la copia quando la playlist originale cambia; *Rispecchia
+  le rimozioni* segue anche le cancellazioni.
 - Funziona anche verso i tuoi server: [Navidrome, Jellyfin e Plex](spotify-to-navidrome-jellyfin).
 - L'app è in inglese e in italiano (e in altre dieci lingue).
 

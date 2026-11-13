@@ -17,7 +17,7 @@ canciones: todo funciona en tu móvil o en tu ordenador.
 1. Instala Trackhop en Android ([F-Droid](https://f-droid.org/packages/com.xlollx.songport/) o
    [GitHub](https://github.com/xlollx/Trackhop/releases/latest)), o en el ordenador con
    [Trackhop Desktop](desktop) (Windows, macOS, Linux).
-2. En *Cuentas → Añadir*, conecta los dos servicios. En Spotify, la conexión rápida usa tu cuenta
+2. En *Cuentas → Añadir conector*, conecta los dos servicios. En Spotify, la conexión rápida usa tu cuenta
    normal, sin clave y sin Premium (versión de la web y de F-Droid).
 3. Elige la playlist de origen y el destino, mira la vista previa y confirma. Para que sigan
    iguales, elige una frecuencia: cada hora, cada 6 horas, cada día o cada semana.

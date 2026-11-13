@@ -18,11 +18,11 @@ limiti di brani. Non servono Mac né iPhone.
 
 ## Passo per passo
 
-1. **Collega Spotify** (*Accounts → Add connector → Spotify*).
+1. **Collega Spotify** (*Account → Aggiungi connettore → Spotify*).
 2. **Collega Apple Music**: accedi con il tuo ID Apple sulla pagina di Apple, dentro l'app.
-3. **Una playlist:** *Syncs → New sync*, sorgente *Spotify* e la playlist (o *Liked songs*),
-   destinazione *Apple Music* e *crea una nuova playlist*. **Tante insieme:** *Tools → Transfer many
-   playlists*.
+3. **Una playlist:** *Sync → Nuova sync*, sorgente *Spotify* e la playlist (o *Brani preferiti*),
+   destinazione *Apple Music* e *crea una nuova playlist*. **Tante insieme:** *Strumenti → Trasferisci molte
+   playlist*.
 4. **Controlla l'anteprima**, avvia e guarda la **revisione** per i brani da scegliere a mano.
 
 ## Buono a sapersi

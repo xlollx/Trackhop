@@ -14,6 +14,7 @@ i18n: start
 | [F-Droid](https://f-droid.org/packages/com.xlollx.songport/) | Compilado pelo F-Droid a partir do código-fonte e assinado com a mesma chave do APK do GitHub (build reproduzível): um atualiza o outro. As versões novas chegam alguns dias depois do GitHub. |
 | [Obtainium](https://github.com/ImranR98/Obtainium) | Adicione `https://github.com/xlollx/Trackhop`: cada versão chega sozinha ao celular. |
 | [GitHub](https://github.com/xlollx/Trackhop/releases/latest) | O APK assinado de cada versão. |
+| [Huawei AppGallery](https://appgallery.huawei.com/app/C119677919) | A versão da loja: só APIs oficiais. O plugin gratuito [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) adiciona as conexões rápidas. |
 
 Android 8.0 ou mais recente. No computador: [Trackhop Desktop](desktop) (Windows, macOS, Linux).
 
@@ -27,12 +28,12 @@ Android 8.0 ou mais recente. No computador: [Trackhop Desktop](desktop) (Windows
 - **Conexão oficial** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): você cria uma chave de
   desenvolvedor gratuita no seu nome; o app guia você passo a passo, em uns dois minutos.
 
-Servidores pessoais (Navidrome/Subsonic, Jellyfin, Plex) pedem só o endereço e o seu login. Arquivos
-não pedem nada. Depois de conectar, *⋮ → Testar conexão* verifica login, playlists e busca de uma vez.
+Servidores pessoais (Navidrome/Subsonic, Jellyfin, Emby, Plex) pedem só o endereço e o seu login. Arquivos
+não pedem nada. Depois de conectar, *⋮ → Testar a conexão* verifica login, playlists e busca de uma vez.
 
 ## A primeira sincronização
 
-*Syncs → Nova sync*: escolha a origem (uma playlist, suas músicas curtidas, uma seção da biblioteca ou
+*Sincronizações → Nova sincronização*: escolha a origem (uma playlist, suas músicas curtidas, uma seção da biblioteca ou
 um link), o destino (uma playlist existente ou "criar uma playlist nova"; deixe o nome vazio para usar o
 da origem) e a frequência. Opções úteis:
 

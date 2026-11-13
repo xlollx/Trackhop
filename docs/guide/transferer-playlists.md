@@ -12,7 +12,7 @@ Trackhop copie vos playlists et vos titres likés de Spotify vers YouTube Music,
 ## Comment ça marche
 
 1. Installez Trackhop sur Android ([F-Droid](https://f-droid.org/packages/com.xlollx.songport/) ou [GitHub](https://github.com/xlollx/Trackhop/releases/latest)), ou sur ordinateur avec [Trackhop Desktop](desktop) (Windows, macOS, Linux).
-2. Dans *Comptes → Ajouter*, connectez les deux services. Pour Spotify, la connexion rapide utilise votre compte habituel, sans clé ni Premium (version du site et de F-Droid).
+2. Dans *Comptes → Ajouter un connecteur*, connectez les deux services. Pour Spotify, la connexion rapide utilise votre compte habituel, sans clé ni Premium (version du site et de F-Droid).
 3. Choisissez la playlist source et la destination, regardez l’aperçu et confirmez. Pour qu’elles restent identiques, choisissez une fréquence : toutes les heures, toutes les 6 heures, chaque jour ou chaque semaine.
 
 ## Ce que vous pouvez faire

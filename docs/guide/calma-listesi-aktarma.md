@@ -12,7 +12,7 @@ Trackhop çalma listelerinizi ve beğendiğiniz şarkıları Spotify’dan YouTu
 ## Nasıl çalışır
 
 1. Trackhop’u Android’e kurun ([F-Droid](https://f-droid.org/packages/com.xlollx.songport/) veya [GitHub](https://github.com/xlollx/Trackhop/releases/latest)) ya da bilgisayara [Trackhop Desktop](desktop) ile (Windows, macOS, Linux).
-2. *Hesaplar → Ekle* bölümünden iki servisi bağlayın. Spotify’da hızlı bağlantı normal hesabınızı kullanır; anahtar ve Premium gerekmez (site ve F-Droid sürümü).
+2. *Hesaplar → Bağlayıcı ekle* bölümünden iki servisi bağlayın. Spotify’da hızlı bağlantı normal hesabınızı kullanır; anahtar ve Premium gerekmez (site ve F-Droid sürümü).
 3. Kaynak listeyi ve hedefi seçin, önizlemeye bakın ve onaylayın. Aynı kalmaları için bir sıklık seçin: saatte bir, 6 saatte bir, her gün veya her hafta.
 
 ## Neler yapabilirsiniz
