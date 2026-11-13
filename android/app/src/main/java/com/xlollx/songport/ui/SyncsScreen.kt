@@ -676,8 +676,6 @@ fun SyncsScreen(
     data.syncs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
         val close = { tileOpen = null }
         ModalBottomSheet(onDismissRequest = close, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-
-            androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
             // The card grows out of the tile's column as the sheet comes up (1.18).
             val rich = richMotion()
             val grow = remember(job.id) { androidx.compose.animation.core.Animatable(if (rich) 0f else 1f) }
@@ -1514,8 +1512,6 @@ private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
     val items = all[job.id].orEmpty()
     val progress = running[job.id]
     ModalBottomSheet(onDismissRequest = onDismiss) {
-
-        androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.live_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -2795,8 +2791,6 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
         StatList.Kind.NOT_FOUND -> Triple(stringResource(R.string.stat_list_not_found), r.unmatched, r.unmatched.size)
     }
     ModalBottomSheet(onDismissRequest = onDismiss) {
-
-        androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge)
             Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
