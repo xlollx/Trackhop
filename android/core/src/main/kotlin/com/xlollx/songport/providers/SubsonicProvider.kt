@@ -55,6 +55,15 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
             // 41 (token sign-in not supported, LDAP users) or 42 (mechanism not supported): a server that
             // takes no password from apps. When it offers keys, the user is pointed there.
             if ((e.code == 41 || e.code == 42) && APIKEY_EXTENSION in extensions(base)) throw ProviderException(ctx.text("subsonic_apikey_needed"), code = e.code)
+            // No keys either (Nextcloud Music, which refuses tokens on purpose): the Subsonic API's older
+            // sign-in, with the password, tried once, only over HTTPS or on the home network.
+            if (e.code == 41 || e.code == 42) {
+                if (!legacyAllowed(base)) throw ProviderException(ctx.text("subsonic_legacy_needs_https"), code = e.code)
+                t = t.copy(extra = t.extra + (AUTH to AUTH_LEGACY))
+                call(ctx, "ping", emptyList(), t, onType = { ty -> t = t.copy(extra = t.extra + (TYPE to ty)) }) { v -> t = t.copy(extra = t.extra + ("v" to v)) }
+                save(ctx, t)
+                return
+            }
             throw e
         }
         save(ctx, t)
@@ -107,8 +116,13 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
             // "c" stays "Songport" after the rename to Trackhop: Navidrome and others register a player
             // per client name, with the admin's settings (transcoding, ...) attached to it.
             // An API key goes alone: with it, u, t and s are an error (43, conflicting mechanisms).
-            val auth = if (t.extra[AUTH] == AUTH_APIKEY) listOf("apiKey" to t.accessToken)
-            else listOf("u" to t.userName, "t" to md5(t.accessToken + salt), "s" to salt)
+            val auth = when (t.extra[AUTH]) {
+                AUTH_APIKEY -> listOf("apiKey" to t.accessToken)
+                // A server that refuses the salted token (Nextcloud Music): the password itself, hex-encoded
+                // as the Subsonic API's older sign-in has it. Only where [legacyAllowed] (HTTPS or the home network).
+                AUTH_LEGACY -> listOf("u" to t.userName, "p" to legacyPassword(t.accessToken))
+                else -> listOf("u" to t.userName, "t" to md5(t.accessToken + salt), "s" to salt)
+            }
             val common = auth + listOf("v" to version, "c" to "Songport", "f" to "json")
             val query = (common + params).joinToString("&") { (k, v) -> "${Http.enc(k)}=${Http.enc(v)}" }
             val resp = Http.send("GET", "${t.extra["url"]}/rest/$method?$query", mapOf("Accept" to "application/json"))
@@ -346,6 +360,25 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
         /** How the connection signs its calls: absent for the salted token, [AUTH_APIKEY] for a key. */
         internal const val AUTH = "auth"
         internal const val AUTH_APIKEY = "apikey"
+        /** The password sent as such (hex), for a server that refuses tokens (Nextcloud Music). */
+        internal const val AUTH_LEGACY = "legacy"
+
+        /** The older sign-in's password parameter: "enc:" and the password's UTF-8 bytes in hex. */
+        internal fun legacyPassword(password: String): String =
+            "enc:" + password.toByteArray(Charsets.UTF_8).joinToString("") { "%02x".format(it) }
+
+        /**
+         * Whether the password may travel at all: over HTTPS, or to a server on this machine or the home
+         * network (where a Nextcloud often runs on plain HTTP). Never over plain HTTP across the internet.
+         */
+        internal fun legacyAllowed(base: String): Boolean {
+            val uri = runCatching { java.net.URI(base) }.getOrNull() ?: return false
+            if (uri.scheme.equals("https", true)) return true
+            val host = uri.host?.lowercase() ?: return false
+            if (host == "localhost" || host.endsWith(".local") || host.endsWith(".lan") || host.endsWith(".home.arpa")) return true
+            val ip = host.split('.').mapNotNull { it.toIntOrNull() }.takeIf { it.size == 4 } ?: return false
+            return ip[0] == 10 || ip[0] == 127 || (ip[0] == 192 && ip[1] == 168) || (ip[0] == 172 && ip[1] in 16..31) || (ip[0] == 100 && ip[1] in 64..127)
+        }
         internal const val APIKEY_EXTENSION = "apiKeyAuthentication"
         /** OpenSubsonic's structured lyrics (getLyricsBySongId). */
         internal const val LYRICS_EXTENSION = "songLyrics"

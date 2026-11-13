@@ -2716,4 +2716,5 @@
     <string name="web_err_home">Главная</string>
     <string name="web_err_log">Открыть журнал</string>
     <string name="web_err_details">Технические подробности</string>
+    <string name="subsonic_legacy_needs_https">Этот сервер не принимает токены приложений, только сам пароль. Ради безопасности Trackhop отправляет пароль только по HTTPS или на сервер в домашней сети: укажите адрес сервера с https://.</string>
 </resources>

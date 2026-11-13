@@ -2618,4 +2618,5 @@
     <string name="web_err_home">Inicio</string>
     <string name="web_err_log">Abrir el registro</string>
     <string name="web_err_details">Detalles técnicos</string>
+    <string name="subsonic_legacy_needs_https">Este servidor no acepta tokens de apps, solo la contraseña. Por seguridad, Trackhop solo envía una contraseña por HTTPS o a un servidor de tu red doméstica: usa la dirección https:// del servidor.</string>
 </resources>

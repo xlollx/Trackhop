@@ -2557,4 +2557,5 @@
     <string name="web_err_home">ホーム</string>
     <string name="web_err_log">ログを開く</string>
     <string name="web_err_details">技術的な詳細</string>
+    <string name="subsonic_legacy_needs_https">このサーバーはアプリのトークンを受け付けず、パスワードそのものだけを使います。安全のため、Trackhop はパスワードを HTTPS か自宅ネットワーク内のサーバーにだけ送ります。サーバーの https:// アドレスを使ってください。</string>
 </resources>

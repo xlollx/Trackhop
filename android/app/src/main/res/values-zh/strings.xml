@@ -2557,4 +2557,5 @@
     <string name="web_err_home">首页</string>
     <string name="web_err_log">打开日志</string>
     <string name="web_err_details">技术详情</string>
+    <string name="subsonic_legacy_needs_https">此服务器不接受应用令牌，只接受密码本身。为了安全，Trackhop 只通过 HTTPS 或向家庭网络中的服务器发送密码：请使用服务器的 https:// 地址。</string>
 </resources>

@@ -2556,4 +2556,5 @@
     <string name="web_err_home">홈</string>
     <string name="web_err_log">로그 열기</string>
     <string name="web_err_details">기술적 세부 정보</string>
+    <string name="subsonic_legacy_needs_https">이 서버는 앱 토큰을 받지 않고 비밀번호 자체만 받습니다. 안전을 위해 Trackhop은 HTTPS나 집 네트워크의 서버로만 비밀번호를 보냅니다. 서버의 https:// 주소를 사용하세요.</string>
 </resources>

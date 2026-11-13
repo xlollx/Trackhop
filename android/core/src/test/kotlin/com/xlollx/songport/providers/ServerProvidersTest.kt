@@ -173,6 +173,29 @@ class FakeServerProvidersTest {
         assertEquals(1, requests.size)
     }
 
+    @Test fun subsonicFallsBackToThePasswordSignInWhenTheServerRefusesTokens() = runBlocking {
+        // Nextcloud Music: tokens refused (41), the older sign-in with the password (hex) accepted.
+        answer = { r ->
+            if (r.query["p"] != null) 200 to subsonic("1.16.1", ""","playlists":{"playlist":[{"id":1,"name":"Mix","songCount":2,"owner":"me"}]}""")
+            else 200 to """{"subsonic-response":{"status":"failed","version":"1.16.1","error":{"code":41,"message":"Token-based authentication not supported"}}}"""
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "me", "pässword")
+        assertEquals(listOf("Mix"), p.playlists(ctx).map { it.name })
+        assertEquals("enc:70c3a47373776f7264", requests.last().query["p"]?.single())
+        assertEquals(null, requests.last().query["t"])
+        assertEquals(SubsonicProvider.AUTH_LEGACY, ctx.tokens.get(p.id)?.extra?.get(SubsonicProvider.AUTH))
+    }
+
+    @Test fun thePasswordNeverTravelsOverPlainHttpAcrossTheInternet() {
+        assertTrue(SubsonicProvider.legacyAllowed("https://cloud.example.org"))
+        assertTrue(SubsonicProvider.legacyAllowed("http://192.168.1.20:8080"))
+        assertTrue(SubsonicProvider.legacyAllowed("http://nas.local"))
+        assertTrue(SubsonicProvider.legacyAllowed("http://127.0.0.1:4533"))
+        assertFalse(SubsonicProvider.legacyAllowed("http://cloud.example.org"))
+        assertFalse(SubsonicProvider.legacyAllowed("http://8.8.8.8"))
+    }
+
     @Test fun subsonicExplainsAmpachesSubsonicPassword() = runBlocking {
         // Ampache 8.3, the account password as token: error 40, and the answer says it is Ampache.
         answer = { 200 to """{"subsonic-response":{"status":"failed","version":"1.16.1","type":"ampache","serverVersion":"8.3.0","openSubsonic":true,"error":{"code":40,"message":"Wrong username or password.","helpUrl":"https://ampache.org/api/subsonic"}}}""" }

@@ -2618,4 +2618,5 @@
     <string name="web_err_home">Accueil</string>
     <string name="web_err_log">Ouvrir le journal</string>
     <string name="web_err_details">Détails techniques</string>
+    <string name="subsonic_legacy_needs_https">Ce serveur n\'accepte pas les jetons d\'applis, seulement le mot de passe. Par sécurité, Trackhop n\'envoie un mot de passe qu\'en HTTPS ou à un serveur de votre réseau domestique : utilisez l\'adresse https:// du serveur.</string>
 </resources>
