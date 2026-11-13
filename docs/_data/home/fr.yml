@@ -28,7 +28,7 @@ mac_alt: Télécharger pour macOS (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">pour Intel</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Télécharger pour Linux
 linux_note: '.deb · ou <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
-computer_more: 'Sur Mac, ouvrez-le la première fois avec clic droit › Ouvrir (<a href="/guide/desktop#macos">pourquoi</a>) · <a href="#docker">Tous les téléchargements</a>'
+computer_more: 'Sur Mac, autorisez-le la première fois dans Réglages Système › Confidentialité et sécurité › Ouvrir quand même (<a href="/guide/desktop#macos">pourquoi</a>) · <a href="#docker">Tous les téléchargements</a>'
 docker_alt: Lancer avec Docker
 docker_note: 'Bêta · ghcr.io ou <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">sur un NAS</a>'
 azure_title: "Bêta : tourne dans votre propre abonnement Azure (environ 5 $ par mois)"

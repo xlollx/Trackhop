@@ -28,7 +28,7 @@ mac_alt: 下载 macOS 版（Apple silicon）
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel 版</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: 下载 Linux 版
 linux_note: '.deb · 或 <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
-computer_more: '在 Mac 上，首次请右键 › 打开（<a href="/guide/desktop#macos">原因</a>） · <a href="#docker">全部下载</a>'
+computer_more: '在 Mac 上，首次请在 系统设置 › 隐私与安全性 › 仍要打开 中允许（<a href="/guide/desktop#macos">原因</a>） · <a href="#docker">全部下载</a>'
 docker_alt: 在 Docker 上运行
 docker_note: '测试版 · ghcr.io 或 <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">在 NAS 上</a>'
 azure_title: "测试版：运行在你自己的 Azure 订阅中（每月约 5 美元）"

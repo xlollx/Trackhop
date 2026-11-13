@@ -28,7 +28,7 @@ mac_alt: macOS용 받기 (Apple silicon)
 mac_note: 'Apple silicon · <a href="%DL%/Trackhop-Desktop-v%V%-macos-x64.dmg">Intel용</a> · <a href="/guide/desktop#package-managers-and-stores">Homebrew</a>'
 linux_alt: Linux용 받기
 linux_note: '.deb · 또는 <a href="https://snapcraft.io/trackhop">Snap</a> · <a href="%DL%/Trackhop-Desktop-v%V%-linux.flatpak">Flatpak</a>'
-computer_more: 'Mac에서는 처음 한 번 오른쪽 클릭 › 열기로 실행하세요 (<a href="/guide/desktop#macos">이유</a>) · <a href="#docker">모든 다운로드</a>'
+computer_more: 'Mac에서는 처음 한 번 시스템 설정 › 개인정보 보호 및 보안 › 그래도 열기로 허용하세요 (<a href="/guide/desktop#macos">이유</a>) · <a href="#docker">모든 다운로드</a>'
 docker_alt: Docker에서 실행
 docker_note: '베타 · ghcr.io 또는 <a href="https://hub.docker.com/r/xlollx/trackhop">Docker Hub</a> · <a href="/guide/playlist-sync-nas">NAS에서</a>'
 azure_title: "베타: 내 Azure 구독에서 실행 (월 약 5달러)"
