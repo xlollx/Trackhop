@@ -371,7 +371,9 @@ fun SyncsScreen(
     // One open in ten: a small card that goes away by itself at the next open.
     val nudge = support == null && data.settings.appOpens > 0 && SupportPrompt.nudge(Store.get(ctx))
     // Also with fewer syncs while the crowded-schedule card's "Show them" is on: its bar turns it off.
-    val finder = data.syncs.size >= FIND_MIN_SYNCS || filter.ids.isNotEmpty()
+    // The search works from one sync on; the chips from FIND_MIN_SYNCS (or while "Show them" is on).
+    val finder = data.syncs.isNotEmpty() || filter.ids.isNotEmpty()
+    val chipsShown = data.syncs.size >= FIND_MIN_SYNCS || filter.ids.isNotEmpty()
     // A colour or a service no sync uses any more has no chip to turn it off: it is dropped.
     val effective = if (finder) filter.pruned(data.syncs) else SyncFilter()
     val runningIds = running.keys
@@ -492,7 +494,7 @@ fun SyncsScreen(
                 val counts = remember(data.syncs, data.reports, runningIds) { SyncFilter.counts(data.syncs, data.reports, runningIds) }
                 RunAllRow(
                     tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height },
-                    chips = if (finder) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels) { filter = it } }) else null,
+                    chips = if (chipsShown) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels) { filter = it } }) else null,
                     // Cards or tiles, at a tap; remembered (also in Settings).
                     trailing = if (viewToggle) ({
                         IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {

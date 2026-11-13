@@ -856,9 +856,9 @@ private fun MainScreen(
             if (!(tab == MainActivity.TAB_TOOLS && toolSubpage) && !(tab == MainActivity.TAB_DISCOVER && discoverSubpage)) {
                 val label = tabs.firstOrNull { it.third == tab }?.first ?: R.string.app_name
                 val onSyncs = tab == MainActivity.TAB_SYNCS
-                // Syncs: the mark, then the search of the list from FIND_MIN_SYNCS syncs on (also with fewer while
+                // Syncs: the mark, then the search of the list from one sync on (it used to wait for five; also while
                 // the crowded-schedule card's "Show them" is on, as the chips), in the width the buttons leave.
-                val finder = onSyncs && data.syncs.isNotEmpty() && (data.syncs.size >= com.xlollx.songport.ui.FIND_MIN_SYNCS || syncFilter.value.ids.isNotEmpty())
+                val finder = onSyncs && data.syncs.isNotEmpty()
                 AppTopBar(
                     if (onSyncs) "" else stringResource(label), scrollBehavior = if (barSlides) barScroll else null,
                     // Clear: the page's glow goes on behind the bar, with no edge under it.

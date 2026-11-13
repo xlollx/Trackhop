@@ -82,7 +82,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 
-/** The find bar shows from this many syncs on: with fewer, the whole list fits on a screen or two. */
+/** The filter chips (colours, services) show from this many syncs on: with fewer, they would only crowd the list. The search itself is there from one sync on. */
 const val FIND_MIN_SYNCS = 5
 
 /** Keeps the filter across rotation and process death: only strings and lists of strings. */
