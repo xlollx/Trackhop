@@ -215,11 +215,15 @@ fun EmptyState(
  * not an action, so it is in the text colour: the accent is kept for what can be tapped.
  */
 @Composable
-fun SectionCard(title: String? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun SectionCard(title: String? = null, modifier: Modifier = Modifier, background: androidx.compose.ui.graphics.Brush? = null, content: @Composable ColumnScope.() -> Unit) {
+    val shape = MaterialTheme.shapes.large
     Card(
-        modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        // A [background] wash goes over the card's usual colour.
+        modifier.fillMaxWidth().then(
+            if (background != null) Modifier.clip(shape).background(MaterialTheme.colorScheme.surfaceContainerLow).background(background) else Modifier,
+        ),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = if (background != null) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (title != null) Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 4.dp))
