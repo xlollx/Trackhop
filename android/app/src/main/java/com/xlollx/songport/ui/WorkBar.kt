@@ -41,11 +41,7 @@ fun WorkBar(
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
 ) {
-    val ctx = LocalContext.current
-    val animate = remember {
-        android.provider.Settings.Global.getFloat(ctx.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
-    }
-    if (!com.xlollx.songport.Features.v2 || !animate) {
+    if (!richMotion()) {
         if (progress != null) LinearProgressIndicator(progress = progress, modifier = modifier, color = color, trackColor = trackColor)
         else LinearProgressIndicator(modifier = modifier, color = color, trackColor = trackColor)
         return

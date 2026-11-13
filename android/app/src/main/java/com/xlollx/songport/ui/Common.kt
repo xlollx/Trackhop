@@ -155,14 +155,17 @@ fun toneContent(tone: Tone): Color = when (tone) {
 }
 
 @Composable
-fun StatusPill(text: String, tone: Tone, icon: ImageVector? = null, modifier: Modifier = Modifier) {
+fun StatusPill(text: String, tone: Tone, icon: ImageVector? = null, modifier: Modifier = Modifier, leading: (@Composable () -> Unit)? = null) {
     val bg = toneBackground(tone)
     val fg = toneContent(tone)
     Row(
         modifier.clip(RoundedCornerShape(50)).background(bg).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) {
+        if (leading != null) {
+            leading()
+            Spacer(Modifier.width(4.dp))
+        } else if (icon != null) {
             Icon(icon, null, tint = fg, modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(4.dp))
         }

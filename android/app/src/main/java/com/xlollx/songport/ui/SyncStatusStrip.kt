@@ -97,7 +97,8 @@ fun SyncStatusStrip(
                 .then(if (offline) Modifier.semantics { liveRegion = LiveRegionMode.Polite } else Modifier),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, null, Modifier.size(18.dp), tint = tint)
+            val working = !offline && (summary.kind == SyncSummary.Kind.RUNNING || summary.kind == SyncSummary.Kind.RUNNING_PAUSED)
+            if (working && richMotion()) Equalizer(tint, 16.dp) else Icon(icon, null, Modifier.size(18.dp), tint = tint)
             Spacer(Modifier.width(8.dp))
             // When the last sync ran is said while the line has room for it: where it does not (a narrow
             // window, a large font, a language with longer words) the status alone is whole, not both cut short.

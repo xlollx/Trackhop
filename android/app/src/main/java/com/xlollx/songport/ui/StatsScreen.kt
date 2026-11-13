@@ -234,7 +234,7 @@ private fun StatsHero(t: StatsText) {
         Column {
             BrandTile(40.dp)
             Spacer(Modifier.height(12.dp))
-            Text(t.n(t.s.added), color = Color.White, style = MaterialTheme.typography.displayMedium.merge(TabularNumbers))
+            Text(t.n(countUp(t.s.added)), color = Color.White, style = MaterialTheme.typography.displayMedium.merge(TabularNumbers))
             Text(stringResource(R.string.stats_tracks_moved), color = Color.White, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
             Text(ctx.resources.getQuantityString(R.plurals.stats_since, t.s.runs, t.s.runs, t.since), color = Color.White, style = MaterialTheme.typography.bodyMedium)
@@ -254,18 +254,19 @@ private fun StatTiles(t: StatsText) {
     val services = stringResource(R.string.stats_services)
     val match = stringResource(R.string.stats_match_rate)
     val saved = stringResource(R.string.stats_time_saved)
-    val tiles = buildList {
-        add(t.n(s.addedThisMonth) to month)
-        add(t.n(s.runs) to runs)
-        if (t.services > 0) add(t.n(t.services) to services)
-        t.match?.let { add(it to match) }
-        t.timeSaved?.let { add(it to saved) }
+    // A whole number counts up as it shows (1.18); a share or a duration is shown as it is.
+    val tiles: List<Triple<Int?, String, String>> = buildList {
+        add(Triple(s.addedThisMonth, "", month))
+        add(Triple(s.runs, "", runs))
+        if (t.services > 0) add(Triple(t.services, "", services))
+        t.match?.let { v -> add(Triple(null, v, match)) }
+        t.timeSaved?.let { v -> add(Triple(null, v, saved)) }
     }
     val perRow = if (LocalDensity.current.fontScale > 1.3f) 1 else 2
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         tiles.chunked(perRow).forEach { row ->
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                row.forEach { (value, label) -> StatTile(value, label, Modifier.weight(1f).fillMaxHeight()) }
+                row.forEach { (num, text, label) -> StatTile(num?.let { t.n(countUp(it)) } ?: text, label, Modifier.weight(1f).fillMaxHeight()) }
                 repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }

@@ -206,6 +206,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         }
     }
 
+    val rich = richMotion()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
@@ -234,7 +235,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                 items(all, key = { it.id }) { pl ->
                     val library = MusicProvider.isLibrary(pl.id)
                     val removable = provider.canRemoveTracks && provider.canWrite
-                    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                    Card((if (rich) Modifier.animateItem() else Modifier).fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
                         Row(
                             // A library list opens on a tap: removing from it is all there is to do there.
                             (if (library && removable) Modifier.clickable(enabled = !busy) { viewing = pl } else Modifier)

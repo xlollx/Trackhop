@@ -158,6 +158,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -330,6 +332,8 @@ fun SyncsScreen(
     // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
     var tileMenu by remember { mutableStateOf<String?>(null) }
     var tileOpen by rememberSaveable { mutableStateOf<String?>(null) }
+    // Where across the screen the tile tapped was (0 left … 1 right): its sheet grows from there (1.18).
+    var tileFromX by remember { androidx.compose.runtime.mutableFloatStateOf(0.5f) }
     var tileLive by rememberSaveable { mutableStateOf<String?>(null) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     // The store's order as it is now: the drag callbacks below can outlive the composition they were
@@ -560,12 +564,25 @@ fun SyncsScreen(
                         flashing = null
                     }
                 }
+                // A run just over (1.18): the card pops once and its edge lights up once.
+                val runningNow = running.containsKey(job.id)
+                val rich = richMotion()
+                val pop = remember(job.id) { androidx.compose.animation.core.Animatable(1f) }
+                var wasRunning by remember(job.id) { mutableStateOf(runningNow) }
+                LaunchedEffect(runningNow) {
+                    if (rich && wasRunning && !runningNow) {
+                        launch { flash.animateTo(1f, androidx.compose.animation.core.tween(220)); flash.animateTo(0f, androidx.compose.animation.core.tween(800)) }
+                        pop.animateTo(1.04f, androidx.compose.animation.core.tween(140))
+                        pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 300f))
+                    }
+                    wasRunning = runningNow
+                }
                 val lift by androidx.compose.animation.core.animateDpAsState(if (isDragging) 10.dp else 0.dp, label = "lift")
                 Box(Modifier.then(
                     if (flash.value > 0f) Modifier.border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = flash.value), MaterialTheme.shapes.large) else Modifier,
                 ).graphicsLayer {
                     shadowElevation = lift.toPx(); shape = RoundedCornerShape(24.dp); clip = false
-                    val k = 1f + 0.03f * (lift.value / 10f); scaleX = k; scaleY = k
+                    val k = (1f + 0.03f * (lift.value / 10f)) * pop.value; scaleX = k; scaleY = k
                 }.onGloballyPositioned { tileCoords[0] = it }.pointerInput(job.id, canDrag) {
                     // A card held while partly above the list's top (the one half under the pill at the
                     // end of the list) is brought into view while the finger is still, before the hold
@@ -626,7 +643,15 @@ fun SyncsScreen(
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
                     if (minimal) JobTile(
                         job, data, running[job.id], run, menuOpen = tileMenu == job.id, onMenu = { tileMenu = if (it) job.id else null },
-                        canDrag = canDrag, onOpen = { if (heldTile[0] != job.id) tileOpen = job.id },
+                        canDrag = canDrag, onOpen = {
+                            if (heldTile[0] != job.id) {
+                                tileCoords[0]?.takeIf { it.isAttached }?.let { c ->
+                                    val root = c.findRootCoordinates().size.width.toFloat()
+                                    if (root > 0f) tileFromX = (c.boundsInWindow().center.x / root).coerceIn(0f, 1f)
+                                }
+                                tileOpen = job.id
+                            }
+                        },
                         onEdit, onPreview, onRun, onDelete, onReview, onOpenLog, onToggleEnabled, onMove,
                     )
                     else JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove, size = cardSize, wide = wideCards)
@@ -640,7 +665,15 @@ fun SyncsScreen(
     data.syncs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
         val close = { tileOpen = null }
         ModalBottomSheet(onDismissRequest = close, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-            Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
+            // The card grows out of the tile's column as the sheet comes up (1.18).
+            val rich = richMotion()
+            val grow = remember(job.id) { androidx.compose.animation.core.Animatable(if (rich) 0f else 1f) }
+            LaunchedEffect(job.id) { grow.animateTo(1f, androidx.compose.animation.core.tween(320, easing = androidx.compose.animation.core.FastOutSlowInEasing)) }
+            Column(Modifier.graphicsLayer {
+                val p = grow.value
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(tileFromX, 0f)
+                scaleX = 0.84f + 0.16f * p; scaleY = scaleX; alpha = p
+            }.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
                 val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
                 JobCard(
                     job, data, running[job.id], run,
@@ -791,6 +824,7 @@ private fun RunAllRow(
                             // All of them paused: nothing moves, so no spinner; a still pause sign, and a tap resumes them.
                             when {
                                 tally.allPaused -> Icon(Icons.Filled.Pause, null, Modifier.size(20.dp))
+                                busy && richMotion() -> Equalizer(MaterialTheme.colorScheme.onSecondaryContainer, 18.dp)
                                 busy -> CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
                                 else -> Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
                             }
@@ -958,7 +992,7 @@ private fun statusInfo(
     if (run == null && com.xlollx.songport.sync.OfflineQueue.isWaiting(job.id, job.enabled, waiting))
         return CardStatusInfo(stringResource(R.string.pill_waiting_network), Tone.Neutral, Icons.Filled.CloudOff)
     return when (cardStatus(run != null, job.enabled, report, run, radio = job.radio != null)) {
-        CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
+        CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync, live = true)
         CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
         CardStatus.PAUSED -> CardStatusInfo(stringResource(R.string.sync_paused), Tone.Warning, Icons.Filled.Pause)
         CardStatus.DISABLED -> CardStatusInfo(stringResource(R.string.disabled), Tone.Neutral, null)
@@ -966,7 +1000,7 @@ private fun statusInfo(
         CardStatus.ERROR -> CardStatusInfo(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
         CardStatus.OFFLINE -> CardStatusInfo(stringResource(R.string.pill_stopped_offline), Tone.Neutral, Icons.Filled.CloudOff)
         CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
-        CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onOpenLog)
+        CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onClick = onOpenLog)
         CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
         CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
         // Up to date only once checked: the source seen unchanged since the last run. Changed:
@@ -1364,7 +1398,8 @@ private fun JobTile(
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(18.dp).clip(CircleShape).background(toneBackground(status.tone)), contentAlignment = Alignment.Center) {
-                        Icon(status.icon ?: Icons.Filled.Info, null, tint = toneContent(status.tone), modifier = Modifier.size(11.dp))
+                        if (status.live && richMotion()) Equalizer(toneContent(status.tone), 10.dp)
+                        else Icon(status.icon ?: Icons.Filled.Info, null, tint = toneContent(status.tone), modifier = Modifier.size(11.dp))
                     }
                     Spacer(Modifier.width(6.dp))
                     val pct = progress?.percent
@@ -2816,12 +2851,14 @@ internal fun Modifier.cardMarquee(): Modifier {
 }
 
 /** What a sync's card says about it: a few words, their tone, an icon, and what a tap does (if anything). */
-private class CardStatusInfo(val text: String, val tone: Tone, val icon: ImageVector?, val onClick: (() -> Unit)? = null)
+private class CardStatusInfo(val text: String, val tone: Tone, val icon: ImageVector?, val live: Boolean = false, val onClick: (() -> Unit)? = null)
 
 @Composable
 private fun StatusChip(info: CardStatusInfo) {
     val click = info.onClick
-    if (click != null) ActionPill(info.text, info.tone, info.icon ?: Icons.Filled.Warning, click) else StatusPill(info.text, info.tone, info.icon)
+    if (click != null) ActionPill(info.text, info.tone, info.icon ?: Icons.Filled.Warning, click)
+    else if (info.live && richMotion()) StatusPill(info.text, info.tone, leading = { Equalizer(toneContent(info.tone), 13.dp) })
+    else StatusPill(info.text, info.tone, info.icon)
 }
 
 /** The status as a small badge on the services' logos: its icon in its tone; a tap acts, or says the words. */
@@ -2838,7 +2875,8 @@ private fun StatusBadge(info: CardStatusInfo, modifier: Modifier) {
                 .semantics { contentDescription = info.text },
             contentAlignment = Alignment.Center,
         ) {
-            Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
+            if (info.live && richMotion()) Equalizer(toneContent(info.tone), 11.dp)
+            else Icon(info.icon ?: Icons.Filled.Info, null, tint = toneContent(info.tone), modifier = Modifier.size(12.dp))
         }
         if (tip) BubbleOver(info.text) { tip = false }
     }

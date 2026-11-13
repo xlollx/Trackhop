@@ -175,17 +175,21 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                 } else WorkBar(null, Modifier.fillMaxWidth())
                 Text(stringResource(R.string.library_removing_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            val rich = richMotion()
+            // A key that stays with the entry across a reload: its id, and which copy of it (a track can be there twice).
+            val rowKeys = remember(all) { val seen = HashMap<String, Int>(); all.map { t -> val n = seen.merge(t.id, 1, Int::plus)!!; "${t.id}#$n" } }
             when {
                 tracks == null -> SkeletonRows(14)
                 error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { version++ })
                 error != null -> Text(error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(24.dp))
                 all.isEmpty() -> Text(stringResource(if (library) R.string.library_none else R.string.tracks_none), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(24.dp))
                 else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
-                    itemsIndexed(shown, key = { _, i -> i }) { _, i ->
+                    itemsIndexed(shown, key = { _, i -> rowKeys.getOrElse(i) { "$i" } }) { _, i ->
                         val t = all[i]
                         val checked = i in selected
                         Row(
-                            Modifier.fillMaxWidth().clickable(enabled = !busy) { selected = if (checked) selected - i else selected + i }
+                            // Rows that go after a removal slide out, the others move up (1.18).
+                            (if (rich) Modifier.animateItem() else Modifier).fillMaxWidth().clickable(enabled = !busy) { selected = if (checked) selected - i else selected + i }
                                 .padding(start = 8.dp, end = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
