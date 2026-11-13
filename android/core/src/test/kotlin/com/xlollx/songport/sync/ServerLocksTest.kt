@@ -2,6 +2,7 @@ package com.xlollx.songport.sync
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -88,18 +89,19 @@ class ServerLocksTest {
     }
 
     @Test fun aLongRunRenewsAndTakesAgainAReservationThatExpired() = runBlocking {
-        var renewals = 0
+        val renewals = java.util.concurrent.atomic.AtomicInteger()
         answer = { r ->
             when {
                 // The server forgot the first one (restarted, or it expired): 404, then it is taken again.
                 r.method == "PUT" && r.path!!.endsWith("/L1") -> MockResponse().setResponseCode(404).setBody("""{"error":"No such reservation"}""")
-                r.method == "PUT" -> { renewals++; MockResponse().setResponseCode(200).setBody("""{"id":"L2","until":2}""") }
+                r.method == "PUT" -> { renewals.incrementAndGet(); MockResponse().setResponseCode(200).setBody("""{"id":"L2","until":2}""") }
                 else -> ok(r)
             }
         }
-        locks(renewEvery = 50).holding(listOf("spotify|a")) { delay(400) }
+        // Until the second one is renewed too, not a fixed time: a slow runner (macOS CI) needs longer.
+        locks(renewEvery = 50).holding(listOf("spotify|a")) { withTimeout(10_000) { while (renewals.get() < 1) delay(20) } }
         assertTrue(calls.toString(), calls.contains("PUT /api/v1/locks/L1"))
-        assertTrue(calls.toString(), renewals >= 1)
+        assertTrue(calls.toString(), renewals.get() >= 1)
         assertEquals("""{"ttl":600}""", bodies[calls.indexOf("PUT /api/v1/locks/L1")])
         assertEquals("the one held at the end is given back", "DELETE /api/v1/locks/L2", calls.last())
         assertFalse(calls.contains("DELETE /api/v1/locks/L1"))
