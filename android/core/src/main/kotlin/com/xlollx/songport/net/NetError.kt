@@ -94,12 +94,16 @@ object NetError {
         val dns = m.contains("Unable to resolve host", true) || m.contains("No address associated with hostname", true) ||
             m.contains("UnknownHostException", true) || m.contains("Name or service not known", true) ||
             m.contains("nodename nor servname", true) || m.contains("Temporary failure in name resolution", true)
-        val noNet = unreachableNet(m)
+        // A web player's page that did not load (the Bridge's browser engine), in Chromium's own words.
+        val noNet = unreachableNet(m) || m.contains("ERR_INTERNET_DISCONNECTED", true) || m.contains("ERR_ADDRESS_UNREACHABLE", true)
         return when {
             dns || noNet -> if (up() == true) Kind.UNREACHABLE else Kind.OFFLINE
             up() == false && transportMessage(m) -> Kind.OFFLINE
             m.contains("SocketTimeoutException", true) || m.contains("timed out", true) || m.equals("timeout", true) -> Kind.TIMEOUT
             m.contains("Failed to connect to", true) || m.contains("ConnectException", true) -> Kind.UNREACHABLE
+            // The token asked of a page that is not the player's (an error page): the page did not load.
+            m.contains("Failed to parse URL from /", true) || m.contains("ERR_NAME_NOT_RESOLVED", true) || m.contains("ERR_NETWORK_CHANGED", true) ->
+                if (up() == false) Kind.OFFLINE else Kind.UNREACHABLE
             else -> Kind.NONE
         }
     }

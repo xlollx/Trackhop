@@ -73,4 +73,15 @@ class NetErrorTest {
         assertEquals("net_unreachable", NetError.textName(Kind.UNREACHABLE))
         assertEquals(null, NetError.textName(Kind.NONE))
     }
+
+    /** The Spotify web player's page that did not load: its token error is the network's, not a failure to show raw. */
+    @Test fun aWebPlayerPageThatDidNotLoadIsTheNetwork() {
+        val parse = "Spotify did not hand out a token: TypeError: Failed to execute 'fetch' on 'Window': Failed to parse URL from /get_access_token?reason=transport (trying again shortly)"
+        up(false)
+        assertEquals(Kind.OFFLINE, NetError.messageKind(parse))
+        assertEquals(Kind.OFFLINE, NetError.messageKind("the web player could not load (net::ERR_INTERNET_DISCONNECTED)"))
+        up(true)
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind(parse))
+        assertEquals(Kind.UNREACHABLE, NetError.messageKind("the web player could not load (Unable to resolve host open.spotify.com: net::ERR_NAME_NOT_RESOLVED)"))
+    }
 }
