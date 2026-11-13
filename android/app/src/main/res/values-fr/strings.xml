@@ -495,6 +495,9 @@
     <string name="library_remove_confirm">Retirer %1$d éléments de « %2$s » sur %3$s ?</string>
     <string name="library_remove_n">Retirer (%d)</string>
     <string name="library_ytm_artists_hint">Sur YouTube Music, suivre un artiste revient à s\'abonner à sa chaîne YouTube : le retirer ici te désabonne.</string>
+    <string name="library_removing">Retrait… %1$d sur %2$d (%3$d %%)</string>
+    <string name="library_removing_hint">Tu peux quitter cet écran : ça continue.</string>
+    <string name="removal_not_done">%1$d non retirés : %2$s</string>
     <string name="tracks_removed">%d retirés</string>
     <string name="tracks_none">Aucun titre dans cette playlist.</string>
     <string name="export_menu">Exporter…</string>

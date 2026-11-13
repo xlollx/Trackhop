@@ -489,6 +489,9 @@
     <string name="library_remove_confirm">%3$s の「%2$s」から %1$d 件を外しますか？</string>
     <string name="library_remove_n">外す (%d)</string>
     <string name="library_ytm_artists_hint">YouTube Music でアーティストをフォローすると、その YouTube チャンネルに登録されます。ここで外すと登録が解除されます。</string>
+    <string name="library_removing">削除中… %2$d 件中 %1$d 件（%3$d%%）</string>
+    <string name="library_removing_hint">この画面を離れても続きます。</string>
+    <string name="removal_not_done">%1$d 件を削除できませんでした: %2$s</string>
     <string name="tracks_removed">%d 曲を削除しました</string>
     <string name="tracks_none">このプレイリストに曲はありません。</string>
     <string name="export_menu">エクスポート…</string>

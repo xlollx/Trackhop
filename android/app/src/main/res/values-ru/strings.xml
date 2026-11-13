@@ -507,6 +507,9 @@
     <string name="library_remove_confirm">Убрать элементы (%1$d) из «%2$s» на %3$s?</string>
     <string name="library_remove_n">Убрать (%d)</string>
     <string name="library_ytm_artists_hint">В YouTube Music подписка на исполнителя — это подписка на его канал YouTube: если убрать его здесь, подписка отменится.</string>
+    <string name="library_removing">Удаление… %1$d из %2$d (%3$d%%)</string>
+    <string name="library_removing_hint">Можно уйти с этого экрана: удаление продолжится.</string>
+    <string name="removal_not_done">Не удалено: %1$d. %2$s</string>
     <string name="tracks_removed">Удалено: %d</string>
     <string name="tracks_none">В этом плейлисте нет треков.</string>
     <string name="export_menu">Экспорт…</string>

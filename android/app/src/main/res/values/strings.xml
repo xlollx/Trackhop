@@ -495,6 +495,9 @@
     <string name="library_remove_confirm">Remove %1$d items from “%2$s” on %3$s?</string>
     <string name="library_remove_n">Remove (%d)</string>
     <string name="library_ytm_artists_hint">On YouTube Music, following an artist means subscribing to their YouTube channel: removing one here unsubscribes you.</string>
+    <string name="library_removing">Removing… %1$d of %2$d (%3$d%%)</string>
+    <string name="library_removing_hint">You can leave this screen: it carries on.</string>
+    <string name="removal_not_done">%1$d not removed: %2$s</string>
     <string name="tracks_removed">%d removed</string>
     <string name="tracks_none">No tracks in this playlist.</string>
     <string name="export_menu">Export…</string>

@@ -35,6 +35,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.flow.update
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,7 +68,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: () -> Unit, onChanged: () -> Unit) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var tracks by remember { mutableStateOf<List<Track>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -74,7 +76,17 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
     // Selection by position: the same track can sit in a playlist twice.
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var confirming by remember { mutableStateOf(false) }
-    var busy by remember { mutableStateOf(false) }
+    // The removal runs outside this screen (see [Removals]): leaving it does not stop it, coming back shows how far it is.
+    val removalKey = Removals.key(provider, playlist.id)
+    val run = Removals.state.collectAsState().value[removalKey]
+    val busy = run != null && !run.finished
+    androidx.compose.runtime.DisposableEffect(removalKey) { Removals.watch(removalKey, 1); onDispose { Removals.watch(removalKey, -1) } }
+    LaunchedEffect(run?.finished) {
+        if (run?.finished != true) return@LaunchedEffect
+        Removals.clear(removalKey)
+        onChanged(); version++
+        snackbar.showSnackbar(run.error?.let { ctx.getString(R.string.removal_not_done, run.failed, it) } ?: ctx.getString(R.string.tracks_removed, run.done))
+    }
     // Saved albums, followed artists, podcasts: "items", not tracks.
     val library = MusicProvider.isLibrary(playlist.id)
     ScreenBackHandler(onClose)
@@ -102,21 +114,9 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
             text = { Text(stringResource(if (library) R.string.library_remove_confirm else R.string.tracks_remove_confirm, n, playlist.name, provider.label(ctx))) },
             confirmButton = {
                 TextButton(onClick = {
-                    confirming = false; busy = true
-                    val picked = selected.sorted().map { all[it] }
-                    scope.launch {
-                        try {
-                            provider.removeTracks(ctx, playlist.id, picked)
-                            snackbar.showSnackbar(ctx.getString(R.string.tracks_removed, picked.size))
-                            onChanged()
-                            version++
-                        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            // Some may have gone before the error: the list is read again.
-                            onChanged(); version++
-                            snackbar.showSnackbar(e.userMessage(ctx))
-                        }
-                        busy = false
-                    }
+                    confirming = false
+                    Removals.start(ctx.applicationContext, provider, playlist, selected.sorted().map { all[it] })
+                    selected = emptySet()
                 }) { Text(stringResource(R.string.remove), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = { TextButton(onClick = { confirming = false }) { Text(stringResource(R.string.cancel)) } },
@@ -164,6 +164,14 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                 stringResource(R.string.library_ytm_artists_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
+            if (run != null && !run.finished) Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                // One step per item (or a few) on the library lists; a playlist goes in one call: no share to show.
+                if (run.stepped) {
+                    LinearProgressIndicator(progress = { run.done.toFloat() / run.total.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                    Text(stringResource(R.string.library_removing, run.done, run.total, run.done * 100 / run.total.coerceAtLeast(1)), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp))
+                } else LinearProgressIndicator(Modifier.fillMaxWidth())
+                Text(stringResource(R.string.library_removing_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             when {
                 tracks == null -> SkeletonRows(14)
                 error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { version++ })
@@ -212,6 +220,50 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Removals from a list that carry on when its screen is left (the screen's own scope ended them
+ * there): one at a time per list, with how far they got. The library lists go a few items per call,
+ * so the share done can be shown; a playlist goes in one call, as before.
+ */
+object Removals {
+    data class Run(val done: Int, val total: Int, val stepped: Boolean, val failed: Int = 0, val error: String? = null, val finished: Boolean = false)
+
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+    private val watchers = java.util.concurrent.ConcurrentHashMap<String, Int>()
+    val state = kotlinx.coroutines.flow.MutableStateFlow<Map<String, Run>>(emptyMap())
+
+    fun key(p: MusicProvider, listId: String) = p.id + "\u0000" + listId
+    fun watch(key: String, delta: Int) { watchers.merge(key, delta, Int::plus) }
+    fun clear(key: String) = state.update { it - key }
+    private fun set(key: String, run: Run) = state.update { it + (key to run) }
+
+    fun start(app: android.content.Context, p: MusicProvider, list: Playlist, items: List<Track>) {
+        val key = key(p, list.id)
+        if (items.isEmpty() || state.value[key]?.finished == false) return
+        // At most about fifty calls: one item each for a short list, a few each for a long one.
+        val step = if (MusicProvider.isLibrary(list.id)) maxOf(1, items.size / 50) else items.size
+        set(key, Run(0, items.size, stepped = step < items.size))
+        scope.launch {
+            var done = 0; var failed = 0; var error: String? = null
+            for (chunk in items.chunked(step)) {
+                try { p.removeTracks(app, list.id, chunk) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                    failed += chunk.size; error = e.userMessage(app)
+                }
+                done += chunk.size
+                set(key, Run(done, items.size, step < items.size, failed))
+            }
+            val end = Run(done - failed, items.size, step < items.size, failed, error, finished = true)
+            if ((watchers[key] ?: 0) > 0) { set(key, end); return@launch }
+            // Nobody on the screen: said once, and nothing left to show.
+            clear(key)
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                val text = list.name + ": " + (error?.let { app.getString(R.string.removal_not_done, failed, it) } ?: app.getString(R.string.tracks_removed, end.done))
+                android.widget.Toast.makeText(app, text, android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }

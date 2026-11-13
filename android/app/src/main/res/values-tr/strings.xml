@@ -495,6 +495,9 @@
     <string name="library_remove_confirm">%1$d öğe “%2$s” listesinden (%3$s) kaldırılsın mı?</string>
     <string name="library_remove_n">Kaldır (%d)</string>
     <string name="library_ytm_artists_hint">YouTube Music\'te bir sanatçıyı takip etmek, YouTube kanalına abone olmaktır: buradan kaldırmak aboneliği iptal eder.</string>
+    <string name="library_removing">Kaldırılıyor… %1$d / %2$d (%%%3$d)</string>
+    <string name="library_removing_hint">Bu ekrandan çıkabilirsin: işlem devam eder.</string>
+    <string name="removal_not_done">%1$d öğe kaldırılamadı: %2$s</string>
     <string name="tracks_removed">%d kaldırıldı</string>
     <string name="tracks_none">Bu çalma listesinde parça yok.</string>
     <string name="export_menu">Dışa aktar…</string>

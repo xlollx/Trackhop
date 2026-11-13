@@ -489,6 +489,9 @@
     <string name="library_remove_confirm">从 %3$s 的“%2$s”中移除 %1$d 项？</string>
     <string name="library_remove_n">移除 (%d)</string>
     <string name="library_ytm_artists_hint">在 YouTube Music 上关注艺人就是订阅其 YouTube 频道：在这里移除即取消订阅。</string>
+    <string name="library_removing">正在移除… %1$d / %2$d（%3$d%%）</string>
+    <string name="library_removing_hint">可以离开此页面：会继续进行。</string>
+    <string name="removal_not_done">%1$d 项未移除：%2$s</string>
     <string name="tracks_removed">已移除 %d 首</string>
     <string name="tracks_none">此歌单中没有曲目。</string>
     <string name="export_menu">导出…</string>

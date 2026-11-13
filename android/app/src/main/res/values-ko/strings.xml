@@ -489,6 +489,9 @@
     <string name="library_remove_confirm">%1$d개 항목을 “%2$s”(%3$s)에서 제거할까요?</string>
     <string name="library_remove_n">제거 (%d)</string>
     <string name="library_ytm_artists_hint">YouTube Music에서 아티스트를 팔로우하면 해당 YouTube 채널을 구독하게 됩니다. 여기서 제거하면 구독이 취소됩니다.</string>
+    <string name="library_removing">제거 중… %2$d개 중 %1$d개 (%3$d%%)</string>
+    <string name="library_removing_hint">이 화면을 나가도 계속 진행됩니다.</string>
+    <string name="removal_not_done">%1$d개를 제거하지 못했습니다: %2$s</string>
     <string name="tracks_removed">%d곡 삭제됨</string>
     <string name="tracks_none">이 플레이리스트에 곡이 없어요.</string>
     <string name="export_menu">내보내기…</string>

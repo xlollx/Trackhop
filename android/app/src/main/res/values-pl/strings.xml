@@ -507,6 +507,9 @@
     <string name="library_remove_confirm">Usunąć elementy (%1$d) z „%2$s” w %3$s?</string>
     <string name="library_remove_n">Usuń (%d)</string>
     <string name="library_ytm_artists_hint">W YouTube Music obserwowanie wykonawcy to subskrypcja jego kanału YouTube: usunięcie go tutaj anuluje subskrypcję.</string>
+    <string name="library_removing">Usuwanie… %1$d z %2$d (%3$d%%)</string>
+    <string name="library_removing_hint">Możesz opuścić ten ekran: usuwanie trwa dalej.</string>
+    <string name="removal_not_done">Nieusunięte: %1$d. %2$s</string>
     <string name="tracks_removed">Usunięto: %d</string>
     <string name="tracks_none">Brak utworów w tej playliście.</string>
     <string name="export_menu">Eksportuj…</string>
