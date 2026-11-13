@@ -1938,6 +1938,9 @@
     <string name="settings_card_accent">Renkli eşitleme kartları</string>
     <string name="settings_route_glow">Renksiz kartlarda rota renkleri</string>
     <string name="settings_route_glow_summary">Kendi rengi olmayan bir eşitleme, iki hizmetinin renkleriyle parlar</string>
+    <string name="job_route_glow">Rota renkleri</string>
+    <string name="route_glow_on">Açık</string>
+    <string name="route_glow_off">Kapalı</string>
     <string name="accent_classic">Klasik şerit</string>
     <string name="accent_fade">Solan şerit</string>
     <string name="accent_outline">İnce çerçeve</string>

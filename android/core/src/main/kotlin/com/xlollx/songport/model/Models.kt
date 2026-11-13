@@ -145,6 +145,8 @@ data class SyncJob(
     val color: String? = null,
     /** How the card wears [color] (a CardAccent key in the app); null = the style chosen in Settings. */
     val accentStyle: String? = null,
+    /** The glow of the route's two brand colours on the card: null = as in Settings (cards with no colour), true/false = this card's own choice. */
+    val routeGlow: Boolean? = null,
     /**
      * The "↔" half of a two-way pair, made by the editor from the sync [linkedJobId] names: it is
      * edited through that sync, and keeps its own name, ignore list and reports.

@@ -2012,6 +2012,9 @@
     <string name="settings_card_accent">Цветные карточки синхронизаций</string>
     <string name="settings_route_glow">Цвета маршрута на карточках без цвета</string>
     <string name="settings_route_glow_summary">Синхронизация без своего цвета подсвечивается цветами двух своих сервисов</string>
+    <string name="job_route_glow">Цвета маршрута</string>
+    <string name="route_glow_on">Вкл.</string>
+    <string name="route_glow_off">Выкл.</string>
     <string name="accent_classic">Классическая полоса</string>
     <string name="accent_fade">Затухающая полоса</string>
     <string name="accent_outline">Тонкая рамка</string>

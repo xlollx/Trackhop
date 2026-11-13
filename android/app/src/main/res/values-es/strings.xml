@@ -1948,6 +1948,9 @@
     <string name="settings_card_accent">Tarjetas de sync con color</string>
     <string name="settings_route_glow">Colores de la ruta en tarjetas sin color</string>
     <string name="settings_route_glow_summary">Una sincronización sin color propio brilla con los colores de sus dos servicios</string>
+    <string name="job_route_glow">Colores de la ruta</string>
+    <string name="route_glow_on">Sí</string>
+    <string name="route_glow_off">No</string>
     <string name="accent_classic">Franja clásica</string>
     <string name="accent_fade">Franja que se difumina</string>
     <string name="accent_outline">Contorno fino</string>

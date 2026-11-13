@@ -1903,6 +1903,9 @@
     <string name="settings_card_accent">색상 동기화 카드</string>
     <string name="settings_route_glow">색 없는 카드에 서비스 색</string>
     <string name="settings_route_glow_summary">자체 색이 없는 동기화는 두 서비스의 색으로 은은하게 빛납니다</string>
+    <string name="job_route_glow">서비스 색</string>
+    <string name="route_glow_on">켜기</string>
+    <string name="route_glow_off">끄기</string>
     <string name="accent_classic">클래식 띠</string>
     <string name="accent_fade">흐려지는 띠</string>
     <string name="accent_outline">얇은 테두리</string>

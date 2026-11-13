@@ -1948,6 +1948,9 @@
     <string name="settings_card_accent">Cartes de sync en couleur</string>
     <string name="settings_route_glow">Couleurs du trajet sur les cartes sans couleur</string>
     <string name="settings_route_glow_summary">Une synchro sans couleur à elle prend les couleurs de ses deux services</string>
+    <string name="job_route_glow">Couleurs du trajet</string>
+    <string name="route_glow_on">Oui</string>
+    <string name="route_glow_off">Non</string>
     <string name="accent_classic">Bande classique</string>
     <string name="accent_fade">Bande en fondu</string>
     <string name="accent_outline">Contour fin</string>

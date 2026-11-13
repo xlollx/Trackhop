@@ -1904,6 +1904,9 @@
     <string name="settings_card_accent">色付きの同期カード</string>
     <string name="settings_route_glow">色なしカードにサービスの色</string>
     <string name="settings_route_glow_summary">独自の色がない同期は、2つのサービスの色でほのかに光ります</string>
+    <string name="job_route_glow">サービスの色</string>
+    <string name="route_glow_on">オン</string>
+    <string name="route_glow_off">オフ</string>
     <string name="accent_classic">クラシックな帯</string>
     <string name="accent_fade">フェードする帯</string>
     <string name="accent_outline">細い枠線</string>

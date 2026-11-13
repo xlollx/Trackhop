@@ -1940,6 +1940,9 @@
     <string name="settings_card_accent">Farbige Sync-Karten</string>
     <string name="settings_route_glow">Dienstfarben auf einfachen Karten</string>
     <string name="settings_route_glow_summary">Ein Sync ohne eigene Farbe leuchtet in den Farben seiner beiden Dienste</string>
+    <string name="job_route_glow">Dienstfarben</string>
+    <string name="route_glow_on">An</string>
+    <string name="route_glow_off">Aus</string>
     <string name="accent_classic">Klassischer Streifen</string>
     <string name="accent_fade">Auslaufender Streifen</string>
     <string name="accent_outline">Dünner Rahmen</string>

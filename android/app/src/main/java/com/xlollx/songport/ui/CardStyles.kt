@@ -248,8 +248,11 @@ fun RunHistory(history: List<SyncReport>, style: RunHistoryStyle, ink: Color, la
 @Composable
 fun JobStyleDialog(
     name: String, pick: String?, accentStyle: String?, settingsAccent: String, labels: List<com.xlollx.songport.model.Label>,
-    onDismiss: () -> Unit, onSave: (String?, String?, String, String?) -> Unit,
+    onDismiss: () -> Unit,
+    routeGlow: Boolean? = null, settingsGlow: Boolean = true, sourceBrand: Long? = null, targetBrand: Long? = null,
+    onSave: (String?, String?, String, String?, Boolean?) -> Unit,
 ) {
+    var rg by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(routeGlow) }
     var p by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(pick) }
     var st by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(accentStyle) }
     fun nameOf(x: String?) = labels.firstOrNull { it.id == x }?.name.orEmpty()
@@ -267,7 +270,8 @@ fun JobStyleDialog(
         ) {
             androidx.compose.foundation.layout.Column(
                 CardAccent.resolve(st, settingsAccent).let { a ->
-                    Modifier.cardAccent(a, jobAccent(c)).padding(start = a.startPadding(20.dp, jobAccent(c)), end = 20.dp, top = 16.dp, bottom = 16.dp)
+                    Modifier.then(if (rg ?: (c == null && settingsGlow)) Modifier.routeGlow(sourceBrand, targetBrand, LocalAppDark.current) else Modifier)
+                        .cardAccent(a, jobAccent(c)).padding(start = a.startPadding(20.dp, jobAccent(c)), end = 20.dp, top = 16.dp, bottom = 16.dp)
                 },
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -306,9 +310,16 @@ fun JobStyleDialog(
                 }
             }
         }
+        // The route's glow, for this card: as in Settings, or on or off whatever Settings say.
+        Text(androidx.compose.ui.res.stringResource(R.string.job_route_glow), style = MaterialTheme.typography.labelLarge)
+        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.FilterChip(rg == null, onClick = { rg = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
+            androidx.compose.material3.FilterChip(rg == true, onClick = { rg = true }, label = { Text(androidx.compose.ui.res.stringResource(R.string.route_glow_on)) })
+            androidx.compose.material3.FilterChip(rg == false, onClick = { rg = false }, label = { Text(androidx.compose.ui.res.stringResource(R.string.route_glow_off)) })
+        }
     }
     val title: @Composable () -> Unit = { Text(androidx.compose.ui.res.stringResource(R.string.job_style)) }
-    val save = { onSave(p, st, labelName, recolor.takeIf { saved != null }); onDismiss() }
+    val save = { onSave(p, st, labelName, recolor.takeIf { saved != null }, rg); onDismiss() }
     val buttons: @Composable () -> Unit = {
         androidx.compose.material3.TextButton(onClick = onDismiss) { Text(androidx.compose.ui.res.stringResource(R.string.cancel)) }
         androidx.compose.material3.TextButton(onClick = save) { Text(androidx.compose.ui.res.stringResource(R.string.save)) }

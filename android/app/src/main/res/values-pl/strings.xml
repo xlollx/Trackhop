@@ -2014,6 +2014,9 @@
     <string name="settings_card_accent">Kolorowe karty synchronizacji</string>
     <string name="settings_route_glow">Kolory trasy na kartach bez koloru</string>
     <string name="settings_route_glow_summary">Synchronizacja bez własnego koloru świeci kolorami swoich dwóch usług</string>
+    <string name="job_route_glow">Kolory trasy</string>
+    <string name="route_glow_on">Wł.</string>
+    <string name="route_glow_off">Wył.</string>
     <string name="accent_classic">Klasyczny pasek</string>
     <string name="accent_fade">Zanikający pasek</string>
     <string name="accent_outline">Cienka ramka</string>
