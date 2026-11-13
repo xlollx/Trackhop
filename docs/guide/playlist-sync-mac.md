@@ -7,7 +7,8 @@ description: Keep playlists in sync between Spotify, YouTube, TIDAL, Navidrome, 
 
 **Trackhop Desktop** keeps your playlists identical across music services from a Mac, Apple silicon
 or Intel, macOS 11 or later: Spotify, YouTube and TIDAL (with your own free developer key), your
-Navidrome, Jellyfin or Plex server, Last.fm and ListenBrainz, and playlist files. It lives in the
+Navidrome, Jellyfin, Emby or Plex server, Last.fm and ListenBrainz, playlist files and,
+unofficially, YouTube Music, Spotify and Deezer signed in with your browser's cookies. It lives in the
 menu bar and runs your syncs on a schedule while the Mac is on. Free and open source, no account.
 
 ![Trackhop: the syncs, with their last result and the next run](../store/desktop/1-syncs.jpg)

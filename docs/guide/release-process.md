@@ -2,11 +2,13 @@
 
 1. **Version**: bump `versionCode` and `versionName` in `android/app/build.gradle`. Every version that
    users should get is a release: Obtainium and F-Droid follow the tags.
-2. **Changelog**: `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` in all seven
-   locales (en-US, it-IT, fr-FR, de-DE, es-ES, zh-CN, ja-JP), under 500 characters.
+2. **Changelog**: `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` in all twelve
+   locales (en-US, it-IT, fr-FR, de-DE, es-ES, pt-BR, pl-PL, ru-RU, tr-TR, zh-CN, ja-JP, ko-KR), under 500 characters.
 3. **Push to `main`**. CI (`.github/workflows/build.yml`) runs the unit tests, builds the debug APK, the signed release APK (`full` flavour) and the AAB (`play` flavour),
    and, when the `versionName` has no tag yet, creates the tag `vX.Y.Z` and the GitHub Release with
    `Trackhop-vX.Y.Z.apk` and `Trackhop-vX.Y.Z-play.aab` (up to 1.5.2 the APK was `Songport-vX.Y.Z.apk`).
+   The F-Droid and AppGallery APKs (`-fdroid.apk`, `-appgallery.apk`) go to the prerelease
+   `builds-vX.Y.Z`, so Obtainium never has to choose.
 4. **Obtainium** users get it at once. **F-Droid** finds the new tag (`UpdateCheckMode: Tags`),
    builds it from source a few days later and, because the build is reproducible, publishes the
    GitHub APK with its own signature.
@@ -19,14 +21,15 @@ people; the app's version does not move for it, nor theirs for an app-only chang
 
 - On every push to `main` that touches the server, `server.yml` publishes the Docker image as
   `latest` and as `server/VERSION`.
-- When `server/VERSION` has no release yet, `desktop.yml` builds Desktop for Windows and Linux and
+- When `server/VERSION` has no release yet, `desktop.yml` builds Desktop for Windows, macOS and Linux and
   creates the release `server-vX.Y.Z`: a prerelease that is never "latest", so Obtainium and the
   links to `releases/latest` keep finding the app.
 - The page's footer shows both: the server's version and the app version whose engine it runs.
 - After a new release, `stores.yml` opens the winget pull request and pushes the Chocolatey package,
   and the Microsoft Store gets the `.msix` by hand in Partner Center (`msstore.yml` would do it, but
   needs secrets a personal account does not have); Docker Hub
-  follows `server.yml`; Scoop's bucket updates itself; Flathub needs a step by hand. All of it is in
+  follows `server.yml`; `snap.yml` follows a Desktop release to the Snap Store; Scoop's bucket
+  updates itself; Flathub needs a step by hand. All of it is in
   [packaging/README.md](https://github.com/xlollx/Trackhop/blob/main/packaging/README.md).
 - The direct download links (README, the site's "Also on a computer" section, the Desktop guide)
   name the version: point them at the new `server-v…` files once its release is out.
@@ -59,7 +62,7 @@ text; `scripts/store_graphics.sh preview DIR` also writes icon previews for revi
 
 ## Checks before pushing
 
-- Strings: the same names, in the same order, in all seven `values*/strings.xml`; apostrophes escaped
+- Strings: the same names, in the same order, in all twelve `values*/strings.xml`; apostrophes escaped
   (`\'`).
 
 [All guide pages](./)
