@@ -36,7 +36,7 @@ included where the service has them) and tap **Check**.
 | TIDAL | Yes | |
 | Apple Music | Library playlists only | With a developer token, Apple's API cannot remove tracks: the playable version is added, the dead entry stays. The Apple ID sign-in replaces it. |
 | YouTube | Private and deleted videos | |
-| YouTube Music | Greyed-out entries | GitHub/F-Droid build |
+| YouTube Music | Greyed-out entries | GitHub/F-Droid build, or the store builds with the Trackhop Bridge plugin |
 | Amazon Music, Navidrome/Subsonic, Jellyfin, Plex | No | The tool says so instead of guessing |
 
 ## The weekly check

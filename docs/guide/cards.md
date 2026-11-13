@@ -23,7 +23,7 @@ Discover holds a few more, all computed on the phone:
 Two playlists in, a score out. Each side can be:
 
 - a **public link** pasted in (Spotify, Apple Music, YouTube/YouTube Music, Deezer, TIDAL, and
-  SoundCloud in the GitHub/F-Droid build; short share links too), or
+  SoundCloud in the GitHub/F-Droid build or with the Trackhop Bridge plugin; short share links too), or
 - one of **your own playlists** on a connected service, liked songs included.
 
 Sharing **two playlist links at once** to Trackhop (select both messages in a chat, or paste two

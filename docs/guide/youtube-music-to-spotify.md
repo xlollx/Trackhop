@@ -20,7 +20,7 @@ runs on your phone or your computer.
 
 1. **Connect YouTube Music** (*Accounts → Add connector → YouTube Music*): sign in on Google's page.
 2. **Connect Spotify**.
-3. **One playlist:** *Syncs → New sync*, source *YouTube Music* and the playlist (or *Liked music*),
+3. **One playlist:** *Syncs → New sync*, source *YouTube Music* and the playlist (or *Liked songs*),
    target *Spotify* and *create a new playlist*. **Many at once:** *Tools → Transfer many
    playlists*.
 4. **Preview**, run, and check the **review** for anything Spotify does not have.

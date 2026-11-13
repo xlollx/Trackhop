@@ -19,7 +19,7 @@ Free and open source, no Trackhop account, no limit on the number of tracks.
 
 1. **Connect Deezer** (*Accounts → Add connector → Deezer*) and sign in on Deezer's page.
 2. **Connect Spotify**.
-3. *Syncs → New sync*: source *Deezer* and a playlist (or *Favourite tracks*), target *Spotify* and
+3. *Syncs → New sync*: source *Deezer* and a playlist (or *Liked songs*, your favourite tracks), target *Spotify* and
    *create a new playlist*. For many playlists at once: *Tools → Transfer many playlists*.
 4. **Preview**, run, and check the **review** for the tracks that need a choice.
 

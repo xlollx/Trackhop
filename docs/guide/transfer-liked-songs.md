@@ -12,7 +12,7 @@ another service, with no track limit, and can **keep them in sync**.
 ## Step by step
 
 1. Connect both services (*Accounts → Add connector*).
-2. *Syncs → New sync*: as the source pick **Liked songs** (or *Favourites*, *Saved albums*); as the
+2. *Syncs → New sync*: as the source pick **Liked songs** (or *Saved albums*, *Followed artists*); as the
    target pick the other service's **Liked songs**, or a new playlist if you prefer.
 3. **Preview**, run, and check the **review**.
 

@@ -12,7 +12,7 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
 ## What a sync does
 
 - **Source and target**: any of Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer,
-  Navidrome/Subsonic, Jellyfin, Plex; liked songs and saved albums too.
+  Navidrome/Subsonic, Jellyfin, Emby, Plex; liked songs and saved albums too.
 - **Schedule**: every few hours, daily, weekly on the day you pick, or on chosen days. On the phone, on [Trackhop Desktop](desktop)
   (while the computer is on) or on a [Docker server](docker) that is always on.
 - **Safe by default**: a preview before the first run; big removals wait for your confirmation; a
@@ -26,8 +26,9 @@ schedule: new songs are added, and with **mirror removals** deleted ones go too.
   Weekly into a playlist of your own on the same Spotify), and the app suggests ready-made ideas
   when you have only one service. See [With one service](getting-started#with-one-service).
 - **Order**: optionally keeps the source's order on the target (not for an archive).
-- **Two-way?** Make two syncs, one in each direction, without mirror removals: each side then adds
-  what the other gained.
+- **Two-way?** In the app, the *Two-way* option adds a second sync in the opposite direction (the
+  ↔ card): each side then adds what the other gained, and nothing is removed. On Desktop and Docker,
+  make two syncs, one in each direction, without mirror removals.
 
 ## Popular pairs
 
