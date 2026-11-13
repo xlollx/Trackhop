@@ -130,6 +130,11 @@ object OfflineQueue {
 class NetworkWaitWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
         val ctx = applicationContext
+        // A connection that has only just come back often cannot resolve names for a few seconds
+        // (a run started at once stopped again, "Unable to resolve host"): it settles first, and if it
+        // went again meanwhile, the syncs keep waiting.
+        kotlinx.coroutines.delay(SETTLE_MS)
+        if (com.xlollx.songport.net.Connectivity.isOffline) return Result.retry()
         val ids = OfflineQueue.drain(ctx, except = inputData.getString(KEY_ID))
         if (ids.isEmpty()) return Result.success()
         Diagnostics.log(ctx, "sync", "back online: starting ${ids.size} waiting")
@@ -149,5 +154,6 @@ class NetworkWaitWorker(ctx: Context, params: WorkerParameters) : CoroutineWorke
 
     companion object {
         const val KEY_ID = "id"
+        private const val SETTLE_MS = 5_000L
     }
 }
