@@ -92,6 +92,7 @@ internal object ApiDocs {
         Call("POST", "/backup", "Backups", "Back up every playlist now (a background task)."),
         Call("GET", "/config", "Backups", "The whole set-up as a .trackhop file; history=true with the runs.", listOf("history")),
         Call("POST", "/config", "Backups", "Bring a .trackhop file back in (the body); dryRun=true only says what it holds. Scheduled syncs written by another device arrive turned off (\"paused\" counts them), so they do not run on both.", listOf("dryRun")),
+        Call("POST", "/config/encrypted", "Backups", "The whole set-up with its sign-ins (tokens, client secrets, pasted web cookies) as an encrypted .trackhop file, locked with the password (at least 10 characters; lost, nobody can open the file). Brought back in with POST /config and the password in the X-Backup-Password header; replacesDevice=true keeps its scheduled syncs on, replaceSignIns=true replaces the sign-ins already here.", body = "{\"password\", \"history\"?}"),
         Call("GET", "/settings", "Settings", "The settings the page offers."),
         Call("PATCH", "/settings", "Settings", "Change settings: theme, backupSchedule, backupFolder, updatesCheck.", body = "{\"theme\"?, \"backupSchedule\"?, \"backupFolder\"?, \"updatesCheck\"?}"),
         Call("GET", "/webhook", "Notifications", "The webhook: address, whether a secret is set, its events."),

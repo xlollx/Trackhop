@@ -127,6 +127,8 @@ class Web(
     )
 
     private fun handle(ex: HttpExchange) {
+        // An encrypted set-up waiting for its password or its confirmation does not outlive its minutes (ConfigWeb.kt).
+        Pending.expire()
         val path = ex.requestURI.path.trim('/').split('/').filter { it.isNotEmpty() }.map { decode(it) }
         // Health checks (Docker, a reverse proxy) need no password.
         localHosts?.let { hosts ->

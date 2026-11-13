@@ -61,6 +61,22 @@ open class YtmSessionStore(val slot: String) {
     /** The cookie jar this account's pages use: the WebView's own for the primary, the slot's profile otherwise. */
     fun jar() = Slots.cookies(Session.PROFILE, slot)
 
+    /** Its storage was opened in this process already (a file written a moment ago may not be on disk yet). */
+    internal val opened: Boolean get() = cached != null
+
+    /** Every value kept for this account, for Trackhop's encrypted backup ([SessionTransfer]). */
+    internal fun stored(ctx: Context): Map<String, *> = prefs(ctx).all
+
+    /**
+     * Puts back what [stored] gave on another device, in place of this account's session: the old
+     * one is forgotten first (here and in the WebView), the cookies go back into the jar when the
+     * player next starts ([YtmWeb.seedCookies]).
+     */
+    internal fun restore(ctx: Context, values: Map<String, Any?>) {
+        clear(ctx)
+        SessionTransfer.write(prefs(ctx), values)
+    }
+
     /** Forgets the session here and in the WebView, so the next login can pick another account. */
     fun clear(ctx: Context) {
         YtmWeb.reset(slot)

@@ -30,7 +30,11 @@ import java.time.format.DateTimeFormatter
  * runs and their review, services and playlists, files and their name patterns, the set-up, the
  * notifications and the webhook, the settings, the numbers and the background tasks.
  */
-internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson: Boolean) {
+internal class CliCommands(
+    val api: Cli.Client, val out: PrintStream, val asJson: Boolean,
+    /** The encrypted backup's password, asked when needed ([Cli.backupPassword]); none for the MCP tools. */
+    private val password: (prompt: String, twice: Boolean) -> CharArray? = { _, _ -> null },
+) {
     fun run(command: String, p: List<String>, o: Cli.Opts = Cli.Opts()): Int = when (command) {
         "status" -> status()
         "syncs", "list", "ls" -> syncs(o)
@@ -65,7 +69,12 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         "import" -> import(one(p, "import <file>"))
         "patterns" -> patterns(p, o)
         "backup" -> backup(o.has("wait"))
-        "config" -> if (p.firstOrNull() == "import") configImport(p.drop(1).joinToString(" ").ifEmpty { throw Cli.Failure(2, "usage: trackhop config import <file> [--dry-run]") }, o.has("dry-run")) else config(p.firstOrNull())
+        "config" -> when {
+            p.firstOrNull() == "import" -> configImport(p.drop(1).joinToString(" ").ifEmpty { throw Cli.Failure(2, "usage: trackhop config import <file> [--dry-run]") }, o.has("dry-run"), o)
+            // 1.18 (Features.v2): the set-up with its sign-ins, encrypted with a password.
+            o.has("encrypted") -> if (Features.v2) configEncrypted(p.firstOrNull()) else throw Cli.Failure(2, "unknown option --encrypted")
+            else -> config(p.firstOrNull())
+        }
         "notify" -> notify(p, o)
         "webhook" -> webhook(p, o)
         "settings" -> settings(p)
@@ -892,13 +901,60 @@ internal class CliCommands(val api: Cli.Client, val out: PrintStream, val asJson
         }
     }
 
-    private fun configImport(path: String, dryRun: Boolean): Int {
+    /** `config --encrypted [<file>]`: the set-up with its sign-ins, sealed by the server with a password asked twice. */
+    private fun configEncrypted(file: String?): Int {
+        val pw = password("Password for the encrypted file (at least ${com.xlollx.songport.data.EncryptedBackup.MIN_PASSWORD} characters)", true)
+            ?: throw Cli.Failure(2, "the encrypted file needs a password: set TRACKHOP_BACKUP_PASSWORD, or run this in a terminal")
+        val text = try {
+            if (pw.size < com.xlollx.songport.data.EncryptedBackup.MIN_PASSWORD) throw Cli.Failure(2, "the password needs at least ${com.xlollx.songport.data.EncryptedBackup.MIN_PASSWORD} characters")
+            api.raw("POST", "config/encrypted", buildJsonObject { put("password", String(pw)) }.toString().toByteArray())
+        } finally {
+            pw.fill('\u0000')
+        }
+        if (file == null) out.println(text) else {
+            File(file).writeText(text)
+            out.println("Saved the encrypted set-up to $file. Keep the password safe: without it nobody can open the file.")
+        }
+        return 0
+    }
+
+    private fun configImport(path: String, dryRun: Boolean, o: Cli.Opts = Cli.Opts()): Int {
         val f = File(path)
         if (!f.isFile) throw Cli.Failure(2, "no file at $path")
-        val r = Json.parseToJsonElement(api.raw("POST", "config" + if (dryRun) "?dryRun=true" else "", f.readBytes())).jsonObject
+        val bytes = f.readBytes()
+        if (com.xlollx.songport.data.EncryptedBackup.isEncrypted(String(bytes, Charsets.UTF_8))) return configImportEncrypted(f, bytes, dryRun, o)
+        val r = Json.parseToJsonElement(api.raw("POST", "config" + if (dryRun) "?dryRun=true" else "", bytes)).jsonObject
         if (asJson) return print(r).let { 0 }
         val what = "${r.n("syncs")} syncs, ${r.n("matches")} matches chosen by hand, ${r.n("files")} File playlists, ${r.n("channels")} notification channels"
         out.println(if (r.b("imported")) "Imported $what. Connect the services again: the syncs carry on from there." else "${f.name} holds $what${r.s("writtenBy").takeIf { it.isNotEmpty() }?.let { ", from $it" } ?: ""}. Nothing changed (--dry-run).")
+        return 0
+    }
+
+    /**
+     * An encrypted file: its password (asked, or TRACKHOP_BACKUP_PASSWORD) goes in a header;
+     * --replaces-device keeps its scheduled syncs on, --replace-sign-ins replaces the sign-ins here.
+     * A Trackhop without the feature answers that the file is a newer feature's.
+     */
+    private fun configImportEncrypted(f: File, bytes: ByteArray, dryRun: Boolean, o: Cli.Opts): Int {
+        val pw = password("Password of ${f.name}", false) ?: throw Cli.Failure(2, "${f.name} is encrypted: set TRACKHOP_BACKUP_PASSWORD, or run this in a terminal")
+        val query = listOfNotNull("dryRun=true".takeIf { dryRun }, "replacesDevice=true".takeIf { o.has("replaces-device") }, "replaceSignIns=true".takeIf { o.has("replace-sign-ins") }).joinToString("&")
+        val r = try {
+            Json.parseToJsonElement(api.raw("POST", "config" + if (query.isEmpty()) "" else "?$query", bytes, mapOf("X-Backup-Password" to String(pw)))).jsonObject
+        } finally {
+            pw.fill('\u0000')
+        }
+        if (asJson) return print(r).let { 0 }
+        val what = "${r.n("syncs")} syncs, ${r.n("matches")} matches chosen by hand, ${r.n("files")} File playlists, ${r.n("channels")} notification channels, ${r.n("signIns")} sign-ins, ${r.n("webSignIns")} web sign-ins"
+        val conflicts = r["conflicts"]?.jsonArray?.mapNotNull { it.str() }.orEmpty()
+        if (!r.b("imported")) {
+            out.println("${f.name} holds $what${r.s("writtenBy").takeIf { it.isNotEmpty() }?.let { ", from $it" } ?: ""}. Nothing changed (--dry-run).")
+            if (conflicts.isNotEmpty()) out.println("Sign-ins already here, kept unless --replace-sign-ins: ${conflicts.joinToString(", ")}")
+            return 0
+        }
+        out.println("Imported $what. Sign-ins restored: ${r.n("restored")}${if (r.n("kept") > 0) ", ${r.n("kept")} of this Trackhop's own kept (--replace-sign-ins replaces them)" else ""}.")
+        if (r.b("webSkipped")) out.println("The web sign-ins come from a phone's Trackhop Bridge (or are not allowed here) and were not used: paste those services' cookies again.")
+        if (r.n("paused") > 0) out.println("${r.n("paused")} scheduled syncs from the other device were turned off here (--replaces-device keeps them on).")
+        if (o.has("replaces-device")) out.println("Now turn off or uninstall Trackhop on the other device, or both will run the same syncs.")
         return 0
     }
 

@@ -70,6 +70,22 @@ class WebSession private constructor(private val name: String, private val domai
     /** The cookie jar this account's pages use: the WebView's own for the primary, the slot's profile otherwise. */
     fun jar(): CookieManager = Slots.cookies(name, slot)
 
+    /** Its storage was opened in this process already (a file written a moment ago may not be on disk yet). */
+    internal val opened: Boolean get() = cached != null
+
+    /** Every value kept for this account, for Trackhop's encrypted backup ([SessionTransfer]). */
+    internal fun stored(ctx: Context): Map<String, *> = prefs(ctx).all
+
+    /**
+     * Puts back what [stored] gave on another device, in place of this account's session: the old
+     * one is forgotten first (here and its cookies in the WebView), then the values are kept as the
+     * sign-in keeps them; the clients read the cookies from them while the jar has none.
+     */
+    internal fun restore(ctx: Context, values: Map<String, Any?>) {
+        clear(ctx)
+        SessionTransfer.write(prefs(ctx), values)
+    }
+
     /** Forgets the session here and the service's cookies in its WebView jar (other services keep theirs). */
     /** Forgets what was kept (the session's values), leaving the cookie jar as it is. */
     fun forgetStored(ctx: Context) { prefs(ctx).edit().clear().apply() }

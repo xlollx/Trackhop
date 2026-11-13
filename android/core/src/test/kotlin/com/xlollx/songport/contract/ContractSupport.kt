@@ -120,6 +120,7 @@ class ContractEnv : Env {
         override fun get(providerId: String) = vault[providerId]
         override fun set(providerId: String, tokens: Tokens) { vault[providerId] = tokens }
         override fun clear(providerId: String) { vault.remove(providerId) }
+        override fun ids(): Set<String> = vault.keys.toSet()
     }
     override val redirectUri = "songport://callback"
     val logs: MutableList<String> = Collections.synchronizedList(ArrayList())

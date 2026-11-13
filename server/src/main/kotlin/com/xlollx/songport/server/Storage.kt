@@ -43,6 +43,8 @@ class JsonTokenVault(private val file: File) : TokenVault {
         synchronized(lock) { save(all() - providerId) }
     }
 
+    override fun ids(): Set<String> = synchronized(lock) { all().keys.toSet() }
+
     private fun save(next: Map<String, Tokens>) {
         writePrivate(file, json.encodeToString(serializer, next))
         cache = next
