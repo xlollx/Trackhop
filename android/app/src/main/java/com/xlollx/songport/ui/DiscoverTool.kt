@@ -257,8 +257,7 @@ internal fun ToolLoading(text: String, modifier: Modifier = Modifier, progress: 
                 Text(text, style = MaterialTheme.typography.bodyMedium)
             }
             val track = id.container()
-            if (progress != null) LinearProgressIndicator(progress = { progress.coerceIn(0f, 1f) }, color = id.tint(), trackColor = track, modifier = Modifier.fillMaxWidth(), drawStopIndicator = {})
-            else LinearProgressIndicator(color = id.tint(), trackColor = track, modifier = Modifier.fillMaxWidth())
+            WorkBar(progress?.let { p -> { p.coerceIn(0f, 1f) } }, Modifier.fillMaxWidth(), color = id.tint(), trackColor = track)
         }
     }
 }

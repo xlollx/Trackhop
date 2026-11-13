@@ -1109,8 +1109,7 @@ private fun JobCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
                     trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 )
-                else if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth())
-                else LinearProgressIndicator(Modifier.fillMaxWidth())
+                else WorkBar(pct?.let { p -> { p / 100f } }, Modifier.fillMaxWidth())
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -1390,8 +1389,7 @@ private fun JobTile(
                     )
                     if (isRunning) {
                         val pct = progress?.percent
-                        if (pct != null) LinearProgressIndicator(progress = { pct / 100f }, modifier = Modifier.fillMaxWidth().padding(end = 6.dp))
-                        else LinearProgressIndicator(Modifier.fillMaxWidth().padding(end = 6.dp))
+                        WorkBar(pct?.let { p -> { p / 100f } }, Modifier.fillMaxWidth().padding(end = 6.dp))
                     }
                 }
                 if (job.favorite) Icon(Icons.Filled.Star, stringResource(R.string.favorite_badge_desc), Modifier.size(16.dp), tint = ink ?: MaterialTheme.colorScheme.tertiary)

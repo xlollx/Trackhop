@@ -167,9 +167,9 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
             if (run != null && !run.finished) Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                 // One step per item (or a few) on the library lists; a playlist goes in one call: no share to show.
                 if (run.stepped) {
-                    LinearProgressIndicator(progress = { run.done.toFloat() / run.total.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                    WorkBar({ run.done.toFloat() / run.total.coerceAtLeast(1) }, Modifier.fillMaxWidth())
                     Text(stringResource(R.string.library_removing, run.done, run.total, run.done * 100 / run.total.coerceAtLeast(1)), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp))
-                } else LinearProgressIndicator(Modifier.fillMaxWidth())
+                } else WorkBar(null, Modifier.fillMaxWidth())
                 Text(stringResource(R.string.library_removing_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             when {

@@ -350,7 +350,7 @@ private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = nu
                     )
                 }
                 if (i == 2 && current == 2) progress?.percent?.let { pc ->
-                    LinearProgressIndicator(progress = { pc / 100f }, modifier = Modifier.fillMaxWidth().padding(start = 36.dp))
+                    WorkBar({ pc / 100f }, Modifier.fillMaxWidth().padding(start = 36.dp))
                 }
             }
             if (waitingFor != null) PageNote(stringResource(R.string.preview_waiting_read, waitingFor.jobName, waitingFor.service), tone = Tone.Accent)
