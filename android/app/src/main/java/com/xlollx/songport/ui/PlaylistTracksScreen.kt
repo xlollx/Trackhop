@@ -110,7 +110,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
         val n = selected.size
         FitDialog(
             onDismissRequest = { confirming = false },
-            title = { Text(pluralStringResource(R.plurals.tracks_remove_n, n, n)) },
+            title = { Text(if (library) stringResource(R.string.library_remove_n, n) else pluralStringResource(R.plurals.tracks_remove_n, n, n)) },
             text = { Text(stringResource(if (library) R.string.library_remove_confirm else R.string.tracks_remove_confirm, n, playlist.name, provider.label(ctx))) },
             confirmButton = {
                 TextButton(onClick = {
