@@ -134,4 +134,21 @@ class YtmChannelsTest {
         assertNull(anonymous.getHeader("X-Goog-PageId"))
         assertFalse(anonymous.body.clone().readUtf8().contains("onBehalfOfUser"))
     }
+
+    /** Unfollowing artists goes one by one: one refused id no longer takes the others with it, and a 400 retries with the Subscribe button's channel. */
+    @Test fun unfollowingArtistsGoesOneByOneAndRetriesWithTheButtonsChannel() {
+        val bad = MockResponse().setResponseCode(400).setBody("""{"error":{"code":400,"message":"Request contains an invalid argument."}}""")
+        synchronized(queue) {
+            queue.add(MockResponse().setBody("{}"))                                                        // UCaaa: done
+            queue.add(bad)                                                                                 // UCbbb: refused...
+            queue.add(MockResponse().setBody("""{"header":{"subscribeButtonRenderer":{"channelId":"UCbbbOfficial"}}}"""))
+            queue.add(MockResponse().setBody("{}"))                                                        // ...done by the button's channel
+            queue.add(bad)                                                                                 // UCccc: refused, the page names no other
+            queue.add(MockResponse().setBody("""{"header":{"subscribeButtonRenderer":{"channelId":"UCccc"}}}"""))
+        }
+        val e = runCatching { client.subscribeArtists(listOf("UCaaa", "UCbbb", "UCccc"), on = false) }.exceptionOrNull()
+        assertTrue(e?.message, e is BridgeException && e.message!!.contains("1 of 3"))
+        val sent = calls.filter { it.path!!.contains("subscription/unsubscribe") }.map { it.json()["channelIds"].toString() }
+        assertEquals(listOf("[\"UCaaa\"]", "[\"UCbbb\"]", "[\"UCbbbOfficial\"]", "[\"UCccc\"]"), sent)
+    }
 }

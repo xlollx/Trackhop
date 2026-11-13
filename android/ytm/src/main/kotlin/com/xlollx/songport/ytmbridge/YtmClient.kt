@@ -593,7 +593,31 @@ class YtmClient(private val host: YtmHost) {
 
     fun subscribeArtists(channelIds: List<String>, on: Boolean) {
         if (channelIds.isEmpty()) return
-        channelIds.chunked(20).forEach { call(if (on) "subscription/subscribe" else "subscription/unsubscribe", mapOf("channelIds" to it)) }
+        if (on) { channelIds.chunked(20).forEach { call("subscription/subscribe", mapOf("channelIds" to it)) }; return }
+        // Unfollowing goes one by one: in a batch, one id refused (400) took all the others with it.
+        val refused = ArrayList<String>()
+        var last: Exception? = null
+        for (id in channelIds) {
+            try { unsubscribe(id) } catch (e: BridgeException) { refused += id; last = e }
+        }
+        if (refused.isEmpty()) return
+        host.log("unsubscribe: ${channelIds.size - refused.size} of ${channelIds.size} done; refused ${refused.joinToString(",")}: ${last?.message?.take(160)}")
+        throw BridgeException("YouTube Music did not unfollow ${refused.size} of ${channelIds.size} artists (${last?.message?.take(80)})")
+    }
+
+    /**
+     * One artist, by the id the library gave; on a 400, by the channel the artist page's Subscribe
+     * button names, which can be another one than the page's own id.
+     */
+    private fun unsubscribe(id: String) {
+        try {
+            call("subscription/unsubscribe", mapOf("channelIds" to listOf(id)))
+        } catch (e: BridgeException) {
+            if (e.message?.startsWith("YouTube Music 400") != true) throw e
+            val other = call("browse", mapOf("browseId" to id)).findFirst("subscribeButtonRenderer")?.get("channelId").str
+            if (other == null || other == id) throw e
+            call("subscription/unsubscribe", mapOf("channelIds" to listOf(other)))
+        }
     }
 
     /** An album row (library grid or search list): browse id MPREb..., title, artists, year, playlist id when present. */

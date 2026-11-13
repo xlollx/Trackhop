@@ -111,6 +111,8 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                             onChanged()
                             version++
                         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                            // Some may have gone before the error: the list is read again.
+                            onChanged(); version++
                             snackbar.showSnackbar(e.userMessage(ctx))
                         }
                         busy = false
