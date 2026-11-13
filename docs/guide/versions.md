@@ -31,8 +31,21 @@ developer token and cannot remove tracks that way (the Apple ID sign-in can), Am
 
 The GitHub, F-Droid and AppGallery builds share the same signing key: one installs
 over the other. Google Play signs with its own key, so Play and the others cannot update each other.
-To move to or from Play, export a backup (Settings › Backups), uninstall, install the other build
-and restore the backup. Syncs, settings and history come back; services have to be signed in again.
+To move to or from Play, take your set-up with you in a backup: the file is the same in every build
+(and in Trackhop Desktop and Docker).
+
+1. **Export a backup** (Settings › Backups) and keep the `.trackhop` file outside the app, in
+   Downloads or a cloud drive: uninstalling deletes the app's own data.
+2. **Uninstall** the build you have.
+3. **Install the other build** and restore the backup from Settings › Backups.
+4. **Sign in to your services again.** Moving to GitHub or F-Droid: the web connectors are built in,
+   so the connector plugin is no longer needed. Moving to Play or AppGallery: install the plugin
+   for the services that need it.
+
+What comes back: syncs, services added, matches you chose by hand, ignored tracks, settings, File
+playlists and, if you included it, the history. What never travels: sign-ins, passwords and client
+secrets. Scheduled syncs arrive turned off ("Scheduled on …"), so they never run on two devices at
+once: turn them back on with one tap.
 
 ## Connector plugins
 
