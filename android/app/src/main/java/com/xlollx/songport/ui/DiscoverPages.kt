@@ -1045,10 +1045,9 @@ private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, T
                         Text(p.displayName, style = MaterialTheme.typography.bodyMedium, color = white, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         when {
                             done -> Text(pluralStringResource(R.plurals.card_tracks, r!!.third, r.third), style = MaterialTheme.typography.bodySmall, color = white.copy(alpha = 0.8f))
-                            current == p.id && r != null && r.second > 0 -> androidx.compose.material3.LinearProgressIndicator(
-                                progress = { r.first.toFloat() / r.second }, color = white, trackColor = white.copy(alpha = 0.25f),
-                                modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
-                            current == p.id -> androidx.compose.material3.LinearProgressIndicator(color = white, trackColor = white.copy(alpha = 0.25f), modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+                            current == p.id && r != null && r.second > 0 -> WorkBar(
+                                { r.first.toFloat() / r.second }, Modifier.fillMaxWidth().padding(top = 6.dp), color = white, trackColor = white.copy(alpha = 0.25f))
+                            current == p.id -> WorkBar(null, Modifier.fillMaxWidth().padding(top = 6.dp), color = white, trackColor = white.copy(alpha = 0.25f))
                             else -> Text(stringResource(R.string.discover_wrapped_waiting), style = MaterialTheme.typography.bodySmall, color = white.copy(alpha = 0.6f))
                         }
                     }
@@ -1058,7 +1057,7 @@ private fun WrappedLoading(services: List<MusicProvider>, reading: Map<String, T
             if (songs > 0) Text(stringResource(R.string.discover_wrapped_found, songs), style = MaterialTheme.typography.labelLarge, color = white)
             if (coverSearch) Column {
                 Text(stringResource(R.string.discover_wrapped_covers), style = MaterialTheme.typography.bodyMedium, color = white)
-                androidx.compose.material3.LinearProgressIndicator(color = white, trackColor = white.copy(alpha = 0.25f), modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+                WorkBar(null, Modifier.fillMaxWidth().padding(top = 6.dp), color = white, trackColor = white.copy(alpha = 0.25f))
             }
         }
     }

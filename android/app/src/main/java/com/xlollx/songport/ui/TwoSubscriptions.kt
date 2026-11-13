@@ -283,8 +283,7 @@ private fun ReadingCard(pair: Pair<MusicProvider, MusicProvider>, reading: Map<S
                             style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis,
                         )
                         if (isCurrent) {
-                            if (r != null && r.second > 0) LinearProgressIndicator(progress = { r.first.toFloat() / r.second }, color = id.tint(), trackColor = id.container(), modifier = Modifier.fillMaxWidth(), drawStopIndicator = {})
-                            else LinearProgressIndicator(color = id.tint(), trackColor = id.container(), modifier = Modifier.fillMaxWidth())
+                            WorkBar(r?.takeIf { it.second > 0 }?.let { p -> { p.first.toFloat() / p.second } }, Modifier.fillMaxWidth(), color = id.tint(), trackColor = id.container())
                         }
                     }
                     if (done) { Spacer(Modifier.width(8.dp)); Icon(Icons.Filled.CheckCircle, null, tint = id.tint()) }
@@ -292,7 +291,7 @@ private fun ReadingCard(pair: Pair<MusicProvider, MusicProvider>, reading: Map<S
             }
             if (current == null) {
                 Text(stringResource(R.string.discover_subs_matching), style = MaterialTheme.typography.bodyMedium)
-                LinearProgressIndicator(color = id.tint(), trackColor = id.container(), modifier = Modifier.fillMaxWidth())
+                WorkBar(null, Modifier.fillMaxWidth(), color = id.tint(), trackColor = id.container())
             }
         }
     }
