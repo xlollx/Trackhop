@@ -207,6 +207,7 @@ class CardDensityFlowTest : FlowTest() {
 
         store.updateSettings { it.copy(cardSize = "large") }
         launch(tabIntent(MainActivity.TAB_SETTINGS))
+        click(s(R.string.settings_card_style))
         click(s(R.string.settings_card_size))
         waitText(s(R.string.card_size_landscape))
         click(s(R.string.card_size_medium))

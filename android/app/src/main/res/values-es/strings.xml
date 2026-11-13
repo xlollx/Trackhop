@@ -1953,6 +1953,8 @@
     <string name="support_kofi_desc">Una vez · tarjeta o PayPal · sin cuenta</string>
     <string name="support_sponsors_desc">Mensual o una vez · con una cuenta de GitHub</string>
     <string name="stat_in_playlist">en la lista</string>
+    <string name="settings_card_style">Estilo de las tarjetas</string>
+    <string name="settings_card_style_summary">Colores, estado, ejecuciones, tamaño y vista</string>
     <string name="settings_card_accent">Tarjetas de sync con color</string>
     <string name="settings_route_glow">Colores de los servicios en las tarjetas</string>
     <string name="route_glow_plain">Tarjetas sin color</string>

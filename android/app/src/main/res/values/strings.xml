@@ -1946,6 +1946,8 @@
     <string name="support_kofi_desc">One-off · card or PayPal · no account needed</string>
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
     <string name="stat_in_playlist">in playlist</string>
+    <string name="settings_card_style">Card style</string>
+    <string name="settings_card_style_summary">Colours, status, past runs, size and view</string>
     <string name="settings_card_accent">Coloured sync cards</string>
     <string name="settings_route_glow">Service colours on cards</string>
     <string name="route_glow_plain">Cards without a colour</string>

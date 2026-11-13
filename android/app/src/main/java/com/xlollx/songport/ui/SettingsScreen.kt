@@ -4,6 +4,7 @@ import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Style
 import com.xlollx.songport.ai.config
 import com.xlollx.songport.providers.*
 import android.app.Activity
@@ -183,6 +184,10 @@ fun SettingsScreen(
                 stringResource(if (dynamicColorAvailable) R.string.settings_dynamic_color_summary else R.string.settings_dynamic_color_unavailable),
                 settings.dynamicColor && dynamicColorAvailable, enabled = dynamicColorAvailable,
             ) { v -> store.updateSettings { it.copy(dynamicColor = v) } }
+            // Everything about how the sync cards look, in one row that opens: the list stays short.
+            var cardStyleOpen by rememberSaveable { mutableStateOf(false) }
+            PrefRow(Icons.Filled.Style, stringResource(R.string.settings_card_style), stringResource(R.string.settings_card_style_summary), trailing = { ExpandMark(cardStyleOpen) }) { cardStyleOpen = !cardStyleOpen }
+            if (cardStyleOpen) {
             // How coloured sync cards wear their colour, and how their last runs show.
             val accentChoices = CardAccent.entries.map { it.key to stringResource(it.label) }
             var accentOpen by remember { mutableStateOf(false) }
@@ -233,6 +238,10 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.Star, stringResource(R.string.settings_favorites_on_top), stringResource(R.string.settings_favorites_on_top_summary), settings.favoritesOnTop) { v ->
                 store.updateSettings { it.copy(favoritesOnTop = v) }
             }
+            PrefSwitch(Icons.Filled.Dashboard, stringResource(R.string.settings_new_look), stringResource(R.string.settings_new_look_summary), settings.newLook, help = { HelpButton(Helps.newLook) }) { v ->
+                store.updateSettings { it.copy(newLook = v) }
+            }
+            }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
             var langOpen by remember { mutableStateOf(false) }
             val currentTag = AppLocale.current(ctx)
@@ -245,9 +254,6 @@ fun SettingsScreen(
             ) { tag ->
                 langOpen = false
                 if (tag != currentTag) (ctx as? Activity)?.let { AppLocale.set(it, tag) }
-            }
-            PrefSwitch(Icons.Filled.Dashboard, stringResource(R.string.settings_new_look), stringResource(R.string.settings_new_look_summary), settings.newLook, help = { HelpButton(Helps.newLook) }) { v ->
-                store.updateSettings { it.copy(newLook = v) }
             }
             // The pictures of Discover's Concerts and Records & merch, which are 1.18's.
             if (v2) PrefSwitch(Icons.Filled.Image, stringResource(R.string.settings_discover_images), stringResource(R.string.settings_discover_images_summary), settings.discoverImages) { v ->

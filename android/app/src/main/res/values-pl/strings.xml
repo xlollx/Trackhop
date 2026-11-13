@@ -2019,6 +2019,8 @@
     <string name="support_kofi_desc">Jednorazowo · karta lub PayPal · bez konta</string>
     <string name="support_sponsors_desc">Co miesiąc lub jednorazowo · z kontem GitHub</string>
     <string name="stat_in_playlist">w playliście</string>
+    <string name="settings_card_style">Styl kart</string>
+    <string name="settings_card_style_summary">Kolory, stan, uruchomienia, rozmiar i widok</string>
     <string name="settings_card_accent">Kolorowe karty synchronizacji</string>
     <string name="settings_route_glow">Kolory usług na kartach</string>
     <string name="route_glow_plain">Karty bez koloru</string>

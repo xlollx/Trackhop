@@ -1945,6 +1945,8 @@
     <string name="support_kofi_desc">Einmalig · Karte oder PayPal · ohne Konto</string>
     <string name="support_sponsors_desc">Monatlich oder einmalig · mit einem GitHub-Konto</string>
     <string name="stat_in_playlist">in der Playlist</string>
+    <string name="settings_card_style">Kartenstil</string>
+    <string name="settings_card_style_summary">Farben, Status, letzte Läufe, Größe und Ansicht</string>
     <string name="settings_card_accent">Farbige Sync-Karten</string>
     <string name="settings_route_glow">Dienstfarben auf Karten</string>
     <string name="route_glow_plain">Karten ohne Farbe</string>

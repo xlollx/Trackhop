@@ -1943,6 +1943,8 @@
     <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
     <string name="stat_in_playlist">listede</string>
+    <string name="settings_card_style">Kart stili</string>
+    <string name="settings_card_style_summary">Renkler, durum, çalıştırmalar, boyut ve görünüm</string>
     <string name="settings_card_accent">Renkli eşitleme kartları</string>
     <string name="settings_route_glow">Kartlarda hizmet renkleri</string>
     <string name="route_glow_plain">Renksiz kartlar</string>

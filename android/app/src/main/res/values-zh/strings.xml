@@ -1909,6 +1909,8 @@
     <string name="support_kofi_desc">一次性 · 银行卡或 PayPal · 无需账号</string>
     <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>
     <string name="stat_in_playlist">歌单内</string>
+    <string name="settings_card_style">卡片样式</string>
+    <string name="settings_card_style_summary">颜色、状态、运行记录、大小和视图</string>
     <string name="settings_card_accent">彩色同步卡片</string>
     <string name="settings_route_glow">卡片显示服务颜色</string>
     <string name="route_glow_plain">无颜色的卡片</string>

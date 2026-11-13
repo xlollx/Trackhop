@@ -1945,6 +1945,8 @@
     <string name="support_kofi_desc">Una tantum · carta o PayPal · senza account</string>
     <string name="support_sponsors_desc">Mensile o una tantum · con un account GitHub</string>
     <string name="stat_in_playlist">in playlist</string>
+    <string name="settings_card_style">Stile delle card</string>
+    <string name="settings_card_style_summary">Colori, stato, esecuzioni, dimensione e vista</string>
     <string name="settings_card_accent">Card delle sync colorate</string>
     <string name="settings_route_glow">Colori dei servizi sulle card</string>
     <string name="route_glow_plain">Card senza colore</string>

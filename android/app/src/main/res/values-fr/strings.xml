@@ -1953,6 +1953,8 @@
     <string name="support_kofi_desc">Ponctuel · carte ou PayPal · sans compte</string>
     <string name="support_sponsors_desc">Mensuel ou ponctuel · avec un compte GitHub</string>
     <string name="stat_in_playlist">dans la playlist</string>
+    <string name="settings_card_style">Style des cartes</string>
+    <string name="settings_card_style_summary">Couleurs, état, exécutions, taille et vue</string>
     <string name="settings_card_accent">Cartes de sync en couleur</string>
     <string name="settings_route_glow">Couleurs des services sur les cartes</string>
     <string name="route_glow_plain">Cartes sans couleur</string>

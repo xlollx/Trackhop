@@ -62,6 +62,7 @@ class SettingsFlowTest : FlowTest() {
         assertFalse(exists(sentence))
 
         click(s(R.string.tab_settings))
+        openCardStyle()
         switchRow(s(R.string.settings_new_look)).assertIsOn().performClick()
         waitFor("new look off") { !store.data.settings.newLook }
         click(s(R.string.tab_syncs))
@@ -69,6 +70,7 @@ class SettingsFlowTest : FlowTest() {
         assertFalse("no big numbers in the old look", exists("+6"))
 
         click(s(R.string.tab_settings))
+        openCardStyle()
         switchRow(s(R.string.settings_new_look)).performClick()
         click(s(R.string.tab_syncs))
         waitText("+6")
@@ -115,5 +117,12 @@ class SettingsFlowTest : FlowTest() {
         waitForNewMain(german)
         waitText(s(R.string.tab_settings), ms = 20_000)
         assertTrue(app.getSystemService(LocaleManager::class.java).applicationLocales.isEmpty)
+    }
+
+    /** The card options sit under "Card style": opened when closed. */
+    private fun openCardStyle() {
+        waitText(s(R.string.settings_card_style))
+        if (!exists(s(R.string.settings_new_look))) click(s(R.string.settings_card_style))
+        waitText(s(R.string.settings_new_look))
     }
 }

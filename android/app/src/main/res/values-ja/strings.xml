@@ -1909,6 +1909,8 @@
     <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
     <string name="stat_in_playlist">プレイリスト内</string>
+    <string name="settings_card_style">カードのスタイル</string>
+    <string name="settings_card_style_summary">色、状態、実行履歴、サイズ、表示</string>
     <string name="settings_card_accent">色付きの同期カード</string>
     <string name="settings_route_glow">カードにサービスの色</string>
     <string name="route_glow_plain">色のないカード</string>
