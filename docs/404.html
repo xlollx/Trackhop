@@ -1,0 +1,48 @@
+---
+permalink: /404.html
+title: Page not found
+description: This page is not on trackhop.org. The home page, the guide and the downloads are a click away.
+sitemap: false
+---
+<!-- GitHub Pages serves this for any address the site does not have, with the 404 status. Its texts
+     follow the visitor's language (the twelve of the site); English without script. -->
+<main class="wrap notfound" style="text-align:center; padding:72px 16px 96px; max-width:640px">
+  <img src="{{ '/store/icon512.png' | relative_url }}" alt="" width="72" height="72" style="border-radius:17px">
+  <p style="font-size:clamp(56px,14vw,96px); font-weight:800; line-height:1; margin:18px 0 6px; letter-spacing:-.03em">404</p>
+  <h1 id="nf-title" style="margin:0 0 10px">This page is not here</h1>
+  <p id="nf-text" style="margin:0 0 28px">The link may be old, or the address mistyped. Nothing is broken: everything else is a click away.</p>
+  <p style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:0 0 22px">
+    <a class="button-dl" id="nf-home" href="{{ '/' | relative_url }}">Home page</a>
+    <a class="button-dl" id="nf-dl" href="{{ '/' | relative_url }}#docker">Downloads</a>
+    <a class="button-dl" id="nf-guide" href="{{ '/guide/' | relative_url }}">Guide</a>
+  </p>
+  <p style="margin:0"><a id="nf-report" href="https://github.com/xlollx/Trackhop/issues/new?title=Broken%20link%20on%20trackhop.org">Tell us about the broken link</a></p>
+</main>
+<script>
+(function () {
+  var t = {
+    it: ["Questa pagina non c'è", "Il link potrebbe essere vecchio, o l'indirizzo scritto male. Non si è rotto niente: tutto il resto è a un clic.", "Home", "Download", "Guida", "Segnalaci il link rotto"],
+    es: ["Esta página no está aquí", "Puede que el enlace sea antiguo o que la dirección tenga un error. No se ha roto nada: todo lo demás está a un clic.", "Inicio", "Descargas", "Guía", "Avísanos del enlace roto"],
+    pt: ["Esta página não está aqui", "O link pode ser antigo, ou o endereço foi digitado errado. Nada quebrou: todo o resto está a um clique.", "Início", "Downloads", "Guia", "Avise-nos do link quebrado"],
+    fr: ["Cette page n'est pas ici", "Le lien est peut-être ancien, ou l'adresse mal saisie. Rien n'est cassé : tout le reste est à un clic.", "Accueil", "Téléchargements", "Guide", "Signalez-nous le lien cassé"],
+    de: ["Diese Seite gibt es hier nicht", "Der Link ist vielleicht alt oder die Adresse vertippt. Nichts ist kaputt: alles andere ist einen Klick entfernt.", "Startseite", "Downloads", "Anleitung", "Defekten Link melden"],
+    pl: ["Tej strony tu nie ma", "Link może być stary albo adres wpisany z błędem. Nic się nie zepsuło: wszystko inne jest o jedno kliknięcie.", "Strona główna", "Pobieranie", "Przewodnik", "Zgłoś niedziałający link"],
+    ru: ["Этой страницы здесь нет", "Возможно, ссылка устарела или адрес набран с ошибкой. Ничего не сломалось: всё остальное в одном клике.", "Главная", "Загрузки", "Руководство", "Сообщить о битой ссылке"],
+    tr: ["Bu sayfa burada değil", "Bağlantı eski olabilir ya da adres yanlış yazılmış olabilir. Hiçbir şey bozulmadı: geri kalan her şey bir tık uzakta.", "Ana sayfa", "İndirmeler", "Rehber", "Bozuk bağlantıyı bildirin"],
+    ja: ["このページは見つかりません", "リンクが古いか、アドレスの入力ミスかもしれません。壊れたものはありません。ほかのページはすぐ開けます。", "ホーム", "ダウンロード", "ガイド", "リンク切れを報告"],
+    ko: ["이 페이지는 없습니다", "링크가 오래되었거나 주소가 잘못 입력되었을 수 있습니다. 고장 난 것은 없습니다. 다른 페이지는 바로 열 수 있습니다.", "홈", "다운로드", "가이드", "깨진 링크 알리기"],
+    zh: ["此页面不存在", "链接可能已过期，或地址输入有误。没有任何东西坏掉：其他内容一点即达。", "首页", "下载", "指南", "报告失效链接"]
+  };
+  var lang = (navigator.language || "en").toLowerCase().slice(0, 2);
+  var s = t[lang];
+  if (!s) return;
+  document.documentElement.lang = lang;
+  var ids = ["nf-title", "nf-text", "nf-home", "nf-dl", "nf-guide", "nf-report"];
+  for (var i = 0; i < ids.length; i++) { var el = document.getElementById(ids[i]); if (el) el.textContent = s[i]; }
+  // Each language's own home page, where the site has one.
+  var home = document.getElementById("nf-home");
+  if (home) home.setAttribute("href", "/" + lang + "/");
+  var dl = document.getElementById("nf-dl");
+  if (dl) dl.setAttribute("href", "/" + lang + "/#docker");
+})();
+</script>
