@@ -1948,6 +1948,10 @@
     <string name="settings_card_style">Kartenstil</string>
     <string name="settings_card_style_summary">Farben, Status, letzte Läufe, Größe und Ansicht</string>
     <string name="settings_card_accent">Farbige Sync-Karten</string>
+    <string name="card_accent_note">Wie ein Sync mit eigener Farbe sie zeigt. Die Farbe wählst du im Menü des Syncs › Stil.</string>
+    <string name="route_glow_note">Ein sanftes Leuchten in den Farben der beiden Dienste in den Ecken der Karte. Jeder Sync kann in seinem Stil anders wählen.</string>
+    <string name="status_place_note">Wo die Karte zeigt, wie der letzte Lauf war.</string>
+    <string name="run_history_note">Wie die Karte die letzten Läufe zeigt: mit Änderungen, nichts Neues oder fehlgeschlagen.</string>
     <string name="settings_route_glow">Dienstfarben auf Karten</string>
     <string name="route_glow_plain">Karten ohne Farbe</string>
     <string name="route_glow_all">Alle Karten</string>

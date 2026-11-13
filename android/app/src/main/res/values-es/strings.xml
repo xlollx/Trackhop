@@ -1956,6 +1956,10 @@
     <string name="settings_card_style">Estilo de las tarjetas</string>
     <string name="settings_card_style_summary">Colores, estado, ejecuciones, tamaño y vista</string>
     <string name="settings_card_accent">Tarjetas de sync con color</string>
+    <string name="card_accent_note">Cómo muestra su color una sincronización que lo tiene. El color se elige en su menú › Estilo.</string>
+    <string name="route_glow_note">Un brillo suave con los colores de los dos servicios en las esquinas de la tarjeta. Cada sincronización puede elegir otra cosa en su Estilo.</string>
+    <string name="status_place_note">Dónde dice la tarjeta cómo fue la última ejecución.</string>
+    <string name="run_history_note">Cómo muestra la tarjeta las últimas ejecuciones: con cambios, nada nuevo o fallidas.</string>
     <string name="settings_route_glow">Colores de los servicios en las tarjetas</string>
     <string name="route_glow_plain">Tarjetas sin color</string>
     <string name="route_glow_all">Todas las tarjetas</string>

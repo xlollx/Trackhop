@@ -1949,6 +1949,10 @@
     <string name="settings_card_style">Card style</string>
     <string name="settings_card_style_summary">Colours, status, past runs, size and view</string>
     <string name="settings_card_accent">Coloured sync cards</string>
+    <string name="card_accent_note">How a sync with its own colour shows it. A sync\'s colour is chosen in its menu › Style.</string>
+    <string name="route_glow_note">A soft glow of the two services\' colours in the card\'s corners. Each sync can choose otherwise in its Style.</string>
+    <string name="status_place_note">Where a card says how its last run went.</string>
+    <string name="run_history_note">How a card shows its last runs: with changes, nothing new, or failed.</string>
     <string name="settings_route_glow">Service colours on cards</string>
     <string name="route_glow_plain">Cards without a colour</string>
     <string name="route_glow_all">All cards</string>

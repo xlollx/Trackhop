@@ -192,7 +192,8 @@ fun SettingsScreen(
             val accentChoices = CardAccent.entries.map { it.key to stringResource(it.label) }
             var accentOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_card_accent), accentChoices.firstOrNull { it.first == settings.cardAccent }?.second ?: accentChoices.first().second) { accentOpen = true }
-            if (accentOpen) ChoiceDialog(stringResource(R.string.settings_card_accent), accentChoices, settings.cardAccent, onDismiss = { accentOpen = false }) { k ->
+            if (accentOpen) ChoiceDialog(stringResource(R.string.settings_card_accent), accentChoices, settings.cardAccent, onDismiss = { accentOpen = false },
+                note = stringResource(R.string.card_accent_note), trailing = { AccentPreview(CardAccent.entries.firstOrNull { a -> a.key == it } ?: CardAccent.CLASSIC) }) { k ->
                 accentOpen = false
                 store.updateSettings { it.copy(cardAccent = k) }
             }
@@ -202,21 +203,24 @@ fun SettingsScreen(
             )
             var glowOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_route_glow), glowChoices.firstOrNull { it.first == settings.routeGlowMode }?.second ?: glowChoices.first().second) { glowOpen = true }
-            if (glowOpen) ChoiceDialog(stringResource(R.string.settings_route_glow), glowChoices, settings.routeGlowMode, onDismiss = { glowOpen = false }) { k ->
+            if (glowOpen) ChoiceDialog(stringResource(R.string.settings_route_glow), glowChoices, settings.routeGlowMode, onDismiss = { glowOpen = false },
+                note = stringResource(R.string.route_glow_note), trailing = { RouteGlowPreview(it) }) { k ->
                 glowOpen = false
                 store.updateSettings { it.copy(routeGlowMode = k) }
             }
             val placeChoices = listOf("footer" to stringResource(R.string.status_place_footer), "badge" to stringResource(R.string.status_place_badge))
             var placeOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_status_place), placeChoices.firstOrNull { it.first == settings.cardStatusPlace }?.second ?: placeChoices.first().second) { placeOpen = true }
-            if (placeOpen) ChoiceDialog(stringResource(R.string.settings_status_place), placeChoices, settings.cardStatusPlace, onDismiss = { placeOpen = false }) { k ->
+            if (placeOpen) ChoiceDialog(stringResource(R.string.settings_status_place), placeChoices, settings.cardStatusPlace, onDismiss = { placeOpen = false },
+                note = stringResource(R.string.status_place_note), trailing = { StatusPlacePreview(it) }) { k ->
                 placeOpen = false
                 store.updateSettings { it.copy(cardStatusPlace = k) }
             }
             val historyChoices = RunHistoryStyle.entries.map { it.key to stringResource(it.label) }
             var historyOpen by remember { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_run_history), historyChoices.firstOrNull { it.first == settings.runHistoryStyle }?.second ?: historyChoices.first().second) { historyOpen = true }
-            if (historyOpen) ChoiceDialog(stringResource(R.string.settings_run_history), historyChoices, settings.runHistoryStyle, onDismiss = { historyOpen = false }) { k ->
+            if (historyOpen) ChoiceDialog(stringResource(R.string.settings_run_history), historyChoices, settings.runHistoryStyle, onDismiss = { historyOpen = false },
+                note = stringResource(R.string.run_history_note), trailing = { RunHistoryPreview(RunHistoryStyle.of(it)) }) { k ->
                 historyOpen = false
                 store.updateSettings { it.copy(runHistoryStyle = k) }
             }

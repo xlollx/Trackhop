@@ -1948,6 +1948,10 @@
     <string name="settings_card_style">Stile delle card</string>
     <string name="settings_card_style_summary">Colori, stato, esecuzioni, dimensione e vista</string>
     <string name="settings_card_accent">Card delle sync colorate</string>
+    <string name="card_accent_note">Come una Sync con il suo colore lo mostra. Il colore si sceglie dal menu della Sync › Stile.</string>
+    <string name="route_glow_note">Un leggero bagliore dei colori dei due servizi negli angoli della card. Ogni Sync può scegliere diversamente nel suo Stile.</string>
+    <string name="status_place_note">Dove la card dice com\'è andata l\'ultima esecuzione.</string>
+    <string name="run_history_note">Come la card mostra le ultime esecuzioni: con modifiche, niente di nuovo o fallite.</string>
     <string name="settings_route_glow">Colori dei servizi sulle card</string>
     <string name="route_glow_plain">Card senza colore</string>
     <string name="route_glow_all">Tutte le card</string>

@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -435,3 +436,87 @@ fun Modifier.routeGlow(source: Long?, target: Long?, dark: Boolean): Modifier =
         glow(source, start, 0f)
         glow(target, end, size.height)
     }
+
+// ---- Small pictures of the card options, beside each choice in Settings › Card style. Decorative.
+
+private val SAMPLE_COLOUR = Color(0xFF9C6ADE)
+private val SAMPLE_SOURCE = Color(0xFF1DB954)
+private val SAMPLE_TARGET = Color(0xFFFF3B30)
+
+/** A sample card: its background, a logo and two lines of text, then [extra] drawn over it. */
+@Composable
+private fun MiniCard(width: Dp = 46.dp, extra: androidx.compose.ui.graphics.drawscope.DrawScope.(px: Float) -> Unit) {
+    val card = MaterialTheme.colorScheme.surfaceContainerHighest
+    val ink = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+    androidx.compose.foundation.Canvas(Modifier.size(width = width, height = 32.dp)) {
+        val px = 1.dp.toPx()
+        drawRoundRect(card, cornerRadius = CornerRadius(6 * px))
+        val shape = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(0f, 0f, size.width, size.height, CornerRadius(6 * px))) }
+        clipPath(shape) { extra(px) }
+        drawCircle(SAMPLE_SOURCE, radius = 3 * px, center = Offset(11 * px, 9 * px))
+        drawRoundRect(ink, Offset(17 * px, 7.5f * px), Size(size.width - 22 * px, 3 * px), CornerRadius(px))
+        drawRoundRect(ink, Offset(8 * px, 18 * px), Size(size.width * 0.5f, 2.5f * px), CornerRadius(px))
+    }
+}
+
+/** How a coloured card wears its colour ([CardAccent]). */
+@Composable
+fun AccentPreview(accent: CardAccent) = MiniCard { px ->
+    val c = SAMPLE_COLOUR
+    when (accent) {
+        CardAccent.CLASSIC -> drawRect(c, Offset.Zero, Size(4 * px, size.height))
+        CardAccent.FADE -> drawRect(Brush.horizontalGradient(listOf(c, Color.Transparent), endX = 16 * px), Offset.Zero, Size(16 * px, size.height))
+        CardAccent.OUTLINE -> drawRoundRect(c, cornerRadius = CornerRadius(6 * px), style = Stroke(1.5f * px))
+        CardAccent.CRESCENT -> drawOval(c, Offset(-6 * px, 2 * px), Size(9 * px, size.height - 4 * px))
+        CardAccent.PILL -> drawRoundRect(c, Offset(2.5f * px, 5 * px), Size(2.5f * px, size.height - 10 * px), CornerRadius(2 * px))
+        CardAccent.WASH -> drawRect(c.copy(alpha = 0.28f))
+    }
+}
+
+/** Which cards glow with the two services' colours: a coloured card and a plain one, as [mode] treats them. */
+@Composable
+fun RouteGlowPreview(mode: String) = androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    listOf(true, false).forEach { coloured ->
+        MiniCard(width = 30.dp) { px ->
+            if (coloured) drawRect(SAMPLE_COLOUR, Offset.Zero, Size(3 * px, size.height))
+            if (routeGlowOn(null, plain = !coloured, mode = mode)) {
+                drawRect(Brush.radialGradient(listOf(SAMPLE_SOURCE.copy(alpha = 0.5f), Color.Transparent), Offset.Zero, size.minDimension))
+                drawRect(Brush.radialGradient(listOf(SAMPLE_TARGET.copy(alpha = 0.5f), Color.Transparent), Offset(size.width, size.height), size.minDimension))
+            }
+        }
+    }
+}
+
+/** Where the status shows: a small badge on the logo, or a pill next to the schedule at the bottom. */
+@Composable
+fun StatusPlacePreview(place: String) = MiniCard { px ->
+    val ok = Color(0xFF34A853)
+    if (place == "badge") {
+        drawCircle(ok, radius = 2.6f * px, center = Offset(14 * px, 12 * px))
+    } else {
+        drawRoundRect(ok.copy(alpha = 0.85f), Offset(8 * px, size.height - 9 * px), Size(14 * px, 5 * px), CornerRadius(2.5f * px))
+    }
+}
+
+/** The last runs as [style] draws them: bars, a line, dots or words. */
+@Composable
+fun RunHistoryPreview(style: RunHistoryStyle) {
+    val ink = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+    val good = Color(0xFF34A853); val calm = Color(0xFF9AA0A6); val bad = Color(0xFFEA4335)
+    val runs = listOf(good, calm, good, bad, good, good)
+    MiniCard { px ->
+        val top = size.height - 11 * px
+        val step = (size.width - 16 * px) / runs.size
+        when (style) {
+            RunHistoryStyle.BARS -> runs.forEachIndexed { i, c -> drawRoundRect(c, Offset(8 * px + i * step, top), Size(step - 1.5f * px, 7 * px), CornerRadius(px)) }
+            RunHistoryStyle.DOTS -> runs.forEachIndexed { i, c -> drawCircle(c, 2 * px, Offset(9.5f * px + i * step, top + 3.5f * px)) }
+            RunHistoryStyle.CHART -> {
+                val ys = listOf(5f, 2f, 6f, 1f, 4f, 7f)
+                val line = Path()
+                ys.forEachIndexed { i, y -> val p = Offset(8 * px + i * step, top + (7 - y) * px); if (i == 0) line.moveTo(p.x, p.y) else line.lineTo(p.x, p.y) }
+                drawPath(line, SAMPLE_COLOUR, style = Stroke(1.5f * px))
+            }
+            RunHistoryStyle.TEXT -> drawRoundRect(ink, Offset(8 * px, top + 2 * px), Size(size.width - 16 * px, 2.5f * px), CornerRadius(px))
+        }
+    }
+}

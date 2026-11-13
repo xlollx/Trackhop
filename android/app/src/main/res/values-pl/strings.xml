@@ -2022,6 +2022,10 @@
     <string name="settings_card_style">Styl kart</string>
     <string name="settings_card_style_summary">Kolory, stan, uruchomienia, rozmiar i widok</string>
     <string name="settings_card_accent">Kolorowe karty synchronizacji</string>
+    <string name="card_accent_note">Jak synchronizacja z własnym kolorem go pokazuje. Kolor wybierasz w jej menu › Styl.</string>
+    <string name="route_glow_note">Delikatna poświata w kolorach obu serwisów w rogach karty. Każda synchronizacja może wybrać inaczej w swoim Stylu.</string>
+    <string name="status_place_note">Gdzie karta pokazuje, jak poszło ostatnie uruchomienie.</string>
+    <string name="run_history_note">Jak karta pokazuje ostatnie uruchomienia: ze zmianami, bez nowości lub nieudane.</string>
     <string name="settings_route_glow">Kolory usług na kartach</string>
     <string name="route_glow_plain">Karty bez koloru</string>
     <string name="route_glow_all">Wszystkie karty</string>

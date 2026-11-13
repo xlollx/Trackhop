@@ -1946,6 +1946,10 @@
     <string name="settings_card_style">Kart stili</string>
     <string name="settings_card_style_summary">Renkler, durum, çalıştırmalar, boyut ve görünüm</string>
     <string name="settings_card_accent">Renkli eşitleme kartları</string>
+    <string name="card_accent_note">Kendi rengi olan bir eşitlemenin bu rengi nasıl gösterdiği. Renk, eşitlemenin menüsü › Stil\'den seçilir.</string>
+    <string name="route_glow_note">Kartın köşelerinde iki hizmetin renklerinde hafif bir parıltı. Her eşitleme kendi Stil\'inde farklı seçebilir.</string>
+    <string name="status_place_note">Kartın son çalıştırmanın nasıl geçtiğini gösterdiği yer.</string>
+    <string name="run_history_note">Kartın son çalıştırmaları nasıl gösterdiği: değişiklikli, yeni bir şey yok veya başarısız.</string>
     <string name="settings_route_glow">Kartlarda hizmet renkleri</string>
     <string name="route_glow_plain">Renksiz kartlar</string>
     <string name="route_glow_all">Tüm kartlar</string>

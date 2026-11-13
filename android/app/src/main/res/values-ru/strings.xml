@@ -2020,6 +2020,10 @@
     <string name="settings_card_style">Стиль карточек</string>
     <string name="settings_card_style_summary">Цвета, статус, запуски, размер и вид</string>
     <string name="settings_card_accent">Цветные карточки синхронизаций</string>
+    <string name="card_accent_note">Как синхронизация со своим цветом его показывает. Цвет выбирается в её меню › Стиль.</string>
+    <string name="route_glow_note">Мягкое свечение в цветах двух сервисов в углах карточки. Каждая синхронизация может выбрать иначе в своём Стиле.</string>
+    <string name="status_place_note">Где карточка показывает, как прошёл последний запуск.</string>
+    <string name="run_history_note">Как карточка показывает последние запуски: с изменениями, без нового или с ошибкой.</string>
     <string name="settings_route_glow">Цвета сервисов на карточках</string>
     <string name="route_glow_plain">Карточки без цвета</string>
     <string name="route_glow_all">Все карточки</string>

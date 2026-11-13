@@ -1956,6 +1956,10 @@
     <string name="settings_card_style">Estilo dos cartões</string>
     <string name="settings_card_style_summary">Cores, status, execuções, tamanho e visualização</string>
     <string name="settings_card_accent">Cartões de sync coloridos</string>
+    <string name="card_accent_note">Como uma sincronização com cor própria a mostra. A cor é escolhida no menu dela › Estilo.</string>
+    <string name="route_glow_note">Um brilho suave nas cores dos dois serviços nos cantos do cartão. Cada sincronização pode escolher diferente no seu Estilo.</string>
+    <string name="status_place_note">Onde o cartão diz como foi a última execução.</string>
+    <string name="run_history_note">Como o cartão mostra as últimas execuções: com mudanças, nada novo ou com falha.</string>
     <string name="settings_route_glow">Cores dos serviços nos cartões</string>
     <string name="route_glow_plain">Cartões sem cor</string>
     <string name="route_glow_all">Todos os cartões</string>

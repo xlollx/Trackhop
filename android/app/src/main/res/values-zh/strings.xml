@@ -1912,6 +1912,10 @@
     <string name="settings_card_style">卡片样式</string>
     <string name="settings_card_style_summary">颜色、状态、运行记录、大小和视图</string>
     <string name="settings_card_accent">彩色同步卡片</string>
+    <string name="card_accent_note">有自己颜色的同步如何显示这种颜色。颜色在同步的菜单 › 样式中选择。</string>
+    <string name="route_glow_note">在卡片角落以两个服务的颜色柔和发光。每个同步都可以在自己的样式中另选。</string>
+    <string name="status_place_note">卡片在哪里显示上次运行的结果。</string>
+    <string name="run_history_note">卡片如何显示最近的运行：有更改、没有新内容或失败。</string>
     <string name="settings_route_glow">卡片显示服务颜色</string>
     <string name="route_glow_plain">无颜色的卡片</string>
     <string name="route_glow_all">所有卡片</string>

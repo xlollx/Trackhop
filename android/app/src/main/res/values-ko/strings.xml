@@ -1911,6 +1911,10 @@
     <string name="settings_card_style">카드 스타일</string>
     <string name="settings_card_style_summary">색상, 상태, 실행 기록, 크기, 보기</string>
     <string name="settings_card_accent">색상 동기화 카드</string>
+    <string name="card_accent_note">색이 있는 동기화가 그 색을 표시하는 방식. 색은 동기화 메뉴 › 스타일에서 고릅니다.</string>
+    <string name="route_glow_note">카드 모서리에 두 서비스의 색이 은은하게 빛납니다. 각 동기화의 스타일에서 다르게 고를 수 있습니다.</string>
+    <string name="status_place_note">카드에서 마지막 실행 결과를 보여 주는 위치.</string>
+    <string name="run_history_note">카드에서 최근 실행을 보여 주는 방식: 변경 있음, 새로운 것 없음, 실패.</string>
     <string name="settings_route_glow">카드에 서비스 색</string>
     <string name="route_glow_plain">색 없는 카드</string>
     <string name="route_glow_all">모든 카드</string>

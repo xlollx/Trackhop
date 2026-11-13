@@ -1912,6 +1912,10 @@
     <string name="settings_card_style">カードのスタイル</string>
     <string name="settings_card_style_summary">色、状態、実行履歴、サイズ、表示</string>
     <string name="settings_card_accent">色付きの同期カード</string>
+    <string name="card_accent_note">色を持つ同期がその色をどう表示するか。色は同期のメニュー › スタイルで選びます。</string>
+    <string name="route_glow_note">カードの角に2つのサービスの色をやわらかく光らせます。各同期のスタイルで個別に変更できます。</string>
+    <string name="status_place_note">前回の実行結果をカードのどこに表示するか。</string>
+    <string name="run_history_note">カードで最近の実行をどう表示するか：変更あり、変化なし、失敗。</string>
     <string name="settings_route_glow">カードにサービスの色</string>
     <string name="route_glow_plain">色のないカード</string>
     <string name="route_glow_all">すべてのカード</string>
