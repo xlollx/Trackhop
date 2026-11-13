@@ -181,7 +181,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                             Checkbox(checked = checked, enabled = !busy, onCheckedChange = { selected = if (it) selected + i else selected - i })
                             Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
                                 Text(t.title, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                val sub = listOf(t.artists.joinToString(", "), t.album).filter { it.isNotBlank() }.joinToString(" · ")
+                                val sub = listOf(t.artists.joinToString(", "), t.album).filter { it.isNotBlank() && it != t.title }.joinToString(" · ")
                                 if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             val artist = t.artists.firstOrNull().orEmpty()
