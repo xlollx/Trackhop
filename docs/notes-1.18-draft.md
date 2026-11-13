@@ -33,6 +33,7 @@ for the 1.18 entry.
 - **Podcasts**: YouTube Music's followed podcasts as a source; shows matched by their feed; your followed podcasts exported as OPML for any podcast app.
 - **Covers everywhere**: a sync copies the playlist's cover to Spotify (web), YouTube Music, YouTube, TIDAL, SoundCloud, Jellyfin, Emby and Plex too.
 - **More of your library**: TIDAL liked tracks, Apple Music favorites and recent plays, ListenBrainz's playlists made for you, Amazon Music purchases; TIDAL and YouTube keep the source's order.
+- **Encrypted full backup**: Backup & restore can include your sign-ins, client secrets, web sign-ins and scheduled syncs in the `.trackhop` file, locked with a password of yours (AES-256-GCM); restoring asks whether this device replaces the other one, so its schedules stay on. The same file moves between the app, Docker and Desktop.
 - **Synced lyrics**: Tools › Synced lyrics lists the songs on your Navidrome, Jellyfin, Emby, Plex or Lyrion server without lyrics and looks them up on LRCLIB; on Jellyfin it adds them, after you see what was found. Lyrics already there are never changed.
 
 ## Desktop and Docker (server CHANGELOG)
@@ -50,6 +51,7 @@ The lines taken out of the 1.17 (server 1.10) section, to put back with the serv
 - **Podcasts**: YouTube Music's followed podcasts as a source; followed podcasts exported as OPML, with their feeds looked up.
 - **Playlist covers on more services**: Spotify (web), YouTube Music, TIDAL, YouTube, Jellyfin, Emby and Plex take the source's cover.
 - **More of your library**: TIDAL liked tracks, Apple Music favorites and recent plays, ListenBrainz's playlists made for you.
+- **Encrypted full backup**: Backup & restore › Your set-up can save the file with the sign-ins (`tokens.json`), client secrets and pasted web cookies, locked with a password (AES-256-GCM, PBKDF2 with 600,000 rounds); restoring one asks its password and whether this server replaces the other device. `POST /api/v1/config/encrypted`, `POST /api/v1/config` with the `X-Backup-Password` header, `trackhop config --encrypted` and `trackhop config import <file> --replaces-device --replace-sign-ins`. A phone's Bridge sessions are not used on a server, and the other way round.
 - **Synced lyrics from your server**: Tools › Synced lyrics lists the songs of a connected Navidrome (and other Subsonic servers), Jellyfin, Emby, Plex or Lyrion server without lyrics, looks them up on LRCLIB and shows what it found before anything is written. Jellyfin takes them through its API; for Navidrome, Emby and Plex they are saved as `.lrc` (synced) or `.txt` (plain) next to the audio file, once the server's music folder is mapped to a folder here (mounted read-write on Docker). Nothing is ever replaced. Mopidy has no lyrics. `GET /api/v1/tools/nolyrics`, `POST /api/v1/tools/nolyrics/lookup` and `/save`, `trackhop nolyrics` and the MCP tool `find_songs_without_lyrics`.
 
 ## On the day

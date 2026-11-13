@@ -9,7 +9,9 @@ import kotlinx.serialization.encodeToString
  * The connectors' methods, the same the Trackhop Bridge app answers through its ContentProvider
  * (`status`, `playlists`, `tracks`, `search`, `add`, `amazon.*`, `spotify.*`, `apple.*`, `deezer.*`,
  * `soundcloud.*`, `anghami.*`, `qobuz.*`, `ticketone.read`, `vivaticket.read`...), called by
- * Trackhop in-process. No caller check is needed: nothing outside this app can reach it.
+ * Trackhop in-process. No caller check is needed: nothing outside this app can reach it. The two
+ * methods that hand out the sessions themselves (`sessions.export`, `sessions.import`, Trackhop's
+ * encrypted backup) check their caller anyway, wherever this runs ([SessionTransfer.callerOk]).
  * Callers block, so this is never called on the main thread.
  */
 object BridgeCore {
@@ -55,6 +57,8 @@ object BridgeCore {
         // The account the call is about: absent (every Trackhop before 1.15) means the primary one.
         val slot = Slots.of(extras)
         if (slot.isNotEmpty() && serviceOf(method) !in SLOT_SERVICES) return err(ONE_ACCOUNT)
+        // The sessions themselves, for Trackhop's encrypted backup: their own caller check (see [SessionTransfer]).
+        if (method == SessionTransfer.EXPORT || method == SessionTransfer.IMPORT) return SessionTransfer.call(ctx, method, extras)
         // "Start over": the disconnect, then the sites' stored data too (see [WebReset]).
         if (method.endsWith(".reset")) return runCatching { reset(ctx, method, arg, extras, slot) }.getOrElse { err(it.message ?: it.javaClass.simpleName) }
         // A listing asked for fresh (the poster made again from scratch): the one kept for it goes first.
@@ -613,6 +617,23 @@ object BridgeCore {
 
     private fun ok(jsonText: String) = Bundle().apply { putString("json", jsonText) }
     private fun err(message: String) = Bundle().apply { putString("error", message) }
+
+    /**
+     * Forgets what is kept in memory for [service]'s [slot] (listings, tokens, the player's page) once
+     * its session was replaced by one from a backup ([SessionTransfer]), as a disconnect does.
+     */
+    internal fun forgetCached(service: String, slot: String) {
+        runCatching {
+            when (service) {
+                "ytm" -> ytmCache.clear()
+                "spotify" -> { SpotifyBridge.invalidateToken(slot); spotifyCache.clear() }
+                "deezer" -> { DeezerWebClient.forget(slot); deezerCache.clear() }
+                "anghami" -> { anghamiCache.clear(); WebEngine.reset("anghami", slot) }
+                "qobuz" -> qobuzCache.clear()
+                "soundcloud" -> { SoundCloudBridge.forgetWebStorage(); SoundCloudRenewal.forget(); soundCloudCache.clear() }
+            }
+        }
+    }
 
     /** The web connectors a start over applies to, with the session of [slot]. YouTube Music and Amazon are not among them. */
     fun resettable(service: String, slot: String): WebSession? = when (service) {

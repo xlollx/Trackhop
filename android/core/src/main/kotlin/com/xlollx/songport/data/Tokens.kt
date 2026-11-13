@@ -20,4 +20,10 @@ interface TokenVault {
     fun get(providerId: String): Tokens?
     fun set(providerId: String, tokens: Tokens)
     fun clear(providerId: String)
+
+    /**
+     * The ids this vault holds, for the encrypted full backup ([EncryptedBackup]); a vault that
+     * cannot list them answers none, and that backup then carries no sign-ins from it.
+     */
+    fun ids(): Set<String> = emptySet()
 }

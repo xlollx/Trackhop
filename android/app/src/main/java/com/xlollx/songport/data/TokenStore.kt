@@ -50,4 +50,7 @@ class TokenStore(context: Context) : TokenVault {
     override fun clear(providerId: String) {
         sp.edit().remove(providerId).apply()
     }
+
+    /** The ids kept, for the encrypted full backup (the library's own keyset entries left out). */
+    override fun ids(): Set<String> = runCatching { sp.all.keys.filterNot { it.startsWith("__androidx_security_crypto") }.toSet() }.getOrDefault(emptySet())
 }

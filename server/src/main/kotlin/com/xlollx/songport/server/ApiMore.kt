@@ -88,6 +88,8 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val bytes = ex.requestBody.readNBytes(20_000_001)
             if (bytes.size > 20_000_000) return true.also { error(413, "Files up to 20 MB.") }
             val text = String(bytes, Charsets.UTF_8)
+            // An encrypted full backup (1.18): its password in a header; without the feature, a clear word.
+            if (com.xlollx.songport.data.EncryptedBackup.isEncrypted(text)) return true.also { configEncrypted(ex, text, query, json, error) }
             val snapshot = runCatching { ConfigBackup.read(text) }.getOrElse { return true.also { _ -> error(400, it.message ?: "Not a Trackhop configuration file.") } }
             val channels = Notify.inBackup(text)
             val s = ConfigBackup.summary(snapshot)
@@ -104,6 +106,15 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             Notify.restore(env, channels)
             env.log("config", "imported ${s.syncs} syncs, ${s.files} files from ${s.writtenBy} through the API")
             json(200, summary(true, done.paused))
+        }
+        // The set-up with its sign-ins, sealed with the body's password (1.18; Features.hidesCall keeps it hidden without).
+        rest == listOf("config", "encrypted") && method == "POST" -> {
+            val b = body() ?: return true.also { badJson() }
+            val password = (b["password"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull.orEmpty()
+            if (password.length < com.xlollx.songport.data.EncryptedBackup.MIN_PASSWORD) return true.also { error(400, "\"password\" needs at least ${com.xlollx.songport.data.EncryptedBackup.MIN_PASSWORD} characters.") }
+            val (text, _) = FullBackupServer.export(env, "$productName $version (API)", history = b.flag("history") == true, password = password.toCharArray())
+            ex.responseHeaders.add("Content-Disposition", "attachment; filename=\"${ConfigBackup.fileName()}\"")
+            send(ex, 200, text, "application/json")
         }
         // ---------------------------------------------------------------- webhook
         rest == listOf("webhook") && method == "GET" -> json(200, webhookJson())
@@ -409,4 +420,38 @@ internal fun zipOf(files: List<java.io.File>, format: ExportFormat): ByteArray {
         }
     }
     return bytes.toByteArray()
+}
+
+/**
+ * `POST /config` with an encrypted file: its password in the `X-Backup-Password` header (never in
+ * the address, where logs keep it); `replacesDevice=true` keeps the file's scheduled syncs on,
+ * `replaceSignIns=true` replaces the sign-ins already here, `dryRun=true` only says what it holds.
+ */
+private fun Web.configEncrypted(ex: HttpExchange, text: String, query: Map<String, String>, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit) {
+    if (!Features.v2) return error(400, FullBackupServer.NEWER)
+    val password = ex.requestHeaders.getFirst("X-Backup-Password")
+    if (password.isNullOrEmpty()) return error(400, "This file is encrypted: send its password in the X-Backup-Password header.")
+    val opened = try {
+        FullBackupServer.open(env, text, password.toCharArray())
+    } catch (e: IllegalArgumentException) {
+        return error(400, e.message ?: "Not a Trackhop configuration file.")
+    }
+    val s = ConfigBackup.summary(opened.snapshot)
+    val web = opened.secrets.web
+    fun summary(imported: Boolean, done: FullBackupServer.Imported? = null) = buildJsonObject {
+        put("imported", imported)
+        put("encrypted", true)
+        put("paused", done?.summary?.paused ?: 0)
+        put("writtenBy", s.writtenBy); put("writtenAt", s.writtenAt)
+        put("syncs", s.syncs); put("matches", s.matches); put("files", s.files); put("runs", s.runs); put("channels", opened.channels.size)
+        put("signIns", opened.secrets.vault.size + opened.secrets.clientSecrets.size)
+        put("webSignIns", web?.accounts?.size ?: 0)
+        // A phone's Bridge sessions (or cookies this person may not use) are left out here.
+        put("webUsable", web == null || web.platform == FullBackupServer.webHere(env))
+        put("conflicts", kotlinx.serialization.json.JsonArray(opened.conflicts.map { kotlinx.serialization.json.JsonPrimitive(it) }))
+        if (done != null) { put("restored", done.restored.signIns); put("kept", done.restored.kept.size); put("webSkipped", done.restored.webSkipped) }
+    }
+    if (query["dryRun"] == "true") return json(200, summary(false))
+    val done = FullBackupServer.import(env, opened, replacesDevice = query["replacesDevice"] == "true", replaceSignIns = query["replaceSignIns"] == "true", channels = true)
+    json(200, summary(true, done))
 }

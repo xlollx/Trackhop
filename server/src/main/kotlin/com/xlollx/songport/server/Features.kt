@@ -48,9 +48,11 @@ internal object Features {
     fun hidesCall(method: String, rest: List<String>): Boolean = !v2 && when (rest.firstOrNull()) {
         in V2_TOOLS -> true
         "groups" -> rest.size == 1 && method == "POST"
+        // The encrypted full backup's export; an encrypted file sent to POST /config says itself what it is.
+        "config" -> rest.getOrNull(1) == "encrypted"
         else -> false
     }
 
     /** A call of 1.18 left out of the API's description (openapi.json, the guide) when off. */
-    fun hidesDoc(path: String): Boolean = !v2 && path.trimStart('/').substringBefore('/') in V2_API
+    fun hidesDoc(path: String): Boolean = !v2 && (path.trimStart('/').substringBefore('/') in V2_API || path.trimStart('/') == "config/encrypted")
 }

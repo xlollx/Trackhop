@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
  * The release switch (com.xlollx.songport.Features): in a 1.17 build the ways into 1.18's features
  * are not offered (Shared playlists and Synced lyrics in Tools, Discover's new cards with Followed artists, the
  * Wrapped and the poster from real listening, the poster's "Use as playlist cover", YouTube Music's
- * followed podcasts in the picker), and Settings › Developer options › Preview upcoming features brings
+ * followed podcasts in the picker, the encrypted backup with sign-ins), and Settings › Developer options › Preview upcoming features brings
  * them back on this phone. [ReleaseSwitchPreviewFlowTest] has them with the preview on.
  */
 @RunWith(AndroidJUnit4::class)
@@ -125,7 +125,33 @@ open class ReleaseSwitchFlowTest : FlowTest() {
         }
     }
 
+    /**
+     * Backup & restore: "Include sign-ins and schedules (encrypted)" only with 1.18's features; an
+     * encrypted file opened without them gets the clear "newer feature" word, with them the password.
+     */
+    protected fun checkEncryptedBackup() {
+        val file = java.io.File(app.cacheDir, "ui-test-encrypted.trackhop")
+        file.writeText("""{"format": "trackhop-config-encrypted", "version": 1, "salt": "AA==", "nonce": "AA==", "ciphertext": "AA=="}""")
+        androidx.test.espresso.intent.Intents.init()
+        try {
+            androidx.test.espresso.intent.Intents.intending(androidx.test.espresso.intent.matcher.IntentMatchers.hasAction(android.content.Intent.ACTION_OPEN_DOCUMENT))
+                .respondWith(android.app.Instrumentation.ActivityResult(android.app.Activity.RESULT_OK, android.content.Intent().setData(android.net.Uri.fromFile(file))))
+            launch(tabIntent(MainActivity.TAB_TOOLS))
+            waitText(s(R.string.backup_title))
+            click(s(R.string.backup_title))
+            waitText(s(R.string.backup_config_save))
+            assertTrue("the encrypted backup", exists(s(R.string.backup_full_save)) == shown)
+            click(s(R.string.backup_config_restore))
+            if (shown) waitText(s(R.string.backup_full_unlock_title)) else waitText(s(R.string.backup_full_newer))
+        } finally {
+            androidx.test.espresso.intent.Intents.release()
+            file.delete()
+        }
+    }
+
     @Test fun toolsAndDiscover() = checkToolsAndDiscover()
+
+    @Test fun encryptedBackup() = checkEncryptedBackup()
 
     @Test fun wrapped() = checkWrapped()
 

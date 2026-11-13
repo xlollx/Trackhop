@@ -86,6 +86,8 @@ object ConfigBackup {
 
     /** What a file holds, without changing anything; throws with a readable message if it is not one. */
     fun read(text: String): Snapshot {
+        // An encrypted full backup is read by EncryptedBackup first: here it only gets a clear word.
+        if (EncryptedBackup.isEncrypted(text)) throw EncryptedBackup.EncryptedFile()
         val s = runCatching { json.decodeFromString(Snapshot.serializer(), text.removePrefix("﻿")) }
             .getOrElse { throw IllegalArgumentException("Not a Trackhop configuration file.") }
         require(s.format == FORMAT) { "Not a Trackhop configuration file." }
@@ -102,10 +104,12 @@ object ConfigBackup {
      *
      * A file written by another device brings its scheduled syncs turned off ([SyncJob.scheduledOn]):
      * left on, they would run here and there, and both would add what is missing. One already on
-     * here stays on: that choice was made. A file this device wrote itself comes back as it is.
+     * here stays on: that choice was made. A file this device wrote itself comes back as it is, and
+     * so does one whose device this one replaces ([replacesOther], asked by the encrypted full backup:
+     * the other device is to be turned off).
      */
-    fun import(env: Env, s: Snapshot): Summary {
-        val foreign = s.device != deviceId(env)
+    fun import(env: Env, s: Snapshot, replacesOther: Boolean = false): Summary {
+        val foreign = s.device != deviceId(env) && !replacesOther
         val from = s.deviceName.ifBlank { s.writtenBy }
         var paused = 0
         val dir = LocalFilesProvider.dir(env)

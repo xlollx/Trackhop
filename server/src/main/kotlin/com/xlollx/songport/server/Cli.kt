@@ -162,7 +162,7 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming")
+    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
     private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
@@ -200,6 +200,13 @@ object Cli {
             c.usage.forEach { append("trackhop ").append(it).append('\n') }
             append('\n').append(c.summary.replaceFirstChar { it.uppercase() }).append(".\n")
             if (c.more.isNotEmpty()) append('\n').append(c.more).append('\n')
+            // 1.18 (Features.v2): the encrypted set-up, with the sign-ins.
+            if (name == "config" && Features.v2) append(
+                "\ntrackhop config --encrypted [<file>]\ntrackhop config import <file> [--dry-run] [--replaces-device] [--replace-sign-ins]\n" +
+                    "--encrypted saves the set-up with its sign-ins (tokens, client secrets, pasted web cookies), locked with a password of at least\n" +
+                    "10 characters (asked twice, or TRACKHOP_BACKUP_PASSWORD). Lost, nobody can open the file. An encrypted file asks its password on import;\n" +
+                    "--replaces-device keeps its scheduled syncs on (then turn the other device off), --replace-sign-ins replaces the sign-ins already here.\n",
+            )
         }.trimEnd()
     }
 
@@ -236,6 +243,21 @@ object Cli {
         }
     }
 
+
+    /**
+     * The encrypted backup's password (1.18): TRACKHOP_BACKUP_PASSWORD for scripts, else asked on the
+     * terminal without showing it ([twice] for a new file). Null when there is neither.
+     */
+    internal fun backupPassword(env: Map<String, String>): (prompt: String, twice: Boolean) -> CharArray? = { prompt, twice ->
+        env["TRACKHOP_BACKUP_PASSWORD"]?.takeIf { it.isNotEmpty() }?.toCharArray() ?: System.console()?.let { c ->
+            val first = c.readPassword("%s: ", prompt) ?: return@let null
+            if (!twice) return@let first
+            val again = c.readPassword("%s (again): ", prompt)
+            if (again == null || !first.contentEquals(again)) { first.fill('\u0000'); again?.fill('\u0000'); throw Failure(2, "the two passwords are not the same") }
+            again.fill('\u0000')
+            first
+        }
+    }
 
     /** Runs [args]; what it prints goes to [out] and [err]. Returns the exit code. */
     fun run(args: List<String>, env: Map<String, String>, out: PrintStream, err: PrintStream, dataDir: () -> File = { defaultDataDir(env) }): Int {
@@ -294,7 +316,7 @@ object Cli {
                 return 0
             }
             val api = connect(url, token, dir)
-            CliCommands(api, out, opts.has("json")).run(command, params, opts)
+            CliCommands(api, out, opts.has("json"), backupPassword(env)).run(command, params, opts)
         } catch (f: Failure) {
             err.println("trackhop: ${f.message}")
             f.code
@@ -332,6 +354,9 @@ object Cli {
         fun send(method: String, path: String, body: JsonElement? = null): JsonElement = call(method, path, body?.toString())
         fun raw(method: String, path: String, body: ByteArray?): String =
             String(exchange(method, path, body?.let { HttpRequest.BodyPublishers.ofByteArray(it) }, null), Charsets.UTF_8)
+        /** The same, with [headers] (the encrypted backup's password: in a header, never in the address). */
+        fun raw(method: String, path: String, body: ByteArray?, headers: Map<String, String>): String =
+            String(exchange(method, path, body?.let { HttpRequest.BodyPublishers.ofByteArray(it) }, null, headers), Charsets.UTF_8)
         /** A file the API answers with (a .zip): its bytes as they come. */
         fun bytes(method: String, path: String, body: JsonElement? = null): ByteArray =
             exchange(method, path, body?.let { HttpRequest.BodyPublishers.ofString(it.toString()) }, if (body != null) "application/json" else null)
@@ -341,10 +366,11 @@ object Cli {
             return runCatching { Json.parseToJsonElement(text) }.getOrElse { JsonPrimitive(text) }
         }
 
-        private fun exchange(method: String, path: String, body: HttpRequest.BodyPublisher?, type: String?): ByteArray {
+        private fun exchange(method: String, path: String, body: HttpRequest.BodyPublisher?, type: String?, headers: Map<String, String> = emptyMap()): ByteArray {
             val req = HttpRequest.newBuilder(URI("$base/api/v1/$path")).timeout(Duration.ofMinutes(10))
                 .header("Authorization", "Bearer $token")
                 .apply { if (type != null) header("Content-Type", type) }
+                .apply { headers.forEach { (k, v) -> header(k, v) } }
                 .method(method, body ?: HttpRequest.BodyPublishers.noBody()).build()
             val res = try {
                 http.send(req, HttpResponse.BodyHandlers.ofByteArray())

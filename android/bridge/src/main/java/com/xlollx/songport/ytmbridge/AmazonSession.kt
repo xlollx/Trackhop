@@ -112,6 +112,25 @@ object AmazonSession {
     fun headersHost(ctx: Context): String? = prefs(ctx).getString("headers_host", null)
     fun headersAt(ctx: Context): Long = prefs(ctx).getLong("headers_at", 0)
 
+    /** Its storage was opened in this process already (a file written a moment ago may not be on disk yet). */
+    internal val opened: Boolean get() = cached != null
+
+    /** Every value kept, for Trackhop's encrypted backup ([SessionTransfer]). */
+    internal fun stored(ctx: Context): Map<String, *> = prefs(ctx).all
+
+    /**
+     * Puts back what [stored] gave on another device, in place of the session here: the old one is
+     * forgotten first (here, in memory and its cookies in the WebView); the client reads the cookies
+     * from the values while the jar has none.
+     */
+    internal fun restore(ctx: Context, values: Map<String, Any?>) {
+        prefs(ctx).edit().clear().commit()
+        AmazonClient.forgetConfig()
+        AmazonBridge.forget()
+        wipeCookies()
+        SessionTransfer.write(prefs(ctx), values)
+    }
+
     /** Forgets the session here and the Amazon cookies in the WebView. */
     fun clear(ctx: Context) {
         prefs(ctx).edit().clear().apply()
