@@ -880,6 +880,12 @@ class SyncEngine(
         fun saveMisses() { store.putMisses(misses); misses.clear() }
         while (ci < chunks.size) {
             val chunk = chunks[ci]
+            // The phone says the internet is gone (the system, not a guess): no more searches that could
+            // only fail one by one; nothing has been changed yet, the run stops as offline and starts again.
+            if (NetError.knownOffline() && dst.serviceId != LocalFilesProvider.serviceId) {
+                saveMisses()
+                throw java.net.UnknownHostException("no internet connection")
+            }
             // Cosa si sta cercando adesso: la scheda e la notifica lo mostrano, cosi' non sembra fermo.
             onProgress(Progress(Progress.Step.MATCHING, done, toSearch.size, chunk.first().let { listOfNotNull(it.artists.firstOrNull(), it.title).joinToString(" – ") }))
             // Esito per brano: (trovato, punteggio); punteggio null = preso dalla cache, mai "incerto".
@@ -1249,6 +1255,8 @@ class SyncEngine(
             kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
                 if (addStopped != null || offline) break
+                // The internet gone, known to the phone: stop here; what was added stays, nothing is removed.
+                if (NetError.knownOffline() && dst.serviceId != LocalFilesProvider.serviceId) { offline = true; break }
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
                 onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, toAdd.size, chunk.first().live()))
                 while (true) {

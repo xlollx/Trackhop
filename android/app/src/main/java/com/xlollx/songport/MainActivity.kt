@@ -365,7 +365,9 @@ private fun MainScreen(
     fun runOrWait(id: String, name: String?) {
         val before = com.xlollx.songport.sync.OfflineQueue.waiting.value
         if (Scheduler.runNow(ctx, id)) return
-        val queued = com.xlollx.songport.sync.OfflineQueue.waiting.value - before
+        val after = com.xlollx.songport.sync.OfflineQueue.waiting.value
+        // Asked again while already waiting: Cancel still takes that sync (or every one waiting) out of the queue.
+        val queued = (after - before).ifEmpty { if (id in after) setOf(id) else after }
         val msg = if (name != null) ctx.getString(R.string.offline_queued, name) else ctx.getString(R.string.offline_queued_all)
         snackScope.launch {
             snackbar.currentSnackbarData?.dismiss()

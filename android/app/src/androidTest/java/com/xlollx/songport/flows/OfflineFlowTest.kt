@@ -48,6 +48,13 @@ class OfflineFlowTest : FlowTest() {
         // Nothing ran, nothing failed.
         assertTrue(store.data.reports.none { it.jobId == JOB })
         assertFalse(exists(s(R.string.pill_error)))
+        // Asked again, still offline: it keeps waiting, a second tap is no way round.
+        clickDesc(s(R.string.run_now))
+        compose.waitForIdle()
+        assertTrue(JOB in OfflineQueue.waiting.value)
+        assertTrue(JOB !in com.xlollx.songport.sync.SyncState.running.value)
+        assertTrue(store.data.reports.none { it.jobId == JOB })
+        waitText(s(R.string.offline_queued, "Road Trip"))
 
         // Cancel: it no longer waits.
         click(s(R.string.cancel))

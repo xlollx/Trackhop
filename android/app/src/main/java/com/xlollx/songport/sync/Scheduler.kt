@@ -391,16 +391,19 @@ object Scheduler {
      */
     /**
      * Answers whether it started: false when the phone has no internet, and the run waits for it
-     * ([OfflineQueue]) instead. Asked again while it waits ([force], or the same sync by hand): it
-     * starts now, as asked; the services' own retries take it from there, as before.
+     * ([OfflineQueue]) instead, however many times it is asked while offline. [force] (the queue's own
+     * worker, once the connection is back) starts it.
      */
     fun runNow(ctx: Context, jobId: String, force: Boolean = false): Boolean {
         // A sync handed over to the user's server: the server is asked to run it.
         if (ServerLink.handedOver(ctx, jobId) != null) { ServerLink.runHandedOver(ctx, jobId); return true }
         if (!force) {
             OfflineQueue.init(ctx)
-            if (jobId in OfflineQueue.waiting.value) OfflineQueue.cancel(ctx, jobId)
-            else if (com.xlollx.songport.net.Connectivity.isOffline) {
+            val offline = com.xlollx.songport.net.Connectivity.isOffline
+            // Asked again while it waits: still offline, it keeps waiting (a second tap is not a way round);
+            // back online, it starts now.
+            if (jobId in OfflineQueue.waiting.value) { if (offline) return false else OfflineQueue.cancel(ctx, jobId) }
+            else if (offline) {
                 val store = Store.get(ctx)
                 if (jobId != SyncWorker.ALL) {
                     // Files and servers at home need no internet: those run as before.
