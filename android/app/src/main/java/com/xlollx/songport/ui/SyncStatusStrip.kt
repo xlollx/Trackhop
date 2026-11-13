@@ -102,14 +102,18 @@ fun SyncStatusStrip(
             // When the last sync ran is said while the line has room for it: where it does not (a narrow
             // window, a large font, a language with longer words) the status alone is whole, not both cut short.
             var roomForLast by remember(main, last, lines, androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp) { mutableStateOf(true) }
+            // The status alone still too long for one line ("No internet connection · syncs will start…"):
+            // it glides to its end and back, as a long line on a card does, rather than being cut.
+            val glide = lines == 1 && (last == null || !roomForLast)
             Text(
                 buildAnnotatedString {
                     withStyle(SpanStyle(color = scheme.onSurface, fontWeight = FontWeight.SemiBold)) { append(main) }
                     if (last != null && roomForLast) withStyle(SpanStyle(color = scheme.onSurfaceVariant)) { append(" · "); append(last) }
                 },
-                style = MaterialTheme.typography.bodyMedium, maxLines = lines, overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium, maxLines = lines,
+                overflow = if (glide) TextOverflow.Clip else TextOverflow.Ellipsis, softWrap = !glide,
                 onTextLayout = { if (it.hasVisualOverflow && last != null && roomForLast) roomForLast = false },
-                modifier = Modifier.weight(1f, fill = false),
+                modifier = Modifier.weight(1f, fill = false).then(if (glide) Modifier.cardMarquee() else Modifier),
             )
             if (canShow) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, Modifier.size(18.dp), tint = scheme.onSurfaceVariant)
         }

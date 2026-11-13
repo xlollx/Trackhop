@@ -1367,10 +1367,11 @@ private fun JobTile(
                     }
                     Spacer(Modifier.width(6.dp))
                     val pct = progress?.percent
+                    // A long status ("Waiting for internet") glides rather than being cut.
                     Text(
                         status.text + (if (isRunning && pct != null) " · $pct%" else ""),
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        maxLines = 1, softWrap = false, modifier = Modifier.weight(1f, fill = false).cardMarquee(),
                     )
                 }
                 // When it runs next, in short: only for a sync that runs by itself.
@@ -1385,7 +1386,7 @@ private fun JobTile(
                     Text(
                         if (!isRunning && next != null && job.radio == null) stringResource(R.string.tile_next_run, nextRunShort(ctx, next)) else "",
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, minLines = 1, overflow = TextOverflow.Ellipsis,
+                        maxLines = 1, minLines = 1, softWrap = false, modifier = Modifier.cardMarquee(),
                     )
                     if (isRunning) {
                         val pct = progress?.percent
@@ -2768,7 +2769,7 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
  * With animations turned off in Android, only the drag.
  */
 @Composable
-private fun Modifier.cardMarquee(): Modifier {
+internal fun Modifier.cardMarquee(): Modifier {
     val state = rememberScrollState()
     val ctx = LocalContext.current
     val density = androidx.compose.ui.platform.LocalDensity.current
