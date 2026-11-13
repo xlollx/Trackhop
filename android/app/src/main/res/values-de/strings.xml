@@ -454,7 +454,7 @@
     <string name="ai_expand_missing">%1$d auf %2$s nicht gefunden</string>
     <string name="ai_expand_already">%d schon in der Playlist, übersprungen</string>
     <string name="error_manage_unsupported">%1$s erlaubt es nicht, Playlists aus anderen Apps umzubenennen oder zu löschen.</string>
-    <string name="tools_manage_title">Playlists verwalten</string>
+    <string name="tools_manage_title">Playlists und Mediathek verwalten</string>
     <string name="tools_manage_desc">Deine Playlists auf diesem Dienst in einer Liste: umbenennen oder löschen, wo der Dienst es zulässt, oder exportieren.</string>
     <string name="tools_manage_open">Liste öffnen</string>
     <string name="tools_scan_title">Mehrfach in Playlists</string>
@@ -490,6 +490,11 @@
     <string name="tracks_select_artist">Alle von %1$s auswählen</string>
     <string name="tracks_select_album">Alle aus „%1$s“ auswählen</string>
     <string name="tracks_remove_confirm">%1$d Titel aus „%2$s“ auf %3$s entfernen?</string>
+    <string name="library_search">Suchen</string>
+    <string name="library_none">Hier ist noch nichts.</string>
+    <string name="library_remove_confirm">%1$d Einträge aus „%2$s“ auf %3$s entfernen?</string>
+    <string name="library_remove_n">Entfernen (%d)</string>
+    <string name="library_ytm_artists_hint">Bei YouTube Music heißt einem Künstler folgen, seinen YouTube-Kanal zu abonnieren: Wenn du ihn hier entfernst, endet das Abo.</string>
     <string name="tracks_removed">%d entfernt</string>
     <string name="tracks_none">Keine Titel in dieser Playlist.</string>
     <string name="export_menu">Exportieren…</string>
@@ -1089,7 +1094,7 @@
     <string name="tools_section_safety">Sicherheit</string>
     <string name="tools_section_safety_desc">Behalte eine Kopie deiner Playlists auf diesem Handy.</string>
     <string name="tools_row_files">Playlists als Dateien importieren, einfügen und exportieren.</string>
-    <string name="tools_row_manage">Deine Playlists umbenennen, löschen oder exportieren.</string>
+    <string name="tools_row_manage">Deine Playlists umbenennen, löschen oder exportieren; gespeicherte Alben, gefolgte Künstler und Podcasts entfernen.</string>
     <string name="tools_row_export">Eine Playlist als CSV, M3U oder andere Datei speichern.</string>
     <string name="tools_row_make">Kopieren, zusammenführen, teilen, sortieren oder mischen, als neue Playlist.</string>
     <string name="tools_row_transfer">Mehrere Playlists auf einmal an einen anderen Dienst senden.</string>

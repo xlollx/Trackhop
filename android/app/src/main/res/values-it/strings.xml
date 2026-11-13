@@ -454,7 +454,7 @@
     <string name="ai_expand_missing">%1$d non trovati su %2$s</string>
     <string name="ai_expand_already">%d già in playlist, saltati</string>
     <string name="error_manage_unsupported">%1$s non permette di rinominare o eliminare playlist da altre app.</string>
-    <string name="tools_manage_title">Gestisci le playlist</string>
+    <string name="tools_manage_title">Gestisci playlist e libreria</string>
     <string name="tools_manage_desc">Le tue playlist su questo servizio in un unico elenco: rinominale o eliminale dove il servizio lo permette, oppure esportale.</string>
     <string name="tools_manage_open">Apri l\'elenco</string>
     <string name="tools_scan_title">Ripetuti tra playlist</string>
@@ -490,6 +490,11 @@
     <string name="tracks_select_artist">Seleziona tutti di %1$s</string>
     <string name="tracks_select_album">Seleziona tutti da “%1$s”</string>
     <string name="tracks_remove_confirm">Rimuovere %1$d brani da “%2$s” su %3$s?</string>
+    <string name="library_search">Cerca</string>
+    <string name="library_none">Qui non c\'è ancora niente.</string>
+    <string name="library_remove_confirm">Togliere %1$d elementi da “%2$s” su %3$s?</string>
+    <string name="library_remove_n">Togli (%d)</string>
+    <string name="library_ytm_artists_hint">Su YouTube Music seguire un artista vuol dire iscriversi al suo canale YouTube: toglierlo qui annulla l\'iscrizione.</string>
     <string name="tracks_removed">%d rimossi</string>
     <string name="tracks_none">Nessun brano in questa playlist.</string>
     <string name="export_menu">Esporta…</string>
@@ -1089,7 +1094,7 @@
     <string name="tools_section_safety">Al sicuro</string>
     <string name="tools_section_safety_desc">Tieni una copia delle tue playlist su questo telefono.</string>
     <string name="tools_row_files">Importa, incolla ed esporta playlist come file.</string>
-    <string name="tools_row_manage">Rinomina, elimina o esporta le tue playlist.</string>
+    <string name="tools_row_manage">Rinomina, elimina o esporta le tue playlist; togli album salvati, artisti e podcast seguiti.</string>
     <string name="tools_row_export">Salva una playlist come CSV, M3U o altro file.</string>
     <string name="tools_row_make">Copia, unisci, dividi, ordina o mescola in una nuova playlist.</string>
     <string name="tools_row_transfer">Invia più playlist insieme a un altro servizio.</string>

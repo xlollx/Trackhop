@@ -19,6 +19,8 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
+import com.xlollx.songport.model.Track
+import com.xlollx.songport.providers.MusicProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -203,5 +205,27 @@ class NewFeaturesFlowTest : FlowTest() {
         // No sync of the Shazam playlist yet: the sheet suggests one.
         waitText(s(R.string.shazam_share_hint_button))
         assertEquals(0, store.data.jobs.size)
+    }
+
+    @Test
+    fun savedAlbumsAreTidiedFromManagePlaylists() {
+        FakeWorld.savedAlbums = true
+        FakeWorld.playlists.getValue("spotify") += FakeWorld.FakePlaylist(MusicProvider.ALBUMS_ID, "", mutableListOf(
+            Track(id = "album1", title = "First Light", artists = listOf("The Fake Band")),
+            Track(id = "album2", title = "Second Wind", artists = listOf("The Fake Band")),
+        ))
+        launch(tabIntent(MainActivity.TAB_TOOLS))
+        waitText(s(R.string.tools_manage_title))
+        click(s(R.string.tools_manage_title))
+        // The saved albums open on a tap, above the playlists.
+        waitText("Road Trip")
+        click(s(R.string.saved_albums))
+        waitText("Second Wind")
+        click("First Light")
+        click(s(R.string.library_remove_n, 1))
+        waitText(s(R.string.library_remove_confirm, 1, s(R.string.saved_albums), "Spotify"))
+        click(s(R.string.remove))
+        waitText(s(R.string.tracks_removed, 1))
+        assertEquals(listOf("album2"), FakeWorld.playlists.getValue("spotify").first { it.id == MusicProvider.ALBUMS_ID }.tracks.map { it.id })
     }
 }

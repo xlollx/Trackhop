@@ -75,6 +75,8 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var confirming by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
+    // Saved albums, followed artists, podcasts: "items", not tracks.
+    val library = MusicProvider.isLibrary(playlist.id)
     ScreenBackHandler(onClose)
 
     LaunchedEffect(version) {
@@ -97,7 +99,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
         FitDialog(
             onDismissRequest = { confirming = false },
             title = { Text(pluralStringResource(R.plurals.tracks_remove_n, n, n)) },
-            text = { Text(stringResource(R.string.tracks_remove_confirm, n, playlist.name, provider.label(ctx))) },
+            text = { Text(stringResource(if (library) R.string.library_remove_confirm else R.string.tracks_remove_confirm, n, playlist.name, provider.label(ctx))) },
             confirmButton = {
                 TextButton(onClick = {
                     confirming = false; busy = true
@@ -128,7 +130,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                 actions = {
                     if (busy) CircularProgressIndicator(Modifier.padding(end = 16.dp).width(20.dp))
                     else if (selected.isNotEmpty()) TextButton(onClick = { confirming = true }) {
-                        Text(pluralStringResource(R.plurals.tracks_remove_n, selected.size, selected.size), color = MaterialTheme.colorScheme.error)
+                        Text(if (library) stringResource(R.string.library_remove_n, selected.size) else pluralStringResource(R.plurals.tracks_remove_n, selected.size, selected.size), color = MaterialTheme.colorScheme.error)
                     }
                 },
             )
@@ -137,7 +139,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
         Column(Modifier.padding(padding).fillMaxSize()) {
             OutlinedTextField(
                 value = query, onValueChange = { query = it }, singleLine = true,
-                placeholder = { Text(stringResource(R.string.tracks_search)) },
+                placeholder = { Text(stringResource(if (library) R.string.library_search else R.string.tracks_search)) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
                 trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear)) } },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -155,11 +157,16 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                     }
                 }
             }
+            // On YouTube Music an artist followed is a channel subscribed: said before removing one.
+            if (playlist.id == MusicProvider.ARTISTS_ID && provider is YouTubeBridgeProvider) Text(
+                stringResource(R.string.library_ytm_artists_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
             when {
                 tracks == null -> SkeletonRows(14)
                 error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { version++ })
                 error != null -> Text(error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(24.dp))
-                all.isEmpty() -> Text(stringResource(R.string.tracks_none), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(24.dp))
+                all.isEmpty() -> Text(stringResource(if (library) R.string.library_none else R.string.tracks_none), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(24.dp))
                 else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
                     itemsIndexed(shown, key = { _, i -> i }) { _, i ->
                         val t = all[i]

@@ -586,6 +586,11 @@ class YtmClient(private val host: YtmHost) {
         }
     }
 
+    /** Follows or unfollows podcasts: a "like" on the show's playlist, the id [libraryPodcasts] gives (MPSP + it is the page). */
+    fun savePodcasts(ids: List<String>, on: Boolean) {
+        ids.forEach { call(if (on) "like/like" else "like/removelike", mapOf("target" to mapOf("playlistId" to it.removePrefix("MPSP")))) }
+    }
+
     fun subscribeArtists(channelIds: List<String>, on: Boolean) {
         if (channelIds.isEmpty()) return
         channelIds.chunked(20).forEach { call(if (on) "subscription/subscribe" else "subscription/unsubscribe", mapOf("channelIds" to it)) }

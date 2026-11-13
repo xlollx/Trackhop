@@ -25,7 +25,7 @@ object BridgeCore {
     const val ARTISTS = "__artists__"
     const val PURCHASED = "__purchased__"
     const val RECENT = "__recent__"
-    /** Followed podcasts: read only on YouTube Music. */
+    /** Followed podcasts on YouTube Music: read, followed and unfollowed (a like on the show's playlist). */
     const val PODCASTS = "__podcasts__"
     /** Saved albums and followed artists on the older skill API: none mapped. */
     private const val AMAZON_NO_PURCHASED = "Amazon Music: purchased music is not available for this account's player (the older skill API)"
@@ -145,6 +145,7 @@ object BridgeCore {
                     val elsewhere = when (id) {
                         ALBUMS -> { client.rateAlbums(ids, extras?.getStringArray("uris")?.toList() ?: emptyList(), like = true); emptySet() }
                         ARTISTS -> { client.subscribeArtists(ids, on = true); emptySet() }
+                        PODCASTS -> { client.savePodcasts(ids, on = true); emptySet() }
                         else -> client.addTracks(id, ids)
                     }
                     invalidate(id, slot)
@@ -168,6 +169,7 @@ object BridgeCore {
                     when (id) {
                         ALBUMS -> client.rateAlbums(extras?.getStringArray("ids")?.toList() ?: emptyList(), extras?.getStringArray("uris")?.toList() ?: emptyList(), like = false)
                         ARTISTS -> client.subscribeArtists(extras?.getStringArray("ids")?.toList() ?: emptyList(), on = false)
+                        PODCASTS -> client.savePodcasts(extras?.getStringArray("ids")?.toList() ?: emptyList(), on = false)
                         else -> client.removeTracks(id, json.decodeFromString<List<RemoveItem>>(extras?.getString("json") ?: "[]"))
                     }
                     invalidate(id, slot)

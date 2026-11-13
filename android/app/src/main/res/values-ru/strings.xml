@@ -466,7 +466,7 @@
     <string name="ai_expand_missing">%1$d не найдено на %2$s</string>
     <string name="ai_expand_already">%d уже в плейлисте, пропущено</string>
     <string name="error_manage_unsupported">%1$s не позволяет переименовывать или удалять плейлисты из других приложений.</string>
-    <string name="tools_manage_title">Управление плейлистами</string>
+    <string name="tools_manage_title">Плейлисты и медиатека</string>
     <string name="tools_manage_desc">Ваши плейлисты на этом сервисе одним списком: переименуйте или удалите их там, где сервис это позволяет, либо экспортируйте.</string>
     <string name="tools_manage_open">Открыть список</string>
     <string name="tools_scan_title">Повторы в разных плейлистах</string>
@@ -502,6 +502,11 @@
     <string name="tracks_select_artist">Выбрать все треки %1$s</string>
     <string name="tracks_select_album">Выбрать все из «%1$s»</string>
     <string name="tracks_remove_confirm">Удалить %1$d треков из «%2$s» на %3$s?</string>
+    <string name="library_search">Поиск</string>
+    <string name="library_none">Здесь пока ничего нет.</string>
+    <string name="library_remove_confirm">Убрать элементы (%1$d) из «%2$s» на %3$s?</string>
+    <string name="library_remove_n">Убрать (%d)</string>
+    <string name="library_ytm_artists_hint">В YouTube Music подписка на исполнителя — это подписка на его канал YouTube: если убрать его здесь, подписка отменится.</string>
     <string name="tracks_removed">Удалено: %d</string>
     <string name="tracks_none">В этом плейлисте нет треков.</string>
     <string name="export_menu">Экспорт…</string>
@@ -1145,7 +1150,7 @@
     <string name="tools_section_safety">Сохранность</string>
     <string name="tools_section_safety_desc">Храните копию своих плейлистов на этом телефоне.</string>
     <string name="tools_row_files">Импорт, вставка и экспорт плейлистов в виде файлов.</string>
-    <string name="tools_row_manage">Переименуйте, удалите или экспортируйте свои плейлисты.</string>
+    <string name="tools_row_manage">Переименуйте, удалите или экспортируйте свои плейлисты; уберите сохранённые альбомы, исполнителей и подкасты.</string>
     <string name="tools_row_export">Сохраните плейлист как CSV, M3U или другой файл.</string>
     <string name="tools_row_make">Копируйте, объединяйте, делите, сортируйте или перемешивайте в новый плейлист.</string>
     <string name="tools_row_transfer">Отправьте сразу несколько плейлистов в другой сервис.</string>

@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Podcasts
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -104,7 +108,8 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     LaunchedEffect(version) {
         lists = null; error = null
-        lists = try { provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
+        // Saved albums, followed artists and podcasts first, where the service can write them; then the own playlists.
+        lists = try { provider.libraryEntries(ctx, asTarget = true).filter { it.id in MANAGED_LIBRARY } + provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
     fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) } }
 
@@ -227,8 +232,19 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             }
             else -> LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(all, key = { it.id }) { pl ->
+                    val library = MusicProvider.isLibrary(pl.id)
+                    val removable = provider.canRemoveTracks && provider.canWrite
                     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
-                        Row(Modifier.padding(start = 14.dp, top = 4.dp, bottom = 4.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            // A library list opens on a tap: removing from it is all there is to do there.
+                            (if (library && removable) Modifier.clickable(enabled = !busy) { viewing = pl } else Modifier)
+                                .padding(start = 14.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (library) {
+                                Icon(libraryIcon(pl.id), null, tint = MaterialTheme.colorScheme.primary)
+                                Spacer(Modifier.width(12.dp))
+                            }
                             Column(Modifier.weight(1f)) {
                                 Text(pl.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 val sub = listOfNotNull(
@@ -241,6 +257,11 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                             Box {
                                 IconButton(enabled = !busy, onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
                                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                                    if (library) {
+                                        if (removable) DropdownMenuItem(text = { Text(stringResource(R.string.remove) + "…") }, onClick = { menu = false; viewing = pl })
+                                        ExportMenuItem { menu = false; choosingFormat = pl }
+                                        return@DropdownMenu
+                                    }
                                     if (provider.canRenamePlaylists) DropdownMenuItem(text = { Text(stringResource(R.string.manage_rename)) }, onClick = { menu = false; renaming = pl })
                                     // Both entries when the listing does not say which state the playlist is in.
                                     if (provider.canSetVisibility && pl.isPublic != true) DropdownMenuItem(text = { Text(stringResource(R.string.manage_make_public)) }, onClick = { menu = false; setVisibility(pl, true) })
@@ -260,4 +281,13 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             }
         }
     }
+}
+
+/** The library lists this screen manages: what is saved or followed, not liked songs or plays. */
+private val MANAGED_LIBRARY = setOf(MusicProvider.ALBUMS_ID, MusicProvider.ARTISTS_ID, MusicProvider.PODCASTS_ID)
+
+private fun libraryIcon(id: String) = when (id) {
+    MusicProvider.ALBUMS_ID -> Icons.Filled.Album
+    MusicProvider.ARTISTS_ID -> Icons.Filled.Person
+    else -> Icons.Filled.Podcasts
 }

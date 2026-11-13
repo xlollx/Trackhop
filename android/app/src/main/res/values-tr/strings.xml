@@ -454,7 +454,7 @@
     <string name="ai_expand_missing">%1$d parça %2$s üzerinde bulunamadı</string>
     <string name="ai_expand_already">%d zaten çalma listesinde, atlandı</string>
     <string name="error_manage_unsupported">%1$s başka uygulamalardan çalma listesi yeniden adlandırmaya veya silmeye izin vermiyor.</string>
-    <string name="tools_manage_title">Çalma listelerini yönet</string>
+    <string name="tools_manage_title">Çalma listelerini ve kitaplığı yönet</string>
     <string name="tools_manage_desc">Bu servisteki çalma listeleriniz tek listede: servisin izin verdiği yerde yeniden adlandırın veya silin, ya da dışa aktarın.</string>
     <string name="tools_manage_open">Listeyi aç</string>
     <string name="tools_scan_title">Çalma listeleri arasında tekrarlar</string>
@@ -490,6 +490,11 @@
     <string name="tracks_select_artist">%1$s sanatçısının tümünü seç</string>
     <string name="tracks_select_album">“%1$s” albümünün tümünü seç</string>
     <string name="tracks_remove_confirm">%1$d parça “%2$s” listesinden (%3$s) kaldırılsın mı?</string>
+    <string name="library_search">Ara</string>
+    <string name="library_none">Burada henüz bir şey yok.</string>
+    <string name="library_remove_confirm">%1$d öğe “%2$s” listesinden (%3$s) kaldırılsın mı?</string>
+    <string name="library_remove_n">Kaldır (%d)</string>
+    <string name="library_ytm_artists_hint">YouTube Music\'te bir sanatçıyı takip etmek, YouTube kanalına abone olmaktır: buradan kaldırmak aboneliği iptal eder.</string>
     <string name="tracks_removed">%d kaldırıldı</string>
     <string name="tracks_none">Bu çalma listesinde parça yok.</string>
     <string name="export_menu">Dışa aktar…</string>
@@ -1087,7 +1092,7 @@
     <string name="tools_section_safety">Güvence</string>
     <string name="tools_section_safety_desc">Çalma listelerinin bir kopyasını bu telefonda tut.</string>
     <string name="tools_row_files">Çalma listelerini dosya olarak içe aktar, yapıştır ve dışa aktar.</string>
-    <string name="tools_row_manage">Çalma listelerini yeniden adlandır, sil veya dışa aktar.</string>
+    <string name="tools_row_manage">Çalma listelerini yeniden adlandır, sil veya dışa aktar; kayıtlı albümleri, takip edilen sanatçıları ve podcast\'leri kaldır.</string>
     <string name="tools_row_export">Bir çalma listesini CSV, M3U veya başka bir dosya olarak kaydet.</string>
     <string name="tools_row_make">Kopyala, birleştir, böl, sırala veya karıştır; yeni bir çalma listesine.</string>
     <string name="tools_row_transfer">Birden çok çalma listesini tek seferde başka bir servise gönder.</string>

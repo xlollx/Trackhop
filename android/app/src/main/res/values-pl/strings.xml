@@ -466,7 +466,7 @@
     <string name="ai_expand_missing">%1$d nie znaleziono w %2$s</string>
     <string name="ai_expand_already">%d już w playliście, pominięto</string>
     <string name="error_manage_unsupported">%1$s nie pozwala zmieniać nazw ani usuwać playlist z innych aplikacji.</string>
-    <string name="tools_manage_title">Zarządzaj playlistami</string>
+    <string name="tools_manage_title">Zarządzaj playlistami i biblioteką</string>
     <string name="tools_manage_desc">Twoje playlisty w tym serwisie na jednej liście: zmieniaj nazwy lub usuwaj je tam, gdzie serwis na to pozwala, albo je eksportuj.</string>
     <string name="tools_manage_open">Otwórz listę</string>
     <string name="tools_scan_title">Powtórzenia między playlistami</string>
@@ -502,6 +502,11 @@
     <string name="tracks_select_artist">Zaznacz wszystkie wykonawcy %1$s</string>
     <string name="tracks_select_album">Zaznacz wszystkie z „%1$s”</string>
     <string name="tracks_remove_confirm">Usunąć %1$d utworów z „%2$s” w %3$s?</string>
+    <string name="library_search">Szukaj</string>
+    <string name="library_none">Na razie nic tu nie ma.</string>
+    <string name="library_remove_confirm">Usunąć elementy (%1$d) z „%2$s” w %3$s?</string>
+    <string name="library_remove_n">Usuń (%d)</string>
+    <string name="library_ytm_artists_hint">W YouTube Music obserwowanie wykonawcy to subskrypcja jego kanału YouTube: usunięcie go tutaj anuluje subskrypcję.</string>
     <string name="tracks_removed">Usunięto: %d</string>
     <string name="tracks_none">Brak utworów w tej playliście.</string>
     <string name="export_menu">Eksportuj…</string>
@@ -1147,7 +1152,7 @@
     <string name="tools_section_safety">Bezpieczeństwo</string>
     <string name="tools_section_safety_desc">Trzymaj kopię swoich playlist na tym telefonie.</string>
     <string name="tools_row_files">Importuj, wklejaj i eksportuj playlisty jako pliki.</string>
-    <string name="tools_row_manage">Zmieniaj nazwy, usuwaj lub eksportuj swoje playlisty.</string>
+    <string name="tools_row_manage">Zmieniaj nazwy, usuwaj lub eksportuj swoje playlisty; usuwaj zapisane albumy, obserwowanych wykonawców i podcasty.</string>
     <string name="tools_row_export">Zapisz playlistę jako CSV, M3U lub inny plik.</string>
     <string name="tools_row_make">Kopiuj, łącz, dziel, sortuj lub tasuj do nowej playlisty.</string>
     <string name="tools_row_transfer">Wyślij kilka playlist naraz do innego serwisu.</string>

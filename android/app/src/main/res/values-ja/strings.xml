@@ -448,7 +448,7 @@
     <string name="ai_expand_missing">%1$d 曲は %2$s で見つかりませんでした</string>
     <string name="ai_expand_already">%d 曲はすでにプレイリストにあるためスキップ</string>
     <string name="error_manage_unsupported">%1$s では他のアプリからプレイリストの名前変更や削除ができません。</string>
-    <string name="tools_manage_title">プレイリストを管理</string>
+    <string name="tools_manage_title">プレイリストとライブラリを管理</string>
     <string name="tools_manage_desc">このサービスにあるあなたのプレイリストを一覧で表示します。サービスが許可していれば名前の変更や削除ができ、エクスポートもできます。</string>
     <string name="tools_manage_open">一覧を開く</string>
     <string name="tools_scan_title">複数のプレイリストにある曲</string>
@@ -484,6 +484,11 @@
     <string name="tracks_select_artist">%1$s の曲をすべて選択</string>
     <string name="tracks_select_album">「%1$s」の曲をすべて選択</string>
     <string name="tracks_remove_confirm">%3$s の「%2$s」から %1$d 曲を削除しますか？</string>
+    <string name="library_search">検索</string>
+    <string name="library_none">まだ何もありません。</string>
+    <string name="library_remove_confirm">%3$s の「%2$s」から %1$d 件を外しますか？</string>
+    <string name="library_remove_n">外す (%d)</string>
+    <string name="library_ytm_artists_hint">YouTube Music でアーティストをフォローすると、その YouTube チャンネルに登録されます。ここで外すと登録が解除されます。</string>
     <string name="tracks_removed">%d 曲を削除しました</string>
     <string name="tracks_none">このプレイリストに曲はありません。</string>
     <string name="export_menu">エクスポート…</string>
@@ -1061,7 +1066,7 @@
     <string name="tools_section_safety">安心</string>
     <string name="tools_section_safety_desc">プレイリストのコピーをこの端末に保存します。</string>
     <string name="tools_row_files">プレイリストをファイルとしてインポート、貼り付け、エクスポート。</string>
-    <string name="tools_row_manage">プレイリストの名前変更、削除、エクスポート。</string>
+    <string name="tools_row_manage">プレイリストの名前変更、削除、エクスポート。保存したアルバム、フォロー中のアーティストやポッドキャストも外せます。</string>
     <string name="tools_row_export">プレイリストを CSV、M3U などのファイルに保存。</string>
     <string name="tools_row_make">コピー、結合、分割、並べ替え、シャッフルで新しいプレイリストに。</string>
     <string name="tools_row_transfer">複数のプレイリストをまとめて別のサービスへ送信。</string>

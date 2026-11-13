@@ -32,6 +32,8 @@ object FakeWorld {
     val missing = ConcurrentHashMap<String, Set<String>>()
     /** While set, reading a playlist's tracks waits for it (suspended, no thread held): syncs stay running until the test lets them go. */
     @Volatile var hold: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+    /** Spotify's saved albums (a list with id ALBUMS_ID in [playlists]): only the tests that turn it on see them. */
+    @Volatile var savedAlbums = false
 
     // ---- the seed every test starts from
 
@@ -56,7 +58,7 @@ object FakeWorld {
 
     fun reset() {
         playlists.clear(); public.clear(); connected.clear(); missing.clear(); coversSet.clear()
-        hold?.complete(Unit); hold = null
+        hold?.complete(Unit); hold = null; savedAlbums = false
         playlists["spotify"] = mutableListOf(
             FakePlaylist(SPOTIFY_ROAD, "Road Trip", songs("spotify", 0 until 8)),
             FakePlaylist(SPOTIFY_CHILL, "Chill Evening", songs("spotify", 8 until 13)),
@@ -141,6 +143,7 @@ class FakeProvider(
     private val covers: Boolean = false,
 ) : MusicProvider, com.xlollx.songport.providers.PlayCounts {
     override val supportsPodcasts: Boolean get() = podcasts
+    override val supportsAlbums: Boolean get() = FakeWorld.savedAlbums && serviceId == "spotify"
     override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
         if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.PODCASTS_ID
@@ -180,7 +183,7 @@ class FakeProvider(
         own().firstOrNull { it.id == playlistId } ?: FakeWorld.public[serviceId]?.get(playlistId)
             ?: throw ProviderException("$displayName: no playlist $playlistId")
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = own().map { Playlist(it.id, it.name, it.tracks.size, it.owned) }
+    override suspend fun playlists(ctx: Env): List<Playlist> = own().filter { !MusicProvider.isLibrary(it.id) }.map { Playlist(it.id, it.name, it.tracks.size, it.owned) }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = find(playlistId).let { Playlist(it.id, it.name, it.tracks.size, it.owned) }
 

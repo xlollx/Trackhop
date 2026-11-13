@@ -448,7 +448,7 @@
     <string name="ai_expand_missing">%1$d곡을 %2$s에서 찾지 못했어요</string>
     <string name="ai_expand_already">%d곡은 이미 플레이리스트에 있어 건너뛰었어요</string>
     <string name="error_manage_unsupported">%1$s에서는 다른 앱이 플레이리스트 이름을 바꾸거나 삭제할 수 없어요.</string>
-    <string name="tools_manage_title">플레이리스트 관리</string>
+    <string name="tools_manage_title">플레이리스트 및 보관함 관리</string>
     <string name="tools_manage_desc">이 서비스의 내 플레이리스트를 한 목록으로 봐요. 서비스가 허용하면 이름을 바꾸거나 삭제하고, 내보낼 수도 있어요.</string>
     <string name="tools_manage_open">목록 열기</string>
     <string name="tools_scan_title">플레이리스트 간 중복</string>
@@ -484,6 +484,11 @@
     <string name="tracks_select_artist">%1$s의 곡 모두 선택</string>
     <string name="tracks_select_album">“%1$s”의 곡 모두 선택</string>
     <string name="tracks_remove_confirm">%1$d곡을 “%2$s”(%3$s)에서 삭제할까요?</string>
+    <string name="library_search">검색</string>
+    <string name="library_none">아직 아무것도 없습니다.</string>
+    <string name="library_remove_confirm">%1$d개 항목을 “%2$s”(%3$s)에서 제거할까요?</string>
+    <string name="library_remove_n">제거 (%d)</string>
+    <string name="library_ytm_artists_hint">YouTube Music에서 아티스트를 팔로우하면 해당 YouTube 채널을 구독하게 됩니다. 여기서 제거하면 구독이 취소됩니다.</string>
     <string name="tracks_removed">%d곡 삭제됨</string>
     <string name="tracks_none">이 플레이리스트에 곡이 없어요.</string>
     <string name="export_menu">내보내기…</string>
@@ -1060,7 +1065,7 @@
     <string name="tools_section_safety">안전</string>
     <string name="tools_section_safety_desc">플레이리스트 사본을 이 휴대폰에 보관합니다.</string>
     <string name="tools_row_files">플레이리스트를 파일로 가져오기, 붙여넣기, 내보내기.</string>
-    <string name="tools_row_manage">플레이리스트 이름 변경, 삭제 또는 내보내기.</string>
+    <string name="tools_row_manage">플레이리스트 이름 변경, 삭제 또는 내보내기. 저장한 앨범, 팔로우한 아티스트와 팟캐스트도 제거할 수 있습니다.</string>
     <string name="tools_row_export">플레이리스트 하나를 CSV, M3U 등 파일로 저장.</string>
     <string name="tools_row_make">복사, 병합, 분할, 정렬, 셔플로 새 플레이리스트 만들기.</string>
     <string name="tools_row_transfer">여러 플레이리스트를 한 번에 다른 서비스로 보내기.</string>

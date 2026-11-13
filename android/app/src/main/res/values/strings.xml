@@ -454,7 +454,7 @@
     <string name="ai_expand_missing">%1$d not found on %2$s</string>
     <string name="ai_expand_already">%d already in the playlist, skipped</string>
     <string name="error_manage_unsupported">%1$s does not allow renaming or deleting playlists from other apps.</string>
-    <string name="tools_manage_title">Manage playlists</string>
+    <string name="tools_manage_title">Manage playlists and library</string>
     <string name="tools_manage_desc">Your playlists on this service in one list: rename or delete them where the service allows it, or export them.</string>
     <string name="tools_manage_open">Open the list</string>
     <string name="tools_scan_title">Repeats across playlists</string>
@@ -490,6 +490,11 @@
     <string name="tracks_select_artist">Select all by %1$s</string>
     <string name="tracks_select_album">Select all from “%1$s”</string>
     <string name="tracks_remove_confirm">Remove %1$d tracks from “%2$s” on %3$s?</string>
+    <string name="library_search">Search</string>
+    <string name="library_none">Nothing here yet.</string>
+    <string name="library_remove_confirm">Remove %1$d items from “%2$s” on %3$s?</string>
+    <string name="library_remove_n">Remove (%d)</string>
+    <string name="library_ytm_artists_hint">On YouTube Music, following an artist means subscribing to their YouTube channel: removing one here unsubscribes you.</string>
     <string name="tracks_removed">%d removed</string>
     <string name="tracks_none">No tracks in this playlist.</string>
     <string name="export_menu">Export…</string>
@@ -1089,7 +1094,7 @@
     <string name="tools_section_safety">Safety</string>
     <string name="tools_section_safety_desc">Keep a copy of your playlists on this phone.</string>
     <string name="tools_row_files">Import, paste and export playlists as files.</string>
-    <string name="tools_row_manage">Rename, delete or export your playlists.</string>
+    <string name="tools_row_manage">Rename, delete or export your playlists; remove saved albums, followed artists and podcasts.</string>
     <string name="tools_row_export">Save one playlist as CSV, M3U or another file.</string>
     <string name="tools_row_make">Copy, merge, split, sort or shuffle into a new playlist.</string>
     <string name="tools_row_transfer">Send several playlists to another service at once.</string>
