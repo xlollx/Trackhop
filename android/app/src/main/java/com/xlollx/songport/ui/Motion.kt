@@ -42,7 +42,8 @@ fun richMotion(): Boolean {
 @Composable
 fun Equalizer(color: Color, size: Dp, modifier: Modifier = Modifier) {
     val beat = rememberInfiniteTransition(label = "equalizer")
-    val t by beat.animateFloat(0f, 1f, infiniteRepeatable(tween(900, easing = LinearEasing)), label = "beat")
+    // Slow enough to read as music, not as a busy spinner: each bar bounces once or twice a second.
+    val t by beat.animateFloat(0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing)), label = "beat")
     Canvas(modifier.size(size)) {
         val gap = this.size.width * 0.14f
         val bar = (this.size.width - 2 * gap) / 3
