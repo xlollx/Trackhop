@@ -213,12 +213,12 @@ class SyncsBarFlowTest : FlowTest() {
     }
 
     @Test
-    fun aFewSyncsHaveNoSearchFieldButKeepTheLine() {
+    fun aFewSyncsHaveTheSearchFieldAndKeepTheLine() {
         seed(3)
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText("Road Trip")
-        assertEquals("no search field under five syncs", 0, compose.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size)
-        assertEquals(0, tagged(SYNC_SEARCH_TAG).size)
+        // From one sync on (the preview code is typed there too); the chips still wait for five.
+        assertEquals("the search field with three syncs", 1, tagged(SYNC_SEARCH_TAG).size)
         waitText(s(R.string.status_all_ok), substring = true)
         assertTrue(mark().width > 0)
     }

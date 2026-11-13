@@ -338,9 +338,11 @@ class CardDensityFlowTest : FlowTest() {
         waitText("Sync number 1")
         clickDesc(s(R.string.more_actions))
         click(s(R.string.sync_menu_move_to))
-        compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("3")
+        // The dialog's field: the syncs' search field is there too.
+        val field = androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())
+        compose.onNode(field).performTextReplacement("3")
         rotate(UiAutomation.ROTATION_FREEZE_90)
-        waitNode("the position typed", androidx.compose.ui.test.hasSetTextAction() and hasText("3"))
+        waitNode("the position typed", field and hasText("3"))
         click(s(R.string.ok))
         waitFor("sync 1 moved to the end") { store.data.jobs.last().id == "job-1" }
     }

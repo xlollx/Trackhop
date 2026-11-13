@@ -81,11 +81,14 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
     val run = Removals.state.collectAsState().value[removalKey]
     val busy = run != null && !run.finished
     androidx.compose.runtime.DisposableEffect(removalKey) { Removals.watch(removalKey, 1); onDispose { Removals.watch(removalKey, -1) } }
+    val scope = rememberCoroutineScope()
     LaunchedEffect(run?.finished) {
         if (run?.finished != true) return@LaunchedEffect
+        val said = run.error?.let { ctx.getString(R.string.removal_not_done, run.failed, it) } ?: ctx.getString(R.string.tracks_removed, run.done)
+        // Shown from the screen's scope: clearing the run restarts this effect, which would take the message with it.
+        scope.launch { snackbar.showSnackbar(said) }
         Removals.clear(removalKey)
         onChanged(); version++
-        snackbar.showSnackbar(run.error?.let { ctx.getString(R.string.removal_not_done, run.failed, it) } ?: ctx.getString(R.string.tracks_removed, run.done))
     }
     // Saved albums, followed artists, podcasts: "items", not tracks.
     val library = MusicProvider.isLibrary(playlist.id)
