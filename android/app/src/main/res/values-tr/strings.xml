@@ -1936,10 +1936,10 @@
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
     <string name="stat_in_playlist">listede</string>
     <string name="settings_card_accent">Renkli eşitleme kartları</string>
-    <string name="settings_route_glow">Kartlarda rota renkleri</string>
+    <string name="settings_route_glow">Kartlarda hizmet renkleri</string>
     <string name="route_glow_plain">Renksiz kartlar</string>
     <string name="route_glow_all">Tüm kartlar</string>
-    <string name="job_route_glow">Rota renkleri</string>
+    <string name="job_route_glow">Hizmet renkleri</string>
     <string name="route_glow_on">Açık</string>
     <string name="route_glow_off">Kapalı</string>
     <string name="accent_classic">Klasik şerit</string>

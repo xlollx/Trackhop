@@ -2010,10 +2010,10 @@
     <string name="support_sponsors_desc">Ежемесячно или разово · нужен аккаунт GitHub</string>
     <string name="stat_in_playlist">в плейлисте</string>
     <string name="settings_card_accent">Цветные карточки синхронизаций</string>
-    <string name="settings_route_glow">Цвета маршрута на карточках</string>
+    <string name="settings_route_glow">Цвета сервисов на карточках</string>
     <string name="route_glow_plain">Карточки без цвета</string>
     <string name="route_glow_all">Все карточки</string>
-    <string name="job_route_glow">Цвета маршрута</string>
+    <string name="job_route_glow">Цвета сервисов</string>
     <string name="route_glow_on">Вкл.</string>
     <string name="route_glow_off">Выкл.</string>
     <string name="accent_classic">Классическая полоса</string>

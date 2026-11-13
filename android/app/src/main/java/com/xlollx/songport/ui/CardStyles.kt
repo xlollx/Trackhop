@@ -313,7 +313,9 @@ fun JobStyleDialog(
         // The route's glow, for this card: as in Settings, or on or off whatever Settings say.
         Text(androidx.compose.ui.res.stringResource(R.string.job_route_glow), style = MaterialTheme.typography.labelLarge)
         androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            androidx.compose.material3.FilterChip(rg == null, onClick = { rg = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default)) })
+            // What Settings would give this card, said on the chip, so the choice is never a guess.
+            val inherited = androidx.compose.ui.res.stringResource(if (routeGlowOn(null, c == null, settingsGlow)) R.string.route_glow_on else R.string.route_glow_off)
+            androidx.compose.material3.FilterChip(rg == null, onClick = { rg = null }, label = { Text(androidx.compose.ui.res.stringResource(R.string.accent_default) + " · " + inherited, maxLines = 1) })
             androidx.compose.material3.FilterChip(rg == true, onClick = { rg = true }, label = { Text(androidx.compose.ui.res.stringResource(R.string.route_glow_on)) })
             androidx.compose.material3.FilterChip(rg == false, onClick = { rg = false }, label = { Text(androidx.compose.ui.res.stringResource(R.string.route_glow_off)) })
         }

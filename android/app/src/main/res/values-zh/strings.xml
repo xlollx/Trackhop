@@ -1902,10 +1902,10 @@
     <string name="support_sponsors_desc">按月或一次性 · 需要 GitHub 账号</string>
     <string name="stat_in_playlist">歌单内</string>
     <string name="settings_card_accent">彩色同步卡片</string>
-    <string name="settings_route_glow">卡片显示路线颜色</string>
+    <string name="settings_route_glow">卡片显示服务颜色</string>
     <string name="route_glow_plain">无颜色的卡片</string>
     <string name="route_glow_all">所有卡片</string>
-    <string name="job_route_glow">路线颜色</string>
+    <string name="job_route_glow">服务颜色</string>
     <string name="route_glow_on">开</string>
     <string name="route_glow_off">关</string>
     <string name="accent_classic">经典色条</string>

@@ -1946,10 +1946,10 @@
     <string name="support_sponsors_desc">Mensual o una vez · con una cuenta de GitHub</string>
     <string name="stat_in_playlist">en la lista</string>
     <string name="settings_card_accent">Tarjetas de sync con color</string>
-    <string name="settings_route_glow">Colores de la ruta en las tarjetas</string>
+    <string name="settings_route_glow">Colores de los servicios en las tarjetas</string>
     <string name="route_glow_plain">Tarjetas sin color</string>
     <string name="route_glow_all">Todas las tarjetas</string>
-    <string name="job_route_glow">Colores de la ruta</string>
+    <string name="job_route_glow">Colores de los servicios</string>
     <string name="route_glow_on">Sí</string>
     <string name="route_glow_off">No</string>
     <string name="accent_classic">Franja clásica</string>

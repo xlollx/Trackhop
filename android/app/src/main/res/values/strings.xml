@@ -1939,10 +1939,10 @@
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
     <string name="stat_in_playlist">in playlist</string>
     <string name="settings_card_accent">Coloured sync cards</string>
-    <string name="settings_route_glow">Route colours on cards</string>
+    <string name="settings_route_glow">Service colours on cards</string>
     <string name="route_glow_plain">Cards without a colour</string>
     <string name="route_glow_all">All cards</string>
-    <string name="job_route_glow">Route colours</string>
+    <string name="job_route_glow">Service colours</string>
     <string name="route_glow_on">On</string>
     <string name="route_glow_off">Off</string>
     <string name="accent_classic">Classic band</string>
