@@ -123,6 +123,45 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
         return out
     }
 
+    /**
+     * Plex reads lyrics from a `.lrc` (timed) or `.txt` (plain) file named like the track, in its folder
+     * (support.plex.tv, Adding local lyrics; the Local Media Assets agent). Its API has no call that adds
+     * them. A track's lyrics are its streams of type 4.
+     */
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.SIDECAR
+
+    /**
+     * Every track of the music libraries with its file (`Media.Part.file`), then their details read
+     * [LYRICS_BATCH] at a time (`/library/metadata/{ids}`), whose streams say whether there are lyrics.
+     */
+    override suspend fun lyricsSongs(ctx: Env, onProgress: (Int) -> Unit): List<LyricsSong> {
+        val listed = ArrayList<Pair<Track, String?>>()
+        val sections = api(ctx, "GET", "/library/sections")["MediaContainer"]["Directory"].arr.filter { it["type"].str == "artist" }.mapNotNull { it["key"].str }
+        for (section in sections) {
+            var offset = 0
+            while (true) {
+                val page = api(ctx, "GET", "/library/sections/$section/all?type=10&X-Plex-Container-Start=$offset&X-Plex-Container-Size=$LIBRARY_PAGE")["MediaContainer"]["Metadata"].arr
+                page.forEach { m -> toTrack(m)?.let { listed += it to fileOf(m) } }
+                offset += page.size
+                if (page.size < LIBRARY_PAGE) break
+            }
+        }
+        val out = ArrayList<LyricsSong>()
+        for (chunk in listed.chunked(LYRICS_BATCH)) {
+            val details = api(ctx, "GET", "/library/metadata/${chunk.joinToString(",") { it.first.id }}")["MediaContainer"]["Metadata"].arr
+                .associateBy { it["ratingKey"].str }
+            for ((t, file) in chunk) {
+                val m = details[t.id]
+                val has = m["Media"].arr.any { media -> media["Part"].arr.any { part -> part["Stream"].arr.any { it["streamType"].int == LYRICS_STREAM } } }
+                out += LyricsSong(t, has, file ?: fileOf(m))
+            }
+            onProgress(out.size)
+        }
+        return out
+    }
+
+    private fun fileOf(m: JsonElement?): String? = m["Media"].arr.firstNotNullOfOrNull { media -> media["Part"].arr.firstNotNullOfOrNull { it["file"].str } }
+
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
         val t = creds(ctx)
         val machine = t.extra["machine"] ?: throw ProviderException("$displayName: reconnect")
@@ -177,5 +216,9 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     companion object {
         const val SERVICE = "plex"
         private const val LIBRARY_PAGE = 500
+        /** Tracks whose details one request reads for the lyrics report. */
+        private const val LYRICS_BATCH = 50
+        /** Plex's stream type for lyrics (1 video, 2 audio, 3 subtitles, 4 lyrics). */
+        private const val LYRICS_STREAM = 4
     }
 }

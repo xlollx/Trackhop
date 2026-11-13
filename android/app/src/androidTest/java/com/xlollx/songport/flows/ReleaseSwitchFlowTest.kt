@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 
 /**
  * The release switch (com.xlollx.songport.Features): in a 1.17 build the ways into 1.18's features
- * are not offered (Shared playlists in Tools, Discover's new cards with Followed artists, the
+ * are not offered (Shared playlists and Synced lyrics in Tools, Discover's new cards with Followed artists, the
  * Wrapped and the poster from real listening, the poster's "Use as playlist cover", YouTube Music's
  * followed podcasts in the picker), and Settings › Developer options › Preview upcoming features brings
  * them back on this phone. [ReleaseSwitchPreviewFlowTest] has them with the preview on.
@@ -61,6 +61,8 @@ open class ReleaseSwitchFlowTest : FlowTest() {
         waitText(s(R.string.tools_transfer_title))
         assertTrue(exists(s(R.string.tools_dedupe_title)))
         assertTrue("Shared playlists in Tools", exists(s(R.string.shared_title)) == shown)
+        // Synced lyrics, for the Jellyfin server connected.
+        assertTrue("Synced lyrics in Tools", exists(s(R.string.tools_lyrics_title)) == shown)
 
         discover()
         // The cards of 1.16 stay.

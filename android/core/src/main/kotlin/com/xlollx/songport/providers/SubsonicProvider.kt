@@ -231,6 +231,43 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
         }
     }
 
+    /**
+     * Navidrome and the others read lyrics from the file's tags and from a `.lrc` or `.txt` file next
+     * to it (Navidrome: LyricsPriority, ".lrc,.txt,embedded" among its defaults); the API has no call
+     * that adds them.
+     */
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.SIDECAR
+
+    /**
+     * Every song (search3, as [librarySongs]) with its `path`, and whether the server has lyrics for it:
+     * `getLyricsBySongId` where the server lists the OpenSubsonic `songLyrics` extension, else the
+     * older `getLyrics` by artist and title. One call per song. Navidrome reports the real path only
+     * with Subsonic.DefaultReportRealPath (or the player's "Report real path") on.
+     */
+    override suspend fun lyricsSongs(ctx: Env, onProgress: (Int) -> Unit): List<LyricsSong> {
+        val songs = ArrayList<JsonElement>()
+        var offset = 0
+        while (true) {
+            val page = call(ctx, "search3", listOf("query" to "", "songCount" to "$LIBRARY_PAGE", "songOffset" to "$offset", "albumCount" to "0", "artistCount" to "0"))["searchResult3"]["song"].arr
+            songs += page
+            offset += page.size
+            if (page.size < LIBRARY_PAGE) break
+        }
+        val byId = LYRICS_EXTENSION in extensions(creds(ctx).extra["url"].orEmpty())
+        val out = ArrayList<LyricsSong>()
+        for (s in songs) {
+            val t = toTrack(s) ?: continue
+            val has = if (byId) {
+                call(ctx, "getLyricsBySongId", listOf("id" to t.id))["lyricsList"]["structuredLyrics"].arr
+                    .any { l -> l["line"].arr.any { !it["value"].str.isNullOrBlank() } }
+            } else if (t.artists.isEmpty() || t.title.isBlank()) false
+            else !call(ctx, "getLyrics", listOf("artist" to t.artists.first(), "title" to t.title))["lyrics"]["value"].str.isNullOrBlank()
+            out += LyricsSong(t, has, s["path"].str)
+            onProgress(out.size)
+        }
+        return out
+    }
+
     private fun toAlbum(a: JsonElement?): Track? {
         val id = a["id"].str ?: return null
         return Track(id = id, title = a["name"].str ?: a["album"].str ?: "", artists = listOfNotNull(a["artist"].str), kind = Track.KIND_ALBUM)
@@ -310,6 +347,8 @@ class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), 
         internal const val AUTH = "auth"
         internal const val AUTH_APIKEY = "apikey"
         internal const val APIKEY_EXTENSION = "apiKeyAuthentication"
+        /** OpenSubsonic's structured lyrics (getLyricsBySongId). */
+        internal const val LYRICS_EXTENSION = "songLyrics"
         /** OpenSubsonic error 44: the API key is not valid. */
         private const val ERROR_INVALID_KEY = 44
         internal const val NAVIDROME = "navidrome"

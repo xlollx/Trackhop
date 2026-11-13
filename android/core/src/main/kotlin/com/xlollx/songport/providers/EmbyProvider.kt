@@ -2,6 +2,9 @@ package com.xlollx.songport.providers
 
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
+import com.xlollx.songport.model.Track
+import com.xlollx.songport.net.arr
+import kotlinx.serialization.json.JsonElement
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.str
@@ -34,6 +37,20 @@ class EmbyProvider(slot: String = "") : JellyfinProvider(slot) {
 
     override fun mbidFilter(mbids: List<String>): String =
         "AnyProviderIdEquals=" + Http.enc(mbids.take(2).flatMap { listOf("MusicBrainzTrack.$it", "MusicBrainzRecording.$it") }.joinToString(","))
+
+    /**
+     * Emby reads lyrics from the file and from a text file next to it (emby.media, Music Lyrics); its
+     * API (Emby.SDK's OpenAPI, 4.10) has no call that adds them. A song's lyrics are among its media
+     * streams, as subtitles.
+     */
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.SIDECAR
+
+    override val lyricsFields: String get() = "Path,MediaStreams"
+
+    override fun itemHasLyrics(i: JsonElement?): Boolean = i["MediaStreams"].arr.any { it["Type"].str == "Subtitle" }
+
+    override suspend fun saveLyrics(ctx: Env, track: Track, text: String, synced: Boolean): Boolean =
+        throw ProviderException("$displayName: lyrics cannot be added through its API")
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
         val j = api(ctx, "POST", "/Playlists?Name=${Http.enc(name)}&MediaType=Audio&UserId=${uid(ctx)}")

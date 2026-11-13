@@ -16,6 +16,7 @@ internal fun Web.v2Tool(r: Web.Req, rest: List<String>): Boolean {
         "wrapped" -> wrappedPage(r, rest.drop(1))
         "poster" -> if (rest.size == 1) posterPage(r) else return false
         "alerts" -> if (rest.size == 1) alertsPage(r) else return false
+        "nolyrics" -> if (rest.size == 1) syncedLyricsPage(r) else return false
         else -> return false
     }
     return true
@@ -36,7 +37,8 @@ internal fun Web.apiV2(ex: HttpExchange, method: String, rest: List<String>, que
     val body = { apiJson(ex) }
     return apiWrapped(method, rest, body, json, error) { bytes, type -> sendBytes(ex, 200, bytes, type) } ||
         apiPoster(method, rest, query, json, error) ||
-        apiFollowed(method, rest, body, json, error)
+        apiFollowed(method, rest, body, json, error) ||
+        apiSyncedLyrics(method, rest, query, json, error)
 }
 
 /** Their lines in the API's description (ApiDocs), and so in openapi.json and the guide's test. */
@@ -53,4 +55,7 @@ internal val V2_CALLS: List<ApiDocs.Call>
         ApiDocs.Call("PATCH", "/followed/{artist}", "Discover", "Mute an artist (still followed, nothing said) or turn it on again, or change what it is checked for.", body = "{\"muted\"?, \"releases\"?, \"concerts\"?, \"merch\"?, \"records\"?}"),
         ApiDocs.Call("DELETE", "/followed/{artist}", "Discover", "Stop following an artist."),
         ApiDocs.Call("POST", "/followed/check", "Discover", "Look every artist followed up now (a background task): what is new goes to your notification channels that take New releases, and into the latest news."),
+        ApiDocs.Call("GET", "/tools/nolyrics", "Services", "Synced lyrics: the songs on a Navidrome (or other Subsonic server), Jellyfin, Emby, Plex or Lyrion server without lyrics, with their file's path where the server reports it (read only; a large library takes a while). support says what the server allows: api (Jellyfin 10.9+, lyrics added through its API), files (Navidrome, Emby, Plex: .lrc/.txt files next to the music, once the admin has set the music folder on the page), report (Lyrion: listed only); canAdd whether lyrics can be added from here. Mopidy has no lyrics. service= its id, not needed when only one is connected.", listOf("service")),
+        ApiDocs.Call("POST", "/tools/nolyrics/lookup", "Services", "Looks the songs without lyrics up on LRCLIB (about one song a second), limit= of them (default 25, up to 200) from offset= (next gives the following batch). Each found is synced, plain, none or error (LRCLIB did not answer). Writes nothing; the answer is kept for /save.", listOf("service", "limit", "offset")),
+        ApiDocs.Call("POST", "/tools/nolyrics/save", "Services", "Adds the lyrics the last lookup found: through Jellyfin's API, or as new .lrc (synced) and .txt (plain) files next to the music. A song with lyrics by now is left as it is (kept), nothing is replaced or deleted; a song that fails is left untouched (failed, named in the log).", listOf("service")),
     )

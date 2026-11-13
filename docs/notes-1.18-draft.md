@@ -33,6 +33,7 @@ for the 1.18 entry.
 - **Podcasts**: YouTube Music's followed podcasts as a source; shows matched by their feed; your followed podcasts exported as OPML for any podcast app.
 - **Covers everywhere**: a sync copies the playlist's cover to Spotify (web), YouTube Music, YouTube, TIDAL, SoundCloud, Jellyfin, Emby and Plex too.
 - **More of your library**: TIDAL liked tracks, Apple Music favorites and recent plays, ListenBrainz's playlists made for you, Amazon Music purchases; TIDAL and YouTube keep the source's order.
+- **Synced lyrics**: Tools › Synced lyrics lists the songs on your Navidrome, Jellyfin, Emby, Plex or Lyrion server without lyrics and looks them up on LRCLIB; on Jellyfin it adds them, after you see what was found. Lyrics already there are never changed.
 
 ## Desktop and Docker (server CHANGELOG)
 
@@ -49,6 +50,7 @@ The lines taken out of the 1.17 (server 1.10) section, to put back with the serv
 - **Podcasts**: YouTube Music's followed podcasts as a source; followed podcasts exported as OPML, with their feeds looked up.
 - **Playlist covers on more services**: Spotify (web), YouTube Music, TIDAL, YouTube, Jellyfin, Emby and Plex take the source's cover.
 - **More of your library**: TIDAL liked tracks, Apple Music favorites and recent plays, ListenBrainz's playlists made for you.
+- **Synced lyrics from your server**: Tools › Synced lyrics lists the songs of a connected Navidrome (and other Subsonic servers), Jellyfin, Emby, Plex or Lyrion server without lyrics, looks them up on LRCLIB and shows what it found before anything is written. Jellyfin takes them through its API; for Navidrome, Emby and Plex they are saved as `.lrc` (synced) or `.txt` (plain) next to the audio file, once the server's music folder is mapped to a folder here (mounted read-write on Docker). Nothing is ever replaced. Mopidy has no lyrics. `GET /api/v1/tools/nolyrics`, `POST /api/v1/tools/nolyrics/lookup` and `/save`, `trackhop nolyrics` and the MCP tool `find_songs_without_lyrics`.
 
 ## On the day
 

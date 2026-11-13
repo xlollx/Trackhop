@@ -55,6 +55,9 @@ internal class CliV2(private val c: CliCommands) {
                 Cli.Cmd("follow", "Discover", listOf("follow <artist> [--kinds releases,concerts,merch,records]"), "follow an artist, to be told of their news",
                     "--kinds: what to be told about (your defaults without it)."),
                 Cli.Cmd("unfollow", "Discover", listOf("unfollow <artist>"), "stop following an artist"),
+                Cli.Cmd("nolyrics", "Services and playlists", listOf("nolyrics [<service>]"), "the songs on your Navidrome, Jellyfin, Emby, Plex or Lyrion server without lyrics",
+                    "Nothing is changed. <service> can be left out when only one such server is connected. To add lyrics from LRCLIB,\n" +
+                        "use the page (Tools, Synced lyrics): you see what was found before anything is written."),
             )
 
         /** Their options that take a value. */
@@ -85,8 +88,29 @@ internal class CliV2(private val c: CliCommands) {
             "followed" -> followed(p, o)
             "follow" -> follow(p.joinToString(" ").ifBlank { throw Cli.Failure(2, "usage: trackhop follow <artist> [--kinds releases,concerts,merch,records]") }, o)
             "unfollow" -> unfollow(p.joinToString(" ").ifBlank { throw Cli.Failure(2, "usage: trackhop unfollow <artist>") })
+            "nolyrics" -> noLyrics(p.joinToString(" ").takeIf { it.isNotEmpty() })
             else -> null
         }
+    }
+
+    // ------------------------------------------------------------------ nolyrics
+
+    private fun noLyrics(serviceAsk: String?): Int {
+        val s = serviceAsk?.let { c.service(it) }
+        if (!c.asJson) out.println("Reading ${s?.s("name") ?: "the library"}...")
+        val r = api.get("tools/nolyrics" + (s?.let { "?service=${enc(it.s("id"))}" } ?: "")).jsonObject
+        if (c.asJson) return print(r).let { 0 }
+        val tracks = r.list("tracks")
+        when {
+            r.n("songs") == 0 -> out.println("The server did not list its songs.")
+            tracks.isEmpty() -> out.println("All ${r.n("songs")} songs have lyrics.")
+            else -> {
+                out.println("${r.n("withoutLyrics")} of ${r.n("songs")} songs have no lyrics:")
+                tracks.forEach { t -> out.println("  ${t.s("artist")} - ${t.s("title")}${t["album"].str()?.let { "  [$it]" } ?: ""}") }
+                if (r.s("support") != "report") out.println("To add them from LRCLIB: Tools, Synced lyrics on the page.")
+            }
+        }
+        return 0
     }
 
     // ------------------------------------------------------------------ wrapped

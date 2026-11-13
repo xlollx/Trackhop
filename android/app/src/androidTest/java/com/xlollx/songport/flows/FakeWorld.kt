@@ -146,6 +146,9 @@ class FakeProvider(
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.PODCASTS_ID
     override val canSetCover: Boolean get() = covers
     override suspend fun setPlaylistCover(ctx: Env, playlistId: String, jpeg: ByteArray) { FakeWorld.coversSet += id to playlistId }
+    /** Jellyfin takes lyrics through its API (Tools › Synced lyrics, from 1.18). */
+    override val lyricsSupport: com.xlollx.songport.providers.LyricsSupport
+        get() = if (serviceId == "jellyfin") com.xlollx.songport.providers.LyricsSupport.SERVER_API else com.xlollx.songport.providers.LyricsSupport.NONE
 
     /** A personal server's play counts (Jellyfin's, for the Wrapped and the poster from 1.18): none counted yet. */
     override suspend fun playlistPlays(ctx: Env, playlistId: String): List<com.xlollx.songport.sync.Listening.Play> = emptyList()

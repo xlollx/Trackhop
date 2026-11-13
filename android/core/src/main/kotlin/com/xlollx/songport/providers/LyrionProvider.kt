@@ -124,6 +124,25 @@ class LyrionProvider(override val slot: String = "") : CredentialsProvider(), Pl
         return out.filter { it.plays > 0 }.distinctBy { it.track.id }.sortedByDescending { it.plays }.take(n)
     }
 
+    /**
+     * Lyrion knows a song's lyrics from its file's tags (the CLI's tag `w`, "lyrics"); its command
+     * interface has no command that adds them: the report only.
+     */
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.REPORT_ONLY
+
+    /** Every song (`titles`, a page at a time) with its lyrics asked for (tag `w`). */
+    override suspend fun lyricsSongs(ctx: Env, onProgress: (Int) -> Unit): List<LyricsSong> {
+        val out = ArrayList<LyricsSong>()
+        paged { start ->
+            rpc(ctx, "titles", start, PAGE, "tags:${TAGS}w").let { it["count"].int to it["titles_loop"].arr }
+                .also { (_, items) ->
+                    items.forEach { s -> toTrack(s)?.let { out += LyricsSong(it, !s["lyrics"].str.isNullOrBlank()) } }
+                    onProgress(out.size)
+                }
+        }
+        return out
+    }
+
     /** Every page of a listing: the server says how many entries there are in all. */
     private suspend fun paged(page: suspend (start: Int) -> Pair<Int?, List<JsonElement>>): List<JsonElement> {
         val out = ArrayList<JsonElement>()

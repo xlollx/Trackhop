@@ -487,6 +487,28 @@ For each file, its artist, title, album and length are sent to LRCLIB, nothing e
 protected by copyright: they are for your own listening. On a server shared by several people,
 only the admin sees this tool.
 
+### Synced lyrics from your server
+
+*Coming in the next update.* **Tools › Synced lyrics** works on a connected server instead of a
+folder: it lists the songs your Navidrome (or other Subsonic server), Jellyfin, Emby, Plex or Lyrion
+server has no lyrics for, looks them up on LRCLIB (one song a second) and shows what it found
+(synced, plain or none) before anything is written. Then *Add* writes them:
+
+- **Jellyfin** (10.9 or newer) takes them through its API, with an account allowed to manage lyrics
+  (administrators are). This works from the app too.
+- **Navidrome, Emby and Plex** read lyrics from a file next to the music, named like it: synced as
+  `<name>.lrc`, plain as `<name>.txt`. Trackhop writes them there, on Desktop and Docker only, once
+  the admin has set the server's music folder on the tool's page: the path the server reports (for
+  example `/music` in Navidrome's container) and the same folder here. On Docker, mount it
+  read-write, as for Lyrics above (no `:ro`, writable by user 999). Navidrome reports the real path
+  only with `ND_SUBSONIC_DEFAULTREPORTREALPATH=true`; without it no file is found and nothing is
+  written.
+- **Lyrion** has no way for apps to add lyrics: its songs are only listed. **Mopidy** has no lyrics.
+
+Only new files are made: a song with lyrics, or with a `.lrc` or `.txt` next to it, is left as it
+is, and nothing is replaced or deleted. A song that fails is left untouched and the rest go on; the
+log has one line for the run. The server shows the new lyrics after its next library scan.
+
 ## AI playlists
 
 ### No key needed
@@ -658,6 +680,9 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/concerts` | *Coming in the next update.* Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. |
 | `GET /api/v1/setlists` | *Coming in the next update.* Setlists of a playlist's artists: `?service=spotify&playlist=<id or name>`. The latest setlist.fm setlists (up to 5 each) of the artists the playlist holds most: date, venue, city, country, tour, `url` (its setlist.fm page), `songs` (title, `coverOf`, `tape`, `encore`) and `tracks` ("Artist - Title", tapes left out, ready for a playlist). Needs a setlist.fm key (Settings, or `SETLISTFM_API_KEY`); `notes` (the day's limit reached…) and `attribution` to show with them. Asked only on this call; answers kept a week per artist. |
 | `GET /api/v1/records` | *Coming in the next update.* Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. |
+| `GET /api/v1/tools/nolyrics` | *Coming in the next update.* Synced lyrics: the songs on a Navidrome (or other Subsonic), Jellyfin, Emby, Plex or Lyrion server without lyrics, with their file's `path` where the server reports it (`?service=subsonic`; not needed when only one is connected). `support` is `api` (Jellyfin), `files` (`.lrc`/`.txt` next to the music) or `report` (Lyrion); `canAdd` says whether lyrics can be added from here. Read only. |
+| `POST /api/v1/tools/nolyrics/lookup` | *Coming in the next update.* Looks the songs without lyrics up on LRCLIB, about one a second: `?limit=25&offset=0` (`next` gives the following batch). Each is `synced`, `plain`, `none` or `error`. Writes nothing. |
+| `POST /api/v1/tools/nolyrics/save` | *Coming in the next update.* Adds what the last lookup found: through Jellyfin's API, or as new `.lrc`/`.txt` files in the music folder set on the page. Songs with lyrics by now are kept as they are; nothing is replaced or deleted. |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
 
 **Discover**

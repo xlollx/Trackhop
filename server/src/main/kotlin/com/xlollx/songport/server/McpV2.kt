@@ -42,6 +42,10 @@ internal object McpV2 {
             },
             Mcp.Tool("unfollow_artist", "Unfollow an artist", "Stops following an artist: what was remembered of them goes. Ask the user first.",
                 listOf(ARTIST), readOnly = false, destructive = true) { a -> Mcp.Call("unfollow", listOf(a.need("artist"))) },
+            Mcp.Tool("find_songs_without_lyrics", "Songs without lyrics", "The songs on the user's Navidrome (or other Subsonic server), Jellyfin, Emby, Plex or Lyrion server that have no lyrics, with what the server allows (support: api, files, report). Reads the whole library: it can take a while. Nothing is changed; lyrics are added from Trackhop's page (Tools › Synced lyrics), after the user sees what was found.",
+                listOf(Mcp.Param("service", "string", "The server's name or id (list_services); left out when only one such server is connected.", required = false)), readOnly = true) { a ->
+                Mcp.Call("nolyrics", listOfNotNull(a.opt("service")))
+            },
             Mcp.Tool("check_followed_artists", "Look for news of followed artists", "Looks every followed artist up now (a background task); what is new goes to the user's notification channels and into the latest news.",
                 listOf(Mcp.Param("wait", "boolean", "Wait until it ends (it can take minutes). Default false: answer at once with the task.", required = false)), readOnly = false) { a ->
                 Mcp.Call("followed", listOf("check"), wait = a.flag("wait"))

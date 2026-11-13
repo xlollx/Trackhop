@@ -156,6 +156,7 @@ fun launch(
     BuildDefaults.values = config.buildDefaults
     // MusicBrainz asks every client to name itself, with its version and a contact.
     com.xlollx.songport.ai.ArtistMixSource.userAgent = "Trackhop/${serverVersion()} ( https://trackhop.org )"
+    com.xlollx.songport.sync.LrcLib.userAgent = "Trackhop/${serverVersion()} (https://github.com/xlollx/Trackhop)"
     // Merch and Concerts: the artists' own sites, found beyond MusicBrainz (Wikidata) and read for their shop and dates.
     com.xlollx.songport.sync.ArtistSites.enabled = true
     installServerConnectors(officialOnly)

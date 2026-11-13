@@ -219,6 +219,60 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         }
     }
 
+    /**
+     * Jellyfin 10.9 and newer keep lyrics as the song's own (`HasLyrics` on every song) and take new
+     * ones through the API: `POST /Audio/{itemId}/Lyrics?fileName=` with the text as text/plain, for an
+     * account with the lyrics-management permission (administrators have it).
+     */
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.SERVER_API
+
+    /** The fields asked for each song of the lyrics report (the path; Emby also its streams). */
+    protected open val lyricsFields: String get() = "Path"
+
+    /** Whether the server has lyrics for song [i]; null where it does not say (Jellyfin before 10.9). */
+    protected open fun itemHasLyrics(i: JsonElement?): Boolean? = i["HasLyrics"].bool
+
+    override suspend fun lyricsSongs(ctx: Env, onProgress: (Int) -> Unit): List<LyricsSong> {
+        val out = ArrayList<LyricsSong>()
+        var told = false
+        var offset = 0
+        while (true) {
+            val page = userItems(ctx, "IncludeItemTypes=Audio&Recursive=true&Fields=$lyricsFields&StartIndex=$offset&Limit=$LIBRARY_PAGE")["Items"].arr
+            for (i in page) {
+                val t = toTrack(i) ?: continue
+                val has = itemHasLyrics(i)
+                if (has != null) told = true
+                out += LyricsSong(t, has == true, i["Path"].str)
+            }
+            offset += page.size
+            onProgress(out.size)
+            if (page.size < LIBRARY_PAGE) break
+        }
+        // A server that never says (older than 10.9) has no lyrics in its API: not a library without lyrics.
+        if (out.isNotEmpty() && !told) throw ProviderException(ctx.text("lyrics_error_old_jellyfin"))
+        return out
+    }
+
+    /**
+     * `GET /Audio/{itemId}/Lyrics` first: lyrics there (200) are kept and nothing is sent. Else the text
+     * goes to `POST /Audio/{itemId}/Lyrics`, named .lrc (synced) or .txt (plain): Jellyfin reads the
+     * format from the name's extension and saves the file as the library's settings say.
+     */
+    override suspend fun saveLyrics(ctx: Env, track: Track, text: String, synced: Boolean): Boolean {
+        val t = creds(ctx)
+        val root = apiRoot(t.extra["url"] ?: "")
+        val now = Http.send("GET", "$root/Audio/${Http.enc(track.id)}/Lyrics", headers(t.accessToken))
+        if (now.ok) return false
+        if (now.code != 404) throw ProviderException("$displayName: lyrics not checked (HTTP ${now.code})", code = now.code)
+        val name = "${track.id}." + if (synced) "lrc" else "txt"
+        val resp = Http.send(
+            "POST", "$root/Audio/${Http.enc(track.id)}/Lyrics?fileName=${Http.enc(name)}",
+            headers(t.accessToken), Http.jsonBody(text, "text/plain; charset=utf-8"),
+        )
+        if (!resp.ok) throw ProviderException("$displayName: lyrics not saved (HTTP ${resp.code}${if (resp.code == 401 || resp.code == 403) ", an account allowed to manage lyrics is needed" else ""})", code = resp.code)
+        return true
+    }
+
     override suspend fun playlists(ctx: Env): List<Playlist> =
         userItems(ctx, "IncludeItemTypes=Playlist&Recursive=true&Fields=ChildCount")["Items"].arr
             .mapNotNull { p -> Playlist(p["Id"].str ?: return@mapNotNull null, p["Name"].str ?: "", p["ChildCount"].int ?: -1) }

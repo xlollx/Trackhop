@@ -17,6 +17,7 @@ class SongportApp : Application() {
         com.xlollx.songport.platform.Res.init(this)
         // MusicBrainz asks every client to name itself, with its version and a contact.
         com.xlollx.songport.ai.ArtistMixSource.userAgent = "Trackhop/${BuildConfig.VERSION_NAME} ( https://trackhop.org )"
+        com.xlollx.songport.sync.LrcLib.userAgent = "Trackhop/${BuildConfig.VERSION_NAME} (https://github.com/xlollx/Trackhop)"
         com.xlollx.songport.providers.installConnectors()
         // Shared playlists reach their group's folder through the system's folder picker.
         com.xlollx.songport.sync.SafFolder.install(this)

@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
@@ -116,6 +117,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     STATS(Icons.Filled.Insights, R.string.stats_title, R.string.stats_row_desc, false),
     UNPLAYABLE(Icons.Filled.MusicOff, R.string.tools_unplayable_title, R.string.tools_row_unplayable, true),
     MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
+    LYRICS(Icons.Filled.Lyrics, R.string.tools_lyrics_title, R.string.tools_row_lyrics, true),
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
     SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
     SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
@@ -130,6 +132,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
         DEDUPE -> p.canRemoveTracks
         UNPLAYABLE -> p.detectsUnplayable
         MBTAGS -> p.matchesByMbid
+        LYRICS -> p.lyricsSupport != LyricsSupport.NONE
         else -> true
     }
 }
@@ -214,6 +217,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.BACKUP -> Unit
                     Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
                     Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
+                    Tool.LYRICS -> provider?.let { LyricsCard(it, local) }
                     Tool.WANTED -> WantedCard(local)
                     Tool.SERVER -> ServerSyncsPage(local)
                     Tool.RECENT -> RecentTransfersPage(onReview)
@@ -273,6 +277,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.UNPLAYABLE, provider) { onUnplayable(it!!) }
             // Only for who has a personal server: nobody else has files to tag.
             if (connected.any { it.matchesByMbid }) ToolRow(Tool.MBTAGS, provider) { open = Tool.MBTAGS }
+            // 1.18 (Features): the songs of a personal server without lyrics, and lyrics from LRCLIB.
+            if (v2 && connected.any { it.lyricsSupport != LyricsSupport.NONE }) ToolRow(Tool.LYRICS, provider) { open = Tool.LYRICS }
         }
 
         PrefSection(stringResource(R.string.tools_section_share), accent = JobColor.PINK, description = stringResource(R.string.tools_section_share_desc)) {
@@ -533,6 +539,134 @@ private fun MbTagsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                     scope.launch {
                         result = try { Tools.untaggedSongs(ctx, provider) { read = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                             snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); null
+                        }
+                        busy = false
+                    }
+                }) { Text(stringResource(R.string.tools_mbtags_scan)) }
+            }
+        }
+    }
+}
+
+/** Songs looked up on LRCLIB per press: about one request a second, so a minute or two. */
+private const val LYRICS_BATCH = 50
+
+/**
+ * Tools › Synced lyrics (1.18): the songs of a personal server without lyrics; on a server that takes
+ * lyrics through its API (Jellyfin), their lyrics looked up on LRCLIB a batch at a time, shown, and
+ * added once the user says so. Where the server reads files next to the music, Desktop or Docker adds
+ * them; Mopidy has no lyrics at all. Lyrics already there are never changed.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun LyricsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var report by remember(provider.id) { mutableStateOf<com.xlollx.songport.sync.SyncedLyrics.Report?>(null) }
+    var proposals by remember(provider.id) { mutableStateOf<List<com.xlollx.songport.sync.SyncedLyrics.Proposal>?>(null) }
+    var lookedUp by remember(provider.id) { mutableStateOf(0) }
+    val session = remember(provider.id) { com.xlollx.songport.sync.LrcLib.Run() }
+    var busy by remember { mutableStateOf(false) }
+    var read by remember { mutableStateOf(0) }
+    var looking by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var savedLine by remember(provider.id) { mutableStateOf<String?>(null) }
+    val support = provider.lyricsSupport
+    val name = provider.displayName
+
+    fun failed(e: Exception) = scope.launch { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+
+    PageCard(shape = MaterialTheme.shapes.large) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.tools_lyrics_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(R.string.tools_lyrics_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            when (support) {
+                LyricsSupport.NONE -> {
+                    Spacer(Modifier.height(6.dp))
+                    Text(stringResource(R.string.tools_unavailable_on, name), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    return@Column
+                }
+                LyricsSupport.UNSUPPORTED -> {
+                    Spacer(Modifier.height(6.dp))
+                    Text(stringResource(R.string.tools_lyrics_unsupported, name), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    return@Column
+                }
+                LyricsSupport.REPORT_ONLY -> { Spacer(Modifier.height(6.dp)); Text(stringResource(R.string.tools_lyrics_report_only, name), style = MaterialTheme.typography.bodySmall) }
+                LyricsSupport.SIDECAR -> { Spacer(Modifier.height(6.dp)); Text(stringResource(R.string.tools_lyrics_files_only, name), style = MaterialTheme.typography.bodySmall) }
+                LyricsSupport.SERVER_API -> { Spacer(Modifier.height(6.dp)); Text(stringResource(R.string.tools_lyrics_privacy), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+            val r = report
+            if (r != null) {
+                Spacer(Modifier.height(8.dp))
+                when {
+                    r.total == 0 -> Text(stringResource(R.string.tools_mbtags_empty))
+                    r.missing.isEmpty() -> Text(stringResource(R.string.tools_lyrics_all, r.total))
+                    proposals == null -> {
+                        Text(stringResource(R.string.tools_lyrics_result, r.missing.size, r.total), style = MaterialTheme.typography.bodyMedium)
+                        r.missing.take(30).forEach { Text("• ${it.track}", style = MaterialTheme.typography.bodySmall) }
+                        if (r.missing.size > 30) Text(stringResource(R.string.preview_more, r.missing.size - 30), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            proposals?.let { list ->
+                Spacer(Modifier.height(8.dp))
+                val synced = list.count { it.kind == com.xlollx.songport.sync.SyncedLyrics.Kind.SYNCED }
+                val plain = list.count { it.kind == com.xlollx.songport.sync.SyncedLyrics.Kind.PLAIN }
+                Text(stringResource(R.string.tools_lyrics_found, synced, plain, list.size - synced - plain), style = MaterialTheme.typography.bodyMedium)
+                list.forEach { p ->
+                    val kind = when (p.kind) {
+                        com.xlollx.songport.sync.SyncedLyrics.Kind.SYNCED -> R.string.tools_lyrics_kind_synced
+                        com.xlollx.songport.sync.SyncedLyrics.Kind.PLAIN -> R.string.tools_lyrics_kind_plain
+                        com.xlollx.songport.sync.SyncedLyrics.Kind.NONE -> R.string.tools_lyrics_kind_none
+                        com.xlollx.songport.sync.SyncedLyrics.Kind.ERROR -> R.string.tools_lyrics_kind_error
+                    }
+                    Text("• ${p.song.track}: ${stringResource(kind)}", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            savedLine?.let { Spacer(Modifier.height(8.dp)); Text(it, style = MaterialTheme.typography.bodyMedium) }
+            Spacer(Modifier.height(10.dp))
+            if (busy) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                    val l = looking
+                    Text(if (l != null) stringResource(R.string.tools_lyrics_looking, l.first, l.second) else stringResource(R.string.tools_mbtags_progress, read), style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(Modifier.height(6.dp))
+            }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+                val missing = report?.missing.orEmpty()
+                val toSave = proposals.orEmpty().filter { it.text != null }
+                if (support == LyricsSupport.SERVER_API && proposals != null && toSave.isNotEmpty()) {
+                    Button(enabled = !busy, onClick = {
+                        busy = true
+                        scope.launch {
+                            try {
+                                val s = com.xlollx.songport.sync.SyncedLyrics.save(ctx.env, provider, toSave)
+                                savedLine = ctx.getString(R.string.tools_lyrics_saved, s.saved, s.kept, s.failed)
+                                proposals = null
+                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed(e) }
+                            busy = false
+                        }
+                    }) { Text(stringResource(R.string.tools_lyrics_save, toSave.size)) }
+                }
+                if (support == LyricsSupport.SERVER_API && missing.isNotEmpty() && lookedUp < missing.size) {
+                    OutlinedButton(enabled = !busy, onClick = {
+                        val batch = missing.drop(lookedUp).take(LYRICS_BATCH)
+                        busy = true; looking = 0 to batch.size; savedLine = null
+                        scope.launch {
+                            try {
+                                proposals = com.xlollx.songport.sync.SyncedLyrics.lookUp(batch, session) { looking = it to batch.size }
+                                lookedUp += batch.size
+                            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed(e) }
+                            busy = false; looking = null
+                        }
+                    }) { Text(if (lookedUp == 0) stringResource(R.string.tools_lyrics_lookup) else stringResource(R.string.tools_lyrics_lookup_next, minOf(LYRICS_BATCH, missing.size - lookedUp))) }
+                }
+                Button(enabled = !busy, onClick = {
+                    busy = true; read = 0; proposals = null; lookedUp = 0; savedLine = null
+                    scope.launch {
+                        report = try { com.xlollx.songport.sync.SyncedLyrics.report(ctx.env, provider) { read = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                            failed(e); null
                         }
                         busy = false
                     }

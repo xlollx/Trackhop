@@ -38,6 +38,8 @@ class MopidyProvider(override val slot: String = "") : CredentialsProvider() {
     override val noteName = "provider_note_mopidy"
     override val beta = true
     override val loginForm = LoginForm(needsUrl = true, needsUser = false, needsSecret = false, hintName = "login_hint_mopidy")
+    // Mopidy's models (docs.mopidy.com, api/models: Track) have no lyrics, nor does its core API.
+    override val lyricsSupport: LyricsSupport get() = LyricsSupport.UNSUPPORTED
     // Saving a playlist under a new name gives it a new uri (it is a file named after it): the syncs
     // pointing at the old one would lose it.
     override val canRenamePlaylists: Boolean get() = false

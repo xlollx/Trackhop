@@ -187,6 +187,24 @@ interface MusicProvider {
      */
     suspend fun librarySongs(ctx: Env, onProgress: (Int) -> Unit = {}): List<Track> = emptyList()
 
+    /** What the server lets Trackhop do with lyrics (Tools › Synced lyrics, 1.18): see [LyricsSupport]. */
+    val lyricsSupport: LyricsSupport get() = LyricsSupport.NONE
+
+    /**
+     * Every song of the server's library, each with whether the server has lyrics for it and its file's
+     * path where the server reports one: for the "songs without lyrics" report. Read only; only where
+     * [lyricsSupport] is REPORT_ONLY, SERVER_API or SIDECAR. [onProgress] gets the songs read so far.
+     */
+    suspend fun lyricsSongs(ctx: Env, onProgress: (Int) -> Unit = {}): List<LyricsSong> = emptyList()
+
+    /**
+     * Hands [text] to the server as [track]'s lyrics, synced (LRC) or plain: only where [lyricsSupport]
+     * is SERVER_API. Asks first whether the song has lyrics now: then nothing is written and the answer
+     * is false. Never replaces or deletes lyrics.
+     */
+    suspend fun saveLyrics(ctx: Env, track: Track, text: String, synced: Boolean): Boolean =
+        throw com.xlollx.songport.model.ProviderException("$displayName: lyrics cannot be added through its API")
+
     /** Ricerche in parallelo tollerate dal servizio (1 per le interfacce web non ufficiali, che bloccano le raffiche). */
     val searchParallelism: Int get() = 4
     /**
