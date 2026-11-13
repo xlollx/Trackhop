@@ -65,13 +65,21 @@ object YtmRenewal {
     private val locks = ConcurrentHashMap<String, Any>()
     private val lastRefusalRenewal = ConcurrentHashMap<String, Long>()
     private val lastRenewed = ConcurrentHashMap<String, Long>()
+    /** Per account, why the last renewal after a refusal failed when it was the connection ([lostConnection]). */
+    private val lost = ConcurrentHashMap<String, String>()
+
+    /**
+     * Why the last renewal after a refusal ([afterRefusal]) failed, when its page could not load
+     * because of the connection (in the network's words); null otherwise.
+     */
+    fun lostConnection(slot: String): String? = lost[slot]
 
     private fun lock(slot: String): Any = locks.getOrPut(slot) { Any() }
     private fun who(slot: String) = if (slot.isEmpty()) "" else " (account $slot)"
 
     /** Forgets when the account was renewed: a sign-out, a new sign-in, a test. */
     fun forget(slot: String? = null) {
-        if (slot == null) { lastRefusalRenewal.clear(); lastRenewed.clear() } else { lastRefusalRenewal.remove(slot); lastRenewed.remove(slot) }
+        if (slot == null) { lastRefusalRenewal.clear(); lastRenewed.clear(); lost.clear() } else { lastRefusalRenewal.remove(slot); lastRenewed.remove(slot); lost.remove(slot) }
     }
 
     /**
@@ -109,6 +117,7 @@ object YtmRenewal {
         val app = ctx.applicationContext
         val s = Session.forSlot(slot)
         return synchronized(lock(slot)) {
+            lost.remove(slot)
             val current = s.cookies(app) ?: return null
             if (current != refused) return current
             val last = lastRefusalRenewal[slot]
@@ -119,7 +128,14 @@ object YtmRenewal {
             lastRefusalRenewal[slot] = now()
             val (outcome, why) = reload(app, slot)
             if (outcome == Outcome.RENEWED) s.cookies(app)
-            else {
+            else if (outcome == Outcome.FAILED && NetWords.readable(why)) {
+                // The page could not load: nothing was learnt of the session, so the pause does not
+                // start (the next refusal tries again), and the call says it was the connection.
+                if (last == null) lastRefusalRenewal.remove(slot) else lastRefusalRenewal[slot] = last
+                lost[slot] = why
+                BridgeNet.log("ytm", "session refused (401)${who(slot)}; the renewal could not reach YouTube Music: $why")
+                null
+            } else {
                 BridgeNet.log("ytm", "session refused (401)${who(slot)}; ${if (outcome == Outcome.SIGNED_OUT) "the player's page is signed out" else "the renewal failed"}: $why")
                 null
             }
@@ -162,6 +178,13 @@ object YtmRenewal {
     private const val LOGGED_IN_SCRIPT =
         "(function(){try{var c=window.ytcfg;if(c&&c.get){var v=c.get('LOGGED_IN');if(v!==undefined)return String(v);}" +
             "if(c&&c.data_&&c.data_.LOGGED_IN!==undefined)return String(c.data_.LOGGED_IN);}catch(e){}return '';})()"
+
+    /**
+     * A hidden page that did not load: in the network's words when it was the connection
+     * ([NetWords.pageLoad]), as before ("the page did not load (error N)") otherwise.
+     */
+    internal fun didNotLoad(code: Int, description: String?, host: String): String =
+        if (NetWords.isNetworkPageError(code, description)) NetWords.pageLoad("the page", host, code, description) else "the page did not load (error $code)"
 
     /** "true" (a JSON string as evaluateJavascript gives it) to true, "false" to false, anything else to null. */
     fun loggedIn(result: String?): Boolean? = when (result?.trim()?.trim('"')) {
@@ -211,7 +234,7 @@ object YtmRenewal {
                         if (req.isForMainFrame && resp.statusCode >= 400) { problem.compareAndSet(null, "the page did not load (HTTP ${resp.statusCode})"); latch.countDown() }
                     }
                     override fun onReceivedError(view: WebView, req: WebResourceRequest, err: android.webkit.WebResourceError) {
-                        if (req.isForMainFrame) { problem.compareAndSet(null, "the page did not load (error ${err.errorCode})"); latch.countDown() }
+                        if (req.isForMainFrame) { problem.compareAndSet(null, didNotLoad(err.errorCode, err.description?.toString(), "music.youtube.com")); latch.countDown() }
                     }
                 }
                 w.loadUrl("${Session.ORIGIN}/")

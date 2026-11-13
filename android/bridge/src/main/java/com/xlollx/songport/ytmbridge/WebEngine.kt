@@ -52,6 +52,8 @@ class WebEngine(val config: Config) {
     @Volatile private var web: WebView? = null
     @Volatile private var ready: CountDownLatch? = null
     @Volatile private var broken = false
+    /** Why the page did not load, in the network's words, when it was the connection ([NetWords.pageLoad]). */
+    @Volatile private var loadError: String? = null
     @Volatile var warmed = false
         private set
     private val ids = AtomicLong(1)
@@ -86,9 +88,11 @@ class WebEngine(val config: Config) {
         try {
             return future.get(timeoutMs, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
-            throw BridgeException("${config.service} did not answer within ${timeoutMs / 1000}s (browser engine)")
+            throw BridgeException("${config.service} did not answer within ${timeoutMs / 1000}s (browser engine): timed out")
         } catch (e: java.util.concurrent.ExecutionException) {
-            throw BridgeException("${config.service} request failed in the browser engine: ${e.cause?.message ?: e.message}")
+            // "TypeError: Failed to fetch" says nothing of why: when the site cannot be reached, the words say so.
+            val why = (e.cause?.message ?: e.message).orEmpty()
+            throw BridgeException("${config.service} request failed in the browser engine: ${NetWords.fetchFailure(Scripts.hostOf(url), why)}")
         } finally {
             pending.remove(id)
             main.removeCallbacks(idle)
@@ -125,6 +129,7 @@ class WebEngine(val config: Config) {
         synchronized(this) {
             if (web != null) { ready?.await(INIT_TIMEOUT_S, TimeUnit.SECONDS); if (broken) throw notStarted(); return }
             broken = false
+            loadError = null
             val latch = CountDownLatch(1)
             ready = latch
             main.post {
@@ -138,7 +143,11 @@ class WebEngine(val config: Config) {
                     w.webViewClient = object : SafeWebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) { latch.countDown() }
                         override fun onReceivedError(view: WebView, req: android.webkit.WebResourceRequest, err: android.webkit.WebResourceError) {
-                            if (req.isForMainFrame) { broken = true; latch.countDown() }
+                            if (req.isForMainFrame) {
+                                val d = err.description?.toString()
+                                if (NetWords.isNetworkPageError(err.errorCode, d)) loadError = NetWords.pageLoad("the ${config.service} page", Scripts.hostOf(page), err.errorCode, d)
+                                broken = true; latch.countDown()
+                            }
                         }
                     }
                     web = w
@@ -153,7 +162,7 @@ class WebEngine(val config: Config) {
         }
     }
 
-    private fun notStarted() = BridgeException("the browser engine for ${config.service} could not be started")
+    private fun notStarted() = BridgeException("the browser engine for ${config.service} could not be started" + (loadError?.let { ": $it" } ?: ""))
 
     private fun teardown(why: String) {
         // The next engine starts from the light page again: the player's page is loaded anew when asked.

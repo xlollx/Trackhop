@@ -103,7 +103,11 @@ object TicketOnePage {
                     }
                     override fun onPageFinished(view: WebView, url: String) { loaded.countDown() }
                     override fun onReceivedError(view: WebView, req: WebResourceRequest, err: WebResourceError) {
-                        if (req.isForMainFrame) { failure.compareAndSet(null, "error:the page did not load (${err.errorCode})"); loaded.countDown() }
+                        if (req.isForMainFrame) {
+                            val d = err.description?.toString()
+                            failure.compareAndSet(null, "error:" + if (NetWords.isNetworkPageError(err.errorCode, d)) NetWords.pageLoad("the page", req.url.host ?: "www.ticketone.it", err.errorCode, d) else "the page did not load (${err.errorCode})")
+                            loaded.countDown()
+                        }
                     }
                     override fun onReceivedHttpError(view: WebView, req: WebResourceRequest, res: WebResourceResponse) {
                         // 403/429 from a bot shield is a check page; any other error, an error.

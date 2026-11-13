@@ -157,6 +157,24 @@ class TidalContractTest : ContractTest() {
         next(); next(); noMoreRequests()
     }
 
+    /** A service out of reach on the second read is not "no playlists" (a sync would take its target as gone). */
+    @Test fun aLostConnectionOnTheOlderFilterIsNotAnEmptyLibrary() = runBlocking {
+        json("""{"data":[],"links":{}}""")
+        val mock = com.xlollx.songport.net.Http.rewrite!!
+        // The second request goes to a port nothing listens on: the connection is refused.
+        com.xlollx.songport.net.Http.rewrite = { req ->
+            if (req.url.queryParameter("filter[r.owners.id]") != null) req.newBuilder().url(req.url.newBuilder().scheme("http").host("127.0.0.1").port(1).build()).build()
+            else mock(req)
+        }
+        try {
+            td.playlists(env)
+            fail("an unreachable service listed no playlists")
+        } catch (e: Exception) {
+            assertTrue(e.toString(), com.xlollx.songport.net.NetError.isNetwork(e))
+        }
+        next(); noMoreRequests()
+    }
+
     @Test fun addInTwentiesAsJsonApi() = runBlocking {
         repeat(3) { server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(201)) }
         val tracks = (0 until 45).map { Track("${100 + it}", "S") }

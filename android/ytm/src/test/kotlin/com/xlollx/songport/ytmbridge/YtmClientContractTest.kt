@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -38,6 +39,8 @@ class YtmClientContractTest {
     private var jar = "SAPISID=sapi-123; SID=sid; __Secure-3PAPISID=sapi-123"
     private var renewable = false
     private var renewTo: String? = null
+    /** Why the host's renewal failed when it was the connection (its page could not load); null otherwise. */
+    private var renewalLost: String? = null
     private var pageId: String? = null
     /** The browser engine the host offers; none by default (the server's case). */
     private var transport: YtmWebTransport? = null
@@ -76,6 +79,7 @@ class YtmClientContractTest {
                 renewals += refused
                 return renewTo?.also { jar = it }
             }
+            override fun renewalLostConnection(): String? = renewalLost
         }
         client = YtmClient(host)
     }
@@ -262,6 +266,19 @@ class YtmClientContractTest {
         answer(unauthenticated, 401)
         try { client.tracks("PL1"); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("(401)")) }
         assertEquals(2, calls.size)
+    }
+
+    /** A renewal whose page could not load (the connection just went) is not a session to sign in again. */
+    @Test fun aRenewalCutByTheConnectionIsNotARejectedSession() {
+        renewable = true
+        renewTo = null
+        renewalLost = "the page could not load (Unable to resolve host music.youtube.com: net::ERR_NAME_NOT_RESOLVED)"
+        answer(unauthenticated, 401)
+        try { client.tracks("PL1"); fail() } catch (e: BridgeException) {
+            assertFalse(e.message, e.message!!.contains("(401)") || e.message!!.contains("sign in again"))
+            assertTrue(e.message, e.message!!.contains("Unable to resolve host"))
+        }
+        assertEquals(1, renewals.size)
     }
 
     @Test fun eachCallIsRenewedAtMostOnceAndOnlyWhereTheHostCan() {

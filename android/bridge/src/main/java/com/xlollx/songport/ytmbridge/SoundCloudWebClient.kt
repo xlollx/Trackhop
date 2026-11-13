@@ -136,7 +136,9 @@ class SoundCloudWebClient(private val ctx: Context) {
                 // Refused everywhere: the token has expired. The site renews it, and the call is made once more.
                 code == 401 && tok != null && !renewed -> {
                     renewed = true
-                    if (!SoundCloudRenewal.renew(ctx, tok, "the token was refused with HTTP 401 on ${url.host}")) throw BridgeException(EXPIRED)
+                    if (!SoundCloudRenewal.renew(ctx, tok, "the token was refused with HTTP 401 on ${url.host}"))
+                        // The renewal's page could not reach SoundCloud: the connection, not a session to sign in again.
+                        throw BridgeException(SoundCloudRenewal.lostConnection?.let { "SoundCloud: the session could not be renewed ($it)" } ?: EXPIRED)
                     switched = false
                     target = session.get(ctx, "apiHost") ?: SoundCloudBridge.API_V2
                 }
@@ -160,7 +162,7 @@ class SoundCloudWebClient(private val ctx: Context) {
             try {
                 http.newCall(req).execute().use { r -> return r.code to (r.body?.string() ?: "") }
             } catch (e: java.io.IOException) {
-                if (attempt >= 1) throw BridgeException("SoundCloud unreachable: ${e.message ?: e.javaClass.simpleName}")
+                if (attempt >= 1) throw BridgeException("SoundCloud unreachable: ${NetWords.of(e)}", e)
                 Thread.sleep(1_500)
                 attempt++
             }

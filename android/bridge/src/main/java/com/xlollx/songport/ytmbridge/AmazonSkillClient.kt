@@ -153,7 +153,7 @@ class AmazonSkillClient(private val ctx: Context) {
             try {
                 http.newCall(req).execute().use { resp -> return resp.code to (resp.body?.string() ?: "") }
             } catch (e: java.io.IOException) {
-                if (attempt >= 2) throw BridgeException("Amazon Music unreachable: ${e.message ?: e.javaClass.simpleName}")
+                if (attempt >= 2) throw BridgeException("Amazon Music unreachable: ${NetWords.of(e)}", e)
                 Thread.sleep(if (attempt == 0) 2_000 else 5_000)
                 attempt++
             }

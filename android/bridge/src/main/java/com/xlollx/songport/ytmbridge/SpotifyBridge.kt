@@ -200,6 +200,9 @@ object SpotifyBridge {
             }
         }
         latch.await(35, TimeUnit.SECONDS)
+        // The page loaded but its own request for the token got no answer ("Failed to fetch": the
+        // connection dropped a moment later): said in the network's words when it cannot be reached.
+        if (result == null) error = error?.let { NetWords.fetchFailure("open.spotify.com", it) }
         main.post { runCatching { web?.stopLoading(); web?.destroy() } }
         return result ?: throw BridgeException(SpotifyWebClient.tokenFailure(error))
     }
@@ -208,19 +211,8 @@ object SpotifyBridge {
      * The web player's page could not load: said in the words the engine reads as the network's
      * (NetError), so the run waits for the connection or tries again instead of failing.
      */
-    internal fun pageLoadError(code: Int, description: String?): String {
-        val d = description.orEmpty()
-        return when {
-            d.contains("INTERNET_DISCONNECTED", true) || d.contains("ADDRESS_UNREACHABLE", true) || d.contains("NETWORK_CHANGED", true) ->
-                "the web player could not load (Network is unreachable: $d)"
-            code == android.webkit.WebViewClient.ERROR_HOST_LOOKUP || d.contains("NAME_NOT_RESOLVED", true) ->
-                "the web player could not load (Unable to resolve host open.spotify.com: $d)"
-            code == android.webkit.WebViewClient.ERROR_TIMEOUT || d.contains("TIMED_OUT", true) ->
-                "the web player could not load (timed out: $d)"
-            code == android.webkit.WebViewClient.ERROR_CONNECT -> "the web player could not load (Failed to connect to open.spotify.com: $d)"
-            else -> "the web player could not load ($d)"
-        }
-    }
+    internal fun pageLoadError(code: Int, description: String?): String =
+        NetWords.pageLoad("the web player", "open.spotify.com", code, description)
 
     // The web player requests its token at start-up; mirror that response to SpBridge.token.
     private val HOOK = """

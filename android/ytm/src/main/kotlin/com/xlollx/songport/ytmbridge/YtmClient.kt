@@ -136,7 +136,9 @@ class YtmClient(private val host: YtmHost) {
                             retrying = true
                             continue
                         }
-                        // Why it was not renewed is the host's to say (one line), then the call fails as it always has.
+                        // Why it was not renewed is the host's to say (one line), then the call fails as it always has;
+                        // unless the renewal's page could not load: the connection, not a session to sign in again.
+                        host.renewalLostConnection()?.let { throw BridgeException("YouTube Music: the session could not be renewed ($it)") }
                     } else if (retrying) host.log("session refused (401); renewed and retried: failed")
                     throw BridgeException("YouTube Music rejected the session (401): ${host.signInAgain}")
                 }

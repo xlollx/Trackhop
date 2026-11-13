@@ -66,10 +66,13 @@ object TikTokShare {
         object Unknown : Sound()
     }
 
-    /** Reads the video's page and tells its sound. */
+    /** Reads the video's page and tells its sound. Throws when the connection failed ([com.xlollx.songport.net.NetError.isNetwork]). */
     suspend fun sound(text: String): Sound {
         val url = LINK.find(text)?.value ?: return Sound.Unknown
-        val page = runCatching { Relay.follow(url, Http.MOBILE_UA) }.getOrNull() ?: return Sound.Unknown
+        // No internet (or TikTok out of reach) is not a page that could not be read: the failure goes
+        // on as the connection's, so it is said as such (and a run waits for it) instead of "unreadable".
+        val page = runCatching { Relay.follow(url, Http.MOBILE_UA) }
+            .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return Sound.Unknown
         if (page.code !in 200..299) return Sound.Unknown
         return hear(parse(page.page, id(page.url) ?: id(url) ?: ""))
     }

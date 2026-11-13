@@ -84,10 +84,14 @@ object YtmWeb {
         @Volatile private var web: WebView? = null
         @Volatile private var ready: CountDownLatch? = null
         @Volatile private var broken = false
+        /** The page did not load because of the connection: why, in the network's words ([NetWords.pageLoad]). */
+        @Volatile private var loadError: String? = null
+        /** After such a start, plain HTTP until then; the engine is started again after it (see [ensureStarted]). */
+        @Volatile private var retryAt = 0L
         private val ids = AtomicLong(1)
         private val pending = ConcurrentHashMap<String, CompletableFuture<Response>>()
 
-        fun usable(): Boolean = !broken
+        fun usable(): Boolean = !broken && System.currentTimeMillis() >= retryAt
 
         fun post(ctx: Context, path: String, body: String, headers: Map<String, String>, credentials: Boolean, timeoutMs: Long): Response =
             run(ctx, timeoutMs) { id ->
@@ -133,6 +137,7 @@ object YtmWeb {
                 if (web != null) { ready?.await(INIT_TIMEOUT_S, TimeUnit.SECONDS); return }
                 val latch = CountDownLatch(1)
                 ready = latch
+                loadError = null
                 main.post {
                     try {
                         val w = WebView(app)
@@ -144,7 +149,11 @@ object YtmWeb {
                         w.webViewClient = object : SafeWebViewClient() {
                             override fun onPageFinished(view: WebView, url: String) { latch.countDown() }
                             override fun onReceivedError(view: WebView, req: android.webkit.WebResourceRequest, err: android.webkit.WebResourceError) {
-                                if (req.isForMainFrame) { broken = true; latch.countDown() }
+                                if (req.isForMainFrame) {
+                                    val d = err.description?.toString()
+                                    if (NetWords.isNetworkPageError(err.errorCode, d)) loadError = NetWords.pageLoad("the YouTube Music page", "music.youtube.com", err.errorCode, d)
+                                    broken = true; latch.countDown()
+                                }
                             }
                         }
                         web = w
@@ -155,7 +164,20 @@ object YtmWeb {
                     }
                 }
                 if (!latch.await(INIT_TIMEOUT_S, TimeUnit.SECONDS)) broken = true
-                if (broken) throw BridgeException("the browser engine for YouTube Music could not be started")
+                if (broken) {
+                    val why = loadError
+                    if (why != null) {
+                        // The connection, not the engine: a page left on Chromium's error page would
+                        // answer every later call with "Failed to fetch", and the engine would stay off
+                        // for the rest of the process. It is dropped and started again after a pause.
+                        val w = web
+                        web = null; ready = null; broken = false
+                        retryAt = System.currentTimeMillis() + RETRY_MS
+                        main.post { runCatching { w?.destroy() } }
+                        throw BridgeException("the browser engine for YouTube Music could not be started: $why")
+                    }
+                    throw BridgeException("the browser engine for YouTube Music could not be started")
+                }
             }
         }
 
@@ -183,6 +205,8 @@ object YtmWeb {
 
     private const val PAGE = "${Session.ORIGIN}/robots.txt"
     private const val INIT_TIMEOUT_S = 20L
+    /** After a start the connection failed, how long calls go over plain HTTP before the engine is tried again. */
+    private const val RETRY_MS = 60_000L
 
     private fun js(s: String): String = JsonPrimitive(s).toString()
 

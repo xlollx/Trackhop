@@ -48,6 +48,11 @@ interface YtmHost {
      * most once per call.
      */
     fun renewSession(refused: String): String? = null
+    /**
+     * Why the last [renewSession] failed when it was the connection (its page could not load), in the
+     * network's words; null otherwise (the default). The refused call then says that, not "sign in again".
+     */
+    fun renewalLostConnection(): String? = null
 }
 
 /** Calls made by a browser engine: Chrome's fingerprint, the browser's own cookies and headers. */
