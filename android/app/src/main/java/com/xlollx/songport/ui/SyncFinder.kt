@@ -81,6 +81,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 
 /** The filter chips (colours, services) show from this many syncs on: with fewer, they would only crowd the list. The search itself is there from one sync on. */
 const val FIND_MIN_SYNCS = 5
@@ -124,12 +125,18 @@ val SyncFilterSaver: Saver<SyncFilter, Any> = listSaver<SyncFilter, Any>(
 @Composable
 fun SyncSearchField(filter: SyncFilter, total: Int, modifier: Modifier = Modifier, onChange: (SyncFilter) -> Unit) {
     val keyboard = LocalSoftwareKeyboardController.current
+    val focus = androidx.compose.ui.platform.LocalFocusManager.current
     val name = stringResource(R.string.syncs_find_hint)
     val style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
     androidx.compose.foundation.text.BasicTextField(
         value = filter.query,
         onValueChange = { onChange(filter.copy(query = it)) },
-        modifier = modifier.testTag(SYNC_SEARCH_TAG).semantics { contentDescription = name },
+        modifier = modifier.testTag(SYNC_SEARCH_TAG).semantics { contentDescription = name }
+            // A sheet just closed hands the focus back to the first field on screen, this one, and the
+            // keyboard came up by itself: that focus is let go. A tap on the field later works as ever.
+            .onFocusChanged { f ->
+                if (f.isFocused && android.os.SystemClock.uptimeMillis() - SheetFocus.closedAt < 800) { focus.clearFocus(); keyboard?.hide() }
+            },
         singleLine = true,
         textStyle = style,
         cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
@@ -156,6 +163,12 @@ fun SyncSearchField(filter: SyncFilter, total: Int, modifier: Modifier = Modifie
             }
         },
     )
+}
+
+/** When a sheet over the Syncs list last closed (uptime), for [SyncSearchField]. */
+object SheetFocus {
+    @Volatile var closedAt = 0L
+    fun closed() { closedAt = android.os.SystemClock.uptimeMillis() }
 }
 
 /** The search field in the Syncs bar (for the UI tests). */
