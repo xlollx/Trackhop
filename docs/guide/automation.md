@@ -20,7 +20,7 @@ Send a *broadcast intent* (in Tasker: Task › System › Send Intent, target *B
 | `com.xlollx.songport.action.RUN_ALL` | none | Runs every sync |
 | `com.xlollx.songport.action.RUN` | `sync` = the sync's name (any case) or its id | Runs that sync |
 
-A command sent while automation is off is ignored, and the log says so (Log › Export log).
+A command sent while automation is off is ignored, and the log says so (Settings › Advanced › Sync log › Export log).
 
 ## The end of a sync
 

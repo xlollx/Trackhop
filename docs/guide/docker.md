@@ -100,15 +100,16 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | YouTube | yes | Your own Google OAuth client (with its secret) |
 | TIDAL | yes | Your own key from developer.tidal.com |
 | Deezer | yes (beta) | Your own app, and an `https` address |
-| Navidrome / Subsonic, Jellyfin, Plex | yes | The server's address and your login |
+| Navidrome / Subsonic, Jellyfin, Emby (beta), Plex | yes | The server's address and your login |
 | Last.fm | yes, as a source; Loved tracks also as a target | Your user name; to love tracks, your password once (only the session Last.fm gives back is kept) and `LASTFM_SHARED_SECRET` |
 | ListenBrainz | yes, as a source | Your user name |
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
-| NetEase Cloud Music, QQ Music | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
+| NetEase Cloud Music, QQ Music, Anghami | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
 | CSV files | yes | Put them in `csv/` inside the data volume |
 | YouTube Music | yes (unofficial, alpha) | The cookies of a browser where you are signed in: [see below](#youtube-music-unofficial) |
 | Spotify (web) | yes (unofficial, alpha) | The `sp_dc` cookie of a browser where you are signed in: [see below](#spotify-and-deezer-without-a-key-unofficial) |
 | Deezer (web) | yes (unofficial, alpha) | The `arl` cookie of a browser where you are signed in: [see below](#spotify-and-deezer-without-a-key-unofficial) |
+| LiveOne, Anghami, Qobuz (web) | yes (unofficial, alpha) | A session copied from a browser where you are signed in: [LiveOne](#liveone-unofficial), [Anghami](#anghami-unofficial), [Qobuz](#qobuz-unofficial) |
 | Amazon Music, Apple Music | no | See below |
 
 **Why not all of them.** The other quick routes (Amazon Music, Apple Music without a key) work by
@@ -746,8 +747,9 @@ curl -X POST -H "Authorization: Bearer $TOKEN" --data-binary @trackhop.trackhop 
 
 ## Not there yet
 
-The connectors that run a service's own web player (Amazon Music, Spotify and Apple Music without a
-key, Deezer web, SoundCloud with an account) need a browser inside Trackhop: they are the next step.
+The connectors that run a service's own web player (Amazon Music, Apple Music, SoundCloud with an
+account) need a browser inside Trackhop, so they stay in the app. Spotify and Deezer without a key
+work here with [pasted cookies](#spotify-and-deezer-without-a-key-unofficial).
 The compatibility card and the playlist poster are not on the page yet either.
 
 [Back to the guide](./)

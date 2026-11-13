@@ -88,11 +88,13 @@ Only this computer can reach the page: it listens on `127.0.0.1` and asks for no
 
 ## Services
 
-As on the [server](docker#services): Spotify, YouTube and TIDAL with your own key; Navidrome and
-other Subsonic servers, Jellyfin, Plex; Last.fm (a source, and a target for loved tracks) and ListenBrainz as a source; SoundCloud public
-links; CSV files; YouTube Music with pasted cookies (unofficial, alpha). Deezer is not there yet on
-the desktop (it wants an `https` redirect). Amazon Music, Spotify without a key and Apple Music
-are not there yet either: they need a browser inside the app, which is the next step.
+As on the [server](docker#services): Spotify, YouTube and TIDAL with your own key, Deezer with your
+own app (it wants an `https` redirect); Navidrome and other Subsonic servers, Jellyfin, Emby, Plex;
+Last.fm (a source, and a target for loved tracks) and ListenBrainz as a source; SoundCloud, NetEase
+Cloud Music, QQ Music and Anghami public links; CSV files; YouTube Music, Spotify and Deezer with
+pasted cookies, and LiveOne, Anghami and Qobuz (unofficial, alpha). Amazon Music and Apple Music
+are not there: they need the service's web player running inside the app, which only the phone
+app has.
 
 A service can be added more than once (two Jellyfin servers, two Spotify accounts), each with its
 own sign-in and name, and synced to each other; Jellyfin also signs in with Quick Connect. See
@@ -101,7 +103,8 @@ own sign-in and name, and synced to each other; Jellyfin also signs in with Quic
 
 The **Microsoft Store** version offers only the official connections, the personal servers,
 Last.fm, ListenBrainz and files (store rules, as for the app on Google Play): for the unofficial ones
-(YouTube Music, Spotify and Deezer with cookies, SoundCloud links) use the installer or the ZIP.
+(YouTube Music, Spotify, Deezer, LiveOne, Anghami and Qobuz with cookies; SoundCloud, NetEase, QQ
+Music and Anghami links) use the installer or the ZIP.
 
 **Your own key.** Register this redirect with the service: `http://127.0.0.1:8642/callback`
 (Spotify and Google both accept plain `http` for `127.0.0.1`). The service's page in Trackhop
