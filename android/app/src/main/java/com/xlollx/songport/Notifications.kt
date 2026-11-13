@@ -221,7 +221,10 @@ object Notifications {
 
     /** Testo riassuntivo di un report, condiviso tra notifiche e UI. */
     fun summary(context: Context, r: SyncReport): String {
-        if (!r.ok) return context.getString(R.string.result_error, r.error)
+        // The connection's failure is already said in plain words; an older report's line, or one passed
+        // on as text, gets them here.
+        if (!r.ok && r.netError != null) return r.error.orEmpty()
+        if (!r.ok) return context.getString(R.string.result_error, com.xlollx.songport.ui.userText(context, r.error))
         val parts = ArrayList<String>()
         if (r.added > 0 || r.removed > 0) parts += context.getString(R.string.result_added_removed, r.added, r.removed)
         if (r.unmatched.isNotEmpty()) parts += context.getString(R.string.result_unmatched, r.unmatched.size)

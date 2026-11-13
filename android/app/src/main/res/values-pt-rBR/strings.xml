@@ -2597,4 +2597,18 @@
     <string name="backup_full_web_failed">Não foi possível restaurar os logins da web (o Trackhop Bridge não está instalado ou é antigo demais): entre de novo nesses serviços.</string>
     <string name="backup_full_reminder">Agora desative ou desinstale o Trackhop no outro aparelho, senão os dois vão rodar as mesmas sincronizações.</string>
     <string name="backup_full_note">Algum serviço ainda pode pedir que você entre de novo: algumas sessões não passam para outro aparelho.</string>
+    <string name="net_offline">Sem conexão com a internet</string>
+    <string name="net_offline_server">O servidor está sem conexão com a internet</string>
+    <string name="net_timeout">O serviço não respondeu a tempo. Tente de novo daqui a pouco.</string>
+    <string name="net_unreachable">Não foi possível acessar o serviço. Verifique a conexão e tente de novo.</string>
+    <string name="report_stopped_offline">Interrompida: sem conexão com a internet. O que já foi feito é mantido; ela roda de novo quando você voltar a ficar online.</string>
+    <string name="report_stopped_offline_server">Interrompida: o servidor está sem conexão com a internet. O que já foi feito é mantido; as sincronizações agendadas rodam de novo na próxima oportunidade.</string>
+    <string name="offline_banner">Sem conexão com a internet · as sincronizações começam quando você voltar a ficar online</string>
+    <string name="offline_back">Online de novo</string>
+    <string name="offline_queued">Sem internet: “%1$s” começa assim que você voltar a ficar online</string>
+    <string name="offline_queued_all">Sem internet: suas sincronizações começam assim que você voltar a ficar online</string>
+    <string name="pill_waiting_network">Aguardando internet</string>
+    <string name="pill_stopped_offline">Interrompida: sem internet</string>
+    <string name="offline_empty">Isso precisa de conexão com a internet. Conecte-se e tente de novo.</string>
+    <string name="net_try_again">Tentar de novo</string>
 </resources>

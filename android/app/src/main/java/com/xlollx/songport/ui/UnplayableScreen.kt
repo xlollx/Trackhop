@@ -106,7 +106,7 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
     LaunchedEffect(provider.id) {
         if (!provider.detectsUnplayable) return@LaunchedEffect
         lists = try { Tools.unplayableTargets(ctx, provider) } catch (e: CancellationException) { throw e } catch (e: Exception) {
-            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); emptyList()
+            snackbar.showSnackbar(e.userMessage(ctx)); emptyList()
         }
     }
 
@@ -119,7 +119,7 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
         proposals.clear(); decisions.clear(); openKey = null
         scope.launch {
             val r = try { Tools.scanUnplayable(ctx, provider, targets) { scanning = it } } catch (e: CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); null
+                snackbar.showSnackbar(e.userMessage(ctx)); null
             }
             scan = r
             scanning = null
@@ -172,7 +172,7 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
                 }
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 applying = null
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                snackbar.showSnackbar(e.userMessage(ctx))
             }
         }
     }
@@ -255,7 +255,7 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
                                         val n = Tools.undoUnplayable(ctx, provider, fix)
                                         undoable = null
                                         snackbar.showSnackbar(ctx.getString(R.string.unplayable_undone, n))
-                                    } catch (e: CancellationException) { throw e } catch (e: Exception) { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+                                    } catch (e: CancellationException) { throw e } catch (e: Exception) { snackbar.showSnackbar(e.userMessage(ctx)) }
                                 }
                             }) { Text(stringResource(R.string.unplayable_undo_last, fix.swaps.size)) }
                             Spacer(Modifier.width(8.dp))

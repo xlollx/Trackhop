@@ -159,6 +159,10 @@ object AuthFlow {
 
     fun friendlyError(ctx: Context, provider: MusicProvider, raw: String?): String {
         val text = raw.orEmpty()
+        // No internet at all, or a service too slow to answer: plain words (the line itself is in the log).
+        val net = com.xlollx.songport.net.NetError.messageKind(text)
+        if (net != com.xlollx.songport.net.NetError.Kind.NONE && com.xlollx.songport.net.Connectivity.isOffline) return ctx.getString(R.string.net_offline)
+        if (net == com.xlollx.songport.net.NetError.Kind.TIMEOUT) return ctx.getString(R.string.net_timeout)
         if (text.contains("Unable to resolve host", true) || text.contains("UnknownHost", true)) {
             return ctx.getString(R.string.error_network)
         }

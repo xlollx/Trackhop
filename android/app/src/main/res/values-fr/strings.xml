@@ -2597,4 +2597,18 @@
     <string name="backup_full_web_failed">Les connexions web n\'ont pas pu être restaurées (Trackhop Bridge est absent ou trop ancien) : reconnectez-vous à ces services.</string>
     <string name="backup_full_reminder">Désactivez ou désinstallez maintenant Trackhop sur l\'autre appareil, sinon les deux exécuteront les mêmes synchronisations.</string>
     <string name="backup_full_note">Un service peut quand même vous demander de vous reconnecter : certaines sessions ne passent pas d\'un appareil à l\'autre.</string>
+    <string name="net_offline">Pas de connexion Internet</string>
+    <string name="net_offline_server">Le serveur n\'a pas de connexion Internet</string>
+    <string name="net_timeout">Le service n\'a pas répondu à temps. Réessaie dans un instant.</string>
+    <string name="net_unreachable">Impossible de joindre le service. Vérifie la connexion et réessaie.</string>
+    <string name="report_stopped_offline">Arrêtée : pas de connexion Internet. Ce qui a déjà été fait est conservé ; elle reprendra quand tu seras de nouveau en ligne.</string>
+    <string name="report_stopped_offline_server">Arrêtée : le serveur n\'a pas de connexion Internet. Ce qui a déjà été fait est conservé ; les synchronisations planifiées reprendront dès que possible.</string>
+    <string name="offline_banner">Pas de connexion Internet · les synchronisations démarreront dès ton retour en ligne</string>
+    <string name="offline_back">De retour en ligne</string>
+    <string name="offline_queued">Pas d\'Internet : « %1$s » démarrera dès ton retour en ligne</string>
+    <string name="offline_queued_all">Pas d\'Internet : tes synchronisations démarreront dès ton retour en ligne</string>
+    <string name="pill_waiting_network">En attente d\'Internet</string>
+    <string name="pill_stopped_offline">Arrêtée : pas d\'Internet</string>
+    <string name="offline_empty">Il faut une connexion Internet. Connecte-toi et réessaie.</string>
+    <string name="net_try_again">Réessayer</string>
 </resources>

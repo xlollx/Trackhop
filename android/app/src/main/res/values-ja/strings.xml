@@ -2536,4 +2536,18 @@
     <string name="backup_full_web_failed">Web サインインを戻せませんでした（Trackhop Bridge がないか古すぎます）。それらのサービスにもう一度サインインしてください。</string>
     <string name="backup_full_reminder">もう一方の端末の Trackhop をオフにするかアンインストールしてください。そうしないと両方で同じ同期が実行されます。</string>
     <string name="backup_full_note">サービスによっては再度サインインを求められることがあります：別の端末に移せないセッションもあります。</string>
+    <string name="net_offline">インターネットに接続されていません</string>
+    <string name="net_offline_server">サーバーがインターネットに接続されていません</string>
+    <string name="net_timeout">サービスが時間内に応答しませんでした。少し待ってからもう一度お試しください。</string>
+    <string name="net_unreachable">サービスに接続できませんでした。接続を確認してもう一度お試しください。</string>
+    <string name="report_stopped_offline">停止しました：インターネットに接続されていません。完了した分はそのまま残ります。オンラインに戻ると再実行されます。</string>
+    <string name="report_stopped_offline_server">停止しました：サーバーがインターネットに接続されていません。完了した分はそのまま残ります。スケジュールされた同期は次の機会に再実行されます。</string>
+    <string name="offline_banner">インターネットに接続されていません · オンラインに戻ると同期が始まります</string>
+    <string name="offline_back">オンラインに戻りました</string>
+    <string name="offline_queued">インターネットに接続されていません：オンラインに戻るとすぐに「%1$s」が始まります</string>
+    <string name="offline_queued_all">インターネットに接続されていません：オンラインに戻るとすぐに同期が始まります</string>
+    <string name="pill_waiting_network">インターネット待ち</string>
+    <string name="pill_stopped_offline">停止：インターネットなし</string>
+    <string name="offline_empty">インターネット接続が必要です。接続してからもう一度お試しください。</string>
+    <string name="net_try_again">再試行</string>
 </resources>

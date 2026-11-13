@@ -206,7 +206,7 @@ fun MakePlaylistCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                             lists = null
                             lists = try { provider.playlists(ctx) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { emptyList() }
                         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                            snackbar.showSnackbar(e.userMessage(ctx))
                         }
                         busy = false
                     }

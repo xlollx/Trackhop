@@ -44,18 +44,24 @@ fun ConnectionTestDialog(provider: MusicProvider, onClose: () -> Unit) {
     var steps by remember { mutableStateOf(listOf(Step(R.string.test_profile, 0, ""), Step(R.string.test_playlists, 0, ""), Step(R.string.test_search, 0, ""))) }
     fun set(i: Int, ok: Boolean, detail: String) { steps = steps.mapIndexed { j, s -> if (j == i) Step(s.label, if (ok) 1 else 2, detail) else s } }
 
-    LaunchedEffect(provider.id) {
+    // Without internet the three calls cannot say anything about the service: the dialog says so
+    // instead, and runs them once the connection is back (or on Try again).
+    val online = rememberOnline()
+    var attempt by remember { mutableStateOf(0) }
+    LaunchedEffect(provider.id, attempt, online) {
+        if (!online) return@LaunchedEffect
+        steps = steps.map { Step(it.label, 0, "") }
         val app = ctx.applicationContext
         runCatching { provider.accountName(app) }
             .onSuccess { set(0, true, it ?: ctx.getString(R.string.test_ok)) }
-            .onFailure { set(0, false, it.message ?: it.javaClass.simpleName) }
+            .onFailure { set(0, false, netWords(ctx, it) ?: it.message ?: it.javaClass.simpleName) }
         runCatching { provider.playlists(app) }
             .onSuccess { set(1, true, ctx.getString(R.string.test_playlists_ok, it.size)) }
-            .onFailure { set(1, false, it.message ?: it.javaClass.simpleName) }
+            .onFailure { set(1, false, netWords(ctx, it) ?: it.message ?: it.javaClass.simpleName) }
         val sample = Track(id = "", title = "Bohemian Rhapsody", artists = listOf("Queen"), album = "A Night at the Opera")
         runCatching { provider.search(app, sample) }
             .onSuccess { r -> set(2, r.isNotEmpty(), r.firstOrNull()?.toString() ?: ctx.getString(R.string.test_search_empty)) }
-            .onFailure { set(2, false, it.message ?: it.javaClass.simpleName) }
+            .onFailure { set(2, false, netWords(ctx, it) ?: it.message ?: it.javaClass.simpleName) }
     }
 
     FitDialog(
@@ -63,6 +69,10 @@ fun ConnectionTestDialog(provider: MusicProvider, onClose: () -> Unit) {
         title = { Text(stringResource(R.string.test_title, provider.label(ctx))) },
         text = {
             Column(Modifier.fillMaxWidth()) {
+                if (!online) {
+                    NetErrorState(null, onRetry = { attempt++ })
+                    return@Column
+                }
                 steps.forEach { s ->
                     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.Top) {
                         when (s.state) {

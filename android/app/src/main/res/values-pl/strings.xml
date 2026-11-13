@@ -2697,4 +2697,18 @@
     <string name="backup_full_web_failed">Nie udało się przywrócić logowań webowych (brak Trackhop Bridge lub jest za stary): zaloguj się ponownie do tych usług.</string>
     <string name="backup_full_reminder">Teraz wyłącz lub odinstaluj Trackhop na drugim urządzeniu, inaczej oba będą wykonywać te same synchronizacje.</string>
     <string name="backup_full_note">Usługa może mimo to poprosić o ponowne zalogowanie: niektóre sesje nie przechodzą na inne urządzenie.</string>
+    <string name="net_offline">Brak połączenia z internetem</string>
+    <string name="net_offline_server">Serwer nie ma połączenia z internetem</string>
+    <string name="net_timeout">Usługa nie odpowiedziała na czas. Spróbuj ponownie za chwilę.</string>
+    <string name="net_unreachable">Nie udało się połączyć z usługą. Sprawdź połączenie i spróbuj ponownie.</string>
+    <string name="report_stopped_offline">Zatrzymano: brak połączenia z internetem. To, co już zrobiono, zostaje; synchronizacja uruchomi się ponownie, gdy wrócisz do sieci.</string>
+    <string name="report_stopped_offline_server">Zatrzymano: serwer nie ma połączenia z internetem. To, co już zrobiono, zostaje; zaplanowane synchronizacje uruchomią się przy najbliższej okazji.</string>
+    <string name="offline_banner">Brak połączenia z internetem · synchronizacje ruszą, gdy wrócisz do sieci</string>
+    <string name="offline_back">Znów online</string>
+    <string name="offline_queued">Brak internetu: „%1$s” ruszy, gdy tylko wrócisz do sieci</string>
+    <string name="offline_queued_all">Brak internetu: synchronizacje ruszą, gdy tylko wrócisz do sieci</string>
+    <string name="pill_waiting_network">Czeka na internet</string>
+    <string name="pill_stopped_offline">Zatrzymano: brak internetu</string>
+    <string name="offline_empty">To wymaga połączenia z internetem. Połącz się i spróbuj ponownie.</string>
+    <string name="net_try_again">Spróbuj ponownie</string>
 </resources>

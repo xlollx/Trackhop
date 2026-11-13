@@ -115,7 +115,7 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
                 }
             }
             written.onSuccess { n -> selected = emptySet(); snackbar.showSnackbar(ctx.resources.getQuantityString(R.plurals.files_exported_n, n, n)) }
-                .onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+                .onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
         }
     }
     if (choosingFolderFormat) ExportFormatDialog(onDismiss = { choosingFolderFormat = false }, formats = LocalFilesProvider.Export.offered()) { fmt ->

@@ -85,21 +85,25 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                     Diagnostics.log(ctx, "sync", "end ${job.name}: +${report.added} -${report.removed} nf=${report.unmatched.size} src=${report.sourceCount} dst=${report.targetCount}" + (report.error?.let { " ERR $it" } ?: ""))
                     // Una sync programmata morta per mancanza di rete non ha "fallito": WorkManager la
                     // riprova col suo backoff, quindi niente notifica d'errore per una giornata persa.
-                    val networkGone = scheduled && !report.ok && isTransientNetwork(report.error)
+                    val networkGone = scheduled && !report.ok && (report.netError != null || isTransientNetwork(report.error))
                     if (networkGone) {
                         retryLater.set(true)
                         Diagnostics.log(ctx, "sync", "no network for ${job.name}: will retry")
                     }
+                    // Started by hand and stopped because the internet went away: it waits for the
+                    // connection and starts again by itself, rather than ending as a failure to retry.
+                    val requeued = !scheduled && report.offline && OfflineQueue.requeueAfterLoss(ctx, job.id)
+                    if (!report.offline) OfflineQueue.settled(ctx, job.id)
                     SupportPrompt.offer(store, report)
                     com.xlollx.songport.automation.Automation.announce(ctx, report)
                     val notable = report.added > 0 || report.removed > 0 || !report.ok
                     // A one-off transfer (a setlist to a playlist) always says how it went: its review opens from there.
-                    if (!networkGone && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok || job.oneOff) && (notable || job.oneOff)) {
+                    if (!networkGone && !requeued && !quiet && store.data.settings.notifyOnSync && (scheduled || !report.ok || job.oneOff) && (notable || job.oneOff)) {
                         Notifications.syncResult(ctx, report)
                     }
                     // The channels set up in Settings › Notification channels (Telegram, ntfy…): sent here, before the
                     // worker ends, so a process closed right after still delivered them. A failure only goes to the log.
-                    if (!networkGone) for ((c, m) in com.xlollx.songport.notify.Notify.deliveries(ctx.env, job, report)) {
+                    if (!networkGone && !requeued) for ((c, m) in com.xlollx.songport.notify.Notify.deliveries(ctx.env, job, report)) {
                         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.xlollx.songport.notify.Notify.send(c, m) }
                             ?.let { Diagnostics.log(ctx, "notify", "${c.name} (${c.kind.label}): $it") }
                     }
@@ -385,15 +389,40 @@ object Scheduler {
      * (passaggio Wi-Fi/dati), e una sync lunga finiva "cancellata" a ogni cambio di rete. Se la
      * rete manca davvero, sono le chiamate ai servizi a fallire, con i loro tentativi.
      */
-    fun runNow(ctx: Context, jobId: String) {
+    /**
+     * Answers whether it started: false when the phone has no internet, and the run waits for it
+     * ([OfflineQueue]) instead. Asked again while it waits ([force], or the same sync by hand): it
+     * starts now, as asked; the services' own retries take it from there, as before.
+     */
+    fun runNow(ctx: Context, jobId: String, force: Boolean = false): Boolean {
         // A sync handed over to the user's server: the server is asked to run it.
-        if (ServerLink.handedOver(ctx, jobId) != null) return ServerLink.runHandedOver(ctx, jobId)
+        if (ServerLink.handedOver(ctx, jobId) != null) { ServerLink.runHandedOver(ctx, jobId); return true }
+        if (!force) {
+            OfflineQueue.init(ctx)
+            if (jobId in OfflineQueue.waiting.value) OfflineQueue.cancel(ctx, jobId)
+            else if (com.xlollx.songport.net.Connectivity.isOffline) {
+                val store = Store.get(ctx)
+                if (jobId != SyncWorker.ALL) {
+                    // Files and servers at home need no internet: those run as before.
+                    if (OfflineQueue.needsInternet(store.job(jobId))) { OfflineQueue.add(ctx, jobId); return false }
+                } else {
+                    // Sync all: the syncs that need the internet wait for it, the others run now.
+                    val (waits, now) = store.data.syncs.filter { it.enabled && it.id !in store.data.handedOver }.partition { OfflineQueue.needsInternet(it) }
+                    if (waits.isNotEmpty()) {
+                        waits.forEach { OfflineQueue.add(ctx, it.id) }
+                        if (now.isNotEmpty()) runInSequence(ctx, now.map { it.id })
+                        return false
+                    }
+                }
+            }
+        }
         com.xlollx.songport.NotificationAsk.onUse()
         val req = OneTimeWorkRequestBuilder<SyncWorker>()
             .setInputData(workDataOf(SyncWorker.KEY_JOB to jobId, SyncWorker.KEY_SCHEDULED to false))
             .addTag("sync")
             .build()
         WorkManager.getInstance(ctx).enqueueUniqueWork("run-$jobId", ExistingWorkPolicy.KEEP, req)
+        return true
     }
 
     /**

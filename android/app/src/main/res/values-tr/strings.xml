@@ -2587,4 +2587,18 @@
     <string name="backup_full_web_failed">Web oturumları geri yüklenemedi (Trackhop Bridge yok ya da çok eski): bu hizmetlerde yeniden oturum aç.</string>
     <string name="backup_full_reminder">Şimdi diğer cihazdaki Trackhop\'u kapat ya da kaldır, yoksa ikisi de aynı eşitlemeleri çalıştırır.</string>
     <string name="backup_full_note">Bir hizmet yine de yeniden oturum açmanı isteyebilir: bazı oturumlar başka bir cihaza taşınamaz.</string>
+    <string name="net_offline">İnternet bağlantısı yok</string>
+    <string name="net_offline_server">Sunucunun internet bağlantısı yok</string>
+    <string name="net_timeout">Hizmet zamanında yanıt vermedi. Biraz sonra tekrar dene.</string>
+    <string name="net_unreachable">Hizmete ulaşılamadı. Bağlantıyı kontrol edip tekrar dene.</string>
+    <string name="report_stopped_offline">Durduruldu: internet bağlantısı yok. Yapılanlar korunur; yeniden çevrimiçi olduğunda tekrar çalışır.</string>
+    <string name="report_stopped_offline_server">Durduruldu: sunucunun internet bağlantısı yok. Yapılanlar korunur; zamanlanmış eşitlemeler ilk fırsatta yeniden çalışır.</string>
+    <string name="offline_banner">İnternet bağlantısı yok · eşitlemeler yeniden çevrimiçi olduğunda başlar</string>
+    <string name="offline_back">Yeniden çevrimiçi</string>
+    <string name="offline_queued">İnternet yok: “%1$s” yeniden çevrimiçi olur olmaz başlayacak</string>
+    <string name="offline_queued_all">İnternet yok: eşitlemelerin yeniden çevrimiçi olur olmaz başlayacak</string>
+    <string name="pill_waiting_network">İnternet bekleniyor</string>
+    <string name="pill_stopped_offline">Durduruldu: internet yok</string>
+    <string name="offline_empty">Bunun için internet bağlantısı gerekiyor. Bağlanıp tekrar dene.</string>
+    <string name="net_try_again">Tekrar dene</string>
 </resources>

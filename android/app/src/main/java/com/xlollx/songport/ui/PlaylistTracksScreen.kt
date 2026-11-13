@@ -79,7 +79,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
 
     LaunchedEffect(version) {
         tracks = null; error = null; selected = emptySet()
-        tracks = try { provider.tracks(ctx, playlist.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); emptyList() }
+        tracks = try { provider.tracks(ctx, playlist.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
 
     val all = tracks.orEmpty()
@@ -109,7 +109,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                             onChanged()
                             version++
                         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                            snackbar.showSnackbar(e.userMessage(ctx))
                         }
                         busy = false
                     }
@@ -157,6 +157,7 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
             }
             when {
                 tracks == null -> SkeletonRows(14)
+                error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { version++ })
                 error != null -> Text(error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(24.dp))
                 all.isEmpty() -> Text(stringResource(R.string.tracks_none), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(24.dp))
                 else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {

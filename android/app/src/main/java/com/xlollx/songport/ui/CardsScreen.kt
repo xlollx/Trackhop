@@ -164,7 +164,7 @@ internal fun PlaylistSource(label: String, initialLink: String?, snackbar: Snack
         lists = null
         sheetError = null
         lists = try { p.libraryEntries(ctx, asTarget = false) + p.playlists(ctx) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            say(e.message ?: ctx.getString(R.string.error_generic)); emptyList()
+            say(e.userMessage(ctx)); emptyList()
         }
     }
 
@@ -315,7 +315,7 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                 val card = Cards.CompatibilityCard(pa.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, pb.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, r, covers)
                 bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.compatibility(ctx, card, it) } }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                error = e.message ?: ctx.getString(R.string.error_generic)
+                error = e.userMessage(ctx)
             }
             busy = false
         }
@@ -689,7 +689,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
                                     ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
                             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                                val why = e.message ?: ctx.getString(R.string.error_generic)
+                                val why = e.userMessage(ctx)
                                 scope.launch { snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed_drawn, why), withDismissAction = true, duration = androidx.compose.material3.SnackbarDuration.Long) }
                                 null
                             } finally { drawing = false }
@@ -725,7 +725,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                 bitmaps = draw(card)
                 printed = card
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                error = e.message ?: ctx.getString(R.string.error_generic)
+                error = e.userMessage(ctx)
             }
             busy = false
         }

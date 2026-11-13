@@ -47,6 +47,9 @@ class ServerEnv(
 
     override fun log(tag: String, message: String) = Log.add(tag, message)
 
+    /** "No internet" here is the server's own connection: the reports say so. */
+    override val onServer: Boolean get() = true
+
     /**
      * A connector asks to sign in. Nothing can be opened from here: the request is noted for the web
      * page that asked ([requestedAuth]), which then shows the service's page or the credentials form.

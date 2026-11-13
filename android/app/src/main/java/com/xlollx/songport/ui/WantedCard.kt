@@ -76,7 +76,7 @@ fun WantedCard(snackbar: SnackbarHostState) {
                     withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(f.encode(wants)) } }
                     snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, wants.size))
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                    snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                    snackbar.showSnackbar(e.userMessage(ctx))
                 }
             }
             pending = null

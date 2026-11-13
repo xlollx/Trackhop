@@ -140,7 +140,7 @@ fun ShareTrackSheet(
             }.also { if (it == null) trace("timed out") }
         } catch (e: CancellationException) { throw e } catch (e: Exception) {
             trace("failed: $e")
-            onMain { onMessage(e.message ?: ctx.getString(R.string.error_generic)) }; null
+            onMain { onMessage(e.userMessage(ctx)) }; null
         }
         // Shown from the main thread: a write from the worker the lookup ended on could leave the
         // sheet on "Finding it…" (see onMain).

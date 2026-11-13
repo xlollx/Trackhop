@@ -236,7 +236,7 @@ class Web(
     internal val productName: String get() = edition.product
 
     internal fun page(title: String, body: String, refresh: Int? = null, wide: Boolean = false) =
-        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner(), wide = wide)
+        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner() + offlineBanner(), wide = wide)
 
     /** The path being answered, for the header's current tab. */
     private val currentPath = ThreadLocal<String>()
@@ -360,6 +360,8 @@ class Web(
         val status = when {
             isRunning -> progressText(job.id)
             last == null -> """<span class="muted">Never run</span>"""
+            // The connection's failure in plain words, calmly: it runs again by itself.
+            last.error != null && last.netError != null -> """<span class="net">☁︎ ${h(last.error)}</span>"""
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
             else -> """<span class="ok">+${last.added} −${last.removed}</span>""" +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
@@ -1019,7 +1021,7 @@ ${changesFields(job)}${pairFields(job)}"""}
         if (reports.isNotEmpty()) body.append("<h2>Last runs</h2>")
         for (rep in reports) {
             body.append("""<div class="card"><div class="row"><b>${Html.date(rep.startedEpoch)}</b><span class="muted">${rep.durationMs / 1000} s · source ${rep.sourceCount} · destination ${rep.targetCount}</span></div>""")
-            body.append(if (rep.error != null) """<p class="err">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed</p>""")
+            body.append(if (rep.error != null) """<p class="${if (rep.netError != null) "net" else "err"}">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed</p>""")
             rep.notes.forEach { body.append("""<p class="muted">${h(it)}</p>""") }
             if (rep.hasReview()) {
                 val what = listOfNotNull(

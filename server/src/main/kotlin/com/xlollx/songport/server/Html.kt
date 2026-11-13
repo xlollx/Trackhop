@@ -123,7 +123,7 @@ object Html {
 <html lang="en"${if (theme == "light" || theme == "dark") " data-theme=\"$theme\"" else ""}><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#141218">
-${refreshSeconds?.let { """<meta http-equiv="refresh" content="$it">""" } ?: ""}
+${refreshSeconds?.let { """<noscript><meta http-equiv="refresh" content="$it"></noscript>""" } ?: ""}
 <title>${h(title)} · Trackhop</title>
 <link rel="stylesheet" href="/style.css">
 ${if (edition == Edition.DESKTOP) DESKTOP_LINKS else Pwa.HEAD}
@@ -138,7 +138,26 @@ $body
 </main>
 <footer>${supportMenu()}<br>
 ${h(edition.product)} ${h(version)}${if (edition.stage.isNotEmpty()) " · ${edition.stage}" else ""} · <a href="${edition.guide}">Guide</a> · <a href="$GUIDES">Search the guides</a> · <a href="https://github.com/xlollx/Trackhop" title="Free software under the AGPL-3.0: this is its source code">Source code</a> · Trackhop by xlollx${if (edition == Edition.DESKTOP) " · " + postButton("/quit", "Quit Trackhop", "link", confirm = "Stop Trackhop? Scheduled syncs run only while it is running.") else ""}</footer>
+${linkWatch(refreshSeconds)}
 </body></html>"""
+
+    /**
+     * The page keeps an eye on the server it came from: when the browser can no longer reach it (the
+     * server stopped, the network between them gone) a small notice at the bottom says so, without
+     * covering anything, and goes once the server answers again. A page that refreshes itself while a
+     * sync runs ([refreshSeconds]) asks the server first, so it never lands on the browser's error
+     * page; without scripts the plain refresh in the head does it as before.
+     */
+    internal fun linkWatch(refreshSeconds: Int?): String = """<div id="link-note" class="link-note" role="status" aria-live="polite" hidden>Can't reach Trackhop right now · trying again…</div>
+<script>(function(){var n=document.getElementById('link-note'),down=false,refresh=${refreshSeconds ?: 0};
+function show(d){down=d;n.hidden=!d}
+function ping(then){var c=window.AbortController?new AbortController():null,t=setTimeout(function(){if(c)c.abort()},8000);
+fetch('/health',{cache:'no-store',credentials:'same-origin',signal:c?c.signal:undefined}).then(function(r){clearTimeout(t);then(r.ok)}).catch(function(){clearTimeout(t);then(false)})}
+function watch(){ping(function(ok){var was=down;show(!ok);if(ok&&was&&refresh)location.reload();setTimeout(watch,ok?30000:5000)})}
+window.addEventListener('offline',function(){show(true)});
+window.addEventListener('online',function(){ping(function(ok){show(!ok)})});
+if(refresh)setTimeout(function again(){ping(function(ok){if(ok)location.reload();else{show(true);setTimeout(again,5000)}})},refresh*1000);
+setTimeout(watch,30000)})()</script>"""
 
     /**
      * "Support Trackhop" at the top and in the footer: Ko-fi or GitHub Sponsors in a small menu
@@ -205,6 +224,10 @@ h3{margin:0 0 4px;font-size:16px}
 .card.ok{box-shadow:inset 4px 0 0 var(--ok)}.card.err{box-shadow:inset 4px 0 0 var(--err)}
 .alpha{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#ffb4ab;color:#690005;vertical-align:middle}
 .beta{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#c8e6ff;color:#003258;vertical-align:middle}
+.net{color:var(--ink-2)}
+.net-note{margin:0;padding:10px 16px;background:var(--surface-2);color:var(--ink);font-size:14px;font-weight:600;text-align:center}
+.link-note{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;max-width:calc(100vw - 32px);padding:10px 18px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.link-note[hidden]{display:none}
 .update-note{margin:0;padding:10px 16px;background:var(--accent-2);color:var(--accent-2-ink);font-size:14px;font-weight:600;text-align:center}
 .update-note a{color:inherit}
 .alpha-note{margin:0;padding:10px 16px;background:var(--surface-2);color:var(--ink-2);font-size:13.5px;text-align:center}

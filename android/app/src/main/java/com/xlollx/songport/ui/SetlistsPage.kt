@@ -294,7 +294,7 @@ private fun find(ctx: Context) {
             }
             if (mine()) k.result = r
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            if (mine()) k.error = e.message ?: app.getString(R.string.error_generic)
+            if (mine()) k.error = e.userMessage(app)
         } finally {
             if (mine()) { k.progress = null; k.job = null }
         }
@@ -340,7 +340,7 @@ private fun send(ctx: Context, s: Setlists.Setlist, target: PlaylistRef) {
             SetlistsKept.sent = job.id; SetlistsKept.sendFor = null
             if (SetlistsKept.browsed?.id == s.id) SetlistsKept.browsed = null
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            SetlistsKept.error = e.message ?: app.getString(R.string.error_generic)
+            SetlistsKept.error = e.userMessage(app)
         }
     }
 }

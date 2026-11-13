@@ -230,7 +230,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                     d.busy = false
-                    d.error = e.message ?: app.getString(R.string.error_generic)
+                    d.error = e.userMessage(app)
                 }
             }
         }
@@ -341,7 +341,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                             else AiMatch.available(app, c, target, request, emptyList()) { found, want -> d.step = "$found/$want" }.found
                         }
                         d.busy = false; d.step = ""
-                        outcome.onFailure { e -> d.error = e.message ?: app.getString(R.string.error_generic) }
+                        outcome.onFailure { e -> d.error = e.userMessage(app) }
                         val tracks = outcome.getOrNull() ?: return@launch
                         if (tracks.isEmpty()) d.error = app.getString(R.string.ai_empty) else { d.proposedKeyless = false; d.proposed = tracks }
                     }
@@ -444,7 +444,7 @@ private fun KeylessForm(targets: List<MusicProvider>, target: MusicProvider) {
                     }.found
                 }
                 d.busy = false; d.step = ""
-                outcome.onFailure { e -> if (e is kotlinx.coroutines.CancellationException) throw e; d.error = e.message ?: app.getString(R.string.error_generic) }
+                outcome.onFailure { e -> if (e is kotlinx.coroutines.CancellationException) throw e; d.error = e.userMessage(app) }
                 val tracks = outcome.getOrNull() ?: return@launch
                 if (tracks.isEmpty()) d.error = app.getString(R.string.lb_nothing) else { d.proposedKeyless = true; d.proposed = tracks }
             }
@@ -466,7 +466,7 @@ private fun SeedPlaylistPicker() {
         if (d.mixSourceId != source.id) d.mixSourceId = source.id
         lists = runCatching { source.playlists(ctx.applicationContext) }.getOrElse { e ->
             if (e is kotlinx.coroutines.CancellationException) throw e
-            d.error = e.message ?: ctx.getString(R.string.error_generic); emptyList()
+            d.error = e.userMessage(ctx); emptyList()
         }
     }
     ServicePicker(sources, source.id, { id ->
@@ -497,7 +497,7 @@ private fun ModelRow(c: AiClient.Config, onChange: () -> Unit, onModel: (String)
                     val r = runCatching { AiClient.models(c) }
                     loading = false
                     r.onSuccess { d.models = it; if (it.isEmpty()) d.error = ctx.getString(R.string.ai_models_none) else open = true }
-                        .onFailure { e -> d.error = e.message ?: ctx.getString(R.string.error_generic) }
+                        .onFailure { e -> d.error = e.userMessage(ctx) }
                 }
             }) {
                 if (loading) { CircularProgressIndicator(Modifier.size(14.dp)); Spacer(Modifier.width(6.dp)) }
@@ -608,7 +608,7 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
                                 try {
                                     models = AiClient.models(current())
                                     if (models.isEmpty()) error = ctx.getString(R.string.ai_models_none) else modelsOpen = true
-                                } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic) }
+                                } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx) }
                                 loading = false
                             }
                         }) { Text(stringResource(R.string.ai_models_load)) }
@@ -725,7 +725,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
                     Scheduler.runNow(app, job.id)
                     onClose()
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                    error = e.message ?: app.getString(R.string.error_generic)
+                    error = e.userMessage(app)
                 }
             }
         }
@@ -761,7 +761,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
                             else AiMatch.fresh(AiClient.generateAll(c, request), existing)
                         }
                         busy = false
-                        outcome.onFailure { e -> error = e.message ?: app.getString(R.string.error_generic) }
+                        outcome.onFailure { e -> error = e.userMessage(app) }
                         val tracks = outcome.getOrNull() ?: return@launch
                         if (tracks.isEmpty()) error = app.getString(R.string.ai_empty) else proposed = tracks
                     }
@@ -814,7 +814,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
                     onClose()
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                     busy = false
-                    error = e.message ?: app.getString(R.string.error_generic)
+                    error = e.userMessage(app)
                 }
             }
         }
@@ -852,7 +852,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
                             AiMatch.available(app, c, provider, AiClient.Prompt(prompt, count.toInt(), emptyList(), language, names), existing) { found, want -> step = "$found/$want" }.found
                         }
                         busy = false
-                        outcome.onFailure { e -> error = e.message ?: app.getString(R.string.error_generic) }
+                        outcome.onFailure { e -> error = e.userMessage(app) }
                         val tracks = outcome.getOrNull() ?: return@launch
                         if (tracks.isEmpty()) error = app.getString(R.string.ai_empty) else proposed = tracks
                     }

@@ -556,7 +556,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                             }
                         }
                         busy = false
-                        made.onSuccess(onDone).onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                        made.onSuccess(onDone).onFailure { error = it.userMessage(ctx) }
                     }
                 },
             ) { Text(stringResource(R.string.shared_create)) }
@@ -657,7 +657,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
                         scope.launch {
                             val taken = withContext(Dispatchers.IO) { runCatching { SharedGroups.takeKey(ctx.env, g, inv) } }
                             busy = false
-                            taken.onSuccess { onRekeyed(it, R.string.shared_key_updated) }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                            taken.onSuccess { onRekeyed(it, R.string.shared_key_updated) }.onFailure { error = it.userMessage(ctx) }
                         }
                         return@TextButton
                     }
@@ -666,7 +666,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
                         scope.launch {
                             val taken = withContext(Dispatchers.IO) { runCatching { SharedGroups.takeServer(ctx.env, g, inv, signIn.auth) } }
                             busy = false
-                            taken.onSuccess { onRekeyed(it, R.string.shared_server_updated) }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                            taken.onSuccess { onRekeyed(it, R.string.shared_server_updated) }.onFailure { error = it.userMessage(ctx) }
                         }
                         return@TextButton
                     }
@@ -682,7 +682,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onRekeyed: (
                             }
                         }
                         busy = false
-                        joined.onSuccess { (g, others) -> onDone(g, others) }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                        joined.onSuccess { (g, others) -> onDone(g, others) }.onFailure { error = it.userMessage(ctx) }
                     }
                 },
             ) { Text(stringResource(R.string.shared_join)) }
@@ -707,7 +707,7 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     }
     fun act(block: () -> Unit) {
         scope.launch {
-            withContext(Dispatchers.IO) { runCatching(block) }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+            withContext(Dispatchers.IO) { runCatching(block) }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
             version++
         }
     }
@@ -926,7 +926,7 @@ private fun NtfySignInDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: 
                 scope.launch {
                     val r = withContext(Dispatchers.IO) { runCatching { SharedGroups.setNtfyAuth(ctx.env, group, signIn.auth) } }
                     busy = false
-                    r.onSuccess { onDone() }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                    r.onSuccess { onDone() }.onFailure { error = it.userMessage(ctx) }
                 }
             }) { Text(stringResource(R.string.save)) }
         },
@@ -967,7 +967,7 @@ private fun MoveServerDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: 
                 scope.launch {
                     val r = withContext(Dispatchers.IO) { runCatching { SharedGroups.moveNtfy(ctx.env, group, server, signIn.auth) } }
                     busy = false
-                    r.onSuccess { onDone() }.onFailure { error = it.message ?: ctx.getString(R.string.error_generic) }
+                    r.onSuccess { onDone() }.onFailure { error = it.userMessage(ctx) }
                 }
             }) { Text(stringResource(R.string.shared_change_server)) }
         },

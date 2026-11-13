@@ -2589,4 +2589,18 @@
     <string name="backup_full_web_failed">Die Web-Anmeldungen konnten nicht zurückgespielt werden (Trackhop Bridge fehlt oder ist zu alt): Melde dich bei diesen Diensten erneut an.</string>
     <string name="backup_full_reminder">Schalte Trackhop auf dem anderen Gerät jetzt aus oder deinstalliere es, sonst führen beide dieselben Syncs aus.</string>
     <string name="backup_full_note">Ein Dienst kann trotzdem eine neue Anmeldung verlangen: Manche Sitzungen lassen sich nicht auf ein anderes Gerät übertragen.</string>
+    <string name="net_offline">Keine Internetverbindung</string>
+    <string name="net_offline_server">Der Server hat keine Internetverbindung</string>
+    <string name="net_timeout">Der Dienst hat nicht rechtzeitig geantwortet. Versuche es gleich noch einmal.</string>
+    <string name="net_unreachable">Der Dienst ist nicht erreichbar. Prüfe die Verbindung und versuche es noch einmal.</string>
+    <string name="report_stopped_offline">Angehalten: keine Internetverbindung. Was schon erledigt war, bleibt; die Synchronisierung läuft wieder, sobald du online bist.</string>
+    <string name="report_stopped_offline_server">Angehalten: Der Server hat keine Internetverbindung. Was schon erledigt war, bleibt; geplante Synchronisierungen laufen bei der nächsten Gelegenheit wieder.</string>
+    <string name="offline_banner">Keine Internetverbindung · Synchronisierungen starten, sobald du wieder online bist</string>
+    <string name="offline_back">Wieder online</string>
+    <string name="offline_queued">Kein Internet: „%1$s“ startet, sobald du wieder online bist</string>
+    <string name="offline_queued_all">Kein Internet: Deine Synchronisierungen starten, sobald du wieder online bist</string>
+    <string name="pill_waiting_network">Wartet auf Internet</string>
+    <string name="pill_stopped_offline">Angehalten: kein Internet</string>
+    <string name="offline_empty">Dafür braucht es eine Internetverbindung. Verbinde dich und versuche es noch einmal.</string>
+    <string name="net_try_again">Erneut versuchen</string>
 </resources>

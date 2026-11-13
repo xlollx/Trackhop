@@ -48,6 +48,9 @@ interface Env {
      */
     val targetCoordinator: com.xlollx.songport.sync.TargetCoordinator? get() = null
 
+    /** The engine runs on the user's server (Docker, Desktop), not on the phone: "no internet" is the server's. */
+    val onServer: Boolean get() = false
+
     companion object {
         /** The redirect of the Android app, also the one shown in the setup guides. */
         const val APP_REDIRECT_URI = "songport://callback"

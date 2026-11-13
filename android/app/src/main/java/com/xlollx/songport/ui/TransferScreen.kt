@@ -88,13 +88,14 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     var confirm by remember { mutableStateOf(false) }
 
-    LaunchedEffect(srcId) {
+    var reload by remember { mutableStateOf(0) }
+    LaunchedEffect(srcId, reload) {
         lists = null; error = null; checked = emptySet()
         val p = src ?: return@LaunchedEffect
         try {
             val base = p.playlists(ctx)
             lists = p.libraryEntries(ctx, asTarget = false) + base
-        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); lists = emptyList() }
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); lists = emptyList() }
     }
 
     // Sync gia' esistenti da questa origine verso la destinazione scelta, per playlist.
@@ -133,6 +134,7 @@ fun TransferScreen(onClose: () -> Unit, onDone: () -> Unit) {
             when {
                 srcId == dstId && srcId.isNotEmpty() -> Text(stringResource(R.string.transfer_same_service), color = MaterialTheme.colorScheme.error)
                 all == null -> Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.width(20.dp).height(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.loading)) }
+                error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { reload++ })
                 error != null -> Text(error!!, color = MaterialTheme.colorScheme.error)
                 all.isEmpty() -> Text(stringResource(R.string.transfer_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 else -> {

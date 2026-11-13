@@ -29,6 +29,13 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
     /** A scheduled sync that found no network is tried again sooner than its next interval. */
     private val retryAt = ConcurrentHashMap<String, Long>()
 
+    /**
+     * Since when the server has had no internet, as its last runs found ([com.xlollx.songport.model.SyncReport.offline]);
+     * null once a run reached the services again. The pages say it under the header.
+     */
+    @Volatile var offlineSince: Long? = null
+        private set
+
     /** Radio syncs listen to their station while their window is open (see RadioListener). */
     val radio by lazy { RadioListener(env, this) }
 
@@ -76,10 +83,14 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
             Api.notifyWanted(env, job, engine.wantedAdded)
             // The channels the person set up (core's Notify): in the background, never failing the run.
             if (env.may(Permissions.API)) Notify.afterRun(env, job, report)
-            if (scheduled && !report.ok && isTransientNetwork(report.error)) {
+            // No internet, or a service out of reach: tried again sooner than the next interval (a sync
+            // run by hand too, when it has a schedule), never counted as the sync's own failure.
+            if (!report.ok && (report.netError != null || (scheduled && isTransientNetwork(report.error)))) {
                 retryAt[job.id] = System.currentTimeMillis() + RETRY_MS
                 env.log("sync", "no network for ${job.name}: will retry")
             } else retryAt.remove(job.id)
+            if (report.offline) { if (offlineSince == null) offlineSince = System.currentTimeMillis() }
+            else if (report.netError == null) offlineSince = null
         } catch (e: Exception) {
             env.log("sync", "${job.name}: ${e.javaClass.simpleName}: ${e.message}")
         } finally {

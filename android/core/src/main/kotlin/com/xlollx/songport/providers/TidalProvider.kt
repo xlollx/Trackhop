@@ -106,7 +106,8 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             return playlistPages(ctx, legacy)
         }
         if (out.isNotEmpty()) return out
-        return runCatching { playlistPages(ctx, legacy) }.getOrDefault(out)
+        // A lost connection is said as such, not taken for "no playlists" (a sync would read its target as gone).
+        return runCatching { playlistPages(ctx, legacy) }.onFailure { if (com.xlollx.songport.net.NetError.isOffline(it)) throw it }.getOrDefault(out)
     }
 
     private suspend fun playlistPages(ctx: Env, first: String): List<Playlist> {

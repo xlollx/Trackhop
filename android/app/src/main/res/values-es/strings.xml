@@ -2597,4 +2597,18 @@
     <string name="backup_full_web_failed">No se pudieron restaurar los inicios de sesión web (falta Trackhop Bridge o es demasiado antiguo): vuelve a iniciar sesión en esos servicios.</string>
     <string name="backup_full_reminder">Ahora desactiva o desinstala Trackhop en el otro dispositivo, o los dos ejecutarán las mismas sincronizaciones.</string>
     <string name="backup_full_note">Algún servicio puede pedirte que vuelvas a iniciar sesión: algunas sesiones no pasan a otro dispositivo.</string>
+    <string name="net_offline">Sin conexión a internet</string>
+    <string name="net_offline_server">El servidor no tiene conexión a internet</string>
+    <string name="net_timeout">El servicio no respondió a tiempo. Vuelve a intentarlo en un momento.</string>
+    <string name="net_unreachable">No se pudo contactar con el servicio. Comprueba la conexión y vuelve a intentarlo.</string>
+    <string name="report_stopped_offline">Detenida: sin conexión a internet. Lo que ya se hizo se conserva; volverá a ejecutarse cuando vuelvas a estar en línea.</string>
+    <string name="report_stopped_offline_server">Detenida: el servidor no tiene conexión a internet. Lo que ya se hizo se conserva; las sincronizaciones programadas se ejecutarán de nuevo en cuanto sea posible.</string>
+    <string name="offline_banner">Sin conexión a internet · las sincronizaciones empezarán cuando vuelvas a estar en línea</string>
+    <string name="offline_back">De nuevo en línea</string>
+    <string name="offline_queued">Sin internet: «%1$s» empezará en cuanto vuelvas a estar en línea</string>
+    <string name="offline_queued_all">Sin internet: tus sincronizaciones empezarán en cuanto vuelvas a estar en línea</string>
+    <string name="pill_waiting_network">Esperando internet</string>
+    <string name="pill_stopped_offline">Detenida: sin internet</string>
+    <string name="offline_empty">Esto necesita conexión a internet. Conéctate y vuelve a intentarlo.</string>
+    <string name="net_try_again">Reintentar</string>
 </resources>

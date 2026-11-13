@@ -2589,4 +2589,18 @@
     <string name="backup_full_web_failed">Non è stato possibile ripristinare gli accessi web (Trackhop Bridge manca o è troppo vecchio): accedi di nuovo a quei servizi.</string>
     <string name="backup_full_reminder">Ora disattiva o disinstalla Trackhop sull\'altro dispositivo, altrimenti entrambi eseguiranno le stesse sincronizzazioni.</string>
     <string name="backup_full_note">Un servizio potrebbe comunque chiederti di accedere di nuovo: alcune sessioni non passano su un altro dispositivo.</string>
+    <string name="net_offline">Nessuna connessione a internet</string>
+    <string name="net_offline_server">Il server non ha connessione a internet</string>
+    <string name="net_timeout">Il servizio non ha risposto in tempo. Riprova tra un attimo.</string>
+    <string name="net_unreachable">Impossibile raggiungere il servizio. Controlla la connessione e riprova.</string>
+    <string name="report_stopped_offline">Interrotta: nessuna connessione a internet. Quanto già fatto resta; ripartirà quando tornerai online.</string>
+    <string name="report_stopped_offline_server">Interrotta: il server non ha connessione a internet. Quanto già fatto resta; le sincronizzazioni programmate ripartiranno alla prima occasione.</string>
+    <string name="offline_banner">Nessuna connessione a internet · le sincronizzazioni partiranno quando tornerai online</string>
+    <string name="offline_back">Di nuovo online</string>
+    <string name="offline_queued">Niente internet: “%1$s” partirà appena tornerai online</string>
+    <string name="offline_queued_all">Niente internet: le sincronizzazioni partiranno appena tornerai online</string>
+    <string name="pill_waiting_network">In attesa di internet</string>
+    <string name="pill_stopped_offline">Interrotta: niente internet</string>
+    <string name="offline_empty">Serve una connessione a internet. Collegati e riprova.</string>
+    <string name="net_try_again">Riprova</string>
 </resources>

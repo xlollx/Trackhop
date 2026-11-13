@@ -2695,4 +2695,18 @@
     <string name="backup_full_web_failed">Не удалось вернуть веб-входы (Trackhop Bridge отсутствует или слишком старый): войдите в эти сервисы снова.</string>
     <string name="backup_full_reminder">Теперь выключите или удалите Trackhop на другом устройстве, иначе оба будут выполнять одни и те же синхронизации.</string>
     <string name="backup_full_note">Сервис всё равно может попросить войти снова: некоторые сеансы не переносятся на другое устройство.</string>
+    <string name="net_offline">Нет подключения к интернету</string>
+    <string name="net_offline_server">У сервера нет подключения к интернету</string>
+    <string name="net_timeout">Сервис не ответил вовремя. Попробуйте ещё раз чуть позже.</string>
+    <string name="net_unreachable">Не удалось связаться с сервисом. Проверьте подключение и попробуйте ещё раз.</string>
+    <string name="report_stopped_offline">Остановлено: нет подключения к интернету. Уже сделанное сохранено; синхронизация запустится снова, когда вы снова будете в сети.</string>
+    <string name="report_stopped_offline_server">Остановлено: у сервера нет подключения к интернету. Уже сделанное сохранено; запланированные синхронизации запустятся при первой возможности.</string>
+    <string name="offline_banner">Нет подключения к интернету · синхронизации начнутся, когда вы снова будете в сети</string>
+    <string name="offline_back">Снова в сети</string>
+    <string name="offline_queued">Нет интернета: «%1$s» начнётся, как только вы снова будете в сети</string>
+    <string name="offline_queued_all">Нет интернета: синхронизации начнутся, как только вы снова будете в сети</string>
+    <string name="pill_waiting_network">Ждёт интернет</string>
+    <string name="pill_stopped_offline">Остановлено: нет интернета</string>
+    <string name="offline_empty">Для этого нужно подключение к интернету. Подключитесь и попробуйте ещё раз.</string>
+    <string name="net_try_again">Повторить</string>
 </resources>

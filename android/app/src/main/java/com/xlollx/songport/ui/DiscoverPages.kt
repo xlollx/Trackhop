@@ -150,7 +150,7 @@ internal object LibraryReader {
 internal fun discoverLocale(ctx: Context): Locale = ctx.resources.configuration.locales[0]
 private fun locale(ctx: Context): Locale = discoverLocale(ctx)
 
-internal fun discoverErrorText(ctx: Context, e: Exception) = e.message ?: ctx.getString(R.string.error_generic)
+internal fun discoverErrorText(ctx: Context, e: Exception) = e.userMessage(ctx)
 private fun errorText(ctx: Context, e: Exception) = discoverErrorText(ctx, e)
 
 /** No service to read from: said in the tool's empty state, with the way to Accounts. */

@@ -58,7 +58,7 @@ fun LibraryScanScreen(provider: MusicProvider, onClose: () -> Unit) {
     var error by remember { mutableStateOf<String?>(null) }
     ScreenBackHandler(onClose)
     LaunchedEffect(provider.id) {
-        result = try { LibraryScan.run(ctx, provider) { step = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); null }
+        result = try { LibraryScan.run(ctx, provider) { step = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); null }
     }
     fun save(name: String, tracks: List<Track>) {
         scope.launch {

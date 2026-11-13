@@ -288,8 +288,15 @@ data class SyncReport(
     val heldBack: Int = 0,
     /** The search stopped early (limits of the service): the next run continues it. */
     val searchInterrupted: Boolean = false,
+    /**
+     * The run failed or stopped because of the connection, not the service ([com.xlollx.songport.net.NetError.Kind]'s
+     * name: OFFLINE, TIMEOUT, UNREACHABLE); [error] then says it in plain words. Null otherwise and in older reports.
+     */
+    val netError: String? = null,
 ) {
     val ok: Boolean get() = error == null
+    /** Stopped because there was no internet: what it did stays, and it runs again once the connection is back. */
+    val offline: Boolean get() = netError == "OFFLINE"
 }
 
 /**

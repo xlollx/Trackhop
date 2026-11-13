@@ -38,6 +38,12 @@ internal object HomeSide {
 /** True when this person is told about updates: the one who runs Trackhop (the admin, on a shared server). */
 internal fun Web.seesUpdates(): Boolean = Updates.configured && env.may(Permissions.ADMIN)
 
+/** The line under the header while the server has no internet (its last runs found none); "" otherwise. */
+internal fun Web.offlineBanner(): String {
+    runner.offlineSince ?: return ""
+    return """<p class="net-note" role="status"><span aria-hidden="true">☁︎</span> ${h(env.text("net_offline_server"))}</p>"""
+}
+
 /** The line under the header when a newer version is out. */
 internal fun Web.updateBanner(): String {
     if (!seesUpdates()) return ""

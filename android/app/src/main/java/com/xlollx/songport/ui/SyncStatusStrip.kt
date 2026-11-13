@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
@@ -32,7 +33,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -54,17 +58,19 @@ import java.text.DateFormat
 fun SyncStatusStrip(
     summary: SyncSummary, total: Int, lastRun: Long, shown: Boolean,
     onShow: () -> Unit, onStats: (() -> Unit)?, modifier: Modifier = Modifier,
+    /** No internet: the line says so (and that the syncs wait for it), over everything else, until the connection is back. */
+    offline: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
     val failed = summary.kind == SyncSummary.Kind.ATTENTION && summary.first > 0
-    val (icon, tint) = when (summary.kind) {
+    val (icon, tint) = if (offline) Icons.Filled.CloudOff to scheme.onSurfaceVariant else when (summary.kind) {
         SyncSummary.Kind.RUNNING, SyncSummary.Kind.RUNNING_PAUSED -> Icons.Filled.Sync to scheme.primary
         SyncSummary.Kind.PAUSED -> Icons.Filled.Pause to scheme.onSurfaceVariant
         SyncSummary.Kind.ATTENTION -> Icons.Filled.Warning to if (failed) scheme.error else scheme.tertiary
         SyncSummary.Kind.ALL_OK -> Icons.Filled.CheckCircle to Tones.onSuccessContainer()
         SyncSummary.Kind.IDLE -> Icons.Filled.Schedule to scheme.onSurfaceVariant
     }
-    val main = when (summary.kind) {
+    val main = if (offline) stringResource(R.string.offline_banner) else when (summary.kind) {
         // Shorter than the Sync-all pill's own words just under it ("3 syncs running"): the same count, said once each way.
         SyncSummary.Kind.RUNNING -> pluralStringResource(R.plurals.status_running, summary.first, summary.first)
         SyncSummary.Kind.RUNNING_PAUSED -> pluralStringResource(R.plurals.status_running, summary.first, summary.first) + " · " + pluralStringResource(R.plurals.status_paused, summary.second, summary.second)
@@ -78,15 +84,17 @@ fun SyncStatusStrip(
     }
     // When the last sync ran, while nothing more pressing is said.
     val settled = summary.kind == SyncSummary.Kind.ALL_OK || summary.kind == SyncSummary.Kind.IDLE
-    val last = if (settled && lastRun > 0) stringResource(R.string.status_last, lastSyncLabel(lastRun)) else null
-    val canShow = summary.filter.isNotEmpty()
+    val last = if (!offline && settled && lastRun > 0) stringResource(R.string.status_last, lastSyncLabel(lastRun)) else null
+    val canShow = summary.filter.isNotEmpty() && !offline
     // A large font: the line may take two rather than lose its end.
     val lines = if (LocalDensity.current.fontScale > 1.3f) 2 else 1
     Row(modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(
             Modifier.weight(1f).heightIn(min = 48.dp).clip(RoundedCornerShape(50))
                 .then(if (canShow) Modifier.clickable(role = Role.Button, onClickLabel = stringResource(if (shown) R.string.filter_clear else R.string.crowd_show), onClick = onShow) else Modifier)
-                .padding(start = 4.dp, end = 8.dp).testTag(SYNC_STATUS_TAG),
+                .padding(start = 4.dp, end = 8.dp).testTag(SYNC_STATUS_TAG)
+                // Said by TalkBack when the connection goes ("Back online" is the snackbar's).
+                .then(if (offline) Modifier.semantics { liveRegion = LiveRegionMode.Polite } else Modifier),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(icon, null, Modifier.size(18.dp), tint = tint)

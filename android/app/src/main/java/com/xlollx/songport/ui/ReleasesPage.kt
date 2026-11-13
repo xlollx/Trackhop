@@ -224,7 +224,7 @@ private fun find(ctx: Context) {
             }
             if (mine()) k.result = r
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            if (mine()) k.error = e.message ?: app.getString(R.string.error_generic)
+            if (mine()) k.error = e.userMessage(app)
         } finally {
             if (mine()) { k.progress = null; k.job = null }
         }
@@ -246,7 +246,7 @@ private fun makePlaylist(ctx: Context, name: String, chosen: List<NewReleases.Re
                 onNewSync { if (target == null) copy(name = name, source = source) else copy(name = target.playlistName.ifBlank { name }, source = source, target = target, mirrorRemovals = false) }
             }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            k.error = e.message ?: app.getString(R.string.error_generic)
+            k.error = e.userMessage(app)
         }
         k.progress = null; k.readingTracks = false
     }

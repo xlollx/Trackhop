@@ -1,5 +1,6 @@
 package com.xlollx.songport.auth
 
+import com.xlollx.songport.ui.userMessage
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -171,7 +172,7 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                             else provider.login(ctx, url, user, secret)
                             onDone(ctx.getString(R.string.auth_done, provider.displayName))
                         } catch (e: Exception) {
-                            error = e.message ?: ctx.getString(R.string.error_generic)
+                            error = e.userMessage(ctx)
                             busy = false
                         }
                     }
@@ -203,7 +204,7 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                                 throw e
                             } catch (e: Exception) {
                                 qcCode = null
-                                error = e.message ?: ctx.getString(R.string.error_generic)
+                                error = e.userMessage(ctx)
                                 busy = false
                             }
                         }

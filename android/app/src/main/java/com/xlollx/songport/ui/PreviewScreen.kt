@@ -108,9 +108,16 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
     var waitingFor by remember { mutableStateOf<ServiceReads.Reader?>(null) }
     ScreenBackHandler(onClose)
 
-    LaunchedEffect(job.id) {
+    // Without internet the preview cannot read the playlists: it says so at once (no spinner waiting
+    // out the retries) and reads them as soon as the connection is back, or on Try again.
+    val online = rememberOnline()
+    var attempt by remember { mutableStateOf(0) }
+    LaunchedEffect(job.id, attempt, online) {
+        if (plan != null) return@LaunchedEffect
+        if (!online && com.xlollx.songport.sync.OfflineQueue.needsInternet(job)) { error = ctx.getString(R.string.net_offline); return@LaunchedEffect }
+        error = null
         try { plan = engine.plan(job, { progress = it }, createTarget = false, interactive = true, onWait = { waitingFor = it }) }
-        catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic) }
+        catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx) }
     }
 
     val dst = Providers.byId(job.target.provider)
@@ -152,6 +159,9 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
         Column(Modifier.widthIn(max = WindowLayout.READABLE_CONTENT).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             RouteCard(job, newTarget = job.target.playlistId == null)
             when {
+                error != null && isNetText(ctx, error) -> Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
+                    NetErrorState(error, onRetry = { attempt++ })
+                }
                 error != null -> Surface(Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }, shape = ToolCardShape, color = MaterialTheme.colorScheme.errorContainer) {
                     Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.onErrorContainer)

@@ -60,4 +60,12 @@ class CardStatusTest {
         assertEquals(CardStatus.OK, cardStatus(false, true, empty, radio = true))
         assertEquals(CardStatus.NOT_FOUND, cardStatus(false, true, report(notFound = 1).copy(sourceEmpty = true)))
     }
+
+    /** Stopped because the internet went away: its own calm pill, not "Needs attention"; any other failure still is. */
+    @Test fun aRunStoppedForTheConnectionIsNotAnError() {
+        assertEquals(CardStatus.OFFLINE, cardStatus(false, true, report(error = "Stopped: no internet connection.").copy(netError = "OFFLINE")))
+        assertEquals(CardStatus.ERROR, cardStatus(false, true, report(error = "The service didn't answer in time.").copy(netError = "TIMEOUT")))
+        assertEquals(CardStatus.ERROR, cardStatus(false, true, report(error = "HTTP 500")))
+        assertEquals(CardStatus.RUNNING, cardStatus(true, true, report(error = "x").copy(netError = "OFFLINE")))
+    }
 }

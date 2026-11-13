@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.filled.Warning
@@ -469,6 +470,7 @@ fun SyncsScreen(
                         summary, n, lastRun, shown = summaryShown,
                         onShow = { filter = if (summaryShown) SyncFilter() else SyncFilter(statuses = summary.filter) },
                         onStats = if (anyRun) onStats else null,
+                        offline = !rememberOnline(),
                     )
                     if (single != null && n < IDEAS_STRIP_MAX_SYNCS && !stripHidden) {
                         ServiceIdeasStrip(single, onDismiss = { ServiceIdeas.dismissStrip(ctx); stripHidden = true }, onIdea = onIdea)
@@ -655,7 +657,7 @@ fun SyncsScreen(
 }
 
 /** What a sync card's pill says. */
-internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, EMPTY_SOURCE, OK }
+internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, EMPTY_SOURCE, OK, OFFLINE }
 
 /**
  * The pill for a card, the most important first. Removals on hold come before "Not found: N": a few
@@ -669,6 +671,8 @@ internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport
     isRunning -> CardStatus.RUNNING
     !enabled -> CardStatus.DISABLED
     report == null -> CardStatus.NEVER
+    // Stopped because the internet went away: not a failure of the sync, and it runs again by itself.
+    !report.ok && report.offline -> CardStatus.OFFLINE
     !report.ok -> CardStatus.ERROR
     report.heldBack > 0 -> CardStatus.HELD_BACK
     report.searchInterrupted -> CardStatus.INCOMPLETE
@@ -947,6 +951,10 @@ private fun statusInfo(
     // Handed over: the server runs it, whatever this phone last did.
     if (run == null && Store.get(LocalContext.current).state.collectAsState().value.handedOver[job.id] != null)
         return CardStatusInfo(stringResource(R.string.server_on_server), Tone.Accent, Icons.Filled.Cloud)
+    // Run by hand without internet: it waits for the connection (OfflineQueue), it has not failed.
+    val waiting by com.xlollx.songport.sync.OfflineQueue.waiting.collectAsState()
+    if (run == null && com.xlollx.songport.sync.OfflineQueue.isWaiting(job.id, job.enabled, waiting))
+        return CardStatusInfo(stringResource(R.string.pill_waiting_network), Tone.Neutral, Icons.Filled.CloudOff)
     return when (cardStatus(run != null, job.enabled, report, run, radio = job.radio != null)) {
         CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync)
         CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)
@@ -954,6 +962,7 @@ private fun statusInfo(
         CardStatus.DISABLED -> CardStatusInfo(stringResource(R.string.disabled), Tone.Neutral, null)
         CardStatus.NEVER -> CardStatusInfo(stringResource(R.string.pill_never), Tone.Neutral, null)
         CardStatus.ERROR -> CardStatusInfo(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+        CardStatus.OFFLINE -> CardStatusInfo(stringResource(R.string.pill_stopped_offline), Tone.Neutral, Icons.Filled.CloudOff)
         CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
         CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onOpenLog)
         CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
@@ -1131,7 +1140,8 @@ private fun JobCard(
                 Spacer(Modifier.height(if (small) 6.dp else 8.dp))
                 Text(
                     Notifications.summary(ctx, report), style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
-                    color = if (report.ok) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                    // The connection's failure is said calmly: it is not the sync's, and it is tried again.
+                    color = if (report.ok || report.netError != null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                     maxLines = if (small) 2 else Int.MAX_VALUE, overflow = TextOverflow.Ellipsis,
                 )
             }
@@ -1526,7 +1536,8 @@ private fun progressText(p: Progress?): String = when (p?.step) {
 private sealed class Loaded {
     object Loading : Loaded()
     data class Ok(val items: List<Playlist>) : Loaded()
-    data class Failed(val message: String) : Loaded()
+    /** [network]: the connection failed, not the service: the picker says it calmly and loads again once online. */
+    data class Failed(val message: String, val network: Boolean = false) : Loaded()
 }
 
 /** A playlist in the saved instance state, as JSON. */
@@ -1648,6 +1659,13 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
     // "Try again" in the picker asks the service once more.
     var srcReload by remember { mutableIntStateOf(0) }
     var dstReload by remember { mutableIntStateOf(0) }
+    // A list that failed for the connection loads again by itself once it is back.
+    val editorOnline = rememberOnline()
+    LaunchedEffect(editorOnline) {
+        if (!editorOnline) return@LaunchedEffect
+        if ((srcLists as? Loaded.Failed)?.network == true) srcReload++
+        if ((dstLists as? Loaded.Failed)?.network == true) dstReload++
+    }
     LaunchedEffect(srcProvider, srcReload) {
         srcLists = Loaded.Loading
         srcLists = loadPlaylists(ctx, srcProvider, forTarget = false)
@@ -1756,7 +1774,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
-                error = e.message ?: ctx.getString(R.string.error_generic)
+                error = e.userMessage(ctx)
             } finally {
                 radioSaving = false
             }
@@ -1934,6 +1952,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                             onPick = { srcPlaylist = it; srcSheet = false },
                             recentIds = remember(srcProvider) { recentPlaylistIds(ctx, srcProvider) },
                             onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
+                            networkError = (srcLists as? Loaded.Failed)?.network == true,
                             header = {
                                 ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
                                     onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
@@ -2005,6 +2024,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                         onPick = { createNew = false; dstPlaylist = it; dstSheet = false },
                         recentIds = remember(dstProvider) { recentPlaylistIds(ctx, dstProvider) },
                         onRetry = { dstReload++ }, onSignIn = { dstSheet = false; onConnectService() },
+                        networkError = (dstLists as? Loaded.Failed)?.network == true,
                         first = if (canCreate) ({
                             item("new") {
                                 PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
@@ -2347,7 +2367,7 @@ private suspend fun loadPlaylists(ctx: android.content.Context, providerId: Stri
         // "Brani preferiti": come origine dove il servizio li espone, come destinazione dove si possono scrivere.
         Loaded.Ok(p.libraryEntries(ctx, asTarget = forTarget) + lists)
     } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-        Loaded.Failed(e.message ?: ctx.getString(R.string.error_generic))
+        Loaded.Failed(e.userMessage(ctx), network = com.xlollx.songport.net.NetError.isNetwork(e))
     }
 }
 

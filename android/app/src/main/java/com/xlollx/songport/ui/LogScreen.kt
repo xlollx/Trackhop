@@ -177,7 +177,7 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
                 withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) } }
                 snackbar.showSnackbar(ctx.getString(R.string.csv_exported))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                snackbar.showSnackbar(e.userMessage(ctx))
             }
         }
     }
@@ -234,7 +234,7 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
                                         SyncEngine(ctx).restoreRemoved(job, r)
                                         snackbar.showSnackbar(ctx.getString(R.string.restored_done, r.removedTracks.size))
                                     } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                                        snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                                        snackbar.showSnackbar(e.userMessage(ctx))
                                     }
                                     restoring = false
                                 }

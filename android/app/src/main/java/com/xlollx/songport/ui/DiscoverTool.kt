@@ -282,6 +282,11 @@ internal fun ToolEmpty(title: String, modifier: Modifier = Modifier, body: Strin
 /** Something failed: said on the page (not only in a passing snackbar), with a way to try again. */
 @Composable
 internal fun ToolError(message: String, modifier: Modifier = Modifier, onRetry: (() -> Unit)? = null) {
+    // The connection, not the tool: a calm empty state with Try again rather than an error in red.
+    if (isNetText(androidx.compose.ui.platform.LocalContext.current, message)) {
+        Surface(modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) { NetErrorState(message, onRetry) }
+        return
+    }
     Surface(modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }, shape = ToolCardShape, color = MaterialTheme.colorScheme.errorContainer) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {

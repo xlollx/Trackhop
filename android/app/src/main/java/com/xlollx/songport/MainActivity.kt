@@ -1,5 +1,6 @@
 package com.xlollx.songport
 
+import com.xlollx.songport.ui.userMessage
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.FloatingActionButton
 import com.xlollx.songport.providers.*
@@ -245,14 +246,17 @@ class MainActivity : ComponentActivity() {
 
     private fun handleIntent(i: Intent?) {
         when (i?.action) {
-            ACTION_SYNC_ALL -> { Scheduler.runNow(this, SyncWorker.ALL); messages.value = getString(R.string.running); i.action = null }
+            ACTION_SYNC_ALL -> {
+                messages.value = getString(if (Scheduler.runNow(this, SyncWorker.ALL)) R.string.running else R.string.offline_queued_all)
+                i.action = null
+            }
             ACTION_NEW_SYNC -> { newSyncRequests.value = true; i.action = null }
             // A launcher shortcut of one sync: run it, and show its card.
             ACTION_RUN_SYNC -> {
                 i.getStringExtra(com.xlollx.songport.automation.Automation.EXTRA_SYNC)?.let { id ->
-                    if (com.xlollx.songport.data.Store.get(this).job(id) != null) {
-                        Scheduler.runNow(this, id)
-                        messages.value = getString(R.string.running)
+                    val job = com.xlollx.songport.data.Store.get(this).job(id)
+                    if (job != null) {
+                        messages.value = if (Scheduler.runNow(this, id)) getString(R.string.running) else getString(R.string.offline_queued, job.name)
                         com.xlollx.songport.ui.JobFocus.request.value = id; tabRequests.value = TAB_SYNCS
                     }
                 }
@@ -356,6 +360,29 @@ private fun MainScreen(
     val syncFilter = rememberSaveable(stateSaver = com.xlollx.songport.ui.SyncFilterSaver) { mutableStateOf(com.xlollx.songport.sync.SyncFilter()) }
     val snackbar = remember { SnackbarHostState() }
     val snackScope = rememberCoroutineScope()
+    // A sync run by hand: started, or (no internet) waiting for the connection, said in a snackbar
+    // whose Cancel takes it out of the queue again. Nothing fails, nothing is in red.
+    fun runOrWait(id: String, name: String?) {
+        val before = com.xlollx.songport.sync.OfflineQueue.waiting.value
+        if (Scheduler.runNow(ctx, id)) return
+        val queued = com.xlollx.songport.sync.OfflineQueue.waiting.value - before
+        val msg = if (name != null) ctx.getString(R.string.offline_queued, name) else ctx.getString(R.string.offline_queued_all)
+        snackScope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            val r = snackbar.showSnackbar(msg, actionLabel = ctx.getString(R.string.cancel), duration = SnackbarDuration.Long)
+            if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) queued.forEach { com.xlollx.songport.sync.OfflineQueue.cancel(ctx, it) }
+        }
+    }
+    // "Back online", once, when the connection returns while the app is open.
+    val online = com.xlollx.songport.ui.rememberOnline()
+    var wasOffline by remember { mutableStateOf(false) }
+    LaunchedEffect(online) {
+        if (!online) wasOffline = true
+        else if (wasOffline) {
+            wasOffline = false
+            snackbar.showSnackbar(ctx.getString(R.string.offline_back), duration = SnackbarDuration.Short)
+        }
+    }
     // What saving a sync does, from the editor or from a card's menu: stored, and its scheduled work
     // brought in line with it (cancelled when it is off or manual).
     fun saveJob(job: SyncJob) {
@@ -524,9 +551,9 @@ private fun MainScreen(
                 } catch (e: com.xlollx.songport.sync.SetlistImport.NoKey) {
                     // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid; the store builds with a connector plugin).
                     val site = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null, setlist)
-                    if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                    if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.userMessage(ctx))
                 } catch (e: Exception) {
-                    snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                    snackbar.showSnackbar(e.userMessage(ctx))
                 }
             } else if (ref == null) {
                 snackbar.showSnackbar(ctx.getString(R.string.share_invalid))
@@ -924,6 +951,10 @@ private fun MainScreen(
             val glow = remember(backdrop) { Modifier.pageBackdrop(backdrop) }
             Box(Modifier.fillMaxSize().then(glow).hazeSource(state = haze).padding(top = padding.calculateTopPadding()).then(if (tab == MainActivity.TAB_SYNCS) Modifier else Modifier.imePadding())) {
             // A readable column in the middle of a wide window; the sync cards get room for two columns.
+            Column(Modifier.fillMaxSize()) {
+            // No internet: a slim line at the top of the other tabs (the Syncs tab says it in its status line).
+            com.xlollx.songport.ui.OfflineBanner(!online && (tab != MainActivity.TAB_SYNCS || data.syncs.isEmpty()))
+            Box(Modifier.weight(1f)) {
             TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(
                     data = data,
@@ -948,8 +979,8 @@ private fun MainScreen(
                         val msg = ctx.getString(if (on) R.string.sync_enabled_snack else R.string.sync_disabled_snack)
                         snackScope.launch { snackbar.currentSnackbarData?.dismiss(); snackbar.showSnackbar(msg) }
                     },
-                    onRun = { Scheduler.runNow(ctx, it.id) },
-                    onRunAll = { Scheduler.runNow(ctx, SyncWorker.ALL) },
+                    onRun = { runOrWait(it.id, it.name) },
+                    onRunAll = { runOrWait(SyncWorker.ALL, null) },
                     onDelete = { j ->
                         store.deleteJob(j.id); Scheduler.cancel(ctx, j.id)
                         j.linkedJobId?.let { l -> store.deleteJob(l); Scheduler.cancel(ctx, l) }
@@ -989,6 +1020,8 @@ private fun MainScreen(
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } } }
+            }
+            }
             }
         }
     }

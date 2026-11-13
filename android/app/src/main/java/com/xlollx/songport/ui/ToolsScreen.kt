@@ -340,7 +340,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
             val base = provider.playlists(ctx)
             provider.libraryEntries(ctx, asTarget = false) + base
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+            snackbar.showSnackbar(e.userMessage(ctx))
             emptyList()
         }
     }
@@ -360,7 +360,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                 }
                 snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                snackbar.showSnackbar(e.userMessage(ctx))
             }
             lookups = null
             busy = false
@@ -461,7 +461,7 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                     busy = true
                     scope.launch {
                         groups = try { Tools.findDuplicates(ctx, provider, pl!!.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); null
+                            snackbar.showSnackbar(e.userMessage(ctx)); null
                         }
                         busy = false
                     }
@@ -477,7 +477,7 @@ private fun DedupeCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                                 snackbar.showSnackbar(ctx.getString(R.string.tools_dedupe_done, n))
                                 groups = null
                             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                                snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic))
+                                snackbar.showSnackbar(e.userMessage(ctx))
                             }
                             busy = false
                         }
@@ -538,7 +538,7 @@ private fun MbTagsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                     busy = true; read = 0
                     scope.launch {
                         result = try { Tools.untaggedSongs(ctx, provider) { read = it } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                            snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)); null
+                            snackbar.showSnackbar(e.userMessage(ctx)); null
                         }
                         busy = false
                     }
@@ -573,7 +573,7 @@ private fun LyricsCard(provider: MusicProvider, snackbar: SnackbarHostState) {
     val support = provider.lyricsSupport
     val name = provider.displayName
 
-    fun failed(e: Exception) = scope.launch { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+    fun failed(e: Exception) = scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) }
 
     PageCard(shape = MaterialTheme.shapes.large) {
         Column(Modifier.padding(16.dp)) {

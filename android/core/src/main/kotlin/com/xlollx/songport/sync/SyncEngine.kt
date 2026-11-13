@@ -3,6 +3,7 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.providers.*
 import com.xlollx.songport.data.FileStore
 import com.xlollx.songport.data.LastWrites
+import com.xlollx.songport.net.NetError
 import com.xlollx.songport.platform.Env
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
@@ -65,7 +66,7 @@ private const val MBID_PROBE = 20
  * si sta svegliando: WorkManager la lancia appena il sistema dichiara la rete "connessa", ma il DNS
  * puo' arrivare qualche decina di secondi dopo. Quindici secondi di tentativi non bastavano.
  */
-private val NETWORK_RETRY_SECONDS = intArrayOf(5, 15, 30, 60, 120)
+internal var NETWORK_RETRY_SECONDS = intArrayOf(5, 15, 30, 60, 120)
 
 /** Errori di trasporto che passano da soli: risoluzione del nome, connessione rifiutata o caduta, timeout. */
 fun isTransientNetwork(msg: String?): Boolean {
@@ -211,9 +212,20 @@ class SyncEngine(
             throw e
         } catch (e: Exception) {
             env.log("engine", "${job.name}: ${describe(e)}")
+            // The connection, not the service: said in plain words (the technical line is in the log
+            // just above), and marked so the run is tried again once the connection is back.
+            val net = NetError.kind(e)
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
-                error = e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0)
+                error = netText(net) ?: e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0,
+                netError = net.takeIf { it != NetError.Kind.NONE }?.name)
         }
+
+    /** What a run stopped by [kind] says; null when it is not the connection. */
+    private fun netText(kind: NetError.Kind): String? = when (kind) {
+        NetError.Kind.NONE -> null
+        NetError.Kind.OFFLINE -> str(if (env.onServer) "report_stopped_offline_server" else "report_stopped_offline")
+        else -> NetError.textName(kind, env.onServer)?.let { str(it) }
+    }
 
     /**
      * The playlist is still in the user's library. Library slots (liked, albums…) and files always
@@ -968,14 +980,16 @@ class SyncEngine(
                     // stato trovato ancora nulla l'errore e' dell'intera sync; altrimenti ci si ferma qui.
                     // Also when failures are a good share of the real searches, even if not in a row:
                     // songs remembered from earlier runs, answered in between, used to hide them.
+                    // No internet (a connector that passes the line's text on, the Bridge): nothing more can be searched.
+                    val offline = NetError.isOffline(e)
                     val systemic = consecutiveErrors >= 3 || (errors >= 10 && errors * 3 > searchedHere + errors) ||
                         msg.contains("quota", true) || msg.contains("reconnect", true) ||
-                        msg.contains("sign in again", true) || isThrottle(msg)
+                        msg.contains("sign in again", true) || isThrottle(msg) || offline
                     if (systemic) {
                         saveMisses()
                         env.log("engine", "${dst.displayName}: search stopped after $searchedHere searches and $errors failures: ${msg.take(200)}")
                         if (done - chunk.size + i <= 0) throw e
-                        return msg
+                        return if (offline) NetError.textName(NetError.Kind.OFFLINE, env.onServer)?.let { str(it) } ?: msg else msg
                     }
                     onResult(s, null, null)
                 } else {
@@ -1136,7 +1150,9 @@ class SyncEngine(
                     }
                     // Rete assente per un attimo (risveglio programmato, cambio Wi-Fi/dati): non e' il
                     // servizio, si riprova con attese crescenti.
-                    isTransientNetwork(e.message) && networkRetries < NETWORK_RETRY_SECONDS.size -> {
+                    // Not when the device knows it is offline: the run stops at once, and starts again
+                    // when the connection is back (the app's queue, WorkManager's or the server's retry).
+                    (isTransientNetwork(e.message) || NetError.isNetwork(e)) && networkRetries < NETWORK_RETRY_SECONDS.size && !NetError.knownOffline() -> {
                         val seconds = NETWORK_RETRY_SECONDS[networkRetries++]
                         env.log("engine", "network hiccup: ${e.message?.take(120)}; retrying in ${seconds}s")
                         waitVisible(seconds, onProgress)
@@ -1193,6 +1209,9 @@ class SyncEngine(
         // instead of listing every track as not found (issue #34).
         var addStopped: String? = null
         var singleFails = 0
+        // The internet went away while writing: the run stops where it is. What was added stays; nothing
+        // more is written (no removals, no repairs, no reordering) until a run that can read and write again.
+        var offline = false
         // Read long ago (a long search in between): another device running the same sync may have
         // added the same tracks meanwhile. One look before writing, only when there is something to
         // add: the service's version where it has one, the whole listing when that changed or is unknown.
@@ -1229,7 +1248,7 @@ class SyncEngine(
             // saves one track at a time; without it, in batches at full speed (MusicProvider.addsInOrder).
             kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
-                if (addStopped != null) break
+                if (addStopped != null || offline) break
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
                 onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, toAdd.size, chunk.first().live()))
                 while (true) {
@@ -1252,9 +1271,16 @@ class SyncEngine(
                             waitVisible(asked, onProgress)
                             continue
                         }
+                        // No internet: not the tracks' fault, and trying them one by one would only list
+                        // each as failed. The run stops here.
+                        if (NetError.isOffline(e)) {
+                            offline = true
+                            env.log("engine", "${job.name}: connection lost while adding to ${dst.displayName} (${describe(e)}): stopped, $added added so far")
+                            break
+                        }
                         // Un blocco fallito (id non piu' valido, ecc.): riprova brano per brano.
                         for (t in chunk) {
-                            if (addStopped != null) break
+                            if (addStopped != null || offline) break
                             try {
                                 if (t.id in dst.addTracksReportingPresent(env, targetId, listOf(t))) {
                                     alreadyThere += t
@@ -1265,6 +1291,11 @@ class SyncEngine(
                                 }
                                 singleFails = 0
                             } catch (e2: Exception) {
+                                if (NetError.isOffline(e2)) {
+                                    offline = true
+                                    env.log("engine", "${job.name}: connection lost while adding to ${dst.displayName} (${describe(e2)}): stopped, $added added so far")
+                                    break
+                                }
                                 failed += "$t (${e2.message})"
                                 SyncState.item(job.id, SyncState.LiveItem(t.live(), e2.message?.take(80), SyncState.Outcome.ADD_FAILED))
                                 singleFails++
@@ -1289,10 +1320,10 @@ class SyncEngine(
 
         var removed = 0
         var removedList: List<Track> = emptyList()
-        if (plan.toRemove.isNotEmpty()) {
+        var kept: Set<String> = emptySet()
+        if (plan.toRemove.isNotEmpty() && !offline) {
             onProgress(Progress(Progress.Step.REMOVING, 0, plan.toRemove.size, plan.toRemove.first().live()))
             var blockWaits = 0
-            var kept: Set<String> = emptySet()
             while (true) {
                 try {
                     kept = dst.removeTracksReportingKept(env, targetId, plan.toRemove)
@@ -1301,9 +1332,18 @@ class SyncEngine(
                 catch (e: Exception) {
                     val asked = declaredWait(e.message)
                     if (asked != null && blockWaits < MAX_BLOCK_WAITS) { blockWaits++; waitVisible(asked, onProgress); continue }
+                    // The internet went away: the run stops with what it added, said as such, instead of
+                    // failing as a whole. The removals are planned again by the next run, on fresh listings.
+                    if (NetError.isOffline(e)) {
+                        offline = true
+                        env.log("engine", "${job.name}: connection lost while removing from ${dst.displayName} (${describe(e)}): stopped")
+                        break
+                    }
                     throw e
                 }
             }
+        }
+        if (plan.toRemove.isNotEmpty() && !offline) {
             val (stayed, gone) = plan.toRemove.partition { it.id in kept }
             gone.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), null, SyncState.Outcome.REMOVED)) }
             removedList = gone
@@ -1317,7 +1357,7 @@ class SyncEngine(
             }
         }
         // The extra copies of tracks the source holds once (see plan): never a reason to fail the run.
-        if (plan.duplicates.isNotEmpty()) {
+        if (plan.duplicates.isNotEmpty() && !offline) {
             try {
                 dst.removeTracks(env, targetId, plan.duplicates)
                 TargetEntries.drop(entriesKey(dst, targetId), plan.duplicates, dst.removesSingleEntry)
@@ -1332,7 +1372,7 @@ class SyncEngine(
 
         // The pair's common state, written again only by a run that read both sides whole, finished
         // its search and was not stopped while adding: anything less leaves the last one in place.
-        plan.twoWay?.takeIf { it.complete && addStopped == null }?.let { tw ->
+        plan.twoWay?.takeIf { it.complete && addStopped == null && !offline }?.let { tw ->
             val onTarget = addedList.mapTo(HashSet()) { it.id } + alreadyThere.map { it.id }
             val gone = removedList.mapTo(HashSet()) { it.id }
             val now = tw.kept.filter { it.second !in gone } + tw.present.toList() + tw.adding.filterValues { it in onTarget }.toList()
@@ -1354,7 +1394,7 @@ class SyncEngine(
             val stillOpen = provisional.unmatchedTracks.map { it.id }.toHashSet()
             unmatched.retainAll { it.id in stillOpen }
         }
-        if (job.keepOrder && !job.archive && com.xlollx.songport.Features.reorderOn(dst) && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
+        if (!offline && job.keepOrder && !job.archive && com.xlollx.songport.Features.reorderOn(dst) && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
             alignOrder(src, dst, targetId, plan.sourceOrder, notes, onProgress)
         }
         val reviews = provisional?.reviewTracks ?: plan.uncertain
@@ -1370,7 +1410,8 @@ class SyncEngine(
             // Favourites are added last-first: listed back in the source's order.
             addedTracks = (if (MusicProvider.isLibrary(targetId)) addedList.asReversed() else addedList).take(MAX_LISTED),
             notes = notes,
-            error = addStopped?.let { "${dst.displayName}: $it" },
+            error = if (offline) netText(NetError.Kind.OFFLINE) else addStopped?.let { "${dst.displayName}: $it" },
+            netError = if (offline) NetError.Kind.OFFLINE.name else null,
             suggestions = suggestionsFor(unmatched),
             absent = unmatched.filter { it.id in absent }.map { it.id },
             heldBack = plan.heldBackRemovals,

@@ -104,9 +104,9 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     LaunchedEffect(version) {
         lists = null; error = null
-        lists = try { provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); emptyList() }
+        lists = try { provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
-    fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) } }
+    fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) } }
 
     // Export: the format is asked in a dialog, the tracks are read when the file destination is chosen.
     var exporting by remember { mutableStateOf<Playlist?>(null) }
@@ -220,6 +220,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         val all = lists
         when {
             all == null -> SkeletonRows(12, leading = 44.dp, modifier = Modifier.padding(padding).padding(top = 8.dp))
+            error != null && isNetText(ctx, error) -> NetErrorState(error, onRetry = { version++ }, modifier = Modifier.padding(padding))
             error != null -> Text(error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(padding).padding(24.dp))
             all.isEmpty() -> Box(Modifier.fillMaxSize().padding(padding).padding(32.dp), contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.manage_none), color = MaterialTheme.colorScheme.onSurfaceVariant)

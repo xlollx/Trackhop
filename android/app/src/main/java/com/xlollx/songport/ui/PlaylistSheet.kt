@@ -304,6 +304,8 @@ internal fun ColumnScope.PlaylistRows(
     recentIds: List<String> = emptyList(), onRetry: (() -> Unit)? = null, onSignIn: (() -> Unit)? = null,
     first: (LazyListScope.() -> Unit)? = null,
     header: (@Composable () -> Unit)? = null, other: (@Composable () -> Unit)? = null, fill: Boolean = true,
+    /** [error] is the connection's (no internet, too slow): said calmly, with Try again, and no sign-in offered. */
+    networkError: Boolean = false,
 ) {
     val short = LocalWindowLayout.current.short
     val isSection = { p: Playlist -> MusicProvider.isLibrary(p.id) && p.id != MusicProvider.LIKED_ID }
@@ -377,6 +379,7 @@ internal fun ColumnScope.PlaylistRows(
         // The rows fade in where the grey ones were: nothing slides, nothing waits.
         val fade = androidx.compose.animation.core.tween<Float>(200)
         when {
+            error != null && networkError -> item("error") { NetErrorState(error, onRetry) }
             error != null -> item("error") {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Icon(Icons.Filled.Warning, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(28.dp))

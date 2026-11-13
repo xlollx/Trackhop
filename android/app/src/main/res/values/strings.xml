@@ -2590,4 +2590,19 @@
     <string name="backup_full_web_failed">The web sign-ins could not be put back (Trackhop Bridge is missing or too old): sign in to those services again.</string>
     <string name="backup_full_reminder">Now turn off or uninstall Trackhop on the other device, or both will run the same syncs.</string>
     <string name="backup_full_note">A service may still ask you to sign in again: some sessions do not move to another device.</string>
+    <!-- No internet: the offline banner, queued runs, and network errors in plain words. -->
+    <string name="net_offline">No internet connection</string>
+    <string name="net_offline_server">The server has no internet connection</string>
+    <string name="net_timeout">The service didn\'t answer in time. Try again in a moment.</string>
+    <string name="net_unreachable">Couldn\'t reach the service. Check the connection and try again.</string>
+    <string name="report_stopped_offline">Stopped: no internet connection. What was already done is kept; it runs again when you\'re back online.</string>
+    <string name="report_stopped_offline_server">Stopped: the server has no internet connection. What was already done is kept; scheduled syncs run again at their next chance.</string>
+    <string name="offline_banner">No internet connection · syncs will start when you\'re back online</string>
+    <string name="offline_back">Back online</string>
+    <string name="offline_queued">No internet: “%1$s” will start as soon as you\'re back online</string>
+    <string name="offline_queued_all">No internet: your syncs will start as soon as you\'re back online</string>
+    <string name="pill_waiting_network">Waiting for internet</string>
+    <string name="pill_stopped_offline">Stopped: no internet</string>
+    <string name="offline_empty">This needs an internet connection. Connect and try again.</string>
+    <string name="net_try_again">Try again</string>
 </resources>

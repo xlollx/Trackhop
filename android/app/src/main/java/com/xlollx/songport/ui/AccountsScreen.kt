@@ -562,7 +562,7 @@ internal fun FilesCard(
                 result.onSuccess { pl ->
                     version++
                     offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
-                }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+                }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
             }
         }
     }
@@ -626,9 +626,9 @@ internal fun FilesCard(
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: com.xlollx.songport.sync.SetlistImport.NoKey) {
                     // No key: setlist.fm's own site opens on the link where the build has it (GitHub, F-Droid; the store builds with a connector plugin).
                     val site = com.xlollx.songport.providers.BuiltIn.setlistSite(ctx, null, com.xlollx.songport.sync.SetlistImport.linkIn(text))
-                    onMain { if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+                    onMain { if (site != null) ctx.startActivity(site.second) else snackbar.showSnackbar(e.userMessage(ctx)) }
                 } catch (e: Exception) {
-                    onMain { snackbar.showSnackbar(e.message ?: ctx.getString(R.string.error_generic)) }
+                    onMain { snackbar.showSnackbar(e.userMessage(ctx)) }
                 }
             }
         },

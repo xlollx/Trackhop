@@ -51,7 +51,7 @@ fun AddTrackDialog(provider: MusicProvider, track: Track, onClose: () -> Unit, o
             val own = provider.playlists(ctx.applicationContext).filter { it.ownedByMe && !MusicProvider.isLibrary(it.id) }
             val liked = if (provider.supportsLikedTarget) listOf(Playlist(MusicProvider.LIKED_ID, ctx.getString(R.string.liked_songs))) else emptyList()
             liked + own
-        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: ctx.getString(R.string.error_generic); emptyList() }
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
 
     FitDialog(
@@ -82,7 +82,7 @@ fun AddTrackDialog(provider: MusicProvider, track: Track, onClose: () -> Unit, o
                                             onDone(ctx.getString(R.string.share_track_added, name))
                                             onClose()
                                         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
-                                            busy = false; error = e.message ?: ctx.getString(R.string.error_generic)
+                                            busy = false; error = e.userMessage(ctx)
                                         }
                                     }
                                 }.padding(vertical = 12.dp, horizontal = 4.dp),

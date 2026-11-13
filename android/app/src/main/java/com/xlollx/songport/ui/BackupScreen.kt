@@ -155,7 +155,7 @@ fun BackupScreen(onClose: () -> Unit) {
                                 ctx.getString(R.string.backup_config_restored, r.syncs) + paused,
                                 duration = if (r.paused > 0) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
                             )
-                        }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+                        }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
                     }
                 }) { Text(stringResource(R.string.backup_config_restore_action)) }
             },
@@ -452,7 +452,7 @@ private fun FullBackupDialogs(snackbar: SnackbarHostState, locked: String?, onLo
                                 if (replaceDevice) add(ctx.getString(R.string.backup_full_reminder))
                             }
                             snackbar.showSnackbar(lines.joinToString("\n"), duration = androidx.compose.material3.SnackbarDuration.Long, withDismissAction = true)
-                        }.onFailure { snackbar.showSnackbar(it.message ?: ctx.getString(R.string.error_generic)) }
+                        }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
                     }
                 }) { Text(stringResource(R.string.backup_config_restore_action)) }
             },

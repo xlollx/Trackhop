@@ -2535,4 +2535,18 @@
     <string name="backup_full_web_failed">웹 로그인을 되돌리지 못했습니다(Trackhop Bridge가 없거나 너무 오래됨). 해당 서비스에 다시 로그인하세요.</string>
     <string name="backup_full_reminder">이제 다른 기기의 Trackhop을 끄거나 삭제하세요. 그렇지 않으면 두 기기가 같은 동기화를 실행합니다.</string>
     <string name="backup_full_note">일부 서비스는 다시 로그인하라고 할 수 있습니다. 다른 기기로 옮겨지지 않는 세션도 있습니다.</string>
+    <string name="net_offline">인터넷에 연결되어 있지 않아요</string>
+    <string name="net_offline_server">서버가 인터넷에 연결되어 있지 않아요</string>
+    <string name="net_timeout">서비스가 제때 응답하지 않았어요. 잠시 후 다시 시도하세요.</string>
+    <string name="net_unreachable">서비스에 연결할 수 없었어요. 연결을 확인하고 다시 시도하세요.</string>
+    <string name="report_stopped_offline">중지됨: 인터넷에 연결되어 있지 않아요. 이미 처리된 내용은 그대로 남고, 다시 온라인이 되면 다시 실행돼요.</string>
+    <string name="report_stopped_offline_server">중지됨: 서버가 인터넷에 연결되어 있지 않아요. 이미 처리된 내용은 그대로 남고, 예약된 동기화는 다음 기회에 다시 실행돼요.</string>
+    <string name="offline_banner">인터넷 연결 없음 · 다시 온라인이 되면 동기화가 시작돼요</string>
+    <string name="offline_back">다시 온라인 상태예요</string>
+    <string name="offline_queued">인터넷 연결 없음: 다시 온라인이 되면 바로 “%1$s” 동기화가 시작돼요</string>
+    <string name="offline_queued_all">인터넷 연결 없음: 다시 온라인이 되면 바로 동기화가 시작돼요</string>
+    <string name="pill_waiting_network">인터넷 연결 대기 중</string>
+    <string name="pill_stopped_offline">중지됨: 인터넷 없음</string>
+    <string name="offline_empty">인터넷 연결이 필요해요. 연결한 뒤 다시 시도하세요.</string>
+    <string name="net_try_again">다시 시도</string>
 </resources>
