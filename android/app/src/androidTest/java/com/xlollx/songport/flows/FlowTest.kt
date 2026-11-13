@@ -81,6 +81,9 @@ abstract class FlowTest {
 
     @Before
     fun baseSetUp() {
+        // The tests' services are fakes: whatever the emulator's network says, the app is online here
+        // (OfflineFlowTest turns it off on purpose).
+        com.xlollx.songport.net.Connectivity.simulate(true)
         com.xlollx.songport.auth.AuthEvents.consume()
         // The guided tour lives in the process: none left running from the test before.
         com.xlollx.songport.ui.Tour.step.value = null

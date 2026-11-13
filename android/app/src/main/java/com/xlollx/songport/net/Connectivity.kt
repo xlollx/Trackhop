@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Whether the phone has the internet now: the one answer the app asks (the offline banner, a run
  * started without a connection, the engine's [NetError]). From the system's default network: online
- * while it has internet the system checked (validated), or is a VPN, which carries the check of the
- * network under it. Until the system has answered, and wherever it cannot, the app counts as online,
+ * while there is one that reaches the internet (see [usable]). Until the system has answered, and wherever it cannot, the app counts as online,
  * so nothing that worked before waits for an answer that never comes.
  */
 object Connectivity {
@@ -70,10 +69,12 @@ object Connectivity {
         }
     }
 
-    /** A network the app can use: internet, checked by the system (or a VPN over a checked one). */
-    internal fun usable(caps: NetworkCapabilities?): Boolean {
-        caps ?: return false
-        if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) || caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
-    }
+    /**
+     * A network that says it reaches the internet. Not the system's own check (validated): on some
+     * networks it never passes though the internet works (a company Wi-Fi, a private DNS, an emulator),
+     * and the app would hold every sync back. A network that only seems to work fails the real call,
+     * which the engine then names (NetError) and retries.
+     */
+    internal fun usable(caps: NetworkCapabilities?): Boolean =
+        caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
 }

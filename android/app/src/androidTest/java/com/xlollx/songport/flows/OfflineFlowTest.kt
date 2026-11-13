@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class OfflineFlowTest : FlowTest() {
     @After fun online() {
-        Connectivity.simulate(null)
+        Connectivity.simulate(true)
         OfflineQueue.cancel(app, JOB)
     }
 
