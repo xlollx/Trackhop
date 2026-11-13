@@ -2565,13 +2565,15 @@
     <string name="backup_full_password_mismatch">Le due password non coincidono.</string>
     <string name="backup_full_continue">Salva</string>
     <string name="backup_full_saved">Configurazione cifrata salvata, con %1$d accessi.</string>
-    <string name="backup_full_web_missing">Gli accessi web non sono stati inclusi: questa versione di Trackhop Bridge è troppo vecchia per consegnarli. Aggiornala e salva di nuovo.</string>
+    <string name="backup_full_web_missing">Gli accessi web non sono stati inclusi: il Trackhop Bridge installato non li ha consegnati (è troppo vecchio, oppure non è quello ufficiale). Aggiornalo dalla sua pagina ufficiale e salva di nuovo.</string>
+    <string name="backup_full_web_too_large">Gli accessi web non sono stati inclusi: sono troppo grandi per essere consegnati in una volta. Dopo il ripristino, accedi di nuovo a quei servizi.</string>
     <string name="backup_full_unlock_title">Configurazione cifrata</string>
     <string name="backup_full_unlock_body">Questo file contiene degli accessi ed è protetto. Inserisci la sua password.</string>
     <string name="backup_full_unlock">Apri</string>
     <string name="backup_full_wrong_password">Password errata, o il file è stato modificato. Non è stato importato nulla.</string>
     <string name="backup_full_newer">Questo file è un backup cifrato con gli accessi, creato da una funzione più recente di Trackhop. Questo Trackhop non sa ancora leggerlo: aggiornalo, oppure usa un backup senza accessi.</string>
     <string name="backup_full_contents">In più: %1$d accessi e client secret, %2$d accessi web.</string>
+    <string name="backup_full_adds">Gli accessi dei servizi non ancora collegati qui vengono aggiunti.</string>
     <string name="backup_full_replaces_device">Questo dispositivo sostituisce l\'altro</string>
     <string name="backup_full_replaces_device_desc">Sì: le sue sincronizzazioni pianificate restano attive qui. No: arrivano disattivate, così non girano su due dispositivi.</string>
     <string name="backup_full_replace_signins">Sostituisci gli accessi già presenti su questo dispositivo: %1$s</string>

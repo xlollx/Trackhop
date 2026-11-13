@@ -2673,13 +2673,15 @@
     <string name="backup_full_password_mismatch">Hasła nie są takie same.</string>
     <string name="backup_full_continue">Zapisz</string>
     <string name="backup_full_saved">Zapisano zaszyfrowaną konfigurację z %1$d logowaniami.</string>
-    <string name="backup_full_web_missing">Logowania webowe nie zostały dołączone: ta wersja Trackhop Bridge jest za stara, by je przekazać. Zaktualizuj ją i zapisz ponownie.</string>
+    <string name="backup_full_web_missing">Logowania webowe nie zostały dołączone: zainstalowany Trackhop Bridge ich nie przekazał (jest za stary albo nie jest oficjalny). Zaktualizuj go z oficjalnej strony i zapisz ponownie.</string>
+    <string name="backup_full_web_too_large">Logowania webowe nie zostały dołączone: są za duże, by przekazać je za jednym razem. Po przywróceniu zaloguj się ponownie do tych usług.</string>
     <string name="backup_full_unlock_title">Zaszyfrowana konfiguracja</string>
     <string name="backup_full_unlock_body">Ten plik zawiera logowania i jest zablokowany. Wpisz jego hasło.</string>
     <string name="backup_full_unlock">Otwórz</string>
     <string name="backup_full_wrong_password">Złe hasło albo plik został zmieniony. Nic nie zostało zaimportowane.</string>
     <string name="backup_full_newer">Ten plik to zaszyfrowana kopia z logowaniami, utworzona przez nowszą funkcję Trackhop. Ten Trackhop nie potrafi go jeszcze odczytać: zaktualizuj go albo użyj kopii bez logowań.</string>
     <string name="backup_full_contents">Dodatkowo: %1$d logowań i sekretów klienta, %2$d logowań webowych.</string>
+    <string name="backup_full_adds">Logowania do usług, które nie są tu jeszcze połączone, zostaną dodane.</string>
     <string name="backup_full_replaces_device">To urządzenie zastępuje tamto</string>
     <string name="backup_full_replaces_device_desc">Tak: zaplanowane synchronizacje pozostają tu włączone. Nie: przychodzą wyłączone, aby nie działały na dwóch urządzeniach.</string>
     <string name="backup_full_replace_signins">Zastąp logowania, które są już na tym urządzeniu: %1$s</string>

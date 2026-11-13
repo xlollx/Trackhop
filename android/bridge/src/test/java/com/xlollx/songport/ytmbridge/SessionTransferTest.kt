@@ -65,6 +65,17 @@ class SessionTransferTest {
         assertFalse(SessionTransfer.callerOk(2000, 1000, listOf(trackhop), setOf(known)) { throw SecurityException("no") })
     }
 
+    /** The sessions go only to a release build: the CI debug key, which the general provider check accepts, is refused here. */
+    @Test fun onlyReleaseCertificatesGetTheSessions() {
+        fun ok(cert: String) = SessionTransfer.callerOk(2000, 1000, listOf(trackhop)) { setOf(cert) }
+        val debug = TrackhopSigning.CERTS.single { !it.release }.sha256
+        assertTrue(debug in TrackhopSigning.ALL)
+        assertFalse(debug in SessionTransfer.TRACKHOP_SHA256)
+        assertFalse(ok(debug))
+        for (c in TrackhopSigning.CERTS.filter { it.release }) assertTrue(c.label, ok(c.sha256))
+        assertTrue(SessionTransfer.TRACKHOP_SHA256.size >= 2)
+    }
+
     @Test fun anotherAppGetsNoSessions() {
         SpotifyBridge.session.save(app, "sp_dc=cookie-a", "Account A")
         val uid = Process.myUid() + 1

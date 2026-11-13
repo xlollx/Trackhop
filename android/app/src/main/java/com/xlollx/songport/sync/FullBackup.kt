@@ -48,34 +48,95 @@ object FullBackup {
         else -> Providers.byId(id)?.displayName ?: id.trim('_')
     }
 
-    /** The web sessions for the file; [missing]: a Bridge is there but did not hand them over (too old). */
-    class Web(val sessions: EncryptedBackup.WebSessions?, val missing: Boolean)
+    /** Trackhop Bridge's package: the only app the web sessions are handed to or taken from. */
+    const val BRIDGE_PACKAGE = "com.xlollx.songport.ytmbridge"
+
+    /**
+     * SHA-256 of the certificates official Trackhop Bridge builds are signed with (upper-case hex, no
+     * colons), read from the Bridge's release APK (v1.10.2, GitHub releases).
+     */
+    val BRIDGE_SHA256: Set<String> = setOf(
+        "21EADF268C72F85565961A6045BF4BE5ABAF256D680D1E0D808D93ED22D35032", // release key (GitHub releases)
+        // PLACEHOLDER: the Bridge's Google Play App Signing and AppGallery certificates go here, if it ships there, once the owner provides them.
+    )
+
+    /**
+     * The rule for the sessions' two calls, apart from Android: in-process ([builtIn]), or a provider
+     * that belongs to [BRIDGE_PACKAGE] ([providerPackage], the package the authority really resolves
+     * to) and is signed with one of [pinned]. Any other connector plugin never sees them.
+     */
+    fun bridgeTrusted(builtIn: Boolean, providerPackage: String?, certs: Set<String>?, pinned: Set<String> = BRIDGE_SHA256): Boolean {
+        if (builtIn) return true
+        if (providerPackage != BRIDGE_PACKAGE) return false
+        return certs.orEmpty().any { it.uppercase() in pinned }
+    }
+
+    /** The authority to send the sessions' calls to: the official Bridge's, checked now; null when there is none. */
+    private fun trustedAuthority(ctx: Context): android.net.Uri? {
+        val info = BridgePlugin.find(ctx) ?: return null
+        val pm = ctx.packageManager
+        val owner = runCatching { pm.resolveContentProvider(info.authority.authority ?: return null, 0)?.packageName }.getOrNull()
+        val certs = owner?.let { pkg -> signers(pm, pkg) }
+        return info.authority.takeIf { bridgeTrusted(false, owner, certs) }
+    }
+
+    private fun signers(pm: android.content.pm.PackageManager, pkg: String): Set<String>? = runCatching {
+        val sigs = if (android.os.Build.VERSION.SDK_INT >= 28) {
+            pm.getPackageInfo(pkg, android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES).signingInfo?.apkContentsSigners
+        } else {
+            @Suppress("DEPRECATION")
+            pm.getPackageInfo(pkg, android.content.pm.PackageManager.GET_SIGNATURES).signatures
+        }
+        sigs?.map { s -> java.security.MessageDigest.getInstance("SHA-256").digest(s.toByteArray()).joinToString("") { "%02X".format(it) } }?.toSet()
+    }.getOrNull()
+
+    /**
+     * One of the sessions' calls: in-process when built in, else only to the official Bridge checked
+     * just now ([trustedAuthority]); null when there is none to ask (then nothing is sent anywhere).
+     */
+    private fun sessionsCall(ctx: Context, method: String, extras: Bundle?): Bundle? {
+        if (BridgePlugin.builtIn) return BridgePlugin.call(ctx, method, null, extras)
+        val authority = trustedAuthority(ctx) ?: return null
+        return ctx.contentResolver.call(authority, method, null, extras)
+    }
+
+    /** Why the web sessions are not in the file. */
+    enum class WebGap { NONE, NOT_HANDED, TOO_LARGE }
+
+    /** The web sessions for the file; [gap]: a Bridge is there but they are not in it (too old, not the official one, too large). */
+    class Web(val sessions: EncryptedBackup.WebSessions?, val gap: WebGap)
 
     fun webSessions(ctx: Context): Web {
-        if (!BridgePlugin.installed(ctx)) return Web(null, false)
-        if (!BridgePlugin.knows(EXPORT)) return Web(null, true)
-        val b = runCatching { BridgePlugin.call(ctx, EXPORT) }.getOrNull() ?: return Web(null, true)
+        if (!BridgePlugin.installed(ctx)) return Web(null, WebGap.NONE)
+        if (!BridgePlugin.knows(EXPORT)) return Web(null, WebGap.NOT_HANDED)
+        val b = runCatching { sessionsCall(ctx, EXPORT, null) }.getOrNull()
+        if (b == null) {
+            Diagnostics.log(ctx, "backup", "the web sessions were not asked: no official Trackhop Bridge answers")
+            return Web(null, WebGap.NOT_HANDED)
+        }
         b.getString("error")?.let { e ->
             BridgePlugin.refusedAsUnknown(EXPORT, e)
             Diagnostics.log(ctx, "backup", "the web sessions were not handed over: ${e.take(80)}")
-            return Web(null, true)
+            return Web(null, if (b.getBoolean("tooLarge")) WebGap.TOO_LARGE else WebGap.NOT_HANDED)
         }
-        val text = b.getString("json") ?: return Web(null, true)
-        if (b.getInt("count") == 0) return Web(null, false)
-        val accounts = runCatching {
-            Json.parseToJsonElement(text).jsonObject["sessions"]!!.jsonArray.map { s ->
-                val o = s.jsonObject
-                val service = o["service"]?.jsonPrimitive?.contentOrNull.orEmpty()
-                val slot = o["slot"]?.jsonPrimitive?.contentOrNull.orEmpty()
-                val account = o["account"]?.jsonPrimitive?.contentOrNull.orEmpty()
-                webName(if (slot.isEmpty()) service else "$service@$slot") + if (account.isNotBlank()) ": $account" else ""
-            }
-        }.getOrDefault(emptyList())
-        return Web(EncryptedBackup.WebSessions(EncryptedBackup.WEB_BRIDGE, text, accounts), false)
+        val text = b.getString("json") ?: return Web(null, WebGap.NOT_HANDED)
+        if (b.getInt("count") == 0) return Web(null, WebGap.NONE)
+        return Web(EncryptedBackup.WebSessions(EncryptedBackup.WEB_BRIDGE, text, accounts(text)), WebGap.NONE)
     }
 
-    /** The encrypted file's text; [signIns] how many sign-ins and client secrets, [webMissing] as [Web.missing]. */
-    class Exported(val text: String, val signIns: Int, val web: Int, val webMissing: Boolean)
+    /** The sessions of [text] as people read them ("Spotify (web): account"). */
+    private fun accounts(text: String): List<String> = runCatching {
+        Json.parseToJsonElement(text).jsonObject["sessions"]!!.jsonArray.map { s ->
+            val o = s.jsonObject
+            val service = o["service"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            val slot = o["slot"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            val account = o["account"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            webName(if (slot.isEmpty()) service else "$service@$slot") + if (account.isNotBlank()) ": $account" else ""
+        }
+    }.getOrDefault(emptyList())
+
+    /** The encrypted file's text; [signIns] how many sign-ins and client secrets, [webGap] as [Web.gap]. */
+    class Exported(val text: String, val signIns: Int, val web: Int, val webGap: WebGap)
 
     /** The set-up with its secrets, sealed with [password] (cleared here once used). Blocks: never on the main thread. */
     fun export(ctx: Context, password: CharArray): Exported {
@@ -85,32 +146,34 @@ object FullBackup {
             val web = webSessions(ctx)
             val secrets = EncryptedBackup.collect(env, web.sessions)
             val text = EncryptedBackup.wrap(plain, secrets, password)
-            Diagnostics.log(ctx, "backup", "encrypted set-up written: ${secrets.vault.size + secrets.clientSecrets.size} sign-ins, ${web.sessions?.accounts?.size ?: 0} web sessions${if (web.missing) ", web sessions not handed over" else ""}")
-            return Exported(text, secrets.vault.size + secrets.clientSecrets.size, web.sessions?.accounts?.size ?: 0, web.missing)
+            Diagnostics.log(ctx, "backup", "encrypted set-up written: ${secrets.vault.size + secrets.clientSecrets.size} sign-ins, ${web.sessions?.accounts?.size ?: 0} web sessions${if (web.gap != WebGap.NONE) ", web sessions not handed over" else ""}")
+            return Exported(text, secrets.vault.size + secrets.clientSecrets.size, web.sessions?.accounts?.size ?: 0, web.gap)
         } finally {
             password.fill('\u0000')
         }
     }
 
-    /** The web sessions of [web] this device is signed in to already (asked of the connectors, nothing written). */
-    fun webPresent(ctx: Context, web: EncryptedBackup.WebSessions): List<String> =
-        bridgeImport(ctx, web, replace = false, dryRun = true)?.getStringArray("present")?.toList().orEmpty()
-
-    /** Puts [web] back through the connectors; false when they could not take it (no Bridge, or too old). */
+    /**
+     * Puts [web] back through the connectors, once the person confirmed the import; false when they
+     * could not take it (no official Bridge, or one too old).
+     */
     fun restoreWeb(ctx: Context, web: EncryptedBackup.WebSessions, replace: Boolean): Boolean {
-        val b = bridgeImport(ctx, web, replace, dryRun = false) ?: return false
+        if (web.platform != EncryptedBackup.WEB_BRIDGE || !BridgePlugin.installed(ctx) || !BridgePlugin.knows(IMPORT)) return false
+        val b = runCatching {
+            sessionsCall(ctx, IMPORT, Bundle().apply { putString("json", web.data); putBoolean("replace", replace) })
+        }.getOrNull() ?: return false
+        b.getString("error")?.let { e -> BridgePlugin.refusedAsUnknown(IMPORT, e); return false }
         Diagnostics.log(ctx, "backup", "web sessions restored: ${b.getInt("restored")}, kept ${b.getStringArray("kept")?.size ?: 0}, skipped ${b.getInt("skipped")}")
         return true
     }
 
-    private fun bridgeImport(ctx: Context, web: EncryptedBackup.WebSessions, replace: Boolean, dryRun: Boolean): Bundle? {
-        if (web.platform != EncryptedBackup.WEB_BRIDGE || !BridgePlugin.installed(ctx) || !BridgePlugin.knows(IMPORT)) return null
-        val b = runCatching {
-            BridgePlugin.call(ctx, IMPORT, null, Bundle().apply {
-                putString("json", web.data); putBoolean("replace", replace); putBoolean("dryRun", dryRun)
-            })
-        }.getOrNull() ?: return null
-        b.getString("error")?.let { e -> BridgePlugin.refusedAsUnknown(IMPORT, e); return null }
-        return b
-    }
+    /** The web services of [web] as people read them, for the import's question (whether this device has them is asked of no one before the import). */
+    fun webServices(web: EncryptedBackup.WebSessions): List<String> = runCatching {
+        Json.parseToJsonElement(web.data).jsonObject["sessions"]!!.jsonArray.map { s ->
+            val o = s.jsonObject
+            val service = o["service"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            val slot = o["slot"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            webName(if (slot.isEmpty()) service else "$service@$slot")
+        }.distinct()
+    }.getOrDefault(emptyList())
 }

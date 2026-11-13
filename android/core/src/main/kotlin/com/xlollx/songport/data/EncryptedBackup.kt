@@ -43,7 +43,7 @@ object EncryptedBackup {
     private const val KEY_BITS = 256
     private const val TAG_BITS = 128
     /** A file asking for more rounds than this (or fewer than the floor) is refused: it would only hang the import. */
-    private const val MAX_ITERATIONS = 10_000_000
+    private const val MAX_ITERATIONS = 2_000_000
     private const val MIN_ITERATIONS = 100_000
 
     /** The web sign-ins of a phone: the Bridge's sessions, as its `sessions.export` hands them. */
@@ -113,6 +113,7 @@ object EncryptedBackup {
 
     /** [plain] sealed with [password]. The caller clears [password] afterwards. */
     fun seal(plain: String, password: CharArray, random: SecureRandom = SecureRandom()): String {
+        require(password.size >= MIN_PASSWORD) { "The password needs at least $MIN_PASSWORD characters." }
         val salt = ByteArray(SALT_BYTES).also { random.nextBytes(it) }
         val nonce = ByteArray(NONCE_BYTES).also { random.nextBytes(it) }
         val kdf = Kdf()

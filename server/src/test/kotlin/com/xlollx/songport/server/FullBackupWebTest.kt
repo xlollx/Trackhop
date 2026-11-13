@@ -141,6 +141,22 @@ class FullBackupWebTest {
         assertTrue(location(done), location(done).contains("Sign-ins restored"))
     }
 
+    /** A file waiting for its password or its confirmation, with its secrets, does not outlive its minutes. */
+    @Test fun waitingFilesExpire() {
+        val text = sealed()
+        Pending.expire(Long.MAX_VALUE)
+        assertEquals(200, upload(text).statusCode())
+        val ask = upload(text)
+        val locked = Regex("""name="pending" value="([^"]+)"""").find(ask.body())!!.groupValues[1]
+        val summary = post("/tools/config", "action=unlock&pending=$locked&password=$password")
+        assertTrue(summary.body().contains("not connected here yet are added"))
+        assertEquals(2, Pending.waitingSecrets())
+        Pending.expire(System.currentTimeMillis() + 16 * 60_000)
+        assertEquals(0, Pending.waitingSecrets())
+        val pending = Regex("""name="pending" value="([^"]+)"""").find(summary.body())!!.groupValues[1]
+        assertTrue(location(post("/tools/config", "action=import&pending=$pending")).contains("Choose the file again"))
+    }
+
     @Test fun anotherServerTakesThemAndTheOtherDeviceItReplaces() {
         val text = sealed()
         val other = ServerEnv(tmp.newFolder("other"), Strings(emptyMap()), "http://127.0.0.1")

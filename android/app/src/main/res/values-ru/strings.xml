@@ -2671,13 +2671,15 @@
     <string name="backup_full_password_mismatch">Пароли не совпадают.</string>
     <string name="backup_full_continue">Сохранить</string>
     <string name="backup_full_saved">Зашифрованная настройка сохранена, входов в аккаунты: %1$d.</string>
-    <string name="backup_full_web_missing">Веб-входы не включены: эта версия Trackhop Bridge слишком старая, чтобы их передать. Обновите её и сохраните снова.</string>
+    <string name="backup_full_web_missing">Веб-входы не включены: установленный Trackhop Bridge их не передал (он слишком старый или не официальный). Обновите его с официальной страницы и сохраните снова.</string>
+    <string name="backup_full_web_too_large">Веб-входы не включены: они слишком велики, чтобы передать их за один раз. После восстановления войдите в эти сервисы снова.</string>
     <string name="backup_full_unlock_title">Зашифрованная настройка</string>
     <string name="backup_full_unlock_body">Этот файл содержит входы в аккаунты и защищён. Введите его пароль.</string>
     <string name="backup_full_unlock">Открыть</string>
     <string name="backup_full_wrong_password">Неверный пароль, или файл был изменён. Ничего не импортировано.</string>
     <string name="backup_full_newer">Этот файл — зашифрованная резервная копия со входами в аккаунты, созданная более новой функцией Trackhop. Этот Trackhop пока не может её прочитать: обновите его или используйте копию без входов.</string>
     <string name="backup_full_contents">Дополнительно: входов и секретов клиентов — %1$d, веб-входов — %2$d.</string>
+    <string name="backup_full_adds">Входы в сервисы, которые здесь ещё не подключены, будут добавлены.</string>
     <string name="backup_full_replaces_device">Это устройство заменяет другое</string>
     <string name="backup_full_replaces_device_desc">Да: запланированные синхронизации остаются здесь включёнными. Нет: они приходят выключенными, чтобы не работать на двух устройствах.</string>
     <string name="backup_full_replace_signins">Заменить входы, которые уже есть на этом устройстве: %1$s</string>

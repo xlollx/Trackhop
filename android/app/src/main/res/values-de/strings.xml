@@ -2565,13 +2565,15 @@
     <string name="backup_full_password_mismatch">Die beiden Passwörter stimmen nicht überein.</string>
     <string name="backup_full_continue">Speichern</string>
     <string name="backup_full_saved">Verschlüsselte Einrichtung gespeichert, mit %1$d Anmeldungen.</string>
-    <string name="backup_full_web_missing">Die Web-Anmeldungen sind nicht enthalten: Diese Trackhop Bridge ist zu alt, um sie herauszugeben. Aktualisiere sie und speichere erneut.</string>
+    <string name="backup_full_web_missing">Die Web-Anmeldungen sind nicht enthalten: Die installierte Trackhop Bridge hat sie nicht herausgegeben (sie ist zu alt oder nicht die offizielle). Aktualisiere sie von ihrer offiziellen Seite und speichere erneut.</string>
+    <string name="backup_full_web_too_large">Die Web-Anmeldungen sind nicht enthalten: Sie sind zu groß, um sie auf einmal zu übergeben. Melde dich nach der Wiederherstellung erneut bei diesen Diensten an.</string>
     <string name="backup_full_unlock_title">Verschlüsselte Einrichtung</string>
     <string name="backup_full_unlock_body">Diese Datei enthält Anmeldungen und ist gesperrt. Gib ihr Passwort ein.</string>
     <string name="backup_full_unlock">Öffnen</string>
     <string name="backup_full_wrong_password">Falsches Passwort, oder die Datei wurde verändert. Es wurde nichts importiert.</string>
     <string name="backup_full_newer">Diese Datei ist eine verschlüsselte Sicherung mit Anmeldungen, erstellt von einer neueren Trackhop-Funktion. Dieses Trackhop kann sie noch nicht lesen: Aktualisiere es oder nimm eine Sicherung ohne Anmeldungen.</string>
     <string name="backup_full_contents">Dazu: %1$d Anmeldungen und Client-Secrets, %2$d Web-Anmeldungen.</string>
+    <string name="backup_full_adds">Anmeldungen für Dienste, die hier noch nicht verbunden sind, werden hinzugefügt.</string>
     <string name="backup_full_replaces_device">Dieses Gerät ersetzt das andere</string>
     <string name="backup_full_replaces_device_desc">Ja: Seine geplanten Syncs bleiben hier eingeschaltet. Nein: Sie kommen ausgeschaltet an, damit sie nicht auf zwei Geräten laufen.</string>
     <string name="backup_full_replace_signins">Die Anmeldungen auf diesem Gerät ersetzen: %1$s</string>

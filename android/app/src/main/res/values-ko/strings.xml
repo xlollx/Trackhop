@@ -2511,13 +2511,15 @@
     <string name="backup_full_password_mismatch">두 비밀번호가 일치하지 않습니다.</string>
     <string name="backup_full_continue">저장</string>
     <string name="backup_full_saved">암호화된 설정을 저장했습니다(로그인 %1$d개).</string>
-    <string name="backup_full_web_missing">웹 로그인은 포함되지 않았습니다. 이 Trackhop Bridge는 너무 오래되어 넘겨줄 수 없습니다. 업데이트한 뒤 다시 저장하세요.</string>
+    <string name="backup_full_web_missing">웹 로그인은 포함되지 않았습니다. 설치된 Trackhop Bridge가 넘겨주지 않았습니다(너무 오래되었거나 공식 앱이 아님). 공식 페이지에서 업데이트한 뒤 다시 저장하세요.</string>
+    <string name="backup_full_web_too_large">웹 로그인은 포함되지 않았습니다. 한 번에 넘기기에는 너무 큽니다. 복원한 뒤 해당 서비스에 다시 로그인하세요.</string>
     <string name="backup_full_unlock_title">암호화된 설정</string>
     <string name="backup_full_unlock_body">이 파일에는 로그인이 들어 있으며 잠겨 있습니다. 비밀번호를 입력하세요.</string>
     <string name="backup_full_unlock">열기</string>
     <string name="backup_full_wrong_password">비밀번호가 틀렸거나 파일이 변경되었습니다. 아무것도 가져오지 않았습니다.</string>
     <string name="backup_full_newer">이 파일은 로그인이 포함된 암호화 백업으로, Trackhop의 새 기능으로 만들어졌습니다. 이 Trackhop은 아직 읽을 수 없습니다. 업데이트하거나 로그인이 없는 백업을 사용하세요.</string>
     <string name="backup_full_contents">추가 항목: 로그인 및 클라이언트 시크릿 %1$d개, 웹 로그인 %2$d개.</string>
+    <string name="backup_full_adds">여기에서 아직 연결되지 않은 서비스의 로그인은 추가됩니다.</string>
     <string name="backup_full_replaces_device">이 기기가 다른 기기를 대신함</string>
     <string name="backup_full_replaces_device_desc">예: 예약된 동기화가 여기서도 켜진 상태로 유지됩니다. 아니요: 두 기기에서 실행되지 않도록 꺼진 상태로 가져옵니다.</string>
     <string name="backup_full_replace_signins">이 기기에 이미 있는 로그인 교체: %1$s</string>

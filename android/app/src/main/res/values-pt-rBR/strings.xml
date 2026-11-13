@@ -2573,13 +2573,15 @@
     <string name="backup_full_password_mismatch">As duas senhas não são iguais.</string>
     <string name="backup_full_continue">Salvar</string>
     <string name="backup_full_saved">Configuração criptografada salva, com %1$d logins.</string>
-    <string name="backup_full_web_missing">Os logins da web não foram incluídos: esta versão do Trackhop Bridge é antiga demais para entregá-los. Atualize e salve de novo.</string>
+    <string name="backup_full_web_missing">Os logins da web não foram incluídos: o Trackhop Bridge instalado não os entregou (é antigo demais ou não é o oficial). Atualize pela página oficial dele e salve de novo.</string>
+    <string name="backup_full_web_too_large">Os logins da web não foram incluídos: são grandes demais para entregar de uma vez. Depois de restaurar, entre de novo nesses serviços.</string>
     <string name="backup_full_unlock_title">Configuração criptografada</string>
     <string name="backup_full_unlock_body">Este arquivo contém logins e está protegido. Digite a senha dele.</string>
     <string name="backup_full_unlock">Abrir</string>
     <string name="backup_full_wrong_password">Senha errada, ou o arquivo foi alterado. Nada foi importado.</string>
     <string name="backup_full_newer">Este arquivo é um backup criptografado com logins, feito por um recurso mais novo do Trackhop. Este Trackhop ainda não consegue lê-lo: atualize-o ou use um backup sem logins.</string>
     <string name="backup_full_contents">Além disso: %1$d logins e segredos de cliente, %2$d logins da web.</string>
+    <string name="backup_full_adds">Os logins de serviços ainda não conectados aqui são adicionados.</string>
     <string name="backup_full_replaces_device">Este aparelho substitui o outro</string>
     <string name="backup_full_replaces_device_desc">Sim: as sincronizações agendadas continuam ativas aqui. Não: elas chegam desativadas, para não rodarem em dois aparelhos.</string>
     <string name="backup_full_replace_signins">Substituir os logins que já estão neste aparelho: %1$s</string>

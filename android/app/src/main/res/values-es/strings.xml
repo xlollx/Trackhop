@@ -2573,13 +2573,15 @@
     <string name="backup_full_password_mismatch">Las dos contraseñas no coinciden.</string>
     <string name="backup_full_continue">Guardar</string>
     <string name="backup_full_saved">Configuración cifrada guardada, con %1$d inicios de sesión.</string>
-    <string name="backup_full_web_missing">No se incluyeron los inicios de sesión web: esta versión de Trackhop Bridge es demasiado antigua para entregarlos. Actualízala y vuelve a guardar.</string>
+    <string name="backup_full_web_missing">No se incluyeron los inicios de sesión web: el Trackhop Bridge instalado no los entregó (es demasiado antiguo o no es el oficial). Actualízalo desde su página oficial y vuelve a guardar.</string>
+    <string name="backup_full_web_too_large">No se incluyeron los inicios de sesión web: son demasiado grandes para entregarlos de una vez. Después de restaurar, vuelve a iniciar sesión en esos servicios.</string>
     <string name="backup_full_unlock_title">Configuración cifrada</string>
     <string name="backup_full_unlock_body">Este archivo contiene inicios de sesión y está bloqueado. Escribe su contraseña.</string>
     <string name="backup_full_unlock">Abrir</string>
     <string name="backup_full_wrong_password">Contraseña incorrecta, o el archivo ha sido modificado. No se importó nada.</string>
     <string name="backup_full_newer">Este archivo es una copia cifrada con inicios de sesión, creada por una función más reciente de Trackhop. Este Trackhop todavía no puede leerlo: actualízalo o usa una copia sin inicios de sesión.</string>
     <string name="backup_full_contents">Además: %1$d inicios de sesión y secretos de cliente, %2$d inicios de sesión web.</string>
+    <string name="backup_full_adds">Se añaden los inicios de sesión de los servicios que aún no están conectados aquí.</string>
     <string name="backup_full_replaces_device">Este dispositivo sustituye al otro</string>
     <string name="backup_full_replaces_device_desc">Sí: sus sincronizaciones programadas siguen activas aquí. No: llegan desactivadas, para que no se ejecuten en dos dispositivos.</string>
     <string name="backup_full_replace_signins">Sustituir los inicios de sesión que ya hay en este dispositivo: %1$s</string>

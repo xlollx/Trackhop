@@ -46,7 +46,7 @@ internal fun Web.configPage(r: Web.Req) {
                 }
                 val body = """<div class="card"><p><b>${h(locked.first)}</b>${if (s.writtenBy.isNotBlank()) ", from ${h(s.writtenBy)}" else ""}${if (s.writtenAt > 0) " on ${Html.date(s.writtenAt)}" else ""}:</p>
 <ul><li>${s.syncs} syncs</li><li>${s.matches} matches chosen by hand</li><li>${s.files} File playlists</li>${if (s.runs > 0) "<li>${s.runs} past runs</li>" else ""}${if (opened.channels.isNotEmpty()) "<li>${opened.channels.size} notification channels</li>" else ""}<li>${opened.secrets.vault.size + opened.secrets.clientSecrets.size} sign-ins and client secrets</li>$webNote</ul>
-<p class="muted">Syncs with the same id are replaced, the others added; File playlists already here are kept. A service may still ask you to sign in again: some sessions do not move to another device.</p>
+<p class="muted">Syncs with the same id are replaced, the others added; File playlists already here are kept. Sign-ins for services not connected here yet are added. A service may still ask you to sign in again: some sessions do not move to another device.</p>
 <form method="post" action="/tools/config"><input type="hidden" name="action" value="import"><input type="hidden" name="pending" value="${h(token)}">
 <label class="check"><input type="checkbox" name="replacesDevice"> This server replaces the other device</label>
 <p class="muted">Ticked: its scheduled syncs stay on here (then turn off or uninstall Trackhop on the other device). Not ticked: they arrive turned off, so they do not run on both.</p>
@@ -122,12 +122,23 @@ ${if (wrong) "<p class=\"err\">Wrong password, or the file was changed. Nothing 
 <p><button>Open</button> <a class="button secondary" href="/tools/backup">Cancel</a></p></form>"""
 
 /** A read file waiting for its confirmation (in memory, a few minutes): a plain one, an encrypted one before or after its password. */
-private object Pending {
+internal object Pending {
     private val waiting = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Pair<ConfigBackup.Snapshot, List<Notify.Channel>>>>()
     private val locked = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Pair<String, String>>>()
     private val opened = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, FullBackupServer.Opened>>()
+    private const val LOCKED_MS = 15 * 60_000L
+    private const val OPENED_MS = 5 * 60_000L
     private fun token() = java.util.UUID.randomUUID().toString()
     private fun <T> tidy(m: java.util.concurrent.ConcurrentHashMap<String, Pair<Long, T>>, now: Long, ms: Long) = m.values.removeIf { now - it.first > ms }
+
+    /** Drops what waited too long: the locked files after [LOCKED_MS], the opened ones (with their secrets) after [OPENED_MS]. */
+    fun expire(now: Long = System.currentTimeMillis()) {
+        tidy(locked, now, LOCKED_MS)
+        tidy(opened, now, OPENED_MS)
+    }
+
+    /** How many are waiting, for the tests. */
+    fun waitingSecrets(): Int = locked.size + opened.size
     fun put(s: ConfigBackup.Snapshot, channels: List<Notify.Channel>): String {
         val now = System.currentTimeMillis()
         waiting.values.removeIf { now - it.first > 15 * 60_000 }
@@ -138,16 +149,16 @@ private object Pending {
     /** An encrypted file's name and text, until its password is typed. */
     fun putLocked(name: String, text: String): String {
         val now = System.currentTimeMillis()
-        tidy(locked, now, 15 * 60_000)
+        tidy(locked, now, LOCKED_MS)
         return token().also { locked[it] = now to (name to text) }
     }
-    fun takeLocked(token: String): Pair<String, String>? = locked.remove(token)?.second
+    fun takeLocked(token: String): Pair<String, String>? = locked.remove(token)?.let { (at, v) -> v.takeIf { System.currentTimeMillis() - at <= LOCKED_MS } }
 
     /** An opened one, its secrets in memory for a few minutes at most. */
     fun putOpened(o: FullBackupServer.Opened): String {
         val now = System.currentTimeMillis()
-        tidy(opened, now, 5 * 60_000)
+        tidy(opened, now, OPENED_MS)
         return token().also { opened[it] = now to o }
     }
-    fun takeOpened(token: String): FullBackupServer.Opened? = opened.remove(token)?.let { (at, o) -> o.takeIf { System.currentTimeMillis() - at <= 5 * 60_000 } }
+    fun takeOpened(token: String): FullBackupServer.Opened? = opened.remove(token)?.let { (at, o) -> o.takeIf { System.currentTimeMillis() - at <= OPENED_MS } }
 }

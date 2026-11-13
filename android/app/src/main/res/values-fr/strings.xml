@@ -2573,13 +2573,15 @@
     <string name="backup_full_password_mismatch">Les deux mots de passe ne sont pas identiques.</string>
     <string name="backup_full_continue">Enregistrer</string>
     <string name="backup_full_saved">Configuration chiffrée enregistrée, avec %1$d connexions.</string>
-    <string name="backup_full_web_missing">Les connexions web n\'ont pas été incluses : cette version de Trackhop Bridge est trop ancienne pour les transmettre. Mettez-la à jour, puis enregistrez à nouveau.</string>
+    <string name="backup_full_web_missing">Les connexions web n\'ont pas été incluses : le Trackhop Bridge installé ne les a pas transmises (il est trop ancien, ou ce n\'est pas l\'officiel). Mettez-le à jour depuis sa page officielle, puis enregistrez à nouveau.</string>
+    <string name="backup_full_web_too_large">Les connexions web n\'ont pas été incluses : elles sont trop volumineuses pour être transmises d\'un coup. Après la restauration, reconnectez-vous à ces services.</string>
     <string name="backup_full_unlock_title">Configuration chiffrée</string>
     <string name="backup_full_unlock_body">Ce fichier contient des connexions et il est verrouillé. Saisissez son mot de passe.</string>
     <string name="backup_full_unlock">Ouvrir</string>
     <string name="backup_full_wrong_password">Mot de passe incorrect, ou le fichier a été modifié. Rien n\'a été importé.</string>
     <string name="backup_full_newer">Ce fichier est une sauvegarde chiffrée avec des connexions, créée par une fonction plus récente de Trackhop. Ce Trackhop ne peut pas encore la lire : mettez-le à jour, ou utilisez une sauvegarde sans connexions.</string>
     <string name="backup_full_contents">En plus : %1$d connexions et secrets client, %2$d connexions web.</string>
+    <string name="backup_full_adds">Les connexions des services pas encore connectés ici sont ajoutées.</string>
     <string name="backup_full_replaces_device">Cet appareil remplace l\'autre</string>
     <string name="backup_full_replaces_device_desc">Oui : ses synchronisations planifiées restent actives ici. Non : elles arrivent désactivées, pour ne pas tourner sur deux appareils.</string>
     <string name="backup_full_replace_signins">Remplacer les connexions déjà présentes sur cet appareil : %1$s</string>

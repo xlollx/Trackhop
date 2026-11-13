@@ -89,9 +89,14 @@ class EncryptedBackupTest {
         val kdf = JsonObject(o["kdf"]!!.jsonObject + ("iterations" to JsonPrimitive(600_001)))
         val retuned = JsonObject(o + ("kdf" to kdf)).toString()
         try { EncryptedBackup.unwrap(retuned, password.copyOf()); fail("opened with other settings") } catch (_: EncryptedBackup.WrongPassword) {}
-        // Absurd settings are refused before any work.
-        val huge = JsonObject(o + ("kdf" to JsonObject(o["kdf"]!!.jsonObject + ("iterations" to JsonPrimitive(Int.MAX_VALUE))))).toString()
-        try { EncryptedBackup.unwrap(huge, password.copyOf()); fail("accepted absurd settings") } catch (e: IllegalArgumentException) { assertFalse(e is EncryptedBackup.WrongPassword) }
+        // Absurd settings are refused before any work: more than 2,000,000 rounds would only hang the import.
+        for (rounds in listOf(2_000_001, Int.MAX_VALUE, 1_000)) {
+            val odd = JsonObject(o + ("kdf" to JsonObject(o["kdf"]!!.jsonObject + ("iterations" to JsonPrimitive(rounds))))).toString()
+            try { EncryptedBackup.unwrap(odd, password.copyOf()); fail("accepted $rounds rounds") } catch (e: IllegalArgumentException) {
+                assertFalse(e is EncryptedBackup.WrongPassword)
+                assertTrue(e.message!!.contains("settings"))
+            }
+        }
     }
 
     @Test fun thePlainFileIsUnchanged() {
@@ -160,6 +165,16 @@ class EncryptedBackupTest {
         val bridge = EncryptedBackup.Secrets(web = EncryptedBackup.WebSessions(EncryptedBackup.WEB_BRIDGE, "{\"sessions\":[]}"))
         assertEquals(EncryptedBackup.WEB_BRIDGE, EncryptedBackup.restore(ContractEnv(), bridge, false, EncryptedBackup.WEB_BRIDGE).web?.platform)
         assertTrue(EncryptedBackup.restore(ContractEnv(), bridge, false, EncryptedBackup.WEB_SERVER).webSkipped)
+    }
+
+    @Test fun aShortPasswordNeverSealsAFile() {
+        val plain = ConfigBackup.export(phone(), "Trackhop test (Android)")
+        for (pw in listOf("", "short-pw1")) {
+            try { EncryptedBackup.wrap(plain, EncryptedBackup.Secrets(), pw.toCharArray()); fail("sealed with \"$pw\"") } catch (e: IllegalArgumentException) {
+                assertTrue(e.message!!.contains("at least"))
+            }
+        }
+        assertTrue(EncryptedBackup.isEncrypted(EncryptedBackup.seal("{}", "ten-chars!".toCharArray())))
     }
 
     @Test fun passwordRules() {

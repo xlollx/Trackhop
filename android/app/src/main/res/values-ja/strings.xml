@@ -2512,13 +2512,15 @@
     <string name="backup_full_password_mismatch">2 つのパスワードが一致しません。</string>
     <string name="backup_full_continue">保存</string>
     <string name="backup_full_saved">暗号化した設定を保存しました（サインイン %1$d 件）。</string>
-    <string name="backup_full_web_missing">Web サインインは含まれていません：この Trackhop Bridge は古いため渡せません。更新してからもう一度保存してください。</string>
+    <string name="backup_full_web_missing">Web サインインは含まれていません：インストールされている Trackhop Bridge が渡しませんでした（古いか、公式のものではありません）。公式ページから更新してから、もう一度保存してください。</string>
+    <string name="backup_full_web_too_large">Web サインインは含まれていません：一度に渡すには大きすぎます。復元後、それらのサービスにもう一度サインインしてください。</string>
     <string name="backup_full_unlock_title">暗号化された設定</string>
     <string name="backup_full_unlock_body">このファイルにはサインインが含まれ、ロックされています。パスワードを入力してください。</string>
     <string name="backup_full_unlock">開く</string>
     <string name="backup_full_wrong_password">パスワードが違うか、ファイルが変更されています。何もインポートされていません。</string>
     <string name="backup_full_newer">このファイルはサインインを含む暗号化バックアップで、Trackhop の新しい機能で作られました。この Trackhop ではまだ読めません。更新するか、サインインなしのバックアップを使ってください。</string>
     <string name="backup_full_contents">含まれるもの：サインインとクライアントシークレット %1$d 件、Web サインイン %2$d 件。</string>
+    <string name="backup_full_adds">ここでまだ接続されていないサービスのサインインは追加されます。</string>
     <string name="backup_full_replaces_device">この端末がもう一方の端末に置き換わる</string>
     <string name="backup_full_replaces_device_desc">はい：スケジュールされた同期はここでもオンのままです。いいえ：2 台で同時に動かないよう、オフの状態で取り込まれます。</string>
     <string name="backup_full_replace_signins">この端末にすでにあるサインインを置き換える：%1$s</string>

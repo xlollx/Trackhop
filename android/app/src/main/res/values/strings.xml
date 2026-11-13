@@ -2566,13 +2566,15 @@
     <string name="backup_full_password_mismatch">The two passwords are not the same.</string>
     <string name="backup_full_continue">Save</string>
     <string name="backup_full_saved">Encrypted set-up saved, with %1$d sign-ins.</string>
-    <string name="backup_full_web_missing">The web sign-ins were not included: this Trackhop Bridge is too old to hand them over. Update it, then save again.</string>
+    <string name="backup_full_web_missing">The web sign-ins were not included: the installed Trackhop Bridge did not hand them over (it is too old, or not the official one). Update it from its official page, then save again.</string>
+    <string name="backup_full_web_too_large">The web sign-ins were not included: they are too large to hand over in one go. After restoring, sign in to those services again.</string>
     <string name="backup_full_unlock_title">Encrypted set-up</string>
     <string name="backup_full_unlock_body">This file holds sign-ins and is locked. Enter its password.</string>
     <string name="backup_full_unlock">Open</string>
     <string name="backup_full_wrong_password">Wrong password, or the file was changed. Nothing was imported.</string>
     <string name="backup_full_newer">This file is an encrypted backup with sign-ins, made by a newer Trackhop feature. This Trackhop cannot read it yet: update it, or use a backup without sign-ins.</string>
     <string name="backup_full_contents">With it: %1$d sign-ins and client secrets, %2$d web sign-ins.</string>
+    <string name="backup_full_adds">Sign-ins for services not connected here yet are added.</string>
     <string name="backup_full_replaces_device">This device replaces the other one</string>
     <string name="backup_full_replaces_device_desc">Yes: its scheduled syncs stay on here. No: they arrive turned off, so they do not run on two devices.</string>
     <string name="backup_full_replace_signins">Replace the sign-ins already on this device: %1$s</string>

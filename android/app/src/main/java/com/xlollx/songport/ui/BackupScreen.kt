@@ -277,8 +277,12 @@ private fun FullBackupSaveRow(snackbar: SnackbarHostState) {
             }
             done.onSuccess { out ->
                 snackbar.showSnackbar(
-                    ctx.getString(R.string.backup_full_saved, out.signIns + out.web) + if (out.webMissing) "\n" + ctx.getString(R.string.backup_full_web_missing) else "",
-                    duration = if (out.webMissing) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
+                    ctx.getString(R.string.backup_full_saved, out.signIns + out.web) + when (out.webGap) {
+                        FullBackup.WebGap.NONE -> ""
+                        FullBackup.WebGap.NOT_HANDED -> "\n" + ctx.getString(R.string.backup_full_web_missing)
+                        FullBackup.WebGap.TOO_LARGE -> "\n" + ctx.getString(R.string.backup_full_web_too_large)
+                    },
+                    duration = if (out.webGap != FullBackup.WebGap.NONE) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
                 )
             }.onFailure { snackbar.showSnackbar(ctx.getString(R.string.error_generic)) }
         }
@@ -332,7 +336,7 @@ private class FullPending(
     val snapshot: ConfigBackup.Snapshot,
     val channels: List<com.xlollx.songport.notify.Notify.Channel>,
     val secrets: EncryptedBackup.Secrets,
-    /** This device's own sign-ins the file would replace, as people read them. */
+    /** This device's own sign-ins the file would replace, and its web services (replaced only where this device has them), as people read them. */
     val conflicts: List<String>,
 )
 
@@ -373,7 +377,8 @@ private fun FullBackupDialogs(snackbar: SnackbarHostState, locked: String?, onLo
                                 val opened = EncryptedBackup.unwrap(locked, pw)
                                 val snap = ConfigBackup.read(opened.plain)
                                 val web = opened.secrets.web
-                                val webHere = if (web?.platform == EncryptedBackup.WEB_BRIDGE) FullBackup.webPresent(ctx, web).map(FullBackup::webName) else emptyList()
+                                // Nothing is sent to the connectors before the person confirms: the web services are named as the file has them.
+                                val webHere = if (web?.platform == EncryptedBackup.WEB_BRIDGE) FullBackup.webServices(web) else emptyList()
                                 FullPending(
                                     snap, com.xlollx.songport.notify.Notify.inBackup(opened.plain), opened.secrets,
                                     EncryptedBackup.conflicts(ctx.env, opened.secrets, EncryptedBackup.WEB_BRIDGE).map(FullBackup::signInName) + webHere,
@@ -404,6 +409,7 @@ private fun FullBackupDialogs(snackbar: SnackbarHostState, locked: String?, onLo
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.backup_full_confirm_body, s.syncs, s.matches, s.files, s.writtenBy.ifBlank { "Trackhop" }))
                     Text(stringResource(R.string.backup_full_contents, f.secrets.vault.size + f.secrets.clientSecrets.size, webCount))
+                    Text(stringResource(R.string.backup_full_adds))
                     if (f.channels.isNotEmpty()) Text(androidx.compose.ui.res.pluralStringResource(R.plurals.backup_config_channels, f.channels.size, f.channels.size))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = replacesDevice, onCheckedChange = { replacesDevice = it })

@@ -31,7 +31,8 @@ import java.security.MessageDigest
  * These are the only methods that hand the sessions themselves out, so they answer one caller only,
  * checked here on top of the provider's own check ([callerOk]): the code running in this very app
  * (Trackhop's GitHub/F-Droid build, where this module is built in) or, through the Bridge app's
- * provider, the Trackhop package alone signed with one of Trackhop's certificates. Anyone else gets
+ * provider, the Trackhop package alone signed with one of Trackhop's release certificates (never a test
+ * build's key, [TrackhopSigning.RELEASE]). Anyone else gets
  * an error and nothing else. The values are never logged.
  */
 object SessionTransfer {
@@ -50,14 +51,17 @@ object SessionTransfer {
     const val TRACKHOP = "com.xlollx.songport"
 
     /**
-     * SHA-256 of the signing certificates of official Trackhop builds (upper-case hex, no colons): the
-     * same list as the Bridge app's provider check (its `Allowed`), the release upload key and the CI
-     * debug key. A fork that rebuilds Trackhop with its own key must rebuild the Bridge with its own list.
+     * The certificates whose Trackhop gets the sessions: the release ones of the one list
+     * ([TrackhopSigning.RELEASE]), never the CI debug key the general provider check accepts.
      */
-    val TRACKHOP_SHA256: Set<String> = setOf(
-        "21EADF268C72F85565961A6045BF4BE5ABAF256D680D1E0D808D93ED22D35032", // release upload key
-        "8BEC806768B3789A40E741BBFCEC462C71950E32A7A1DA15665E95BB7A0AE754", // CI debug key
-    )
+    val TRACKHOP_SHA256: Set<String> get() = TrackhopSigning.RELEASE
+
+    /**
+     * The most the export hands over through a binder call (whose transactions stop near 1 MB):
+     * above it the call fails with a clear word ([TOO_LARGE]) rather than losing sessions on the way.
+     */
+    const val MAX_BINDER_CHARS = 450_000
+    const val TOO_LARGE = "sessions too large to hand over"
 
     // ------------------------------------------------------------------ who may ask
 
@@ -100,7 +104,14 @@ object SessionTransfer {
         if (!callerOk(ctx)) return Bundle().apply { putString("error", NOT_ALLOWED) }
         return try {
             when (method) {
-                EXPORT -> exported(ctx).let { (text, count) -> Bundle().apply { putString(EXTRA_JSON, text); putInt("count", count) } }
+                EXPORT -> exported(ctx).let { (text, count) ->
+                    // In-process there is no binder to fill; through the provider a payload too large fails, said so.
+                    if (Binder.getCallingUid() != Process.myUid() && text.length > MAX_BINDER_CHARS) {
+                        BridgeNet.log("backup", "web sessions not handed over: ${text.length / 1000} KB, too large for one call")
+                        return Bundle().apply { putString("error", TOO_LARGE); putBoolean("tooLarge", true) }
+                    }
+                    Bundle().apply { putString(EXTRA_JSON, text); putInt("count", count) }
+                }
                 IMPORT -> {
                     val text = extras?.getString(EXTRA_JSON) ?: return Bundle().apply { putString("error", "missing sessions") }
                     imported(ctx, text, replace = extras.getBoolean(EXTRA_REPLACE), dryRun = extras.getBoolean(EXTRA_DRY_RUN))
