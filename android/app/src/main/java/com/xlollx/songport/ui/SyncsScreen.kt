@@ -332,6 +332,9 @@ fun SyncsScreen(
     // The tile whose menu is open (held down), and the one opened as a whole card (tapped).
     var tileMenu by remember { mutableStateOf<String?>(null) }
     var tileOpen by rememberSaveable { mutableStateOf<String?>(null) }
+    val imeUp = androidx.compose.runtime.rememberUpdatedState(androidx.compose.foundation.layout.WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0)
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboardCtl = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     // Where across the screen the tile tapped was (0 left … 1 right): its sheet grows from there (1.18).
     var tileFromX by remember { androidx.compose.runtime.mutableFloatStateOf(0.5f) }
     var tileLive by rememberSaveable { mutableStateOf<String?>(null) }
@@ -649,7 +652,15 @@ fun SyncsScreen(
                                     val root = c.findRootCoordinates().size.width.toFloat()
                                     if (root > 0f) tileFromX = (c.boundsInWindow().center.x / root).coerceIn(0f, 1f)
                                 }
-                                tileOpen = job.id
+                                // The keyboard up (the search typed in): it goes down first. A sheet opened
+                                // over it was laid out above it and dropped into place once it had gone.
+                                if (imeUp.value) {
+                                    focusManager.clearFocus(); keyboardCtl?.hide()
+                                    scope.launch {
+                                        kotlinx.coroutines.withTimeoutOrNull(600) { androidx.compose.runtime.snapshotFlow { imeUp.value }.first { !it } }
+                                        tileOpen = job.id
+                                    }
+                                } else tileOpen = job.id
                             }
                         },
                         onEdit, onPreview, onRun, onDelete, onReview, onOpenLog, onToggleEnabled, onMove,
@@ -665,8 +676,6 @@ fun SyncsScreen(
     data.syncs.firstOrNull { it.id == tileOpen }?.takeIf { minimal }?.let { job ->
         val close = { tileOpen = null }
         ModalBottomSheet(onDismissRequest = close, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-
-            androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
             // The card grows out of the tile's column as the sheet comes up (1.18).
             val rich = richMotion()
             val grow = remember(job.id) { androidx.compose.animation.core.Animatable(if (rich) 0f else 1f) }
@@ -1503,8 +1512,6 @@ private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
     val items = all[job.id].orEmpty()
     val progress = running[job.id]
     ModalBottomSheet(onDismissRequest = onDismiss) {
-
-        androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.live_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -2784,8 +2791,6 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
         StatList.Kind.NOT_FOUND -> Triple(stringResource(R.string.stat_list_not_found), r.unmatched, r.unmatched.size)
     }
     ModalBottomSheet(onDismissRequest = onDismiss) {
-
-        androidx.compose.runtime.DisposableEffect(Unit) { onDispose { SheetFocus.closed() } }
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge)
             Text(formatDate(r.startedEpoch), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
