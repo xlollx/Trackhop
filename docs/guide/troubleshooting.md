@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Every error shown in the app is also in *Settings → Diagnostics*. If what you see is not here, see
+Every error shown in the app is also in *Settings → Advanced → Sync log*. If what you see is not here, see
 [Reporting a problem](reporting-a-problem).
 
 ## Spotify
@@ -62,12 +62,12 @@ The quick routes sign in on the service's own page. If the page remembers an old
 signed in with Google) and the connector stays not connected, use *⋮ → Start over* on the connector:
 it signs out and forgets what Trackhop kept of that site, then connect again. Your account on the
 service is not touched. If it still does not connect, [report it](reporting-a-problem) from
-*Settings → Diagnostics*: the report says how far the sign-in got.
+*Settings → Advanced → Sync log*: the report says how far the sign-in got.
 
 ## Scheduled syncs do not run
 
-Some phones (Samsung, Xiaomi, Huawei, Oppo) stop background apps. *Settings → Battery* excludes
-Trackhop from battery optimisation. A scheduled run the system interrupts resumes by itself
+Some phones (Samsung, Xiaomi, Huawei, Oppo) stop background apps. *Settings → Scheduled syncs not
+running? → Open battery settings* and exclude Trackhop from battery optimisation. A scheduled run the system interrupts resumes by itself
 ("paused by the system … will resume" in the log is normal).
 
 ## A sync wants to remove many tracks

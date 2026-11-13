@@ -25,8 +25,9 @@ Free and open source, no Trackhop account, no limit on the number of tracks.
 
 ## Good to know
 
-- Deezer's playlists carry no ISRC code, so tracks are matched by title, artist, album and duration;
-  doubtful ones go to the review, never added by guesswork.
+- Through Deezer's official API, playlists carry no ISRC code, so tracks are matched by title,
+  artist, album and duration; the quick sign-in reads the ISRC too. Doubtful matches go to the
+  review, never added by guesswork.
 - A public Deezer playlist can be synced from its link alone, without signing in to Deezer.
 - The same works towards YouTube Music, Apple Music, TIDAL, Amazon Music, Navidrome, Jellyfin and
   Plex.

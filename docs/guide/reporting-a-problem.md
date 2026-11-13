@@ -1,10 +1,12 @@
 # Reporting a problem
 
 1. Reproduce it once if you can, so the log is fresh.
-2. *Settings → Diagnostics → Report an issue*: it opens a new GitHub issue with the diagnostic report
+2. *Settings → Advanced → Sync log → Report on GitHub*: it opens a new GitHub issue with the diagnostic report
    already filled in. Read it, remove anything you prefer not to share, add one or two sentences on
    what you were doing, and send it.
-3. No GitHub account? *Developer options → Share diagnostics* gives the same report as text.
+3. No GitHub account? *Export log*, on the same page, saves the report and the whole log as a text
+   file to attach or send. With *Settings → Advanced → Show developer tools* on, *Share technical
+   details* gives the report as text.
 
 The report contains the app and Android version, which connectors are connected (never tokens or
 passwords), the syncs with their source and target services, the last runs with counts, and the last

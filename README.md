@@ -80,7 +80,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **YouTube Music** | ✓ | ✓ | ✓ | Quick sign-in with your Google account | GitHub, F-Droid, Desktop, Docker · plugin |
 | | ✓ | ✓ | ✓ | Official: your own Google API key | All builds |
 | **Apple Music** | ✓ | ✓ | ✓ | Quick sign-in with your Apple ID | GitHub, F-Droid · plugin |
-| | ✓ | ✓ | — | Official: Apple developer token (Apple's API cannot remove tracks) | All builds |
+| | ✓ | ✓ | — | Official: Apple developer token (Apple's API cannot remove tracks) | All apps (not Desktop or Docker) |
 | **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
 | **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
 | **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |

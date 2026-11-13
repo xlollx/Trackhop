@@ -13,8 +13,8 @@ website that sees your playlists.
 ## What you need
 
 - [Trackhop](https://github.com/xlollx/Trackhop/releases/latest) on an Android phone (8.0 or newer),
-  from F-Droid, Obtainium or GitHub. No phone? [Trackhop Desktop](desktop) does it on Windows and
-  Linux too.
+  from F-Droid, Obtainium or GitHub. No phone? [Trackhop Desktop](desktop) does it on Windows, macOS
+  and Linux too.
 - Your Spotify and YouTube Music accounts.
 
 ## Step by step

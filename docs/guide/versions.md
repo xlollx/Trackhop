@@ -34,10 +34,10 @@ over the other. Google Play signs with its own key, so Play and the others canno
 To move to or from Play, take your set-up with you in a backup: the file is the same in every build
 (and in Trackhop Desktop and Docker).
 
-1. **Export a backup** (Settings › Backups) and keep the `.trackhop` file outside the app, in
+1. **Export a backup** (Settings › Backup & restore) and keep the `.trackhop` file outside the app, in
    Downloads or a cloud drive: uninstalling deletes the app's own data.
 2. **Uninstall** the build you have.
-3. **Install the other build** and restore the backup from Settings › Backups.
+3. **Install the other build** and restore the backup from Settings › Backup & restore.
 4. **Sign in to your services again.** Moving to GitHub or F-Droid: the web connectors are built in,
    so the connector plugin is no longer needed. Moving to Play or AppGallery: install the plugin
    for the services that need it.
