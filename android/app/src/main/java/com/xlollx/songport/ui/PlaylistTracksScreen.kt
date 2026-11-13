@@ -185,7 +185,9 @@ fun PlaylistTracksScreen(provider: MusicProvider, playlist: Playlist, onClose: (
                                 if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             val artist = t.artists.firstOrNull().orEmpty()
-                            if (artist.isNotBlank() || t.album.isNotBlank()) {
+                            // Selection helpers only (nothing goes before "Remove" is confirmed); in the
+                            // followed artists each row is the artist itself, so there is nothing to add.
+                            if (playlist.id != MusicProvider.ARTISTS_ID && (artist.isNotBlank() || t.album.isNotBlank())) {
                                 var menu by remember { mutableStateOf(false) }
                                 Box {
                                     IconButton(enabled = !busy, onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
