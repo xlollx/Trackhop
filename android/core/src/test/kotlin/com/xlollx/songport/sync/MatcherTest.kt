@@ -396,4 +396,16 @@ class Part57BoundsTest {
         assertTrue(Matcher.score(b("Symphony No. 5"), b("Symphony No. 6")) < Matcher.DEFAULT_THRESHOLD)
         assertTrue(Matcher.score(b("Vol. 3"), b("Vol. 2")) < Matcher.DEFAULT_THRESHOLD)
     }
+
+    @Test fun aConcertNamedByItsPlaceIsALiveVersion() {
+        // Spotify's studio "SING" was matched to YouTube Music's "SING (iTunes Festival '11) [2026 Remaster]" (owner, 14/11).
+        assertEquals(setOf("live", "remaster"), Matcher.versionMarkers("SING (iTunes Festival '11) [2026 Remaster]"))
+        assertEquals(0.55, Matcher.versionFactor("SING", "SING (iTunes Festival '11) [2026 Remaster]"), 0.0)
+        assertEquals(0.55, Matcher.versionFactor("Creep", "Creep - BBC Session"), 0.0)
+        // In the title itself it is the song's name, not a concert.
+        assertEquals(1.0, Matcher.versionFactor("Festival", "Festival"), 0.0)
+        assertEquals(1.0, Matcher.versionFactor("Concerto Grosso", "Concerto Grosso - 2011 Remaster"), 0.0)
+        // Both live: the same kind of version.
+        assertEquals(1.0, Matcher.versionFactor("SING (Live)", "SING (iTunes Festival '11)"), 0.0)
+    }
 }

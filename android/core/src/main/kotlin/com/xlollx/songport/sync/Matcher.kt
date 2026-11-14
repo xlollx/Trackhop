@@ -63,10 +63,20 @@ object Matcher {
         RegexOption.IGNORE_CASE,
     )
 
-    fun versionMarkers(title: String): Set<String> =
-        VERSION_MARKERS.findAll(stripDiacritics(title).lowercase()).map { m ->
+    /**
+     * A concert said by where it was played, without the word "live": "SING (iTunes Festival '11)",
+     * "(BBC Session)", "(Live Lounge)", "[MTV Unplugged]", "(On Tour)". Read in the subtitle only, so a
+     * song called "Festival" or "Concerto" is not taken for one.
+     */
+    private val CONCERT = Regex("""\b(festival|concerts?|sessions?|lounge|mtv|on tour|tour edition|on stage)\b""", RegexOption.IGNORE_CASE)
+
+    fun versionMarkers(title: String): Set<String> {
+        val words = VERSION_MARKERS.findAll(stripDiacritics(title).lowercase()).map { m ->
             m.groupValues[1].replace(Regex("""\s+"""), "").replace("-", "").removeSuffix("ed").removeSuffix("ao").removeSuffix("a")
         }.toSet()
+        val subtitle = SUBTITLE.find(title)?.value.orEmpty()
+        return if (CONCERT.containsMatchIn(stripDiacritics(subtitle))) words + "live" else words
+    }
 
     /**
      * Fattore 0..1 legato alle versioni: marcatori presenti solo nel candidato pesano molto
