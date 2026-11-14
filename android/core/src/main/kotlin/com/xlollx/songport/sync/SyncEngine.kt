@@ -575,6 +575,8 @@ class SyncEngine(
                         score == null -> SyncState.Outcome.CACHED
                         else -> SyncState.Outcome.FOUND
                     },
+                    track = s,
+                    uncertain = found != null && score != null && score < job.policy.reviewThreshold,
                 ),
             )
             if (found != null) {

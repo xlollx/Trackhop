@@ -640,6 +640,13 @@
     <string name="live_added">Adicionada ao destino</string>
     <string name="live_add_failed">Não adicionada: %1$s</string>
     <string name="live_removed">Removida do destino</string>
+    <string name="live_help">O que as palavras significam</string>
+    <string name="live_info">Adicionadas: já no destino. Encontradas: combinadas, entram no fim. Para revisar: o Trackhop achou algo parecido mas não tem certeza; confirme ou escolha outra em Revisar. Não encontradas: o serviço de destino não tem. Toque num número para ver só essas músicas.</string>
+    <string name="live_chip_found">Encontradas</string>
+    <string name="live_eta">cerca de %1$d min</string>
+    <string name="live_done_title">%1$s está em dia</string>
+    <string name="live_retry_n">Tentar as %1$d de novo</string>
+    <string name="live_review_n">Revisar as %1$d</string>
     <string name="provider_note_spotify_bridge">Entre na página do próprio Spotify, sem app de desenvolvedor para criar. Usa a sessão do player web: não é uma via oficial, vai contra os termos do Spotify, pode parar de funcionar. A via oficial com sua própria chave continua disponível como \"Spotify\".</string>
     <string name="provider_note_apple_bridge">Entre com seu Apple ID, sem precisar do Apple Developer Program. Usa os tokens do player web: não é uma via oficial, vai contra os termos da Apple, pode parar de funcionar. A via oficial com seu próprio token de desenvolvedor continua disponível como \"Apple Music\".</string>
     <string name="bridge_needed_hint">Instale ou atualize o app complementar \"Trackhop Bridge\" (1.2 ou mais recente) pelo GitHub, depois volte aqui e toque em Conectar.</string>

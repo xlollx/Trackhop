@@ -632,6 +632,13 @@
     <string name="live_added">已添加到目标</string>
     <string name="live_add_failed">未添加：%1$s</string>
     <string name="live_removed">已从目标中移除</string>
+    <string name="live_help">这些词是什么意思</string>
+    <string name="live_info">已添加：已在目标中。已找到：已匹配，最后添加。待检查：Trackhop 找到了相似的歌曲但不确定；请在“检查”中确认或另选。未找到：目标服务没有这首歌。点一个数字只看这些歌曲。</string>
+    <string name="live_chip_found">已找到</string>
+    <string name="live_eta">约 %1$d 分钟</string>
+    <string name="live_done_title">%1$s 已是最新</string>
+    <string name="live_retry_n">重试这 %1$d 首</string>
+    <string name="live_review_n">检查这 %1$d 首</string>
     <string name="provider_note_spotify_bridge">在 Spotify 自己的页面上登录，无需创建开发者应用。使用网页播放器的会话：并非官方途径，违反 Spotify 的条款，可能随时失效。使用你自己密钥的官方途径仍以“Spotify”的形式提供。</string>
     <string name="provider_note_apple_bridge">使用 Apple ID 登录，无需加入 Apple Developer Program。使用网页播放器的令牌：并非官方途径，违反 Apple 的条款，可能随时失效。使用你自己开发者令牌的官方途径仍以“Apple Music”的形式提供。</string>
     <string name="bridge_needed_hint">请从 GitHub 安装或更新配套应用“Trackhop Bridge”（1.2 或更高版本），然后回到这里点按“连接”。</string>

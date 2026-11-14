@@ -640,6 +640,13 @@
     <string name="live_added">Hedefe eklendi</string>
     <string name="live_add_failed">Eklenmedi: %1$s</string>
     <string name="live_removed">Hedeften kaldırıldı</string>
+    <string name="live_help">Kelimelerin anlamı</string>
+    <string name="live_info">Eklenen: hedefte. Bulunan: eşleşti, sonda eklenir. İncelenecek: Trackhop benzer bir şey buldu ama emin değil; İncele\'de onayla ya da başkasını seç. Bulunamayan: hedef serviste yok. Yalnızca o şarkıları görmek için bir sayıya dokun.</string>
+    <string name="live_chip_found">Bulunan</string>
+    <string name="live_eta">yaklaşık %1$d dk</string>
+    <string name="live_done_title">%1$s güncel</string>
+    <string name="live_retry_n">%1$d şarkıyı yeniden dene</string>
+    <string name="live_review_n">%1$d şarkıyı incele</string>
     <string name="provider_note_spotify_bridge">Spotify\'ın kendi sayfasında oturum açın, geliştirici uygulaması oluşturmak gerekmez. Web oynatıcının oturumunu kullanır: resmi bir yol değildir, Spotify\'ın koşullarına aykırıdır, çalışmayı bırakabilir. Kendi anahtarınızla resmi yol \"Spotify\" olarak kullanılabilir durumda kalır.</string>
     <string name="provider_note_apple_bridge">Apple ID\'nizle oturum açın, Apple Developer Program gerekmez. Web oynatıcının jetonlarını kullanır: resmi bir yol değildir, Apple\'ın koşullarına aykırıdır, çalışmayı bırakabilir. Kendi geliştirici jetonunuzla resmi yol \"Apple Music\" olarak kullanılabilir durumda kalır.</string>
     <string name="bridge_needed_hint">GitHub\'dan \"Trackhop Bridge\" yardımcı uygulamasını (1.2 veya üzeri) yükleyin ya da güncelleyin, sonra buraya dönüp Bağlan\'a dokunun.</string>

@@ -632,6 +632,13 @@
     <string name="live_added">同期先に追加しました</string>
     <string name="live_add_failed">追加できませんでした：%1$s</string>
     <string name="live_removed">同期先から削除しました</string>
+    <string name="live_help">用語の意味</string>
+    <string name="live_info">追加: 同期先に入りました。見つかった: 一致し、最後に追加されます。要確認: 似た曲が見つかりましたが確実ではありません。確認画面で確定するか別の曲を選んでください。見つからない: 同期先のサービスにありません。数字をタップするとその曲だけ表示します。</string>
+    <string name="live_chip_found">見つかった</string>
+    <string name="live_eta">あと約%1$d分</string>
+    <string name="live_done_title">%1$s は最新です</string>
+    <string name="live_retry_n">%1$d曲を再試行</string>
+    <string name="live_review_n">%1$d曲を確認</string>
     <string name="provider_note_spotify_bridge">Spotify 自身のページでログインするだけで、開発者アプリの作成は不要です。ウェブプレーヤーのセッションを使用します。公式の方法ではなく、Spotify の利用規約に反しており、動作しなくなる可能性があります。自分のキーを使う公式の方法は「Spotify」として引き続き利用できます。</string>
     <string name="provider_note_apple_bridge">Apple ID でサインインするだけで、Apple Developer Program は不要です。ウェブプレーヤーのトークンを使用します。公式の方法ではなく、Apple の利用規約に反しており、動作しなくなる可能性があります。自分のデベロッパートークンを使う公式の方法は「Apple Music」として引き続き利用できます。</string>
     <string name="bridge_needed_hint">GitHub からコンパニオンアプリ「Trackhop Bridge」（1.2 以降）をインストールまたは更新し、ここに戻って「接続」をタップしてください。</string>

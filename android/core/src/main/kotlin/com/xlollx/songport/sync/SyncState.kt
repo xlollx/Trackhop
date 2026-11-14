@@ -51,7 +51,16 @@ object SyncState {
 
     /** What happened to one source track during the run, for the live view. */
     enum class Outcome { FOUND, CACHED, NOT_FOUND, ADDED, ADD_FAILED, REMOVED }
-    class LiveItem(val source: String, val result: String?, val outcome: Outcome)
+    /**
+     * [track]: the source song itself, for its cover (1.18); [uncertain]: found, but to be confirmed in
+     * the review; [differs]: what was found reads otherwise than the source (so the row says it).
+     */
+    class LiveItem(
+        val source: String, val result: String?, val outcome: Outcome,
+        val track: com.xlollx.songport.model.Track? = null, val uncertain: Boolean = false,
+    ) {
+        val differs: Boolean get() = result != null && !result.equals(source, ignoreCase = true)
+    }
 
     private val _items = MutableStateFlow<Map<String, List<LiveItem>>>(emptyMap())
     /** Tracks processed so far per running job, newest first (capped). */

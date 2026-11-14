@@ -464,6 +464,14 @@ open class FileStore(dir: File) {
         return System.currentTimeMillis() - at < MISS_TTL_MS
     }
 
+    /** "Try again" on songs not found: [srcTrackIds] of [job] are searched afresh on its next run. */
+    fun forgetMisses(job: com.xlollx.songport.model.SyncJob, srcTrackIds: Collection<String>) {
+        if (srcTrackIds.isEmpty()) return
+        val dst = matchTarget(job.target.provider, job.target.playlistId)
+        val keys = srcTrackIds.flatMap { listOf(cacheKey(job.source.provider, it, dst), "${job.source.provider}:$it>$dst") }.toSet()
+        update { d -> d.copy(missCache = d.missCache - keys) }
+    }
+
     fun putMisses(keys: Collection<String>) {
         if (keys.isEmpty()) return
         val now = System.currentTimeMillis()

@@ -640,6 +640,13 @@
     <string name="live_added">Added to the target</string>
     <string name="live_add_failed">Not added: %1$s</string>
     <string name="live_removed">Removed from the target</string>
+    <string name="live_help">What the words mean</string>
+    <string name="live_info">Added: now in the target. Found: matched, added at the end of the run. To review: something similar was found but Trackhop is not sure; confirm it or pick another in Review. Not found: the target service does not have it. Tap a figure to see only those songs.</string>
+    <string name="live_chip_found">Found</string>
+    <string name="live_eta">about %1$d min</string>
+    <string name="live_done_title">%1$s is up to date</string>
+    <string name="live_retry_n">Try the %1$d again</string>
+    <string name="live_review_n">Review the %1$d</string>
     <string name="provider_note_spotify_bridge">Sign in on Spotify\'s own page, no developer app to create. Uses the web player\'s session: not an official route, against Spotify\'s terms, may stop working. The official route with your own key stays available as \"Spotify\".</string>
     <string name="provider_note_apple_bridge">Sign in with your Apple ID, no Apple Developer Program needed. Uses the web player\'s tokens: not an official route, against Apple\'s terms, may stop working. The official route with your own developer token stays available as \"Apple Music\".</string>
     <string name="bridge_needed_hint">Install or update the companion app \"Trackhop Bridge\" (1.2 or newer) from GitHub, then come back here and tap Connect.</string>

@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
@@ -698,9 +699,11 @@ fun SyncsScreen(
         }
     }
     // The live view of a tile's run, in place of the tile's sheet (one sheet at a time).
-    data.syncs.firstOrNull { it.id == tileLive }?.takeIf { running.containsKey(it.id) }?.let { job -> LiveSheet(job) { tileLive = null } }
+    // 1.18: the sheet stays at the end of the run, with its summary.
+    data.syncs.firstOrNull { it.id == tileLive }?.takeIf { running.containsKey(it.id) || com.xlollx.songport.Features.v2 }
+        ?.let { job -> LiveSheet(job, onReview, onRun) { tileLive = null } }
     // The run over: nothing left to watch, and a later run of the same sync does not reopen it.
-    LaunchedEffect(tileLive, running.keys) { if (tileLive != null && !running.containsKey(tileLive)) tileLive = null }
+    LaunchedEffect(tileLive, running.keys) { if (!com.xlollx.songport.Features.v2 && tileLive != null && !running.containsKey(tileLive)) tileLive = null }
 }
 
 /** What a sync card's pill says. */
@@ -1075,7 +1078,7 @@ private fun JobCard(
     var listOpen by remember { mutableStateOf<StatList?>(null) }
     listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
     var liveOpen by rememberSaveable { mutableStateOf(false) }
-    if (liveOpen && isRunning) LiveSheet(job) { liveOpen = false }
+    if (liveOpen && (isRunning || com.xlollx.songport.Features.v2)) LiveSheet(job, onReview, onRun) { liveOpen = false }
     val handed = data.handedOver[job.id]
     // Handed over: what the server did, not what this phone did before.
     val report = if (handed != null) null else data.reports.firstOrNull { it.id == job.lastReportId }
@@ -1526,7 +1529,8 @@ fun twinOriginal(job: SyncJob, jobs: List<SyncJob>): SyncJob? {
 /** Live view of a running sync: what was searched, found, taken from the cache or not found. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
+private fun LiveSheet(job: SyncJob, onReview: (String) -> Unit = {}, onRun: (SyncJob) -> Unit = {}, onDismiss: () -> Unit) {
+    if (com.xlollx.songport.Features.v2) { LiveSheet2(job, onReview, onRun, onDismiss); return }
     val all by SyncState.items.collectAsState()
     val running by SyncState.running.collectAsState()
     val items = all[job.id].orEmpty()
@@ -1578,6 +1582,239 @@ private fun LiveSheet(job: SyncJob, onDismiss: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+}
+
+/** What the 1.18 sheet's chips filter by. */
+private enum class LiveFilter { ADDED, FOUND, REVIEW, NOT_FOUND, REMOVED }
+
+private fun liveFilterOf(it: SyncState.LiveItem): LiveFilter = when {
+    it.uncertain -> LiveFilter.REVIEW
+    it.outcome == SyncState.Outcome.ADDED -> LiveFilter.ADDED
+    it.outcome == SyncState.Outcome.REMOVED -> LiveFilter.REMOVED
+    it.outcome == SyncState.Outcome.NOT_FOUND || it.outcome == SyncState.Outcome.ADD_FAILED -> LiveFilter.NOT_FOUND
+    else -> LiveFilter.FOUND
+}
+
+/**
+ * 1.18's "Sync activity": the sync's name and services, a wave bar with the share done and the time
+ * left, figures that filter the list, the song being looked for with its cover, short rows (the
+ * problems first, "Found:" only when it reads otherwise), the explanations behind "?", and at the
+ * end what the run did, with Review and Try again.
+ */
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun LiveSheet2(job: SyncJob, onReview: (String) -> Unit, onRun: (SyncJob) -> Unit, onDismiss: () -> Unit) {
+    val ctx = LocalContext.current
+    val store = remember { Store.get(ctx) }
+    val all by SyncState.items.collectAsState()
+    val running by SyncState.running.collectAsState()
+    val data by store.state.collectAsState()
+    val isRunning = running.containsKey(job.id)
+    val items = all[job.id].orEmpty()
+    val progress = running[job.id]
+    var filter by rememberSaveable(job.id) { mutableStateOf<LiveFilter?>(null) }
+    var info by rememberSaveable { mutableStateOf(false) }
+    val src = Providers.byId(job.source.provider)
+    val dst = Providers.byId(job.target.provider)
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(job.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        ServiceLogo(src, 18.dp)
+                        Text("→", color = muted, style = MaterialTheme.typography.bodySmall)
+                        ServiceLogo(dst, 18.dp)
+                        Text(
+                            listOf(src?.displayName ?: job.source.provider, dst?.displayName ?: job.target.provider).joinToString(" → ") { com.xlollx.songport.sync.Wrapped.brandName(it) },
+                            style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                IconButton(onClick = { info = !info }) {
+                    Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(R.string.live_help))
+                }
+            }
+            if (info) androidx.compose.material3.Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(R.string.live_info), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                    if (isRunning) Text(stringResource(R.string.live_menu_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                }
+            }
+            if (isRunning) {
+                LiveProgress(progress)
+                LiveChips(items.groupingBy { liveFilterOf(it) }.eachCount(), filter) { filter = if (filter == it) null else it }
+                items.firstOrNull()?.let { now ->
+                    androidx.compose.material3.Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+                        Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            now.track?.let { TrackCover(it, job.source.provider, 44.dp) }
+                                ?: Box(Modifier.size(44.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant))
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(now.track?.title ?: now.source, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    listOfNotNull(now.track?.artists?.firstOrNull(), progressText(progress)).joinToString(" · "),
+                                    style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            if (richMotion()) Equalizer(MaterialTheme.colorScheme.primary, 16.dp)
+                        }
+                    }
+                }
+                if (items.isEmpty()) Text(stringResource(R.string.live_empty), style = MaterialTheme.typography.bodyMedium)
+                // The problems first: what is not found or to review is what the user may act on.
+                val order = listOf(LiveFilter.NOT_FOUND, LiveFilter.REVIEW, LiveFilter.ADDED, LiveFilter.FOUND, LiveFilter.REMOVED)
+                val shown = items.filter { filter == null || liveFilterOf(it) == filter }.sortedBy { order.indexOf(liveFilterOf(it)) }
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 420.dp)) {
+                    items(shown.size) { i ->
+                        val it = shown[i]
+                        val group = liveFilterOf(it)
+                        if (filter == null && (i == 0 || liveFilterOf(shown[i - 1]) != group))
+                            Text(liveFilterLabel(group), style = MaterialTheme.typography.labelSmall, color = muted, modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
+                        LiveRow(it, group)
+                    }
+                }
+            } else {
+                // The run is over: what it did, and the two ways on.
+                val report = data.reports.firstOrNull { it.jobId == job.id && !it.partial }
+                if (report == null) Text(stringResource(R.string.live_empty), style = MaterialTheme.typography.bodyMedium)
+                else LiveSummary(job, report, onReview = { onDismiss(); onReview(report.id) }, onRetry = {
+                    store.forgetMisses(job, report.unmatchedTracks.map { it.id })
+                    onDismiss(); onRun(job)
+                })
+            }
+        }
+    }
+}
+
+@Composable
+private fun liveFilterLabel(f: LiveFilter): String = stringResource(
+    when (f) {
+        LiveFilter.ADDED -> R.string.nf_added
+        LiveFilter.FOUND -> R.string.live_chip_found
+        LiveFilter.REVIEW -> R.string.nf_review
+        LiveFilter.NOT_FOUND -> R.string.nf_unmatched
+        LiveFilter.REMOVED -> R.string.nf_removed
+    },
+)
+
+@Composable
+private fun liveFilterTint(f: LiveFilter): Color = when (f) {
+    LiveFilter.ADDED, LiveFilter.FOUND -> Tones.onSuccessContainer()
+    LiveFilter.REVIEW -> MaterialTheme.colorScheme.tertiary
+    LiveFilter.NOT_FOUND -> MaterialTheme.colorScheme.error
+    LiveFilter.REMOVED -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+/** The wave bar with the share done and, while matching, about how long is left. */
+@Composable
+private fun LiveProgress(p: Progress?) {
+    val pct = p?.percent
+    // The time left from the pace so far: measured from when the sheet first saw a share.
+    val seen = remember { mutableStateOf<Pair<Long, Int>?>(null) }
+    if (pct != null && seen.value == null) seen.value = System.currentTimeMillis() to pct
+    val eta = seen.value?.let { (at, from) ->
+        val done = (pct ?: 0) - from
+        if (done < 3) null else ((System.currentTimeMillis() - at) * (100 - (pct ?: 0)) / done / 60_000L)
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(pct?.let { "$it%" } ?: progressText(p), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            eta?.let {
+                Text(
+                    if (it < 1) stringResource(R.string.nf_under_minute) else stringResource(R.string.live_eta, it),
+                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        WorkBar(pct?.let { v -> { v / 100f } }, Modifier.fillMaxWidth())
+    }
+}
+
+/** The figures as chips: a tap shows only those songs, a second tap all of them again. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun LiveChips(counts: Map<LiveFilter, Int>, selected: LiveFilter?, onPick: (LiveFilter) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        LiveFilter.entries.filter { (counts[it] ?: 0) > 0 }.forEach { f ->
+            FilterChip(
+                selected = selected == f, onClick = { onPick(f) },
+                label = { Text("${liveFilterLabel(f)} ${counts[f]}") },
+                leadingIcon = { Box(Modifier.size(8.dp).clip(CircleShape).background(liveFilterTint(f))) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LiveRow(it: SyncState.LiveItem, group: LiveFilter) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+        val icon = when (group) {
+            LiveFilter.NOT_FOUND -> Icons.Filled.Warning
+            LiveFilter.REVIEW -> Icons.Filled.Info
+            else -> Icons.Filled.CheckCircle
+        }
+        Icon(icon, null, tint = liveFilterTint(group), modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(it.source, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            // "Found:" only when it reads otherwise: the same title twice says nothing.
+            val second = when {
+                it.outcome == SyncState.Outcome.ADD_FAILED -> stringResource(R.string.live_add_failed, it.result ?: "")
+                it.differs && (it.outcome == SyncState.Outcome.FOUND || it.outcome == SyncState.Outcome.CACHED) -> stringResource(R.string.live_found, it.result ?: "")
+                else -> null
+            }
+            second?.let { t -> Text(t, style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+        }
+    }
+}
+
+/** The end of the run in the sheet: done or stopped, the figures, the songs not found, Review and Try again. */
+@Composable
+private fun LiveSummary(job: SyncJob, r: SyncReport, onReview: () -> Unit, onRetry: () -> Unit) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        StatusMark(if (r.ok) Icons.Filled.CheckCircle else Icons.Filled.Warning, if (r.ok) Tone.Ok else Tone.Error)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                if (r.ok) stringResource(R.string.live_done_title, job.name) else stringResource(R.string.nf_title_failed, job.name),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            val minutes = r.durationMs / 60_000
+            Text(
+                listOf(relativeTime(r.startedEpoch), if (minutes < 1) stringResource(R.string.nf_under_minute) else stringResource(R.string.nf_minutes, minutes)).joinToString(" · "),
+                style = MaterialTheme.typography.bodySmall, color = muted,
+            )
+        }
+    }
+    r.error?.let { Text(com.xlollx.songport.notify.Notify.errorText(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        listOf(
+            "+${r.added}" to R.string.nf_added, "${r.reviewTracks.size}" to R.string.nf_review,
+            "${r.unmatchedTracks.size}" to R.string.nf_unmatched, "−${r.removed}" to R.string.nf_removed,
+        ).forEach { (n, label) -> Stat(n, stringResource(label), Modifier.weight(1f)) }
+    }
+    if (r.unmatchedTracks.isNotEmpty()) {
+        Text(stringResource(R.string.nf_unmatched), style = MaterialTheme.typography.labelSmall, color = muted)
+        Column {
+            r.unmatchedTracks.take(8).forEach { t ->
+                LiveRow(SyncState.LiveItem(listOfNotNull(t.artists.firstOrNull(), t.title).joinToString(" – "), null, SyncState.Outcome.NOT_FOUND, t), LiveFilter.NOT_FOUND)
+            }
+            if (r.unmatchedTracks.size > 8) Text(stringResource(R.string.nf_and_more, r.unmatchedTracks.size - 8), style = MaterialTheme.typography.bodySmall, color = muted)
+        }
+    }
+    val toReview = r.reviewTracks.size + r.unmatchedTracks.size
+    if (toReview > 0) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (r.unmatchedTracks.isNotEmpty()) OutlinedButton(onClick = onRetry, modifier = Modifier.weight(1f)) {
+            Text(stringResource(R.string.live_retry_n, r.unmatchedTracks.size), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Button(onClick = onReview, modifier = Modifier.weight(1f)) {
+            Text(stringResource(R.string.live_review_n, toReview), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

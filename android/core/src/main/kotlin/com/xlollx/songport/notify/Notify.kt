@@ -382,6 +382,9 @@ object Notify {
         return Message(rich.title, rich.lines.joinToString("\n"), rich)
     }
 
+    /** [errorLine] for the app's screens. */
+    fun errorText(error: String?): String = errorLine(error)
+
     /** An error's first line, short, with any address taken out (a server's, a link with a token). */
     internal fun errorLine(error: String?): String =
         error.orEmpty().lineSequence().firstOrNull { it.isNotBlank() }.orEmpty().trim()

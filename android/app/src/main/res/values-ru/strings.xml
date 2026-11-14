@@ -658,6 +658,13 @@
     <string name="live_added">Добавлено в цель</string>
     <string name="live_add_failed">Не добавлено: %1$s</string>
     <string name="live_removed">Удалено из цели</string>
+    <string name="live_help">Что значат слова</string>
+    <string name="live_info">Добавлено: уже в цели. Найдено: сопоставлено, добавится в конце. Проверить: Trackhop нашёл похожее, но не уверен; подтвердите или выберите другое в «Проверить». Не найдено: в сервисе-цели этого нет. Нажмите на число, чтобы увидеть только эти треки.</string>
+    <string name="live_chip_found">Найдено</string>
+    <string name="live_eta">около %1$d мин</string>
+    <string name="live_done_title">%1$s обновлена</string>
+    <string name="live_retry_n">Повторить %1$d</string>
+    <string name="live_review_n">Проверить %1$d</string>
     <string name="provider_note_spotify_bridge">Вход на собственной странице Spotify, без создания приложения разработчика. Использует сессию веб-плеера: неофициальный путь, противоречит условиям Spotify, может перестать работать. Официальный путь с вашим ключом остаётся доступен как «Spotify».</string>
     <string name="provider_note_apple_bridge">Вход с Apple ID, без Apple Developer Program. Использует токены веб-плеера: неофициальный путь, противоречит условиям Apple, может перестать работать. Официальный путь с вашим токеном разработчика остаётся доступен как «Apple Music».</string>
     <string name="bridge_needed_hint">Установите или обновите приложение-компаньон «Trackhop Bridge» (1.2 или новее) с GitHub, затем вернитесь сюда и нажмите «Подключить».</string>

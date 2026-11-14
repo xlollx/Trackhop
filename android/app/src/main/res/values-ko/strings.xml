@@ -631,6 +631,13 @@
     <string name="live_added">대상에 추가됨</string>
     <string name="live_add_failed">추가 안 됨: %1$s</string>
     <string name="live_removed">대상에서 삭제됨</string>
+    <string name="live_help">용어 뜻</string>
+    <string name="live_info">추가됨: 대상에 들어갔습니다. 찾음: 매칭되어 마지막에 추가됩니다. 검토 필요: 비슷한 곡을 찾았지만 확실하지 않습니다. 검토에서 확인하거나 다른 곡을 고르세요. 찾지 못함: 대상 서비스에 없습니다. 숫자를 누르면 그 곡만 보입니다.</string>
+    <string name="live_chip_found">찾음</string>
+    <string name="live_eta">약 %1$d분</string>
+    <string name="live_done_title">%1$s 최신 상태</string>
+    <string name="live_retry_n">%1$d곡 다시 시도</string>
+    <string name="live_review_n">%1$d곡 검토</string>
     <string name="provider_note_spotify_bridge">Spotify의 자체 페이지에서 로그인하며 개발자 앱을 만들 필요가 없어요. 웹 플레이어 세션을 쓰므로 공식 경로가 아니고 Spotify 약관에 어긋나며 작동을 멈출 수 있어요. 내 키를 쓰는 공식 경로는 “Spotify”로 계속 쓸 수 있어요.</string>
     <string name="provider_note_apple_bridge">Apple ID로 로그인하며 Apple Developer Program이 필요 없어요. 웹 플레이어 토큰을 쓰므로 공식 경로가 아니고 Apple 약관에 어긋나며 작동을 멈출 수 있어요. 내 개발자 토큰을 쓰는 공식 경로는 “Apple Music”으로 계속 쓸 수 있어요.</string>
     <string name="bridge_needed_hint">GitHub에서 보조 앱 “Trackhop Bridge”(1.2 이상)를 설치하거나 업데이트한 다음, 여기로 돌아와 연결을 누르세요.</string>
