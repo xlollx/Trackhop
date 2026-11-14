@@ -568,8 +568,8 @@ internal fun FilesCard(
     }
 
     // How "A - B - C" names in imported files are read (#49).
-    var namesOpen by remember { mutableStateOf(false) }
-    var patternsOpen by remember { mutableStateOf(false) }
+    var namesOpen by rememberSaveable { mutableStateOf(false) }
+    var patternsOpen by rememberSaveable { mutableStateOf(false) }
     if (patternsOpen) {
         val store = remember { Store.get(ctx) }
         FilePatternsDialog(

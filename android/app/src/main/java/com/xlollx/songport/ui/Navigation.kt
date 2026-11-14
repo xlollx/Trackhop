@@ -150,5 +150,28 @@ fun rememberDiscardGuard(changed: Boolean, onKeep: () -> Unit = {}, onClose: () 
         confirmButton = { TextButton(onClick = { asking = false; close() }) { Text(stringResource(R.string.discard_changes_discard)) } },
         dismissButton = { TextButton(onClick = { asking = false; keep() }) { Text(stringResource(R.string.discard_changes_keep)) } },
     )
-    return remember { { if (nowChanged) asking = true else close() } }
+    // Only a Back, a Cancel or a tap beside it, with the app on screen: a request that comes while the
+    // app is going away or just coming back (Home, recent apps, another app) changes nothing.
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    val resumedAt = remember { longArrayOf(0L) }
+    androidx.compose.runtime.DisposableEffect(lifecycle) {
+        // The events replayed while the observer is added are the dialog opening, not the app coming back.
+        var adding = true
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (!adding && e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) resumedAt[0] = android.os.SystemClock.uptimeMillis()
+        }
+        lifecycle.addObserver(observer)
+        adding = false
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+    return remember {
+        {
+            val onScreen = lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) &&
+                android.os.SystemClock.uptimeMillis() - resumedAt[0] > RESUME_SETTLE_MS
+            if (onScreen) { if (nowChanged) asking = true else close() }
+        }
+    }
 }
+
+/** How long after the app comes back on screen a dialog's close request is taken as the way back, not as a tap. */
+private const val RESUME_SETTLE_MS = 500L

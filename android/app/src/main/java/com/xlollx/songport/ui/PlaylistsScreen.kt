@@ -96,7 +96,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             version++
         }
     }
-    var deleting by remember { mutableStateOf<Playlist?>(null) }
+    var deleting by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
     var busy by remember { mutableStateOf(false) }
     var viewing by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
     var choosingFormat by remember { mutableStateOf<Playlist?>(null) }

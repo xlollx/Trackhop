@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material3.IconButton
 import com.xlollx.songport.providers.*
 import android.net.Uri
@@ -96,7 +97,7 @@ fun MatchSearch(
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
-    var query by remember { mutableStateOf(initialQuery) }
+    var query by rememberSaveable { mutableStateOf(initialQuery) }
     var candidates by remember { mutableStateOf<TargetSearch?>(null) }
     var busy by remember { mutableStateOf(false) }
     var aiNote by remember { mutableStateOf<String?>(null) }
@@ -254,7 +255,7 @@ private const val PRIMARY_SCORE = 0.5
 @Composable
 private fun FoldedHits(title: String, hits: List<TargetSearch.Hit>, pick: @Composable (TargetSearch.Hit, Boolean) -> Unit) {
     if (hits.isEmpty()) return
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Spacer(Modifier.height(4.dp))
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { open = !open }) {
         Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))

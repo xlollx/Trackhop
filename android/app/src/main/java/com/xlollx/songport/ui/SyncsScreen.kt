@@ -1064,7 +1064,7 @@ private fun JobCard(
     val small = size == CardSize.SMALL
     var listOpen by remember { mutableStateOf<StatList?>(null) }
     listOpen?.let { l -> StatListSheet(l) { listOpen = null } }
-    var liveOpen by remember { mutableStateOf(false) }
+    var liveOpen by rememberSaveable { mutableStateOf(false) }
     if (liveOpen && isRunning) LiveSheet(job) { liveOpen = false }
     val handed = data.handedOver[job.id]
     // Handed over: what the server did, not what this phone did before.

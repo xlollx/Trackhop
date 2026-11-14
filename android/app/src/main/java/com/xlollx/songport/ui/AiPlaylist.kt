@@ -485,7 +485,7 @@ private fun SeedPlaylistPicker() {
 private fun ModelRow(c: AiClient.Config, onChange: () -> Unit, onModel: (String) -> Unit) {
     val ctx = LocalContext.current
     val d = AiDraft
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(c.vendor.label + " · ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -582,7 +582,7 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
                     if (vendor.keyUrl.isNotEmpty()) TextButton(onClick = { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(vendor.keyUrl))) } }) { Text(stringResource(R.string.ai_key_get)) }
                 }
                 // The plain answer to "where does my key go?", with the one host it goes to, spelled out.
-                var trustOpen by remember { mutableStateOf(false) }
+                var trustOpen by rememberSaveable { mutableStateOf(false) }
                 TextButton(contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp), onClick = { trustOpen = !trustOpen }) {
                     Icon(Icons.Filled.Lock, null, Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.ai_trust_title), style = MaterialTheme.typography.labelLarge)
@@ -701,7 +701,7 @@ fun AiExtendDialog(job: SyncJob, onClose: () -> Unit) {
     val d = AiDraft
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
     val use = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
-    var setupOpen by remember { mutableStateOf(use == null) }
+    var setupOpen by rememberSaveable { mutableStateOf(use == null) }
     var count by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(10f) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -784,7 +784,7 @@ fun AiExpandPlaylistDialog(provider: MusicProvider, playlist: Playlist, onClose:
     val d = AiDraft
     var config by remember { mutableStateOf(AiClient.config(ctx)) }
     val use = AiClient.pick(config, NanoAi.state, NanoAi.NAME)
-    var setupOpen by remember { mutableStateOf(use == null) }
+    var setupOpen by rememberSaveable { mutableStateOf(use == null) }
     var prompt by rememberSaveable { mutableStateOf("") }
     var count by rememberSaveable { mutableStateOf(10f) }
     var busy by remember { mutableStateOf(false) }

@@ -388,7 +388,7 @@ private fun writableServices(ctx: android.content.Context, needsCreate: Boolean)
 @Composable
 private fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvider?, onSelect: (String) -> Unit) {
     val ctx = LocalContext.current
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && services.isNotEmpty() }) {
         OutlinedTextField(
             value = selected?.label(ctx.env).orEmpty(), onValueChange = {}, readOnly = true, singleLine = true, enabled = services.isNotEmpty(),
@@ -415,7 +415,7 @@ private fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvid
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit, onSelect: (Playlist) -> Unit) {
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && lists != null }) {
         OutlinedTextField(
             value = when {
@@ -841,9 +841,9 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
     }
 
     var confirmLeave by remember { mutableStateOf(false) }
-    var confirmKey by remember { mutableStateOf(false) }
-    var signInOpen by remember { mutableStateOf(false) }
-    var moveOpen by remember { mutableStateOf(false) }
+    var confirmKey by rememberSaveable { mutableStateOf(false) }
+    var signInOpen by rememberSaveable { mutableStateOf(false) }
+    var moveOpen by rememberSaveable { mutableStateOf(false) }
     if (moveOpen) MoveServerDialog(group, onDismiss = { moveOpen = false }) { moveOpen = false; version++ }
     if (signInOpen) NtfySignInDialog(group, onDismiss = { signInOpen = false }) { signInOpen = false; version++ }
     val via = when (group.transport) {
@@ -939,7 +939,7 @@ private fun NtfySignInDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: 
 private fun MoveServerDialog(group: SharedGroup, onDismiss: () -> Unit, onDone: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    var server by remember { mutableStateOf("") }
+    var server by rememberSaveable { mutableStateOf("") }
     val signIn = remember { NtfySignIn() }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }

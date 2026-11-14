@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -100,8 +101,16 @@ fun NotifyChannelsScreen(onClose: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     var channels by remember { mutableStateOf(Notify.channels(ctx.env)) }
     // The channel being edited: a new one has no id among [channels].
-    var editing by remember { mutableStateOf<Notify.Channel?>(null) }
-    var addOpen by remember { mutableStateOf(false) }
+    // Kept as its id and kind, so the channel being made is still open after the app was away (Android may re-make it).
+    var editingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editingKind by rememberSaveable { mutableStateOf<String?>(null) }
+    val editing: Notify.Channel? = editingId?.let { id ->
+        channels.firstOrNull { it.id == id } ?: Notify.Kind.entries.firstOrNull { it.id == editingKind }?.let { k ->
+            Notify.Channel(id, k, k.label, true, Notify.Event.entries.toSet(), k.fields.associate { it.key to it.default })
+        }
+    }
+    fun edit(v: Notify.Channel?) { editingId = v?.id; editingKind = v?.kind?.id }
+    var addOpen by rememberSaveable { mutableStateOf(false) }
 
     fun test(c: Notify.Channel) = scope.launch {
         val error = withContext(Dispatchers.IO) { Notify.test(c) }
@@ -126,7 +135,7 @@ fun NotifyChannelsScreen(onClose: () -> Unit) {
                     Text(stringResource(R.string.notify_channels_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (channels.isEmpty()) Text(stringResource(R.string.notify_channels_empty), style = MaterialTheme.typography.bodyMedium)
                     channels.forEach { c ->
-                        Card(onClick = { editing = c }, modifier = Modifier.fillMaxWidth()) {
+                        Card(onClick = { edit(c) }, modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Column(Modifier.weight(1f)) {
@@ -156,7 +165,7 @@ fun NotifyChannelsScreen(onClose: () -> Unit) {
                             Notify.Kind.entries.forEach { k ->
                                 DropdownMenuItem(text = { Text(k.label) }, onClick = {
                                     addOpen = false
-                                    editing = Notify.Channel(Notify.newId(), k, k.label, true, Notify.Event.entries.toSet(), k.fields.associate { it.key to it.default })
+                                    edit(Notify.Channel(Notify.newId(), k, k.label, true, Notify.Event.entries.toSet(), k.fields.associate { it.key to it.default }))
                                 })
                             }
                         }
@@ -170,9 +179,9 @@ fun NotifyChannelsScreen(onClose: () -> Unit) {
         val old = channels.firstOrNull { it.id == c.id }
         ChannelEditor(
             c, old,
-            onDismiss = { editing = null },
-            onSave = { saved -> Notify.put(ctx.env, saved); channels = Notify.channels(ctx.env); editing = null },
-            onDelete = if (old != null) ({ Notify.remove(ctx.env, c.id); channels = Notify.channels(ctx.env); editing = null }) else null,
+            onDismiss = { ChannelDraft.secrets.remove(c.id); edit(null) },
+            onSave = { saved -> Notify.put(ctx.env, saved); channels = Notify.channels(ctx.env); ChannelDraft.secrets.remove(c.id); edit(null) },
+            onDelete = if (old != null) ({ Notify.remove(ctx.env, c.id); channels = Notify.channels(ctx.env); ChannelDraft.secrets.remove(c.id); edit(null) }) else null,
             onTest = { test(it) },
         )
     }
@@ -185,11 +194,19 @@ private fun ChannelEditor(
     onSave: (Notify.Channel) -> Unit, onDelete: (() -> Unit)?, onTest: (Notify.Channel) -> Unit,
 ) {
     val ctx = LocalContext.current
-    var name by remember { mutableStateOf(c.name) }
-    var enabled by remember { mutableStateOf(c.enabled) }
-    var events by remember { mutableStateOf(c.events) }
+    // What is typed stays when the app is left and comes back (Android may re-make the screen meanwhile):
+    // the name, the events and the plain fields in the saved state, the secrets in this process only.
+    var name by rememberSaveable(c.id) { mutableStateOf(c.name) }
+    var enabled by rememberSaveable(c.id) { mutableStateOf(c.enabled) }
+    var eventIds by rememberSaveable(c.id) { mutableStateOf(c.events.map { it.key }) }
+    val events: Set<Notify.Event> = eventIds.mapNotNull { Notify.Event.of(it) }.toSet()
+    val plainKeys = c.kind.fields.filter { !it.secret }.map { it.key }
+    var plain by rememberSaveable(c.id) { mutableStateOf(plainKeys.map { k -> c.value(k) }) }
+    var secrets by remember(c.id) { mutableStateOf(ChannelDraft.secrets[c.id] ?: c.kind.fields.filter { it.secret }.associate { it.key to "" }) }
+    androidx.compose.runtime.SideEffect { ChannelDraft.secrets[c.id] = secrets }
     // Secrets start empty: what is saved stays unless something new is typed.
-    var values by remember { mutableStateOf(c.kind.fields.associate { f -> f.key to if (f.secret) "" else c.value(f.key) }) }
+    val values: Map<String, String> = plainKeys.zip(plain).toMap() + secrets
+    fun setValue(key: String, v: String) { if (key in plainKeys) plain = plainKeys.map { if (it == key) v else values[it].orEmpty() } else secrets = secrets + (key to v) }
     var problem by remember { mutableStateOf<String?>(null) }
 
     /** The channel as typed, or why it cannot be saved yet (in the user's words, not Notify's English). */
@@ -221,7 +238,7 @@ private fun ChannelEditor(
                 c.kind.fields.forEach { f ->
                     val saved = f.secret && old?.value(f.key)?.isNotEmpty() == true
                     OutlinedTextField(
-                        values[f.key].orEmpty(), { v -> values = values + (f.key to v); problem = null },
+                        values[f.key].orEmpty(), { v -> setValue(f.key, v); problem = null },
                         label = { Text(fieldName(ctx, c.kind, f)) },
                         placeholder = { Text(if (saved) Notify.mask(old!!.value(f.key)) + " · " + stringResource(R.string.notify_channel_secret_keep) else f.placeholder) },
                         singleLine = true, modifier = Modifier.fillMaxWidth(),
@@ -232,7 +249,7 @@ private fun ChannelEditor(
                 Text(stringResource(R.string.notify_channel_events), style = MaterialTheme.typography.titleSmall)
                 Notify.Event.entries.forEach { e ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = e in events, onCheckedChange = { on -> events = if (on) events + e else events - e })
+                        Checkbox(checked = e in events, onCheckedChange = { on -> eventIds = (if (on) events + e else events - e).map { it.key } })
                         Text(eventName(ctx, e), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
@@ -251,3 +268,6 @@ private fun ChannelEditor(
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
+
+/** The secrets typed in a channel's form, by channel id: kept while the app runs (never in Android's saved state), dropped on close. */
+private object ChannelDraft { val secrets = java.util.concurrent.ConcurrentHashMap<String, Map<String, String>>() }

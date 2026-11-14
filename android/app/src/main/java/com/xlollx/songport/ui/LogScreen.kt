@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
@@ -108,7 +109,7 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
         return
     }
     val ctx = LocalContext.current
-    var exportOpen by remember { mutableStateOf(false) }
+    var exportOpen by rememberSaveable { mutableStateOf(false) }
     // The export runs in this screen's scope: the dialog's own ends when it closes, and with it the export.
     val exportScope = rememberCoroutineScope()
     if (exportOpen) ExportLogDialog(onDismiss = { exportOpen = false }, onPick = { span ->
@@ -117,7 +118,7 @@ private fun LogList(data: StoreData, snackbar: SnackbarHostState, onResolve: (St
     })
     // The technical details as text, of the time chosen: the basics (versions, connectors, syncs,
     // last runs) always, then the log lines of that span, the newest ones when there are many.
-    var shareOpen by remember { mutableStateOf(false) }
+    var shareOpen by rememberSaveable { mutableStateOf(false) }
     if (shareOpen) ExportLogDialog(title = R.string.diag_share, body = null, onDismiss = { shareOpen = false }, onPick = { span ->
         shareOpen = false
         exportScope.launch {

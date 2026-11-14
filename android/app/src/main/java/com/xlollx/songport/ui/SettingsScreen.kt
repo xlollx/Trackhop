@@ -172,7 +172,7 @@ fun SettingsScreen(
             val themeLabels = ThemeMode.entries.map {
                 it to stringResource(when (it) { ThemeMode.SYSTEM -> R.string.settings_theme_system; ThemeMode.LIGHT -> R.string.settings_theme_light; ThemeMode.DARK -> R.string.settings_theme_dark })
             }
-            var themeOpen by remember { mutableStateOf(false) }
+            var themeOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_theme), themeLabels.first { it.first == mode }.second) { themeOpen = true }
             if (themeOpen) ChoiceDialog(stringResource(R.string.settings_theme), themeLabels, mode, onDismiss = { themeOpen = false }) { m ->
                 themeOpen = false
@@ -190,7 +190,7 @@ fun SettingsScreen(
             if (cardStyleOpen) {
             // How coloured sync cards wear their colour, and how their last runs show.
             val accentChoices = CardAccent.entries.map { it.key to stringResource(it.label) }
-            var accentOpen by remember { mutableStateOf(false) }
+            var accentOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_card_accent), accentChoices.firstOrNull { it.first == settings.cardAccent }?.second ?: accentChoices.first().second) { accentOpen = true }
             if (accentOpen) ChoiceDialog(stringResource(R.string.settings_card_accent), accentChoices, settings.cardAccent, onDismiss = { accentOpen = false },
                 note = stringResource(R.string.card_accent_note), trailing = { AccentPreview(CardAccent.entries.firstOrNull { a -> a.key == it } ?: CardAccent.CLASSIC) }) { k ->
@@ -201,7 +201,7 @@ fun SettingsScreen(
             val glowChoices = listOf(
                 "plain" to stringResource(R.string.route_glow_plain), "all" to stringResource(R.string.route_glow_all), "off" to stringResource(R.string.route_glow_off),
             )
-            var glowOpen by remember { mutableStateOf(false) }
+            var glowOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_route_glow), glowChoices.firstOrNull { it.first == settings.routeGlowMode }?.second ?: glowChoices.first().second) { glowOpen = true }
             if (glowOpen) ChoiceDialog(stringResource(R.string.settings_route_glow), glowChoices, settings.routeGlowMode, onDismiss = { glowOpen = false },
                 note = stringResource(R.string.route_glow_note), trailing = { RouteGlowPreview(it) }) { k ->
@@ -209,7 +209,7 @@ fun SettingsScreen(
                 store.updateSettings { it.copy(routeGlowMode = k) }
             }
             val placeChoices = listOf("footer" to stringResource(R.string.status_place_footer), "badge" to stringResource(R.string.status_place_badge))
-            var placeOpen by remember { mutableStateOf(false) }
+            var placeOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_status_place), placeChoices.firstOrNull { it.first == settings.cardStatusPlace }?.second ?: placeChoices.first().second) { placeOpen = true }
             if (placeOpen) ChoiceDialog(stringResource(R.string.settings_status_place), placeChoices, settings.cardStatusPlace, onDismiss = { placeOpen = false },
                 note = stringResource(R.string.status_place_note), trailing = { StatusPlacePreview(it) }) { k ->
@@ -217,7 +217,7 @@ fun SettingsScreen(
                 store.updateSettings { it.copy(cardStatusPlace = k) }
             }
             val historyChoices = RunHistoryStyle.entries.map { it.key to stringResource(it.label) }
-            var historyOpen by remember { mutableStateOf(false) }
+            var historyOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_run_history), historyChoices.firstOrNull { it.first == settings.runHistoryStyle }?.second ?: historyChoices.first().second) { historyOpen = true }
             if (historyOpen) ChoiceDialog(stringResource(R.string.settings_run_history), historyChoices, settings.runHistoryStyle, onDismiss = { historyOpen = false },
                 note = stringResource(R.string.run_history_note), trailing = { RunHistoryPreview(RunHistoryStyle.of(it)) }) { k ->
@@ -226,7 +226,7 @@ fun SettingsScreen(
             }
             // How big the sync cards are, each choice with a small picture of how many fit; and the tiles instead of cards.
             val sizeChoices = CardSize.entries.map { it to stringResource(it.label) }
-            var sizeOpen by remember { mutableStateOf(false) }
+            var sizeOpen by rememberSaveable { mutableStateOf(false) }
             val size = CardSize.of(settings.cardSize)
             PrefRow(Icons.Filled.Palette, stringResource(R.string.settings_card_size), stringResource(size.label)) { sizeOpen = true }
             if (sizeOpen) ChoiceDialog(
@@ -247,7 +247,7 @@ fun SettingsScreen(
             }
             }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
-            var langOpen by remember { mutableStateOf(false) }
+            var langOpen by rememberSaveable { mutableStateOf(false) }
             val currentTag = AppLocale.current(ctx)
             PrefRow(Icons.Filled.Language, stringResource(R.string.settings_language), AppLocale.label(ctx, currentTag)) { langOpen = true }
             if (langOpen) ChoiceDialog(
@@ -374,7 +374,7 @@ fun SettingsScreen(
                     store.updateSettings { it.copy(appLock = v) }
                 }
             }
-            var factsOpen by remember { mutableStateOf(false) }
+            var factsOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.Security, stringResource(R.string.security_title), stringResource(R.string.settings_security_summary)) { factsOpen = true }
             if (factsOpen) FitDialog(
                 onDismissRequest = { factsOpen = false },
@@ -449,7 +449,7 @@ fun SettingsScreen(
                 trailing = { HelpButton(Helps.serverLocks) },
             ) { serverLocksOpen = true }
 
-            var keysOpen by remember { mutableStateOf(false) }
+            var keysOpen by rememberSaveable { mutableStateOf(false) }
             PrefRow(Icons.Filled.VpnKey, stringResource(R.string.settings_advanced), stringResource(R.string.settings_keys_summary), trailing = { ExpandMark(keysOpen) }) { keysOpen = !keysOpen }
             if (keysOpen) {
                 PrefBlock { Text(stringResource(R.string.settings_advanced_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -516,7 +516,7 @@ fun SettingsScreen(
             }
             if (settings.developerOptions) {
                 // "Nothing leaves your phone except…" made checkable: the hosts this app has talked to.
-                var connectionsOpen by remember { mutableStateOf(false) }
+                var connectionsOpen by rememberSaveable { mutableStateOf(false) }
                 var connectionsVersion by remember { mutableIntStateOf(0) }
                 PrefRow(Icons.Filled.NetworkCheck, stringResource(R.string.security_connections), stringResource(R.string.security_connections_desc), trailing = { ExpandMark(connectionsOpen) }) {
                     connectionsOpen = !connectionsOpen
@@ -557,7 +557,7 @@ fun SettingsScreen(
             // for the developer, which records what is done on a site, kept out of everyone's way.
             var versionTaps by remember { mutableIntStateOf(0) }
             // A long press on the logo shows Oli (Oli.kt): its own gesture, apart from the seven taps.
-            var oliOpen by remember { mutableStateOf(false) }
+            var oliOpen by rememberSaveable { mutableStateOf(false) }
             fun versionTap() {
                 versionTaps++
                 if (versionTaps >= 7) {

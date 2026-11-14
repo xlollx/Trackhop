@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -253,7 +254,7 @@ private fun TagChip(key: String, values: List<String>, filter: SyncFilter, onCha
     // The filter keeps keys as first chosen; compared without case, as the tags are.
     val on = filter.tags.keys.firstOrNull { Labels.fold(it) == Labels.fold(key) }
     val chosen = on?.let { filter.tags[it] }.orEmpty()
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Box {
         FilterChip(
             selected = on != null,

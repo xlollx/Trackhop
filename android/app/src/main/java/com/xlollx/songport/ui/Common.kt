@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material3.Slider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.FilterChip
@@ -312,7 +313,7 @@ fun OverflowMenu(
     title: String? = null,
 ) {
     if (actions.isEmpty()) return
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Box {
         IconButton(onClick = { open = true }, enabled = enabled) {
             Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions))

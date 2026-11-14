@@ -2,6 +2,7 @@
 
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
@@ -595,10 +596,10 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var playsSignIn by remember { mutableStateOf<MusicProvider?>(null) }
     // What the poster on show is made of, and the name of the account when the playlist is the user's own.
     var printed by remember { mutableStateOf<Cards.PosterCard?>(null) }
-    var ownerName by remember { mutableStateOf("") }
+    var ownerName by rememberSaveable { mutableStateOf("") }
     // The user's own playlist (so a name may go on it), and the name they typed, if any: it wins over the account's.
     var mine by remember { mutableStateOf(false) }
-    var typedName by remember { mutableStateOf(posterPrefs(ctx).getString("nameText", null).orEmpty()) }
+    var typedName by rememberSaveable { mutableStateOf(posterPrefs(ctx).getString("nameText", null).orEmpty()) }
     val signature = typedName.trim().ifBlank { ownerName }
     // "Make it again" and "another version" turn this: other picks, another drawing.
     var variant by remember { mutableStateOf(0) }
@@ -864,7 +865,7 @@ private fun PosterSwitch(title: String, detail: String, checked: Boolean, onChan
  */
 @Composable
 private fun AllArtists(names: List<String>) {
-    var open by remember(names) { mutableStateOf(false) }
+    var open by rememberSaveable(names) { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(14.dp))

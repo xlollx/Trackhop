@@ -176,7 +176,7 @@ private fun CountryPicker(country: String, onPick: (String) -> Unit) {
     val ctx = LocalContext.current
     val here = ctx.resources.configuration.locales[0]
     val all = remember(here) { Locale.getISOCountries().map { it to Locale("", it).getDisplayCountry(here) }.sortedBy { it.second } }
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Box {
         OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.concerts_country) + ": " + Locale("", country).getDisplayCountry(here), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -196,7 +196,7 @@ private val RANGES = listOf(
 
 @Composable
 private fun RangePicker(range: Concerts.Range, onPick: (Concerts.Range) -> Unit) {
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Box {
         OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.concerts_range) + ": " + stringResource(RANGES.first { it.first == range }.second), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)

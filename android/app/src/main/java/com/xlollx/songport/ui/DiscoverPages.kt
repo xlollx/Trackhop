@@ -999,7 +999,7 @@ private fun GoneSong(g: GoneRow, date: String, loadCover: Boolean) {
         val job = g.jobId
         if (g.bySync && job != null) {
             val ctx = LocalContext.current
-            var open by remember { mutableStateOf(false) }
+            var open by rememberSaveable { mutableStateOf(false) }
             Box {
                 IconButton(onClick = { open = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
                 DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
@@ -1017,7 +1017,7 @@ private fun GoneSong(g: GoneRow, date: String, loadCover: Boolean) {
 @Composable
 private fun SearchOnMenu(t: Track) {
     val ctx = LocalContext.current
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     Box {
         IconButton(onClick = { open = true }) { Icon(Icons.Filled.Search, stringResource(R.string.discover_search_on), tint = LocalToolIdentity.current.tint()) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {

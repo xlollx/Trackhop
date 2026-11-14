@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -190,7 +191,7 @@ fun BackupScreen(onClose: () -> Unit) {
                 (if (r.failed.isNotEmpty()) " · " + r.failed.first() else ""),
         ) }
     }
-    var scheduleOpen by remember { mutableStateOf(false) }
+    var scheduleOpen by rememberSaveable { mutableStateOf(false) }
     if (scheduleOpen) ChoiceDialog(
         stringResource(R.string.editor_schedule),
         listOf(Schedule.MANUAL, Schedule.DAILY, Schedule.WEEKLY).map { it to scheduleLabel(it) },
@@ -258,7 +259,7 @@ fun BackupScreen(onClose: () -> Unit) {
 private fun FullBackupSaveRow(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    var asking by remember { mutableStateOf(false) }
+    var asking by rememberSaveable { mutableStateOf(false) }
     var first by remember { mutableStateOf("") }
     var again by remember { mutableStateOf("") }
     // The password between the dialog and the file picker's answer; cleared once used.
