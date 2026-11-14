@@ -49,12 +49,14 @@ la app recuerda tu elección.
 ## Poner orden
 
 - **Favoritas**: *⋮ → Añadir a favoritas* le pone una estrella a la sincronización, que se queda arriba (se
-  desactiva en Ajustes › Apariencia › Favoritas siempre arriba).
+  desactiva en Ajustes › Apariencia › Estilo de las tarjetas › Favoritas siempre arriba).
 - **Colores con nombre y etiquetas**: *⋮ → Estilo* elige el color de la tarjeta, y un nombre para ese color
   agrupa todas las que lo llevan; en el editor, las **Etiquetas** agrupan a tu manera (genero = metal). La
-  búsqueda y los filtros sobre la lista las encuentran por nombre, color o etiqueta.
-- **Tamaño de las tarjetas** y **Vista mínima** (mosaicos pequeños en cuadrícula) en Ajustes › Apariencia;
-  mantén pulsada una tarjeta y arrástrala para cambiar el orden.
+  búsqueda sobre la lista está desde la primera sincronización, y los filtros desde cinco: las encuentran por
+  nombre, color o etiqueta.
+- **Tamaño de las tarjetas** y **Vista mínima** (mosaicos pequeños en cuadrícula) en Ajustes › Apariencia ›
+  **Estilo de las tarjetas**, que reúne también colores, estado y ejecuciones anteriores en las
+  tarjetas; mantén pulsada una tarjeta y arrástrala para cambiar el orden.
 
 En la app, Ajustes › Cómo se hace reúne guías breves de todo, con un buscador arriba.
 

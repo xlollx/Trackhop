@@ -1885,6 +1885,10 @@
     <string name="whats_new_117_twoway_body">En una sync bidireccional, activa También las eliminaciones: una canción que quitas en un lado se quita también en el otro. Si cambias el nombre de una playlist en cualquiera de los lados, el par lo sigue.</string>
     <string name="whats_new_117_server_title">Más para tu propio servidor</string>
     <string name="whats_new_117_server_body">Lyrion y Mopidy llegan como servidores (beta). Los archivos con etiquetas de MusicBrainz se emparejan con exactitud, y Herramientas › Falta en mi servidor muestra las canciones que tus sync no encontraron allí.</string>
+    <string name="whats_new_117_library_title">También tu biblioteca</string>
+    <string name="whats_new_117_library_body">Herramientas › Gestionar playlists y biblioteca muestra álbumes guardados, artistas seguidos y pódcasts encima de las playlists: búscalos, quítalos o expórtalos. Una eliminación larga sigue aunque salgas de la pantalla.</string>
+    <string name="whats_new_117_live_title">La versión de estudio, no el concierto</string>
+    <string name="whats_new_117_live_body">Una canción tocada en un festival, una session o una gira, o sacada de un álbum en directo, ya no ocupa el lugar de la de estudio. Las emparejadas así antes vuelven a Por revisar: Cambiar las sustituye, Parece correcta las mantiene.</string>
     <string name="whats_new_117_devices_title">Una sync, un dispositivo</string>
     <string name="whats_new_117_devices_body">Una configuración restaurada en otro móvil deja ahí apagadas las sync programadas, para que no se ejecuten dos veces. Una playlist se vuelve a leer justo antes de escribir en ella, y una canción añadida dos veces se quita en la siguiente ejecución.</string>
     <string name="whats_new_118_releases_title">Novedades de tus artistas</string>

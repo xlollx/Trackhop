@@ -77,6 +77,15 @@ them out; then the numbers (to add, to remove, already there, not found) and the
 *Run now* stays at the bottom. Tracks that were not found go to the **review**, where you search the
 target yourself or pick a suggestion; the app remembers your choice.
 
+**Live versions**: a song that names a concert in its subtitle counts as live, even without the word
+"live": iTunes Festival, BBC Session, Live Lounge, MTV, On Tour, and in other languages en vivo, ao
+vivo, dal vivo, en directo, en concert or Konzert. A track from a live album (Live at…, Unplugged,
+iTunes Festival…) in place of the source's studio album counts against it, so the studio take wins.
+Titles such as "Live Forever", collections such as Greatest Hits, and the same album on both sides are
+not affected. With **Studio versions only** a live take is never used. A match made earlier that is
+live where the source is not now shows up in the review: *Change* swaps it, *Looks right* keeps it and
+it is not asked again. Nothing is removed by itself.
+
 ## With one service
 
 Trackhop is useful with a single service too. With one connected, the empty *Syncs* tab (and the
@@ -107,15 +116,16 @@ rule, not an error; the quick route reads them. See [Troubleshooting](troublesho
 Settings › Appearance has the theme (follow the system, light or dark) and **Dynamic colours**: on Android 12 and
 newer the app can take the colours of your wallpaper (Material You) instead of its own indigo and magenta. It is off
 by default; the title banner keeps the brand colours either way. The app follows the system font size, and above
-130% the bottom bar shows the name of the selected tab only. **Card size** (Large, Medium, Small) and **Minimal
-view** (small tiles in a grid) fit more syncs on the screen; on a tablet or a phone on its side the tabs move to a
-rail and the cards sit in columns.
+130% the bottom bar shows the name of the selected tab only. **Card style** groups how the sync cards look:
+colours, status, past runs, **Card size** (Large, Medium, Small) and **Minimal view** (small tiles in a grid), which
+fit more syncs on the screen. On a tablet or a phone on its side the tabs move to a rail and the cards sit in columns.
 
 ## Order and colours
 
 Sync all and the widgets follow the order of the list. Hold a card and drag it to its place, or use
 *⋮ → Move to position* and type the number. *⋮ → Style* gives a card one of the ready colours or any colour
 of your own (the last circle), and a name for that colour makes it a label. *⋮ → Add to favourites* stars a
-sync, and the editor's **Tags** group syncs your way. With several syncs, the search and the filters above the
-list show only the cards you want. More in [Favourites, labels and tags](organise-syncs). On Desktop and
-Docker: the arrows on each card, or the position field on the sync's page.
+sync, and the editor's **Tags** group syncs your way. The search above the list is there from the first sync,
+and the filters from five syncs on: they show only the cards you want. More in
+[Favourites, labels and tags](organise-syncs). On Desktop and Docker: the arrows on each card, or the position
+field on the sync's page.

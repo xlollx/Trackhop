@@ -1885,6 +1885,10 @@
     <string name="whats_new_117_twoway_body">Dans une sync bidirectionnelle, active Les retraits aussi : un titre que tu retires d\'un côté est retiré de l\'autre aussi. Renomme une playlist d\'un côté ou de l\'autre : la paire suit.</string>
     <string name="whats_new_117_server_title">Plus pour ton propre serveur</string>
     <string name="whats_new_117_server_body">Lyrion et Mopidy arrivent comme serveurs (bêta). Les fichiers avec des tags MusicBrainz sont reconnus exactement, et Outils › Manque sur mon serveur liste les titres que tes syncs n\'y ont pas trouvés.</string>
+    <string name="whats_new_117_library_title">Ta bibliothèque aussi</string>
+    <string name="whats_new_117_library_body">Outils › Gérer playlists et bibliothèque affiche albums enregistrés, artistes suivis et podcasts au-dessus des playlists : cherche-les, retire-les ou exporte-les. Un long retrait continue quand tu quittes l\'écran.</string>
+    <string name="whats_new_117_live_title">Le studio, pas le concert</string>
+    <string name="whats_new_117_live_body">Un titre joué dans un festival, une session ou en tournée, ou tiré d\'un album live, ne remplace plus la version studio. Ceux associés ainsi avant reviennent dans À vérifier : Changer les remplace, C\'est bon les garde.</string>
     <string name="whats_new_117_devices_title">Une sync, un appareil</string>
     <string name="whats_new_117_devices_body">Une configuration restaurée sur un autre téléphone y garde les syncs planifiées éteintes, pour qu\'elles ne tournent pas deux fois. Une playlist est relue juste avant d\'y écrire, et un titre ajouté deux fois est retiré au passage suivant.</string>
     <string name="whats_new_118_releases_title">Les nouveautés de tes artistes</string>

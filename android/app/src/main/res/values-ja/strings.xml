@@ -1845,6 +1845,10 @@
     <string name="whats_new_117_twoway_body">双方向の同期で「削除も同期」をオンにすると、片側で削除した曲がもう片側からも削除されます。どちらの側でプレイリストの名前を変えても、ペアが追従します。</string>
     <string name="whats_new_117_server_title">自分のサーバーをもっと便利に</string>
     <string name="whats_new_117_server_body">Lyrion と Mopidy にサーバーとして対応しました (ベータ)。MusicBrainz タグ付きのファイルは正確に照合され、ツール › サーバーにない曲 で同期が見つけられなかった曲を一覧できます。</string>
+    <string name="whats_new_117_library_title">ライブラリも</string>
+    <string name="whats_new_117_library_body">ツール › プレイリストとライブラリの管理で、保存したアルバム、フォロー中のアーティスト、ポッドキャストがプレイリストの上に表示されます。検索、削除、エクスポートができます。長い削除は画面を離れても続きます。</string>
+    <string name="whats_new_117_live_title">ライブではなくスタジオ版</string>
+    <string name="whats_new_117_live_body">フェスやセッション、ツアーで演奏された曲やライブアルバムの曲が、スタジオ版の代わりに選ばれなくなりました。以前そう一致した曲は「要確認」に戻ります。「変更」で置き換え、「これで正しい」でそのままにします。</string>
     <string name="whats_new_117_devices_title">1つの同期は1台で</string>
     <string name="whats_new_117_devices_body">別のスマートフォンに復元した設定では、予約された同期がオフのままになり、二重に動きません。書き込む直前にプレイリストを読み直し、二重に追加された曲は次の実行で削除されます。</string>
     <string name="whats_new_118_releases_title">アーティストの新作</string>

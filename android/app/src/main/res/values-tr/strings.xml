@@ -1875,6 +1875,10 @@
     <string name="whats_new_117_twoway_body">Çift yönlü bir eşitlemede Kaldırmalar da seçeneğini aç: bir tarafta kaldırdığın parça diğer taraftan da kaldırılır. Bir çalma listesini iki taraftan birinde yeniden adlandır, eşleşme de buna uyar.</string>
     <string name="whats_new_117_server_title">Kendi sunucun için daha fazlası</string>
     <string name="whats_new_117_server_body">Lyrion ve Mopidy sunucu olarak geldi (beta). MusicBrainz etiketli dosyalar tam olarak eşleşir; Araçlar › Sunucumda eksik, eşitlemelerinin orada bulamadığı şarkıları listeler.</string>
+    <string name="whats_new_117_library_title">Kitaplığın da</string>
+    <string name="whats_new_117_library_body">Araçlar › Çalma listeleri ve kitaplığı yönet, kaydedilen albümleri, takip edilen sanatçıları ve podcastleri listelerin üstünde gösterir: ara, kaldır ya da dışa aktar. Uzun bir kaldırma ekrandan çıksan da sürer.</string>
+    <string name="whats_new_117_live_title">Konser değil, stüdyo sürümü</string>
+    <string name="whats_new_117_live_body">Bir festivalde, session\'da ya da turnede çalınan ya da canlı albümden gelen şarkı artık stüdyo sürümünün yerini almıyor. Önceden böyle eşleşenler İncelenecek\'e döner: Değiştir onları değiştirir, Doğru görünüyor bırakır.</string>
     <string name="whats_new_117_devices_title">Bir eşitleme, bir cihaz</string>
     <string name="whats_new_117_devices_body">Başka bir telefona geri yüklenen kurulum oradaki zamanlanmış eşitlemeleri kapalı tutar, böylece iki kez çalışmazlar. Bir çalma listesi yazılmadan hemen önce yeniden okunur ve iki kez eklenen parça bir sonraki çalıştırmada kaldırılır.</string>
     <string name="whats_new_118_releases_title">Sanatçılarından yeni çıkanlar</string>

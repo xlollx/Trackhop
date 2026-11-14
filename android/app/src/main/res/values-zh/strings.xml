@@ -1845,6 +1845,10 @@
     <string name="whats_new_117_twoway_body">在双向同步中打开“同时同步删除”：在一侧删除的曲目，另一侧也会删除。在任一侧给播放列表改名，这一对同步都会跟上。</string>
     <string name="whats_new_117_server_title">为你自己的服务器带来更多</string>
     <string name="whats_new_117_server_body">新增 Lyrion 和 Mopidy 服务器（测试版）。带有 MusicBrainz 标签的文件可精确匹配，工具 › 我的服务器上缺少的歌曲会列出同步在那里没找到的歌曲。</string>
+    <string name="whats_new_117_library_title">你的音乐库也可以</string>
+    <string name="whats_new_117_library_body">工具 › 管理歌单和音乐库会在歌单上方列出保存的专辑、关注的艺人和播客：可以搜索、移除或导出。较长的移除在你离开页面后也会继续。</string>
+    <string name="whats_new_117_live_title">录音室版本，而非现场</string>
+    <string name="whats_new_117_live_body">在音乐节、session 或巡演中演唱的歌曲，或来自现场专辑的歌曲，不再替代录音室版本。之前这样匹配的歌曲会回到“待检查”：“更改”替换，“看起来没问题”保留。</string>
     <string name="whats_new_117_devices_title">一个同步，一台设备</string>
     <string name="whats_new_117_devices_body">在另一部手机上恢复的设置会让那里的定时同步保持关闭，避免重复运行。写入前会重新读取播放列表，被添加两次的曲目会在下次运行时删除。</string>
     <string name="whats_new_118_releases_title">艺人新发行</string>

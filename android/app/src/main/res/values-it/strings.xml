@@ -1877,6 +1877,10 @@
     <string name="whats_new_117_twoway_body">In una sync bidirezionale attiva Anche le rimozioni: un brano che togli da una parte viene tolto anche dall\'altra. Se rinomini una playlist da una delle due parti, la coppia si aggiorna.</string>
     <string name="whats_new_117_server_title">Di più per il tuo server</string>
     <string name="whats_new_117_server_body">Lyrion e Mopidy arrivano come server (beta). I file con tag MusicBrainz vengono abbinati con precisione, e Strumenti › Mancano sul mio server elenca i brani che le tue sync non hanno trovato lì.</string>
+    <string name="whats_new_117_library_title">Anche la tua libreria</string>
+    <string name="whats_new_117_library_body">Strumenti › Gestisci playlist e libreria mostra album salvati, artisti seguiti e podcast sopra le playlist: cercali, toglili o esportali. Una rimozione lunga continua anche se esci dalla schermata.</string>
+    <string name="whats_new_117_live_title">La versione in studio, non il concerto</string>
+    <string name="whats_new_117_live_body">Un brano suonato a un festival, in una session o in tour, o preso da un album dal vivo, non prende più il posto di quello in studio. Quelli abbinati così prima tornano in Da rivedere: Cambia li sostituisce, Va bene li tiene.</string>
     <string name="whats_new_117_devices_title">Una sync, un dispositivo</string>
     <string name="whats_new_117_devices_body">Una configurazione ripristinata su un altro telefono lì tiene spente le sync programmate, così non partono due volte. Una playlist viene riletta subito prima di scriverci, e un brano aggiunto due volte viene tolto all\'esecuzione successiva.</string>
     <string name="whats_new_118_releases_title">Nuove uscite dei tuoi artisti</string>

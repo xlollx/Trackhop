@@ -32,7 +32,9 @@ everything else to a family Discord channel, for example.
 ## What each one needs
 
 - **Telegram**: make a bot with @BotFather and paste its token; send the bot a message, then enter
-  your chat id (@userinfobot tells it).
+  your chat id (@userinfobot tells it). In the app, **Find my chat id** lists the chats that wrote to
+  the bot, newest first: tap one to fill it in. The test says plainly when the chat id is the bot's
+  own id, or when the bot was never started (open it in Telegram and tap Start).
 - **ntfy**: subscribe to a topic in the ntfy app and enter it; the server is ntfy.sh or your own.
   On ntfy.sh anyone who knows a topic can read it: pick one hard to guess, or use an access token
   for a protected topic.

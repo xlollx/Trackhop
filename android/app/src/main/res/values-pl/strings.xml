@@ -1943,6 +1943,10 @@
     <string name="whats_new_117_twoway_body">W synchronizacji dwukierunkowej włącz Także usunięcia: utwór usunięty po jednej stronie znika też po drugiej. Zmień nazwę playlisty po dowolnej stronie, a para za tym nadąży.</string>
     <string name="whats_new_117_server_title">Więcej dla twojego serwera</string>
     <string name="whats_new_117_server_body">Lyrion i Mopidy dołączają jako serwery (beta). Pliki z tagami MusicBrainz są dopasowywane dokładnie, a Narzędzia › Brakuje na moim serwerze pokazuje utwory, których twoje synchronizacje tam nie znalazły.</string>
+    <string name="whats_new_117_library_title">Także twoja biblioteka</string>
+    <string name="whats_new_117_library_body">Narzędzia › Zarządzaj playlistami i biblioteką pokazuje zapisane albumy, obserwowanych wykonawców i podcasty nad playlistami: wyszukaj, usuń lub wyeksportuj. Długie usuwanie trwa dalej, gdy wyjdziesz z ekranu.</string>
+    <string name="whats_new_117_live_title">Wersja studyjna, nie koncert</string>
+    <string name="whats_new_117_live_body">Utwór zagrany na festiwalu, w sesji lub w trasie albo z albumu koncertowego nie zastępuje już wersji studyjnej. Tak dopasowane wcześniej wracają do Do sprawdzenia: Zmień je podmienia, Wygląda dobrze zostawia.</string>
     <string name="whats_new_117_devices_title">Jedna synchronizacja, jedno urządzenie</string>
     <string name="whats_new_117_devices_body">Konfiguracja przywrócona na innym telefonie zostawia tam zaplanowane synchronizacje wyłączone, żeby nie działały podwójnie. Playlista jest czytana ponownie tuż przed zapisem, a utwór dodany dwa razy znika przy następnym przebiegu.</string>
     <string name="whats_new_118_releases_title">Nowości twoich artystów</string>

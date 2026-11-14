@@ -21,6 +21,15 @@ are not touched.
 track, the same ISRC, or the same title and artists), while a live or remixed version stays a song of
 its own, and removes the extra copies after you check the list.
 
+## Manage playlists and library
+
+*Tools → Manage playlists and library* lists your playlists on the service: rename or delete them,
+make them public or private where the service allows it, remove tracks, or export them. Above the
+playlists are your **saved albums**, **followed artists** and **podcasts**: tap one to search it and
+remove items, or export it from its menu. On YouTube Music, following an artist means subscribing to
+their channel, so removing an artist unsubscribes you from it. Removing many items carries on if you
+leave the screen: a progress bar shows how far it is, and the app tells you when it is done.
+
 ## And more
 
 - *Repeats across playlists*: the songs that sit in several playlists, and liked songs in none.

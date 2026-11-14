@@ -61,6 +61,12 @@ the songs that were in an older copy of a playlist and are missing from the newe
 quick way to search for them again. It only works if you back up now and then, which is one more
 reason to set the schedule.
 
+Playlists that change by themselves are left out: a daylist, Discover Weekly, a sync that follows
+the source's changes or keeps every track (archive), or one whose runs replace most of its songs.
+Their songs come and go by design. If a song removed by another such sync shows up, its **⋮** menu
+has **This playlist changes by itself**, which hides that sync's songs; **Show them** brings them
+back.
+
 ## Apple Music, YouTube Music and the others
 
 Backups work the same way on every service Trackhop connects to. A few notes:

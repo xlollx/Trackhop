@@ -62,6 +62,12 @@ brani che c'erano in una copia più vecchia di una playlist e mancano nella più
 rapido per cercarli di nuovo. Funziona solo se fai un backup ogni tanto: un motivo in più per
 impostare l'esecuzione automatica.
 
+Le playlist che cambiano da sole restano fuori: una daylist, Discover Weekly, una sync che segue i
+cambiamenti della sorgente o tiene ogni brano (archivio), o una le cui esecuzioni sostituiscono gran
+parte dei brani. Lì i brani vanno e vengono per natura. Se compare un brano tolto da un'altra sync
+così, il suo menu **⋮** ha **Questa playlist cambia da sola**, che nasconde i brani di quella sync;
+**Mostrali** li riporta.
+
 ## Apple Music, YouTube Music e gli altri
 
 Il backup funziona allo stesso modo su ogni servizio a cui Trackhop si collega. Qualche nota:

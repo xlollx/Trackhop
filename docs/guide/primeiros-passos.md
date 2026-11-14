@@ -48,12 +48,13 @@ sua escolha.
 ## Organizar
 
 - **Favoritas**: *⋮ → Adicionar às favoritas* dá uma estrela à sincronização, que fica no topo (desative em
-  Configurações › Aparência › Favoritas sempre no topo).
+  Configurações › Aparência › Estilo dos cartões › Favoritas sempre no topo).
 - **Rótulos e tags**: *⋮ → Estilo* escolhe a cor do cartão, e um nome para essa cor vira um rótulo; no editor,
-  as **Tags** agrupam do seu jeito (genero = metal). A pesquisa e os filtros acima da lista encontram as
-  sincronizações por nome, rótulo ou tag.
-- **Tamanho dos cartões** e **Visão mínima** (pequenos blocos em grade) em Configurações › Aparência; segure
-  um cartão e arraste para mudar a ordem.
+  as **Tags** agrupam do seu jeito (genero = metal). A pesquisa acima da lista aparece desde a primeira
+  sincronização, e os filtros a partir de cinco: encontram as sincronizações por nome, rótulo ou tag.
+- **Tamanho dos cartões** e **Visão mínima** (pequenos blocos em grade) em Configurações › Aparência ›
+  **Estilo dos cartões**, que reúne também cores, status e execuções anteriores nos cartões; segure um
+  cartão e arraste para mudar a ordem.
 
 No app, Configurações › Como fazer reúne guias curtos sobre tudo, com uma pesquisa no topo.
 

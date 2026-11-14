@@ -1844,6 +1844,10 @@
     <string name="whats_new_117_twoway_body">양방향 동기화에서 삭제도 동기화를 켜면 한쪽에서 지운 곡이 다른 쪽에서도 지워져요. 어느 쪽에서든 재생목록 이름을 바꾸면 짝도 따라가요.</string>
     <string name="whats_new_117_server_title">내 서버를 위한 더 많은 기능</string>
     <string name="whats_new_117_server_body">Lyrion과 Mopidy를 서버로 추가할 수 있어요 (베타). MusicBrainz 태그가 있는 파일은 정확히 매칭되고, 도구 › 내 서버에 없는 곡에서 동기화가 찾지 못한 곡을 볼 수 있어요.</string>
+    <string name="whats_new_117_library_title">보관함도</string>
+    <string name="whats_new_117_library_body">도구 › 플레이리스트와 보관함 관리에서 저장한 앨범, 팔로우한 아티스트, 팟캐스트가 플레이리스트 위에 보입니다. 검색, 삭제, 내보내기가 가능합니다. 긴 삭제는 화면을 나가도 계속됩니다.</string>
+    <string name="whats_new_117_live_title">공연이 아닌 스튜디오 버전</string>
+    <string name="whats_new_117_live_body">페스티벌, 세션, 투어에서 연주한 곡이나 라이브 앨범의 곡이 더 이상 스튜디오 버전을 대신하지 않습니다. 이전에 그렇게 매칭된 곡은 검토할 항목으로 돌아옵니다. 변경으로 바꾸고 맞아요로 유지합니다.</string>
     <string name="whats_new_117_devices_title">동기화 하나, 기기 하나</string>
     <string name="whats_new_117_devices_body">다른 휴대폰에 복원한 설정은 그곳의 예약 동기화를 꺼 두어 두 번 실행되지 않아요. 쓰기 직전에 재생목록을 다시 읽고, 두 번 추가된 곡은 다음 실행에서 지워져요.</string>
     <string name="whats_new_118_releases_title">아티스트의 신곡</string>

@@ -1877,6 +1877,10 @@
     <string name="whats_new_117_twoway_body">Schalte bei einem beidseitigen Sync „Auch Entfernungen“ ein: Ein Titel, den du auf einer Seite entfernst, verschwindet auch auf der anderen. Benennst du eine Playlist auf einer Seite um, zieht das Paar mit.</string>
     <string name="whats_new_117_server_title">Mehr für deinen eigenen Server</string>
     <string name="whats_new_117_server_body">Lyrion und Mopidy kommen als Server dazu (Beta). Dateien mit MusicBrainz-Tags werden genau zugeordnet, und Werkzeuge › Fehlt auf meinem Server zeigt die Titel, die deine Syncs dort nicht gefunden haben.</string>
+    <string name="whats_new_117_library_title">Auch deine Mediathek</string>
+    <string name="whats_new_117_library_body">Werkzeuge › Playlists und Mediathek verwalten zeigt gespeicherte Alben, gefolgte Künstler und Podcasts über den Playlists: suchen, entfernen oder exportieren. Ein langes Entfernen läuft weiter, wenn du den Bildschirm verlässt.</string>
+    <string name="whats_new_117_live_title">Die Studioversion, nicht das Konzert</string>
+    <string name="whats_new_117_live_body">Ein Song von einem Festival, einer Session oder einer Tour oder von einem Livealbum ersetzt nicht mehr die Studioversion. So zugeordnete Songs kommen unter Zu prüfen zurück: Ändern tauscht sie, Passt behält sie.</string>
     <string name="whats_new_117_devices_title">Ein Sync, ein Gerät</string>
     <string name="whats_new_117_devices_body">Eine auf einem anderen Handy wiederhergestellte Einrichtung lässt dort geplante Syncs ausgeschaltet, damit sie nicht doppelt laufen. Eine Playlist wird kurz vor dem Schreiben neu gelesen, und ein doppelt hinzugefügter Titel wird beim nächsten Lauf entfernt.</string>
     <string name="whats_new_118_releases_title">Neues von deinen Künstlern</string>

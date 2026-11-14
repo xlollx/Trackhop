@@ -65,12 +65,13 @@ ricorda la tua scelta.
 ## Mettere ordine
 
 - **Preferite**: *⋮ → Aggiungi alle preferite* dà una stella alla sync, che resta in cima (si spegne in
-  Opzioni › Aspetto › Preferite sempre in cima).
+  Opzioni › Aspetto › Stile delle card › Preferite sempre in cima).
 - **Etichette e tag**: *⋮ → Stile* sceglie il colore della scheda, e un nome a quel colore lo rende
-  un'etichetta; nell'editor, i **Tag** raggruppano le sync a modo tuo (genere = metal). Ricerca e filtri sopra
-  l'elenco trovano le sync per nome, etichetta o tag.
-- **Dimensione delle card** e **Vista minimal** (piccoli riquadri in griglia) in Opzioni › Aspetto; tieni
-  premuta una scheda e trascinala per cambiare l'ordine.
+  un'etichetta; nell'editor, i **Tag** raggruppano le sync a modo tuo (genere = metal). La ricerca sopra l'elenco
+  c'è dalla prima sync, i filtri da cinque sync in su: trovano le sync per nome, etichetta o tag.
+- **Dimensione delle card** e **Vista minimal** (piccoli riquadri in griglia) in Opzioni › Aspetto › **Stile
+  delle card**, che raccoglie anche colori, stato ed esecuzioni passate sulle card; tieni premuta una
+  scheda e trascinala per cambiare l'ordine.
 
 Nell'app, Opzioni › Come fare raccoglie guide brevi su tutto, con una ricerca in cima.
 

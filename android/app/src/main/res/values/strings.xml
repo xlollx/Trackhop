@@ -1878,6 +1878,10 @@
     <string name="whats_new_117_twoway_body">In a two-way sync, turn on Removals too: a track you remove on one side is removed on the other as well. Rename a playlist on either side and the pair keeps up.</string>
     <string name="whats_new_117_server_title">More for your own server</string>
     <string name="whats_new_117_server_body">Lyrion and Mopidy join as servers (beta). Files with MusicBrainz tags are matched exactly, and Tools › Missing on my server lists the songs your syncs couldn\'t find there.</string>
+    <string name="whats_new_117_library_title">Your library too</string>
+    <string name="whats_new_117_library_body">Tools › Manage playlists and library lists your saved albums, followed artists and podcasts above the playlists: search them, remove them or export them. A long removal goes on when you leave the screen.</string>
+    <string name="whats_new_117_live_title">The studio take, not the concert</string>
+    <string name="whats_new_117_live_body">A song played at a festival, a session or on tour, or taken from a live album, no longer stands in for the studio one. Songs matched that way before come back under To review: Change swaps them, Looks right keeps them.</string>
     <string name="whats_new_117_devices_title">One sync, one device</string>
     <string name="whats_new_117_devices_body">A set-up restored on another phone keeps its scheduled syncs off there, so they don\'t run twice. A playlist is read again just before it is written, and a track added twice is removed by the next run.</string>
     <string name="whats_new_118_releases_title">New releases of your artists</string>

@@ -14,8 +14,8 @@ more of them at once.
 In a sync's **⋮** menu, **Add to favourites** gives it a star. Starred syncs stay at the top of
 **Syncs**, and the **Favourites** filter shows only them.
 
-Prefer your own order? Turn off **Settings › Appearance › Favourites always on top**: starred syncs
-keep their star and the filter, and can go anywhere in the list.
+Prefer your own order? Turn off **Settings › Appearance › Card style › Favourites always on top**:
+starred syncs keep their star and the filter, and can go anywhere in the list.
 
 ## Colour labels
 
@@ -33,19 +33,31 @@ as you type, so the same tag is written the same way everywhere.
 
 ## Find a sync
 
-The search on **Syncs** finds a sync by its name, its services, its label or its tags; the filters
-narrow the list by status (to fix, errors, running…), service, colour, favourites or a tag. Case and accents
-don't matter.
+The search on **Syncs** finds a sync by its name, its services, its label or its tags; it is there
+from the first sync. From five syncs on, the filters narrow the list by status (to fix, errors,
+running…), service, colour, favourites or a tag. Case and accents don't matter.
 
 ## Order and size
 
 - **Reorder**: hold a card and drag it, or use **⋮ › Move to position…** (handy with TalkBack).
-- **Card size**: **Settings › Appearance › Card size** makes the cards Large, Medium or Small.
-- **Minimal view**: the syncs as small tiles in a grid, with their services, name and status. Tap a
-  tile for the whole card; hold it for its menu, or drag it to a new place.
+- **Card size**: **Settings › Appearance › Card style › Card size** makes the cards Large, Medium or
+  Small.
+- **Minimal view** (also in **Card style**): the syncs as small tiles in a grid, with their services,
+  name and status. Tap a tile for the whole card; hold it for its menu, or drag it to a new place.
 - **Tablets and phones on their side**: the tabs move to a rail on the side, the cards sit in two
   or three columns, and pages keep a readable width. What you were typing stays when you turn the
   screen.
+
+## Card style
+
+**Settings › Appearance › Card style** gathers how the sync cards look. Tap Card style to open it;
+each option you pick from shows a short explanation and a small example of each choice:
+
+- **Coloured sync cards**: how a sync with its own colour shows it.
+- **Service colours on cards**: a soft glow of the two services' colours in the card's corners.
+- **Sync status on cards**: where a card says how its last run went.
+- **Past runs on cards**: how a card shows its last runs (with changes, nothing new, or failed).
+- **Card size**, **Minimal view**, **Favourites always on top** and **New look**.
 
 The **Discover** tab can be arranged too: hold a card and drag it, and **Reset order** puts the
 default back. **Settings › Appearance › Images in Discover** turns its pictures off or keeps them to

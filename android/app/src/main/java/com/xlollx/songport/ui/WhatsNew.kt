@@ -133,6 +133,8 @@ object WhatsNew {
                     Item(Icons.Filled.SyncAlt, JobColor.TEAL, R.string.whats_new_117_twoway_title, R.string.whats_new_117_twoway_body),
                     Item(Icons.Filled.Devices, JobColor.PURPLE, R.string.whats_new_117_devices_title, R.string.whats_new_117_devices_body),
                     Item(Icons.Filled.Dns, JobColor.GREEN, R.string.whats_new_117_server_title, R.string.whats_new_117_server_body),
+                    Item(androidx.compose.material.icons.Icons.Filled.LibraryMusic, JobColor.TEAL, R.string.whats_new_117_library_title, R.string.whats_new_117_library_body),
+                    Item(androidx.compose.material.icons.Icons.Filled.Mic, JobColor.RED, R.string.whats_new_117_live_title, R.string.whats_new_117_live_body),
                     Item(Icons.Filled.Campaign, JobColor.ORANGE, R.string.whats_new_117_notify_title, R.string.whats_new_117_notify_body),
                     // The web sign-ins (YouTube Music, Spotify web) are built in only in the GitHub and F-Droid builds.
                     Item(Icons.Filled.Autorenew, JobColor.RED, R.string.whats_new_117_sessions_title, R.string.whats_new_117_sessions_body,
