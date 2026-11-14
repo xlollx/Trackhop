@@ -84,6 +84,7 @@ import com.xlollx.songport.sync.QuotaMeter
 import com.xlollx.songport.sync.ServiceReads
 import com.xlollx.songport.sync.SyncEngine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 
 /**
  * Cosa farebbe la sync, prima di farla: gia' presenti, da aggiungere, da rimuovere, non trovati,
@@ -112,10 +113,21 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
     // out the retries) and reads them as soon as the connection is back, or on Try again.
     val online = rememberOnline()
     var attempt by remember { mutableStateOf(0) }
+    // 1.18: the preview goes on when the page is left ([Previews]); the card says how far it is.
+    val background = com.xlollx.songport.Features.v2
+    val runs by Previews.state.collectAsState()
+    val bgRun = Previews.of(runs[job.id], job)?.takeIf { background }
+    LaunchedEffect(bgRun) {
+        bgRun ?: return@LaunchedEffect
+        progress = bgRun.progress; waitingFor = bgRun.waitingFor
+        bgRun.plan?.let { plan = it }
+        if (bgRun.error != null) error = bgRun.error
+    }
     LaunchedEffect(job.id, attempt, online) {
         if (plan != null) return@LaunchedEffect
         if (!online && com.xlollx.songport.sync.OfflineQueue.needsInternet(job)) { error = ctx.getString(R.string.net_offline); return@LaunchedEffect }
         error = null
+        if (background) { Previews.start(ctx.applicationContext, job, again = attempt > 0); return@LaunchedEffect }
         try { plan = engine.plan(job, { progress = it }, createTarget = false, interactive = true, onWait = { waitingFor = it }) }
         catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx) }
     }
@@ -143,6 +155,7 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                     onClick = {
                         if (p.removalsNeedConfirmation && confirmRemovals) store.confirmRemovals(job.id, p.toRemove.map { it.id })
                         if (p.targetShrunkFrom > 0 && confirmShrink) store.confirmTargetShrink(job.id)
+                        Previews.clear(job.id)
                         onRun(job)
                     },
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).heightIn(min = 52.dp),
@@ -391,6 +404,55 @@ private fun TrackList(title: String, tracks: List<Track>, accent: Color, first: 
             }
             if (!all && tracks.size > first) TextButton(onClick = { all = true }, modifier = Modifier.padding(start = 4.dp).heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.preview_more, tracks.size - first))
+            }
+        }
+    }
+}
+
+/**
+ * 1.18: previews that go on when their page is left, one per sync: the page shows the latest when it
+ * opens again, the sync's card says how far it is ("Preview 6/83") and, once done, that it is ready.
+ * A finished one is kept for half an hour; a changed sync, Try again or Run now start afresh.
+ */
+object Previews {
+    data class Run(
+        val job: SyncJob, val progress: Progress? = null, val waitingFor: ServiceReads.Reader? = null,
+        val plan: SyncPlan? = null, val error: String? = null, val at: Long = System.currentTimeMillis(),
+    ) {
+        val working: Boolean get() = plan == null && error == null
+    }
+
+    private const val KEEP_MS = 30 * 60_000L
+
+    /** [run] previews [job] as it is now: same lists, same matching and removals (a new colour or a run's date change nothing). */
+    fun of(run: Run?, job: SyncJob): Run? = run?.takeIf {
+        val a = it.job
+        a.source == job.source && a.target == job.target && a.policy == job.policy && a.mirrorRemovals == job.mirrorRemovals &&
+            a.twoWayRemovals == job.twoWayRemovals && a.ignoredSourceIds == job.ignoredSourceIds && a.keepOrder == job.keepOrder
+    }
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+    private val tasks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.Job>()
+    val state = kotlinx.coroutines.flow.MutableStateFlow<Map<String, Run>>(emptyMap())
+
+    private fun update(id: String, f: (Run) -> Run) = state.update { m -> m[id]?.let { m + (id to f(it)) } ?: m }
+
+    fun clear(id: String) { tasks.remove(id)?.cancel(); state.update { it - id } }
+
+    fun start(app: android.content.Context, job: SyncJob, again: Boolean = false) {
+        val now = state.value[job.id]
+        val fresh = of(now, job) != null && now != null && (now.working || (now.plan != null && System.currentTimeMillis() - now.at < KEEP_MS))
+        if (fresh && !(again && now?.error != null)) return
+        clear(job.id)
+        state.update { it + (job.id to Run(job)) }
+        tasks[job.id] = scope.launch {
+            try {
+                val plan = SyncEngine(app).plan(
+                    job, { p -> update(job.id) { it.copy(progress = p) } }, createTarget = false, interactive = true,
+                    onWait = { w -> update(job.id) { it.copy(waitingFor = w) } },
+                )
+                update(job.id) { it.copy(plan = plan, at = System.currentTimeMillis()) }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                update(job.id) { it.copy(error = e.userMessage(app), at = System.currentTimeMillis()) }
             }
         }
     }

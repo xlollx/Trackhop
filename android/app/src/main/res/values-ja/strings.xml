@@ -765,6 +765,9 @@
     <string name="pill_error">要確認</string>
     <string name="pill_never">未実行</string>
     <string name="pill_running">同期中</string>
+    <string name="pill_preview">プレビュー中…</string>
+    <string name="pill_preview_n">プレビュー %1$d/%2$d</string>
+    <string name="pill_preview_ready">プレビュー完了</string>
     <string name="connected">接続済み</string>
     <plurals name="hero_jobs">
         <item quantity="other">%d 件の同期を設定済み</item>

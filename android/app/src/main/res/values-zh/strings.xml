@@ -765,6 +765,9 @@
     <string name="pill_error">需要处理</string>
     <string name="pill_never">尚未运行</string>
     <string name="pill_running">正在同步</string>
+    <string name="pill_preview">预览中…</string>
+    <string name="pill_preview_n">预览 %1$d/%2$d</string>
+    <string name="pill_preview_ready">预览已就绪</string>
     <string name="connected">已连接</string>
     <plurals name="hero_jobs">
         <item quantity="other">已配置 %d 个同步</item>

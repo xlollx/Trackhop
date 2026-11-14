@@ -764,6 +764,9 @@
     <string name="pill_error">확인 필요</string>
     <string name="pill_never">아직 실행 안 함</string>
     <string name="pill_running">동기화 중</string>
+    <string name="pill_preview">미리보기…</string>
+    <string name="pill_preview_n">미리보기 %1$d/%2$d</string>
+    <string name="pill_preview_ready">미리보기 준비됨</string>
     <string name="connected">연결됨</string>
     <plurals name="hero_jobs">
         <item quantity="other">동기화 %d개 설정됨</item>

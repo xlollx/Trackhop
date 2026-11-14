@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
@@ -1012,6 +1013,15 @@ private fun statusInfo(
     val waiting by com.xlollx.songport.sync.OfflineQueue.waiting.collectAsState()
     if (run == null && com.xlollx.songport.sync.OfflineQueue.isWaiting(job.id, job.enabled, waiting))
         return CardStatusInfo(stringResource(R.string.pill_waiting_network), Tone.Neutral, Icons.Filled.CloudOff)
+    // 1.18: a preview going on with its page closed: how far, then "ready", a tap away.
+    val previews by Previews.state.collectAsState()
+    val preview = Previews.of(previews[job.id], job)?.takeIf { run == null && com.xlollx.songport.Features.v2 && it.error == null && (report == null || report.startedEpoch < it.at) }
+    if (preview != null) return if (preview.working) {
+        val p = preview.progress
+        val text = if (p != null && p.step == com.xlollx.songport.model.Progress.Step.MATCHING && p.total > 0)
+            stringResource(R.string.pill_preview_n, p.done, p.total) else stringResource(R.string.pill_preview)
+        CardStatusInfo(text, Tone.Accent, Icons.Filled.Visibility, live = true, onClick = { onPreview(job) })
+    } else CardStatusInfo(stringResource(R.string.pill_preview_ready), Tone.Accent, Icons.Filled.Visibility, onClick = { onPreview(job) })
     return when (cardStatus(run != null, job.enabled, report, run, radio = job.radio != null)) {
         CardStatus.RUNNING -> CardStatusInfo(stringResource(R.string.pill_running), Tone.Accent, Icons.Filled.Sync, live = true)
         CardStatus.PAUSING -> CardStatusInfo(stringResource(R.string.pill_pausing), Tone.Accent, Icons.Filled.Pause)

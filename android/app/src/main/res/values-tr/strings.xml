@@ -774,6 +774,9 @@
     <string name="pill_error">İlgilenilmeli</string>
     <string name="pill_never">Henüz çalışmadı</string>
     <string name="pill_running">Senkronize ediliyor</string>
+    <string name="pill_preview">Önizleme…</string>
+    <string name="pill_preview_n">Önizleme %1$d/%2$d</string>
+    <string name="pill_preview_ready">Önizleme hazır</string>
     <string name="connected">Bağlı</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d senkronizasyon yapılandırıldı</item>

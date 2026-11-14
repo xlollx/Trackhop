@@ -775,6 +775,9 @@
     <string name="pill_error">Bitte prüfen</string>
     <string name="pill_never">Noch nicht ausgeführt</string>
     <string name="pill_running">Synchronisiert</string>
+    <string name="pill_preview">Vorschau…</string>
+    <string name="pill_preview_n">Vorschau %1$d/%2$d</string>
+    <string name="pill_preview_ready">Vorschau fertig</string>
     <string name="connected">Verbunden</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d Sync eingerichtet</item>

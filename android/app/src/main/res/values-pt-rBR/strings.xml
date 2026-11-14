@@ -775,6 +775,9 @@
     <string name="pill_error">Precisa de atenção</string>
     <string name="pill_never">Ainda não executada</string>
     <string name="pill_running">Sincronizando</string>
+    <string name="pill_preview">Prévia…</string>
+    <string name="pill_preview_n">Prévia %1$d/%2$d</string>
+    <string name="pill_preview_ready">Prévia pronta</string>
     <string name="connected">Conectado</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d sincronização configurada</item>

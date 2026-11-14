@@ -796,6 +796,9 @@
     <string name="pill_error">Требует внимания</string>
     <string name="pill_never">Ещё не запускалась</string>
     <string name="pill_running">Синхронизация</string>
+    <string name="pill_preview">Предпросмотр…</string>
+    <string name="pill_preview_n">Предпросмотр %1$d/%2$d</string>
+    <string name="pill_preview_ready">Предпросмотр готов</string>
     <string name="connected">Подключено</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d синхронизация настроена</item>

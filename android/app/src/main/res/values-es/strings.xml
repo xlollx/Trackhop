@@ -775,6 +775,9 @@
     <string name="pill_error">Requiere atención</string>
     <string name="pill_never">Sin ejecutar</string>
     <string name="pill_running">Sincronizando</string>
+    <string name="pill_preview">Vista previa…</string>
+    <string name="pill_preview_n">Vista previa %1$d/%2$d</string>
+    <string name="pill_preview_ready">Vista previa lista</string>
     <string name="connected">Conectado</string>
     <plurals name="hero_jobs">
         <item quantity="one">%d sincronización configurada</item>
