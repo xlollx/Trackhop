@@ -1,1 +1,1 @@
-全新外观：新的页头、背景和重做的旧界面，平板和横屏手机也适用。为同步加星标，给颜色命名作色标，添加标签并筛选。双向同步会跟随删除和改名。新同步开始时没有目标；歌单选择器滚动顺畅。自己的服务器：MusicBrainz 匹配、Lyrion 和 Mopidy（测试版）、“我的服务器上缺少的”。YouTube Music 保持登录。修复 Spotify、YouTube、Jellyfin、Deezer、Navidrome、TIDAL 的问题。
+全新外观,平板和横屏也适用。星标、标签、标记和筛选。管理歌单和音乐库:专辑、关注的艺人、播客。不再用现场版代替录音室版本。离开应用不会关闭任何内容。双向同步也同步删除。自有服务器:MusicBrainz 匹配、Lyrion 和 Mopidy(测试版)、我的服务器缺少的歌曲。Telegram 自动查找 chat id。YouTube Music 保持登录。离线时等待并继续。修复 Spotify、YouTube、Deezer、TIDAL、Jellyfin、Nextcloud 的问题。
