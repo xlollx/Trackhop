@@ -443,6 +443,7 @@
     <string name="ai_cf_text">그림을 그리지 않는 AI여도 무료 Cloudflare 계정이 커버를 그립니다(FLUX). Account ID와 Workers AI 권한이 있는 API 토큰을 넣으세요. Trackhop은 먼저 Cloudflare에, 그다음 위의 AI에 요청합니다.</string>
     <string name="ai_cf_how">받는 방법</string>
     <string name="ai_cf_account">Cloudflare Account ID</string>
+    <string name="ai_cf_account_hint">dash.cloudflare.com에 로그인한 뒤 주소에 있는 32자 코드 또는 Workers & Pages › Account ID.</string>
     <string name="ai_cf_token">Cloudflare API 토큰</string>
     <string name="ai_free_hint">무료로 써 볼 수 있어요. Google Gemini와 Groq에는 무료 등급이 있고, OpenRouter에는 무료 모델(“:free”로 끝나는 것)이 있어요. 키는 제공자 사이트에서 1분이면 만들어요. Trackhop은 공용 키를 넣을 수 없어요. 오픈 소스 코드에 그대로 드러나 하루 만에 소진될 테니까요.</string>
     <string name="ai_badge_desc">내 AI가 작성</string>

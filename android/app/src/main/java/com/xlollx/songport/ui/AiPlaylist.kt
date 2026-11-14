@@ -672,7 +672,8 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
                             }
                             OutlinedTextField(
                                 value = cfAccount, onValueChange = { cfAccount = it }, singleLine = true,
-                                label = { Text(stringResource(R.string.ai_cf_account)) }, modifier = Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.ai_cf_account)) },
+                                supportingText = { Text(stringResource(R.string.ai_cf_account_hint)) }, modifier = Modifier.fillMaxWidth(),
                             )
                             OutlinedTextField(
                                 value = cfToken, onValueChange = { cfToken = it }, singleLine = true,

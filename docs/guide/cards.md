@@ -86,10 +86,19 @@ draws images with open models (Stable Diffusion, FLUX). Set it up as an OpenAI-c
 
 **Free, with any AI (from Trackhop 1.18):** a free Cloudflare account draws covers with FLUX.1
 schnell (Workers AI), even when your AI is Claude, Groq or OpenRouter. In the AI setup, under
-**Free covers with Cloudflare**, put the account's **Account ID** and an
-[API token](https://developers.cloudflare.com/workers-ai/get-started/rest-api/) with the Workers AI
-permission. Trackhop asks Cloudflare first and, if it refuses (the daily free allowance used up),
-the AI above when it draws.
+**Free covers with Cloudflare**, put two things from your Cloudflare account:
+
+1. **Account ID**: sign in at [dash.cloudflare.com](https://dash.cloudflare.com). The address in the
+   browser then reads `dash.cloudflare.com/` followed by a code of 32 letters and digits: that code is
+   the Account ID. It is also shown, with a copy button, on the **Workers & Pages** page, in the
+   column on the right.
+2. **API token**: in the dashboard, your profile (top right) › **API Tokens** › **Create Token**, then
+   the **Workers AI** template › **Continue to summary** › **Create Token**. Copy the token now:
+   Cloudflare shows it only once. Cloudflare's own steps:
+   [Workers AI REST API](https://developers.cloudflare.com/workers-ai/get-started/rest-api/).
+
+Trackhop asks Cloudflare first and, if it refuses (the daily free allowance used up), the AI above
+when it draws. The token stays encrypted on the phone, like the AI's key.
 
 It runs on your own key, so it may cost a few cents per picture. Only the playlist's title, its five
 most frequent artists and its description are sent, with a request for square cover art without

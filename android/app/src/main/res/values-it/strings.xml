@@ -449,6 +449,7 @@
     <string name="ai_cf_text">Anche con un\'AI che non disegna: un account Cloudflare gratuito disegna le copertine (FLUX). Metti il suo Account ID e un token API con il permesso Workers AI. Trackhop chiede prima a lui, poi all\'AI qui sopra.</string>
     <string name="ai_cf_how">Come ottenerli</string>
     <string name="ai_cf_account">Account ID Cloudflare</string>
+    <string name="ai_cf_account_hint">Dopo l\'accesso su dash.cloudflare.com, il codice di 32 caratteri nell\'indirizzo, oppure Workers & Pages › Account ID.</string>
     <string name="ai_cf_token">Token API Cloudflare</string>
     <string name="ai_free_hint">Gratis per provare: Google Gemini e Groq hanno un livello gratuito, OpenRouter ha modelli gratuiti (quelli che finiscono con “:free”). Una chiave si crea in un minuto sul sito del fornitore. Trackhop non può includere una chiave condivisa: sarebbe visibile nel codice open source e finirebbe in un giorno.</string>
     <string name="ai_badge_desc">Scritta dalla tua AI</string>

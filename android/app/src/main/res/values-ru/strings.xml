@@ -461,6 +461,7 @@
     <string name="ai_cf_text">Даже с ИИ, который не рисует: бесплатный аккаунт Cloudflare нарисует обложки (FLUX). Укажите его Account ID и API-токен с правом Workers AI. Trackhop сначала просит Cloudflare, потом ИИ выше.</string>
     <string name="ai_cf_how">Как их получить</string>
     <string name="ai_cf_account">Account ID Cloudflare</string>
+    <string name="ai_cf_account_hint">После входа на dash.cloudflare.com — код из 32 символов в адресе или Workers & Pages › Account ID.</string>
     <string name="ai_cf_token">API-токен Cloudflare</string>
     <string name="ai_free_hint">Попробовать бесплатно: у Google Gemini и Groq есть бесплатный тариф, у OpenRouter — бесплатные модели (с окончанием «:free»). Ключ создаётся за минуту на сайте провайдера. Trackhop не может поставлять общий ключ: он был бы виден в открытом исходном коде и исчерпан за день.</string>
     <string name="ai_badge_desc">Составлен вашим ИИ</string>
