@@ -437,6 +437,10 @@ open class FileStore(dir: File) {
         update { d -> d.copy(reviewDecisions = com.xlollx.songport.sync.ReviewDecisions.bounded(d.reviewDecisions + entries)) }
     }
 
+    /** The user settled this match in the review (kept it, or chose another): it is theirs. */
+    fun hasDecision(srcProvider: String, srcTrackId: String, dstProvider: String): Boolean =
+        data.reviewDecisions.containsKey(cacheKey(srcProvider, srcTrackId, dstProvider))
+
     /** The source tracks (of [srcProvider]) whose match on [dstProvider] is [dstTrackId]. */
     fun sourcesMatchedTo(srcProvider: String, dstProvider: String, dstTrackId: String): List<String> {
         val prefix = family(srcProvider) + ":"

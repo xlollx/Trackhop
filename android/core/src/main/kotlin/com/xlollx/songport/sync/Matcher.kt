@@ -68,7 +68,45 @@ object Matcher {
      * "(BBC Session)", "(Live Lounge)", "[MTV Unplugged]", "(On Tour)". Read in the subtitle only, so a
      * song called "Festival" or "Concerto" is not taken for one.
      */
-    private val CONCERT = Regex("""\b(festival|concerts?|sessions?|lounge|mtv|on tour|tour edition|on stage)\b""", RegexOption.IGNORE_CASE)
+    private val CONCERT = Regex(
+        """\b(festival|concerts?|sessions?|lounge|mtv|on tour|tour edition|on stage|en vivo|ao vivo|dal vivo|en directo|en concierto|en concert|in concert|konzert|live at|live from|live in|live on)\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /**
+     * An album recorded at a concert, by whole phrases only: "Live at Wembley", "MTV Unplugged in New
+     * York", "iTunes Festival: London 2011", "En Vivo", "(Live)". Never "Live Forever", "Live Through
+     * This", "Alive" (a word "live" alone, not followed by at/from/in/on, is a title). A collection
+     * ("Greatest Hits", "Best of", "Essential") is never one: it gathers songs of every kind.
+     */
+    private val LIVE_ALBUM = Regex(
+        """(^|[\s(\[:-])(live\s+(at|from|in|on)\b|\(live\)|\[live\]|-\s*live\s*$|unplugged|in concert|en concert|en concierto|en vivo|ao vivo|dal vivo|en directo|konzert|itunes festival|mtv\b|bbc sessions?|live lounge|on tour)""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val COLLECTION = Regex("""\b(greatest hits|best of|the best|essential|collection|anthology|hits)\b""", RegexOption.IGNORE_CASE)
+
+    /**
+     * [cand] is a live recording where [src] is not: "live" in its title or subtitle only, or a live
+     * album in place of a studio one. For matches made before these rules knew a concert.
+     */
+    fun liveInPlaceOf(src: Track, cand: Track): Boolean {
+        val neutral = setOf("remaster", "mono", "stereo")
+        val extra = (versionMarkers(cand.title) - neutral) - (versionMarkers(src.title) - neutral)
+        return "live" in extra || liveAlbumFactor(src.album, cand.album) < 1.0
+    }
+
+    fun albumIsLive(album: String): Boolean = album.isNotBlank() && LIVE_ALBUM.containsMatchIn(stripDiacritics(album))
+
+    /**
+     * A live album in place of the source's studio one: 0.75 (0.3 with "studio versions only"), so the
+     * studio take wins and a lone live one goes to the review instead of in. Nothing when the source's
+     * album is unknown, a collection, live itself, or the same album.
+     */
+    fun liveAlbumFactor(srcAlbum: String, candAlbum: String, policy: MatchPolicy = MatchPolicy()): Double {
+        if (srcAlbum.isBlank() || !albumIsLive(candAlbum) || albumIsLive(srcAlbum) || COLLECTION.containsMatchIn(srcAlbum)) return 1.0
+        if (normalizeTitle(srcAlbum) == normalizeTitle(candAlbum)) return 1.0
+        return if (policy.studioOnly) 0.3 else 0.75
+    }
 
     fun versionMarkers(title: String): Set<String> {
         val words = VERSION_MARKERS.findAll(stripDiacritics(title).lowercase()).map { m ->
@@ -348,7 +386,8 @@ object Matcher {
             if (pa != null && pa == pb && st == ct && artist >= 0.9 && near) max(d, 0.8) else d
         }
         return base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
-            albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
+            albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy) *
+            liveAlbumFactor(s.track.album, c.track.album, policy)
     }
 
     /**

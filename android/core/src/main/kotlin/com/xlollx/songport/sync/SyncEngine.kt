@@ -524,6 +524,10 @@ class SyncEngine(
         val unlistedAfterAdd = LinkedHashMap<String, Track>()
 
         val direct = sameAccount(job, src, dst)
+        // Matches remembered from before the rules knew a concert ("SING" found as "SING (iTunes
+        // Festival '11)"): asked about in the review, where Change swaps it and OK keeps it for good.
+        // Nothing leaves the target by itself.
+        val liveSuspects = ArrayList<MatchReview>()
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
             val key = FileStore.cacheKey(src.id, s.id, dstKey)
@@ -542,6 +546,8 @@ class SyncEngine(
                 matchedDstIds += found.id
                 newCache[key] = found.id
                 presentLinks[s.id] = found.id
+                if (cachedId == found.id && Matcher.liveInPlaceOf(s, found) && !store.hasDecision(src.id, s.id, dstKey))
+                    liveSuspects += MatchReview(s, found, Matcher.score(s, found, job.policy))
             } else if (linked != null) {
                 matchedDstIds += linked
                 presentLinks[s.id] = linked
@@ -561,7 +567,7 @@ class SyncEngine(
         // 2) ricerca dei mancanti
         val toAdd = LinkedHashMap<String, Track>()
         val unmatched = ArrayList<Track>()
-        val uncertain = ArrayList<MatchReview>()
+        val uncertain = ArrayList<MatchReview>(liveSuspects)
         var searched = 0
         val interrupted = searchMissing(src, dst, targetId, toSearch, job.policy, onProgress, direct) { s, found, score ->
             searched++

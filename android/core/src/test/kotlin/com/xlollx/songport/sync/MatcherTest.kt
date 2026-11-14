@@ -408,4 +408,34 @@ class Part57BoundsTest {
         // Both live: the same kind of version.
         assertEquals(1.0, Matcher.versionFactor("SING (Live)", "SING (iTunes Festival '11)"), 0.0)
     }
+
+    @Test fun aLiveAlbumLosesToTheStudioOneAndAloneGoesToTheReview() {
+        val sing = Track("s", "SING", listOf("My Chemical Romance"), "Danger Days: The True Lives of the Fabulous Killjoys", 299_000)
+        val live = Track("l", "SING", listOf("My Chemical Romance"), "iTunes Festival: London 2011", 290_000)
+        val studio = Track("t", "SING", listOf("My Chemical Romance"), "Danger Days: The True Lives of the Fabulous Killjoys", 299_000)
+        assertEquals("t", Matcher.best(sing, listOf(live, studio))?.id)
+        val alone = Matcher.score(sing, live)
+        assertTrue("$alone", alone < Matcher.DEFAULT_THRESHOLD)
+        assertNull("studio versions only: never the live one", Matcher.best(sing, listOf(live), policy = MatchPolicy(studioOnly = true)))
+    }
+
+    @Test fun aLiveAlbumIsKnownByWholePhrasesOnly() {
+        listOf("MTV Unplugged in New York", "Live at Wembley", "En Vivo", "iTunes Festival: London 2011", "Alive (Live)", "Konzert in Berlin")
+            .forEach { assertTrue(it, Matcher.albumIsLive(it)) }
+        listOf("Live Forever", "Live Through This", "Alive", "Festival", "Live and Let Die", "Danger Days", "")
+            .forEach { assertTrue(it, !Matcher.albumIsLive(it)) }
+        // The same live album on both sides, a live source, an unknown or collected source: nothing.
+        assertEquals(1.0, Matcher.liveAlbumFactor("Live at Leeds", "Live at Leeds"), 0.0)
+        assertEquals(1.0, Matcher.liveAlbumFactor("Live at Leeds", "Live at Wembley"), 0.0)
+        assertEquals(1.0, Matcher.liveAlbumFactor("", "Live at Wembley"), 0.0)
+        assertEquals(1.0, Matcher.liveAlbumFactor("Greatest Hits", "Live at Wembley"), 0.0)
+        assertEquals(0.75, Matcher.liveAlbumFactor("Danger Days", "Live at Wembley"), 0.0)
+    }
+
+    @Test fun concertsInOtherLanguagesAreLive() {
+        assertEquals(0.55, Matcher.versionFactor("Song", "Song (En Vivo)"), 0.0)
+        assertEquals(0.55, Matcher.versionFactor("Canzone", "Canzone - Dal Vivo"), 0.0)
+        assertEquals(1.0, Matcher.versionFactor("En Vivo", "En Vivo"), 0.0)
+        assertEquals(1.0, Matcher.versionFactor("Live Forever", "Live Forever - Remastered"), 0.0)
+    }
 }
