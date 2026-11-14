@@ -28,19 +28,21 @@ class CoverPromptTest {
     @Test
     fun promptCarriesTitleArtistsDescriptionAndTheRules() {
         val p = CoverPrompt.build("Metal & More", listOf("Metallica", "Avenged Sevenfold"), "  late night\n drive  ")
-        assertTrue(p.contains("\"Metal & More\""))
+        // The name as a theme, never quoted: image models write out quoted text.
+        assertFalse(p.contains("\""))
+        assertTrue(p.contains("inspired by: metal & more."))
         assertTrue(p.contains("Metallica, Avenged Sevenfold"))
-        assertTrue(p.contains("Mood and theme: late night drive."))
-        assertTrue(p.contains("No text"))
+        assertTrue(p.contains("Mood: late night drive."))
+        assertTrue(p.contains("without any typography"))
         assertTrue(p.contains("no real people's faces"))
-        assertTrue(p.startsWith("Square album cover art"))
+        assertTrue(p.startsWith("A wordless square illustration"))
     }
 
     @Test
     fun noDescriptionNoArtistsStillValid() {
         val p = CoverPrompt.build("Chill", emptyList())
         assertFalse(p.contains("sounds like"))
-        assertFalse(p.contains("Mood and theme"))
+        assertFalse(p.contains("Mood:"))
     }
 
     // ------------------------------------------------------------------ most played

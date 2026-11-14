@@ -107,12 +107,22 @@ object CoverPrompt {
         return "$title|$artist"
     }
 
+    /**
+     * The request for an AI cover. Image models write out any text they are given in quotes, and most
+     * ignore "no text" (FLUX among them): the playlist's name and description go in as a theme in lower
+     * case, never quoted, and the picture is asked for as a wordless illustration (owner, 14/11: the
+     * title and a garbled line of the description came out written on the cover). The poster prints
+     * the name itself.
+     */
     fun build(title: String, artists: List<String>, description: String = ""): String = buildString {
-        append("Square album cover art for a music playlist titled \"").append(title.trim().take(120)).append("\".")
+        fun theme(s: String) = s.replace(Regex("[\"“”«»'‘’]"), " ").replace(Regex("\\s+"), " ").trim().lowercase()
+        append("A wordless square illustration for a music album cover, pure imagery without any typography.")
+        val t = theme(title.take(120))
+        if (t.isNotEmpty()) append(" Visual theme inspired by: ").append(t).append('.')
         if (artists.isNotEmpty()) append(" The music sounds like ").append(artists.take(5).joinToString(", ") { it.take(60) }).append('.')
-        val d = description.trim().replace(Regex("\\s+"), " ").take(300)
-        if (d.isNotEmpty()) append(" Mood and theme: ").append(d).append('.')
+        val d = theme(description.take(300))
+        if (d.isNotEmpty()) append(" Mood: ").append(d).append('.')
         append(" Style: bold, modern, abstract, music-poster.")
-        append(" No text, no letters, no words, no logos, no brand marks, no real people's faces.")
+        append(" A clean image with blank space instead of any lettering, logos or brand marks; no real people's faces.")
     }
 }
