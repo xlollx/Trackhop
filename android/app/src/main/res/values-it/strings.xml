@@ -1591,6 +1591,9 @@
     <string name="discover_roast_again">Un altro roast</string>
     <string name="discover_roast_share_text">Condividi come testo</string>
     <string name="discover_vanished_intro">Quando fai il backup delle playlist (Strumenti › Backup), Trackhop ne conserva copie datate. Un brano presente in una copia più vecchia e assente dalla più recente da allora ha lasciato la playlist. Sono elencati anche i brani tolti da una sync con rimozioni.</string>
+    <string name="discover_vanished_rotating">Questa playlist cambia da sola</string>
+    <string name="discover_vanished_hidden">I brani delle Sync che hai segnato come «cambia da sola» non sono in lista.</string>
+    <string name="discover_vanished_show_hidden">Mostrali</string>
     <string name="discover_vanished_none">Non è sparito niente, per quanto dicono i tuoi backup. Fai il backup delle playlist ogni tanto e ricontrolla dopo che cambiano.</string>
     <string name="discover_vanished_backup">Fai il backup ora</string>
     <string name="discover_vanished_from">%1$s · visto l\'ultima volta il %2$s</string>

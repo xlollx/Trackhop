@@ -1653,6 +1653,9 @@
     <string name="discover_roast_again">Ещё одна прожарка</string>
     <string name="discover_roast_share_text">Поделиться текстом</string>
     <string name="discover_vanished_intro">Когда вы делаете резервную копию плейлистов (Инструменты › Резервная копия), Trackhop хранит копии с датами. Трек, который есть в более старой копии и отсутствует в новейшей, с тех пор покинул плейлист. Треки, удалённые зеркальной синхронизацией, тоже показаны.</string>
+    <string name="discover_vanished_rotating">Этот плейлист меняется сам</string>
+    <string name="discover_vanished_hidden">Треки синхронизаций, отмеченных как «меняется сам», скрыты.</string>
+    <string name="discover_vanished_show_hidden">Показать</string>
     <string name="discover_vanished_none">Судя по резервным копиям, ничего не пропало. Время от времени делайте копию плейлистов и заглядывайте сюда, когда они меняются.</string>
     <string name="discover_vanished_backup">Сделать копию сейчас</string>
     <string name="discover_vanished_from">%1$s · последний раз %2$s</string>

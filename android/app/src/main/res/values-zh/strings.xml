@@ -1560,6 +1560,9 @@
     <string name="discover_roast_again">再来一段</string>
     <string name="discover_roast_share_text">以文字分享</string>
     <string name="discover_vanished_intro">当你备份歌单时（工具 › 备份），Trackhop 会保留带日期的副本。在旧副本中存在、在最新副本中缺失的歌曲，就是之后离开了歌单的歌曲。镜像同步删除的歌曲也会列出。</string>
+    <string name="discover_vanished_rotating">这个歌单会自己变化</string>
+    <string name="discover_vanished_hidden">你标记为“会自己变化”的同步，其歌曲不在列表中。</string>
+    <string name="discover_vanished_show_hidden">显示</string>
     <string name="discover_vanished_none">从你的备份来看，没有歌曲消失。时不时备份一下歌单，等它们变化后再来看看。</string>
     <string name="discover_vanished_backup">立即备份</string>
     <string name="discover_vanished_from">%1$s · 最后出现于 %2$s</string>

@@ -1559,6 +1559,9 @@
     <string name="discover_roast_again">한 번 더</string>
     <string name="discover_roast_share_text">텍스트로 공유</string>
     <string name="discover_vanished_intro">플레이리스트를 백업하면(도구 › 백업) Trackhop이 날짜별 사본을 보관합니다. 예전 사본에는 있지만 최신 사본에는 없는 곡은 그 사이 플레이리스트에서 빠진 곡입니다. 미러 동기화가 삭제한 곡도 함께 표시됩니다.</string>
+    <string name="discover_vanished_rotating">이 플레이리스트는 저절로 바뀜</string>
+    <string name="discover_vanished_hidden">\'저절로 바뀜\'으로 표시한 동기화의 곡은 목록에서 뺐습니다.</string>
+    <string name="discover_vanished_show_hidden">보기</string>
     <string name="discover_vanished_none">백업 기준으로 사라진 곡은 없습니다. 가끔 플레이리스트를 백업하고 바뀌었을 때 다시 확인해 보세요.</string>
     <string name="discover_vanished_backup">지금 백업</string>
     <string name="discover_vanished_from">%1$s · 마지막 확인 %2$s</string>

@@ -1599,6 +1599,9 @@
     <string name="discover_roast_again">Un autre roast</string>
     <string name="discover_roast_share_text">Partager en texte</string>
     <string name="discover_vanished_intro">Quand tu sauvegardes tes playlists (Outils › Sauvegarde), Trackhop garde des copies datées. Un titre présent dans une copie plus ancienne et absent de la plus récente a quitté la playlist depuis. Les titres retirés par une synchro miroir sont listés aussi.</string>
+    <string name="discover_vanished_rotating">Cette playlist change toute seule</string>
+    <string name="discover_vanished_hidden">Les titres des synchros marquées « change toute seule » ne sont pas listés.</string>
+    <string name="discover_vanished_show_hidden">Les afficher</string>
     <string name="discover_vanished_none">Rien n\'a disparu, d\'après tes sauvegardes. Sauvegarde tes playlists de temps en temps et reviens voir quand elles changent.</string>
     <string name="discover_vanished_backup">Sauvegarder maintenant</string>
     <string name="discover_vanished_from">%1$s · vu pour la dernière fois le %2$s</string>

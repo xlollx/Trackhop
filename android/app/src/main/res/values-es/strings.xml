@@ -1599,6 +1599,9 @@
     <string name="discover_roast_again">Otro roast</string>
     <string name="discover_roast_share_text">Compartir como texto</string>
     <string name="discover_vanished_intro">Cuando haces copia de tus playlists (Herramientas › Copia de seguridad), Trackhop guarda copias con fecha. Una canción que está en una copia antigua y falta en la más reciente ha salido de la playlist desde entonces. También aparecen las canciones que quitó una sincronización con eliminaciones.</string>
+    <string name="discover_vanished_rotating">Esta playlist cambia sola</string>
+    <string name="discover_vanished_hidden">Las canciones de las sincronizaciones que marcaste como «cambia sola» no aparecen.</string>
+    <string name="discover_vanished_show_hidden">Mostrarlas</string>
     <string name="discover_vanished_none">No ha desaparecido nada, según tus copias. Haz copia de tus playlists de vez en cuando y vuelve a mirar cuando cambien.</string>
     <string name="discover_vanished_backup">Hacer copia ahora</string>
     <string name="discover_vanished_from">%1$s · vista por última vez el %2$s</string>

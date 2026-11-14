@@ -1589,6 +1589,9 @@
     <string name="discover_roast_again">Bir roast daha</string>
     <string name="discover_roast_share_text">Metin olarak paylaş</string>
     <string name="discover_vanished_intro">Çalma listelerini yedeklediğinde (Araçlar › Yedekleme), Trackhop tarihli kopyalar saklar. Eski bir kopyada olup en yenisinde olmayan bir şarkı o zamandan beri listeden çıkmıştır. Ayna eşitlemenin kaldırdığı şarkılar da listelenir.</string>
+    <string name="discover_vanished_rotating">Bu çalma listesi kendi kendine değişiyor</string>
+    <string name="discover_vanished_hidden">\"Kendi kendine değişiyor\" olarak işaretlediğin eşitlemelerin şarkıları gizli.</string>
+    <string name="discover_vanished_show_hidden">Göster</string>
     <string name="discover_vanished_none">Yedeklerine göre hiçbir şey kaybolmamış. Çalma listelerini ara sıra yedekle ve değiştiklerinde yeniden bak.</string>
     <string name="discover_vanished_backup">Şimdi yedekle</string>
     <string name="discover_vanished_from">%1$s · en son %2$s tarihinde görüldü</string>

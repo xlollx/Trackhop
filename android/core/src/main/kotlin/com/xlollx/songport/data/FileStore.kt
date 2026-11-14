@@ -85,6 +85,8 @@ data class Settings(
      * own), "all", or "off". A card's own choice (SyncJob.routeGlow) comes first.
      */
     val routeGlowMode: String = "plain",
+    /** Syncs whose removals Discover › Vanished songs leaves out: marked there as a playlist that changes by itself. */
+    val vanishedHiddenSyncs: Set<String> = emptySet(),
     /** The refreshed sync cards (big numbers, run history): on unless turned off in Appearance. */
     val newLook: Boolean = true,
     /** How big the sync cards are (CardSize key: "large", "medium", "small"); a phone on its side caps it. */

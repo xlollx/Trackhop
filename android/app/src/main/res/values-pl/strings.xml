@@ -1655,6 +1655,9 @@
     <string name="discover_roast_again">Kolejny roast</string>
     <string name="discover_roast_share_text">Udostępnij jako tekst</string>
     <string name="discover_vanished_intro">Gdy robisz kopię playlist (Narzędzia › Kopia zapasowa), Trackhop przechowuje kopie z datą. Utwór obecny w starszej kopii, a brakujący w najnowszej, od tego czasu opuścił playlistę. Wymienione są też utwory usunięte przez synchronizację lustrzaną.</string>
+    <string name="discover_vanished_rotating">Ta playlista zmienia się sama</string>
+    <string name="discover_vanished_hidden">Utwory synchronizacji oznaczonych jako „zmienia się sama” są ukryte.</string>
+    <string name="discover_vanished_show_hidden">Pokaż je</string>
     <string name="discover_vanished_none">Według kopii nic nie zniknęło. Rób czasem kopię playlist i zajrzyj tu znowu, gdy się zmienią.</string>
     <string name="discover_vanished_backup">Zrób kopię teraz</string>
     <string name="discover_vanished_from">%1$s · ostatnio widziany %2$s</string>

@@ -67,6 +67,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -867,7 +868,7 @@ private fun RoastQuote(pick: CardPick?, text: String, onShare: () -> Unit, onRep
 // --------------------------------------------------------------------------------- Vanished songs
 
 /** A song gone from a playlist, with where it was and when it was last there. */
-private class GoneRow(val track: Track, val where: String, val at: Long, val bySync: Boolean)
+private class GoneRow(val track: Track, val where: String, val at: Long, val bySync: Boolean, val jobId: String? = null)
 
 /**
  * "Vanished songs": what left the user's playlists, from what the phone already keeps: the dated
@@ -878,7 +879,8 @@ private class GoneRow(val track: Track, val where: String, val at: Long, val byS
 internal fun VanishedPage(onBackup: () -> Unit) {
     val ctx = LocalContext.current
     var rows by remember { mutableStateOf<List<GoneRow>?>(null) }
-    LaunchedEffect(Unit) {
+    val hiddenSyncs = Store.get(ctx).state.collectAsState().value.settings.vanishedHiddenSyncs
+    LaunchedEffect(hiddenSyncs) {
         rows = withContext(Dispatchers.IO) {
             val out = ArrayList<GoneRow>()
             val groups = runCatching { LocalFilesProvider.entries(ctx) }.getOrDefault(emptyList())
@@ -899,13 +901,18 @@ internal fun VanishedPage(onBackup: () -> Unit) {
             // Not those of a playlist that changes by itself (a daylist, Discover Weekly): there songs
             // come and go every day by design, nothing has vanished.
             val data = Store.get(ctx).data
-            val rotating = data.jobs.filter { it.followsChanges }.map { it.id }.toSet()
-            for (r in data.reports) if (r.jobId !in rotating) for (t in r.removedTracks) out += GoneRow(t, r.jobName, r.startedEpoch, bySync = true)
+            val rotating = Vanished.rotatingSyncs(data.jobs, data.reports, hiddenSyncs)
+            for (r in data.reports) if (r.jobId !in rotating) for (t in r.removedTracks) out += GoneRow(t, r.jobName, r.startedEpoch, bySync = true, jobId = r.jobId)
             out.distinctBy { Wrapped.key(it.track) + "|" + it.where }.sortedByDescending { it.at }.take(300)
         }
     }
 
     ToolIntro(stringResource(R.string.discover_vanished_intro))
+    // Syncs marked from here: said once, with the way to see their songs again.
+    if (hiddenSyncs.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.discover_vanished_hidden), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+        TextButton(onClick = { Store.get(ctx).updateSettings { it.copy(vanishedHiddenSyncs = emptySet()) } }) { Text(stringResource(R.string.discover_vanished_show_hidden)) }
+    }
     val list = rows
     val id = LocalToolIdentity.current
     when {
@@ -988,6 +995,21 @@ private fun GoneSong(g: GoneRow, date: String, loadCover: Boolean) {
             )
         }
         SearchOnMenu(g.track)
+        // Removed by a sync whose source renews itself: one tap leaves all its songs out of the list.
+        val job = g.jobId
+        if (g.bySync && job != null) {
+            val ctx = LocalContext.current
+            var open by remember { mutableStateOf(false) }
+            Box {
+                IconButton(onClick = { open = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
+                DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                    DropdownMenuItem(text = { Text(stringResource(R.string.discover_vanished_rotating)) }, onClick = {
+                        open = false
+                        Store.get(ctx).updateSettings { it.copy(vanishedHiddenSyncs = it.vanishedHiddenSyncs + job) }
+                    })
+                }
+            }
+        }
     }
 }
 

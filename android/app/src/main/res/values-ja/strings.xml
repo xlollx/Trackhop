@@ -1560,6 +1560,9 @@
     <string name="discover_roast_again">もう一回</string>
     <string name="discover_roast_share_text">テキストでシェア</string>
     <string name="discover_vanished_intro">プレイリストをバックアップすると（ツール › バックアップ）、Trackhop は日付付きのコピーを保存します。古いコピーにあって最新のコピーにない曲は、その後プレイリストから消えた曲です。ミラー同期で削除された曲も表示されます。</string>
+    <string name="discover_vanished_rotating">このプレイリストは自動で変わる</string>
+    <string name="discover_vanished_hidden">「自動で変わる」と指定した同期の曲は表示していません。</string>
+    <string name="discover_vanished_show_hidden">表示する</string>
     <string name="discover_vanished_none">バックアップによると、消えた曲はありません。ときどきプレイリストをバックアップし、変化があったらまた見てください。</string>
     <string name="discover_vanished_backup">今すぐバックアップ</string>
     <string name="discover_vanished_from">%1$s・最後に見たのは %2$s</string>

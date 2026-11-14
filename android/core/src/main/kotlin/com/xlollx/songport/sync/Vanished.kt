@@ -1,5 +1,7 @@
 package com.xlollx.songport.sync
 
+import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
 
 /**
@@ -21,6 +23,21 @@ object Vanished {
 
     /** A track gone from [playlist] (on [service], when known), last seen in the copy of [lastSeen]. */
     data class Gone(val track: Track, val playlist: String, val service: String?, val lastSeen: Long)
+
+    /** A run removing at least this many songs, and half of the source or more, is a playlist renewing itself. */
+    const val ROTATION_MIN = 5
+
+    /**
+     * The syncs whose removals are a playlist's own turnover, not songs gone: those set to follow a
+     * source that changes by itself or to keep every track, those the user marked from this list
+     * ([hidden]), and any (also one deleted since, known by its reports) with a run that took away
+     * half of its source or more: a daylist, Discover Weekly, Release Radar renewing itself.
+     */
+    fun rotatingSyncs(jobs: List<SyncJob>, reports: List<SyncReport>, hidden: Set<String> = emptySet()): Set<String> = buildSet {
+        jobs.filter { it.followsChanges || it.archive }.forEach { add(it.id) }
+        addAll(hidden)
+        reports.filter { it.sourceCount > 0 && it.removed >= ROTATION_MIN && it.removed * 2 >= it.sourceCount }.forEach { add(it.jobId) }
+    }
 
     /** A step between two copies losing at least this many songs, and over half of them, is a break. */
     const val BREAK_MIN_LOST = 10
