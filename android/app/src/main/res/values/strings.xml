@@ -2120,6 +2120,12 @@
     <string name="notify_channels_intro">Get a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something, fails, or finds new releases. Their keys stay encrypted on this phone and are never exported.</string>
     <string name="notify_channels_empty">No channels yet.</string>
     <string name="notify_channel_add">Add a channel</string>
+    <string name="notify_tg_find">Find my chat id</string>
+    <string name="notify_tg_find_none">No message to the bot yet: open your bot in Telegram, send it any message (or /start), then tap again.</string>
+    <string name="notify_tg_find_pick">Pick the chat:</string>
+    <string name="notify_tg_bot_id">This is the bot\'s own id: put yours (@userinfobot tells it) or the group\'s.</string>
+    <string name="notify_tg_start">Open your bot in Telegram and tap Start (or unblock it), then try again.</string>
+    <string name="notify_tg_find_failed">Telegram did not answer: %1$s</string>
     <string name="notify_channel_name">Name</string>
     <string name="notify_channel_events">Tell me when</string>
     <string name="notify_channel_enabled">On</string>

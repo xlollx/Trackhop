@@ -32,6 +32,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -114,7 +116,12 @@ fun NotifyChannelsScreen(onClose: () -> Unit) {
 
     fun test(c: Notify.Channel) = scope.launch {
         val error = withContext(Dispatchers.IO) { Notify.test(c) }
-        snackbar.showSnackbar(if (error == null) ctx.getString(R.string.notify_channel_test_ok, c.name) else ctx.getString(R.string.notify_channel_test_failed, c.name, error))
+        val hint = when (Notify.telegramHint(c, error)) {
+            Notify.TelegramHint.BOT_ID -> ctx.getString(R.string.notify_tg_bot_id)
+            Notify.TelegramHint.START_BOT -> ctx.getString(R.string.notify_tg_start)
+            null -> null
+        }
+        snackbar.showSnackbar(if (error == null) ctx.getString(R.string.notify_channel_test_ok, c.name) else hint ?: ctx.getString(R.string.notify_channel_test_failed, c.name, error))
     }
 
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
@@ -246,6 +253,10 @@ private fun ChannelEditor(
                         keyboardOptions = KeyboardOptions(keyboardType = if (f.secret) KeyboardType.Password else if (f.url) KeyboardType.Uri else KeyboardType.Text),
                     )
                 }
+                if (c.kind == Notify.Kind.TELEGRAM) TelegramChatHelp(
+                    token = values["token"].orEmpty().ifBlank { old?.value("token").orEmpty() },
+                    chat = values["chat"].orEmpty(),
+                ) { id -> setValue("chat", id); problem = null }
                 Text(stringResource(R.string.notify_channel_events), style = MaterialTheme.typography.titleSmall)
                 Notify.Event.entries.forEach { e ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -271,3 +282,42 @@ private fun ChannelEditor(
 
 /** The secrets typed in a channel's form, by channel id: kept while the app runs (never in Android's saved state), dropped on close. */
 private object ChannelDraft { val secrets = java.util.concurrent.ConcurrentHashMap<String, Map<String, String>>() }
+
+/**
+ * Telegram's chat id without leaving the app: "Find my chat id" reads the chats that wrote to the bot
+ * (getUpdates) and fills the field, or lists them to pick from; the bot's own id put there is said at once.
+ */
+@Composable
+private fun TelegramChatHelp(token: String, chat: String, onPick: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var finding by remember { mutableStateOf(false) }
+    var found by remember { mutableStateOf<List<Notify.TelegramChat>>(emptyList()) }
+    var note by remember { mutableStateOf<String?>(null) }
+    val bot = Notify.telegramBotId(token)
+    if (bot.isNotEmpty() && chat.trim() == bot) Text(stringResource(R.string.notify_tg_bot_id), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TextButton(enabled = token.isNotBlank() && !finding, onClick = {
+            finding = true; note = null; found = emptyList()
+            scope.launch {
+                val r = withContext(Dispatchers.IO) { Notify.telegramChats(token) }
+                finding = false
+                r.onSuccess { chats ->
+                    when (chats.size) {
+                        0 -> note = ctx.getString(R.string.notify_tg_find_none)
+                        1 -> onPick(chats.first().id)
+                        else -> found = chats
+                    }
+                }.onFailure { note = ctx.getString(R.string.notify_tg_find_failed, it.message.orEmpty()) }
+            }
+        }) { Text(stringResource(R.string.notify_tg_find)) }
+        if (finding) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+    }
+    note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    if (found.isNotEmpty()) {
+        Text(stringResource(R.string.notify_tg_find_pick), style = MaterialTheme.typography.bodySmall)
+        found.forEach { t ->
+            TextButton(onClick = { onPick(t.id); found = emptyList() }) { Text("${t.name} · ${t.id}") }
+        }
+    }
+}

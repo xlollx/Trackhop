@@ -2199,6 +2199,12 @@
     <string name="notify_channels_intro">Dostań wiadomość na Telegramie, ntfy, Gotify, Discordzie, Slacku, Matrixie lub Pushoverze, gdy synchronizacja coś zmieni, się nie uda albo znajdzie nowości. Klucze pozostają zaszyfrowane na tym telefonie i nigdy nie są eksportowane.</string>
     <string name="notify_channels_empty">Na razie brak kanałów.</string>
     <string name="notify_channel_add">Dodaj kanał</string>
+    <string name="notify_tg_find">Znajdź mój chat id</string>
+    <string name="notify_tg_find_none">Bot nie ma jeszcze wiadomości: otwórz swojego bota w Telegramie, wyślij mu dowolną wiadomość (lub /start) i dotknij ponownie.</string>
+    <string name="notify_tg_find_pick">Wybierz czat:</string>
+    <string name="notify_tg_bot_id">To id samego bota: wpisz swoje (poda je @userinfobot) albo grupy.</string>
+    <string name="notify_tg_start">Otwórz swojego bota w Telegramie i dotknij Start (lub odblokuj go), potem spróbuj ponownie.</string>
+    <string name="notify_tg_find_failed">Telegram nie odpowiedział: %1$s</string>
     <string name="notify_channel_name">Nazwa</string>
     <string name="notify_channel_events">Powiadom mnie, gdy</string>
     <string name="notify_channel_enabled">Włączony</string>

@@ -289,4 +289,28 @@ class NotifyTest {
         assertNull(env.tokens.get("notify:p1"))
         assertEquals(listOf("n1"), Notify.channels(env).map { it.id })
     }
+
+    /** "Find my chat id": the chats that wrote to the bot, newest first, groups with their negative id, the token never in an error. */
+    @Test fun findMyChatIdReadsTheChatsThatWroteToTheBot() {
+        mock.enqueue(MockResponse().setBody("""{"ok":true,"result":[
+            {"update_id":1,"message":{"chat":{"id":555,"first_name":"Alex","type":"private"},"text":"hi"}},
+            {"update_id":2,"message":{"chat":{"id":-100777,"title":"Band night","type":"supergroup"},"text":"/start"}},
+            {"update_id":3,"message":{"chat":{"id":555,"first_name":"Alex","type":"private"},"text":"again"}}]}"""))
+        val chats = Notify.telegramChats("42:TOKENPART").getOrThrow()
+        assertEquals(listOf("555", "-100777"), chats.map { it.id })
+        assertEquals("Band night", chats[1].name)
+        assertTrue(mock.takeRequest().path!!.endsWith("/bot42:TOKENPART/getUpdates"))
+        mock.enqueue(MockResponse().setResponseCode(401).setBody("""{"ok":false,"description":"Unauthorized"}"""))
+        val e = Notify.telegramChats("42:TOKENPART").exceptionOrNull()!!.message!!
+        assertTrue(e, "401" in e && "TOKENPART" !in e)
+    }
+
+    @Test fun theBotsOwnIdAsChatIdAndAnUnstartedBotAreSaidPlainly() {
+        val c = Notify.Channel("t", Notify.Kind.TELEGRAM, "Chat", true, Notify.Event.entries.toSet(), mapOf("token" to "123456:ABC", "chat" to "123456"))
+        assertEquals(Notify.TelegramHint.BOT_ID, Notify.telegramHint(c))
+        val ok = c.copy(values = mapOf("token" to "123456:ABC", "chat" to "999"))
+        assertEquals(null, Notify.telegramHint(ok))
+        assertEquals(Notify.TelegramHint.START_BOT, Notify.telegramHint(ok, "HTTP 400: Bad Request: chat not found"))
+        assertEquals(Notify.TelegramHint.BOT_ID, Notify.telegramHint(ok, "HTTP 403: Forbidden: the bot can't send messages to the bot"))
+    }
 }

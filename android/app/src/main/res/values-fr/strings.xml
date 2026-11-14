@@ -2127,6 +2127,12 @@
     <string name="notify_channels_intro">Reçois un message sur Telegram, ntfy, Gotify, Discord, Slack, Matrix ou Pushover quand une synchro change quelque chose, échoue ou trouve des nouveautés. Les clés restent chiffrées sur ce téléphone et ne sont jamais exportées.</string>
     <string name="notify_channels_empty">Aucun canal pour l\'instant.</string>
     <string name="notify_channel_add">Ajouter un canal</string>
+    <string name="notify_tg_find">Trouver mon chat id</string>
+    <string name="notify_tg_find_none">Aucun message au bot pour l\'instant : ouvre ton bot dans Telegram, envoie-lui un message (ou /start), puis touche à nouveau.</string>
+    <string name="notify_tg_find_pick">Choisis le chat :</string>
+    <string name="notify_tg_bot_id">C\'est l\'id du bot lui-même : mets le tien (@userinfobot te le donne) ou celui du groupe.</string>
+    <string name="notify_tg_start">Ouvre ton bot dans Telegram et touche Démarrer (ou débloque-le), puis réessaie.</string>
+    <string name="notify_tg_find_failed">Telegram n\'a pas répondu : %1$s</string>
     <string name="notify_channel_name">Nom</string>
     <string name="notify_channel_events">Préviens-moi quand</string>
     <string name="notify_channel_enabled">Activé</string>

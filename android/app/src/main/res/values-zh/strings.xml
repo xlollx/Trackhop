@@ -2080,6 +2080,12 @@
     <string name="notify_channels_intro">当同步有改动、失败或发现新发行时,通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 给你发消息。密钥加密保存在这部手机上,绝不会被导出。</string>
     <string name="notify_channels_empty">还没有渠道。</string>
     <string name="notify_channel_add">添加渠道</string>
+    <string name="notify_tg_find">查找我的 chat id</string>
+    <string name="notify_tg_find_none">机器人还没有收到消息：在 Telegram 中打开你的机器人，随便发一条消息（或 /start），然后再点一次。</string>
+    <string name="notify_tg_find_pick">选择聊天：</string>
+    <string name="notify_tg_bot_id">这是机器人自己的 id：请填写你的（@userinfobot 会告诉你）或群组的。</string>
+    <string name="notify_tg_start">在 Telegram 中打开你的机器人并点“开始”（或解除屏蔽），然后重试。</string>
+    <string name="notify_tg_find_failed">Telegram 没有回应：%1$s</string>
     <string name="notify_channel_name">名称</string>
     <string name="notify_channel_events">在这些时候通知我</string>
     <string name="notify_channel_enabled">开启</string>

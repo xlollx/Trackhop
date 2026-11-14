@@ -2117,6 +2117,12 @@
     <string name="notify_channels_intro">Bir senkronizasyon bir şeyi değiştirdiğinde, başarısız olduğunda ya da yeni çıkanlar bulduğunda Telegram, ntfy, Gotify, Discord, Slack, Matrix veya Pushover\'dan mesaj al. Anahtarlar bu telefonda şifreli kalır ve asla dışa aktarılmaz.</string>
     <string name="notify_channels_empty">Henüz kanal yok.</string>
     <string name="notify_channel_add">Kanal ekle</string>
+    <string name="notify_tg_find">Chat id\'mi bul</string>
+    <string name="notify_tg_find_none">Bota henüz mesaj gelmemiş: Telegram\'da botunu aç, ona herhangi bir mesaj (veya /start) gönder, sonra yeniden dokun.</string>
+    <string name="notify_tg_find_pick">Sohbeti seç:</string>
+    <string name="notify_tg_bot_id">Bu, botun kendi id\'si: kendi id\'ni (@userinfobot söyler) veya grubunkini yaz.</string>
+    <string name="notify_tg_start">Telegram\'da botunu aç ve Başlat\'a dokun (veya engelini kaldır), sonra yeniden dene.</string>
+    <string name="notify_tg_find_failed">Telegram yanıt vermedi: %1$s</string>
     <string name="notify_channel_name">Ad</string>
     <string name="notify_channel_events">Şu durumlarda haber ver</string>
     <string name="notify_channel_enabled">Açık</string>

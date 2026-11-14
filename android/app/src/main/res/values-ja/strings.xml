@@ -2080,6 +2080,12 @@
     <string name="notify_channels_intro">同期で変更があったとき、失敗したとき、新作が見つかったときに、Telegram、ntfy、Gotify、Discord、Slack、Matrix、Pushover にメッセージを送ります。キーはこのスマホに暗号化して保存され、エクスポートされることはありません。</string>
     <string name="notify_channels_empty">まだチャンネルはありません。</string>
     <string name="notify_channel_add">チャンネルを追加</string>
+    <string name="notify_tg_find">チャットIDを探す</string>
+    <string name="notify_tg_find_none">まだボットにメッセージがありません。Telegramでボットを開き、何かメッセージ（または /start）を送ってから、もう一度タップしてください。</string>
+    <string name="notify_tg_find_pick">チャットを選んでください：</string>
+    <string name="notify_tg_bot_id">これはボット自身のIDです。あなたのID（@userinfobot で確認）かグループのIDを入れてください。</string>
+    <string name="notify_tg_start">Telegramでボットを開いて「開始」をタップ（またはブロックを解除）してから、もう一度お試しください。</string>
+    <string name="notify_tg_find_failed">Telegramから応答がありません：%1$s</string>
     <string name="notify_channel_name">名前</string>
     <string name="notify_channel_events">通知するとき</string>
     <string name="notify_channel_enabled">オン</string>

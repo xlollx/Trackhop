@@ -450,6 +450,58 @@ object Notify {
         }
     }
 
-    /** "Send test": the result, said for a person. */
-    fun test(c: Channel): String? = send(c, TEST)
+    /** "Send test": the result, said for a person (with what to do, for Telegram's usual refusals). */
+    fun test(c: Channel): String? = send(c, TEST)?.let { e ->
+        when (telegramHint(c, e)) {
+            TelegramHint.BOT_ID -> "$e. The chat id is the bot's own: put yours (@userinfobot tells it) or the group's."
+            TelegramHint.START_BOT -> "$e. Open your bot in Telegram and tap Start (or unblock it), then try again."
+            null -> e
+        }
+    }
+
+    // ------------------------------------------------------------------ Telegram helpers
+
+    /** What to do about a Telegram channel, from its settings or a refusal ([error]); the app says it in its own words. */
+    enum class TelegramHint { BOT_ID, START_BOT }
+
+    /** The bot's own id: the number before the ":" of its token. */
+    fun telegramBotId(token: String): String = token.trim().substringBefore(':').takeIf { it.isNotEmpty() && it.all(Char::isDigit) }.orEmpty()
+
+    fun telegramHint(c: Channel, error: String? = null): TelegramHint? {
+        if (c.kind != Kind.TELEGRAM) return null
+        val bot = telegramBotId(c.value("token"))
+        val e = error.orEmpty().lowercase()
+        return when {
+            bot.isNotEmpty() && c.value("chat").trim() == bot -> TelegramHint.BOT_ID
+            "send messages to bot" in e || "messages to the bot" in e -> TelegramHint.BOT_ID
+            "blocked by the user" in e || "chat not found" in e || "bot was kicked" in e -> TelegramHint.START_BOT
+            else -> null
+        }
+    }
+
+    /** A chat that wrote to the bot: its id (negative for a group), its name and its kind ("private", "group", "channel"…). */
+    data class TelegramChat(val id: String, val name: String, val type: String)
+
+    /**
+     * The chats that wrote to the bot lately, newest first, from Telegram's getUpdates: what "Find my
+     * chat id" fills the field with. Empty when nobody wrote yet; an error when the token is refused
+     * or the bot delivers to a webhook (getUpdates then answers 409). The token never shows in an error.
+     */
+    fun telegramChats(token: String): Result<List<TelegramChat>> = runCatching {
+        val url = base(telegramApi).newBuilder().addPathSegment("bot" + token.trim()).addPathSegment("getUpdates").build()
+        client.newCall(Request.Builder().url(url).get().build()).execute().use { res ->
+            val body = res.body?.string().orEmpty()
+            if (!res.isSuccessful) throw IllegalStateException("HTTP ${res.code}" + (reason(body)?.let { ": $it" } ?: ""))
+            val updates = (Json.parseToJsonElement(body).jsonObject["result"] as? JsonArray).orEmpty()
+            updates.reversed().mapNotNull { u ->
+                val o = u.jsonObject
+                val msg = listOf("message", "channel_post", "my_chat_member", "edited_message").firstNotNullOfOrNull { o[it] as? JsonObject }
+                val chat = msg?.get("chat") as? JsonObject ?: return@mapNotNull null
+                fun str(k: String) = (chat[k] as? JsonPrimitive)?.contentOrNull
+                val id = str("id") ?: return@mapNotNull null
+                val name = str("title") ?: listOfNotNull(str("first_name"), str("last_name")).joinToString(" ").ifEmpty { str("username")?.let { "@$it" } ?: id }
+                TelegramChat(id, name, str("type").orEmpty())
+            }.distinctBy { it.id }
+        }
+    }.recoverCatching { throw IllegalStateException((it.message ?: it.javaClass.simpleName).replace(token.trim(), "…")) }
 }

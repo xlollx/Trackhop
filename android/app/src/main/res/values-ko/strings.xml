@@ -2079,6 +2079,12 @@
     <string name="notify_channels_intro">동기화가 무언가를 바꾸거나, 실패하거나, 신곡을 찾으면 Telegram, ntfy, Gotify, Discord, Slack, Matrix 또는 Pushover로 메시지를 받으세요. 키는 이 휴대폰에 암호화되어 저장되고 절대 내보내지지 않아요.</string>
     <string name="notify_channels_empty">아직 채널이 없어요.</string>
     <string name="notify_channel_add">채널 추가</string>
+    <string name="notify_tg_find">내 채팅 ID 찾기</string>
+    <string name="notify_tg_find_none">아직 봇에 온 메시지가 없습니다. 텔레그램에서 봇을 열고 아무 메시지(또는 /start)나 보낸 뒤 다시 누르세요.</string>
+    <string name="notify_tg_find_pick">채팅을 고르세요:</string>
+    <string name="notify_tg_bot_id">이것은 봇 자신의 ID입니다. 내 ID(@userinfobot이 알려 줌)나 그룹 ID를 넣으세요.</string>
+    <string name="notify_tg_start">텔레그램에서 봇을 열고 시작을 누르거나 차단을 해제한 뒤 다시 시도하세요.</string>
+    <string name="notify_tg_find_failed">텔레그램이 응답하지 않았습니다: %1$s</string>
     <string name="notify_channel_name">이름</string>
     <string name="notify_channel_events">알려 줄 때</string>
     <string name="notify_channel_enabled">켜짐</string>
