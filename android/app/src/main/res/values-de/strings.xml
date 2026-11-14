@@ -439,6 +439,12 @@
     <string name="ai_check">Testen</string>
     <string name="ai_checking">Modell wird ausprobiert…</string>
     <string name="ai_check_ok">Modell bereit</string>
+    <string name="ai_images_title">Cover von deiner KI</string>
+    <string name="ai_images_openai">OpenAI zeichnet Bilder nur mit Guthaben auf platform.openai.com (im Voraus bezahlt, getrennt von ChatGPT Plus oder Pro). Ohne Guthaben zeichnet Trackhop das Cover auf dem Handy.</string>
+    <string name="ai_images_gemini">Gemini zeichnet Bilder nur mit einem Schlüssel mit aktivierter Abrechnung in Google AI Studio: Gemini-AI-Plus- oder -Pro-Abos geben kein API-Kontingent. Ohne zeichnet Trackhop das Cover auf dem Handy.</string>
+    <string name="ai_images_custom">Trag unten das Bildmodell deines Servers ein. LocalAI und ähnliche Server zeichnen Bilder kostenlos auf deinem eigenen Computer.</string>
+    <string name="ai_images_none">%1$s zeichnet keine Bilder: Trackhop zeichnet das Cover auf dem Handy.</string>
+    <string name="ai_images_model_note">Das Modell oben ist für Texte; Cover nutzen das eigene Bildmodell des Anbieters.</string>
     <string name="ai_free_hint">Kostenlos zum Ausprobieren: Google Gemini und Groq haben eine Gratisstufe, OpenRouter hat kostenlose Modelle (die auf „:free“ enden). Ein Schlüssel ist in einer Minute auf der Website des Anbieters erstellt. Trackhop kann keinen gemeinsamen Schlüssel mitliefern: Er wäre im offenen Quellcode sichtbar und innerhalb eines Tages aufgebraucht.</string>
     <string name="ai_badge_desc">Von deiner KI geschrieben</string>
     <string name="ai_extend">Titel mit KI hinzufügen</string>

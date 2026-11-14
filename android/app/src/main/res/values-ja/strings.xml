@@ -433,6 +433,12 @@
     <string name="ai_check">テスト</string>
     <string name="ai_checking">モデルを試しています…</string>
     <string name="ai_check_ok">モデルを利用できます</string>
+    <string name="ai_images_title">AIが描くカバー</string>
+    <string name="ai_images_openai">OpenAIは platform.openai.com のクレジット（前払い、ChatGPT Plus/Proとは別）がある場合のみ画像を描きます。クレジットがなければ、Trackhopがスマホでカバーを描きます。</string>
+    <string name="ai_images_gemini">GeminiはGoogle AI Studioで課金を有効にしたキーでのみ画像を描きます。Gemini AI Plus/Proの契約ではAPIの枠はもらえません。なければTrackhopがスマホでカバーを描きます。</string>
+    <string name="ai_images_custom">下にサーバーの画像モデルを入れてください。LocalAIなどのサーバーなら自分のパソコンで無料で画像を描けます。</string>
+    <string name="ai_images_none">%1$sは画像を描きません。Trackhopがスマホでカバーを描きます。</string>
+    <string name="ai_images_model_note">上のモデルは文章用です。カバーには提供元の画像モデルを使います。</string>
     <string name="ai_free_hint">無料で試せます：Google Gemini と Groq には無料枠があり、OpenRouter には無料モデル（末尾が「:free」のもの）があります。キーは提供元のサイトで 1 分で作れます。Trackhop に共有キーを同梱することはできません。オープンソースのコードから見えてしまい、1 日で使い切られてしまいます。</string>
     <string name="ai_badge_desc">あなたの AI が作成</string>
     <string name="ai_extend">AI で曲を追加</string>

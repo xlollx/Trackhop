@@ -439,6 +439,12 @@
     <string name="ai_check">Tester</string>
     <string name="ai_checking">Essai du modèle…</string>
     <string name="ai_check_ok">Modèle prêt</string>
+    <string name="ai_images_title">Pochettes dessinées par ton IA</string>
+    <string name="ai_images_openai">OpenAI ne dessine des images qu\'avec du crédit sur platform.openai.com (prépayé, à part de ChatGPT Plus ou Pro). Sans crédit, Trackhop dessine la pochette sur le téléphone.</string>
+    <string name="ai_images_gemini">Gemini ne dessine des images qu\'avec une clé dont la facturation est activée dans Google AI Studio : les abonnements Gemini AI Plus ou Pro ne donnent pas de quota d\'API. Sans elle, Trackhop dessine la pochette sur le téléphone.</string>
+    <string name="ai_images_custom">Mets ci-dessous le modèle d\'images de ton serveur. LocalAI et les serveurs semblables dessinent des images gratuitement sur ton propre ordinateur.</string>
+    <string name="ai_images_none">%1$s ne dessine pas d\'images : Trackhop dessine la pochette sur le téléphone.</string>
+    <string name="ai_images_model_note">Le modèle ci-dessus sert aux textes ; les pochettes utilisent le modèle d\'images du fournisseur.</string>
     <string name="ai_free_hint">Gratuit pour essayer : Google Gemini et Groq ont une offre gratuite, OpenRouter a des modèles gratuits (ceux qui finissent par « :free »). Une clé se crée en une minute sur le site du fournisseur. Trackhop ne peut pas embarquer une clé partagée : elle serait visible dans le code open source et épuisée en un jour.</string>
     <string name="ai_badge_desc">Écrite par ton IA</string>
     <string name="ai_extend">Ajouter des titres avec l\'IA</string>

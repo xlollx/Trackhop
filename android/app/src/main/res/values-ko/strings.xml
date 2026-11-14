@@ -433,6 +433,12 @@
     <string name="ai_check">테스트</string>
     <string name="ai_checking">모델 확인 중…</string>
     <string name="ai_check_ok">모델 준비됨</string>
+    <string name="ai_images_title">AI가 그리는 커버</string>
+    <string name="ai_images_openai">OpenAI는 platform.openai.com 크레딧(선불, ChatGPT Plus·Pro와 별개)이 있을 때만 이미지를 그립니다. 크레딧이 없으면 Trackhop이 휴대폰에서 커버를 그립니다.</string>
+    <string name="ai_images_gemini">Gemini는 Google AI Studio에서 결제를 켠 키로만 이미지를 그립니다. Gemini AI Plus·Pro 구독으로는 API 할당량이 생기지 않습니다. 없으면 Trackhop이 휴대폰에서 커버를 그립니다.</string>
+    <string name="ai_images_custom">아래에 서버의 이미지 모델을 넣으세요. LocalAI 같은 서버는 내 컴퓨터에서 무료로 이미지를 그립니다.</string>
+    <string name="ai_images_none">%1$s은(는) 이미지를 그리지 않습니다. Trackhop이 휴대폰에서 커버를 그립니다.</string>
+    <string name="ai_images_model_note">위 모델은 글용입니다. 커버는 제공자의 이미지 모델을 씁니다.</string>
     <string name="ai_free_hint">무료로 써 볼 수 있어요. Google Gemini와 Groq에는 무료 등급이 있고, OpenRouter에는 무료 모델(“:free”로 끝나는 것)이 있어요. 키는 제공자 사이트에서 1분이면 만들어요. Trackhop은 공용 키를 넣을 수 없어요. 오픈 소스 코드에 그대로 드러나 하루 만에 소진될 테니까요.</string>
     <string name="ai_badge_desc">내 AI가 작성</string>
     <string name="ai_extend">AI로 곡 추가</string>

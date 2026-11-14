@@ -439,6 +439,12 @@
     <string name="ai_check">Testar</string>
     <string name="ai_checking">Testando o modelo…</string>
     <string name="ai_check_ok">Modelo pronto</string>
+    <string name="ai_images_title">Capas desenhadas pela sua IA</string>
+    <string name="ai_images_openai">A OpenAI desenha imagens só com crédito em platform.openai.com (pré-pago, separado do ChatGPT Plus ou Pro). Sem crédito, o Trackhop desenha a capa no celular.</string>
+    <string name="ai_images_gemini">O Gemini desenha imagens só com uma chave com faturamento ativado no Google AI Studio: as assinaturas Gemini AI Plus ou Pro não dão cota de API. Sem isso, o Trackhop desenha a capa no celular.</string>
+    <string name="ai_images_custom">Coloque abaixo o modelo de imagens do seu servidor. LocalAI e servidores parecidos desenham imagens de graça no seu próprio computador.</string>
+    <string name="ai_images_none">%1$s não desenha imagens: o Trackhop desenha a capa no celular.</string>
+    <string name="ai_images_model_note">O modelo acima é para textos; as capas usam o modelo de imagens do provedor.</string>
     <string name="ai_free_hint">Grátis para testar: Google Gemini e Groq têm um nível gratuito, o OpenRouter tem modelos gratuitos (os que terminam em “:free”). Uma chave leva um minuto no site do provedor. O Trackhop não pode incluir uma chave compartilhada: ela ficaria visível no código aberto e seria esgotada em um dia.</string>
     <string name="ai_badge_desc">Escrita pela sua AI</string>
     <string name="ai_extend">Adicionar faixas com AI</string>

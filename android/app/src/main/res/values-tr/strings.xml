@@ -439,6 +439,12 @@
     <string name="ai_check">Test et</string>
     <string name="ai_checking">Model deneniyor…</string>
     <string name="ai_check_ok">Model hazır</string>
+    <string name="ai_images_title">Yapay zekânın çizdiği kapaklar</string>
+    <string name="ai_images_openai">OpenAI yalnızca platform.openai.com\'da kredi varsa (ön ödemeli, ChatGPT Plus veya Pro\'dan ayrı) görsel çizer. Kredi yoksa Trackhop kapağı telefonda çizer.</string>
+    <string name="ai_images_gemini">Gemini yalnızca Google AI Studio\'da faturalandırması açık bir anahtarla görsel çizer: Gemini AI Plus veya Pro abonelikleri API kotası vermez. Yoksa Trackhop kapağı telefonda çizer.</string>
+    <string name="ai_images_custom">Sunucunun görsel modelini aşağıya yaz. LocalAI ve benzeri sunucular kendi bilgisayarında ücretsiz görsel çizer.</string>
+    <string name="ai_images_none">%1$s görsel çizmez: Trackhop kapağı telefonda çizer.</string>
+    <string name="ai_images_model_note">Yukarıdaki model metin içindir; kapaklar sağlayıcının kendi görsel modelini kullanır.</string>
     <string name="ai_free_hint">Ücretsiz deneyin: Google Gemini ve Groq\'un ücretsiz katmanı, OpenRouter\'ın ücretsiz modelleri (“:free” ile bitenler) var. Sağlayıcının sitesinde anahtar almak bir dakika sürer. Trackhop ortak bir anahtar sunamaz: açık kaynak kodda görünür ve bir gün içinde tükenirdi.</string>
     <string name="ai_badge_desc">Yapay zekanız tarafından yazıldı</string>
     <string name="ai_extend">Yapay zeka ile parça ekle</string>

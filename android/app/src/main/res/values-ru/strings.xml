@@ -451,6 +451,12 @@
     <string name="ai_check">Проверить</string>
     <string name="ai_checking">Проверка модели…</string>
     <string name="ai_check_ok">Модель готова</string>
+    <string name="ai_images_title">Обложки от вашего ИИ</string>
+    <string name="ai_images_openai">OpenAI рисует изображения только при наличии кредита на platform.openai.com (предоплата, отдельно от ChatGPT Plus или Pro). Без кредита Trackhop рисует обложку на телефоне.</string>
+    <string name="ai_images_gemini">Gemini рисует изображения только с ключом, для которого в Google AI Studio включена оплата: подписки Gemini AI Plus или Pro не дают квоты API. Без этого Trackhop рисует обложку на телефоне.</string>
+    <string name="ai_images_custom">Укажите ниже модель изображений вашего сервера. LocalAI и похожие серверы рисуют изображения бесплатно на вашем компьютере.</string>
+    <string name="ai_images_none">%1$s не рисует изображения: Trackhop рисует обложку на телефоне.</string>
+    <string name="ai_images_model_note">Модель выше — для текста; обложки рисует модель изображений поставщика.</string>
     <string name="ai_free_hint">Попробовать бесплатно: у Google Gemini и Groq есть бесплатный тариф, у OpenRouter — бесплатные модели (с окончанием «:free»). Ключ создаётся за минуту на сайте провайдера. Trackhop не может поставлять общий ключ: он был бы виден в открытом исходном коде и исчерпан за день.</string>
     <string name="ai_badge_desc">Составлен вашим ИИ</string>
     <string name="ai_extend">Добавить треки с помощью ИИ</string>

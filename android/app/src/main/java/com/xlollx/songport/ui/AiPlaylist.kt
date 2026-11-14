@@ -637,6 +637,24 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
+                // Covers: what this provider needs to draw them, said before anyone meets a 429.
+                Spacer(Modifier.height(8.dp))
+                androidx.compose.material3.Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(stringResource(R.string.ai_images_title), style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            when (vendor) {
+                                AiClient.Vendor.OPENAI -> stringResource(R.string.ai_images_openai)
+                                AiClient.Vendor.GEMINI -> stringResource(R.string.ai_images_gemini)
+                                AiClient.Vendor.CUSTOM -> stringResource(R.string.ai_images_custom)
+                                else -> stringResource(R.string.ai_images_none, vendor.label)
+                            },
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (vendor == AiClient.Vendor.OPENAI || vendor == AiClient.Vendor.GEMINI)
+                            Text(stringResource(R.string.ai_images_model_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
                 checkResult?.let { r ->
                     if (r.isEmpty()) Text(stringResource(R.string.ai_check_ok), color = Tones.onSuccessContainer(), style = MaterialTheme.typography.bodySmall)
                     else Text(r, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)

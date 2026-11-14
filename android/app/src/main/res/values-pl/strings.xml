@@ -451,6 +451,12 @@
     <string name="ai_check">Testuj</string>
     <string name="ai_checking">Próba modelu…</string>
     <string name="ai_check_ok">Model gotowy</string>
+    <string name="ai_images_title">Okładki rysowane przez twoją AI</string>
+    <string name="ai_images_openai">OpenAI rysuje obrazy tylko z kredytem na platform.openai.com (przedpłaconym, osobno od ChatGPT Plus lub Pro). Bez kredytu Trackhop rysuje okładkę na telefonie.</string>
+    <string name="ai_images_gemini">Gemini rysuje obrazy tylko z kluczem z włączonymi płatnościami w Google AI Studio: subskrypcje Gemini AI Plus lub Pro nie dają limitu API. Bez tego Trackhop rysuje okładkę na telefonie.</string>
+    <string name="ai_images_custom">Wpisz poniżej model obrazów swojego serwera. LocalAI i podobne serwery rysują obrazy za darmo na twoim komputerze.</string>
+    <string name="ai_images_none">%1$s nie rysuje obrazów: Trackhop rysuje okładkę na telefonie.</string>
+    <string name="ai_images_model_note">Model powyżej służy do tekstów; okładki używają modelu obrazów dostawcy.</string>
     <string name="ai_free_hint">Można wypróbować za darmo: Google Gemini i Groq mają bezpłatny plan, OpenRouter ma bezpłatne modele (te z końcówką „:free”). Klucz tworzy się w minutę na stronie dostawcy. Trackhop nie może dołączyć wspólnego klucza: byłby widoczny w otwartym kodzie źródłowym i wyczerpany w ciągu dnia.</string>
     <string name="ai_badge_desc">Napisana przez twoją AI</string>
     <string name="ai_extend">Dodaj utwory z AI</string>

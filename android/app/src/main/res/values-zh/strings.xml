@@ -433,6 +433,12 @@
     <string name="ai_check">测试</string>
     <string name="ai_checking">正在试用模型…</string>
     <string name="ai_check_ok">模型可用</string>
+    <string name="ai_images_title">由你的 AI 绘制封面</string>
+    <string name="ai_images_openai">OpenAI 只有在 platform.openai.com 上有额度（预付费，与 ChatGPT Plus 或 Pro 分开）时才能画图。没有额度时，Trackhop 会在手机上绘制封面。</string>
+    <string name="ai_images_gemini">Gemini 只有在 Google AI Studio 中开启了计费的密钥才能画图：Gemini AI Plus 或 Pro 订阅不提供 API 配额。没有的话，Trackhop 会在手机上绘制封面。</string>
+    <string name="ai_images_custom">请在下面填写你服务器的图像模型。LocalAI 等服务器可以在你自己的电脑上免费画图。</string>
+    <string name="ai_images_none">%1$s 不能画图：Trackhop 会在手机上绘制封面。</string>
+    <string name="ai_images_model_note">上面的模型用于文字；封面使用服务商自己的图像模型。</string>
     <string name="ai_free_hint">免费试用：Google Gemini 和 Groq 有免费额度，OpenRouter 有免费模型（以“:free”结尾的）。在提供方网站上一分钟即可创建密钥。Trackhop 无法内置共享密钥：它会在开源代码中暴露，并在一天内被用完。</string>
     <string name="ai_badge_desc">由你的 AI 生成</string>
     <string name="ai_extend">用 AI 添加歌曲</string>
