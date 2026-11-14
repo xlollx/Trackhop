@@ -811,15 +811,22 @@ class SyncEngine(
         val unmatched = ArrayList<Track>()
         val uncertain = ArrayList<MatchReview>()
         val newCache = HashMap<String, String>()
-        searchMissing(src, dst, null, srcTracks, job.policy, onProgress, sameAccount(job, src, dst)) { s, found, score ->
-            if (found != null) {
-                toAdd[found.id] = found
-                // Unsure matches stay out of the cache: the run reviews them unless the preview settles them.
-                if (score != null && score < job.policy.reviewThreshold) uncertain += MatchReview(s, found, score)
-                else newCache[FileStore.cacheKey(src.id, s.id, dst.id)] = found.id
-            } else unmatched += s
+        // Kept as it goes and when the preview is left half way: the sync then starts from what was found.
+        try {
+            searchMissing(src, dst, null, srcTracks, job.policy, onProgress, sameAccount(job, src, dst)) { s, found, score ->
+                if (found != null) {
+                    toAdd[found.id] = found
+                    // Unsure matches stay out of the cache: the run reviews them unless the preview settles them.
+                    if (score != null && score < job.policy.reviewThreshold) uncertain += MatchReview(s, found, score)
+                    else {
+                        newCache[FileStore.cacheKey(src.id, s.id, dst.id)] = found.id
+                        if (newCache.size % 25 == 0) store.putMatches(HashMap(newCache))
+                    }
+                } else unmatched += s
+            }
+        } finally {
+            store.putMatches(newCache)
         }
-        store.putMatches(newCache)
         return SyncPlan(
             targetPlaylistId = "", sourceCount = srcTracks.size, alreadyPresent = 0,
             toAdd = toAdd.values.toList(), toRemove = emptyList(), unmatched = unmatched,
