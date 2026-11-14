@@ -561,7 +561,23 @@ internal enum class PosterArt(val label: Int, val style: GeneratedCovers.Style? 
 }
 
 /** The picture chosen for "Your image", kept while the app runs (a bitmap does not go in saved state). */
-internal object PosterOwnArt { @Volatile var bitmap: Bitmap? = null }
+internal object PosterOwnArt {
+    @Volatile var bitmap: Bitmap? = null
+    /** The cover request of a playlist (provider|id), from what is in it: read once while the app runs. */
+    val prompts = java.util.concurrent.ConcurrentHashMap<String, String>()
+}
+
+/** The cover request for [p]: its name and description, its main artists, some of its songs, its years. */
+internal suspend fun playlistCoverPrompt(ctx: android.content.Context, p: CardPick, tracks: List<com.xlollx.songport.model.Track>? = null, description: String? = null): String {
+    val key = p.provider.id + "|" + p.playlist.id
+    if (tracks == null) PosterOwnArt.prompts[key]?.let { return it }
+    val list = tracks ?: withContext(Dispatchers.IO) { runCatching { p.provider.tracks(ctx, p.playlist.id) }.getOrDefault(emptyList()) }
+    val desc = description ?: if (MusicProvider.isLibrary(p.playlist.id)) "" else
+        withContext(Dispatchers.IO) { runCatching { p.provider.playlistInfo(ctx, p.playlist.id).description }.getOrNull() }.orEmpty()
+    val title = p.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }
+    return CoverPrompt.build(title, CoverPrompt.topArtists(list), desc, CoverPrompt.sampleSongs(list), CoverPrompt.decades(list))
+        .also { if (list.isNotEmpty()) PosterOwnArt.prompts[key] = it }
+}
 
 /** How the poster is laid out ([PosterPalette.Layout]), with its name. */
 private val posterLayouts = listOf(
@@ -693,7 +709,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                             // still made, with a cover drawn on the phone, and the reason is said once.
                             val drawnByAi = aiCovers[key] ?: try {
                                 drawing = true
-                                val prompt = CoverPrompt.build(title, artists, info.description)
+                                val prompt = CoverPrompt.build(title, artists, info.description, CoverPrompt.sampleSongs(tracks), CoverPrompt.decades(tracks))
                                 val bytes = AiClient.drawCover(ctx.env, ai, prompt)
                                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
                                     ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
@@ -758,7 +774,9 @@ fun PosterCard(snackbar: SnackbarHostState) {
     val setup: @Composable () -> Unit = {
         PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", compact = true) { pick = it; bitmaps = null; printed = null; drawn = null; variant = 0; error = null }
         ToolSection(stringResource(R.string.card_cover_title)) {
-            CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy, onOwnPicked = { bmp ->
+            CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy, ownPrompt = {
+                pick?.let { playlistCoverPrompt(ctx, it) } ?: CoverPrompt.build(pick?.playlist?.name.orEmpty(), emptyList())
+            }, onOwnPicked = { bmp ->
                 PosterOwnArt.bitmap = bmp; bitmaps = null; printed = null; drawn = null
                 if (pick != null) run()
             }) {
@@ -907,6 +925,7 @@ private fun AllArtists(names: List<String>) {
 @Composable
 private fun CoverArtChoice(
     selected: PosterArt, title: String, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean,
+    ownPrompt: suspend () -> String = { com.xlollx.songport.sync.CoverPrompt.build(title, emptyList()) },
     onOwnPicked: (Bitmap) -> Unit = {}, onChange: (PosterArt) -> Unit,
 ) {
     val aiOk = ai != null && support == AiClient.ImageSupport.YES
@@ -935,7 +954,7 @@ private fun CoverArtChoice(
             }
         }
         if (selected == PosterArt.OWN) {
-            OwnImagePanel({ com.xlollx.songport.sync.CoverPrompt.build(title, emptyList()) }, enabled, onOwnPicked)
+            OwnImagePanel(ownPrompt, enabled, onOwnPicked)
             return@Column
         }
         val note = when {

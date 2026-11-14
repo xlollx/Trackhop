@@ -702,6 +702,8 @@ internal enum class RoastArt(val label: Int) {
 internal class RoastParts(
     val playlistId: String, val title: String, val text: String, val own: Bitmap?, val covers: List<Bitmap>,
     val artistsLine: String?, val artists: List<String>, var aiArt: Bitmap? = null, var ownArt: Bitmap? = null,
+    /** For the cover request: some of its songs and its years. */
+    val songs: List<String> = emptyList(), val decades: String? = null,
 )
 
 /** The 1.18 cards of [parts] in [style] with [art], in every format. */
@@ -799,6 +801,7 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                         p.playlist.id, name, text, own, mosaic,
                         names.takeIf { it.isNotEmpty() }?.let { ctx.getString(if (played.isNotEmpty()) R.string.roast_top_played else R.string.roast_top_present, it.joinToString(", ")) },
                         names,
+                        songs = com.xlollx.songport.sync.CoverPrompt.sampleSongs(tracks), decades = com.xlollx.songport.sync.CoverPrompt.decades(tracks),
                     )
                     RoastKept.parts = parts
                     if (RoastKept.art == RoastArt.AI) RoastKept.art = RoastArt.ARTISTS
@@ -894,7 +897,7 @@ private fun RoastChoices(ai: AiClient.Config?, snackbar: SnackbarHostState) {
             if (art == RoastArt.AI && parts.aiArt == null && ai != null) {
                 RoastKept.drawingAi = true
                 try {
-                    val bytes = AiClient.drawCover(ctx.env, ai, com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, ""))
+                    val bytes = AiClient.drawCover(ctx.env, ai, com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, "", parts.songs, parts.decades))
                     parts.aiArt = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 } catch (e: CancellationException) { throw e } catch (e: Exception) {
                     snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed_drawn, e.userMessage(ctx)), withDismissAction = true)
@@ -917,7 +920,7 @@ private fun RoastChoices(ai: AiClient.Config?, snackbar: SnackbarHostState) {
         }
     }
     // Made with the user's own ChatGPT or Gemini (or any picture of theirs): chosen, then drawn on the card.
-    if (RoastKept.art == RoastArt.OWN) OwnImagePanel({ com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, "") }, enabled = true) { bmp ->
+    if (RoastKept.art == RoastArt.OWN) OwnImagePanel({ com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, "", parts.songs, parts.decades) }, enabled = true) { bmp ->
         parts.ownArt = bmp; redraw()
     }
 }

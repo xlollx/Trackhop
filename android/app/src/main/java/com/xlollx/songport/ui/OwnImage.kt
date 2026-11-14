@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,17 +73,22 @@ object OwnImage {
 /** Ask ChatGPT, Ask Gemini, Choose image, and what to do in between. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun OwnImagePanel(coverPrompt: () -> String, enabled: Boolean, onPicked: (Bitmap) -> Unit) {
+fun OwnImagePanel(coverPrompt: suspend () -> String, enabled: Boolean, onPicked: (Bitmap) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) scope.launch { withContext(Dispatchers.IO) { OwnImage.decode(ctx, uri) }?.let(onPicked) }
     }
+    var asking by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.own_image_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OwnImage.App.entries.forEach { app ->
-                OutlinedButton(enabled = enabled, onClick = { OwnImage.ask(ctx, app, coverPrompt()) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                // The request says what is in the playlist: read first when the poster was not made yet.
+                OutlinedButton(enabled = enabled && !asking, onClick = {
+                    asking = true
+                    scope.launch { try { OwnImage.ask(ctx, app, coverPrompt()) } finally { asking = false } }
+                }, modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(stringResource(R.string.own_image_ask, app.label))
                 }
             }

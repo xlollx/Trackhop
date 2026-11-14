@@ -105,4 +105,17 @@ class CoverPromptTest {
         // Plays that match nothing: the usual list too.
         assertEquals(CoverPrompt.posterTracks(playlist), CoverPrompt.mostPlayed(playlist, listOf(play("Nope", "Z", 9))).tracks)
     }
+
+    @Test fun thePromptTellsWhatIsInThePlaylist() {
+        fun t(title: String, artist: String, year: Int) = Track(title, title, listOf(artist), year = year)
+        val tracks = listOf(t("Helena", "My Chemical Romance", 2004), t("Sing", "My Chemical Romance", 2010), t("Chop Suey!", "System of a Down", 2001),
+            t("Numb (Live)", "Linkin Park", 2003), t("Old One", "Elvis", 1956), t("Toxicity", "System of a Down", 2001))
+        assertEquals("2000s–2010s", CoverPrompt.decades(tracks.filter { it.year > 2000 }))
+        val p = CoverPrompt.build("Metal & More", CoverPrompt.topArtists(tracks), "", CoverPrompt.sampleSongs(tracks), CoverPrompt.decades(tracks))
+        assertTrue(p, p.contains("Its songs include helena"))
+        assertTrue(p, p.contains("numb,") || p.contains("numb ("))
+        assertFalse(p, p.contains("(live)"))
+        assertTrue(p, p.contains("Era of the music:"))
+        assertFalse(p.contains("\""))
+    }
 }

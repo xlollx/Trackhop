@@ -114,7 +114,23 @@ object CoverPrompt {
      * title and a garbled line of the description came out written on the cover). The poster prints
      * the name itself.
      */
-    fun build(title: String, artists: List<String>, description: String = ""): String = buildString {
+    /**
+     * The decades most of [tracks] come from ("1990s–2010s"), from their release years; null when too
+     * few say a year. The few odd ones out at either end (a remaster, an old standard) do not stretch it.
+     */
+    fun decades(tracks: List<Track>): String? {
+        val years = tracks.map { it.year }.filter { it in 1900..2100 }.sorted()
+        if (years.size < 3) return null
+        val cut = years.size / 10
+        val from = years[cut] / 10 * 10; val to = years[years.size - 1 - cut] / 10 * 10
+        return if (from == to) "${from}s" else "${from}s–${to}s"
+    }
+
+    /** A few of the playlist's songs, the most present artists' first, for the picture's mood. */
+    fun sampleSongs(tracks: List<Track>, n: Int = 6): List<String> =
+        posterTracks(tracks, n).map { it.title.substringBefore(" (").substringBefore(" - ").trim() }.filter { it.isNotEmpty() }.distinct().take(n)
+
+    fun build(title: String, artists: List<String>, description: String = "", songs: List<String> = emptyList(), decades: String? = null): String = buildString {
         fun theme(s: String) = s.replace(Regex("[\"“”«»'‘’]"), " ").replace(Regex("\\s+"), " ").trim().lowercase()
         append("A wordless square illustration for a music album cover, pure imagery without any typography.")
         val t = theme(title.take(120))
@@ -122,6 +138,10 @@ object CoverPrompt {
         if (artists.isNotEmpty()) append(" The music sounds like ").append(artists.take(5).joinToString(", ") { it.take(60) }).append('.')
         val d = theme(description.take(300))
         if (d.isNotEmpty()) append(" Mood: ").append(d).append('.')
+        // What is in it, as mood words: some of its songs and its years.
+        val ss = songs.map { theme(it.take(60)) }.filter { it.isNotEmpty() }.take(6)
+        if (ss.isNotEmpty()) append(" Its songs include ").append(ss.joinToString(", ")).append(" (use them as mood, never as written words).")
+        decades?.let { append(" Era of the music: ").append(it).append('.') }
         append(" Style: bold, modern, abstract, music-poster.")
         append(" A clean image with blank space instead of any lettering, logos or brand marks; no real people's faces.")
     }
