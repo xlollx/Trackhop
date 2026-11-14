@@ -2635,4 +2635,10 @@
     <string name="nf_removals_detail">원본에서 빠진 곡이 있습니다. 확인하기 전에는 Trackhop이 대상에서 지우지 않습니다.</string>
     <string name="nf_todo_review">Trackhop에서 동기화를 열고 불확실한 매칭을 확인하세요.</string>
     <string name="nf_title_added">%1$s: +%2$d</string>
+    <string name="card_cover_own">내 이미지</string>
+    <string name="own_image_ask">%1$s에게 요청</string>
+    <string name="own_image_pick">이미지 선택</string>
+    <string name="own_image_note">무료, 키 없음: Trackhop이 요청을 작성하고 ChatGPT나 Gemini를 엽니다. 내 계정으로 이미지를 만들고 저장한 뒤 여기서 선택하세요.</string>
+    <string name="own_image_copied">요청을 복사했어요. 없으면 붙여넣고, 이미지를 저장한 뒤 여기서 선택하세요.</string>
+    <string name="own_image_copied_only">요청을 복사했어요. ChatGPT나 Gemini를 열어 붙여넣고, 이미지를 저장한 뒤 여기서 선택하세요.</string>
 </resources>

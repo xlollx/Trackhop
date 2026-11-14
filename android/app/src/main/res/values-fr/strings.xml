@@ -2697,4 +2697,10 @@
     <string name="nf_removals_detail">Des titres ont quitté la source : Trackhop ne les retire de la destination qu\'après ta confirmation.</string>
     <string name="nf_todo_review">ouvre la synchro dans Trackhop et vérifie les correspondances incertaines.</string>
     <string name="nf_title_added">%1$s : +%2$d</string>
+    <string name="card_cover_own">Ton image</string>
+    <string name="own_image_ask">Demander à %1$s</string>
+    <string name="own_image_pick">Choisir une image</string>
+    <string name="own_image_note">Gratuit, sans clé : Trackhop écrit la demande et ouvre ChatGPT ou Gemini. Crée l\'image avec ton compte, enregistre-la, puis choisis-la ici.</string>
+    <string name="own_image_copied">Demande copiée : colle-la si elle n\'y est pas, puis enregistre l\'image et choisis-la ici.</string>
+    <string name="own_image_copied_only">Demande copiée : ouvre ChatGPT ou Gemini, colle-la, enregistre l\'image et choisis-la ici.</string>
 </resources>

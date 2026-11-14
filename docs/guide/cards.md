@@ -100,6 +100,13 @@ schnell (Workers AI), even when your AI is Claude, Groq or OpenRouter. In the AI
 Trackhop asks Cloudflare first and, if it refuses (the daily free allowance used up), the AI above
 when it draws. The token stays encrypted on the phone, like the AI's key.
 
+**Your image (from Trackhop 1.18):** free and with no key. Choose **Your image**, then **Ask ChatGPT**
+or **Ask Gemini**: Trackhop writes the request (a wordless cover for the playlist) and opens the app
+with it, or copies it and opens the site when the app is not installed. Make the picture there with
+your own account, save it, and tap **Choose image** to put it on the poster or the roast card. Any
+other picture from your phone works too. Trackhop does not operate those apps for you: you make the
+picture yourself, as their terms ask.
+
 It runs on your own key, so it may cost a few cents per picture. Only the playlist's title, its five
 most frequent artists and its description are sent, with a request for square cover art without
 lettering, logos or real people's faces. The picture is kept for the session: **Make the card again**

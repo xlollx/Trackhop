@@ -2689,4 +2689,10 @@
     <string name="nf_removals_detail">Einige Songs sind nicht mehr in der Quelle: Trackhop entfernt sie erst nach deiner Bestätigung aus dem Ziel.</string>
     <string name="nf_todo_review">öffne den Sync in Trackhop und prüfe die unsicheren Treffer.</string>
     <string name="nf_title_added">%1$s: +%2$d</string>
+    <string name="card_cover_own">Dein Bild</string>
+    <string name="own_image_ask">%1$s fragen</string>
+    <string name="own_image_pick">Bild wählen</string>
+    <string name="own_image_note">Kostenlos, ohne Schlüssel: Trackhop schreibt die Anfrage und öffnet ChatGPT oder Gemini. Erstelle das Bild mit deinem Konto, speichere es und wähle es hier.</string>
+    <string name="own_image_copied">Anfrage kopiert: füge sie ein, falls sie fehlt, speichere dann das Bild und wähle es hier.</string>
+    <string name="own_image_copied_only">Anfrage kopiert: öffne ChatGPT oder Gemini, füge sie ein, speichere das Bild und wähle es hier.</string>
 </resources>

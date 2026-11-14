@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.semantics
@@ -555,7 +556,12 @@ internal enum class PosterArt(val label: Int, val style: GeneratedCovers.Style? 
     TYPOGRAPHIC(R.string.card_cover_typographic, GeneratedCovers.Style.TYPOGRAPHIC),
     VINYL(R.string.card_cover_vinyl, GeneratedCovers.Style.VINYL),
     AI(R.string.card_cover_ai),
+    /** 1.18: a picture the user made with their own ChatGPT or Gemini, or any picture of theirs ([OwnImage]). */
+    OWN(R.string.card_cover_own),
 }
+
+/** The picture chosen for "Your image", kept while the app runs (a bitmap does not go in saved state). */
+internal object PosterOwnArt { @Volatile var bitmap: Bitmap? = null }
 
 /** How the poster is laid out ([PosterPalette.Layout]), with its name. */
 private val posterLayouts = listOf(
@@ -702,6 +708,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                             listOf(shown)
                         }
                         chosen.style != null -> generated(chosen.style).also { drawn = it }.let { listOf(it) }
+                        chosen == PosterArt.OWN && PosterOwnArt.bitmap != null -> { titled = false; listOf(PosterOwnArt.bitmap!!.also { drawn = it }) }
                         else -> {
                             // The playlist's own picture, else the covers of its most present artists,
                             // else (nothing found) a cover drawn from its title.
@@ -751,7 +758,10 @@ fun PosterCard(snackbar: SnackbarHostState) {
     val setup: @Composable () -> Unit = {
         PlaylistSource(stringResource(R.string.editor_playlist), null, snackbar, memory = "poster", compact = true) { pick = it; bitmaps = null; printed = null; drawn = null; variant = 0; error = null }
         ToolSection(stringResource(R.string.card_cover_title)) {
-            CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy) {
+            CoverArtChoice(art, pick?.playlist?.name.orEmpty(), ai, aiSupport, enabled = !busy, onOwnPicked = { bmp ->
+                PosterOwnArt.bitmap = bmp; bitmaps = null; printed = null; drawn = null
+                if (pick != null) run()
+            }) {
                 art = it; bitmaps = null; printed = null; drawn = null
                 runCatching { posterPrefs(ctx).edit().putString("art", it.name).apply() }
             }
@@ -895,7 +905,10 @@ private fun AllArtists(names: List<String>) {
  * under them says what the choice does, and why the AI is off when it is.
  */
 @Composable
-private fun CoverArtChoice(selected: PosterArt, title: String, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean, onChange: (PosterArt) -> Unit) {
+private fun CoverArtChoice(
+    selected: PosterArt, title: String, ai: AiClient.Config?, support: AiClient.ImageSupport?, enabled: Boolean,
+    onOwnPicked: (Bitmap) -> Unit = {}, onChange: (PosterArt) -> Unit,
+) {
     val aiOk = ai != null && support == AiClient.ImageSupport.YES
     val aiNote = when {
         ai == null -> stringResource(R.string.card_ai_cover_none)
@@ -916,9 +929,14 @@ private fun CoverArtChoice(selected: PosterArt, title: String, ai: AiClient.Conf
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PosterArt.entries.forEach { a ->
-                ArtTile(a, a == selected, enabled && (a != PosterArt.AI || aiOk), a.style?.let { thumbs[it] }) { onChange(a) }
+            PosterArt.entries.filter { it != PosterArt.OWN || Features.v2 }.forEach { a ->
+                val thumb = if (a == PosterArt.OWN) PosterOwnArt.bitmap?.asImageBitmap() else a.style?.let { thumbs[it] }
+                ArtTile(a, a == selected, enabled && (a != PosterArt.AI || aiOk), thumb) { onChange(a) }
             }
+        }
+        if (selected == PosterArt.OWN) {
+            OwnImagePanel({ com.xlollx.songport.sync.CoverPrompt.build(title, emptyList()) }, enabled, onOwnPicked)
+            return@Column
         }
         val note = when {
             selected == PosterArt.COVERS -> stringResource(R.string.card_cover_covers_note)
@@ -973,6 +991,7 @@ private fun ArtTile(art: PosterArt, on: Boolean, enabled: Boolean, thumb: androi
             art == PosterArt.AI -> androidx.compose.foundation.layout.Box(
                 Modifier.fillMaxSize().background(LocalToolIdentity.current.brush), contentAlignment = Alignment.Center,
             ) { Icon(Icons.Filled.AutoAwesome, null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(30.dp)) }
+            art == PosterArt.OWN -> Icon(Icons.Filled.AddPhotoAlternate, null, modifier = Modifier.size(30.dp))
         }
     }
 }

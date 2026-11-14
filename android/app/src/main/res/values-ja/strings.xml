@@ -2636,4 +2636,10 @@
     <string name="nf_removals_detail">ソースから消えた曲があります。確認するまで Trackhop は同期先から削除しません。</string>
     <string name="nf_todo_review">Trackhop で同期を開き、不確かな一致を確認してください。</string>
     <string name="nf_title_added">%1$s: +%2$d</string>
+    <string name="card_cover_own">自分の画像</string>
+    <string name="own_image_ask">%1$s に頼む</string>
+    <string name="own_image_pick">画像を選ぶ</string>
+    <string name="own_image_note">無料・キー不要:Trackhop がリクエストを書いて ChatGPT か Gemini を開きます。自分のアカウントで画像を作って保存し、ここで選んでください。</string>
+    <string name="own_image_copied">リクエストをコピーしました。入っていなければ貼り付け、画像を保存してここで選んでください。</string>
+    <string name="own_image_copied_only">リクエストをコピーしました。ChatGPT か Gemini を開いて貼り付け、画像を保存してここで選んでください。</string>
 </resources>

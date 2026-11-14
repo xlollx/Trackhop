@@ -695,13 +695,13 @@ private object RoastKept {
 
 /** The picture on a 1.18 roast card. */
 internal enum class RoastArt(val label: Int) {
-    ARTISTS(R.string.roast_art_artists), PLAYLIST(R.string.roast_art_playlist), AI(R.string.roast_art_ai), TEXT(R.string.roast_art_text),
+    ARTISTS(R.string.roast_art_artists), PLAYLIST(R.string.roast_art_playlist), AI(R.string.roast_art_ai), OWN(R.string.card_cover_own), TEXT(R.string.roast_art_text),
 }
 
 /** What a 1.18 roast card is drawn from: the playlist's own picture, its artists' covers, the AI's, the artists line. */
 internal class RoastParts(
     val playlistId: String, val title: String, val text: String, val own: Bitmap?, val covers: List<Bitmap>,
-    val artistsLine: String?, val artists: List<String>, var aiArt: Bitmap? = null,
+    val artistsLine: String?, val artists: List<String>, var aiArt: Bitmap? = null, var ownArt: Bitmap? = null,
 )
 
 /** The 1.18 cards of [parts] in [style] with [art], in every format. */
@@ -709,6 +709,7 @@ private fun roastCards(ctx: android.content.Context, parts: RoastParts, style: C
     val picture = when (art) {
         RoastArt.TEXT -> null
         RoastArt.AI -> parts.aiArt ?: Cards.mosaic(parts.covers) ?: parts.own
+        RoastArt.OWN -> parts.ownArt ?: Cards.mosaic(parts.covers) ?: parts.own
         RoastArt.ARTISTS -> Cards.mosaic(parts.covers) ?: parts.own
         RoastArt.PLAYLIST -> parts.own ?: GeneratedCovers.draw(GeneratedCovers.Style.GRADIENT, GeneratedCovers.Input(parts.title, parts.artists, parts.covers), 0, 720)
     }
@@ -914,6 +915,10 @@ private fun RoastChoices(ai: AiClient.Config?, snackbar: SnackbarHostState) {
         RoastArt.entries.filter { it != RoastArt.AI || canDraw }.forEach { a ->
             FilterChip(selected = RoastKept.art == a, onClick = { if (RoastKept.art != a) { RoastKept.art = a; redraw() } }, label = { Text(stringResource(a.label)) })
         }
+    }
+    // Made with the user's own ChatGPT or Gemini (or any picture of theirs): chosen, then drawn on the card.
+    if (RoastKept.art == RoastArt.OWN) OwnImagePanel({ com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, "") }, enabled = true) { bmp ->
+        parts.ownArt = bmp; redraw()
     }
 }
 

@@ -2636,4 +2636,10 @@
     <string name="nf_removals_detail">有些歌曲已不在来源中：只有你确认后 Trackhop 才会从目标中移除。</string>
     <string name="nf_todo_review">在 Trackhop 中打开该同步，检查不确定的匹配。</string>
     <string name="nf_title_added">%1$s：+%2$d</string>
+    <string name="card_cover_own">你的图片</string>
+    <string name="own_image_ask">问 %1$s</string>
+    <string name="own_image_pick">选择图片</string>
+    <string name="own_image_note">免费，无需密钥：Trackhop 写好请求并打开 ChatGPT 或 Gemini。用你自己的账户生成图片，保存后在这里选择。</string>
+    <string name="own_image_copied">请求已复制：如果没有自动填入就粘贴，然后保存图片并在这里选择。</string>
+    <string name="own_image_copied_only">请求已复制：打开 ChatGPT 或 Gemini 粘贴，保存图片后在这里选择。</string>
 </resources>

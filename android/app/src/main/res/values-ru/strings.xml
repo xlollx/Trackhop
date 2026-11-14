@@ -2795,4 +2795,10 @@
     <string name="nf_removals_detail">Некоторые треки пропали из источника: Trackhop удалит их из цели только после вашего подтверждения.</string>
     <string name="nf_todo_review">откройте синхронизацию в Trackhop и проверьте неуверенные совпадения.</string>
     <string name="nf_title_added">%1$s: +%2$d</string>
+    <string name="card_cover_own">Своё изображение</string>
+    <string name="own_image_ask">Спросить %1$s</string>
+    <string name="own_image_pick">Выбрать изображение</string>
+    <string name="own_image_note">Бесплатно, без ключа: Trackhop пишет запрос и открывает ChatGPT или Gemini. Создайте картинку в своём аккаунте, сохраните и выберите здесь.</string>
+    <string name="own_image_copied">Запрос скопирован: вставьте его, если его нет, затем сохраните картинку и выберите здесь.</string>
+    <string name="own_image_copied_only">Запрос скопирован: откройте ChatGPT или Gemini, вставьте его, сохраните картинку и выберите здесь.</string>
 </resources>

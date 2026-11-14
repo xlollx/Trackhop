@@ -2691,4 +2691,10 @@
     <string name="nf_removals_detail">Some songs left the source: Trackhop removes them from the target only after you confirm.</string>
     <string name="nf_todo_review">open the sync in Trackhop and check the uncertain matches.</string>
     <string name="nf_title_added">%1$s: +%2$d</string>
+    <string name="card_cover_own">Your image</string>
+    <string name="own_image_ask">Ask %1$s</string>
+    <string name="own_image_pick">Choose image</string>
+    <string name="own_image_note">Free, no key: Trackhop writes the request and opens ChatGPT or Gemini. Make the picture with your own account, save it, then choose it here.</string>
+    <string name="own_image_copied">Request copied: paste it if it is not there yet, then save the picture and choose it here.</string>
+    <string name="own_image_copied_only">Request copied: open ChatGPT or Gemini, paste it, then save the picture and choose it here.</string>
 </resources>
