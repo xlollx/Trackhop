@@ -1612,6 +1612,16 @@
     <string name="discover_roast_writing">Sharpening the knives…</string>
     <string name="discover_roast_again">Another roast</string>
     <string name="discover_roast_share_text">Share as text</string>
+    <string name="roast_style">Style</string>
+    <string name="roast_style_orange">Orange</string>
+    <string name="roast_style_covers">Covers</string>
+    <string name="roast_art">Cover</string>
+    <string name="roast_art_artists">Artists</string>
+    <string name="roast_art_playlist">Playlist</string>
+    <string name="roast_art_ai">AI</string>
+    <string name="roast_art_text">Text only</string>
+    <string name="roast_top_played">Most played: %1$s</string>
+    <string name="roast_top_present">Most present: %1$s</string>
     <string name="discover_vanished_intro">When you back up your playlists (Tools › Backup), Trackhop keeps dated copies. A song in an older copy that is missing from the newest one has left the playlist since. Songs a mirror sync removed are listed too.</string>
     <string name="discover_vanished_rotating">This playlist changes by itself</string>
     <string name="discover_vanished_hidden">Songs of syncs you marked as changing by themselves are left out.</string>

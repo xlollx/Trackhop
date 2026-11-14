@@ -1673,6 +1673,16 @@
     <string name="discover_roast_writing">Точим ножи…</string>
     <string name="discover_roast_again">Ещё одна прожарка</string>
     <string name="discover_roast_share_text">Поделиться текстом</string>
+    <string name="roast_style">Стиль</string>
+    <string name="roast_style_orange">Оранжевый</string>
+    <string name="roast_style_covers">Обложки</string>
+    <string name="roast_art">Обложка</string>
+    <string name="roast_art_artists">Исполнители</string>
+    <string name="roast_art_playlist">Плейлист</string>
+    <string name="roast_art_ai">ИИ</string>
+    <string name="roast_art_text">Только текст</string>
+    <string name="roast_top_played">Чаще всего слушаете: %1$s</string>
+    <string name="roast_top_present">Чаще всего в плейлисте: %1$s</string>
     <string name="discover_vanished_intro">Когда вы делаете резервную копию плейлистов (Инструменты › Резервная копия), Trackhop хранит копии с датами. Трек, который есть в более старой копии и отсутствует в новейшей, с тех пор покинул плейлист. Треки, удалённые зеркальной синхронизацией, тоже показаны.</string>
     <string name="discover_vanished_rotating">Этот плейлист меняется сам</string>
     <string name="discover_vanished_hidden">Треки синхронизаций, отмеченных как «меняется сам», скрыты.</string>

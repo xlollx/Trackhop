@@ -1609,6 +1609,16 @@
     <string name="discover_roast_writing">Bıçaklar bileniyor…</string>
     <string name="discover_roast_again">Bir roast daha</string>
     <string name="discover_roast_share_text">Metin olarak paylaş</string>
+    <string name="roast_style">Stil</string>
+    <string name="roast_style_orange">Turuncu</string>
+    <string name="roast_style_covers">Kapaklar</string>
+    <string name="roast_art">Kapak</string>
+    <string name="roast_art_artists">Sanatçılar</string>
+    <string name="roast_art_playlist">Çalma listesi</string>
+    <string name="roast_art_ai">Yapay zekâ</string>
+    <string name="roast_art_text">Yalnızca metin</string>
+    <string name="roast_top_played">En çok dinlenen: %1$s</string>
+    <string name="roast_top_present">En çok yer alan: %1$s</string>
     <string name="discover_vanished_intro">Çalma listelerini yedeklediğinde (Araçlar › Yedekleme), Trackhop tarihli kopyalar saklar. Eski bir kopyada olup en yenisinde olmayan bir şarkı o zamandan beri listeden çıkmıştır. Ayna eşitlemenin kaldırdığı şarkılar da listelenir.</string>
     <string name="discover_vanished_rotating">Bu çalma listesi kendi kendine değişiyor</string>
     <string name="discover_vanished_hidden">\"Kendi kendine değişiyor\" olarak işaretlediğin eşitlemelerin şarkıları gizli.</string>

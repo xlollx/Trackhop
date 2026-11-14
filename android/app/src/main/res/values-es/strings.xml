@@ -1619,6 +1619,16 @@
     <string name="discover_roast_writing">Afilando los cuchillos…</string>
     <string name="discover_roast_again">Otro roast</string>
     <string name="discover_roast_share_text">Compartir como texto</string>
+    <string name="roast_style">Estilo</string>
+    <string name="roast_style_orange">Naranja</string>
+    <string name="roast_style_covers">Portadas</string>
+    <string name="roast_art">Portada</string>
+    <string name="roast_art_artists">Artistas</string>
+    <string name="roast_art_playlist">Playlist</string>
+    <string name="roast_art_ai">IA</string>
+    <string name="roast_art_text">Solo texto</string>
+    <string name="roast_top_played">Lo más escuchado: %1$s</string>
+    <string name="roast_top_present">Lo más presente: %1$s</string>
     <string name="discover_vanished_intro">Cuando haces copia de tus playlists (Herramientas › Copia de seguridad), Trackhop guarda copias con fecha. Una canción que está en una copia antigua y falta en la más reciente ha salido de la playlist desde entonces. También aparecen las canciones que quitó una sincronización con eliminaciones.</string>
     <string name="discover_vanished_rotating">Esta playlist cambia sola</string>
     <string name="discover_vanished_hidden">Las canciones de las sincronizaciones que marcaste como «cambia sola» no aparecen.</string>

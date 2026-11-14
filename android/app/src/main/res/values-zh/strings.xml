@@ -1580,6 +1580,16 @@
     <string name="discover_roast_writing">正在磨刀…</string>
     <string name="discover_roast_again">再来一段</string>
     <string name="discover_roast_share_text">以文字分享</string>
+    <string name="roast_style">样式</string>
+    <string name="roast_style_orange">橙色</string>
+    <string name="roast_style_covers">封面</string>
+    <string name="roast_art">封面</string>
+    <string name="roast_art_artists">艺人</string>
+    <string name="roast_art_playlist">歌单</string>
+    <string name="roast_art_ai">AI</string>
+    <string name="roast_art_text">仅文字</string>
+    <string name="roast_top_played">最常听：%1$s</string>
+    <string name="roast_top_present">最常出现：%1$s</string>
     <string name="discover_vanished_intro">当你备份歌单时（工具 › 备份），Trackhop 会保留带日期的副本。在旧副本中存在、在最新副本中缺失的歌曲，就是之后离开了歌单的歌曲。镜像同步删除的歌曲也会列出。</string>
     <string name="discover_vanished_rotating">这个歌单会自己变化</string>
     <string name="discover_vanished_hidden">你标记为“会自己变化”的同步，其歌曲不在列表中。</string>

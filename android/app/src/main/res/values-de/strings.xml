@@ -1611,6 +1611,16 @@
     <string name="discover_roast_writing">Die Messer werden gewetzt…</string>
     <string name="discover_roast_again">Noch ein Roast</string>
     <string name="discover_roast_share_text">Als Text teilen</string>
+    <string name="roast_style">Stil</string>
+    <string name="roast_style_orange">Orange</string>
+    <string name="roast_style_covers">Cover</string>
+    <string name="roast_art">Cover</string>
+    <string name="roast_art_artists">Künstler</string>
+    <string name="roast_art_playlist">Playlist</string>
+    <string name="roast_art_ai">KI</string>
+    <string name="roast_art_text">Nur Text</string>
+    <string name="roast_top_played">Am meisten gehört: %1$s</string>
+    <string name="roast_top_present">Am häufigsten: %1$s</string>
     <string name="discover_vanished_intro">Wenn du deine Playlists sicherst (Werkzeuge › Sicherung), behält Trackhop datierte Kopien. Ein Song, der in einer älteren Kopie steht und in der neuesten fehlt, hat die Playlist seitdem verlassen. Songs, die ein Sync mit Entfernen herausgenommen hat, stehen auch dabei.</string>
     <string name="discover_vanished_rotating">Diese Playlist ändert sich von selbst</string>
     <string name="discover_vanished_hidden">Titel der Syncs, die du als „ändert sich von selbst“ markiert hast, sind ausgeblendet.</string>

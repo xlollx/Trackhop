@@ -1611,6 +1611,16 @@
     <string name="discover_roast_writing">Affilo i coltelli…</string>
     <string name="discover_roast_again">Un altro roast</string>
     <string name="discover_roast_share_text">Condividi come testo</string>
+    <string name="roast_style">Stile</string>
+    <string name="roast_style_orange">Arancione</string>
+    <string name="roast_style_covers">Copertine</string>
+    <string name="roast_art">Copertina</string>
+    <string name="roast_art_artists">Artisti</string>
+    <string name="roast_art_playlist">Playlist</string>
+    <string name="roast_art_ai">AI</string>
+    <string name="roast_art_text">Solo testo</string>
+    <string name="roast_top_played">I più ascoltati: %1$s</string>
+    <string name="roast_top_present">I più presenti: %1$s</string>
     <string name="discover_vanished_intro">Quando fai il backup delle playlist (Strumenti › Backup), Trackhop ne conserva copie datate. Un brano presente in una copia più vecchia e assente dalla più recente da allora ha lasciato la playlist. Sono elencati anche i brani tolti da una sync con rimozioni.</string>
     <string name="discover_vanished_rotating">Questa playlist cambia da sola</string>
     <string name="discover_vanished_hidden">I brani delle Sync che hai segnato come «cambia da sola» non sono in lista.</string>

@@ -1580,6 +1580,16 @@
     <string name="discover_roast_writing">包丁を研いでいます…</string>
     <string name="discover_roast_again">もう一回</string>
     <string name="discover_roast_share_text">テキストでシェア</string>
+    <string name="roast_style">スタイル</string>
+    <string name="roast_style_orange">オレンジ</string>
+    <string name="roast_style_covers">カバー</string>
+    <string name="roast_art">カバー</string>
+    <string name="roast_art_artists">アーティスト</string>
+    <string name="roast_art_playlist">プレイリスト</string>
+    <string name="roast_art_ai">AI</string>
+    <string name="roast_art_text">テキストのみ</string>
+    <string name="roast_top_played">よく聴く: %1$s</string>
+    <string name="roast_top_present">多く登場: %1$s</string>
     <string name="discover_vanished_intro">プレイリストをバックアップすると（ツール › バックアップ）、Trackhop は日付付きのコピーを保存します。古いコピーにあって最新のコピーにない曲は、その後プレイリストから消えた曲です。ミラー同期で削除された曲も表示されます。</string>
     <string name="discover_vanished_rotating">このプレイリストは自動で変わる</string>
     <string name="discover_vanished_hidden">「自動で変わる」と指定した同期の曲は表示していません。</string>

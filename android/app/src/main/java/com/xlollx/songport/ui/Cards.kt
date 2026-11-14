@@ -1259,6 +1259,116 @@ object Cards {
         return bmp
     }
 
+    /** 1.18's roast cards: the in-app embers with the words big, or the art with the words in a panel. */
+    enum class RoastStyle { ORANGE, COVERS }
+
+    /**
+     * What a 1.18 roast card shows. [art]: the picture chosen (the playlist's, a 2×2 of its artists'
+     * covers, the AI's), null for words only; [artistsLine]: "Most played: …" or "Most present: …".
+     */
+    class RoastCard2(
+        val eyebrow: String, val title: String, val text: String, val style: RoastStyle,
+        val art: Bitmap?, val artistsLine: String?, val palette: List<Bitmap> = emptyList(),
+    )
+
+    /** Four covers as one square picture, [side] wide, with a thin gap between them. */
+    fun mosaic(covers: List<Bitmap>, side: Int = 720): Bitmap? {
+        if (covers.isEmpty()) return null
+        val bmp = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        c.drawColor(INK)
+        val gap = side * 0.012f
+        val half = (side - gap) / 2
+        val four = List(4) { covers[it % covers.size] }
+        four.forEachIndexed { i, b ->
+            val l = (i % 2) * (half + gap); val t = (i / 2) * (half + gap)
+            cover(c, b, RectF(l, t, l + half, t + half), 0f, i)
+        }
+        return bmp
+    }
+
+    private val EMBERS = intArrayOf(0xFF2B0B08.toInt(), 0xFF6E160C.toInt(), 0xFFC2410C.toInt())
+    private const val EMBER = 0xFFFF8A3D.toInt()
+
+    fun roast2(ctx: Context, card: RoastCard2, format: Format): Bitmap {
+        val w = format.width; val h = format.height
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        val story = format == Format.STORY
+        val margin = 80f
+        val inner = w - 2 * margin
+        val top = if (story) 150f else 72f
+        val bottom = h - (if (story) 150f else 110f)
+        val orange = card.style == RoastStyle.ORANGE
+        if (orange) {
+            c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), Paint().apply {
+                shader = LinearGradient(0f, 0f, w.toFloat(), h.toFloat(), EMBERS, floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP)
+            })
+            // The opening quote mark, huge and faint, behind the first lines (as on the screen).
+            val q = paint(EMBER, if (story) 620f else 440f, bold = true, alpha = 80).apply { typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD) }
+            q.textAlign = Paint.Align.RIGHT
+            c.drawText("\u201C", w - 30f, top + q.textSize * 0.62f, q)
+        } else {
+            val input = GeneratedCovers.Input(card.title, emptyList(), card.palette.ifEmpty { listOfNotNull(card.art) })
+            if (input.covers.isNotEmpty()) background(c, w, h, GeneratedCovers.palette(input)) else background(c, w, h)
+        }
+        val eb = paint(if (orange) EMBER else Color.WHITE, if (story) 34f else 28f, bold = true, alpha = if (orange) 255 else 215).apply { letterSpacing = 0.1f }
+        val titleP = paint(Color.WHITE, if (story) 54f else 44f, bold = true)
+        var y = top
+        // The words: as big as their length allows, smaller until they fit what is left.
+        fun words(room: Float, width: Float): StaticLayout {
+            val base = when { card.text.length < 180 -> 1f; card.text.length < 340 -> 0.86f; card.text.length < 560 -> 0.74f; else -> 0.64f }
+            var size = (if (story) 78f else 58f) * base * (if (orange) 1f else 0.8f)
+            while (true) {
+                val p = paint(Color.WHITE, size, bold = orange).apply { if (orange) typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD) }
+                val l = StaticLayout.Builder.obtain(card.text, 0, card.text.length, p, width.toInt()).setLineSpacing(0f, 1.12f).build()
+                if (l.height <= room || size < 30f) return textLayout(card.text, p, width.toInt(), (room / (p.fontSpacing * 1.12f)).toInt().coerceAtLeast(3))
+                size *= 0.92f
+            }
+        }
+        if (orange) {
+            // The playlist (its picture beside its name, when one was chosen), then the words, then the flames.
+            val side = if (card.art != null) (if (story) 170f else 130f) else 0f
+            val tx = margin + if (side > 0f) side + 32f else 0f
+            line(c, card.eyebrow.uppercase(), tx, y + eb.textSize, eb, w - margin - tx)
+            val name = textLayout(card.title, titleP, (w - margin - tx).toInt(), 2)
+            name.drawAt(c, tx, y + eb.textSize * 1.6f)
+            if (card.art != null) artTile(c, card.art, margin, y, side)
+            y += maxOf(side, eb.textSize * 1.6f + name.height) + (if (story) 70f else 40f)
+            val flames = paint(EMBER, if (story) 64f else 48f)
+            val room = bottom - y - flames.textSize * 1.8f - (if (card.artistsLine != null) 60f else 0f)
+            val l = words(room, inner)
+            // Short words sit in the middle of what is left, not stuck under the name.
+            y += ((room - l.height) / 3).coerceAtLeast(0f)
+            l.drawAt(c, margin, y); y += l.height + flames.textSize * 0.6f
+            c.drawText("\uD83D\uDD25\uD83D\uDD25\uD83D\uDD25", margin, y + flames.textSize, flames)
+            y += flames.textSize * 1.5f
+            card.artistsLine?.let { line(c, it, margin, y + 32f, paint(Color.WHITE, if (story) 32f else 28f, alpha = 210), inner) }
+        } else {
+            // The art big at the top, the eyebrow and name under it, the words in a panel, the artists last.
+            val side = when { card.art == null -> 0f; story -> 600f; else -> 0f }
+            if (story && card.art != null) { artTile(c, card.art, (w - side) / 2, y, side); y += side + 48f }
+            val sqSide = if (!story && card.art != null) 260f else 0f
+            val tx = margin + if (sqSide > 0f) sqSide + 36f else 0f
+            if (sqSide > 0f) artTile(c, card.art, margin, y, sqSide)
+            val align = if (story) Paint.Align.CENTER else Paint.Align.LEFT
+            val ex = if (story) w / 2f else tx
+            line(c, card.eyebrow.uppercase(), ex, y + eb.textSize, eb, w - margin - tx, align)
+            val name = textLayout(card.title, titleP, (w - margin - tx).toInt(), 2, if (story) Layout.Alignment.ALIGN_CENTER else Layout.Alignment.ALIGN_NORMAL)
+            name.drawAt(c, tx, y + eb.textSize * 1.6f)
+            y += maxOf(sqSide, eb.textSize * 1.6f + name.height) + 40f
+            val pad = 48f
+            val artistsH = if (card.artistsLine != null) 70f else 0f
+            val l = words(bottom - y - 2 * pad - artistsH, inner - 2 * pad)
+            panel(c, RectF(margin, y, w - margin, y + l.height + 2 * pad))
+            l.drawAt(c, margin + pad, y + pad)
+            y += l.height + 2 * pad
+            card.artistsLine?.let { line(c, it, if (story) w / 2f else margin, y + 56f, paint(Color.WHITE, if (story) 32f else 28f, alpha = 220), inner, align) }
+        }
+        footer(ctx, c, w, h)
+        return bmp
+    }
+
     // ------------------------------------------------------------------ two subscriptions
 
     /**

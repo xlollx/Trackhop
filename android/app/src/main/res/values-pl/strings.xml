@@ -1675,6 +1675,16 @@
     <string name="discover_roast_writing">Ostrzenie noży…</string>
     <string name="discover_roast_again">Kolejny roast</string>
     <string name="discover_roast_share_text">Udostępnij jako tekst</string>
+    <string name="roast_style">Styl</string>
+    <string name="roast_style_orange">Pomarańczowy</string>
+    <string name="roast_style_covers">Okładki</string>
+    <string name="roast_art">Okładka</string>
+    <string name="roast_art_artists">Wykonawcy</string>
+    <string name="roast_art_playlist">Playlista</string>
+    <string name="roast_art_ai">AI</string>
+    <string name="roast_art_text">Sam tekst</string>
+    <string name="roast_top_played">Najczęściej słuchani: %1$s</string>
+    <string name="roast_top_present">Najczęściej obecni: %1$s</string>
     <string name="discover_vanished_intro">Gdy robisz kopię playlist (Narzędzia › Kopia zapasowa), Trackhop przechowuje kopie z datą. Utwór obecny w starszej kopii, a brakujący w najnowszej, od tego czasu opuścił playlistę. Wymienione są też utwory usunięte przez synchronizację lustrzaną.</string>
     <string name="discover_vanished_rotating">Ta playlista zmienia się sama</string>
     <string name="discover_vanished_hidden">Utwory synchronizacji oznaczonych jako „zmienia się sama” są ukryte.</string>

@@ -1619,6 +1619,16 @@
     <string name="discover_roast_writing">On aiguise les couteaux…</string>
     <string name="discover_roast_again">Un autre roast</string>
     <string name="discover_roast_share_text">Partager en texte</string>
+    <string name="roast_style">Style</string>
+    <string name="roast_style_orange">Orange</string>
+    <string name="roast_style_covers">Pochettes</string>
+    <string name="roast_art">Pochette</string>
+    <string name="roast_art_artists">Artistes</string>
+    <string name="roast_art_playlist">Playlist</string>
+    <string name="roast_art_ai">IA</string>
+    <string name="roast_art_text">Texte seul</string>
+    <string name="roast_top_played">Les plus écoutés : %1$s</string>
+    <string name="roast_top_present">Les plus présents : %1$s</string>
     <string name="discover_vanished_intro">Quand tu sauvegardes tes playlists (Outils › Sauvegarde), Trackhop garde des copies datées. Un titre présent dans une copie plus ancienne et absent de la plus récente a quitté la playlist depuis. Les titres retirés par une synchro miroir sont listés aussi.</string>
     <string name="discover_vanished_rotating">Cette playlist change toute seule</string>
     <string name="discover_vanished_hidden">Les titres des synchros marquées « change toute seule » ne sont pas listés.</string>

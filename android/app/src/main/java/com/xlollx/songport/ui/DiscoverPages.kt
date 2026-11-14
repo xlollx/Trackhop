@@ -686,6 +686,34 @@ private object RoastKept {
     var coverSearch by mutableStateOf(false)
     /** What the last run has to say (refused, failed), not shown yet. */
     var notice by mutableStateOf<String?>(null)
+    // 1.18: the card's style and art, and what they are drawn from (kept: a new choice only draws again).
+    var style by mutableStateOf(Cards.RoastStyle.ORANGE)
+    var art by mutableStateOf(RoastArt.ARTISTS)
+    var parts by mutableStateOf<RoastParts?>(null)
+    var drawingAi by mutableStateOf(false)
+}
+
+/** The picture on a 1.18 roast card. */
+internal enum class RoastArt(val label: Int) {
+    ARTISTS(R.string.roast_art_artists), PLAYLIST(R.string.roast_art_playlist), AI(R.string.roast_art_ai), TEXT(R.string.roast_art_text),
+}
+
+/** What a 1.18 roast card is drawn from: the playlist's own picture, its artists' covers, the AI's, the artists line. */
+internal class RoastParts(
+    val playlistId: String, val title: String, val text: String, val own: Bitmap?, val covers: List<Bitmap>,
+    val artistsLine: String?, val artists: List<String>, var aiArt: Bitmap? = null,
+)
+
+/** The 1.18 cards of [parts] in [style] with [art], in every format. */
+private fun roastCards(ctx: android.content.Context, parts: RoastParts, style: Cards.RoastStyle, art: RoastArt): Map<Cards.Format, Bitmap> {
+    val picture = when (art) {
+        RoastArt.TEXT -> null
+        RoastArt.AI -> parts.aiArt ?: Cards.mosaic(parts.covers) ?: parts.own
+        RoastArt.ARTISTS -> Cards.mosaic(parts.covers) ?: parts.own
+        RoastArt.PLAYLIST -> parts.own ?: GeneratedCovers.draw(GeneratedCovers.Style.GRADIENT, GeneratedCovers.Input(parts.title, parts.artists, parts.covers), 0, 720)
+    }
+    val card = Cards.RoastCard2(ctx.getString(R.string.discover_roast_title), parts.title, parts.text, style, picture, parts.artistsLine, parts.covers)
+    return Cards.Format.entries.associateWith { Cards.roast2(ctx, card, it) }
 }
 
 /** How long the roast's covers are looked up at most. */
@@ -750,6 +778,34 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                     }
                 } catch (e: CancellationException) { throw e } catch (_: Exception) { } finally { coverSearch = false }
                 val covers = synchronized(urls) { urls.toList() }.mapNotNull { Cards.bitmap(it, 400) }
+                if (com.xlollx.songport.Features.v2) {
+                    // The artists the user plays most among the playlist's, else the most present ones.
+                    val heard = runCatching {
+                        PosterPlays.read(ctx, withContext(Dispatchers.IO) { listeningSources(ctx) }, fresh = false, own = p.provider to p.playlist.id)
+                    }.getOrNull()
+                    val listed = when {
+                        heard == null -> null
+                        heard.artists.isNotEmpty() -> com.xlollx.songport.sync.CoverPrompt.byArtists(tracks, heard.artists)
+                        else -> com.xlollx.songport.sync.CoverPrompt.mostPlayed(tracks, heard.plays)
+                    }
+                    val played = listed?.let { it.tracks.take(it.fromPlays) }.orEmpty()
+                    val names = (played.mapNotNull { it.artists.firstOrNull()?.trim()?.takeIf(String::isNotEmpty) } + com.xlollx.songport.sync.CoverPrompt.topArtists(tracks))
+                        .distinctBy { it.lowercase() }.take(4)
+                    val mosaic = runCatching {
+                        kotlinx.coroutines.withTimeoutOrNull(ROAST_COVER_WAIT_MS) { Cards.distinctCovers(tracks, p.provider.serviceId, 4, preferred = played) }
+                    }.getOrNull().orEmpty().ifEmpty { covers.take(4) }
+                    val parts = RoastParts(
+                        p.playlist.id, name, text, own, mosaic,
+                        names.takeIf { it.isNotEmpty() }?.let { ctx.getString(if (played.isNotEmpty()) R.string.roast_top_played else R.string.roast_top_present, it.joinToString(", ")) },
+                        names,
+                    )
+                    RoastKept.parts = parts
+                    if (RoastKept.art == RoastArt.AI) RoastKept.art = RoastArt.ARTISTS
+                    bitmaps = withContext(Dispatchers.Default) { roastCards(ctx, parts, RoastKept.style, RoastKept.art) }
+                    if (RoastKept.playlistId == p.playlist.id) RoastKept.bitmaps = bitmaps
+                    busy = false
+                    return@launch
+                }
                 val card = Cards.RoastCard(
                     eyebrow = ctx.getString(R.string.discover_roast_title),
                     badge = null,
@@ -808,12 +864,57 @@ internal fun RoastPage(snackbar: SnackbarHostState, ai: AiClient.Config?, onSetU
                 dismissButton = { TextButton(onClick = { askReport = false }) { Text(stringResource(R.string.cancel)) } },
             )
             // The card: its place is kept while it is drawn, it is not offered when drawing it failed.
-            if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-roast", text)
+            if (bitmaps != null || busy) {
+                if (com.xlollx.songport.Features.v2) ToolShare(bitmaps, "trackhop-roast", text, busy = bitmaps == null || RoastKept.drawingAi, extra = {
+                    RoastChoices(ai, snackbar)
+                })
+                else ToolShare(bitmaps, "trackhop-roast", text)
+            }
         }
     }
     // The roast first once there is one, the playlist and "another roast" under it.
     val askSlot = rememberToolSlot()
     if (roast != null) ToolSplit(start = { verdict() }, end = { askSlot(ask) }) else askSlot(ask)
+}
+
+/**
+ * 1.18: the roast card's style (the screen's embers, or the covers) and its picture (the artists' covers,
+ * the playlist's, one the AI draws, none). A choice draws the card again; the AI is asked once per roast.
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun RoastChoices(ai: AiClient.Config?, snackbar: SnackbarHostState) {
+    val ctx = LocalContext.current
+    val parts = RoastKept.parts ?: return
+    val canDraw = remember(ai) { AiClient.canDraw(ctx.env, ai) }
+    fun redraw() {
+        val style = RoastKept.style; val art = RoastKept.art
+        AppWork.scope.launch {
+            if (art == RoastArt.AI && parts.aiArt == null && ai != null) {
+                RoastKept.drawingAi = true
+                try {
+                    val bytes = AiClient.drawCover(ctx.env, ai, com.xlollx.songport.sync.CoverPrompt.build(parts.title, parts.artists, ""))
+                    parts.aiArt = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                    snackbar.showSnackbar(ctx.getString(R.string.card_ai_cover_failed_drawn, e.userMessage(ctx)), withDismissAction = true)
+                } finally { RoastKept.drawingAi = false }
+            }
+            val drawn = withContext(Dispatchers.Default) { roastCards(ctx, parts, style, art) }
+            if (RoastKept.parts === parts) RoastKept.bitmaps = drawn
+        }
+    }
+    Text(stringResource(R.string.roast_style), style = MaterialTheme.typography.labelLarge)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(Cards.RoastStyle.ORANGE to R.string.roast_style_orange, Cards.RoastStyle.COVERS to R.string.roast_style_covers).forEach { (st, label) ->
+            FilterChip(selected = RoastKept.style == st, onClick = { if (RoastKept.style != st) { RoastKept.style = st; redraw() } }, label = { Text(stringResource(label)) })
+        }
+    }
+    Text(stringResource(R.string.roast_art), style = MaterialTheme.typography.labelLarge)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        RoastArt.entries.filter { it != RoastArt.AI || canDraw }.forEach { a ->
+            FilterChip(selected = RoastKept.art == a, onClick = { if (RoastKept.art != a) { RoastKept.art = a; redraw() } }, label = { Text(stringResource(a.label)) })
+        }
+    }
 }
 
 /**
