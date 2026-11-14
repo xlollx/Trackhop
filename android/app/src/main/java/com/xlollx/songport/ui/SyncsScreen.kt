@@ -780,10 +780,15 @@ private fun RunAllRow(
         var pillW by remember { mutableIntStateOf(0) }
         val sidePx = with(androidx.compose.ui.platform.LocalDensity.current) { LIST_SIDE.roundToPx() }
         // Read only where the row is placed (below), so the slide moves pixels without recomposing the row.
-        val shift = androidx.compose.animation.core.animateIntAsState(
-            if (pinned && boxW > 0 && pillW > 0) ((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) else 0,
-            androidx.compose.animation.core.tween(260, easing = androidx.compose.animation.core.FastOutSlowInEasing), label = "runall-center",
+        // One smooth progress for the slide; the distance is worked out from the pill's width at each
+        // frame, so a pill that widens on the way ("Sync all now" → "1 sync running") does not jump.
+        val slide by androidx.compose.animation.core.animateFloatAsState(
+            if (pinned) 1f else 0f,
+            androidx.compose.animation.core.spring(dampingRatio = 1f, stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow), label = "runall-center",
         )
+        val shift = androidx.compose.runtime.remember {
+            androidx.compose.runtime.derivedStateOf { if (boxW > 0 && pillW > 0) (((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) * slide).toInt() else 0 }
+        }
         LaunchedEffect(pinned) { if (pinned) scroll.animateScrollTo(0) }
         // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
         // row's own pixels fade (no colour is drawn), and only while there is something to scroll to:
@@ -824,14 +829,18 @@ private fun RunAllRow(
                 if (tally != null) Row(Modifier.onSizeChanged { pillW = it.width }, verticalAlignment = Alignment.CenterVertically) {
                     val runningCount = tally.total
                     val busy = runningCount > 0
+                    val pillColor by androidx.compose.animation.animateColorAsState(if (busy) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primary, label = "runall-color")
+                    val pillInk by androidx.compose.animation.animateColorAsState(if (busy) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimary, label = "runall-ink")
                     androidx.compose.material3.Surface(
                         onClick = { if (!busy || tally.allPaused) haptic(); onClick() },
                         shape = RoundedCornerShape(50),
-                        color = if (busy) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primary,
-                        contentColor = if (busy) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimary,
+                        color = pillColor,
+                        contentColor = pillInk,
                         shadowElevation = 6.dp,
                     ) {
-                        Row(Modifier.heightIn(min = 48.dp).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+                        // Its width follows the words smoothly instead of jumping when they change.
+                        Row(Modifier.animateContentSize(androidx.compose.animation.core.spring(dampingRatio = 1f, stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow))
+                            .heightIn(min = 48.dp).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
                             // All of them paused: nothing moves, so no spinner; a still pause sign, and a tap resumes them.
                             when {
                                 tally.allPaused -> Icon(Icons.Filled.Pause, null, Modifier.size(20.dp))
@@ -840,15 +849,16 @@ private fun RunAllRow(
                                 else -> Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
                             }
                             Spacer(Modifier.width(8.dp))
-                            Text(
-                                when {
-                                    tally.allPaused -> pluralStringResource(R.plurals.syncs_paused, runningCount, runningCount)
-                                    tally.somePaused -> stringResource(R.string.syncs_running_paused, tally.running, tally.paused)
-                                    busy -> pluralStringResource(R.plurals.syncs_running, runningCount, runningCount)
-                                    else -> stringResource(R.string.sync_all)
-                                },
-                                style = MaterialTheme.typography.labelLarge, maxLines = 1,
-                            )
+                            val words = when {
+                                tally.allPaused -> pluralStringResource(R.plurals.syncs_paused, runningCount, runningCount)
+                                tally.somePaused -> stringResource(R.string.syncs_running_paused, tally.running, tally.paused)
+                                busy -> pluralStringResource(R.plurals.syncs_running, runningCount, runningCount)
+                                else -> stringResource(R.string.sync_all)
+                            }
+                            // The new words fade in over the old ones (the row's width does the rest).
+                            androidx.compose.animation.Crossfade(words, label = "runall-words") { w ->
+                                Text(w, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                            }
                         }
                     }
                     // Its own small raised circle: over a card scrolling beneath, the "?" still reads.
