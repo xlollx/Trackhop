@@ -152,7 +152,9 @@ class MusicBrainzTest {
     }
 
     @Test fun requestsLeaveAtMostOneASecond() = runBlocking {
-        MusicBrainz.pace = Pacer(1100)
+        // Departures 1.3 s apart: arrivals on a busy runner wander by a tenth of a second or more (a macOS
+        // runner saw 996 ms), and the check stays that two requests never come closer than a second.
+        MusicBrainz.pace = Pacer(1300)
         answer = { 200 to listOf(a) }
         // Four searches of a sync ask at once, as the engine's parallel searches do.
         (1..3).map { i -> async { MusicBrainz.recordings(env, "USGF1994250$i") } }.awaitAll()
