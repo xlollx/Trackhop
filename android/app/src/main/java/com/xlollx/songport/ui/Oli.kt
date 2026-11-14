@@ -78,7 +78,7 @@ internal fun OliDialog(onDismiss: () -> Unit) {
     val view = LocalView.current
     val scope = rememberCoroutineScope()
     var purring by remember { mutableStateOf(false) }
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = rememberStayingDismiss(onDismiss)) {
         Card(shape = RoundedCornerShape(28.dp)) {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(

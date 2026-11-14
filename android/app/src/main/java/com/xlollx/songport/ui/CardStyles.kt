@@ -352,7 +352,7 @@ fun JobStyleDialog(
             }
         }
     } else androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = rememberStayingDismiss(onDismiss),
         title = title,
         text = {
             androidx.compose.foundation.layout.Column(

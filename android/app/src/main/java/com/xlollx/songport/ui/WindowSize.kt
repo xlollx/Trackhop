@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -132,9 +133,11 @@ fun FitDialog(
     text: @Composable (() -> Unit)? = null,
 ) {
     val short = WindowLayout.isShort(LocalConfiguration.current.screenHeightDp)
+    // Back closes at once; a tap beside the dialog only once it is sure it was not the Home gesture.
+    val back by androidx.compose.runtime.rememberUpdatedState(onDismissRequest)
     AlertDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
+        onDismissRequest = rememberStayingDismiss(onDismissRequest),
+        confirmButton = { androidx.activity.compose.BackHandler { back() }; confirmButton() },
         modifier = if (short) modifier.then(FitDialogDefaults.modifier) else modifier,
         dismissButton = dismissButton,
         icon = icon,

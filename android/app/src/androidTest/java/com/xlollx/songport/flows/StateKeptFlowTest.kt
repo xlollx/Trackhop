@@ -62,6 +62,39 @@ class StateKeptFlowTest : FlowTest() {
         waitNode("the name kept after Home", hasSetTextAction() and hasText("My phone"))
     }
 
+    /** The swipe up to Home with gesture navigation, as on the owner's phone: it starts beside a dialog. */
+    @Test
+    fun theAiSetupStaysOpenAfterTheHomeGesture() {
+        val gestural = "com.android.internal.systemui.navbar.gestural"
+        shell("cmd overlay enable $gestural")
+        try {
+            Thread.sleep(2_000)
+            launch(tabIntent(MainActivity.TAB_SETTINGS))
+            waitText(s(R.string.settings_theme))
+            scrollTo(compose.onNode(hasText(s(R.string.ai_setup_title))))
+            click(s(R.string.ai_setup_title))
+            waitText(s(R.string.ai_vendor))
+            val m = app.resources.displayMetrics
+            val x = m.widthPixels / 2
+            shell("input swipe $x ${m.heightPixels - 5} $x ${m.heightPixels / 2} 300")
+            val end = System.currentTimeMillis() + 10_000
+            while (System.currentTimeMillis() < end && resumed() != null) Thread.sleep(100)
+            Thread.sleep(1_000)
+            app.startActivity(
+                Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setClass(app, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED),
+            )
+            val back = System.currentTimeMillis() + 15_000
+            while (System.currentTimeMillis() < back && resumed() !is MainActivity) Thread.sleep(100)
+            Thread.sleep(1_000)
+            compose.waitForIdle()
+            snapshot("ai-setup-after-home-gesture")
+            waitText(s(R.string.ai_vendor))
+        } finally {
+            shell("cmd overlay disable $gestural")
+        }
+    }
+
     @Test
     fun theAiSetupStaysOpenAfterHome() {
         launch(tabIntent(MainActivity.TAB_SETTINGS))
