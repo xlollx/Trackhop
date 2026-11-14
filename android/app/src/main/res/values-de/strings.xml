@@ -449,7 +449,7 @@
     <string name="ai_cf_text">Auch mit einer KI, die nicht zeichnet: Ein kostenloses Cloudflare-Konto zeichnet die Cover (FLUX). Gib seine Account ID und ein API-Token mit der Berechtigung Workers AI ein. Trackhop fragt zuerst dort, dann die KI oben.</string>
     <string name="ai_cf_how">So bekommst du sie</string>
     <string name="ai_cf_account">Cloudflare Account ID</string>
-    <string name="ai_cf_account_hint">Nach der Anmeldung auf dash.cloudflare.com der 32-stellige Code in der Adresse oder Workers & Pages › Account ID.</string>
+    <string name="ai_cf_account_hint">Nach der Anmeldung auf dash.cloudflare.com der 32-stellige Code in der Adresse oder Workers &amp; Pages › Account ID.</string>
     <string name="ai_cf_token">Cloudflare API-Token</string>
     <string name="ai_free_hint">Kostenlos zum Ausprobieren: Google Gemini und Groq haben eine Gratisstufe, OpenRouter hat kostenlose Modelle (die auf „:free“ enden). Ein Schlüssel ist in einer Minute auf der Website des Anbieters erstellt. Trackhop kann keinen gemeinsamen Schlüssel mitliefern: Er wäre im offenen Quellcode sichtbar und innerhalb eines Tages aufgebraucht.</string>
     <string name="ai_badge_desc">Von deiner KI geschrieben</string>

@@ -443,7 +443,7 @@
     <string name="ai_cf_text">即使你的 AI 不会画图：免费的 Cloudflare 账户也能画封面（FLUX）。填入它的 Account ID 和带 Workers AI 权限的 API 令牌。Trackhop 先请它画，失败再用上面的 AI。</string>
     <string name="ai_cf_how">如何获取</string>
     <string name="ai_cf_account">Cloudflare Account ID</string>
-    <string name="ai_cf_account_hint">登录 dash.cloudflare.com 后，地址中的 32 位代码，或 Workers & Pages › Account ID。</string>
+    <string name="ai_cf_account_hint">登录 dash.cloudflare.com 后，地址中的 32 位代码，或 Workers &amp; Pages › Account ID。</string>
     <string name="ai_cf_token">Cloudflare API 令牌</string>
     <string name="ai_free_hint">免费试用：Google Gemini 和 Groq 有免费额度，OpenRouter 有免费模型（以“:free”结尾的）。在提供方网站上一分钟即可创建密钥。Trackhop 无法内置共享密钥：它会在开源代码中暴露，并在一天内被用完。</string>
     <string name="ai_badge_desc">由你的 AI 生成</string>
