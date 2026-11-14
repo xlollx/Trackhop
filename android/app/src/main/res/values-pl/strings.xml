@@ -457,6 +457,11 @@
     <string name="ai_images_custom">Wpisz poniżej model obrazów swojego serwera. LocalAI i podobne serwery rysują obrazy za darmo na twoim komputerze.</string>
     <string name="ai_images_none">%1$s nie rysuje obrazów: Trackhop rysuje okładkę na telefonie.</string>
     <string name="ai_images_model_note">Model powyżej służy do tekstów; okładki używają modelu obrazów dostawcy.</string>
+    <string name="ai_cf_title">Darmowe okładki z Cloudflare</string>
+    <string name="ai_cf_text">Nawet z AI, która nie rysuje: darmowe konto Cloudflare rysuje okładki (FLUX). Wpisz jego Account ID i token API z uprawnieniem Workers AI. Trackhop pyta najpierw Cloudflare, potem AI powyżej.</string>
+    <string name="ai_cf_how">Jak je zdobyć</string>
+    <string name="ai_cf_account">Account ID Cloudflare</string>
+    <string name="ai_cf_token">Token API Cloudflare</string>
     <string name="ai_free_hint">Można wypróbować za darmo: Google Gemini i Groq mają bezpłatny plan, OpenRouter ma bezpłatne modele (te z końcówką „:free”). Klucz tworzy się w minutę na stronie dostawcy. Trackhop nie może dołączyć wspólnego klucza: byłby widoczny w otwartym kodzie źródłowym i wyczerpany w ciągu dnia.</string>
     <string name="ai_badge_desc">Napisana przez twoją AI</string>
     <string name="ai_extend">Dodaj utwory z AI</string>

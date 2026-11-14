@@ -439,6 +439,11 @@
     <string name="ai_images_custom">下にサーバーの画像モデルを入れてください。LocalAIなどのサーバーなら自分のパソコンで無料で画像を描けます。</string>
     <string name="ai_images_none">%1$sは画像を描きません。Trackhopがスマホでカバーを描きます。</string>
     <string name="ai_images_model_note">上のモデルは文章用です。カバーには提供元の画像モデルを使います。</string>
+    <string name="ai_cf_title">Cloudflare で無料カバー</string>
+    <string name="ai_cf_text">画像を描かない AI でも、無料の Cloudflare アカウントがカバーを描きます (FLUX)。Account ID と Workers AI 権限付きの API トークンを入力してください。Trackhop はまず Cloudflare に、次に上の AI に頼みます。</string>
+    <string name="ai_cf_how">取得方法</string>
+    <string name="ai_cf_account">Cloudflare Account ID</string>
+    <string name="ai_cf_token">Cloudflare API トークン</string>
     <string name="ai_free_hint">無料で試せます：Google Gemini と Groq には無料枠があり、OpenRouter には無料モデル（末尾が「:free」のもの）があります。キーは提供元のサイトで 1 分で作れます。Trackhop に共有キーを同梱することはできません。オープンソースのコードから見えてしまい、1 日で使い切られてしまいます。</string>
     <string name="ai_badge_desc">あなたの AI が作成</string>
     <string name="ai_extend">AI で曲を追加</string>

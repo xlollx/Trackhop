@@ -75,6 +75,8 @@ import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.platform.env
+import com.xlollx.songport.Features
+import androidx.compose.foundation.layout.PaddingValues
 import com.xlollx.songport.sync.Scheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -537,8 +539,13 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
     var imageModel by rememberSaveable { mutableStateOf(initial?.imageModel.orEmpty()) }
     var models by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
     var modelsOpen by rememberSaveable { mutableStateOf(false) }
-    androidx.compose.runtime.SideEffect { if (!AiSetupDraft.closing) AiSetupDraft.key = key }
-    androidx.compose.runtime.DisposableEffect(Unit) { AiSetupDraft.closing = false; onDispose { if (AiSetupDraft.closing) AiSetupDraft.key = null } }
+    // 1.18: a Cloudflare account that draws the covers; its token, like the key, only in this process.
+    val cfSaved = remember { AiClient.imageKey(ctx.env) }
+    var cfAccount by rememberSaveable { mutableStateOf(cfSaved?.accountId.orEmpty()) }
+    var cfToken by remember { mutableStateOf(AiSetupDraft.cfToken ?: cfSaved?.token.orEmpty()) }
+    androidx.compose.runtime.SideEffect { if (!AiSetupDraft.closing) { AiSetupDraft.key = key; AiSetupDraft.cfToken = cfToken } }
+    androidx.compose.runtime.DisposableEffect(Unit) { AiSetupDraft.closing = false; onDispose { if (AiSetupDraft.closing) { AiSetupDraft.key = null; AiSetupDraft.cfToken = null } } }
+    fun saveCf() { if (Features.v2) AiClient.saveImageKey(ctx.env, AiClient.ImageKey(cfAccount, cfToken)) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     /** "" = the test passed; text = its error; null = not tried. */
@@ -546,7 +553,8 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
     fun current() = AiClient.Config(vendor, key.trim(), model.trim(), baseUrl.trim(), if (vendor == AiClient.Vendor.CUSTOM) imageModel.trim() else "")
     // Back or a tap beside it with a key or a choice not saved: asked first.
     val changed = vendor != (initial?.vendor ?: AiClient.Vendor.OPENAI) || key.trim() != initial?.apiKey.orEmpty().trim() ||
-        model.trim() != initial?.model.orEmpty().trim() || baseUrl.trim() != initial?.baseUrl.orEmpty().trim() || imageModel.trim() != initial?.imageModel.orEmpty().trim()
+        model.trim() != initial?.model.orEmpty().trim() || baseUrl.trim() != initial?.baseUrl.orEmpty().trim() || imageModel.trim() != initial?.imageModel.orEmpty().trim() ||
+        cfAccount.trim() != cfSaved?.accountId.orEmpty() || cfToken.trim() != cfSaved?.token.orEmpty()
     val close = rememberDiscardGuard(changed, onClose = cancel)
 
     FitDialog(
@@ -653,6 +661,26 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
                         )
                         if (vendor == AiClient.Vendor.OPENAI || vendor == AiClient.Vendor.GEMINI)
                             Text(stringResource(R.string.ai_images_model_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (Features.v2) {
+                            // Free covers whatever the AI above: drawn first by Cloudflare, by the AI above when that fails.
+                            Spacer(Modifier.height(4.dp))
+                            Text(stringResource(R.string.ai_cf_title), style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.ai_cf_text), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val uri = androidx.compose.ui.platform.LocalUriHandler.current
+                            TextButton(onClick = { runCatching { uri.openUri("https://developers.cloudflare.com/workers-ai/get-started/rest-api/") } }, contentPadding = PaddingValues(0.dp)) {
+                                Text(stringResource(R.string.ai_cf_how))
+                            }
+                            OutlinedTextField(
+                                value = cfAccount, onValueChange = { cfAccount = it }, singleLine = true,
+                                label = { Text(stringResource(R.string.ai_cf_account)) }, modifier = Modifier.fillMaxWidth(),
+                            )
+                            OutlinedTextField(
+                                value = cfToken, onValueChange = { cfToken = it }, singleLine = true,
+                                label = { Text(stringResource(R.string.ai_cf_token)) },
+                                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                 }
                 checkResult?.let { r ->
@@ -663,11 +691,11 @@ fun AiSetupDialog(initial: AiClient.Config?, onDismiss: () -> Unit, onSaved: (Ai
             }
         },
         confirmButton = {
-            TextButton(enabled = current().complete, onClick = { AiClient.save(ctx, current()); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(current()) }) { Text(stringResource(R.string.save)) }
+            TextButton(enabled = current().complete, onClick = { AiClient.save(ctx, current()); saveCf(); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(current()) }) { Text(stringResource(R.string.save)) }
         },
         dismissButton = {
             Row {
-                if (initial != null) TextButton(onClick = { AiClient.clear(ctx); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(null) }) { Text(stringResource(R.string.ai_forget), color = MaterialTheme.colorScheme.error) }
+                if (initial != null) TextButton(onClick = { AiClient.clear(ctx); if (Features.v2) AiClient.saveImageKey(ctx.env, null); AiDraft.models = emptyList(); AiSetupDraft.closing = true; AiSetupDraft.key = null; onSaved(null) }) { Text(stringResource(R.string.ai_forget), color = MaterialTheme.colorScheme.error) }
                 TextButton(onClick = cancel) { Text(stringResource(R.string.cancel)) }
             }
         },
@@ -956,6 +984,7 @@ private const val NANO_POLL_MS = 8_000L
 /** The key typed in [AiSetupDialog] and not saved yet, kept across a remade activity in memory only. */
 object AiSetupDraft {
     @Volatile var key: String? = null
+    @Volatile var cfToken: String? = null
     /** Set when the dialog is closed on purpose (saved or cancelled), so the draft is dropped. */
     @Volatile var closing = false
 }

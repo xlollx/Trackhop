@@ -445,6 +445,11 @@
     <string name="ai_images_custom">Sunucunun görsel modelini aşağıya yaz. LocalAI ve benzeri sunucular kendi bilgisayarında ücretsiz görsel çizer.</string>
     <string name="ai_images_none">%1$s görsel çizmez: Trackhop kapağı telefonda çizer.</string>
     <string name="ai_images_model_note">Yukarıdaki model metin içindir; kapaklar sağlayıcının kendi görsel modelini kullanır.</string>
+    <string name="ai_cf_title">Cloudflare ile ücretsiz kapaklar</string>
+    <string name="ai_cf_text">Çizim yapmayan bir yapay zekâyla bile: ücretsiz bir Cloudflare hesabı kapakları çizer (FLUX). Account ID\'sini ve Workers AI izinli bir API token\'ını gir. Trackhop önce ona, sonra yukarıdaki yapay zekâya sorar.</string>
+    <string name="ai_cf_how">Nasıl alınır</string>
+    <string name="ai_cf_account">Cloudflare Account ID</string>
+    <string name="ai_cf_token">Cloudflare API token</string>
     <string name="ai_free_hint">Ücretsiz deneyin: Google Gemini ve Groq\'un ücretsiz katmanı, OpenRouter\'ın ücretsiz modelleri (“:free” ile bitenler) var. Sağlayıcının sitesinde anahtar almak bir dakika sürer. Trackhop ortak bir anahtar sunamaz: açık kaynak kodda görünür ve bir gün içinde tükenirdi.</string>
     <string name="ai_badge_desc">Yapay zekanız tarafından yazıldı</string>
     <string name="ai_extend">Yapay zeka ile parça ekle</string>

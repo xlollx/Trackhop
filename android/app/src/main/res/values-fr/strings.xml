@@ -445,6 +445,11 @@
     <string name="ai_images_custom">Mets ci-dessous le modèle d\'images de ton serveur. LocalAI et les serveurs semblables dessinent des images gratuitement sur ton propre ordinateur.</string>
     <string name="ai_images_none">%1$s ne dessine pas d\'images : Trackhop dessine la pochette sur le téléphone.</string>
     <string name="ai_images_model_note">Le modèle ci-dessus sert aux textes ; les pochettes utilisent le modèle d\'images du fournisseur.</string>
+    <string name="ai_cf_title">Pochettes gratuites avec Cloudflare</string>
+    <string name="ai_cf_text">Même avec une IA qui ne dessine pas : un compte Cloudflare gratuit dessine les pochettes (FLUX). Indique son Account ID et un jeton API avec l\'autorisation Workers AI. Trackhop le sollicite d\'abord, puis l\'IA ci-dessus.</string>
+    <string name="ai_cf_how">Comment les obtenir</string>
+    <string name="ai_cf_account">Account ID Cloudflare</string>
+    <string name="ai_cf_token">Jeton API Cloudflare</string>
     <string name="ai_free_hint">Gratuit pour essayer : Google Gemini et Groq ont une offre gratuite, OpenRouter a des modèles gratuits (ceux qui finissent par « :free »). Une clé se crée en une minute sur le site du fournisseur. Trackhop ne peut pas embarquer une clé partagée : elle serait visible dans le code open source et épuisée en un jour.</string>
     <string name="ai_badge_desc">Écrite par ton IA</string>
     <string name="ai_extend">Ajouter des titres avec l\'IA</string>

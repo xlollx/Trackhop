@@ -439,6 +439,11 @@
     <string name="ai_images_custom">请在下面填写你服务器的图像模型。LocalAI 等服务器可以在你自己的电脑上免费画图。</string>
     <string name="ai_images_none">%1$s 不能画图：Trackhop 会在手机上绘制封面。</string>
     <string name="ai_images_model_note">上面的模型用于文字；封面使用服务商自己的图像模型。</string>
+    <string name="ai_cf_title">用 Cloudflare 免费生成封面</string>
+    <string name="ai_cf_text">即使你的 AI 不会画图：免费的 Cloudflare 账户也能画封面（FLUX）。填入它的 Account ID 和带 Workers AI 权限的 API 令牌。Trackhop 先请它画，失败再用上面的 AI。</string>
+    <string name="ai_cf_how">如何获取</string>
+    <string name="ai_cf_account">Cloudflare Account ID</string>
+    <string name="ai_cf_token">Cloudflare API 令牌</string>
     <string name="ai_free_hint">免费试用：Google Gemini 和 Groq 有免费额度，OpenRouter 有免费模型（以“:free”结尾的）。在提供方网站上一分钟即可创建密钥。Trackhop 无法内置共享密钥：它会在开源代码中暴露，并在一天内被用完。</string>
     <string name="ai_badge_desc">由你的 AI 生成</string>
     <string name="ai_extend">用 AI 添加歌曲</string>

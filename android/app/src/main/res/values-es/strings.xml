@@ -445,6 +445,11 @@
     <string name="ai_images_custom">Pon abajo el modelo de imágenes de tu servidor. LocalAI y servidores parecidos dibujan imágenes gratis en tu propio ordenador.</string>
     <string name="ai_images_none">%1$s no dibuja imágenes: Trackhop dibuja la portada en el teléfono.</string>
     <string name="ai_images_model_note">El modelo de arriba es para textos; las portadas usan el modelo de imágenes del proveedor.</string>
+    <string name="ai_cf_title">Portadas gratis con Cloudflare</string>
+    <string name="ai_cf_text">Incluso con una IA que no dibuja: una cuenta gratuita de Cloudflare dibuja las portadas (FLUX). Pon su Account ID y un token de API con el permiso Workers AI. Trackhop le pregunta primero a ella y luego a la IA de arriba.</string>
+    <string name="ai_cf_how">Cómo obtenerlos</string>
+    <string name="ai_cf_account">Account ID de Cloudflare</string>
+    <string name="ai_cf_token">Token de API de Cloudflare</string>
     <string name="ai_free_hint">Gratis para probar: Google Gemini y Groq tienen un nivel gratuito, OpenRouter tiene modelos gratuitos (los que terminan en “:free”). Una clave se crea en un minuto en el sitio del proveedor. Trackhop no puede incluir una clave compartida: sería visible en el código abierto y se agotaría en un día.</string>
     <string name="ai_badge_desc">Escrita por tu IA</string>
     <string name="ai_extend">Añadir canciones con la IA</string>

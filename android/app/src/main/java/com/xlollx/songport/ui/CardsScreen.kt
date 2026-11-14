@@ -84,6 +84,7 @@ import com.xlollx.songport.R
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.platform.env
+import com.xlollx.songport.Features
 import com.xlollx.songport.sync.Compatibility
 import com.xlollx.songport.sync.LinkResolver
 import com.xlollx.songport.sync.PlaylistLinks
@@ -576,7 +577,8 @@ fun PosterCard(snackbar: SnackbarHostState) {
     var qr by remember { mutableStateOf<String?>(null) }
     // The AI of the Playlist generator, if any, and whether it can draw.
     val ai = remember { AiClient.config(ctx)?.takeIf { it.complete } }
-    val aiSupport = ai?.let { AiClient.imageSupport(it) }
+    // The AI's own images, or (1.18) a Cloudflare key, whatever the AI.
+    val aiSupport = ai?.let { if (AiClient.canDraw(ctx.env, it)) AiClient.ImageSupport.YES else AiClient.imageSupport(it) }
     val aiOk = ai != null && aiSupport == AiClient.ImageSupport.YES
     // The art chosen last time; the AI only while it can still draw.
     var art by remember {
@@ -686,7 +688,7 @@ fun PosterCard(snackbar: SnackbarHostState) {
                             val drawnByAi = aiCovers[key] ?: try {
                                 drawing = true
                                 val prompt = CoverPrompt.build(title, artists, info.description)
-                                val bytes = AiClient.generateImage(ai, prompt)
+                                val bytes = AiClient.drawCover(ctx.env, ai, prompt)
                                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { aiCovers[key] = it }
                                     ?: throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.error_generic))
                             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
@@ -897,7 +899,10 @@ private fun CoverArtChoice(selected: PosterArt, title: String, ai: AiClient.Conf
     val aiOk = ai != null && support == AiClient.ImageSupport.YES
     val aiNote = when {
         ai == null -> stringResource(R.string.card_ai_cover_none)
-        support == AiClient.ImageSupport.YES -> stringResource(R.string.card_ai_cover_yes, ai.vendor.label)
+        support == AiClient.ImageSupport.YES -> stringResource(
+            R.string.card_ai_cover_yes,
+            if (Features.v2 && AiClient.imageKey(LocalContext.current.env) != null) "Cloudflare" else ai.vendor.label,
+        )
         support == AiClient.ImageSupport.NEEDS_IMAGE_MODEL -> stringResource(R.string.card_ai_cover_model)
         ai.vendor == AiClient.Vendor.ANTHROPIC -> stringResource(R.string.card_ai_cover_claude)
         else -> stringResource(R.string.card_ai_cover_no_images, ai.vendor.label)

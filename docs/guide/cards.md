@@ -79,6 +79,18 @@ instead: OpenAI (gpt-image-1, or DALL·E 3 when the key has no access to it), Go
 (gemini-2.5-flash-image) or an OpenAI-compatible server for which you entered an image model.
 Claude, Groq and OpenRouter do not make images here, and the option says so.
 
+**Free, on your own computer:** [LocalAI](https://localai.io) speaks the same API as OpenAI and
+draws images with open models (Stable Diffusion, FLUX). Set it up as an OpenAI-compatible server
+(its address, for example `http://192.168.1.10:8080/v1`) and put its image model's name in
+**Image model**: covers cost nothing and never leave your network.
+
+**Free, with any AI (from Trackhop 1.18):** a free Cloudflare account draws covers with FLUX.1
+schnell (Workers AI), even when your AI is Claude, Groq or OpenRouter. In the AI setup, under
+**Free covers with Cloudflare**, put the account's **Account ID** and an
+[API token](https://developers.cloudflare.com/workers-ai/get-started/rest-api/) with the Workers AI
+permission. Trackhop asks Cloudflare first and, if it refuses (the daily free allowance used up),
+the AI above when it draws.
+
 It runs on your own key, so it may cost a few cents per picture. Only the playlist's title, its five
 most frequent artists and its description are sent, with a request for square cover art without
 lettering, logos or real people's faces. The picture is kept for the session: **Make the card again**
