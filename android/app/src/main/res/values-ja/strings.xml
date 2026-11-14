@@ -2588,4 +2588,22 @@
     <string name="web_err_log">ログを開く</string>
     <string name="web_err_details">技術的な詳細</string>
     <string name="subsonic_legacy_needs_https">このサーバーはアプリのトークンを受け付けず、パスワードそのものだけを使います。安全のため、Trackhop はパスワードを HTTPS か自宅ネットワーク内のサーバーにだけ送ります。サーバーの https:// アドレスを使ってください。</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">1分未満</string>
+    <string name="nf_minutes">%1$d分</string>
+    <string name="nf_added">追加</string>
+    <string name="nf_removed">削除</string>
+    <string name="nf_review">要確認</string>
+    <string name="nf_unmatched">見つからない</string>
+    <string name="nf_new">新曲: %1$s</string>
+    <string name="nf_and_more">ほか%1$d曲</string>
+    <string name="nf_title_failed">%1$s に失敗しました</string>
+    <string name="nf_todo">対処: %1$s</string>
+    <string name="nf_todo_failed">Trackhop で同期を開き「今すぐ同期」をタップ。求められたら再ログインしてください。</string>
+    <string name="nf_title_releases">新作: +%1$d</string>
+    <string name="nf_title_removals">%1$s: 確認待ちの削除 (%2$d)</string>
+    <string name="nf_removals_detail">ソースから消えた曲があります。確認するまで Trackhop は同期先から削除しません。</string>
+    <string name="nf_todo_review">Trackhop で同期を開き、不確かな一致を確認してください。</string>
+    <string name="nf_title_added">%1$s: +%2$d</string>
 </resources>

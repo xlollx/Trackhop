@@ -2649,4 +2649,22 @@
     <string name="web_err_log">Ouvrir le journal</string>
     <string name="web_err_details">Détails techniques</string>
     <string name="subsonic_legacy_needs_https">Ce serveur n\'accepte pas les jetons d\'applis, seulement le mot de passe. Par sécurité, Trackhop n\'envoie un mot de passe qu\'en HTTPS ou à un serveur de votre réseau domestique : utilisez l\'adresse https:// du serveur.</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">moins d\'une minute</string>
+    <string name="nf_minutes">%1$d min</string>
+    <string name="nf_added">Ajoutés</string>
+    <string name="nf_removed">Retirés</string>
+    <string name="nf_review">À vérifier</string>
+    <string name="nf_unmatched">Introuvables</string>
+    <string name="nf_new">Nouveaux : %1$s</string>
+    <string name="nf_and_more">et %1$d autres</string>
+    <string name="nf_title_failed">%1$s a échoué</string>
+    <string name="nf_todo">Que faire : %1$s</string>
+    <string name="nf_todo_failed">ouvre la synchro dans Trackhop et touche Synchroniser ; reconnecte-toi si c\'est demandé.</string>
+    <string name="nf_title_releases">Nouveautés : +%1$d</string>
+    <string name="nf_title_removals">%1$s : retraits à confirmer (%2$d)</string>
+    <string name="nf_removals_detail">Des titres ont quitté la source : Trackhop ne les retire de la destination qu\'après ta confirmation.</string>
+    <string name="nf_todo_review">ouvre la synchro dans Trackhop et vérifie les correspondances incertaines.</string>
+    <string name="nf_title_added">%1$s : +%2$d</string>
 </resources>

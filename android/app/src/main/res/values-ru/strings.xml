@@ -2747,4 +2747,22 @@
     <string name="web_err_log">Открыть журнал</string>
     <string name="web_err_details">Технические подробности</string>
     <string name="subsonic_legacy_needs_https">Этот сервер не принимает токены приложений, только сам пароль. Ради безопасности Trackhop отправляет пароль только по HTTPS или на сервер в домашней сети: укажите адрес сервера с https://.</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">меньше минуты</string>
+    <string name="nf_minutes">%1$d мин</string>
+    <string name="nf_added">Добавлено</string>
+    <string name="nf_removed">Удалено</string>
+    <string name="nf_review">Проверить</string>
+    <string name="nf_unmatched">Не найдено</string>
+    <string name="nf_new">Новые: %1$s</string>
+    <string name="nf_and_more">и ещё %1$d</string>
+    <string name="nf_title_failed">%1$s: ошибка</string>
+    <string name="nf_todo">Что сделать: %1$s</string>
+    <string name="nf_todo_failed">откройте синхронизацию в Trackhop и нажмите «Синхронизировать»; если попросит — войдите снова.</string>
+    <string name="nf_title_releases">Новинки: +%1$d</string>
+    <string name="nf_title_removals">%1$s: удаления ждут подтверждения (%2$d)</string>
+    <string name="nf_removals_detail">Некоторые треки пропали из источника: Trackhop удалит их из цели только после вашего подтверждения.</string>
+    <string name="nf_todo_review">откройте синхронизацию в Trackhop и проверьте неуверенные совпадения.</string>
+    <string name="nf_title_added">%1$s: +%2$d</string>
 </resources>

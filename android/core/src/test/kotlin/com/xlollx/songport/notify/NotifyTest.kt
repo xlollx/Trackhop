@@ -313,4 +313,38 @@ class NotifyTest {
         assertEquals(Notify.TelegramHint.START_BOT, Notify.telegramHint(ok, "HTTP 400: Bad Request: chat not found"))
         assertEquals(Notify.TelegramHint.BOT_ID, Notify.telegramHint(ok, "HTTP 403: Forbidden: the bot can't send messages to the bot"))
     }
+
+    @Test fun theNewMessageHasTheResultTheRouteTheFiguresAndWhatToDo() {
+        val job = SyncJob("j1", "Road <trip>", PlaylistRef("csv", "a", "a"), PlaylistRef("csv", null, "b"))
+        val r = report(added = 3, review = 2).copy(addedTracks = listOf(Track("1", "One", listOf("Ann")), Track("2", "Two", listOf("Bo"))), durationMs = 30_000)
+        val m = Notify.richMessage(env, job, r, Notify.Event.entries.toSet())!!
+        val rich = m.rich!!
+        assertEquals(Notify.Tone.OK, rich.tone)
+        assertEquals("nf_title_added(Road <trip>,3)", rich.title)
+        // Only the figures that are not zero, the first songs, the to-do of the review.
+        assertEquals(listOf("nf_added" to 3, "nf_review" to 2), rich.counts)
+        assertEquals("nf_new(Ann – One, Two" .replace("Two", "Bo – Two") + " nf_and_more(1))", rich.detail)
+        assertEquals("nf_todo(nf_todo_review)", rich.todo)
+        assertTrue(rich.time.endsWith("nf_under_minute"))
+        assertTrue(m.text.startsWith(rich.route + "\n" + rich.countsLine))
+        assertNull("nothing a channel asked for", Notify.richMessage(env, job, r, setOf(Notify.Event.FAILED)))
+        val failed = Notify.richMessage(env, job, report(error = "Sign-in expired at https://x.example/t?k=1"), Notify.Event.entries.toSet())!!.rich!!
+        assertEquals(Notify.Tone.FAIL, failed.tone)
+        assertEquals("Sign-in expired at …", failed.detail)
+
+        // Telegram: HTML, with the sync's name escaped.
+        val tg = body(sent(channel(Notify.Kind.TELEGRAM, "token" to FAKE_BOT, "chat" to "42"), m = m))
+        assertEquals("HTML", tg.s("parse_mode"))
+        assertTrue(tg.s("text").startsWith("<b>✅ nf_title_added(Road &lt;trip&gt;,3)</b>\n"))
+        // Discord: an embed, red for a failure; no one pinged.
+        val fm = Notify.richMessage(env, job, report(error = "boom"), Notify.Event.entries.toSet())!!
+        val dc = body(sent(channel(Notify.Kind.DISCORD, "url" to "$url/hook"), code = 204, m = fm))
+        val embed = dc["embeds"]!!.jsonArray.single().jsonObject
+        assertEquals("${0xE5484D}", embed.s("color"))
+        assertEquals(0, dc["allowed_mentions"]!!.jsonObject["parse"]!!.jsonArray.size)
+        // Slack keeps a plain text for its notifications next to the blocks; Matrix an HTML body next to the plain one.
+        assertTrue(body(sent(channel(Notify.Kind.SLACK, "url" to "$url/s"), m = m))["blocks"]!!.jsonArray.size >= 2)
+        val mx = body(sent(channel(Notify.Kind.MATRIX, "server" to url, "room" to "!r:x", "token" to "t"), m = m))
+        assertEquals("org.matrix.custom.html", mx.s("format"))
+    }
 }

@@ -2649,4 +2649,22 @@
     <string name="web_err_log">Abrir o registro</string>
     <string name="web_err_details">Detalhes técnicos</string>
     <string name="subsonic_legacy_needs_https">Este servidor não aceita tokens de apps, só a própria senha. Por segurança, o Trackhop só envia uma senha por HTTPS ou para um servidor da sua rede doméstica: use o endereço https:// do servidor.</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">menos de um minuto</string>
+    <string name="nf_minutes">%1$d min</string>
+    <string name="nf_added">Adicionadas</string>
+    <string name="nf_removed">Removidas</string>
+    <string name="nf_review">Para revisar</string>
+    <string name="nf_unmatched">Não encontradas</string>
+    <string name="nf_new">Novas: %1$s</string>
+    <string name="nf_and_more">e mais %1$d</string>
+    <string name="nf_title_failed">%1$s falhou</string>
+    <string name="nf_todo">O que fazer: %1$s</string>
+    <string name="nf_todo_failed">abra a sync no Trackhop e toque em Sincronizar agora; se pedir, entre de novo.</string>
+    <string name="nf_title_releases">Lançamentos: +%1$d</string>
+    <string name="nf_title_removals">%1$s: remoções para confirmar (%2$d)</string>
+    <string name="nf_removals_detail">Algumas músicas saíram da origem: o Trackhop só as remove do destino depois da sua confirmação.</string>
+    <string name="nf_todo_review">abra a sync no Trackhop e confira as correspondências incertas.</string>
+    <string name="nf_title_added">%1$s: +%2$d</string>
 </resources>

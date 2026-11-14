@@ -147,7 +147,22 @@ object Notify {
         fun secrets(): List<String> = kind.fields.filter { it.secret }.map { value(it.key) }.filter { it.length >= 4 }
     }
 
-    data class Message(val title: String, val text: String)
+    data class Message(val title: String, val text: String, val rich: Rich? = null)
+
+    /**
+     * The 1.18 notification: the same parts on every channel, each drawn with what the channel has
+     * (bold and italics, an embed, blocks, a title and a priority). [text] of the [Message] holds
+     * the same lines as plain text, for the channels and clients that show only that.
+     */
+    data class Rich(
+        val tone: Tone, val icon: String, val title: String, val route: String,
+        val counts: List<Pair<String, Int>>, val detail: String?, val todo: String?, val time: String,
+    ) {
+        val countsLine: String get() = counts.joinToString(" · ") { (k, n) -> "$k: $n" }
+        val lines: List<String> get() = listOfNotNull(route, countsLine.ifEmpty { null }, detail, todo, "🕒 $time")
+    }
+
+    enum class Tone { OK, FAIL, WARN }
 
     // ------------------------------------------------------------------ storage
 
@@ -328,6 +343,45 @@ object Notify {
         return Message("Trackhop: $syncName", lines.joinToString("\n"))
     }
 
+    /**
+     * The 1.18 message of a run of [job] ([Rich]): the result in the title, the route, the figures that
+     * are not zero, a few added songs, what to do when it failed, when and how long. Texts in the app's
+     * language ([Env.text]); null when the run has nothing a channel wanting [wanted] asked for.
+     */
+    fun richMessage(env: Env, job: SyncJob, r: SyncReport, wanted: Set<Event>, releases: Boolean = false): Message? {
+        val happened = events(r, releases) intersect wanted
+        if (happened.isEmpty()) return null
+        fun name(id: String) = com.xlollx.songport.providers.Providers.byId(id)?.displayName?.let { com.xlollx.songport.sync.Wrapped.brandName(it) } ?: id
+        val route = env.text("nf_route", name(job.source.provider), name(job.target.provider))
+        val minutes = r.durationMs / 60_000
+        val time = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(r.startedEpoch)) +
+            " · " + if (minutes < 1) env.text("nf_under_minute") else env.text("nf_minutes", minutes)
+        val counts = listOf(
+            env.text("nf_added") to r.added, env.text("nf_removed") to r.removed,
+            env.text("nf_review") to r.reviewTracks.size, env.text("nf_unmatched") to r.unmatched.size,
+        ).filter { it.second > 0 }
+        val songs = r.addedTracks.take(2).map { t -> listOf(t.artists.firstOrNull().orEmpty(), t.title).filter { it.isNotBlank() }.joinToString(" – ") }
+        val more = r.added - songs.size
+        val newSongs = if (songs.isEmpty()) null else env.text("nf_new", songs.joinToString(", ") + if (more > 0) " " + env.text("nf_and_more", more) else "")
+        val rich = when {
+            Event.FAILED in happened -> Rich(
+                Tone.FAIL, "⚠️", env.text("nf_title_failed", job.name), route, emptyList(),
+                errorLine(r.error), env.text("nf_todo", env.text("nf_todo_failed")), time,
+            )
+            Event.RELEASES in happened -> Rich(Tone.OK, "🆕", env.text("nf_title_releases", r.added), route, emptyList(), newSongs, null, time)
+            Event.REMOVALS in happened && Event.CHANGES !in happened -> Rich(
+                Tone.WARN, "🗑️", env.text("nf_title_removals", job.name, r.heldBack), route, emptyList(),
+                env.text("nf_removals_detail"), env.text("nf_todo", env.text("nf_todo_removals")), time,
+            )
+            else -> Rich(
+                Tone.OK, "✅", if (r.added > 0) env.text("nf_title_added", job.name, r.added) else job.name, route, counts,
+                newSongs ?: if (Event.REMOVALS in happened) env.text("nf_removals_detail") else null,
+                if (Event.REVIEW in happened) env.text("nf_todo", env.text("nf_todo_review")) else null, time,
+            )
+        }
+        return Message(rich.title, rich.lines.joinToString("\n"), rich)
+    }
+
     /** An error's first line, short, with any address taken out (a server's, a link with a token). */
     internal fun errorLine(error: String?): String =
         error.orEmpty().lineSequence().firstOrNull { it.isNotBlank() }.orEmpty().trim()
@@ -372,6 +426,7 @@ object Notify {
     /** The HTTP request that delivers [m] through [c]. */
     fun request(c: Channel, m: Message): Request {
         val b = Request.Builder().header("User-Agent", "Trackhop")
+        m.rich?.let { return richRequest(c, it, b).build() }
         return when (c.kind) {
             Kind.TELEGRAM -> b.url(base(telegramApi).newBuilder().addPathSegment("bot" + c.value("token")).addPathSegment("sendMessage").build())
                 .post(json(buildJsonObject {
@@ -404,6 +459,77 @@ object Notify {
             Kind.PUSHOVER -> b.url(base(pushoverApi).newBuilder().addPathSegments("1/messages.json").build())
                 .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", m.title).add("message", m.text).build())
         }.build()
+    }
+
+    private fun html(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    /** [r] drawn with what [c]'s service has; the limits: Telegram 4096, Discord 4096 per embed, Pushover 1024. */
+    private fun richRequest(c: Channel, r: Rich, b: Request.Builder): Request.Builder {
+        val title = "${r.icon} ${r.title}"
+        val plain = r.lines.joinToString("\n")
+        fun htmlBody() = buildList {
+            add("<b>${html(title)}</b>"); add(html(r.route))
+            if (r.counts.isNotEmpty()) add(html(r.countsLine))
+            r.detail?.let { add(html(it)) }; r.todo?.let { add("<i>${html(it)}</i>") }; add(html("🕒 ${r.time}"))
+        }
+        return when (c.kind) {
+            Kind.TELEGRAM -> b.url(base(telegramApi).newBuilder().addPathSegment("bot" + c.value("token")).addPathSegment("sendMessage").build())
+                .post(json(buildJsonObject {
+                    put("chat_id", c.value("chat")); put("text", htmlBody().joinToString("\n").take(4000))
+                    put("parse_mode", "HTML"); put("disable_web_page_preview", true)
+                }))
+            Kind.NTFY -> b.url(base(c.value("server"))).apply {
+                c.value("token").takeIf { it.isNotBlank() }?.let { header("Authorization", "Bearer $it") }
+            }.post(json(buildJsonObject {
+                put("topic", c.value("topic")); put("title", r.title); put("message", plain)
+                put("tags", buildJsonArray { add(if (r.tone == Tone.FAIL) "warning" else "musical_note") })
+                put("priority", if (r.tone == Tone.FAIL) 4 else 3)
+            }))
+            Kind.GOTIFY -> b.url(base(c.value("server")).newBuilder().addPathSegment("message").build())
+                .header("X-Gotify-Key", c.value("token"))
+                .post(json(buildJsonObject { put("title", title); put("message", plain); put("priority", if (r.tone == Tone.FAIL) 8 else 5) }))
+            Kind.DISCORD -> b.url(base(c.value("url"))).post(json(buildJsonObject {
+                put("allowed_mentions", buildJsonObject { put("parse", JsonArray(emptyList())) })
+                put("embeds", buildJsonArray {
+                    add(buildJsonObject {
+                        put("title", title.take(256))
+                        put("description", listOfNotNull(r.route, r.detail, r.todo?.let { "*$it*" }).joinToString("\n").take(4000))
+                        put("color", when (r.tone) { Tone.OK -> 0x1DB954; Tone.FAIL -> 0xE5484D; Tone.WARN -> 0xF5A524 })
+                        if (r.counts.isNotEmpty()) put("fields", buildJsonArray {
+                            r.counts.forEach { (k, n) -> add(buildJsonObject { put("name", k.take(256)); put("value", "$n"); put("inline", true) }) }
+                        })
+                        put("footer", buildJsonObject { put("text", "Trackhop · ${r.time}".take(2048)) })
+                    })
+                })
+            }))
+            Kind.SLACK -> b.url(base(c.value("url"))).post(json(buildJsonObject {
+                fun esc(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                put("text", "*${esc(title)}*\n${esc(plain)}")
+                put("blocks", buildJsonArray {
+                    fun section(t: String) = add(buildJsonObject {
+                        put("type", "section"); put("text", buildJsonObject { put("type", "mrkdwn"); put("text", t.take(3000)) })
+                    })
+                    section("*${esc(title)}*\n${esc(r.route)}" + if (r.counts.isNotEmpty()) "\n${esc(r.countsLine)}" else "")
+                    listOfNotNull(r.detail?.let(::esc), r.todo?.let { "_${esc(it)}_" }).takeIf { it.isNotEmpty() }?.let { section(it.joinToString("\n")) }
+                    add(buildJsonObject {
+                        put("type", "context")
+                        put("elements", buildJsonArray { add(buildJsonObject { put("type", "mrkdwn"); put("text", esc("🕒 ${r.time}")) }) })
+                    })
+                })
+            }))
+            Kind.MATRIX -> b.url(
+                base(c.value("server")).newBuilder().addPathSegments("_matrix/client/v3/rooms").addPathSegment(c.value("room"))
+                    .addPathSegments("send/m.room.message").addPathSegment("trackhop${txn.incrementAndGet()}").build(),
+            ).header("Authorization", "Bearer ${c.value("token")}")
+                .put(json(buildJsonObject {
+                    put("msgtype", "m.text"); put("body", "$title\n$plain")
+                    put("format", "org.matrix.custom.html"); put("formatted_body", htmlBody().joinToString("<br>"))
+                }))
+            Kind.PUSHOVER -> b.url(base(pushoverApi).newBuilder().addPathSegments("1/messages.json").build())
+                .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", title.take(250))
+                    .add("message", htmlBody().drop(1).joinToString("\n").take(1024)).add("html", "1")
+                    .add("priority", if (r.tone == Tone.FAIL) "1" else "0").build())
+        }
     }
 
     /** Sends [m] through [c] now (this thread). Null when it arrived, else why not, with no secret in it. */
@@ -439,7 +565,12 @@ object Notify {
     fun deliveries(env: Env, job: SyncJob, report: SyncReport): List<Pair<Channel, Message>> {
         val releases = job.source.provider == com.xlollx.songport.providers.NewReleasesProvider.SERVICE
         return runCatching { channels(env) }.getOrDefault(emptyList()).filter { it.enabled && it.missing().isEmpty() }
-            .mapNotNull { c -> message(job.name, report, c.events, releases)?.let { c to it } }
+            .mapNotNull { c ->
+                // 1.18: the full message; its plain [Message.text] is still there for anything that reads only that.
+                val m = if (com.xlollx.songport.Features.v2) runCatching { richMessage(env, job, report, c.events, releases) }.getOrNull()
+                else null
+                (m ?: message(job.name, report, c.events, releases))?.let { c to it }
+            }
     }
 
     /** After a run: [deliveries] sent in the background. Never throws. */

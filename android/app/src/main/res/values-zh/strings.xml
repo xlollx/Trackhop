@@ -2588,4 +2588,22 @@
     <string name="web_err_log">打开日志</string>
     <string name="web_err_details">技术详情</string>
     <string name="subsonic_legacy_needs_https">此服务器不接受应用令牌，只接受密码本身。为了安全，Trackhop 只通过 HTTPS 或向家庭网络中的服务器发送密码：请使用服务器的 https:// 地址。</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">不到一分钟</string>
+    <string name="nf_minutes">%1$d 分钟</string>
+    <string name="nf_added">已添加</string>
+    <string name="nf_removed">已移除</string>
+    <string name="nf_review">待检查</string>
+    <string name="nf_unmatched">未找到</string>
+    <string name="nf_new">新歌：%1$s</string>
+    <string name="nf_and_more">等 %1$d 首</string>
+    <string name="nf_title_failed">%1$s 失败</string>
+    <string name="nf_todo">怎么做：%1$s</string>
+    <string name="nf_todo_failed">在 Trackhop 中打开该同步并点“立即同步”；如有提示请重新登录。</string>
+    <string name="nf_title_releases">新发行：+%1$d</string>
+    <string name="nf_title_removals">%1$s：待确认的移除 (%2$d)</string>
+    <string name="nf_removals_detail">有些歌曲已不在来源中：只有你确认后 Trackhop 才会从目标中移除。</string>
+    <string name="nf_todo_review">在 Trackhop 中打开该同步，检查不确定的匹配。</string>
+    <string name="nf_title_added">%1$s：+%2$d</string>
 </resources>

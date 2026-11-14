@@ -370,7 +370,8 @@ object Notifications {
     fun syncResult(context: Context, report: SyncReport) {
         if (!canPost(context)) return
         // A one-off transfer: its songs to review, else Tools (Recent transfers); a sync: the log.
-        val oneOff = com.xlollx.songport.data.Store.get(context).job(report.jobId)?.oneOff == true
+        val job = com.xlollx.songport.data.Store.get(context).job(report.jobId)
+        val oneOff = job?.oneOff == true
         val open = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             when {
@@ -381,12 +382,18 @@ object Notifications {
         }
         val pi = PendingIntent.getActivity(context, report.jobId.hashCode(), open,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val text = summary(context, report)
+        // 1.18: the same message as the other channels (result, route, figures, what to do); a run with
+        // nothing to tell, or before 1.18, the summary as ever.
+        val rich = if (Features.v2 && job != null) runCatching {
+            val releases = job.source.provider == com.xlollx.songport.providers.NewReleasesProvider.SERVICE
+            com.xlollx.songport.notify.Notify.richMessage(com.xlollx.songport.platform.AndroidEnv.of(context), job, report, com.xlollx.songport.notify.Notify.Event.entries.toSet(), releases)?.rich
+        }.getOrNull() else null
+        val text = rich?.let { listOfNotNull(it.countsLine.ifEmpty { null }, it.detail).joinToString(" · ").ifEmpty { it.route } } ?: summary(context, report)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notif_sync_title, report.jobName))
+            .setContentTitle(rich?.let { "${it.icon} ${it.title}" } ?: context.getString(R.string.notif_sync_title, report.jobName))
             .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(rich?.lines?.joinToString("\n") ?: text))
             .setContentIntent(pi)
             .setAutoCancel(true)
             .setGroup(RESULTS_GROUP)

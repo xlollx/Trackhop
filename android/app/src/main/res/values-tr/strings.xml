@@ -2639,4 +2639,22 @@
     <string name="web_err_log">Günlüğü aç</string>
     <string name="web_err_details">Teknik ayrıntılar</string>
     <string name="subsonic_legacy_needs_https">Bu sunucu uygulama belirteçlerini kabul etmiyor, yalnızca parolanın kendisini. Güvenliğiniz için Trackhop parolayı yalnızca HTTPS üzerinden veya ev ağınızdaki bir sunucuya gönderir: sunucunun https:// adresini kullanın.</string>
+    <!-- 1.18 notifications (Notify.richMessage) -->
+    <string name="nf_route">%1$s → %2$s</string>
+    <string name="nf_under_minute">bir dakikadan kısa</string>
+    <string name="nf_minutes">%1$d dk</string>
+    <string name="nf_added">Eklenen</string>
+    <string name="nf_removed">Kaldırılan</string>
+    <string name="nf_review">İncelenecek</string>
+    <string name="nf_unmatched">Bulunamayan</string>
+    <string name="nf_new">Yeni: %1$s</string>
+    <string name="nf_and_more">ve %1$d tane daha</string>
+    <string name="nf_title_failed">%1$s başarısız oldu</string>
+    <string name="nf_todo">Ne yapmalı: %1$s</string>
+    <string name="nf_todo_failed">Trackhop\'ta senkronu açıp Şimdi senkronla\'ya dokun; isterse yeniden giriş yap.</string>
+    <string name="nf_title_releases">Yeni çıkanlar: +%1$d</string>
+    <string name="nf_title_removals">%1$s: onay bekleyen kaldırmalar (%2$d)</string>
+    <string name="nf_removals_detail">Bazı şarkılar kaynaktan çıktı: Trackhop onları sen onaylayınca hedeften kaldırır.</string>
+    <string name="nf_todo_review">Trackhop\'ta senkronu açıp emin olunmayan eşleşmeleri kontrol et.</string>
+    <string name="nf_title_added">%1$s: +%2$d</string>
 </resources>
