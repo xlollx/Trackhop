@@ -413,11 +413,14 @@ object Matcher {
         // in Latin letters, and only to raise a score. As strict as the other names of #57: the artist
         // must be the same one once both are in Latin letters, the lengths within a fifth where both are
         // known; a shared title alone is another song. Two Latin names never come here.
+        var byConsonants = false
         val sameLength = s.track.durationMs <= 0 || c.track.durationMs <= 0 ||
             abs(s.track.durationMs - c.track.durationMs) * 5 <= max(s.track.durationMs, c.track.durationMs)
         if ((s.foreign || c.foreign) && artistKnown && sameLength && Features.v2) {
             val across = max(artist, s.track.artists.maxOf { a -> c.track.artists.maxOf { b -> acrossScripts(a, b, 1.0, ::normalizeArtist) } })
             if (across >= 0.9) {
+                // The artist told by consonants alone (Hebrew, Arabic) can be another one: never taken unchecked.
+                byConsonants = artist < 0.9 && (s.track.artists + c.track.artists).any { Translit.abjad(it) }
                 artist = across
                 title = max(title, acrossScripts(s.track.title, c.track.title, ABJAD_TITLE, ::normalizeTitle))
             }
@@ -438,9 +441,10 @@ object Matcher {
                 abs(s.track.durationMs - c.track.durationMs) * 3 <= max(s.track.durationMs, c.track.durationMs)
             if (pa != null && pa == pb && st == ct && artist >= 0.9 && near) max(d, 0.8) else d
         }
-        return base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
+        val score = base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy) *
             liveAlbumFactor(s.track.album, c.track.album, policy)
+        return if (byConsonants) minOf(score, REVIEW_THRESHOLD - 0.01) else score
     }
 
     /**

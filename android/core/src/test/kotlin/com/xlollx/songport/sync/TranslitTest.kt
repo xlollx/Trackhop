@@ -66,6 +66,15 @@ class TranslitTest {
             val s = Matcher.score(a, b)
             assertTrue("$a: $s", s >= accept && s < Matcher.REVIEW_THRESHOLD)
         }
+        // The title in Latin letters on both sides, the artist told by consonants alone: checked too.
+        for ((a, b) in listOf(
+            t("Shalom Aleichem", "עומר אדם") to t("Shalom Aleichem", "Omer Adam"),
+            t("Tamally Maak", "عمرو دياب") to t("Tamally Maak", "Amr Diab"),
+        )) {
+            val s = Matcher.score(a, b)
+            assertTrue("$a: $s", s >= accept && s < Matcher.REVIEW_THRESHOLD)
+            assertTrue(Matcher.score(b, a) < Matcher.REVIEW_THRESHOLD)
+        }
         // Other consonants: another name.
         assertTrue(Matcher.score(t("שלום עליכם", "עומר אדם"), t("Shalom Aleichem", "Eyal Golan")) < accept)
     }
