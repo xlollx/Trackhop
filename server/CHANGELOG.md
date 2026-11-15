@@ -7,6 +7,7 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- **Gaana** (unofficial, alpha): your playlists and favourite songs with the session of a browser signed in to gaana.com, read and written (create, add, remove, rename, delete), matched by ISRC where the source has one; and public Gaana playlists as a source, from their link, with no account.
 - **Two-way pairs on the web page**: make a two-way pair from the page; the pair is turned on or off and deleted as one. A pair can follow removals too: a track removed on one side goes from the other, and removals held back for a check are confirmed from the page. A playlist renamed on either side updates both halves of the pair.
 - **Favourites, labels and tags**: star a sync, name a colour as a label, add key/value tags; filter and search by them on the page, and in the API (filters, run a group by tag or label), the `trackhop` command and the MCP tools.
 - **No more doubles from two devices**: a set-up brought in from another device keeps its scheduled syncs paused, shown as *Scheduled on* and the device's name; a playlist is read again just before it is written; a track a sync added twice is removed by the next run.
