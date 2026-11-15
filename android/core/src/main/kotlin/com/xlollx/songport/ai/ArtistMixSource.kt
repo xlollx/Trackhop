@@ -100,7 +100,15 @@ object ArtistMixSource {
     }
 
     /** The artist's most played recordings; empty when ListenBrainz will not tell (see the 401 above). */
-    suspend fun topRecordings(artist: ArtistMix.Artist, token: String?): List<Track> {
+    suspend fun topRecordings(artist: ArtistMix.Artist, token: String?): List<Track> =
+        popularity(artist, token)?.let { ArtistMix.parseTopRecordings(it, artist.mbid) }.orEmpty()
+
+    /** How many ListenBrainz users played the artist's most played recording; null when ListenBrainz will not tell. */
+    suspend fun listeners(artist: ArtistMix.Artist, token: String?): Long? =
+        popularity(artist, token)?.let { ArtistMix.parseListeners(it, artist.mbid) }
+
+    /** ListenBrainz's popularity answer for the artist; null when it will not tell (see the 401 above). */
+    private suspend fun popularity(artist: ArtistMix.Artist, token: String?): kotlinx.serialization.json.JsonElement? {
         val url = "$LISTENBRAINZ/1/popularity/top-recordings-for-artist/${artist.mbid}"
         repeat(2) { attempt ->
             val r = listenBrainzPace.paced { get(url, token) }
@@ -108,13 +116,13 @@ object ArtistMixSource {
                 Http.pause((r.header("X-RateLimit-Reset-In")?.toLongOrNull()?.coerceIn(1, 60) ?: 5) * 1000 + 250)
             }
             when {
-                r.ok -> return ArtistMix.parseTopRecordings(parseJson(r.body), artist.mbid)
+                r.ok -> return parseJson(r.body)
                 r.code == 401 && token == null && attempt == 0 -> Http.pause(400)
-                r.code == 401 || r.code == 404 -> return emptyList()
+                r.code == 401 || r.code == 404 -> return null
                 else -> throw ProviderException("ListenBrainz ${r.code}")
             }
         }
-        return emptyList()
+        return null
     }
 
     /** The artist's top tracks on Deezer, found by the very same name; empty when Deezer has no such artist. */

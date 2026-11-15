@@ -1,0 +1,6 @@
+[
+  {"header":"YouTube Music","title":"Watched Paranoid Android","titleUrl":"https://music.youtube.com/watch?v=fHiGbolFFGw","subtitles":[{"name":"Radiohead - Topic","url":"https://www.youtube.com/channel/UCq19-LqvG35A-30oyAiPiqA"}],"time":"2025-02-03T18:20:11.123Z","products":["YouTube"],"activityControls":["YouTube watch history"]},
+  {"header":"YouTube Music","title":"Hai guardato Paranoid Android","titleUrl":"https://music.youtube.com/watch?v=fHiGbolFFGw","subtitles":[{"name":"Radiohead - Topic","url":"https://www.youtube.com/channel/UCq19-LqvG35A-30oyAiPiqA"}],"time":"2025-02-04T18:20:11Z","products":["YouTube"]},
+  {"header":"YouTube","title":"Watched How to fix a bike","titleUrl":"https://www.youtube.com/watch?v=xyz","subtitles":[{"name":"Bike channel","url":"https://www.youtube.com/channel/UCx"}],"time":"2025-02-05T10:00:00Z","products":["YouTube"]},
+  {"header":"YouTube Music","title":"Watched a video that has been removed","time":"2025-02-06T10:00:00Z","products":["YouTube"]}
+]

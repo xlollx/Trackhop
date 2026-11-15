@@ -62,4 +62,24 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         remade()
         waitNode("the name kept", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("lorenzo"))
     }
+
+    @Test
+    fun theLifetimeStatsAndTheirOpenSectionSurviveTheActivityMadeAnew() {
+        val b = com.xlollx.songport.sync.ListeningExport.Builder()
+        val at = java.time.Instant.parse("2014-03-01T20:15:00Z").toEpochMilli()
+        repeat(3) { b.add(com.xlollx.songport.sync.ListeningExport.Play(at + it * 400_000L, 240_000, "Karma Police", "Radiohead", source = com.xlollx.songport.sync.ListeningExport.Source.SPOTIFY)) }
+        com.xlollx.songport.sync.ListeningExport.keep(app.env, b.build())
+        launch(tabIntent(MainActivity.TAB_DISCOVER))
+        waitText(s(R.string.discover_wrapped_title))
+        clickTile(s(R.string.discover_lifetime_title))
+        // The sums kept are shown with no file; the section opened stays open.
+        waitText(s(R.string.lifetime_top_artists))
+        scrollTo(compose.onNode(androidx.compose.ui.test.hasText(s(R.string.lifetime_year_songs))))
+        click(s(R.string.lifetime_year_songs))
+        waitText("Karma Police · Radiohead")
+        remade()
+        waitText(s(R.string.lifetime_top_artists))
+        scrollTo(compose.onNode(androidx.compose.ui.test.hasText("Karma Police · Radiohead")))
+        waitText("Karma Police · Radiohead")
+    }
 }
