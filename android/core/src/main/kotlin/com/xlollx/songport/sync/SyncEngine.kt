@@ -1,5 +1,6 @@
 package com.xlollx.songport.sync
 
+import com.xlollx.songport.Features
 import com.xlollx.songport.providers.*
 import com.xlollx.songport.data.FileStore
 import com.xlollx.songport.data.LastWrites
@@ -1122,6 +1123,11 @@ class SyncEngine(
                 s.copy(title = title, artists = listOfNotNull(first), isrc = null),
                 primary?.let { s.copy(title = title, artists = listOf(it), isrc = null) },
                 s.copy(title = title, artists = emptyList(), isrc = null),
+                // A title in another script, in Latin letters: for a catalogue that lists it so and does
+                // not find it by the original. What comes back is scored against the source as ever.
+                Translit.latin(s.title)?.takeIf { Features.v2 && Translit.foreign(s.title) && !Translit.abjad(s.title) }?.let { t ->
+                    s.copy(title = Matcher.searchTitle(t), artists = listOfNotNull(s.artists.firstOrNull()?.let { Translit.latin(it) }?.let { Matcher.searchArtist(it) }), isrc = null)
+                },
                 // By title only from here: the search by MusicBrainz id was the first one.
             ).map { it.copy(mbids = emptyList()) }
             for (v in variants) {
