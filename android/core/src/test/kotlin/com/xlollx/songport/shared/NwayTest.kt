@@ -70,9 +70,10 @@ class NwayTest {
         val members = Nway.members(env, group)
         assertEquals(listOf("nwa", "nwb", "nwc"), members.map { it.playlist.provider })
         assertEquals(listOf(true, true, false), members.map { it.main })
-        // Main: a two-way pair with removals. Follower: one mirror of the hub.
+        // Main: a two-way pair with removals. Follower: one sync from the hub, keeping its additions unless told otherwise.
         assertTrue(members[0].down.twoWayRemovals && members[0].up!!.twoWayRemovals && members[0].up!!.twin)
-        assertTrue(members[2].down.mirrorRemovals && members[2].down.linkedJobId == null)
+        assertTrue(members[2].keepMine && !members[2].down.mirrorRemovals && members[2].down.linkedJobId == null)
+        assertFalse(members[0].keepMine)
         assertEquals(5, env.store.data.jobs.size)
         assertTrue(Nway.isHub(env, members[0].down.source))
         everywhere(1, 2, 3, 4, 5)
@@ -118,8 +119,54 @@ class NwayTest {
         everywhere(1, 3, 4, 5)
     }
 
-    @Test fun aFollowersChangesGoNowhere() {
+    @Test fun aFollowerKeepsItsAdditionsToItself() {
         create()
+        add(c, 12)
+        repeat(3) { sync() }
+        // Its own song stays there, run after run, and reaches no one.
+        assertEquals(listOf(1, 2, 3, 4, 5, 12), songs(c))
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(a))
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(b))
+        assertTrue(GroupLog(group.id, group.creator).live(SharedGroups.load(env, group.id).events).none { it.title == "Song 12" })
+        // What the hub gave goes when the hub drops it; the follower's own song does not.
+        remove(a, 2)
+        add(b, 6)
+        sync()
+        assertEquals(listOf(1, 3, 4, 5, 6, 12), songs(c))
+        // A group song the follower takes out stays out there, and stays everywhere else.
+        remove(c, 4)
+        repeat(2) { sync() }
+        assertEquals(listOf(1, 3, 5, 6, 12), songs(c))
+        assertEquals(listOf(1, 3, 4, 5, 6), songs(a))
+        assertEquals(listOf(1, 3, 4, 5, 6), songs(b))
+    }
+
+    @Test fun aFollowerSwitchesBetweenKeepingItsAdditionsAndAnExactCopy() {
+        create()
+        add(c, 12)
+        sync()
+        val down = Nway.members(env, group)[2].down.id
+        Nway.setKeepMine(env, Nway.members(env, group)[2], false)
+        Nway.members(env, group)[2].let { assertTrue(!it.keepMine && it.down.mirrorRemovals && it.down.id == down) }
+        sync()
+        // An exact copy: its own song goes.
+        everywhere(1, 2, 3, 4, 5)
+        Nway.setKeepMine(env, Nway.members(env, group)[2], true)
+        sync()
+        add(c, 13)
+        remove(a, 5)
+        repeat(2) { sync() }
+        assertEquals(listOf(1, 2, 3, 4, 13), songs(c))
+        assertEquals(listOf(1, 2, 3, 4), songs(a))
+        // And back: only then does it go.
+        Nway.setKeepMine(env, Nway.members(env, group)[2], false)
+        sync()
+        everywhere(1, 2, 3, 4)
+    }
+
+    @Test fun anExactCopysChangesGoNowhere() {
+        create()
+        Nway.setKeepMine(env, Nway.members(env, group)[2], false)
         sync()
         remove(c, 3)
         add(c, 12)
@@ -154,7 +201,50 @@ class NwayTest {
         assertEquals(down, Nway.members(env, group)[2].down.id)
         add(c, 13)
         sync()
-        everywhere(2, 3, 4, 5, 8)
+        // A follower again, keeping its additions: the song stays there and goes no further.
+        assertEquals(listOf(2, 3, 4, 5, 8, 13), songs(c))
+        assertEquals(listOf(2, 3, 4, 5, 8), songs(a))
+        assertEquals(listOf(2, 3, 4, 5, 8), songs(b))
+    }
+
+    /** A configuration file carries the group and its syncs to another Trackhop; a shared playlist with other people stays behind. */
+    @Test fun aGroupTravelsInAConfigurationFile() {
+        create()
+        add(c, 12)
+        sync()
+        val folder = java.nio.file.Files.createTempDirectory("trackhop-group").toFile()
+        SharedGroups.create(env, "With friends", folder.path, "Trackhop", "Me", "nwa", PlaylistRef("nwa", "mix", "mix"))
+        val text = com.xlollx.songport.data.ConfigBackup.export(env, "test")
+        val snapshot = com.xlollx.songport.data.ConfigBackup.read(text)
+        assertEquals(listOf(group.id), snapshot.groups.map { it.id })
+        assertEquals(5, snapshot.jobs.size)
+
+        val other = ContractEnv()
+        com.xlollx.songport.data.ConfigBackup.import(other, snapshot, replacesOther = true)
+        val there = Nway.groups(other).single()
+        assertEquals(group.id to "Road trip", there.id to there.name)
+        // A key of its own: the old one stayed on the first device.
+        assertFalse(there.me == group.me)
+        assertEquals(listOf(true, true, false), Nway.members(other, there).map { it.main })
+        assertTrue(Nway.members(other, there)[2].keepMine)
+        // The first run there fills the hub again from the main members and changes no playlist.
+        val engineThere = SyncEngine(other)
+        fun syncThere() = runBlocking { Nway.run(other, engineThere, there) }.onEach { assertTrue("${it.jobName}: ${it.error}", it.ok) }
+        val first = syncThere()
+        assertEquals(0, first.sumOf { it.removed })
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(a))
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(b))
+        assertEquals(listOf(1, 2, 3, 4, 5, 12), songs(c))
+        // And it carries on: an addition and a removal reach everyone, the follower's own song stays.
+        add(b, 7); remove(a, 1)
+        syncThere()
+        assertEquals(listOf(2, 3, 4, 5, 7), songs(a))
+        assertEquals(listOf(2, 3, 4, 5, 7), songs(b))
+        assertEquals(listOf(2, 3, 4, 5, 7, 12), songs(c))
+        // Brought in again where the group already is: it stays the one it was.
+        com.xlollx.songport.data.ConfigBackup.import(other, snapshot, replacesOther = true)
+        assertEquals(there.me, Nway.groups(other).single().me)
+        folder.deleteRecursively()
     }
 
     @Test fun aMemberAddedLaterJoinsAndOneTakenOutIsLeftAlone() {

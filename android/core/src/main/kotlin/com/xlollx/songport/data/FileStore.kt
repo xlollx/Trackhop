@@ -345,16 +345,20 @@ open class FileStore(dir: File) {
             serverPairs = d.serverPairs - id,
         )
 
-    /** The common state of the pair [job] is half of, when it is still about [job]'s two playlists; null otherwise. */
+    /**
+     * The common state of the pair [job] is half of, when it is still about [job]'s two playlists; null otherwise.
+     * A sync with no other half keeps one under its own id alone: a follower of an N-way group that
+     * keeps its additions (shared/Nway) remembers this way what the group gave it.
+     */
     fun pairState(job: SyncJob): PairState? {
-        val state = data.pairStates[pairKey(job.id, job.linkedJobId ?: return null)] ?: return null
+        val state = data.pairStates[pairKey(job.id, job.linkedJobId ?: job.id)] ?: return null
         val sides = setOf(sideKey(job.source.provider, job.source.playlistId), sideKey(job.target.provider, job.target.playlistId))
         return state.takeIf { sides.size == 2 && setOf(it.a, it.b) == sides }
     }
 
     /** Writes the pair's common state; states of pairs that no longer exist go. */
     fun putPairState(job: SyncJob, state: PairState) {
-        val key = pairKey(job.id, job.linkedJobId ?: return)
+        val key = pairKey(job.id, job.linkedJobId ?: job.id)
         update { d ->
             val jobs = d.jobs.map { it.id }.toHashSet()
             d.copy(pairStates = d.pairStates.filterKeys { k -> k.split('|').all { it in jobs } } + (key to state))
@@ -363,7 +367,7 @@ open class FileStore(dir: File) {
 
     /** Forgets the pair's state (the option was turned off): turned on again, it starts from a new one. */
     fun dropPairState(job: SyncJob) {
-        val key = pairKey(job.id, job.linkedJobId ?: return)
+        val key = pairKey(job.id, job.linkedJobId ?: job.id)
         if (key in data.pairStates) update { d -> d.copy(pairStates = d.pairStates - key) }
     }
 

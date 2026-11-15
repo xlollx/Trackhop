@@ -21,11 +21,16 @@ syncs run by `SyncEngine`. An N-way group is that, with no one else in it:
 - **Member** = an existing playlist on an account (`PlaylistRef`), with a role:
   - **main**: two syncs, `hub → playlist` and its twin `playlist → hub`, both `twoWayRemovals`.
     Exactly what `SharedGroups.jobsFor` makes for a curator today.
-  - **follows**: one sync `hub → playlist` with `mirrorRemovals`: an exact copy.
+  - **follows**: one sync `hub → playlist`, nothing on the way back. Two modes per follower:
+    - *Keep my additions* (default): `twoWayRemovals` with no other half. The engine runs it as
+      the half of a pair whose way back never runs: its own state (`PairState` under its id alone)
+      is what the hub gave it. Songs the user adds there stay and go nowhere; a song the hub drops
+      is removed only if the hub had given it; a group song the user takes out there stays out.
+    - *Exact copy*: `mirrorRemovals`. Own additions are taken out, removed songs put back.
 - Nothing new is stored: the group is in `StoreData.groups`, the members are derived from the jobs
   whose other side is the group (`Nway.members`). No migration: old stores have no such group.
 
-Code: `shared/Nway.kt` (create, add, remove, setMain, delete, members, order, run), ~130 lines.
+Code: `shared/Nway.kt` (create, add, remove, setMain, setKeepMine, delete, members, order, run, restore).
 
 Why not a new engine that diffs N snapshots: matching, search pacing, review, misses, removal
 caps, locks, reports live in `SyncEngine.plan/apply` for a pair. A second engine would copy or
@@ -45,8 +50,8 @@ main member to all. Each sync is an ordinary `engine.run(job)`:
   searched on that member's service.
 - **Removals** only come from main members: only they have a way up. The hub gets a "−" event and
   each `hub → playlist` sync takes the track out (main: by pair state; follower: mirror).
-- **A follower's own changes** go nowhere and are undone on its next run (addition taken out,
-  removed song put back), with the usual mirror safety cap.
+- **A follower's own changes** go nowhere. Keeping its additions they stay as the user left them;
+  as an exact copy they are undone on its next run, with the usual mirror safety cap.
 - **Not found on one service**: stays in the hub and on the others, listed as not found in *that
   member's* `hub → playlist` report (its review). Removing is always an explicit event, never the
   result of a failed search.
@@ -70,6 +75,11 @@ main member to all. Each sync is an ordinary `engine.run(job)`:
 - `SyncEngine.plan`: one line. "Another sync writes to this target → no removals" is skipped when
   the target is an N-way hub *and* the run is a two-way half: every main member writes to the hub,
   and a two-way removal only takes tracks this member's own pair held. Any other sync: unchanged.
+- `SyncEngine.plan`: the two-way logic is also on for a follower that keeps its additions
+  (`Nway.keepsMine`: two-way removals, no other half, source an N-way hub — no sync has that today).
+- `FileStore.pairState/putPairState/dropPairState`: a sync with no other half keys its state by
+  its own id. No such state exists for any other sync, so they read null as before.
+- `ConfigBackup`: see Backups below.
 - `Invite.LOCAL`, `LocalGroupTransport`, `SharedTransports.open` case; `SharedGroups.jobsFor`
   private → internal.
 
@@ -89,6 +99,21 @@ notification. `create/add` take one `Schedule` for all of them. Run alone and in
 are still correct; a change may then take a second round to reach everyone. "Sync now" on the
 group should call `Nway.run` (or walk `Nway.order` through the platform's own run path).
 
+## Backups and moving to the server
+
+A configuration file (`.trackhop`, also inside the encrypted full backup, and what the server's
+config import takes) carries the local groups (`Snapshot.groups`) and their syncs. Shared
+playlists with other people stay out, as before. Not carried: the group's key (keys never travel)
+and its list. `Nway.restore` gives the group a new key and an empty list; the first run there
+fills the hub again from the main members. Pair states do not travel either, so that run removes
+nothing. A group this device still has the key of is left as it is. Group ids from a file are
+checked (they name a file on disk). The usual rule for a file from another device applies: its
+scheduled syncs arrive turned off.
+
+The one-tap "Hand over to my server" works per sync through `POST /api/v1/syncs` and refuses
+two-way pairs today, so it cannot carry a group: that needs a server endpoint (follow-up). Until
+then a group reaches the server by importing the configuration file there.
+
 ## Server / Desktop
 
 Same core, so the engine is there. Not exposed: the server has no group UI or API at all today
@@ -98,9 +123,11 @@ page; `SharedGroups.create` only needs the Env's token vault and data folder, wh
 ## What the UI must offer (no UI written yet)
 
 1. Create a group: name, pick 2+ playlists (account + playlist, or "create new" → the UI creates
-   it first), role per member (main / follows), at least one main; one schedule.
-2. A warning before the first run: main members' current tracks are merged; a follower's playlist
-   becomes a copy (its extra tracks are removed, behind the usual confirmation when many).
+   it first), role per member (main / follows), at least one main; one schedule. Per follower:
+   "Keep my additions" (default) or "Exact copy" (`setKeepMine`).
+2. A warning before the first run: main members' current tracks are merged; an exact-copy
+   follower's extra tracks are removed (behind the usual confirmation when many); a follower
+   keeping its additions loses nothing.
 3. A group card in Syncs: the member services, roles, last run, one "Sync now" for the group,
    combined progress. The member syncs and "↔" twins hidden behind it (not as 2N−1 cards).
 4. Group page: members with role switch (`setMain`), add / remove member, schedule, enable/disable,
@@ -115,11 +142,14 @@ page; `SharedGroups.create` only needs the Env's token vault and data folder, wh
 
 ## Open questions / known limits
 
-- A follower is an exact copy only. "Keep my additions" exists for shared playlists per device
-  identity; for a local follower it needs a small engine addition (one-way sync that removes only
-  what the hub once gave). Wanted?
-- Groups, like shared playlists, are left out of configuration files and "hand over to my server"
-  (the group's key is per device). Should a local group travel in backups?
+- One-tap hand-over of a group to the server: needs a server endpoint (see Backups).
+- A follower keeping its additions reuses the two-way notes ("two-way state noted", removals held
+  back when a quarter of what it shares with the group goes at once): the wording says "two-way".
+  New strings wanted with the UI.
+- A song the follower added itself that a main member later adds too becomes the group's: it then
+  goes when the group drops it.
+- A Trackhop older than this reading a file with a group gets the syncs without the group: they
+  fail with "group gone" until updated. Files without groups are unchanged.
 - Order is not kept the same (the hub has no order); only membership.
 - A main member's playlist is read twice per group run (way up, way down). Fine for now; a group
   runner sharing one read is possible later.

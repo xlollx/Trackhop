@@ -463,7 +463,10 @@ class SyncEngine(
 
         // Half of a two-way pair that follows removals (the option is on both halves): the pair's
         // common state tells a track removed on one side from one added on the other.
-        val pairOn = !targetCreated && !job.archive && job.twoWayRemovals && job.linkedJobId?.let { store.job(it) }?.twoWayRemovals == true
+        // So does a follower of an N-way group that keeps its additions, with no other half: its
+        // state is what the group gave it, the only tracks a removal in the group takes from it.
+        val pairOn = !targetCreated && !job.archive && job.twoWayRemovals &&
+            (job.linkedJobId?.let { store.job(it) }?.twoWayRemovals == true || com.xlollx.songport.shared.Nway.keepsMine(env, job))
         val pair = (if (pairOn) store.pairState(job) else null)?.takeIf { st ->
             // A side that lists tracks, none of them known to the state: the service gave them new
             // ids (a personal server's library scanned again). The state says nothing any more and

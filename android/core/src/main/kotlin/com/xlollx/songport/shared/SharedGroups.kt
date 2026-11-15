@@ -573,6 +573,21 @@ object SharedGroups {
         return group
     }
 
+    /**
+     * A local group ([Invite.LOCAL], see [Nway]) that came with a configuration file: the same group
+     * with a key of this device's own (keys never travel) and an empty list, which its main members
+     * fill again on their first run here. Nothing is removed by that run: the pairs' states did not travel either.
+     */
+    internal fun restoreLocal(env: Env, from: SharedGroup): SharedGroup {
+        val me = Identity.create()
+        val group = from.copy(name = plainOf(from.name, Invite.MAX_NAME), creator = me.id, me = me.id, folder = "", folderName = "", joinedAt = clock(), transport = Invite.LOCAL)
+        env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id))
+        synchronized(lockOf(group.id)) { save(env, group.id, GroupState(roster = Roster(group.id, 1, clock(), listOf(Grant(me.id))).signed(me))) }
+        env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id } + group) }
+        env.log("shared", "${group.name}: brought in with a configuration file")
+        return group
+    }
+
     private fun forget(env: Env, group: SharedGroup) {
         env.tokens.clear(tokenKey(group.id))
         synchronized(lockOf(group.id)) { stateFile(env, group.id).delete(); SharedTransports.forget(env, group) }
