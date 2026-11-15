@@ -188,7 +188,9 @@ fun SharedScreen(onClose: () -> Unit) {
         }
         SharedUi.request.value = null
     }
-    val group = openId?.let { id -> data.groups.firstOrNull { it.id == id } }
+    // A group of the user's own playlists (shared/Nway) is a sync, with its card and page in Syncs: not listed here.
+    val shared = data.groups.filterNot { com.xlollx.songport.shared.Nway.isGroup(it) }
+    val group = openId?.let { id -> shared.firstOrNull { it.id == id } }
     ScreenBackHandler { if (group != null) openId = null else onClose() }
     Scaffold(
         topBar = {
@@ -211,7 +213,7 @@ fun SharedScreen(onClose: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             if (group != null) GroupPage(group, snackbar) { openId = null }
-            else GroupList(data.groups, onOpen = { openId = it }, onCreate = { createFrom = null; creating = true }, onJoin = { joinLink = "" })
+            else GroupList(shared, onOpen = { openId = it }, onCreate = { createFrom = null; creating = true }, onJoin = { joinLink = "" })
         }
     }
     val scope = rememberCoroutineScope()
@@ -377,7 +379,7 @@ private fun GroupCard(g: SharedGroup, onOpen: () -> Unit) {
 }
 
 /** The service (account) a member listens on, among those connected that can hold a playlist of the group. */
-private fun writableServices(ctx: android.content.Context, needsCreate: Boolean): List<MusicProvider> =
+internal fun writableServices(ctx: android.content.Context, needsCreate: Boolean): List<MusicProvider> =
     Providers.connectors().filter {
         it.isConnected(ctx.env) && it.canWrite && it.canRemoveTracks && it.serviceId != com.xlollx.songport.providers.LocalFilesProvider.serviceId &&
             (!needsCreate || it.canCreatePlaylists)
@@ -386,7 +388,7 @@ private fun writableServices(ctx: android.content.Context, needsCreate: Boolean)
 /** The service a member listens on, as a dropdown with each service's mark. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvider?, onSelect: (String) -> Unit) {
+internal fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvider?, onSelect: (String) -> Unit) {
     val ctx = LocalContext.current
     var open by rememberSaveable { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && services.isNotEmpty() }) {
@@ -414,7 +416,7 @@ private fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvid
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit, onSelect: (Playlist) -> Unit) {
+internal fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit, onSelect: (Playlist) -> Unit) {
     var open by rememberSaveable { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && lists != null }) {
         OutlinedTextField(

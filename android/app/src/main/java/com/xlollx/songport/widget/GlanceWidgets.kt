@@ -97,7 +97,9 @@ object Widgets {
     fun rows(ctx: Context): List<Row> {
         val data = Store.get(ctx).data
         val running = SyncState.running.value.keys
-        return data.syncs.filter { !it.twin }.map { row(ctx, it, running) }
+        // A group of the user's own playlists is one card in the app; its syncs are not rows here either.
+        val grouped = com.xlollx.songport.ui.NwayUi.memberJobIds(data)
+        return data.syncs.filter { !it.twin && it.id !in grouped }.map { row(ctx, it, running) }
     }
 
     fun row(ctx: Context, job: SyncJob, running: Set<String> = SyncState.running.value.keys): Row {

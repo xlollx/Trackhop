@@ -432,6 +432,8 @@ private fun MainScreen(
     var backupOpen by rememberSaveable { mutableStateOf(false) }
     // Shared playlists: opened from Tools, a card's menu or an invite link (SharedUi.request).
     var sharedOpen by rememberSaveable { mutableStateOf(false) }
+    // One playlist on several services: NwayUi.NEW for a new group, else the id of the group whose page is open.
+    var nwayOpen by rememberSaveable { mutableStateOf<String?>(null) }
     val sharedAsk by com.xlollx.songport.ui.SharedUi.request.collectAsState()
     LaunchedEffect(sharedAsk) { if (sharedAsk != null) sharedOpen = true }
     // "Did you know?": widgets, shortcuts and automation (Syncs pill, Settings › Help).
@@ -589,6 +591,8 @@ private fun MainScreen(
             previewJob = null; targetJob = null; unmatchedReport = null; filesOpen = false; logOpen = false
             howToOpen = false; manageProvider = null; scanProvider = null; unplayableProvider = null
             transferOpen = false; statsOpen = false; backupOpen = false; tipsOpen = false
+            // A group's page closes too; one being made stays, like the sync editor.
+            if (nwayOpen != com.xlollx.songport.ui.NwayUi.NEW) nwayOpen = null
             // Il registro non e' piu' una scheda: la notifica lo apre sopra le Opzioni, da cui si raggiunge.
             if (requestedTab == MainActivity.TAB_LOG) { tab = MainActivity.TAB_SETTINGS; logOpen = true } else tab = requestedTab
             tabRequests.value = -1
@@ -701,6 +705,7 @@ private fun MainScreen(
         statsOpen -> "stats"
         backupOpen -> "backup"
         sharedOpen -> "shared"
+        nwayOpen != null -> "nway:$nwayOpen"
         tipsOpen -> "tips"
         current != null -> "edit:" + current.id
         else -> null
@@ -751,6 +756,11 @@ private fun MainScreen(
                 statsOpen -> com.xlollx.songport.ui.StatsScreen(data, onClose = { statsOpen = false })
                 backupOpen -> com.xlollx.songport.ui.BackupScreen(onClose = { backupOpen = false })
                 sharedOpen -> com.xlollx.songport.ui.SharedScreen(onClose = { sharedOpen = false })
+                nwayOpen != null -> if (nwayOpen == com.xlollx.songport.ui.NwayUi.NEW) com.xlollx.songport.ui.NwayCreateScreen(
+                    onClose = { nwayOpen = null }, onDone = { nwayOpen = null; tab = MainActivity.TAB_SYNCS },
+                ) else com.xlollx.songport.ui.NwayGroupScreen(
+                    nwayOpen.orEmpty(), onClose = { nwayOpen = null }, onReview = { unmatchedReport = it }, onPreview = { previewJob = it },
+                )
                 tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
                     tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
                 })
@@ -760,6 +770,7 @@ private fun MainScreen(
                     // To Accounts with its service grid open; the sync not saved yet is left.
                     onConnectService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
                     twinName = editingTwinId?.let { store.job(it) }?.takeIf { it.linkedJobId == current.id }?.name,
+                    onSeveral = if (com.xlollx.songport.Features.v2(data.settings)) ({ editing = null; nwayOpen = com.xlollx.songport.ui.NwayUi.NEW }) else null,
                     onSave = { job, reverse ->
                         val previous = store.job(job.id)
                         saveJob(job)
@@ -964,7 +975,9 @@ private fun MainScreen(
                     onEdit = { j ->
                         // A shared playlist's syncs are changed from their group's page.
                         val gid = com.xlollx.songport.shared.SharedGroups.sharedSide(j)
-                        if (gid != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Open(gid)
+                        // A group of the user's own playlists has its page; a shared playlist, its group's.
+                        if (gid != null && store.data.groups.any { it.id == gid && com.xlollx.songport.shared.Nway.isGroup(it) }) nwayOpen = gid
+                        else if (gid != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Open(gid)
                         else {
                             val original = twinOriginal(j, store.data.jobs)
                             editingTwinId = if (original != null) j.id else null
@@ -998,6 +1011,7 @@ private fun MainScreen(
                     // Opening the page counts as seen: the pill does not come back.
                     onTips = { store.updateSettings { it.copy(tipsPillDismissed = true) }; tipsOpen = true },
                     filterState = syncFilter,
+                    onOpenGroup = { nwayOpen = it },
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService)
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(

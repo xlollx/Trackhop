@@ -1,6 +1,6 @@
 # One playlist on 3+ services (N-way groups) — design
 
-Dev note. Status: core engine in place behind `Features.v2`; no UI, no server API yet.
+Dev note. Status: core engine and the Android UI in place behind `Features.v2`; no server page or API yet.
 
 ## The problem
 
@@ -120,7 +120,38 @@ Same core, so the engine is there. Not exposed: the server has no group UI or AP
 (only mailboxes for other people's groups). Follow-up: `GET/POST/DELETE /api/v1/groups` and a web
 page; `SharedGroups.create` only needs the Env's token vault and data folder, which the server has.
 
-## What the UI must offer (no UI written yet)
+## The Android UI (as in the approved preview)
+
+`ui/NwayScreen.kt`, wired in `MainActivity` (`nwayOpen`: "" = a new group, else a group's id) and `SyncsScreen`.
+
+- **New sync › "One playlist on several services"**: a card at the top of the editor of a new sync
+  (1.18, two services signed in). The page: name, the playlists with their role, "Add a playlist"
+  (service, playlist or a new one, Main / Follows, and for Follows "Keep my additions" / "Exact
+  copy"), the schedule, Preview.
+- **First-run sheet**: per service what the first sync does, counted from the listings with the
+  sync's own matcher (`Matcher.TrackIndex`), no search and nothing written: "+N on X" for the main
+  ones, the size of a new playlist, what an exact copy would lose. What a service lacks is not
+  known before the first run (that needs the searches): it shows on the card afterwards.
+  "Create and sync" makes the new playlists, the group, schedules its syncs and runs them in order.
+- **One card in Syncs** per group (services by role, schedule and last run, tracks in the group,
+  "Not found: N", Open / Sync now). The group's own syncs are taken out of the list the screen
+  works on (`NwayUi.memberJobIds`), so counts, search, drag order and Sync all's pill are about the
+  user's other syncs; `NwayUi.storeIndex` maps a dropped card's place back to the stored list.
+  With no group in the store the screen takes the store's data as it is: the old code path.
+- **Group page**: each playlist with role and state (ok, N not found › Review, removals waiting ›
+  Preview, error), ⋮ to change role, change the follower's mode, remove from the group; add a
+  playlist; schedule, pause, delete group.
+- Editing a member sync (a notification, the log) opens the group page. Local groups are not listed
+  in Shared playlists, nor counted for the Tools row. The home-screen widget leaves the group's syncs out.
+- "Sync now" is `Scheduler.runInSequence(Nway.order)`: one worker, the syncs one after the other
+  (they all hold the "shared" account in `ParallelRuns`). Scheduled runs are still per sync.
+- Every dialog and sheet keeps its state with `rememberSaveable`; `NwayFlowTest` (androidTest)
+  recreates the activity under each. Not run here: this machine has no emulator.
+
+Still to do: the same page on the Desktop/Docker web (the server has no group page to copy), a
+group's rows in the widget and in "Trackhop in numbers", scheduled runs as one ordered run.
+
+## What the UI must offer (the list the UI above was built from)
 
 1. Create a group: name, pick 2+ playlists (account + playlist, or "create new" → the UI creates
    it first), role per member (main / follows), at least one main; one schedule. Per follower:
