@@ -27,6 +27,7 @@ class NetRelayTest {
         assertTrue(NetRelay.allowed("https://coussa.anghami.com/gateway.php"))
         assertTrue(NetRelay.allowed("https://vm.tiktok.com/abc/"))
         assertTrue(NetRelay.allowed("https://www.jiosaavn.com/api.php?__call=webapi.get"))
+        assertTrue(NetRelay.allowed("https://api.gaana.com/playlist/detail?seokey=x"))
         assertFalse(NetRelay.allowed("https://example.com/"))
         assertFalse(NetRelay.allowed("https://evil-qq.com/"))
         assertFalse(NetRelay.allowed("http://music.163.com/"))

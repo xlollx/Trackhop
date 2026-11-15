@@ -15,6 +15,7 @@ object ServiceBrand {
         "tidal" to "TIDAL", "amazon" to "Amazon Music", "soundcloud" to "SoundCloud",
         "anghami" to "Anghami", "anghami_web" to "Anghami",
         "qobuz_web" to "Qobuz", "liveone_web" to "LiveOne",
+        "gaana" to "Gaana", "gaana_web" to "Gaana",
     )
 
     /** A name without the route in brackets or an account's number at its end: "Spotify (web) @2" → "Spotify". */
