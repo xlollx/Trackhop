@@ -752,6 +752,7 @@ private val UNAVAILABLE_ON_PLAY = listOf(
     Triple("qobuz", QobuzBridgeProvider.BRAND, "Qobuz"),
     Triple("qqmusic", 0xFF31C27C, "QQ Music"),
     Triple("jiosaavn", 0xFF2BC5B4, "JioSaavn"),
+    Triple("gaana", GaanaBridgeProvider.BRAND, "Gaana"),
 )
 
 /** A greyed-out tile for a service this version cannot reach: the mark and the name, nothing to tap. */

@@ -8,7 +8,7 @@ import kotlinx.serialization.encodeToString
 /**
  * The connectors' methods, the same the Trackhop Bridge app answers through its ContentProvider
  * (`status`, `playlists`, `tracks`, `search`, `add`, `amazon.*`, `spotify.*`, `apple.*`, `deezer.*`,
- * `soundcloud.*`, `anghami.*`, `qobuz.*`, `ticketone.read`, `vivaticket.read`...), called by
+ * `soundcloud.*`, `anghami.*`, `qobuz.*`, `gaana.*`, `ticketone.read`, `vivaticket.read`...), called by
  * Trackhop in-process. No caller check is needed: nothing outside this app can reach it. The two
  * methods that hand out the sessions themselves (`sessions.export`, `sessions.import`, Trackhop's
  * encrypted backup) check their caller anyway, wherever this runs ([SessionTransfer.callerOk]).
@@ -43,7 +43,7 @@ object BridgeCore {
         }, { throw BridgeException(AMAZON_NO_LIBRARY) })
 
     /** The services whose extra accounts ([Slots]) this answers; the others serve one account. */
-    private val SLOT_SERVICES = setOf("", "spotify", "apple", "deezer", "anghami", "qobuz", "liveone")
+    private val SLOT_SERVICES = setOf("", "spotify", "apple", "deezer", "anghami", "qobuz", "gaana", "liveone")
     const val ONE_ACCOUNT = "this connector serves one account"
 
     /** The namespace of [method]: "" for YouTube Music, "spotify" for `spotify.status`... */
@@ -481,6 +481,33 @@ object BridgeCore {
                 "qobuz.rename" -> { QobuzWebClient(ctx, slot).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "qobuz.visibility" -> { QobuzWebClient(ctx, slot).setPublic(arg ?: return err("missing playlist id"), extras?.getBoolean("public") ?: false); Bundle() }
                 "qobuz.delete" -> { QobuzWebClient(ctx, slot).delete(arg ?: return err("missing playlist id")); qobuzCache.invalidate(ck(slot, arg)); Bundle() }
+                // ---- Gaana web session: the site's API with its user token; the favourite songs as "__liked__".
+                "gaana.status" -> Bundle().apply {
+                    putBoolean("connected", GaanaBridge.session(slot).isConnected(ctx))
+                    putString("account", GaanaBridge.session(slot).account(ctx))
+                    putInt("version", VERSION)
+                    putBoolean("slots", slotsFor(method))
+                }
+                "gaana.disconnect" -> { GaanaBridge.session(slot).clear(ctx); gaanaCache.clear(); Bundle() }
+                "gaana.playlists" -> ok(json.encodeToString(GaanaWebClient(ctx, slot).playlists()))
+                "gaana.tracks" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val all = gaanaCache.get(ck(slot, id)) { val c = GaanaWebClient(ctx, slot); if (id == LIKED) c.liked() else c.tracks(id) }
+                    paged(json.encodeToString(all.drop(extras?.getInt("offset") ?: 0).take(PAGE)), all.size, extras?.getInt("offset") ?: 0)
+                }
+                "gaana.search" -> ok(json.encodeToString(GaanaWebClient(ctx, slot).search(arg ?: "", extras?.getString("isrc"))))
+                "gaana.create" -> ok(json.encodeToString(GaanaWebClient(ctx, slot).create(extras?.getString("name") ?: "Playlist", extras?.getBoolean("public") ?: false)))
+                "gaana.add", "gaana.remove" -> {
+                    val id = arg ?: return err("missing playlist id")
+                    val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
+                    val on = method == "gaana.add"
+                    val c = GaanaWebClient(ctx, slot)
+                    when { id == LIKED -> c.like(ids, on); on -> c.add(id, ids); else -> c.remove(id, ids) }
+                    gaanaCache.invalidate(ck(slot, id))
+                    Bundle()
+                }
+                "gaana.rename" -> { GaanaWebClient(ctx, slot).rename(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
+                "gaana.delete" -> { GaanaWebClient(ctx, slot).delete(arg ?: return err("missing playlist id")); gaanaCache.invalidate(ck(slot, arg)); Bundle() }
                 // ---- LiveOne web session: the presets (as liked songs), read whole and added to; search without an account.
                 "liveone.status" -> Bundle().apply {
                     putBoolean("connected", LiveOneBridge.session(slot).isConnected(ctx))
@@ -601,6 +628,7 @@ object BridgeCore {
             "deezer.tracks" -> deezerCache.invalidate(ck(slot, id))
             "anghami.tracks" -> anghamiCache.invalidate(ck(slot, id))
             "qobuz.tracks" -> qobuzCache.invalidate(ck(slot, id))
+            "gaana.tracks" -> gaanaCache.invalidate(ck(slot, id))
             "soundcloud.tracks" -> soundCloudCache.invalidate(id)
         }
     }
@@ -608,6 +636,7 @@ object BridgeCore {
     private val deezerCache = ListCache<TrackDto>()
     private val anghamiCache = ListCache<TrackDto>()
     private val qobuzCache = ListCache<TrackDto>()
+    private val gaanaCache = ListCache<TrackDto>()
     private val soundCloudCache = ListCache<kotlinx.serialization.json.JsonObject>()
 
     /** One page of a listing, as the `tracks` methods answer: the page, the total, and where the next one starts. */
@@ -632,6 +661,7 @@ object BridgeCore {
                 "deezer" -> { DeezerWebClient.forget(slot); deezerCache.clear() }
                 "anghami" -> { anghamiCache.clear(); WebEngine.reset("anghami", slot) }
                 "qobuz" -> qobuzCache.clear()
+                "gaana" -> gaanaCache.clear()
                 "soundcloud" -> { SoundCloudBridge.forgetWebStorage(); SoundCloudRenewal.forget(); soundCloudCache.clear() }
             }
         }
@@ -641,6 +671,7 @@ object BridgeCore {
     fun resettable(service: String, slot: String): WebSession? = when (service) {
         "anghami" -> AnghamiBridge.session(slot)
         "qobuz" -> QobuzBridge.session(slot)
+        "gaana" -> GaanaBridge.session(slot)
         "liveone" -> LiveOneBridge.session(slot)
         "deezer" -> DeezerBridge.session(slot)
         "spotify" -> SpotifyBridge.session(slot)

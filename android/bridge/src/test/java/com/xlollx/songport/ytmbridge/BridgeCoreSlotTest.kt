@@ -31,7 +31,7 @@ class BridgeCoreSlotTest {
     @Before fun setUp() {
         app = RuntimeEnvironment.getApplication()
         Slots.multiProfile = { profiles }
-        for (s in listOf(SpotifyBridge.session, AppleBridge.session, DeezerBridge.session, QobuzBridge.session, AnghamiBridge.session, LiveOneBridge.session)) {
+        for (s in listOf(SpotifyBridge.session, AppleBridge.session, DeezerBridge.session, QobuzBridge.session, GaanaBridge.session, AnghamiBridge.session, LiveOneBridge.session)) {
             s.clear(app); s.forSlot("2").clear(app); s.forSlot("3").clear(app)
         }
         Session.clear(app); Session.forSlot("2").clear(app)
@@ -77,6 +77,7 @@ class BridgeCoreSlotTest {
         val services = mapOf(
             "deezer" to DeezerBridge.session, "qobuz" to QobuzBridge.session,
             "anghami" to AnghamiBridge.session, "liveone" to LiveOneBridge.session,
+            "gaana" to GaanaBridge.session,
         )
         for ((name, session) in services) {
             session.save(app, "$name=1", "$name one")
@@ -102,7 +103,7 @@ class BridgeCoreSlotTest {
     }
 
     @Test fun theStatusCallsSayWhichServicesTakeSlots() {
-        for (m in listOf("status", "spotify.status", "apple.status", "deezer.status", "qobuz.status", "anghami.status", "liveone.status")) {
+        for (m in listOf("status", "spotify.status", "apple.status", "deezer.status", "qobuz.status", "gaana.status", "anghami.status", "liveone.status")) {
             assertTrue(m, call(m).getBoolean("slots"))
         }
         for (m in listOf("amazon.status", "soundcloud.status")) {

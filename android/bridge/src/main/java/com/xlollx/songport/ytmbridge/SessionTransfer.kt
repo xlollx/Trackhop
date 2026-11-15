@@ -128,10 +128,10 @@ object SessionTransfer {
     private class Kept(val service: String, val slot: String, val opened: Boolean, val connected: () -> Boolean, val account: () -> String?, val stored: () -> Map<String, *>, val restore: (Map<String, Any?>) -> Unit)
 
     /** The services whose extra accounts are kept apart (as [BridgeCore] serves them). */
-    private val SLOTTED = setOf("ytm", "spotify", "apple", "deezer", "anghami", "qobuz", "liveone")
+    private val SLOTTED = setOf("ytm", "spotify", "apple", "deezer", "anghami", "qobuz", "gaana", "liveone")
 
     /** The web services, as their sessions' files are named. */
-    val SERVICES = listOf("ytm", "amazon", "spotify", "apple", "deezer", "soundcloud", "liveone", "anghami", "qobuz")
+    val SERVICES = listOf("ytm", "amazon", "spotify", "apple", "deezer", "soundcloud", "liveone", "anghami", "qobuz", "gaana")
 
     private fun kept(ctx: Context, service: String, slot: String): Kept? {
         if (slot.isNotEmpty() && service !in SLOTTED) return null

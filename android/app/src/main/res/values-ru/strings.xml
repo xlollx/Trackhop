@@ -2645,6 +2645,11 @@
     <string name="provider_note_jiosaavn">Публичные плейлисты, альбомы и треки JioSaavn, только чтение и без входа: вставьте ссылку (jiosaavn.com/featured/…, /album/…, /song/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
     <string name="jiosaavn_not_public">Эта ссылка JioSaavn закрыта или не существует: работают только публичные ссылки</string>
     <string name="jiosaavn_changed">JioSaavn изменил сайт; Trackhop нужно обновить</string>
+    <string name="gaana_label">Gaana (публичные ссылки, неофициально)</string>
+    <string name="provider_note_gaana">Публичные плейлисты Gaana, только чтение и без входа: вставьте ссылку на плейлист (gaana.com/playlist/…) как источник синхронизации. Это не официальный интерфейс: он может перестать работать, если сайт изменится.</string>
+    <string name="gaana_not_public">Этот плейлист Gaana закрыт или не существует: работают только публичные ссылки</string>
+    <string name="gaana_changed">Gaana изменила сайт; Trackhop нужно обновить</string>
+    <string name="provider_note_gaana_web">У Gaana нет интерфейса для других приложений: войдите на странице Gaana, и Trackhop использует сессию сайта. Это не официальный способ, он нарушает условия Gaana и может перестать работать. Альфа. Ваши плейлисты и избранные песни (как любимые), чтение и запись; сопоставление по ISRC. Если вход не завершается, скопируйте в инструментах разработчика на компьютере запрос к api.gaana.com (как cURL: в его адресе есть token=) и нажмите «Вставить».</string>
     <string name="discard_changes_title">Отменить изменения?</string>
     <string name="discard_changes_body">Введённое здесь ещё не сохранено.</string>
     <string name="discard_changes_discard">Отменить</string>

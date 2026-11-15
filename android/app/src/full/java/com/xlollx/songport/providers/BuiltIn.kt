@@ -55,6 +55,7 @@ object BuiltIn {
         LiveOneBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.LIVEONE, slot)
         AnghamiBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.ANGHAMI, slot)
         QobuzBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.QOBUZ, slot)
+        GaanaBridgeProvider.LOGIN_ACTION -> WebLoginActivity.intent(ctx, WebLoginActivity.GAANA, slot)
         else -> null
     }
 

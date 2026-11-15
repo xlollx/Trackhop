@@ -2543,6 +2543,11 @@
     <string name="provider_note_jiosaavn">Öffentliche Playlists, Alben und Songs von JioSaavn, nur lesen und ohne Anmeldung: Füge den Link (jiosaavn.com/featured/…, /album/…, /song/…) als Quelle einer Sync ein. Keine offizielle Schnittstelle: Sie kann aufhören zu funktionieren, wenn sich die Seite ändert.</string>
     <string name="jiosaavn_not_public">Dieser JioSaavn-Link ist privat oder existiert nicht: Nur öffentliche Links funktionieren</string>
     <string name="jiosaavn_changed">JioSaavn hat seine Seite geändert; Trackhop braucht ein Update</string>
+    <string name="gaana_label">Gaana (öffentliche Links, inoffiziell)</string>
+    <string name="provider_note_gaana">Öffentliche Playlists von Gaana, nur lesen und ohne Anmeldung: Füge den Link der Playlist (gaana.com/playlist/…) als Quelle einer Sync ein. Keine offizielle Schnittstelle: Sie kann aufhören zu funktionieren, wenn sich die Seite ändert.</string>
+    <string name="gaana_not_public">Diese Gaana-Playlist ist privat oder existiert nicht: Nur öffentliche Links funktionieren</string>
+    <string name="gaana_changed">Gaana hat seine Seite geändert; Trackhop braucht ein Update</string>
+    <string name="provider_note_gaana_web">Gaana hat keine Schnittstelle für andere Apps: Melde dich auf Gaanas eigener Seite an, Trackhop nutzt dann die Sitzung der Website. Kein offizieller Weg, gegen Gaanas Bedingungen, kann jederzeit aufhören zu funktionieren. Alpha. Eigene Playlists und Lieblingssongs (als Lieblingssongs), lesen und schreiben; Zuordnung per ISRC. Wenn die Anmeldung nicht abschließt, kopiere an einem Computer in den Entwicklertools eine Anfrage an api.gaana.com (als cURL: ihre Adresse enthält token=) und tippe auf Einfügen.</string>
     <string name="discard_changes_title">Änderungen verwerfen?</string>
     <string name="discard_changes_body">Was du hier eingegeben hast, ist noch nicht gespeichert.</string>
     <string name="discard_changes_discard">Verwerfen</string>

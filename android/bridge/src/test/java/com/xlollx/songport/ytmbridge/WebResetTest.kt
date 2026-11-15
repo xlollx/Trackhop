@@ -21,7 +21,7 @@ class WebResetTest {
     }
 
     @Test fun theWebConnectorsOfferItYouTubeMusicAndAmazonDoNot() {
-        listOf("anghami", "qobuz", "liveone", "deezer", "spotify", "apple", "soundcloud").forEach {
+        listOf("anghami", "qobuz", "gaana", "liveone", "deezer", "spotify", "apple", "soundcloud").forEach {
             assertTrue(it, BridgeCore.resettable(it, "") != null)
         }
         assertNull(BridgeCore.resettable("", ""))
