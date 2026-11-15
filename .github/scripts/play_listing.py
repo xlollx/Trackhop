@@ -2,7 +2,8 @@
 """
 The Google Play store listing from the repository, through the Play Developer API (an "edit"):
 texts from play/listing/<locale>/{title,short_description,full_description}.txt, phone screenshots
-from docs/store/play/<locale>/<n>.jpg (the first 8, in number order), feature graphics from
+from docs/store/play/<locale>/<n>.jpg (the first 8, in number order; with --framed the framed ones in
+docs/store/framed/<locale>/, made by scripts/store_frames.mjs), feature graphics from
 docs/store/feature_<lang>.png. Run by .github/workflows/play-listing.yml.
 
 Without --commit the edit is only validated by Google and then thrown away: nothing changes on Play.
@@ -33,8 +34,8 @@ def texts(locale):
     return out
 
 
-def shots(locale):
-    d = ROOT / "docs/store/play" / locale
+def shots(locale, framed=False):
+    d = ROOT / ("docs/store/framed" if framed else "docs/store/play") / locale
     files = sorted(d.glob("*.jpg"), key=lambda p: int(re.sub(r"\D", "", p.stem) or 0))[:MAX_SHOTS]
     for f in files:
         w, h = Image.open(f).size
@@ -47,6 +48,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--texts", action="store_true")
     ap.add_argument("--screenshots", action="store_true")
+    ap.add_argument("--framed", action="store_true", help="the framed screenshots (docs/store/framed) instead of the plain ones")
     ap.add_argument("--feature", action="store_true")
     ap.add_argument("--commit", action="store_true", help="publish the edit (without: validate only)")
     ap.add_argument("--locales", default="", help="comma-separated; default: every folder in play/listing")
@@ -54,7 +56,7 @@ def main():
 
     locales = [l for l in a.locales.split(",") if l] or sorted(p.name for p in (ROOT / "play/listing").iterdir() if p.is_dir())
     # Everything is read and checked before Google is asked anything.
-    plan = {l: (texts(l) if a.texts else None, shots(l) if a.screenshots else []) for l in locales}
+    plan = {l: (texts(l) if a.texts else None, shots(l, a.framed) if a.screenshots else []) for l in locales}
 
     key = os.environ.get("PLAY_SERVICE_ACCOUNT_JSON")
     if not key:
