@@ -2772,4 +2772,19 @@
     <string name="venues_no_key">Ticketmaster 키가 없으면 MusicBrainz의 공연장과 일정만 표시됩니다. 훨씬 적습니다.</string>
     <string name="venues_reading">예정된 공연을 확인하는 중…</string>
     <string name="venues_unfollow">%1$s 팔로우 취소</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">팔로우한 공연장</string>
+    <string name="concert_alert_sale">%1$s: 티켓 판매 %2$s부터</string>
+    <string name="concert_alert_presale">%1$s: 선예매 %2$s부터</string>
+    <string name="concert_alert_presale_from">선예매 %1$s</string>
+    <string name="concert_alert_moved">일정 변경: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: %2$s → %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: 연기됨, 새 일정 미정</string>
+    <string name="concert_alert_cancelled">공연 취소: %1$s</string>
+    <string name="concert_alerts_title">공연</string>
+    <string name="concert_alerts_new">새 일정</string>
+    <string name="concert_alerts_sales">판매 및 선예매 시작</string>
+    <string name="concert_alerts_changes">일정 변경 또는 취소</string>
+    <string name="concert_alerts_channels">채널에도 보내기(Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">팔로우한 아티스트와 공연장이 대상입니다. 판매 및 일정 변경 정보는 내 키로 Ticketmaster에서 가져옵니다.</string>
 </resources>

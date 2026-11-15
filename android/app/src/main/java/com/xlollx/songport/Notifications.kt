@@ -339,6 +339,37 @@ object Notifications {
         mgr.notify("discogs-${hit.item.id}", ALERTS_ID, n)
     }
 
+    /**
+     * "Radiohead: tickets from Fri 20 Nov, 10:00", "Date moved: Massive Attack": one per event and
+     * kind, on the alerts' channel; a tap opens the event's page (its tickets), or Followed artists
+     * when it has none.
+     */
+    fun concertAlert(context: Context, alert: com.xlollx.songport.sync.ConcertAlerts.Alert) {
+        if (!canPost(context)) return
+        val mgr = context.getSystemService(NotificationManager::class.java)
+        mgr.createNotificationChannel(
+            NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
+                .apply { description = context.getString(R.string.alerts_channel_desc) }
+        )
+        val env = com.xlollx.songport.platform.AndroidEnv.of(context)
+        val url = alert.event.url.takeIf { it.startsWith("https://") || it.startsWith("http://") }
+        val open = if (url != null) Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            else Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_FOLLOWED)
+            }
+        val tag = "concert-${alert.kind}-${alert.event.id}"
+        val pi = PendingIntent.getActivity(context, ALERTS_ID xor tag.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val text = com.xlollx.songport.sync.ConcertAlerts.text(env, alert)
+        val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(com.xlollx.songport.sync.ConcertAlerts.title(env, alert)).setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(pi).setAutoCancel(true)
+            .build()
+        mgr.notify(tag, ALERTS_ID, n)
+    }
+
     private const val SIGN_IN_ID = 4246
 
     /**

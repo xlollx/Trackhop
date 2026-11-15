@@ -2938,4 +2938,19 @@
     <string name="venues_no_key">Без вашего ключа Ticketmaster показаны только площадки и даты из MusicBrainz: их гораздо меньше.</string>
     <string name="venues_reading">Смотрю, что в программе…</string>
     <string name="venues_unfollow">Отписаться от %1$s</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">На площадке, на которую вы подписаны</string>
+    <string name="concert_alert_sale">%1$s: билеты с %2$s</string>
+    <string name="concert_alert_presale">%1$s: предпродажа с %2$s</string>
+    <string name="concert_alert_presale_from">предпродажа %1$s</string>
+    <string name="concert_alert_moved">Дата перенесена: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: с %2$s на %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: отложено, новая дата будет позже</string>
+    <string name="concert_alert_cancelled">Концерт отменён: %1$s</string>
+    <string name="concert_alerts_title">Концерты</string>
+    <string name="concert_alerts_new">Новые даты</string>
+    <string name="concert_alerts_sales">Начало продаж и предпродаж</string>
+    <string name="concert_alerts_changes">Перенесённые или отменённые даты</string>
+    <string name="concert_alerts_channels">Также в каналы (Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">Для артистов и площадок, на которые вы подписаны. Данные о продажах и переносах берутся из Ticketmaster по вашему ключу.</string>
 </resources>

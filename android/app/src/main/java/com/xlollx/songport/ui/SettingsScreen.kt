@@ -341,6 +341,20 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.NotificationsActive, stringResource(R.string.alerts_master), stringResource(R.string.alerts_master_summary), settings.artistAlerts) { v ->
                 store.updateSettings { it.copy(artistAlerts = v) }; Scheduler.applyArtistAlerts(ctx)
             }
+            // 1.18: which ticket and date alerts are wanted for the artists and venues followed.
+            if (com.xlollx.songport.Features.v2(settings)) {
+                var concertsOpen by rememberSaveable { mutableStateOf(false) }
+                val ca = settings.concertAlerts
+                fun set(f: (com.xlollx.songport.sync.ConcertAlerts.Kinds) -> com.xlollx.songport.sync.ConcertAlerts.Kinds) = store.updateSettings { it.copy(concertAlerts = f(it.concertAlerts)) }
+                PrefRow(Icons.Filled.NotificationsActive, stringResource(R.string.concert_alerts_title), stringResource(R.string.concert_alerts_note), chevron = false,
+                    trailing = { Icon(if (concertsOpen) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null) }) { concertsOpen = !concertsOpen }
+                if (concertsOpen) {
+                    PrefSwitch(null, stringResource(R.string.concert_alerts_new), null, ca.newDates, enabled = settings.artistAlerts) { v -> set { it.copy(newDates = v) } }
+                    PrefSwitch(null, stringResource(R.string.concert_alerts_sales), null, ca.sales, enabled = settings.artistAlerts) { v -> set { it.copy(sales = v) } }
+                    PrefSwitch(null, stringResource(R.string.concert_alerts_changes), null, ca.changes, enabled = settings.artistAlerts) { v -> set { it.copy(changes = v) } }
+                    PrefSwitch(null, stringResource(R.string.concert_alerts_channels), null, ca.channels, enabled = settings.artistAlerts) { v -> set { it.copy(channels = v) } }
+                }
+            }
             PrefRow(
                 Icons.Filled.EditNotifications, stringResource(R.string.settings_notifications_system), stringResource(R.string.settings_notifications_system_desc),
                 trailing = { ExternalMark() },

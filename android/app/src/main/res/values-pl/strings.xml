@@ -2940,4 +2940,19 @@
     <string name="venues_no_key">Bez twojego klucza Ticketmaster widać tylko miejsca i terminy z MusicBrainz: znacznie mniej.</string>
     <string name="venues_reading">Sprawdzam, co jest w programie…</string>
     <string name="venues_unfollow">Przestań obserwować %1$s</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">W miejscu, które obserwujesz</string>
+    <string name="concert_alert_sale">%1$s: bilety od %2$s</string>
+    <string name="concert_alert_presale">%1$s: przedsprzedaż od %2$s</string>
+    <string name="concert_alert_presale_from">przedsprzedaż %1$s</string>
+    <string name="concert_alert_moved">Zmiana terminu: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: z %2$s na %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: przełożony, nowy termin wkrótce</string>
+    <string name="concert_alert_cancelled">Koncert odwołany: %1$s</string>
+    <string name="concert_alerts_title">Koncerty</string>
+    <string name="concert_alerts_new">Nowe terminy</string>
+    <string name="concert_alerts_sales">Start sprzedaży i przedsprzedaży</string>
+    <string name="concert_alerts_changes">Przełożone lub odwołane terminy</string>
+    <string name="concert_alerts_channels">Także na kanałach (Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">Dla artystów i miejsc, które obserwujesz. Informacje o sprzedaży i zmianach terminów pochodzą z Ticketmaster, z twoim kluczem.</string>
 </resources>

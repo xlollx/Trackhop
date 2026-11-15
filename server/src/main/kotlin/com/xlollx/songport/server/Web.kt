@@ -113,8 +113,12 @@ class Web(
     }
 
     /** True when this server's API would take [header] from [from]: its token, the command line's key, or the key of one of its group mailboxes. */
-    fun acceptsApi(header: String?, from: InetAddress?): Boolean = env.may(Permissions.API) && (LocalKey.matches(header, from) || Api.authorized(env, header) ||
+    fun acceptsApi(header: String?, from: InetAddress?): Boolean = calendarIs(header) || env.may(Permissions.API) && (LocalKey.matches(header, from) || Api.authorized(env, header) ||
         Api.listKeyMatches(env, header) || GroupMailboxes.capabilityOf(header)?.let { GroupMailboxes.knows(env, it) } == true)
+
+    /** A shared server asking whose calendar address it is ("Calendar <token>", never a request's own header). */
+    private fun calendarIs(header: String?): Boolean =
+        Features.v2 && header?.startsWith(ServerCalendar.HEADER) == true && ServerCalendar.matches(env, header.removePrefix(ServerCalendar.HEADER))
 
     // ------------------------------------------------------------------ plumbing
 
@@ -143,6 +147,11 @@ class Web(
             ex.responseHeaders.set("Cache-Control", if (path[0] == "sw.js") "no-cache" else "max-age=86400")
             ex.sendResponseHeaders(200, bytes.size.toLong())
             return ex.responseBody.use { it.write(bytes) }
+        }
+        // The concerts' calendar (AlertsWeb.kt): a calendar app cannot sign in, the secret is in the address.
+        if (Features.v2 && path.size == 2 && path[0] == "cal" && ex.requestMethod.uppercase() == "GET") {
+            if (!ServerCalendar.matches(env, ServerCalendar.tokenOf(path[1]))) return send(ex, 404, "Not found", "text/plain")
+            return send(ex, 200, ServerCalendar.ics(env), "text/calendar")
         }
         // The API has its own token (Tools › API) instead of the page's password, and no cookies to forge.
         if (path.size >= 2 && path[0] == "api" && path[1] == "v1") return api(ex, ex.requestMethod.uppercase(), path, parseForm(ex.requestURI.rawQuery ?: ""))

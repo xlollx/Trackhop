@@ -2826,4 +2826,19 @@
     <string name="venues_no_key">Ticketmaster anahtarın olmadan yalnızca MusicBrainz\'in mekânları ve tarihleri görünür: çok daha az.</string>
     <string name="venues_reading">Programda ne olduğuna bakılıyor…</string>
     <string name="venues_unfollow">%1$s takibini bırak</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">Takip ettiğin bir mekânda</string>
+    <string name="concert_alert_sale">%1$s: biletler %2$s itibarıyla</string>
+    <string name="concert_alert_presale">%1$s: ön satış %2$s itibarıyla</string>
+    <string name="concert_alert_presale_from">ön satış %1$s</string>
+    <string name="concert_alert_moved">Tarih değişti: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: %2$s yerine %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: ertelendi, yeni tarih belli olacak</string>
+    <string name="concert_alert_cancelled">Tarih iptal edildi: %1$s</string>
+    <string name="concert_alerts_title">Konserler</string>
+    <string name="concert_alerts_new">Yeni tarihler</string>
+    <string name="concert_alerts_sales">Satış ve ön satış açılışı</string>
+    <string name="concert_alerts_changes">Değişen veya iptal edilen tarihler</string>
+    <string name="concert_alerts_channels">Kanallarda da (Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">Takip ettiğin sanatçılar ve mekânlar için. Satışlar ve tarih değişiklikleri, anahtarınla Ticketmaster\'dan gelir.</string>
 </resources>

@@ -144,6 +144,8 @@ data class Settings(
     /** The venues followed in Discover › Concerts, and the city typed for "Concerts near you" (sync/Venues). */
     val followedVenues: List<com.xlollx.songport.sync.Venues.Venue> = emptyList(),
     val concertCity: String = "",
+    /** Settings › Notifications › Concerts: which ticket and date alerts are wanted (sync/ConcertAlerts). */
+    val concertAlerts: com.xlollx.songport.sync.ConcertAlerts.Kinds = com.xlollx.songport.sync.ConcertAlerts.Kinds(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

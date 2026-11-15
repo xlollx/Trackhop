@@ -2830,4 +2830,19 @@
     <string name="venues_no_key">Without your Ticketmaster key only MusicBrainz\'s venues and dates are shown: far fewer.</string>
     <string name="venues_reading">Looking at what is on…</string>
     <string name="venues_unfollow">Stop following %1$s</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">At a venue you follow</string>
+    <string name="concert_alert_sale">%1$s: tickets from %2$s</string>
+    <string name="concert_alert_presale">%1$s: presale from %2$s</string>
+    <string name="concert_alert_presale_from">presale %1$s</string>
+    <string name="concert_alert_moved">Date moved: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: from %2$s to %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: postponed, new date to come</string>
+    <string name="concert_alert_cancelled">Date cancelled: %1$s</string>
+    <string name="concert_alerts_title">Concerts</string>
+    <string name="concert_alerts_new">New dates</string>
+    <string name="concert_alerts_sales">Sales and presales opening</string>
+    <string name="concert_alerts_changes">Dates moved or cancelled</string>
+    <string name="concert_alerts_channels">Also on the channels (Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">For the artists and venues you follow. Sales and date changes come from Ticketmaster, with your key.</string>
 </resources>

@@ -138,6 +138,12 @@ class MultiUser private constructor(
             val engine = listOf(adminEngine).plus(engines.values).firstOrNull { it.acceptsApi.test(header, from) } ?: adminEngine
             return delegate(engine, ex)
         }
+        // A concerts' calendar address: its secret says whose it is (nobody's: the admin's answers 404).
+        if (method == "GET" && parts.size == 2 && parts[0] == "cal") {
+            val asked = ServerCalendar.HEADER + ServerCalendar.tokenOf(parts[1]).orEmpty()
+            val engine = listOf(adminEngine).plus(engines.values).firstOrNull { it.acceptsApi.test(asked, null) } ?: adminEngine
+            return delegate(engine, ex)
+        }
         if (path == "/login") return login(ex, method)
         if (parts.size == 2 && parts[0] == "invite") return acceptInvite(ex, method, parts[1])
         val name = signedIn(ex) ?: return askToSignIn(ex, method)

@@ -187,8 +187,8 @@ object ArtistAlerts {
         return Plan(if (s.artistAlertsWeekly) 7 else 1, s.artistAlertsWifiOnly)
     }
 
-    /** 1.18's other things looked at by the same daily run, with nobody followed too: the Discogs wantlist's alerts. */
-    fun otherWatches(s: Settings): Boolean = com.xlollx.songport.Features.v2(s) && s.discogsWantAlerts.values.any { it.any }
+    /** 1.18's other things looked at by the same daily run, with nobody followed too: the Discogs wantlist's alerts, the venues followed. */
+    fun otherWatches(s: Settings): Boolean = com.xlollx.songport.Features.v2(s) && (s.discogsWantAlerts.values.any { it.any } || s.followedVenues.isNotEmpty())
 
     /** An artist looked up this long ago is due again: a little less than the period, as the scheduler's runs drift. */
     fun dueAfter(periodDays: Long): Long = periodDays * DAY_MS - 4 * 3_600_000

@@ -2773,4 +2773,19 @@
     <string name="venues_no_key">Ticketmaster のキーがない場合、MusicBrainz の会場と日程のみ表示されます（かなり少なくなります）。</string>
     <string name="venues_reading">予定を確認中…</string>
     <string name="venues_unfollow">%1$s のフォローを解除</string>
+    <string name="concert_alert_new">%1$s: %2$s、%3$s</string>
+    <string name="concert_alert_new_text">フォロー中の会場</string>
+    <string name="concert_alert_sale">%1$s: チケット発売 %2$s</string>
+    <string name="concert_alert_presale">%1$s: 先行販売 %2$s</string>
+    <string name="concert_alert_presale_from">先行販売 %1$s</string>
+    <string name="concert_alert_moved">日程変更: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: %2$s から %3$s へ</string>
+    <string name="concert_alert_postponed_text">%1$s、%2$s: 延期、新しい日程は未定</string>
+    <string name="concert_alert_cancelled">公演中止: %1$s</string>
+    <string name="concert_alerts_title">ライブ</string>
+    <string name="concert_alerts_new">新しい日程</string>
+    <string name="concert_alerts_sales">発売・先行販売の開始</string>
+    <string name="concert_alerts_changes">日程変更・中止</string>
+    <string name="concert_alerts_channels">チャンネルにも送信（Telegram、ntfy…）</string>
+    <string name="concert_alerts_note">フォロー中のアーティストと会場が対象です。発売情報と日程変更は、あなたのキーで Ticketmaster から取得します。</string>
 </resources>

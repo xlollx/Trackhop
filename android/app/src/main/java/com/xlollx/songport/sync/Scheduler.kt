@@ -204,7 +204,17 @@ class ArtistAlertsWorker(ctx: Context, params: WorkerParameters) : CoroutineWork
         val country = Concerts.savedCountry(env) ?: com.xlollx.songport.ui.defaultConcertCountry(ctx)
         val out = ArtistAlerts.check(env, s.followedArtists, plan.periodDays, ArtistAlerts.live(country, Concerts.savedRange(env)))
         if (out.remaining > 0) Scheduler.continueArtistAlerts(ctx, plan)
-        if (out.notify.isNotEmpty()) Notifications.artistAlerts(ctx, out.notify)
+        // 1.18: "New dates" turned off in Settings › Notifications › Concerts keeps the artists' new concerts out of the news.
+        val news = if (com.xlollx.songport.Features.v2 && !s.concertAlerts.newDates) out.notify.filter { it.kind != ArtistAlerts.Kind.CONCERT } else out.notify
+        if (news.isNotEmpty()) Notifications.artistAlerts(ctx, news)
+        // 1.18: the tickets' sales and the dates moved or called off, once every artist has been looked up (their dates are kept by then).
+        if (com.xlollx.songport.Features.v2 && out.remaining == 0) try {
+            val alerts = com.xlollx.songport.sync.ConcertAlerts.check(env, s, country, Concerts.savedRange(env))
+            alerts.forEach { Notifications.concertAlert(ctx, it) }
+            if (s.concertAlerts.channels) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.xlollx.songport.sync.ConcertAlerts.toChannels(env, alerts) }
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            env.log("alerts", "concert alerts: ${e.message ?: e.javaClass.simpleName}")
+        }
         // 1.18: the Discogs wantlist's alerts, once a day in this same run. Never fails the run.
         if (com.xlollx.songport.Features.v2) try {
             val currency = com.xlollx.songport.sync.Records.currencyFor(ctx.resources.configuration.locales[0])

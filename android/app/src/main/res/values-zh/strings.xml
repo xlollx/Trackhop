@@ -2773,4 +2773,19 @@
     <string name="venues_no_key">没有你的 Ticketmaster 密钥时，只显示 MusicBrainz 的场地和日期：少得多。</string>
     <string name="venues_reading">正在查看演出安排…</string>
     <string name="venues_unfollow">取消关注 %1$s</string>
+    <string name="concert_alert_new">%1$s：%2$s，%3$s</string>
+    <string name="concert_alert_new_text">在你关注的场地</string>
+    <string name="concert_alert_sale">%1$s：%2$s 开票</string>
+    <string name="concert_alert_presale">%1$s：%2$s 开始预售</string>
+    <string name="concert_alert_presale_from">预售 %1$s</string>
+    <string name="concert_alert_moved">日期变更：%1$s</string>
+    <string name="concert_alert_moved_text">%1$s：从 %2$s 改到 %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s，%2$s：已延期，新日期待定</string>
+    <string name="concert_alert_cancelled">演出取消：%1$s</string>
+    <string name="concert_alerts_title">演出</string>
+    <string name="concert_alerts_new">新日期</string>
+    <string name="concert_alerts_sales">开票和预售开始</string>
+    <string name="concert_alerts_changes">日期变更或取消</string>
+    <string name="concert_alerts_channels">同时发到通知渠道（Telegram、ntfy…）</string>
+    <string name="concert_alerts_note">针对你关注的艺人和场地。开票和日期变更信息来自 Ticketmaster，使用你的密钥。</string>
 </resources>

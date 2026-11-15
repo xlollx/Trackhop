@@ -2836,4 +2836,19 @@
     <string name="venues_no_key">Sem a sua chave do Ticketmaster aparecem só as casas e datas do MusicBrainz: bem menos.</string>
     <string name="venues_reading">Vendo o que está programado…</string>
     <string name="venues_unfollow">Deixar de seguir %1$s</string>
+    <string name="concert_alert_new">%1$s: %2$s, %3$s</string>
+    <string name="concert_alert_new_text">Em uma casa de show que você segue</string>
+    <string name="concert_alert_sale">%1$s: ingressos a partir de %2$s</string>
+    <string name="concert_alert_presale">%1$s: pré-venda a partir de %2$s</string>
+    <string name="concert_alert_presale_from">pré-venda %1$s</string>
+    <string name="concert_alert_moved">Data alterada: %1$s</string>
+    <string name="concert_alert_moved_text">%1$s: de %2$s para %3$s</string>
+    <string name="concert_alert_postponed_text">%1$s, %2$s: adiada, nova data a definir</string>
+    <string name="concert_alert_cancelled">Data cancelada: %1$s</string>
+    <string name="concert_alerts_title">Shows</string>
+    <string name="concert_alerts_new">Novas datas</string>
+    <string name="concert_alerts_sales">Abertura de vendas e pré-vendas</string>
+    <string name="concert_alerts_changes">Datas alteradas ou canceladas</string>
+    <string name="concert_alerts_channels">Também nos canais (Telegram, ntfy…)</string>
+    <string name="concert_alerts_note">Para os artistas e casas de show que você segue. Vendas e mudanças de data vêm do Ticketmaster, com a sua chave.</string>
 </resources>
