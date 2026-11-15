@@ -2678,4 +2678,49 @@
     <plurals name="saved_matches_used_by">
         <item quantity="other">%1$d 个同步在使用：%2$s</item>
     </plurals>
+    <string name="twins_title">重复的歌单</string>
+    <string name="tools_row_twins">重复传输留下的副本：同名，或歌曲几乎相同。</string>
+    <string name="twins_reading">正在读取歌单：%1$d / %2$d</string>
+    <string name="twins_none">%1$s 上没有重复的歌单。</string>
+    <string name="twins_cannot_delete">Trackhop 无法删除 %1$s 上的歌单：请在 %1$s 应用中删除这些副本。</string>
+    <string name="twins_changed">%1$s 更改</string>
+    <string name="twins_same_percent">%1$d%% 相同</string>
+    <string name="twins_fewer">少 %1$d 首</string>
+    <string name="twins_more">多 %1$d 首</string>
+    <string name="twins_stays">保留</string>
+    <string name="twins_look_again">重新查找</string>
+    <string name="twins_identical">完全相同的副本</string>
+    <string name="twins_add_then_delete">先添加再删除</string>
+    <string name="twins_saved_note">每个被删除歌单的副本都保留在 Trackhop 的文件中：你可以随时把它放回服务上。</string>
+    <string name="twins_deleted_copy">%1$s（已删除的副本）</string>
+    <plurals name="twins_tip">
+        <item quantity="other">%1$d 组。每组保留带圆点的那个，其余的将被删除。删除前，Trackhop 会在文件中保存一份副本。</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="other">%1$d 组。</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="other">同名 · %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="other">相同歌曲 · %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="other">被 %1$d 个同步使用</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="other">删除 %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="other">要从 %2$s 删除 %1$d 个歌单吗？</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="other">另一个中缺少 %1$d 首歌</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="other">这些副本中有 %1$d 首歌不在你保留的歌单里。要先添加吗？</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="other">已删除 %1$d 个歌单；每个的副本都在文件中。</item>
+    </plurals>
 </resources>

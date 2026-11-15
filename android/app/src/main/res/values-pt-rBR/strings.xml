@@ -2740,4 +2740,59 @@
         <item quantity="one">Usada por %1$d sincronização: %2$s</item>
         <item quantity="other">Usada por %1$d sincronizações: %2$s</item>
     </plurals>
+    <string name="twins_title">Playlists duplicadas</string>
+    <string name="tools_row_twins">Cópias deixadas por transferências repetidas: mesmo nome ou quase as mesmas músicas.</string>
+    <string name="twins_reading">Lendo as playlists: %1$d de %2$d</string>
+    <string name="twins_none">Nenhuma playlist duplicada no %1$s.</string>
+    <string name="twins_cannot_delete">O Trackhop não pode excluir playlists no %1$s: exclua as cópias no app do %1$s.</string>
+    <string name="twins_changed">alterada %1$s</string>
+    <string name="twins_same_percent">%1$d%% igual</string>
+    <string name="twins_fewer">%1$d a menos</string>
+    <string name="twins_more">%1$d a mais</string>
+    <string name="twins_stays">fica</string>
+    <string name="twins_look_again">Procurar de novo</string>
+    <string name="twins_identical">cópia idêntica</string>
+    <string name="twins_add_then_delete">Adicionar e depois excluir</string>
+    <string name="twins_saved_note">Uma cópia de cada playlist excluída fica nos Arquivos do Trackhop: você pode devolvê-la ao serviço quando quiser.</string>
+    <string name="twins_deleted_copy">%1$s (cópia excluída)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d grupo. Em cada grupo fique com a que tem o ponto; as outras serão excluídas. Antes, o Trackhop salva uma cópia nos Arquivos.</item>
+        <item quantity="other">%1$d grupos. Em cada grupo fique com a que tem o ponto; as outras serão excluídas. Antes, o Trackhop salva uma cópia nos Arquivos.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d grupo.</item>
+        <item quantity="other">%1$d grupos.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">mesmo nome · %1$d cópia</item>
+        <item quantity="other">mesmo nome · %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">mesmas músicas · %1$d cópia</item>
+        <item quantity="other">mesmas músicas · %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">usada por %1$d sincronização</item>
+        <item quantity="other">usada por %1$d sincronizações</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Excluir %1$d cópia</item>
+        <item quantity="other">Excluir %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Excluir %1$d playlist do %2$s?</item>
+        <item quantity="other">Excluir %1$d playlists do %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d música que falta na outra</item>
+        <item quantity="other">%1$d músicas que faltam na outra</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d música destas cópias não está na playlist que você mantém. Adicionar antes?</item>
+        <item quantity="other">%1$d músicas destas cópias não estão nas playlists que você mantém. Adicionar antes?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d playlist excluída; há uma cópia nos Arquivos.</item>
+        <item quantity="other">%1$d playlists excluídas; há uma cópia de cada nos Arquivos.</item>
+    </plurals>
 </resources>

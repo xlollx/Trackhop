@@ -2677,4 +2677,49 @@
     <plurals name="saved_matches_used_by">
         <item quantity="other">%1$d개 동기화에서 사용: %2$s</item>
     </plurals>
+    <string name="twins_title">중복 플레이리스트</string>
+    <string name="tools_row_twins">반복 전송으로 남은 사본: 같은 이름이거나 거의 같은 곡.</string>
+    <string name="twins_reading">플레이리스트 읽는 중: %2$d개 중 %1$d개</string>
+    <string name="twins_none">%1$s에 중복 플레이리스트가 없습니다.</string>
+    <string name="twins_cannot_delete">Trackhop은 %1$s의 플레이리스트를 삭제할 수 없습니다. %1$s 앱에서 사본을 삭제하세요.</string>
+    <string name="twins_changed">%1$s 변경</string>
+    <string name="twins_same_percent">%1$d%% 동일</string>
+    <string name="twins_fewer">%1$d곡 적음</string>
+    <string name="twins_more">%1$d곡 많음</string>
+    <string name="twins_stays">유지</string>
+    <string name="twins_look_again">다시 찾기</string>
+    <string name="twins_identical">동일한 사본</string>
+    <string name="twins_add_then_delete">추가한 뒤 삭제</string>
+    <string name="twins_saved_note">삭제한 각 플레이리스트의 사본은 Trackhop 파일에 남습니다. 언제든 서비스에 다시 올릴 수 있습니다.</string>
+    <string name="twins_deleted_copy">%1$s (삭제한 사본)</string>
+    <plurals name="twins_tip">
+        <item quantity="other">%1$d개 그룹. 각 그룹에서 점이 있는 것을 남기고 나머지는 삭제합니다. 삭제 전에 Trackhop이 파일에 사본을 저장합니다.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="other">%1$d개 그룹.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="other">같은 이름 · 사본 %1$d개</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="other">같은 곡 · 사본 %1$d개</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="other">동기화 %1$d개에서 사용</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="other">사본 %1$d개 삭제</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="other">%2$s에서 플레이리스트 %1$d개를 삭제할까요?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="other">다른 쪽에 없는 곡 %1$d곡</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="other">이 사본들의 %1$d곡이 남기는 플레이리스트에 없습니다. 먼저 추가할까요?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="other">플레이리스트 %1$d개를 삭제했습니다. 사본은 파일에 있습니다.</item>
+    </plurals>
 </resources>

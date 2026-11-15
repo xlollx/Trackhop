@@ -2730,4 +2730,59 @@
         <item quantity="one">%1$d senkronizasyonda kullanılıyor: %2$s</item>
         <item quantity="other">%1$d senkronizasyonda kullanılıyor: %2$s</item>
     </plurals>
+    <string name="twins_title">Yinelenen çalma listeleri</string>
+    <string name="tools_row_twins">Tekrarlanan aktarımların bıraktığı kopyalar: aynı ad ya da neredeyse aynı şarkılar.</string>
+    <string name="twins_reading">Çalma listeleri okunuyor: %1$d / %2$d</string>
+    <string name="twins_none">%1$s üzerinde yinelenen çalma listesi yok.</string>
+    <string name="twins_cannot_delete">Trackhop %1$s üzerinde çalma listesi silemez: kopyaları %1$s uygulamasından silin.</string>
+    <string name="twins_changed">%1$s değişti</string>
+    <string name="twins_same_percent">%%%1$d aynı</string>
+    <string name="twins_fewer">%1$d eksik</string>
+    <string name="twins_more">%1$d fazla</string>
+    <string name="twins_stays">kalır</string>
+    <string name="twins_look_again">Yeniden ara</string>
+    <string name="twins_identical">aynı kopya</string>
+    <string name="twins_add_then_delete">Ekle, sonra sil</string>
+    <string name="twins_saved_note">Silinen her çalma listesinin bir kopyası Trackhop\'un Dosyalar bölümünde kalır: istediğiniz zaman servise geri koyabilirsiniz.</string>
+    <string name="twins_deleted_copy">%1$s (silinen kopya)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d grup. Her grupta noktalı olanı tutun; diğerleri silinir. Silmeden önce Trackhop her birinin kopyasını Dosyalar\'a kaydeder.</item>
+        <item quantity="other">%1$d grup. Her grupta noktalı olanı tutun; diğerleri silinir. Silmeden önce Trackhop her birinin kopyasını Dosyalar\'a kaydeder.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d grup.</item>
+        <item quantity="other">%1$d grup.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">aynı ad · %1$d kopya</item>
+        <item quantity="other">aynı ad · %1$d kopya</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">aynı şarkılar · %1$d kopya</item>
+        <item quantity="other">aynı şarkılar · %1$d kopya</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">%1$d senkronizasyonda kullanılıyor</item>
+        <item quantity="other">%1$d senkronizasyonda kullanılıyor</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">%1$d kopyayı sil</item>
+        <item quantity="other">%1$d kopyayı sil</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+        <item quantity="other">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">diğerinde olmayan %1$d şarkı</item>
+        <item quantity="other">diğerinde olmayan %1$d şarkı</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">Bu kopyalardaki %1$d şarkı, tuttuğunuz çalma listesinde yok. Önce eklensin mi?</item>
+        <item quantity="other">Bu kopyalardaki %1$d şarkı, tuttuğunuz çalma listelerinde yok. Önce eklensin mi?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d çalma listesi silindi; bir kopyası Dosyalar\'da.</item>
+        <item quantity="other">%1$d çalma listesi silindi; her birinin kopyası Dosyalar\'da.</item>
+    </plurals>
 </resources>

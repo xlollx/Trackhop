@@ -2734,4 +2734,59 @@
         <item quantity="one">Used by %1$d sync: %2$s</item>
         <item quantity="other">Used by %1$d syncs: %2$s</item>
     </plurals>
+    <string name="twins_title">Duplicate playlists</string>
+    <string name="tools_row_twins">Copies left by repeated transfers: same name, or nearly the same songs.</string>
+    <string name="twins_reading">Reading the playlists: %1$d of %2$d</string>
+    <string name="twins_none">No duplicate playlists on %1$s.</string>
+    <string name="twins_cannot_delete">Trackhop cannot delete playlists on %1$s: delete the copies in the %1$s app.</string>
+    <string name="twins_changed">changed %1$s</string>
+    <string name="twins_same_percent">%1$d%% the same</string>
+    <string name="twins_fewer">%1$d fewer</string>
+    <string name="twins_more">%1$d more</string>
+    <string name="twins_stays">stays</string>
+    <string name="twins_look_again">Look again</string>
+    <string name="twins_identical">identical copy</string>
+    <string name="twins_add_then_delete">Add and then delete</string>
+    <string name="twins_saved_note">A copy of each deleted playlist stays in Trackhop\'s Files: you can put it back on the service whenever you like.</string>
+    <string name="twins_deleted_copy">%1$s (deleted copy)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d group. In each group keep the one with the dot; the others are deleted. Before deleting, Trackhop saves a copy of each in Files.</item>
+        <item quantity="other">%1$d groups. In each group keep the one with the dot; the others are deleted. Before deleting, Trackhop saves a copy of each in Files.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d group.</item>
+        <item quantity="other">%1$d groups.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">same name · %1$d copy</item>
+        <item quantity="other">same name · %1$d copies</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">same songs · %1$d copy</item>
+        <item quantity="other">same songs · %1$d copies</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">used by %1$d sync</item>
+        <item quantity="other">used by %1$d syncs</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Delete %1$d copy</item>
+        <item quantity="other">Delete %1$d copies</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Delete %1$d playlist from %2$s?</item>
+        <item quantity="other">Delete %1$d playlists from %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d song missing from the other</item>
+        <item quantity="other">%1$d songs missing from the other</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d song of these copies is not in the playlist you keep. Add it first?</item>
+        <item quantity="other">%1$d songs of these copies are not in the playlists you keep. Add them first?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d playlist deleted; a copy is in Files.</item>
+        <item quantity="other">%1$d playlists deleted; a copy of each is in Files.</item>
+    </plurals>
 </resources>

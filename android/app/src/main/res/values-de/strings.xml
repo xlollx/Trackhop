@@ -2732,4 +2732,59 @@
         <item quantity="one">Genutzt von %1$d Sync: %2$s</item>
         <item quantity="other">Genutzt von %1$d Syncs: %2$s</item>
     </plurals>
+    <string name="twins_title">Doppelte Playlists</string>
+    <string name="tools_row_twins">Kopien von wiederholten Übertragungen: gleicher Name oder fast dieselben Songs.</string>
+    <string name="twins_reading">Lese die Playlists: %1$d von %2$d</string>
+    <string name="twins_none">Keine doppelten Playlists auf %1$s.</string>
+    <string name="twins_cannot_delete">Trackhop kann auf %1$s keine Playlists löschen: Lösche die Kopien in der App von %1$s.</string>
+    <string name="twins_changed">geändert %1$s</string>
+    <string name="twins_same_percent">zu %1$d%% gleich</string>
+    <string name="twins_fewer">%1$d weniger</string>
+    <string name="twins_more">%1$d mehr</string>
+    <string name="twins_stays">bleibt</string>
+    <string name="twins_look_again">Erneut suchen</string>
+    <string name="twins_identical">identische Kopie</string>
+    <string name="twins_add_then_delete">Hinzufügen und dann löschen</string>
+    <string name="twins_saved_note">Eine Kopie jeder gelöschten Playlist bleibt in den Dateien von Trackhop: Du kannst sie jederzeit wieder auf den Dienst bringen.</string>
+    <string name="twins_deleted_copy">%1$s (gelöschte Kopie)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d Gruppe. In jeder Gruppe behältst du die mit dem Punkt; die anderen werden gelöscht. Vorher speichert Trackhop eine Kopie davon in den Dateien.</item>
+        <item quantity="other">%1$d Gruppen. In jeder Gruppe behältst du die mit dem Punkt; die anderen werden gelöscht. Vorher speichert Trackhop eine Kopie davon in den Dateien.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d Gruppe.</item>
+        <item quantity="other">%1$d Gruppen.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">gleicher Name · %1$d Kopie</item>
+        <item quantity="other">gleicher Name · %1$d Kopien</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">dieselben Songs · %1$d Kopie</item>
+        <item quantity="other">dieselben Songs · %1$d Kopien</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">genutzt von %1$d Sync</item>
+        <item quantity="other">genutzt von %1$d Syncs</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">%1$d Kopie löschen</item>
+        <item quantity="other">%1$d Kopien löschen</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">%1$d Playlist von %2$s löschen?</item>
+        <item quantity="other">%1$d Playlists von %2$s löschen?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d Song, der in der anderen fehlt</item>
+        <item quantity="other">%1$d Songs, die in der anderen fehlen</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d Song dieser Kopien fehlt in der Playlist, die du behältst. Zuerst hinzufügen?</item>
+        <item quantity="other">%1$d Songs dieser Kopien fehlen in den Playlists, die du behältst. Zuerst hinzufügen?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d Playlist gelöscht; eine Kopie liegt in den Dateien.</item>
+        <item quantity="other">%1$d Playlists gelöscht; eine Kopie jeder liegt in den Dateien.</item>
+    </plurals>
 </resources>

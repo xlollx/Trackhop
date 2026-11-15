@@ -2732,4 +2732,59 @@
         <item quantity="one">Usata da %1$d sync: %2$s</item>
         <item quantity="other">Usata da %1$d sync: %2$s</item>
     </plurals>
+    <string name="twins_title">Playlist doppie</string>
+    <string name="tools_row_twins">Le copie lasciate da trasferimenti ripetuti: stesso nome, o quasi le stesse canzoni.</string>
+    <string name="twins_reading">Leggo le playlist: %1$d di %2$d</string>
+    <string name="twins_none">Nessuna playlist doppia su %1$s.</string>
+    <string name="twins_cannot_delete">Trackhop non può eliminare playlist su %1$s: elimina le copie dall\'app di %1$s.</string>
+    <string name="twins_changed">cambiata %1$s</string>
+    <string name="twins_same_percent">uguale al %1$d%%</string>
+    <string name="twins_fewer">%1$d in meno</string>
+    <string name="twins_more">%1$d in più</string>
+    <string name="twins_stays">resta</string>
+    <string name="twins_look_again">Cerca di nuovo</string>
+    <string name="twins_identical">copia identica</string>
+    <string name="twins_add_then_delete">Aggiungi e poi elimina</string>
+    <string name="twins_saved_note">Una copia di ogni playlist eliminata resta nei File di Trackhop: la puoi rimettere sul servizio quando vuoi.</string>
+    <string name="twins_deleted_copy">%1$s (copia eliminata)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d gruppo. In ogni gruppo tieni quella con il pallino; le altre vanno eliminate. Prima di eliminare, Trackhop ne salva una copia nei File.</item>
+        <item quantity="other">%1$d gruppi. In ogni gruppo tieni quella con il pallino; le altre vanno eliminate. Prima di eliminare, Trackhop ne salva una copia nei File.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d gruppo.</item>
+        <item quantity="other">%1$d gruppi.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">stesso nome · %1$d copia</item>
+        <item quantity="other">stesso nome · %1$d copie</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">stesse canzoni · %1$d copia</item>
+        <item quantity="other">stesse canzoni · %1$d copie</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">usata da %1$d sync</item>
+        <item quantity="other">usata da %1$d sync</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Elimina %1$d copia</item>
+        <item quantity="other">Elimina %1$d copie</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Eliminare %1$d playlist da %2$s?</item>
+        <item quantity="other">Eliminare %1$d playlist da %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d canzone che manca nell\'altra</item>
+        <item quantity="other">%1$d canzoni che mancano nell\'altra</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d canzone di queste copie non c\'è in quella che tieni. Vuoi aggiungerla prima?</item>
+        <item quantity="other">%1$d canzoni di queste copie non ci sono in quelle che tieni. Vuoi aggiungerle prima?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d playlist eliminata; una copia è nei File.</item>
+        <item quantity="other">%1$d playlist eliminate; una copia di ognuna è nei File.</item>
+    </plurals>
 </resources>

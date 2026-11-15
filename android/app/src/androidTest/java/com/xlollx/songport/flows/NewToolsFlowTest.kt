@@ -7,6 +7,7 @@ import com.xlollx.songport.model.MatchReview
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -46,5 +47,25 @@ class NewToolsFlowTest : FlowTest() {
         waitText(s(R.string.saved_matches_forget))
         click(s(R.string.saved_matches_forget))
         waitFor("the match forgotten") { store.data.matchCache.isEmpty() }
+    }
+
+    @Test
+    fun theDuplicatePlaylistsConfirmationStaysOpen() {
+        // A second Road Trip on Spotify, with two songs fewer than the first.
+        FakeWorld.playlists.getValue("spotify") += FakeWorld.FakePlaylist("5RoadTripCopyFakeList05", "Road Trip", FakeWorld.songs("spotify", 0 until 6))
+        openTool(R.string.twins_title)
+        val delete = plural(R.plurals.twins_delete_n, 1, 1)
+        waitText(delete)
+        click(delete)
+        val title = plural(R.plurals.twins_confirm_title, 1, 1, "Spotify")
+        waitText(title)
+        remade()
+        waitText(title)
+        homeAndBack()
+        waitText(title)
+        click(s(R.string.delete))
+        waitFor("the copy deleted") { FakeWorld.playlists.getValue("spotify").count { it.name == "Road Trip" } == 1 }
+        // Neither says when it changed: the longer one is kept.
+        assertEquals(8, FakeWorld.playlist("spotify", "Road Trip")!!.tracks.size)
     }
 }

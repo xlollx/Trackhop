@@ -2840,4 +2840,79 @@
         <item quantity="many">Используется в %1$d синхронизациях: %2$s</item>
         <item quantity="other">Используется в %1$d синхронизациях: %2$s</item>
     </plurals>
+    <string name="twins_title">Дубликаты плейлистов</string>
+    <string name="tools_row_twins">Копии после повторных переносов: то же название или почти те же песни.</string>
+    <string name="twins_reading">Читаю плейлисты: %1$d из %2$d</string>
+    <string name="twins_none">На %1$s нет дубликатов плейлистов.</string>
+    <string name="twins_cannot_delete">Trackhop не может удалять плейлисты на %1$s: удалите копии в приложении %1$s.</string>
+    <string name="twins_changed">изменён %1$s</string>
+    <string name="twins_same_percent">совпадает на %1$d%%</string>
+    <string name="twins_fewer">на %1$d меньше</string>
+    <string name="twins_more">на %1$d больше</string>
+    <string name="twins_stays">остаётся</string>
+    <string name="twins_look_again">Искать снова</string>
+    <string name="twins_identical">точная копия</string>
+    <string name="twins_add_then_delete">Добавить и удалить</string>
+    <string name="twins_saved_note">Копия каждого удалённого плейлиста остаётся в файлах Trackhop: её можно вернуть в сервис когда угодно.</string>
+    <string name="twins_deleted_copy">%1$s (удалённая копия)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d группа. В каждой группе оставьте отмеченный плейлист; остальные будут удалены. Перед удалением Trackhop сохранит их копию в файлах.</item>
+        <item quantity="few">%1$d группы. В каждой группе оставьте отмеченный плейлист; остальные будут удалены. Перед удалением Trackhop сохранит их копию в файлах.</item>
+        <item quantity="many">%1$d групп. В каждой группе оставьте отмеченный плейлист; остальные будут удалены. Перед удалением Trackhop сохранит их копию в файлах.</item>
+        <item quantity="other">%1$d группы. В каждой группе оставьте отмеченный плейлист; остальные будут удалены. Перед удалением Trackhop сохранит их копию в файлах.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d группа.</item>
+        <item quantity="few">%1$d группы.</item>
+        <item quantity="many">%1$d групп.</item>
+        <item quantity="other">%1$d группы.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">то же название · %1$d копия</item>
+        <item quantity="few">то же название · %1$d копии</item>
+        <item quantity="many">то же название · %1$d копий</item>
+        <item quantity="other">то же название · %1$d копии</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">те же песни · %1$d копия</item>
+        <item quantity="few">те же песни · %1$d копии</item>
+        <item quantity="many">те же песни · %1$d копий</item>
+        <item quantity="other">те же песни · %1$d копии</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">используется в %1$d синхронизации</item>
+        <item quantity="few">используется в %1$d синхронизациях</item>
+        <item quantity="many">используется в %1$d синхронизациях</item>
+        <item quantity="other">используется в %1$d синхронизациях</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Удалить %1$d копию</item>
+        <item quantity="few">Удалить %1$d копии</item>
+        <item quantity="many">Удалить %1$d копий</item>
+        <item quantity="other">Удалить %1$d копии</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Удалить %1$d плейлист с %2$s?</item>
+        <item quantity="few">Удалить %1$d плейлиста с %2$s?</item>
+        <item quantity="many">Удалить %1$d плейлистов с %2$s?</item>
+        <item quantity="other">Удалить %1$d плейлиста с %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d песня, которой нет в другом</item>
+        <item quantity="few">%1$d песни, которых нет в другом</item>
+        <item quantity="many">%1$d песен, которых нет в другом</item>
+        <item quantity="other">%1$d песни, которых нет в другом</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d песни из этих копий нет в плейлисте, который вы оставляете. Добавить её сначала?</item>
+        <item quantity="few">%1$d песен из этих копий нет в плейлистах, которые вы оставляете. Добавить их сначала?</item>
+        <item quantity="many">%1$d песен из этих копий нет в плейлистах, которые вы оставляете. Добавить их сначала?</item>
+        <item quantity="other">%1$d песни из этих копий нет в плейлистах, которые вы оставляете. Добавить их сначала?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">Удалён %1$d плейлист; копия есть в файлах.</item>
+        <item quantity="few">Удалено %1$d плейлиста; копия каждого есть в файлах.</item>
+        <item quantity="many">Удалено %1$d плейлистов; копия каждого есть в файлах.</item>
+        <item quantity="other">Удалено %1$d плейлиста; копия каждого есть в файлах.</item>
+    </plurals>
 </resources>

@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.FilterNone
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -124,7 +125,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
     RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false),
     // 1.18 (Features.v2): offered only with the release switch on.
-    MATCHES(Icons.Filled.Link, R.string.saved_matches_title, R.string.tools_row_saved_matches, false);
+    MATCHES(Icons.Filled.Link, R.string.saved_matches_title, R.string.tools_row_saved_matches, false),
+    TWINS(Icons.Filled.FilterNone, R.string.twins_title, R.string.tools_row_twins, true);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -225,6 +227,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.SERVER -> ServerSyncsPage(local)
                     Tool.RECENT -> RecentTransfersPage(onReview)
                     Tool.MATCHES -> SavedMatchesPage(local)
+                    Tool.TWINS -> provider?.let { PlaylistTwinsPage(it, local) }
                     else -> {}
                 }
             }
@@ -280,6 +283,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
 
         PrefSection(stringResource(R.string.tools_section_clean), accent = JobColor.ORANGE, description = stringResource(R.string.tools_section_clean_desc)) {
             ToolRow(Tool.DEDUPE, provider) { open = Tool.DEDUPE }
+            // 1.18 (Features): the copies of a playlist left by repeated transfers.
+            if (v2) ToolRow(Tool.TWINS, provider) { open = Tool.TWINS }
             ToolRow(Tool.UNPLAYABLE, provider) { onUnplayable(it!!) }
             // Only for who has a personal server: nobody else has files to tag.
             if (connected.any { it.matchesByMbid }) ToolRow(Tool.MBTAGS, provider) { open = Tool.MBTAGS }
