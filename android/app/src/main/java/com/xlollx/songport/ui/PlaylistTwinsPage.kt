@@ -102,7 +102,7 @@ fun PlaylistTwinsPage(provider: MusicProvider, snackbar: SnackbarHostState) {
         Text(progress?.let { stringResource(R.string.twins_reading, it.done, it.total) } ?: stringResource(R.string.loading), style = MaterialTheme.typography.bodySmall)
     }
     val g = groups ?: return
-    if (g.isEmpty()) Text(stringResource(R.string.twins_none, provider.label(ctx)), style = MaterialTheme.typography.bodyMedium)
+    if (g.isEmpty()) Text(stringResource(R.string.twins_none, provider.label(ctx.env)), style = MaterialTheme.typography.bodyMedium)
     else {
         Text(
             if (canDelete) pluralStringResource(R.plurals.twins_tip, g.size, g.size)
